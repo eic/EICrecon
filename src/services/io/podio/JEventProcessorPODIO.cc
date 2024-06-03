@@ -1,15 +1,15 @@
 
 #include "JEventProcessorPODIO.h"
 
+#include <edm4eic/EDM4eicVersion.h>
+
 #include <JANA/JApplication.h>
 #include <JANA/JLogger.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
-#include <podio/ROOTWriter.h>
 #include <spdlog/common.h>
 #include <exception>
 
@@ -143,9 +143,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TaggerTrackerM1Tracks",
             "TaggerTrackerM2Tracks",
             "TaggerTrackerProjectedTracks",
-            "TaggerTrackerTracks",
-            "TaggerTrackerTrajectories",
-            "TaggerTrackerTrackParameters",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
@@ -213,12 +210,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapNTruthClusterAssociations",
             "EcalEndcapNClusters",
             "EcalEndcapNClusterAssociations",
+            "EcalEndcapNSplitMergeClusters",
+            "EcalEndcapNSplitMergeClusterAssociations",
             "EcalEndcapPRawHits",
             "EcalEndcapPRecHits",
             "EcalEndcapPTruthClusters",
             "EcalEndcapPTruthClusterAssociations",
             "EcalEndcapPClusters",
             "EcalEndcapPClusterAssociations",
+            "EcalEndcapPSplitMergeClusters",
+            "EcalEndcapPSplitMergeClusterAssociations",
             "EcalEndcapPInsertRawHits",
             "EcalEndcapPInsertRecHits",
             "EcalEndcapPInsertTruthClusters",
@@ -227,6 +228,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapPInsertClusterAssociations",
             "EcalBarrelClusters",
             "EcalBarrelClusterAssociations",
+            "EcalBarrelSplitMergeClusters",
+            "EcalBarrelSplitMergeClusterAssociations",
             "EcalBarrelTruthClusters",
             "EcalBarrelTruthClusterAssociations",
             "EcalBarrelImagingRawHits",
@@ -237,6 +240,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalBarrelScFiRecHits",
             "EcalBarrelScFiClusters",
             "EcalBarrelScFiClusterAssociations",
+            "EcalBarrelScFiSplitMergeClusters",
+            "EcalBarrelScFiSplitMergeClusterAssociations",
             "EcalLumiSpecRawHits",
             "EcalLumiSpecRecHits",
             "EcalLumiSpecTruthClusters",
@@ -248,6 +253,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapNMergedHits",
             "HcalEndcapNClusters",
             "HcalEndcapNClusterAssociations",
+            "HcalEndcapNSplitMergeClusters",
+            "HcalEndcapNSplitMergeClusterAssociations",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
@@ -257,6 +264,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "LFHCALRecHits",
             "LFHCALClusters",
             "LFHCALClusterAssociations",
+            "LFHCALSplitMergeClusters",
+            "LFHCALSplitMergeClusterAssociations",
             "HcalBarrelRawHits",
             "HcalBarrelRecHits",
             "HcalBarrelClusters",

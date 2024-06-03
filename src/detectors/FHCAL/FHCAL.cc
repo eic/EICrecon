@@ -4,7 +4,6 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <TString.h>
-#include <math.h>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
@@ -15,8 +14,7 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/HEXPLIT_factory.h"
-#include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -60,7 +58,6 @@ extern "C" {
 
             .sampFrac = "0.0098",
             .readout = "HcalEndcapPInsertHits",
-            .layerField="layer",
           },
           app   // TODO: Remove me once fixed
         ));
@@ -77,32 +74,20 @@ extern "C" {
           "HcalEndcapPInsertTruthProtoClusters", {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, {"HcalEndcapPInsertTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-
-      app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
-        "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertSubcellHits"},
-        {
-          .MIP = 800. * dd4hep::keV,
-          .Emin_in_MIPs=0.1,
-          .tmax=50 * dd4hep::ns,
-        },
-        app   // TODO: Remove me once fixed
-      ));
-
-      double side_length=18.89 * dd4hep::mm;
-      app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
-          "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"}, {"HcalEndcapPInsertImagingProtoClusters"},
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
+          "HcalEndcapPInsertIslandProtoClusters", {"HcalEndcapPInsertMergedHits"}, {"HcalEndcapPInsertIslandProtoClusters"},
           {
-              .neighbourLayersRange = 1,
-              .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-              .layerDistEtaPhi = {17e-3, 18.1e-3},
-              .sectorDist = 10.0 * dd4hep::cm,
-              .minClusterHitEdep = 100.0 * dd4hep::keV,
-              .minClusterCenterEdep = 11.0 * dd4hep::MeV,
-              .minClusterEdep = 11.0 * dd4hep::MeV,
-              .minClusterNhits = 10,
+            .sectorDist = 5.0 * dd4hep::cm,
+            .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
+            .dimScaledLocalDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
+            .splitCluster = true,
+            .minClusterHitEdep = 0.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .transverseEnergyProfileScale = 1.,
           },
           app   // TODO: Remove me once fixed
-      ));
+        ));
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
@@ -124,7 +109,7 @@ extern "C" {
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertClusters",
-            {"HcalEndcapPInsertImagingProtoClusters",  // edm4eic::ProtoClusterCollection
+            {"HcalEndcapPInsertIslandProtoClusters",  // edm4eic::ProtoClusterCollection
              "HcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
             {"HcalEndcapPInsertClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -249,5 +234,41 @@ extern "C" {
             app   // TODO: Remove me once fixed
           )
         );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "LFHCALSplitMergeProtoClusters",
+            {"LFHCALIslandProtoClusters",
+             "CalorimeterTrackProjections"},
+            {"LFHCALSplitMergeProtoClusters"},
+            {
+              .minSigCut = -1,
+              .avgEP = 1.0,
+              .sigEP = 1.0,
+              .drAdd = 0.4,
+              .sampFrac = 1.0,
+              .distScale = 1.0
+            },
+            app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "LFHCALSplitMergeClusters",
+            {"LFHCALSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
+             "LFHCALHits"},                          // edm4hep::SimCalorimeterHitCollection
+            {"LFHCALSplitMergeClusters",             // edm4eic::Cluster
+             "LFHCALSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 4.5,
+              .enableEtaBounds = false
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
     }
 }
