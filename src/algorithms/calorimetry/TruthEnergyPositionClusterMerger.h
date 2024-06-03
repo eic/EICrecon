@@ -8,6 +8,7 @@
 #include <spdlog/spdlog.h>
 
 // Event Model related classes
+#include <DD4hep/DD4hepUnits.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4hep/MCParticleCollection.h>
