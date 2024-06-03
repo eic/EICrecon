@@ -251,6 +251,14 @@ void InitPlugin(JApplication *app) {
             app
             ));
 
+     // Add central and other tracks
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
+            "CombinedTracks",
+            {"CentralCKFTracks", "TaggerTrackerTracks"},
+            {"CombinedTracks"},
+            app
+            ));
+
      // linking of reconstructed particles to PID objects
      TracksToParticlesConfig link_cfg {
        .momentumRelativeTolerance = 100.0, /// Matching momentum effectively disabled
@@ -261,7 +269,7 @@ void InitPlugin(JApplication *app) {
      app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
              "ChargedParticlesWithAssociations",
              {"MCParticles",                                    // edm4hep::MCParticle
-             "CentralCKFTracks",                                // edm4eic::Track
+             "CombinedTracks",                                // edm4eic::Track
              },
              {"ReconstructedChargedWithoutPIDParticles",                  //
               "ReconstructedChargedWithoutPIDParticleAssociations"        // edm4eic::MCRecoParticleAssociation
