@@ -134,7 +134,7 @@ namespace eicrecon {
     // Hadronic final state calculations
     auto sigma = Esum - pzsum;
     auto pT = sqrt(pxsum*pxsum + pysum*pysum);
-    auto gamma = (pT*pT - sigma*sigma)/(pT*pT + sigma*sigma);
+    auto gamma = acos((pT*pT - sigma*sigma)/(pT*pT + sigma*sigma));
 
     hfs.setSigma(sigma);
     hfs.setPT(pT);
