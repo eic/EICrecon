@@ -5,9 +5,9 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/HadronicFinalStateCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <string>
@@ -20,7 +20,7 @@ namespace eicrecon {
     algorithms::Input<
       edm4hep::MCParticleCollection,
       edm4eic::ReconstructedParticleCollection,
-      edm4eic::MCRecoParticleAssociationCollection
+      edm4eic::HadronicFinalStateCollection
     >,
     algorithms::Output<
       edm4eic::InclusiveKinematicsCollection
@@ -33,7 +33,7 @@ namespace eicrecon {
   public:
     InclusiveKinematicsElectron(std::string_view name)
       : InclusiveKinematicsElectronAlgorithm{name,
-                            {"MCParticles", "inputParticles", "inputAssociations"},
+                            {"MCParticles", "scatteredElectron", "hadronicFinalState"},
                             {"inclusiveKinematics"},
                             "Determine inclusive kinematics using electron method."} {}
 
