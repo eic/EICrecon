@@ -23,6 +23,7 @@
 // Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
