@@ -22,7 +22,7 @@ public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(this->GetPrefix());
         m_algo->level(static_cast<algorithms::LogLevel>(this->logger()->level()));
-        m_algo->init(this->logger());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

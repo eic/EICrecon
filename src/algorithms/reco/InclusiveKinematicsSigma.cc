@@ -22,11 +22,10 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicsSigma::init(std::shared_ptr<spdlog::logger>& logger) {
-    m_log = logger;
+  void InclusiveKinematicsSigma::init() {
     // m_pidSvc = service("ParticleSvc");
     // if (!m_pidSvc) {
-    //   m_log->debug("Unable to locate Particle Service. "
+    //   debug("Unable to locate Particle Service. "
     //     "Make sure you have ParticleSvc in the configuration.");
     // }
   }
@@ -41,7 +40,7 @@ namespace eicrecon {
     // Get incoming electron beam
     const auto ei_coll = find_first_beam_electron(mcparts);
     if (ei_coll.size() == 0) {
-      m_log->debug("No beam electron found");
+      debug("No beam electron found");
       return;
     }
     const PxPyPzEVector ei(
@@ -55,7 +54,7 @@ namespace eicrecon {
     // Get incoming hadron beam
     const auto pi_coll = find_first_beam_hadron(mcparts);
     if (pi_coll.size() == 0) {
-      m_log->debug("No beam hadron found");
+      debug("No beam hadron found");
       return;
     }
     const PxPyPzEVector pi(
@@ -82,7 +81,7 @@ namespace eicrecon {
     auto gamma_h = hfs->at(0).getGamma();
 
     if (sigma_h <= 0) {
-      m_log->debug("No scattered electron found or sigma zero or negative");
+      debug("No scattered electron found or sigma zero or negative");
       return;
     }
 
@@ -97,7 +96,7 @@ namespace eicrecon {
     auto kin = kinematics->create(x_sig, Q2_sig, W_sig, y_sig, nu_sig);
     kin.setScat(kf);
 
-    m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
+    debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
             kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
   }
 

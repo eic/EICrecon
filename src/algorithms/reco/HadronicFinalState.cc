@@ -25,11 +25,10 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void HadronicFinalState::init(std::shared_ptr<spdlog::logger>& logger) {
-    m_log = logger;
+  void HadronicFinalState::init() {
     // m_pidSvc = service("ParticleSvc");
     // if (!m_pidSvc) {
-    //   m_log->debug("Unable to locate Particle Service. "
+    //   debug("Unable to locate Particle Service. "
     //     "Make sure you have ParticleSvc in the configuration.");
     // }
   }
@@ -44,7 +43,7 @@ namespace eicrecon {
     // Get incoming electron beam
     const auto ei_coll = find_first_beam_electron(mcparts);
     if (ei_coll.size() == 0) {
-      m_log->debug("No beam electron found");
+      debug("No beam electron found");
       return;
     }
     const PxPyPzEVector ei(
@@ -58,7 +57,7 @@ namespace eicrecon {
     // Get incoming hadron beam
     const auto pi_coll = find_first_beam_hadron(mcparts);
     if (pi_coll.size() == 0) {
-      m_log->debug("No beam hadron found");
+      debug("No beam hadron found");
       return;
     }
     const PxPyPzEVector pi(
@@ -72,7 +71,7 @@ namespace eicrecon {
     // Get first scattered electron
     const auto ef_coll = find_first_scattered_electron(mcparts);
     if (ef_coll.size() == 0) {
-      m_log->debug("No truth scattered electron found");
+      debug("No truth scattered electron found");
       return;
     }
     // Associate first scattered electron with reconstructed electrons
@@ -87,7 +86,7 @@ namespace eicrecon {
       }
     }
     if (!(ef_assoc != rcassoc->end())) {
-      m_log->debug("Truth scattered electron not in reconstructed particles");
+      debug("Truth scattered electron not in reconstructed particles");
       return;
     }
     const auto ef_rc{ef_assoc->getRec()};
@@ -133,11 +132,11 @@ namespace eicrecon {
 
     // Sigma zero or negative
     if (sigma <= 0) {
-      m_log->debug("Sigma zero or negative");
+      debug("Sigma zero or negative");
       return;
     }
 
-    m_log->debug("sigma_h, pT_h, gamma_h = {},{},{}", hfs.getSigma(), hfs.getPT(), hfs.getGamma());
+    debug("sigma_h, pT_h, gamma_h = {},{},{}", hfs.getSigma(), hfs.getPT(), hfs.getGamma());
 
   }
 
