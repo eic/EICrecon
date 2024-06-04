@@ -186,6 +186,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTracks",
             "CentralCKFSeededTrackParameters",
+            //tracking properties - true seeding
+            "CentralCKFTrajectoriesUnfiltered",
+            "CentralCKFTracksUnfiltered",
+            "CentralCKFTrackParametersUnfiltered",
+             //tracking properties - realistic seeding
+            "CentralCKFSeededTrajectoriesUnfiltered",
+            "CentralCKFSeededTracksUnfiltered",
+            "CentralCKFSeededTrackParametersUnfiltered",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsSigma",

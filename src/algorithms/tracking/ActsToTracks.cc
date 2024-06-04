@@ -3,7 +3,6 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
@@ -13,7 +12,6 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <Eigen/Core>
-#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
@@ -58,8 +56,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     }
 
     // Loop over all trajectories in a multiTrajectory
-    // FIXME: we only retain the first trackTips entry
-    for (auto trackTip : decltype(trackTips){trackTips.front()}) {
+    for (auto trackTip : trackTips) {
       // Collect the trajectory summary info
       auto trajectoryState =
           Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
