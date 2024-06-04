@@ -186,7 +186,7 @@ extern "C" {
         // Magic constants:
         //  54 - number of modules in a row/column
         //  2  - number of towers in a module
-        // sign for towerx and towery now *negative*, needed to restore linearity with global X and Y (PAS)
+        // sign for towerx and towery are *negative* to maintain linearity with global X and Y
         std::string cellIdx_1  = "(54*2-moduleIDx_1*2-towerx_1)";
         std::string cellIdx_2  = "(54*2-moduleIDx_2*2-towerx_2)";
         std::string cellIdy_1  = "(54*2-moduleIDy_1*2-towery_1)";
