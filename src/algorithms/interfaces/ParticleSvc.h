@@ -3,8 +3,10 @@
 
 #pragma once
 
-#include <memory>
 #include <algorithms/service.h>
+#include <map>
+#include <memory>
+#include <string>
 
 namespace algorithms {
 
