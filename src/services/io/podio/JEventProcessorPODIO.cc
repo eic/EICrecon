@@ -55,7 +55,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "MCBeamProtons",
             "MCScatteredElectrons",
             "MCScatteredProtons",
-            "MCParticlesHeadOnFrame",
+            "MCParticlesHeadOnFrameNoBeamFX",
 
             // All tracking hits combined
             "CentralTrackingRecHits",

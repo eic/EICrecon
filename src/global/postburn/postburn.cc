@@ -33,14 +33,14 @@ void InitPlugin(JApplication *app) {
 	//Need to read-in MCParticles
 
 	app->Add(new JOmniFactoryGeneratorT<PostBurnMCParticles_factory>(
-	        "MCParticlesHeadOnFrame",
+	        "MCParticlesHeadOnFrameNoBeamFX",
 	        {
 	          "MCParticles",
 	          "ReconstructedChargedParticles",
 	          "ReconstructedChargedParticleAssociations"
 	        },
 	        {
-	          "MCParticlesHeadOnFrame"
+	          "MCParticlesHeadOnFrameNoBeamFX"
 	        },
 			postburn_config,
 			app
