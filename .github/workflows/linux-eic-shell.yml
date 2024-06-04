@@ -313,7 +313,7 @@ jobs:
     - name: Get detector info
       id: detector-info
       run: |
-        info=/cvmfs/singularity.opensciencegrid.org/eicweb/${{ env.platform }}:${{ env.release }}/etc/jug_info
+        file=/cvmfs/singularity.opensciencegrid.org/eicweb/${{ env.platform }}:${{ env.release }}/etc/jug_info
         test -f ${file}
         grep ' epic@' ${file}
         hash=$(grep ' epic@' ${file} | sha256sum)
