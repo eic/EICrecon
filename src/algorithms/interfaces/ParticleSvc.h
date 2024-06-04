@@ -19,10 +19,11 @@ public:
   using Particle    = ParticleData;
   using ParticleMap = std::map<int, Particle>;
 
-public:
-  ParticleSvc();
+private:
+  static std::shared_ptr<ParticleMap> kParticleMap;
 
-  virtual void init(std::shared_ptr<ParticleMap> map = nullptr) {
+public:
+  virtual void init(std::shared_ptr<ParticleMap> map = kParticleMap) {
     if (map != nullptr) {
       m_particleMap = map;
     }
@@ -41,6 +42,8 @@ public:
 
 protected:
   std::shared_ptr<ParticleMap> m_particleMap{nullptr};
+
+  ALGORITHMS_DEFINE_SERVICE(ParticleSvc)
 };
 
 } // namespace algorithms

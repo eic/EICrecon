@@ -3,6 +3,8 @@
 
 #include "algorithms/interfaces/ParticleSvc.h"
 
+namespace algorithms {
+
 const ParticleSvc::ParticleMap kParticleMap = {
     {           0, {           0,   0,   0.0            }},  // unknown
     {          11, {          11,  -1,   0.000510998928 }},  // e-
@@ -244,7 +246,4 @@ const ParticleSvc::ParticleMap kParticleMap = {
     {  1000020040, {  1000020040,   2,   3.72742        }},  // Alpha
 };
 
-
-ParticleSvc::ParticleSvc() {
-  m_particleMap = std::make_shared<ParticleMap>(kParticleMap);
-}
+} // namespace algorithms
