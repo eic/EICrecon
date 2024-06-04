@@ -15,7 +15,6 @@
 
 #include "services/log/Log_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/particle/Particle_service.h"
 
 /**
  * The AlgorithmsInit_service centralizes use of ServiceSvc
