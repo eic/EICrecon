@@ -246,5 +246,5 @@ const ParticleSvc::ParticleMap kParticleMap = {
 
 
 ParticleSvc::ParticleSvc() {
-  m_particleMap = kParticleMap;
+  m_particleMap = std::make_shared<ParticleMap>(kParticleMap);
 }
