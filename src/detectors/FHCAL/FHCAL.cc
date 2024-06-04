@@ -186,10 +186,11 @@ extern "C" {
         // Magic constants:
         //  54 - number of modules in a row/column
         //  2  - number of towers in a module
-        std::string cellIdx_1  = "(54*2-moduleIDx_1*2+towerx_1)";
-        std::string cellIdx_2  = "(54*2-moduleIDx_2*2+towerx_2)";
-        std::string cellIdy_1  = "(54*2-moduleIDy_1*2+towery_1)";
-        std::string cellIdy_2  = "(54*2-moduleIDy_2*2+towery_2)";
+	// sign for towerx and towery now *negative*, needed to restore linearity with global X and Y (PAS)
+        std::string cellIdx_1  = "(54*2-moduleIDx_1*2-towerx_1)";
+        std::string cellIdx_2  = "(54*2-moduleIDx_2*2-towerx_2)";
+        std::string cellIdy_1  = "(54*2-moduleIDy_1*2-towery_1)";
+        std::string cellIdy_2  = "(54*2-moduleIDy_2*2-towery_2)";
         std::string cellIdz_1  = "rlayerz_1";
         std::string cellIdz_2  = "rlayerz_2";
         std::string deltaX     = Form("abs(%s-%s)", cellIdx_2.data(), cellIdx_1.data());
