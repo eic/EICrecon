@@ -1,11 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022, 2023 Whitney Armstrong, Wouter Deconinck, David Lawrence
+// Copyright (C) 2022, 2024 Sylvester Joosten, Wouter Deconinck
+
+#include <memory>
 
 #include "algorithms/interfaces/ParticleSvc.h"
 
 namespace algorithms {
 
-const ParticleSvc::ParticleMap kParticleMap = {
+const std::shared_ptr<ParticleSvc::ParticleMap> ParticleSvc::kParticleMap =
+  std::make_shared<ParticleSvc::ParticleMap>(ParticleSvc::ParticleMap{
     {           0, {           0,   0,   0.0            }},  // unknown
     {          11, {          11,  -1,   0.000510998928 }},  // e-
     {         -11, {         -11,   1,   0.000510998928 }},  // e+
@@ -244,6 +247,6 @@ const ParticleSvc::ParticleMap kParticleMap = {
     {  1000010030, {  1000010030,   1,   2.80925        }},  // Tritium
     {  1000020030, {  1000020030,   2,   2.80923        }},  // He-3
     {  1000020040, {  1000020040,   2,   3.72742        }},  // Alpha
-};
+});
 
 } // namespace algorithms

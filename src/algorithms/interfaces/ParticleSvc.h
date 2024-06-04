@@ -22,7 +22,7 @@ public:
   using ParticleMap = std::map<int, Particle>;
 
 private:
-  static std::shared_ptr<ParticleMap> kParticleMap;
+  static const std::shared_ptr<ParticleMap> kParticleMap;
 
 public:
   virtual void init(std::shared_ptr<ParticleMap> map = kParticleMap) {
