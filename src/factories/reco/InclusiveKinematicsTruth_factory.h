@@ -27,7 +27,7 @@ private:
     PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
     PodioOutput<edm4eic::InclusiveKinematics> m_inclusive_kinematics_output {this};
 
-    Service<AlgorithmsInit_service> m_algorithmsInit {this};        
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {

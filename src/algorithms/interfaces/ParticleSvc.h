@@ -40,7 +40,7 @@ public:
   };
 
 protected:
-  std::shared_ptr<ParticleMap> m_particleMap = 
+  std::shared_ptr<ParticleMap> m_particleMap =
     std::make_shared<ParticleMap>(
       std::make_pair(0, ParticleData{0, 0, 0.0}));
 };
