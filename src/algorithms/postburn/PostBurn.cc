@@ -51,7 +51,7 @@ void eicrecon::PostBurn::process(
     if(correctBeamFX == true){
         for (const auto& p: *mcparts) {
         
-            if(p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+            if(p.getGeneratorStatus() == 4 && (p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "beam" proton/neutron
                 h_beam.SetPxPyPzE(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
                 hasBeamHadron = true;
             }
@@ -64,7 +64,7 @@ void eicrecon::PostBurn::process(
     else{
         for (const auto& p: *mcparts) {
 
-            if(p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+            if(p.getGeneratorStatus() == 4 && (p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "beam" proton/neutron
                 h_beam.SetPxPyPzE(crossingAngle*p.getEnergy(), 0.0, p.getEnergy(), p.getEnergy());
                 hasBeamHadron = true;
             }
@@ -78,7 +78,7 @@ void eicrecon::PostBurn::process(
     //handling for FF particle gun input!!
     if(!hasBeamHadron || !hasBeamLepton){
         for (const auto& p: *mcparts) {
-            if(p.getPDG() == 2212) { //look for "beam" proton
+            if((p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "gun" proton/neutron
                 h_beam.SetPxPyPzE(crossingAngle*p.getEnergy(), 0.0, p.getEnergy(), p.getEnergy());
                 if(p.getEnergy() > 270.0 && p.getEnergy() < 280.0){
                     e_beam.SetPxPyPzE(0.0, 0.0, -18.0, 18.0);
