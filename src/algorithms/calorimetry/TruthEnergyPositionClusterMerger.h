@@ -8,9 +8,10 @@
 #include <spdlog/spdlog.h>
 
 // Event Model related classes
-#include <edm4hep/MCParticle.h>
-#include <edm4eic/Cluster.h>
-#include <edm4eic/MCRecoClusterParticleAssociation.h>
+#include <DD4hep/DD4hepUnits.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/utils/vector_utils.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
