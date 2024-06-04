@@ -13,6 +13,7 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "services/log/Log_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
