@@ -14,6 +14,7 @@
 
 #include "ActsToTracks.h"
 #include "ActsToTracks_factory.h"
+#include "AmbiguitySolver_factory.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
 #include "TrackParamTruthInit_factory.h"
@@ -62,10 +63,10 @@ void InitPlugin(JApplication *app) {
     std::vector<std::string> input_collections;
     auto readouts = app->GetService<DD4hep_service>()->detector()->readouts();
     for (const auto& [hit_collection, rec_collection] : possible_collections) {
-        if (readouts.find(hit_collection) != readouts.end()) {
-            // Add the collection to the list of input collections
-            input_collections.push_back(rec_collection);
-        }
+      if (readouts.find(hit_collection) != readouts.end()) {
+        // Add the collection to the list of input collections
+        input_collections.push_back(rec_collection);
+      }
     }
 
     // Tracker hits collector
@@ -89,8 +90,35 @@ void InitPlugin(JApplication *app) {
             "CentralTrackerMeasurements"
         },
         {
-            "CentralCKFActsTrajectories",
-            "CentralCKFActsTracks",
+            "CentralCKFActsTrajectoriesUnfiltered",
+            "CentralCKFActsTracksUnfiltered",
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        "CentralCKFTracksUnfiltered",
+        {
+            "CentralTrackerMeasurements",
+            "CentralCKFActsTrajectoriesUnfiltered",
+        },
+        {
+            "CentralCKFTrajectoriesUnfiltered",
+            "CentralCKFTrackParametersUnfiltered",
+            "CentralCKFTracksUnfiltered",
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
+        "AmbiguityResolutionSolver",
+        {
+             "CentralCKFActsTracksUnfiltered",
+             "CentralTrackerMeasurements"
+        },
+        {
+             "CentralCKFActsTracks",
+             "CentralCKFActsTrajectories",
         },
         app
     ));
@@ -124,8 +152,35 @@ void InitPlugin(JApplication *app) {
             "CentralTrackerMeasurements"
         },
         {
-            "CentralCKFSeededActsTrajectories",
-            "CentralCKFSeededActsTracks",
+            "CentralCKFSeededActsTrajectoriesUnfiltered",
+            "CentralCKFSeededActsTracksUnfiltered",
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        "CentralCKFSeededTracksUnfiltered",
+        {
+            "CentralTrackerMeasurements",
+            "CentralCKFSeededActsTrajectoriesUnfiltered",
+        },
+        {
+            "CentralCKFSeededTrajectoriesUnfiltered",
+            "CentralCKFSeededTrackParametersUnfiltered",
+            "CentralCKFSeededTracksUnfiltered",
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
+        "SeededAmbiguityResolutionSolver",
+        {
+             "CentralCKFSeededActsTracksUnfiltered",
+             "CentralTrackerMeasurements"
+        },
+        {
+             "CentralCKFSeededActsTracks",
+             "CentralCKFSeededActsTrajectories",
         },
         app
     ));
