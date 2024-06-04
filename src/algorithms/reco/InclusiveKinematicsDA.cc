@@ -23,13 +23,7 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicsDA::init() {
-    // m_pidSvc = service("ParticleSvc");
-    // if (!m_pidSvc) {
-    //   m_log->debug("Unable to locate Particle Service. "
-    //     "Make sure you have ParticleSvc in the configuration.");
-    // }
-  }
+  void InclusiveKinematicsDA::init() { }
 
   void InclusiveKinematicsDA::process(
       const InclusiveKinematicsDA::Input& input,

@@ -25,13 +25,7 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void HadronicFinalState::init() {
-    // m_pidSvc = service("ParticleSvc");
-    // if (!m_pidSvc) {
-    //   debug("Unable to locate Particle Service. "
-    //     "Make sure you have ParticleSvc in the configuration.");
-    // }
-  }
+  void HadronicFinalState::init() { }
 
   void HadronicFinalState::process(
       const HadronicFinalState::Input& input,
