@@ -47,7 +47,7 @@ namespace eicrecon {
     const PxPyPzEVector ei(
       round_beam_four_momentum(
         ei_coll[0].getMomentum(),
-        m_electron,
+        m_particleSvc.particle(ei_coll[0].getPDG()).mass,
         {-5.0, -10.0, -18.0},
         0.0)
       );
@@ -61,7 +61,7 @@ namespace eicrecon {
     const PxPyPzEVector pi(
       round_beam_four_momentum(
         pi_coll[0].getMomentum(),
-        pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron,
+        m_particleSvc.particle(pi_coll[0].getPDG()).mass,
         {41.0, 100.0, 275.0},
         m_crossingAngle)
       );
@@ -96,6 +96,7 @@ namespace eicrecon {
     const auto Q2_sig = (pt_e*pt_e) / (1. - y_sig);
     const auto x_sig = Q2_sig / (4.*ei.energy()*pi.energy()*y_sig);
 
+    const auto m_proton = m_particleSvc.particle(2212).mass;
     const auto Q2_esig = Q2_e;
     const auto x_esig = x_sig;
     const auto y_esig = Q2_esig / (4.*ei.energy()*pi.energy()*x_esig); //equivalent to (2*ei.energy() / sigma_tot)*y_sig

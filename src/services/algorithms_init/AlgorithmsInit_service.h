@@ -13,8 +13,10 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "services/log/Log_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/particle/Particle_service.h"
 
 /**
  * The AlgorithmsInit_service centralizes use of ServiceSvc
@@ -31,6 +33,7 @@ class AlgorithmsInit_service : public JService
         // Get services
         m_log_service = srv_locator->get<Log_service>();
         m_dd4hep_service = srv_locator->get<DD4hep_service>();
+        m_particle_service = srv_locator->get<Particle_service>();
 
         // Logger for ServiceSvc
         m_log = m_log_service->logger("AlgorithmsInit");
@@ -68,6 +71,9 @@ class AlgorithmsInit_service : public JService
             r.init();
         });
 
+        // Register a particle service
+        [[maybe_unused]] auto& particleSvc = algorithms::ParticleSvc::instance();
+
         // Finally, initialize the ServiceSvc
         serviceSvc.init();
     }
@@ -76,5 +82,6 @@ class AlgorithmsInit_service : public JService
     AlgorithmsInit_service() = default;
     std::shared_ptr<Log_service> m_log_service;
     std::shared_ptr<DD4hep_service> m_dd4hep_service;
+    std::shared_ptr<Particle_service> m_particle_service;
     std::shared_ptr<spdlog::logger> m_log;
 };

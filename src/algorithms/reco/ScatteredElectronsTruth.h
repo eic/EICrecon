@@ -10,6 +10,7 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/ParticleSvc.h"
 
 namespace eicrecon {
 
@@ -38,7 +39,8 @@ namespace eicrecon {
     void process(const Input&, const Output&) const final;
 
   private:
-    double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_pion{0.13957};
+    const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+
   };
 
 } // namespace eicrecon
