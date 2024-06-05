@@ -14,6 +14,7 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -22,8 +23,8 @@ extern "C" {
     using namespace eicrecon;
 
     // Divide MCParticle collection based on generator status and PDG
-    std::vector<std::string> outCollections{"MCBeamElectrons","MCBeamProtons","MCScatteredElectrons","MCScatteredProtons"};
-    std::vector<std::vector<int>> values{{4,11},{4,2212},{1,11},{1,2212}};
+    std::vector<std::string> outCollections{"MCBeamElectrons","MCBeamProtons","MCBeamNeutrons","MCScatteredElectrons","MCScatteredProtons","MCScatteredNeutrons"};
+    std::vector<std::vector<int>> values{{4,11},{4,2212},{4,2112},{1,11},{1,2212},{1,2112}};
 
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4hep::MCParticle>>(
         "BeamParticles",
@@ -35,6 +36,15 @@ extern "C" {
         app
       )
     );
+
+    // Combine beam protons and neutrons into beam hadrons
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle>>(
+        "MCBeamHadrons",
+        {"MCBeamProtons","MCBeamNeutrons"},
+        {"MCBeamHadrons"},
+        app
+      )
+    ); 
 
   }
 }
