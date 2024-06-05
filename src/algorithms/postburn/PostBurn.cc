@@ -20,6 +20,7 @@
 #include <TLorentzVector.h>
 
 #include "algorithms/postburn/PostBurnConfig.h"
+#include "algorithms/reco/Beam.h"
 
 void eicrecon::PostBurn::init() {
     
@@ -38,44 +39,32 @@ void eicrecon::PostBurn::process(
     bool      correctBeamFX    = m_cfg.correctBeamFX;
     bool      pidUseMCTruth    = m_cfg.pidUseMCTruth;
 
-    bool      hasBeamHadron    = false;
-    bool      hasBeamLepton    = false;
+    bool      hasBeamHadron    = true;
+    bool      hasBeamLepton    = true;
 	
     //read MCParticles information for status == 1 particles and post-burn
 	
     ROOT::Math::PxPyPzEVector  e_beam(0.,0.,0.,0.);
     ROOT::Math::PxPyPzEVector  h_beam(0.,0.,0.,0.);
   
-    // First, extract beams, flag decides if using beam kinematics as-stored, or only the crossing-angle boost/rotation
-    // This functionality is important for functionality for reconstructed tracks
-    if(correctBeamFX){
-        for (const auto& p: *mcparts) {
-        
-            if(p.getGeneratorStatus() == 4 && (p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "beam" proton/neutron
-                h_beam.SetPxPyPzE(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
-                hasBeamHadron = true;
-            }
-            if(p.getGeneratorStatus() == 4 && p.getPDG() == 11) { //look for "beam" electron
-                e_beam.SetPxPyPzE(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
-                hasBeamLepton = true;
-            }
-        }
+	auto incoming_lepton = find_first_beam_electron(mcparts);
+    if (incoming_lepton.size() == 0) {
+      debug("No beam electron found -- particleGun input");
+	  hasBeamLepton = false;
     }
-    else{
-        for (const auto& p: *mcparts) {
-
-            if(p.getGeneratorStatus() == 4 && (p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "beam" proton/neutron
-                h_beam.SetPxPyPzE(crossingAngle*p.getEnergy(), 0.0, p.getEnergy(), p.getEnergy());
-                hasBeamHadron = true;
-            }
-            if(p.getGeneratorStatus() == 4 && p.getPDG() == 11) { //look for "beam" electron
-                e_beam.SetPxPyPzE(0.0, 0.0, -p.getEnergy(), p.getEnergy());
-                hasBeamLepton = true;
-            }
-        }
+	
+	auto incoming_hadron = find_first_beam_hadron(mcparts);
+    if (incoming_hadron.size() == 0) {
+      debug("No beam hadron found -- particleGun input");
+      hasBeamHadron = false;
     }
 
-    //handling for FF particle gun input!!
+    if((hasBeamHadron && !hasBeamLepton) || (!hasBeamHadron && hasBeamLepton)){
+        debug("Only one beam defined! Not a possible configuration!");
+        return;
+    }
+
+	//handling for FF particle gun input!!
     if(!hasBeamHadron || !hasBeamLepton){
         for (const auto& p: *mcparts) {
             if((p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "gun" proton/neutron
@@ -86,6 +75,23 @@ void eicrecon::PostBurn::process(
             }
         }
     }
+	else{
+        
+        if(correctBeamFX){
+            
+            h_beam.SetPxPyPzE(incoming_hadron[0].getMomentum().x, incoming_hadron[0].getMomentum().y, incoming_hadron[0].getMomentum().z, incoming_hadron[0].getEnergy());
+            e_beam.SetPxPyPzE(incoming_lepton[0].getMomentum().x, incoming_lepton[0].getMomentum().y, incoming_lepton[0].getMomentum().z, incoming_lepton[0].getEnergy());
+        
+        }
+        else{
+           
+            h_beam.SetPxPyPzE(crossingAngle*incoming_hadron[0].getEnergy(), 0.0, incoming_hadron[0].getEnergy(), incoming_hadron[0].getEnergy());
+            e_beam.SetPxPyPzE(0.0, 0.0, -incoming_lepton[0].getEnergy(), incoming_lepton[0].getEnergy());
+           
+        }
+    }
+    
+
 
     //Calculate boost vectors and rotations here
 	
