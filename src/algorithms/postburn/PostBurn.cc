@@ -21,8 +21,8 @@
 
 #include "algorithms/postburn/PostBurnConfig.h"
 
-void eicrecon::PostBurn::init(std::shared_ptr<spdlog::logger> &logger) {
-    m_log       = logger;
+void eicrecon::PostBurn::init() {
+    
 }
 
 void eicrecon::PostBurn::process(

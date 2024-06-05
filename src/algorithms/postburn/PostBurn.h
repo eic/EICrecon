@@ -37,13 +37,11 @@ namespace eicrecon {
                             {"outputParticleCollection"},
                             "Apply boosts and rotations to remove crossing angle and beam effects."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init();
     void process(const Input&, const Output&) const final;
 
   private:
 
-    /** algorithm logger */
-    std::shared_ptr<spdlog::logger>   m_log;
 
   };
 }
