@@ -23,7 +23,7 @@
 #include "algorithms/reco/Beam.h"
 
 void eicrecon::PostBurn::init() {
-    
+
 }
 
 void eicrecon::PostBurn::process(
@@ -41,19 +41,19 @@ void eicrecon::PostBurn::process(
 
     bool      hasBeamHadron    = true;
     bool      hasBeamLepton    = true;
-	
+
     //read MCParticles information for status == 1 particles and post-burn
-	
+
     ROOT::Math::PxPyPzEVector  e_beam(0.,0.,0.,0.);
     ROOT::Math::PxPyPzEVector  h_beam(0.,0.,0.,0.);
-  
-	auto incoming_lepton = find_first_beam_electron(mcparts);
+
+        auto incoming_lepton = find_first_beam_electron(mcparts);
     if (incoming_lepton.size() == 0) {
       debug("No beam electron found -- particleGun input");
-	  hasBeamLepton = false;
+          hasBeamLepton = false;
     }
-	
-	auto incoming_hadron = find_first_beam_hadron(mcparts);
+
+        auto incoming_hadron = find_first_beam_hadron(mcparts);
     if (incoming_hadron.size() == 0) {
       debug("No beam hadron found -- particleGun input");
       hasBeamHadron = false;
@@ -64,7 +64,7 @@ void eicrecon::PostBurn::process(
         return;
     }
 
-	//handling for FF particle gun input!!
+        //handling for FF particle gun input!!
     if(!hasBeamHadron || !hasBeamLepton){
         for (const auto& p: *mcparts) {
             if((p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "gun" proton/neutron
@@ -75,82 +75,81 @@ void eicrecon::PostBurn::process(
             }
         }
     }
-	else{
-        
+        else{
+
         if(correctBeamFX){
-            
+
             h_beam.SetPxPyPzE(incoming_hadron[0].getMomentum().x, incoming_hadron[0].getMomentum().y, incoming_hadron[0].getMomentum().z, incoming_hadron[0].getEnergy());
             e_beam.SetPxPyPzE(incoming_lepton[0].getMomentum().x, incoming_lepton[0].getMomentum().y, incoming_lepton[0].getMomentum().z, incoming_lepton[0].getEnergy());
-        
+
         }
         else{
-           
+
             h_beam.SetPxPyPzE(crossingAngle*incoming_hadron[0].getEnergy(), 0.0, incoming_hadron[0].getEnergy(), incoming_hadron[0].getEnergy());
             e_beam.SetPxPyPzE(0.0, 0.0, -incoming_lepton[0].getEnergy(), incoming_lepton[0].getEnergy());
-           
+
         }
     }
-    
+
 
 
     //Calculate boost vectors and rotations here
-	
+
     ROOT::Math::PxPyPzEVector cm_frame_boost = e_beam + h_beam;
     ROOT::Math::PxPyPzEVector tmp(-cm_frame_boost.Px(), -cm_frame_boost.Py(), -cm_frame_boost.Pz(), cm_frame_boost.E());
-		
+
     ROOT::Math::Boost boostVector(tmp.Px()/tmp.E(), tmp.Py()/tmp.E(), tmp.Pz()/tmp.E());
-		
+
     //Boost to CM frame
     e_beam = boostVector(e_beam);
     h_beam = boostVector(h_beam);
-		
+
     double rotationAngleY = -1.0*TMath::ATan2(h_beam.Px(), h_beam.Pz());
     double rotationAngleX = 1.0*TMath::ATan2(h_beam.Py(), h_beam.Pz());
-		
+
     ROOT::Math::RotationY rotationAboutY(rotationAngleY);
     ROOT::Math::RotationX rotationAboutX(rotationAngleX);
-	
+
     e_beam = rotationAboutY(e_beam);
     h_beam = rotationAboutY(h_beam);
     e_beam = rotationAboutX(e_beam);
     h_beam = rotationAboutX(h_beam);
-	
+
     //Boost back to proper head-on frame
-	
+
     ROOT::Math::PxPyPzEVector head_on_frame_boost(0., 0., cm_frame_boost.Pz(), cm_frame_boost.E());
     ROOT::Math::Boost headOnBoostVector(head_on_frame_boost.Px()/head_on_frame_boost.E(), head_on_frame_boost.Py()/head_on_frame_boost.E(), head_on_frame_boost.Pz()/head_on_frame_boost.E());
-		
+
     e_beam = headOnBoostVector(e_beam);
     h_beam = headOnBoostVector(h_beam);
 
     //Now, loop through events and apply operations to final-state particles
-  	for (const auto& p: *mcparts) {
-        
-  	    if(p.getGeneratorStatus() == 1) { //look for final-state particles
+        for (const auto& p: *mcparts) {
+
+            if(p.getGeneratorStatus() == 1) { //look for final-state particles
             ROOT::Math::PxPyPzEVector mc(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
-				
+
             mc = boostVector(mc);
             mc = rotationAboutY(mc);
             mc = rotationAboutX(mc);
             mc = headOnBoostVector(mc);
-												
-            edm4hep::Vector3f mcMom(mc.Px(), mc.Py(), mc.Pz());				
+
+            edm4hep::Vector3f mcMom(mc.Px(), mc.Py(), mc.Pz());
 
             edm4hep::MutableMCParticle MCTrack(p.clone());
             MCTrack.setMomentum(mcMom);
-    			
-            if(pidUseMCTruth){ 
-                MCTrack.setPDG(p.getPDG()); 
+
+            if(pidUseMCTruth){
+                MCTrack.setPDG(p.getPDG());
                 MCTrack.setMass(p.getMass());
             }
-            if(!pidUseMCTruth && pidAssumePionMass){ 
+            if(!pidUseMCTruth && pidAssumePionMass){
                 MCTrack.setPDG(211);
                 MCTrack.setMass(0.13957);
             }
-    		
-			outputParticles->push_back(MCTrack);
+
+                        outputParticles->push_back(MCTrack);
         }
     }
 
 }
-

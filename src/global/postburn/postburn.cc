@@ -43,7 +43,7 @@ void InitPlugin(JApplication *app) {
             postburn_config,
             app
             ));
-			
-			
+
+
 }
 }

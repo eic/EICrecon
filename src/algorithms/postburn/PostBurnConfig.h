@@ -12,9 +12,8 @@ namespace eicrecon {
         double    crossingAngle     = 0.025;
         double    pidPurity         = 0.51;
         bool      correctBeamFX     = true;
-        bool      pidUseMCTruth     = true;  
+        bool      pidUseMCTruth     = true;
 
     };
 
 }
-
