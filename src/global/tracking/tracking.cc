@@ -3,6 +3,7 @@
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <algorithm>
 #include <gsl/pointers>
