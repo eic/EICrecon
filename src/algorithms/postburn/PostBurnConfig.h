@@ -1,6 +1,5 @@
-// Copyright 2024, Alex Jentsch, Jihee Kim, Brian Page
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024 Alex Jentsch, Jihee Kim, Brian Page
 //
 
 #pragma once
@@ -15,7 +14,7 @@ namespace eicrecon {
         bool      correctBeamFX     = true;
         bool      pidUseMCTruth     = true;  
 
-  };
+    };
 
 }
 

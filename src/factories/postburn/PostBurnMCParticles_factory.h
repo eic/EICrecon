@@ -1,5 +1,5 @@
-// Copyright 2024, Alex Jentsch, Jihee Kim, Brian Page
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024 Alex Jentsch, Jihee Kim, Brian Page
 //
 
 #include "algorithms/postburn/PostBurn.h"
@@ -28,7 +28,7 @@ private:
     ParameterRef<bool>      pidAssumePionMass{this, "pidAssumePionMass", config().pidAssumePionMass};
     ParameterRef<double>    crossingAngle{this, "crossingAngle", config().crossingAngle};
     ParameterRef<double>    pidPurity{this, "pidPurity", config().pidPurity};
-	ParameterRef<bool>      correctBeamFX       {this, "correctBeamFX", config().correctBeamFX};
+    ParameterRef<bool>      correctBeamFX       {this, "correctBeamFX", config().correctBeamFX};
     ParameterRef<bool>      pidUseMCTruth         {this, "pidUseMCTruth", config().pidUseMCTruth};
 
 
