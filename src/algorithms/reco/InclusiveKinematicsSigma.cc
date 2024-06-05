@@ -82,7 +82,7 @@ namespace eicrecon {
     auto sigma_tot = sigma_e + sigma_h;
 
     // Calculate kinematic variables
-    const auto m_proton = m_particleSvc.particle(2122).mass;
+    const auto m_proton = m_particleSvc.particle(2212).mass;
     const auto y_sig = sigma_h / sigma_tot;
     const auto Q2_sig = (pt_e*pt_e) / (1. - y_sig);
     const auto x_sig = Q2_sig / (4.*ei.energy()*pi.energy()*y_sig);
