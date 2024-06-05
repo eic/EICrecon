@@ -44,7 +44,7 @@ extern "C" {
         {"MCBeamHadrons"},
         app
       )
-    ); 
+    );
 
   }
 }
