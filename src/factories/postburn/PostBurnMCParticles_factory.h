@@ -23,8 +23,6 @@ private:
     std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4hep::MCParticle> m_mcparts_input {this};
-	PodioInput<edm4eic::ReconstructedParticle> m_recoparts_input {this};
-	PodioInput<edm4eic::MCRecoParticleAssociation> m_recoparts_assoc_input {this};
     PodioOutput<edm4hep::MCParticle> m_postburn_output {this};
 
     ParameterRef<bool>      pidAssumePionMass{this, "pidAssumePionMass", config().pidAssumePionMass};
@@ -45,7 +43,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_algo->process({m_mcparts_input(), m_recoparts_input(), m_recoparts_assoc_input()}, {m_postburn_output().get()});
+        m_algo->process({m_mcparts_input()}, {m_postburn_output().get()});
     }
 
 };

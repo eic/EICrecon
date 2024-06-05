@@ -35,9 +35,7 @@ void InitPlugin(JApplication *app) {
 	app->Add(new JOmniFactoryGeneratorT<PostBurnMCParticles_factory>(
 	        "MCParticlesHeadOnFrameNoBeamFX",
 	        {
-	          "MCParticles",
-	          "ReconstructedChargedParticles",
-	          "ReconstructedChargedParticleAssociations"
+	          "MCParticles"
 	        },
 	        {
 	          "MCParticlesHeadOnFrameNoBeamFX"

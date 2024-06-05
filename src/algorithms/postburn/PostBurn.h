@@ -19,9 +19,7 @@ namespace eicrecon {
 
   using PostBurnAlgorithm = algorithms::Algorithm<
     algorithms::Input<
-      edm4hep::MCParticleCollection,
-      edm4eic::ReconstructedParticleCollection,
-	  edm4eic::MCRecoParticleAssociationCollection
+      edm4hep::MCParticleCollection
     >,
     algorithms::Output<
       edm4hep::MCParticleCollection
@@ -35,7 +33,7 @@ namespace eicrecon {
   public:
     PostBurn(std::string_view name)
       : PostBurnAlgorithm{name,
-                            {"mcParticles", "ReconstructedParticleCollection", "MCRecoParticleAssociationCollection"},
+                            {"mcParticles"},
                             {"outputParticleCollection"},
                             "Apply boosts and rotations to remove crossing angle and beam effects."} {}
 

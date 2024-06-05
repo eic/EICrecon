@@ -29,7 +29,7 @@ void eicrecon::PostBurn::process(
     const PostBurn::Input& input,
     const PostBurn::Output& output) const {
 
-    const auto [mcparts, recparticles, recParticlesAssoc] = input;
+    const auto [mcparts] = input;
     auto [outputParticles] = output;
 
     bool      pidAssumePionMass = m_cfg.pidAssumePionMass;
@@ -48,7 +48,7 @@ void eicrecon::PostBurn::process(
   
     // First, extract beams, flag decides if using beam kinematics as-stored, or only the crossing-angle boost/rotation
     // This functionality is important for functionality for reconstructed tracks
-    if(correctBeamFX == true){
+    if(correctBeamFX){
         for (const auto& p: *mcparts) {
         
             if(p.getGeneratorStatus() == 4 && (p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "beam" proton/neutron
@@ -130,7 +130,7 @@ void eicrecon::PostBurn::process(
 												
             edm4hep::Vector3f mcMom(mc.Px(), mc.Py(), mc.Pz());				
 
-            edm4hep::MutableMCParticle MCTrack{p.clone()};
+            edm4hep::MutableMCParticle MCTrack(p.clone());
             MCTrack.setMomentum(mcMom);
     			
             if(pidUseMCTruth){ 
