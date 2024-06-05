@@ -52,7 +52,7 @@ More on the EIC contribution guide is in [this tutorial][eic-environment-tutoria
 
 ## Coding style
 
-One can find coding style and other contributins policies at [CONTRIBUTING.md](https://github.com/eic/EICrecon/blob/main/CONTRIBUTING.md). It is yet to be finished but one can find current decisions on coding style there
+One can find coding style and other contributions policies at [CONTRIBUTING.md](https://github.com/eic/EICrecon/blob/main/CONTRIBUTING.md). It is yet to be finished but one can find current decisions on coding style there
 
 
 ## References
