@@ -36,7 +36,7 @@ public:
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     // Setup algorithm
     m_algo->applyConfig(config());
-    m_algo->init(logger());
+    m_algo->init();
 
   }
 

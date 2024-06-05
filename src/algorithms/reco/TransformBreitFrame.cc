@@ -20,14 +20,6 @@
 
 namespace eicrecon {
 
-  void TransformBreitFrame::init(std::shared_ptr<spdlog::logger> logger) {
-
-    m_log = logger;
-    m_log->trace("Initialized");
-
-  }  // end 'init(std::shared_ptr<spdlog::logger>)'
-
-
   void TransformBreitFrame::process(
                                     const TransformBreitFrame::Input& input,
                                     const TransformBreitFrame::Output& output
@@ -42,7 +34,7 @@ namespace eicrecon {
     // Get incoming electron beam
     const auto ei_coll = find_first_beam_electron(mcpart);
     if (ei_coll.size() == 0) {
-      m_log->debug("No beam electron found");
+      debug("No beam electron found");
       return;
     }
     const PxPyPzEVector e_initial(
@@ -56,7 +48,7 @@ namespace eicrecon {
     // Get incoming hadron beam
     const auto pi_coll = find_first_beam_hadron(mcpart);
     if (pi_coll.size() == 0) {
-      m_log->debug("No beam hadron found");
+      debug("No beam hadron found");
       return;
     }
     const PxPyPzEVector p_initial(
@@ -67,11 +59,11 @@ namespace eicrecon {
         m_crossingAngle)
       );
 
-    m_log->debug("electron energy, proton energy = {},{}",e_initial.E(),p_initial.E());
+    debug("electron energy, proton energy = {},{}",e_initial.E(),p_initial.E());
 
     // Get the event kinematics, set up transform
     if (kine->size() == 0) {
-      m_log->debug("No kinematics found");
+      debug("No kinematics found");
       return;
     }
 
@@ -82,15 +74,15 @@ namespace eicrecon {
 
     // Use relation to get reconstructed scattered electron
     const PxPyPzEVector e_final = edm4hep::utils::detail::p4(evt_kin.getScat(),&edm4hep::utils::UseEnergy);
-    m_log->debug("scattered electron in lab frame px,py,pz,E = {},{},{},{}",
+    debug("scattered electron in lab frame px,py,pz,E = {},{},{},{}",
                  e_final.Px(),e_final.Py(),e_final.Pz(),e_final.E());
 
     // Set up the transformation
     const PxPyPzEVector virtual_photon = (e_initial - e_final);
-    m_log->debug("virtual photon in lab frame px,py,pz,E = {},{},{},{}",
+    debug("virtual photon in lab frame px,py,pz,E = {},{},{},{}",
                  virtual_photon.Px(),virtual_photon.Py(),virtual_photon.Pz(),virtual_photon.E());
 
-    m_log->debug("x, Q^2 = {},{}",meas_x,meas_Q2);
+    debug("x, Q^2 = {},{}",meas_x,meas_Q2);
 
     // Set up the transformation (boost) to the Breit frame
     const auto P3 = p_initial.Vect();
@@ -116,9 +108,9 @@ namespace eicrecon {
     e_final_breit = breitRot*e_final_breit;
     virtual_photon_breit = breitRot*virtual_photon_breit;
 
-    m_log->debug("incoming hadron in Breit frame px,py,pz,E = {},{},{},{}",
+    debug("incoming hadron in Breit frame px,py,pz,E = {},{},{},{}",
                  p_initial_breit.Px(),p_initial_breit.Py(),p_initial_breit.Pz(),p_initial_breit.E());
-    m_log->debug("virtual photon in Breit frame px,py,pz,E = {},{},{},{}",
+    debug("virtual photon in Breit frame px,py,pz,E = {},{},{},{}",
                  virtual_photon_breit.Px(),virtual_photon_breit.Py(),virtual_photon_breit.Pz(),virtual_photon_breit.E());
 
     // look over the input particles and transform

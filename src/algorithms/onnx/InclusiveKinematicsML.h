@@ -4,11 +4,9 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <cstdint>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <onnxruntime_cxx_api.h>
-#include <spdlog/logger.h>
-#include <cstdint>
-#include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -18,43 +16,35 @@
 
 namespace eicrecon {
 
-  using InclusiveKinematicsMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4eic::InclusiveKinematicsCollection,
-      edm4eic::InclusiveKinematicsCollection
-    >,
-    algorithms::Output<
-      edm4eic::InclusiveKinematicsCollection
-    >
-  >;
+using InclusiveKinematicsMLAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::InclusiveKinematicsCollection,
+                                            edm4eic::InclusiveKinematicsCollection>,
+                          algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-  class InclusiveKinematicsML
-  : public InclusiveKinematicsMLAlgorithm,
-    public WithPodConfig<InclusiveKinematicsMLConfig> {
+class InclusiveKinematicsML : public InclusiveKinematicsMLAlgorithm,
+                              public WithPodConfig<InclusiveKinematicsMLConfig> {
 
-  public:
-    InclusiveKinematicsML(std::string_view name)
+public:
+  InclusiveKinematicsML(std::string_view name)
       : InclusiveKinematicsMLAlgorithm{name,
-                            {"inclusiveKinematicsElectron", "inclusiveKinematicsDA"},
-                            {"inclusiveKinematicsML"},
-                            "Determine inclusive kinematics using combined ML method."} {}
+                                       {"inclusiveKinematicsElectron", "inclusiveKinematicsDA"},
+                                       {"inclusiveKinematicsML"},
+                                       "Determine inclusive kinematics using combined ML method."} {
+  }
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
-    void process(const Input&, const Output&) const final;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
-    std::shared_ptr<spdlog::logger> m_log;
+private:
+  mutable Ort::Session m_session{nullptr};
 
-    mutable Ort::Session m_session{nullptr};
+  std::vector<std::string> m_input_names;
+  std::vector<const char*> m_input_names_char;
+  std::vector<std::vector<std::int64_t>> m_input_shapes;
 
-    std::vector<std::string> m_input_names;
-    std::vector<const char*> m_input_names_char;
-    std::vector<std::vector<std::int64_t>> m_input_shapes;
-
-    std::vector<std::string> m_output_names;
-    std::vector<const char*> m_output_names_char;
-    std::vector<std::vector<std::int64_t>> m_output_shapes;
-
-  };
+  std::vector<std::string> m_output_names;
+  std::vector<const char*> m_output_names_char;
+  std::vector<std::vector<std::int64_t>> m_output_shapes;
+};
 
 } // namespace eicrecon

@@ -31,7 +31,6 @@ void PIDLookup::init() {
     .azimuthal_bin_centers_in_lut=m_cfg.azimuthal_bin_centers_in_lut,
     .momentum_bin_centers_in_lut=m_cfg.momentum_bin_centers_in_lut,
     .polar_bin_centers_in_lut=m_cfg.polar_bin_centers_in_lut,
-    .skip_legacy_header=m_cfg.skip_legacy_header,
     .use_radians=m_cfg.use_radians,
     .missing_electron_prob=m_cfg.missing_electron_prob,
   });
@@ -89,7 +88,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
       recopart.addToParticleIDs(partids_out->create(
         m_cfg.system,                // std::int32_t type
-        std::copysign(11, charge),   // std::int32_t PDG
+        std::copysign(11, -charge),  // std::int32_t PDG
         0,                           // std::int32_t algorithmType
         static_cast<float>(entry->prob_electron) // float likelihood
       ));
@@ -129,7 +128,9 @@ void PIDLookup::process(const Input& input, const Output& output) const {
       }
     }
 
-    recopart.setPDG(std::copysign(identified_pdg, charge));
+    if (identified_pdg != 0) {
+      recopart.setPDG(std::copysign(identified_pdg, (identified_pdg == 11) ? -charge : charge));
+    }
 
     if (identified_pdg != 0) {
       trace("randomized PDG is {}", recopart.getPDG());

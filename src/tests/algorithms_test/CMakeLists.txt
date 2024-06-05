@@ -8,6 +8,7 @@ add_executable(
   calorimetry_CalorimeterIslandCluster.cc
   tracking_SiliconSimpleCluster.cc
   calorimetry_CalorimeterHitDigi.cc
+  calorimetry_CalorimeterClusterRecoCoG.cc
   calorimetry_HEXPLIT.cc
   pid_MergeTracks.cc
   pid_MergeParticleID.cc
