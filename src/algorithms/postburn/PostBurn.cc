@@ -130,12 +130,8 @@ void eicrecon::PostBurn::process(
 												
             edm4hep::Vector3f mcMom(mc.Px(), mc.Py(), mc.Pz());				
 
-            edm4hep::MutableMCParticle MCTrack;
+            edm4hep::MutableMCParticle MCTrack{p.clone()};
             MCTrack.setMomentum(mcMom);
-            MCTrack.setCharge(p.getCharge());
-            MCTrack.setTime(p.getTime());
-            MCTrack.setVertex(p.getVertex());
-            MCTrack.setEndpoint(p.getEndpoint());
     			
             if(pidUseMCTruth){ 
                 MCTrack.setPDG(p.getPDG()); 
