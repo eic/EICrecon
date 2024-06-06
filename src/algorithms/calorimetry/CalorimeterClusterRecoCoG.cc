@@ -81,14 +81,9 @@ namespace eicrecon {
       if (mchits->size() == 0) {
         debug("No mcHitCollection was provided, so no truth association will be performed.");
         continue;
+      } else {
+        associate(cl, mchits, associations);
       }
-
-      auto assoc_opt = associate(cl, mchits);
-      if (!assoc_opt.has_value()) {
-        continue;
-      }
-      auto assoc = *std::move(assoc_opt);
-      associations->push_back(assoc);
 
     }  // end protocluster loop
 }
@@ -286,9 +281,10 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
 }
 
 //------------------------------------------------------------------------
-std::optional<edm4eic::MutableMCRecoClusterParticleAssociation> CalorimeterClusterRecoCoG::associate(
+void CalorimeterClusterRecoCoG::associate(
   const edm4eic::Cluster& cl,
-  const edm4hep::SimCalorimeterHitCollection* mchits
+  const edm4hep::SimCalorimeterHitCollection* mchits,
+  edm4eic::MCRecoClusterParticleAssociationCollection* assocs
 ) const {
 
   // 1. idenitfy sim hits associated w/ protocluster and sum their energy
@@ -296,7 +292,6 @@ std::optional<edm4eic::MutableMCRecoClusterParticleAssociation> CalorimeterClust
   // 3. walk through contributions to find MCParticle which contributed
   //    the most energy
   // 4. associate cluster to that MCParticle
-  edm4eic::MutableMCRecoClusterParticleAssociation assoc;
 
   // make sure book-keeping containers are empty
   m_vecSimHitIndexVsEne.clear();
@@ -390,6 +385,7 @@ std::optional<edm4eic::MutableMCRecoClusterParticleAssociation> CalorimeterClust
       debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4hep::utils::magnitude(mcp.getMomentum()));
 
       // set association
+      auto assoc = assocs->create();
       assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
       assoc.setSimID(mcp.getObjectID().index);
       assoc.setWeight(1.0);
@@ -398,7 +394,7 @@ std::optional<edm4eic::MutableMCRecoClusterParticleAssociation> CalorimeterClust
       break;
     }
   }  // end hit loop
-  return std::move(assoc);
+  return;
 
 }  // end 'associate(edm4eic::Cluster&, edm4hep::SimCalorimeterHit*)'
 
