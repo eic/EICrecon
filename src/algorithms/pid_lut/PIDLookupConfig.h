@@ -18,7 +18,6 @@ struct PIDLookupConfig {
   bool azimuthal_bin_centers_in_lut {false};
   bool momentum_bin_centers_in_lut {false};
   bool polar_bin_centers_in_lut {false};
-  bool skip_legacy_header {false};
   bool use_radians {false};
   bool missing_electron_prob {false};
 };

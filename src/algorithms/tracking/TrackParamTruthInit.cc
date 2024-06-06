@@ -11,9 +11,9 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <TParticlePDG.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4eic/Cov6f.h>
 #include <fmt/core.h>
 #include <spdlog/common.h>
 #include <Eigen/Core>
@@ -21,10 +21,6 @@
 #include <limits>
 #include <memory>
 #include <utility>
-
-#if EDM4EIC_VERSION_MAJOR >= 5
-#include <edm4eic/Cov6f.h>
-#endif
 
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
@@ -132,21 +128,14 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setQOverP(charge / (pinit / dd4hep::GeV)); // Q/p [e/GeV]
         track_parameter.setTime(mcparticle.getTime()); // time [ns]
-        #if EDM4EIC_VERSION_MAJOR >= 5
-          edm4eic::Cov6f cov;
-          cov(0,0) = 1.0; // loc0
-          cov(1,1) = 1.0; // loc1
-          cov(2,2) = 0.05; // phi
-          cov(3,3) = 0.01; // theta
-          cov(4,4) = 0.1; // qOverP
-          cov(5,5) = 10e9; // time
-          track_parameter.setCovariance(cov);
-        #else
-          track_parameter.setCharge(charge); // charge
-          track_parameter.setLocError({1.0, 1.0}); // sqrt(variance) of location [mm]
-          track_parameter.setMomentumError({0.01, 0.05, 0.1}); // sqrt(variance) on theta, phi, q/p [rad, rad, e/GeV]
-          track_parameter.setTimeError(10e9); // error on time [ns]
-        #endif
+        edm4eic::Cov6f cov;
+        cov(0,0) = 1.0; // loc0
+        cov(1,1) = 1.0; // loc1
+        cov(2,2) = 0.05; // phi
+        cov(3,3) = 0.01; // theta
+        cov(4,4) = 0.1; // qOverP
+        cov(5,5) = 10e9; // time
+        track_parameter.setCovariance(cov);
 
         // Debug output
         if (m_log->level() <= spdlog::level::debug) {

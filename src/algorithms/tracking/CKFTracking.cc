@@ -9,12 +9,10 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/Measurement.hpp>
 #include <Acts/EventData/MultiTrajectory.hpp>
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
-#include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
@@ -29,15 +27,12 @@
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Cov3f.h>
-#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/Cov6f.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/Vector2f.h>
-#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <Eigen/Core>
-#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
@@ -45,10 +40,6 @@
 #include <list>
 #include <optional>
 #include <utility>
-
-#if EDM4EIC_VERSION_MAJOR >= 5
-#include <edm4eic/Cov6f.h>
-#endif
 
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
@@ -59,22 +50,20 @@ namespace eicrecon {
 
     using namespace Acts::UnitLiterals;
 
-    #if EDM4EIC_VERSION_MAJOR >= 5
-      // This array relates the Acts and EDM4eic covariance matrices, including
-      // the unit conversion to get from Acts units into EDM4eic units.
-      //
-      // Note: std::map is not constexpr, so we use a constexpr std::array
-      // std::array initialization need double braces since arrays are aggregates
-      // ref: https://en.cppreference.com/w/cpp/language/aggregate_initialization
-      static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_indexed_units{{
-        {Acts::eBoundLoc0, Acts::UnitConstants::mm},
-        {Acts::eBoundLoc1, Acts::UnitConstants::mm},
-        {Acts::eBoundPhi, 1.},
-        {Acts::eBoundTheta, 1.},
-        {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
-        {Acts::eBoundTime, Acts::UnitConstants::ns}
-      }};
-    #endif
+    // This array relates the Acts and EDM4eic covariance matrices, including
+    // the unit conversion to get from Acts units into EDM4eic units.
+    //
+    // Note: std::map is not constexpr, so we use a constexpr std::array
+    // std::array initialization need double braces since arrays are aggregates
+    // ref: https://en.cppreference.com/w/cpp/language/aggregate_initialization
+    static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_indexed_units{{
+      {Acts::eBoundLoc0, Acts::UnitConstants::mm},
+      {Acts::eBoundLoc1, Acts::UnitConstants::mm},
+      {Acts::eBoundPhi, 1.},
+      {Acts::eBoundTheta, 1.},
+      {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
+      {Acts::eBoundTime, Acts::UnitConstants::ns}
+    }};
 
     CKFTracking::CKFTracking() {
     }
@@ -100,9 +89,6 @@ namespace eicrecon {
     }
 
     std::tuple<
-        std::unique_ptr<edm4eic::TrajectoryCollection>,
-        std::unique_ptr<edm4eic::TrackParametersCollection>,
-        std::unique_ptr<edm4eic::TrackCollection>,
         std::vector<ActsExamples::Trajectories*>,
         std::vector<ActsExamples::ConstTrackContainer*>
     >
@@ -163,22 +149,13 @@ namespace eicrecon {
             double charge = std::copysign(1., track_parameter.getQOverP());
 
             Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
-            #if EDM4EIC_VERSION_MAJOR >= 5
-              for (size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
-                for (size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
-                  cov(a, b) = track_parameter.getCovariance()(i,j) * x * y;
-                  ++j;
-                }
-                ++i;
+            for (size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
+              for (size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
+                cov(a, b) = track_parameter.getCovariance()(i,j) * x * y;
+                ++j;
               }
-            #else
-              cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = std::pow( track_parameter.getLocError().xx ,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
-              cov(Acts::eBoundLoc1, Acts::eBoundLoc1)     = std::pow( track_parameter.getLocError().yy,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
-              cov(Acts::eBoundTheta, Acts::eBoundTheta)   = std::pow( track_parameter.getMomentumError().xx,2);
-              cov(Acts::eBoundPhi, Acts::eBoundPhi)       = std::pow( track_parameter.getMomentumError().yy,2);
-              cov(Acts::eBoundQOverP, Acts::eBoundQOverP) = std::pow( track_parameter.getMomentumError().zz,2) / (Acts::UnitConstants::GeV*Acts::UnitConstants::GeV);
-              cov(Acts::eBoundTime, Acts::eBoundTime)     = std::pow( track_parameter.getTimeError(),2)*Acts::UnitConstants::ns*Acts::UnitConstants::ns;
-            #endif
+              ++i;
+            }
 
             // Construct a perigee surface as the target surface
             auto pSurface = Acts::Surface::makeShared<const Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
@@ -186,10 +163,6 @@ namespace eicrecon {
             // Create parameters
             acts_init_trk_params.emplace_back(pSurface, params, cov, Acts::ParticleHypothesis::pion());
         }
-
-        auto trajectories = std::make_unique<edm4eic::TrajectoryCollection>();
-        auto track_parameters = std::make_unique<edm4eic::TrackParametersCollection>();
-        auto tracks = std::make_unique<edm4eic::TrackCollection>();
 
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
@@ -323,184 +296,7 @@ namespace eicrecon {
           constTracks.trackStateContainer(),
           std::move(tips), std::move(parameters)));
 
-
-        // Loop over trajectories
-        for (const auto* traj : acts_trajectories) {
-          // The trajectory entry indices and the multiTrajectory
-          const auto& trackTips = traj->tips();
-          const auto& mj = traj->multiTrajectory();
-          if (trackTips.empty()) {
-            m_log->warn("Empty multiTrajectory.");
-            continue;
-          }
-
-          // Loop over all trajectories in a multiTrajectory
-          // FIXME: we only retain the first trackTips entry
-          for (auto trackTip : decltype(trackTips){trackTips.front()}) {
-            // Collect the trajectory summary info
-            auto trajectoryState =
-                Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
-
-            // Check if the reco track has fitted track parameters
-            if (not traj->hasTrackParameters(trackTip)) {
-              m_log->warn(
-                  "No fitted track parameters for trajectory with entry index = {}",
-                  trackTip);
-              continue;
-            }
-
-            // Create trajectory
-            auto trajectory = trajectories->create();
-            #if EDM4EIC_VERSION_MAJOR < 5
-              trajectory.setChi2(trajectoryState.chi2Sum);
-              trajectory.setNdf(trajectoryState.NDF);
-            #endif
-            trajectory.setNMeasurements(trajectoryState.nMeasurements);
-            trajectory.setNStates(trajectoryState.nStates);
-            trajectory.setNOutliers(trajectoryState.nOutliers);
-            trajectory.setNHoles(trajectoryState.nHoles);
-            trajectory.setNSharedHits(trajectoryState.nSharedHits);
-
-            m_log->debug("trajectory state, measurement, outlier, hole: {} {} {} {}",
-                trajectoryState.nStates,
-                trajectoryState.nMeasurements,
-                trajectoryState.nOutliers,
-                trajectoryState.nHoles);
-
-            for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
-                trajectory.addToMeasurementChi2(measurementChi2);
-            }
-
-            for (const auto& outlierChi2 : trajectoryState.outlierChi2) {
-                trajectory.addToOutlierChi2(outlierChi2);
-            }
-
-            // Get the fitted track parameter
-            const auto& boundParam = traj->trackParameters(trackTip);
-            const auto& parameter  = boundParam.parameters();
-            const auto& covariance = *boundParam.covariance();
-
-            auto pars = track_parameters->create();
-            pars.setType(0); // type: track head --> 0
-            pars.setLoc({
-                  static_cast<float>(parameter[Acts::eBoundLoc0]),
-                  static_cast<float>(parameter[Acts::eBoundLoc1])
-              });
-            pars.setTheta(static_cast<float>(parameter[Acts::eBoundTheta]));
-            pars.setPhi(static_cast<float>(parameter[Acts::eBoundPhi]));
-            pars.setQOverP(static_cast<float>(parameter[Acts::eBoundQOverP]));
-            pars.setTime(static_cast<float>(parameter[Acts::eBoundTime]));
-            #if EDM4EIC_VERSION_MAJOR >= 5
-              edm4eic::Cov6f cov;
-              for (size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
-                for (size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
-                  // FIXME why not pars.getCovariance()(i,j) = covariance(a,b) / x / y;
-                  cov(i,j) = covariance(a,b) / x / y;
-                }
-              }
-              pars.setCovariance(cov);
-            #else
-              pars.setCharge(static_cast<float>(boundParam.charge()));
-              pars.setLocError({
-                    static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
-                    static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
-                    static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
-                });
-              pars.setMomentumError({
-                    static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                    static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-                    static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
-                    static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
-                    static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
-                    static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))
-                });
-              pars.setTimeError(sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))));
-            #endif
-
-            trajectory.addToTrackParameters(pars);
-
-            // Fill tracks
-            #if EDM4EIC_VERSION_MAJOR >= 5
-              auto track = tracks->create();
-              track.setType(                             // Flag that defines the type of track
-                pars.getType()
-              );
-              track.setPosition(                         // Track 3-position at the vertex
-                edm4hep::Vector3f()
-              );
-              track.setMomentum(                         // Track 3-momentum at the vertex [GeV]
-                edm4hep::Vector3f()
-              );
-              track.setPositionMomentumCovariance(       // Covariance matrix in basis [x,y,z,px,py,pz]
-                edm4eic::Cov6f()
-              );
-              track.setTime(                             // Track time at the vertex [ns]
-                static_cast<float>(parameter[Acts::eBoundTime])
-              );
-              track.setTimeError(                        // Error on the track vertex time
-                sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime)))
-              );
-              track.setCharge(                           // Particle charge
-                std::copysign(1., parameter[Acts::eBoundQOverP])
-              );
-              track.setChi2(trajectoryState.chi2Sum);    // Total chi2
-              track.setNdf(trajectoryState.NDF);         // Number of degrees of freedom
-              track.setPdg(                              // PDG particle ID hypothesis
-                boundParam.particleHypothesis().absolutePdg()
-              );
-              track.setTrajectory(trajectory);           // Trajectory of this track
-            #endif
-
-            // save measurement2d to good measurements or outliers according to srclink index
-            // fix me: ideally, this should be integrated into multitrajectoryhelper
-            // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
-            mj.visitBackwards(trackTip, [&](const auto& state) {
-
-                auto geoID = state.referenceSurface().geometryId().value();
-                auto typeFlags = state.typeFlags();
-
-                // find the associated hit (2D measurement) with state sourcelink index
-                // fix me: calibrated or not?
-                if (state.hasUncalibratedSourceLink()) {
-
-                    std::size_t srclink_index = state.getUncalibratedSourceLink().template get<ActsExamples::IndexSourceLink>().index();
-
-                    // no hit on this state/surface, skip
-                    if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
-                        m_log->debug("No hit found on geo id={}", geoID);
-
-                    } else {
-                        auto meas2D = meas2Ds[srclink_index];
-                        if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
-                          #if EDM4EIC_VERSION_MAJOR >= 5
-                            track.addToMeasurements(meas2D);
-                            trajectory.addToMeasurements_deprecated(meas2D);
-                          #else
-                            trajectory.addToMeasurementHits(meas2D);
-                          #endif
-                          m_log->debug("Measurement on geo id={}, index={}, loc={},{}",
-                                geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
-
-                        }
-                        else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
-                          #if EDM4EIC_VERSION_MAJOR >= 5
-                            trajectory.addToOutliers_deprecated(meas2D);
-                          #else
-                            trajectory.addToOutlierHits(meas2D);
-                          #endif
-                          m_log->debug("Outlier on geo id={}, index={}, loc={},{}",
-                                geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
-
-                        }
-                    }
-                }
-
-            });
-
-          }
-        }
-
-        return std::make_tuple(std::move(trajectories), std::move(track_parameters), std::move(tracks), std::move(acts_trajectories), std::move(constTracks_v));
+        return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
     }
 
 } // namespace eicrecon
