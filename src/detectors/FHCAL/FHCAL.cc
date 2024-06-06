@@ -83,7 +83,7 @@ extern "C" {
         {
           .MIP = 800. * dd4hep::keV,
           .Emin_in_MIPs=0.1,
-          .tmax=50 * dd4hep::ns,
+          .tmax=150 * dd4hep::ns,
         },
         app   // TODO: Remove me once fixed
       ));
@@ -99,7 +99,7 @@ extern "C" {
               .minClusterHitEdep = 100.0 * dd4hep::keV,
               .minClusterCenterEdep = 11.0 * dd4hep::MeV,
               .minClusterEdep = 11.0 * dd4hep::MeV,
-              .minClusterNhits = 10,
+              .minClusterNhits = 100,
           },
           app   // TODO: Remove me once fixed
       ));
