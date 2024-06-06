@@ -7,16 +7,16 @@
 #include <JANA/JApplication.h>
 #include <math.h>
 #include <string>
+
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
-#include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
-
+#include "factories/calorimetry/ImagingTopoCluster_factory.h"
 extern "C" {
     void InitPlugin(JApplication *app) {
 
@@ -34,7 +34,7 @@ extern "C" {
             .pedMeanADC = 400,
             .pedSigmaADC = 3.2,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
             .readout = "EcalFarForwardZDCHits",
           },
           app   // TODO: Remove me once fixed
@@ -116,7 +116,7 @@ extern "C" {
             .pedMeanADC = 400,
             .pedSigmaADC = 10,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
             .readout = "HcalFarForwardZDCHits",
           },
           app   // TODO: Remove me once fixed
@@ -159,7 +159,7 @@ extern "C" {
                 .layerDistEtaPhi = {17e-3, 18.1e-3},
                 .sectorDist = 10.0 * dd4hep::cm,
                 .minClusterHitEdep = 100.0 * dd4hep::keV,
-                .minClusterCenterEdep = 11.0 * dd4hep::MeV,
+                .minClusterCenterEdep = 1.0 * dd4hep::MeV,
                 .minClusterEdep = 11.0 * dd4hep::MeV,
                 .minClusterNhits = 10,
             },
@@ -182,7 +182,7 @@ extern "C" {
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
            "HcalFarForwardZDCClusters",
-          {"HcalFarForwardZDCIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+          {"HcalFarForwardZDCImagingProtoClusters",  // edm4eic::ProtoClusterCollection
            "HcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
           {"HcalFarForwardZDCClusters",             // edm4eic::Cluster
            "HcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation

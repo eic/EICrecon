@@ -182,7 +182,7 @@ namespace eicrecon {
     void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
       visits[idx] = true;
 
-      // not a qualified hit to particpate clustering, stop here
+      // not a qualified hit to participate clustering, stop here
       if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
         return;
       }
@@ -195,7 +195,7 @@ namespace eicrecon {
         for (std::size_t idx1 : group) {
           // check neighbours
           for (std::size_t idx2 = 0; idx2 < hits.size(); ++idx2) {
-            // not a qualified hit to particpate clustering, skip
+            // not a qualified hit to participate clustering, skip
             if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
               continue;
             }

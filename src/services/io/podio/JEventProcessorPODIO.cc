@@ -5,11 +5,15 @@
 #include <JANA/JLogger.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
+#include <podio/ROOTWriter.h>
 #include <spdlog/common.h>
+#include <chrono>
 #include <exception>
+#include <thread>
 
 #include "services/log/Log_service.h"
 
@@ -41,7 +45,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     );
 
     // Get the list of output collections to include/exclude
-    std::vector<std::string> output_include_collections={
+    std::vector<std::string> output_collections={
             // Header and other metadata
             "EventHeader",
 
@@ -87,6 +91,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelHitAssociations",
             "TOFEndcapHitAssociations",
 
+            "CombinedTOFParticleIDs",
+            "CombinedTOFSeededParticleIDs",
+
             // DRICH
             "DRICHRawHits",
             "DRICHRawHitsAssociations",
@@ -94,10 +101,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHGasTracks",
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
+            "DRICHParticleIDs",
+            "DRICHSeededParticleIDs",
 
             // PFRICH
             "RICHEndcapNRawHits",
             "RICHEndcapNRawHitsAssociations",
+            "RICHEndcapNParticleIDs",
+            "RICHEndcapNSeededParticleIDs",
 
             // MPGD
             "MPGDBarrelRecHits",
@@ -133,6 +144,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TaggerTrackerM2L3ClusterPositions",
             "TaggerTrackerM1Tracks",
             "TaggerTrackerM2Tracks",
+            "TaggerTrackerProjectedTracks",
+            "TaggerTrackerTracks",
+            "TaggerTrackerTrajectories",
+            "TaggerTrackerTrackParameters",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
@@ -151,10 +166,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // Reconstructed data
             "GeneratedParticles",
+            "GeneratedBreitFrameParticles",
             "ReconstructedParticles",
             "ReconstructedParticleAssociations",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
+            "ReconstructedChargedRealPIDParticles",
             "ReconstructedSeededChargedParticles",
             "ReconstructedSeededChargedParticleAssociations",
             "MCScatteredElectronAssociations", // Remove if/when used internally
@@ -169,6 +186,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTracks",
             "CentralCKFSeededTrackParameters",
+            //tracking properties - true seeding
+            "CentralCKFTrajectoriesUnfiltered",
+            "CentralCKFTracksUnfiltered",
+            "CentralCKFTrackParametersUnfiltered",
+             //tracking properties - realistic seeding
+            "CentralCKFSeededTrajectoriesUnfiltered",
+            "CentralCKFSeededTracksUnfiltered",
+            "CentralCKFSeededTrackParametersUnfiltered",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsSigma",
@@ -177,11 +202,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "InclusiveKinematicsTruth",
             "GeneratedJets",
             "GeneratedChargedJets",
+            "GeneratedCentauroJets",
             "ReconstructedJets",
             "ReconstructedChargedJets",
+            "ReconstructedCentauroJets",
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",
+#if EDM4EIC_VERSION_MAJOR >= 6
+            "HadronicFinalState",
+#endif
 
             // Track projections
             "CalorimeterTrackProjections",
@@ -271,15 +301,29 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",
             "HcalFarForwardZDCTruthClusterAssociations",
-
+            "ReconstructedFarForwardZDCNeutrons",
 
             // DIRC
-            "DIRCRawHits"
+            "DIRCRawHits",
+            "DIRCPID",
+            "DIRCParticleIDs",
+            "DIRCSeededParticleIDs",
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
+    std::string output_include_collections = "DEPRECATED";
     japp->SetDefaultParameter(
             "podio:output_include_collections",
             output_include_collections,
+            "DEPRECATED. Use podio:output_collections instead."
+    );
+    if (output_include_collections != "DEPRECATED") {
+      output_collections.clear();
+      JParameterManager::Parse(output_include_collections, output_collections);
+      m_output_include_collections_set = true;
+    }
+    japp->SetDefaultParameter(
+            "podio:output_collections",
+            output_collections,
             "Comma separated list of collection names to write out. If not set, all collections will be written (including ones from input file). Don't set this and use PODIO:OUTPUT_EXCLUDE_COLLECTIONS to write everything except a selection."
     );
     japp->SetDefaultParameter(
@@ -293,8 +337,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "Comma separated list of collection names to print to screen, e.g. for debugging."
     );
 
-    m_output_include_collections = std::set<std::string>(output_include_collections.begin(),
-                                                         output_include_collections.end());
+    m_output_collections = std::set<std::string>(output_collections.begin(),
+                                                 output_collections.end());
     m_output_exclude_collections = std::set<std::string>(output_exclude_collections.begin(),
                                                          output_exclude_collections.end());
 
@@ -310,6 +354,13 @@ void JEventProcessorPODIO::Init() {
     // TODO: NWB: Verify that output file is writable NOW, rather than after event processing completes.
     //       I definitely don't trust PODIO to do this for me.
 
+    if (m_output_include_collections_set) {
+      m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead.");
+      // Adding a delay to ensure users notice the deprecation warning.
+      using namespace std::chrono_literals;
+      std::this_thread::sleep_for(10s);
+    }
+
 }
 
 
@@ -318,7 +369,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     // Set up the set of collections_to_write.
     std::vector<std::string> all_collections = event->GetAllCollectionNames();
 
-    if (m_output_include_collections.empty()) {
+    if (m_output_collections.empty()) {
         // User has not specified an include list, so we include _all_ PODIO collections present in the first event.
         for (const std::string& col : all_collections) {
             if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
@@ -334,7 +385,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
         // We match up the include list with what is actually present in the event
         std::set<std::string> all_collections_set = std::set<std::string>(all_collections.begin(), all_collections.end());
 
-        for (const auto& col : m_output_include_collections) {
+        for (const auto& col : m_output_collections) {
             if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
                 // Included and not excluded
                 if (all_collections_set.find(col) == all_collections_set.end()) {
@@ -468,5 +519,12 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 }
 
 void JEventProcessorPODIO::Finish() {
+    if (m_output_include_collections_set) {
+      m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead.");
+      // Adding a delay to ensure users notice the deprecation warning.
+      using namespace std::chrono_literals;
+      std::this_thread::sleep_for(10s);
+    }
+
     m_writer->finish();
 }
