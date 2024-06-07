@@ -58,7 +58,7 @@ extern "C" {
             .thresholdFactor = 0.,
             .thresholdValue = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
 
-            .sampFrac = "0.0259",
+            .sampFrac = "1.0",
             .readout = "HcalEndcapPInsertHits",
             .layerField="layer",
           },
@@ -113,7 +113,7 @@ extern "C" {
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 3.6,
               .enableEtaBounds = true
             },
