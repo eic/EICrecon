@@ -219,7 +219,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "LFHCALusters",
+             "LFHCALTruthClusters",
             {"LFHCALTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "LFHCALHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"LFHCALTruthClusters",             // edm4eic::Cluster
