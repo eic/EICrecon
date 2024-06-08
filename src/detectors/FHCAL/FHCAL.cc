@@ -113,7 +113,7 @@ extern "C" {
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 3.6,
               .enableEtaBounds = true
             },
@@ -178,7 +178,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
+        app->Add(new JOmniFactoryGeneratorT<Calorimeterustering_factory>(
           "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALHits"}, {"LFHCALTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
@@ -219,7 +219,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "LFHCALTruthClusters",
+             "LFHCALusters",
             {"LFHCALTruthProtoClusters",        // edm4eic::ProtoClusterCollection
              "LFHCALHits"},                     // edm4hep::SimCalorimeterHitCollection
             {"LFHCALTruthClusters",             // edm4eic::Cluster
