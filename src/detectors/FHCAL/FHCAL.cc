@@ -113,7 +113,7 @@ extern "C" {
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 0.0257,
+              .sampFrac = 1.0,
               .logWeightBase = 3.6,
               .enableEtaBounds = true
             },
@@ -130,7 +130,7 @@ extern "C" {
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 6.2,
               .enableEtaBounds = false,
             },
