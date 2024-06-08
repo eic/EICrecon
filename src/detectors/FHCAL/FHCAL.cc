@@ -178,7 +178,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JOmniFactoryGeneratorT<Calorimeterustering_factory>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALHits"}, {"LFHCALTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
