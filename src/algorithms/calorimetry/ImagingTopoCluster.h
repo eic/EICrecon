@@ -83,7 +83,7 @@ namespace eicrecon {
         // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
         localDistXY[0] = m_cfg.localDistXY[0] / dd4hep::mm;
         localDistXY[1] = m_cfg.localDistXY[1] / dd4hep::mm;
-	layerDistXY[0] = m_cfg.layerDistXY[0] / dd4hep::mm;
+        layerDistXY[0] = m_cfg.layerDistXY[0] / dd4hep::mm;
         layerDistXY[1] = m_cfg.layerDistXY[1] / dd4hep::mm;
         layerDistEtaPhi[0] = m_cfg.layerDistEtaPhi[0];
         layerDistEtaPhi[1] = m_cfg.layerDistEtaPhi[1] / dd4hep::rad;
@@ -175,9 +175,9 @@ namespace eicrecon {
                    (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
                     layerDistEtaPhi[1]);
         } else if (ldiff <= m_cfg.neighbourLayersRange && m_cfg.layerMode=="xy") {
-	  return (std::abs(h1.getPosition().x - h2.getPosition().x) <= layerDistXY[0]) &&
-	         (std::abs(h1.getPosition().y - h2.getPosition().y) <= layerDistXY[1]);
-	}
+          return (std::abs(h1.getPosition().x - h2.getPosition().x) <= layerDistXY[0]) &&
+                 (std::abs(h1.getPosition().y - h2.getPosition().y) <= layerDistXY[1]);
+        }
         // not in adjacent layers
         return false;
     }

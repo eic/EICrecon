@@ -19,7 +19,7 @@ namespace eicrecon {
     std::vector<double> layerDistXY = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
 
     std::string layerMode="etaphi";
-    
+
     // maximum global distance to be considered as neighbors in different sectors
     double sectorDist = 1.0 * dd4hep::cm;
 
