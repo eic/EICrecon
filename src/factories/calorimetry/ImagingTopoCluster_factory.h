@@ -20,7 +20,9 @@ private:
     PodioOutput<edm4eic::ProtoCluster> m_protos_output {this};
 
     ParameterRef<std::vector<double>> m_ldxy {this, "localDistXY", config().localDistXY};
-    ParameterRef<std::vector<double>> m_ldep {this, "layerDistEtaPhi", config().layerDistEtaPhi};
+  ParameterRef<std::vector<double>> m_ldep {this, "layerDistEtaPhi", config().layerDistEtaPhi};
+   ParameterRef<std::vector<double>> m_ldxy_adjacent {this, "layerDistXY", config().layerDistXY};
+  ParameterRef<std::string> m_laymode {this, "layerMode", config().layerMode};
     ParameterRef<int> m_nlr {this, "neighbourLayersRange", config().neighbourLayersRange};
     ParameterRef<double> m_sd {this, "sectorDist", config().sectorDist};
     ParameterRef<double> m_mched {this, "minClusterHitEdep", config().minClusterHitEdep};
