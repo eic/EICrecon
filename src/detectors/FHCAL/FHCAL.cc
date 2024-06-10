@@ -139,18 +139,18 @@ extern "C" {
           )
         );
 
-	app->Add(
+        app->Add(
           new JOmniFactoryGeneratorT<CalorimeterTotalFourMomentum_factory>(
              "HcalEndcapPInsertTotalFourMomentum",
-	     {"HcalEndcapPInsertClusters"},  // edm4eic::Cluster
-	     {"HcalEndcapPInsertTotalFourMomentum"}, // edm4eic::ReconstructedParticle
+             {"HcalEndcapPInsertClusters"},  // edm4eic::Cluster
+             {"HcalEndcapPInsertTotalFourMomentum"}, // edm4eic::ReconstructedParticle
             {
 
             },
-            app   // TODO: Remove me once fixed                                                                                                        
+            app   // TODO: Remove me once fixed
           )
         );
-	
+
         // Make sure digi and reco use the same value
         decltype(CalorimeterHitDigiConfig::capADC)        LFHCAL_capADC = 65536;
         decltype(CalorimeterHitDigiConfig::dyRangeADC)    LFHCAL_dyRangeADC = 1 * dd4hep::GeV;

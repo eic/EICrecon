@@ -10,7 +10,7 @@
  Creates a pseudo particle containing the momenta and energies from all clusters in a given ClusterCollection.
  The 3-momentum for each cluster is the energy of that cluster, in the direction from the origin to the
  cluster position.  These 3-momenta, along with the energies of the clusters, are added together to form
- the total four-momentum in the calorimeter system.  
+ the total four-momentum in the calorimeter system.
 
  */
 
@@ -32,12 +32,12 @@ namespace eicrecon {
           double E = cluster.getEnergy();
           Etot+=E;
           double x= cluster.getPosition().x;
-	  double y= cluster.getPosition().y;
-	  double z= cluster.getPosition().z;
-	  double r=sqrt(x*x+y*y+z*z);
-	  pxtot+=E*x/r;
-	  pytot+=E*y/r;
-	  pztot+=E*z/r;
+          double y= cluster.getPosition().y;
+          double z= cluster.getPosition().z;
+          double r=sqrt(x*x+y*y+z*z);
+          pxtot+=E*x/r;
+          pytot+=E*y/r;
+          pztot+=E*z/r;
       }
       auto hfs = hadronic_final_state->create();
       hfs.setMomentum({(float)pxtot, (float)pytot, (float)pztot});
