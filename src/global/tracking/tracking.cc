@@ -253,12 +253,12 @@ void InitPlugin(JApplication *app) {
             ));
 
 
-    
+
     std::vector<std::string> input_track_collections;
     //Check size of input_collections to determine if CentralCKFTracks should be added to the input_track_collections
     if (input_collections.size() > 0) {
         input_track_collections.push_back("CentralCKFTracks");
-    }    
+    }
     //Check if the TaggerTracker readout is present in the current configuration
     if (readouts.find("TaggerTrackerHits") != readouts.end()) {
         input_track_collections.push_back("TaggerTrackerTracks");
