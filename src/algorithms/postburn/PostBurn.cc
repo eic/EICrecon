@@ -42,7 +42,8 @@ void eicrecon::PostBurn::process(
     bool      hasBeamHadron    = true;
     bool      hasBeamLepton    = true;
 
-    //read MCParticles information for status == 1 particles and post-burn
+    //read MCParticles information and "postburn" to remove the afterburner effects.
+	//The output is then the original MC input produced by the generator.
 
     ROOT::Math::PxPyPzEVector  e_beam(0.,0.,0.,0.);
     ROOT::Math::PxPyPzEVector  h_beam(0.,0.,0.,0.);
@@ -124,32 +125,30 @@ void eicrecon::PostBurn::process(
     h_beam = headOnBoostVector(h_beam);
 
     //Now, loop through events and apply operations to final-state particles
-        for (const auto& p: *mcparts) {
+    for (const auto& p: *mcparts) {
 
-            if(p.getGeneratorStatus() == 1) { //look for final-state particles
-            ROOT::Math::PxPyPzEVector mc(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
+        ROOT::Math::PxPyPzEVector mc(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
 
-            mc = boostVector(mc);
-            mc = rotationAboutY(mc);
-            mc = rotationAboutX(mc);
-            mc = headOnBoostVector(mc);
+        mc = boostVector(mc);
+        mc = rotationAboutY(mc);
+        mc = rotationAboutX(mc);
+        mc = headOnBoostVector(mc);
 
-            edm4hep::Vector3f mcMom(mc.Px(), mc.Py(), mc.Pz());
+        edm4hep::Vector3f mcMom(mc.Px(), mc.Py(), mc.Pz());
 
-            edm4hep::MutableMCParticle MCTrack(p.clone());
-            MCTrack.setMomentum(mcMom);
+        edm4hep::MutableMCParticle MCTrack(p.clone());
+        MCTrack.setMomentum(mcMom);
 
-            if(pidUseMCTruth){
-                MCTrack.setPDG(p.getPDG());
-                MCTrack.setMass(p.getMass());
-            }
-            if(!pidUseMCTruth && pidAssumePionMass){
-                MCTrack.setPDG(211);
-                MCTrack.setMass(0.13957);
-            }
-
-                        outputParticles->push_back(MCTrack);
+        if(pidUseMCTruth){
+            MCTrack.setPDG(p.getPDG());
+            MCTrack.setMass(p.getMass());
         }
+        if(!pidUseMCTruth && pidAssumePionMass){
+            MCTrack.setPDG(211);
+            MCTrack.setMass(0.13957);
+        }
+
+        outputParticles->push_back(MCTrack);
     }
 
 }
