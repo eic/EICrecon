@@ -33,11 +33,11 @@ void eicrecon::PostBurn::process(
     const auto [mcparts] = input;
     auto [outputParticles] = output;
 
-    bool      pidAssumePionMass = m_cfg.pidAssumePionMass;
-    double    crossingAngle    = m_cfg.crossingAngle;
-    double    pidPurity        = m_cfg.pidPurity;
-    bool      correctBeamFX    = m_cfg.correctBeamFX;
-    bool      pidUseMCTruth    = m_cfg.pidUseMCTruth;
+    bool      pidAssumePionMass = m_cfg.m_pid_assume_pion_mass;
+    double    crossingAngle    = m_cfg.m_crossing_angle;
+    double    pidPurity        = m_cfg.m_pid_purity;
+    bool      correctBeamFX    = m_cfg.m_correct_beam_FX;
+    bool      pidUseMCTruth    = m_cfg.m_pid_use_MC_truth;
 
     bool      hasBeamHadron    = true;
     bool      hasBeamLepton    = true;

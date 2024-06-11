@@ -23,11 +23,11 @@ void InitPlugin(JApplication *app) {
 
 
     //Full correction for MCParticles --> MCParticlesHeadOnFrame
-    postburn_config.pidAssumePionMass = false;
-    postburn_config.crossingAngle    = -0.025 * dd4hep::rad;
-    postburn_config.pidPurity        = 0.51; //dummy value for MC truth information
-    postburn_config.correctBeamFX    = true;
-    postburn_config.pidUseMCTruth    = true;
+    postburn_config.m_pid_assume_pion_mass = false;
+    postburn_config.m_crossing_angle    = -0.025 * dd4hep::rad;
+    postburn_config.m_pid_purity        = 0.51; //dummy value for MC truth information
+    postburn_config.m_correct_beam_FX    = true;
+    postburn_config.m_pid_use_MC_truth    = true;
 
 
     //Need to read-in MCParticles
