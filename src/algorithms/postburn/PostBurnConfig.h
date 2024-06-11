@@ -9,7 +9,7 @@ namespace eicrecon {
     struct PostBurnConfig {
 
         bool      pidAssumePionMass = false;
-        double    crossingAngle     = 0.025;
+        double    crossingAngle     = -0.025;
         double    pidPurity         = 0.51;
         bool      correctBeamFX     = true;
         bool      pidUseMCTruth     = true;
