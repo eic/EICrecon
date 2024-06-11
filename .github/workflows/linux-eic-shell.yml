@@ -839,7 +839,7 @@ jobs:
         - CC: clang
           beam: 10x100
           minq2: 1000
-          detector_config: craterlake_tracking_only        
+          detector_config: craterlake_tracking_only
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
