@@ -392,6 +392,10 @@ jobs:
         beam: [10x100, 18x275]
         minq2: [1000]
         detector_config: [craterlake]
+        include:
+          - beam: 10x100
+            minq2: 1000
+            detector_config: craterlake_tracking_only
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v4
     - name: Retrieve simulation files
@@ -832,6 +836,10 @@ jobs:
           beam: 5x41
           minq2: 0
           detector_config: craterlake
+        - CC: clang
+          beam: 10x100
+          minq2: 1000
+          detector_config: craterlake_tracking_only        
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
