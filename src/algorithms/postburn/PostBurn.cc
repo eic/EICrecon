@@ -111,20 +111,12 @@ void eicrecon::PostBurn::process(
     ROOT::Math::RotationY rotationAboutY(rotationAngleY);
     ROOT::Math::RotationX rotationAboutX(rotationAngleX);
 
-    e_beam = rotationAboutY(e_beam);
-    h_beam = rotationAboutY(h_beam);
-    e_beam = rotationAboutX(e_beam);
-    h_beam = rotationAboutX(h_beam);
-
     //Boost back to proper head-on frame
 
     ROOT::Math::PxPyPzEVector head_on_frame_boost(0., 0., cm_frame_boost.Pz(), cm_frame_boost.E());
     ROOT::Math::Boost headOnBoostVector(head_on_frame_boost.Px()/head_on_frame_boost.E(), head_on_frame_boost.Py()/head_on_frame_boost.E(), head_on_frame_boost.Pz()/head_on_frame_boost.E());
 
-    e_beam = headOnBoostVector(e_beam);
-    h_beam = headOnBoostVector(h_beam);
-
-    //Now, loop through events and apply operations to final-state particles
+    //Now, loop through events and apply operations to the MCparticles
     for (const auto& p: *mcparts) {
 
         ROOT::Math::PxPyPzEVector mc(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
