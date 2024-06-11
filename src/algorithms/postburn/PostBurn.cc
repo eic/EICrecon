@@ -96,9 +96,9 @@ void eicrecon::PostBurn::process(
     //Calculate boost vectors and rotations here
 
     ROOT::Math::PxPyPzEVector cm_frame_boost = e_beam + h_beam;
-    ROOT::Math::PxPyPzEVector tmp(-cm_frame_boost.Px(), -cm_frame_boost.Py(), -cm_frame_boost.Pz(), cm_frame_boost.E());
+    ROOT::Math::Cartesian3D beta(-cm_frame_boost.Px() / cm_frame_boost.E(), -cm_frame_boost.Py() / cm_frame_boost.E(), -cm_frame_boost.Pz() / cm_frame_boost.E());
 
-    ROOT::Math::Boost boostVector(tmp.Px()/tmp.E(), tmp.Py()/tmp.E(), tmp.Pz()/tmp.E());
+    ROOT::Math::Boost boostVector(beta);
 
     //Boost to CM frame
     e_beam = boostVector(e_beam);
