@@ -58,7 +58,7 @@ extern "C" {
             .thresholdFactor = 0.,
             .thresholdValue = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
 
-            .sampFrac = "0.0098",
+            .sampFrac = "1.0",
             .readout = "HcalEndcapPInsertHits",
             .layerField="layer",
           },
@@ -82,8 +82,8 @@ extern "C" {
         "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertSubcellHits"},
         {
           .MIP = 800. * dd4hep::keV,
-          .Emin_in_MIPs=0.1,
-          .tmax=50 * dd4hep::ns,
+          .Emin_in_MIPs=0.5,
+          .tmax=162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
         },
         app   // TODO: Remove me once fixed
       ));
@@ -94,16 +94,17 @@ extern "C" {
           {
               .neighbourLayersRange = 1,
               .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-              .layerDistEtaPhi = {17e-3, 18.1e-3},
+              .layerDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+	      .layerMode = "xy",
               .sectorDist = 10.0 * dd4hep::cm,
-              .minClusterHitEdep = 100.0 * dd4hep::keV,
-              .minClusterCenterEdep = 11.0 * dd4hep::MeV,
+              .minClusterHitEdep = 5.0 * dd4hep::keV,
+              .minClusterCenterEdep = 5.0 * dd4hep::MeV,
               .minClusterEdep = 11.0 * dd4hep::MeV,
-              .minClusterNhits = 10,
+              .minClusterNhits = 100,
           },
           app   // TODO: Remove me once fixed
       ));
-
+      
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertTruthClusters",
@@ -113,7 +114,7 @@ extern "C" {
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 3.6,
               .enableEtaBounds = true
             },
@@ -130,7 +131,7 @@ extern "C" {
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 6.2,
               .enableEtaBounds = false,
             },
