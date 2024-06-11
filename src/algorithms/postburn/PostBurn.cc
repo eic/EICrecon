@@ -43,7 +43,7 @@ void eicrecon::PostBurn::process(
     bool      hasBeamLepton    = true;
 
     //read MCParticles information and "postburn" to remove the afterburner effects.
-	//The output is then the original MC input produced by the generator.
+        //The output is then the original MC input produced by the generator.
 
     ROOT::Math::PxPyPzEVector  e_beam(0.,0.,0.,0.);
     ROOT::Math::PxPyPzEVector  h_beam(0.,0.,0.,0.);
