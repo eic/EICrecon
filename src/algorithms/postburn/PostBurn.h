@@ -33,8 +33,8 @@ namespace eicrecon {
   public:
     PostBurn(std::string_view name)
       : PostBurnAlgorithm{name,
-                            {"mcParticles"},
-                            {"outputParticleCollection"},
+                            {"inputMCParticles"},
+                            {"outputMCParticles"},
                             "Apply boosts and rotations to remove crossing angle and beam effects."} {}
 
     void init();
