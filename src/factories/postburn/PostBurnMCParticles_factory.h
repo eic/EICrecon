@@ -25,11 +25,11 @@ private:
     PodioInput<edm4hep::MCParticle> m_mcparts_input {this};
     PodioOutput<edm4hep::MCParticle> m_postburn_output {this};
 
-    ParameterRef<bool>      pidAssumePionMass{this, "pidAssumePionMass", config().pidAssumePionMass};
-    ParameterRef<double>    crossingAngle{this, "crossingAngle", config().crossingAngle};
-    ParameterRef<double>    pidPurity{this, "pidPurity", config().pidPurity};
-    ParameterRef<bool>      correctBeamFX       {this, "correctBeamFX", config().correctBeamFX};
-    ParameterRef<bool>      pidUseMCTruth         {this, "pidUseMCTruth", config().pidUseMCTruth};
+    ParameterRef<bool>      m_pid_assume_pion_mass {this, "m_pid_assume_pion_mass", config().m_pid_assume_pion_mass};
+    ParameterRef<double>    m_crossing_angle       {this, "m_crossing_angle", config().m_crossing_angle};
+    ParameterRef<double>    m_pid_purity           {this, "m_pid_purity", config().m_pid_purity};
+    ParameterRef<bool>      m_correct_beam_FX      {this, "m_correct_beam_FX", config().m_correct_beam_FX};
+    ParameterRef<bool>      m_pid_use_MC_truth     {this, "m_pid_use_MC_truth", config().m_pid_use_MC_truth};
 
 
 public:
