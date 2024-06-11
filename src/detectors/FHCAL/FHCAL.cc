@@ -95,7 +95,7 @@ extern "C" {
               .neighbourLayersRange = 1,
               .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
               .layerDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-	      .layerMode = "xy",
+              .layerMode = "xy",
               .sectorDist = 10.0 * dd4hep::cm,
               .minClusterHitEdep = 5.0 * dd4hep::keV,
               .minClusterCenterEdep = 5.0 * dd4hep::MeV,
@@ -104,7 +104,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
       ));
-      
+
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertTruthClusters",
