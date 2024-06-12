@@ -78,13 +78,16 @@ jobs:
             CXX: clang++
           # all clang debug jobs get extra flags
           - CC: clang
+            CXX: clang++
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
           # include some configs explicitly (if not yet included)
           - CC: clang
+            CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: nightly
           - CC: clang
+            CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 24.04.0-stable
     steps:
