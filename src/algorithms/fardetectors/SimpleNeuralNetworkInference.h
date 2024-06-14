@@ -2,13 +2,13 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <spdlog/logger.h>
 
-#include "TorchScriptInterfaceConfig.h"
+#include "SimpleNeuralNetworkInference.h"
 #include "algorithms/algorithm.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class TorchScriptInterface :  public WithPodConfig<TorchScriptInterfaceConfig> {
+  class TorchScriptInterface :  public WithPodConfig<SimpleNeuralNetworkInference> {
 
   public:
     void init(std::shared_ptr<spdlog::logger> logger);
