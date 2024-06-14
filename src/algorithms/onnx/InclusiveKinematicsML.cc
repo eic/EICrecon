@@ -30,9 +30,7 @@ namespace eicrecon {
     return tensor;
   }
 
-  void InclusiveKinematicsML::init(std::shared_ptr<spdlog::logger>& logger) {
-    m_log = logger;
-
+  void InclusiveKinematicsML::init() {
     // onnxruntime setup
     Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "inclusive-kinematics-ml");
     Ort::SessionOptions session_options;
@@ -41,19 +39,19 @@ namespace eicrecon {
 
       // print name/shape of inputs
       Ort::AllocatorWithDefaultOptions allocator;
-      m_log->debug("Input Node Name/Shape:");
+      debug("Input Node Name/Shape:");
       for (std::size_t i = 0; i < m_session.GetInputCount(); i++) {
         m_input_names.emplace_back(m_session.GetInputNameAllocated(i, allocator).get());
         m_input_shapes.emplace_back(m_session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
-        m_log->debug("\t{} : {}", m_input_names.at(i), print_shape(m_input_shapes.at(i)));
+        debug("\t{} : {}", m_input_names.at(i), print_shape(m_input_shapes.at(i)));
       }
 
       // print name/shape of outputs
-      m_log->debug("Output Node Name/Shape:");
+      debug("Output Node Name/Shape:");
       for (std::size_t i = 0; i < m_session.GetOutputCount(); i++) {
         m_output_names.emplace_back(m_session.GetOutputNameAllocated(i, allocator).get());
         m_output_shapes.emplace_back(m_session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
-        m_log->debug("\t{} : {}", m_output_names.at(i), print_shape(m_output_shapes.at(i)));
+        debug("\t{} : {}", m_output_names.at(i), print_shape(m_output_shapes.at(i)));
       }
 
       // convert names to char*
@@ -65,7 +63,7 @@ namespace eicrecon {
                      [&](const std::string& str) { return str.c_str(); });
 
     } catch(std::exception& e) {
-      m_log->error(e.what());
+      error(e.what());
     }
   }
 
@@ -78,13 +76,13 @@ namespace eicrecon {
 
     // Require valid inputs
     if (electron->size() == 0 || da->size() == 0) {
-      m_log->debug("skipping because input collections have no entries");
+      debug("skipping because input collections have no entries");
       return;
     }
 
     // Assume model has 1 input nodes and 1 output node.
     if (m_input_names.size() != 1 || m_output_names.size() != 1) {
-      m_log->debug("skipping because model has incorrect input and output size");
+      debug("skipping because model has incorrect input and output size");
       return;
     }
 
@@ -98,7 +96,7 @@ namespace eicrecon {
 
     // Double-check the dimensions of the input tensor
     if (! input_tensors[0].IsTensor() || input_tensors[0].GetTensorTypeAndShapeInfo().GetShape() != m_input_shapes.front()) {
-      m_log->debug("skipping because input tensor shape incorrect");
+      debug("skipping because input tensor shape incorrect");
       return;
     }
 
@@ -109,7 +107,7 @@ namespace eicrecon {
 
       // Double-check the dimensions of the output tensors
       if (!output_tensors[0].IsTensor() || output_tensors.size() != m_output_names.size()) {
-        m_log->debug("skipping because output tensor shape incorrect");
+        debug("skipping because output tensor shape incorrect");
         return;
       }
 
@@ -120,7 +118,7 @@ namespace eicrecon {
       kin.setX(x);
 
     } catch (const Ort::Exception& exception) {
-      m_log->error("error running model inference: {}", exception.what());
+      error("error running model inference: {}", exception.what());
     }
   }
 

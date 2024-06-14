@@ -19,9 +19,7 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicsTruth::init(std::shared_ptr<spdlog::logger>& logger) {
-    m_log = logger;
-
+  void InclusiveKinematicsTruth::init() {
     // m_pidSvc = service("ParticleSvc");
     // if (!m_pidSvc) {
     //   error() << "Unable to locate Particle Service. "
@@ -47,7 +45,7 @@ namespace eicrecon {
     // Get incoming electron beam
     const auto ei_coll = find_first_beam_electron(mcparts);
     if (ei_coll.size() == 0) {
-      m_log->debug("No beam electron found");
+      debug("No beam electron found");
       return;
     }
     const auto ei_p = ei_coll[0].getMomentum();
@@ -58,7 +56,7 @@ namespace eicrecon {
     // Get incoming hadron beam
     const auto pi_coll = find_first_beam_hadron(mcparts);
     if (pi_coll.size() == 0) {
-      m_log->debug("No beam hadron found");
+      debug("No beam hadron found");
       return;
     }
     const auto pi_p = pi_coll[0].getMomentum();
@@ -73,7 +71,7 @@ namespace eicrecon {
     // the beam.
     const auto ef_coll = find_first_scattered_electron(mcparts);
     if (ef_coll.size() == 0) {
-      m_log->debug("No truth scattered electron found");
+      debug("No truth scattered electron found");
       return;
     }
     const auto ef_p = ef_coll[0].getMomentum();
@@ -91,7 +89,7 @@ namespace eicrecon {
     const auto W = sqrt(pi_mass*pi_mass + 2.*q_dot_pi - Q2);
     auto kin = kinematics->create(x, Q2, W, y, nu);
 
-    m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
+    debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
             kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
   }
 
