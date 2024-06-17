@@ -85,8 +85,9 @@ namespace eicrecon {
     void associate(const edm4eic::Cluster& cl, const edm4hep::SimCalorimeterHitCollection* mchits, edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
 
   private:
-    mutable std::vector<std::pair<int, double>>   m_vecSimHitIndexVsEne;
-    mutable std::map<int, std::pair<int, double>> m_mapMCIndexToContrib;
+    mutable std::map<int, std::pair<int, int>> m_mapMCParToSimIndices;
+    mutable std::map<int, double> m_mapMCParToContrib;
+
   };
 
 } // eicrecon

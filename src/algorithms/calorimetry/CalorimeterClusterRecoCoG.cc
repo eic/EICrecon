@@ -288,14 +288,13 @@ void CalorimeterClusterRecoCoG::associate(
 ) const {
 
   // 1. idenitfy sim hits associated w/ protocluster and sum their energy
-  // 2. sort list of associated mcHits in decreasing energy
-  // 3. walk through contributions to find MCParticle which contributed
-  //    the most energy
-  // 4. associate cluster to that MCParticle
+  // 2. for each sim hit, identify contributing primaries and sum their contributed energy
+  // 3. create an association for each contributiong primary with a weight of contributed
+  //    over total energy
 
   // make sure book-keeping containers are empty
-  m_vecSimHitIndexVsEne.clear();
-  m_mapMCIndexToContrib.clear();
+  m_mapMCParToSimIndices.clear();
+  m_mapMCParToContrib.clear();
 
   // 1. get associated sim hits and sum energy
   double eSimHitSum = 0.;
@@ -317,83 +316,66 @@ void CalorimeterClusterRecoCoG::associate(
     }
     eSimHitSum += (*mchits)[iSimMatch].getEnergy();
 
-    // add index to list
-    m_vecSimHitIndexVsEne.emplace_back(
-      std::make_pair(iSimMatch, (*mchits)[iSimMatch].getEnergy())
-    );
-    ++iHit;
-  }
-  debug("Sum of energy in sim hits = {}", eSimHitSum);
-
-  // 2. sort sim hits in decreasing energy
-  std::sort(
-    m_vecSimHitIndexVsEne.begin(),
-    m_vecSimHitIndexVsEne.end(),
-    [](const auto& lhs, const auto& rhs) {
-      return (lhs.second > rhs.second);
-    }
-  );
-  trace("Sorted sim hit energies.");
-
-  // 3. find biggest contributing MCParticle
-  bool   foundAssoc = false;
-  double eConChecked = 0.;
-  for (std::size_t iSimVsEne = 0; iSimVsEne < m_vecSimHitIndexVsEne.size(); ++iSimVsEne) {
-
-    const std::size_t iSim = m_vecSimHitIndexVsEne[iSimVsEne].first;
-    const auto mchit = (*mchits)[iSim];
-    for (std::size_t iContrib = 0; const auto& contrib : mchit.getContributions()) {
+    // 2. walk back through contributions to find primaries
+    for (std::size_t iContrib = 0; const auto& contrib : (*mchits)[iSimMatch].getContributions()) {
 
       // get particle
-      const auto par = contrib.getParticle();
+      const auto contributor = contrib.getParticle();
 
-      // get index in MCParticles & contribution
-      const int index = par.getObjectID().index;
-      const double eContrib = contrib.getEnergy();
+      // now walk back through parents
+      // to identify associated primary
+      //   - TODO finalize primary selection
+      auto primary = contributor;
+      while (primary.parents_size() > 0) {
+
+        // get 1st parent, break if primary
+        primary = primary.getParents(0);
+        if (primary.getGeneratorStatus() == 1) break;
+
+      }  // end parent loop
 
       // increment sums accordingly
-      if (m_mapMCIndexToContrib.find(index) == m_mapMCIndexToContrib.end()) {
-        m_mapMCIndexToContrib.insert({
-          index,
-          std::make_pair(iContrib, eContrib)
-        });
+      const int idPrim = primary.getObjectID().index;
+      if (m_mapMCParToContrib.find(idPrim) == m_mapMCParToContrib.end()) {
+        m_mapMCParToSimIndices.insert(
+          {idPrim, std::make_pair(iSimMatch, iContrib)}
+        );
+        m_mapMCParToContrib.insert(
+          {idPrim, contrib.getEnergy()}
+        );
       } else {
-        m_mapMCIndexToContrib[index].second += eContrib;
+        m_mapMCParToContrib[idPrim] += contrib.getEnergy();
       }
-      eConChecked += eContrib;
-    }  // end contrib loop
 
-    // grab current max
-    const auto maxContrib = std::max_element(
-      m_mapMCIndexToContrib.begin(),
-      m_mapMCIndexToContrib.end(),
-      [](const auto& lhs, const auto& rhs) {
-        return lhs.second.second < rhs.second.second;
-      }
-    );
-
-    // 4. if max is more than remaining energy to check or
-    //    at last sim hit, set association and break
-    if (
-      (maxContrib->second.second > (eSimHitSum - eConChecked)) ||
-      (iSimVsEne == (m_vecSimHitIndexVsEne.size() - 1))
-    ) {
-
-      // grab corresponding particle and print debugging messages
-      auto mcp = (*mchits)[iSim].getContributions(maxContrib->second.first).getParticle();
-      debug("corresponding mc hit energy {} at index {}", (*mchits)[iSim].getEnergy(), (*mchits)[iSim].getObjectID().index);
-      debug("from MCParticle index {}, PDG {}, {}", mcp.getObjectID().index, mcp.getPDG(), edm4hep::utils::magnitude(mcp.getMomentum()));
-
-      // set association
-      auto assoc = assocs->create();
-      assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-      assoc.setSimID(mcp.getObjectID().index);
-      assoc.setWeight(1.0);
-      assoc.setRec(cl);
-      assoc.setSim(mcp);
-      break;
-    }
+    }  // end contribution loop
   }  // end hit loop
+
+  // 3. create association for each contributing primary
+  for (const auto& parAndSimIndices : m_mapMCParToSimIndices) {
+ 
+    // grab indices, calculate weight
+    const uint32_t iSimHit = parAndSimIndices.second.first;
+    const uint32_t iContrib = parAndSimIndices.second.second;
+    const double weight = m_mapMCParToContrib[parAndSimIndices.first] / eSimHitSum;
+
+    // get corresponding
+    const auto contributor = (*mchits)[iSimHit].getContributions(iContrib).getParticle();
+
+    auto primary = contributor;
+    while (primary.parents_size() > 0) {
+      primary = primary.getParents(0);
+      if (primary.getGeneratorStatus() == 1) break;
+    }
+
+    // set association
+    auto assoc = assocs->create();
+    assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
+    assoc.setSimID(primary.getObjectID().index);
+    assoc.setWeight(weight);
+    assoc.setRec(cl);
+    assoc.setSim(primary);
+
+  }
   return;
 
 }  // end 'associate(edm4eic::Cluster&, edm4hep::SimCalorimeterHit*)'
