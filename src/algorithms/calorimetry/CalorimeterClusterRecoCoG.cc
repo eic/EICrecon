@@ -319,20 +319,9 @@ void CalorimeterClusterRecoCoG::associate(
     // 2. walk back through contributions to find primaries
     for (std::size_t iContrib = 0; const auto& contrib : (*mchits)[iSimMatch].getContributions()) {
 
-      // get particle
-      const auto contributor = contrib.getParticle();
-
-      // now walk back through parents
-      // to identify associated primary
-      //   - TODO finalize primary selection
-      auto primary = contributor;
-      while (primary.parents_size() > 0) {
-
-        // get 1st parent, break if primary
-        primary = primary.getParents(0);
-        if (primary.getGeneratorStatus() == 1) break;
-
-      }  // end parent loop
+      // grab primary responsible for contribution 
+      edm4hep::MCParticle primary;
+      get_primary(contrib, primary);
 
       // increment sums accordingly
       const int idPrim = primary.getObjectID().index;
@@ -346,9 +335,16 @@ void CalorimeterClusterRecoCoG::associate(
       } else {
         m_mapMCParToContrib[idPrim] += contrib.getEnergy();
       }
+      trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
+        primary.getObjectID().index,
+        primary.getPDG(),
+        primary.getEnergy(),
+        m_mapMCParToContrib[idPrim]
+      );
 
     }  // end contribution loop
   }  // end hit loop
+  debug("Found {} primaries contributing a total of {} GeV", m_mapMCParToContrib.size(), eSimHitSum);
 
   // 3. create association for each contributing primary
   for (const auto& parAndSimIndices : m_mapMCParToSimIndices) {
@@ -358,14 +354,9 @@ void CalorimeterClusterRecoCoG::associate(
     const uint32_t iContrib = parAndSimIndices.second.second;
     const double weight = m_mapMCParToContrib[parAndSimIndices.first] / eSimHitSum;
 
-    // get corresponding
-    const auto contributor = (*mchits)[iSimHit].getContributions(iContrib).getParticle();
-
-    auto primary = contributor;
-    while (primary.parents_size() > 0) {
-      primary = primary.getParents(0);
-      if (primary.getGeneratorStatus() == 1) break;
-    }
+    // get relevant MCParticle
+    edm4hep::MCParticle primary;
+    get_primary((*mchits)[iSimHit].getContributions(iContrib), primary);
 
     // set association
     auto assoc = assocs->create();
@@ -374,10 +365,38 @@ void CalorimeterClusterRecoCoG::associate(
     assoc.setWeight(weight);
     assoc.setRec(cl);
     assoc.setSim(primary);
+    debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with weight ()",
+      cl.getObjectID().index,
+      primary.getObjectID().index,
+      primary.getPDG(),
+      primary.getGeneratorStatus(),
+      primary.getEnergy(),
+      weight
+    );
 
+  }  // end contributor loop
+  return;
+
+}  // end 'associate(edm4eic::Cluster&, edm4hep::SimCalorimeterHitCollection*, edm4eic::MCRecoClusterParticleAssociationCollection*)'
+
+//------------------------------------------------------------------------
+void CalorimeterClusterRecoCoG::get_primary(
+  const edm4hep::CaloHitContribution& contrib,
+  edm4hep::MCParticle& primary
+) const {
+
+  // get contributing particle
+  const auto contributor = contrib.getParticle();
+
+  // walk back through parents to find primary
+  //   - TODO finalize primary selection
+  primary = contributor;
+  while (primary.parents_size() > 0) {
+    primary = primary.getParents(0);
+    if (primary.getGeneratorStatus() == 1) break;
   }
   return;
 
-}  // end 'associate(edm4eic::Cluster&, edm4hep::SimCalorimeterHit*)'
+}  // end 'get_primary(edm4hep::CaloHitContribution&, edm4hep::MCParticle&)'
 
 } // eicrecon
