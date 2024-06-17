@@ -319,7 +319,7 @@ void CalorimeterClusterRecoCoG::associate(
     // 2. walk back through contributions to find primaries
     for (std::size_t iContrib = 0; const auto& contrib : (*mchits)[iSimMatch].getContributions()) {
 
-      // grab primary responsible for contribution 
+      // grab primary responsible for contribution
       edm4hep::MCParticle primary;
       get_primary(contrib, primary);
 
@@ -348,7 +348,7 @@ void CalorimeterClusterRecoCoG::associate(
 
   // 3. create association for each contributing primary
   for (const auto& parAndSimIndices : m_mapMCParToSimIndices) {
- 
+
     // grab indices, calculate weight
     const uint32_t iSimHit = parAndSimIndices.second.first;
     const uint32_t iContrib = parAndSimIndices.second.second;
