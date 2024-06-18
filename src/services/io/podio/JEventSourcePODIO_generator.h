@@ -11,7 +11,7 @@ class JEventSourcePODIO_generator : public JEventSourceGenerator {
         auto* source = new JEventSourcePODIO(resource_name, nullptr);
         source->SetResourceName(resource_name);
 
-        // Check if the string "timeslices" appears anywhere in our filename. 
+        // Check if the string "timeslices" appears anywhere in our filename.
         // If so, we assume the file contains timeslices, otherwise it contains physics events.
         // Another approach might be to peek at the file's contents
         if (resource_name.find("timeslices") != std::string::npos)  {
@@ -24,7 +24,7 @@ class JEventSourcePODIO_generator : public JEventSourceGenerator {
     }
 
     double CheckOpenable(std::string resource_name) override {
-        // In theory, we should check whether PODIO can open the file and 
+        // In theory, we should check whether PODIO can open the file and
         // whether it contains an 'events' or 'timeslices' tree. If not, return 0.
         if (resource_name.find(".root") != std::string::npos) {
             return 0.01;
@@ -32,5 +32,3 @@ class JEventSourcePODIO_generator : public JEventSourceGenerator {
         return 0;
     }
 };
-
-

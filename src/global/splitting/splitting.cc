@@ -17,14 +17,12 @@ void InitPlugin(JApplication *app) {
     // Factory that produces timeslice-level protoclusters from timeslice-level hits
     /*
     app->Add(new JOmniFactoryGeneratorT<MyProtoclusterFactory>(
-                { .tag = "timeslice_protoclusterizer", 
+                { .tag = "timeslice_protoclusterizer",
                   .level = JEventLevel::Timeslice,
-                  .input_names = {"hits"}, 
+                  .input_names = {"hits"},
                   .output_names = {"ts_protoclusters"}
                 }));
     */
 
 }
 } // "C"
-
-

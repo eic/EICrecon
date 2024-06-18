@@ -42,6 +42,3 @@ struct TimeframeSplitter : public JEventUnfolder {
         return (child_idx == 2) ? Result::NextChildNextParent : Result::NextChildKeepParent;
     }
 };
-
-
-
