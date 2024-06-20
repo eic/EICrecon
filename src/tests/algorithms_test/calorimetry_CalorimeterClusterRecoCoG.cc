@@ -51,7 +51,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
 
   //create a protocluster with 3 hits
   auto pclust = pclust_coll.create();
-  edm4hep::Vector3f position({0,0,0*dd4hep::mm});
+  edm4hep::Vector3f position({0, 0, 1 *dd4hep::mm});
 
   auto hit1 = hits_coll.create();
   hit1.setCellID(0);
@@ -64,7 +64,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   hit1.setLocal(position);
   pclust.addToHits(hit1);
 
-  position={0, 0, 1 * dd4hep::mm};
+  position={-1 * dd4hep::mm, 0, 2 * dd4hep::mm};
   auto hit2 = hits_coll.create();
   hit2.setCellID(0);
   hit2.setEnergy(0.1*dd4hep::GeV);
@@ -75,19 +75,6 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   hit2.setDimension({0,0,0});
   hit2.setLocal(position);
   pclust.addToHits(hit2);
-
-  position={-1 * dd4hep::mm, 0, 2 * dd4hep::mm};
-  auto hit3 = hits_coll.create();//0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
-  hit3.setCellID(0);
-  hit3.setEnergy(0.1*dd4hep::GeV);
-  hit3.setEnergyError(0);
-  hit3.setTime(0);
-  hit3.setTimeError(0);
-  hit3.setPosition(position);
-  hit3.setDimension({0,0,0});
-  hit3.setLocal(position);
-  pclust.addToHits(hit3);
-  pclust.addToWeights(1);pclust.addToWeights(1);pclust.addToWeights(1);
 
   // Constructing input and output as per the algorithm's expected signature
   auto input = std::make_tuple(&pclust_coll, &simhits);
