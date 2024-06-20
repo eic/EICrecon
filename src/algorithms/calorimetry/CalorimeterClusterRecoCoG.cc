@@ -326,7 +326,7 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
 
   if (axis_z != 0) {
     cl.setIntrinsicPhi(atan2(axis_y, axis_x));
-    cl.setIntrinsicTheta(atan2(std::hypot(axis_x, axis_y), axis_z);
+    cl.setIntrinsicTheta(atan2(std::hypot(axis_x, axis_y), axis_z));
   } else {
     // best estimate on the cluster direction is the cluster position
     // for simple 2D CoG clustering
