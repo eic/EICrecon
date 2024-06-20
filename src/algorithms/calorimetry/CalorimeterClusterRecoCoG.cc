@@ -228,12 +228,6 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
 
   // Additional convenience variables
 
-  // best estimate on the cluster direction is the cluster position
-  // for simple 2D CoG clustering
-  cl.setIntrinsicTheta(edm4hep::utils::anglePolar(cl.getPosition()));
-  cl.setIntrinsicPhi(edm4hep::utils::angleAzimuthal(cl.getPosition()));
-  // TODO errors
-
   //_______________________________________
   // Calculate cluster profile:
   //    radius,
@@ -329,10 +323,19 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   cl.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
   cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
   cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
-  //last 3 shape parameters are the components of the axis direction
-  cl.addToShapeParameters( axis_x );
-  cl.addToShapeParameters( axis_y );
-  cl.addToShapeParameters( axis_z );
+
+  if (axis_z != 0) {
+    cl.setIntrinsicPhi(atan2(axis_y, axis_x));
+    cl.setIntrinsicTheta(atan2(std::hypot(axis_x, axis_y), axis_z);
+  } else {
+    // best estimate on the cluster direction is the cluster position
+    // for simple 2D CoG clustering
+    cl.setIntrinsicTheta(edm4hep::utils::anglePolar(cl.getPosition()));
+    cl.setIntrinsicPhi(edm4hep::utils::angleAzimuthal(cl.getPosition()));
+  }
+  // TODO intrinsicDirectionError
+
+
   return std::move(cl);
 }
 
