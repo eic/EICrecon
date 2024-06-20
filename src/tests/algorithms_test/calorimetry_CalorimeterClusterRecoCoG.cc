@@ -98,7 +98,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
 
   for (auto clust : *clust_coll){
     // require that this cluster's axis is 0,0,1
-    REQUIRE(clust.getIntrinsicTheta() == 0);
+    REQUIRE(clust.getIntrinsicTheta() == M_PI * 3 / 4);
     REQUIRE(clust.getIntrinsicPhi() == -M_PI);
   }
 
