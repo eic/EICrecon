@@ -4,6 +4,8 @@
 
 #include <Evaluator/DD4hepUnits.h>                 // for MeV, mm, keV, ns
 #include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>      // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
@@ -28,6 +30,8 @@ using eicrecon::CalorimeterClusterRecoCoGConfig;
 using edm4eic::CalorimeterHit;
 
 TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" ) {
+  const float EPSILON = 1e-5;
+
   CalorimeterClusterRecoCoG algo("CalorimeterClusterRecoCoG");
 
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterClusterRecoCoG");
@@ -86,9 +90,8 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
 
 
   for (auto clust : *clust_coll){
-    // require that this cluster's axis is 0,0,1
-    REQUIRE(clust.getIntrinsicTheta() == M_PI * 3 / 4);
-    REQUIRE(clust.getIntrinsicPhi() == -M_PI);
+    REQUIRE_THAT(clust.getIntrinsicTheta(), Catch::Matchers::WithinAbs(M_PI * 3 / 4, EPSILON));
+    REQUIRE_THAT(clust.getIntrinsicPhi(), Catch::Matchers::WithinAbs(-M_PI, EPSILON));
   }
 
 
