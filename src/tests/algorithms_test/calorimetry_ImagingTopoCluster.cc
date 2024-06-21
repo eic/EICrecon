@@ -37,7 +37,7 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
   cfg.localDistXY = {1.0* dd4hep::mm, 1.0* dd4hep::mm}; //mm
   cfg.layerDistXY = {1.0* dd4hep::mm, 1.0* dd4hep::mm}; //mm
   cfg.minClusterEdep = 9 * dd4hep::MeV;
-    // minimum number of hits (to save this cluster)                                                                                                
+    // minimum number of hits (to save this cluster)
   cfg.minClusterNhits = 1;
   auto detector = algorithms::GeoSvc::instance().detector();
   auto id_desc = detector->readout("MockCalorimeterHits").idSpec();
@@ -49,7 +49,7 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
     SECTION( "on a single cell" ) {
       edm4eic::CalorimeterHitCollection hits_coll;
       hits_coll.create(
-		       id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
+                       id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
         5.0, // float energy,
         0.0, // float energyError,
         0.0, // float time,
@@ -71,7 +71,7 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
     SECTION( "on two separated cells" ) {
       edm4eic::CalorimeterHitCollection hits_coll;
       hits_coll.create(
-	id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
+        id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
         5.0, // float energy,
         0.0, // float energyError,
         0.0, // float time,
@@ -83,7 +83,7 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
         edm4hep::Vector3f(0.0, 0.0, 0.0) // edm4hep::Vector3f local
       );
       hits_coll.create(
-	id_desc.encode({{"system", 255}, {"x", 2}, {"y", 2}, {"layer", 0}}), // std::uint64_t cellID,
+        id_desc.encode({{"system", 255}, {"x", 2}, {"y", 2}, {"layer", 0}}), // std::uint64_t cellID,
         6.0, // float energy,
         0.0, // float energyError,
         0.0, // float time,
@@ -140,14 +140,14 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
   }
 
   SECTION( "run on three cells, two of which are on the same layer, and there is a third one on another layer acting as a bridge between them" ) {
-    
+
     cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     algo.applyConfig(cfg);
     algo.init();
 
     edm4eic::CalorimeterHitCollection hits_coll;
     hits_coll.create(
-		     id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
+                     id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
       5.0, // float energy,
       0.0, // float energyError,
       0.0, // float time,
@@ -159,7 +159,7 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
       edm4hep::Vector3f(0.0, 0.0, 0.0) // edm4hep::Vector3f local
     );
     hits_coll.create(
-		     id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}, {"layer",1}}), // std::uint64_t cellID,
+                     id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}, {"layer",1}}), // std::uint64_t cellID,
       1.0, // float energy,
       0.0, // float energyError,
       0.0, // float time,
@@ -171,7 +171,7 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
       edm4hep::Vector3f(0.9 /* mm */, 0.9 /* mm */, 0.0) // edm4hep::Vector3f local
     );
     hits_coll.create(
-		     id_desc.encode({{"system", 255}, {"x", 2}, {"y", 0},{"layer",0}}), // std::uint64_t cellID,
+                     id_desc.encode({{"system", 255}, {"x", 2}, {"y", 0},{"layer",0}}), // std::uint64_t cellID,
       6.0, // float energy,
       0.0, // float energyError,
       0.0, // float time,
@@ -185,10 +185,10 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
     auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
     algo.process({&hits_coll}, {protoclust_coll.get()});
 
-    
+
     REQUIRE( (*protoclust_coll).size() == 1 );
     REQUIRE( (*protoclust_coll)[0].hits_size() == 3 );
     REQUIRE( (*protoclust_coll)[0].weights_size() == 3 );
-    
+
   }
 }
