@@ -63,6 +63,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   hit1.setDimension({0,0,0});
   hit1.setLocal(position);
   pclust.addToHits(hit1);
+  pclust.addToWeights(1);
 
   position={-1 * dd4hep::mm, 0, 2 * dd4hep::mm};
   auto hit2 = hits_coll.create();
@@ -75,6 +76,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   hit2.setDimension({0,0,0});
   hit2.setLocal(position);
   pclust.addToHits(hit2);
+  pclust.addToWeights(1);
 
   // Constructing input and output as per the algorithm's expected signature
   auto input = std::make_tuple(&pclust_coll, &simhits);
