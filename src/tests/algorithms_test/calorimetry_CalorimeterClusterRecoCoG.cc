@@ -13,7 +13,6 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>                      // for Vector3f
 #include <math.h>
-#include <podio/RelationRange.h>
 #include <spdlog/common.h>                         // for level_enum
 #include <spdlog/logger.h>                         // for logger
 #include <spdlog/spdlog.h>                         // for default_logger
