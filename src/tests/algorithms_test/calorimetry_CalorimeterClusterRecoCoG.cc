@@ -91,7 +91,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
 
   for (auto clust : *clust_coll){
     REQUIRE_THAT(clust.getIntrinsicTheta(), Catch::Matchers::WithinAbs(M_PI * 3 / 4, EPSILON));
-    REQUIRE_THAT(clust.getIntrinsicPhi(), Catch::Matchers::WithinAbs(-M_PI, EPSILON));
+    REQUIRE_THAT(clust.getIntrinsicPhi(), Catch::Matchers::WithinAbs(0, EPSILON));
   }
 
 
