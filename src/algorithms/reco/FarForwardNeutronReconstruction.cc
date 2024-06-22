@@ -5,10 +5,9 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <math.h>
-#include <optional>
 #include <gsl/pointers>
-#include <vector>
 #include <stdexcept>
+#include <vector>
 
 #include "FarForwardNeutronReconstruction.h"
 
