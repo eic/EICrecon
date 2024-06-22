@@ -233,6 +233,7 @@ endif()
 option(USE_ONNX "Compile with ONNX support" ON)
 if(${USE_ONNX})
   find_package(onnxruntime CONFIG)
+  add_compile_definitions(USE_ONNX)
 endif()
 
 # Add CMake additional functionality:

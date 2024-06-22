@@ -28,7 +28,9 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/FarForwardNeutronReconstruction_factory.h"
+#ifdef USE_ONNX
 #include "factories/reco/InclusiveKinematicsML_factory.h"
+#endif
 #if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #endif
@@ -183,6 +185,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+#ifdef USE_ONNX
     app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
         "InclusiveKinematicsML",
         {
@@ -194,6 +197,7 @@ void InitPlugin(JApplication *app) {
         },
         app
     ));
+#endif
 #endif
 
     app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
