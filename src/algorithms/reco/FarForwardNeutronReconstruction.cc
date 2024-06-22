@@ -38,7 +38,7 @@ namespace eicrecon {
                       const FarForwardNeutronReconstruction::Output& output) const {
       const auto [clustersHcal,clustersEcal] = input;
       auto [out_neutrons] = output;
-      
+
       double Etot=0;
       double Emax=0;
       double x=0;
@@ -75,7 +75,7 @@ namespace eicrecon {
           for (const auto& cluster : *clustersHcal){
             rec_part.addToClusters(cluster);
           }
-	  for (const auto& cluster : *clustersEcal){
+          for (const auto& cluster : *clustersEcal){
             rec_part.addToClusters(cluster);
           }
       }
