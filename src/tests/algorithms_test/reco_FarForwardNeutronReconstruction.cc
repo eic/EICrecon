@@ -28,30 +28,35 @@ TEST_CASE( "the cluster merging algorithm runs", "[FarForwardNeutronReconstructi
 
   algo.init();
 
-  edm4eic::ClusterCollection clust_coll;
-
+  edm4eic::ClusterCollection clust_coll_hcal;
   std::array<float,3> x={30*dd4hep::mm,90*dd4hep::mm,0};
   std::array<float,3> y={-30*dd4hep::mm,0*dd4hep::mm, -90*dd4hep::mm};
   std::array<float,3> z={30*dd4hep::m,30*dd4hep::m, 30*dd4hep::m};
   std::array<double,3> E={80*dd4hep::GeV,5*dd4hep::GeV,5*dd4hep::GeV};
   float sumEnergies=0;
   for(size_t i=0; i<3; i++){
-    auto cluster=clust_coll.create();
+    auto cluster=clust_coll_hcal.create();
     cluster.setEnergy(E[i]);
     cluster.setPosition({x[i], y[i], z[i]});
 
   }
+
+  edm4eic::ClusterCollection clust_coll_ecal;
+  auto ecal_cluster=clust_coll_ecal.create();
+  ecal_cluster.setEnergy(2);
+  ecal_cluster.setPosition({0, 0, 25*dd4hep::m});
+  
   auto neutroncand_coll = std::make_unique<edm4eic::ReconstructedParticleCollection>();
-  algo.process({&clust_coll}, {neutroncand_coll.get()});
+  algo.process({&clust_coll_hcal, &clust_coll_ecal}, {neutroncand_coll.get()});
 
   REQUIRE( (*neutroncand_coll).size() == 1);
 
-  double corr=algo.calc_corr(90);
+  double corr=algo.calc_corr(92);
   double tol=0.001;
-  double E_expected=90*dd4hep::GeV*1/(1+corr);
-  double Px_expected=0.08999*1/(1+corr);
-  double Py_expected=-0.08999*1/(1+corr);
-  double Pz_expected=89.99*1/(1+corr);
+  double E_expected=92*dd4hep::GeV*1/(1+corr);
+  double Px_expected=0.09199*1/(1+corr);
+  double Py_expected=-0.09199*1/(1+corr);
+  double Pz_expected=91.99*1/(1+corr);
   //check that the correct energy and momenta are being obtained
   std::cout << "E, px, py, pz = " << (*neutroncand_coll)[0].getEnergy() <<"  " << (*neutroncand_coll)[0].getMomentum().x << "  " << (*neutroncand_coll)[0].getMomentum().y << "  " << (*neutroncand_coll)[0].getMomentum().z << std::endl;
   REQUIRE( abs((*neutroncand_coll)[0].getEnergy()-E_expected)/E_expected<tol);

@@ -16,7 +16,8 @@ namespace eicrecon {
    using AlgoT = eicrecon::FarForwardNeutronReconstruction;
      private:
          std::unique_ptr<AlgoT> m_algo;
-    PodioInput<edm4eic::Cluster> m_clusters_input {this};
+    PodioInput<edm4eic::Cluster> m_clusters_hcal_input {this};
+    PodioInput<edm4eic::Cluster> m_clusters_ecal_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_neutrons_output {this};
     ParameterRef<std::vector<double>> m_scale_corr_coeff     {this, "scale_corr_coeff",          config().scale_corr_coeff};
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
@@ -34,7 +35,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-      m_algo->process({m_clusters_input()},{m_neutrons_output().get()});
+      m_algo->process({m_clusters_hcal_input(), m_clusters_ecal_input()},{m_neutrons_output().get()});
     }
 };
 

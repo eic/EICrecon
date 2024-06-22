@@ -5,6 +5,7 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <math.h>
+#include <optional>
 #include <gsl/pointers>
 #include <vector>
 #include <stdexcept>
@@ -35,15 +36,15 @@ namespace eicrecon {
     }
     void FarForwardNeutronReconstruction::process(const FarForwardNeutronReconstruction::Input& input,
                       const FarForwardNeutronReconstruction::Output& output) const {
-      const auto [clusters] = input;
+      const auto [clustersHcal,clustersEcal] = input;
       auto [out_neutrons] = output;
-
+      
       double Etot=0;
       double Emax=0;
       double x=0;
       double y=0;
       double z=0;
-      for (const auto& cluster : *clusters) {
+      for (const auto& cluster : *clustersHcal) {
           double E = cluster.getEnergy();
           Etot+=E;
           if(E>Emax){
@@ -52,6 +53,10 @@ namespace eicrecon {
             y=cluster.getPosition().y;
             z=cluster.getPosition().z;
           }
+      }
+      for (const auto& cluster : *clustersEcal) {
+          double E = cluster.getEnergy();
+          Etot+=E;
       }
       if (Etot>0){
           auto rec_part = out_neutrons->create();
@@ -67,7 +72,10 @@ namespace eicrecon {
           rec_part.setMomentum({(float)px, (float)py, (float)pz});
           rec_part.setCharge(0);
           rec_part.setMass(m_neutron);
-          for (const auto& cluster : *clusters){
+          for (const auto& cluster : *clustersHcal){
+            rec_part.addToClusters(cluster);
+          }
+	  for (const auto& cluster : *clustersEcal){
             rec_part.addToClusters(cluster);
           }
       }

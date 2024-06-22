@@ -292,7 +292,7 @@ void InitPlugin(JApplication *app) {
     ));
     app->Add(new JOmniFactoryGeneratorT<FarForwardNeutronReconstruction_factory>(
            "ReconstructedFarForwardZDCNeutrons",
-          {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
+	   {"HcalFarForwardZDCClusters","HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
           {"ReconstructedFarForwardZDCNeutrons"}, // edm4eic::ReconstrutedParticleCollection,
           {
             .scale_corr_coeff={-0.0756, -1.91,  2.30}

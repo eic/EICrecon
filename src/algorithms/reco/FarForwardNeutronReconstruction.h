@@ -7,6 +7,7 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <optional>
 #include <string>                                 // for basic_string
 #include <string_view>                            // for string_view
 #include <algorithms/algorithm.h>
@@ -17,7 +18,8 @@ namespace eicrecon {
 
 using FarForwardNeutronReconstructionAlgorithm = algorithms::Algorithm<
    algorithms::Input<
-       const edm4eic::ClusterCollection
+     const edm4eic::ClusterCollection,
+     std::optional<edm4eic::ClusterCollection>
     >,
     algorithms::Output<
        edm4eic::ReconstructedParticleCollection
@@ -29,9 +31,9 @@ using FarForwardNeutronReconstructionAlgorithm = algorithms::Algorithm<
        public:
          FarForwardNeutronReconstruction(std::string_view name)
                   : FarForwardNeutronReconstructionAlgorithm{name,
-                                        {"inputClusters"},
+							     {"inputClustersHcal", "inputClustersEcal"},
                                         {"outputNeutrons"},
-                                        "Merges all HCAL clusters in a collection into a neutron candidate"} {}
+                                        "Merges all HCAL (and optionally also ECAL) clusters in a collection into a neutron candidate"} {}
 
          void init() final;
          void process(const Input&, const Output&) const final;
