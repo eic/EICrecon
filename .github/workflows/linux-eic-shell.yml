@@ -392,8 +392,6 @@ jobs:
     - detector-info
     strategy:
       matrix:
-        beam: [10x100, 18x275]
-        minq2: [1000]
         include:
           - beam: 10x100
             minq2: 1000

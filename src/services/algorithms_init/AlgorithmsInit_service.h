@@ -50,6 +50,7 @@ class AlgorithmsInit_service : public JService
             logger.init([this](const algorithms::LogLevel l, std::string_view caller, std::string_view msg){
                 static std::mutex m;
                 std::lock_guard<std::mutex> lock(m);
+                // storing the string_view is unsafe since it can become invalid
                 static std::map<std::string, std::shared_ptr<spdlog::logger>> loggers;
                 if (! loggers.contains(std::string(caller))) {
                     this->m_log->debug("Initializing algorithms::LogSvc logger {}", caller);
