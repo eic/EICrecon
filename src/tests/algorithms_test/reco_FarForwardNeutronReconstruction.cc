@@ -45,7 +45,7 @@ TEST_CASE( "the cluster merging algorithm runs", "[FarForwardNeutronReconstructi
   auto ecal_cluster=clust_coll_ecal.create();
   ecal_cluster.setEnergy(2);
   ecal_cluster.setPosition({0, 0, 25*dd4hep::m});
-  
+
   auto neutroncand_coll = std::make_unique<edm4eic::ReconstructedParticleCollection>();
   algo.process({&clust_coll_hcal, &clust_coll_ecal}, {neutroncand_coll.get()});
 

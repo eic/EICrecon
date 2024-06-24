@@ -31,7 +31,7 @@ using FarForwardNeutronReconstructionAlgorithm = algorithms::Algorithm<
        public:
          FarForwardNeutronReconstruction(std::string_view name)
                   : FarForwardNeutronReconstructionAlgorithm{name,
-							     {"inputClustersHcal", "inputClustersEcal"},
+                                                             {"inputClustersHcal", "inputClustersEcal"},
                                         {"outputNeutrons"},
                                         "Merges all HCAL (and optionally also ECAL) clusters in a collection into a neutron candidate"} {}
 
