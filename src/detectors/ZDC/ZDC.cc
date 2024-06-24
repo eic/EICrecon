@@ -30,7 +30,7 @@ extern "C" {
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
-            .dyRangeADC = 2000 * dd4hep::MeV,
+            .dyRangeADC = 25000 * dd4hep::MeV,
             .pedMeanADC = 400,
             .pedSigmaADC = 3.2,
             .resolutionTDC = 10 * dd4hep::picosecond,
@@ -43,7 +43,7 @@ extern "C" {
           "EcalFarForwardZDCRecHits", {"EcalFarForwardZDCRawHits"}, {"EcalFarForwardZDCRecHits"},
           {
             .capADC = 32768,
-            .dyRangeADC = 2000. * dd4hep::MeV,
+            .dyRangeADC = 25000. * dd4hep::MeV,
             .pedMeanADC = 400,
             .pedSigmaADC = 3.2,
             .resolutionTDC = 10 * dd4hep::picosecond,
@@ -82,7 +82,7 @@ extern "C" {
              "EcalFarForwardZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.701,
               .logWeightBase = 3.6,
               .enableEtaBounds = false
             },
@@ -99,7 +99,7 @@ extern "C" {
              "EcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.701,
               .logWeightBase = 6.2,
               .enableEtaBounds = false,
             },
