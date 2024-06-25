@@ -49,7 +49,7 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
     SECTION( "on a single cell" ) {
       edm4eic::CalorimeterHitCollection hits_coll;
       hits_coll.create(
-                       id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
+        id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
         5.0, // float energy,
         0.0, // float energyError,
         0.0, // float time,
@@ -147,7 +147,7 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
 
     edm4eic::CalorimeterHitCollection hits_coll;
     hits_coll.create(
-                     id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
+      id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
       5.0, // float energy,
       0.0, // float energyError,
       0.0, // float time,
@@ -171,7 +171,7 @@ TEST_CASE( "the clustering algorithm runs", "[ImagingTopoCluster]" ) {
       edm4hep::Vector3f(0.9 /* mm */, 0.9 /* mm */, 0.0) // edm4hep::Vector3f local
     );
     hits_coll.create(
-                     id_desc.encode({{"system", 255}, {"x", 2}, {"y", 0},{"layer",0}}), // std::uint64_t cellID,
+      id_desc.encode({{"system", 255}, {"x", 2}, {"y", 0},{"layer",0}}), // std::uint64_t cellID,
       6.0, // float energy,
       0.0, // float energyError,
       0.0, // float time,
