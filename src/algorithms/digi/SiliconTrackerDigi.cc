@@ -31,6 +31,9 @@ void SiliconTrackerDigi::init(std::shared_ptr<spdlog::logger>& logger) {
     };
 }
 
+// Logic: timeResolution is the smearing of the time.
+// Smeared time marks the beginning of a bucket. If another hit falls within the same bucket,
+// the energy is summed up. If not, a new hit is created.
 
 void SiliconTrackerDigi::process(
     const SiliconTrackerDigi::Input& input,
@@ -42,7 +45,7 @@ void SiliconTrackerDigi::process(
     // A map of unique cellIDs with temporary structure RawHit
     std::unordered_map<std::uint64_t, std::vector<edm4eic::MutableRawTrackerHit>> cell_hit_map;
 
-    auto hit_time_stamp_err = (std::int32_t) (m_cfg.timeResolution * 1e3);
+    auto bucket_width = (std::int32_t) (m_cfg.integrationWindow * 1e3);
 
     // Some detectors have a steady pulse of hits - generate empty time buckets for those
     // Conundrum: We can't know the number of buckets without knowing the timeSlice length
@@ -62,11 +65,9 @@ void SiliconTrackerDigi::process(
             }
         }
     }
+    
     for (const auto& sim_hit : *sim_hits) {
-
         // time smearing
-        // Note: In the current setup, we can have hits outside the time slice
-        // Up to the analyzer to decide what to do with them
         double time_smearing = m_gauss();
         double result_time = sim_hit.getTime() + time_smearing;
         auto hit_time_stamp = (std::int32_t) (result_time * 1e3);
@@ -93,10 +94,10 @@ void SiliconTrackerDigi::process(
             for (auto& hit : cell_hit_map[sim_hit.getCellID()]) {
                 auto existing_time = hit.getTimeStamp();
                 // TODO: edge cases?
-                if ( hit_time_stamp >= existing_time - 0.5*hit_time_stamp_err && hit_time_stamp <= existing_time + 0.5*hit_time_stamp_err ) {
+                if ( hit_time_stamp >= existing_time && hit_time_stamp <= existing_time + bucket_width ) {
                     // There is already a hit within the same time window
                     m_log->debug("  Hit already exists in cell ID={}, within the same time bucket. Time stamp: {}, bucket from {} to {}",
-                         sim_hit.getCellID(), hit.getTimeStamp(), existing_time - hit_time_stamp_err, existing_time + hit_time_stamp_err);
+                         sim_hit.getCellID(), hit.getTimeStamp(), existing_time, existing_time + bucket_width);
                     // sum deposited energy
                     auto charge = hit.getCharge();
                     hit.setCharge(charge + (std::int32_t) std::llround(sim_hit.getEDep() * 1e6));
