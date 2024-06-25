@@ -7,6 +7,7 @@
 
 namespace eicrecon {
 
+  enum layerMode_enum {etaphi, xy};
   struct ImagingTopoClusterConfig {
 
     // maximum difference in layer numbers that can be considered as neighbours
@@ -17,8 +18,8 @@ namespace eicrecon {
     std::vector<double> layerDistEtaPhi = {0.01, 0.01};
     // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode=="xy")
     std::vector<double> layerDistXY = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
-
-    std::string layerMode="etaphi";
+    // determines how neighbors are determined for hits in different layers (using either eta and phi, or x and y)
+    std::string layerMode ="etaphi";
 
     // maximum global distance to be considered as neighbors in different sectors
     double sectorDist = 1.0 * dd4hep::cm;
