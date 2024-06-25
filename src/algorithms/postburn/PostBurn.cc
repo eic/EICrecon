@@ -43,21 +43,21 @@ void eicrecon::PostBurn::process(
     bool      hasBeamLepton    = true;
 
     //read MCParticles information and "postburn" to remove the afterburner effects.
-        //The output is then the original MC input produced by the generator.
+    //The output is then the original MC input produced by the generator.
 
     ROOT::Math::PxPyPzEVector  e_beam(0.,0.,0.,0.);
     ROOT::Math::PxPyPzEVector  h_beam(0.,0.,0.,0.);
 
-        auto incoming_lepton = find_first_beam_electron(mcparts);
+    auto incoming_lepton = find_first_beam_electron(mcparts);
     if (incoming_lepton.size() == 0) {
-      debug("No beam electron found -- particleGun input");
-          hasBeamLepton = false;
+        debug("No beam electron found -- particleGun input");
+        hasBeamLepton = false;
     }
 
-        auto incoming_hadron = find_first_beam_hadron(mcparts);
+    auto incoming_hadron = find_first_beam_hadron(mcparts);
     if (incoming_hadron.size() == 0) {
-      debug("No beam hadron found -- particleGun input");
-      hasBeamHadron = false;
+        debug("No beam hadron found -- particleGun input");
+        hasBeamHadron = false;
     }
 
     if((hasBeamHadron && !hasBeamLepton) || (!hasBeamHadron && hasBeamLepton)){
@@ -127,7 +127,6 @@ void eicrecon::PostBurn::process(
         mc = headOnBoostVector(mc);
 
         edm4hep::Vector3f mcMom(mc.Px(), mc.Py(), mc.Pz());
-
         edm4hep::MutableMCParticle MCTrack(p.clone());
         MCTrack.setMomentum(mcMom);
 
