@@ -15,6 +15,7 @@
 #include "CKFTrackingConfig.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
+#include "SecondaryVertexFinder_factory.h"
 #include "TracksToParticlesConfig.h"
 #include "TracksToParticles_factory.h"
 #include "TrackParamTruthInit_factory.h"
@@ -132,6 +133,17 @@ void InitPlugin(JApplication *app) {
             "CentralTrackVertices",
             {"CentralCKFActsTrajectories"},
             {"CentralTrackVertices"},
+            {},
+            app
+            ));
+
+    app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
+            "CentralSecondaryTrackVertices",
+            {
+                // "CentralTrackVertices",
+                "CentralCKFActsTrajectories"
+            },
+            {"CentralSecondaryTrackVertices"},
             {},
             app
             ));
