@@ -7,9 +7,9 @@
 #include <JANA/JApplication.h>
 #include <vector>
 
-#include "algorithms/reco/PostBurnConfig.h"
+#include "algorithms/reco/UndoAfterBurnerConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/reco/PostBurnMCParticles_factory.h"
+#include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 
 
 
@@ -19,7 +19,7 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
 
-    PostBurnConfig postburn_config;
+    UndoAfterBurnerConfig postburn_config;
 
 
     //Full correction for MCParticles --> MCParticlesHeadOnFrame
@@ -32,7 +32,7 @@ void InitPlugin(JApplication *app) {
 
     //Need to read-in MCParticles
 
-    app->Add(new JOmniFactoryGeneratorT<PostBurnMCParticles_factory>(
+    app->Add(new JOmniFactoryGeneratorT<UndoAfterBurnerMCParticles_factory>(
             "MCParticlesHeadOnFrameNoBeamFX",
             {
                 "MCParticles"

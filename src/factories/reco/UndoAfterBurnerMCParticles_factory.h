@@ -2,8 +2,8 @@
 // Copyright (C) 2024 Alex Jentsch, Jihee Kim, Brian Page
 //
 
-#include "algorithms/reco/PostBurn.h"
-#include "algorithms/reco/PostBurnConfig.h"
+#include "algorithms/reco/UndoAfterBurner.h"
+#include "algorithms/reco/UndoAfterBurnerConfig.h"
 
 // Event Model related classes
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
@@ -14,11 +14,11 @@
 
 namespace eicrecon {
 
-class PostBurnMCParticles_factory :
-    public JOmniFactory<PostBurnMCParticles_factory, PostBurnConfig> {
+class UndoAfterBurnerMCParticles_factory :
+    public JOmniFactory<UndoAfterBurnerMCParticles_factory, UndoAfterBurnerConfig> {
 
 public:
-    using AlgoT = eicrecon::PostBurn;
+    using AlgoT = eicrecon::UndoAfterBurner;
 private:
     std::unique_ptr<AlgoT> m_algo;
 

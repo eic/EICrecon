@@ -6,7 +6,7 @@
 
 namespace eicrecon {
 
-    struct PostBurnConfig {
+    struct UndoAfterBurnerConfig {
 
         bool      m_pid_assume_pion_mass = false;
         double    m_crossing_angle       = -0.025;

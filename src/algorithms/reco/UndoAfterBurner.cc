@@ -2,7 +2,7 @@
 // Copyright (C) 2024 Alex Jentsch, Jihee Kim, Brian Page
 //
 
-#include "PostBurn.h"
+#include "UndoAfterBurner.h"
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
@@ -19,16 +19,16 @@
 #include <TVector3.h>
 #include <TLorentzVector.h>
 
-#include "algorithms/reco/PostBurnConfig.h"
+#include "algorithms/reco/UndoAfterBurnerConfig.h"
 #include "algorithms/reco/Beam.h"
 
-void eicrecon::PostBurn::init() {
+void eicrecon::UndoAfterBurner::init() {
 
 }
 
-void eicrecon::PostBurn::process(
-    const PostBurn::Input& input,
-    const PostBurn::Output& output) const {
+void eicrecon::UndoAfterBurner::process(
+    const UndoAfterBurner::Input& input,
+    const UndoAfterBurner::Output& output) const {
 
     const auto [mcparts] = input;
     auto [outputParticles] = output;
