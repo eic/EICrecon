@@ -36,7 +36,7 @@ extern "C" {
 
     // Digitization of silicon hits
     auto TaggerTrackerTimeResolution    = 0.195 * dd4hep::ns;
-    auto TaggerTrackerIntegrationWindow = 5.0   * dd4hep::ns;
+    auto TaggerTrackerIntegrationWindow = 25.0   * dd4hep::ns;
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
          {
