@@ -18,6 +18,9 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#ifdef USE_ONNX
+#include "factories/digi/ChargeSharingDigitizationML_factory.h"
+#endif
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
@@ -34,6 +37,24 @@ extern "C" {
 
     std::string tracker_readout = "TaggerTrackerHits";
 
+#ifdef USE_ONNX
+    // Digitization of silicon hits
+    app->Add(new JOmniFactoryGeneratorT<ChargeSharingDigitizationML_factory>(
+         "TaggerTrackerRawHits",
+         {
+           "TaggerTrackerHits"
+         },
+         {
+           "TaggerTrackerRawHits",
+           "TaggerTrackerHitAssociations"
+         },
+         {
+          .readout   = "TaggerTrackerHits",
+          .modelPath = "/home/simong/EIC/detector_benchmarks_anl/benchmarks/LOWQ2/signal_training/model2.onnx"
+         },
+         app
+    ));
+#else
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
@@ -50,6 +71,7 @@ extern "C" {
          },
          app
     ));
+#endif
 
     // Divide collection based on geometry segmentation labels
     // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
