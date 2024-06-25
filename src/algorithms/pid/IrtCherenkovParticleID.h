@@ -21,6 +21,7 @@
 
 // EICrecon
 #include "IrtCherenkovParticleIDConfig.h"
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -68,6 +69,8 @@ namespace eicrecon {
     std::shared_ptr<spdlog::logger> m_log;
     CherenkovDetectorCollection*    m_irt_det_coll;
     CherenkovDetector*              m_irt_det;
+
+    const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
 
     uint64_t    m_cell_mask;
     std::string m_det_name;
