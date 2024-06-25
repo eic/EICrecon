@@ -13,6 +13,7 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "services/log/Log_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -50,12 +51,13 @@ class AlgorithmsInit_service : public JService
             logger.init([this](const algorithms::LogLevel l, std::string_view caller, std::string_view msg){
                 static std::mutex m;
                 std::lock_guard<std::mutex> lock(m);
-                static std::map<std::string_view, std::shared_ptr<spdlog::logger>> loggers;
-                if (! loggers.contains(caller)) {
+                // storing the string_view is unsafe since it can become invalid
+                static std::map<std::string, std::shared_ptr<spdlog::logger>> loggers;
+                if (! loggers.contains(std::string(caller))) {
                     this->m_log->debug("Initializing algorithms::LogSvc logger {}", caller);
-                    loggers[caller] = this->m_log_service->logger(std::string(caller));
+                    loggers[std::string(caller)] = this->m_log_service->logger(std::string(caller));
                 }
-                loggers[caller]->log(static_cast<spdlog::level::level_enum>(l), msg);
+                loggers[std::string(caller)]->log(static_cast<spdlog::level::level_enum>(l), msg);
             });
             logger.defaultLevel(level);
         });
@@ -67,6 +69,9 @@ class AlgorithmsInit_service : public JService
             r.setProperty("seed", static_cast<size_t>(1));
             r.init();
         });
+
+        // Register a particle service
+        [[maybe_unused]] auto& particleSvc = algorithms::ParticleSvc::instance();
 
         // Finally, initialize the ServiceSvc
         serviceSvc.init();
