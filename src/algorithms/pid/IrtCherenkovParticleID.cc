@@ -111,11 +111,9 @@ void IrtCherenkovParticleID::init(
   }
 
   // get PDG info for the particles we want to identify in PID
-  // FIXME: cannot use `TDatabasePDG` since it is not thread safe; until we
-  // have a proper PDG database service, we hard-code the masses in Tools.h
   m_log->debug("List of particles for PID:");
   for(auto pdg : m_cfg.pdgList) {
-    auto mass = Tools::GetPDGMass(pdg);
+    auto mass = m_particleSvc.particle(pdg).mass;
     m_pdg_mass.insert({ pdg, mass });
     m_log->debug("  {:>8}  M={} GeV", pdg, mass);
   }

@@ -10,7 +10,6 @@
 #include <Acts/Utilities/Result.hpp>
 
 #include <Evaluator/DD4hepUnits.h>
-#include <TParticlePDG.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4eic/Cov6f.h>
@@ -28,9 +27,6 @@
 void eicrecon::TrackParamTruthInit::init(std::shared_ptr<const ActsGeometryProvider> geo_svc, const std::shared_ptr<spdlog::logger> logger) {
     m_log = logger;
     m_geoSvc = geo_svc;
-
-    // TODO make a service?
-    m_pdg_db = std::make_shared<TDatabasePDG>();
 }
 
 std::unique_ptr<edm4eic::TrackParametersCollection>
@@ -79,14 +75,9 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // get the particle charge
         // note that we cannot trust the mcparticles charge, as DD4hep
         // sets this value to zero! let's lookup by PDGID instead
-        //const double charge = m_pidSvc->particle(mcparticle.getPDG()).charge;
         const auto pdg = mcparticle.getPDG();
-        const auto* particle = m_pdg_db->GetParticle(pdg);
-        if (particle == nullptr) {
-            m_log->debug("particle with PDG {} not in TDatabasePDG", pdg);
-            continue;
-        }
-        double charge = std::copysign(1.0,particle->Charge());
+        const auto particle = m_particleSvc.particle(pdg);
+        double charge = std::copysign(1.0, particle.charge);
         if (abs(charge) < std::numeric_limits<double>::epsilon()) {
             m_log->trace("ignoring neutral particle");
             continue;

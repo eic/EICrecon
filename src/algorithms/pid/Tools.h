@@ -63,34 +63,6 @@ namespace eicrecon {
 
 
       // -------------------------------------------------------------------------------------
-      // PDG mass lookup
-
-      // local PDG mass database
-      // FIXME: cannot use `TDatabasePDG` since it is not thread safe; until we
-      // have a proper PDG database service, we hard-code the masses we need;
-      // use Tools::GetPDGMass for access
-      static std::unordered_map<int,double> GetPDGMasses() {
-        return std::unordered_map<int,double>{
-          { 11,   0.000510999 },
-          { 211,  0.13957     },
-          { 321,  0.493677    },
-          { 2212, 0.938272    }
-        };
-      }
-
-      static double GetPDGMass(int pdg) {
-        double mass;
-        try { mass = GetPDGMasses().at(std::abs(pdg)); }
-        catch(const std::out_of_range& e) {
-          throw std::runtime_error(fmt::format("RUNTIME ERROR: unknown PDG={} in algorithms/pid/Tools::GetPDGMass",pdg));
-        }
-        return mass;
-      }
-
-      static int GetNumPDGs() { return GetPDGMasses().size(); };
-
-
-      // -------------------------------------------------------------------------------------
       // Table rebinning and lookup
 
       // Rebin input table `input` to have `nbins+1` equidistant bins; returns the rebinned table

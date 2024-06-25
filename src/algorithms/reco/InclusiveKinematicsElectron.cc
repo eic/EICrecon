@@ -23,13 +23,7 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicsElectron::init() {
-    // m_pidSvc = service("ParticleSvc");
-    // if (!m_pidSvc) {
-    //   debug("Unable to locate Particle Service. "
-    //     "Make sure you have ParticleSvc in the configuration.");
-    // }
-  }
+  void InclusiveKinematicsElectron::init() { }
 
   void InclusiveKinematicsElectron::process(
       const InclusiveKinematicsElectron::Input& input,
@@ -95,7 +89,7 @@ namespace eicrecon {
     const PxPyPzEVector ei(
       round_beam_four_momentum(
         ei_coll[0].getMomentum(),
-        m_electron,
+        m_particleSvc.particle(ei_coll[0].getPDG()).mass,
         {-5.0, -10.0, -18.0},
         0.0)
       );
@@ -109,7 +103,7 @@ namespace eicrecon {
     const PxPyPzEVector pi(
       round_beam_four_momentum(
         pi_coll[0].getMomentum(),
-        pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron,
+        m_particleSvc.particle(pi_coll[0].getPDG()).mass,
         {41.0, 100.0, 275.0},
         m_crossingAngle)
       );
@@ -128,6 +122,7 @@ namespace eicrecon {
     }
 
     // DIS kinematics calculations
+    static const auto m_proton = m_particleSvc.particle(2212).mass;
     const auto ef = electrons.front();
     const auto q = ei - ef;
     const auto q_dot_pi = q.Dot(pi);

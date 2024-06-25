@@ -91,12 +91,14 @@ namespace eicrecon {
       if (p.getObjectID() == ef_rc_id) {
 
         output_electrons->push_back( p );
+        static const auto m_electron = m_particleSvc.particle(11).mass;
         vScatteredElectron.SetCoordinates( p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, m_electron );
         electrons.emplace_back(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
         // break; NOTE: if we are not computing E-Pz
         // we can safely break here and save precious CPUs
       } else {
         // Compute the sum hadronic final state
+        static const auto m_pion = m_particleSvc.particle(211).mass;
         vHadron.SetCoordinates(  p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, m_pion );
         vHadronicFinalState += vHadron;
       }

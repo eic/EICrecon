@@ -23,13 +23,7 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicsDA::init() {
-    // m_pidSvc = service("ParticleSvc");
-    // if (!m_pidSvc) {
-    //   m_log->debug("Unable to locate Particle Service. "
-    //     "Make sure you have ParticleSvc in the configuration.");
-    // }
-  }
+  void InclusiveKinematicsDA::init() { }
 
   void InclusiveKinematicsDA::process(
       const InclusiveKinematicsDA::Input& input,
@@ -47,7 +41,7 @@ namespace eicrecon {
     const PxPyPzEVector ei(
       round_beam_four_momentum(
         ei_coll[0].getMomentum(),
-        m_electron,
+        m_particleSvc.particle(ei_coll[0].getPDG()).mass,
         {-5.0, -10.0, -18.0},
         0.0)
       );
@@ -61,7 +55,7 @@ namespace eicrecon {
     const PxPyPzEVector pi(
       round_beam_four_momentum(
         pi_coll[0].getMomentum(),
-        pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron,
+        m_particleSvc.particle(pi_coll[0].getPDG()).mass,
         {41.0, 100.0, 275.0},
         m_crossingAngle)
       );
@@ -87,6 +81,7 @@ namespace eicrecon {
     }
 
     // Calculate kinematic variables
+    static const auto m_proton = m_particleSvc.particle(2212).mass;
     const auto y_da = tan(gamma_h/2.) / ( tan(theta_e/2.) + tan(gamma_h/2.) );
     const auto Q2_da = 4.*ei.energy()*ei.energy() * ( 1. / tan(theta_e/2.) ) * ( 1. / (tan(theta_e/2.) + tan(gamma_h/2.)) );
     const auto x_da = Q2_da / (4.*ei.energy()*pi.energy()*y_da);

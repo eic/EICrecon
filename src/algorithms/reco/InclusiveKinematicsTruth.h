@@ -9,6 +9,8 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/ParticleSvc.h"
+
 namespace eicrecon {
 
 using InclusiveKinematicsTruthAlgorithm =
@@ -29,7 +31,8 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
+  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  double m_crossingAngle{-0.025};
 };
 
 } // namespace eicrecon
