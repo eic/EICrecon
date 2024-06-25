@@ -4,23 +4,19 @@
 
 #include "UndoAfterBurner.h"
 
-#include <DD4hep/Alignments.h>
-#include <DD4hep/DetElement.h>
-#include <DD4hep/Objects.h>
-#include <DD4hep/VolumeManager.h>
-#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Boost.h>
 #include <Math/GenVector/Cartesian3D.h>
-#include <Math/GenVector/DisplacementVector3D.h>
+#include <Math/GenVector/LorentzVector.h>
+#include <Math/GenVector/PxPyPzE4D.h>
+#include <Math/GenVector/RotationX.h>
+#include <Math/GenVector/RotationY.h>
+#include <Math/Vector4Dfwd.h>
+#include <TMath.h>
 #include <edm4hep/Vector3f.h>
-#include <edm4hep/utils/vector_utils.h>
-#include <cmath>
 #include <gsl/pointers>
-#include <vector>
-#include <TVector3.h>
-#include <TLorentzVector.h>
 
-#include "algorithms/reco/UndoAfterBurnerConfig.h"
 #include "algorithms/reco/Beam.h"
+#include "algorithms/reco/UndoAfterBurnerConfig.h"
 
 void eicrecon::UndoAfterBurner::init() {
 
