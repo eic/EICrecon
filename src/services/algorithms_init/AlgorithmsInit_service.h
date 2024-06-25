@@ -13,6 +13,7 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "services/log/Log_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -68,6 +69,9 @@ class AlgorithmsInit_service : public JService
             r.setProperty("seed", static_cast<size_t>(1));
             r.init();
         });
+
+        // Register a particle service
+        [[maybe_unused]] auto& particleSvc = algorithms::ParticleSvc::instance();
 
         // Finally, initialize the ServiceSvc
         serviceSvc.init();
