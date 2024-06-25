@@ -10,6 +10,7 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
@@ -26,6 +27,7 @@
 #include <complex>
 #include <cstddef>
 #include <gsl/pointers>
+#include <iterator>
 #include <limits>
 #include <map>
 #include <optional>
@@ -246,12 +248,13 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   Eigen::Vector3f sum1_3D = Eigen::Vector3f::Zero();
   Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
   Eigen::Vector3cf eigenValues_3D = Eigen::Vector3cf::Zero();
-
+  //the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
+  double axis_x=0, axis_y=0, axis_z=0;
   if (cl.getNhits() > 1) {
 
     for (const auto& hit : pcl.getHits()) {
 
-      float w = weightFunc(hit.getEnergy(), cl.getEnergy(), m_cfg.logWeightBase, 0);
+      float w = weightFunc(hit.getEnergy(), totalE, logWeightBase, 0);
 
       // theta, phi
       Eigen::Vector2f pos2D( edm4hep::utils::anglePolar( hit.getPosition() ), edm4hep::utils::angleAzimuthal( hit.getPosition() ) );
@@ -273,8 +276,8 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
       w_sum += w;
     }
 
+    radius     = sqrt((1. / (cl.getNhits() - 1.)) * radius);
     if( w_sum > 0 ) {
-      radius     = sqrt((1. / (cl.getNhits() - 1.)) * radius);
       dispersion = sqrt( dispersion / w_sum );
 
       // normalize matrices
@@ -289,11 +292,33 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
 
       // Solve for eigenvalues.  Corresponds to cluster's 2nd moments (widths)
       Eigen::EigenSolver<Eigen::Matrix2f> es_2D(cov2, false); // set to true for eigenvector calculation
-      Eigen::EigenSolver<Eigen::Matrix3f> es_3D(cov3, false); // set to true for eigenvector calculation
+      Eigen::EigenSolver<Eigen::Matrix3f> es_3D(cov3, true); // set to true for eigenvector calculation
 
       // eigenvalues of symmetric real matrix are always real
       eigenValues_2D = es_2D.eigenvalues();
       eigenValues_3D = es_3D.eigenvalues();
+      //find the eigenvector corresponding to the largest eigenvalue
+      auto eigenvectors= es_3D.eigenvectors();
+      auto max_eigenvalue_it = std::max_element(
+        eigenValues_3D.begin(),
+        eigenValues_3D.end(),
+        [](auto a, auto b) {
+            return std::real(a) < std::real(b);
+        }
+      );
+      auto axis = eigenvectors.col(std::distance(
+            eigenValues_3D.begin(),
+            max_eigenvalue_it
+        ));
+      axis_x=axis(0,0).real();
+      axis_y=axis(1,0).real();
+      axis_z=axis(2,0).real();
+      double norm=sqrt(axis_x*axis_x+axis_y*axis_y+axis_z*axis_z);
+      if (norm!=0){
+        axis_x/=norm;
+        axis_y/=norm;
+        axis_z/=norm;
+      }
     }
   }
 
@@ -304,7 +329,10 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   cl.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
   cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
   cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
-
+  //last 3 shape parameters are the components of the axis direction
+  cl.addToShapeParameters( axis_x );
+  cl.addToShapeParameters( axis_y );
+  cl.addToShapeParameters( axis_z );
   return std::move(cl);
 }
 

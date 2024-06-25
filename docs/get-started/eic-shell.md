@@ -31,7 +31,7 @@ Once inside the `eic-shell` you should source the geometry setup script since
 this is not done by default. Then, clone the `EICrecon` repository and build it:
 
 ```bash
-source /opt/detector/setup.sh
+source /opt/detector/epic-main/bin/thisepic.sh
 
 git clone https://github.com/eic/EICrecon
 cmake -S EICrecon -B build

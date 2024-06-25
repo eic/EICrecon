@@ -26,7 +26,10 @@
 #
 # cmake-format: on
 
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.24)
+
+# 3.27: find_package() uses upper-case <PACKAGENAME>_ROOT variables
+cmake_policy(SET CMP0144 NEW)
 
 project(EICrecon)
 
@@ -64,6 +67,13 @@ if(CMAKE_CXX_STANDARD LESS CMAKE_CXX_STANDARD_MIN)
 endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Infrastructure to support use of --no-as-needed
+include(CheckLinkerFlag)
+check_linker_flag(CXX "LINKER:--no-as-needed" CXX_LINKER_HAS_no_as_needed)
+set(CMAKE_CXX_LINK_LIBRARY_USING_NO_AS_NEEDED_SUPPORTED TRUE)
+set(CMAKE_CXX_LINK_LIBRARY_USING_NO_AS_NEEDED
+    "LINKER:--push-state,--no-as-needed" "<LINK_ITEM>" "LINKER:--pop-state")
 
 # Export compile commands as json for run-clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -155,7 +165,7 @@ find_package(algorithms 1.0.0 REQUIRED Core)
 find_package(Eigen3 REQUIRED)
 find_package(podio REQUIRED)
 find_package(EDM4HEP 0.7.1 REQUIRED)
-find_package(EDM4EIC 3.0 REQUIRED)
+find_package(EDM4EIC 5.0 REQUIRED)
 
 # spdlog
 find_package(spdlog REQUIRED)
@@ -222,7 +232,8 @@ endif()
 # ONNX Runtime
 option(USE_ONNX "Compile with ONNX support" ON)
 if(${USE_ONNX})
-  find_package(onnxruntime)
+  find_package(onnxruntime CONFIG)
+  add_compile_definitions(USE_ONNX)
 endif()
 
 # Add CMake additional functionality:

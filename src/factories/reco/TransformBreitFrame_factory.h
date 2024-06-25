@@ -37,8 +37,8 @@ namespace eicrecon {
 
       void Configure() {
         m_algo = std::make_unique<Algo>(GetPrefix());
-        m_algo->level((algorithms::LogLevel)logger()->level());
-        m_algo->init(logger());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+        m_algo->init();
       }
 
       void ChangeRun(int64_t run_number) {

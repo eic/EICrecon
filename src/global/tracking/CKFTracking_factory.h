@@ -17,7 +17,6 @@
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "extensions/spdlog/SpdlogMixin.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
@@ -31,9 +30,6 @@ private:
 
     PodioInput<edm4eic::TrackParameters> m_parameters_input {this};
     PodioInput<edm4eic::Measurement2D> m_measurements_input {this};
-    PodioOutput<edm4eic::Trajectory> m_trajectories_output {this};
-    PodioOutput<edm4eic::TrackParameters> m_parameters_output {this};
-    PodioOutput<edm4eic::Track> m_tracks_output {this};
     Output<ActsExamples::Trajectories> m_acts_trajectories_output {this};
     Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output {this};
 
@@ -55,9 +51,6 @@ public:
 
     void Process(int64_t run_number, uint64_t event_number) {
         std::tie(
-            m_trajectories_output(),
-            m_parameters_output(),
-            m_tracks_output(),
             m_acts_trajectories_output(),
             m_acts_tracks_output()
         ) = m_algo->process(

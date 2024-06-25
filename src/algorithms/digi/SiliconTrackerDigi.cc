@@ -20,10 +20,7 @@
 
 namespace eicrecon {
 
-void SiliconTrackerDigi::init(std::shared_ptr<spdlog::logger>& logger) {
-    // set logger
-    m_log = logger;
-
+void SiliconTrackerDigi::init() {
     // Create random gauss function
     m_gauss = [&](){
         return m_random.Gaus(0, m_cfg.timeResolution);
@@ -72,19 +69,19 @@ void SiliconTrackerDigi::process(
         double result_time = sim_hit.getTime() + time_smearing;
         auto hit_time_stamp = (std::int32_t) (result_time * 1e3);
 
-        m_log->debug("--------------------");
-        m_log->debug("Hit cellID   = {}", sim_hit.getCellID());
-        m_log->debug("   position  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getPosition().x, sim_hit.getPosition().y, sim_hit.getPosition().z);
-        m_log->debug("   xy_radius = {:.2f}", std::hypot(sim_hit.getPosition().x, sim_hit.getPosition().y));
-        m_log->debug("   momentum  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getMomentum().x, sim_hit.getMomentum().y, sim_hit.getMomentum().z);
-        m_log->debug("   edep = {:.2f}", sim_hit.getEDep());
-        m_log->debug("   time = {:.4f}[ns]", sim_hit.getTime());
-        m_log->debug("   particle time = {}[ns]", sim_hit.getMCParticle().getTime());
-        m_log->debug("   time smearing: {:.4f}, resulting time = {:.4f} [ns]", time_smearing, result_time);
-        m_log->debug("   hit_time_stamp: {} [~ps]", hit_time_stamp);
+        debug("--------------------");
+        debug("Hit cellID   = {}", sim_hit.getCellID());
+        debug("   position  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getPosition().x, sim_hit.getPosition().y, sim_hit.getPosition().z);
+        debug("   xy_radius = {:.2f}", std::hypot(sim_hit.getPosition().x, sim_hit.getPosition().y));
+        debug("   momentum  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getMomentum().x, sim_hit.getMomentum().y, sim_hit.getMomentum().z);
+        debug("   edep = {:.2f}", sim_hit.getEDep());
+        debug("   time = {:.4f}[ns]", sim_hit.getTime());
+        debug("   particle time = {}[ns]", sim_hit.getMCParticle().getTime());
+        debug("   time smearing: {:.4f}, resulting time = {:.4f} [ns]", time_smearing, result_time);
+        debug("   hit_time_stamp: {} [~ps]", hit_time_stamp);
 
         if (sim_hit.getEDep() < m_cfg.threshold) {
-            m_log->debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / dd4hep::keV);
+            debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / dd4hep::keV);
             continue;
         }
 
@@ -96,7 +93,7 @@ void SiliconTrackerDigi::process(
                 // TODO: edge cases?
                 if ( hit_time_stamp >= existing_time && hit_time_stamp <= existing_time + bucket_width ) {
                     // There is already a hit within the same time window
-                    m_log->debug("  Hit already exists in cell ID={}, within the same time bucket. Time stamp: {}, bucket from {} to {}",
+                    debug("  Hit already exists in cell ID={}, within the same time bucket. Time stamp: {}, bucket from {} to {}",
                          sim_hit.getCellID(), hit.getTimeStamp(), existing_time, existing_time + bucket_width);
                     // sum deposited energy
                     auto charge = hit.getCharge();
@@ -109,7 +106,7 @@ void SiliconTrackerDigi::process(
 
         if (!bucket_found) {
             // There is no hit in the same time bucket
-            m_log->debug("  No pre-existing hit in cell ID={} in the same time bucket. Time stamp: {}",
+            debug("  No pre-existing hit in cell ID={} in the same time bucket. Time stamp: {}",
                         sim_hit.getCellID(), sim_hit.getTime());
 
             // Create a new hit
@@ -129,6 +126,7 @@ void SiliconTrackerDigi::process(
         } // bucket found
     } // loop over sim hits
 
+    // Make associations
     for (auto cell : cell_hit_map) {
         for (auto& hit : cell.second) {
             raw_hits->push_back(hit);
