@@ -1,7 +1,5 @@
-// Copyright 2022, Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2024, Dmitry Romanov, Nathan Brei, Tooba Ali, Wouter Deconinck, Dmitry Kalinkin, John Lajoie, Simon Gardner, Tristan Protzman, Daniel Brandenburg, Derek M Anderson, Sebouh Paul, Tyler Kutz, Alex Jentsch, Jihee Kim, Brian Page
 
 
 #include <JANA/JApplication.h>
@@ -24,6 +22,7 @@
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
 #include "algorithms/reco/InclusiveKinematicseSigma.h"
 #endif
+#include "algorithms/reco/UndoAfterBurnerConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
@@ -46,6 +45,7 @@
 #include "global/reco/ReconstructedElectrons_factory.h"
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "global/reco/ScatteredElectronsTruth_factory.h"
+#include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -350,6 +350,27 @@ void InitPlugin(JApplication *app) {
             },
             app
     ));
+
+
+    //Full correction for MCParticles --> MCParticlesHeadOnFrame
+    app->Add(new JOmniFactoryGeneratorT<UndoAfterBurnerMCParticles_factory>(
+            "MCParticlesHeadOnFrameNoBeamFX",
+            {
+                "MCParticles"
+            },
+            {
+                "MCParticlesHeadOnFrameNoBeamFX"
+            },
+            {
+              .m_pid_assume_pion_mass = false,
+              .m_crossing_angle = -0.025 * dd4hep::rad,
+              .m_pid_purity = 0.51, //dummy value for MC truth information
+              .m_correct_beam_FX = true,
+              .m_pid_use_MC_truth = true,
+            },
+            app
+    ));
+
 
 }
 } // extern "C"
