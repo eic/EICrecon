@@ -93,11 +93,11 @@ namespace eicrecon {
         minClusterCenterEdep = m_cfg.minClusterCenterEdep / dd4hep::GeV;
         minClusterEdep = m_cfg.minClusterEdep / dd4hep::GeV;
 
-	if ( m_cfg.layerMode=="etaphi" )
-	  layerMode=etaphi;
-	else if ( m_cfg.layerMode=="xy" )
-	  layerMode=xy;
-	
+        if ( m_cfg.layerMode=="etaphi" )
+          layerMode=etaphi;
+        else if ( m_cfg.layerMode=="xy" )
+          layerMode=xy;
+
         // summarize the clustering parameters
         info("Local clustering (same sector and same layer): "
                     "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
@@ -177,15 +177,15 @@ namespace eicrecon {
             return (std::abs(h1.getLocal().x - h2.getLocal().x) <= localDistXY[0]) &&
                    (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
         } else if (ldiff <= m_cfg.neighbourLayersRange) {
-	  switch(layerMode){
-	  case etaphi:
+          switch(layerMode){
+          case etaphi:
             return (std::abs(edm4hep::utils::eta(h1.getPosition()) - edm4hep::utils::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
                    (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
                     layerDistEtaPhi[1]);
-	  case xy:
-	    return (std::abs(h1.getPosition().x - h2.getPosition().x) <= layerDistXY[0]) &&
+          case xy:
+            return (std::abs(h1.getPosition().x - h2.getPosition().x) <= layerDistXY[0]) &&
                    (std::abs(h1.getPosition().y - h2.getPosition().y) <= layerDistXY[1]);
-	  }
+          }
         }
         // not in adjacent layers
         return false;
