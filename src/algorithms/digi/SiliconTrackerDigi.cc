@@ -62,7 +62,7 @@ void SiliconTrackerDigi::process(
             }
         }
     }
-    
+
     for (const auto& sim_hit : *sim_hits) {
         // time smearing
         double time_smearing = m_gauss();
