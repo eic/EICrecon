@@ -90,7 +90,7 @@ namespace eicrecon {
     const auto Q2_sig = (pt_e*pt_e) / (1. - y_sig);
     const auto x_sig = Q2_sig / (4.*ei.energy()*pi.energy()*y_sig);
 
-    const auto m_proton = m_particleSvc.particle(2212).mass;
+    static const auto m_proton = m_particleSvc.particle(2212).mass;
     const auto Q2_esig = Q2_e;
     const auto x_esig = x_sig;
     const auto y_esig = Q2_esig / (4.*ei.energy()*pi.energy()*x_esig); //equivalent to (2*ei.energy() / sigma_tot)*y_sig

@@ -69,7 +69,7 @@ namespace eicrecon {
     }
 
     // Calculate kinematic variables
-    const auto m_proton = m_particleSvc.particle(2212).mass;
+    static const auto m_proton = m_particleSvc.particle(2212).mass;
     const auto y_jb = sigma_h / (2.*ei.energy());
     const auto Q2_jb = ptsum*ptsum / (1. - y_jb);
     const auto x_jb = Q2_jb / (4.*ei.energy()*pi.energy()*y_jb);

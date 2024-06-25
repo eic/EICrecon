@@ -81,7 +81,7 @@ namespace eicrecon {
     }
 
     // Calculate kinematic variables
-    const auto m_proton = m_particleSvc.particle(2212).mass;
+    static const auto m_proton = m_particleSvc.particle(2212).mass;
     const auto y_da = tan(gamma_h/2.) / ( tan(theta_e/2.) + tan(gamma_h/2.) );
     const auto Q2_da = 4.*ei.energy()*ei.energy() * ( 1. / tan(theta_e/2.) ) * ( 1. / (tan(theta_e/2.) + tan(gamma_h/2.)) );
     const auto x_da = Q2_da / (4.*ei.energy()*pi.energy()*y_da);

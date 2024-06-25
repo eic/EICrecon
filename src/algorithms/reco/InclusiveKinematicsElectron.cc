@@ -122,7 +122,7 @@ namespace eicrecon {
     }
 
     // DIS kinematics calculations
-    const auto m_proton = m_particleSvc.particle(2212).mass;
+    static const auto m_proton = m_particleSvc.particle(2212).mass;
     const auto ef = electrons.front();
     const auto q = ei - ef;
     const auto q_dot_pi = q.Dot(pi);
