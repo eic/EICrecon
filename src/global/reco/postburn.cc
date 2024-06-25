@@ -7,9 +7,9 @@
 #include <JANA/JApplication.h>
 #include <vector>
 
-#include "algorithms/postburn/PostBurnConfig.h"
+#include "algorithms/reco/PostBurnConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/postburn/PostBurnMCParticles_factory.h"
+#include "factories/reco/PostBurnMCParticles_factory.h"
 
 
 

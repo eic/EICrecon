@@ -2,8 +2,8 @@
 // Copyright (C) 2024 Alex Jentsch, Jihee Kim, Brian Page
 //
 
-#include "algorithms/postburn/PostBurn.h"
-#include "algorithms/postburn/PostBurnConfig.h"
+#include "algorithms/reco/PostBurn.h"
+#include "algorithms/reco/PostBurnConfig.h"
 
 // Event Model related classes
 #include <edm4eic/MCRecoParticleAssociationCollection.h>

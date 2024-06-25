@@ -19,7 +19,7 @@
 #include <TVector3.h>
 #include <TLorentzVector.h>
 
-#include "algorithms/postburn/PostBurnConfig.h"
+#include "algorithms/reco/PostBurnConfig.h"
 #include "algorithms/reco/Beam.h"
 
 void eicrecon::PostBurn::init() {
