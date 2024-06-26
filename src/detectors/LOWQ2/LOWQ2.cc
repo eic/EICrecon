@@ -50,7 +50,7 @@ extern "C" {
          },
          {
           .readout   = "TaggerTrackerHits",
-          .modelPath = "/home/simong/EIC/detector_benchmarks_anl/benchmarks/LOWQ2/signal_training/model2.onnx"
+          .modelPath = "calibrations/onnx/model_digitization_genprop.onnx"
          },
          app
     ));

@@ -56,13 +56,13 @@ public:
 private:
   std::unique_ptr<Ort::Session> m_session;
 
-  // std::vector<std::string> m_input_names;
-  // std::vector<const char*> m_input_names_char;
-  // std::vector<std::vector<std::int64_t>> m_input_shapes;
+  std::vector<std::string> m_input_names;
+  std::vector<const char*> m_input_names_char;
+  std::vector<std::vector<std::int64_t>> m_input_shapes;
 
-  // std::vector<std::string> m_output_names;
-  // std::vector<const char*> m_output_names_char;
-  // std::vector<std::vector<std::int64_t>> m_output_shapes;
+  std::vector<std::string> m_output_names;
+  std::vector<const char*> m_output_names_char;
+  std::vector<std::vector<std::int64_t>> m_output_shapes;
 
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const dd4hep::BitFieldCoder* m_id_dec{nullptr};
