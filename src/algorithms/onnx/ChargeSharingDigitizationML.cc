@@ -139,13 +139,13 @@ namespace eicrecon {
       // offset to between 0 and 1
       Eigen::Vector2d offset = {0.5,0.5};
       auto subSubCellPos = transformation*subCellPos + offset;
-      std::cout << "SubSubCellPos:" << std::endl;
-      std::cout << subSubCellPos << std::endl;
+      // std::cout << "SubSubCellPos:" << std::endl;
+      // std::cout << subSubCellPos << std::endl;
 
 
       auto subSubCellMomentum = transformation*subCellMomentum;   
-      std::cout << "SubSubCellMomentum:" << std::endl;
-      std::cout << subSubCellMomentum << std::endl;
+      // std::cout << "SubSubCellMomentum:" << std::endl;
+      // std::cout << subSubCellMomentum << std::endl;
 
       // Prepare input tensor
       input_tensor_values.push_back(subSubCellPos[0]);
@@ -231,41 +231,44 @@ namespace eicrecon {
     for(std::size_t i=0; auto hit : *hits){
       
       auto cellID    = hit.getCellID();     
-       
+      auto hitTime   = hit.getTime();
+
+      // Convert hit time into digitization time
+      auto digiTime = std::round(hitTime/m_cfg.timeBinning);
 
       int xID        = m_id_dec->get(cellID, m_x_idx);
       int yID        = m_id_dec->get(cellID, m_y_idx);
 
       uint64_t newCellID = cellID;
-      m_id_dec->set( newCellID, m_x_idx, 20 );
-      m_id_dec->set( newCellID, m_y_idx, -40 );
 
       auto transformation = transformations[i];
-
       
       for (int k = 0; k < 6; k++) {
         for (int l = 0; l < 6; l++) {
           int32_t charge    = std::round(output_tensor_data[i*72 + k*6 + l]);
           if(charge<=0) continue;
-          std::cout << k << " " << l << std::endl;
-          std::cout << output_tensor_data[i*72 + k*6 + l] << " " << output_tensor_data[i*72 + 36 + k*6 + l] << std::endl;
+          // std::cout << k << " " << l << std::endl;
+          // std::cout << output_tensor_data[i*72 + k*6 + l] << " " << output_tensor_data[i*72 + 36 + k*6 + l] << std::endl;
           int32_t timeStamp = std::round(output_tensor_data[i*72 + 36 + k*6 + l]);
-          std::cout << charge << " " << timeStamp << std::endl;
-          std::cout << l-3 << " " << k-2 << std::endl;
+          // std::cout << charge << " " << timeStamp << std::endl;
+          // std::cout << l-3 << " " << k-2 << std::endl;
           
           Eigen::Vector2d localCell = {l-3,k-2};
-          std::cout << localCell << std::endl;
+          // std::cout << localCell << std::endl;
           auto transformedCell = transformation*localCell;
-          std::cout  << transformedCell << std::endl;
+          // std::cout  << transformedCell << std::endl;
           int newX = transformedCell[0]+xID;
           int newY = transformedCell[1]+yID;
           m_id_dec->set( newCellID, m_x_idx, newX  );
           m_id_dec->set( newCellID, m_y_idx, newY );
 
-          std::cout << newCellID << " " << newX << " " << newY << std::endl;
+          // std::cout << newCellID << " " << newX << " " << newY << std::endl;
+
+          // Add global time and convert back to ns
+          auto outTime = (digiTime+timeStamp)*m_cfg.timeBinning;
 
           // Create new RawHit
-          auto rawHit = digihits->create(newCellID,charge,timeStamp);
+          auto rawHit = digihits->create(newCellID,charge,outTime);
 
           // Create association
           auto hitAssoc = associations->create(1.0);
@@ -347,8 +350,8 @@ namespace eicrecon {
       unitMomXY[1] = 0.0;
     }
     // print out the cell position
-    std::cout << "Momentum: " << unitMom[0] << " " << unitMom[1] << " " << unitMom[2] << std::endl << std::endl;
-    std::cout << "Momentum: " << unitMomXY[0] << " " << unitMomXY[1] << std::endl << std::endl;
+    // std::cout << "Momentum: " << unitMom[0] << " " << unitMom[1] << " " << unitMom[2] << std::endl << std::endl;
+    // std::cout << "Momentum: " << unitMomXY[0] << " " << unitMomXY[1] << std::endl << std::endl;
 
     return unitMomXY;
   }

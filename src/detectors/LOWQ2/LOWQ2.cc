@@ -50,7 +50,8 @@ extern "C" {
          },
          {
           .readout   = "TaggerTrackerHits",
-          .modelPath = "calibrations/onnx/model_digitization_genprop.onnx"
+          .modelPath = "calibrations/onnx/model_digitization_genprop.onnx",
+          .timeBinning = 0.195 * dd4hep::ns,
          },
          app
     ));

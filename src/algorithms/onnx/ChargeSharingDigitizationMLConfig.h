@@ -10,6 +10,7 @@ namespace eicrecon {
   struct ChargeSharingDigitizationMLConfig {
 
     std::string readout{"TaggerTrackerHits"};
+    double timeBinning{0.195 * dd4hep::ns};
 
     std::string x_field{"x"};
     std::string y_field{"y"};
@@ -18,7 +19,7 @@ namespace eicrecon {
     std::string module_field{"module"};
     std::string detector_field{"system"};
 
-    std::string modelPath{"/home/simong/EIC/detector_benchmarks_anl/benchmarks/LOWQ2/signal_training/model_digitization_genprop.onnx"};
+    std::string modelPath{"calibrations/onnx/model_digitization_genprop.onnx"};
 
     int symmetry{1};
     int segment{1};
