@@ -111,6 +111,8 @@ namespace eicrecon {
                     "Local [x, y] distance between hits <= [{:.4f}, {:.4f} rad].",
                     m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]
           );
+        default:
+          error("Unknown layer mode.");
         }
         info("Neighbour sectors clustering (different sector): "
                     "Global distance between hits <= {:.4f} mm.",
