@@ -67,7 +67,7 @@ namespace eicrecon {
     double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, layerDistXY[2]{0, 0}, sectorDist{0};
     double minClusterHitEdep{0}, minClusterCenterEdep{0}, minClusterEdep{0}, minClusterNhits{0};
     eicrecon::ImagingTopoClusterConfig::ELayerMode layerMode;
-    
+
   public:
     void init() {
         // unitless conversion
