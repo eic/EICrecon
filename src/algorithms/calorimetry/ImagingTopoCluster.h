@@ -92,8 +92,6 @@ namespace eicrecon {
         minClusterCenterEdep = m_cfg.minClusterCenterEdep / dd4hep::GeV;
         minClusterEdep = m_cfg.minClusterEdep / dd4hep::GeV;
 
-        layerMode= m_cfg.layerMode;
-
         // summarize the clustering parameters
         info("Local clustering (same sector and same layer): "
                     "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
