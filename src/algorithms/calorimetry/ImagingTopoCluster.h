@@ -66,8 +66,8 @@ namespace eicrecon {
     // unitless counterparts of the input parameters
     double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, layerDistXY[2]{0, 0}, sectorDist{0};
     double minClusterHitEdep{0}, minClusterCenterEdep{0}, minClusterEdep{0}, minClusterNhits{0};
-    enum layerMode_enum {etaphi, xy};
-    layerMode_enum layerMode;
+    eicrecon::ImagingTopoClusterConfig::ELayerMode layerMode;
+    
   public:
     void init() {
         // unitless conversion
@@ -93,10 +93,7 @@ namespace eicrecon {
         minClusterCenterEdep = m_cfg.minClusterCenterEdep / dd4hep::GeV;
         minClusterEdep = m_cfg.minClusterEdep / dd4hep::GeV;
 
-        if ( m_cfg.layerMode=="etaphi" )
-          layerMode=etaphi;
-        else if ( m_cfg.layerMode=="xy" )
-          layerMode=xy;
+        layerMode= m_cfg.layerMode;
 
         // summarize the clustering parameters
         info("Local clustering (same sector and same layer): "
@@ -178,11 +175,11 @@ namespace eicrecon {
                    (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
         } else if (ldiff <= m_cfg.neighbourLayersRange) {
           switch(layerMode){
-          case etaphi:
+          case eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi:
             return (std::abs(edm4hep::utils::eta(h1.getPosition()) - edm4hep::utils::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
                    (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
                     layerDistEtaPhi[1]);
-          case xy:
+          case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
             return (std::abs(h1.getPosition().x - h2.getPosition().x) <= layerDistXY[0]) &&
                    (std::abs(h1.getPosition().y - h2.getPosition().y) <= layerDistXY[1]);
           }
