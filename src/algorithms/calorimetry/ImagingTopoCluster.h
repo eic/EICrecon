@@ -98,6 +98,7 @@ namespace eicrecon {
                     localDistXY[0], localDistXY[1]
         );
         switch (m_cfg.layerMode) {
+        case ImagingTopoClusterConfig::ELayerMode::etaphi:
           info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
                     "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
                     m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
