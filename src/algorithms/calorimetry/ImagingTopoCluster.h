@@ -100,15 +100,15 @@ namespace eicrecon {
         switch (m_cfg.layerMode) {
         case ImagingTopoClusterConfig::ELayerMode::etaphi:
           info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-                    "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
-                    m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
-          );
-        }
+	       "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
+	       m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
+	       );
+	  
         case ImagingTopoClusterConfig::ELayerMode::xy:
           info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-                    "Local [x, y] distance between hits <= [{:.4f}, {:.4f} rad].",
-                    m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]
-          );
+	       "Local [x, y] distance between hits <= [{:.4f}, {:.4f} rad].",
+	       m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]
+	       );
         default:
           error("Unknown layer mode.");
         }
@@ -182,7 +182,7 @@ namespace eicrecon {
             return (std::abs(h1.getLocal().x - h2.getLocal().x) <= localDistXY[0]) &&
                    (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
         } else if (ldiff <= m_cfg.neighbourLayersRange) {
-          switch(layerMode){
+          switch(m_cfg.layerMode){
           case eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi:
             return (std::abs(edm4hep::utils::eta(h1.getPosition()) - edm4hep::utils::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
                    (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition())) <=

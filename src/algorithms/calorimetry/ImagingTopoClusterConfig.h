@@ -38,10 +38,10 @@ namespace eicrecon {
   std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode& layerMode) {
     std::string s;
     in >> s;
-
-    if (s == "etaphi") {
+    // stringifying the enums causes them to be converted to integers before conversion to strings
+    if (s == "etaphi" or s=="0") {  
         layerMode = ImagingTopoClusterConfig::ELayerMode::etaphi;
-    } else if (s == "xy") {
+    } else if (s == "xy" or s=="1") {
         layerMode = ImagingTopoClusterConfig::ELayerMode::xy;
     } else {
         in.setstate(std::ios::failbit);  // Set the fail bit if the input is not valid
