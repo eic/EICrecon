@@ -19,7 +19,7 @@ namespace eicrecon {
     // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode=="xy")
     std::vector<double> layerDistXY = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
     // determines how neighbors are determined for hits in different layers (using either eta and phi, or x and y)
-    std::string layerMode ="etaphi";
+    enum ELayerMode {etaphi, xy} layerMode = etaphi;
 
     // maximum global distance to be considered as neighbors in different sectors
     double sectorDist = 1.0 * dd4hep::cm;
