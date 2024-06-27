@@ -30,7 +30,7 @@ extern "C" {
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
-            .dyRangeADC = 25000 * dd4hep::MeV,
+            .dyRangeADC = 2000 * dd4hep::MeV,
             .pedMeanADC = 400,
             .pedSigmaADC = 3.2,
             .resolutionTDC = 10 * dd4hep::picosecond,
@@ -43,7 +43,7 @@ extern "C" {
           "EcalFarForwardZDCRecHits", {"EcalFarForwardZDCRawHits"}, {"EcalFarForwardZDCRecHits"},
           {
             .capADC = 32768,
-            .dyRangeADC = 25000. * dd4hep::MeV,
+            .dyRangeADC = 2000. * dd4hep::MeV,
             .pedMeanADC = 400,
             .pedSigmaADC = 3.2,
             .resolutionTDC = 10 * dd4hep::picosecond,
