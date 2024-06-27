@@ -23,6 +23,8 @@ namespace eicrecon {
         std::vector<double> logWeightBaseCoeffs{};
         double logWeightBase_Eref = 50 * dd4hep::MeV;
 
+        bool longitudinalShowerInfoAvailable = false;
+
         // Constrain the cluster position eta to be within
         // the eta of the contributing hits. This is useful to avoid edge effects
         // for endcaps.

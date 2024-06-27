@@ -324,17 +324,14 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
   cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
 
-  if (axis_z != 0) {
+  if (m_cfg.longitudinalShowerInfoAvailable) {
     cl.setIntrinsicPhi(atan2(axis_y, axis_x));
     cl.setIntrinsicTheta(atan2(std::hypot(axis_x, axis_y), axis_z));
+    // TODO intrinsicDirectionError
   } else {
-    // best estimate on the cluster direction is the cluster position
-    // for simple 2D CoG clustering
-    cl.setIntrinsicTheta(edm4hep::utils::anglePolar(cl.getPosition()));
-    cl.setIntrinsicPhi(edm4hep::utils::angleAzimuthal(cl.getPosition()));
+    cl.setIntrinsicTheta(NAN);
+    cl.setIntrinsicPhi(NAN);
   }
-  // TODO intrinsicDirectionError
-
 
   return std::move(cl);
 }
