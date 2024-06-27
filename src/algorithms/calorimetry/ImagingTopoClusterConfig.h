@@ -39,7 +39,7 @@ namespace eicrecon {
     std::string s;
     in >> s;
     // stringifying the enums causes them to be converted to integers before conversion to strings
-    if (s == "etaphi" or s=="0") {  
+    if (s == "etaphi" or s=="0") {
         layerMode = ImagingTopoClusterConfig::ELayerMode::etaphi;
     } else if (s == "xy" or s=="1") {
         layerMode = ImagingTopoClusterConfig::ELayerMode::xy;

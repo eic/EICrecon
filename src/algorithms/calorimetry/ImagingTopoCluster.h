@@ -100,15 +100,15 @@ namespace eicrecon {
         switch (m_cfg.layerMode) {
         case ImagingTopoClusterConfig::ELayerMode::etaphi:
           info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-	       "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
-	       m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
-	       );
-	  
+               "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
+               m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
+               );
+
         case ImagingTopoClusterConfig::ELayerMode::xy:
           info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-	       "Local [x, y] distance between hits <= [{:.4f}, {:.4f} rad].",
-	       m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]
-	       );
+               "Local [x, y] distance between hits <= [{:.4f}, {:.4f} rad].",
+               m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]
+               );
         default:
           error("Unknown layer mode.");
         }
