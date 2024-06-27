@@ -4,6 +4,7 @@
 #pragma once
 
 #include <string>
+#include <iostream>
 
 namespace eicrecon {
 
@@ -38,14 +39,27 @@ namespace eicrecon {
     std::string s;
     in >> s;
 
-    if (s == "etaphi" or s == "0") {
+    if (s == "etaphi") {
         layerMode = ImagingTopoClusterConfig::ELayerMode::etaphi;
-    } else if (s == "xy" or s == "1") {
+    } else if (s == "xy") {
         layerMode = ImagingTopoClusterConfig::ELayerMode::xy;
     } else {
         in.setstate(std::ios::failbit);  // Set the fail bit if the input is not valid
     }
 
     return in;
+  }
+  std::ostream& operator<<(std::ostream& out, ImagingTopoClusterConfig::ELayerMode& layerMode) {
+    switch(layerMode) {
+    case ImagingTopoClusterConfig::ELayerMode::etaphi:
+      out << "etaphi";
+      break;
+    case ImagingTopoClusterConfig::ELayerMode::xy:
+      out << "xy";
+      break;
+    default:
+      out.setstate(std::ios::failbit);
+    }
+    return out;
   }
 } // namespace eicrecon
