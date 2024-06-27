@@ -115,6 +115,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 0.0257,
               .logWeightBase = 3.6,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = true
             },
             app   // TODO: Remove me once fixed
@@ -132,6 +133,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 0.0257,
               .logWeightBase = 6.2,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
@@ -228,6 +230,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -245,6 +248,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed

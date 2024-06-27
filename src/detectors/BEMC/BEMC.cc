@@ -97,6 +97,7 @@ extern "C" {
                .energyWeight = "log",
                .sampFrac = 1.0,
                .logWeightBase = 6.2,
+               .longitudinalShowerInfoAvailable = true,
                .enableEtaBounds = false
              },
             app   // TODO: Remove me once fixed
