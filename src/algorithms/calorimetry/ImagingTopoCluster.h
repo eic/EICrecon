@@ -66,7 +66,6 @@ namespace eicrecon {
     // unitless counterparts of the input parameters
     double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, layerDistXY[2]{0, 0}, sectorDist{0};
     double minClusterHitEdep{0}, minClusterCenterEdep{0}, minClusterEdep{0}, minClusterNhits{0};
-    eicrecon::ImagingTopoClusterConfig::ELayerMode layerMode;
 
   public:
     void init() {
@@ -93,24 +92,25 @@ namespace eicrecon {
         minClusterCenterEdep = m_cfg.minClusterCenterEdep / dd4hep::GeV;
         minClusterEdep = m_cfg.minClusterEdep / dd4hep::GeV;
 
-        layerMode= m_cfg.layerMode;
-
         // summarize the clustering parameters
         info("Local clustering (same sector and same layer): "
                     "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
                     localDistXY[0], localDistXY[1]
         );
-        if (layerMode== ImagingTopoClusterConfig::ELayerMode::etaphi) {
+        switch (m_cfg.layerMode) {
+        case ImagingTopoClusterConfig::ELayerMode::etaphi:
           info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
                     "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
                     m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
           );
         }
-        else if (layerMode== ImagingTopoClusterConfig::ELayerMode::xy) {
+        case ImagingTopoClusterConfig::ELayerMode::xy:
           info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
                     "Local [x, y] distance between hits <= [{:.4f}, {:.4f} rad].",
                     m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]
           );
+        default:
+          error("Unknown layer mode.");
         }
         info("Neighbour sectors clustering (different sector): "
                     "Global distance between hits <= {:.4f} mm.",
