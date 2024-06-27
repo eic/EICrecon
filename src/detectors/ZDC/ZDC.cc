@@ -8,7 +8,7 @@
 #include <math.h>
 #include <string>
 
-#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -17,6 +17,7 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+
 extern "C" {
     void InitPlugin(JApplication *app) {
 
