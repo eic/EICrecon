@@ -38,14 +38,14 @@ namespace eicrecon {
     std::string s;
     in >> s;
 
-    if (s == "etaphi") {
+    if (s == "etaphi" or s == "0") {
         layerMode = ImagingTopoClusterConfig::ELayerMode::etaphi;
-    } else if (s == "xy") {
+    } else if (s == "xy" or s == "1") {
         layerMode = ImagingTopoClusterConfig::ELayerMode::xy;
     } else {
         in.setstate(std::ios::failbit);  // Set the fail bit if the input is not valid
     }
 
     return in;
-}
+  }
 } // namespace eicrecon
