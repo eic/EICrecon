@@ -12,8 +12,9 @@
 #include "FarForwardNeutronReconstruction.h"
 
 /**
- Creates a "neutron candidate" Reconstructed Particle consisting of all clusters in the
- ZDC (both Hcal and Ecal collections).  Its energy is the sum of the energies of the constituent clusters
+ Creates a "neutron candidate" Reconstructed Particle consisting of all clusters from a
+ specified hadronic calorimeter and (optionally) from a specified Electromagnetic calorimeter.  
+ Its energy is the sum of the energies of the constituent clusters
  times a correction factor, and its direction is the direction from the origin to the position
  of the most energetic cluster.  The correction factor is given by 1/(1+c[0]+c[1]/sqrt(E)+c[2]/E),
  where c is the coefficients and E is the uncorrected energy in GeV.  This form was chosen
