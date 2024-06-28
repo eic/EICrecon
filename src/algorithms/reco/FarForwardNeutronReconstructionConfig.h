@@ -6,7 +6,9 @@
 namespace eicrecon {
 
   struct FarForwardNeutronReconstructionConfig {
+    /** Correction factors for the Hcal */
     std::vector<double>      scale_corr_coeff_hcal={-0.0756, -1.91,  2.30};
+    /** Correction factors for the (optional) Ecal */
     std::vector<double>      scale_corr_coeff_ecal={-0.0756, -1.91,  2.30};
   };
 
