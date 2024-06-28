@@ -18,8 +18,8 @@ namespace eicrecon {
 
 using FarForwardNeutronReconstructionAlgorithm = algorithms::Algorithm<
    algorithms::Input<
-     const edm4eic::ClusterCollection,
-     std::optional<edm4eic::ClusterCollection>
+       const edm4eic::ClusterCollection,
+       std::optional<edm4eic::ClusterCollection>
     >,
     algorithms::Output<
        edm4eic::ReconstructedParticleCollection
