@@ -35,6 +35,7 @@ namespace eicrecon {
         throw std::runtime_error("Invalid configuration.  m_cfg.scale_corr_coeff_ecal should have at least 3 parameters");
       }
     }
+    /** calculates the correction for a given uncorrected total energy and a set of coefficients*/
     double FarForwardNeutronReconstruction::calc_corr(double Etot, const std::vector<double>& coeffs) const{
       return coeffs[0]+coeffs[1]/sqrt(Etot)+coeffs[2]/Etot;
     }
