@@ -19,7 +19,8 @@ namespace eicrecon {
     PodioInput<edm4eic::Cluster> m_clusters_hcal_input {this};
     PodioInput<edm4eic::Cluster> m_clusters_ecal_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_neutrons_output {this};
-    ParameterRef<std::vector<double>> m_scale_corr_coeff     {this, "scale_corr_coeff",          config().scale_corr_coeff};
+    ParameterRef<std::vector<double>> m_scale_corr_coeff_hcal     {this, "scale_corr_coeff_hcal",          config().scale_corr_coeff_hcal};
+    ParameterRef<std::vector<double>> m_scale_corr_coeff_ecal     {this, "scale_corr_coeff_ecal",          config().scale_corr_coeff_ecal};
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:

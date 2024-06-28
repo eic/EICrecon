@@ -19,6 +19,7 @@
 #include "algorithms/reco/FarForwardNeutronReconstruction.h"        // for Neutronreconstruction
 
 using eicrecon::FarForwardNeutronReconstruction;
+using eicrecon::FarForwardNeutronReconstructionConfig;
 
 TEST_CASE( "the cluster merging algorithm runs", "[FarForwardNeutronReconstruction]" ) {
   FarForwardNeutronReconstruction algo("FarForwardNeutronReconstruction");
@@ -26,6 +27,11 @@ TEST_CASE( "the cluster merging algorithm runs", "[FarForwardNeutronReconstructi
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("FarForwardNeutronReconstruction");
   logger->set_level(spdlog::level::trace);
 
+  FarForwardNeutronReconstructionConfig cfg;
+  std::vector<double> corr_parameters={-0.0756, -1.91,  2.30};
+  cfg.scale_corr_coeff_hcal=corr_parameters;
+  cfg.scale_corr_coeff_ecal=corr_parameters;
+  algo.applyConfig(cfg);
   algo.init();
 
   edm4eic::ClusterCollection clust_coll_hcal;
@@ -51,7 +57,7 @@ TEST_CASE( "the cluster merging algorithm runs", "[FarForwardNeutronReconstructi
 
   REQUIRE( (*neutroncand_coll).size() == 1);
 
-  double corr=algo.calc_corr(92);
+  double corr=algo.calc_corr(92, corr_parameters);
   double tol=0.001;
   double E_expected=92*dd4hep::GeV*1/(1+corr);
   double Px_expected=0.09199*1/(1+corr);
