@@ -6,6 +6,7 @@
 #include <IRT/CherenkovDetector.h>
 #include <IRT/CherenkovDetectorCollection.h>
 #include <IRT/CherenkovRadiator.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
@@ -15,49 +16,66 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 // EICrecon
 #include "IrtCherenkovParticleIDConfig.h"
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class IrtCherenkovParticleID : public WithPodConfig<IrtCherenkovParticleIDConfig> {
+  // - `in_raw_hits` is a collection of digitized (raw) sensor hits, possibly including noise hits
+  // - `in_hit_assocs` is a collection of digitized (raw) sensor hits, associated with MC (simulated) hits;
+  //   noise hits are not included since there is no associated simulated photon
+  // - `in_charged_particles` is a map of a radiator name to a collection of TrackSegments
+  //   - each TrackSegment has a list of TrackPoints: the propagation of reconstructed track (trajectory) points
+  // - the output is a map: radiator name -> collection of particle ID objects
+  using IrtCherenkovParticleIDAlgorithm = algorithms::Algorithm<
+    algorithms::Input<
+      const edm4eic::TrackSegmentCollection,
+      const edm4eic::TrackSegmentCollection,
+      const edm4eic::TrackSegmentCollection,
+      const edm4eic::RawTrackerHitCollection,
+      const edm4eic::MCRecoTrackerHitAssociationCollection
+    >,
+    algorithms::Output<
+      edm4eic::CherenkovParticleIDCollection,
+      edm4eic::CherenkovParticleIDCollection
+    >
+  >;
 
-    public:
-      IrtCherenkovParticleID() = default;
-      ~IrtCherenkovParticleID() {}
+  class IrtCherenkovParticleID
+  : public IrtCherenkovParticleIDAlgorithm,
+    public WithPodConfig<IrtCherenkovParticleIDConfig> {
 
-      void AlgorithmInit(
-          CherenkovDetectorCollection*     irt_det_coll,
-          std::shared_ptr<spdlog::logger>& logger
-          );
-      void AlgorithmChangeRun();
+  public:
+    IrtCherenkovParticleID(std::string_view name)
+      : IrtCherenkovParticleIDAlgorithm{name,
+                            {
+                              "inputAerogelTrackSegments", "inputGasTrackSegments", "inputMergedTrackSegments",
+                              "inputRawHits", "inputRawHitAssociations"
+                            },
+                            {"outputAerogelParticleIDs", "outputGasParticleIDs"},
+                            "Effectively 'zip' the input particle IDs"} {}
 
-      // AlgorithmProcess
-      // - `in_raw_hits` is a collection of digitized (raw) sensor hits, possibly including noise hits
-      // - `in_hit_assocs` is a collection of digitized (raw) sensor hits, associated with MC (simulated) hits;
-      //   noise hits are not included since there is no associated simulated photon
-      // - `in_charged_particles` is a map of a radiator name to a collection of TrackSegments
-      //   - each TrackSegment has a list of TrackPoints: the propagation of reconstructed track (trajectory) points
-      // - the output is a map: radiator name -> collection of particle ID objects
-      std::map<std::string, std::unique_ptr<edm4eic::CherenkovParticleIDCollection>> AlgorithmProcess(
-          std::map<std::string, const edm4eic::TrackSegmentCollection*>& in_charged_particles,
-          const edm4eic::RawTrackerHitCollection*                        in_raw_hits,
-          const edm4eic::MCRecoTrackerHitAssociationCollection*          in_hit_assocs
-          );
+    void init(CherenkovDetectorCollection* irt_det_coll, std::shared_ptr<spdlog::logger>& logger);
 
-    private:
+    void process(const Input&, const Output&) const;
 
-      std::shared_ptr<spdlog::logger> m_log;
-      CherenkovDetectorCollection*    m_irt_det_coll;
-      CherenkovDetector*              m_irt_det;
+  private:
 
-      uint64_t    m_cell_mask;
-      std::string m_det_name;
-      std::unordered_map<int,double>           m_pdg_mass;
-      std::map<std::string,CherenkovRadiator*> m_pid_radiators;
+    std::shared_ptr<spdlog::logger> m_log;
+    CherenkovDetectorCollection*    m_irt_det_coll;
+    CherenkovDetector*              m_irt_det;
+
+    const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+
+    uint64_t    m_cell_mask;
+    std::string m_det_name;
+    std::unordered_map<int,double>           m_pdg_mass;
+    std::map<std::string,CherenkovRadiator*> m_pid_radiators;
 
   };
 }

@@ -10,10 +10,9 @@
 #include <Acts/Utilities/Result.hpp>
 
 #include <Evaluator/DD4hepUnits.h>
-#include <TParticlePDG.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4eic/Cov6f.h>
 #include <fmt/core.h>
 #include <spdlog/common.h>
 #include <Eigen/Core>
@@ -22,19 +21,12 @@
 #include <memory>
 #include <utility>
 
-#if EDM4EIC_VERSION_MAJOR >= 5
-#include <edm4eic/Cov6f.h>
-#endif
-
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 
 void eicrecon::TrackParamTruthInit::init(std::shared_ptr<const ActsGeometryProvider> geo_svc, const std::shared_ptr<spdlog::logger> logger) {
     m_log = logger;
     m_geoSvc = geo_svc;
-
-    // TODO make a service?
-    m_pdg_db = std::make_shared<TDatabasePDG>();
 }
 
 std::unique_ptr<edm4eic::TrackParametersCollection>
@@ -83,14 +75,9 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         // get the particle charge
         // note that we cannot trust the mcparticles charge, as DD4hep
         // sets this value to zero! let's lookup by PDGID instead
-        //const double charge = m_pidSvc->particle(mcparticle.getPDG()).charge;
         const auto pdg = mcparticle.getPDG();
-        const auto* particle = m_pdg_db->GetParticle(pdg);
-        if (particle == nullptr) {
-            m_log->debug("particle with PDG {} not in TDatabasePDG", pdg);
-            continue;
-        }
-        double charge = std::copysign(1.0,particle->Charge());
+        const auto particle = m_particleSvc.particle(pdg);
+        double charge = std::copysign(1.0, particle.charge);
         if (abs(charge) < std::numeric_limits<double>::epsilon()) {
             m_log->trace("ignoring neutral particle");
             continue;
@@ -132,21 +119,14 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
         track_parameter.setTheta(theta); // theta [rad]
         track_parameter.setQOverP(charge / (pinit / dd4hep::GeV)); // Q/p [e/GeV]
         track_parameter.setTime(mcparticle.getTime()); // time [ns]
-        #if EDM4EIC_VERSION_MAJOR >= 5
-          edm4eic::Cov6f cov;
-          cov(0,0) = 1.0; // loc0
-          cov(1,1) = 1.0; // loc1
-          cov(2,2) = 0.05; // phi
-          cov(3,3) = 0.01; // theta
-          cov(4,4) = 0.1; // qOverP
-          cov(5,5) = 10e9; // time
-          track_parameter.setCovariance(cov);
-        #else
-          track_parameter.setCharge(charge); // charge
-          track_parameter.setLocError({1.0, 1.0}); // sqrt(variance) of location [mm]
-          track_parameter.setMomentumError({0.01, 0.05, 0.1}); // sqrt(variance) on theta, phi, q/p [rad, rad, e/GeV]
-          track_parameter.setTimeError(10e9); // error on time [ns]
-        #endif
+        edm4eic::Cov6f cov;
+        cov(0,0) = 1.0; // loc0
+        cov(1,1) = 1.0; // loc1
+        cov(2,2) = 0.05; // phi
+        cov(3,3) = 0.01; // theta
+        cov(4,4) = 0.1; // qOverP
+        cov(5,5) = 10e9; // time
+        track_parameter.setCovariance(cov);
 
         // Debug output
         if (m_log->level() <= spdlog::level::debug) {

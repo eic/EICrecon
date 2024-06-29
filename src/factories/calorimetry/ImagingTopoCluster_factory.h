@@ -21,6 +21,8 @@ private:
 
     ParameterRef<std::vector<double>> m_ldxy {this, "localDistXY", config().localDistXY};
     ParameterRef<std::vector<double>> m_ldep {this, "layerDistEtaPhi", config().layerDistEtaPhi};
+    ParameterRef<std::vector<double>> m_ldxy_adjacent {this, "layerDistXY", config().layerDistXY};
+    ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_laymode {this, "layerMode", config().layerMode};
     ParameterRef<int> m_nlr {this, "neighbourLayersRange", config().neighbourLayersRange};
     ParameterRef<double> m_sd {this, "sectorDist", config().sectorDist};
     ParameterRef<double> m_mched {this, "minClusterHitEdep", config().minClusterHitEdep};
@@ -33,7 +35,7 @@ private:
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->level((algorithms::LogLevel)logger()->level());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
         m_algo->applyConfig(config());
         m_algo->init();
     }

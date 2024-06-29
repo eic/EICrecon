@@ -12,6 +12,7 @@
 
 #include "algorithms/reco/InclusiveKinematicsTruth.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -26,10 +27,13 @@ private:
     PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
     PodioOutput<edm4eic::InclusiveKinematics> m_inclusive_kinematics_output {this};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->init(logger());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

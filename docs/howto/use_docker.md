@@ -93,13 +93,11 @@ is already setup. But the detector needs to be selected for use with
 simulation or reconstruction:
 
 ```bash
-# Detectors live in
-# /opt/detectors
-# one can select particular configuration as
-# source /opt/detector/epic-22.10.0/setup.sh
+# Detectors live in /opt/detector
+# One can select particular configuration as
+# source /opt/detector/epic-main/bin/thisepic.sh
 #
-# or one can set the default detector (now points to epic-nightly)
-source /opt/detector/setup.sh
+source /opt/detector/epic-main/bin/thisepic.sh
 ```
 
 

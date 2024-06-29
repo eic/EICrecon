@@ -47,7 +47,7 @@ extern "C" {
              .pedMeanADC    = EcalBarrelScFi_pedMeanADC,
              .pedSigmaADC   = EcalBarrelScFi_pedSigmaADC,
              .resolutionTDC = EcalBarrelScFi_resolutionTDC,
-             .corrMeanScale = 1.0,
+             .corrMeanScale = "1.0",
              .readout = "EcalBarrelScFiHits",
              .fields = {"fiber", "z"},
            },
@@ -79,7 +79,7 @@ extern "C" {
           "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
           {
             .sectorDist = 50. * dd4hep::mm,
-            .localDistXZ = {40 * dd4hep::mm, 40 * dd4hep::mm},
+            .localDistXZ = {80 * dd4hep::mm, 80 * dd4hep::mm},
             .splitCluster = false,
             .minClusterHitEdep = 5.0 * dd4hep::MeV,
             .minClusterCenterEdep = 100.0 * dd4hep::MeV,
@@ -121,7 +121,7 @@ extern "C" {
              .pedMeanADC    = EcalBarrelImaging_pedMeanADC,
              .pedSigmaADC   = EcalBarrelImaging_pedSigmaADC,
              .resolutionTDC = EcalBarrelImaging_resolutionTDC,
-             .corrMeanScale = 1.0,
+             .corrMeanScale = "1.0",
              .readout = "EcalBarrelImagingHits",
            },
            app   // TODO: Remove me once fixed

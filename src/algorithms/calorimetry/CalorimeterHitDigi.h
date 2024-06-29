@@ -15,12 +15,14 @@
 
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <algorithms/random.h>
+#include <DD4hep/IDDescriptor.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <random>
 #include <stdint.h>
 #include <string>
 #include <string_view>
+#include <functional>
 
 #include "CalorimeterHitDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -58,9 +60,15 @@ namespace eicrecon {
 
     uint64_t         id_mask{0};
 
+    std::function<double(const edm4hep::SimCalorimeterHit &h)> corrMeanScale;
+
+    dd4hep::IDDescriptor id_spec;
+
   private:
     const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
-    algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
+
+    mutable std::default_random_engine m_generator;
+    mutable std::normal_distribution<double> m_gaussian;
 
   };
 

@@ -13,13 +13,9 @@
 // algorithms
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/MergeTracks.h"
-// JANA
 #include "extensions/jana/JOmniFactory.h"
-// services
-#include "extensions/spdlog/SpdlogMixin.h"
 
 namespace eicrecon {
-
 
 class MergeTrack_factory : public JOmniFactory<MergeTrack_factory> {
 private:
@@ -36,7 +32,8 @@ private:
 public:
     void Configure() {
         m_algo = std::make_unique<MergeTracks>(GetPrefix());
-        m_algo->init(logger());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) { }
