@@ -10,6 +10,9 @@
 #include <Acts/EventData/Measurement.hpp>
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
+#if Acts_VERSION_MAJOR >= 32
+#include "Acts/EventData/ProxyAccessor.hpp"
+#endif
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
@@ -210,7 +213,11 @@ namespace eicrecon {
 
         // Add seed number column
         acts_tracks.addColumn<unsigned int>("seed");
+#if Acts_VERSION_MAJOR >= 32
+        Acts::ProxyAccessor<unsigned int> seedNumber("seed");
+#else
         Acts::TrackAccessor<unsigned int> seedNumber("seed");
+#endif
 
         // Loop over seeds
         for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
@@ -251,8 +258,11 @@ namespace eicrecon {
         auto& constTracks = *(constTracks_v.front());
 
         // Seed number column accessor
+#if Acts_VERSION_MAJOR >= 32
+        const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
+#else
         const Acts::ConstTrackAccessor<unsigned int> constSeedNumber("seed");
-
+#endif
 
         // Prepare the output data with MultiTrajectory, per seed
         std::vector<ActsExamples::Trajectories*> acts_trajectories;
