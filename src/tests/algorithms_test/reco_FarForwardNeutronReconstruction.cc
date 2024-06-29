@@ -15,8 +15,10 @@
 #include <cmath>                                   // for sqrt, abs
 #include <iostream>
 #include <memory>                                  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
+#include <vector>
 
-#include "algorithms/reco/FarForwardNeutronReconstruction.h"        // for Neutronreconstruction
+#include "algorithms/reco/FarForwardNeutronReconstruction.h"
+#include "algorithms/reco/FarForwardNeutronReconstructionConfig.h"
 
 using eicrecon::FarForwardNeutronReconstruction;
 using eicrecon::FarForwardNeutronReconstructionConfig;
