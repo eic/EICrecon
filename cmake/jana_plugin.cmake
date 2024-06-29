@@ -289,10 +289,8 @@ macro(plugin_add_acts _name)
 
   # Add libraries (works same as target_include_directories)
   plugin_include_directories(
-    ${PLUGIN_NAME}
-    PUBLIC
-    $<TARGET_PROPERTY:ActsCore,INTERFACE_INCLUDE_DIRECTORIES>
-  )
+    ${PLUGIN_NAME} PUBLIC
+    $<TARGET_PROPERTY:ActsCore,INTERFACE_INCLUDE_DIRECTORIES>)
   plugin_link_libraries(
     ${PLUGIN_NAME}
     ActsCore
@@ -381,8 +379,7 @@ macro(plugin_add_fastjet _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} PUBLIC
-                             ${FASTJET_INCLUDE_DIRS})
+  plugin_include_directories(${PLUGIN_NAME} PUBLIC ${FASTJET_INCLUDE_DIRS})
 
   # Add libraries
   plugin_link_libraries(${PLUGIN_NAME} ${FASTJET_LIBRARIES})
@@ -397,8 +394,7 @@ macro(plugin_add_fastjettools _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} PUBLIC
-                             ${FJTOOLS_INCLUDE_DIRS})
+  plugin_include_directories(${PLUGIN_NAME} PUBLIC ${FJTOOLS_INCLUDE_DIRS})
 
   # Add libraries
   plugin_link_libraries(${PLUGIN_NAME} ${FJTOOLS_LIBRARIES})
@@ -413,8 +409,7 @@ macro(plugin_add_fastjetcontrib _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} PUBLIC
-                             ${FJCONTRIB_INCLUDE_DIRS})
+  plugin_include_directories(${PLUGIN_NAME} PUBLIC ${FJCONTRIB_INCLUDE_DIRS})
 
   # Add libraries
   plugin_link_libraries(${PLUGIN_NAME} ${FJCONTRIB_LIBRARIES})
