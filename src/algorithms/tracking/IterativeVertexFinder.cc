@@ -13,7 +13,11 @@
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#if Acts_VERSION_MAJOR >= 32
+#include <Acts/Propagator/VoidNavigator.hpp>
+#else
 #include <Acts/Propagator/detail/VoidPropagatorComponents.hpp>
+#endif
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Utilities/VectorHelpers.hpp>
@@ -69,8 +73,13 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   Acts::EigenStepper<> stepper(m_BField);
 
   // Set up propagator with void navigator
+#if Acts_VERSION_MAJOR >= 32
+  auto propagator = std::make_shared<Propagator>(
+    stepper, Acts::VoidNavigator{}, logger().cloneWithSuffix("Prop"));
+#else
   auto propagator = std::make_shared<Propagator>(
     stepper, Acts::detail::VoidNavigator{}, logger().cloneWithSuffix("Prop"));
+#endif
   Acts::PropagatorOptions opts(m_geoctx, m_fieldctx);
 
   // Setup the vertex fitter
