@@ -4,6 +4,7 @@
 #include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <podio/ROOTWriter.h>
+#include <podio/podioVersion.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <mutex>
@@ -25,7 +26,11 @@ public:
 
     void FindCollectionsToWrite(const std::shared_ptr<const JEvent>& event);
 
+#if podio_VERSION >= PODIO_VERSION(0, 99, 0)
     std::unique_ptr<podio::ROOTWriter> m_writer;
+#else
+    std::unique_ptr<podio::ROOTFrameWriter> m_writer;
+#endif
     std::mutex m_mutex;
     bool m_is_first_event = true;
     bool m_user_included_collections = false;
