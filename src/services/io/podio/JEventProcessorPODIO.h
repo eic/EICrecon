@@ -3,8 +3,12 @@
 
 #include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
-#include <podio/ROOTWriter.h>
 #include <podio/podioVersion.h>
+#if podio_VERSION >= PODIO_VERSION(0, 99, 0)
+#include <podio/ROOTWriter.h>
+#else
+#include <podio/ROOTFrameWriter.h>
+#endif
 #include <spdlog/logger.h>
 #include <memory>
 #include <mutex>
