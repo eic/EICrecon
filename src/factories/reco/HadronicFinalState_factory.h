@@ -30,7 +30,7 @@ private:
     typename FactoryT::template PodioInput<edm4eic::MCRecoParticleAssociation> m_rc_particles_assoc_input {this};
     typename FactoryT::template PodioOutput<edm4eic::HadronicFinalState> m_hadronic_final_state_output {this};
 
-    typename FactoryT::Service<AlgorithmsInit_service> m_algorithmsInit {this};
+    typename FactoryT::template Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {
