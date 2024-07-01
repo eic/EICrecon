@@ -8,41 +8,33 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/ParticleSvc.h"
 
 namespace eicrecon {
 
-  using HadronicFinalStateAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4hep::MCParticleCollection,
-      edm4eic::ReconstructedParticleCollection,
-      edm4eic::MCRecoParticleAssociationCollection
-    >,
-    algorithms::Output<
-      edm4eic::HadronicFinalStateCollection
-    >
-  >;
+using HadronicFinalStateAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
+                      edm4eic::MCRecoParticleAssociationCollection>,
+    algorithms::Output<edm4eic::HadronicFinalStateCollection>>;
 
-  class HadronicFinalState
-  : public HadronicFinalStateAlgorithm {
+class HadronicFinalState : public HadronicFinalStateAlgorithm {
 
-  public:
-    HadronicFinalState(std::string_view name)
+public:
+  HadronicFinalState(std::string_view name)
       : HadronicFinalStateAlgorithm{name,
-                            {"MCParticles", "inputParticles", "inputAssociations"},
-                            {"hadronicFinalState"},
-                            "Calculate summed quantities of the hadronic final state."} {}
+                                    {"MCParticles", "inputParticles", "inputAssociations"},
+                                    {"hadronicFinalState"},
+                                    "Calculate summed quantities of the hadronic final state."} {}
 
-    void init(std::shared_ptr<spdlog::logger>& logger);
-    void process(const Input&, const Output&) const final;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
-    std::shared_ptr<spdlog::logger> m_log;
-    double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
-  };
+private:
+  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  double m_crossingAngle{-0.025};
+};
 
 } // namespace eicrecon

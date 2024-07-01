@@ -128,9 +128,9 @@ extern "C" {
             {"HcalEndcapNSplitMergeProtoClusters"},
             {
               .minSigCut = -1,
-              .avgEP = 1.0,
-              .sigEP = 1.0,
-              .drAdd = 0.4,
+              .avgEP = 0.60,
+              .sigEP = 0.40,
+              .drAdd = 0.40,
               .sampFrac = 1.0,
               .distScale = 1.0
             },

@@ -28,9 +28,7 @@ namespace eicrecon {
                           "Merge content of collections into one subset collection"
                       }{}
 
-    void init(std::shared_ptr<spdlog::logger>& logger){ // set logger
-      m_log      = logger;
-    };
+    void init() final { };
 
     void process(const typename CollectionCollector::Input& input, const typename CollectionCollector::Output& output) const final{
 
@@ -45,9 +43,6 @@ namespace eicrecon {
         }
       }
     }
-
-    private:
-      std::shared_ptr<spdlog::logger> m_log; // logger
 
   };
 } // eicrecon

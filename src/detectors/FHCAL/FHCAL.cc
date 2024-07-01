@@ -8,6 +8,7 @@
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -15,6 +16,7 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
@@ -59,7 +61,7 @@ extern "C" {
             .thresholdFactor = 0.,
             .thresholdValue = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
 
-            .sampFrac = "0.0098",
+            .sampFrac = "1.0",
             .readout = "HcalEndcapPInsertHits",
             .layerField="layer",
           },
@@ -83,8 +85,8 @@ extern "C" {
         "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertSubcellHits"},
         {
           .MIP = 800. * dd4hep::keV,
-          .Emin_in_MIPs=0.1,
-          .tmax=50 * dd4hep::ns,
+          .Emin_in_MIPs=0.5,
+          .tmax=162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
         },
         app   // TODO: Remove me once fixed
       ));
@@ -95,12 +97,13 @@ extern "C" {
           {
               .neighbourLayersRange = 1,
               .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-              .layerDistEtaPhi = {17e-3, 18.1e-3},
+              .layerDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+              .layerMode = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
               .sectorDist = 10.0 * dd4hep::cm,
-              .minClusterHitEdep = 100.0 * dd4hep::keV,
-              .minClusterCenterEdep = 11.0 * dd4hep::MeV,
+              .minClusterHitEdep = 5.0 * dd4hep::keV,
+              .minClusterCenterEdep = 5.0 * dd4hep::MeV,
               .minClusterEdep = 11.0 * dd4hep::MeV,
-              .minClusterNhits = 10,
+              .minClusterNhits = 100,
           },
           app   // TODO: Remove me once fixed
       ));
@@ -114,7 +117,7 @@ extern "C" {
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 3.6,
               .enableEtaBounds = true
             },
@@ -131,7 +134,7 @@ extern "C" {
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 6.2,
               .enableEtaBounds = false,
             },
@@ -187,10 +190,11 @@ extern "C" {
         // Magic constants:
         //  54 - number of modules in a row/column
         //  2  - number of towers in a module
-        std::string cellIdx_1  = "(54*2-moduleIDx_1*2+towerx_1)";
-        std::string cellIdx_2  = "(54*2-moduleIDx_2*2+towerx_2)";
-        std::string cellIdy_1  = "(54*2-moduleIDy_1*2+towery_1)";
-        std::string cellIdy_2  = "(54*2-moduleIDy_2*2+towery_2)";
+        // sign for towerx and towery are *negative* to maintain linearity with global X and Y
+        std::string cellIdx_1  = "(54*2-moduleIDx_1*2-towerx_1)";
+        std::string cellIdx_2  = "(54*2-moduleIDx_2*2-towerx_2)";
+        std::string cellIdy_1  = "(54*2-moduleIDy_1*2-towery_1)";
+        std::string cellIdy_2  = "(54*2-moduleIDy_2*2-towery_2)";
         std::string cellIdz_1  = "rlayerz_1";
         std::string cellIdz_2  = "rlayerz_2";
         std::string deltaX     = Form("abs(%s-%s)", cellIdx_2.data(), cellIdx_1.data());
@@ -259,9 +263,9 @@ extern "C" {
             {"LFHCALSplitMergeProtoClusters"},
             {
               .minSigCut = -1,
-              .avgEP = 1.0,
-              .sigEP = 1.0,
-              .drAdd = 0.4,
+              .avgEP = 0.50,
+              .sigEP = 0.25,
+              .drAdd = 0.30,
               .sampFrac = 1.0,
               .distScale = 1.0
             },

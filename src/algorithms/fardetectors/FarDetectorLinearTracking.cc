@@ -25,9 +25,7 @@
 
 namespace eicrecon {
 
-    void FarDetectorLinearTracking::init(std::shared_ptr<spdlog::logger>& logger) {
-
-      m_log      = logger;
+    void FarDetectorLinearTracking::init() {
 
       // For changing how strongly each layer hit is in contributing to the fit
       m_layerWeights = Eigen::VectorXd::Constant(m_cfg.n_layer,1);
@@ -49,7 +47,7 @@ namespace eicrecon {
         // Check the number of input collections is correct
         int nCollections = inputhits.size();
         if(nCollections!=m_cfg.n_layer){
-          m_log->error("Wrong number of input collections passed to algorithm");
+          error("Wrong number of input collections passed to algorithm");
           return;
         }
 
@@ -58,7 +56,7 @@ namespace eicrecon {
         // TODO - Implement more sensible solution
         for(const auto& layerHits: inputhits){
           if((*layerHits).size()>m_cfg.layer_hits_max){
-            m_log->info("Too many hits in layer");
+            info("Too many hits in layer");
             return;
           }
         }
@@ -160,9 +158,9 @@ namespace eicrecon {
 
       double angle = std::acos(hitDiff.dot(m_optimumDirection));
 
-      m_log->debug("Vector: x={}, y={}, z={}",hitDiff.x(),hitDiff.y(),hitDiff.z());
-      m_log->debug("Optimum: x={}, y={}, z={}",m_optimumDirection.x(),m_optimumDirection.y(),m_optimumDirection.z());
-      m_log->debug("Angle: {}, Tolerance {}",angle,m_cfg.step_angle_tolerance);
+      debug("Vector: x={}, y={}, z={}",hitDiff.x(),hitDiff.y(),hitDiff.z());
+      debug("Optimum: x={}, y={}, z={}",m_optimumDirection.x(),m_optimumDirection.y(),m_optimumDirection.z());
+      debug("Angle: {}, Tolerance {}",angle,m_cfg.step_angle_tolerance);
 
       if(angle>m_cfg.step_angle_tolerance) return false;
 
