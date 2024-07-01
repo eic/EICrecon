@@ -432,8 +432,7 @@ endmacro()
 macro(plugin_add_torch _name)
 
   if(NOT TORCH_FOUND)
-    find_package(
-      Torch QUIET)
+    find_package(Torch QUIET)
   endif()
 
   # Add include directories
