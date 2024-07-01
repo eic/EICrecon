@@ -433,8 +433,7 @@ macro(plugin_add_torch _name)
 
   if(NOT TORCH_FOUND)
     find_package(
-      Torch REQUIRED PATHS
-      "/usr/local/lib/python3.10/site-packages/torch/share/cmake/Torch")
+      Torch QUIET)
   endif()
 
   # Add include directories
