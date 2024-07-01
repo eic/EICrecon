@@ -14,6 +14,7 @@
 
 #include "algorithms/reco/TransformBreitFrame.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -32,6 +33,8 @@ namespace eicrecon {
 
       // output collection
       PodioOutput<edm4eic::ReconstructedParticle> m_out_part {this};
+
+      Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
     public:
 

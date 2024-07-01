@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -28,6 +29,8 @@ private:
     typename FactoryT::template PodioInput<edm4eic::ReconstructedParticle> m_rc_particles_input {this};
     typename FactoryT::template PodioInput<edm4eic::MCRecoParticleAssociation> m_rc_particles_assoc_input {this};
     typename FactoryT::template PodioOutput<edm4eic::HadronicFinalState> m_hadronic_final_state_output {this};
+
+    typename FactoryT::Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {
