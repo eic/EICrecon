@@ -3,17 +3,17 @@
 #pragma once
 #include <string>
 
-#include "algorithms/fardetectors/TorchScriptInterface.h"
-#include "algorithms/fardetectors/TorchScriptInterfaceConfig.h"
+#include "algorithms/fardetectors/SimpleNeuralNetworkInference.h"
+#include "algorithms/fardetectors/SimpleNeuralNetworkInferenceConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-class TorchScriptInterface_factory :
-    public JOmniFactory<TorchScriptInterface_factory, TorchScriptInterfaceConfig> {
+class SimpleNeuralNetworkInference_factory :
+    public JOmniFactory<SimpleNeuralNetworkInference_factory, SimpleNeuralNetworkInferenceConfig> {
 
 public:
-    using AlgoT = eicrecon::TorchScriptInterface;
+    using AlgoT = eicrecon::SimpleNeuralNetworkInference;
 private:
     std::unique_ptr<AlgoT> m_algo;
 
