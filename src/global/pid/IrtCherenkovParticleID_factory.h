@@ -15,6 +15,7 @@
 #include "algorithms/pid/IrtCherenkovParticleID.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
 
 namespace eicrecon {
@@ -50,6 +51,7 @@ private:
     ParameterRef<bool> m_cheatPhotonVertex {this, "cheatPhotonVertex", config().cheatPhotonVertex, ""};
     ParameterRef<bool> m_cheatTrueRadiator {this, "cheatTrueRadiator", config().cheatTrueRadiator, ""};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
     Service<RichGeo_service> m_RichGeoSvc {this};
 
 public:

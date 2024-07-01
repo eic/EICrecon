@@ -1,9 +1,8 @@
-// Copyright 2022, Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2024, Dmitry Romanov, Nathan Brei, Tooba Ali, Wouter Deconinck, Dmitry Kalinkin, John Lajoie, Simon Gardner, Tristan Protzman, Daniel Brandenburg, Derek M Anderson, Sebouh Paul, Tyler Kutz, Alex Jentsch, Jihee Kim, Brian Page
 
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -28,7 +27,9 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/FarForwardNeutronReconstruction_factory.h"
+#ifdef USE_ONNX
 #include "factories/reco/InclusiveKinematicsML_factory.h"
+#endif
 #if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #endif
@@ -38,6 +39,7 @@
 #if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/HadronicFinalState_factory.h"
 #endif
+#include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 #include "global/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "global/reco/MC2SmearedParticle_factory.h"
 #include "global/reco/MatchClusters_factory.h"
@@ -183,6 +185,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+#ifdef USE_ONNX
     app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
         "InclusiveKinematicsML",
         {
@@ -194,6 +197,7 @@ void InitPlugin(JApplication *app) {
         },
         app
     ));
+#endif
 #endif
 
     app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
@@ -292,11 +296,11 @@ void InitPlugin(JApplication *app) {
     ));
     app->Add(new JOmniFactoryGeneratorT<FarForwardNeutronReconstruction_factory>(
            "ReconstructedFarForwardZDCNeutrons",
-          {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
+           {"HcalFarForwardZDCClusters","EcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
           {"ReconstructedFarForwardZDCNeutrons"}, // edm4eic::ReconstrutedParticleCollection,
           {
-            .scale_corr_coeff={-0.0756, -1.91,  2.30}
-
+            .scale_corr_coeff_hcal={-0.0756, -1.91,  2.30},
+            .scale_corr_coeff_ecal={-0.0756, -1.91,  2.30}
           },
           app   // TODO: Remove me once fixed
     ));
@@ -346,6 +350,27 @@ void InitPlugin(JApplication *app) {
             },
             app
     ));
+
+
+    //Full correction for MCParticles --> MCParticlesHeadOnFrame
+    app->Add(new JOmniFactoryGeneratorT<UndoAfterBurnerMCParticles_factory>(
+            "MCParticlesHeadOnFrameNoBeamFX",
+            {
+                "MCParticles"
+            },
+            {
+                "MCParticlesHeadOnFrameNoBeamFX"
+            },
+            {
+              .m_pid_assume_pion_mass = false,
+              .m_crossing_angle = -0.025 * dd4hep::rad,
+              .m_pid_purity = 0.51, //dummy value for MC truth information
+              .m_correct_beam_FX = true,
+              .m_pid_use_MC_truth = true,
+            },
+            app
+    ));
+
 
 }
 } // extern "C"

@@ -9,7 +9,12 @@
 #include <fmt/core.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
+#include <podio/podioVersion.h>
+#if podio_VERSION >= PODIO_VERSION(0, 99, 0)
 #include <podio/ROOTWriter.h>
+#else
+#include <podio/ROOTFrameWriter.h>
+#endif
 #include <spdlog/common.h>
 #include <chrono>
 #include <exception>
@@ -55,6 +60,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "MCBeamProtons",
             "MCScatteredElectrons",
             "MCScatteredProtons",
+            "MCParticlesHeadOnFrameNoBeamFX",
 
             // All tracking hits combined
             "CentralTrackingRecHits",
@@ -350,7 +356,11 @@ void JEventProcessorPODIO::Init() {
     auto *app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
     m_log->set_level(spdlog::level::debug);
+#if podio_VERSION >= PODIO_VERSION(0, 99, 0)
+    m_writer = std::make_unique<podio::ROOTWriter>(m_output_file);
+#else
     m_writer = std::make_unique<podio::ROOTFrameWriter>(m_output_file);
+#endif
     // TODO: NWB: Verify that output file is writable NOW, rather than after event processing completes.
     //       I definitely don't trust PODIO to do this for me.
 

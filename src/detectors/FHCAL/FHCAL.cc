@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Friederike Bock, Wouter Deconinck
+// Copyright (C) 2023 Friederike Bock, Wouter Deconinck, Sebouh Paul
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
@@ -8,6 +8,7 @@
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -58,7 +59,7 @@ extern "C" {
             .thresholdFactor = 0.,
             .thresholdValue = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
 
-            .sampFrac = "0.0098",
+            .sampFrac = "1.0",
             .readout = "HcalEndcapPInsertHits",
             .layerField="layer",
           },
@@ -82,8 +83,8 @@ extern "C" {
         "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertSubcellHits"},
         {
           .MIP = 800. * dd4hep::keV,
-          .Emin_in_MIPs=0.1,
-          .tmax=150 * dd4hep::ns,
+          .Emin_in_MIPs=0.5,
+          .tmax=162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
         },
         app   // TODO: Remove me once fixed
       ));
@@ -94,10 +95,11 @@ extern "C" {
           {
               .neighbourLayersRange = 1,
               .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-              .layerDistEtaPhi = {17e-3, 18.1e-3},
+              .layerDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+              .layerMode = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
               .sectorDist = 10.0 * dd4hep::cm,
-              .minClusterHitEdep = 100.0 * dd4hep::keV,
-              .minClusterCenterEdep = 11.0 * dd4hep::MeV,
+              .minClusterHitEdep = 5.0 * dd4hep::keV,
+              .minClusterCenterEdep = 5.0 * dd4hep::MeV,
               .minClusterEdep = 11.0 * dd4hep::MeV,
               .minClusterNhits = 100,
           },
@@ -113,7 +115,7 @@ extern "C" {
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 3.6,
               .enableEtaBounds = true
             },
@@ -130,7 +132,7 @@ extern "C" {
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 6.2,
               .enableEtaBounds = false,
             },
