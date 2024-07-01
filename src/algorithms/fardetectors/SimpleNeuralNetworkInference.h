@@ -8,7 +8,7 @@
 
 namespace eicrecon {
 
-  class TorchScriptInterface :  public WithPodConfig<SimpleNeuralNetworkInference> {
+  class SimpleNeuralNetworkInference :  public WithPodConfig<SimpleNeuralNetworkInference> {
 
   public:
     void init(std::shared_ptr<spdlog::logger> logger);
