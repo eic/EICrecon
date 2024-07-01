@@ -61,11 +61,12 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 
   using Propagator        = Acts::Propagator<Acts::EigenStepper<>>;
   using PropagatorOptions = Acts::PropagatorOptions<>;
-  using Linearizer        = Acts::HelicalTrackLinearizer<Propagator>;
 #if Acts_VERSION_MAJOR >= 33
-  using VertexFitter      = Acts::FullBilloirVertexFitter<Linearizer>;
-  using ImpactPointEstimator = Acts::ImpactPointEstimator<Propagator>;
+  using Linearizer        = Acts::HelicalTrackLinearizer;
+  using VertexFitter      = Acts::FullBilloirVertexFitter;
+  using ImpactPointEstimator = Acts::ImpactPointEstimator;
 #else
+  using Linearizer        = Acts::HelicalTrackLinearizer<Propagator>;
   using VertexFitter      = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, Linearizer>;
   using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, Propagator>;
 #endif
@@ -91,16 +92,26 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 #endif
   Acts::PropagatorOptions opts(m_geoctx, m_fieldctx);
 
+  // Setup the track linearizer
+#if Acts_VERSION_MAJOR >= 33
+  Linearizer::Config linearizerCfg;
+  linearizerCfg.bField = m_BField;
+  linearizerCfg.propagator = propagator;
+#else
+  Linearizer::Config linearizerCfg(m_BField, propagator);
+#endif
+  Linearizer linearizer(linearizerCfg, logger().cloneWithSuffix("HelLin"));
+
   // Setup the vertex fitter
   VertexFitter::Config vertexFitterCfg;
 #if Acts_VERSION_MAJOR >= 33
   vertexFitterCfg.extractParameters
     .connect<&Acts::InputTrack::extractParameters>();
+  vertexFitterCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(
+      &linearizer);
 #endif
   VertexFitter vertexFitter(vertexFitterCfg);
-  // Setup the track linearizer
-  Linearizer::Config linearizerCfg(m_BField, propagator);
-  Linearizer linearizer(linearizerCfg, logger().cloneWithSuffix("HelLin"));
+
   // Setup the seed finder
   ImpactPointEstimator::Config ipEstCfg(m_BField, propagator);
   ImpactPointEstimator ipEst(ipEstCfg);
@@ -110,14 +121,21 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     .connect<&Acts::InputTrack::extractParameters>();
 #endif
   VertexSeeder seeder(seederCfg);
+
   // Set up the actual vertex finder
-  VertexFinder::Config finderCfg(std::move(vertexFitter), std::move(linearizer),
-                                 std::move(seeder), std::move(ipEst));
+  VertexFinder::Config finderCfg(
+    std::move(vertexFitter),
+#if Acts_VERSION_MAJOR < 33
+    std::move(linearizer),
+#endif
+    std::move(seeder),
+    std::move(ipEst));
   finderCfg.maxVertices                 = m_cfg.maxVertices;
   finderCfg.reassignTracksAfterFirstFit = m_cfg.reassignTracksAfterFirstFit;
 #if Acts_VERSION_MAJOR >= 31
  #if Acts_VERSION_MAJOR >= 33
   finderCfg.extractParameters.connect<&Acts::InputTrack::extractParameters>();
+  finderCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(&linearizer);
  #endif
   VertexFinder finder(std::move(finderCfg));
 #else
