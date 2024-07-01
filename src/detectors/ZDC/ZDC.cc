@@ -83,7 +83,7 @@ extern "C" {
              "EcalFarForwardZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.701,
               .logWeightBase = 3.6,
               .enableEtaBounds = false
             },
@@ -100,7 +100,7 @@ extern "C" {
              "EcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.701,
               .logWeightBase = 6.2,
               .enableEtaBounds = false,
             },
