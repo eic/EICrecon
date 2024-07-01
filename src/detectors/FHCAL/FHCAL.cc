@@ -16,8 +16,10 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -248,6 +250,41 @@ extern "C" {
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
               .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "LFHCALSplitMergeProtoClusters",
+            {"LFHCALIslandProtoClusters",
+             "CalorimeterTrackProjections"},
+            {"LFHCALSplitMergeProtoClusters"},
+            {
+              .minSigCut = -2.0,
+              .avgEP = 0.50,
+              .sigEP = 0.25,
+              .drAdd = 0.30,
+              .sampFrac = 1.0,
+              .distScale = 1.0
+            },
+            app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "LFHCALSplitMergeClusters",
+            {"LFHCALSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
+             "LFHCALHits"},                          // edm4hep::SimCalorimeterHitCollection
+            {"LFHCALSplitMergeClusters",             // edm4eic::Cluster
+             "LFHCALSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 4.5,
+              .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
           )
