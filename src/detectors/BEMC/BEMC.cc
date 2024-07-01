@@ -80,7 +80,7 @@ extern "C" {
           "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
           {
             .sectorDist = 50. * dd4hep::mm,
-            .localDistXZ = {40 * dd4hep::mm, 40 * dd4hep::mm},
+            .localDistXZ = {80 * dd4hep::mm, 80 * dd4hep::mm},
             .splitCluster = false,
             .minClusterHitEdep = 5.0 * dd4hep::MeV,
             .minClusterCenterEdep = 100.0 * dd4hep::MeV,

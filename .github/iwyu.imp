@@ -30,6 +30,7 @@
   { include: ['<JANA/JApplicationFwd.h>', private, '<JANA/JApplication.h>', public] },
 
   # the rest
+  { include: ['<bits/chrono.h>', private, '<chrono>', public] },
   { include: ['<bits/std_abs.h>', private, '<math.h>', public] },
   { include: ['<bits/utility.h>', private, '<tuple>', public] },
   # https://github.com/include-what-you-use/include-what-you-use/issues/166

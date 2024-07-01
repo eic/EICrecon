@@ -4,9 +4,11 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <TString.h>
+#include <math.h>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -15,6 +17,8 @@
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
+#include "factories/calorimetry/HEXPLIT_factory.h"
+#include "factories/calorimetry/ImagingTopoCluster_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -56,8 +60,9 @@ extern "C" {
             .thresholdFactor = 0.,
             .thresholdValue = 41.0, // 0.25 MeV --> 0.25 / 200 * 32768 = 41
 
-            .sampFrac = "0.0098",
+            .sampFrac = "1.0",
             .readout = "HcalEndcapPInsertHits",
+            .layerField="layer",
           },
           app   // TODO: Remove me once fixed
         ));
@@ -74,20 +79,33 @@ extern "C" {
           "HcalEndcapPInsertTruthProtoClusters", {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"}, {"HcalEndcapPInsertTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
-        app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-          "HcalEndcapPInsertIslandProtoClusters", {"HcalEndcapPInsertMergedHits"}, {"HcalEndcapPInsertIslandProtoClusters"},
+
+      app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
+        "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertSubcellHits"},
+        {
+          .MIP = 800. * dd4hep::keV,
+          .Emin_in_MIPs=0.5,
+          .tmax=162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
+        },
+        app   // TODO: Remove me once fixed
+      ));
+
+      double side_length=18.89 * dd4hep::mm;
+      app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
+          "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"}, {"HcalEndcapPInsertImagingProtoClusters"},
           {
-            .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
-            .dimScaledLocalDistXY = {15.0*dd4hep::mm, 15.0*dd4hep::mm},
-            .splitCluster = true,
-            .minClusterHitEdep = 0.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 30.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
-            .transverseEnergyProfileScale = 1.,
+              .neighbourLayersRange = 1,
+              .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+              .layerDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+              .layerMode = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
+              .sectorDist = 10.0 * dd4hep::cm,
+              .minClusterHitEdep = 5.0 * dd4hep::keV,
+              .minClusterCenterEdep = 5.0 * dd4hep::MeV,
+              .minClusterEdep = 11.0 * dd4hep::MeV,
+              .minClusterNhits = 100,
           },
           app   // TODO: Remove me once fixed
-        ));
+      ));
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
@@ -98,7 +116,7 @@ extern "C" {
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 3.6,
               .enableEtaBounds = true
             },
@@ -109,13 +127,13 @@ extern "C" {
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertClusters",
-            {"HcalEndcapPInsertIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+            {"HcalEndcapPInsertImagingProtoClusters",  // edm4eic::ProtoClusterCollection
              "HcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
             {"HcalEndcapPInsertClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 1.0,
+              .sampFrac = 0.0257,
               .logWeightBase = 6.2,
               .enableEtaBounds = false,
             },
@@ -171,10 +189,11 @@ extern "C" {
         // Magic constants:
         //  54 - number of modules in a row/column
         //  2  - number of towers in a module
-        std::string cellIdx_1  = "(54*2-moduleIDx_1*2+towerx_1)";
-        std::string cellIdx_2  = "(54*2-moduleIDx_2*2+towerx_2)";
-        std::string cellIdy_1  = "(54*2-moduleIDy_1*2+towery_1)";
-        std::string cellIdy_2  = "(54*2-moduleIDy_2*2+towery_2)";
+        // sign for towerx and towery are *negative* to maintain linearity with global X and Y
+        std::string cellIdx_1  = "(54*2-moduleIDx_1*2-towerx_1)";
+        std::string cellIdx_2  = "(54*2-moduleIDx_2*2-towerx_2)";
+        std::string cellIdy_1  = "(54*2-moduleIDy_1*2-towery_1)";
+        std::string cellIdy_2  = "(54*2-moduleIDy_2*2-towery_2)";
         std::string cellIdz_1  = "rlayerz_1";
         std::string cellIdz_2  = "rlayerz_2";
         std::string deltaX     = Form("abs(%s-%s)", cellIdx_2.data(), cellIdx_1.data());

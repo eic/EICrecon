@@ -11,8 +11,6 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/TrackerHitCollection.h>
 #include <podio/ObjectID.h>
-#include <spdlog/logger.h>
-#include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -22,7 +20,7 @@
 
 // Cluster struct
 struct FDTrackerCluster {
-  long cellID{0};
+  unsigned long cellID{0};
   double x{0.0};
   double y{0.0};
   double energy{0.0};
@@ -32,48 +30,41 @@ struct FDTrackerCluster {
 };
 namespace eicrecon {
 
-  using FarDetectorTrackerClusterAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      std::vector<edm4eic::RawTrackerHitCollection>
-    >,
-    algorithms::Output<
-      std::vector<edm4hep::TrackerHitCollection>
-    >
-  >;
+using FarDetectorTrackerClusterAlgorithm =
+    algorithms::Algorithm<algorithms::Input<std::vector<edm4eic::RawTrackerHitCollection>>,
+                          algorithms::Output<std::vector<edm4hep::TrackerHitCollection>>>;
 
-  class FarDetectorTrackerCluster
-  : public FarDetectorTrackerClusterAlgorithm,
-    public WithPodConfig<FarDetectorTrackerClusterConfig>  {
+class FarDetectorTrackerCluster : public FarDetectorTrackerClusterAlgorithm,
+                                  public WithPodConfig<FarDetectorTrackerClusterConfig> {
 
-  public:
-    FarDetectorTrackerCluster(std::string_view name)
+public:
+  FarDetectorTrackerCluster(std::string_view name)
       : FarDetectorTrackerClusterAlgorithm{name,
-                            {"inputHitCollection"},
-                            {"outputClusterPositionCollection"},
-                            "Simple weighted clustering of hits by x-y component of single detector element segmentation"} {}
+                                           {"inputHitCollection"},
+                                           {"outputClusterPositionCollection"},
+                                           "Simple weighted clustering of hits by x-y component of "
+                                           "single detector element segmentation"} {}
 
-    /** One time initialization **/
-    void init(std::shared_ptr<spdlog::logger>& logger);
+  /** One time initialization **/
+  void init() final;
 
-    /** Event by event processing **/
-    void process(const Input&, const Output&) const final;
+  /** Event by event processing **/
+  void process(const Input&, const Output&) const final;
 
-    /** Cluster hits **/
-    std::vector<FDTrackerCluster> ClusterHits(const edm4eic::RawTrackerHitCollection&) const;
+  /** Cluster hits **/
+  std::vector<FDTrackerCluster> ClusterHits(const edm4eic::RawTrackerHitCollection&) const;
 
-    /** Convert clusters to TrackerHits **/
-    void ConvertClusters(const std::vector<FDTrackerCluster>&, edm4hep::TrackerHitCollection&) const;
+  /** Convert clusters to TrackerHits **/
+  void ConvertClusters(const std::vector<FDTrackerCluster>&, edm4hep::TrackerHitCollection&) const;
 
-  private:
-      const dd4hep::Detector*         m_detector{nullptr};
-      const dd4hep::BitFieldCoder*    m_id_dec{nullptr};
-      std::shared_ptr<spdlog::logger> m_log;
-      const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
-      dd4hep::Segmentation     m_seg;
+private:
+  const dd4hep::Detector* m_detector{nullptr};
+  const dd4hep::BitFieldCoder* m_id_dec{nullptr};
+  const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
+  dd4hep::Segmentation m_seg;
 
-      int m_x_idx{0};
-      int m_y_idx{0};
+  int m_x_idx{0};
+  int m_y_idx{0};
+};
 
-  };
-
-} // eicrecon
+} // namespace eicrecon

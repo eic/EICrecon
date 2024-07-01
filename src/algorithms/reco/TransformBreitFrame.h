@@ -7,51 +7,39 @@
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-   using TransformBreitFrameAlgorithm = algorithms::Algorithm<
-     algorithms::Input<
-       edm4hep::MCParticleCollection,
-       edm4eic::InclusiveKinematicsCollection,
-       edm4eic::ReconstructedParticleCollection
-       >,
-     algorithms::Output<
-       edm4eic::ReconstructedParticleCollection
-       >
-   >;
+using TransformBreitFrameAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::InclusiveKinematicsCollection,
+                      edm4eic::ReconstructedParticleCollection>,
+    algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-  class TransformBreitFrame
-    : public TransformBreitFrameAlgorithm,
-      public WithPodConfig<NoConfig> {
+class TransformBreitFrame : public TransformBreitFrameAlgorithm, public WithPodConfig<NoConfig> {
 
-    public:
+public:
+  TransformBreitFrame(std::string_view name)
+      : TransformBreitFrameAlgorithm{
+            name,
+            {"inputMCParticles", "inputInclusiveKinematics", "inputReconstructedParticles"},
+            {"outputReconstructedParticles"},
+            "Transforms a set of particles from the lab frame to the Breit frame"} {}
 
-    TransformBreitFrame(std::string_view name) :
-      TransformBreitFrameAlgorithm {
-        name,
-        {"inputMCParticles", "inputInclusiveKinematics", "inputReconstructedParticles"},
-        {"outputReconstructedParticles"},
-        "Transforms a set of particles from the lab frame to the Breit frame"
-      } {}
+  // algorithm initialization
+  void init() final{};
 
-      // algorithm initialization
-      void init(std::shared_ptr<spdlog::logger> logger);
+  // run algorithm
+  void process(const Input&, const Output&) const final;
 
-      // run algorithm
-      void process(const Input&, const Output&) const final;
+private:
+  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  double m_crossingAngle{-0.025};
 
-    private:
+}; // end TransformBreitFrame definition
 
-      std::shared_ptr<spdlog::logger> m_log;
-      double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
-
-  };  // end TransformBreitFrame definition
-
-}  // end eicrecon namespace
+} // namespace eicrecon
