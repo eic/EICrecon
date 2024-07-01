@@ -62,8 +62,13 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   using Propagator        = Acts::Propagator<Acts::EigenStepper<>>;
   using PropagatorOptions = Acts::PropagatorOptions<>;
   using Linearizer        = Acts::HelicalTrackLinearizer<Propagator>;
+#if Acts_VERSION_MAJOR >= 33
+  using VertexFitter      = Acts::FullBilloirVertexFitter<Linearizer>;
+  using ImpactPointEstimator = Acts::ImpactPointEstimator<Propagator>;
+#else
   using VertexFitter      = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, Linearizer>;
   using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, Propagator>;
+#endif
   using VertexSeeder         = Acts::ZScanVertexFinder<VertexFitter>;
   using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter, VertexSeeder>;
 #if Acts_VERSION_MAJOR >= 33
@@ -88,6 +93,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 
   // Setup the vertex fitter
   VertexFitter::Config vertexFitterCfg;
+#if Acts_VERSION_MAJOR >= 33
+  vertexFitterCfg.extractParameters
+    .connect<&Acts::InputTrack::extractParameters>();
+#endif
   VertexFitter vertexFitter(vertexFitterCfg);
   // Setup the track linearizer
   Linearizer::Config linearizerCfg(m_BField, propagator);
@@ -96,17 +105,24 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   ImpactPointEstimator::Config ipEstCfg(m_BField, propagator);
   ImpactPointEstimator ipEst(ipEstCfg);
   VertexSeeder::Config seederCfg(ipEst);
+#if Acts_VERSION_MAJOR >= 33
+  seederCfg.extractParameters
+    .connect<&Acts::InputTrack::extractParameters>();
+#endif
   VertexSeeder seeder(seederCfg);
   // Set up the actual vertex finder
   VertexFinder::Config finderCfg(std::move(vertexFitter), std::move(linearizer),
                                  std::move(seeder), std::move(ipEst));
   finderCfg.maxVertices                 = m_cfg.maxVertices;
   finderCfg.reassignTracksAfterFirstFit = m_cfg.reassignTracksAfterFirstFit;
-  #if Acts_VERSION_MAJOR >= 31
+#if Acts_VERSION_MAJOR >= 31
+ #if Acts_VERSION_MAJOR >= 33
+  finderCfg.extractParameters.connect<&Acts::InputTrack::extractParameters>();
+ #endif
   VertexFinder finder(std::move(finderCfg));
-  #else
+#else
   VertexFinder finder(finderCfg);
-  #endif
+#endif
   VertexFinder::State state(*m_BField, m_fieldctx);
   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
 
