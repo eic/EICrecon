@@ -9,7 +9,7 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <algorithm>
+#include <vector>
 #include <cmath>
 #include <cstdint>
 #include <gsl/pointers>
@@ -28,20 +28,42 @@ void SiliconTrackerDigi::init() {
     };
 }
 
+// Logic: timeResolution is the smearing of the time.
+// Smeared time marks the beginning of a bucket. If another hit falls within the same bucket,
+// the energy is summed up. If not, a new hit is created.
 
 void SiliconTrackerDigi::process(
-        const SiliconTrackerDigi::Input& input,
-        const SiliconTrackerDigi::Output& output) const {
+    const SiliconTrackerDigi::Input& input,
+    const SiliconTrackerDigi::Output& output) const {
 
     const auto [sim_hits] = input;
     auto [raw_hits,associations] = output;
 
     // A map of unique cellIDs with temporary structure RawHit
-    std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
+    std::unordered_map<std::uint64_t, std::vector<edm4eic::MutableRawTrackerHit>> cell_hit_map;
 
+    auto bucket_width = (std::int32_t) (m_cfg.integrationWindow * 1e3);
+
+    // Some detectors have a steady pulse of hits - generate empty time buckets for those
+    // Conundrum: We can't know the number of buckets without knowing the timeSlice length
+    // Assuming this is only used for MAPS, and that the time slice length is <= 1ms,
+    // we need at most 1ms / 2000ns = 500 buckets
+    // Let's use 1000, and pad with over and underflow to allow smearing out of range
+    if ( m_cfg.prepopulate ) {
+        for (auto cell : cell_hit_map) {
+            auto& hits = cell.second;
+            for (int i = -1; i <= 1001; i++) {
+                hits.push_back(
+                    edm4eic::MutableRawTrackerHit{
+                    cell.first,
+                    0,
+                    0
+                } );
+            }
+        }
+    }
 
     for (const auto& sim_hit : *sim_hits) {
-
         // time smearing
         double time_smearing = m_gauss();
         double result_time = sim_hit.getTime() + time_smearing;
@@ -58,52 +80,74 @@ void SiliconTrackerDigi::process(
         debug("   time smearing: {:.4f}, resulting time = {:.4f} [ns]", time_smearing, result_time);
         debug("   hit_time_stamp: {} [~ps]", hit_time_stamp);
 
-
         if (sim_hit.getEDep() < m_cfg.threshold) {
             debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / dd4hep::keV);
             continue;
         }
 
-        if (cell_hit_map.count(sim_hit.getCellID()) == 0) {
-            // This cell doesn't have hits
-            cell_hit_map[sim_hit.getCellID()] = {
+        bool bucket_found = false;
+        if (cell_hit_map.count(sim_hit.getCellID()) == 1) {
+            // Update an existing hit?
+            for (auto& hit : cell_hit_map[sim_hit.getCellID()]) {
+                auto existing_time = hit.getTimeStamp();
+                // TODO: edge cases?
+                if ( hit_time_stamp >= existing_time && hit_time_stamp <= existing_time + bucket_width ) {
+                    // There is already a hit within the same time window
+                    debug("  Hit already exists in cell ID={}, within the same time bucket. Time stamp: {}, bucket from {} to {}",
+                         sim_hit.getCellID(), hit.getTimeStamp(), existing_time, existing_time + bucket_width);
+                    // sum deposited energy
+                    auto charge = hit.getCharge();
+                    hit.setCharge(charge + (std::int32_t) std::llround(sim_hit.getEDep() * 1e6));
+                    bucket_found = true;
+                    break;
+                } // time bucket found
+            } // loop over existing hits
+        } // cellID found
+
+        if (!bucket_found) {
+            // There is no hit in the same time bucket
+            debug("  No pre-existing hit in cell ID={} in the same time bucket. Time stamp: {}",
+                        sim_hit.getCellID(), sim_hit.getTime());
+
+            // Create a new hit
+            // Note: time uncertainty in the TrackerHitReconstruction is set independently
+            // It would probably be better to move it into the RawTrackerHit class
+            // (same for spatial uncertainty, actually)
+            // Note 2: It's possible to not fall into a bucket but still be close enough to one or
+            // more that uncertainties overlap. Cannot be avoided in the current setup.
+            // It could lead to ambiguity which bucket is chosen for a third hit in this area.
+            // In reality, this is probably more like dead time; revisit later.
+            cell_hit_map[sim_hit.getCellID()].push_back(
+                edm4eic::MutableRawTrackerHit{
                 sim_hit.getCellID(),
                 (std::int32_t) std::llround(sim_hit.getEDep() * 1e6),
-                hit_time_stamp  // ns->ps
-            };
-        } else {
-            // There is previous values in the cell
-            auto& hit = cell_hit_map[sim_hit.getCellID()];
-            debug("  Hit already exists in cell ID={}, prev. hit time: {}", sim_hit.getCellID(), hit.getTimeStamp());
+                hit_time_stamp
+            } );
+        } // bucket found
+    } // loop over sim hits
 
-            // keep earliest time for hit
-            auto time_stamp = hit.getTimeStamp();
-            hit.setTimeStamp(std::min(hit_time_stamp, hit.getTimeStamp()));
+    // Make associations
+    for (auto cell : cell_hit_map) {
+        for (auto& hit : cell.second) {
+            raw_hits->push_back(hit);
 
-            // sum deposited energy
-            auto charge = hit.getCharge();
-            hit.setCharge(charge + (std::int32_t) std::llround(sim_hit.getEDep() * 1e6));
-        }
-    }
-
-    for (auto item : cell_hit_map) {
-        raw_hits->push_back(item.second);
-
-        for (const auto& sim_hit : *sim_hits) {
-          if (item.first == sim_hit.getCellID()) {
-            // set association
-            auto hitassoc = associations->create();
-            hitassoc.setWeight(1.0);
-            hitassoc.setRawHit(item.second);
+            for (const auto& sim_hit : *sim_hits) {
+                if (cell.first == sim_hit.getCellID()) {
+                    // set association
+                    auto hitassoc = associations->create();
+                    hitassoc.setWeight(1.0);
+                    hitassoc.setRawHit(hit);
 #if EDM4EIC_VERSION_MAJOR >= 6
-            hitassoc.setSimHit(sim_hit);
+                    hitassoc.setSimHit(sim_hit);
 #else
-            hitassoc.addToSimHits(sim_hit);
+                    hitassoc.addToSimHits(sim_hit);
 #endif
-          }
-        }
+                } // if cellID matches
+            } // sim_hits
+        } //hits
+    } // cell_hit_map
 
-    }
-}
+
+} // process
 
 } // namespace eicrecon

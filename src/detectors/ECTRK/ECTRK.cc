@@ -19,6 +19,8 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
+    auto SiEndcapTrackerTimeResolution    = 2000. * dd4hep::ns;
+    auto SiEndcapTrackerIntegrationWindow = 2000. * dd4hep::ns;
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "SiEndcapTrackerRawHits",
         {
@@ -30,6 +32,9 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 0.54 * dd4hep::keV,
+            .timeResolution = SiEndcapTrackerTimeResolution,
+            .integrationWindow = SiEndcapTrackerIntegrationWindow,
+            .prepopulate = true, // for MAPS, initialize digitization with a "pulse" of empty hits
         },
         app
     ));
@@ -39,7 +44,9 @@ void InitPlugin(JApplication *app) {
         "SiEndcapTrackerRecHits",
         {"SiEndcapTrackerRawHits"},
         {"SiEndcapTrackerRecHits"},
-        {}, // default config
+        {
+            .timeResolution = SiEndcapTrackerTimeResolution,
+        },
         app
     ));
 
