@@ -427,3 +427,18 @@ macro(plugin_add_onnxruntime _name)
   plugin_link_libraries(${PLUGIN_NAME} onnxruntime::onnxruntime)
 
 endmacro()
+
+# Adds Torch for a plugin
+macro(plugin_add_torch _name)
+
+  if(NOT TORCH_FOUND)
+    find_package(Torch QUIET)
+  endif()
+
+  # Add include directories
+  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ${TORCH_INCLUDE_DIR})
+
+  # Add libraries
+  plugin_link_libraries(${PLUGIN_NAME} ${TORCH_LIBRARIES})
+
+endmacro()
