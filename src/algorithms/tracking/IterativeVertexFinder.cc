@@ -66,7 +66,11 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, Propagator>;
   using VertexSeeder         = Acts::ZScanVertexFinder<VertexFitter>;
   using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter, VertexSeeder>;
+#if Acts_VERSION_MAJOR >= 33
+  using VertexFinderOptions  = Acts::VertexingOptions;
+#else
   using VertexFinderOptions  = Acts::VertexingOptions<Acts::BoundTrackParameters>;
+#endif
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("IVF", m_log));
 
