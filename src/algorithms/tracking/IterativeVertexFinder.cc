@@ -127,10 +127,11 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     }
   }
 
-  std::vector<Acts::Vertex<Acts::BoundTrackParameters>> vertices;
 #if Acts_VERSION_MAJOR >= 33
+  std::vector<Acts::Vertex> vertices;
   auto result = finder.find(inputTracks, finderOpts, state);
 #else
+  std::vector<Acts::Vertex<Acts::BoundTrackParameters>> vertices;
   auto result = finder.find(inputTrackPointers, finderOpts, state);
 #endif
   if (result.ok()) {
