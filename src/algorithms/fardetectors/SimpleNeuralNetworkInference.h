@@ -20,6 +20,6 @@ namespace eicrecon {
 
   private:
     // pointer to logger
-    std::shared_ptr<spdlog::logger>   m_log; 
+    std::shared_ptr<spdlog::logger>   m_log;
   };
 }
