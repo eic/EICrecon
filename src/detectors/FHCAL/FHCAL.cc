@@ -262,9 +262,9 @@ extern "C" {
             {"LFHCALSplitMergeProtoClusters"},
             {
               .minSigCut = -1,
-              .avgEP = 1.0,
-              .sigEP = 1.0,
-              .drAdd = 0.4,
+              .avgEP = 0.50,
+              .sigEP = 0.25,
+              .drAdd = 0.30,
               .sampFrac = 1.0,
               .distScale = 1.0
             },
