@@ -106,7 +106,11 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   VertexFinder::State state(*m_BField, m_fieldctx);
   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
 
+#if Acts_VERSION_MAJOR >= 33
+  std::vector<Acts::InputTrack> inputTracks;
+#else
   std::vector<const Acts::BoundTrackParameters*> inputTrackPointers;
+#endif
 
   for (const auto& trajectory : trajectories) {
     auto tips = trajectory->tips();
@@ -115,12 +119,20 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     }
     /// CKF can provide multiple track trajectories for a single input seed
     for (auto& tip : tips) {
+#if Acts_VERSION_MAJOR >= 33
+      inputTracks.emplace_back(&(trajectory->trackParameters(tip)));
+#else
       inputTrackPointers.push_back(&(trajectory->trackParameters(tip)));
+#endif
     }
   }
 
   std::vector<Acts::Vertex<Acts::BoundTrackParameters>> vertices;
+#if Acts_VERSION_MAJOR >= 33
+  auto result = finder.find(inputTracks, finderOpts, state);
+#else
   auto result = finder.find(inputTrackPointers, finderOpts, state);
+#endif
   if (result.ok()) {
     vertices = std::move(result.value());
   }
