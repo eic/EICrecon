@@ -184,7 +184,7 @@ extern "C" {
              "CalorimeterTrackProjections"},
             {"HcalBarrelSplitMergeProtoClusters"},
             {
-              .minSigCut = -1,
+              .minSigCut = -2.0,
               .avgEP = 0.50,
               .sigEP = 0.25,
               .drAdd = 0.40,

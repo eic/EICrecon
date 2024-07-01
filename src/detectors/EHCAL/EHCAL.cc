@@ -127,7 +127,7 @@ extern "C" {
              "CalorimeterTrackProjections"},
             {"HcalEndcapNSplitMergeProtoClusters"},
             {
-              .minSigCut = -1,
+              .minSigCut = -2.0,
               .avgEP = 0.60,
               .sigEP = 0.40,
               .drAdd = 0.40,
