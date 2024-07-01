@@ -2,7 +2,7 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <spdlog/logger.h>
 
-#include "SimpleNeuralNetworkInference.h"
+#include "SimpleNeuralNetworkInferenceConfig.h"
 #include "algorithms/algorithm.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
