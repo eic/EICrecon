@@ -8,7 +8,7 @@
 
 namespace eicrecon {
 
-  class SimpleNeuralNetworkInference :  public WithPodConfig<SimpleNeuralNetworkInference> {
+  class SimpleNeuralNetworkInference :  public WithPodConfig<SimpleNeuralNetworkInferenceConfig> {
 
   public:
     void init(std::shared_ptr<spdlog::logger> logger);
