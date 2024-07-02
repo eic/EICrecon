@@ -13,6 +13,7 @@
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#include <boost/move/utility_core.hpp>
 #if Acts_VERSION_MAJOR >= 32
 #include <Acts/Propagator/VoidNavigator.hpp>
 #else

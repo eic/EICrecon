@@ -11,7 +11,6 @@
 #include <vector>
 
 #include "ActsGeometryProvider.h"
-#include "algorithms/interfaces/WithPodConfig.h"
 
 
 namespace eicrecon {
