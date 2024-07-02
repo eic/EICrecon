@@ -72,7 +72,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 #endif
 #if Acts_VERSION_MAJOR >= 33
   using VertexSeeder         = Acts::ZScanVertexFinder;
-  using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter>;
+  using VertexFinder         = Acts::IterativeVertexFinder;
   using VertexFinderOptions  = Acts::VertexingOptions;
 #else
   using VertexSeeder         = Acts::ZScanVertexFinder<VertexFitter>;
