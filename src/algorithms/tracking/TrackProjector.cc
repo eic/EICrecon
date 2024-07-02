@@ -101,7 +101,8 @@ namespace eicrecon {
                         boundParams);
                 auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
                         m_geo_provider->getActsGeometryContext(),
-                        freeParams
+                        freeParams.template segment<3>(Acts::eFreePos0),
+                        freeParams.template segment<3>(Acts::eFreeDir0)
                 );
 #else
                 auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
