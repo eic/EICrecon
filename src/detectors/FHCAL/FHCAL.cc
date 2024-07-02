@@ -18,6 +18,7 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/reco/CalorimeterTotalFourMomentum_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -135,6 +136,18 @@ extern "C" {
               .sampFrac = 0.0257,
               .logWeightBase = 6.2,
               .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterTotalFourMomentum_factory>(
+             "HcalEndcapPInsertTotalFourMomentum",
+             {"HcalEndcapPInsertClusters"},  // edm4eic::Cluster
+             {"HcalEndcapPInsertTotalFourMomentum"}, // edm4eic::ReconstructedParticle
+            {
+
             },
             app   // TODO: Remove me once fixed
           )
