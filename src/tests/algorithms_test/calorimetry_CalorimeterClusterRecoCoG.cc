@@ -39,7 +39,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   CalorimeterClusterRecoCoGConfig cfg;
   cfg.energyWeight = "log";
   cfg.sampFrac = 0.0203;
-  cfg.logWeightBaseCoeffs = {5.0,0.65,0.31},
+  cfg.logWeightBaseCoeffs = {5.0,0.65,0.31};
   cfg.logWeightBase_Eref = 50*dd4hep::GeV;
   cfg.longitudinalShowerInfoAvailable = true;
 
