@@ -66,16 +66,13 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   using Linearizer        = Acts::HelicalTrackLinearizer;
   using VertexFitter      = Acts::FullBilloirVertexFitter;
   using ImpactPointEstimator = Acts::ImpactPointEstimator;
-#else
-  using Linearizer        = Acts::HelicalTrackLinearizer<Propagator>;
-  using VertexFitter      = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, Linearizer>;
-  using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, Propagator>;
-#endif
-#if Acts_VERSION_MAJOR >= 33
   using VertexSeeder         = Acts::ZScanVertexFinder;
   using VertexFinder         = Acts::IterativeVertexFinder;
   using VertexFinderOptions  = Acts::VertexingOptions;
 #else
+  using Linearizer        = Acts::HelicalTrackLinearizer<Propagator>;
+  using VertexFitter      = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, Linearizer>;
+  using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, Propagator>;
   using VertexSeeder         = Acts::ZScanVertexFinder<VertexFitter>;
   using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter, VertexSeeder>;
   using VertexFinderOptions  = Acts::VertexingOptions<Acts::BoundTrackParameters>;
