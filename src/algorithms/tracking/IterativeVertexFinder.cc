@@ -140,8 +140,12 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
  #if Acts_VERSION_MAJOR >= 33
   finderCfg.extractParameters.connect<&Acts::InputTrack::extractParameters>();
   finderCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(&linearizer);
+  #if Acts_VERSION_MAJOR >= 36
+  finderCfg.field = m_BField;
+  #else
   finderCfg.field = std::shared_ptr<Acts::MagneticFieldProvider>(
     const_cast<eicrecon::BField::DD4hepBField*>(m_BField.get()));
+  #endif
  #endif
   VertexFinder finder(std::move(finderCfg));
 #else
