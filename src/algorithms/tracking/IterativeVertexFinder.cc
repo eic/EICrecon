@@ -70,11 +70,13 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   using VertexFitter      = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, Linearizer>;
   using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, Propagator>;
 #endif
-  using VertexSeeder         = Acts::ZScanVertexFinder<VertexFitter>;
-  using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter, VertexSeeder>;
 #if Acts_VERSION_MAJOR >= 33
+  using VertexSeeder         = Acts::ZScanVertexFinder;
+  using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter>;
   using VertexFinderOptions  = Acts::VertexingOptions;
 #else
+  using VertexSeeder         = Acts::ZScanVertexFinder<VertexFitter>;
+  using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter, VertexSeeder>;
   using VertexFinderOptions  = Acts::VertexingOptions<Acts::BoundTrackParameters>;
 #endif
 
@@ -119,8 +121,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 #if Acts_VERSION_MAJOR >= 33
   seederCfg.extractParameters
     .connect<&Acts::InputTrack::extractParameters>();
-#endif
+  auto seeder = std::make_shared<VertexSeeder>(seederCfg);
+#else
   VertexSeeder seeder(seederCfg);
+#endif
 
   // Set up the actual vertex finder
   VertexFinder::Config finderCfg(
@@ -136,12 +140,21 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
  #if Acts_VERSION_MAJOR >= 33
   finderCfg.extractParameters.connect<&Acts::InputTrack::extractParameters>();
   finderCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(&linearizer);
+  finderCfg.field = std::shared_ptr<Acts::MagneticFieldProvider>(
+    const_cast<eicrecon::BField::DD4hepBField*>(m_BField.get()));
  #endif
   VertexFinder finder(std::move(finderCfg));
 #else
   VertexFinder finder(finderCfg);
 #endif
+#if Acts_VERSION_MAJOR >= 33
+  Acts::IVertexFinder::State state(
+    std::in_place_type<VertexFinder::State>,
+    *m_BField,
+    m_fieldctx);
+#else
   VertexFinder::State state(*m_BField, m_fieldctx);
+#endif
   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
 
 #if Acts_VERSION_MAJOR >= 33
