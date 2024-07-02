@@ -95,7 +95,7 @@ namespace eicrecon {
                 );
 
 #if Acts_VERSION_MAJOR >= 34
-                auto freeParams = Acts::detail::transformBoundToFreeParameters(
+                auto freeParams = Acts::transformBoundToFreeParameters(
                         trackstate.referenceSurface(),
                         m_geo_provider->getActsGeometryContext(),
                         boundParams);
