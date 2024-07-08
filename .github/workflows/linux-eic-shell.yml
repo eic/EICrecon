@@ -940,7 +940,7 @@ jobs:
 
   trigger-container:
     runs-on: ubuntu-latest
-    if: ${{ github.event_name != 'merge_group' && github.actor != 'dependabot[bot]' }}
+    if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' }}
     needs:
     - eicrecon-gun
     steps:
