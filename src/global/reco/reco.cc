@@ -300,7 +300,7 @@ void InitPlugin(JApplication *app) {
           {"ReconstructedFarForwardZDCNeutrons"}, // edm4eic::ReconstrutedParticleCollection,
           {
             .scale_corr_coeff_hcal={-0.0756, -1.91,  2.30},
-            .scale_corr_coeff_ecal={-0.0756, -1.91,  2.30}
+            .scale_corr_coeff_ecal={0.3186, -2.72, 3.28}
           },
           app   // TODO: Remove me once fixed
     ));
