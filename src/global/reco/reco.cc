@@ -39,6 +39,7 @@
 #if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/HadronicFinalState_factory.h"
 #endif
+#include "factories/digi/BTOFHitDigi_factory.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 #include "global/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "global/reco/MC2SmearedParticle_factory.h"
@@ -368,6 +369,14 @@ void InitPlugin(JApplication *app) {
               .m_correct_beam_FX = true,
               .m_pid_use_MC_truth = true,
             },
+            app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<BTOFHitDigi_factory>(
+            "BTOFHitDigi",
+            {"TOFBarrelHits"},
+            {"TOFBarrelADCTDC"},
+            {},
             app
     ));
 

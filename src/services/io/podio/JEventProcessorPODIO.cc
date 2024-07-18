@@ -97,6 +97,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelHitAssociations",
             "TOFEndcapHitAssociations",
 
+	    "BTOFHitDigi",
             "CombinedTOFParticleIDs",
             "CombinedTOFSeededParticleIDs",
 
