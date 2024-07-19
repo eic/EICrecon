@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Souvik Paul, Kolja Kauder, Prithwish Tribedy
+// Copyright (C) 2024 Souvik Paul, Chun Yuen Tsang, Prithwish Tribedy
+// Special Acknowledgement: Kolja Kauder
 
 // A general digitization for CalorimeterHit from simulation
 // 1. Smear energy deposit with a/sqrt(E/GeV) + b + c/E or a/sqrt(E/GeV) (relative value)
@@ -8,7 +9,7 @@
 // 4. Signal is summed if the SumFields are provided
 //
 // Author: Souvik Paul, Chun Yuen Tsang
-// Date: 18/07/2024
+// Date: 19/07/2024
 
 
 #pragma once
