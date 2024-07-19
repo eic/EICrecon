@@ -371,10 +371,13 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
 
 void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
-    std::lock_guard<std::mutex> lock(m_mutex);
+    std::unique_lock<std::mutex> lock(m_mutex, std::defer_lock);
+    lock.lock(); 
     if (m_is_first_event) {
         FindCollectionsToWrite(event);
+        m_is_first_event = false;
     }
+    lock.unlock();
 
     for (const std::string& coll : m_collections_to_write) {
         try {
@@ -395,9 +398,9 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     // Note that collections MUST be present in frame. If a collection is null, the writer will segfault.
     const auto* frame = event->GetSingle<podio::Frame>();
 
+    lock.lock();
     m_writer->writeFrame(*frame, "events", m_collections_to_write);
-    m_is_first_event = false;
-
+    lock.unlock();
     // Print the contents of some collections, just for debugging purposes
     // Do this before writing just in case writing crashes
     if (!m_collections_to_print.empty()) {
