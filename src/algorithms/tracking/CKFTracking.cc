@@ -7,9 +7,7 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
-#endif
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #if Acts_VERSION_MAJOR >= 32
@@ -146,13 +144,7 @@ namespace eicrecon {
             cov(0, 1) = meas2D.getCovariance().xy;
             cov(1, 0) = meas2D.getCovariance().xy;
 
-#if Acts_VERSION_MAJOR >= 36
-            auto measurement = ActsExamples::makeFixedSizeMeasurement(
-              Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-#else
-            auto measurement = Acts::makeMeasurement(
-              Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-#endif
+            auto measurement = Acts::makeMeasurement(Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
             measurements->emplace_back(std::move(measurement));
 
             hit_index++;
