@@ -39,7 +39,9 @@ namespace eicrecon {
 
      public:
         BTOFHitDigi()
-          :  _neighborFinder(64, 4, 3.2, 4), 
+          :  _neighborFinder(160, 4, 5),  // 160-cells in a sensors in x-direction, 4 in y, and 5 means we ignore 4 cells for each cells so it steps 5 sensors at a time.
+					  // TBD: There are only 32 cells in a sensor in x-direction in reality. The geometry needs to be fixed
+					  // As of July 19 2024, x-lenght of a cell is 2*0.1 mm when it should have been 2*0.5mm. Check grid_size_x in tof_barrel.xml
 	     fLandau("landau", [](Double_t* x, Double_t* par) {
              Double_t mean = par[0]; // Mean
              Double_t std = par[1]; // Standard deviation

@@ -119,7 +119,7 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
             auto localPos_hit = _neighborFinder.cell2LocalPosition(mid);
             auto neighbours = _neighborFinder.findAllNeighborInSensor(mid); // Accessing NeighbourFinder through DetPosProcessor
 
-            for (const auto& neighbour : neighbours) {
+            for (const auto& neighbour : *neighbours) {
 
                 auto localPos_neighbour = _neighborFinder.cell2LocalPosition(neighbour);
                 
