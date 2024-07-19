@@ -97,12 +97,11 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
         double time     = 0;//std::numeric_limits<double>::max();
         double max_edep = 0;
         auto   mid      = (*simhits)[ixs[0]].getCellID();
-	if(mid == 0) continue;
+	auto   truePos = (*simhits)[ixs[0]].getPosition();
+	auto   localPos_hit = _neighborFinder.global2Local(dd4hep::Position(truePos.x/10., truePos.y/10., truePos.z/10.));
+
         double sum_charge = 0.0;
         double sigma_sharing = 0.8;
-        
-        //CellIDPositionConverter converter(detector, subdet.readout());
-        //Position position = converter.position(cellID);
         
         double mpv_analog = 0.0; //SP
         
@@ -117,7 +116,6 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
             // Use DetPosProcessor to process hits
             //m_detPosProcessor->ProcessSequential(hit);
 
-            auto localPos_hit = _neighborFinder.cell2LocalPosition(mid);
             auto neighbours = _neighborFinder.findAllNeighborInSensor(mid); // Accessing NeighbourFinder through DetPosProcessor
 
             for (const auto& neighbour : *neighbours) {
@@ -130,9 +128,6 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
                 double exponent = -0.5 * ((pow((distanceX) / sigma_sharing, 2)) + (pow((distanceY) / sigma_sharing, 2)));
                 double charge = exp(exponent) / (2 * TMath::Pi() * sigma_sharing * sigma_sharing);
                 
-
-                //std::cout<<localPos.x()<<";"<<localPos.y()<<std::endl;
-                //std::cout << neighbour << " ";
 
             //Added by SP
 //-------------------------------------------------------------

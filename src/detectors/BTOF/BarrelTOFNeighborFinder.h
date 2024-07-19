@@ -30,6 +30,7 @@ public:
   // functions below are helper function. Isn't needed to find neighbors.
   dd4hep::Position    cell2GlobalPosition(const dd4hep::rec::CellID& cell);
   dd4hep::Position    cell2LocalPosition(const dd4hep::rec::CellID& cell);
+  dd4hep::Position    global2Local(const dd4hep::Position& pos);
   dd4hep::Position    local2GlobalInStaveFromCell(const dd4hep::rec::CellID& cell,
                                                   const dd4hep::Position& pos);
   dd4hep::rec::CellID globalPosition2Cell(const dd4hep::Position& pos);

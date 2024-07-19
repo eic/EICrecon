@@ -162,6 +162,27 @@ BarrelTOFNeighborFinder::local2GlobalInStaveFromCell(const dd4hep::rec::CellID& 
   return position;
 }
 
+dd4hep::Position
+BarrelTOFNeighborFinder::global2Local(const dd4hep::Position& pos) {
+  // convert local position to global position
+  // assuming the local position is located at the same volume as cell
+  if (!_detector)
+    throw std::runtime_error("Detector ptr not initialized in BarrelTOFNeighborFinder. Have you "
+                             "called BarrelTOFNeighborFinder::init(/* detector */) first?");
+  auto geoManager = _detector->world().volume()->GetGeoManager();
+  auto node       = geoManager->FindNode(pos.x(), pos.y(), pos.z());
+  auto currMatrix = geoManager->GetCurrentMatrix();
+
+  double g[3], l[3];
+  pos.GetCoordinates(g);
+  currMatrix->MasterToLocal(g, l); 
+  dd4hep::Position position;
+  position.SetCoordinates(l);      
+  return position;
+}
+
+
+
 dd4hep::Position BarrelTOFNeighborFinder::cell2LocalPosition(const dd4hep::rec::CellID& cell) {
   if (!_detector)
     throw std::runtime_error("Detector ptr not initialized in BarrelTOFNeighborFinder. Have you "
