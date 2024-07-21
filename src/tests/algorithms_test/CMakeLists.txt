@@ -6,6 +6,7 @@ add_executable(
   ${TEST_NAME}
   algorithmsInit.cc
   calorimetry_CalorimeterIslandCluster.cc
+  calorimetry_ImagingTopoCluster.cc
   tracking_SiliconSimpleCluster.cc
   calorimetry_CalorimeterHitDigi.cc
   calorimetry_CalorimeterClusterRecoCoG.cc

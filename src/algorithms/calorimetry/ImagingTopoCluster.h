@@ -64,7 +64,7 @@ namespace eicrecon {
   private:
 
     // unitless counterparts of the input parameters
-    double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, sectorDist{0};
+    double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, layerDistXY[2]{0, 0}, sectorDist{0};
     double minClusterHitEdep{0}, minClusterCenterEdep{0}, minClusterEdep{0}, minClusterNhits{0};
 
   public:
@@ -83,6 +83,8 @@ namespace eicrecon {
         // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
         localDistXY[0] = m_cfg.localDistXY[0] / dd4hep::mm;
         localDistXY[1] = m_cfg.localDistXY[1] / dd4hep::mm;
+        layerDistXY[0] = m_cfg.layerDistXY[0] / dd4hep::mm;
+        layerDistXY[1] = m_cfg.layerDistXY[1] / dd4hep::mm;
         layerDistEtaPhi[0] = m_cfg.layerDistEtaPhi[0];
         layerDistEtaPhi[1] = m_cfg.layerDistEtaPhi[1] / dd4hep::rad;
         sectorDist = m_cfg.sectorDist / dd4hep::mm;
@@ -95,10 +97,21 @@ namespace eicrecon {
                     "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
                     localDistXY[0], localDistXY[1]
         );
-        info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-                    "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
-                    m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
-        );
+        switch (m_cfg.layerMode) {
+        case ImagingTopoClusterConfig::ELayerMode::etaphi:
+          info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
+               "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
+               m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
+               );
+
+        case ImagingTopoClusterConfig::ELayerMode::xy:
+          info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
+               "Local [x, y] distance between hits <= [{:.4f}, {:.4f} rad].",
+               m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]
+               );
+        default:
+          error("Unknown layer mode.");
+        }
         info("Neighbour sectors clustering (different sector): "
                     "Global distance between hits <= {:.4f} mm.",
                     sectorDist
@@ -169,11 +182,16 @@ namespace eicrecon {
             return (std::abs(h1.getLocal().x - h2.getLocal().x) <= localDistXY[0]) &&
                    (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
         } else if (ldiff <= m_cfg.neighbourLayersRange) {
+          switch(m_cfg.layerMode){
+          case eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi:
             return (std::abs(edm4hep::utils::eta(h1.getPosition()) - edm4hep::utils::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
                    (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
                     layerDistEtaPhi[1]);
+          case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
+            return (std::abs(h1.getPosition().x - h2.getPosition().x) <= layerDistXY[0]) &&
+                   (std::abs(h1.getPosition().y - h2.getPosition().y) <= layerDistXY[1]);
+          }
         }
-
         // not in adjacent layers
         return false;
     }
