@@ -372,7 +372,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
 void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
     std::unique_lock<std::mutex> lock(m_mutex, std::defer_lock);
-    lock.lock(); 
+    lock.lock();
     if (m_is_first_event) {
         FindCollectionsToWrite(event);
         m_is_first_event = false;
