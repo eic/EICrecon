@@ -18,7 +18,7 @@ namespace eicrecon {
     // Initialization will set the pointer of the logger
     void init(std::shared_ptr<spdlog::logger> logger);
     std::unique_ptr<edm4eic::ReconstructedParticleCollection> execute(
-      const edm4hep::MCParticleCollection *mcparts,        
+      const edm4hep::MCParticleCollection *mcparts,
       const edm4eic::TrackerHitCollection *rchits);
 
   private:

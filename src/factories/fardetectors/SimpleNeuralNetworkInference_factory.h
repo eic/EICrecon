@@ -20,7 +20,7 @@ private:
     PodioInput<edm4eic::TrackerHit> m_in_reco_particles {this};
 
     PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles {this};
-    
+
 
     Service<DD4hep_service> m_geoSvc {this};
 
