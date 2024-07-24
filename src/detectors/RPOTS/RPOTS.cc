@@ -75,7 +75,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JOmniFactoryGeneratorT<SimpleNeuralNetworkInference_factory>(
                             "ForwardRomanPotNNRecParticles",
-                            {"ForwardRomanPotRecHits"},
+                            {"MCParticles","ForwardRomanPotRecHits"},
                             {"ForwardRomanPotNNRecParticles"},
                             ml_recon_cfg,
                             app));

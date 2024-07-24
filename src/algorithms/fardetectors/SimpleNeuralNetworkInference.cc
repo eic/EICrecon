@@ -7,9 +7,20 @@ void eicrecon::SimpleNeuralNetworkInference::init(std::shared_ptr<spdlog::logger
   m_log = logger;
 }
 
-std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::SimpleNeuralNetworkInference::execute(const edm4eic::TrackerHitCollection *rchits) const{
+std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::SimpleNeuralNetworkInference::execute(
+  const edm4hep::MCParticleCollection *mcparts,
+  const edm4eic::TrackerHitCollection *rchits) {
 
   auto reconstructed_particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+  for (const auto &hit: *rchits){
+    edm4eic::MutableReconstructedParticle reconstructed_particle;
+    reconstructed_particle.setType(0);
+    reconstructed_particle.setMomentum({static_cast<float>(0), static_cast<float>(0), static_cast<float>(0)});
+
+
+    reconstructed_particles->push_back(reconstructed_particle);
+  }
+
   return reconstructed_particles;
 
 }
