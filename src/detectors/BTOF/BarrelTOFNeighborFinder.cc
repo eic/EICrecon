@@ -113,7 +113,7 @@ BarrelTOFNeighborFinder::findAllNeighborInSensor(const dd4hep::rec::CellID& hitC
 std::pair<dd4hep::rec::CellID, dd4hep::rec::CellID>
 BarrelTOFNeighborFinder::_getSensorID(const dd4hep::rec::CellID& hitCell) {
   _initWithCell(hitCell);
-  return {_decoder->get(hitCell, "x")/_cellNX, _decoder->get(hitCell, "y")/_cellNY};
+  return {std::floor(_decoder->get(hitCell, "x")/double(_cellNX)), std::floor(_decoder->get(hitCell, "y")/double(_cellNY))};
 }
 
 bool BarrelTOFNeighborFinder::isDeadCell(const dd4hep::rec::CellID& hitCell) {
