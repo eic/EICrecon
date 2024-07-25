@@ -1,7 +1,7 @@
 #pragma once
 
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <spdlog/logger.h>
 
@@ -17,8 +17,8 @@ namespace eicrecon {
 
     // Initialization will set the pointer of the logger
     void init(std::shared_ptr<spdlog::logger> logger);
-    std::unique_ptr<edm4eic::ReconstructedParticleCollection> execute(
-      const edm4hep::MCParticleCollection *mcparts,
+    std::unique_ptr<edm4hep::MCParticleCollection> execute(
+      const edm4eic::MCRecoTrackerHitAssociationCollection *assoc,
       const edm4eic::TrackerHitCollection *rchits);
 
   private:

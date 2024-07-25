@@ -7,20 +7,19 @@ void eicrecon::FarForwardHitExtractor::init(std::shared_ptr<spdlog::logger> logg
   m_log = logger;
 }
 
-std::unique_ptr<edm4eic::ReconstructedParticleCollection> eicrecon::FarForwardHitExtractor::execute(
-  const edm4hep::MCParticleCollection *mcparts,
+std::unique_ptr<edm4hep::MCParticleCollection> eicrecon::FarForwardHitExtractor::execute(
+  const edm4eic::MCRecoTrackerHitAssociationCollection *assoc,
   const edm4eic::TrackerHitCollection *rchits) {
 
-  auto reconstructed_particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+  auto mc_particles = std::make_unique<edm4hep::MCParticleCollection>();
   for (const auto &hit: *rchits){
-    edm4eic::MutableReconstructedParticle reconstructed_particle;
-    reconstructed_particle.setType(0);
-    reconstructed_particle.setMomentum({static_cast<float>(0), static_cast<float>(0), static_cast<float>(0)});
+    edm4hep::MutableMCParticle mc_particle;
+    mc_particle.setMomentum({static_cast<float>(0), static_cast<float>(0), static_cast<float>(0)});
 
 
-    reconstructed_particles->push_back(reconstructed_particle);
+    mc_particles->push_back(mc_particle);
   }
 
-  return reconstructed_particles;
+  return mc_particles;
 
 }

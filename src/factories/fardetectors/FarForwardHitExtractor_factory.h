@@ -16,10 +16,10 @@ public:
     using AlgoT = eicrecon::FarForwardHitExtractor;
 private:
     std::unique_ptr<AlgoT> m_algo;
-    PodioInput<edm4hep::MCParticle> m_in_mc_particles {this};
-    PodioInput<edm4eic::TrackerHit> m_in_reco_particles {this};
+    PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_in_mc_reco_hits_association {this};
+    PodioInput<edm4eic::TrackerHit> m_in_reco_hits {this};
 
-    PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles {this};
+    PodioOutput<edm4hep::MCParticle> m_out_mc_particles {this};
 
 
     Service<DD4hep_service> m_geoSvc {this};
@@ -42,10 +42,10 @@ public:
 
     void Process(int64_t run_number, uint64_t event_number) {
         auto output = m_algo->execute(
-          m_in_mc_particles(),
-          m_in_reco_particles()
+          m_in_mc_reco_hits_association(),
+          m_in_reco_hits()
         );
-        m_out_reco_particles() = std::move(output);
+        m_out_mc_particles() = std::move(output);
     }
 
 };

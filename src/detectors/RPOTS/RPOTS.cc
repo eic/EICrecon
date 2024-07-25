@@ -71,15 +71,22 @@ void InitPlugin(JApplication *app) {
     recon_cfg.hit2minZ = 34239.0;
     recon_cfg.hit2maxZ = 34252.0;
 
+    far_forward_hit_extractor_cfg.plane1_min_z = 32541.0;
+    far_forward_hit_extractor_cfg.plane1_max_z = 32554.0;
+    far_forward_hit_extractor_cfg.plane2_min_z = 34239.0;
+    far_forward_hit_extractor_cfg.plane2_max_z = 34252.0;
+
     recon_cfg.readout              = "ForwardRomanPotRecHits";
 
     app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardRomanPotRecParticles",{"MCParticles","ForwardRomanPotRecHits"},{"ForwardRomanPotRecParticles"},recon_cfg,app));
 
     app->Add(new JOmniFactoryGeneratorT<FarForwardHitExtractor_factory>(
-                            "ForwardRomanPotNNRecParticles",
-                            {"MCParticles","ForwardRomanPotRecHits"},
-                            {"ForwardRomanPotNNRecParticles"},
+                            "ForwardRomanPotExtractedParticles",
+                            {"ForwardRomanPotHitAssociations","ForwardRomanPotRecHits"},
+                            {"ForwardRomanPotExtractedParticles"},
                             far_forward_hit_extractor_cfg,
                             app));
+
+
 }
 }
