@@ -128,8 +128,6 @@ namespace eicrecon {
             auto rec_part = parts->create();
             rec_part.addToTracks(track);
             auto referencePoint = rec_part.getReferencePoint();
-            // float time          = 0;
-            float mass = 0;
             if (best_match >= 0) {
                 trace("Best match is found and is: {}", best_match);
                 mc_prt_is_consumed[best_match] = true;
@@ -138,8 +136,6 @@ namespace eicrecon {
                         static_cast<float>(best_mc_part.getVertex().x),
                         static_cast<float>(best_mc_part.getVertex().y),
                         static_cast<float>(best_mc_part.getVertex().z)}; // @TODO: not sure if vertex/reference point makes sense here
-                // time                 = mcpart.getTime();
-                mass = best_mc_part.getMass();
             }
 
             rec_part.setType(static_cast<int16_t>(best_match >= 0 ? 0 : -1)); // @TODO: determine type codes
@@ -147,7 +143,7 @@ namespace eicrecon {
             rec_part.setMomentum(mom);
             rec_part.setReferencePoint(referencePoint);
             rec_part.setCharge(charge_rec);
-            rec_part.setMass(mass);
+            rec_part.setMass(0.);
             rec_part.setGoodnessOfPID(0); // assume no PID until proven otherwise
             // rec_part.covMatrix()  // @TODO: covariance matrix on 4-momentum
 
