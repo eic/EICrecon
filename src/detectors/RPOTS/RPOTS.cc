@@ -9,12 +9,13 @@
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 #include "algorithms/fardetectors/SimpleNeuralNetworkInferenceConfig.h"
+#include "algorithms/fardetectors/FarForwardHitExtractor.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/fardetectors/SimpleNeuralNetworkInference_factory.h"
-
+#include "factories/fardetectors/FarForwardHitExtractor_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -22,6 +23,7 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     MatrixTransferStaticConfig recon_cfg;
+    FarForwardHitExtractorConfig far_forward_hit_extractor_cfg;
     SimpleNeuralNetworkInferenceConfig ml_recon_cfg;
 
         //Digitized hits, especially for thresholds
@@ -73,11 +75,11 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardRomanPotRecParticles",{"MCParticles","ForwardRomanPotRecHits"},{"ForwardRomanPotRecParticles"},recon_cfg,app));
 
-    app->Add(new JOmniFactoryGeneratorT<SimpleNeuralNetworkInference_factory>(
+    app->Add(new JOmniFactoryGeneratorT<FarForwardHitExtractor_factory>(
                             "ForwardRomanPotNNRecParticles",
                             {"MCParticles","ForwardRomanPotRecHits"},
                             {"ForwardRomanPotNNRecParticles"},
-                            ml_recon_cfg,
+                            far_forward_hit_extractor_cfg,
                             app));
 }
 }
