@@ -75,6 +75,7 @@ std::unique_ptr<edm4eic::TrackerHitCollection> TrackerHitReconstruction::process
             m_cfg.timeResolution,                            // in ns
             static_cast<float>(raw_hit.getCharge() / 1.0e6),   // Collected energy (GeV)
             0.0F);                                       // Error on the energy
+        rec_hits->setRawHit(raw_hit);
 
     }
 
