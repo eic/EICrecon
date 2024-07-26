@@ -29,6 +29,7 @@ private:
     ParameterRef<double> m_logWeightBase {this, "logWeightBase", config().logWeightBase};
     ParameterRef<std::vector<double>> m_logWeightBaseCoeffs {this, "logWeightBaseCoeffs", config().logWeightBaseCoeffs};
     ParameterRef<double> m_logWeightBase_Eref {this, "logWeightBase_Eref", config().logWeightBase_Eref};
+    ParameterRef<bool> m_longitudinalShowerInfoAvailable {this, "longitudinalShowerInfoAvailable", config().longitudinalShowerInfoAvailable};
     ParameterRef<bool> m_enableEtaBounds {this, "enableEtaBounds", config().enableEtaBounds};
 
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
