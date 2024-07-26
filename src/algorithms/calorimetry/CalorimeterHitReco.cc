@@ -276,6 +276,7 @@ void CalorimeterHitReco::process(
             sid,
             lid,
             local_position);
+        recohits->setRawHit(rh); 
     }
 }
 
