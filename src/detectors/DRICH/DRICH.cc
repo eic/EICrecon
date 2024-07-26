@@ -195,6 +195,7 @@ extern "C" {
     } catch(const std::runtime_error&) {
         // Nothing
     }
+    // Produce ReconstructedChargedParticles and ReconstructedSeededChargedParticles
     for (auto qualifier : std::vector<std::string>({"", "Seeded"})) {
         app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
               fmt::format("DRICH{}LUTPID", qualifier),
