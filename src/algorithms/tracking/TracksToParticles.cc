@@ -139,7 +139,7 @@ namespace eicrecon {
             }
 
             rec_part.setType(static_cast<int16_t>(best_match >= 0 ? 0 : -1)); // @TODO: determine type codes
-            rec_part.setEnergy((float) std::hypot(edm4hep::utils::magnitude(mom), mass));
+            rec_part.setEnergy(edm4hep::utils::magnitude(mom));
             rec_part.setMomentum(mom);
             rec_part.setReferencePoint(referencePoint);
             rec_part.setCharge(charge_rec);
