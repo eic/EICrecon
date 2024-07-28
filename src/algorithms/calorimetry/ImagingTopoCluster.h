@@ -109,7 +109,7 @@ namespace eicrecon {
                "Local [x, y] distance between hits <= [{:.4f}, {:.4f} rad].",
                m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]
                );
-           break;
+          break;
         default:
           error("Unknown layer mode.");
         }
