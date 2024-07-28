@@ -90,6 +90,9 @@ jobs:
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 24.04.0-stable
+          - CC: clang
+            CMAKE_BUILD_TYPE: Release
+            release: 24.05.2-stable
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
