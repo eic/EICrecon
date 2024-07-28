@@ -8,7 +8,6 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <fmt/core.h>
 #include <math.h>
 #include <functional>
 #include <gsl/pointers>
@@ -23,6 +22,7 @@
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
+#include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories

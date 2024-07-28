@@ -8,15 +8,13 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <fmt/core.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
-#include <string>
-#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"

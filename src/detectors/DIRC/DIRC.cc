@@ -8,18 +8,17 @@
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
-#include <fmt/core.h>
 #include <stddef.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <utility>
 #include <vector>
 
 // algorithm configurations
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+#include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
