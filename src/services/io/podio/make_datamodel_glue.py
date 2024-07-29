@@ -78,12 +78,6 @@ def AddCollections(datamodelName, collectionfiles):
         type_map.append('    class ' + basename + 'Collection;')
         type_map.append('    class Mutable' + basename + ';')
         type_map.append('};')
-        type_map.append('#if podio_VERSION < PODIO_VERSION(0, 17, 0)')
-        type_map.append('template <> struct PodioTypeMap<' + datamodelName + '::' + basename + '> {')
-        type_map.append('    using collection_t = ' + datamodelName + '::' + basename + 'Collection;')
-        type_map.append('    using mutable_t = ' + datamodelName + '::Mutable' + basename + ';')
-        type_map.append('};')
-        type_map.append('#endif')
 
         visitor.append('        if (podio_typename == "' + datamodelName + '::' + basename + 'Collection") {')
         visitor.append('            return visitor(*reinterpret_cast<const ' + datamodelName + '::' + basename + 'Collection*>(&collection));')
@@ -91,12 +85,12 @@ def AddCollections(datamodelName, collectionfiles):
 
 
 collectionfiles_edm4hep = glob.glob(EDM4HEP_INCLUDE_DIR+'/edm4hep/*Collection.h')
-collectionfiles_edm4eic    = glob.glob(EDM4EIC_INCLUDE_DIR+'/edm4eic/*Collection.h')
-header_lines      = []
+collectionfiles_edm4eic = glob.glob(EDM4EIC_INCLUDE_DIR+'/edm4eic/*Collection.h')
+header_lines = []
 type_map = []
 visitor = []
 AddCollections('edm4hep', collectionfiles_edm4hep)
-AddCollections('edm4eic'   , collectionfiles_edm4eic   )
+AddCollections('edm4eic', collectionfiles_edm4eic)
 
 
 if WORKING_DIR : os.chdir( WORKING_DIR )
@@ -116,14 +110,6 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('#include <stdexcept>\n')
     f.write('#include <podio/podioVersion.h>\n')
     f.write('#include <podio/CollectionBase.h>\n')
-    f.write('\n')
-
-    f.write('\ntemplate <typename T> struct PodioTypeMap {')
-    f.write('\n#if podio_VERSION >= PODIO_VERSION(0, 17, 0)')
-    f.write('\n    using collection_t = typename T::collection_type;')
-    f.write('\n    using mutable_t = typename T::mutable_type;')
-    f.write('\n#endif')
-    f.write('\n};')
     f.write('\n\n')
     f.write('\n'.join(type_map))
     f.write('\n')
