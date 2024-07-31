@@ -33,7 +33,7 @@ extern "C" {
             .capADC = 32768,
             .dyRangeADC = 2000 * dd4hep::MeV,
             .pedMeanADC = 400,
-            .pedSigmaADC = 3.2,
+            .pedSigmaADC = 0.2,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .corrMeanScale = "1.0",
             .readout = "EcalFarForwardZDCHits",
@@ -46,7 +46,7 @@ extern "C" {
             .capADC = 32768,
             .dyRangeADC = 2000. * dd4hep::MeV,
             .pedMeanADC = 400,
-            .pedSigmaADC = 3.2,
+            .pedSigmaADC = 0.2,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .thresholdFactor = 4.0,
             .thresholdValue = 0.0,
@@ -67,11 +67,12 @@ extern "C" {
             .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = true,
             .minClusterHitEdep = 0.1 * dd4hep::MeV,
-            .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+            .minClusterCenterEdep = 1.0 * dd4hep::MeV,
             .transverseEnergyProfileMetric = "globalDistEtaPhi",
             .transverseEnergyProfileScale = 1.,
           },
           app   // TODO: Remove me once fixed
+		//
         ));
 
         app->Add(
