@@ -23,32 +23,6 @@
 
 extern "C" {
 
-    bool UseSectorIndexedBHCalReadout(JApplication *app) {
-
-        using namespace eicrecon;
-
-        // grab detector & segmentation descriptor
-        auto detector   = app->GetService<DD4hep_service>()->detector();
-        dd4hep::IDDescriptor descriptor;
-        try {
-          descriptor = detector->readout("HcalBarrelHits").idSpec();
-        } catch(const std::runtime_error &e) {
-          // detector not found in the geometry, result should not matter -
-          // default to non-deprecated behavior
-          return true;
-        }
-
-        // check if sector field is present
-        bool useSectorIndex = false;
-        try {
-          auto sector = descriptor.field("sector");
-          return true;
-        } catch(const std::runtime_error &e) {
-          return false;
-        }
-
-    }  // end 'UseSectorIndexedBHCalReadout(JApplication*)'
-
     void InitPlugin(JApplication *app) {
 
         using namespace eicrecon;
@@ -73,19 +47,6 @@ extern "C" {
           // check for horizontally adjacent tiles at wraparound
           "  ( (abs(eta_1 - eta_2) == 0) && (abs(phi_1 - phi_2) == (320 - 1)) )"
           ") == 1";
-
-        // If using readout structure with sector segmentation,
-        // ensure adjacency matrix uses sector indices
-        if ( UseSectorIndexedBHCalReadout(app) ) {
-          HcalBarrel_adjacencyMatrix =
-            "("
-            "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
-            "  + min("
-            "      abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5)),"
-            "      (32 * 2 * 5) - abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5))"
-            "    )"
-            ") == 1";
-        }
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
           "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
