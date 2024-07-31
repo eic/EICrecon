@@ -72,7 +72,6 @@ extern "C" {
             .transverseEnergyProfileScale = 1.,
           },
           app   // TODO: Remove me once fixed
-		//
         ));
 
         app->Add(
