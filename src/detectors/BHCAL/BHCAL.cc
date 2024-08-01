@@ -1,15 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 David Lawrence, Derek Anderson, Wouter Deconinck
 
-#include <DD4hep/Detector.h>
-#include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <algorithm>
-#include <gsl/pointers>
 #include <memory>
-#include <stdexcept>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
@@ -19,7 +13,6 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
 
