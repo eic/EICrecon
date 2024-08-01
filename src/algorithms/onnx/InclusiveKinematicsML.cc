@@ -42,16 +42,26 @@ namespace eicrecon {
       debug("Input Node Name/Shape:");
       for (std::size_t i = 0; i < m_session.GetInputCount(); i++) {
         m_input_names.emplace_back(m_session.GetInputNameAllocated(i, allocator).get());
-        m_input_shapes.emplace_back(m_session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
-        debug("\t{} : {}", m_input_names.at(i), print_shape(m_input_shapes.at(i)));
+        if (m_session.GetInputTypeInfo(i).GetONNXType() == ONNX_TYPE_TENSOR) {
+          m_input_shapes.emplace_back(m_session.GetInputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
+          debug("\t{} : {}", m_input_names.at(i), print_shape(m_input_shapes.at(i)));
+        } else {
+          m_input_shapes.emplace_back();
+          debug("\t{} : not a tensor", m_input_names.at(i));
+        }
       }
 
       // print name/shape of outputs
       debug("Output Node Name/Shape:");
       for (std::size_t i = 0; i < m_session.GetOutputCount(); i++) {
         m_output_names.emplace_back(m_session.GetOutputNameAllocated(i, allocator).get());
-        m_output_shapes.emplace_back(m_session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
-        debug("\t{} : {}", m_output_names.at(i), print_shape(m_output_shapes.at(i)));
+        if (m_session.GetOutputTypeInfo(i).GetONNXType() == ONNX_TYPE_TENSOR) {
+          m_output_shapes.emplace_back(m_session.GetOutputTypeInfo(i).GetTensorTypeAndShapeInfo().GetShape());
+          debug("\t{} : {}", m_output_names.at(i), print_shape(m_output_shapes.at(i)));
+        } else {
+          m_output_shapes.emplace_back();
+          debug("\t{} : not a tensor", m_output_names.at(i));
+        }
       }
 
       // convert names to char*
