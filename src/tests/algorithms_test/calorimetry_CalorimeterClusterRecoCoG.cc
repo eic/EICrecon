@@ -4,6 +4,8 @@
 
 #include <Evaluator/DD4hepUnits.h>                 // for MeV, mm, keV, ns
 #include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
+#include <catch2/matchers/catch_matchers.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>      // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
@@ -11,7 +13,6 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>                      // for Vector3f
 #include <math.h>
-#include <podio/RelationRange.h>
 #include <spdlog/common.h>                         // for level_enum
 #include <spdlog/logger.h>                         // for logger
 #include <spdlog/spdlog.h>                         // for default_logger
@@ -28,6 +29,8 @@ using eicrecon::CalorimeterClusterRecoCoGConfig;
 using edm4eic::CalorimeterHit;
 
 TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" ) {
+  const float EPSILON = 1e-5;
+
   CalorimeterClusterRecoCoG algo("CalorimeterClusterRecoCoG");
 
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterClusterRecoCoG");
@@ -35,9 +38,10 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
 
   CalorimeterClusterRecoCoGConfig cfg;
   cfg.energyWeight = "log";
-  cfg.sampFrac = 0.0203,
-  cfg.logWeightBaseCoeffs={5.0,0.65,0.31},
-  cfg.logWeightBase_Eref=50*dd4hep::GeV,
+  cfg.sampFrac = 0.0203;
+  cfg.logWeightBaseCoeffs = {5.0,0.65,0.31};
+  cfg.logWeightBase_Eref = 50*dd4hep::GeV;
+  cfg.longitudinalShowerInfoAvailable = true;
 
 
   algo.applyConfig(cfg);
@@ -51,7 +55,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
 
   //create a protocluster with 3 hits
   auto pclust = pclust_coll.create();
-  edm4hep::Vector3f position({0,0,0*dd4hep::mm});
+  edm4hep::Vector3f position({0, 0, 1 *dd4hep::mm});
 
   auto hit1 = hits_coll.create();
   hit1.setCellID(0);
@@ -63,8 +67,9 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   hit1.setDimension({0,0,0});
   hit1.setLocal(position);
   pclust.addToHits(hit1);
+  pclust.addToWeights(1);
 
-  position={0,0, 1*dd4hep::mm};
+  position={-1 * dd4hep::mm, 0, 2 * dd4hep::mm};
   auto hit2 = hits_coll.create();
   hit2.setCellID(0);
   hit2.setEnergy(0.1*dd4hep::GeV);
@@ -75,19 +80,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   hit2.setDimension({0,0,0});
   hit2.setLocal(position);
   pclust.addToHits(hit2);
-
-  position={0,0, 2*dd4hep::mm};
-  auto hit3 = hits_coll.create();//0, 0.1*dd4hep::GeV, 0,0,0,position, {0,0,0}, 0,0, position);
-  hit3.setCellID(0);
-  hit3.setEnergy(0.1*dd4hep::GeV);
-  hit3.setEnergyError(0);
-  hit3.setTime(0);
-  hit3.setTimeError(0);
-  hit3.setPosition(position);
-  hit3.setDimension({0,0,0});
-  hit3.setLocal(position);
-  pclust.addToHits(hit3);
-  pclust.addToWeights(1);pclust.addToWeights(1);pclust.addToWeights(1);
+  pclust.addToWeights(1);
 
   // Constructing input and output as per the algorithm's expected signature
   auto input = std::make_tuple(&pclust_coll, &simhits);
@@ -97,10 +90,9 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
 
 
   for (auto clust : *clust_coll){
-    // require that this cluster's axis is 0,0,1
-    REQUIRE(clust.getShapeParameters()[7] == 0);
-    REQUIRE(clust.getShapeParameters()[8] == 0);
-    REQUIRE(abs(clust.getShapeParameters()[9]) == 1);
+    REQUIRE_THAT(clust.getIntrinsicTheta(), Catch::Matchers::WithinAbs(M_PI / 4, EPSILON));
+    // std::abs() checks if we land on -M_PI
+    REQUIRE_THAT(std::abs(clust.getIntrinsicPhi()), Catch::Matchers::WithinAbs(M_PI, EPSILON));
   }
 
 

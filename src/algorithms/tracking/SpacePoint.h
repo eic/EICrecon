@@ -11,7 +11,7 @@ class SpacePoint : public edm4eic::TrackerHit
  public:
   const Acts::Surface *m_surface = nullptr;
 
- SpacePoint(const TrackerHit& hit) : TrackerHit(hit) {}
+  SpacePoint(const TrackerHit& hit) : TrackerHit(hit) {}
 
   void setSurface(std::shared_ptr<const ActsGeometryProvider> m_geoSvc)
     {
@@ -35,6 +35,9 @@ class SpacePoint : public edm4eic::TrackerHit
       (std::pow(x(), 2) + std::pow(y(), 2));
   }
   float varianceZ() const { return getPositionError().zz; }
+
+  float t() const { return getTime(); }
+  float varianceT() const { return getTimeError(); }
 
   bool isOnSurface() const {
     if (m_surface == nullptr) {

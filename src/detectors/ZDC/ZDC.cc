@@ -83,8 +83,9 @@ extern "C" {
              "EcalFarForwardZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 0.701,
+              .sampFrac = 1.0,
               .logWeightBase = 3.6,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -100,8 +101,9 @@ extern "C" {
              "EcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
-              .sampFrac = 0.701,
+              .sampFrac = 1.0,
               .logWeightBase = 6.2,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
@@ -193,6 +195,7 @@ extern "C" {
             .sampFrac = 0.0203,
             .logWeightBaseCoeffs={5.0,0.65,0.31},
             .logWeightBase_Eref=50*dd4hep::GeV,
+            .longitudinalShowerInfoAvailable = true,
           },
           app   // TODO: Remove me once fixed
         ));
@@ -228,6 +231,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -244,6 +248,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 0.0203,
               .logWeightBase = 6.2,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
