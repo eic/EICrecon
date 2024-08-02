@@ -32,10 +32,10 @@ namespace eicrecon {
 
   void InclusiveKinematicsML::init() {
     // onnxruntime setup
-    Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "inclusive-kinematics-ml");
+    m_env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "inclusive-kinematics-ml");
     Ort::SessionOptions session_options;
     try {
-      m_session = Ort::Session(env, m_cfg.modelPath.c_str(), session_options);
+      m_session = Ort::Session(m_env, m_cfg.modelPath.c_str(), session_options);
 
       // print name/shape of inputs
       Ort::AllocatorWithDefaultOptions allocator;
