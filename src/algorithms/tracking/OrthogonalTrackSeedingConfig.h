@@ -35,7 +35,6 @@ namespace eicrecon {
     float beamPosX         = 0; // x offset for beam position
     float beamPosY         = 0; // y offset for beam position
     float impactMax        = 3. * Acts::UnitConstants::mm; // Maximum transverse PCA allowed
-    float bFieldMin        = 0.1 * Acts::UnitConstants::T; // T (in Acts units of GeV/[e*mm]) - Minimum Magnetic field strength
     float rMinMiddle       = 20. * Acts::UnitConstants::mm; // Middle spacepoint must fall between these two radii
     float rMaxMiddle       = 400. * Acts::UnitConstants::mm;
 
