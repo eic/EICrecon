@@ -14,8 +14,6 @@
 #include <algorithm>
 #include <iostream>
 
-BarrelTOFNeighborFinder::BarrelTOFNeighborFinder(int cellNX, int cellNY, int stepNX) : _cellNX(cellNX), _cellNY(cellNY), _stepNX(stepNX) {}
-
 void BarrelTOFNeighborFinder::init(const dd4hep::Detector* detector) {
   // you need to init the class before calling any other methods
   // What about RAII?
@@ -30,11 +28,9 @@ void BarrelTOFNeighborFinder::_findAllNeighborsInSensor(
   // use MST to find all neighbor within a sensor
   // I can probably write down the formula by hand, but why do things manually when computer do
   // everything for you?
-  const std::vector<std::pair<int, int>> searchDirs{{0, 1}, {0, -1}, {_stepNX, 0}, {-_stepNX, 0}};
+  const std::vector<std::pair<int, int>> searchDirs{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
   ans->push_back(hitCell);
   dp.insert(hitCell);
-  if (isDeadCell(hitCell))
-    return; // dead cell
 
   auto sensorID = _getSensorID(hitCell);
   auto xID = _decoder -> get(hitCell, "x");
@@ -110,15 +106,12 @@ BarrelTOFNeighborFinder::findAllNeighborInSensor(const dd4hep::rec::CellID& hitC
   return neighbors;
 }
 
-std::pair<dd4hep::rec::CellID, dd4hep::rec::CellID>
-BarrelTOFNeighborFinder::_getSensorID(const dd4hep::rec::CellID& hitCell) {
+int BarrelTOFNeighborFinder::_getSensorID(const dd4hep::rec::CellID& hitCell) {
   _initWithCell(hitCell);
-  return {std::floor(_decoder->get(hitCell, "x")/double(_cellNX)), std::floor(_decoder->get(hitCell, "y")/double(_cellNY))};
-}
-
-bool BarrelTOFNeighborFinder::isDeadCell(const dd4hep::rec::CellID& hitCell) {
-  // no dead space in CartesianGridXY
-  return false; //Not implemented
+  // when x or y-index goes out of bound, sometimes the position will corresponds to a new sensor
+  // will fetch the new cellID here
+  auto newID = _converter->cellID(_converter->position(hitCell)); 
+  return _decoder->get(newID, "sensor"); 
 }
 
 /****************************************

@@ -101,8 +101,6 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
 	auto   localPos_hit = _neighborFinder.global2Local(dd4hep::Position(truePos.x/10., truePos.y/10., truePos.z/10.));
 
         double sum_charge = 0.0;
-        double sigma_sharing = 0.8;
-        
         double mpv_analog = 0.0; //SP
         
         // sum energy, take time from the most energetic hit
@@ -111,7 +109,7 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
 
             time = hit.getTime();
             edep = hit.getEDep();
-            sum_charge = edep*gain;
+            sum_charge = edep*m_cfg.gain;
 
             // Use DetPosProcessor to process hits
             //m_detPosProcessor->ProcessSequential(hit);
@@ -125,14 +123,14 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
                 double distanceX = localPos_hit.x() - localPos_neighbour.x();
                 double distanceY = localPos_hit.y() - localPos_neighbour.y();
 
-                double exponent = -0.5 * ((pow((distanceX) / sigma_sharing, 2)) + (pow((distanceY) / sigma_sharing, 2)));
-                double charge = exp(exponent) / (2 * TMath::Pi() * sigma_sharing * sigma_sharing);
+                double exponent = -0.5 * ((pow((distanceX) / m_cfg.sigma_sharing, 2)) + (pow((distanceY) / m_cfg.sigma_sharing, 2)));
+                double charge = exp(exponent) / (2 * TMath::Pi() * m_cfg.sigma_sharing * m_cfg.sigma_sharing);
                 
 
             //Added by SP
 //-------------------------------------------------------------
-                mpv_analog = time + risetime;
-                fLandau.SetParameters(mpv_analog, sigma_analog);                
+                mpv_analog = time + m_cfg.risetime;
+                fLandau.SetParameters(mpv_analog, m_cfg.sigma_analog);                
 
                 TGraph glandau;
                 scalingFactor=charge/fLandau.Integral(tMin, tMax);

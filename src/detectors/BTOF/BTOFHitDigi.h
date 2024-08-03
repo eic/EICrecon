@@ -40,10 +40,7 @@ namespace eicrecon {
 
      public:
         BTOFHitDigi()
-          :  _neighborFinder(320, 4, 5),  // 320-cells in a sensors in x-direction, 4 in y, and 5 means we ignore 4 cells for each cells so it steps 5 sensors at a time.
-					  // TBD: There are only 64 cells in a sensor in x-direction in reality. The geometry needs to be fixed
-					  // As of July 19 2024, x-lenght of a cell is 0.1 mm when it should have been 0.5mm. Check grid_size_x in tof_barrel.xml
-	     fLandau("landau", [](Double_t* x, Double_t* par) {
+          :  fLandau("landau", [](Double_t* x, Double_t* par) {
              Double_t mean = par[0]; // Mean
              Double_t std = par[1]; // Standard deviation
              Double_t C = - 113.766;
@@ -74,15 +71,7 @@ namespace eicrecon {
       const int adc_bit = 8;
       const int tdc_bit = 10;
       
-      // Parameters of AC-LGAD signal generation - Added by Souvik
-      const double mpv = 1.56075e-04;
-      const double sigma = 1.92005e-05;
-      const double gain = 80;
-      const double risetime = 0.45;//0.02; //in ns
-      const double std = risetime/5;
-      const double mean = 3.65;
-      const double sigma_analog = 0.293951;
-      
+     
       int adc_range;
       int tdc_range;
     

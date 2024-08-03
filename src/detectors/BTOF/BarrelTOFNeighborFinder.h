@@ -18,8 +18,6 @@
 
 class BarrelTOFNeighborFinder {
 public:
-  BarrelTOFNeighborFinder(int cellNX, int cellNY, int stepNX=1);
-
   void init(const dd4hep::Detector* detector);
   void useCache(bool value = true) { _useCache = value; };
   void setLogger(const std::shared_ptr<spdlog::logger>& log) { _log = log; };
@@ -39,8 +37,7 @@ private:
   void _findAllNeighborsInSensor(dd4hep::rec::CellID hitCell,
                                  std::shared_ptr<std::vector<dd4hep::rec::CellID>>& ans,
                                  std::unordered_set<dd4hep::rec::CellID>& dp);
-  std::pair<dd4hep::rec::CellID, dd4hep::rec::CellID> 
-	  _getSensorID(const dd4hep::rec::CellID& hitCell);
+  int _getSensorID(const dd4hep::rec::CellID& hitCell);
   // need to initialize the class with a cell from Barrel TOF
   void _initWithCell(const dd4hep::rec::CellID& hitCell);
 
@@ -49,9 +46,6 @@ private:
   bool _useCache                                        = true;
   const dd4hep::DDSegmentation::BitFieldCoder* _decoder = nullptr;
   const dd4hep::Detector* _detector                     = nullptr;
-  int _cellNX                                           = 0;
-  int _cellNY                                           = 0;
-  int _stepNX                                           = 0;
 
   std::unique_ptr<dd4hep::rec::CellIDPositionConverter>                _converter;
   std::shared_ptr<spdlog::logger>                                      _log;
