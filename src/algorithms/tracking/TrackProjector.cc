@@ -80,24 +80,37 @@ namespace eicrecon {
                     m_nCalibrated++;
                 }
 
-                // get track state parameters and their covariances
-                const auto &parameter = trackstate.predicted();
-                const auto &covariance = trackstate.predictedCovariance();
+                // get track state bound parameters and their boundCovs
+                const auto &boundParams = trackstate.predicted();
+                const auto &boundCov = trackstate.predictedCovariance();
 
                 // convert local to global
                 auto global = trackstate.referenceSurface().localToGlobal(
                         m_geo_provider->getActsGeometryContext(),
-                        {parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]},
+                        {boundParams[Acts::eBoundLoc0], boundParams[Acts::eBoundLoc1]},
                         Acts::makeDirectionFromPhiTheta(
-                            parameter[Acts::eBoundPhi],
-                            parameter[Acts::eBoundTheta]
+                            boundParams[Acts::eBoundPhi],
+                            boundParams[Acts::eBoundTheta]
                         )
                 );
+
+#if Acts_VERSION_MAJOR >= 34
+                auto freeParams = Acts::transformBoundToFreeParameters(
+                        trackstate.referenceSurface(),
+                        m_geo_provider->getActsGeometryContext(),
+                        boundParams);
                 auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
                         m_geo_provider->getActsGeometryContext(),
-                        parameter
+                        freeParams.template segment<3>(Acts::eFreePos0),
+                        freeParams.template segment<3>(Acts::eFreeDir0)
                 );
-                auto free_covariance = jacobian * covariance * jacobian.transpose();
+#else
+                auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
+                        m_geo_provider->getActsGeometryContext(),
+                        boundParams
+                );
+#endif
+                auto freeCov = jacobian * boundCov * jacobian.transpose();
 
                 // global position
                 const decltype(edm4eic::TrackPoint::position) position{
@@ -108,45 +121,45 @@ namespace eicrecon {
 
                 // local position
                 const decltype(edm4eic::TrackParametersData::loc) loc{
-                        static_cast<float>(parameter[Acts::eBoundLoc0]),
-                        static_cast<float>(parameter[Acts::eBoundLoc1])
+                        static_cast<float>(boundParams[Acts::eBoundLoc0]),
+                        static_cast<float>(boundParams[Acts::eBoundLoc1])
                 };
                 const edm4eic::Cov2f locError{
-                        static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
-                        static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
-                        static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
+                        static_cast<float>(boundCov(Acts::eBoundLoc0, Acts::eBoundLoc0)),
+                        static_cast<float>(boundCov(Acts::eBoundLoc1, Acts::eBoundLoc1)),
+                        static_cast<float>(boundCov(Acts::eBoundLoc0, Acts::eBoundLoc1))
                 };
                 const decltype(edm4eic::TrackPoint::positionError) positionError{
-                        static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos0)),
-                        static_cast<float>(free_covariance(Acts::eFreePos1, Acts::eFreePos1)),
-                        static_cast<float>(free_covariance(Acts::eFreePos2, Acts::eFreePos2)),
-                        static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos1)),
-                        static_cast<float>(free_covariance(Acts::eFreePos0, Acts::eFreePos2)),
-                        static_cast<float>(free_covariance(Acts::eFreePos1, Acts::eFreePos2)),
+                        static_cast<float>(freeCov(Acts::eFreePos0, Acts::eFreePos0)),
+                        static_cast<float>(freeCov(Acts::eFreePos1, Acts::eFreePos1)),
+                        static_cast<float>(freeCov(Acts::eFreePos2, Acts::eFreePos2)),
+                        static_cast<float>(freeCov(Acts::eFreePos0, Acts::eFreePos1)),
+                        static_cast<float>(freeCov(Acts::eFreePos0, Acts::eFreePos2)),
+                        static_cast<float>(freeCov(Acts::eFreePos1, Acts::eFreePos2)),
                 };
 
                 // momentum
                 const decltype(edm4eic::TrackPoint::momentum) momentum = edm4hep::utils::sphericalToVector(
-                        static_cast<float>(1.0 / std::abs(parameter[Acts::eBoundQOverP])),
-                        static_cast<float>(parameter[Acts::eBoundTheta]),
-                        static_cast<float>(parameter[Acts::eBoundPhi])
+                        static_cast<float>(1.0 / std::abs(boundParams[Acts::eBoundQOverP])),
+                        static_cast<float>(boundParams[Acts::eBoundTheta]),
+                        static_cast<float>(boundParams[Acts::eBoundPhi])
                 );
                 const decltype(edm4eic::TrackPoint::momentumError) momentumError{
-                        static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                        static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-                        static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
-                        static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
-                        static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
-                        static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))
+                        static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundTheta)),
+                        static_cast<float>(boundCov(Acts::eBoundPhi, Acts::eBoundPhi)),
+                        static_cast<float>(boundCov(Acts::eBoundQOverP, Acts::eBoundQOverP)),
+                        static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundPhi)),
+                        static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundQOverP)),
+                        static_cast<float>(boundCov(Acts::eBoundPhi, Acts::eBoundQOverP))
                 };
-                const float time{static_cast<float>(parameter(Acts::eBoundTime))};
-                const float timeError{sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime)))};
-                const float theta(parameter[Acts::eBoundTheta]);
-                const float phi(parameter[Acts::eBoundPhi]);
+                const float time{static_cast<float>(boundParams(Acts::eBoundTime))};
+                const float timeError{sqrt(static_cast<float>(boundCov(Acts::eBoundTime, Acts::eBoundTime)))};
+                const float theta(boundParams[Acts::eBoundTheta]);
+                const float phi(boundParams[Acts::eBoundPhi]);
                 const decltype(edm4eic::TrackPoint::directionError) directionError{
-                        static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                        static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-                        static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi))
+                        static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundTheta)),
+                        static_cast<float>(boundCov(Acts::eBoundPhi, Acts::eBoundPhi)),
+                        static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundPhi))
                 };
                 const float pathLength = static_cast<float>(trackstate.pathLength());
                 const float pathLengthError = 0;
@@ -191,12 +204,12 @@ namespace eicrecon {
                 m_log->debug("  ******************************");
 
                 // Local position on the reference surface.
-                //m_log->debug("parameter[eBoundLoc0] = {}", parameter[Acts::eBoundLoc0]);
-                //m_log->debug("parameter[eBoundLoc1] = {}", parameter[Acts::eBoundLoc1]);
-                //m_log->debug("parameter[eBoundPhi] = {}", parameter[Acts::eBoundPhi]);
-                //m_log->debug("parameter[eBoundTheta] = {}", parameter[Acts::eBoundTheta]);
-                //m_log->debug("parameter[eBoundQOverP] = {}", parameter[Acts::eBoundQOverP]);
-                //m_log->debug("parameter[eBoundTime] = {}", parameter[Acts::eBoundTime]);
+                //m_log->debug("boundParams[eBoundLoc0] = {}", boundParams[Acts::eBoundLoc0]);
+                //m_log->debug("boundParams[eBoundLoc1] = {}", boundParams[Acts::eBoundLoc1]);
+                //m_log->debug("boundParams[eBoundPhi] = {}", boundParams[Acts::eBoundPhi]);
+                //m_log->debug("boundParams[eBoundTheta] = {}", boundParams[Acts::eBoundTheta]);
+                //m_log->debug("boundParams[eBoundQOverP] = {}", boundParams[Acts::eBoundQOverP]);
+                //m_log->debug("boundParams[eBoundTime] = {}", boundParams[Acts::eBoundTime]);
                 //m_log->debug("predicted variables: {}", trackstate.predicted());
             });
 

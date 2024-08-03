@@ -203,6 +203,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralCKFSeededTrackParametersUnfiltered",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
+            "InclusiveKinematicsML",
             "InclusiveKinematicsSigma",
             "InclusiveKinematicseSigma",
             "InclusiveKinematicsElectron",
