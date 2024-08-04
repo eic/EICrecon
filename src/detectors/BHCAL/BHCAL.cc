@@ -39,13 +39,9 @@ extern "C" {
         }
 
         // check if sector field is present
-        bool useSectorIndex = false;
-        try {
-          auto sector = descriptor.field("sector");
-          return true;
-        } catch(const std::runtime_error &e) {
-          return false;
-        }
+        auto fields = descriptor.fields();
+        auto is_sector = [](auto& field){ return field.first == "sector"; };
+        return std::ranges::find_if(fields, is_sector) != fields.end();
 
     }  // end 'UseSectorIndexedBHCalReadout(JApplication*)'
 
