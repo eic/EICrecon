@@ -203,7 +203,7 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
     // If true, test a diagonal cluster:
     //  Xx
     //   X
-    // The idea is to test whether peakNeighbourhoodMatrix allowes increasing
+    // The idea is to test whether peakNeighbourhoodMatrix allows increasing
     // peak resolution threshold while keeping the Island algorithm the same.
     hits_coll.create(
       id_desc.encode({{"system", 255}, {"x", test_diagonal_cluster ? 1 : 2}, {"y", test_diagonal_cluster ? 1 : 0}}), // std::uint64_t cellID,
