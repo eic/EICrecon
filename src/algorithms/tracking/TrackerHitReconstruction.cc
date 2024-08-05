@@ -76,7 +76,7 @@ std::unique_ptr<edm4eic::TrackerHitCollection> TrackerHitReconstruction::process
             static_cast<float>(raw_hit.getCharge() / 1.0e6),   // Collected energy (GeV)
             0.0F);                                       // Error on the energy
 #if EDM4EIC_VERSION_MAJOR >= 7
-                rec_hits->setRawHit(raw_hit);
+        rec_hits->setRawHit(raw_hit);
 #endif
 
     }
