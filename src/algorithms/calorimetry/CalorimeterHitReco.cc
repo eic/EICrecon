@@ -277,7 +277,9 @@ void CalorimeterHitReco::process(
             sid,
             lid,
             local_position);
+#if EDM4EIC_VERSION_MAJOR >= 7
         recohits->setRawHit(rh);
+#endif
     }
 }
 
