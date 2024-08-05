@@ -7,17 +7,18 @@
 
 #include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/service.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <map>
-#include <memory>
 #include <set>
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
