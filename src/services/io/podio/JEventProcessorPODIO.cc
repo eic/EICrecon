@@ -15,7 +15,6 @@
 #else
 #include <podio/ROOTFrameWriter.h>
 #endif
-#include <spdlog/common.h>
 #include <chrono>
 #include <exception>
 #include <thread>
