@@ -75,8 +75,6 @@ namespace eicrecon {
 
   private:
 
-    static unsigned int function_id;
-
     // grouping function with Breadth-First Search
     void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
       visits[idx] = true;
