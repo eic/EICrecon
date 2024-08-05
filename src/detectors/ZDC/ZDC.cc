@@ -163,7 +163,7 @@ extern "C" {
                 .layerMode=eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
                 .sectorDist = 10.0 * dd4hep::cm,
                 .minClusterHitEdep = 100.0 * dd4hep::keV,
-                .minClusterCenterEdep =3.0 * dd4hep::MeV,
+                .minClusterCenterEdep = 3.0 * dd4hep::MeV,
                 .minClusterEdep = 11.0 * dd4hep::MeV,
                 .minClusterNhits = 100,
             },
