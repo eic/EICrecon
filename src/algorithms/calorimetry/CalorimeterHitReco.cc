@@ -21,6 +21,7 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
