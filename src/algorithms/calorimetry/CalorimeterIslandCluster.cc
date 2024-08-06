@@ -167,7 +167,6 @@ void CalorimeterIslandCluster::init() {
             }
           };
 
-          info("Using clustering method: {}", uprop.first);
           break;
         }
       }
