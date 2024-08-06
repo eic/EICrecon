@@ -409,7 +409,6 @@ int Execute(JApplication* app, UserOptions& options) {
   } else {
     // Run JANA in normal mode
     try {
-      printJANAHeaderIMG();
       JSignalHandler::register_handlers(app);
       app->Run();
     } catch (JException& e) {
