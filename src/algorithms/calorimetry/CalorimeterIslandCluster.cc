@@ -80,6 +80,7 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit &h1, const CaloHit &h2) 
 // AlgorithmInit
 //------------------------
 void CalorimeterIslandCluster::init() {
+
     static std::map<std::string,
                 std::tuple<std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)>, std::vector<double>>>
     distMethods{
