@@ -23,6 +23,7 @@
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
