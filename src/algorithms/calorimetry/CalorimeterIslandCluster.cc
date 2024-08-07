@@ -136,7 +136,7 @@ void CalorimeterIslandCluster::init() {
 
     if (m_cfg.readout.empty()) {
       if ((!m_cfg.adjacencyMatrix.empty()) || (!m_cfg.peakNeighbourhoodMatrix.empty())) {
-        throw std::runtime_error("readoutClass is not provided, it is needed to know the fields in readout ids");
+        throw std::runtime_error("'readout' is not provided, it is needed to know the fields in readout ids");
       }
     } else {
       m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
