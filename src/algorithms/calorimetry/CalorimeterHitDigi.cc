@@ -187,7 +187,7 @@ void CalorimeterHitDigi::process(
         double ped = m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC;
 
         // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
-        unsigned long long adc = std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC), 0);
+        unsigned long long adc = std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC), 0LL);
         unsigned long long tdc = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
 
         if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t corrMeanScale: {}", edep, adc, time, m_cfg.capTime, tdc, corrMeanScale_value);
