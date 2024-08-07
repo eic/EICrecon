@@ -184,7 +184,7 @@ void CalorimeterHitDigi::process(
         double corrMeanScale_value = corrMeanScale(leading_hit);
 
         // Pedestal in ADC channels must be positive
-        double ped = std::max(m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC, 0);
+        double ped = std::max(m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC, 0.0);
 
         // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
         unsigned long long adc = std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
