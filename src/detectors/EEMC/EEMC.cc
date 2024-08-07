@@ -69,6 +69,7 @@ extern "C" {
           "EcalEndcapNIslandProtoClusters", {"EcalEndcapNRecHits"}, {"EcalEndcapNIslandProtoClusters"},
           {
             .adjacencyMatrix = "(abs(row_1 - row_2) + abs(column_1 - column_2)) == 1",
+            .peakNeighbourhoodMatrix = "max(abs(row_1 - row_2), abs(column_1 - column_2)) == 1",
             .readout = "EcalEndcapNHits",
             .sectorDist = 5.0 * dd4hep::cm,
             .splitCluster = true,
