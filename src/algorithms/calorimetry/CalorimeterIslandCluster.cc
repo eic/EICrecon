@@ -135,7 +135,9 @@ void CalorimeterIslandCluster::init() {
     };
 
     if (m_cfg.readout.empty()) {
-      error("readoutClass is not provided, it is needed to know the fields in readout ids");
+      if ((!m_cfg.adjacencyMatrix.empty()) || (!m_cfg.peakNeighbourhoodMatrix.empty())) {
+        throw std::runtime_error("readoutClass is not provided, it is needed to know the fields in readout ids");
+      }
     } else {
       m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
     }
@@ -178,7 +180,7 @@ void CalorimeterIslandCluster::init() {
     }
 
     if (m_cfg.splitCluster) {
-      if (m_cfg.peakNeighbourhoodMatrix != "") {
+      if (!m_cfg.peakNeighbourhoodMatrix.empty()) {
         is_maximum_neighbourhood = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.peakNeighbourhoodMatrix, hit_pair_to_map);
       } else {
         is_maximum_neighbourhood = is_neighbour;
