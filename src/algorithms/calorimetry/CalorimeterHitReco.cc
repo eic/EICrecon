@@ -171,7 +171,7 @@ void CalorimeterHitReco::process(
         if (rh.getAmplitude() < m_cfg.pedMeanADC + thresholdADC) {
             continue;
         }
- 
+
         if (rh.getAmplitude() > m_cfg.capADC) {
             error("Encountered hit with amplitude {} outside of ADC capacity {}", rh.getAmplitude(), m_cfg.capADC);
             continue;
