@@ -173,6 +173,11 @@ void CalorimeterHitReco::process(
             continue;
         }
 
+        if (rh.getAmplitude() > m_cfg.capADC) {
+            error("Encountered hit with amplitude {} outside of ADC capacity {}", rh.getAmplitude(), m_cfg.capADC);
+            continue;
+        }
+
         // get layer and sector ID
         const int lid =
                 id_dec != nullptr && !m_cfg.layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
