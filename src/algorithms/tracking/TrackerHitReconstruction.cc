@@ -67,7 +67,10 @@ std::unique_ptr<edm4eic::TrackerHitCollection> TrackerHitReconstruction::process
         //      - XYZ segmentation: xx -> sigma_x, yy-> sigma_y, zz -> sigma_z, tt -> 0
         //    This is properly in line with how we get the local coordinates for the hit
         //    in the TrackerSourceLinker.
-        auto rec_hit = rec_hits->create(
+ #if EDM4EIC_VERSION_MAJOR >= 7
+       auto rec_hit =
+ #endif
+       rec_hits->create(
             raw_hit.getCellID(), // Raw DD4hep cell ID
             edm4hep::Vector3f{static_cast<float>(pos.x() / mm), static_cast<float>(pos.y() / mm), static_cast<float>(pos.z() / mm)}, // mm
             edm4eic::CovDiag3f{get_variance(dim[0] / mm), get_variance(dim[1] / mm), // variance (see note above)
