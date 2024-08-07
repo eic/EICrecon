@@ -130,6 +130,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
     if (identified_pdg != 0) {
       recopart.setPDG(std::copysign(identified_pdg, (identified_pdg == 11) ? -charge : charge));
+      recopart.setMass(m_particleSvc.particle(identified_pdg).mass);
     }
 
     if (identified_pdg != 0) {

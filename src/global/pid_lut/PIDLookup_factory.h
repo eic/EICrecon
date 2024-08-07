@@ -10,6 +10,7 @@
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -29,6 +30,8 @@ private:
   ParameterRef<std::string> m_filename{this, "filename", config().filename,
                                        "Relative to current working directory"};
   ParameterRef<int> m_system{this, "system", config().system, "For the ParticleID record"};
+
+  Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
   void Configure() {
