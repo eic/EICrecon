@@ -19,6 +19,8 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
+    auto TOFEndcapTimeResolution    =  20.0 * dd4hep::ns; // 20 ps bin width
+    auto TOFEndcapIntegrationWindow =   5.0 * dd4hep::ns; // shaping time
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "TOFEndcapRawHits",
       {
@@ -29,7 +31,9 @@ void InitPlugin(JApplication *app) {
       },
       {
         .threshold = 6.0 * dd4hep::keV,
-        .timeResolution = 0.025,
+        .timeResolution = TOFEndcapTimeResolution,
+        .integrationWindow = TOFEndcapIntegrationWindow,
+
       },
       app
     ));
@@ -40,7 +44,7 @@ void InitPlugin(JApplication *app) {
       {"TOFEndcapRawHits"},     // Input data collection tags
       {"TOFEndcapRecHits"},     // Output data tag
       {
-        .timeResolution = 0.025,
+        .timeResolution = TOFEndcapTimeResolution,
       },
       app
     ));

@@ -28,6 +28,8 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
+    auto BTOFBarrelTimeResolution    = 0.02 * dd4hep::ns; // 20 ps bin width
+    auto BTOFBarrelIntegrationWindow =  5.0 * dd4hep::ns; // shaping time
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "TOFBarrelRawHit",
         {
@@ -39,7 +41,8 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 6.0 * dd4hep::keV,
-            .timeResolution = 0.025,    // [ns]
+            .timeResolution = BTOFBarrelTimeResolution,
+            .integrationWindow = BTOFBarrelIntegrationWindow,
         },
         app
     ));
@@ -50,7 +53,7 @@ void InitPlugin(JApplication *app) {
         {"TOFBarrelRawHit"},    // Input data collection tags
         {"TOFBarrelRecHit"},     // Output data tag
         {
-            .timeResolution = 10,
+            .timeResolution = BTOFBarrelTimeResolution,
         },
         app
     ));         // Hit reco default config for factories

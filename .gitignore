@@ -49,6 +49,8 @@ install/*
 *.out
 *.m_app
 
+# Apple stuff
+.DS_Store
 
 ##### i g n o r i n g   I D E s #####
 

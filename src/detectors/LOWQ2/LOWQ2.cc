@@ -35,18 +35,21 @@ extern "C" {
     std::string tracker_readout = "TaggerTrackerHits";
 
     // Digitization of silicon hits
+    auto TaggerTrackerTimeResolution    = 0.195 * dd4hep::ns;
+    auto TaggerTrackerIntegrationWindow = 25.0   * dd4hep::ns;
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
          {
-           "TaggerTrackerHits"
+            "TaggerTrackerHits"
          },
          {
-           "TaggerTrackerRawHits",
-           "TaggerTrackerHitAssociations"
+            "TaggerTrackerRawHits",
+            "TaggerTrackerHitAssociations"
          },
          {
-           .threshold = 1.5 * dd4hep::keV,
-           .timeResolution = 2 * dd4hep::ns,
+            .threshold = 1.5 * dd4hep::keV,
+            .timeResolution = TaggerTrackerTimeResolution,
+            .integrationWindow = TaggerTrackerIntegrationWindow,
          },
          app
     ));
