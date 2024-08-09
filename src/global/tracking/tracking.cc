@@ -46,27 +46,29 @@ void InitPlugin(JApplication *app) {
             ));
 
     // Possible collections from arches, brycecanyon and craterlake configurations
-    std::vector<std::pair<std::string, std::string>> possible_collections = {
-        {"SiBarrelHits", "SiBarrelTrackerRecHits"},
-        {"VertexBarrelHits", "SiBarrelVertexRecHits"},
-        {"TrackerEndcapHits", "SiEndcapTrackerRecHits"},
-        {"TOFBarrelHits", "TOFBarrelRecHit"},
-        {"TOFEndcapHits", "TOFEndcapRecHits"},
-        {"MPGDBarrelHits", "MPGDBarrelRecHits"},
-        {"MPGDDIRCHits", "MPGDDIRCRecHits"},
-        {"OuterMPGDBarrelHits", "OuterMPGDBarrelRecHits"},
-        {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRecHits"},
-        {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRecHits"},
-        {"B0TrackerHits", "B0TrackerRecHits"}
+    std::vector<std::tuple<std::string, std::string, std::string, std::string>> possible_collections = {
+        {"SiBarrelHits", "SiBarrelRawHits", "SiBarrelRawHitAssociations", "SiBarrelTrackerRecHits"},
+        {"VertexBarrelHits", "SiBarrelVertexRawHits", "SiBarrelVertexRawHitAssociations", "SiBarrelVertexRecHits"},
+        {"TrackerEndcapHits", "SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitAssociations", "SiEndcapTrackerRecHits"},
+        {"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelRecHit"},
+        {"TOFEndcapHits", "TOFEndcapRawHits", "TOFEndcapRawHitAssociations", "TOFEndcapRecHits"},
+        {"MPGDBarrelHits", "MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations", "MPGDBarrelRecHits"},
+        {"MPGDDIRCHits", "MPGDDIRCRawHits", "MPGDDIRCRawHitAssociations", "MPGDDIRCRecHits"},
+        {"OuterMPGDBarrelHits", "OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations", "OuterMPGDBarrelRecHits"},
+        {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRawHits", "BackwardMPGDEndcapRawHitAssociations", "BackwardMPGDEndcapRecHits"},
+        {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHitAssociations", "ForwardMPGDEndcapRecHits"},
+        {"B0TrackerHits", "B0TrackerRawHits", "B0TrackerRawHitAssociations", "B0TrackerRecHits"}
     };
 
     // Filter out collections that are not present in the current configuration
     std::vector<std::string> input_rec_collections;
+    std::vector<std::string> input_raw_assoc_collections;
     auto readouts = app->GetService<DD4hep_service>()->detector()->readouts();
-    for (const auto& [hit_collection, rec_collection] : possible_collections) {
+    for (const auto& [hit_collection, raw_collection, raw_assoc_collection, rec_collection] : possible_collections) {
       if (readouts.find(hit_collection) != readouts.end()) {
         // Add the collection to the list of input collections
         input_rec_collections.push_back(rec_collection);
+        input_raw_assoc_collections.push_back(raw_assoc_collection);
       }
     }
 
