@@ -26,7 +26,7 @@ void InitPlugin(JApplication *app) {
         },
         {
           "MPGDBarrelRawHits",
-          "MPGDBarrelHitAssociations"
+          "MPGDBarrelRawHitAssociations"
         },
         {
             .threshold = 0.25 * dd4hep::keV,
@@ -54,7 +54,7 @@ void InitPlugin(JApplication *app) {
         },
         {
           "OuterMPGDBarrelRawHits",
-          "OuterMPGDBarrelHitAssociations"
+          "OuterMPGDBarrelRawHitAssociations"
         },
         {
             .threshold = 0.25 * dd4hep::keV,
@@ -82,7 +82,7 @@ void InitPlugin(JApplication *app) {
         },
         {
           "BackwardMPGDEndcapRawHits",
-          "BackwardMPGDEndcapAssociations"
+          "BackwardMPGDEndcapRawHitAssociations"
         },
         {
             .threshold = 0.25 * dd4hep::keV,
@@ -110,7 +110,7 @@ void InitPlugin(JApplication *app) {
         },
         {
           "ForwardMPGDEndcapRawHits",
-          "ForwardMPGDHitAssociations"
+          "ForwardMPGDEndcapRawHitAssociations"
         },
         {
             .threshold = 0.25 * dd4hep::keV,

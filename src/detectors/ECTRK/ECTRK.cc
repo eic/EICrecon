@@ -26,7 +26,7 @@ void InitPlugin(JApplication *app) {
         },
         {
           "SiEndcapTrackerRawHits",
-          "SiEndcapHitAssociations"
+          "SiEndcapTrackerRawHitAssociations"
         },
         {
             .threshold = 0.54 * dd4hep::keV,

@@ -20,9 +20,11 @@ private:
 
   PodioInput<edm4eic::Measurement2D> m_measurements_input {this};
   Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
+  PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_raw_hit_assocs_input {this};
   PodioOutput<edm4eic::Trajectory> m_trajectories_output {this};
   PodioOutput<edm4eic::TrackParameters> m_parameters_output {this};
   PodioOutput<edm4eic::Track> m_tracks_output {this};
+  PodioOutput<edm4eic::MCRecoTrackParticleAssociation> m_track_assocs_output {this};
 
 public:
   void Configure() {
@@ -38,8 +40,19 @@ public:
     for (auto acts_traj : m_acts_trajectories_input()) {
       acts_trajectories_input.push_back(acts_traj);
     }
-    m_algo->process({m_measurements_input(), acts_trajectories_input},
-                    {m_trajectories_output().get(), m_parameters_output().get(), m_tracks_output().get()});
+    m_algo->process(
+      {
+        m_measurements_input(),
+        acts_trajectories_input,
+        m_raw_hit_assocs_input(),
+      },
+      {
+        m_trajectories_output().get(),
+        m_parameters_output().get(),
+        m_tracks_output().get(),
+        m_track_assocs_output().get(),
+      }
+    );
   }
 };
 

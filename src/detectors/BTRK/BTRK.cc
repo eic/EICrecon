@@ -26,7 +26,7 @@ void InitPlugin(JApplication *app) {
         },
         {
           "SiBarrelRawHits",
-          "SiBarrelHitAssociations"
+          "SiBarrelRawHitAssociations"
         },
         {
             .threshold = 0.54 * dd4hep::keV,

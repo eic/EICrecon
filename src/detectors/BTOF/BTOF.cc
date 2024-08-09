@@ -35,7 +35,7 @@ void InitPlugin(JApplication *app) {
         },
         {
           "TOFBarrelRawHit",
-          "TOFBarrelHitAssociations"
+          "TOFBarrelRawHitAssociations"
         },
         {
             .threshold = 6.0 * dd4hep::keV,
