@@ -61,19 +61,19 @@ void InitPlugin(JApplication *app) {
     };
 
     // Filter out collections that are not present in the current configuration
-    std::vector<std::string> input_collections;
+    std::vector<std::string> input_rec_collections;
     auto readouts = app->GetService<DD4hep_service>()->detector()->readouts();
     for (const auto& [hit_collection, rec_collection] : possible_collections) {
       if (readouts.find(hit_collection) != readouts.end()) {
         // Add the collection to the list of input collections
-        input_collections.push_back(rec_collection);
+        input_rec_collections.push_back(rec_collection);
       }
     }
 
     // Tracker hits collector
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
         "CentralTrackingRecHits",
-        input_collections,
+        input_rec_collections,
         {"CentralTrackingRecHits"}, // Output collection name
         app));
 
@@ -255,8 +255,8 @@ void InitPlugin(JApplication *app) {
 
 
     std::vector<std::string> input_track_collections;
-    //Check size of input_collections to determine if CentralCKFTracks should be added to the input_track_collections
-    if (input_collections.size() > 0) {
+    //Check size of input_rec_collections to determine if CentralCKFTracks should be added to the input_track_collections
+    if (input_rec_collections.size() > 0) {
         input_track_collections.push_back("CentralCKFTracks");
     }
     //Check if the TaggerTracker readout is present in the current configuration
