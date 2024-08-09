@@ -8,6 +8,7 @@
 #include <Acts/EventData/TrackStateType.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
@@ -147,6 +148,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       );
       track.setTrajectory(trajectory);           // Trajectory of this track
 
+      // Determine track association with MCParticle, weighted by number of used measurements
+      std::map<edm4hep::MCParticle,double> mcparticle_weight_by_hit_count;
+
       // save measurement2d to good measurements or outliers according to srclink index
       // fix me: ideally, this should be integrated into multitrajectoryhelper
       // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
@@ -172,6 +176,21 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                     trajectory.addToMeasurements_deprecated(meas2D);
                     debug("Measurement on geo id={}, index={}, loc={},{}",
                           geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
+
+                    // Determine track associations if hit associations provided
+                    // FIXME: not able to check whether optional inputs were provided
+                    //if (raw_hit_assocs->has_value()) {
+                      for (auto& hit : meas2D.getHits()) {
+                        auto raw_hit = hit.getRawHit();
+                        for (const auto raw_hit_assoc : *raw_hit_assocs) {
+                          if (raw_hit_assoc.getRawHit() == raw_hit) {
+                            auto sim_hit = raw_hit_assoc.getSimHit();
+                            auto mc_particle = sim_hit.getMCParticle();
+                            mcparticle_weight_by_hit_count[mc_particle]++;
+                          }
+                        }
+                      }
+                    //}
 
                   }
                   else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
