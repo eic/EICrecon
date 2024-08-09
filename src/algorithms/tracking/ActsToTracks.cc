@@ -204,6 +204,22 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 
       });
 
+      // Store track associations if hit associations provided
+      // FIXME: not able to check whether optional inputs were provided
+      //if (raw_hit_assocs->has_value()) {
+        double total_weight = std::accumulate(
+          mcparticle_weight_by_hit_count.begin(), mcparticle_weight_by_hit_count.end(),
+          0, [](const double sum, const auto& i) { return sum + i.second; });
+        for (const auto& [mcparticle, weight] : mcparticle_weight_by_hit_count) {
+          auto track_assoc = tracks_assoc->create();
+          track_assoc.setRec(track);
+          track_assoc.setSim(mcparticle);
+          double normalized_weight = weight / total_weight;
+          track_assoc.setWeight(normalized_weight);
+          debug("track {}: mcparticle {} weight {}", track.id().index, mcparticle.id().index, normalized_weight);
+        }
+      //}
+
     }
   }
 }
