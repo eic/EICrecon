@@ -112,11 +112,13 @@ void InitPlugin(JApplication *app) {
         {
             "CentralTrackerMeasurements",
             "CentralCKFActsTrajectoriesUnfiltered",
+            "CentralTrackingRawHitAssociations",
         },
         {
             "CentralCKFTrajectoriesUnfiltered",
             "CentralCKFTrackParametersUnfiltered",
             "CentralCKFTracksUnfiltered",
+            "CentralCKFTrackUnfilteredAssociations",
         },
         app
     ));
@@ -139,11 +141,13 @@ void InitPlugin(JApplication *app) {
         {
             "CentralTrackerMeasurements",
             "CentralCKFActsTrajectories",
+            "CentralTrackingRawHitAssociations",
         },
         {
             "CentralCKFTrajectories",
             "CentralCKFTrackParameters",
             "CentralCKFTracks",
+            "CentralCKFTrackAssociations",
         },
         app
     ));
@@ -174,11 +178,13 @@ void InitPlugin(JApplication *app) {
         {
             "CentralTrackerMeasurements",
             "CentralCKFSeededActsTrajectoriesUnfiltered",
+            "CentralTrackingRawHitAssociations",
         },
         {
             "CentralCKFSeededTrajectoriesUnfiltered",
             "CentralCKFSeededTrackParametersUnfiltered",
             "CentralCKFSeededTracksUnfiltered",
+            "CentralCKFSeededTrackUnfilteredAssociations",
         },
         app
     ));
@@ -201,11 +207,13 @@ void InitPlugin(JApplication *app) {
         {
             "CentralTrackerMeasurements",
             "CentralCKFSeededActsTrajectories",
+            "CentralTrackingRawHitAssociations",
         },
         {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTrackParameters",
             "CentralCKFSeededTracks",
+            "CentralCKFSeededTrackAssociations",
         },
         app
     ));
