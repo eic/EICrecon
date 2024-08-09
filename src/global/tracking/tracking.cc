@@ -3,6 +3,7 @@
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <algorithm>
@@ -77,6 +78,13 @@ void InitPlugin(JApplication *app) {
         "CentralTrackingRecHits",
         input_rec_collections,
         {"CentralTrackingRecHits"}, // Output collection name
+        app));
+
+    // Tracker hit associations collector
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation>>(
+        "CentralTrackingRawHitAssociations",
+        input_raw_assoc_collections,
+        {"CentralTrackingRawHitAssociations"}, // Output collection name
         app));
 
     app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
