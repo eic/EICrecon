@@ -5,6 +5,8 @@
 
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/algorithm.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
@@ -17,13 +19,36 @@ namespace eicrecon {
 
 using ActsToTracksAlgorithm =
     algorithms::Algorithm<
-      algorithms::Input<edm4eic::Measurement2DCollection, std::vector<ActsExamples::Trajectories>>,
-      algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection, edm4eic::TrackCollection>
+      algorithms::Input<
+        edm4eic::Measurement2DCollection,
+        std::vector<ActsExamples::Trajectories>,
+        std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>
+      >,
+      algorithms::Output<
+        edm4eic::TrajectoryCollection,
+        edm4eic::TrackParametersCollection,
+        edm4eic::TrackCollection,
+        std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>
+      >
     >;
 
 class ActsToTracks : public ActsToTracksAlgorithm {
 public:
-    ActsToTracks(std::string_view name) : ActsToTracksAlgorithm{name, {"inputActsTrajectories", "inputActsConstTrackContainer"}, {"outputTrajectoryCollection", "outputTrackParametersCollection", "outputTrackCollection"}, "Converts ACTS trajectories to EDM4eic"} {};
+    ActsToTracks(std::string_view name)
+    : ActsToTracksAlgorithm{
+        name,
+        {
+          "inputMeasurements",
+          "inputActsTrajectories",
+          "inputRawTrackerHitAssociations",
+        },
+        {
+          "outputTrajectories",
+          "outputTrackParameters",
+          "outputTracks",
+          "outputTrackAssociations",
+        },
+        "Converts ACTS trajectories to EDM4eic"} {};
 
     void init() final;
     void process(const Input&, const Output&) const final;

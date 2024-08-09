@@ -42,8 +42,8 @@ void ActsToTracks::init() {
 }
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
-  const auto [meas2Ds, acts_trajectories] = input;
-  auto  [trajectories, track_parameters, tracks] = output;
+  const auto [meas2Ds, acts_trajectories, raw_hit_assocs] = input;
+  auto  [trajectories, track_parameters, tracks, tracks_assoc] = output;
 
   // Loop over trajectories
   for (const auto traj : acts_trajectories) {
