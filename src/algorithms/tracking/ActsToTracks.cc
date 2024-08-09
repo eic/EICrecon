@@ -8,6 +8,7 @@
 #include <Acts/EventData/TrackStateType.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
@@ -180,6 +181,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                     // Determine track associations if hit associations provided
                     // FIXME: not able to check whether optional inputs were provided
                     //if (raw_hit_assocs->has_value()) {
+                    #if EDM4EIC_VERSION_MAJOR >= 7
                       for (auto& hit : meas2D.getHits()) {
                         auto raw_hit = hit.getRawHit();
                         for (const auto raw_hit_assoc : *raw_hit_assocs) {
@@ -190,6 +192,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                           }
                         }
                       }
+                    #endif
                     //}
 
                   }
