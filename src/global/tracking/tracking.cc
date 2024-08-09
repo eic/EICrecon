@@ -53,7 +53,7 @@ void InitPlugin(JApplication *app) {
         {"TOFBarrelHits", "TOFBarrelRecHit"},
         {"TOFEndcapHits", "TOFEndcapRecHits"},
         {"MPGDBarrelHits", "MPGDBarrelRecHits"},
-        {"MPDGDIRCHits", "MPDGDIRCRecHits"},
+        {"MPGDDIRCHits", "MPGDDIRCRecHits"},
         {"OuterMPGDBarrelHits", "OuterMPGDBarrelRecHits"},
         {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRecHits"},
         {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRecHits"},
