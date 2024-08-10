@@ -14,12 +14,16 @@
 #include <algorithms/calorimetry/ProtoClusterMergerConfig.h>
 #include <algorithms/interfaces/WithPodConfig.h>
 
+#include <edm4eic/ProtoCluster.h>
 #include <edm4eic/ProtoClusterCollection.h>
+
+#include <edm4hep/Vector3f.h>
 
 #include <spdlog/spdlog.h>
 
 
 namespace eicrecon {
+
 
     class ProtoClusterMerger : public WithPodConfig<ProtoClusterMergerConfig> {
     public:
@@ -30,7 +34,19 @@ namespace eicrecon {
         );
 
     private:
+        // Members
         std::shared_ptr<spdlog::logger> m_log;
+
+        // Methods
+        float get_cluster_energy(const edm4eic::ProtoCluster &clust);
+        edm4hep::Vector3f get_cluster_position(const edm4eic::ProtoCluster &clust);
+        void vacuum(std::unique_ptr<edm4eic::ProtoClusterCollection> &output,
+                    const edm4eic::ProtoClusterCollection *collection_a,
+                    const edm4eic::ProtoClusterCollection *collection_b);
+
+        void merge_by_eta_phi(std::unique_ptr<edm4eic::ProtoClusterCollection> &output,
+                    const edm4eic::ProtoClusterCollection *collection_a,
+                    const edm4eic::ProtoClusterCollection *collection_b);
 
     };
 } // namespace eicrecon
