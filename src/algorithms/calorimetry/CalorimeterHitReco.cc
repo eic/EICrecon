@@ -21,6 +21,7 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
@@ -172,6 +173,11 @@ void CalorimeterHitReco::process(
             continue;
         }
 
+        if (rh.getAmplitude() > m_cfg.capADC) {
+            error("Encountered hit with amplitude {} outside of ADC capacity {}", rh.getAmplitude(), m_cfg.capADC);
+            continue;
+        }
+
         // get layer and sector ID
         const int lid =
                 id_dec != nullptr && !m_cfg.layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
@@ -265,6 +271,9 @@ void CalorimeterHitReco::process(
         const decltype(edm4eic::CalorimeterHitData::local) local_position(pos.x() / dd4hep::mm, pos.y() / dd4hep::mm,
                                                                        pos.z() / dd4hep::mm);
 
+#if EDM4EIC_VERSION_MAJOR >= 7
+        auto recohit =
+#endif
         recohits->create(
             rh.getCellID(),
             energy,
@@ -276,6 +285,9 @@ void CalorimeterHitReco::process(
             sid,
             lid,
             local_position);
+#if EDM4EIC_VERSION_MAJOR >= 7
+        recohit.setRawHit(rh);
+#endif
     }
 }
 

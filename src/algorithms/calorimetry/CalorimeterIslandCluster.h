@@ -67,6 +67,9 @@ namespace eicrecon {
     // helper function to group hits
     std::function<bool(const CaloHit &h1, const CaloHit &h2)> is_neighbour;
 
+    // helper function to define hit maximum
+    std::function<bool(const CaloHit &maximum, const CaloHit &other)> is_maximum_neighbourhood;
+
     // unitless counterparts of the input parameters
     std::array<double, 2> neighbourDist;
 
@@ -74,8 +77,6 @@ namespace eicrecon {
     dd4hep::IDDescriptor m_idSpec;
 
   private:
-
-    static unsigned int function_id;
 
     // grouping function with Breadth-First Search
     void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
@@ -140,7 +141,7 @@ namespace eicrecon {
           continue;
         }
 
-        if (is_neighbour(hits[idx1], hits[idx2]) && (hits[idx2].getEnergy() > hits[idx1].getEnergy())) {
+        if (is_maximum_neighbourhood(hits[idx1], hits[idx2]) && (hits[idx2].getEnergy() > hits[idx1].getEnergy())) {
           maximum = false;
           break;
         }
