@@ -117,7 +117,7 @@ namespace eicrecon {
       // get eta, phi of seed
       const auto  posSeed = get_cluster_position(clustSeed);
       const float etaSeed = edm4hep::utils::eta(posSeed);
-      const float phiSeed = std::atan2(posSeed.y, posSeed.x);
+      const float phiSeed = edm4hep::utils::angleAzimuthal(posSeed);
 
       // loop over other clusters
       float eClustSum = eClustSeed;
@@ -138,7 +138,7 @@ namespace eicrecon {
         // get eta, phi of cluster
         const auto  posClust = get_cluster_position(in_cluster);
         const float etaClust = edm4hep::utils::eta(posClust);
-        const float phiClust = std::atan2(posClust.y, posClust.x);
+        const float phiClust = edm4hep::utils::angleAzimuthal(posClust);
 
         // get distance to seed
         const float drToSeed = std::hypot(
@@ -294,7 +294,7 @@ namespace eicrecon {
 
       // get eta, phi of projection
       const float etaProj = edm4hep::utils::eta(project.position);
-      const float phiProj = atan2(project.position.y, project.position.x);
+      const float phiProj = edm4hep::utils::angleAzimuthal(project.position);
 
       // find closest cluster
       bool  foundMatch = false;
@@ -305,7 +305,7 @@ namespace eicrecon {
         // get eta, phi of cluster
         const auto  posClust = get_cluster_position(cluster);
         const float etaClust = edm4hep::utils::eta(posClust);
-        const float phiClust = std::atan2(posClust.y, posClust.x);
+        const float phiClust = edm4hep::utils::angleAzimuthal(posClust);
 
         // calculate distance to centroid
         const float dist = std::hypot(
@@ -346,7 +346,7 @@ namespace eicrecon {
 
     // get track eta, phi
     const float etaTrk = edm4hep::utils::eta(matched_trk.position);
-    const float phiTrk = atan2(matched_trk.position.y, matched_trk.position.x);
+    const float phiTrk = edm4hep::utils::angleAzimuthal(matched_trk.position);
 
     // grab hits from each cluster to merge
     float eTotal = 0.;
@@ -357,7 +357,7 @@ namespace eicrecon {
 
         // get hit eta, phi
         const float etaHit = edm4hep::utils::eta(hit.getPosition());
-        const float phiHit = std::atan2(hit.getPosition().y, hit.getPosition().x);
+        const float phiHit = edm4hep::utils::angleAzimuthal(hit.getPosition());
 
         // get distance to track
         const float dist = std::hypot(
