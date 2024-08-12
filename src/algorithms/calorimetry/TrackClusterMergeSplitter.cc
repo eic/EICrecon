@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Derek Anderson
 
-#define EICRECON_TRACKCLUSTERMERGESPLITTER_CC
-
 #include <cmath>
 #include <regex>
 #include <utility>
