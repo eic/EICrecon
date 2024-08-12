@@ -5,10 +5,9 @@
 #include <regex>
 #include <utility>
 #include <algorithm>
+#include <stdexcept>
 // dd4hep utilities
 #include <DD4hep/Readout.h>
-// jana utilities
-#include <JANA/JException.h>
 // edm4hep types
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -53,7 +52,7 @@ namespace eicrecon {
 
     // exit if no clusters in collection
     if (in_protoclusters -> size() == 0) {
-      throw JException("No proto-clusters in input collection!");
+      throw std::runtime_error("No proto-clusters in input collection!");
     }
 
     // reset bookkeeping containers
