@@ -294,9 +294,9 @@ namespace eicrecon {
       const float phiProj = edm4hep::utils::angleAzimuthal(project.position);
 
       // find closest cluster
-      bool  foundMatch = false;
-      float dMatch = std::numeric_limits<float>::max();
-      int   iMatch = std::numeric_limits<int>::max();
+      bool foundMatch = false;
+      float dMatch;
+      int iMatch;
       for (auto cluster : *clusters) {
 
         // get eta, phi of cluster
