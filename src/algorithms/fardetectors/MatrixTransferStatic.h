@@ -22,6 +22,7 @@ namespace eicrecon {
   using MatrixTransferStaticAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4hep::MCParticleCollection,
+      edm4hep::MCParticleCollection,
       edm4eic::TrackerHitCollection
     >,
     algorithms::Output<
@@ -41,11 +42,24 @@ namespace eicrecon {
                             "Apply matrix method reconstruction to hits."} {}
 
     void init() final;
-    void process(const Input&, const Output&) const final;
+    void process(const Input&, const Output&);
+    bool initalizeMatrix(const edm4hep::MCParticleCollection&);
 
   private:
     const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
     const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
+    std::once_flag m_initBeamE;
+    bool m_initialized{false};
+    double m_nomMomentum{0.0};
+    double m_local_x_offset{0.0};
+    double m_local_y_offset{0.0};
+    double m_local_x_slope_offset{0.0};
+    double m_local_y_slope_offset{0.0};
+
+    double m_aXinv[2][2] = {{0.0, 0.0},
+                           {0.0, 0.0}};
+    double m_aYinv[2][2] = {{0.0, 0.0},
+                           {0.0, 0.0}};
 
   };
 }

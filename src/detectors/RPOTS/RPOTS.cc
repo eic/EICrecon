@@ -68,7 +68,13 @@ void InitPlugin(JApplication *app) {
 
     recon_cfg.readout              = "ForwardRomanPotRecHits";
 
-    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardRomanPotRecParticles",{"MCParticles","ForwardRomanPotRecHits"},{"ForwardRomanPotRecParticles"},recon_cfg,app));
+    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
+        "ForwardRomanPotRecParticles",
+        {"MCBeamProtons","MCScatteredProtons","ForwardRomanPotRecHits"},
+        {"ForwardRomanPotRecParticles"},
+        recon_cfg,
+        app
+    ));
 
 }
 }
