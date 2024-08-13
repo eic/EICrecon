@@ -27,7 +27,7 @@ void eicrecon::MatrixTransferStatic::init() {
   m_local_y_offset        = m_cfg.local_y_offset;
   m_local_x_slope_offset  = m_cfg.local_x_slope_offset;
   m_local_y_slope_offset  = m_cfg.local_y_slope_offset;
-  
+
 }
 
 void eicrecon::MatrixTransferStatic::process(
