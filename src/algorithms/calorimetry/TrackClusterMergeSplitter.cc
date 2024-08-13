@@ -347,8 +347,6 @@ namespace eicrecon {
 
     // grab hits from each cluster to merge
     float eTotal = 0.;
-    float tClust = std::numeric_limits<float>::max();
-    float tErrClust = std::numeric_limits<float>::max();
     for (auto old_clust : to_merge) {
       for (auto hit : old_clust.getHits()) {
 
