@@ -221,7 +221,7 @@ namespace eicrecon {
   void TrackClusterMergeSplitter::get_projections(
     const edm4eic::TrackSegmentCollection* projections,
     const edm4eic::CalorimeterHit& hit,
-    VecTrkPoint& relevant_projects 
+    VecTrkPoint& relevant_projects
   ) const {
 
     // return if projections are empty
