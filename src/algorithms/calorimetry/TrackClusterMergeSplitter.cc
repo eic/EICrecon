@@ -140,7 +140,7 @@ namespace eicrecon {
         // get distance to seed
         const float drToSeed = std::hypot(
           etaSeed - etaClust,
-          phiSeed - phiClust
+          std::remainder(phiSeed - phiClust, 2. * M_PI)
         );
 
         // skip if outside window
@@ -307,7 +307,7 @@ namespace eicrecon {
         // calculate distance to centroid
         const float dist = std::hypot(
           etaProj - etaClust,
-          phiProj - phiClust
+          std::remainder(phiProj - phiClust, 2. * M_PI)
         );
 
         // if closer, set match to current projection
@@ -357,7 +357,7 @@ namespace eicrecon {
         // get distance to track
         const float dist = std::hypot(
           etaHit - etaTrk,
-          phiHit - phiTrk
+          std::remainder(phiHit - phiTrk, 2. * M_PI)
         );
 
         // recalculate weighted energy wrt track
