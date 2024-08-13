@@ -61,7 +61,7 @@ void eicrecon::MatrixTransferStatic::process(
     debug("No valid matrix can be identified for reconstruction");
     return;
   }
-  
+
   //---- begin Reconstruction code ----
 
   edm4hep::Vector3f goodHit[2] = {{0.0,0.0,0.0},{0.0,0.0,0.0}};
@@ -231,7 +231,7 @@ bool eicrecon::MatrixTransferStatic::initalizeMatrix(const edm4hep::MCParticleCo
     m_local_y_offset       = -0.00028343;
     m_local_x_slope_offset = -0.218525084;
     m_local_y_slope_offset = -0.00015321;
-    
+
     m_nomMomentum = 100.0;
 
   }
