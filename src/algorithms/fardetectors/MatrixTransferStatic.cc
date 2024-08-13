@@ -106,8 +106,8 @@ void eicrecon::MatrixTransferStatic::process(
 
     // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
     // trajectory
-    double XL[2] = {goodHit[0].x - local_x_offset, goodHit[1].x - local_x_offset};
-    double YL[2] = {goodHit[0].y - local_y_offset, goodHit[1].y - local_y_offset};
+    double XL[2] = {goodHit[0].x - m_local_x_offset, goodHit[1].x - m_local_x_offset};
+    double YL[2] = {goodHit[0].y - m_local_y_offset, goodHit[1].y - m_local_y_offset};
 
     double base = goodHit[1].z - goodHit[0].z;
 
@@ -117,9 +117,9 @@ void eicrecon::MatrixTransferStatic::process(
     else{
 
       double Xip[2] = {0.0, 0.0};
-      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - local_x_slope_offset};
+      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - m_local_x_slope_offset};
       double Yip[2] = {0.0, 0.0};
-      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - local_y_slope_offset};
+      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - m_local_y_slope_offset};
 
       // use the hit information and calculated slope at the RP + the transfer matrix inverse to calculate the
       // Polar Angle and deltaP at the IP
