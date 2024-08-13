@@ -22,6 +22,12 @@
 
 void eicrecon::MatrixTransferStatic::init() {
 
+  m_nomMomentum           = m_cfg.nomMomentum; //extract the nominal value first -- will be overwritten by MCParticle
+  m_local_x_offset        = m_cfg.local_x_offset;
+  m_local_y_offset        = m_cfg.local_y_offset;
+  m_local_x_slope_offset  = m_cfg.local_x_slope_offset;
+  m_local_y_slope_offset  = m_cfg.local_y_slope_offset;
+  
 }
 
 void eicrecon::MatrixTransferStatic::process(
@@ -30,24 +36,6 @@ void eicrecon::MatrixTransferStatic::process(
 
   const auto [beamP,scatP,rechits] = input;
   auto [outputParticles] = output;
-
-  std::vector<std::vector<double>> aX(m_cfg.aX);
-  std::vector<std::vector<double>> aY(m_cfg.aY);
-
-  //----- Define constants here ------
-  double m_aXinv[2][2] = {{0.0, 0.0},
-                        {0.0, 0.0}};
-  double m_aYinv[2][2] = {{0.0, 0.0},
-                        {0.0, 0.0}};
-
-  double nomMomentum           = m_cfg.nomMomentum; //extract the nominal value first -- will be overwritten by MCParticle
-  double local_x_offset        = m_cfg.local_x_offset;
-  double local_y_offset        = m_cfg.local_y_offset;
-  double local_x_slope_offset  = m_cfg.local_x_slope_offset;
-  double local_y_slope_offset  = m_cfg.local_y_slope_offset;
-
-  double numBeamProtons = 0;
-  double runningMomentum = 0.0;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
   std::call_once(m_initBeamE,[&](){
