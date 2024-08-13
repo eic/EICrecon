@@ -84,9 +84,8 @@ namespace eicrecon {
     private:
 
       // private methods
-      void reset_bookkeepers() const;
-      void get_projections(const edm4eic::TrackSegmentCollection* projections, const edm4eic::CalorimeterHit& cluster) const;
-      void match_clusters_to_tracks(const edm4eic::ProtoClusterCollection* clusters) const;
+      void get_projections(const edm4eic::TrackSegmentCollection* projections, const edm4eic::CalorimeterHit& cluster, VecTrkPoint& relevant_projects) const;
+      void match_clusters_to_tracks(const edm4eic::ProtoClusterCollection* clusters, const VecTrkPoint& projections, MapOneToOne& matches) const;
       void merge_clusters(const edm4eic::TrackPoint& matched_trk, const VecCluster& to_merge, edm4eic::MutableProtoCluster& merged_clust) const;
       void copy_cluster(const edm4eic::ProtoCluster& old_clust, edm4eic::MutableProtoCluster& new_clust) const;
       float get_cluster_energy(const edm4eic::ProtoCluster& clust) const;
@@ -95,14 +94,6 @@ namespace eicrecon {
       // additional services
       const dd4hep::Detector* m_detector {NULL};
       const dd4hep::rec::CellIDPositionConverter* m_converter {NULL};
-
-      // bookkeeping members
-      mutable MapToFlag m_mapIsConsumed;
-      mutable MapOneToOne m_mapClustProject;
-      mutable MapOneToMany m_mapClustToMerge;
-      mutable MapOneToMany m_mapProjToMerge;
-      mutable VecTrkPoint m_vecProject;
-      mutable VecCluster m_vecClust;
 
   };  // end TrackClusterMergeSplitter
 
