@@ -59,7 +59,7 @@ namespace eicrecon {
     if(!m_initialized){
       debug("Initialization did not complete");
       return;
-    }    
+    }
 
     //Set beam energy from first MCBeamElectron, using std::call_once
     std::call_once(m_initBeamE,[&](){
