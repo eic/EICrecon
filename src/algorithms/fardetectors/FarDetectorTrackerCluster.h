@@ -62,6 +62,7 @@ private:
   const dd4hep::BitFieldCoder* m_id_dec{nullptr};
   const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
   dd4hep::Segmentation m_seg;
+  bool m_initialized{false};
 
   int m_x_idx{0};
   int m_y_idx{0};

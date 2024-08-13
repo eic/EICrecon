@@ -32,10 +32,10 @@ namespace eicrecon {
 
     // Locate and load the weight file
     // TODO - Add functionality to select passed by configuration
-    bool methodFound = false;
     if(!m_cfg.modelPath.empty()){
       try{
         m_method = dynamic_cast<TMVA::MethodBase*>(m_reader->BookMVA( m_cfg.methodName, m_cfg.modelPath ));
+        m_initialized = true;
       }
       catch(std::exception &e){
         error(fmt::format("Failed to load method {} from file {}: {}", m_cfg.methodName, m_cfg.modelPath, e.what()));
@@ -54,6 +54,12 @@ namespace eicrecon {
 
     const auto [inputTracks,beamElectrons] = input;
     auto [outputFarDetectorMLTrajectories, outputFarDetectorMLTrackParameters, outputFarDetectorMLTracks] = output;
+
+    // Check if the algorithm has been initialized properly
+    if(!m_initialized){
+      debug("Initialization did not complete");
+      return;
+    }    
 
     //Set beam energy from first MCBeamElectron, using std::call_once
     std::call_once(m_initBeamE,[&](){
