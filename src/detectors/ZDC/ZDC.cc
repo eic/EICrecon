@@ -64,7 +64,6 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = true,
             .minClusterHitEdep = 0.1 * dd4hep::MeV,
             .minClusterCenterEdep = 3.0 * dd4hep::MeV,
@@ -211,7 +210,6 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = true,
             .minClusterHitEdep = 0.1 * dd4hep::MeV,
             .minClusterCenterEdep = 3.0 * dd4hep::MeV,
