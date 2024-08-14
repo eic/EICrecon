@@ -3,6 +3,7 @@
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <algorithm>
@@ -10,7 +11,7 @@
 #include <map>
 #include <memory>
 #include <string>
-#include <utility>
+#include <tuple>
 #include <vector>
 
 #include "ActsToTracks.h"
@@ -46,35 +47,44 @@ void InitPlugin(JApplication *app) {
             ));
 
     // Possible collections from arches, brycecanyon and craterlake configurations
-    std::vector<std::pair<std::string, std::string>> possible_collections = {
-        {"SiBarrelHits", "SiBarrelTrackerRecHits"},
-        {"VertexBarrelHits", "SiBarrelVertexRecHits"},
-        {"TrackerEndcapHits", "SiEndcapTrackerRecHits"},
-        {"TOFBarrelHits", "TOFBarrelRecHit"},
-        {"TOFEndcapHits", "TOFEndcapRecHits"},
-        {"MPGDBarrelHits", "MPGDBarrelRecHits"},
-        {"MPGDDIRCHits", "MPGDDIRCRecHits"},
-        {"OuterMPGDBarrelHits", "OuterMPGDBarrelRecHits"},
-        {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRecHits"},
-        {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRecHits"},
-        {"B0TrackerHits", "B0TrackerRecHits"}
+    std::vector<std::tuple<std::string, std::string, std::string, std::string>> possible_collections = {
+        {"SiBarrelHits", "SiBarrelRawHits", "SiBarrelRawHitAssociations", "SiBarrelTrackerRecHits"},
+        {"VertexBarrelHits", "SiBarrelVertexRawHits", "SiBarrelVertexRawHitAssociations", "SiBarrelVertexRecHits"},
+        {"TrackerEndcapHits", "SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitAssociations", "SiEndcapTrackerRecHits"},
+        {"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelRecHit"},
+        {"TOFEndcapHits", "TOFEndcapRawHits", "TOFEndcapRawHitAssociations", "TOFEndcapRecHits"},
+        {"MPGDBarrelHits", "MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations", "MPGDBarrelRecHits"},
+        {"MPGDDIRCHits", "MPGDDIRCRawHits", "MPGDDIRCRawHitAssociations", "MPGDDIRCRecHits"},
+        {"OuterMPGDBarrelHits", "OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations", "OuterMPGDBarrelRecHits"},
+        {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRawHits", "BackwardMPGDEndcapRawHitAssociations", "BackwardMPGDEndcapRecHits"},
+        {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHitAssociations", "ForwardMPGDEndcapRecHits"},
+        {"B0TrackerHits", "B0TrackerRawHits", "B0TrackerRawHitAssociations", "B0TrackerRecHits"}
     };
 
     // Filter out collections that are not present in the current configuration
-    std::vector<std::string> input_collections;
+    std::vector<std::string> input_rec_collections;
+    std::vector<std::string> input_raw_assoc_collections;
     auto readouts = app->GetService<DD4hep_service>()->detector()->readouts();
-    for (const auto& [hit_collection, rec_collection] : possible_collections) {
+    for (const auto& [hit_collection, raw_collection, raw_assoc_collection, rec_collection] : possible_collections) {
       if (readouts.find(hit_collection) != readouts.end()) {
         // Add the collection to the list of input collections
-        input_collections.push_back(rec_collection);
+        input_rec_collections.push_back(rec_collection);
+        input_raw_assoc_collections.push_back(raw_assoc_collection);
       }
     }
 
     // Tracker hits collector
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
         "CentralTrackingRecHits",
-        input_collections,
+        input_rec_collections,
         {"CentralTrackingRecHits"}, // Output collection name
+        app));
+
+    // Tracker hit associations collector
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation>>(
+        "CentralTrackingRawHitAssociations",
+        input_raw_assoc_collections,
+        {"CentralTrackingRawHitAssociations"}, // Output collection name
         app));
 
     app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
@@ -102,11 +112,13 @@ void InitPlugin(JApplication *app) {
         {
             "CentralTrackerMeasurements",
             "CentralCKFActsTrajectoriesUnfiltered",
+            "CentralTrackingRawHitAssociations",
         },
         {
             "CentralCKFTrajectoriesUnfiltered",
             "CentralCKFTrackParametersUnfiltered",
             "CentralCKFTracksUnfiltered",
+            "CentralCKFTrackUnfilteredAssociations",
         },
         app
     ));
@@ -129,11 +141,13 @@ void InitPlugin(JApplication *app) {
         {
             "CentralTrackerMeasurements",
             "CentralCKFActsTrajectories",
+            "CentralTrackingRawHitAssociations",
         },
         {
             "CentralCKFTrajectories",
             "CentralCKFTrackParameters",
             "CentralCKFTracks",
+            "CentralCKFTrackAssociations",
         },
         app
     ));
@@ -164,11 +178,13 @@ void InitPlugin(JApplication *app) {
         {
             "CentralTrackerMeasurements",
             "CentralCKFSeededActsTrajectoriesUnfiltered",
+            "CentralTrackingRawHitAssociations",
         },
         {
             "CentralCKFSeededTrajectoriesUnfiltered",
             "CentralCKFSeededTrackParametersUnfiltered",
             "CentralCKFSeededTracksUnfiltered",
+            "CentralCKFSeededTrackUnfilteredAssociations",
         },
         app
     ));
@@ -191,11 +207,13 @@ void InitPlugin(JApplication *app) {
         {
             "CentralTrackerMeasurements",
             "CentralCKFSeededActsTrajectories",
+            "CentralTrackingRawHitAssociations",
         },
         {
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTrackParameters",
             "CentralCKFSeededTracks",
+            "CentralCKFSeededTrackAssociations",
         },
         app
     ));
@@ -255,8 +273,8 @@ void InitPlugin(JApplication *app) {
 
 
     std::vector<std::string> input_track_collections;
-    //Check size of input_collections to determine if CentralCKFTracks should be added to the input_track_collections
-    if (input_collections.size() > 0) {
+    //Check size of input_rec_collections to determine if CentralCKFTracks should be added to the input_track_collections
+    if (input_rec_collections.size() > 0) {
         input_track_collections.push_back("CentralCKFTracks");
     }
     //Check if the TaggerTracker readout is present in the current configuration
