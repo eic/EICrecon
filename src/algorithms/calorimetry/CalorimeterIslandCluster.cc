@@ -109,7 +109,7 @@ void CalorimeterIslandCluster::init() {
       return true;
     };
 
-    std::map<std::string, std::vector<double>> uprops{
+    std::vector<std::pair<std::string, std::vector<double>>> uprops{
             {"localDistXY", m_cfg.localDistXY},
             {"localDistXZ", m_cfg.localDistXZ},
             {"localDistYZ", m_cfg.localDistYZ},
