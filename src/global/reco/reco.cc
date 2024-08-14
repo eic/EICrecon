@@ -5,6 +5,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/Cluster.h>
+#include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
@@ -46,6 +47,8 @@
 #include "global/reco/ReconstructedElectrons_factory.h"
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "global/reco/ScatteredElectronsTruth_factory.h"
+
+#include "factories/calorimetry/CrossCaloClusterMerger_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -369,6 +372,19 @@ void InitPlugin(JApplication *app) {
               .m_pid_use_MC_truth = true,
             },
             app
+    ));
+
+    // Testing cross calorimeter cluster merging
+    app->Add(new JOmniFactoryGeneratorT<CrossCaloClusterMerger_factory>(
+             "BarrelMergedClusters",
+             {
+              "EcalBarrelClusters",
+              "HcalBarrelClusters"              
+             },
+             {
+              "BarrelMergedClusters"
+             },
+             app
     ));
 
 

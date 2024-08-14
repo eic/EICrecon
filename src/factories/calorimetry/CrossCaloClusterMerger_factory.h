@@ -3,9 +3,11 @@
 
 #pragma once
 
-#include <algorithms/calorimetry/ProtoClusterMerger.h>
-#include <algorithms/calorimetry/ProtoClusterMergerConfig.h>
+#include <algorithms/calorimetry/CrossCaloClusterMerger.h>
+#include <algorithms/calorimetry/CrossCaloClusterMergerConfig.h>
 
+#include <edm4eic/Cluster.h>
+#include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 
 #include <extensions/jana/JOmniFactory.h>
@@ -15,13 +17,12 @@
 
 
 namespace eicrecon {
-    class ProtoClusterMerger_factory : public JOmniFactory<ProtoClusterMerger_factory, ProtoClusterMergerConfig> {
+    class CrossCaloClusterMerger_factory : public JOmniFactory<CrossCaloClusterMerger_factory, CrossCaloClusterMergerConfig> {
     public:
-        using AlgoT = eicrecon::ProtoClusterMerger;
+        using AlgoT = eicrecon::CrossCaloClusterMerger;
     
         void Configure() {
-            m_algo = std::make_unique<AlgoT>(GetPrefix());
-            m_algo->level(static_cast<algorithms::LogLevel(logger()->level()));
+            m_algo = std::make_unique<AlgoT>();
             m_algo->init(logger());
             m_algo->applyConfig(config());
         }
@@ -36,10 +37,10 @@ namespace eicrecon {
     private:
         std::unique_ptr<AlgoT> m_algo;
 
-        PodioInput<edm4eic::ProtoClusterCollection> m_collection_a {this};
-        PodioInput<edm4eic::ProtoClusterCollection> m_collection_b {this};
+        PodioInput<edm4eic::Cluster> m_collection_a {this};
+        PodioInput<edm4eic::Cluster> m_collection_b {this};
 
-        PodioOutput<edm4eic::ProtoClusterCollection> m_output {this};
+        PodioOutput<edm4eic::Cluster> m_output {this};
     };
 
 }   // eicrecon

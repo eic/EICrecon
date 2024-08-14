@@ -3,10 +3,12 @@
 
 #include <list>
 
-#include <algorithms/calorimetry/ProtoClusterMerger.h>
-#include <algorithms/calorimetry/ProtoClusterMergerConfig.h>
+#include <algorithms/calorimetry/CrossCaloClusterMerger.h>
+#include <algorithms/calorimetry/CrossCaloClusterMergerConfig.h>
 
 #include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/Cluster.h>
+#include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ProtoCluster.h>
 #include <edm4eic/ProtoClusterCollection.h>
 
@@ -17,7 +19,7 @@
 
 
 namespace eicrecon {
-    float ProtoClusterMerger::get_cluster_energy(const edm4eic::ProtoCluster &clust) {
+    float CrossCaloClusterMerger::get_cluster_energy(const edm4eic::ProtoCluster &clust) {
         float energy = 0;
         for (auto hit : clust.getHits()) {
             energy += hit.getEnergy();
@@ -30,7 +32,7 @@ namespace eicrecon {
     // From Derek, this really should be centralized into some kind of edm4eic::utils
     // collection but this works temporarily
     // --------------------------------------------------------------------------
-    edm4hep::Vector3f ProtoClusterMerger::get_cluster_position(const edm4eic::ProtoCluster &clust) {
+    edm4hep::Vector3f CrossCaloClusterMerger::get_cluster_position(const edm4eic::ProtoCluster &clust) {
         // grab total energy
         const float eClust = get_cluster_energy(clust);
 
@@ -55,21 +57,22 @@ namespace eicrecon {
     return position / norm;
     } 
 
-    void ProtoClusterMerger::init(std::shared_ptr<spdlog::logger> &logger) {
+    void CrossCaloClusterMerger::init(std::shared_ptr<spdlog::logger> &logger) {
         m_log = logger;
     }
 
-    std::unique_ptr<edm4eic::ProtoClusterCollection> ProtoClusterMerger::execute (
-            const edm4eic::ProtoClusterCollection *collection_a,
-            const edm4eic::ProtoClusterCollection *collection_b
+    std::unique_ptr<edm4eic::ClusterCollection> CrossCaloClusterMerger::execute (
+            const edm4eic::ClusterCollection *collection_a,
+            const edm4eic::ClusterCollection *collection_b
         ) {
         
         // Define the output collection
-        auto merged_clusters = std::make_unique<edm4eic::ProtoClusterCollection>();
-        
+        auto merged_clusters = std::make_unique<edm4eic::ClusterCollection>();
+        m_log->trace("Running with scheme {}", m_cfg.merge_scheme);
         if (m_cfg.merge_scheme == 0) {
             // No mergeing clusters, just output a collection with all clusters
             // from both calorimeters (vacuum mode)
+            m_log->trace("Starting vacuum merge");
             vacuum(merged_clusters, collection_a, collection_b);
         }
         else if (m_cfg.merge_scheme == 1) {
@@ -80,17 +83,17 @@ namespace eicrecon {
     }
 
     // Create a collection including all the clusters from both collections, with no merging
-    void ProtoClusterMerger::vacuum(std::unique_ptr<edm4eic::ProtoClusterCollection> &output,
-                                    const edm4eic::ProtoClusterCollection *collection_a,
-                                    const edm4eic::ProtoClusterCollection *collection_b) {
+    void CrossCaloClusterMerger::vacuum(std::unique_ptr<edm4eic::ClusterCollection> &output,
+                                    const edm4eic::ClusterCollection *collection_a,
+                                    const edm4eic::ClusterCollection *collection_b) {
         // Since we aren't merging any clusters, the output collection can be made a subset 
         // collection (I think) containing no new items  TODO:  Test limits of subset collections
-        output->setSubsetCollection();
+        // output->setSubsetCollection();
         for (auto cluster : *collection_a) {
-            output->push_back(cluster);
+            output->push_back(cluster.clone());
         }
         for (auto cluster : *collection_b) {
-            output->push_back(cluster);
+            output->push_back(cluster.clone());
         }
     }
 
@@ -99,9 +102,9 @@ namespace eicrecon {
     // * Clusters are merged with equal weights, need to adjust for sampling fraction/energy
     // * Don't yet check which calorimeter hits are from -> can't select proper sampling fraction
     // * Is dR the right metric?  What about in the forward region
-    void ProtoClusterMerger::merge_by_eta_phi(std::unique_ptr<edm4eic::ProtoClusterCollection> &output,
-                                              const edm4eic::ProtoClusterCollection *collection_a,
-                                              const edm4eic::ProtoClusterCollection *collection_b) {
+    void CrossCaloClusterMerger::merge_by_eta_phi(std::unique_ptr<edm4eic::ClusterCollection> &output,
+                                              const edm4eic::ClusterCollection *collection_a,
+                                              const edm4eic::ClusterCollection *collection_b) {
         // Create a list of indices for collection B to track which are matched
         std::list<unsigned int> indices;
         for (uint i = 0; i < collection_b->size(); i++) {
@@ -110,10 +113,10 @@ namespace eicrecon {
         // For each cluster A, find the nearest cluster B
         for (auto first : *collection_a) {
             float closest = (m_cfg.barrel_merge_distance + 1) * (m_cfg.barrel_merge_distance + 1);
-            auto first_position = get_cluster_position(first);
+            auto first_position = first.getPosition();
             int closest_index = 0;
             for (auto i : indices) {
-                auto second_position = get_cluster_position(collection_b->at(i));
+                auto second_position = collection_b->at(i).getPosition();
                 float deta = edm4hep::utils::eta(first_position) - edm4hep::utils::eta(second_position);
                 float dphi = edm4hep::utils::angleBetween(edm4hep::utils::vectorTransverse(first_position), edm4hep::utils::vectorTransverse(second_position));
                 float dr = (deta * deta) + (dphi * dphi);
@@ -123,24 +126,25 @@ namespace eicrecon {
                 }
             }
             // If there is a cluster B within R of cluster A, merge them and add them to the output
+            m_log->trace("Closeset distance: {}", closest);
             if (closest < m_cfg.barrel_merge_distance) {
-                auto protocluster = output->create();
+                m_log->trace("Merging clusters!");
+                auto merged_cluster = output->create();
                 for (auto hit : first.getHits()) {
-                    protocluster.addToHits(hit);
+                    merged_cluster.addToHits(hit);
                 }
                 for (auto hit : collection_b->at(closest_index).getHits()) {
-                    protocluster.addToHits(hit);
+                    merged_cluster.addToHits(hit);
                 }
-                output->push_back(protocluster);
                 indices.erase(std::find(indices.begin(), indices.end(), closest_index));
             }
             else {  // Otherwise we add cluster A on its own to the final set of clusters
-                output->push_back(first);
+                output->push_back(first.clone());
             }
         }
         // Add the remaining, unmatched cluster B to the final set of clusters
         for (auto i : indices) {
-            output->push_back(collection_b->at(i));
+            output->push_back(collection_b->at(i).clone());
         }
     } 
 }
