@@ -18,7 +18,6 @@
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
-#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 
 extern "C" {
@@ -204,61 +203,6 @@ extern "C" {
           {
             "EcalBarrelTruthClusters",
             "EcalBarrelTruthClusterAssociations"
-          },
-          app   // TODO: Remove me once fixed
-        ));
-
-        app->Add(
-          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-            "EcalBarrelScFiSplitMergeProtoClusters",
-            {"EcalBarrelScFiProtoClusters",
-             "CalorimeterTrackProjections"},
-            {"EcalBarrelScFiSplitMergeProtoClusters"},
-            {
-              .minSigCut = -1,
-              .avgEP = 1.0,
-              .sigEP = 1.0,
-              .drAdd = 0.4,
-              .sampFrac = 1.0,
-              .distScale = 1.0
-            },
-            app   // TODO: remove me once fixed
-          )
-        );
-
-        app->Add(
-          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "EcalBarrelScFiSplitMergeClusters",
-            {"EcalBarrelScFiSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
-             "EcalBarrelScFiHits"},                          // edm4hep::SimCalorimeterHitCollection
-            {"EcalBarrelScFiSplitMergeClusters",             // edm4eic::Cluster
-             "EcalBarrelScFiSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-             {
-               .energyWeight = "log",
-               .sampFrac = 1.0,
-               .logWeightBase = 6.2,
-               .enableEtaBounds = false
-             },
-            app   // TODO: Remove me once fixed
-          )
-        );
-
-        app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
-          "EcalBarrelSplitMergeClusters",
-          {
-            "EcalBarrelScFiSplitMergeClusters",
-            "EcalBarrelScFiSplitMergeClusterAssociations",
-            "EcalBarrelImagingClusters",
-            "EcalBarrelImagingClusterAssociations"
-          },
-          {
-            "EcalBarrelSplitMergeClusters",
-            "EcalBarrelSplitMergeClusterAssociations"
-          },
-          {
-            .energyRelTolerance = 0.5,
-            .phiTolerance = 0.1,
-            .etaTolerance = 0.2,
           },
           app   // TODO: Remove me once fixed
         ));
