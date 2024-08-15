@@ -14,11 +14,14 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CalorimeterHitToTrackerHit_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
+#include "algorithms/meta/SubDivideFunctors.h"
 
 
 extern "C" {
@@ -155,8 +158,18 @@ extern "C" {
             .layerField = "layer",
             .sectorField = "sector",
           },
-           app   // TODO: Remove me once fixed
+          app   // TODO: Remove me once fixed
         ));
+        app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::CalorimeterHit>>(
+          "EcalBarrelImaging1stLayerRecHits", {"EcalBarrelImagingRecHits"}, {"EcalBarrelImaging1stLayerRecHits"},
+          {
+            .function = ValueSplit<&edm4eic::CalorimeterHit::getLayer>{{{1}}},
+          },
+          app));
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitToTrackerHit_factory>(
+          "EcalBarrelImagingTrackerRecHits", {"EcalBarrelImaging1stLayerRecHits"}, {"EcalBarrelImagingTrackerRecHits"},
+          app));
+
         app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
           "EcalBarrelImagingProtoClusters", {"EcalBarrelImagingRecHits"}, {"EcalBarrelImagingProtoClusters"},
           {
