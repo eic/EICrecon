@@ -127,6 +127,7 @@ extern "C" {
              "CalorimeterTrackProjections"},
             {"HcalEndcapNSplitMergeProtoClusters"},
             {
+              .idCalo = "HcalEndcapN_ID",
               .minSigCut = -2.0,
               .avgEP = 0.60,
               .sigEP = 0.40,

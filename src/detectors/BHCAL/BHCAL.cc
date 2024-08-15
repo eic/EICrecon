@@ -138,6 +138,7 @@ extern "C" {
              "CalorimeterTrackProjections"},
             {"HcalBarrelSplitMergeProtoClusters"},
             {
+              .idCalo = "HcalBarrel_ID",
               .minSigCut = -2.0,
               .avgEP = 0.50,
               .sigEP = 0.25,

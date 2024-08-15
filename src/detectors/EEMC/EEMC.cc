@@ -122,6 +122,7 @@ extern "C" {
              "CalorimeterTrackProjections"},
             {"EcalEndcapNSplitMergeProtoClusters"},
             {
+              .idCalo = "EcalEndcapN_ID",
               .minSigCut = -1,
               .avgEP = 1.0,
               .sigEP = 1.0,

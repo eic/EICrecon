@@ -26,13 +26,14 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Initialize algorithm
   // --------------------------------------------------------------------------
-  void TrackClusterMergeSplitter::init(
-    const dd4hep::Detector* detector,
-    const dd4hep::rec::CellIDPositionConverter* converter
-  ) {
+  void TrackClusterMergeSplitter::init(const dd4hep::Detector* detector) {
 
+    // initialize detector service
     m_detector = detector;
-    m_converter = converter;
+
+    // grab detector id
+    m_idCalo = m_detector -> constant<int>(m_cfg.idCalo);
+    debug("Collecting projections to detector with system id {}", m_idCalo);
 
   }  // end 'init(dd4hep::Detector*)'
 
@@ -230,24 +231,11 @@ namespace eicrecon {
       return;
     }
 
-    // get readout
-    auto readout = m_converter -> findReadout(
-      m_converter -> findDetElement(
-        m_converter -> position(hit.getCellID())
-      )
-    );
-
-    // grab detector id
-    const int id = m_detector -> constant<int>(
-      std::regex_replace(readout.name(), std::regex("Hits"), "_ID")
-    );
-    debug("Collecting projections to detector with system id {}", id);
-
     // collect projections
     for (auto project : *projections) {
       for (auto point : project.getPoints()) {
         if (
-          (point.system  == id) &&
+          (point.system  == m_idCalo) &&
           (point.surface == 1)
         ) {
           relevant_projects.push_back(point);

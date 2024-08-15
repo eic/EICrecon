@@ -13,7 +13,6 @@
 #include <string_view>
 // dd4hep utilities
 #include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
 // edm4eic types
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/ProtoClusterCollection.h>
@@ -78,7 +77,7 @@ namespace eicrecon {
         } {}
 
       // public methods
-      void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter);
+      void init(const dd4hep::Detector* detector);
       void process (const Input&, const Output&) const final;
 
     private:
@@ -93,7 +92,9 @@ namespace eicrecon {
 
       // additional services
       const dd4hep::Detector* m_detector {NULL};
-      const dd4hep::rec::CellIDPositionConverter* m_converter {NULL};
+
+      // calorimeter id
+      int m_idCalo {0};
 
   };  // end TrackClusterMergeSplitter
 

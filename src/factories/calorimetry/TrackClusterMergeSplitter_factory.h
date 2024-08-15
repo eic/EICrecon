@@ -3,9 +3,10 @@
 
 #pragma once
 
+// c++ utilities
+#include <string>
 // dd4hep utilities
 #include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
 // eicrecon components
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
@@ -33,6 +34,7 @@ namespace eicrecon {
       PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output {this};
 
       // parameter bindings
+      ParameterRef<std::string> m_idCalo {this, "idCalo", config().idCalo};
       ParameterRef<double> m_minSigCut {this, "minSigCut", config().minSigCut};
       ParameterRef<double> m_avgEP {this, "avgEP", config().avgEP};
       ParameterRef<double> m_sigEP {this, "sigEP", config().sigEP};
@@ -49,7 +51,7 @@ namespace eicrecon {
       void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
         m_algo -> applyConfig( config() );
-        m_algo -> init(m_geoSvc().detector(), m_geoSvc().converter());
+        m_algo -> init(m_geoSvc().detector());
       }
 
       void ChangeRun(int64_t run_number) {

@@ -3,9 +3,13 @@
 
 #pragma once
 
+#include <string>
+
 namespace eicrecon {
 
   struct TrackClusterMergeSplitterConfig {
+
+    std::string idCalo = "HcalBarrel_ID";  // id of calorimeter to match projections to
 
     double minSigCut = -1.;  // min significance
     double avgEP     = 1.0;  // mean E/p
