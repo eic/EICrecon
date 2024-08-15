@@ -257,8 +257,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalBarrelScFiRecHits",
             "EcalBarrelScFiClusters",
             "EcalBarrelScFiClusterAssociations",
-            "EcalBarrelScFiSplitMergeClusters",
-            "EcalBarrelScFiSplitMergeClusterAssociations",
             "EcalLumiSpecRawHits",
             "EcalLumiSpecRecHits",
             "EcalLumiSpecTruthClusters",
