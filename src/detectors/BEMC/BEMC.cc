@@ -5,9 +5,12 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <cmath>
+#include <edm4eic/CalorimeterHit.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <cmath>
+#include <map>
 #include <string>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
