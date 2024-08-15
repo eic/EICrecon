@@ -13,6 +13,7 @@
 #include <gsl/pointers>
 #include <string>
 #include <string_view>
+#include <Eigen/Dense>
 
 #include "MatrixTransferStaticConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -21,7 +22,6 @@ namespace eicrecon {
 
   using MatrixTransferStaticAlgorithm = algorithms::Algorithm<
     algorithms::Input<
-      edm4hep::MCParticleCollection,
       edm4hep::MCParticleCollection,
       edm4eic::TrackerHitCollection
     >,

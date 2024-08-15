@@ -69,7 +69,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
         "ForwardOffMRecParticles",
-        {"MCBeamProtons","MCScatteredProtons","ForwardOffMTrackerRecHits"},
+        {"MCParticles","ForwardOffMTrackerRecHits"},
         {"ForwardOffMRecParticles"},
         recon_cfg,
         app

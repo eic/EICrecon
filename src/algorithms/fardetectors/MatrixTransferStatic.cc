@@ -34,14 +34,13 @@ void eicrecon::MatrixTransferStatic::process(
     const MatrixTransferStatic::Input& input,
     const MatrixTransferStatic::Output& output) {
 
-  const auto [beamP,scatP,rechits] = input;
+  const auto [mcparts,rechits] = input;
   auto [outputParticles] = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
   std::call_once(m_initBeamE,[&](){
 
-    m_initialized = initalizeMatrix(*beamP);
-    if(!m_initialized) m_initialized = initalizeMatrix(*scatP);
+    m_initialized = initalizeMatrix(*mcparts);
 
   });
 
@@ -170,11 +169,26 @@ bool eicrecon::MatrixTransferStatic::initalizeMatrix(const edm4hep::MCParticleCo
     return false;
   }
 
+  double numBeamProtons = 0;
+  double runningMomentum = 0.0;
+
+  for (const auto p: mcparts) {
+    if(mcparts.size() == 1 && p.getPDG() == 2212){
+      runningMomentum = p.getMomentum().z;
+      numBeamProtons++;
+    }
+    if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+      runningMomentum += p.getMomentum().z;
+      numBeamProtons++;
+    }
+  }
+
+  if(numBeamProtons == 0) {error("No beam protons to choose matrix!"); return false;}
+
+  double nomMomentum = runningMomentum/numBeamProtons;
+
   // Fractional error allowed in beam momentum
   double nomMomentumError = 0.05;
-
-  // Set nominal momentum to MCParticle momentum
-  double nomMomentum = mcparts.at(0).getMomentum().z;
 
   double aX[2][2] = {{0.0, 0.0},
                     {0.0, 0.0}};
