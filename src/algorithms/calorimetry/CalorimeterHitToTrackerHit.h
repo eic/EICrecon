@@ -8,17 +8,12 @@
 
 #pragma once
 
-#include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
-#include <DD4hep/IDDescriptor.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <Parsers/Primitives.h>
+#include <DD4hep/VolumeManager.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <stddef.h>
-#include <stdint.h>
 #include <gsl/pointers>
 #include <string>
 #include <string_view>

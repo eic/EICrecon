@@ -3,34 +3,9 @@
 
 #include "algorithms/calorimetry/CalorimeterHitToTrackerHit.h"
 
-#include <DD4hep/Alignments.h>
-#include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Objects.h>
-#include <DD4hep/Readout.h>
-#include <DD4hep/Segmentations.h>
-#include <DD4hep/Shapes.h>
-#include <DD4hep/VolumeManager.h>
-#include <DD4hep/Volumes.h>
 #include <DD4hep/config.h>
-#include <DDSegmentation/BitFieldCoder.h>
-#include <Evaluator/DD4hepUnits.h>
-#include <Math/GenVector/Cartesian3D.h>
-#include <Math/GenVector/DisplacementVector3D.h>
-#include <algorithms/service.h>
-#include <edm4eic/EDM4eicVersion.h>
-#include <fmt/core.h>
-#include <fmt/format.h>
-#include <algorithm>
-#include <cctype>
+#include <edm4eic/CovDiag3f.h>
 #include <gsl/pointers>
-#include <map>
-#include <ostream>
-#include <string>
-#include <unordered_map>
-#include <utility>
-#include <vector>
-
-#include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;
 
