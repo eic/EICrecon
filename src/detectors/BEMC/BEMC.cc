@@ -3,10 +3,14 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
 #include <cmath>
+#include <map>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
