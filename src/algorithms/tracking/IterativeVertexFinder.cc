@@ -64,7 +64,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     std::vector<const edm4eic::ReconstructedParticle*> reconParticles) {
 
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
-  
+
   using Propagator        = Acts::Propagator<Acts::EigenStepper<>>;
   using PropagatorOptions = Acts::PropagatorOptions<>;
 #if Acts_VERSION_MAJOR >= 33
@@ -177,18 +177,18 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     }
     /// CKF can provide multiple track trajectories for a single input seed
     for (auto& tip : tips) {
-      ActsExamples::TrackParameters par = trajectory->trackParameters(tip); 
-    
+      ActsExamples::TrackParameters par = trajectory->trackParameters(tip);
+
 #if Acts_VERSION_MAJOR >= 33
       inputTracks.emplace_back(&(trajectory->trackParameters(tip)));
 #else
       inputTrackPointers.push_back(&(trajectory->trackParameters(tip)));
 #endif
-      m_log->debug(" --- track local position at input = {}, {}", par.localPosition().x(), par.localPosition().y());      
-      
+      m_log->debug(" --- track local position at input = {}, {}", par.localPosition().x(), par.localPosition().y());
+
     }
   }
-  
+
 #if Acts_VERSION_MAJOR >= 33
   std::vector<Acts::Vertex> vertices;
   auto result = finder.find(inputTracks, finderOpts, state);
@@ -204,7 +204,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     edm4eic::Cov4f cov(vtx.fullCovariance()(0,0), vtx.fullCovariance()(1,1), vtx.fullCovariance()(2,2), vtx.fullCovariance()(3,3),
                        vtx.fullCovariance()(0,1), vtx.fullCovariance()(0,2), vtx.fullCovariance()(0,3),
                        vtx.fullCovariance()(1,2), vtx.fullCovariance()(1,3),
-                       vtx.fullCovariance()(2,3)); 
+                       vtx.fullCovariance()(2,3));
     auto eicvertex = outputVertices->create();
     eicvertex.setType(1);                                  // boolean flag if vertex is primary vertex of event
     eicvertex.setChi2((float)vtx.fitQuality().first);      // chi2
@@ -216,7 +216,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
          (float)vtx.time(),
     }); // vtxposition
     eicvertex.setPositionError(cov);                          // covariance
-    
+
     for (const auto& t : vtx.tracks()) {
 #if Acts_VERSION_MAJOR >= 33
       const auto& trk = &t.originalParams;
@@ -227,7 +227,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
       m_log->debug(" === track local position from vertex = {}, {}", par.localPosition().x(), par.localPosition().y());
       float loc_a = par.localPosition().x();
       float loc_b = par.localPosition().y();
-      
+
       for (const auto part : reconParticles) {
         const auto& tracks = part->getTracks();
         for (const auto trk : tracks) {
