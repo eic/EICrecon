@@ -13,7 +13,11 @@
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <boost/move/utility_core.hpp>
+#include <edm4eic/Track.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
 #if Acts_VERSION_MAJOR >= 32
 #include <Acts/Propagator/VoidNavigator.hpp>
 #else
@@ -26,20 +30,20 @@
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/IterativeVertexFinder.hpp>
+#include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
-#include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov4f.h>
-#include <edm4eic/Trajectory.h>
 #include <edm4eic/TrackParameters.h>
+#include <edm4eic/Trajectory.h>
 #include <edm4hep/Vector2f.h>
-#include <math.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU>
+#include <cmath>
 #include <algorithm>
 #include <optional>
 #include <tuple>
