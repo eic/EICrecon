@@ -29,9 +29,13 @@
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
+#include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov4f.h>
+#include <edm4eic/Trajectory.h>
+#include <edm4eic/TrackParameters.h>
+#include <edm4hep/Vector2f.h>
 #include <math.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -56,10 +60,11 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 }
 
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
-    std::vector<const ActsExamples::Trajectories*> trajectories) {
+    std::vector<const ActsExamples::Trajectories*> trajectories,
+    std::vector<const edm4eic::ReconstructedParticle*> reconParticles) {
 
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
-
+  
   using Propagator        = Acts::Propagator<Acts::EigenStepper<>>;
   using PropagatorOptions = Acts::PropagatorOptions<>;
 #if Acts_VERSION_MAJOR >= 33
@@ -172,14 +177,18 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     }
     /// CKF can provide multiple track trajectories for a single input seed
     for (auto& tip : tips) {
+      ActsExamples::TrackParameters par = trajectory->trackParameters(tip); 
+    
 #if Acts_VERSION_MAJOR >= 33
       inputTracks.emplace_back(&(trajectory->trackParameters(tip)));
 #else
       inputTrackPointers.push_back(&(trajectory->trackParameters(tip)));
 #endif
+      m_log->debug(" --- track local position at input = {}, {}", par.localPosition().x(), par.localPosition().y());      
+      
     }
   }
-
+  
 #if Acts_VERSION_MAJOR >= 33
   std::vector<Acts::Vertex> vertices;
   auto result = finder.find(inputTracks, finderOpts, state);
@@ -195,7 +204,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     edm4eic::Cov4f cov(vtx.fullCovariance()(0,0), vtx.fullCovariance()(1,1), vtx.fullCovariance()(2,2), vtx.fullCovariance()(3,3),
                        vtx.fullCovariance()(0,1), vtx.fullCovariance()(0,2), vtx.fullCovariance()(0,3),
                        vtx.fullCovariance()(1,2), vtx.fullCovariance()(1,3),
-                       vtx.fullCovariance()(2,3));
+                       vtx.fullCovariance()(2,3)); 
     auto eicvertex = outputVertices->create();
     eicvertex.setType(1);                                  // boolean flag if vertex is primary vertex of event
     eicvertex.setChi2((float)vtx.fitQuality().first);      // chi2
@@ -207,7 +216,36 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
          (float)vtx.time(),
     }); // vtxposition
     eicvertex.setPositionError(cov);                          // covariance
-  }
+    
+    for (const auto& t : vtx.tracks()) {
+#if Acts_VERSION_MAJOR >= 33
+      const auto& trk = &t.originalParams;
+      const auto& par = finderCfg.extractParameters(trk);
+#else
+      const auto& par = *t.originalParams;
+#endif
+      m_log->debug(" === track local position from vertex = {}, {}", par.localPosition().x(), par.localPosition().y());
+      float loc_a = par.localPosition().x();
+      float loc_b = par.localPosition().y();
+      
+      for (const auto part : reconParticles) {
+        const auto& tracks = part->getTracks();
+        for (const auto trk : tracks) {
+          const auto& traj = trk.getTrajectory();
+          const auto& trkPars = traj.getTrackParameters();
+          for (const auto par : trkPars) {
+            if(fabs(par.getLoc().a - loc_a) < 1.e-4 && fabs(par.getLoc().b - loc_b) < 1.e-4) {
+              m_log->debug(" --- From ReconParticles, track local position = {}, {}", par.getLoc().a, par.getLoc().b);
+              eicvertex.addToAssociatedParticles(*part);
+            } // endif
+          } // end for par
+        } // end for trk
+      } // end for part
+    } // end for t
+    m_log->info(" +++ One vertex found at (x,y,z) = ({}, {}, {}) mm.", vtx.position().x(), vtx.position().y(), vtx.position().z());
+
+  } // end for vtx
+
 
   return std::move(outputVertices);
 }
