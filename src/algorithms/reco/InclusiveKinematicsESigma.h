@@ -15,16 +15,16 @@
 
 namespace eicrecon {
 
-using InclusiveKinematicseSigmaAlgorithm = algorithms::Algorithm<
+using InclusiveKinematicsESigmaAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
                       edm4eic::HadronicFinalStateCollection>,
     algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-class InclusiveKinematicseSigma : public InclusiveKinematicseSigmaAlgorithm {
+class InclusiveKinematicsESigma : public InclusiveKinematicsESigmaAlgorithm {
 
 public:
-  InclusiveKinematicseSigma(std::string_view name)
-      : InclusiveKinematicseSigmaAlgorithm{
+  InclusiveKinematicsESigma(std::string_view name)
+      : InclusiveKinematicsESigmaAlgorithm{
             name,
             {"MCParticles", "scatteredElectron", "hadronicFinalState"},
             {"inclusiveKinematics"},

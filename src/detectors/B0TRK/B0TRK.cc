@@ -26,7 +26,7 @@ void InitPlugin(JApplication *app) {
         },
         {
           "B0TrackerRawHits",
-          "B0TrackerHitAssociations"
+          "B0TrackerRawHitAssociations"
         },
         {
             .threshold = 10.0 * dd4hep::keV,

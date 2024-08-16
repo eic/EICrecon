@@ -8,14 +8,23 @@
 #include <Acts/EventData/TrackStateType.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/TrackerHit.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
+#include <map>
+#include <numeric>
 #include <optional>
 #include <utility>
 
@@ -42,8 +51,8 @@ void ActsToTracks::init() {
 }
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
-  const auto [meas2Ds, acts_trajectories] = input;
-  auto  [trajectories, track_parameters, tracks] = output;
+  const auto [meas2Ds, acts_trajectories, raw_hit_assocs] = input;
+  auto  [trajectories, track_parameters, tracks, tracks_assoc] = output;
 
   // Loop over trajectories
   for (const auto traj : acts_trajectories) {
@@ -147,6 +156,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       );
       track.setTrajectory(trajectory);           // Trajectory of this track
 
+      // Determine track association with MCParticle, weighted by number of used measurements
+      std::map<edm4hep::MCParticle,double> mcparticle_weight_by_hit_count;
+
       // save measurement2d to good measurements or outliers according to srclink index
       // fix me: ideally, this should be integrated into multitrajectoryhelper
       // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
@@ -173,6 +185,23 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                     debug("Measurement on geo id={}, index={}, loc={},{}",
                           geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
 
+                    // Determine track associations if hit associations provided
+                    // FIXME: not able to check whether optional inputs were provided
+                    //if (raw_hit_assocs->has_value()) {
+                    #if EDM4EIC_VERSION_MAJOR >= 7
+                      for (auto& hit : meas2D.getHits()) {
+                        auto raw_hit = hit.getRawHit();
+                        for (const auto raw_hit_assoc : *raw_hit_assocs) {
+                          if (raw_hit_assoc.getRawHit() == raw_hit) {
+                            auto sim_hit = raw_hit_assoc.getSimHit();
+                            auto mc_particle = sim_hit.getMCParticle();
+                            mcparticle_weight_by_hit_count[mc_particle]++;
+                          }
+                        }
+                      }
+                    #endif
+                    //}
+
                   }
                   else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
                     trajectory.addToOutliers_deprecated(meas2D);
@@ -184,6 +213,22 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
           }
 
       });
+
+      // Store track associations if hit associations provided
+      // FIXME: not able to check whether optional inputs were provided
+      //if (raw_hit_assocs->has_value()) {
+        double total_weight = std::accumulate(
+          mcparticle_weight_by_hit_count.begin(), mcparticle_weight_by_hit_count.end(),
+          0, [](const double sum, const auto& i) { return sum + i.second; });
+        for (const auto& [mcparticle, weight] : mcparticle_weight_by_hit_count) {
+          auto track_assoc = tracks_assoc->create();
+          track_assoc.setRec(track);
+          track_assoc.setSim(mcparticle);
+          double normalized_weight = weight / total_weight;
+          track_assoc.setWeight(normalized_weight);
+          debug("track {}: mcparticle {} weight {}", track.id().index, mcparticle.id().index, normalized_weight);
+        }
+      //}
 
     }
   }
