@@ -184,7 +184,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 #else
       inputTrackPointers.push_back(&(trajectory->trackParameters(tip)));
 #endif
-      m_log->debug(" --- track local position at input = {}, {}", par.localPosition().x(), par.localPosition().y());
+      m_log->trace("Track local position at input = {}, {}", par.localPosition().x(), par.localPosition().y());
 
     }
   }
@@ -224,7 +224,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 #else
       const auto& par = *t.originalParams;
 #endif
-      m_log->debug(" === track local position from vertex = {}, {}", par.localPosition().x(), par.localPosition().y());
+      m_log->trace("Track local position from vertex = {}, {}", par.localPosition().x(), par.localPosition().y());
       float loc_a = par.localPosition().x();
       float loc_b = par.localPosition().y();
 
@@ -235,14 +235,14 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
           const auto& trkPars = traj.getTrackParameters();
           for (const auto par : trkPars) {
             if(fabs(par.getLoc().a - loc_a) < 1.e-4 && fabs(par.getLoc().b - loc_b) < 1.e-4) {
-              m_log->debug(" --- From ReconParticles, track local position = {}, {}", par.getLoc().a, par.getLoc().b);
+              m_log->trace("From ReconParticles, track local position = {}, {}", par.getLoc().a, par.getLoc().b);
               eicvertex.addToAssociatedParticles(*part);
             } // endif
           } // end for par
         } // end for trk
       } // end for part
     } // end for t
-    m_log->info(" +++ One vertex found at (x,y,z) = ({}, {}, {}) mm.", vtx.position().x(), vtx.position().y(), vtx.position().z());
+    m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.", vtx.position().x(), vtx.position().y(), vtx.position().z());
 
   } // end for vtx
 
