@@ -12,6 +12,7 @@
 #pragma once
 
 #include <algorithm>
+#include <numeric>
 
 #include <algorithms/algorithm.h>
 #include <DD4hep/BitFieldCoder.h>
@@ -124,21 +125,32 @@ namespace eicrecon {
         const auto [hits] = input;
         auto [proto] = output;
 
+        // Sort hit indices (podio collections do not support std::sort)
+        std::vector<std::size_t> indices(hits->size());
+        std::iota(indices.begin(), indices.end(), 0);
+        std::sort(
+            indices.begin(), indices.end(),
+            [&hits](const auto& a, const auto& b) {
+              return (*hits)[a].getLayer() < (*hits)[b].getLayer();
+            });
+
         // group neighbouring hits
         std::vector<bool> visits(hits->size(), false);
         std::vector<std::set<std::size_t>> groups;
-        for (size_t i = 0; i < hits->size(); ++i) {
+        for (std::size_t i = 0; i < indices.size(); ++i) {
+            std::size_t idx = indices[i];
+
             debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
-                         (*hits)[i].getLocal().x, (*hits)[i].getLocal().y, (*hits)[i].getPosition().z,
-                         (*hits)[i].getPosition().x, (*hits)[i].getPosition().y, (*hits)[i].getPosition().z
+                         (*hits)[idx].getLocal().x, (*hits)[idx].getLocal().y, (*hits)[idx].getPosition().z,
+                         (*hits)[idx].getPosition().x, (*hits)[idx].getPosition().y, (*hits)[idx].getPosition().z
             );
             // already in a group, or not energetic enough to form a cluster
-            if (visits[i] || (*hits)[i].getEnergy() < minClusterCenterEdep) {
+            if (visits[idx] || (*hits)[idx].getEnergy() < minClusterCenterEdep) {
                 continue;
             }
             // create a new group, and group all the neighbouring hits
             groups.emplace_back();
-            bfs_group(*hits, groups.back(), i, visits);
+            bfs_group(*hits, indices, groups.back(), idx, visits);
         }
         debug("found {} potential clusters (groups of hits)", groups.size());
         for (size_t i = 0; i < groups.size(); ++i) {
@@ -198,7 +210,7 @@ namespace eicrecon {
     }
 
     // grouping function with Breadth-First Search
-    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
+    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, const std::vector<std::size_t>& indices, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
       visits[idx] = true;
 
       // not a qualified hit to participate clustering, stop here
@@ -213,7 +225,14 @@ namespace eicrecon {
         prev_size = group.size();
         for (std::size_t idx1 : group) {
           // check neighbours
-          for (std::size_t idx2 = 0; idx2 < hits.size(); ++idx2) {
+          for (std::size_t i2 = 0; i2 < indices.size(); ++i2) {
+            std::size_t idx2 = indices[i2];
+
+            // skip rest of list of hits when we're past relevant layers
+            //if (hits[idx2].getLayer() - hits[idx1].getLayer() > m_cfg.neighbourLayersRange) {
+            //  break;
+            //}
+
             // not a qualified hit to participate clustering, skip
             if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
               continue;
