@@ -44,6 +44,7 @@ namespace eicrecon {
 
   private:
     const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+    const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
     const dd4hep::VolumeManager m_volume_manager{m_detector->volumeManager()};
 
   };
