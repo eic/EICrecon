@@ -140,7 +140,7 @@ namespace eicrecon {
         for (std::size_t i = 0; i < indices.size(); ++i) {
             std::size_t idx = indices[i];
 
-            debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
+            debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", idx + 1,
                          (*hits)[idx].getLocal().x, (*hits)[idx].getLocal().y, (*hits)[idx].getPosition().z,
                          (*hits)[idx].getPosition().x, (*hits)[idx].getPosition().y, (*hits)[idx].getPosition().z
             );
