@@ -128,8 +128,8 @@ namespace eicrecon {
         // Sort hit indices (podio collections do not support std::sort)
         std::set<std::size_t> indices(hits->size());
         std::iota(indices.begin(), indices.end(), 0);
-        std::sort(
-            indices.begin(), indices.end(),
+        std::ranges::sort(
+            indices,
             [&hits](const auto& a, const auto& b) {
               return (*hits)[a].getLayer() < (*hits)[b].getLayer();
             });
