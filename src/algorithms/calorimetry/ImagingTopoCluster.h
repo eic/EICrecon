@@ -137,8 +137,7 @@ namespace eicrecon {
         // group neighbouring hits
         std::vector<bool> visits(hits->size(), false);
         std::vector<std::set<std::size_t>> groups;
-        for (std::size_t i = 0; i < indices.size(); ++i) {
-            std::size_t idx = indices[i];
+        for (const auto& idx : indices) {
 
             debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", idx + 1,
                          (*hits)[idx].getLocal().x, (*hits)[idx].getLocal().y, (*hits)[idx].getPosition().z,
@@ -225,8 +224,7 @@ namespace eicrecon {
         prev_size = group.size();
         for (std::size_t idx1 : group) {
           // check neighbours
-          for (std::size_t i2 = 0; i2 < indices.size(); ++i2) {
-            std::size_t idx2 = indices[i2];
+          for (const auto& idx2 : indices) {
 
             // skip rest of list of hits when we're past relevant layers
             //if (hits[idx2].getLayer() - hits[idx1].getLayer() > m_cfg.neighbourLayersRange) {
