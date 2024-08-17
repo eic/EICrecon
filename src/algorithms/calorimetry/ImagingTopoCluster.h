@@ -126,11 +126,13 @@ namespace eicrecon {
         auto [proto] = output;
 
         // Sort hit indices (podio collections do not support std::sort)
-        std::set<std::size_t> indices(
-            [&hits](const auto& a, const auto& b) {
-              return (*hits)[a].getLayer() < (*hits)[b].getLayer();
-            });
-        std::iota(indices.begin(), indices.end(), 0);
+        auto compare = [&hits](const auto& a, const auto& b) {
+            return (*hits)[a].getLayer() < (*hits)[b].getLayer();
+        };
+        std::set<std::size_t, decltype(compare)> indices(compare);
+        for (std::size_t i = 0; i < hits->size(); ++i) {
+            indices.insert(i);
+        }
 
         // group neighbouring hits
         std::vector<bool> visits(hits->size(), false);
@@ -207,7 +209,7 @@ namespace eicrecon {
     }
 
     // grouping function with Breadth-First Search
-    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, const std::vector<std::size_t>& indices, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
+    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, const std::set<std::size_t,auto>& indices, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
       visits[idx] = true;
 
       // not a qualified hit to participate clustering, stop here
