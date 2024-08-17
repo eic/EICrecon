@@ -126,7 +126,7 @@ namespace eicrecon {
         auto [proto] = output;
 
         // Sort hit indices (podio collections do not support std::sort)
-        std::vector<std::size_t> indices(hits->size());
+        std::set<std::size_t> indices(hits->size());
         std::iota(indices.begin(), indices.end(), 0);
         std::sort(
             indices.begin(), indices.end(),
