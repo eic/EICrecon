@@ -173,7 +173,7 @@ void InitPlugin(JApplication *app) {
 
     // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
-        "InclusiveKinematicseSigma",
+        "InclusiveKinematicseSigma_legacy",
         {
           "InclusiveKinematicsESigma"
         },
