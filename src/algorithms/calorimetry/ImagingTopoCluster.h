@@ -130,7 +130,7 @@ namespace eicrecon {
             // if !(a < b) and !(b < a), then a and b are equivalent
             // and only one of them will be allowed in a set
             if ((*hits)[a].getLayer() == (*hits)[b].getLayer()) {
-              return (*hits)[a].getCellID() < (*hits)[b].getCellID();
+              return (*hits)[a].getObjectID().index < (*hits)[b].getObjectID().index;
             }
             return (*hits)[a].getLayer() < (*hits)[b].getLayer();
         };
