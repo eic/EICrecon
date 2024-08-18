@@ -127,6 +127,9 @@ namespace eicrecon {
 
         // Sort hit indices (podio collections do not support std::sort)
         auto compare = [&hits](const auto& a, const auto& b) {
+            if ((*hits)[a].getLayer() == (*hits)[b].getLayer()) {
+              return (*hits)[a].getCellID() < (*hits)[b].getCellID();
+            }
             return (*hits)[a].getLayer() < (*hits)[b].getLayer();
         };
         std::set<std::size_t, decltype(compare)> indices(compare);
