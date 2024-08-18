@@ -138,6 +138,9 @@ namespace eicrecon {
         for (std::size_t i = 0; i < hits->size(); ++i) {
             indices.insert(i);
         }
+        if (hits->size() != indices.size()) {
+            error("equivalent hits were dropped: #hits {:d}, #indices {:d}", hits->size(), indices.size());
+        }
 
         // group neighbouring hits
         std::vector<bool> visits(hits->size(), false);
