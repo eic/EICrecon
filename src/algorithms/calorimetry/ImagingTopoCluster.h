@@ -209,7 +209,8 @@ namespace eicrecon {
     }
 
     // grouping function with Breadth-First Search
-    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, const std::set<std::size_t,auto>& indices, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
+    template<typename Compare>
+    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t,Compare>& indices, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
       visits[idx] = true;
 
       // not a qualified hit to participate clustering, stop here
