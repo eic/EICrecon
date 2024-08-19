@@ -248,49 +248,44 @@ namespace eicrecon {
         return;
       }
 
-      // keep track of size as group grows
-      std::size_t prev_size = 0;
-      while (prev_size != group.size()) {
-        auto prev_group = group;
-        for (auto idx1 = std::next(prev_group.begin(), prev_size); idx1 != prev_group.end(); ++idx1) {
-          // check neighbours (note comments on loop over set above)
-          for (auto idx2 = indices.begin(); idx2 != indices.end();
-              indices.empty() ? idx2 = indices.end() : idx2) {
+      // loop over group as it grows, until the end is stable and we reach it
+      for (auto idx1 = group.begin(); idx1 != group.end(); ++idx1) {
+        // check neighbours (note comments on loop over set above)
+        for (auto idx2 = indices.begin(); idx2 != indices.end();
+            indices.empty() ? idx2 = indices.end() : idx2) {
 
-            // skip idx1 and original idx
-            // (we cannot erase idx since it would invalidate iterator in calling scope)
-            if (*idx2 == *idx1 || *idx2 == idx) {
-              idx2++;
-              continue;
-            }
+          // skip idx1 and original idx
+          // (we cannot erase idx since it would invalidate iterator in calling scope)
+          if (*idx2 == *idx1 || *idx2 == idx) {
+            idx2++;
+            continue;
+          }
 
-            // skip rest of list of hits when we're past relevant layers
-            //if (hits[*idx2].getLayer() - hits[*idx1].getLayer() > m_cfg.neighbourLayersRange) {
-            //  break;
-            //}
+          // skip rest of list of hits when we're past relevant layers
+          //if (hits[*idx2].getLayer() - hits[*idx1].getLayer() > m_cfg.neighbourLayersRange) {
+          //  break;
+          //}
 
-            // not energetic enough for cluster center or other cluster hit
-            // whereas caller has removed earlier low energy hits, this removes ones that caller hasn't gotten to yet
-            if (hits[*idx2].getEnergy() < std::min(m_cfg.minClusterHitEdep,m_cfg.minClusterCenterEdep)) {
-              idx2 = indices.erase(idx2);
-              continue;
-            }
+          // not energetic enough for cluster center or other cluster hit
+          // whereas caller has removed earlier low energy hits, this removes ones that caller hasn't gotten to yet
+          if (hits[*idx2].getEnergy() < std::min(m_cfg.minClusterHitEdep,m_cfg.minClusterCenterEdep)) {
+            idx2 = indices.erase(idx2);
+            continue;
+          }
 
-            // not energetic enough for cluster hit in this group
-            if (hits[*idx2].getEnergy() < m_cfg.minClusterHitEdep) {
-              idx2++;
-              continue;
-            }
+          // not energetic enough for cluster hit in this group
+          if (hits[*idx2].getEnergy() < m_cfg.minClusterHitEdep) {
+            idx2++;
+            continue;
+          }
 
-            if (is_neighbour(hits[*idx1], hits[*idx2])) {
-              group.push_back(*idx2);
-              idx2 = indices.erase(idx2); // takes role of idx2++
-            } else {
-              idx2++;
-            }
+          if (is_neighbour(hits[*idx1], hits[*idx2])) {
+            group.push_back(*idx2);
+            idx2 = indices.erase(idx2); // takes role of idx2++
+          } else {
+            idx2++;
           }
         }
-        prev_size = prev_group.size();
       }
     }
 
