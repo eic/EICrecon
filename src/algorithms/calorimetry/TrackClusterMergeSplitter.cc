@@ -1,23 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Derek Anderson
 
-#include <cmath>
-#include <regex>
-#include <utility>
-#include <algorithm>
-#include <stdexcept>
-// dd4hep utilities
-#include <DD4hep/Readout.h>
+#include <edm4eic/CalorimeterHit.h>
 // edm4hep types
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-// edm4eic types
-#include <edm4eic/ProtoCluster.h>
-#include <edm4eic/TrackSegment.h>
-#include <edm4eic/CalorimeterHit.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <stdint.h>
+#include <cmath>
+#include <gsl/pointers>
+#include <stdexcept>
+#include <utility>
 
 // algorithm definition
 #include "TrackClusterMergeSplitter.h"
+#include "algorithms/calorimetry/TrackClusterMergeSplitterConfig.h"
 
 
 
