@@ -287,7 +287,7 @@ extern "C" {
 Finally, we go ahead and trigger the factory (remember, factories won't do anything unless activated by a JEventProcessor). You can open the
 
 ~~~ bash
-eicrecon in.root -Ppodio:output_file=out.root -Ppodio:output_include_collections=EcalEndcapNIslandClusters -Pjana:nevents=10
+eicrecon in.root -Ppodio:output_file=out.root -Ppodio:output_collections=EcalEndcapNIslandClusters -Pjana:nevents=10
 ~~~
 
 
