@@ -147,7 +147,7 @@ namespace eicrecon {
         }
 
         // Group neighbouring hits
-        std::vector<std::vector<std::size_t>> groups;
+        std::vector<std::list<std::size_t>> groups;
         // because indices changes, the loop over indices requires some care:
         // - we must use iterators instead of range-for
         // - erase returns an incremented iterator and therefore acts as idx++
@@ -175,7 +175,7 @@ namespace eicrecon {
             }
 
             // create a new group, and group all the neighbouring hits
-            groups.emplace_back(std::vector{*idx});
+            groups.emplace_back(std::list{*idx});
             bfs_group(*hits, indices, groups.back(), *idx);
 
             // wait with erasing until after bfs_group to ensure iterator is not invalidated in bfs_group
@@ -241,7 +241,7 @@ namespace eicrecon {
     // grouping function with Breadth-First Search
     // note: template to allow Compare only known in local scope of caller
     template<typename Compare>
-    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t,Compare>& indices, std::vector<std::size_t> &group, const std::size_t idx) const {
+    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t,Compare>& indices, std::list<std::size_t> &group, const std::size_t idx) const {
 
       // not a qualified hit to participate clustering, stop here
       if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
