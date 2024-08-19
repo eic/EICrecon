@@ -169,7 +169,7 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
     debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
     auto energy = hit.getEnergy() * weight;
     totalE += energy;
-    time += (hit.getTime() * energy - time) / totalE;
+    time += (hit.getTime() - time) * energy / totalE;
     cl.addToHits(hit);
     cl.addToHitContributions(energy);
     const float eta = edm4hep::utils::eta(hit.getPosition());
