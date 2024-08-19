@@ -15,37 +15,44 @@
 // algorithms
 #include "algorithms/pid/MergeParticleID.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
-// JANA
-#include "extensions/jana/JChainMultifactoryT.h"
-// services
-#include "extensions/spdlog/SpdlogMixin.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-  class MergeCherenkovParticleID_factory :
-    public JChainMultifactoryT<MergeParticleIDConfig>,
-    public SpdlogMixin
-  {
+class MergeCherenkovParticleID_factory :
+  public JOmniFactory<MergeCherenkovParticleID_factory, MergeParticleIDConfig> {
 
-    public:
+private:
 
-      explicit MergeCherenkovParticleID_factory(
-          std::string tag,
-          const std::vector<std::string>& input_tags,
-          const std::vector<std::string>& output_tags,
-          MergeParticleIDConfig cfg)
-      : JChainMultifactoryT<MergeParticleIDConfig>(std::move(tag), input_tags, output_tags, cfg) {
-        DeclarePodioOutput<edm4eic::CherenkovParticleID>(GetOutputTags()[0]);
-      }
+    // Underlying algorithm
+    using AlgoT = eicrecon::MergeParticleID;
+    std::unique_ptr<AlgoT> m_algo;
 
-      /** One time initialization **/
-      void Init() override;
+    // Declare inputs
+    VariadicPodioInput<edm4eic::CherenkovParticleID> m_particleID_input {this};
 
-      /** Event by event processing **/
-      void Process(const std::shared_ptr<const JEvent> &event) override;
+    // Declare outputs
+    PodioOutput<edm4eic::CherenkovParticleID> m_particleID_output {this};
 
-    private:
-      eicrecon::MergeParticleID m_algo;
+    // Declare parameters
+    ParameterRef<int> m_mergeMode {this, "mergeMode", config().mergeMode};
+
+public:
+    void Configure() {
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+        m_algo->applyConfig(config());
+        m_algo->init(logger());
+    }
+
+    void ChangeRun(int64_t run_number) { }
+
+    void Process(int64_t run_number, uint64_t event_number) {
+        auto in1 = m_particleID_input();
+        std::vector<gsl::not_null<const edm4eic::CherenkovParticleIDCollection*>> in2;
+        std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
+        m_algo->process({in2}, {m_particleID_output().get()});
+    }
 
   };
 }

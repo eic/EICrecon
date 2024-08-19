@@ -3,6 +3,7 @@
 
   # Boost
   { ref: '/usr/local/share/include-what-you-use/boost-all.imp' },
+  { include: ['@<boost/histogram/.*\.hpp>', private, '<boost/histogram.hpp>', public] },
 
   # libc++
   { ref: '/usr/local/share/include-what-you-use/libcxx.imp' },
@@ -16,8 +17,8 @@
   { include: ['<Acts/Geometry/detail/DefaultDetectorElementBase.hpp>', private, '<Acts/Geometry/DetectorElementBase.hpp>', public] },
 
   # Eigen
-  { include: ['@<Eigen/(src/)?(.*?)/.*>', private, '<Eigen/$2>', public] },
-  { include: ['@<Eigen/src/plugins/.*>', private, '<Eigen/Core>', public] },
+  { include: ['@[<"]Eigen/(src/)?(.*?)/.*[>"]', private, '<Eigen/$2>', public] },
+  { include: ['@[<"]Eigen/src/plugins/.*[>"]', private, '<Eigen/Core>', public] },
   { include: ['@"src/(.*)/.*"', private, '<Eigen/$1>', public] },
   { include: ['@"src/plugins/.*"', private, '<Eigen/Core>', public] },
 
@@ -25,7 +26,11 @@
   { include: ['@<(edm4(eic|hep))/(Mutable)?([^/]*?)(Collection|Data|Obj)?\.h>', public, '<$1/$4Collection.h>', public] },
   { include: ['<edm4hep/utils/vector_utils_legacy.h>', private, '<edm4hep/utils/vector_utils.h>', public] },
 
+  # JANA2: for now, preserve compatibility with older versions
+  { include: ['<JANA/JApplicationFwd.h>', private, '<JANA/JApplication.h>', public] },
+
   # the rest
+  { include: ['<bits/chrono.h>', private, '<chrono>', public] },
   { include: ['<bits/std_abs.h>', private, '<math.h>', public] },
   { include: ['<bits/utility.h>', private, '<tuple>', public] },
   # https://github.com/include-what-you-use/include-what-you-use/issues/166

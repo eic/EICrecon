@@ -4,10 +4,8 @@
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "extensions/spdlog/SpdlogMixin.h"
-
 
 namespace eicrecon {
 
@@ -28,17 +26,18 @@ private:
     ParameterRef<unsigned int> m_pedMeanADC {this, "pedestalMean", config().pedMeanADC};
     ParameterRef<double> m_pedSigmaADC {this, "pedestalSigma", config().pedSigmaADC};
     ParameterRef<double> m_resolutionTDC {this, "resolutionTDC", config().resolutionTDC};
-    ParameterRef<double> m_corrMeanScale {this, "scaleResponse", config().corrMeanScale};
+    ParameterRef<std::string> m_corrMeanScale {this, "scaleResponse", config().corrMeanScale};
     ParameterRef<std::vector<std::string>> m_fields {this, "signalSumFields", config().fields};
     ParameterRef<std::string> m_readout {this, "readoutClass", config().readout};
 
-    Service<DD4hep_service> m_geoSvc {this};
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
         m_algo->applyConfig(config());
-        m_algo->init(m_geoSvc().detector(), logger());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

@@ -5,7 +5,7 @@
 
 #include "algorithms/calorimetry/ImagingTopoCluster.h"
 #include "extensions/jana/JOmniFactory.h"
-
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -21,6 +21,8 @@ private:
 
     ParameterRef<std::vector<double>> m_ldxy {this, "localDistXY", config().localDistXY};
     ParameterRef<std::vector<double>> m_ldep {this, "layerDistEtaPhi", config().layerDistEtaPhi};
+    ParameterRef<std::vector<double>> m_ldxy_adjacent {this, "layerDistXY", config().layerDistXY};
+    ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_laymode {this, "layerMode", config().layerMode};
     ParameterRef<int> m_nlr {this, "neighbourLayersRange", config().neighbourLayersRange};
     ParameterRef<double> m_sd {this, "sectorDist", config().sectorDist};
     ParameterRef<double> m_mched {this, "minClusterHitEdep", config().minClusterHitEdep};
@@ -28,11 +30,14 @@ private:
     ParameterRef<double> m_mced {this, "minClusterEdep", config().minClusterEdep};
     ParameterRef<int> m_mcnh {this, "minClusterNhits", config().minClusterNhits};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
         m_algo->applyConfig(config());
-        m_algo->init(logger());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

@@ -11,8 +11,6 @@
 #include <vector>
 
 #include "ActsGeometryProvider.h"
-#include "TrackProjectorConfig.h"
-#include "algorithms/interfaces/WithPodConfig.h"
 
 
 namespace eicrecon {
@@ -21,8 +19,7 @@ namespace eicrecon {
          *
          * \ingroup tracking
          */
-        class TrackProjector:
-                public eicrecon::WithPodConfig<TrackProjectorConfig> {
+        class TrackProjector {
 
         public:
 

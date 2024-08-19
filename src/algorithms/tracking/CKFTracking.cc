@@ -7,36 +7,50 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
+#endif
 #include <Acts/EventData/MultiTrajectory.hpp>
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
+#if Acts_VERSION_MAJOR >= 32
+#include "Acts/EventData/ProxyAccessor.hpp"
+#endif
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
-#include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
+#if Acts_VERSION_MAJOR >= 34
+#include "Acts/Propagator/AbortList.hpp"
+#include "Acts/Propagator/EigenStepper.hpp"
+#include "Acts/Propagator/MaterialInteractor.hpp"
+#include "Acts/Propagator/Navigator.hpp"
+#endif
 #include <Acts/Propagator/Propagator.hpp>
+#if Acts_VERSION_MAJOR >= 34
+#include "Acts/Propagator/StandardAborters.hpp"
+#endif
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/TrackFitting/GainMatrixSmoother.hpp>
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#if Acts_VERSION_MAJOR >= 34
+#include "Acts/Utilities/TrackHelpers.hpp"
+#endif
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
+#include <edm4eic/Cov6f.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
 #include <Eigen/Core>
-#include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -53,6 +67,21 @@ namespace eicrecon {
 
     using namespace Acts::UnitLiterals;
 
+    // This array relates the Acts and EDM4eic covariance matrices, including
+    // the unit conversion to get from Acts units into EDM4eic units.
+    //
+    // Note: std::map is not constexpr, so we use a constexpr std::array
+    // std::array initialization need double braces since arrays are aggregates
+    // ref: https://en.cppreference.com/w/cpp/language/aggregate_initialization
+    static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_indexed_units{{
+      {Acts::eBoundLoc0, Acts::UnitConstants::mm},
+      {Acts::eBoundLoc1, Acts::UnitConstants::mm},
+      {Acts::eBoundPhi, 1.},
+      {Acts::eBoundTheta, 1.},
+      {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
+      {Acts::eBoundTime, Acts::UnitConstants::ns}
+    }};
+
     CKFTracking::CKFTracking() {
     }
 
@@ -68,8 +97,8 @@ namespace eicrecon {
         // eta bins, chi2 and #sourclinks per surface cutoffs
         m_sourcelinkSelectorCfg = {
                 {Acts::GeometryIdentifier(),
-                 {m_cfg.m_etaBins, m_cfg.m_chi2CutOff,
-                  {m_cfg.m_numMeasurementsCutOff.begin(), m_cfg.m_numMeasurementsCutOff.end()}
+                 {m_cfg.etaBins, m_cfg.chi2CutOff,
+                  {m_cfg.numMeasurementsCutOff.begin(), m_cfg.numMeasurementsCutOff.end()}
                  }
                 },
         };
@@ -77,8 +106,6 @@ namespace eicrecon {
     }
 
     std::tuple<
-        std::unique_ptr<edm4eic::TrajectoryCollection>,
-        std::unique_ptr<edm4eic::TrackParametersCollection>,
         std::vector<ActsExamples::Trajectories*>,
         std::vector<ActsExamples::ConstTrackContainer*>
     >
@@ -117,8 +144,15 @@ namespace eicrecon {
             cov(0, 0) = meas2D.getCovariance().xx;
             cov(1, 1) = meas2D.getCovariance().yy;
             cov(0, 1) = meas2D.getCovariance().xy;
+            cov(1, 0) = meas2D.getCovariance().xy;
 
-            auto measurement = Acts::makeMeasurement(Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
+#if Acts_VERSION_MAJOR >= 36
+            auto measurement = ActsExamples::makeFixedSizeMeasurement(
+              Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
+#else
+            auto measurement = Acts::makeMeasurement(
+              Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
+#endif
             measurements->emplace_back(std::move(measurement));
 
             hit_index++;
@@ -130,20 +164,21 @@ namespace eicrecon {
             Acts::BoundVector params;
             params(Acts::eBoundLoc0)   = track_parameter.getLoc().a * Acts::UnitConstants::mm;  // cylinder radius
             params(Acts::eBoundLoc1)   = track_parameter.getLoc().b * Acts::UnitConstants::mm;  // cylinder length
-            params(Acts::eBoundTheta)  = track_parameter.getTheta();
             params(Acts::eBoundPhi)    = track_parameter.getPhi();
+            params(Acts::eBoundTheta)  = track_parameter.getTheta();
             params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
             params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
 
-            double charge = track_parameter.getCharge();
+            double charge = std::copysign(1., track_parameter.getQOverP());
 
-            Acts::BoundSquareMatrix cov                 = Acts::BoundSquareMatrix::Zero();
-            cov(Acts::eBoundLoc0, Acts::eBoundLoc0)     = std::pow( track_parameter.getLocError().xx ,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
-            cov(Acts::eBoundLoc1, Acts::eBoundLoc1)     = std::pow( track_parameter.getLocError().yy,2)*Acts::UnitConstants::mm*Acts::UnitConstants::mm;
-            cov(Acts::eBoundTheta, Acts::eBoundTheta)   = std::pow( track_parameter.getMomentumError().xx,2);
-            cov(Acts::eBoundPhi, Acts::eBoundPhi)       = std::pow( track_parameter.getMomentumError().yy,2);
-            cov(Acts::eBoundQOverP, Acts::eBoundQOverP) = std::pow( track_parameter.getMomentumError().zz,2) / (Acts::UnitConstants::GeV*Acts::UnitConstants::GeV);
-            cov(Acts::eBoundTime, Acts::eBoundTime)     = std::pow( track_parameter.getTimeError(),2)*Acts::UnitConstants::ns*Acts::UnitConstants::ns;
+            Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
+            for (size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
+              for (size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
+                cov(a, b) = track_parameter.getCovariance()(i,j) * x * y;
+                ++j;
+              }
+              ++i;
+            }
 
             // Construct a perigee surface as the target surface
             auto pSurface = Acts::Surface::makeShared<const Acts::PerigeeSurface>(Acts::Vector3(0,0,0));
@@ -151,9 +186,6 @@ namespace eicrecon {
             // Create parameters
             acts_init_trk_params.emplace_back(pSurface, params, cov, Acts::ParticleHypothesis::pion());
         }
-
-        auto trajectories = std::make_unique<edm4eic::TrajectoryCollection>();
-        auto track_parameters = std::make_unique<edm4eic::TrackParametersCollection>();
 
         //// Construct a perigee surface as the target surface
         auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
@@ -166,7 +198,9 @@ namespace eicrecon {
         ActsExamples::PassThroughCalibrator pcalibrator;
         ActsExamples::MeasurementCalibratorAdapter calibrator(pcalibrator, *measurements);
         Acts::GainMatrixUpdater kfUpdater;
+#if Acts_VERSION_MAJOR < 34
         Acts::GainMatrixSmoother kfSmoother;
+#endif
         Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
         Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory>
@@ -176,9 +210,11 @@ namespace eicrecon {
         extensions.updater.connect<
                 &Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
                 &kfUpdater);
+#if Acts_VERSION_MAJOR < 34
         extensions.smoother.connect<
                 &Acts::GainMatrixSmoother::operator()<Acts::VectorMultiTrajectory>>(
                 &kfSmoother);
+#endif
         extensions.measurementSelector.connect<
                 &Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(
                 &measSel);
@@ -190,23 +226,45 @@ namespace eicrecon {
         slAccessorDelegate.connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
 
         // Set the CombinatorialKalmanFilter options
+#if Acts_VERSION_MAJOR < 34
         CKFTracking::TrackFinderOptions options(
                 m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
                 extensions, pOptions, &(*pSurface));
+#else
+        CKFTracking::TrackFinderOptions options(
+                m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
+                extensions, pOptions);
+#endif
+
+#if Acts_VERSION_MAJOR >= 34
+        Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> extrapolator(
+            Acts::EigenStepper<>(m_BField),
+            Acts::Navigator({m_geoSvc->trackingGeometry()},
+                            logger().cloneWithSuffix("Navigator")),
+            logger().cloneWithSuffix("Propagator"));
+
+        Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>,
+                                Acts::AbortList<Acts::EndOfWorldReached>>
+            extrapolationOptions(m_geoctx, m_fieldctx);
+#endif
 
         // Create track container
         auto trackContainer = std::make_shared<Acts::VectorTrackContainer>();
         auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
-        ActsExamples::TrackContainer tracks(trackContainer, trackStateContainer);
+        ActsExamples::TrackContainer acts_tracks(trackContainer, trackStateContainer);
 
         // Add seed number column
-        tracks.addColumn<unsigned int>("seed");
+        acts_tracks.addColumn<unsigned int>("seed");
+#if Acts_VERSION_MAJOR >= 32
+        Acts::ProxyAccessor<unsigned int> seedNumber("seed");
+#else
         Acts::TrackAccessor<unsigned int> seedNumber("seed");
+#endif
 
         // Loop over seeds
         for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
             auto result =
-                (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, tracks);
+                (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks);
 
             if (!result.ok()) {
                 m_log->debug("Track finding failed for seed {} with error {}", iseed, result.error());
@@ -216,6 +274,27 @@ namespace eicrecon {
             // Set seed number for all found tracks
             auto& tracksForSeed = result.value();
             for (auto& track : tracksForSeed) {
+
+#if Acts_VERSION_MAJOR >=34
+                auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
+                if (!smoothingResult.ok()) {
+                    ACTS_ERROR("Smoothing for seed "
+                        << iseed << " and track " << track.index()
+                        << " failed with error " << smoothingResult.error());
+                    continue;
+                }
+
+                auto extrapolationResult = Acts::extrapolateTrackToReferenceSurface(
+                    track, *pSurface, extrapolator, extrapolationOptions,
+                    Acts::TrackExtrapolationStrategy::firstOrLast, logger());
+                if (!extrapolationResult.ok()) {
+                    ACTS_ERROR("Extrapolation for seed "
+                        << iseed << " and track " << track.index()
+                        << " failed with error " << extrapolationResult.error());
+                    continue;
+                }
+#endif
+
                 seedNumber(track) = iseed;
             }
         }
@@ -242,8 +321,11 @@ namespace eicrecon {
         auto& constTracks = *(constTracks_v.front());
 
         // Seed number column accessor
+#if Acts_VERSION_MAJOR >= 32
+        const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
+#else
         const Acts::ConstTrackAccessor<unsigned int> constSeedNumber("seed");
-
+#endif
 
         // Prepare the output data with MultiTrajectory, per seed
         std::vector<ActsExamples::Trajectories*> acts_trajectories;
@@ -287,131 +369,7 @@ namespace eicrecon {
           constTracks.trackStateContainer(),
           std::move(tips), std::move(parameters)));
 
-
-        // Loop over trajectories
-        for (const auto* traj : acts_trajectories) {
-          // The trajectory entry indices and the multiTrajectory
-          const auto& trackTips = traj->tips();
-          const auto& mj = traj->multiTrajectory();
-          if (trackTips.empty()) {
-            m_log->warn("Empty multiTrajectory.");
-            continue;
-          }
-
-          // Loop over all trajectories in a multiTrajectory
-          // FIXME: we only retain the first trackTips entry
-          for (auto trackTip : decltype(trackTips){trackTips.front()}) {
-            // Collect the trajectory summary info
-            auto trajectoryState =
-                Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
-
-            // Check if the reco track has fitted track parameters
-            if (not traj->hasTrackParameters(trackTip)) {
-              m_log->warn(
-                  "No fitted track parameters for trajectory with entry index = {}",
-                  trackTip);
-              continue;
-            }
-
-            // Create trajectory
-            auto trajectory = trajectories->create();
-            trajectory.setChi2(trajectoryState.chi2Sum);
-            trajectory.setNdf(trajectoryState.NDF);
-            trajectory.setNMeasurements(trajectoryState.nMeasurements);
-            trajectory.setNStates(trajectoryState.nStates);
-            trajectory.setNOutliers(trajectoryState.nOutliers);
-            trajectory.setNHoles(trajectoryState.nHoles);
-            trajectory.setNSharedHits(trajectoryState.nSharedHits);
-
-            m_log->debug("trajectory state, measurement, outlier, hole: {} {} {} {}",
-                trajectoryState.nStates,
-                trajectoryState.nMeasurements,
-                trajectoryState.nOutliers,
-                trajectoryState.nHoles);
-
-            for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
-                trajectory.addToMeasurementChi2(measurementChi2);
-            }
-
-            for (const auto& outlierChi2 : trajectoryState.outlierChi2) {
-                trajectory.addToOutlierChi2(outlierChi2);
-            }
-
-            // Get the fitted track parameter
-            const auto& boundParam = traj->trackParameters(trackTip);
-            const auto& parameter  = boundParam.parameters();
-            const auto& covariance = *boundParam.covariance();
-
-            edm4eic::MutableTrackParameters pars{
-                0, // type: track head --> 0
-                {
-                    static_cast<float>(parameter[Acts::eBoundLoc0]),
-                    static_cast<float>(parameter[Acts::eBoundLoc1])
-                },
-                {
-                    static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc0)),
-                    static_cast<float>(covariance(Acts::eBoundLoc1, Acts::eBoundLoc1)),
-                    static_cast<float>(covariance(Acts::eBoundLoc0, Acts::eBoundLoc1))
-                },
-                static_cast<float>(parameter[Acts::eBoundTheta]),
-                static_cast<float>(parameter[Acts::eBoundPhi]),
-                static_cast<float>(parameter[Acts::eBoundQOverP]),
-                {
-                    static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                    static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
-                    static_cast<float>(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)),
-                    static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundPhi)),
-                    static_cast<float>(covariance(Acts::eBoundTheta, Acts::eBoundQOverP)),
-                    static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))
-                },
-                static_cast<float>(parameter[Acts::eBoundTime]),
-                sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))),
-                static_cast<float>(boundParam.charge())};
-
-            track_parameters->push_back(pars);
-            trajectory.addToTrackParameters(pars);
-
-            // save measurement2d to good measurements or outliers according to srclink index
-            // fix me: ideally, this should be integrated into multitrajectoryhelper
-            // fix me: should say "OutlierMeasurements" instead of "OutlierHits" etc
-            mj.visitBackwards(trackTip, [&](const auto& state) {
-
-                auto geoID = state.referenceSurface().geometryId().value();
-                auto typeFlags = state.typeFlags();
-
-                // find the associated hit (2D measurement) with state sourcelink index
-                // fix me: calibrated or not?
-                if (state.hasUncalibratedSourceLink()) {
-
-                    std::size_t srclink_index = state.getUncalibratedSourceLink().template get<ActsExamples::IndexSourceLink>().index();
-
-                    // no hit on this state/surface, skip
-                    if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
-                        m_log->debug("No hit found on geo id={}", geoID);
-
-                    } else {
-                        auto meas2D = meas2Ds[srclink_index];
-                        if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
-                            trajectory.addToMeasurementHits(meas2D);
-                            m_log->debug("Measurement on geo id={}, index={}, loc={},{}",
-                                geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
-
-                        }
-                        else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
-                            trajectory.addToOutlierHits(meas2D);
-                            m_log->debug("Outlier on geo id={}, index={}, loc={},{}",
-                                geoID, srclink_index, meas2D.getLoc().a, meas2D.getLoc().b);
-
-                        }
-                    }
-                }
-
-            });
-
-          }
-        }
-
-        return std::make_tuple(std::move(trajectories), std::move(track_parameters), std::move(acts_trajectories), std::move(constTracks_v));
+        return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
     }
 
 } // namespace eicrecon

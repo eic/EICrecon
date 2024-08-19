@@ -10,13 +10,11 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include <spdlog/logger.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -74,19 +72,15 @@ namespace eicrecon {
                             "association provided both optional arguments are provided."} {}
 
   public:
-    void init(std::shared_ptr<spdlog::logger>& logger);
+    void init() final;
 
     void process(const Input&, const Output&) const final;
 
   private:
-    std::shared_ptr<spdlog::logger> m_log;
-
     std::function<double(double, double, double, int)> weightFunc;
 
   private:
-
-    std::optional<edm4eic::Cluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
-
+    std::optional<edm4eic::MutableCluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
   };
 
 } // eicrecon

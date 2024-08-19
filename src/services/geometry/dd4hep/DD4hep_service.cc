@@ -3,8 +3,8 @@
 //
 
 #include <JANA/JException.h>
-#include <JANA/JLogger.h>
 #include <Parsers/Printout.h>
+#include <TGeoManager.h>
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -17,10 +17,8 @@
 #include <utility>
 #include <vector>
 
-#include "extensions/spdlog/SpdlogExtensions.h"
-#include "services/log/Log_service.h"
-
 #include "DD4hep_service.h"
+#include "services/log/Log_service.h"
 
 //----------------------------------------------------------------
 // Services
@@ -29,9 +27,6 @@ void DD4hep_service::acquire_services(JServiceLocator *srv_locator) {
     // logging service
     auto log_service = srv_locator->get<Log_service>();
     m_log = log_service->logger("dd4hep");
-    std::string log_level_str{"info"};
-    m_app->SetDefaultParameter("dd4hep:LogLevel", log_level_str, "Log level for DD4hep_service");
-    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
 
     // Set the DD4hep print level to be quieter by default, but let user adjust it
     std::string print_level_str{"WARNING"};
@@ -91,9 +86,9 @@ void DD4hep_service::Initialize() {
     }
 
     // The current recommended way of getting the XML file is to use the environment variables
-    // DETECTOR_PATH and DETECTOR_CONFIG or DETECTOR(deprecated).
+    // DETECTOR_PATH and DETECTOR_CONFIG.
     // Look for those first, so we can use it for the default
-    // config parameter. (see https://github.com/eic/EICrecon/issues/22)
+    // config parameter.
     auto *detector_config_env = std::getenv("DETECTOR_CONFIG");
     auto *detector_path_env = std::getenv("DETECTOR_PATH");
 
@@ -115,7 +110,7 @@ void DD4hep_service::Initialize() {
     if( m_xml_files.empty() ){
         m_log->error("No dd4hep XML file specified for the geometry!");
         m_log->error("Set your DETECTOR_PATH and DETECTOR_CONFIG environment variables");
-        m_log->error("(the latter is typically done by sourcing the setup.sh");
+        m_log->error("(the latter is typically done by sourcing the thisepic.sh");
         m_log->error("script the epic directory.)");
         throw std::runtime_error("No dd4hep XML file specified.");
     }
@@ -175,7 +170,7 @@ std::string DD4hep_service::resolveFileName(const std::string &filename, char *d
                 // on the screen to be that this file doesn't exist.
                 auto mess = fmt::format(fmt::emphasis::bold | fg(fmt::color::red), "ERROR: ");
                 mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!", filename);
-                mess += "\nCheck that your DETECTOR and DETECTOR_CONFIG environment variables are set correctly.";
+                mess += "\nCheck that your DETECTOR_PATH and DETECTOR_CONFIG environment variables are set correctly.";
                 std::cerr << std::endl << std::endl << mess << std::endl << std::endl; // TODO standard log here!
                 std::_Exit(EXIT_FAILURE);
             }

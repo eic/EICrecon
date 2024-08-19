@@ -63,30 +63,28 @@ namespace eicrecon {
 
   private:
 
-    std::shared_ptr<spdlog::logger> m_log;
-
     // unitless counterparts of the input parameters
-    double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, sectorDist{0};
+    double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, layerDistXY[2]{0, 0}, sectorDist{0};
     double minClusterHitEdep{0}, minClusterCenterEdep{0}, minClusterEdep{0}, minClusterNhits{0};
 
   public:
-    void init(std::shared_ptr<spdlog::logger>& logger) {
-        m_log = logger;
-
+    void init() {
         // unitless conversion
         // sanity checks
         if (m_cfg.localDistXY.size() != 2) {
-            m_log->error( "Expected 2 values (x_dist, y_dist) for localDistXY");
+            error( "Expected 2 values (x_dist, y_dist) for localDistXY");
             return;
         }
         if (m_cfg.layerDistEtaPhi.size() != 2) {
-            m_log->error( "Expected 2 values (eta_dist, phi_dist) for layerDistEtaPhi" );
+            error( "Expected 2 values (eta_dist, phi_dist) for layerDistEtaPhi" );
             return;
         }
 
         // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
         localDistXY[0] = m_cfg.localDistXY[0] / dd4hep::mm;
         localDistXY[1] = m_cfg.localDistXY[1] / dd4hep::mm;
+        layerDistXY[0] = m_cfg.layerDistXY[0] / dd4hep::mm;
+        layerDistXY[1] = m_cfg.layerDistXY[1] / dd4hep::mm;
         layerDistEtaPhi[0] = m_cfg.layerDistEtaPhi[0];
         layerDistEtaPhi[1] = m_cfg.layerDistEtaPhi[1] / dd4hep::rad;
         sectorDist = m_cfg.sectorDist / dd4hep::mm;
@@ -95,15 +93,27 @@ namespace eicrecon {
         minClusterEdep = m_cfg.minClusterEdep / dd4hep::GeV;
 
         // summarize the clustering parameters
-        m_log->info("Local clustering (same sector and same layer): "
+        info("Local clustering (same sector and same layer): "
                     "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
                     localDistXY[0], localDistXY[1]
         );
-        m_log->info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-                    "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
-                    m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
-        );
-        m_log->info("Neighbour sectors clustering (different sector): "
+        switch (m_cfg.layerMode) {
+        case ImagingTopoClusterConfig::ELayerMode::etaphi:
+          info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
+               "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
+               m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]
+               );
+          break;
+        case ImagingTopoClusterConfig::ELayerMode::xy:
+          info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
+               "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
+               m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]
+               );
+          break;
+        default:
+          error("Unknown layer mode.");
+        }
+        info("Neighbour sectors clustering (different sector): "
                     "Global distance between hits <= {:.4f} mm.",
                     sectorDist
         );
@@ -118,7 +128,7 @@ namespace eicrecon {
         std::vector<bool> visits(hits->size(), false);
         std::vector<std::set<std::size_t>> groups;
         for (size_t i = 0; i < hits->size(); ++i) {
-            m_log->debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
+            debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
                          (*hits)[i].getLocal().x, (*hits)[i].getLocal().y, (*hits)[i].getPosition().z,
                          (*hits)[i].getPosition().x, (*hits)[i].getPosition().y, (*hits)[i].getPosition().z
             );
@@ -130,9 +140,9 @@ namespace eicrecon {
             groups.emplace_back();
             bfs_group(*hits, groups.back(), i, visits);
         }
-        m_log->debug("found {} potential clusters (groups of hits)", groups.size());
+        debug("found {} potential clusters (groups of hits)", groups.size());
         for (size_t i = 0; i < groups.size(); ++i) {
-            m_log->debug("group {}: {} hits", i, groups[i].size());
+            debug("group {}: {} hits", i, groups[i].size());
         }
 
         // form clusters
@@ -173,11 +183,16 @@ namespace eicrecon {
             return (std::abs(h1.getLocal().x - h2.getLocal().x) <= localDistXY[0]) &&
                    (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
         } else if (ldiff <= m_cfg.neighbourLayersRange) {
+          switch(m_cfg.layerMode){
+          case eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi:
             return (std::abs(edm4hep::utils::eta(h1.getPosition()) - edm4hep::utils::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
                    (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
                     layerDistEtaPhi[1]);
+          case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
+            return (std::abs(h1.getPosition().x - h2.getPosition().x) <= layerDistXY[0]) &&
+                   (std::abs(h1.getPosition().y - h2.getPosition().y) <= layerDistXY[1]);
+          }
         }
-
         // not in adjacent layers
         return false;
     }
@@ -186,7 +201,7 @@ namespace eicrecon {
     void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
       visits[idx] = true;
 
-      // not a qualified hit to particpate clustering, stop here
+      // not a qualified hit to participate clustering, stop here
       if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
         return;
       }
@@ -199,7 +214,7 @@ namespace eicrecon {
         for (std::size_t idx1 : group) {
           // check neighbours
           for (std::size_t idx2 = 0; idx2 < hits.size(); ++idx2) {
-            // not a qualified hit to particpate clustering, skip
+            // not a qualified hit to participate clustering, skip
             if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
               continue;
             }

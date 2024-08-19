@@ -10,6 +10,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+#include <gsl/pointers>
 
 #include "Beam.h"
 #include "InclusiveKinematicsTruth.h"
@@ -18,23 +19,14 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicsTruth::init(std::shared_ptr<spdlog::logger> logger) {
-    m_log = logger;
+  void InclusiveKinematicsTruth::init() { }
 
-    // m_pidSvc = service("ParticleSvc");
-    // if (!m_pidSvc) {
-    //   error() << "Unable to locate Particle Service. "
-    //           << "Make sure you have ParticleSvc in the configuration."
-    //           << endmsg;
-    //   return StatusCode::FAILURE;
-    // }
-  }
+  void InclusiveKinematicsTruth::process(
+      const InclusiveKinematicsTruth::Input& input,
+      const InclusiveKinematicsTruth::Output& output) const {
 
-  std::unique_ptr<edm4eic::InclusiveKinematicsCollection> InclusiveKinematicsTruth::execute(
-    const edm4hep::MCParticleCollection& mcparts) {
-
-    // Resulting inclusive kinematics
-    auto kinematics = std::make_unique<edm4eic::InclusiveKinematicsCollection>();
+    const auto [mcparts] = input;
+    auto [kinematics] = output;
 
     // Loop over generated particles to get incoming electron and proton beams
     // and the scattered electron. In the presence of QED radition on the incoming
@@ -45,23 +37,23 @@ namespace eicrecon {
     // Get incoming electron beam
     const auto ei_coll = find_first_beam_electron(mcparts);
     if (ei_coll.size() == 0) {
-      m_log->debug("No beam electron found");
-      return kinematics;
+      debug("No beam electron found");
+      return;
     }
     const auto ei_p = ei_coll[0].getMomentum();
     const auto ei_p_mag = edm4hep::utils::magnitude(ei_p);
-    const auto ei_mass = m_electron;
+    static const auto ei_mass = m_particleSvc.particle(11).mass;
     const PxPyPzEVector ei(ei_p.x, ei_p.y, ei_p.z, std::hypot(ei_p_mag, ei_mass));
 
     // Get incoming hadron beam
     const auto pi_coll = find_first_beam_hadron(mcparts);
     if (pi_coll.size() == 0) {
-      m_log->debug("No beam hadron found");
-      return kinematics;
+      debug("No beam hadron found");
+      return;
     }
     const auto pi_p = pi_coll[0].getMomentum();
     const auto pi_p_mag = edm4hep::utils::magnitude(pi_p);
-    const auto pi_mass = pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron;
+    const auto pi_mass = m_particleSvc.particle(pi_coll[0].getPDG()).mass;
     const PxPyPzEVector pi(pi_p.x, pi_p.y, pi_p.z, std::hypot(pi_p_mag, pi_mass));
 
     // Get first scattered electron
@@ -71,12 +63,12 @@ namespace eicrecon {
     // the beam.
     const auto ef_coll = find_first_scattered_electron(mcparts);
     if (ef_coll.size() == 0) {
-      m_log->debug("No truth scattered electron found");
-      return kinematics;
+      debug("No truth scattered electron found");
+      return;
     }
     const auto ef_p = ef_coll[0].getMomentum();
     const auto ef_p_mag = edm4hep::utils::magnitude(ef_p);
-    const auto ef_mass = m_electron;
+    static const auto ef_mass = m_particleSvc.particle(11).mass;
     const PxPyPzEVector ef(ef_p.x, ef_p.y, ef_p.z, std::hypot(ef_p_mag, ef_mass));
 
     // DIS kinematics calculations
@@ -89,10 +81,8 @@ namespace eicrecon {
     const auto W = sqrt(pi_mass*pi_mass + 2.*q_dot_pi - Q2);
     auto kin = kinematics->create(x, Q2, W, y, nu);
 
-    m_log->debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
+    debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(),
             kin.getQ2(), kin.getW(), kin.getY(), kin.getNu());
-
-    return kinematics;
   }
 
 } // namespace Jug::Reco

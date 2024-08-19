@@ -5,6 +5,7 @@
 
 #include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 
 namespace eicrecon {
@@ -29,11 +30,14 @@ private:
     ParameterRef<double> m_phiTolerance {this, "phiTolerance", config().phiTolerance};
     ParameterRef<double> m_etaTolerance {this, "etaTolerance", config().etaTolerance};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
         m_algo->applyConfig(config());
-        m_algo->init(logger());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {

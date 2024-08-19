@@ -12,6 +12,37 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 export EICrecon_ROOT=$( readlink -f ${SCRIPT_DIR}/.. )
 
+# A helper function to prepend paths without duplication,
+# allowing for empty and undefined values (but not checking existence),
+# but not escaping colons in your paths.
+pathadd() {
+    local varname="$1"
+    local newpath="$2"
+
+    eval "oldvalue=\${${varname}:-}"
+
+    # surround with colon so also first and last entry are individually surrounded
+    local canonical=":${oldvalue}:"
+    # check whether removing newpath changes old path
+    if [ "${canonical#*:${newpath}:}" = "${canonical}" ];
+    then
+        # newpath not in old path
+        if [ -n "${oldvalue}" ]; then
+            eval "export $varname=${newpath}:${oldvalue}"
+        else
+            eval "export $varname=${newpath}"
+        fi
+    else
+        # newpath not in old path
+        # redefine as what's before newpath plus what's after newpath
+        canonical=${canonical%%:${newpath}:*}:${canonical##*:${newpath}:}
+        # substring without surrounding colons
+        canonical=$(expr substr ${canonical} 2 $(expr ${#canonical} - 2))
+        # prepend newpath
+        eval "export $varname=${newpath}:${canonical}"
+    fi
+}
+
 #----------------- JANA2
 if [[ -f @JANA_DIR@/../../../bin/jana-this.sh ]] ; then
     unset ROOTSYS  # prevent ROOT from removing /usr/local/bin from PATH
@@ -43,9 +74,7 @@ EDM4HEP=$( readlink -f @EDM4HEP_DIR@/../../.. )
 if [[ -d ${EDM4HEP} ]] ; then
     export EDM4HEP_ROOT=${EDM4HEP}
     EDM4HEP_LIBDIR=${EDM4HEP_ROOT}/lib64
-    if [[ ! ":$LD_LIBRARY_PATH:" == *":$EDM4HEP_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${EDM4HEP_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-    fi
+    pathadd LD_LIBRARY_PATH ${EDM4HEP_LIBDIR}
 fi
 
 #----------------- EDM4EIC
@@ -53,9 +82,7 @@ EDM4EIC=$( readlink -f @EDM4EIC_DIR@/../.. )
 if [[ -d ${EDM4EIC} ]] ; then
     export EDM4EIC_ROOT=${EDM4EIC}
     EDM4EIC_LIBDIR=$( readlink -f @EDM4EIC_DIR@/.. )
-    if [[ ! ":$LD_LIBRARY_PATH:" == *":EDM4EIC_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${EDM4EIC_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-    fi
+    pathadd LD_LIBRARY_PATH ${EDM4EIC_LIBDIR}
 fi
 
 #----------------- DD4hep
@@ -68,41 +95,26 @@ fi
 if [[ -d @fmt_DIR@/../../.. ]] ; then
     export fmt_ROOT=@fmt_DIR@/../../..
     fmt_LIBDIR=$( readlink -f @fmt_DIR@/../.. )
-    if [[ ! ":$LD_LIBRARY_PATH:" == *":$fmt_LIBDIR:"* ]]; then
-        export LD_LIBRARY_PATH="${fmt_LIBDIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-    fi
+    pathadd LD_LIBRARY_PATH ${fmt_LIBDIR}
 fi
-
-#----------------- epic detector geometry (disabled since this overwrites use DETECTOR and DETECTOR_CONFIG settings)
-# if [[ -f @DETECTOR_PATH@/../../setup.sh ]]; then
-#     source @DETECTOR_PATH@/../../setup.sh
-# fi
 
 #----------------- IRT
 if [[ -d $( readlink -f @IRT_LIBRARY_DIR@ ) ]] ; then
-    export LD_LIBRARY_PATH="@IRT_LIBRARY_DIR@${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+    pathadd LD_LIBRARY_PATH @IRT_LIBRARY_DIR@
 fi
 
 #----------------- EICrecon
 # Add bin to PATH if not already there
-if [[ ! ":$PATH:" == *":$SCRIPT_DIR:"* ]]; then
-    export PATH=${SCRIPT_DIR}:${PATH}
-fi
+pathadd PATH ${SCRIPT_DIR}
 
 # Add lib to LD_LIBRARY_PATH if not already there
 LIB_DIR=$( readlink -f ${EICrecon_ROOT}/lib )
-if [[ ! ":$LD_LIBRARY_PATH:" == *":$LIB_DIR:"* ]]; then
-    export LD_LIBRARY_PATH="${LIB_DIR}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
-fi
+pathadd LD_LIBRARY_PATH ${LIB_DIR}
 
 # Add plugins to JANA_PLUGIN_PATH if not already there
 PLUGINS_DIR=$( readlink -f ${EICrecon_ROOT}/@PLUGIN_OUTPUT_DIRECTORY@ )
-if [[ ! ":$JANA_PLUGIN_PATH:" == *":$PLUGINS_DIR:"* ]]; then
-    export JANA_PLUGIN_PATH="${PLUGINS_DIR}${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}"
-fi
+pathadd JANA_PLUGIN_PATH ${PLUGINS_DIR}
 
 # Add plugin headers to ROOT_INCLUDE_PATH if not already there
 HEADERS_DIR=$( readlink -f ${EICrecon_ROOT}/include )
-if [[ ! ":ROOT_INCLUDE_PATH:" == *":$HEADERS_DIR:"* ]]; then
-    export ROOT_INCLUDE_PATH="${HEADERS_DIR}${ROOT_INCLUDE_PATH:+:${ROOT_INCLUDE_PATH}}"
-fi
+pathadd ROOT_INCLUDE_PATH ${HEADERS_DIR}

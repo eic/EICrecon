@@ -1,22 +1,22 @@
-// Original header license: SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
-#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Geometry/DetectorElementBase.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
-#include <Acts/Surfaces/PlanarBounds.hpp>
-#include <Acts/Surfaces/PlaneSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Surfaces/SurfaceBounds.hpp>
 #include <Acts/Utilities/BinningType.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <Acts/Visualization/GeometryView3D.hpp>
+#include <Acts/Visualization/ObjVisualization3D.hpp>
+#include <Acts/Visualization/PlyVisualization3D.hpp>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/VolumeManager.h>
 #include <JANA/JException.h>
@@ -24,13 +24,9 @@
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 #include <spdlog/common.h>
-#include <stddef.h>
 #include <exception>
 #include <initializer_list>
-#include <iomanip>
-#include <iostream>
 #include <type_traits>
-#include <vector>
 
 #include "ActsGeometryProvider.h"
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -48,42 +44,6 @@ struct fmt::formatter<
     >
 > : fmt::ostream_formatter {};
 #endif // FMT_VERSION >= 90000
-
-void draw_surfaces(std::shared_ptr<const Acts::TrackingGeometry> trk_geo, const Acts::GeometryContext geo_ctx,
-                   const std::string &fname) {
-    using namespace Acts;
-    std::vector<const Surface *> surfaces;
-
-    trk_geo->visitSurfaces([&](const Acts::Surface *surface) {
-        // for now we just require a valid surface
-        if (surface == nullptr) {
-            std::cout << " Not a surface \n";
-            return;
-        }
-        surfaces.push_back(surface);
-    });
-    std::ofstream os;
-    os.open(fname);
-    os << std::fixed << std::setprecision(6);
-    size_t nVtx = 0;
-    for (const auto &srfx: surfaces) {
-        const auto *srf = dynamic_cast<const PlaneSurface *>(srfx);
-        const auto *bounds = dynamic_cast<const PlanarBounds *>(&srf->bounds());
-        for (const auto &vtxloc: bounds->vertices()) {
-            Vector3 vtx = srf->transform(geo_ctx) * Vector3(vtxloc.x(), vtxloc.y(), 0);
-            os << "v " << vtx.x() << " " << vtx.y() << " " << vtx.z() << "\n";
-        }
-        // connect them
-        os << "f";
-        for (size_t i = 1; i <= bounds->vertices().size(); ++i) {
-            os << " " << nVtx + i;
-        }
-        os << "\n";
-        nVtx += bounds->vertices().size();
-    }
-    os.close();
-}
-
 
 void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
                                       std::string material_file,
@@ -105,25 +65,6 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
     auto acts_init_log_level = eicrecon::SpdlogToActsLevel(m_init_log->level());
 
     m_dd4hepDetector = dd4hep_geo;
-
-    // create a list of all surfaces in the detector:
-//  dd4hep::rec::SurfaceManager surfMan( *m_dd4hepDetector ) ;
-//
-//  m_log->debug(" surface manager ");
-//  const auto* const sM = surfMan.map("tracker") ;
-//  if (sM != nullptr) {
-//      m_log->debug(" surface map  size: {}", sM->size());
-//    // setup  dd4hep surface map
-//    //for( dd4hep::rec::SurfaceMap::const_iterator it = sM->begin() ; it != sM->end() ; ++it ){
-//    for( const auto& [id, s] :   *sM) {
-//      //dd4hep::rec::Surface* surf = s ;
-//      m_surfaceMap[ id ] = dynamic_cast<dd4hep::rec::Surface*>(s) ;
-//        //m_log->debug(" surface : {}", *s );
-////      m_detPlaneMap[id] = std::shared_ptr<genfit::DetPlane>(
-////          new genfit::DetPlane({s->origin().x(), s->origin().y(), s->origin().z()}, {s->u().x(), s->u().y(), s->u().z()},
-////                               {s->v().x(), s->v().y(), s->v().z()}));
-//    }
-//  }
 
     // Load ACTS materials maps
     std::shared_ptr<const Acts::IMaterialDecorator> materialDeco{nullptr};
@@ -187,7 +128,26 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
     // Visit surfaces
     m_init_log->info("Checking surfaces...");
     if (m_trackingGeo) {
-        draw_surfaces(m_trackingGeo, m_trackingGeoCtx, "tracking_geometry.obj");
+        // Write tracking geometry to collection of obj or ply files
+        const Acts::TrackingVolume* world = m_trackingGeo->highestTrackingVolume();
+        if (m_objWriteIt) {
+          m_init_log->info("Writing obj files to {}...", m_outputDir);
+          Acts::ObjVisualization3D objVis;
+          Acts::GeometryView3D::drawTrackingVolume(
+            objVis, *world, m_trackingGeoCtx,
+            m_containerView, m_volumeView, m_passiveView, m_sensitiveView, m_gridView,
+            m_objWriteIt, m_outputTag, m_outputDir
+          );
+        }
+        if (m_plyWriteIt) {
+          m_init_log->info("Writing ply files to {}...", m_outputDir);
+          Acts::PlyVisualization3D plyVis;
+          Acts::GeometryView3D::drawTrackingVolume(
+            plyVis, *world, m_trackingGeoCtx,
+            m_containerView, m_volumeView, m_passiveView, m_sensitiveView, m_gridView,
+            m_plyWriteIt, m_outputTag, m_outputDir
+          );
+        }
 
         m_init_log->debug("visiting all the surfaces  ");
         m_trackingGeo->visitSurfaces([this](const Acts::Surface *surface) {

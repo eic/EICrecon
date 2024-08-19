@@ -3,27 +3,36 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
+#include <string>
+#include <string_view>
 
+#include "algorithms/interfaces/ParticleSvc.h"
 
 namespace eicrecon {
 
-    class InclusiveKinematicsTruth {
+using InclusiveKinematicsTruthAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4hep::MCParticleCollection>,
+                          algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-    public:
+class InclusiveKinematicsTruth : public InclusiveKinematicsTruthAlgorithm {
 
-        void init(std::shared_ptr<spdlog::logger> logger);
+public:
+  InclusiveKinematicsTruth(std::string_view name)
+      : InclusiveKinematicsTruthAlgorithm{
+            name,
+            {"MCParticles"},
+            {"inclusiveKinematics"},
+            "Determine inclusive kinematics from truth information."} {}
 
-        std::unique_ptr<edm4eic::InclusiveKinematicsCollection> execute(
-                const edm4hep::MCParticleCollection& mcparts
-        );
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-    private:
-        std::shared_ptr<spdlog::logger> m_log;
-        double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
-    };
+private:
+  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  double m_crossingAngle{-0.025};
+};
 
 } // namespace eicrecon

@@ -40,7 +40,8 @@ extern "C" {
             .pedMeanADC = EcalEndcapN_pedMeanADC,
             .pedSigmaADC = EcalEndcapN_pedSigmaADC,
             .resolutionTDC = EcalEndcapN_resolutionTDC,
-            .corrMeanScale = 1.0,
+            .corrMeanScale = "1.0",
+            .readout = "EcalEndcapNHits",
           },
           app   // TODO: Remove me once fixed
         ));
@@ -54,7 +55,7 @@ extern "C" {
             .resolutionTDC = EcalEndcapN_resolutionTDC,
             .thresholdFactor = 0.0,
             .thresholdValue = 4.0, // (20. GeV / 16384) * 4 ~= 5 MeV
-            .sampFrac = 0.998,
+            .sampFrac = "0.998",
             .readout = "EcalEndcapNHits",
             .sectorField = "sector",
           },
@@ -68,6 +69,7 @@ extern "C" {
           "EcalEndcapNIslandProtoClusters", {"EcalEndcapNRecHits"}, {"EcalEndcapNIslandProtoClusters"},
           {
             .adjacencyMatrix = "(abs(row_1 - row_2) + abs(column_1 - column_2)) == 1",
+            .peakNeighbourhoodMatrix = "max(abs(row_1 - row_2), abs(column_1 - column_2)) == 1",
             .readout = "EcalEndcapNHits",
             .sectorDist = 5.0 * dd4hep::cm,
             .splitCluster = true,

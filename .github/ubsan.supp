@@ -1,3 +1,7 @@
 implicit-integer-sign-change:JsonMaterialDecorator
-implicit-integer-sign-change:/usr/local/include/eigen3/Eigen/src/Core/arch/SSE/PacketMath.h
+implicit-integer-sign-change:/opt/local/include/eigen3/Eigen/src/Core/arch/SSE/PacketMath.h
 implicit-integer-sign-change:TObject
+implicit-signed-integer-truncation:/opt/local/include/boost/iostreams/filter/gzip.hpp
+implicit-integer-sign-change:/opt/local/include/eigen3/Eigen/src/Core/arch/SSE/Complex.h
+implicit-integer-sign-change:/opt/local/include/root/TStorage.h
+implicit-unsigned-integer-truncation:/opt/local/include/Acts/TrackFinding/CombinatorialKalmanFilter.hpp

@@ -3,13 +3,15 @@
 //
 
 #include <DDRec/CellIDPositionConverter.h>
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/fardetectors/MatrixTransferStatic.h"
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 
 // Event Model related classes
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 
 #include "extensions/jana/JOmniFactory.h"
 
@@ -18,9 +20,13 @@ namespace eicrecon {
 class MatrixTransferStatic_factory :
     public JOmniFactory<MatrixTransferStatic_factory, MatrixTransferStaticConfig> {
 
-    eicrecon::MatrixTransferStatic   m_algo;        // Actual algorithm
+public:
+    using AlgoT = eicrecon::MatrixTransferStatic;
+private:
+    std::unique_ptr<AlgoT> m_algo;
 
-    PodioInput<edm4hep::SimTrackerHit> m_hits_input {this};
+    PodioInput<edm4hep::MCParticle> m_mcparts_input {this};
+    PodioInput<edm4eic::TrackerHit> m_hits_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_tracks_output {this};
 
     Service<DD4hep_service> m_geoSvc {this};
@@ -47,17 +53,21 @@ class MatrixTransferStatic_factory :
 
     ParameterRef<std::string> readout {this, "readout", config().readout};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
 public:
     void Configure() {
-        m_algo.applyConfig(config());
-        m_algo.init(m_geoSvc().detector(), m_geoSvc().converter(), logger());
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+        m_algo->applyConfig(config());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_tracks_output() = m_algo.process(*m_hits_input());
+        m_algo->process({m_mcparts_input(), m_hits_input()}, {m_tracks_output().get()});
     }
 
 };

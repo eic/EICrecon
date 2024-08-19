@@ -41,7 +41,8 @@ extern "C" {
             .pedMeanADC = EcalEndcapP_pedMeanADC,
             .pedSigmaADC = EcalEndcapP_pedSigmaADC,
             .resolutionTDC = EcalEndcapP_resolutionTDC,
-            .corrMeanScale = 0.03,
+            .corrMeanScale = "0.03",
+            .readout = "EcalEndcapPHits",
           },
           app   // TODO: Remove me once fixed
         ));
@@ -55,7 +56,7 @@ extern "C" {
             .resolutionTDC = EcalEndcapP_resolutionTDC,
             .thresholdFactor = 0.0,
             .thresholdValue = 2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
-            .sampFrac  =0.03,
+            .sampFrac  = "0.03",
             .readout = "EcalEndcapPHits",
           },
           app   // TODO: Remove me once fixed
@@ -69,7 +70,6 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {10.0 * dd4hep::cm, 10.0 * dd4hep::cm},
-            .dimScaledLocalDistXY = {1.5, 1.5},
             .splitCluster = true,
             .minClusterHitEdep = 0.0 * dd4hep::MeV,
             .minClusterCenterEdep = 10.0 * dd4hep::MeV,
@@ -127,7 +127,8 @@ extern "C" {
             .pedMeanADC = EcalEndcapP_pedMeanADC,
             .pedSigmaADC = EcalEndcapP_pedSigmaADC,
             .resolutionTDC = EcalEndcapP_resolutionTDC,
-            .corrMeanScale = 0.03,
+            .corrMeanScale = "0.03",
+            .readout = "EcalEndcapPInsertHits",
           },
           app   // TODO: Remove me once fixed
         ));
@@ -141,7 +142,7 @@ extern "C" {
             .resolutionTDC = EcalEndcapP_resolutionTDC,
             .thresholdFactor = 0.0,
             .thresholdValue = 2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
-            .sampFrac  =0.03,
+            .sampFrac = "0.03",
             .readout = "EcalEndcapPInsertHits",
           },
           app   // TODO: Remove me once fixed

@@ -5,16 +5,15 @@
 
 #include "ACTSGeo_service.h"
 
+#include <Acts/Visualization/ViewConfig.hpp>
 #include <JANA/JException.h>
-#include <fmt/core.h>
-#include <fmt/format.h>
+#include <array>
 #include <exception>
 #include <gsl/pointers>
 #include <stdexcept>
 #include <string>
 
 #include "ActsGeometryProvider.h"
-#include "extensions/spdlog/SpdlogExtensions.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 
@@ -53,9 +52,42 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
             auto tickerEnabled = m_app->IsTickerEnabled();
             m_app->SetTicker(false);
 
-            // Initialize m_acts_provider
+            // Create default m_acts_provider
             m_acts_provider = std::make_shared<ActsGeometryProvider>();
-            m_acts_provider->initialize(m_dd4hepGeo, material_map_file, m_log, m_init_log);
+
+            // Set ActsGeometryProvider parameters
+            bool objWriteIt = m_acts_provider->getObjWriteIt();
+            bool plyWriteIt = m_acts_provider->getPlyWriteIt();
+            m_app->SetDefaultParameter("acts:WriteObj", objWriteIt, "Write tracking geometry as obj files");
+            m_app->SetDefaultParameter("acts:WritePly", plyWriteIt, "Write tracking geometry as ply files");
+            m_acts_provider->setObjWriteIt(objWriteIt);
+            m_acts_provider->setPlyWriteIt(plyWriteIt);
+
+            std::string outputTag = m_acts_provider->getOutputTag();
+            std::string outputDir = m_acts_provider->getOutputDir();
+            m_app->SetDefaultParameter("acts:OutputTag", outputTag, "Obj and ply output file tag");
+            m_app->SetDefaultParameter("acts:OutputDir", outputDir, "Obj and ply output file dir");
+            m_acts_provider->setOutputTag(outputTag);
+            m_acts_provider->setOutputDir(outputDir);
+
+            std::array<int,3> containerView = m_acts_provider->getContainerView().color;
+            std::array<int,3> volumeView = m_acts_provider->getVolumeView().color;
+            std::array<int,3> sensitiveView = m_acts_provider->getSensitiveView().color;
+            std::array<int,3> passiveView = m_acts_provider->getPassiveView().color;
+            std::array<int,3> gridView = m_acts_provider->getGridView().color;
+            m_app->SetDefaultParameter("acts:ContainerView", containerView, "RGB for container views");
+            m_app->SetDefaultParameter("acts:VolumeView", volumeView, "RGB for volume views");
+            m_app->SetDefaultParameter("acts:SensitiveView", sensitiveView, "RGB for sensitive views");
+            m_app->SetDefaultParameter("acts:PassiveView", passiveView, "RGB for passive views");
+            m_app->SetDefaultParameter("acts:GridView", gridView, "RGB for grid views");
+            m_acts_provider->setContainerView(containerView);
+            m_acts_provider->setVolumeView(volumeView);
+            m_acts_provider->setSensitiveView(sensitiveView);
+            m_acts_provider->setPassiveView(passiveView);
+            m_acts_provider->setGridView(gridView);
+
+            // Initialize m_acts_provider
+            m_acts_provider->initialize(m_dd4hepGeo, material_map_file, m_log, m_log);
 
             // Enable ticker back
             m_app->SetTicker(tickerEnabled);
@@ -73,20 +105,7 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
 void ACTSGeo_service::acquire_services(JServiceLocator * srv_locator) {
 
     auto log_service = srv_locator->get<Log_service>();
-
-    // ACTS general log level:
     m_log = log_service->logger("acts");
-    std::string log_level_str = log_service->getDefaultLevelStr();
-    m_app->SetDefaultParameter("acts:LogLevel", log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
-    m_log->set_level(eicrecon::ParseLogLevel(log_level_str));
-    m_log->info("Acts GENERAL log level is set to {} ({})", log_level_str, fmt::underlying(m_log->level()));
-
-    // ACTS init log level (geometry conversion):
-    m_init_log = log_service->logger("acts_init");
-    std::string init_log_level_str = eicrecon::LogLevelToString(m_log->level());  // set general acts log level, if not given by user
-    m_app->SetDefaultParameter("acts:InitLogLevel", init_log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
-    m_init_log->set_level(eicrecon::ParseLogLevel(init_log_level_str));
-    m_init_log->info("Acts INIT log level is set to {} ({})", log_level_str, fmt::underlying(m_init_log->level()));
 
     // DD4Hep geometry
     auto dd4hep_service = srv_locator->get<DD4hep_service>();
