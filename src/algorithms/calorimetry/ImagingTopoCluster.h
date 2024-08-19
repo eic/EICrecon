@@ -146,22 +146,40 @@ namespace eicrecon {
             error("equivalent hits were dropped: #hits {:d}, #indices {:d}", hits->size(), indices.size());
         }
 
-        // group neighbouring hits
-        std::vector<bool> visits(hits->size(), false);
-        std::vector<std::set<std::size_t>> groups;
-        for (const auto& idx : indices) {
+        // Group neighbouring hits
+        std::vector<std::vector<std::size_t>> groups;
+        // because indices changes, the loop over indices requires some care:
+        // - we must use iterators instead of range-for
+        // - erase returns an increment iterator and therefore acts as idx++
+        // - when the set becomes empty on erase, idx is invalid and idx++ will fail
+        // (also applies to loop in bfs_group below)
+        for (auto idx = indices.begin(); idx != indices.end();
+                 indices.empty() ? idx = indices.end() : idx) {
 
-            debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", idx + 1,
-                         (*hits)[idx].getLocal().x, (*hits)[idx].getLocal().y, (*hits)[idx].getPosition().z,
-                         (*hits)[idx].getPosition().x, (*hits)[idx].getPosition().y, (*hits)[idx].getPosition().z
+            debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {}), energy = {}", *idx,
+                         (*hits)[*idx].getLocal().x, (*hits)[*idx].getLocal().y, (*hits)[*idx].getPosition().z,
+                         (*hits)[*idx].getPosition().x, (*hits)[*idx].getPosition().y, (*hits)[*idx].getPosition().z,
+                         (*hits)[*idx].getEnergy()
             );
-            // already in a group, or not energetic enough to form a cluster
-            if (visits[idx] || (*hits)[idx].getEnergy() < minClusterCenterEdep) {
-                continue;
+
+            // not energetic enough for cluster center or other cluster hit
+            if ((*hits)[*idx].getEnergy() < std::min(m_cfg.minClusterHitEdep,m_cfg.minClusterCenterEdep)) {
+              idx = indices.erase(idx);
+              continue;
             }
+
+            // not energetic enough for cluster center (could still be cluster hit)
+            if ((*hits)[*idx].getEnergy() < minClusterCenterEdep) {
+              idx++;
+              continue;
+            }
+
             // create a new group, and group all the neighbouring hits
-            groups.emplace_back();
-            bfs_group(*hits, indices, groups.back(), idx, visits);
+            groups.emplace_back(std::vector{*idx});
+            bfs_group(*hits, indices, groups.back(), *idx);
+
+            // wait with erasing until after bfs_group to ensure valid iterator is returned
+            idx = indices.erase(idx); // takes role of idx++
         }
         debug("found {} potential clusters (groups of hits)", groups.size());
         for (size_t i = 0; i < groups.size(); ++i) {
@@ -222,39 +240,53 @@ namespace eicrecon {
 
     // grouping function with Breadth-First Search
     template<typename Compare>
-    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t,Compare>& indices, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
-      visits[idx] = true;
+    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t,Compare>& indices, std::vector<std::size_t> &group, const std::size_t idx) const {
 
       // not a qualified hit to participate clustering, stop here
       if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
         return;
       }
 
-      group.insert(idx);
-      size_t prev_size = 0;
-
+      std::size_t prev_size = 0;
       while (prev_size != group.size()) {
-        prev_size = group.size();
-        for (std::size_t idx1 : group) {
-          // check neighbours
-          for (const auto& idx2 : indices) {
+        auto prev_group = group;
+        for (auto idx1 = std::next(prev_group.begin(), prev_size); idx1 != prev_group.end(); ++idx1) {
+          // check neighbours (note comments on loop over set above)
+          for (auto idx2 = indices.begin(); idx2 != indices.end();
+              indices.empty() ? idx2 = indices.end() : idx2) {
+
+            // skip idx1 and original idx
+            if (*idx2 == *idx1 || *idx2 == idx) {
+              idx2++;
+              continue;
+            }
 
             // skip rest of list of hits when we're past relevant layers
-            //if (hits[idx2].getLayer() - hits[idx1].getLayer() > m_cfg.neighbourLayersRange) {
+            //if (hits[*idx2].getLayer() - hits[*idx1].getLayer() > m_cfg.neighbourLayersRange) {
             //  break;
             //}
 
-            // not a qualified hit to participate clustering, skip
-            if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
+            // not energetic enough for cluster center or other cluster hit
+            if (hits[*idx2].getEnergy() < std::min(m_cfg.minClusterHitEdep,m_cfg.minClusterCenterEdep)) {
+              idx2 = indices.erase(idx2);
               continue;
             }
-            if ((!visits[idx2])
-                && is_neighbour(hits[idx1], hits[idx2])) {
-              group.insert(idx2);
-              visits[idx2] = true;
+
+            // not energetic enough for cluster hit in this group
+            if (hits[*idx2].getEnergy() < m_cfg.minClusterHitEdep) {
+              idx2++;
+              continue;
+            }
+
+            if (is_neighbour(hits[*idx1], hits[*idx2])) {
+              group.push_back(*idx2);
+              idx2 = indices.erase(idx2); // takes role of idx2++
+            } else {
+              idx2++;
             }
           }
         }
+        prev_size = prev_group.size();
       }
     }
 
