@@ -4,6 +4,7 @@
 //
 
 #include <JANA/JApplication.h>
+#include <DD4hep/DD4hepUnits.h>
 #include <algorithm>
 #include <string>
 
@@ -185,20 +186,72 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JChainMultifactoryGeneratorT<ParticleFlow_factory>(
-        "ParticleFlow",
+    app->Add(new JOmniFactoryGeneratorT<ParticleFlow_factory>(
+        "ParticleFlowEndcapN",
         {
-          "ReconstructedChargedParticles",
-          "CalorimeterTrackProjections",
-          "EcalEndcapNClusters",
-          "HcalEndcapNClusters",
-          "EcalBarrelScFiClusters",
-          "HcalBarrelClusters",
-          "EcalEndcapPClusters",
-          "LFHCALClusters"
+          "CalorimeterTrackProjections",  // edm4eic::TrackSegment
+          "EcalEndcapNClusters",          // edm4eic::Cluster
+          "HcalEndcapNClusters"           // edm4eic::Cluster
         },
-        {"ParticleFlowObjects"},
-        {},
+        {"EndcapNParticleFlowObjects"},  // edm4eic::ReconstructedParticle
+        {
+          .flowAlgo = 0,
+          .ecalDetName = "EcalEndcapN",
+          .hcalDetName = "HcalEndcapN",
+          .minTrkMomentum = 0.1 * dd4hep::GeV,
+          .minECalEnergy = 0.1 * dd4hep::GeV,
+          .minHCalEnergy = 0.1 * dd4hep::GeV,
+          .ecalSumRadius = 1.0,
+          .hcalSumRadius = 1.0,
+          .ecalFracSub = 1.0,
+          .hcalFracSub = 1.0
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ParticleFlow_factory>(
+        "ParticleFlowBarrel",
+        {
+          "CalorimeterTrackProjections", // edm4eic::TrackSegment
+          "EcalBarrelScFiClusters",      // edm4eic::Cluster
+          "HcalBarrelClusters"           // edm4eic::Cluster
+        },
+        {"BarrelParticleFlowObjects"},  // edm4eic::ReconstructedParticle
+        {
+          .flowAlgo = 0,
+          .ecalDetName = "EcalBarrelScFi",
+          .hcalDetName = "HcalBarrel",
+          .minTrkMomentum = 0.1 * dd4hep::GeV,
+          .minECalEnergy = 0.1 * dd4hep::GeV,
+          .minHCalEnergy = 0.1 * dd4hep::GeV,
+          .ecalSumRadius = 1.0,
+          .hcalSumRadius = 1.0,
+          .ecalFracSub = 1.0,
+          .hcalFracSub = 1.0
+        },
+        app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<ParticleFlow_factory>(
+        "ParticleFlowEndcapP",
+        {
+          "CalorimeterTrackProjections",    // edm4eic::TrackSegment
+          "EcalEndcapPClusters",            // edm4eic::Cluster
+          "LFHCALClusters"                  // edm4eic::Cluster
+        },
+        {"EndcapPParticleFlowObjects"},  // edm4eic::ReconstructedParticle
+        {
+          .flowAlgo = 0,
+          .ecalDetName = "EcalEndcapP",
+          .hcalDetName = "LFHCAL",
+          .minTrkMomentum = 0.1 * dd4hep::GeV,
+          .minECalEnergy = 0.1 * dd4hep::GeV,
+          .minHCalEnergy = 0.1 * dd4hep::GeV,
+          .ecalSumRadius = 1.0,
+          .hcalSumRadius = 1.0,
+          .ecalFracSub = 1.0,
+          .hcalFracSub = 1.0
+        },
         app
     ));
 
