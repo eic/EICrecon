@@ -226,7 +226,7 @@ namespace eicrecon {
           const float dist = PFTools::calculate_dist_in_eta_phi(ecalClust.getPosition(), seedAtECalFace.value().position);
           if (dist < m_cfg.ecalSumRadius) {
             m_ecalClustToMergeVec.push_back(ecalClust);
-	    m_ecalClustSet.erase(ecalClust);
+            m_ecalClustSet.erase(ecalClust);
           }
         }  // end ecal clust loop
       }  // end if found seed point at ecal face
@@ -240,7 +240,7 @@ namespace eicrecon {
           const float dist = PFTools::calculate_dist_in_eta_phi(hcalClust.getPosition(), seedAtHCalFace.value().position);
           if (dist < m_cfg.hcalSumRadius) {
             m_hcalClustToMergeVec.push_back(hcalClust);
-	    m_hcalClustSet.erase(hcalClust);
+            m_hcalClustSet.erase(hcalClust);
           }
         }  // end hcal clust loop
       }  // end if found seed point at hcal face
@@ -320,8 +320,8 @@ namespace eicrecon {
 
       // add seed to merged cluster and decement counters
       if (ecalSeed.has_value()) {
-	m_clustToMergeVec.push_back(ecalSeed.value());
-	m_ecalClustSet.erase(ecalSeed.value());
+        m_clustToMergeVec.push_back(ecalSeed.value());
+        m_ecalClustSet.erase(ecalSeed.value());
         m_log -> debug("Found seed ecal cluster with energy {}: {} ecal clusters remaining", ecalSeed.value().getEnergy(), m_ecalClustSet.size());
       } else {
         m_log -> debug("Was not able to find seed ecal cluster out of {} clusters reamining", m_ecalClustSet.size());
@@ -402,7 +402,7 @@ namespace eicrecon {
       // add seed to merged cluster and remove from list
       if (hcalSeed.has_value()) {
         m_hcalClustToMergeVec.push_back(hcalSeed.value());
-	m_hcalClustSet.erase(hcalSeed.value());
+        m_hcalClustSet.erase(hcalSeed.value());
         m_log -> debug("Found seed hcal cluster with energy {}: {} hcal clusters remaining", hcalSeed.value().getEnergy(), m_hcalClustSet.size());
       } else {
         m_log -> debug("Was not able to find seed hcal cluster out of {} clusters reamining", m_hcalClustSet.size());
@@ -531,7 +531,7 @@ namespace eicrecon {
   void ParticleFlow::add_track_to_output(const edm4eic::TrackSegment track, const uint32_t system, const uint64_t surface) {
 
     // grab projection at specified point
-    std::optional<edm4eic::TrackPoint> projection = PFTools::find_point_at_surface(track, system, surface); 
+    std::optional<edm4eic::TrackPoint> projection = PFTools::find_point_at_surface(track, system, surface);
     if (!projection.has_value()) {
       m_log -> error("Error! Trying to evaluate a track at an unavailble point! (system = {}, surface = {})", system, surface);
     }
@@ -591,7 +591,7 @@ namespace eicrecon {
       clust_pfo.setMass( PFTools::consts.massPi0 );
       clust_pfo.setMomentum( PFTools::calculate_sum_of_momenta(clusters, {0., 0., 0.}, PFTools::consts.massPi0) );
     }
- 
+
     // likewise for pdg code
     if (pdg.has_value()) {
       clust_pfo.setPDG( pdg.value() );

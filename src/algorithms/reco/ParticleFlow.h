@@ -47,7 +47,7 @@ namespace eicrecon{
     public:
 
       // aliases for brevity
-      //   - TODO make comparators to sort sets by decreasing momentum/energy 
+      //   - TODO make comparators to sort sets by decreasing momentum/energy
       using TrkInput   = const edm4eic::TrackSegmentCollection*;
       using CaloInput  = std::pair<const edm4eic::ClusterCollection*, const edm4eic::ClusterCollection*>;
       using CaloSet    = std::set<edm4eic::Cluster>;

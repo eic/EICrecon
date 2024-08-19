@@ -71,7 +71,7 @@ namespace eicrecon {
     /*! Returns true if a track projection is pointing to one of the provided
      *  systems (i.e. detector volumes) based on their system IDs.  Returns
      *  false otherwise.
-     */ 
+     */
     bool is_track_pointing_to_system(const edm4eic::TrackPoint& point, std::vector<uint32_t> sysToConsider) {
 
       bool isPointingToSys = false;
@@ -152,7 +152,7 @@ namespace eicrecon {
     //! Calculate Sum of Cluster Momenta
     // ------------------------------------------------------------------------
     /*! Function to calculate the sum of 3-momenta from a provided list of
-     *  edm4eic::Cluster's relative to a provided vertex. 
+     *  edm4eic::Cluster's relative to a provided vertex.
      */
     edm4hep::Vector3f calculate_sum_of_momenta(std::vector<edm4eic::Cluster>& vecClust, const edm4hep::Vector3f vertex, const float mass = consts.massPi0) {
 
@@ -171,7 +171,7 @@ namespace eicrecon {
     // ------------------------------------------------------------------------
     /*! Returns the corresponding to the track projected to the specified
      *  at the specified surface.  If no point is found, then std::nullopt is
-     *  returned. 
+     *  returned.
      */
     std::optional<edm4eic::TrackPoint> find_point_at_surface(const edm4eic::TrackSegment projection, const uint32_t system, const uint64_t surface) {
 
@@ -201,7 +201,7 @@ namespace eicrecon {
      *  found, then std::nullopt is returned.
      */
     std::optional<edm4eic::TrackSegment> get_nearest_projection(const edm4hep::Vector3f& position, std::vector<edm4eic::TrackSegment>& projections, const uint32_t system, const uint64_t surface) {
-  
+
       // instantiate point to return
       std::optional<edm4eic::TrackSegment> nearest = std::nullopt;
 
@@ -242,11 +242,11 @@ namespace eicrecon {
         if (!point.has_value()) continue;
 
         // increment sum
-	if (mass.has_value()) {
+        if (mass.has_value()) {
           sum += calculate_energy_at_point(point.value(), mass.value());
-	} else {
-	  sum += calculate_energy_at_point(point.value(), consts.massPiCharged);
-	}
+        } else {
+          sum += calculate_energy_at_point(point.value(), consts.massPiCharged);
+        }
       }
       return sum;
 
@@ -279,7 +279,7 @@ namespace eicrecon {
      *
      *  TODO it might be handy to let the weighting function be configurable
      *  in a way similar to CalorimeterClusterRecoCoG...
-     */ 
+     */
     edm4hep::Vector3f calculate_energy_weighted_centroid(std::vector<edm4eic::Cluster>& clusters) {
 
       // get sum of energy
