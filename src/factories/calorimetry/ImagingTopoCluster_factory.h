@@ -28,7 +28,7 @@ private:
     ParameterRef<double> m_mched {this, "minClusterHitEdep", config().minClusterHitEdep};
     ParameterRef<double> m_mcced {this, "minClusterCenterEdep", config().minClusterCenterEdep};
     ParameterRef<double> m_mced {this, "minClusterEdep", config().minClusterEdep};
-    ParameterRef<int> m_mcnh {this, "minClusterNhits", config().minClusterNhits};
+    ParameterRef<std::size_t> m_mcnh {this, "minClusterNhits", config().minClusterNhits};
 
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
 

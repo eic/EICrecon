@@ -66,7 +66,7 @@ namespace eicrecon {
 
     // unitless counterparts of the input parameters
     double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, layerDistXY[2]{0, 0}, sectorDist{0};
-    double minClusterHitEdep{0}, minClusterCenterEdep{0}, minClusterEdep{0}, minClusterNhits{0};
+    double minClusterHitEdep{0}, minClusterCenterEdep{0}, minClusterEdep{0};
 
   public:
     void init() {
@@ -166,7 +166,7 @@ namespace eicrecon {
 
         // form clusters
         for (const auto &group : groups) {
-            if (static_cast<int>(group.size()) < m_cfg.minClusterNhits) {
+            if (group.size() < m_cfg.minClusterNhits) {
                 continue;
             }
             double energy = 0.;
