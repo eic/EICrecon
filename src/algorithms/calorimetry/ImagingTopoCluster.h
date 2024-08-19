@@ -150,8 +150,8 @@ namespace eicrecon {
         std::vector<std::vector<std::size_t>> groups;
         // because indices changes, the loop over indices requires some care:
         // - we must use iterators instead of range-for
-        // - erase returns an increment iterator and therefore acts as idx++
-        // - when the set becomes empty on erase, idx is invalid and idx++ will fail
+        // - erase returns an incremented iterator and therefore acts as idx++
+        // - when the set becomes empty on erase, idx is invalid and idx++ will be too
         // (also applies to loop in bfs_group below)
         for (auto idx = indices.begin(); idx != indices.end();
                  indices.empty() ? idx = indices.end() : idx) {
@@ -162,13 +162,13 @@ namespace eicrecon {
                          (*hits)[*idx].getEnergy()
             );
 
-            // not energetic enough for cluster center or other cluster hit
+            // not energetic enough for cluster center or other cluster hits, so erase
             if ((*hits)[*idx].getEnergy() < std::min(m_cfg.minClusterHitEdep,m_cfg.minClusterCenterEdep)) {
               idx = indices.erase(idx);
               continue;
             }
 
-            // not energetic enough for cluster center (could still be cluster hit)
+            // not energetic enough for cluster center, but could still be cluster hit
             if ((*hits)[*idx].getEnergy() < minClusterCenterEdep) {
               idx++;
               continue;
@@ -178,7 +178,7 @@ namespace eicrecon {
             groups.emplace_back(std::vector{*idx});
             bfs_group(*hits, indices, groups.back(), *idx);
 
-            // wait with erasing until after bfs_group to ensure valid iterator is returned
+            // wait with erasing until after bfs_group to ensure iterator is not invalidated in bfs_group
             idx = indices.erase(idx); // takes role of idx++
         }
         debug("found {} potential clusters (groups of hits)", groups.size());
@@ -239,6 +239,7 @@ namespace eicrecon {
     }
 
     // grouping function with Breadth-First Search
+    // note: template to allow Compare only known in local scope of caller
     template<typename Compare>
     void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t,Compare>& indices, std::vector<std::size_t> &group, const std::size_t idx) const {
 
@@ -247,6 +248,7 @@ namespace eicrecon {
         return;
       }
 
+      // keep track of size as group grows
       std::size_t prev_size = 0;
       while (prev_size != group.size()) {
         auto prev_group = group;
@@ -256,6 +258,7 @@ namespace eicrecon {
               indices.empty() ? idx2 = indices.end() : idx2) {
 
             // skip idx1 and original idx
+            // (we cannot erase idx since it would invalidate iterator in calling scope)
             if (*idx2 == *idx1 || *idx2 == idx) {
               idx2++;
               continue;
@@ -267,6 +270,7 @@ namespace eicrecon {
             //}
 
             // not energetic enough for cluster center or other cluster hit
+            // whereas caller has removed earlier low energy hits, this removes ones that caller hasn't gotten to yet
             if (hits[*idx2].getEnergy() < std::min(m_cfg.minClusterHitEdep,m_cfg.minClusterCenterEdep)) {
               idx2 = indices.erase(idx2);
               continue;
