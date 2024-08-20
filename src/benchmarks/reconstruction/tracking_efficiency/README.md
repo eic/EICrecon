@@ -67,7 +67,7 @@ export DETECTOR_PATH="/path/to/dd4hep/epic/"
 export DETECTOR="epic_tracking_only"
 
 # This makes tracking output data and input MC particles to be written to the output
--Ppodio:output_include_collections="ReconstructedParticles,TrackParameters,MCParticles"
+-Ppodio:output_collections="ReconstructedParticles,TrackParameters,MCParticles"
 
 # There is a centralized file where plugins can save their histograms:
 -Phistsfile=/home/romanov/work/data/eicrecon_test/tracking_test_gun.ana.root
@@ -84,7 +84,7 @@ defining a list of objects and the output file name:
 
 ```bash
 # This makes tracking output data and input MC particles to be written to the output
--Ppodio:output_include_collections="ReconstructedParticles,TrackParameters,MCParticles"
+-Ppodio:output_collections="ReconstructedParticles,TrackParameters,MCParticles"
 
 # This sets file path containing output tree
 -Ppodio:output_file=/home/romanov/work/data/eicrecon_test/tracking_test_gun.edm4eic.root
