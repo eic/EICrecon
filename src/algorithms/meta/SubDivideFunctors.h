@@ -14,7 +14,7 @@ template <auto MemberFunctionPtr>
 class RangeSplit {
 public:
 
-    RangeSplit(std::vector<std::pair<double,double>> ranges, std::variant<bool, std::vector<bool>> inside = true)
+    RangeSplit(const std::vector<std::pair<double,double>>& ranges, std::variant<bool, std::vector<bool>> inside = true)
         : m_ranges(ranges) {
         std::visit([this, &ranges](auto&& arg) {
             using T = std::decay_t<decltype(arg)>;
@@ -27,7 +27,7 @@ public:
                     m_inside = arg;
                 }
             }
-        }, inside);
+        }, std::forward<decltype(inside)>(inside));
     };
 
     template <typename T>
@@ -49,7 +49,7 @@ public:
     }
 
 private:
-    std::vector<std::pair<double,double>> m_ranges;
+    const std::vector<std::pair<double,double>>& m_ranges;
     std::vector<bool> m_inside;
 
 };
@@ -60,7 +60,7 @@ private:
 class GeometrySplit {
 public:
 
-    GeometrySplit(std::vector<std::vector<long int>> ids, std::string readout, std::vector<std::string> divisions)
+    GeometrySplit(const std::vector<std::vector<long int>>& ids, std::string readout, std::vector<std::string> divisions)
     : m_ids(ids), m_readout(readout), m_divisions(divisions){};
 
     template <typename T>
@@ -93,7 +93,7 @@ private:
         }
     }
 
-    std::vector<std::vector<long int>> m_ids;
+    const std::vector<std::vector<long int>>& m_ids;
     std::vector<std::string> m_divisions;
     std::string m_readout;
 
@@ -111,7 +111,7 @@ template <auto... MemberFunctionPtrs>
 class ValueSplit {
 public:
 
-    ValueSplit(std::vector<std::vector<int>> ids, bool matching = true)
+    ValueSplit(const std::vector<std::vector<int>>& ids, bool matching = true)
         : m_ids(ids), m_matching(matching) {};
 
     template <typename T>
@@ -136,7 +136,7 @@ public:
     }
 
 private:
-    std::vector<std::vector<int>> m_ids;
+    const std::vector<std::vector<int>>& m_ids;
     bool m_matching = true;
 
 };
