@@ -9,6 +9,7 @@
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackCollection.h>
+#include <optional>
 #include <string>
 #include <string_view>
 
