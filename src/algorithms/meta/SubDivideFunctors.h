@@ -13,7 +13,7 @@ namespace eicrecon {
 template <auto MemberFunctionPtr>
 class RangeSplit {
 public:
-    RangeSplit(const std::vector<std::pair<double, double>>& ranges, bool inside = true)
+    RangeSplit(std::vector<std::pair<double, double>> ranges, bool inside = true)
         : m_ranges(ranges), m_inside(ranges.size(), inside) {}
 
     RangeSplit(const std::vector<std::pair<double, double>>& ranges, const std::vector<bool>& inside)
@@ -43,7 +43,7 @@ public:
     }
 
 private:
-    const std::vector<std::pair<double,double>>& m_ranges;
+    std::vector<std::pair<double,double>> m_ranges;
     std::vector<bool> m_inside;
 
 };
@@ -54,7 +54,7 @@ private:
 class GeometrySplit {
 public:
 
-    GeometrySplit(const std::vector<std::vector<long int>>& ids, const std::string& readout, const std::vector<std::string>& divisions)
+    GeometrySplit(std::vector<std::vector<long int>> ids, const std::string& readout, const std::vector<std::string>& divisions)
     : m_ids(ids), m_readout(readout), m_divisions(divisions){};
 
     template <typename T>
@@ -87,9 +87,9 @@ private:
         }
     }
 
-    const std::vector<std::vector<long int>>& m_ids;
-    const std::vector<std::string>& m_divisions;
-    const std::string& m_readout;
+     std::vector<std::vector<long int>> m_ids;
+     std::vector<std::string> m_divisions;
+    std::string m_readout;
 
     mutable std::shared_ptr<std::once_flag> is_init = std::make_shared<std::once_flag>();
     mutable dd4hep::DDSegmentation::BitFieldCoder* m_id_dec;
@@ -105,7 +105,7 @@ template <auto... MemberFunctionPtrs>
 class ValueSplit {
 public:
 
-    ValueSplit(const std::vector<std::vector<int>>& ids, bool matching = true)
+    ValueSplit( std::vector<std::vector<int>> ids, bool matching = true)
         : m_ids(ids), m_matching(matching) {};
 
     template <typename T>
@@ -130,7 +130,7 @@ public:
     }
 
 private:
-    const std::vector<std::vector<int>>& m_ids;
+    std::vector<std::vector<int>> m_ids;
     bool m_matching = true;
 
 };
