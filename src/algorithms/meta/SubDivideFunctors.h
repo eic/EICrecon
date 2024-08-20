@@ -13,22 +13,16 @@ namespace eicrecon {
 template <auto MemberFunctionPtr>
 class RangeSplit {
 public:
+    RangeSplit(const std::vector<std::pair<double, double>>& ranges, bool inside)
+        : m_ranges(ranges), m_inside(ranges.size(), inside) {}
 
-    RangeSplit(const std::vector<std::pair<double,double>>& ranges, std::variant<bool, std::vector<bool>> inside = true)
+    RangeSplit(const std::vector<std::pair<double, double>>& ranges, const std::vector<bool>& inside)
         : m_ranges(ranges) {
-        std::visit([this, &ranges](auto&& arg) {
-            using T = std::decay_t<decltype(arg)>;
-            if constexpr (std::is_same_v<T, bool>) {
-                m_inside = std::vector<bool>(ranges.size(), arg);
-            } else if constexpr (std::is_same_v<T, std::vector<bool>>) {
-                if (arg.size() != ranges.size()) {
-                    throw std::invalid_argument("Size of inside must match the size of ranges");
-                } else {
-                    m_inside = arg;
-                }
-            }
-        }, std::forward<decltype(inside)>(inside));
-    };
+        if (inside.size() != ranges.size()) {
+            throw std::invalid_argument("Size of inside must match the size of ranges");
+        }
+        m_inside = inside;
+    }
 
     template <typename T>
     std::vector<int> operator()(T& instance) const {
