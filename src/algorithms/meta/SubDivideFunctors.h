@@ -13,7 +13,7 @@ namespace eicrecon {
 template <auto MemberFunctionPtr>
 class RangeSplit {
 public:
-    RangeSplit(const std::vector<std::pair<double, double>>& ranges, bool inside)
+    RangeSplit(const std::vector<std::pair<double, double>>& ranges, bool inside = true)
         : m_ranges(ranges), m_inside(ranges.size(), inside) {}
 
     RangeSplit(const std::vector<std::pair<double, double>>& ranges, const std::vector<bool>& inside)
