@@ -20,7 +20,7 @@ public:
             using T = std::decay_t<decltype(arg)>;
             if constexpr (std::is_same_v<T, bool>) {
                 m_inside = std::vector<bool>(ranges.size(), arg);
-            } else if constexpr (std::is_same_v<T, std::vector<bool>>) {             
+            } else if constexpr (std::is_same_v<T, std::vector<bool>>) {
                 if (arg.size() != ranges.size()) {
                     throw std::invalid_argument("Size of inside must match the size of ranges");
                 } else {
@@ -130,7 +130,7 @@ public:
                 if(m_ids[i] != values){
                     ids.push_back(i);
                 }
-            }            
+            }
         }
         return ids;
     }
