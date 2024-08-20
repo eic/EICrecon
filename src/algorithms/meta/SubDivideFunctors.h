@@ -54,7 +54,7 @@ private:
 class GeometrySplit {
 public:
 
-    GeometrySplit(const std::vector<std::vector<long int>>& ids, std::string readout, std::vector<std::string> divisions)
+    GeometrySplit(const std::vector<std::vector<long int>>& ids, const std::string& readout, const std::vector<std::string>& divisions)
     : m_ids(ids), m_readout(readout), m_divisions(divisions){};
 
     template <typename T>
@@ -88,8 +88,8 @@ private:
     }
 
     const std::vector<std::vector<long int>>& m_ids;
-    std::vector<std::string> m_divisions;
-    std::string m_readout;
+    const std::vector<std::string>& m_divisions;
+    const std::string& m_readout;
 
     mutable std::shared_ptr<std::once_flag> is_init = std::make_shared<std::once_flag>();
     mutable dd4hep::DDSegmentation::BitFieldCoder* m_id_dec;
