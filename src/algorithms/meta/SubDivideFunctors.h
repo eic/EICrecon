@@ -14,15 +14,35 @@ template <auto MemberFunctionPtr>
 class RangeSplit {
 public:
 
-    RangeSplit(std::vector<std::pair<double,double>> ranges) : m_ranges(ranges) {};
+    RangeSplit(std::vector<std::pair<double,double>> ranges, std::variant<bool, std::vector<bool>> inside = true)
+        : m_ranges(ranges) {
+        std::visit([this, &ranges](auto&& arg) {
+            using T = std::decay_t<decltype(arg)>;
+            if constexpr (std::is_same_v<T, bool>) {
+                m_inside = std::vector<bool>(ranges.size(), arg);
+            } else if constexpr (std::is_same_v<T, std::vector<bool>>) {             
+                if (arg.size() != ranges.size()) {
+                    throw std::invalid_argument("Size of inside must match the size of ranges");
+                } else {
+                    m_inside = arg;
+                }
+            }
+        }, inside);
+    };
 
     template <typename T>
     std::vector<int> operator()(T& instance) const {
         std::vector<int> ids;
         //Check if requested value is within the ranges
         for(size_t i = 0; i < m_ranges.size(); i++){
-            if((instance.*MemberFunctionPtr)() > m_ranges[i].first && (instance.*MemberFunctionPtr)() < m_ranges[i].second){
-                ids.push_back(i);
+            if(m_inside[i]){
+                if((instance.*MemberFunctionPtr)() >= m_ranges[i].first && (instance.*MemberFunctionPtr)() <= m_ranges[i].second){
+                    ids.push_back(i);
+                }
+            } else {
+                if((instance.*MemberFunctionPtr)() < m_ranges[i].first || (instance.*MemberFunctionPtr)() > m_ranges[i].second){
+                    ids.push_back(i);
+                }
             }
         }
         return ids;
@@ -30,6 +50,7 @@ public:
 
 private:
     std::vector<std::pair<double,double>> m_ranges;
+    std::vector<bool> m_inside;
 
 };
 
@@ -90,7 +111,8 @@ template <auto... MemberFunctionPtrs>
 class ValueSplit {
 public:
 
-    ValueSplit(std::vector<std::vector<int>> ids) : m_ids(ids) {};
+    ValueSplit(std::vector<std::vector<int>> ids, bool matching = true)
+        : m_ids(ids), m_matching(matching) {};
 
     template <typename T>
     std::vector<int> operator()(T& instance) const {
@@ -98,15 +120,24 @@ public:
         // Check if requested value matches any configuration combinations
         std::vector<int> values;
         (values.push_back((instance.*MemberFunctionPtrs)()), ...);
-        auto index = std::find(m_ids.begin(),m_ids.end(),values);
-        if(index != m_ids.end()){
-            ids.push_back(std::distance(m_ids.begin(),index));
+        if(m_matching){
+            auto index = std::find(m_ids.begin(),m_ids.end(),values);
+            if(index != m_ids.end()){
+                ids.push_back(std::distance(m_ids.begin(),index));
+            }
+        } else {
+            for (size_t i = 0; i < m_ids.size(); ++i){
+                if(m_ids[i] != values){
+                    ids.push_back(i);
+                }
+            }            
         }
         return ids;
     }
 
 private:
     std::vector<std::vector<int>> m_ids;
+    bool m_matching = true;
 
 };
 
