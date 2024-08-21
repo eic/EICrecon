@@ -58,6 +58,8 @@ namespace eicrecon {
                     auto part_assoc = part_assocs->create();
                     part_assoc.setRec(rec_part);
                     part_assoc.setSim(track_assoc.getSim());
+                    part_assoc.setRecID(part_assoc.getRec().getObjectID().index);
+                    part_assoc.setSimID(part_assoc.getSim().getObjectID().index);
                     part_assoc.setWeight(track_assoc.getWeight());
 
                     if (max_weight < track_assoc.getWeight()) {
