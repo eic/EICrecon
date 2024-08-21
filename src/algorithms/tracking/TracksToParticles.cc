@@ -60,7 +60,7 @@ namespace eicrecon {
                     part_assoc.setSim(track_assoc.getSim());
                     part_assoc.setWeight(track_assoc.getWeight());
 
-                    if (max_weight > track_assoc.getWeight()) {
+                    if (max_weight < track_assoc.getWeight()) {
                         max_weight = track_assoc.getWeight();
                         edm4hep::Vector3f referencePoint = {
                             static_cast<float>(track_assoc.getSim().getVertex().x),
