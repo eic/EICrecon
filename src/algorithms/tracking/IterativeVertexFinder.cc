@@ -238,7 +238,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
           const auto& traj = trk.getTrajectory();
           const auto& trkPars = traj.getTrackParameters();
           for (const auto par : trkPars) {
-            constexpr acts_to_edm4eic = edm4eic::unit::mm / Acts::UnitConstants::mm;
+            constexpr double acts_to_edm4eic = edm4eic::unit::mm / Acts::UnitConstants::mm;
             if(fabs(par.getLoc().a - loc_a * acts_to_edm4eic) < 1.e-4 && fabs(par.getLoc().b - loc_b * acts_to_edm4eic) < 1.e-4) {
               m_log->trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm", par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
               eicvertex.addToAssociatedParticles(*part);
