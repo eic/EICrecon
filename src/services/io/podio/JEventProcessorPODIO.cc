@@ -223,7 +223,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #if EDM4EIC_VERSION_MAJOR >= 6
             "HadronicFinalState",
 #endif
-
+            "HcalEndcapPInsertTotalFourMomentum",
             // Track projections
             "CalorimeterTrackProjections",
 
