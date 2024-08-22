@@ -40,6 +40,7 @@
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Trajectory.h>
 #include <edm4eic/unit_system.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -66,7 +67,8 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
     std::vector<const ActsExamples::Trajectories*> trajectories,
-    std::vector<const edm4eic::ReconstructedParticle*> reconParticles) {
+    const edm4eic::ReconstructedParticleCollection* reconParticles) {
+//    std::vector<const edm4eic::ReconstructedParticle*> reconParticles) {
 
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
 
@@ -232,8 +234,8 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
       float loc_a = par.localPosition().x();
       float loc_b = par.localPosition().y();
 
-      for (const auto part : reconParticles) {
-        const auto& tracks = part->getTracks();
+      for (const auto& part : *reconParticles) {
+        const auto& tracks = part.getTracks();
         for (const auto trk : tracks) {
           const auto& traj = trk.getTrajectory();
           const auto& trkPars = traj.getTrackParameters();
@@ -241,7 +243,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
             constexpr double acts_to_edm4eic = edm4eic::unit::mm / Acts::UnitConstants::mm;
             if(fabs(par.getLoc().a - loc_a * acts_to_edm4eic) < 1.e-4 && fabs(par.getLoc().b - loc_b * acts_to_edm4eic) < 1.e-4) {
               m_log->trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm", par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
-              eicvertex.addToAssociatedParticles(*part);
+              eicvertex.addToAssociatedParticles(part);
             } // endif
           } // end for par
         } // end for trk
