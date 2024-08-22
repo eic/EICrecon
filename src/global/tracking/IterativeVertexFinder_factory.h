@@ -27,7 +27,7 @@ private:
     std::unique_ptr<AlgoT> m_algo;
 
     Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
-    Input<edm4eic::ReconstructedParticle> m_edm4eic_reconParticles_input {this, "ReconstructedParticles"};
+    PodioInput<edm4eic::ReconstructedParticle> m_edm4eic_reconParticles_input {this};
     PodioOutput<edm4eic::Vertex> m_vertices_output {this};
 
     ParameterRef<int> m_maxVertices {this, "maxVertices", config().maxVertices,
