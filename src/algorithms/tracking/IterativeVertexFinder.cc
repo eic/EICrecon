@@ -188,8 +188,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 #else
       inputTrackPointers.push_back(&(trajectory->trackParameters(tip)));
 #endif
-      m_log->trace("Track local position at input = {}, {}", par.localPosition().x(), par.localPosition().y());
-
+      m_log->trace("Track local position at input = {} mm, {} mm", par.localPosition().x() / Acts::UnitConstants::mm, par.localPosition().y() / Acts::UnitConstants::mm);
     }
   }
 
