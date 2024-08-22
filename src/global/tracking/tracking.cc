@@ -226,7 +226,7 @@ void InitPlugin(JApplication *app) {
 
     app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
             "CentralTrackVertices",
-            {"CentralCKFSeededActsTrajectories","ReconstructedSeededChargedParticles"},
+            {"CentralCKFActsTrajectories","ReconstructedChargedParticles"},
             {"CentralTrackVertices"},
             {},
             app
