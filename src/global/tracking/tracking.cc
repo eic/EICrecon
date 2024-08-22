@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2024, Dmitry Romanov, Tyler Kutz, Wouter Deconinck
+// Copyright (C) 2022 - 2024, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
@@ -25,7 +25,6 @@
 #include "TrackPropagation_factory.h"
 #include "TrackSeeding_factory.h"
 #include "TrackerMeasurementFromHits_factory.h"
-#include "TracksToParticlesConfig.h"
 #include "TracksToParticles_factory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
@@ -289,35 +288,31 @@ void InitPlugin(JApplication *app) {
             app
             ));
 
-     // linking of reconstructed particles to PID objects
-     TracksToParticlesConfig link_cfg {
-       .momentumRelativeTolerance = 100.0, /// Matching momentum effectively disabled
-       .phiTolerance              = 0.1, /// Matching phi tolerance [rad]
-       .etaTolerance              = 0.2, /// Matching eta tolerance
-     };
+    app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
+            "ChargedParticlesWithAssociations",
+            {
+              "CombinedTracks",
+              "CentralCKFTrackAssociations",
+            },
+            {"ReconstructedChargedWithoutPIDParticles",
+             "ReconstructedChargedWithoutPIDParticleAssociations"
+            },
+            {},
+            app
+            ));
 
-     app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
-             "ChargedParticlesWithAssociations",
-             {"MCParticles",                                    // edm4hep::MCParticle
-             "CombinedTracks",                                // edm4eic::Track
-             },
-             {"ReconstructedChargedWithoutPIDParticles",                  //
-              "ReconstructedChargedWithoutPIDParticleAssociations"        // edm4eic::MCRecoParticleAssociation
-             },
-             link_cfg,
-             app
-             ));
-
-     app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
-             "ChargedSeededParticlesWithAssociations",
-             {"MCParticles",                                    // edm4hep::MCParticle
-             "CentralCKFSeededTracks",                          // edm4eic::Track
-             },
-             {"ReconstructedSeededChargedWithoutPIDParticles",            //
-              "ReconstructedSeededChargedWithoutPIDParticleAssociations"  // edm4eic::MCRecoParticleAssociation
-             },
-             link_cfg,
-             app
-             ));
+    app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
+            "ChargedSeededParticlesWithAssociations",
+            {
+              "CentralCKFSeededTracks",
+              "CentralCKFSeededTrackAssociations",
+            },
+            {
+              "ReconstructedSeededChargedWithoutPIDParticles",
+              "ReconstructedSeededChargedWithoutPIDParticleAssociations"
+            },
+            {},
+            app
+            ));
 }
 } // extern "C"
