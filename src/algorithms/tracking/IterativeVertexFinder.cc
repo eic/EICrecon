@@ -227,7 +227,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 #else
       const auto& par = *t.originalParams;
 #endif
-      m_log->trace("Track local position from vertex = {}, {}", par.localPosition().x(), par.localPosition().y());
+      m_log->trace("Track local position from vertex = {} mm, {} mm", par.localPosition().x() / Acts::UnitConstants::mm, par.localPosition().y() / Acts::UnitConstants::mm);
       float loc_a = par.localPosition().x();
       float loc_b = par.localPosition().y();
 
