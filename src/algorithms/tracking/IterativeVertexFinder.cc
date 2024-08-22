@@ -245,7 +245,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
         } // end for trk
       } // end for part
     } // end for t
-    m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.", vtx.position().x(), vtx.position().y(), vtx.position().z());
+    m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.", vtx.position().x() / Acts::UnitConstants::mm, vtx.position().y() / Acts::UnitConstants::mm, vtx.position().z() / Acts::UnitConstants::mm);
 
   } // end for vtx
 
