@@ -39,6 +39,7 @@
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Trajectory.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
