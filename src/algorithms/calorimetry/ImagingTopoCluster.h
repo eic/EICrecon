@@ -84,6 +84,10 @@ namespace eicrecon {
             error( "Expected 2 values (eta_dist, phi_dist) for layerDistEtaPhi" );
             return;
         }
+        if (m_cfg.minClusterCenterEdep < m_cfg.minClusterHitEdep) {
+            error( "minClusterCenterEdep must be greater than or equal to minClusterHitEdep" );
+            return;
+        }
 
         // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
         localDistXY[0] = m_cfg.localDistXY[0] / dd4hep::mm;
@@ -241,11 +245,6 @@ namespace eicrecon {
     template<typename Compare>
     void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t,Compare>& indices, std::list<std::size_t> &group, const std::size_t idx) const {
 
-      // not a qualified hit to participate clustering, stop here
-      if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
-        return;
-      }
-
       // loop over group as it grows, until the end is stable and we reach it
       for (auto idx1 = group.begin(); idx1 != group.end(); ++idx1) {
         // check neighbours (note comments on loop over set above)
@@ -264,16 +263,9 @@ namespace eicrecon {
           //  break;
           //}
 
-          // not energetic enough for cluster center or other cluster hit
-          // whereas caller has removed earlier low energy hits, this removes ones that caller hasn't gotten to yet
-          if (hits[*idx2].getEnergy() < std::min(m_cfg.minClusterHitEdep, m_cfg.minClusterCenterEdep)) {
-            idx2 = indices.erase(idx2);
-            continue;
-          }
-
-          // not energetic enough for cluster hit in this group
+          // not energetic enough for cluster hit
           if (hits[*idx2].getEnergy() < m_cfg.minClusterHitEdep) {
-            idx2++;
+            idx2 = indices.erase(idx2);
             continue;
           }
 
