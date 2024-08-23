@@ -270,7 +270,7 @@ namespace eicrecon {
 
       // find closest cluster
       bool foundMatch = false;
-      float dMatch;
+      float dMatch = m_cfg.drAdd;
       for (auto cluster : *clusters) {
 
         // get eta, phi of cluster
