@@ -65,8 +65,13 @@ namespace eicrecon {
   private:
 
     // unitless counterparts of the input parameters
-    double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, layerDistXY[2]{0, 0}, sectorDist{0};
-    double minClusterHitEdep{0}, minClusterCenterEdep{0}, minClusterEdep{0};
+    std::array<double,2> localDistXY{0, 0};
+    std::array<double,2> layerDistEtaPhi{0, 0};
+    std::array<double,2> layerDistXY{0, 0};
+    double sectorDist{0};
+    double minClusterHitEdep{0};
+    double minClusterCenterEdep{0};
+    double minClusterEdep{0};
 
   public:
     void init() {
