@@ -151,10 +151,16 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
     bool use_adjacencyMatrix = GENERATE(false, true);
     if (use_adjacencyMatrix) {
       cfg.adjacencyMatrix = "abs(x_1 - x_2) + abs(y_1 - y_2) == 1";
-      cfg.readout = "MockCalorimeterHits";
     } else {
       cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     }
+    bool disalow_diagonal_peaks = GENERATE(false, true);
+    if (disalow_diagonal_peaks) {
+      cfg.peakNeighbourhoodMatrix = "max(abs(x_1 - x_2), abs(y_1 - y_2)) == 1";
+    } else {
+      cfg.peakNeighbourhoodMatrix = "abs(x_1 - x_2) + abs(y_1 - y_2) == 1";
+    }
+    cfg.readout = "MockCalorimeterHits";
 
     cfg.splitCluster = GENERATE(false, true);
     if (cfg.splitCluster) {
@@ -190,8 +196,17 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
       0, // std::int32_t layer,
       edm4hep::Vector3f(0.9 /* mm */, 0.9 /* mm */, 0.0) // edm4hep::Vector3f local
     );
+
+    bool test_diagonal_cluster = GENERATE(false, true);
+    // If false, test a cluster with two maxima:
+    //  XxX
+    // If true, test a diagonal cluster:
+    //  Xx
+    //   X
+    // The idea is to test whether peakNeighbourhoodMatrix allows increasing
+    // peak resolution threshold while keeping the Island algorithm the same.
     hits_coll.create(
-      id_desc.encode({{"system", 255}, {"x", 2}, {"y", 0}}), // std::uint64_t cellID,
+      id_desc.encode({{"system", 255}, {"x", test_diagonal_cluster ? 1 : 2}, {"y", test_diagonal_cluster ? 1 : 0}}), // std::uint64_t cellID,
       6.0, // float energy,
       0.0, // float energyError,
       0.0, // float time,
@@ -205,7 +220,11 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterIslandCluster]" ) {
     auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
     algo.process({&hits_coll}, {protoclust_coll.get()});
 
-    if (cfg.splitCluster) {
+    bool expect_two_peaks = cfg.splitCluster;
+    if (cfg.splitCluster && disalow_diagonal_peaks) {
+      expect_two_peaks = not test_diagonal_cluster;
+    }
+    if (expect_two_peaks) {
       REQUIRE( (*protoclust_coll).size() == 2 );
       REQUIRE( (*protoclust_coll)[0].hits_size() == 3 );
       REQUIRE( (*protoclust_coll)[0].weights_size() == 3 );

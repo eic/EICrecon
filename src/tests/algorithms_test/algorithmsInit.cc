@@ -8,6 +8,7 @@
 #include <algorithms/geo.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
+#include <algorithms/interfaces/ParticleSvc.h>
 #include <catch2/generators/catch_generators_random.hpp>
 #include <catch2/interfaces/catch_interfaces_reporter.hpp>
 #include <catch2/reporters/catch_reporter_event_listener.hpp>
@@ -63,6 +64,9 @@ public:
 
     auto& lutSvc = eicrecon::PIDLookupTableSvc::instance();
     serviceSvc.add<eicrecon::PIDLookupTableSvc>(&lutSvc);
+
+    auto& particleSvc = algorithms::ParticleSvc::instance();
+    serviceSvc.add<algorithms::ParticleSvc>(&particleSvc);
 
     serviceSvc.init();
   }

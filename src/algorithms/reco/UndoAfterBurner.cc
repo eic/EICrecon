@@ -61,26 +61,27 @@ void eicrecon::UndoAfterBurner::process(
         return;
     }
 
-        //handling for FF particle gun input!!
-    if(!hasBeamHadron || !hasBeamLepton){
+    // Handling for FF particle gun input!!
+    if (!hasBeamHadron || !hasBeamLepton) {
         for (const auto& p: *mcparts) {
             if((p.getPDG() == 2212 || p.getPDG() == 2112)) { //look for "gun" proton/neutron
+                hasBeamHadron = true;
                 h_beam.SetPxPyPzE(crossingAngle*p.getEnergy(), 0.0, p.getEnergy(), p.getEnergy());
                 if(p.getEnergy() > 270.0 && p.getEnergy() < 280.0){
+                    hasBeamLepton = true;
                     e_beam.SetPxPyPzE(0.0, 0.0, -18.0, 18.0);
                 }
             }
         }
-    }
-        else{
 
-        if(correctBeamFX){
+    } else {
+
+        if (correctBeamFX) {
 
             h_beam.SetPxPyPzE(incoming_hadron[0].getMomentum().x, incoming_hadron[0].getMomentum().y, incoming_hadron[0].getMomentum().z, incoming_hadron[0].getEnergy());
             e_beam.SetPxPyPzE(incoming_lepton[0].getMomentum().x, incoming_lepton[0].getMomentum().y, incoming_lepton[0].getMomentum().z, incoming_lepton[0].getEnergy());
 
-        }
-        else{
+        } else {
 
             h_beam.SetPxPyPzE(crossingAngle*incoming_hadron[0].getEnergy(), 0.0, incoming_hadron[0].getEnergy(), incoming_hadron[0].getEnergy());
             e_beam.SetPxPyPzE(0.0, 0.0, -incoming_lepton[0].getEnergy(), incoming_lepton[0].getEnergy());
@@ -88,16 +89,17 @@ void eicrecon::UndoAfterBurner::process(
         }
     }
 
+    // Bail out if still no beam particles, since this leads to division by zero
+    if (!hasBeamHadron && !hasBeamLepton) {
+      return;
+    }
 
-
-    //Calculate boost vectors and rotations here
-
+    // Calculate boost vectors and rotations here
     ROOT::Math::PxPyPzEVector cm_frame_boost = e_beam + h_beam;
     ROOT::Math::Cartesian3D beta(-cm_frame_boost.Px() / cm_frame_boost.E(), -cm_frame_boost.Py() / cm_frame_boost.E(), -cm_frame_boost.Pz() / cm_frame_boost.E());
-
     ROOT::Math::Boost boostVector(beta);
 
-    //Boost to CM frame
+    // Boost to CM frame
     e_beam = boostVector(e_beam);
     h_beam = boostVector(h_beam);
 
@@ -107,12 +109,11 @@ void eicrecon::UndoAfterBurner::process(
     ROOT::Math::RotationY rotationAboutY(rotationAngleY);
     ROOT::Math::RotationX rotationAboutX(rotationAngleX);
 
-    //Boost back to proper head-on frame
-
+    // Boost back to proper head-on frame
     ROOT::Math::PxPyPzEVector head_on_frame_boost(0., 0., cm_frame_boost.Pz(), cm_frame_boost.E());
     ROOT::Math::Boost headOnBoostVector(head_on_frame_boost.Px()/head_on_frame_boost.E(), head_on_frame_boost.Py()/head_on_frame_boost.E(), head_on_frame_boost.Pz()/head_on_frame_boost.E());
 
-    //Now, loop through events and apply operations to the MCparticles
+    // Now, loop through events and apply operations to the MCparticles
     for (const auto& p: *mcparts) {
 
         ROOT::Math::PxPyPzEVector mc(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());

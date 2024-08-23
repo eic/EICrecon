@@ -17,17 +17,17 @@
 
 #include "Beam.h"
 #include "Boost.h"
-#include "InclusiveKinematicseSigma.h"
+#include "InclusiveKinematicsESigma.h"
 
 using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicseSigma::init() { }
+  void InclusiveKinematicsESigma::init() { }
 
-  void InclusiveKinematicseSigma::process(
-      const InclusiveKinematicseSigma::Input& input,
-      const InclusiveKinematicseSigma::Output& output) const {
+  void InclusiveKinematicsESigma::process(
+      const InclusiveKinematicsESigma::Input& input,
+      const InclusiveKinematicsESigma::Output& output) const {
 
     const auto [mcparts, escat, hfs] = input;
     auto [kinematics] = output;

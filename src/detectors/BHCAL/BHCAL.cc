@@ -86,8 +86,6 @@ extern "C" {
             .adjacencyMatrix = HcalBarrel_adjacencyMatrix,
             .readout = "HcalBarrelHits",
             .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = false,
             .minClusterHitEdep = 5.0 * dd4hep::MeV,
             .minClusterCenterEdep = 30.0 * dd4hep::MeV,

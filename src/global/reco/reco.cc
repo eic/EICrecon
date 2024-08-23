@@ -21,7 +21,7 @@
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
-#include "algorithms/reco/InclusiveKinematicseSigma.h"
+#include "algorithms/reco/InclusiveKinematicsESigma.h"
 #endif
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
@@ -158,15 +158,15 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicseSigma>>(
-        "InclusiveKinematicseSigma",
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsESigma>>(
+        "InclusiveKinematicsESigma",
         {
           "MCParticles",
           "ScatteredElectronsTruth",
           "HadronicFinalState"
         },
         {
-          "InclusiveKinematicseSigma"
+          "InclusiveKinematicsESigma"
         },
         app
     ));
