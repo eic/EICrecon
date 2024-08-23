@@ -27,11 +27,8 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   void TrackClusterMergeSplitter::init(const dd4hep::Detector* detector) {
 
-    // initialize detector service
-    m_detector = detector;
-
     // grab detector id
-    m_idCalo = m_detector -> constant<int>(m_cfg.idCalo);
+    m_idCalo = detector -> constant<int>(m_cfg.idCalo);
     debug("Collecting projections to detector with system id {}", m_idCalo);
 
   }  // end 'init(dd4hep::Detector*)'

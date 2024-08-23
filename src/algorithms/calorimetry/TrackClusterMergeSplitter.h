@@ -110,9 +110,6 @@ namespace eicrecon {
       float get_cluster_energy(const edm4eic::ProtoCluster& clust) const;
       edm4hep::Vector3f get_cluster_position(const edm4eic::ProtoCluster& clust) const;
 
-      // additional services
-      const dd4hep::Detector* m_detector {NULL};
-
       // calorimeter id
       int m_idCalo {0};
 
