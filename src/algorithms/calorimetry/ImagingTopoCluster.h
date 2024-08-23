@@ -162,12 +162,6 @@ namespace eicrecon {
                          (*hits)[*idx].getEnergy()
             );
 
-            // not energetic enough for cluster center or other cluster hits, so erase
-            if ((*hits)[*idx].getEnergy() < std::min(m_cfg.minClusterHitEdep,m_cfg.minClusterCenterEdep)) {
-              idx = indices.erase(idx);
-              continue;
-            }
-
             // not energetic enough for cluster center, but could still be cluster hit
             if ((*hits)[*idx].getEnergy() < minClusterCenterEdep) {
               idx++;
@@ -268,7 +262,7 @@ namespace eicrecon {
 
           // not energetic enough for cluster center or other cluster hit
           // whereas caller has removed earlier low energy hits, this removes ones that caller hasn't gotten to yet
-          if (hits[*idx2].getEnergy() < std::min(m_cfg.minClusterHitEdep,m_cfg.minClusterCenterEdep)) {
+          if (hits[*idx2].getEnergy() < std::min(m_cfg.minClusterHitEdep, m_cfg.minClusterCenterEdep)) {
             idx2 = indices.erase(idx2);
             continue;
           }
