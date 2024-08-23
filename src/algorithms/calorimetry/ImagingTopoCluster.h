@@ -1,12 +1,21 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng, Sylvester Joosten, Whitney Armstrong
+// Copyright (C) 2022 Chao Peng, Sylvester Joosten, Whitney Armstrong, Wouter Deconinck
 
 /*
  *  Topological Cell Clustering Algorithm for Imaging Calorimetry
  *  1. group all the adjacent pixels
  *
  *  Author: Chao Peng (ANL), 06/02/2021
- *  References: https://arxiv.org/pdf/1603.02934.pdf
+ *  Original reference: https://arxiv.org/pdf/1603.02934.pdf
+ *
+ *  Modifications:
+ *
+ *  Wouter Deconinck (Manitoba), 08/24/2024
+ *  - converted hit storage model from std::vector to std::set sorted on layer
+ *    where only hits remaining to be assigned to a group are in the set
+ *  - erase hits that are too low in energy to be part of a cluster
+ *  - converted group storage model frmo std::set to std::list to allow adding
+ *    hits while keeping iterators valid
  *
  */
 #pragma once
@@ -41,16 +50,6 @@ namespace eicrecon {
     >
   >;
 
-  /** Topological Cell Clustering Algorithm.
-   *
-   * Topological Cell Clustering Algorithm for Imaging Calorimetry
-   *  1. group all the adjacent pixels
-   *
-   *  Author: Chao Peng (ANL), 06/02/2021
-   *  References: https://arxiv.org/pdf/1603.02934.pdf
-   *
-   * \ingroup reco
-   */
   class ImagingTopoCluster
       : public ImagingTopoClusterAlgorithm,
         public WithPodConfig<ImagingTopoClusterConfig> {
