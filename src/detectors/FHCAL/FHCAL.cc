@@ -40,7 +40,7 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapPInsert_resolutionTDC = 10 * dd4hep::picosecond;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-           "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"}, {"HcalEndcapPInsertRawHits"},
+           "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"}, {"HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitAssociations"},
            {
              .eRes = {},
              .tRes = 0.0 * dd4hep::ns,
@@ -163,7 +163,7 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "LFHCALRawHits", {"LFHCALHits"}, {"LFHCALRawHits"},
+          "LFHCALRawHits", {"LFHCALHits"}, {"LFHCALRawHits", "LFHCALRawHitAssociations"},
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,

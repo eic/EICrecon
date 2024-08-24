@@ -18,6 +18,7 @@ private:
 
     PodioInput<edm4hep::SimCalorimeterHit> m_hits_input {this};
     PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output {this};
+    PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output {this};
 
     ParameterRef<std::vector<double>> m_energyResolutions {this, "energyResolutions", config().eRes};
     ParameterRef<double> m_timeResolution {this, "timeResolution", config().tRes};
@@ -44,7 +45,7 @@ public:
     }
 
     void Process(int64_t run_nr, uint64_t event_nr) {
-        m_algo->process({m_hits_input()}, {m_hits_output().get()});
+        m_algo->process({m_hits_input()}, {m_hits_output().get(), m_hit_assocs_output().get()});
     }
 };
 

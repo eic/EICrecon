@@ -37,7 +37,7 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
            "EcalBarrelScFiRawHits",
            {"EcalBarrelScFiHits"},
-           {"EcalBarrelScFiRawHits"},
+           {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitAssociations"},
            {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
@@ -113,7 +113,7 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
            "EcalBarrelImagingRawHits",
           {"EcalBarrelImagingHits"},
-          {"EcalBarrelImagingRawHits"},
+          {"EcalBarrelImagingRawHits", "EcalBarrelImagingRawHitAssociations"},
           {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,

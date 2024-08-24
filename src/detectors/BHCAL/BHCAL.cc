@@ -42,7 +42,7 @@ extern "C" {
           ") == 1";
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
+          "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits", "HcalBarrelRawHitAssociations"},
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,

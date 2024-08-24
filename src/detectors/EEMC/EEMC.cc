@@ -30,7 +30,7 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalEndcapN_pedSigmaADC = 1;
         decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapN_resolutionTDC = 10 * dd4hep::picosecond;
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "EcalEndcapNRawHits", {"EcalEndcapNHits"}, {"EcalEndcapNRawHits"},
+          "EcalEndcapNRawHits", {"EcalEndcapNHits"}, {"EcalEndcapNRawHits", "EcalEndcapNRawHitAssociations"},
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,

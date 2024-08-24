@@ -30,7 +30,7 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapN_resolutionTDC = 10 * dd4hep::picosecond;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "HcalEndcapNRawHits", {"HcalEndcapNHits"}, {"HcalEndcapNRawHits"},
+          "HcalEndcapNRawHits", {"HcalEndcapNHits"}, {"HcalEndcapNRawHits", "HcalEndcapNRawHitAssociations"},
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = HcalEndcapN_capADC,

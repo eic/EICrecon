@@ -76,7 +76,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     ));
 
     auto rawhits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-    algo.process({simhits.get()}, {rawhits.get()});
+    auto rawassocs = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
+    algo.process({simhits.get()}, {rawhits.get(), rawassocs.get()});
 
     REQUIRE( (*rawhits).size() == 1 );
     REQUIRE( (*rawhits)[0].getCellID() == id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}));

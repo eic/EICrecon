@@ -20,6 +20,10 @@
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/service.h>
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_VERSION_MAJOR >= 7
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#endif
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
@@ -126,7 +130,11 @@ void CalorimeterHitDigi::process(
       const CalorimeterHitDigi::Output& output) const {
 
     const auto [simhits] = input;
+#if EDM4EIC_VERSION_MAJOR >= 7
+    auto [rawhits, rawassocs] = output;
+#else
     auto [rawhits] = output;
+#endif
 
     // find the hits that belong to the same group (for merging)
     std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
@@ -141,6 +149,12 @@ void CalorimeterHitDigi::process(
 
         ix++;
     }
+
+    // create hit and association in advance
+    edm4hep::MutableRawCalorimeterHit rawhit;
+#if EDM4EIC_VERSION_MAJOR >= 7
+    std::vector<edm4eic::MutableMCRecoCalorimeterHitAssociation> rawassocs_;
+#endif
 
     // signal sum
     // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an MC hit
@@ -171,6 +185,14 @@ void CalorimeterHitDigi::process(
                     time = timeC;
                 }
             }
+
+#if EDM4EIC_VERSION_MAJOR >= 7
+            edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
+            assoc.setRawHit(rawhit);
+            assoc.setSimHit(hit);
+            assoc.setWeight(hit.getEnergy());
+            rawassocs_.push_back(assoc);
+#endif
         }
         if (time > m_cfg.capTime) continue;
 
@@ -191,11 +213,18 @@ void CalorimeterHitDigi::process(
         unsigned long long tdc = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
 
         if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t corrMeanScale: {}", edep, adc, time, m_cfg.capTime, tdc, corrMeanScale_value);
-        rawhits->create(
-                leading_hit.getCellID(),
-                (adc > m_cfg.capADC ? m_cfg.capADC : adc),
-                tdc
-        );
+
+        rawhit.setCellID(leading_hit.getCellID());
+        rawhit.setAmplitude(adc > m_cfg.capADC ? m_cfg.capADC : adc);
+        rawhit.setTimeStamp(tdc);
+        rawhits->push_back(rawhit);
+
+#if EDM4EIC_VERSION_MAJOR >= 7
+        for (auto& assoc : rawassocs_) {
+            assoc.setWeight(assoc.getWeight() / edep);
+            rawassocs->push_back(assoc);
+        }
+#endif
     }
 }
 

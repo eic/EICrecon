@@ -27,7 +27,7 @@ extern "C" {
 
         // LYSO part of the ZDC
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "EcalFarForwardZDCRawHits", {"EcalFarForwardZDCHits"}, {"EcalFarForwardZDCRawHits"},
+          "EcalFarForwardZDCRawHits", {"EcalFarForwardZDCHits"}, {"EcalFarForwardZDCRawHits", "EcalFarForwardZDCRawHitAssociations"},
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
@@ -110,7 +110,7 @@ extern "C" {
         );
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "HcalFarForwardZDCRawHits", {"HcalFarForwardZDCHits"}, {"HcalFarForwardZDCRawHits"},
+          "HcalFarForwardZDCRawHits", {"HcalFarForwardZDCHits"}, {"HcalFarForwardZDCRawHits", "HcalFarForwardZDCRawHitAssociations"},
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,

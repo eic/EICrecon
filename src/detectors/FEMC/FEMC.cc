@@ -29,7 +29,7 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalEndcapP_pedSigmaADC = 2.4576;
         decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC = 10 * dd4hep::picosecond;
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "EcalEndcapPRawHits", {"EcalEndcapPHits"}, {"EcalEndcapPRawHits"},
+          "EcalEndcapPRawHits", {"EcalEndcapPHits"}, {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
           {
             .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03, 0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
             .tRes = 0.0,
@@ -115,7 +115,7 @@ extern "C" {
 
         // Insert is identical to regular Ecal
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "EcalEndcapPInsertRawHits", {"EcalEndcapPInsertHits"}, {"EcalEndcapPInsertRawHits"},
+          "EcalEndcapPInsertRawHits", {"EcalEndcapPInsertHits"}, {"EcalEndcapPInsertRawHits", "EcalEndcapPInsertRawHitAssociations"},
           {
             .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03, 0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
             .tRes = 0.0,

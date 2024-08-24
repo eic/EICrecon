@@ -24,7 +24,7 @@ extern "C" {
         InitJANAPlugin(app);
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "EcalLumiSpecRawHits", {"EcalLumiSpecHits"}, {"EcalLumiSpecRawHits"},
+          "EcalLumiSpecRawHits", {"EcalLumiSpecHits"}, {"EcalLumiSpecRawHits", "EcalLumiSpecRawHitAssociations"},
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}, // flat 2%
             .tRes = 0.0 * dd4hep::ns,

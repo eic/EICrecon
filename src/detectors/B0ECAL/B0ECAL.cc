@@ -24,7 +24,7 @@ extern "C" {
         InitJANAPlugin(app);
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "B0ECalRawHits", {"B0ECalHits"}, {"B0ECalRawHits"},
+          "B0ECalRawHits", {"B0ECalHits"}, {"B0ECalRawHits", "B0ECalRawHitAssociations"},
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
