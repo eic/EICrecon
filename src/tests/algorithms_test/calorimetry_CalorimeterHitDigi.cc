@@ -9,6 +9,7 @@
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
