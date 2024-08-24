@@ -8,6 +8,7 @@
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -76,8 +77,12 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     ));
 
     auto rawhits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+#if EDM4EIC_VERSION_MAJOR >= 7
     auto rawassocs = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
     algo.process({simhits.get()}, {rawhits.get(), rawassocs.get()});
+#else
+    algo.process({simhits.get()}, {rawhits.get()});
+#endif
 
     REQUIRE( (*rawhits).size() == 1 );
     REQUIRE( (*rawhits)[0].getCellID() == id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}));
