@@ -3,6 +3,7 @@
 //
 //
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <math.h>
@@ -37,7 +38,11 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
            "EcalBarrelScFiRawHits",
            {"EcalBarrelScFiHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
            {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitAssociations"},
+#else
+           {"EcalBarrelScFiRawHits"},
+#endif
            {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
@@ -113,7 +118,11 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
            "EcalBarrelImagingRawHits",
           {"EcalBarrelImagingHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
           {"EcalBarrelImagingRawHits", "EcalBarrelImagingRawHitAssociations"},
+#else
+          {"EcalBarrelImagingRawHits"},
+#endif
           {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,

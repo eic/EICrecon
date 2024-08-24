@@ -3,6 +3,7 @@
 //
 //
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <string>
@@ -30,7 +31,13 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapN_resolutionTDC = 10 * dd4hep::picosecond;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "HcalEndcapNRawHits", {"HcalEndcapNHits"}, {"HcalEndcapNRawHits", "HcalEndcapNRawHitAssociations"},
+          "HcalEndcapNRawHits",
+          {"HcalEndcapNHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"HcalEndcapNRawHits", "HcalEndcapNRawHitAssociations"},
+#else
+          {"HcalEndcapNRawHits"},
+#endif
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = HcalEndcapN_capADC,
