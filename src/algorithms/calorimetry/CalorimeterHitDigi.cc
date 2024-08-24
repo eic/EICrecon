@@ -130,16 +130,13 @@ void CalorimeterHitDigi::process(
 
     // find the hits that belong to the same group (for merging)
     std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
-    std::size_t ix = 0;
     for (const auto &ahit : *simhits) {
         uint64_t hid = ahit.getCellID() & id_mask;
 
         trace("org cell ID in {:s}: {:#064b}", m_cfg.readout, ahit.getCellID());
         trace("new cell ID in {:s}: {:#064b}", m_cfg.readout, hid);
 
-        merge_map[hid].push_back(ix);
-
-        ix++;
+        merge_map[hid].push_back(ahit.getObjectID().index);
     }
 
     // signal sum
