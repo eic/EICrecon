@@ -31,7 +31,7 @@ namespace eicrecon {
     // minimum cluster energy (to save this cluster)
     double minClusterEdep = 0.5 * dd4hep::MeV;
     // minimum number of hits (to save this cluster)
-    int minClusterNhits = 10;
+    std::size_t minClusterNhits = 10;
 
   };
 
