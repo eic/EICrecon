@@ -17,6 +17,7 @@
 #include <DD4hep/Volumes.h>
 #include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include <DDSegmentation/MultiSegmentation.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
@@ -245,7 +246,7 @@ void CalorimeterHitReco::process(
         auto segmentation = m_converter->findReadout(local).segmentation();
         auto segmentation_type = segmentation.type();
         while (segmentation_type == "MultiSegmentation"){
-            segmentation = segmentation.subsegmentation(cellID);
+            segmentation = ((MutltiSegmentation&)segmentation).subsegmentation(cellID);
             segmentation_type = segmentation.type();
         }
         if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
