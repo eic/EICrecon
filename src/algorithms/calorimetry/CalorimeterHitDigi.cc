@@ -150,15 +150,16 @@ void CalorimeterHitDigi::process(
         ix++;
     }
 
-    // create hit and association in advance
-    edm4hep::MutableRawCalorimeterHit rawhit;
-#if EDM4EIC_VERSION_MAJOR >= 7
-    std::vector<edm4eic::MutableMCRecoCalorimeterHitAssociation> rawassocs_;
-#endif
-
     // signal sum
     // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an MC hit
     for (const auto &[id, ixs] : merge_map) {
+
+        // create hit and association in advance
+        edm4hep::MutableRawCalorimeterHit rawhit;
+#if EDM4EIC_VERSION_MAJOR >= 7
+        std::vector<edm4eic::MutableMCRecoCalorimeterHitAssociation> rawassocs_;
+#endif
+
         double edep     = 0;
         double time     = std::numeric_limits<double>::max();
         double max_edep = 0;
