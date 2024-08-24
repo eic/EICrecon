@@ -22,6 +22,7 @@
 #include <algorithms/service.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
+#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
