@@ -69,7 +69,7 @@ extern "C" {
           "HcalEndcapPInsertMergedHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertMergedHits"},
           {
             .readout = "HcalEndcapPInsertHits",
-            .fields = {"layer", "slice"},
+            .fields = {"layer", "slice", "side"},
             .refs = {1, 0},
           },
           app   // TODO: Remove me once fixed
