@@ -243,7 +243,7 @@ void CalorimeterHitReco::process(
         const auto pos = local.nominal().worldToLocal(gpos);
         std::vector<double> cdim;
         // get segmentation dimensions
-        Segmentation& segmentation = m_converter->findReadout(local).segmentation();
+        const Segmentation& segmentation = m_converter->findReadout(local).segmentation();
         auto segmentation_type = segmentation.type();
         while (segmentation_type == "MultiSegmentation"){
             auto& multi_segmentation = dynamic_cast<DDSegmentation::MultiSegmentation&>(segmentation);
