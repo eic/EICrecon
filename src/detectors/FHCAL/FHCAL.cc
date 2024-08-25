@@ -88,8 +88,8 @@ extern "C" {
         },
         app   // TODO: Remove me once fixed
       ));
-        
-      // define the distance between neighbors in terms of the largest possible distance between subcell hits 
+
+      // define the distance between neighbors in terms of the largest possible distance between subcell hits
       double side_length=31 * dd4hep::mm;
       app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
           "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"}, {"HcalEndcapPInsertImagingProtoClusters"},
