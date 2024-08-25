@@ -88,14 +88,15 @@ extern "C" {
         },
         app   // TODO: Remove me once fixed
       ));
-
+        
+      // define the distance between neighbors in terms of the largest possible distance between subcell hits 
       double side_length=31 * dd4hep::mm;
       app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
           "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"}, {"HcalEndcapPInsertImagingProtoClusters"},
           {
               .neighbourLayersRange = 1,
-              .localDistXY = {1.6*side_length, 2.1*side_length*sin(M_PI/3)},
-              .layerDistXY = {1.6*side_length, 2.1*side_length*sin(M_PI/3)},
+              .localDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
+              .layerDistXY = {0.25*side_length, 0.25*side_length*sin(M_PI/3)},
               .layerMode = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
               .sectorDist = 10.0 * dd4hep::cm,
               .minClusterHitEdep = 5.0 * dd4hep::keV,
