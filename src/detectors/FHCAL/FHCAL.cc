@@ -99,7 +99,7 @@ extern "C" {
       double side_length;
       try {
         side_length = std::max({detector->constant<double>("HcalEndcapPInsertCellSizeLGRight"), detector->constant<double>("HcalEndcapPInsertCellSizeLGLeft")});
-      } except (std::runtime_error&) {
+      } catch (std::runtime_error&) {
         side_length = 31. * dd4hep::mm;
       }
       app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
