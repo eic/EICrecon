@@ -96,7 +96,12 @@ extern "C" {
 
       // define the distance between neighbors in terms of the largest possible distance between subcell hits
       auto detector = app->GetService<DD4hep_service>()->detector();
-      double side_length=std::max({detector->constant<double>("HcalEndcapPInsertCellSizeLGRight"),detector->constant<double>("HcalEndcapPInsertCellSizeLGLeft")});
+      double side_length;
+      try {
+        side_length = std::max({detector->constant<double>("HcalEndcapPInsertCellSizeLGRight"), detector->constant<double>("HcalEndcapPInsertCellSizeLGLeft")});
+      } except (std::runtime_exception&) {
+        side_length = 0. * dd4hep::mm;
+      }
       app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
           "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"}, {"HcalEndcapPInsertImagingProtoClusters"},
           {
