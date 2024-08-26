@@ -8,6 +8,9 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>      // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
 #include <edm4eic/ClusterCollection.h>
+#if EDM4EIC_VERSION_MAJOR >= 7
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#endif
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -50,6 +53,9 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   edm4eic::CalorimeterHitCollection hits_coll;
   edm4eic::ProtoClusterCollection pclust_coll;
   edm4hep::SimCalorimeterHitCollection simhits;
+#if EDM4EIC_VERSION_MAJOR >= 7
+  edm4eic::MCRecoCalorimeterHitAssociationCollection simhitassocs;
+#endif
   auto assoc = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
   auto clust_coll = std::make_unique<edm4eic::ClusterCollection>();
 
@@ -83,7 +89,11 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   pclust.addToWeights(1);
 
   // Constructing input and output as per the algorithm's expected signature
+#if EDM4EIC_VERSION_MAJOR >= 7
+  auto input = std::make_tuple(&pclust_coll, &simhits, &simhitassocs);
+#else
   auto input = std::make_tuple(&pclust_coll, &simhits);
+#endif
   auto output = std::make_tuple(clust_coll.get(), assoc.get());
 
   algo.process(input, output);

@@ -20,6 +20,10 @@ private:
 
     PodioInput<edm4eic::ProtoCluster> m_proto_input {this};
     PodioInput<edm4hep::SimCalorimeterHit> m_mchits_input {this};
+#if EDM4EIC_VERSION_MAJOR >= 7
+    PodioInput<edm4eic::MCRecoCalorimeterHitAssociation> m_mchitassocs_input {this};
+#endif
+
 
     PodioOutput<edm4eic::Cluster> m_cluster_output {this};
     PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_output {this};
@@ -46,7 +50,11 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
+#if EDM4EIC_VERSION_MAJOR >= 7
+        m_algo->process({m_proto_input(), m_mchits_input(), m_mchitassocs_input()},
+#else
         m_algo->process({m_proto_input(), m_mchits_input()},
+#endif
                         {m_cluster_output().get(), m_assoc_output().get()});
     }
 };

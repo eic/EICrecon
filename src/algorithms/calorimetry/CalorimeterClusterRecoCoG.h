@@ -12,6 +12,9 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#if EDM4EIC_VERSION_MAJOR >= 7
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#endif
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -51,7 +54,12 @@ namespace eicrecon {
   using CalorimeterClusterRecoCoGAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4eic::ProtoClusterCollection,
+#if EDM4EIC_VERSION_MAJOR >= 7
+      std::optional<edm4hep::SimCalorimeterHitCollection>,
+      std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>
+#else
       std::optional<edm4hep::SimCalorimeterHitCollection>
+#endif
     >,
     algorithms::Output<
       edm4eic::ClusterCollection,
@@ -66,7 +74,11 @@ namespace eicrecon {
   public:
     CalorimeterClusterRecoCoG(std::string_view name)
       : CalorimeterClusterRecoCoGAlgorithm{name,
+#if EDM4EIC_VERSION_MAJOR >= 7
+                            {"inputProtoClusterCollection", "mcHits", "mcRecoHitAssocations"},
+#else
                             {"inputProtoClusterCollection", "mcHits"},
+#endif
                             {"outputClusterCollection", "outputAssociations"},
                             "Reconstruct a cluster with the Center of Gravity method. For "
                             "simulation results it optionally creates a Cluster <-> MCParticle "

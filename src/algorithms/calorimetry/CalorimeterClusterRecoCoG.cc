@@ -58,7 +58,11 @@ namespace eicrecon {
       const CalorimeterClusterRecoCoG::Input& input,
       const CalorimeterClusterRecoCoG::Output& output) const {
 
+#if EDM4EIC_VERSION_MAJOR >= 7
+    const auto [proto, mchits, mchitassociations] = input;
+#else
     const auto [proto, mchits] = input;
+#endif
     auto [clusters, associations] = output;
 
     for (const auto& pcl : *proto) {
