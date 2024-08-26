@@ -208,6 +208,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "InclusiveKinematicsJB",
             "InclusiveKinematicsML",
             "InclusiveKinematicsSigma",
+            "InclusiveKinematicseSigma", // Deprecated, use ESigma
             "InclusiveKinematicsESigma",
             "InclusiveKinematicsElectron",
             "InclusiveKinematicsTruth",
