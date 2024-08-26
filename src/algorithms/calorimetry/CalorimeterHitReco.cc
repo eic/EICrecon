@@ -244,13 +244,16 @@ void CalorimeterHitReco::process(
         const auto pos = local.nominal().worldToLocal(gpos);
         std::vector<double> cdim;
         // get segmentation dimensions
-        auto segmentation = m_converter->findReadout(local).segmentation();
-        auto segmentation_type = segmentation.type();
+
+        const dd4hep::DDSegmentation::Segmentation* segmentation = m_converter->findReadout(local).segmentation()->segmentation;
+        auto segmentation_type = segmentation->type();
+
         while (segmentation_type == "MultiSegmentation"){
-            auto* multi_segmentation = dynamic_cast<dd4hep::DDSegmentation::MultiSegmentation*>(segmentation.segmentation());
-            auto& sub_segmentation = multi_segmentation->subsegmentation(cellID);
-            segmentation = dd4hep::Handle<dd4hep::DDSegmentation::Segmentation>(&sub_segmentation);
-            segmentation_type = segmentation.type();
+            const auto* multi_segmentation = dynamic_cast<const dd4hep::DDSegmentation::MultiSegmentation*>(segmentation);
+            const dd4hep::DDSegmentation::Segmentation& sub_segmentation = multi_segmentation->subsegmentation(cellID);
+
+            segmentation = &sub_segmentation;
+            segmentation_type = segmentation->type();
         }
 
         if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
