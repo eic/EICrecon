@@ -48,12 +48,12 @@ By default `eicrecon` activates the full reconstruction. This will
 result in a very busy callgraph that can be hard to read if you
 are only interested in one detector. (See [here](https://eic.github.io/EICrecon/howto/callgraphs/all.png).)
 To activate for a specific factory, you can specify the relevant output
-collection using the `podio:output_include_collections` parameter.
+collection using the `podio:output_collections` parameter.
 Here is an example for the *EcalEndcapN*:
 
 ~~~bash
 eicrecon -Pplugins=janadot \
-   -Ppodio:output_include_collections=EcalEndcapNMergedClusters \
+   -Ppodio:output_collections=EcalEndcapNMergedClusters \
    sim_file.edm4hep.root
 ~~~
 
@@ -61,7 +61,7 @@ The above will produce something like the following:
 ![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)
 
 In the plot, the oval at the top is the JEventProcessor making the
-initial request for objects. (This is where the *podio:output_include_collections*
+initial request for objects. (This is where the *podio:output_collections*
 parameter is used). The rectangles in the middle represent factories (i.e. algorithms).
 The green trapezoid at the bottom is the object read from the input file.
 This is representative of the flow JANA implements. Namely, the requests for

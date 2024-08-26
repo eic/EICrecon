@@ -87,6 +87,7 @@ void eicrecon::TrackSeeding::configure() {
     // Finder parameters
     m_seedFinderConfig.seedFilter = std::make_unique<Acts::SeedFilter<eicrecon::SpacePoint>>(Acts::SeedFilter<eicrecon::SpacePoint>(m_seedFilterConfig));
     m_seedFinderConfig.rMax               = m_cfg.rMax;
+    m_seedFinderConfig.rMin               = m_cfg.rMin;
     m_seedFinderConfig.deltaRMinTopSP     = m_cfg.deltaRMinTopSP;
     m_seedFinderConfig.deltaRMaxTopSP     = m_cfg.deltaRMaxTopSP;
     m_seedFinderConfig.deltaRMinBottomSP  = m_cfg.deltaRMinBottomSP;
@@ -120,6 +121,15 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::prod
 
   Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_seedFinderConfig); // FIXME move into class scope
 
+#if Acts_VERSION_MAJOR >= 32
+  std::function<std::tuple<Acts::Vector3, Acts::Vector2, std::optional<Acts::ActsScalar>>(
+      const eicrecon::SpacePoint *sp)>
+      create_coordinates = [](const eicrecon::SpacePoint *sp) {
+        Acts::Vector3 position(sp->x(), sp->y(), sp->z());
+        Acts::Vector2 variance(sp->varianceR(), sp->varianceZ());
+        return std::make_tuple(position, variance, sp->t());
+      };
+#else
   std::function<std::pair<Acts::Vector3, Acts::Vector2>(
       const eicrecon::SpacePoint *sp)>
       create_coordinates = [](const eicrecon::SpacePoint *sp) {
@@ -127,6 +137,7 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::prod
         Acts::Vector2 variance(sp->varianceR(), sp->varianceZ());
         return std::make_pair(position, variance);
       };
+#endif
 
   eicrecon::SeedContainer seeds = finder.createSeeds(m_seedFinderOptions, spacePoints, create_coordinates);
 

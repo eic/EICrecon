@@ -7,18 +7,17 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <fmt/core.h>
 #include <math.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
-#include <string>
 #include <utility>
 #include <vector>
 
 // algorithm configurations
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
+#include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
@@ -85,33 +84,48 @@ extern "C" {
     } catch(const std::runtime_error&) {
         // Nothing
     }
-    for (auto qualifier : std::vector<std::string>({"", "Seeded"})) {
-        app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
-              fmt::format("RICHEndcapN{}LUTPID", qualifier),
-              {
-              fmt::format("Reconstructed{}ChargedWithoutPIDParticles", qualifier),
-              fmt::format("Reconstructed{}ChargedWithoutPIDParticleAssociations", qualifier),
-              },
-              {
-              fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticles", qualifier),
-              fmt::format("Reconstructed{}ChargedWithPFRICHPIDParticleAssociations", qualifier),
-              fmt::format("RICHEndcapN{}ParticleIDs", qualifier),
-              },
-              {
-                .filename="calibrations/pfrich.lut",
-                .system=BackwardRICH_ID,
-                .pdg_values={11, 211, 321, 2212},
-                .charge_values={1},
-                .momentum_edges={0.4, 0.8, 1.2, 1.6, 2, 2.4, 2.8, 3.2, 3.6, 4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.6, 8, 8.4, 8.8, 9.2, 9.6, 10, 10.4, 10.8, 11.2, 11.6, 12, 12.4, 12.8, 13.2, 13.6, 14, 14.4, 14.8, 15.2},
-                .polar_edges={2.65, 2.6725, 2.695, 2.7175, 2.74, 2.7625, 2.785, 2.8075, 2.83, 2.8525, 2.875, 2.8975, 2.92, 2.9425, 2.965, 2.9875, 3.01, 3.0325, 3.055, 3.0775},
-                .azimuthal_binning={0., 2 * M_PI, 2 * M_PI / 120.}, // lower, upper, step
-                .azimuthal_bin_centers_in_lut=true,
-                .momentum_bin_centers_in_lut=true,
-                .polar_bin_centers_in_lut=true,
-                .use_radians=true,
-              },
-              app
-              ));
-    }
+    PIDLookupConfig pid_cfg {
+      .filename="calibrations/pfrich.lut",
+      .system=BackwardRICH_ID,
+      .pdg_values={11, 211, 321, 2212},
+      .charge_values={1},
+      .momentum_edges={0.4, 0.8, 1.2, 1.6, 2, 2.4, 2.8, 3.2, 3.6, 4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.6, 8, 8.4, 8.8, 9.2, 9.6, 10, 10.4, 10.8, 11.2, 11.6, 12, 12.4, 12.8, 13.2, 13.6, 14, 14.4, 14.8, 15.2},
+      .polar_edges={2.65, 2.6725, 2.695, 2.7175, 2.74, 2.7625, 2.785, 2.8075, 2.83, 2.8525, 2.875, 2.8975, 2.92, 2.9425, 2.965, 2.9875, 3.01, 3.0325, 3.055, 3.0775},
+      .azimuthal_binning={0., 2 * M_PI, 2 * M_PI / 120.}, // lower, upper, step
+      .azimuthal_bin_centers_in_lut=true,
+      .momentum_bin_centers_in_lut=true,
+      .polar_bin_centers_in_lut=true,
+      .use_radians=true,
+    };
+
+    app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
+          "RICHEndcapNLUTPID",
+          {
+          "ReconstructedChargedWithoutPIDParticles",
+          "ReconstructedChargedWithoutPIDParticleAssociations",
+          },
+          {
+          "ReconstructedChargedWithPFRICHPIDParticles",
+          "ReconstructedChargedWithPFRICHPIDParticleAssociations",
+          "RICHEndcapNParticleIDs",
+          },
+          pid_cfg,
+          app
+          ));
+
+    app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
+          "RICHEndcapNSeededLUTPID",
+          {
+          "ReconstructedSeededChargedWithoutPIDParticles",
+          "ReconstructedSeededChargedWithoutPIDParticleAssociations",
+          },
+          {
+          "ReconstructedSeededChargedWithPFRICHPIDParticles",
+          "ReconstructedSeededChargedWithPFRICHPIDParticleAssociations",
+          "RICHEndcapNSeededParticleIDs",
+          },
+          pid_cfg,
+          app
+          ));
   }
 }

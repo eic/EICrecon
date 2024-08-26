@@ -8,7 +8,7 @@
 #include <math.h>
 #include <string>
 
-#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -17,6 +17,7 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+
 extern "C" {
     void InitPlugin(JApplication *app) {
 
@@ -63,7 +64,6 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = true,
             .minClusterHitEdep = 0.1 * dd4hep::MeV,
             .minClusterCenterEdep = 3.0 * dd4hep::MeV,
@@ -84,6 +84,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -101,6 +102,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
@@ -144,8 +146,8 @@ extern "C" {
           "HcalFarForwardZDCSubcellHits", {"HcalFarForwardZDCRecHits"}, {"HcalFarForwardZDCSubcellHits"},
           {
             .MIP = 472. * dd4hep::keV,
-            .Emin_in_MIPs=0.1,
-            .tmax=320 * dd4hep::ns,
+            .Emin_in_MIPs=0.5,
+            .tmax=269 * dd4hep::ns,
           },
           app   // TODO: Remove me once fixed
         ));
@@ -155,13 +157,14 @@ extern "C" {
             "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCImagingProtoClusters"},
             {
                 .neighbourLayersRange = 1,
-                .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-                .layerDistEtaPhi = {17e-3, 18.1e-3},
+                .localDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
+                .layerDistXY = {0.25*side_length, 0.25*side_length*sin(M_PI/3)},
+                .layerMode=eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
                 .sectorDist = 10.0 * dd4hep::cm,
                 .minClusterHitEdep = 100.0 * dd4hep::keV,
-                .minClusterCenterEdep = 1.0 * dd4hep::MeV,
+                .minClusterCenterEdep = 3.0 * dd4hep::MeV,
                 .minClusterEdep = 11.0 * dd4hep::MeV,
-                .minClusterNhits = 10,
+                .minClusterNhits = 100,
             },
             app   // TODO: Remove me once fixed
         ));
@@ -191,6 +194,7 @@ extern "C" {
             .sampFrac = 0.0203,
             .logWeightBaseCoeffs={5.0,0.65,0.31},
             .logWeightBase_Eref=50*dd4hep::GeV,
+            .longitudinalShowerInfoAvailable = true,
           },
           app   // TODO: Remove me once fixed
         ));
@@ -206,7 +210,6 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = true,
             .minClusterHitEdep = 0.1 * dd4hep::MeV,
             .minClusterCenterEdep = 3.0 * dd4hep::MeV,
@@ -226,6 +229,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -242,6 +246,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 0.0203,
               .logWeightBase = 6.2,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
