@@ -14,7 +14,7 @@
  *  - converted hit storage model from std::vector to std::set sorted on layer
  *    where only hits remaining to be assigned to a group are in the set
  *  - erase hits that are too low in energy to be part of a cluster
- *  - converted group storage model frmo std::set to std::list to allow adding
+ *  - converted group storage model from std::set to std::list to allow adding
  *    hits while keeping iterators valid
  *
  */
