@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
+#include <stdexcept>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
