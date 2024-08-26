@@ -36,6 +36,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+  mutable Ort::Env m_env{nullptr};
   mutable Ort::Session m_session{nullptr};
 
   std::vector<std::string> m_input_names;

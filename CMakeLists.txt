@@ -31,7 +31,7 @@ cmake_minimum_required(VERSION 3.24)
 # 3.27: find_package() uses upper-case <PACKAGENAME>_ROOT variables
 cmake_policy(SET CMP0144 NEW)
 
-project(EICrecon)
+project(EICrecon LANGUAGES CXX)
 
 # CMake includes
 include(CheckCXXCompilerFlag)
@@ -197,8 +197,7 @@ endif()
 find_package(DD4hep REQUIRED)
 
 # ACTS cmake-lint: disable=C0103
-find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo
-                                      PluginDD4hep)
+find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
 set(Acts_VERSION_MIN "19.0.0")
 set(Acts_VERSION
     "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
@@ -233,6 +232,7 @@ endif()
 option(USE_ONNX "Compile with ONNX support" ON)
 if(${USE_ONNX})
   find_package(onnxruntime CONFIG)
+  add_compile_definitions(USE_ONNX)
 endif()
 
 # Add CMake additional functionality:

@@ -8,6 +8,7 @@
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -82,8 +83,8 @@ extern "C" {
         "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertSubcellHits"},
         {
           .MIP = 800. * dd4hep::keV,
-          .Emin_in_MIPs=0.1,
-          .tmax=50 * dd4hep::ns,
+          .Emin_in_MIPs=0.5,
+          .tmax=162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
         },
         app   // TODO: Remove me once fixed
       ));
@@ -94,12 +95,13 @@ extern "C" {
           {
               .neighbourLayersRange = 1,
               .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-              .layerDistEtaPhi = {17e-3, 18.1e-3},
+              .layerDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+              .layerMode = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
               .sectorDist = 10.0 * dd4hep::cm,
-              .minClusterHitEdep = 100.0 * dd4hep::keV,
-              .minClusterCenterEdep = 11.0 * dd4hep::MeV,
+              .minClusterHitEdep = 5.0 * dd4hep::keV,
+              .minClusterCenterEdep = 5.0 * dd4hep::MeV,
               .minClusterEdep = 11.0 * dd4hep::MeV,
-              .minClusterNhits = 10,
+              .minClusterNhits = 100,
           },
           app   // TODO: Remove me once fixed
       ));
@@ -115,6 +117,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 0.0257,
               .logWeightBase = 3.6,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = true
             },
             app   // TODO: Remove me once fixed
@@ -132,6 +135,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 0.0257,
               .logWeightBase = 6.2,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
@@ -228,6 +232,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -245,6 +250,7 @@ extern "C" {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
+              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed

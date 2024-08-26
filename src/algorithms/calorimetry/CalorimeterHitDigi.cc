@@ -23,6 +23,7 @@
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
@@ -181,10 +182,13 @@ void CalorimeterHitDigi::process(
                      std::pow(m_cfg.eRes[2] / (edep), 2)
                   )
                 : 0;
-        double    corrMeanScale_value = corrMeanScale(leading_hit);
-        double    ped     = m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC;
-        unsigned long long adc     = std::llround(ped + edep * corrMeanScale_value * ( 1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC);
-        unsigned long long tdc     = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
+        double corrMeanScale_value = corrMeanScale(leading_hit);
+
+        double ped = m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC;
+
+        // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
+        unsigned long long adc = std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) / m_cfg.dyRangeADC * m_cfg.capADC), 0LL);
+        unsigned long long tdc = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
 
         if (edep> 1.e-3) trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t corrMeanScale: {}", edep, adc, time, m_cfg.capTime, tdc, corrMeanScale_value);
         rawhits->create(

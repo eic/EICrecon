@@ -25,13 +25,7 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void HadronicFinalState::init() {
-    // m_pidSvc = service("ParticleSvc");
-    // if (!m_pidSvc) {
-    //   debug("Unable to locate Particle Service. "
-    //     "Make sure you have ParticleSvc in the configuration.");
-    // }
-  }
+  void HadronicFinalState::init() { }
 
   void HadronicFinalState::process(
       const HadronicFinalState::Input& input,
@@ -49,7 +43,7 @@ namespace eicrecon {
     const PxPyPzEVector ei(
       round_beam_four_momentum(
         ei_coll[0].getMomentum(),
-        m_electron,
+        m_particleSvc.particle(ei_coll[0].getPDG()).mass,
         {-5.0, -10.0, -18.0},
         0.0)
       );
@@ -63,7 +57,7 @@ namespace eicrecon {
     const PxPyPzEVector pi(
       round_beam_four_momentum(
         pi_coll[0].getMomentum(),
-        pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron,
+        m_particleSvc.particle(pi_coll[0].getPDG()).mass,
         {41.0, 100.0, 275.0},
         m_crossingAngle)
       );

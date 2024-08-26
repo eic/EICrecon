@@ -6,6 +6,7 @@ add_executable(
   ${TEST_NAME}
   algorithmsInit.cc
   calorimetry_CalorimeterIslandCluster.cc
+  calorimetry_ImagingTopoCluster.cc
   tracking_SiliconSimpleCluster.cc
   calorimetry_CalorimeterHitDigi.cc
   calorimetry_CalorimeterClusterRecoCoG.cc
@@ -22,6 +23,7 @@ target_link_libraries(
   PRIVATE Catch2::Catch2WithMain
           algorithms_calorimetry_library
           algorithms_fardetectors_library
+          algorithms_interfaces_library # for ParticleSvc
           algorithms_pid_library
           algorithms_pid_lut_library
           algorithms_reco_library

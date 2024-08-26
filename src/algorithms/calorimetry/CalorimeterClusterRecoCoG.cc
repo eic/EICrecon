@@ -105,14 +105,15 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   // Used to optionally constrain the cluster eta to those of the contributing hits
   float minHitEta = std::numeric_limits<float>::max();
   float maxHitEta = std::numeric_limits<float>::min();
-  auto time       = pcl.getHits()[0].getTime();
-  auto timeError  = pcl.getHits()[0].getTimeError();
+  auto time      = 0;
+  auto timeError = 0;
   for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
     const auto& hit   = pcl.getHits()[i];
     const auto weight = pcl.getWeights()[i];
     debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
     auto energy = hit.getEnergy() * weight;
     totalE += energy;
+    time += (hit.getTime() - time) * energy / totalE;
     cl.addToHits(hit);
     cl.addToHitContributions(energy);
     const float eta = edm4hep::utils::eta(hit.getPosition());
@@ -172,12 +173,6 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
 
   // Additional convenience variables
 
-  // best estimate on the cluster direction is the cluster position
-  // for simple 2D CoG clustering
-  cl.setIntrinsicTheta(edm4hep::utils::anglePolar(cl.getPosition()));
-  cl.setIntrinsicPhi(edm4hep::utils::angleAzimuthal(cl.getPosition()));
-  // TODO errors
-
   //_______________________________________
   // Calculate cluster profile:
   //    radius,
@@ -192,12 +187,11 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   Eigen::Vector3f sum1_3D = Eigen::Vector3f::Zero();
   Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
   Eigen::Vector3cf eigenValues_3D = Eigen::Vector3cf::Zero();
-  //the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
-  double axis_x=0, axis_y=0, axis_z=0;
+  // the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
+  edm4hep::Vector3f axis;
+
   if (cl.getNhits() > 1) {
-
     for (const auto& hit : pcl.getHits()) {
-
       float w = weightFunc(hit.getEnergy(), totalE, logWeightBase, 0);
 
       // theta, phi
@@ -250,19 +244,15 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
             return std::real(a) < std::real(b);
         }
       );
-      auto axis = eigenvectors.col(std::distance(
+      auto axis_eigen = eigenvectors.col(std::distance(
             eigenValues_3D.begin(),
             max_eigenvalue_it
         ));
-      axis_x=axis(0,0).real();
-      axis_y=axis(1,0).real();
-      axis_z=axis(2,0).real();
-      double norm=sqrt(axis_x*axis_x+axis_y*axis_y+axis_z*axis_z);
-      if (norm!=0){
-        axis_x/=norm;
-        axis_y/=norm;
-        axis_z/=norm;
-      }
+      axis = {
+        axis_eigen(0,0).real(),
+        axis_eigen(1,0).real(),
+        axis_eigen(2,0).real(),
+      };
     }
   }
 
@@ -273,10 +263,22 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   cl.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
   cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
   cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
-  //last 3 shape parameters are the components of the axis direction
-  cl.addToShapeParameters( axis_x );
-  cl.addToShapeParameters( axis_y );
-  cl.addToShapeParameters( axis_z );
+
+
+  double dot_product = cl.getPosition() * axis;
+  if (dot_product < 0) {
+    axis = -1 * axis;
+  }
+
+  if (m_cfg.longitudinalShowerInfoAvailable) {
+    cl.setIntrinsicTheta(edm4hep::utils::anglePolar(axis));
+    cl.setIntrinsicPhi(edm4hep::utils::angleAzimuthal(axis));
+    // TODO intrinsicDirectionError
+  } else {
+    cl.setIntrinsicTheta(NAN);
+    cl.setIntrinsicPhi(NAN);
+  }
+
   return std::move(cl);
 }
 
