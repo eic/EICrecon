@@ -207,7 +207,7 @@ void CalorimeterHitReco::process(
                     switch (std::tolower(c)) {
                     case 'x':
                         gpos.SetX(mpos.X());
-                        break;seg
+                        break;
                     case 'y':
                         gpos.SetY(mpos.Y());
                         break;
