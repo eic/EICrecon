@@ -18,6 +18,7 @@
 #include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <DDSegmentation/MultiSegmentation.h>
+#include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
