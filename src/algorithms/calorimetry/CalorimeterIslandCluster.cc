@@ -7,31 +7,28 @@
 
 #include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <TInterpreter.h>
-#include <TInterpreterValue.h>
+#include <algorithms/service.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <map>
-#include <memory>
 #include <set>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <tuple>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "CalorimeterIslandCluster.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
+#include "services/evaluator/EvaluatorSvc.h"
 
 using namespace edm4eic;
 
 namespace eicrecon {
-
-unsigned int CalorimeterIslandCluster::function_id = 0;
 
 static double Phi_mpi_pi(double phi) {
   return std::remainder(phi, 2 * M_PI);
@@ -112,7 +109,7 @@ void CalorimeterIslandCluster::init() {
       return true;
     };
 
-    std::map<std::string, std::vector<double>> uprops{
+    std::vector<std::pair<std::string, std::vector<double>>> uprops{
             {"localDistXY", m_cfg.localDistXY},
             {"localDistXZ", m_cfg.localDistXZ},
             {"localDistYZ", m_cfg.localDistYZ},
@@ -122,50 +119,34 @@ void CalorimeterIslandCluster::init() {
             {"dimScaledLocalDistXY", m_cfg.dimScaledLocalDistXY}
     };
 
+    auto& serviceSvc = algorithms::ServiceSvc::instance();
+
+    std::function hit_pair_to_map = [this](const edm4eic::CalorimeterHit &h1, const edm4eic::CalorimeterHit &h2) {
+      std::unordered_map<std::string, double> params;
+      for(const auto &p : m_idSpec.fields()) {
+        const std::string &name = p.first;
+        const dd4hep::IDDescriptor::Field* field = p.second;
+        params.emplace(name + "_1", field->value(h1.getCellID()));
+        params.emplace(name + "_2", field->value(h2.getCellID()));
+        trace("{}_1 = {}", name, field->value(h1.getCellID()));
+        trace("{}_2 = {}", name, field->value(h2.getCellID()));
+      }
+      return params;
+    };
+
+    if (m_cfg.readout.empty()) {
+      if ((!m_cfg.adjacencyMatrix.empty()) || (!m_cfg.peakNeighbourhoodMatrix.empty())) {
+        throw std::runtime_error("'readout' is not provided, it is needed to know the fields in readout ids");
+      }
+    } else {
+      m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
+    }
+
     bool method_found = false;
 
     // Adjacency matrix methods
     if (!m_cfg.adjacencyMatrix.empty()) {
-      // sanity checks
-      if (m_cfg.readout.empty()) {
-        error("readoutClass is not provided, it is needed to know the fields in readout ids");
-      }
-      m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
-
-      std::string func_name = fmt::format("_CalorimeterIslandCluster_{}", function_id++);
-      std::ostringstream sstr;
-      sstr << "bool " << func_name << "(double params[]){";
-      unsigned int param_ix = 0;
-      for(const auto &p : m_idSpec.fields()) {
-        const std::string &name = p.first;
-        const dd4hep::IDDescriptor::Field* field = p.second;
-        sstr << "double " << name << "_1 = params[" << (param_ix++) << "];";
-        sstr << "double " << name << "_2 = params[" << (param_ix++) << "];";
-      }
-      sstr << "return " << m_cfg.adjacencyMatrix << ";";
-      sstr << "}";
-      debug("Compiling {}", sstr.str());
-
-      TInterpreter *interp = TInterpreter::Instance();
-      interp->ProcessLine(sstr.str().c_str());
-      std::unique_ptr<TInterpreterValue> func_val { gInterpreter->MakeInterpreterValue() };
-      interp->Evaluate(func_name.c_str(), *func_val);
-      typedef bool (*func_t)(double params[]);
-      func_t func = ((func_t)(func_val->GetAsPointer()));
-
-      is_neighbour = [this, func, param_ix](const CaloHit &h1, const CaloHit &h2) {
-        std::vector<double> params;
-        params.reserve(param_ix);
-        for(const auto &p : m_idSpec.fields()) {
-          const std::string &name = p.first;
-          const dd4hep::IDDescriptor::Field* field = p.second;
-          params.push_back(field->value(h1.getCellID()));
-          params.push_back(field->value(h2.getCellID()));
-          trace("{}_1 = {}", name, field->value(h1.getCellID()));
-          trace("{}_2 = {}", name, field->value(h2.getCellID()));
-        }
-        return func(params.data());
-      };
+      is_neighbour = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.adjacencyMatrix, hit_pair_to_map);
       method_found = true;
     }
 
@@ -188,7 +169,6 @@ void CalorimeterIslandCluster::init() {
             }
           };
 
-          info("Using clustering method: {}", uprop.first);
           break;
         }
       }
@@ -199,6 +179,12 @@ void CalorimeterIslandCluster::init() {
     }
 
     if (m_cfg.splitCluster) {
+      if (!m_cfg.peakNeighbourhoodMatrix.empty()) {
+        is_maximum_neighbourhood = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.peakNeighbourhoodMatrix, hit_pair_to_map);
+      } else {
+        is_maximum_neighbourhood = is_neighbour;
+      }
+
       auto transverseEnergyProfileMetric_it = std::find_if(distMethods.begin(), distMethods.end(), [&](auto &p) { return m_cfg.transverseEnergyProfileMetric == p.first; });
       if (transverseEnergyProfileMetric_it == distMethods.end()) {
           throw std::runtime_error(fmt::format("Unsupported value \"{}\" for \"transverseEnergyProfileMetric\"", m_cfg.transverseEnergyProfileMetric));

@@ -141,8 +141,8 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   #if Acts_VERSION_MAJOR >= 36
   finderCfg.field = m_BField;
   #else
-  finderCfg.field = std::shared_ptr<Acts::MagneticFieldProvider>(
-    const_cast<eicrecon::BField::DD4hepBField*>(m_BField.get()));
+  finderCfg.field = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
+    std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
   #endif
  #endif
   VertexFinder finder(std::move(finderCfg));

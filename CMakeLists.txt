@@ -31,7 +31,7 @@ cmake_minimum_required(VERSION 3.24)
 # 3.27: find_package() uses upper-case <PACKAGENAME>_ROOT variables
 cmake_policy(SET CMP0144 NEW)
 
-project(EICrecon)
+project(EICrecon LANGUAGES CXX)
 
 # CMake includes
 include(CheckCXXCompilerFlag)

@@ -10,6 +10,7 @@ namespace eicrecon {
     struct CalorimeterIslandClusterConfig {
 
         std::string adjacencyMatrix;
+        std::string peakNeighbourhoodMatrix;
         std::string readout;
 
         // neighbour checking distances

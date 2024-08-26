@@ -10,6 +10,7 @@
 #include <string_view>
 
 #include "PIDLookupConfig.h"
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "services/pid_lut/PIDLookupTable.h"
 
@@ -38,6 +39,7 @@ public:
 private:
   mutable std::mt19937 m_gen{};
   mutable std::uniform_real_distribution<double> m_dist{0, 1};
+  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const PIDLookupTable* m_lut;
 };
 

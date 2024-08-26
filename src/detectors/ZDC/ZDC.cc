@@ -64,7 +64,6 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = true,
             .minClusterHitEdep = 0.1 * dd4hep::MeV,
             .minClusterCenterEdep = 3.0 * dd4hep::MeV,
@@ -158,8 +157,8 @@ extern "C" {
             "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCImagingProtoClusters"},
             {
                 .neighbourLayersRange = 1,
-                .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-                .layerDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+                .localDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
+                .layerDistXY = {0.25*side_length, 0.25*side_length*sin(M_PI/3)},
                 .layerMode=eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
                 .sectorDist = 10.0 * dd4hep::cm,
                 .minClusterHitEdep = 100.0 * dd4hep::keV,
@@ -211,7 +210,6 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = true,
             .minClusterHitEdep = 0.1 * dd4hep::MeV,
             .minClusterCenterEdep = 3.0 * dd4hep::MeV,

@@ -15,7 +15,6 @@
 #else
 #include <podio/ROOTFrameWriter.h>
 #endif
-#include <spdlog/common.h>
 #include <chrono>
 #include <exception>
 #include <thread>
@@ -64,6 +63,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
             // All tracking hits combined
             "CentralTrackingRecHits",
+            "CentralTrackingRawHitAssociations",
             "CentralTrackSeedingResults",
             "CentralTrackerMeasurements",
 
@@ -80,9 +80,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "VertexBarrelHits",
             "TrackerEndcapHits",
 
-            "SiBarrelHitAssociations",
-            "SiBarrelVertexHitAssociations",
-            "SiEndcapHitAssociations",
+            "SiBarrelRawHitAssociations",
+            "SiBarrelVertexRawHitAssociations",
+            "SiEndcapTrackerRawHitAssociations",
 
             // TOF
             "TOFBarrelRecHit",
@@ -94,8 +94,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelHits",
             "TOFEndcapHits",
 
-            "TOFBarrelHitAssociations",
-            "TOFEndcapHitAssociations",
+            "TOFBarrelRawHitAssociations",
+            "TOFEndcapRawHitAssociations",
 
 	    "BTOFHitDigi",
             "CombinedTOFParticleIDs",
@@ -133,14 +133,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "BackwardMPGDEndcapHits",
             "ForwardMPGDEndcapHits",
 
-            "MPGDBarrelHitAssociations",
-            "OuterMPGDBarrelHitAssociations",
-            "BackwardMPGDEndcapAssociations",
-            "ForwardMPGDHitAssociations",
+            "MPGDBarrelRawHitAssociations",
+            "OuterMPGDBarrelRawHitAssociations",
+            "BackwardMPGDEndcapRawHitAssociations",
+            "ForwardMPGDEndcapRawHitAssociations",
 
             // LOWQ2 hits
             "TaggerTrackerRawHits",
-            "TaggerTrackerHitAssociations",
+            "TaggerTrackerRawHitAssociations",
             "TaggerTrackerM1L0ClusterPositions",
             "TaggerTrackerM1L1ClusterPositions",
             "TaggerTrackerM1L2ClusterPositions",
@@ -160,7 +160,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "B0TrackerRecHits",
             "B0TrackerRawHits",
             "B0TrackerHits",
-            "B0TrackerHitAssociations",
+            "B0TrackerRawHitAssociations",
 
             "ForwardRomanPotRecHits",
             "ForwardOffMTrackerRecHits",
@@ -168,8 +168,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ForwardRomanPotRecParticles",
             "ForwardOffMRecParticles",
 
-            "ForwardRomanPotHitAssociations",
-            "ForwardOffMTrackerHitAssociations",
+            "ForwardRomanPotRawHitAssociations",
+            "ForwardOffMTrackerRawHitAssociations",
 
             // Reconstructed data
             "GeneratedParticles",
@@ -189,23 +189,28 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "CentralTrackVertices",
             "CentralCKFTrajectories",
             "CentralCKFTracks",
+            "CentralCKFTrackAssociations",
             "CentralCKFTrackParameters",
             "CentralCKFSeededTrajectories",
             "CentralCKFSeededTracks",
+            "CentralCKFSeededTrackAssociations",
             "CentralCKFSeededTrackParameters",
             //tracking properties - true seeding
             "CentralCKFTrajectoriesUnfiltered",
             "CentralCKFTracksUnfiltered",
+            "CentralCKFTrackUnfilteredAssociations",
             "CentralCKFTrackParametersUnfiltered",
              //tracking properties - realistic seeding
             "CentralCKFSeededTrajectoriesUnfiltered",
             "CentralCKFSeededTracksUnfiltered",
+            "CentralCKFSeededTrackUnfilteredAssociations",
             "CentralCKFSeededTrackParametersUnfiltered",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsML",
             "InclusiveKinematicsSigma",
-            "InclusiveKinematicseSigma",
+            "InclusiveKinematicseSigma", // Deprecated, use ESigma
+            "InclusiveKinematicsESigma",
             "InclusiveKinematicsElectron",
             "InclusiveKinematicsTruth",
             "GeneratedJets",
@@ -357,7 +362,6 @@ void JEventProcessorPODIO::Init() {
 
     auto *app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
-    m_log->set_level(spdlog::level::debug);
 #if podio_VERSION >= PODIO_VERSION(0, 99, 0)
     m_writer = std::make_unique<podio::ROOTWriter>(m_output_file);
 #else
