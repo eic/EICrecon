@@ -247,7 +247,7 @@ void CalorimeterHitReco::process(
         auto segmentation_type = segmentation->type();
         while (segmentation_type == "MultiSegmentation"){
             auto* multi_segmentation = static_cast<const DDSegmentation::MultiSegmentation*>(segmentation);
-            segmentation= multi_segmentation->subsegmentation(cellID).segmentation();
+            segmentation= &(multi_segmentation->subsegmentation(cellID));
             segmentation_type = segmentation->type();
         }
         if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
