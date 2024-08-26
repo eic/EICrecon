@@ -207,7 +207,7 @@ void CalorimeterHitReco::process(
                     switch (std::tolower(c)) {
                     case 'x':
                         gpos.SetX(mpos.X());
-                        break;
+                        break;seg
                     case 'y':
                         gpos.SetY(mpos.Y());
                         break;
@@ -243,7 +243,7 @@ void CalorimeterHitReco::process(
         const auto pos = local.nominal().worldToLocal(gpos);
         std::vector<double> cdim;
         // get segmentation dimensions
-        auto* segmentation = const_cast<DDSegmentation::Segmentation> m_converter->findReadout(local).segmentation().segmentation();
+        auto* segmentation = const_cast<DDSegmentation::Segmentation*> m_converter->findReadout(local).segmentation().segmentation();
         auto segmentation_type = segmentation->type();
         while (segmentation_type == "MultiSegmentation"){
             auto* multi_segmentation = static_cast<const DDSegmentation::MultiSegmentation*>(segmentation);
