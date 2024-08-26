@@ -112,7 +112,7 @@ FarDetectorTrackerCluster::ClusterHits(const edm4eic::RawTrackerHitCollection& i
 
     ROOT::VecOps::RVec<unsigned long> clusterList = {maxIndex};
     ROOT::VecOps::RVec<float> clusterT;
-    std::vector<podio::ObjectID> clusterHits;
+    std::vector<edm4hep::ObjectID> clusterHits;
 
     // Loop over hits, adding neighbouring hits as relevant
     while (clusterList.size()) {
@@ -134,7 +134,8 @@ FarDetectorTrackerCluster::ClusterHits(const edm4eic::RawTrackerHitCollection& i
       clusterList.erase(clusterList.begin());
 
       // Adds raw hit to TrackerHit contribution
-      clusterHits.push_back((inputHits)[index].getObjectID());
+      edm4hep::ObjectID hitID = (inputHits)[index].getObjectID();
+      clusterHits.push_back(hitID);
 
       // Energy
       auto hitE = e[index];
