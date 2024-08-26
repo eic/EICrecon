@@ -8,6 +8,7 @@
 #include "CalorimeterHitReco.h"
 
 #include <DD4hep/Alignments.h>
+#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
@@ -16,6 +17,7 @@
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/Volumes.h>
 #include <DD4hep/config.h>
+#include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
