@@ -134,7 +134,7 @@ FarDetectorTrackerCluster::ClusterHits(const edm4eic::RawTrackerHitCollection& i
       clusterList.erase(clusterList.begin());
 
       // Adds raw hit to TrackerHit contribution
-      edm4hep::ObjectID hitID = (inputHits)[index].getObjectID();
+      edm4hep::ObjectID hitID = static_cast<edm4hep::ObjectID >(inputHits)[index].getObjectID();
       clusterHits.push_back(hitID);
 
       // Energy
