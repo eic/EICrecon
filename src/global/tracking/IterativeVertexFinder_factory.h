@@ -7,6 +7,7 @@
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JEvent.h>
 #include <edm4eic/VertexCollection.h>
+#include <edm4eic/ReconstructedParticle.h>
 #include <memory>
 #include <string>
 #include <utility>
@@ -26,6 +27,7 @@ private:
     std::unique_ptr<AlgoT> m_algo;
 
     Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
+    PodioInput<edm4eic::ReconstructedParticle> m_edm4eic_reconParticles_input {this};
     PodioOutput<edm4eic::Vertex> m_vertices_output {this};
 
     ParameterRef<int> m_maxVertices {this, "maxVertices", config().maxVertices,
@@ -47,7 +49,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_vertices_output() = m_algo->produce(m_acts_trajectories_input());
+        m_vertices_output() = m_algo->produce(m_acts_trajectories_input(), m_edm4eic_reconParticles_input());
     }
 };
 
