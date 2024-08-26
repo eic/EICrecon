@@ -21,7 +21,6 @@
 #include <algorithm>
 #include <cmath>
 #include <functional>
-#include <map>
 #include <memory>
 #include <optional>
 #include <string>
@@ -96,10 +95,6 @@ namespace eicrecon {
     std::optional<edm4eic::MutableCluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
     void associate(const edm4eic::Cluster& cl, const edm4hep::SimCalorimeterHitCollection* mchits, edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
     void get_primary(const edm4hep::CaloHitContribution& contrib, edm4hep::MCParticle& primary) const;
-
-  private:
-    mutable std::map<int, std::pair<int, int>> m_mapMCParToSimIndices;
-    mutable std::map<int, double> m_mapMCParToContrib;
 
   };
 

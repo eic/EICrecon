@@ -298,9 +298,9 @@ void CalorimeterClusterRecoCoG::associate(
   // 3. create an association for each contributiong primary with a weight of contributed
   //    over total energy
 
-  // make sure book-keeping containers are empty
-  m_mapMCParToSimIndices.clear();
-  m_mapMCParToContrib.clear();
+  // bookkeeping containers
+  std::map<int, std::pair<int, int>> m_mapMCParToSimIndices;
+  std::map<int, double> m_mapMCParToContrib;
 
   // 1. get associated sim hits and sum energy
   double eSimHitSum = 0.;
