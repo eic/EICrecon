@@ -291,9 +291,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapNTruthClusterAssociations",
             "HcalBarrelTruthClusters",
             "HcalBarrelTruthClusterAssociations",
-            "B0ECalRecHits",
-            "B0ECalClusters",
-            "B0ECalClusterAssociations",
 
             //ZDC Ecal
             "EcalFarForwardZDCRawHits",
