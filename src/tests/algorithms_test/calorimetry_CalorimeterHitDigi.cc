@@ -94,8 +94,8 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
 
 #if EDM4EIC_VERSION_MAJOR >= 7
     REQUIRE( (*rawassocs).size() == 1 );
-    REQUIRE( (*rawassocs)[0].getRec() == (*simhits)[0] );
-    REQUIRE( (*rawassocs)[0].getSim() == (*rawhits)[0] );
+    REQUIRE( (*rawassocs)[0].getSim() == (*simhits)[0] );
+    REQUIRE( (*rawassocs)[0].getRaw() == (*rawhits)[0] );
 #endif
   }
 }
