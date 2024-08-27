@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Friederike Bock, Wouter Deconinck
 
+#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <TString.h>
 #include <math.h>
+#include <algorithm>
+#include <gsl/pointers>
+#include <memory>
+#include <stdexcept>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
@@ -18,6 +23,7 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -89,13 +95,20 @@ extern "C" {
         app   // TODO: Remove me once fixed
       ));
 
-      double side_length=18.89 * dd4hep::mm;
+      // define the distance between neighbors in terms of the largest possible distance between subcell hits
+      auto detector = app->GetService<DD4hep_service>()->detector();
+      double side_length;
+      try {
+        side_length = std::max({detector->constant<double>("HcalEndcapPInsertCellSizeLGRight"), detector->constant<double>("HcalEndcapPInsertCellSizeLGLeft")});
+      } catch (std::runtime_error&) {
+        side_length = 31. * dd4hep::mm;
+      }
       app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
           "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"}, {"HcalEndcapPInsertImagingProtoClusters"},
           {
               .neighbourLayersRange = 1,
-              .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-              .layerDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+              .localDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
+              .layerDistXY = {0.25*side_length, 0.25*side_length*sin(M_PI/3)},
               .layerMode = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
               .sectorDist = 10.0 * dd4hep::cm,
               .minClusterHitEdep = 5.0 * dd4hep::keV,
