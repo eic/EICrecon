@@ -157,7 +157,7 @@ void CalorimeterHitDigi::process(
         // create hit and association in advance
         edm4hep::MutableRawCalorimeterHit rawhit;
 #if EDM4EIC_VERSION_MAJOR >= 7
-        std::vector<edm4eic::MutableMCRecoCalorimeterHitAssociation> rawassocs_;
+        std::vector<edm4eic::MutableMCRecoCalorimeterHitAssociation> rawassocs_staging;
 #endif
 
         double edep     = 0;
@@ -192,7 +192,7 @@ void CalorimeterHitDigi::process(
             assoc.setRawHit(rawhit);
             assoc.setSimHit(hit);
             assoc.setWeight(hit.getEnergy());
-            rawassocs_.push_back(assoc);
+            rawassocs_staging.push_back(assoc);
 #endif
         }
         if (time > m_cfg.capTime) continue;
@@ -221,7 +221,7 @@ void CalorimeterHitDigi::process(
         rawhits->push_back(rawhit);
 
 #if EDM4EIC_VERSION_MAJOR >= 7
-        for (auto& assoc : rawassocs_) {
+        for (auto& assoc : rawassocs_staging) {
             assoc.setWeight(assoc.getWeight() / edep);
             rawassocs->push_back(assoc);
         }
