@@ -91,5 +91,11 @@ TEST_CASE( "the clustering algorithm runs", "[CalorimeterHitDigi]" ) {
     REQUIRE( (*rawhits)[0].getCellID() == id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}));
     REQUIRE( (*rawhits)[0].getAmplitude() == 123 + 111 );
     REQUIRE( (*rawhits)[0].getTimeStamp() == 7 ); // currently, earliest contribution is returned
+
+#if EDM4EIC_VERSION_MAJOR >= 7
+    REQUIRE( (*rawassocs).size() == 1 );
+    REQUIRE( (*rawassocs)[0].getRec() == (*simhits)[0] );
+    REQUIRE( (*rawassocs)[0].getSim() == (*rawhits)[0] );
+#endif
   }
 }
