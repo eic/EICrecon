@@ -208,6 +208,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "InclusiveKinematicsJB",
             "InclusiveKinematicsML",
             "InclusiveKinematicsSigma",
+            "InclusiveKinematicseSigma", // Deprecated, use ESigma
             "InclusiveKinematicsESigma",
             "InclusiveKinematicsElectron",
             "InclusiveKinematicsTruth",
@@ -290,9 +291,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapNTruthClusterAssociations",
             "HcalBarrelTruthClusters",
             "HcalBarrelTruthClusterAssociations",
-            "B0ECalRecHits",
-            "B0ECalClusters",
-            "B0ECalClusterAssociations",
 
             //ZDC Ecal
             "EcalFarForwardZDCRawHits",

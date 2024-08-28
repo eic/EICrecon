@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(eicrecon_project)
+project(eicrecon_project LANGUAGES CXX)
 
 # Find dependencies
 find_package(JANA REQUIRED)
