@@ -255,7 +255,7 @@ void InitPlugin(JApplication *app) {
             "GeneratedChargedParticles",
             {"GeneratedParticles"},
             {"GeneratedChargedParticles"},
-            {.function = BooleanSplit<&edm4eic::ReconstructedParticle::getCharge>{{0.0},std::not_equal_to<float>{}}},
+            {.function = BooleanSplit<&edm4eic::ReconstructedParticle::getCharge>{std::vector<float>{0.0},std::not_equal_to<float>{}}},
             app
     ));
 
