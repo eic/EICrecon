@@ -120,7 +120,7 @@ public:
         auto index = std::find(m_ids.begin(),m_ids.end(),values);
         if(index != m_ids.end()){
             ids.push_back(std::distance(m_ids.begin(),index));
-        }        
+        }
         return ids;
     }
 
@@ -170,7 +170,7 @@ public:
 private:
     std::vector<std::vector<float>> m_ids;
     std::vector<ComparisonFunction> m_comparisons;
-    
+
     static bool compareVectors(const std::vector<float>& vec1, const std::vector<float>& vec2, const std::vector<ComparisonFunction>& comparisons) {
         for (size_t i = 0; i < vec1.size(); ++i) {
             if (!comparisons[i](vec1[i], vec2[i])) {
