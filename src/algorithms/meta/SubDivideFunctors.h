@@ -4,6 +4,9 @@
 #pragma once
 
 #include <algorithms/geo.h>
+#include <functional>
+#include <vector>
+#include <numeric>
 
 namespace eicrecon {
 
@@ -114,16 +117,51 @@ public:
         // Check if requested value matches any configuration combinations
         std::vector<int> values;
         (values.push_back((instance.*MemberFunctionPtrs)()), ...);
-        if(m_matching){
-            auto index = std::find(m_ids.begin(),m_ids.end(),values);
-            if(index != m_ids.end()){
-                ids.push_back(std::distance(m_ids.begin(),index));
-            }
-        } else {
-            for (size_t i = 0; i < m_ids.size(); ++i){
-                if(m_ids[i] != values){
-                    ids.push_back(i);
-                }
+        auto index = std::find(m_ids.begin(),m_ids.end(),values);
+        if(index != m_ids.end()){
+            ids.push_back(std::distance(m_ids.begin(),index));
+        }        
+        return ids;
+    }
+
+private:
+    std::vector<std::vector<int>> m_ids;
+    bool m_matching = true;
+
+};
+
+// ----------------------------------------------------------------------------
+// Functor to split collection based on any number of collection values
+// ----------------------------------------------------------------------------
+template <auto... MemberFunctionPtrs>
+class BooleanSplit {
+public:
+    using ComparisonFunction = std::function<bool(int, int)>;
+
+    BooleanSplit( std::vector<std::vector<int>> ids, ComparisonFunction comparison)
+        : m_ids(ids), m_comparisons(ids.size(), comparison) {};
+
+    BooleanSplit( std::vector<int> ids, ComparisonFunction comparison)
+        : m_ids(1,ids), m_comparisons(ids.size(), comparison) {};
+
+
+    BooleanSplit( std::vector<std::vector<int>> ids, std::vector<ComparisonFunction> comparisons)
+        : m_ids(ids) {
+        if (ids.size() != comparisons.size()) {
+            throw std::invalid_argument("Size of values to compare must match the size of boolean functions");
+        }
+        m_comparisons = comparisons;
+    }
+
+    template <typename T>
+    std::vector<int> operator()(T& instance) const {
+        std::vector<int> ids;
+        // Check if requested value matches any configuration combinations
+        std::vector<int> values;
+        (values.push_back((instance.*MemberFunctionPtrs)()), ...);
+        for (size_t i = 0; i < m_ids.size(); ++i){
+            if(compareVectors(m_ids[i], values, m_comparisons)){
+                ids.push_back(i);
             }
         }
         return ids;
@@ -131,7 +169,17 @@ public:
 
 private:
     std::vector<std::vector<int>> m_ids;
-    bool m_matching = true;
+    std::vector<ComparisonFunction> m_comparisons;
+    
+    static bool compareVectors(const std::vector<int>& vec1, const std::vector<int>& vec2, const std::vector<ComparisonFunction>& comparisons) {
+        for (size_t i = 0; i < vec1.size(); ++i) {
+            if (!comparisons[i](vec1[i], vec2[i])) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 };
 

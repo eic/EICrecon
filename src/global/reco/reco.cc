@@ -13,6 +13,7 @@
 #include <edm4hep/MCParticle.h>
 #include <map>
 #include <memory>
+#include <functional>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -254,7 +255,7 @@ void InitPlugin(JApplication *app) {
             "GeneratedChargedParticles",
             {"GeneratedParticles"},
             {"GeneratedChargedParticles"},
-            {.function = ValueSplit<&edm4eic::ReconstructedParticle::getCharge>{{{0}},false}},
+            {.function = BooleanSplit<&edm4eic::ReconstructedParticle::getCharge>{{0},std::not_equal_to<int>{}}},
             app
     ));
 
