@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 David Lawrence, Derek Anderson, Wouter Deconinck
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <memory>
@@ -42,7 +43,13 @@ extern "C" {
           ") == 1";
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
+          "HcalBarrelRawHits",
+          {"HcalBarrelHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"HcalBarrelRawHits", "HcalBarrelRawHitAssociations"},
+#else
+          {"HcalBarrelRawHits"},
+#endif
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,

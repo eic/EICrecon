@@ -2,6 +2,7 @@
 // Copyright (C) 2023 Friederike Bock, Wouter Deconinck
 
 #include <DD4hep/Detector.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <TString.h>
@@ -40,7 +41,13 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapPInsert_resolutionTDC = 10 * dd4hep::picosecond;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-           "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"}, {"HcalEndcapPInsertRawHits"},
+           "HcalEndcapPInsertRawHits",
+           {"HcalEndcapPInsertHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+           {"HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitAssociations"},
+#else
+           {"HcalEndcapPInsertRawHits"},
+#endif
            {
              .eRes = {},
              .tRes = 0.0 * dd4hep::ns,
@@ -163,7 +170,13 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "LFHCALRawHits", {"LFHCALHits"}, {"LFHCALRawHits"},
+          "LFHCALRawHits",
+          {"LFHCALHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"LFHCALRawHits", "LFHCALRawHitAssociations"},
+#else
+          {"LFHCALRawHits"},
+#endif
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,
