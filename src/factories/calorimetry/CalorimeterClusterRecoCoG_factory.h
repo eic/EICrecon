@@ -19,9 +19,10 @@ private:
     std::unique_ptr<AlgoT> m_algo;
 
     PodioInput<edm4eic::ProtoCluster> m_proto_input {this};
-    PodioInput<edm4hep::SimCalorimeterHit> m_mchits_input {this};
 #if EDM4EIC_VERSION_MAJOR >= 7
     PodioInput<edm4eic::MCRecoCalorimeterHitAssociation> m_mchitassocs_input {this};
+#else
+    PodioInput<edm4hep::SimCalorimeterHit> m_mchits_input {this};
 #endif
 
 
@@ -51,7 +52,7 @@ public:
 
     void Process(int64_t run_number, uint64_t event_number) {
 #if EDM4EIC_VERSION_MAJOR >= 7
-        m_algo->process({m_proto_input(), m_mchits_input(), m_mchitassocs_input()},
+        m_algo->process({m_proto_input(), m_mchitassocs_input()},
 #else
         m_algo->process({m_proto_input(), m_mchits_input()},
 #endif

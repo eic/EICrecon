@@ -59,7 +59,7 @@ namespace eicrecon {
       const CalorimeterClusterRecoCoG::Output& output) const {
 
 #if EDM4EIC_VERSION_MAJOR >= 7
-    const auto [proto, mchits, mchitassociations] = input;
+    const auto [proto, mchitassociations] = input;
 #else
     const auto [proto, mchits] = input;
 #endif
@@ -82,11 +82,20 @@ namespace eicrecon {
       clusters->push_back(cl);
 
       // If sim hits are available, associate cluster with MCParticle
+#if EDM4EIC_VERSION_MAJOR >= 7
+      if (mchitassociations->size() == 0) {
+        debug("No mcHitAssociationCollection was provided, so no truth association will be performed.");
+#else
       if (mchits->size() == 0) {
         debug("No mcHitCollection was provided, so no truth association will be performed.");
+#endif
         continue;
       } else {
+#if EDM4EIC_VERSION_MAJOR >= 7
+        associate(cl, mchitassociations, associations);
+#else
         associate(cl, mchits, associations);
+#endif
       }
 
     }  // end protocluster loop
@@ -289,7 +298,11 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
 //------------------------------------------------------------------------
 void CalorimeterClusterRecoCoG::associate(
   const edm4eic::Cluster& cl,
+#if EDM4EIC_VERSION_MAJOR >= 7
+  const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+#else
   const edm4hep::SimCalorimeterHitCollection* mchits,
+#endif
   edm4eic::MCRecoClusterParticleAssociationCollection* assocs
 ) const {
 
@@ -383,7 +396,7 @@ void CalorimeterClusterRecoCoG::associate(
   }  // end contributor loop
   return;
 
-}  // end 'associate(edm4eic::Cluster&, edm4hep::SimCalorimeterHitCollection*, edm4eic::MCRecoClusterParticleAssociationCollection*)'
+}  // end 'associate(edm4eic::Cluster&, edm4eic::MCRecoCalorimeterHitAssocationCollection OR edm4hep::SimCalorimeterHitCollection*, edm4eic::MCRecoClusterParticleAssociationCollection*)'
 
 //------------------------------------------------------------------------
 void CalorimeterClusterRecoCoG::get_primary(
@@ -395,7 +408,8 @@ void CalorimeterClusterRecoCoG::get_primary(
   const auto contributor = contrib.getParticle();
 
   // walk back through parents to find primary
-  //   - TODO finalize primary selection
+  //   - TODO finalize primary selection. This
+  //     can be improved!!
   primary = contributor;
   while (primary.parents_size() > 0) {
     primary = primary.getParents(0);

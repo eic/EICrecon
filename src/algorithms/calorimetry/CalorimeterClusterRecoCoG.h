@@ -14,10 +14,11 @@
 #include <edm4eic/ClusterCollection.h>
 #if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#else
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #endif
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -54,7 +55,6 @@ namespace eicrecon {
     algorithms::Input<
       edm4eic::ProtoClusterCollection,
 #if EDM4EIC_VERSION_MAJOR >= 7
-      std::optional<edm4hep::SimCalorimeterHitCollection>,
       std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>
 #else
       std::optional<edm4hep::SimCalorimeterHitCollection>
@@ -74,7 +74,7 @@ namespace eicrecon {
     CalorimeterClusterRecoCoG(std::string_view name)
       : CalorimeterClusterRecoCoGAlgorithm{name,
 #if EDM4EIC_VERSION_MAJOR >= 7
-                            {"inputProtoClusterCollection", "mcHits", "mcRecoHitAssocations"},
+                            {"inputProtoClusterCollection", "mcRecoHitAssocations"},
 #else
                             {"inputProtoClusterCollection", "mcHits"},
 #endif
@@ -93,7 +93,11 @@ namespace eicrecon {
 
   private:
     std::optional<edm4eic::MutableCluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
+#if EDM4EIC_VERSION_MAJOR >= 7
+    void associate(const edm4eic::Cluster& cl, const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations, edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
+#else
     void associate(const edm4eic::Cluster& cl, const edm4hep::SimCalorimeterHitCollection* mchits, edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
+#endif
     void get_primary(const edm4hep::CaloHitContribution& contrib, edm4hep::MCParticle& primary) const;
 
   };
