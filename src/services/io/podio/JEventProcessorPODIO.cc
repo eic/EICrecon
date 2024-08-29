@@ -291,9 +291,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapNTruthClusterAssociations",
             "HcalBarrelTruthClusters",
             "HcalBarrelTruthClusterAssociations",
-            "B0ECalRecHits",
-            "B0ECalClusters",
-            "B0ECalClusterAssociations",
 
             //ZDC Ecal
             "EcalFarForwardZDCRawHits",
@@ -320,6 +317,22 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DIRCPID",
             "DIRCTruthSeededParticleIDs",
             "DIRCParticleIDs",
+
+#if EDM4EIC_VERSION_MAJOR >= 7
+            "B0ECalRawHitAssociations",
+            "EcalBarrelScFiRawHitAssociations",
+            "EcalBarrelImagingRawHitAssociations",
+            "HcalBarrelRawHitAssociations",
+            "EcalEndcapNRawHitAssociations",
+            "HcalEndcapNRawHitAssociations",
+            "EcalEndcapPRawHitAssociations",
+            "EcalEndcapPInsertRawHitAssociations",
+            "HcalEndcapPInsertRawHitAssociations",
+            "LFHCALRawHitAssociations",
+            "EcalLumiSpecRawHitAssociations",
+            "EcalFarForwardZDCRawHitAssociations",
+            "HcalFarForwardZDCRawHitAssociations",
+#endif
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     std::string output_include_collections = "DEPRECATED";
