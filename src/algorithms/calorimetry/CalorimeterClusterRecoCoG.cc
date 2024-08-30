@@ -84,10 +84,10 @@ namespace eicrecon {
       // If sim hits are available, associate cluster with MCParticle
 #if EDM4EIC_VERSION_MAJOR >= 7
       if (mchitassociations->size() == 0) {
-        debug("No mcHitAssociationCollection was provided, so no truth association will be performed.");
+        debug("Provided MCRecoCalorimeterHitAssociation collection is empty! No truth associations will be performed.");
 #else
       if (mchits->size() == 0) {
-        debug("No mcHitCollection was provided, so no truth association will be performed.");
+        debug("Provided SimCalorimeterHitCollection is empty! No truth association will be performed.");
 #endif
         continue;
       } else {
