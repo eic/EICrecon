@@ -426,7 +426,7 @@ void CalorimeterClusterRecoCoG::associate(
     assoc.setWeight(weight);
     assoc.setRec(cl);
     assoc.setSim(primary);
-    debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with weight ()",
+    debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with weight ({})",
       cl.getObjectID().index,
       primary.getObjectID().index,
       primary.getPDG(),
