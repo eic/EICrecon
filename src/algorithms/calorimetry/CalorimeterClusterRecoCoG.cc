@@ -312,15 +312,30 @@ void CalorimeterClusterRecoCoG::associate(
   //    over total energy
 
   // bookkeeping containers
-  std::map<int, std::pair<int, int>> m_mapMCParToSimIndices;
-  std::map<int, double> m_mapMCParToContrib;
+  std::map<int, std::pair<int, int>> mapMCParToSimIndices;
+  std::map<int, double> mapMCParToContrib;
+  std::vector<int> vecAssocSimHits;
 
   // 1. get associated sim hits and sum energy
   double eSimHitSum = 0.;
   for (std::size_t iHit = 0; auto clhit : cl.getHits()) {
 
-    // grab corresponding sim hit and increment sum
-    //   - FIXME use RecHit-RawHit associations when ready
+    // make sure list of associated sim hits is empty
+    vecAssocSimHits.clear();
+
+#if EDM4EIC_VERSION_MAJOR >= 7
+    std::size_t iAssociations = mchitassociations->size();
+    for (std::size_t iAssoc = 0; iAssoc < mchitassociations->size(); ++iAssoc) {
+
+      // if raw hit has same cell ID as reco hit, add sim hit to vector
+      // and increment energy sum
+      if (clhit.getCellID() == (*mchitassociations)[iAssoc].getRawHit().getCellID()) {
+        vecAssocSimhits.push_back(iAssoc);
+        eSimHitSum += (*mchitassociations)[iAssoc].getSimHit().getEnergy();
+      }
+
+    }  // end association loop
+#else
     std::size_t iSimMatch = mchits->size();
     for (std::size_t iSim = 0; iSim < mchits->size(); ++iSim) {
       if ((*mchits)[iSim].getCellID() == clhit.getCellID()) {
@@ -329,53 +344,70 @@ void CalorimeterClusterRecoCoG::associate(
       }
     }  // end sim hit loop
 
+    // if no matching cell ID found, continue
+    // otherwise increment sum and add to vector
     if (iSimMatch == mchits->size()) {
       debug("No matching SimHit for hit {}", clhit.getCellID());
       continue;
+    } else {
+      vecAssocSimHits.push_back(iSimMatch);
+      eSimHitSum += (*mchits)[iSimMatch].getEnergy();
     }
-    eSimHitSum += (*mchits)[iSimMatch].getEnergy();
+#endif
+    trace("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
 
-    // 2. walk back through contributions to find primaries
-    for (std::size_t iContrib = 0; const auto& contrib : (*mchits)[iSimMatch].getContributions()) {
 
-      // grab primary responsible for contribution
-      edm4hep::MCParticle primary;
-      get_primary(contrib, primary);
+    // 2. walk back through contributions of associated
+    //    sim hits to find primaries
+    for (const int iAssocSimHit : vecAssocSimHits) {
+#if EDM4EIC_VERSION_MAJOR >= 7
+      for (std::size_t iContrib = 0; const auto& contrib : (*mchitassociations)[iAssocSimHit].getSimHit().getContributions()) {
+#else
+      for (std::size_t iContrib = 0; const auto& contrib : (*mchits)[iAssocSimHit].getContributions()) {
+#endif
+        // grab primary responsible for contribution
+        edm4hep::MCParticle primary;
+        get_primary(contrib, primary);
 
-      // increment sums accordingly
-      const int idPrim = primary.getObjectID().index;
-      if (m_mapMCParToContrib.find(idPrim) == m_mapMCParToContrib.end()) {
-        m_mapMCParToSimIndices.insert(
-          {idPrim, std::make_pair(iSimMatch, iContrib)}
+        // increment sums accordingly
+        const int idPrim = primary.getObjectID().index;
+        if (mapMCParToContrib.find(idPrim) == mapMCParToContrib.end()) {
+          mapMCParToSimIndices.insert(
+            {idPrim, std::make_pair(iAssocSimHit, iContrib)}
+          );
+          mapMCParToContrib.insert(
+            {idPrim, contrib.getEnergy()}
+          );
+        } else {
+          mapMCParToContrib[idPrim] += contrib.getEnergy();
+        }
+        trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
+          primary.getObjectID().index,
+          primary.getPDG(),
+          primary.getEnergy(),
+          mapMCParToContrib[idPrim]
         );
-        m_mapMCParToContrib.insert(
-          {idPrim, contrib.getEnergy()}
-        );
-      } else {
-        m_mapMCParToContrib[idPrim] += contrib.getEnergy();
-      }
-      trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
-        primary.getObjectID().index,
-        primary.getPDG(),
-        primary.getEnergy(),
-        m_mapMCParToContrib[idPrim]
-      );
 
-    }  // end contribution loop
+      }  // end contribution loop
+    }  // end associated sim hit loop
   }  // end hit loop
-  debug("Found {} primaries contributing a total of {} GeV", m_mapMCParToContrib.size(), eSimHitSum);
+  debug("Found {} primaries contributing a total of {} GeV", mapMCParToContrib.size(), eSimHitSum);
 
   // 3. create association for each contributing primary
-  for (const auto& parAndSimIndices : m_mapMCParToSimIndices) {
+  for (const auto& parAndSimIndices : mapMCParToSimIndices) {
 
     // grab indices, calculate weight
-    const uint32_t iSimHit = parAndSimIndices.second.first;
+    const uint32_t iAssocSimHit = parAndSimIndices.second.first;
     const uint32_t iContrib = parAndSimIndices.second.second;
-    const double weight = m_mapMCParToContrib[parAndSimIndices.first] / eSimHitSum;
+    const double weight = mapMCParToContrib[parAndSimIndices.first] / eSimHitSum;
 
     // get relevant MCParticle
     edm4hep::MCParticle primary;
-    get_primary((*mchits)[iSimHit].getContributions(iContrib), primary);
+#if EDM4EIC_VERSION_MAJOR >= 7
+    get_primary((*mchitassociations)[AssocSimHit].getSimHit().getContributions(iContrib), primary);
+#else
+    get_primary((*mchits)[iAssocSimHit].getContributions(iContrib), primary);
+#endif
 
     // set association
     auto assoc = assocs->create();
