@@ -317,10 +317,9 @@ void CalorimeterClusterRecoCoG::associate(
    *     of contributed energy over total energy.
    */
 
-  // bookkeeping containers
+  // bookkeeping maps for associated primaries
   std::map<std::size_t, std::pair<std::size_t, std::size_t>> mapMCParToSimIndices;
   std::map<std::size_t, double> mapMCParToContrib;
-  std::vector<std::size_t> vecAssocSimHits;
 
   // --------------------------------------------------------------------------
   // 1. get associated sim hits and sum energy
@@ -328,8 +327,8 @@ void CalorimeterClusterRecoCoG::associate(
   double eSimHitSum = 0.;
   for (std::size_t iHit = 0; auto clhit : cl.getHits()) {
 
-    // make sure list of associated sim hits is empty
-    vecAssocSimHits.clear();
+    // vector to hold associated sim hits
+    std::vector<std::size_t> vecAssocSimHits;
 
 #if EDM4EIC_VERSION_MAJOR >= 7
     std::size_t iAssociations = mchitassociations->size();
