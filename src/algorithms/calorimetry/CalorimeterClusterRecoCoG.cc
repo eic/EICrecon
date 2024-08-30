@@ -306,17 +306,25 @@ void CalorimeterClusterRecoCoG::associate(
   edm4eic::MCRecoClusterParticleAssociationCollection* assocs
 ) const {
 
-  // 1. idenitfy sim hits associated w/ protocluster and sum their energy
-  // 2. for each sim hit, identify contributing primaries and sum their contributed energy
-  // 3. create an association for each contributiong primary with a weight of contributed
-  //    over total energy
+  // --------------------------------------------------------------------------
+  // Association Logic
+  // --------------------------------------------------------------------------
+  /*  1. identify all sim hits associated with a given protocluster, and sum
+   *     the energy of the sim hits.
+   *  2. for each sim hit, identify all contributing primary particles, and sum
+   *     their contributed energy.
+   *  3. create an association for each contributiong primary with a weight
+   *     of contributed energy over total energy.
+   */
 
   // bookkeeping containers
   std::map<int, std::pair<int, int>> mapMCParToSimIndices;
   std::map<int, double> mapMCParToContrib;
   std::vector<int> vecAssocSimHits;
 
+  // --------------------------------------------------------------------------
   // 1. get associated sim hits and sum energy
+  // --------------------------------------------------------------------------
   double eSimHitSum = 0.;
   for (std::size_t iHit = 0; auto clhit : cl.getHits()) {
 
@@ -356,9 +364,9 @@ void CalorimeterClusterRecoCoG::associate(
 #endif
     trace("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
 
-
-    // 2. walk back through contributions of associated
-    //    sim hits to find primaries
+    // ------------------------------------------------------------------------
+    // 2. identify primaries contributing to sim hit and sum their contributions
+    // ------------------------------------------------------------------------
     for (const int iAssocSimHit : vecAssocSimHits) {
 #if EDM4EIC_VERSION_MAJOR >= 7
       for (std::size_t iContrib = 0; const auto& contrib : (*mchitassociations)[iAssocSimHit].getSimHit().getContributions()) {
@@ -393,7 +401,9 @@ void CalorimeterClusterRecoCoG::associate(
   }  // end hit loop
   debug("Found {} primaries contributing a total of {} GeV", mapMCParToContrib.size(), eSimHitSum);
 
+  // --------------------------------------------------------------------------
   // 3. create association for each contributing primary
+  // --------------------------------------------------------------------------
   for (const auto& parAndSimIndices : mapMCParToSimIndices) {
 
     // grab indices, calculate weight

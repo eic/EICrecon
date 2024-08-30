@@ -74,7 +74,7 @@ namespace eicrecon {
     CalorimeterClusterRecoCoG(std::string_view name)
       : CalorimeterClusterRecoCoGAlgorithm{name,
 #if EDM4EIC_VERSION_MAJOR >= 7
-                            {"inputProtoClusterCollection", "mcRecoHitAssocations"},
+                            {"inputProtoClusterCollection", "mcRawHitAssocations"},
 #else
                             {"inputProtoClusterCollection", "mcHits"},
 #endif
