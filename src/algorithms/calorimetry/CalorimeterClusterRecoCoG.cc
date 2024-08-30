@@ -318,9 +318,9 @@ void CalorimeterClusterRecoCoG::associate(
    */
 
   // bookkeeping containers
-  std::map<int, std::pair<int, int>> mapMCParToSimIndices;
-  std::map<int, double> mapMCParToContrib;
-  std::vector<int> vecAssocSimHits;
+  std::map<std::size_t, std::pair<std::size_t, std::size_t>> mapMCParToSimIndices;
+  std::map<std::size_t, double> mapMCParToContrib;
+  std::vector<std::size_t> vecAssocSimHits;
 
   // --------------------------------------------------------------------------
   // 1. get associated sim hits and sum energy
