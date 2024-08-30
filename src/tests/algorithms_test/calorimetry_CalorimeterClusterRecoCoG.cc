@@ -10,10 +10,11 @@
 #include <edm4eic/ClusterCollection.h>
 #if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#else
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #endif
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>                      // for Vector3f
 #include <math.h>
 #include <spdlog/common.h>                         // for level_enum
@@ -52,9 +53,10 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
 
   edm4eic::CalorimeterHitCollection hits_coll;
   edm4eic::ProtoClusterCollection pclust_coll;
-  edm4hep::SimCalorimeterHitCollection simhits;
 #if EDM4EIC_VERSION_MAJOR >= 7
   edm4eic::MCRecoCalorimeterHitAssociationCollection simhitassocs;
+#else
+  edm4hep::SimCalorimeterHitCollection simhits;
 #endif
   auto assoc = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
   auto clust_coll = std::make_unique<edm4eic::ClusterCollection>();
@@ -90,7 +92,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
 
   // Constructing input and output as per the algorithm's expected signature
 #if EDM4EIC_VERSION_MAJOR >= 7
-  auto input = std::make_tuple(&pclust_coll, &simhits, &simhitassocs);
+  auto input = std::make_tuple(&pclust_coll, &simhitassocs);
 #else
   auto input = std::make_tuple(&pclust_coll, &simhits);
 #endif

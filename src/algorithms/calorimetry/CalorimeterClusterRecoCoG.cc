@@ -338,7 +338,7 @@ void CalorimeterClusterRecoCoG::associate(
       // if raw hit has same cell ID as reco hit, add sim hit to vector
       // and increment energy sum
       if (clhit.getCellID() == (*mchitassociations)[iAssoc].getRawHit().getCellID()) {
-        vecAssocSimhits.push_back(iAssoc);
+        vecAssocSimHits.push_back(iAssoc);
         eSimHitSum += (*mchitassociations)[iAssoc].getSimHit().getEnergy();
       }
 
@@ -414,7 +414,7 @@ void CalorimeterClusterRecoCoG::associate(
     // get relevant MCParticle
     edm4hep::MCParticle primary;
 #if EDM4EIC_VERSION_MAJOR >= 7
-    get_primary((*mchitassociations)[AssocSimHit].getSimHit().getContributions(iContrib), primary);
+    get_primary((*mchitassociations)[iAssocSimHit].getSimHit().getContributions(iContrib), primary);
 #else
     get_primary((*mchits)[iAssocSimHit].getContributions(iContrib), primary);
 #endif
