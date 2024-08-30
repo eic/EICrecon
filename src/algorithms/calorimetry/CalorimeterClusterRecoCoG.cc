@@ -334,9 +334,9 @@ void CalorimeterClusterRecoCoG::associate(
     std::size_t iAssociations = mchitassociations->size();
     for (std::size_t iAssoc = 0; iAssoc < mchitassociations->size(); ++iAssoc) {
 
-      // if raw hit has same cell ID as reco hit, add sim hit to vector
+      // if found corresponding raw hit, add sim hit to vector
       // and increment energy sum
-      if (clhit.getCellID() == (*mchitassociations)[iAssoc].getRawHit().getCellID()) {
+      if (clhit.getRawHit() == (*mchitassociations)[iAssoc].getRawHit()) {
         vecAssocSimHits.push_back(iAssoc);
         eSimHitSum += (*mchitassociations)[iAssoc].getSimHit().getEnergy();
       }
