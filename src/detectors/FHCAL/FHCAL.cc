@@ -88,7 +88,7 @@ extern "C" {
       app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
         "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertSubcellHits"},
         {
-          .MIP = 800. * dd4hep::keV,
+          .MIP = 480. * dd4hep::keV,
           .Emin_in_MIPs=0.5,
           .tmax=162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
         },
@@ -112,7 +112,7 @@ extern "C" {
               .layerMode = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
               .sectorDist = 10.0 * dd4hep::cm,
               .minClusterHitEdep = 5.0 * dd4hep::keV,
-              .minClusterCenterEdep = 5.0 * dd4hep::MeV,
+              .minClusterCenterEdep = 3.0 * dd4hep::MeV,
               .minClusterEdep = 11.0 * dd4hep::MeV,
               .minClusterNhits = 100,
           },
