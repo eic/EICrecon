@@ -8,6 +8,7 @@
 #include "CalorimeterHitReco.h"
 
 #include <DD4hep/Alignments.h>
+#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
@@ -16,7 +17,10 @@
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/Volumes.h>
 #include <DD4hep/config.h>
+#include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include <DDSegmentation/MultiSegmentation.h>
+#include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
@@ -242,7 +246,18 @@ void CalorimeterHitReco::process(
         const auto pos = local.nominal().worldToLocal(gpos);
         std::vector<double> cdim;
         // get segmentation dimensions
-        auto segmentation_type = m_converter->findReadout(local).segmentation().type();
+
+        const dd4hep::DDSegmentation::Segmentation* segmentation = m_converter->findReadout(local).segmentation()->segmentation;
+        auto segmentation_type = segmentation->type();
+
+        while (segmentation_type == "MultiSegmentation"){
+            const auto* multi_segmentation = dynamic_cast<const dd4hep::DDSegmentation::MultiSegmentation*>(segmentation);
+            const dd4hep::DDSegmentation::Segmentation& sub_segmentation = multi_segmentation->subsegmentation(cellID);
+
+            segmentation = &sub_segmentation;
+            segmentation_type = segmentation->type();
+        }
+
         if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
             auto cell_dim = m_converter->cellDimensions(cellID);
             cdim.resize(3);
