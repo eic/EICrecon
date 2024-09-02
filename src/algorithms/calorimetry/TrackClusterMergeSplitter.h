@@ -16,6 +16,7 @@
 #include <stddef.h>
 #include <algorithm>
 #include <map>
+#include <set>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -47,7 +48,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Convenience types
   // --------------------------------------------------------------------------
-  typedef std::map<podio::ObjectID, bool, CompareObjectID> MapToFlag;
+  typedef std::set<podio::ObjectID, CompareObjectID> SetOfIDs;
   typedef std::map<podio::ObjectID, int, CompareObjectID> MapOneToIndex;
   typedef std::map<podio::ObjectID, std::vector<int>, CompareObjectID> MapProjToMerge;
   typedef std::map<podio::ObjectID, std::vector<podio::ObjectID>, CompareObjectID> MapClustToMerge;

@@ -52,15 +52,6 @@ namespace eicrecon {
       throw std::runtime_error("No proto-clusters in input collection!");
     }
 
-    // flag all clusters as not being consumed
-    MapToFlag mapIsConsumed;
-    for (auto cluster : *in_protoclusters) {
-      mapIsConsumed.insert(
-        {cluster.getObjectID(), false}
-      );
-    }
-    trace("Initialized map of consumed clusters");
-
     // collect relevant projections into vecProject
     VecTrkPoint vecProject;
     get_projections(in_projections, vecProject);
@@ -74,12 +65,13 @@ namespace eicrecon {
     }
 
     // loop over projection-cluster pairs to determine what clusters to merge
+    SetOfIDs setUsedClust;
     MapClustToMerge mapClustToMerge;
     MapProjToMerge mapProjToMerge;
     for (auto clustAndProject : mapClustProject) {
 
       // skip if cluster is already used
-      if (mapIsConsumed[clustAndProject.first]) {
+      if (setUsedClust.find(clustAndProject.first) != setUsedClust.end()) {
         continue;
       }
 
@@ -94,7 +86,7 @@ namespace eicrecon {
       mapProjToMerge.insert(
         {clustAndProject.first, {clustAndProject.second}}
       );
-      mapIsConsumed[clustAndProject.first] = true;
+      setUsedClust.insert(clustAndProject.first);
 
       // grab cluster energy and projection momentum
       const float eClustSeed = get_cluster_energy(clustSeed);
@@ -122,7 +114,7 @@ namespace eicrecon {
 
         // grab id and ignore used clusters
         const podio::ObjectID idCluster = in_cluster.getObjectID();
-        if (mapIsConsumed[idCluster]) {
+        if (setUsedClust.find(idCluster) != setUsedClust.end()) {
           continue;
         }
 
@@ -148,7 +140,7 @@ namespace eicrecon {
           continue;
         } else {
           mapClustToMerge[clustAndProject.first].push_back(idCluster);
-          mapIsConsumed[idCluster] = true;
+          setUsedClust.insert(idCluster);
         }
 
         // if picked up cluster w/ matched track, add projection to list
@@ -197,7 +189,7 @@ namespace eicrecon {
     for (auto in_cluster : *in_protoclusters) {
 
       // ignore used clusters
-      if (mapIsConsumed[in_cluster.getObjectID()]) {
+      if (setUsedClust.find(in_cluster.getObjectID()) != setUsedClust.end()) {
         continue;
       }
 
