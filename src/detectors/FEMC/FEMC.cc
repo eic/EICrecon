@@ -129,10 +129,10 @@ extern "C" {
             {"EcalEndcapPSplitMergeProtoClusters"},
             {
               .idCalo = "EcalEndcapP_ID",
-              .minSigCut = -1,
+              .minSigCut = -2.0,
               .avgEP = 1.0,
-              .sigEP = 1.0,
-              .drAdd = 0.4,
+              .sigEP = 0.10,
+              .drAdd = 0.30,
               .sampFrac = 1.0,
               .distScale = 1.0
             },
