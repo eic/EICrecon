@@ -38,6 +38,29 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Process inputs
   // --------------------------------------------------------------------------
+  /*! Primary algorithm call: algorithm ingests a collection
+   *  protoclusters and a collection of track projections.
+   *  It then decides to merge or split protoclusters according
+   *  to the following algorithm:
+   *    1. Identify all tracks projections pointing to the
+   *       specified calorimeter.
+   *    2. Match relevant track projections to protoclusters
+   *       based on distance between projection and the energy-
+   *       weighted barycenter of the protocluster;
+   *    3. For each cluster-track pair:
+   *       i.  Calculate the significance of the pair's
+   *           E/p relative to the provided mean E/p and
+   *           its RMS; and
+   *       ii. If the significance is less than the
+   *           signficance specified by `minSigCut`,
+   *           merge all clusters within `drAdd`.
+   *    4. Create a protocluster for each merged cluster
+   *       and copy all unused protoclusters into output.
+   *       - If multiple tracks point to the same merged
+   *         cluster, create a new protocluster for each
+   *         projection with hit weighted relative to
+   *         the track momentum.
+   */
   void TrackClusterMergeSplitter::process(
     const TrackClusterMergeSplitter::Input& input,
     const TrackClusterMergeSplitter::Output& output
@@ -52,11 +75,15 @@ namespace eicrecon {
       throw std::runtime_error("No proto-clusters in input collection!");
     }
 
-    // collect relevant projections into vecProject
+    // ------------------------------------------------------------------------
+    // 1. Identify projections to calorimeter
+    // ------------------------------------------------------------------------
     VecTrkPoint vecProject;
     get_projections(in_projections, vecProject);
 
-    // match clusters to projections
+    // ------------------------------------------------------------------------
+    // 2. Match relevant projections to clusters
+    // ------------------------------------------------------------------------
     MapOneToIndex mapClustProject;
     if (vecProject.size() == 0) {
       debug("No projections to match clusters to.");
@@ -64,7 +91,9 @@ namespace eicrecon {
       match_clusters_to_tracks(in_protoclusters, vecProject, mapClustProject);
     }
 
-    // loop over projection-cluster pairs to determine what clusters to merge
+    // ------------------------------------------------------------------------
+    // 3. Loop over projection-cluster pairs to check if merging is needed
+    // ------------------------------------------------------------------------
     SetOfIDs setUsedClust;
     MapClustToMerge mapClustToMerge;
     MapProjToMerge mapProjToMerge;
@@ -92,12 +121,16 @@ namespace eicrecon {
       const float eClustSeed = get_cluster_energy(clustSeed);
       const float eProjSeed = m_cfg.avgEP * edm4hep::utils::magnitude(projSeed.momentum);
 
-      // check significance
+      // ----------------------------------------------------------------------
+      // 3.i. Calculate significance
+      // ----------------------------------------------------------------------
       const float sigSeed = (eClustSeed - eProjSeed) / m_cfg.sigEP;
       debug("Seed energy = {}, expected energy = {}, significance = {}", eClustSeed, eProjSeed, sigSeed);
 
-      // if above threshold, do nothing
-      //   - otherwise, identify clusters to merge
+      // ----------------------------------------------------------------------
+      // 3.ii. If significance is threshold, do nothing. Otherwise
+      //       identify clusters to merge
+      // ----------------------------------------------------------------------
       if (sigSeed > m_cfg.minSigCut) {
         continue;
       }
@@ -134,8 +167,9 @@ namespace eicrecon {
           std::remainder(phiSeed - phiClust, 2. * M_PI)
         );
 
-        // skip if outside window
-        //   - otherwise, add to merge list
+        // --------------------------------------------------------------------
+        // If inside merging-window, add to list of clusters to merge
+        // --------------------------------------------------------------------
         if (drToSeed > m_cfg.drAdd) {
           continue;
         } else {
@@ -143,7 +177,9 @@ namespace eicrecon {
           setUsedClust.insert(idCluster);
         }
 
+        // --------------------------------------------------------------------
         // if picked up cluster w/ matched track, add projection to list
+        // --------------------------------------------------------------------
         if (mapClustProject.count(idCluster)) {
           mapProjToMerge[clustAndProject.first].push_back(
             mapClustProject[idCluster]
@@ -163,7 +199,10 @@ namespace eicrecon {
       }  // end cluster loop
     }  // end matched cluster-projection loop
 
-    // do cluster merging
+    // ------------------------------------------------------------------------
+    // 4. Create an output protocluster for each merged cluster and for
+    //    each track pointing to merged cluster
+    // ------------------------------------------------------------------------
     VecCluster vecClust;
     for (auto clustToMerge : mapClustToMerge) {
 
@@ -185,7 +224,9 @@ namespace eicrecon {
       }
     }  // end clusters to merge loop
 
+    // ------------------------------------------------------------------------
     // copy unused clusters to output
+    // ------------------------------------------------------------------------
     for (auto in_cluster : *in_protoclusters) {
 
       // ignore used clusters
