@@ -19,6 +19,7 @@
 #include "AmbiguitySolver_factory.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
+#include "SecondaryVertexFinder_factory.h"
 #include "TrackParamTruthInit_factory.h"
 #include "TrackProjector_factory.h"
 #include "TrackPropagationConfig.h"
@@ -227,6 +228,16 @@ void InitPlugin(JApplication *app) {
             "CentralTrackVertices",
             {"CentralCKFActsTrajectories"},
             {"CentralTrackVertices"},
+            {},
+            app
+            ));
+
+    app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
+            "CentralSecondaryTrackVertices",
+            {
+            "CentralCKFActsTrajectories"
+            },
+            {"CentralSecondaryTrackVertices"},
             {},
             app
             ));

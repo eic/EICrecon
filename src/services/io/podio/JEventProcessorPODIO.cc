@@ -186,6 +186,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",
             "CentralTrackVertices",
+            "CentralSecondaryTrackVertices",
             "CentralCKFTrajectories",
             "CentralCKFTracks",
             "CentralCKFTrackAssociations",
