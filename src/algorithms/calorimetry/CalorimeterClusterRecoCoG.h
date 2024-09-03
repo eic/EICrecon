@@ -15,11 +15,10 @@
 #include <edm4eic/EDM4eicVersion.h>
 #if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#else
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #endif
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>

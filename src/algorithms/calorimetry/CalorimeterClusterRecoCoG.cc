@@ -330,36 +330,34 @@ void CalorimeterClusterRecoCoG::associate(
   for (std::size_t iHit = 0; auto clhit : cl.getHits()) {
 
     // vector to hold associated sim hits
-    std::vector<std::size_t> vecAssocSimHits;
+    std::vector<edm4hep::SimCalorimeterHit> vecAssocSimHits;
 
 #if EDM4EIC_VERSION_MAJOR >= 7
-    for (std::size_t iAssoc = 0; iAssoc < mchitassociations->size(); ++iAssoc) {
+    for (const auto& hitAssoc : *mchitassociations) {
 
       // if found corresponding raw hit, add sim hit to vector
       // and increment energy sum
-      if (clhit.getRawHit() == (*mchitassociations)[iAssoc].getRawHit()) {
-        vecAssocSimHits.push_back(iAssoc);
-        eSimHitSum += (*mchitassociations)[iAssoc].getSimHit().getEnergy();
+      if (clhit.getRawHit() == hitAssoc.getRawHit()) {
+        vecAssocSimHits.push_back(hitAssoc.getSimHit());
+        eSimHitSum += vecAssocSimHits.back().getEnergy();
       }
 
     }  // end association loop
 #else
-    std::size_t iSimMatch = mchits->size();
-    for (std::size_t iSim = 0; iSim < mchits->size(); ++iSim) {
-      if ((*mchits)[iSim].getCellID() == clhit.getCellID()) {
-        iSimMatch = iSim;
+    for (const auto& mchit : *mchits) {
+      if (mchit.getCellID() == clhit.getCellID()) {
+         vecAssocSimHits.push_back(mchit);
         break;
       }
     }  // end sim hit loop
 
     // if no matching cell ID found, continue
-    // otherwise increment sum and add to vector
-    if (iSimMatch == mchits->size()) {
+    // otherwise increment sum
+    if (vecAssocSimHits.empty()) {
       debug("No matching SimHit for hit {}", clhit.getCellID());
       continue;
     } else {
-      vecAssocSimHits.push_back(iSimMatch);
-      eSimHitSum += (*mchits)[iSimMatch].getEnergy();
+      eSimHitSum += vecAssocSimHits.back().getEnergy();
     }
 #endif
     debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
@@ -367,12 +365,9 @@ void CalorimeterClusterRecoCoG::associate(
     // ------------------------------------------------------------------------
     // 2.i. identify primaries contributing to sim hit
     // ------------------------------------------------------------------------
-    for (const int iAssocSimHit : vecAssocSimHits) {
-#if EDM4EIC_VERSION_MAJOR >= 7
-      for (std::size_t iContrib = 0; const auto& contrib : (*mchitassociations)[iAssocSimHit].getSimHit().getContributions()) {
-#else
-      for (std::size_t iContrib = 0; const auto& contrib : (*mchits)[iAssocSimHit].getContributions()) {
-#endif
+    for (std::size_t iAssocSimHit = 0; const auto& simHit : vecAssocSimHits) {
+      for (std::size_t iContrib = 0; const auto& contrib : simHit.getContributions()) {
+
         // grab primary responsible for contribution
         edm4hep::MCParticle primary = get_primary(contrib);
 
@@ -392,8 +387,11 @@ void CalorimeterClusterRecoCoG::associate(
           primary.getEnergy(),
           mapMCParToContrib[idPrim]
         );
+        ++iContrib;
 
       }  // end contribution loop
+      ++iAssocSimHit;
+
     }  // end associated sim hit loop
   }  // end hit loop
   debug("Found {} primaries contributing a total of {} GeV", mapMCParToContrib.size(), eSimHitSum);
