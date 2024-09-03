@@ -381,16 +381,12 @@ void CalorimeterClusterRecoCoG::associate(
          // 2.ii. increment sum of energy contributed by primary
          // -------------------------------------------------------------------
         const int idPrim = primary.getObjectID().index;
-        if (mapMCParToContrib.find(idPrim) == mapMCParToContrib.end()) {
+        if (mapMCParToContrib.count(idPrim)) {
           mapMCParToSimIndices.insert(
             {idPrim, std::make_pair(iAssocSimHit, iContrib)}
           );
-          mapMCParToContrib.insert(
-            {idPrim, contrib.getEnergy()}
-          );
-        } else {
-          mapMCParToContrib[idPrim] += contrib.getEnergy();
         }
+        mapMCParToContrib[idPrim] += contrib.getEnergy();
         trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
           primary.getObjectID().index,
           primary.getPDG(),
