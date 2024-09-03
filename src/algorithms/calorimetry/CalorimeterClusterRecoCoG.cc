@@ -85,18 +85,18 @@ namespace eicrecon {
 #if EDM4EIC_VERSION_MAJOR >= 7
       if (mchitassociations->size() == 0) {
         debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations will be performed.");
+        continue;
+      } else {
+        associate(cl, mchitassociations, associations);
+      }
 #else
       if (mchits->size() == 0) {
         debug("Provided SimCalorimeterHitCollection is empty. No truth association will be performed.");
-#endif
         continue;
       } else {
-#if EDM4EIC_VERSION_MAJOR >= 7
-        associate(cl, mchitassociations, associations);
-#else
         associate(cl, mchits, associations);
-#endif
       }
+#endif
 
     }  // end protocluster loop
 }
