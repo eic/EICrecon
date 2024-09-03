@@ -50,10 +50,14 @@ public:
 
         //Check which detector division to put the hit into
         auto cellID = instance.getCellID();
+        std::cout << "Cell ID: " << cellID << std::endl;
         std::vector<long int> det_ids;
         for(auto d : m_div_ids){
             det_ids.push_back(m_id_dec->get(cellID, d));
         }
+        //print out the detector ids
+        std::cout << "Module: " <<  det_ids[0] << " " << "Layer: " << det_ids[1] << std::endl;
+
         auto index = std::find(m_ids.begin(),m_ids.end(),det_ids);
 
         std::vector<int> ids;
