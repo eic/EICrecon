@@ -84,10 +84,10 @@ namespace eicrecon {
       // If sim hits are available, associate cluster with MCParticle
 #if EDM4EIC_VERSION_MAJOR >= 7
       if (mchitassociations->size() == 0) {
-        debug("Provided MCRecoCalorimeterHitAssociation collection is empty! No truth associations will be performed.");
+        debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations will be performed.");
 #else
       if (mchits->size() == 0) {
-        debug("Provided SimCalorimeterHitCollection is empty! No truth association will be performed.");
+        debug("Provided SimCalorimeterHitCollection is empty. No truth association will be performed.");
 #endif
         continue;
       } else {
@@ -360,7 +360,7 @@ void CalorimeterClusterRecoCoG::associate(
       eSimHitSum += (*mchits)[iSimMatch].getEnergy();
     }
 #endif
-    trace("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
+    debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
 
     // ------------------------------------------------------------------------
     // 2. identify primaries contributing to sim hit and sum their contributions
