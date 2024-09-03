@@ -434,7 +434,6 @@ void CalorimeterClusterRecoCoG::associate(
     );
 
   }  // end contributor loop
-  return;
 
 }  // end 'associate(edm4eic::Cluster&, edm4eic::MCRecoCalorimeterHitAssocationCollection OR edm4hep::SimCalorimeterHitCollection*, edm4eic::MCRecoClusterParticleAssociationCollection*)'
 
