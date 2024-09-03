@@ -4,10 +4,11 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
+
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
-
 
 namespace eicrecon {
 

@@ -12,6 +12,7 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #else
