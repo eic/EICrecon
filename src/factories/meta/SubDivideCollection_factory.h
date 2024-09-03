@@ -49,7 +49,7 @@ public:
     for (size_t i = 0; i < split_collections.size(); i++) {
       this->logger()->info("Collection {} takes {} hits", i, split_collections[i]->size());
     }
-    
+
 };
 }; // SplitGeometry_factory
 } // eicrecon

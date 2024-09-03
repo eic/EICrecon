@@ -56,7 +56,7 @@ public:
         std::vector<long int> det_ids;
         for(auto d : *m_div_ids){
             det_ids.push_back((*m_id_dec)->get(cellID, d));
-        }        
+        }
 
         auto index = std::find(m_ids.begin(),m_ids.end(),det_ids);
 
