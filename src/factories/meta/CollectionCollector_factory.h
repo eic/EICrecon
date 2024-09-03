@@ -36,7 +36,7 @@ public:
         typename T::collection_type* merged_collection = m_output().get();
         m_algo->process(in_collections, merged_collection);
         //Log how many hits were collected from N input collections
-        this->logger()->info("Collected {} hits from {} input collections", merged_collection->size(), in_collections.size());
+        this->logger()->debug("Collected {} hits from {} input collections", merged_collection->size(), in_collections.size());
 
     };
 
