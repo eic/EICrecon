@@ -82,7 +82,7 @@ private:
     std::string m_readout;
 
     std::shared_ptr<std::once_flag> is_init;
-    std::shared_ptr<dd4hep::DDSegmentation::BitFieldCoder*> m_id_dec = nullptr;
+    std::shared_ptr<dd4hep::DDSegmentation::BitFieldCoder*> m_id_dec;
     std::shared_ptr<std::vector<size_t>> m_div_ids;
 
 };
