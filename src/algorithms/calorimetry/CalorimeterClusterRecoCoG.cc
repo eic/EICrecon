@@ -311,10 +311,12 @@ void CalorimeterClusterRecoCoG::associate(
   // --------------------------------------------------------------------------
   /*  1. identify all sim hits associated with a given protocluster, and sum
    *     the energy of the sim hits.
-   *  2. for each sim hit, identify all contributing primary particles, and sum
-   *     their contributed energy.
-   *  3. create an association for each contributiong primary with a weight
-   *     of contributed energy over total energy.
+   *  2. for each sim hit:
+   *     i.  identify parents of each contributing particles; and
+   *     ii. if parent is a primary particle, add to list of contributors
+   *         and sum its energy contributed.
+   *  3. create an association for each contributing primary with a weight
+   *     of contributed energy over total sim hit energy.
    */
 
   // bookkeeping maps for associated primaries
@@ -363,7 +365,7 @@ void CalorimeterClusterRecoCoG::associate(
     debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
 
     // ------------------------------------------------------------------------
-    // 2. identify primaries contributing to sim hit and sum their contributions
+    // 2.i. identify primaries contributing to sim hit
     // ------------------------------------------------------------------------
     for (const int iAssocSimHit : vecAssocSimHits) {
 #if EDM4EIC_VERSION_MAJOR >= 7
@@ -375,7 +377,9 @@ void CalorimeterClusterRecoCoG::associate(
         edm4hep::MCParticle primary;
         get_primary(contrib, primary);
 
-        // increment sums accordingly
+         // -------------------------------------------------------------------
+         // 2.ii. increment sum of energy contributed by primary
+         // -------------------------------------------------------------------
         const int idPrim = primary.getObjectID().index;
         if (mapMCParToContrib.find(idPrim) == mapMCParToContrib.end()) {
           mapMCParToSimIndices.insert(
