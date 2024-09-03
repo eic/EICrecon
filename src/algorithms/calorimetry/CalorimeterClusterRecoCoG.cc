@@ -311,17 +311,25 @@ void CalorimeterClusterRecoCoG::associate(
   // --------------------------------------------------------------------------
   /*  1. identify all sim hits associated with a given protocluster, and sum
    *     the energy of the sim hits.
-   *  2. for each sim hit:
-   *     i.  identify parents of each contributing particles; and
-   *     ii. if parent is a primary particle, add to list of contributors
-   *         and sum its energy contributed.
+   *  2. for each sim hit
+   *     - identify parents of each contributing particles; and
+   *     - if parent is a primary particle, add to list of contributors
+   *       and sum the energy contributed by the parent.
    *  3. create an association for each contributing primary with a weight
    *     of contributed energy over total sim hit energy.
    */
 
+  // lambda to compare MCParticles
+  auto compare = [](const edm4hep::MCParticle& lhs, const edm4hep::MCParticle& rhs) {
+    if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
+      return (lhs.getObjectID().index < rhs.getObjectID().index);
+    } else {
+      return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
+    }
+  };
+
   // bookkeeping maps for associated primaries
-  std::map<std::size_t, std::pair<std::size_t, std::size_t>> mapMCParToSimIndices;
-  std::map<std::size_t, double> mapMCParToContrib;
+  std::map<edm4hep::MCParticle, double, decltype(compare)> mapMCParToContrib(compare);
 
   // --------------------------------------------------------------------------
   // 1. get associated sim hits and sum energy
@@ -363,35 +371,24 @@ void CalorimeterClusterRecoCoG::associate(
     debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
 
     // ------------------------------------------------------------------------
-    // 2.i. identify primaries contributing to sim hit
+    // 2. loop through associated sim hits
     // ------------------------------------------------------------------------
-    for (std::size_t iAssocSimHit = 0; const auto& simHit : vecAssocSimHits) {
-      for (std::size_t iContrib = 0; const auto& contrib : simHit.getContributions()) {
+    for (const auto& simHit : vecAssocSimHits) {
+      for (const auto& contrib : simHit.getContributions()) {
 
-        // grab primary responsible for contribution
+        // --------------------------------------------------------------------
+        // grab primary responsible for contribution & increment relevant sum
+        // --------------------------------------------------------------------
         edm4hep::MCParticle primary = get_primary(contrib);
+        mapMCParToContrib[primary] += contrib.getEnergy();
 
-         // -------------------------------------------------------------------
-         // 2.ii. increment sum of energy contributed by primary
-         // -------------------------------------------------------------------
-        const int idPrim = primary.getObjectID().index;
-        if (mapMCParToContrib.count(idPrim)) {
-          mapMCParToSimIndices.insert(
-            {idPrim, std::make_pair(iAssocSimHit, iContrib)}
-          );
-        }
-        mapMCParToContrib[idPrim] += contrib.getEnergy();
         trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
           primary.getObjectID().index,
           primary.getPDG(),
           primary.getEnergy(),
-          mapMCParToContrib[idPrim]
+          mapMCParToContrib[primary]
         );
-        ++iContrib;
-
       }  // end contribution loop
-      ++iAssocSimHit;
-
     }  // end associated sim hit loop
   }  // end hit loop
   debug("Found {} primaries contributing a total of {} GeV", mapMCParToContrib.size(), eSimHitSum);
@@ -399,33 +396,24 @@ void CalorimeterClusterRecoCoG::associate(
   // --------------------------------------------------------------------------
   // 3. create association for each contributing primary
   // --------------------------------------------------------------------------
-  for (const auto& parAndSimIndices : mapMCParToSimIndices) {
+  for (const auto& parAndContrib : mapMCParToContrib) {
 
-    // grab indices, calculate weight
-    const uint32_t iAssocSimHit = parAndSimIndices.second.first;
-    const uint32_t iContrib = parAndSimIndices.second.second;
-    const double weight = mapMCParToContrib[parAndSimIndices.first] / eSimHitSum;
-
-    // get relevant MCParticle
-#if EDM4EIC_VERSION_MAJOR >= 7
-    edm4hep::MCParticle primary = get_primary((*mchitassociations)[iAssocSimHit].getSimHit().getContributions(iContrib));
-#else
-    edm4hep::MCParticle primary = get_primary((*mchits)[iAssocSimHit].getContributions(iContrib));
-#endif
+    // calculate weight
+    const double weight = parAndContrib.second / eSimHitSum;
 
     // set association
     auto assoc = assocs->create();
     assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-    assoc.setSimID(primary.getObjectID().index);
+    assoc.setSimID(parAndContrib.first.getObjectID().index);
     assoc.setWeight(weight);
     assoc.setRec(cl);
-    assoc.setSim(primary);
+    assoc.setSim(parAndContrib.first);
     debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with weight ({})",
       cl.getObjectID().index,
-      primary.getObjectID().index,
-      primary.getPDG(),
-      primary.getGeneratorStatus(),
-      primary.getEnergy(),
+      parAndContrib.first.getObjectID().index,
+      parAndContrib.first.getPDG(),
+      parAndContrib.first.getGeneratorStatus(),
+      parAndContrib.first.getEnergy(),
       weight
     );
 
