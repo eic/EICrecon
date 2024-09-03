@@ -374,8 +374,7 @@ void CalorimeterClusterRecoCoG::associate(
       for (std::size_t iContrib = 0; const auto& contrib : (*mchits)[iAssocSimHit].getContributions()) {
 #endif
         // grab primary responsible for contribution
-        edm4hep::MCParticle primary;
-        get_primary(contrib, primary);
+        edm4hep::MCParticle primary = get_primary(contrib);
 
          // -------------------------------------------------------------------
          // 2.ii. increment sum of energy contributed by primary
@@ -410,11 +409,10 @@ void CalorimeterClusterRecoCoG::associate(
     const double weight = mapMCParToContrib[parAndSimIndices.first] / eSimHitSum;
 
     // get relevant MCParticle
-    edm4hep::MCParticle primary;
 #if EDM4EIC_VERSION_MAJOR >= 7
-    get_primary((*mchitassociations)[iAssocSimHit].getSimHit().getContributions(iContrib), primary);
+    edm4hep::MCParticle primary = get_primary((*mchitassociations)[iAssocSimHit].getSimHit().getContributions(iContrib));
 #else
-    get_primary((*mchits)[iAssocSimHit].getContributions(iContrib), primary);
+    edm4hep::MCParticle primary = get_primary((*mchits)[iAssocSimHit].getContributions(iContrib));
 #endif
 
     // set association
@@ -438,10 +436,7 @@ void CalorimeterClusterRecoCoG::associate(
 }  // end 'associate(edm4eic::Cluster&, edm4eic::MCRecoCalorimeterHitAssocationCollection OR edm4hep::SimCalorimeterHitCollection*, edm4eic::MCRecoClusterParticleAssociationCollection*)'
 
 //------------------------------------------------------------------------
-void CalorimeterClusterRecoCoG::get_primary(
-  const edm4hep::CaloHitContribution& contrib,
-  edm4hep::MCParticle& primary
-) const {
+edm4hep::MCParticle CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) const {
 
   // get contributing particle
   const auto contributor = contrib.getParticle();
@@ -449,12 +444,12 @@ void CalorimeterClusterRecoCoG::get_primary(
   // walk back through parents to find primary
   //   - TODO finalize primary selection. This
   //     can be improved!!
-  primary = contributor;
+  edm4hep::MCParticle primary = contributor;
   while (primary.parents_size() > 0) {
     primary = primary.getParents(0);
     if (primary.getGeneratorStatus() == 1) break;
   }
-  return;
+  return primary;
 
 }  // end 'get_primary(edm4hep::CaloHitContribution&, edm4hep::MCParticle&)'
 

@@ -99,7 +99,7 @@ namespace eicrecon {
 #else
     void associate(const edm4eic::Cluster& cl, const edm4hep::SimCalorimeterHitCollection* mchits, edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
 #endif
-    void get_primary(const edm4hep::CaloHitContribution& contrib, edm4hep::MCParticle& primary) const;
+    edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
 
   };
 
