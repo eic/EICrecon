@@ -331,7 +331,6 @@ void CalorimeterClusterRecoCoG::associate(
     std::vector<std::size_t> vecAssocSimHits;
 
 #if EDM4EIC_VERSION_MAJOR >= 7
-    std::size_t iAssociations = mchitassociations->size();
     for (std::size_t iAssoc = 0; iAssoc < mchitassociations->size(); ++iAssoc) {
 
       // if found corresponding raw hit, add sim hit to vector
