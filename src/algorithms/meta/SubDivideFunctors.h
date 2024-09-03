@@ -45,21 +45,6 @@ public:
       m_id_dec(std::make_shared<dd4hep::DDSegmentation::BitFieldCoder*>()),
       m_div_ids(std::make_shared<std::vector<size_t>>()) {};
 
-    // // Copy constructor without std::call_once and initialization
-    // GeometrySplit(const GeometrySplit& other)
-    // : m_ids(other.m_ids), m_readout(other.m_readout), m_divisions(other.m_divisions), m_div_ids(other.m_div_ids), is_init() {  }
-
-    // // Copy assignment operator without std::call_once and initialization
-    // GeometrySplit& operator=(const GeometrySplit& other) {
-    //     if (this != &other) {
-    //         m_ids = other.m_ids;
-    //         m_readout = other.m_readout;
-    //         m_divisions = other.m_divisions;
-    //         m_div_ids = other.m_div_ids;
-    //     }
-    //     return *this;
-    // }
-
     template <typename T>
     std::vector<int> operator()(T& instance) const {
 
@@ -68,20 +53,10 @@ public:
 
         //Check which detector division to put the hit into
         auto cellID = instance.getCellID();
-        std::cout << "Cell ID: " << cellID << std::endl;
         std::vector<long int> det_ids;
         for(auto d : *m_div_ids){
-            std::cout << "Division: " << d << std::endl;
             det_ids.push_back((*m_id_dec)->get(cellID, d));
-        }
-        //print out the detector ids
-        std::cout << "Module Layer" << std::endl;
-        for(auto id : det_ids){
-            std::cout << id << " ";
-        }
-        std::cout << m_id_dec << std::endl;
-        std::cout << std::endl;
-        
+        }        
 
         auto index = std::find(m_ids.begin(),m_ids.end(),det_ids);
 
@@ -95,7 +70,6 @@ public:
 private:
 
     void init() const {
-        std::cout << "Initializing GeometrySplit" << std::endl;
         *m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
         m_div_ids->clear();
         for (auto d : m_divisions){
