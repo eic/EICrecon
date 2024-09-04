@@ -151,11 +151,6 @@ namespace eicrecon {
           continue;
         }
 
-        // skip if seed cluster
-        if (idCluster == clustAndProject.first) {
-          continue;
-        }
-
         // get eta, phi of cluster
         const auto posClust = get_cluster_position(in_cluster);
         const float etaClust = edm4hep::utils::eta(posClust);
