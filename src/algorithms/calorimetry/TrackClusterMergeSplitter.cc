@@ -125,7 +125,7 @@ namespace eicrecon {
       // 3.i. Calculate significance
       // ----------------------------------------------------------------------
       const float sigSeed = (eClustSeed - eProjSeed) / m_cfg.sigEP;
-      debug("Seed energy = {}, expected energy = {}, significance = {}", eClustSeed, eProjSeed, sigSeed);
+      trace("Seed energy = {}, expected energy = {}, significance = {}", eClustSeed, eProjSeed, sigSeed);
 
       // ----------------------------------------------------------------------
       // 3.ii. If significance is threshold, do nothing. Otherwise
@@ -189,7 +189,7 @@ namespace eicrecon {
         // increment sums and output debugging
         eClustSum += get_cluster_energy(in_cluster);
         sigSum = (eClustSum - eProjSeed) / m_cfg.sigEP;
-        debug(
+        trace(
           "{} clusters to merge: current sum = {}, current significance = {}, {} track(s) pointing to merged cluster",
           mapClustToMerge[clustAndProject.first].size(),
           eClustSum,
@@ -239,7 +239,6 @@ namespace eicrecon {
       copy_cluster(in_cluster, out_cluster);
 
     }  // end cluster loop
-    trace("Copied unused clusters into output collection");
 
   }  // end 'process(Input&, Output&)'
 
@@ -330,10 +329,10 @@ namespace eicrecon {
         matches.insert(
           {idMatch, iProject}
         );
-        debug("Matched cluster to track projection: eta-phi distance = {}", dMatch);
+        trace("Matched cluster to track projection: eta-phi distance = {}", dMatch);
       }
     }  // end cluster loop
-    trace ("Finished matching clusters to track projections: {} matches", matches.size());
+    debug("Finished matching clusters to track projections: {} matches", matches.size());
 
   }  // end 'match_clusters_to_tracks(edm4eic::ClusterCollection*, VecTrkPoint&, MapOneToIndex&)'
 
