@@ -100,7 +100,7 @@ namespace eicrecon {
     for (auto clustAndProject : mapClustProject) {
 
       // skip if cluster is already used
-      if (setUsedClust.find(clustAndProject.first) != setUsedClust.end()) {
+      if (setUsedClust.count(clustAndProject.first)) {
         continue;
       }
 
@@ -147,7 +147,7 @@ namespace eicrecon {
 
         // grab id and ignore used clusters
         const podio::ObjectID idCluster = in_cluster.getObjectID();
-        if (setUsedClust.find(idCluster) != setUsedClust.end()) {
+        if (setUsedClust.count(idCluster)) {
           continue;
         }
 
@@ -230,7 +230,7 @@ namespace eicrecon {
     for (auto in_cluster : *in_protoclusters) {
 
       // ignore used clusters
-      if (setUsedClust.find(in_cluster.getObjectID()) != setUsedClust.end()) {
+      if (setUsedClust.count(in_cluster.getObjectID())) {
         continue;
       }
 
