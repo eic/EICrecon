@@ -70,8 +70,9 @@ namespace eicrecon {
     auto [out_protoclusters] = output;
 
     // exit if no clusters in collection
-    if (in_protoclusters -> size() == 0) {
-      throw std::runtime_error("No proto-clusters in input collection!");
+    if (in_protoclusters->size() == 0) {
+      debug("No proto-clusters in input collection.");
+      return;
     }
 
     // ------------------------------------------------------------------------
@@ -86,6 +87,7 @@ namespace eicrecon {
     MapOneToIndex mapClustProject;
     if (vecProject.size() == 0) {
       debug("No projections to match clusters to.");
+      return;
     } else {
       match_clusters_to_tracks(in_protoclusters, vecProject, mapClustProject);
     }
