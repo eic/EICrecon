@@ -231,8 +231,12 @@ namespace eicrecon {
       }
 
       // copy cluster and add to output collection
-      edm4eic::MutableProtoCluster out_cluster = out_protoclusters->create();
-      copy_cluster(in_cluster, out_cluster);
+      edm4eic::MutableProtoCluster out_cluster = in_cluster.clone();
+      out_protoclusters->push_back(out_cluster);
+      debug("Copied input cluster {} onto output cluster {}",
+        in_cluster.getObjectID().index,
+        out_cluster.getObjectID().index
+      );
 
     }  // end cluster loop
 
@@ -380,31 +384,6 @@ namespace eicrecon {
     }  // end of cluster loop
 
   }  // end 'merge_clusters(std::vector<edm4eic::Cluster>&, edm4eic::MutableCluster&)'
-
-
-
-
-
-  // --------------------------------------------------------------------------
-  //! Copy cluster onto new one
-  // --------------------------------------------------------------------------
-  void TrackClusterMergeSplitter::copy_cluster(
-    const edm4eic::ProtoCluster& old_clust,
-    edm4eic::MutableProtoCluster& new_clust
-  ) const {
-
-    // set one-to-many relations
-    for (auto hit : old_clust.getHits()) {
-      new_clust.addToHits( hit );
-    }
-
-    // set vector members
-    for (auto weight : old_clust.getWeights()) {
-      new_clust.addToWeights( weight );
-    }
-    debug("Copied input cluster {} onto output cluster {}", old_clust.getObjectID().index, new_clust.getObjectID().index);
-
-  }  // end 'copy_cluster(edm4eic::Cluster&, edm4eic::MutableCluster&)'
 
 
 

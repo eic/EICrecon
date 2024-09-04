@@ -105,7 +105,6 @@ namespace eicrecon {
       void get_projections(const edm4eic::TrackSegmentCollection* projections, VecTrkPoint& relevant_projects) const;
       void match_clusters_to_tracks(const edm4eic::ProtoClusterCollection* clusters, const VecTrkPoint& projections, MapOneToIndex& matches) const;
       void merge_clusters(const edm4eic::TrackPoint& matched_trk, const VecCluster& to_merge, edm4eic::MutableProtoCluster& merged_clust) const;
-      void copy_cluster(const edm4eic::ProtoCluster& old_clust, edm4eic::MutableProtoCluster& new_clust) const;
       float get_cluster_energy(const edm4eic::ProtoCluster& clust) const;
       edm4hep::Vector3f get_cluster_position(const edm4eic::ProtoCluster& clust) const;
 
