@@ -297,7 +297,7 @@ extern "C" {
               .sigEP = 0.25,
               .drAdd = 0.30,
               .sampFrac = 1.0,
-              .distScale = 1.0
+              .transverseEnergyProfileScale = 1.0
             },
             app   // TODO: remove me once fixed
           )

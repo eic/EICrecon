@@ -16,7 +16,9 @@ namespace eicrecon {
     double sigEP     = 1.0;  // rms of E/p
     double drAdd     = 0.4;  // window to add clusters
     double sampFrac  = 1.0;  // allows for sampling fraction correction
-    double distScale = 1.0;  // scale for hit-track distance
+
+    // scale for hit-track distance
+    double transverseEnergyProfileScale = 1.0;
 
   };  // end TrackClusterMergeSplitterConfig
 

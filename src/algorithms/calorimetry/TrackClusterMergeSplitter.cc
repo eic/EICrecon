@@ -367,7 +367,7 @@ namespace eicrecon {
         );
 
         // recalculate weighted energy wrt track
-        const float weight = std::exp(-1. * dist / m_cfg.distScale);
+        const float weight = std::exp(-1. * dist / m_cfg.transverseEnergyProfileScale);
         const float eContrib = hit.getEnergy() * weight;
 
         // increment sum and print debugging message

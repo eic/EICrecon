@@ -40,7 +40,7 @@ namespace eicrecon {
       ParameterRef<double> m_sigEP {this, "sigEP", config().sigEP};
       ParameterRef<double> m_drAdd {this, "drAdd", config().drAdd};
       ParameterRef<double> m_sampFrac {this, "sampFrac", config().sampFrac};
-      ParameterRef<double> m_distScale {this, "distScale", config().distScale};
+      ParameterRef<double> m_transverseEnergyProfileScale {this, "transverseEnergyProfileScale", config().transverseEnergyProfileScale};
 
       // services
       Service<DD4hep_service> m_geoSvc {this};
