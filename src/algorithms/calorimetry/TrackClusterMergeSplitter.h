@@ -4,17 +4,15 @@
 #ifndef EICRECON_TRACKCLUSTERMERGESPLITTER_H
 #define EICRECON_TRACKCLUSTERMERGESPLITTER_H
 
-// dd4hep utilities
 #include <DD4hep/Detector.h>
-#include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4eic/ProtoClusterCollection.h>
-// edm4eic types
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <stddef.h>
 #include <algorithm>
+#include <algorithms/algorithm.h>
 #include <map>
 #include <set>
 #include <string>

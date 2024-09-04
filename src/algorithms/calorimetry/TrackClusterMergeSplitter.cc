@@ -2,7 +2,6 @@
 // Copyright (C) 2024 Derek Anderson
 
 #include <edm4eic/CalorimeterHit.h>
-// edm4hep types
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
@@ -128,8 +127,8 @@ namespace eicrecon {
       trace("Seed energy = {}, expected energy = {}, significance = {}", eClustSeed, eProjSeed, sigSeed);
 
       // ----------------------------------------------------------------------
-      // 3.ii. If significance is threshold, do nothing. Otherwise
-      //       identify clusters to merge
+      // 3.ii. If significance is above threshold, do nothing.
+      //       Otherwise identify clusters to merge.
       // ----------------------------------------------------------------------
       if (sigSeed > m_cfg.minSigCut) {
         continue;
@@ -248,7 +247,7 @@ namespace eicrecon {
   ) const {
 
     // return if projections are empty
-    if (projections -> size() == 0) {
+    if (projections->size() == 0) {
       debug("No projections in input collection.");
       return;
     }
