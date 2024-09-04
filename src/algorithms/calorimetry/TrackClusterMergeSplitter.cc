@@ -233,7 +233,7 @@ namespace eicrecon {
       // copy cluster and add to output collection
       edm4eic::MutableProtoCluster out_cluster = in_cluster.clone();
       out_protoclusters->push_back(out_cluster);
-      debug("Copied input cluster {} onto output cluster {}",
+      trace("Copied input cluster {} onto output cluster {}",
         in_cluster.getObjectID().index,
         out_cluster.getObjectID().index
       );
@@ -269,7 +269,7 @@ namespace eicrecon {
         }
       }  // end point loop
     }  // end projection loop
-    trace("Collected relevant projections: {} to process", relevant_projects.size());
+    debug("Collected relevant projections: {} to process", relevant_projects.size());
 
   }  // end 'get_projections(edm4eic::CalorimeterHit&, edm4eic::TrackSegmentCollection&, VecTrkPoint&)'
 
@@ -379,7 +379,7 @@ namespace eicrecon {
         merged_clust.addToWeights( weight );
 
       }  // end hit loop
-      debug("Merged input cluster {} into output cluster {}", old_clust.getObjectID().index, merged_clust.getObjectID().index);
+      trace("Merged input cluster {} into output cluster {}", old_clust.getObjectID().index, merged_clust.getObjectID().index);
 
     }  // end of cluster loop
 
