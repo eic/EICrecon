@@ -11,18 +11,20 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/ParticleSvc.h"
+
 namespace eicrecon {
 
-using InclusiveKinematicseSigmaAlgorithm = algorithms::Algorithm<
+using InclusiveKinematicsESigmaAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
                       edm4eic::HadronicFinalStateCollection>,
     algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-class InclusiveKinematicseSigma : public InclusiveKinematicseSigmaAlgorithm {
+class InclusiveKinematicsESigma : public InclusiveKinematicsESigmaAlgorithm {
 
 public:
-  InclusiveKinematicseSigma(std::string_view name)
-      : InclusiveKinematicseSigmaAlgorithm{
+  InclusiveKinematicsESigma(std::string_view name)
+      : InclusiveKinematicsESigmaAlgorithm{
             name,
             {"MCParticles", "scatteredElectron", "hadronicFinalState"},
             {"inclusiveKinematics"},
@@ -32,7 +34,8 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  double m_proton{0.93827}, m_neutron{0.93957}, m_electron{0.000510998928}, m_crossingAngle{-0.025};
+  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  double m_crossingAngle{-0.025};
 };
 
 } // namespace eicrecon

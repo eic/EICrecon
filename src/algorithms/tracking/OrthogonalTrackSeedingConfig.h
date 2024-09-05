@@ -19,7 +19,7 @@ namespace eicrecon {
     float zMax = 1700. * Acts::UnitConstants::mm; // max z to look for hits to compose seeds
     float zMin = -1500. * Acts::UnitConstants::mm; // min z to look for hits to compose seeds
     float deltaRMinTopSP     = 10. * Acts::UnitConstants::mm; // Min distance in r between middle and top SP in one seed
-    float deltaRMaxTopSP     = 200. * Acts::UnitConstants::mm; // Max distance in r between middle and top SP in one seed
+    float deltaRMaxTopSP     = 450. * Acts::UnitConstants::mm; // Max distance in r between middle and top SP in one seed
     float deltaRMinBottomSP  = 10. * Acts::UnitConstants::mm; // Min distance in r between middle and bottom SP in one seed
     float deltaRMaxBottomSP  = 200. * Acts::UnitConstants::mm; // Max distance in r between middle and bottom SP in one seed
     float collisionRegionMin = -250 * Acts::UnitConstants::mm; // Min z for primary vertex
@@ -35,7 +35,6 @@ namespace eicrecon {
     float beamPosX         = 0; // x offset for beam position
     float beamPosY         = 0; // y offset for beam position
     float impactMax        = 3. * Acts::UnitConstants::mm; // Maximum transverse PCA allowed
-    float bFieldMin        = 0.1 * Acts::UnitConstants::T; // T (in Acts units of GeV/[e*mm]) - Minimum Magnetic field strength
     float rMinMiddle       = 20. * Acts::UnitConstants::mm; // Middle spacepoint must fall between these two radii
     float rMaxMiddle       = 400. * Acts::UnitConstants::mm;
 
