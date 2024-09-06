@@ -28,15 +28,19 @@
 namespace eicrecon {
 
   // --------------------------------------------------------------------------
-  //! Comparator struct for podio::ObjectID's
-  // -------------------------------------------------------------------------
-  /*! Organizes object ID's in decreasing collection ID first, and
-   *  by decreasing index second.
+  //! Comparator struct for protoclusters
+  // --------------------------------------------------------------------------
+  /*! Organizes protoclusters by their ObjectID's in decreasing collection
+   *  ID first, and second by decreasing index second.
    */
-  struct CompareObjectID {
+  struct CompareProto {
 
-    bool operator() (const podio::ObjectID& lhs, const podio::ObjectID& rhs) const {
-      return (lhs.collectionID == rhs.collectionID) ? (lhs.index < rhs.index)  : (lhs.collectionID < rhs.collectionID);
+    bool operator() (const edm4eic::ProtoCluster& lhs, const edm4eic::ProtoCluster& rhs) const {
+      if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
+        return (lhs.getObjectID().index < rhs.getObjectID().index);
+      } else {
+        return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
+      }
     }
 
   };  // end CompareObjectID
@@ -46,12 +50,11 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Convenience types
   // --------------------------------------------------------------------------
-  typedef std::set<podio::ObjectID, CompareObjectID> SetOfIDs;
-  typedef std::map<podio::ObjectID, int, CompareObjectID> MapOneToIndex;
-  typedef std::map<podio::ObjectID, std::vector<int>, CompareObjectID> MapProjToMerge;
-  typedef std::map<podio::ObjectID, std::vector<podio::ObjectID>, CompareObjectID> MapClustToMerge;
-  typedef std::vector<edm4eic::TrackPoint> VecTrkPoint;
-  typedef std::vector<edm4eic::ProtoCluster> VecCluster;
+  using VecProj = std::vector<edm4eic::TrackPoint>;
+  using VecClust = std::vector<edm4eic::ProtoCluster>;
+  using SetClust = std::set<edm4eic::ProtoCluster, CompareProto>;
+  using MapToVecProj = std::map<edm4eic::ProtoCluster, VecProj, CompareProto>;
+  using MapToVecClust = std::map<edm4eic::ProtoCluster, VecClust, CompareProto>;
 
 
 
@@ -102,9 +105,9 @@ namespace eicrecon {
     private:
 
       // private methods
-      void get_projections(const edm4eic::TrackSegmentCollection* projections, VecTrkPoint& relevant_projects) const;
-      void match_clusters_to_tracks(const edm4eic::ProtoClusterCollection* clusters, const VecTrkPoint& projections, MapOneToIndex& matches) const;
-      void merge_clusters(const edm4eic::TrackPoint& matched_trk, const VecCluster& to_merge, edm4eic::MutableProtoCluster& merged_clust) const;
+      void get_projections(const edm4eic::TrackSegmentCollection* projections, VecProj& relevant_projects) const;
+      void match_clusters_to_tracks(const edm4eic::ProtoClusterCollection* clusters, const VecProj& projections, MapToVecProj& matches) const;
+      void merge_clusters(const edm4eic::TrackPoint& matched_trk, const VecClust& to_merge, edm4eic::MutableProtoCluster& merged_clust) const;
       float get_cluster_energy(const edm4eic::ProtoCluster& clust) const;
       edm4hep::Vector3f get_cluster_position(const edm4eic::ProtoCluster& clust) const;
 

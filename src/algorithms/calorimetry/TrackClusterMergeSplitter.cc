@@ -78,45 +78,39 @@ namespace eicrecon {
     // ------------------------------------------------------------------------
     // 1. Identify projections to calorimeter
     // ------------------------------------------------------------------------
-    VecTrkPoint vecProject;
+    VecProj vecProject;
     get_projections(in_projections, vecProject);
 
     // ------------------------------------------------------------------------
     // 2. Match relevant projections to clusters
     // ------------------------------------------------------------------------
-    MapOneToIndex mapClustProject;
+    MapToVecProj mapProjToSplit;
     if (vecProject.size() == 0) {
       debug("No projections to match clusters to.");
       return;
     } else {
-      match_clusters_to_tracks(in_protoclusters, vecProject, mapClustProject);
+      match_clusters_to_tracks(in_protoclusters, vecProject, mapProjToSplit);
     }
 
     // ------------------------------------------------------------------------
     // 3. Loop over projection-cluster pairs to check if merging is needed
     // ------------------------------------------------------------------------
-    SetOfIDs setUsedClust;
-    MapClustToMerge mapClustToMerge;
-    MapProjToMerge mapProjToMerge;
-    for (auto clustAndProject : mapClustProject) {
+    SetClust setUsedClust;
+    MapToVecClust mapClustToMerge;
+    for (auto clustAndProject : mapProjToSplit) {
+
+      // grab seed cluster-projection pair
+      auto clustSeed = clustAndProject.first;
+      auto projSeed = clustAndProject.second.front();
 
       // skip if cluster is already used
-      if (setUsedClust.count(clustAndProject.first)) {
+      if (setUsedClust.count(clustSeed)) {
         continue;
       }
 
-      // grab matched cluster-projections
-      auto clustSeed = (*in_protoclusters)[clustAndProject.first.index];
-      auto projSeed = vecProject[clustAndProject.second];
-
-      // add cluster to lists and flag as used
-      mapClustToMerge.insert(
-        {clustAndProject.first, {}}
-      );
-      mapProjToMerge.insert(
-        {clustAndProject.first, {clustAndProject.second}}
-      );
-      setUsedClust.insert(clustAndProject.first);
+      // add cluster to list and flag as used
+      mapClustToMerge[clustSeed].push_back( clustSeed );
+      setUsedClust.insert( clustSeed );
 
       // grab cluster energy and projection momentum
       const float eClustSeed = get_cluster_energy(clustSeed);
@@ -146,9 +140,8 @@ namespace eicrecon {
       float sigSum = sigSeed;
       for (auto in_cluster : *in_protoclusters) {
 
-        // grab id and ignore used clusters
-        const podio::ObjectID idCluster = in_cluster.getObjectID();
-        if (setUsedClust.count(idCluster)) {
+        // ignore used clusters
+        if (setUsedClust.count(in_cluster)) {
           continue;
         }
 
@@ -169,16 +162,18 @@ namespace eicrecon {
         if (drToSeed > m_cfg.drAdd) {
           continue;
         } else {
-          mapClustToMerge[clustAndProject.first].push_back(idCluster);
-          setUsedClust.insert(idCluster);
+          mapClustToMerge[clustSeed].push_back( in_cluster );
+          setUsedClust.insert( in_cluster );
         }
 
         // --------------------------------------------------------------------
         // if picked up cluster w/ matched track, add projection to list
         // --------------------------------------------------------------------
-        if (mapClustProject.count(idCluster)) {
-          mapProjToMerge[clustAndProject.first].push_back(
-            mapClustProject[idCluster]
+        if (mapProjToSplit.count(in_cluster)) {
+          mapProjToSplit[clustSeed].insert(
+            mapProjToSplit[clustSeed].end(),
+            mapProjToSplit[in_cluster].begin(),
+            mapProjToSplit[in_cluster].end()
           );
         }
 
@@ -187,10 +182,10 @@ namespace eicrecon {
         sigSum = (eClustSum - eProjSeed) / m_cfg.sigEP;
         trace(
           "{} clusters to merge: current sum = {}, current significance = {}, {} track(s) pointing to merged cluster",
-          mapClustToMerge[clustAndProject.first].size(),
+          mapClustToMerge[clustSeed].size(),
           eClustSum,
           sigSum,
-          mapProjToMerge[clustAndProject.first].size()
+          mapProjToSplit[clustSeed].size()
         );
       }  // end cluster loop
     }  // end matched cluster-projection loop
@@ -199,25 +194,16 @@ namespace eicrecon {
     // 4. Create an output protocluster for each merged cluster and for
     //    each track pointing to merged cluster
     // ------------------------------------------------------------------------
-    VecCluster vecClust;
+    //   - FIXME need to pass whole track vector to merging function!
     for (auto clustToMerge : mapClustToMerge) {
-
-      // add clusters to be merged
-      vecClust.clear();
-      for (const podio::ObjectID& idClustToMerge : clustToMerge.second) {
-        vecClust.push_back( (*in_protoclusters)[idClustToMerge.index] );
-      }
-      vecClust.push_back( (*in_protoclusters)[clustToMerge.first.index] );
-
-      // for each track pointing to merged cluster, merge clusters
-      for (const int& iMatchedTrk : mapProjToMerge[clustToMerge.first]) {
+      for (const edm4eic::TrackPoint& projToSplit : mapProjToSplit[clustToMerge.first]) {
         edm4eic::MutableProtoCluster merged_cluster = out_protoclusters->create();
         merge_clusters(
-          vecProject[iMatchedTrk],
-          vecClust,
+          projToSplit,
+          clustToMerge.second,
           merged_cluster
         );
-      }
+      }  // end projections to split loop
     }  // end clusters to merge loop
 
     // ------------------------------------------------------------------------
@@ -226,7 +212,7 @@ namespace eicrecon {
     for (auto in_cluster : *in_protoclusters) {
 
       // ignore used clusters
-      if (setUsedClust.count(in_cluster.getObjectID())) {
+      if (setUsedClust.count(in_cluster)) {
         continue;
       }
 
@@ -249,7 +235,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   void TrackClusterMergeSplitter::get_projections(
     const edm4eic::TrackSegmentCollection* projections,
-    VecTrkPoint& relevant_projects
+    VecProj& relevant_projects
   ) const {
 
     // return if projections are empty
@@ -282,8 +268,8 @@ namespace eicrecon {
    */
   void TrackClusterMergeSplitter::match_clusters_to_tracks(
     const edm4eic::ProtoClusterCollection* clusters,
-    const VecTrkPoint& projections,
-    MapOneToIndex& matches
+    const VecProj& projections,
+    MapToVecProj& matches
   ) const {
 
 
@@ -297,8 +283,8 @@ namespace eicrecon {
       const float etaProj = edm4hep::utils::eta(project.position);
       const float phiProj = edm4hep::utils::angleAzimuthal(project.position);
 
-      // to store id of matched cluster
-      podio::ObjectID idMatch;
+      // to store matched cluster
+      edm4eic::ProtoCluster match;
 
       // find closest cluster
       bool foundMatch = false;
@@ -320,21 +306,19 @@ namespace eicrecon {
         if (dist <= dMatch) {
           foundMatch = true;
           dMatch = dist;
-          idMatch = cluster.getObjectID();
+          match = cluster;
         }
       }  // end cluster loop
 
       // record match if found
       if (foundMatch) {
-        matches.insert(
-          {idMatch, iProject}
-        );
+        matches[match].push_back(project);
         trace("Matched cluster to track projection: eta-phi distance = {}", dMatch);
       }
     }  // end cluster loop
     debug("Finished matching clusters to track projections: {} matches", matches.size());
 
-  }  // end 'match_clusters_to_tracks(edm4eic::ClusterCollection*, VecTrkPoint&, MapOneToIndex&)'
+  }  // end 'match_clusters_to_tracks(edm4eic::ClusterCollection*, VecTrkPoint&, MapToVecProj&)'
 
 
 
@@ -343,7 +327,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   void TrackClusterMergeSplitter::merge_clusters(
     const edm4eic::TrackPoint& matched_trk,
-    const VecCluster& to_merge,
+    const VecClust& to_merge,
     edm4eic::MutableProtoCluster& merged_clust
   ) const {
 
