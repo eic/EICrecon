@@ -47,6 +47,7 @@
 #include "global/reco/ReconstructedElectrons_factory.h"
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "global/reco/ScatteredElectronsTruth_factory.h"
+#include "global/reco/PrimaryVertices_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -382,6 +383,19 @@ void InitPlugin(JApplication *app) {
               .m_pid_use_MC_truth = true,
             },
             app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<PrimaryVertices_factory>(
+        "PrimaryVertices",
+        {
+          "CentralTrackVertices"
+        },
+        {
+          "PrimaryVertices"
+        },
+        {
+        },
+        app
     ));
 
 

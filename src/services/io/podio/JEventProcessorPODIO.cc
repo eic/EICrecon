@@ -221,6 +221,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",
+            "PrimaryVertices",
 #if EDM4EIC_VERSION_MAJOR >= 6
             "HadronicFinalState",
 #endif
