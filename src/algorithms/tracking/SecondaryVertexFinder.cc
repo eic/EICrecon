@@ -19,8 +19,11 @@
 #include <Acts/Utilities/VectorHelpers.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
+#include "Acts/Vertexing/TrackDensityVertexFinder.hpp"
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/IterativeVertexFinder.hpp>
+#include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
+#include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
@@ -36,6 +39,7 @@
 #include <tuple>
 #include <utility>
 
+#include "edm4eic/ReconstructedParticle.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
@@ -51,7 +55,7 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 }
 
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::produce(
-    std::vector<const ActsExamples::Trajectories*> trajectories) {
+    std::vector<const edm4eic::Track*> track,std::vector<const ActsExamples::Trajectories*> trajectories) {
 
   auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
   auto outputVertices  = std::make_unique<edm4eic::VertexCollection>();
@@ -136,8 +140,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
 //     eicvertex.setPositionError(cov); // covariance
 //   }
 
+  // Set-up EigenStepper
   Acts::EigenStepper<> stepperSec(m_BField);
 
+  // Set-up the propagator
   using PropagatorSec        = Acts::Propagator<Acts::EigenStepper<>>;
   using PropagatorOptionsSec = Acts::PropagatorOptions<>;
 
@@ -146,25 +152,55 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
                                                  logger().cloneWithSuffix("PropSec"));
   // Acts::PropagatorOptions optsSec(m_geoctx, m_fieldctx);
 
+  //set up Impact estimator
+  using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, PropagatorSec>;
+  ImpactPointEstimator::Config ipEstCfg(m_BField, propagatorSec);
+  ImpactPointEstimator ipEst(ipEstCfg);
+
   // using LinearizerSec = Acts::HelicalTrackLinearizer<PropagatorSec>;
   using LinearizerSec = Acts::HelicalTrackLinearizer<PropagatorSec>;
   // Setup the track linearizer
   LinearizerSec::Config linearizerCfgSec(m_BField, propagatorSec);
   LinearizerSec linearizerSec(linearizerCfgSec, logger().cloneWithSuffix("HelLinSec"));
 
-  using VertexFitterSec = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, LinearizerSec>;
+  //using VertexFitterSec = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, LinearizerSec>;
+  //Trying multivertex fitter here...
+  using VertexFitterSec = Acts::AdaptiveMultiVertexFitter<Acts::BoundTrackParameters, LinearizerSec>;
   // Setup the vertex fitter
-  VertexFitterSec::Config vertexFitterCfgSec;
+  VertexFitterSec::Config vertexFitterCfgSec(ipEst);
   VertexFitterSec vertexFitterSec(vertexFitterCfgSec);
 
+  // Set up the vertex seed finder
+  using VertexSeederSec = Acts::TrackDensityVertexFinder<VertexFitterSec, Acts::GaussianTrackDensity<Acts::BoundTrackParameters>>;
+  VertexSeederSec seeder;
+
+  // The vertex finder type
+  using VertexFinderSec = Acts::AdaptiveMultiVertexFinder<VertexFitterSec, VertexSeederSec>;
+
+  VertexFinderSec::Config vertexfinderCfgSec(std::move(vertexFitterSec), seeder, ipEst,
+                              std::move(linearizerSec), m_BField);
+  // We do not want to use a beamspot constraint here
+  //vertexfinderCfgSec.useBeamSpotConstraint = false;
+  vertexfinderCfgSec.tracksMaxZinterval = 1. * Acts::UnitConstants::mm;
+
+  // Instantiate the finder
+  VertexFinderSec vertexfinderSec(std::move(vertexfinderCfgSec),logger().clone());
+  // The vertex finder state
+  typename VertexFinderSec::State stateSec;
+
   // Acts::MagneticFieldProvider::Cache fieldCache = m_BField->makeCache(m_fieldctx);
-  VertexFitterSec::State stateSec(m_BField->makeCache(m_fieldctx));
+  //---->VertexFitterSec::State stateSec(m_BField->makeCache(m_fieldctx));
 
   using VertexFinderOptionsSec = Acts::VertexingOptions<Acts::BoundTrackParameters>;
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
   // auto bCache = m_magneticField->makeCache(m_fieldctx);
 
   std::vector<const Acts::BoundTrackParameters*> inputTrackPointersSecondary;
+
+  //checking the track start vertex
+  //if(edm4eic::ReconstructedParticle().getStartVertex().getPosition().x)
+    //std::cout<<"Start vertex of the track: "<<track::getPosition().z<<std::endl;
+    std::cout<<"Start vertex of the track: "<<track.size()<<std::endl;//getPosition().z<<std::endl;
 
   for (std::vector<Acts::BoundTrackParameters>::size_type i = 0; i != trajectories.size(); i++) {
     // trajectories[i].doSomething();
@@ -212,7 +248,8 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
       // auto resultSecondary = finder.find(inputTrackPointersSecondary, finderOpts, state);
       std::cout << "Fitting secondary vertex" << std::endl;
       auto resultSecondary =
-          vertexFitterSec.fit(inputTrackPointersSecondary, linearizerSec, vfOptions, stateSec);
+          //vertexFitterSec.fit(inputTrackPointersSecondary, linearizerSec, vfOptions, stateSec);
+          vertexfinderSec.find(inputTrackPointersSecondary, vfOptions, stateSec);
       std::cout << "Secondary vertex fit done" << std::endl;
       // auto resultSecondary = vertexFitter.fit(inputTrackPointersSecondary, vfOptions,
       // fieldCache);
@@ -226,7 +263,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
         auto secvertex = resultSecondary.value();
         // verticesSecondary = std::move(resultSecondary.value());
         // }
-
+/*
         // for (const auto& vtx : verticesSecondary) {
         edm4eic::Cov4f cov(secvertex.fullCovariance()(0, 0), secvertex.fullCovariance()(1, 1),
                            secvertex.fullCovariance()(2, 2), secvertex.fullCovariance()(3, 3),
@@ -244,6 +281,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
             (float)secvertex.time(),
         });                              // vtxposition
         eicvertex.setPositionError(cov); // covariance
+*/
         // }
       } else {
         std::cout << "Secondary vertex fit failed" << std::endl;
