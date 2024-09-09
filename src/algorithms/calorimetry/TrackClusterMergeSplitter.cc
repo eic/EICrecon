@@ -97,11 +97,11 @@ namespace eicrecon {
     // ------------------------------------------------------------------------
     SetClust setUsedClust;
     MapToVecClust mapClustToMerge;
-    for (auto clustAndProject : mapProjToSplit) {
+    for (auto& [clustSeed, vecMatchProj] : mapProjToSplit) {
 
-      // grab seed cluster-projection pair
-      auto clustSeed = clustAndProject.first;
-      auto projSeed = clustAndProject.second.front();
+      // at this point, track-cluster matches are 1-to-1
+      // so grab matched track
+      auto projSeed = vecMatchProj.front();
 
       // skip if cluster is already used
       if (setUsedClust.count(clustSeed)) {
@@ -170,8 +170,8 @@ namespace eicrecon {
         // if picked up cluster w/ matched track, add projection to list
         // --------------------------------------------------------------------
         if (mapProjToSplit.count(in_cluster)) {
-          mapProjToSplit[clustSeed].insert(
-            mapProjToSplit[clustSeed].end(),
+          vecMatchProj.insert(
+            vecMatchProj.end(),
             mapProjToSplit[in_cluster].begin(),
             mapProjToSplit[in_cluster].end()
           );
@@ -185,7 +185,7 @@ namespace eicrecon {
           mapClustToMerge[clustSeed].size(),
           eClustSum,
           sigSum,
-          mapProjToSplit[clustSeed].size()
+          vecMatchProj.size()
         );
       }  // end cluster loop
     }  // end matched cluster-projection loop
@@ -194,10 +194,10 @@ namespace eicrecon {
     // 4. Create an output protocluster for each merged cluster and for
     //    each track pointing to merged cluster
     // ------------------------------------------------------------------------
-    for (auto clustToMerge : mapClustToMerge) {
+    for (auto& [clustSeed, vecClustToMerge] : mapClustToMerge) {
       merge_and_split_clusters(
-        clustToMerge.second,
-        mapProjToSplit[clustToMerge.first],
+        vecClustToMerge,
+        mapProjToSplit[clustSeed],
         out_protoclusters
       );
     }  // end clusters to merge loop
