@@ -97,8 +97,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelRawHitAssociations",
             "TOFEndcapRawHitAssociations",
 
+            "CombinedTOFTruthSeededParticleIDs",
             "CombinedTOFParticleIDs",
-            "CombinedTOFSeededParticleIDs",
 
             // DRICH
             "DRICHRawHits",
@@ -107,14 +107,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHGasTracks",
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
+            "DRICHTruthSeededParticleIDs",
             "DRICHParticleIDs",
-            "DRICHSeededParticleIDs",
 
             // PFRICH
             "RICHEndcapNRawHits",
             "RICHEndcapNRawHitsAssociations",
+            "RICHEndcapNTruthSeededParticleIDs",
             "RICHEndcapNParticleIDs",
-            "RICHEndcapNSeededParticleIDs",
 
             // MPGD
             "MPGDBarrelRecHits",
@@ -175,35 +175,35 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "GeneratedBreitFrameParticles",
             "ReconstructedParticles",
             "ReconstructedParticleAssociations",
+            "ReconstructedTruthSeededChargedParticles",
+            "ReconstructedTruthSeededChargedParticleAssociations",
+            "ReconstructedChargedRealPIDParticles",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
-            "ReconstructedChargedRealPIDParticles",
-            "ReconstructedSeededChargedParticles",
-            "ReconstructedSeededChargedParticleAssociations",
             "MCScatteredElectronAssociations", // Remove if/when used internally
             "MCNonScatteredElectronAssociations", // Remove if/when used internally
             "ReconstructedChargedParticleIDs",
             "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",
             "CentralTrackVertices",
+            "CentralCKFTruthSeededTrajectories",
+            "CentralCKFTruthSeededTracks",
+            "CentralCKFTruthSeededTrackAssociations",
+            "CentralCKFTruthSeededTrackParameters",
             "CentralCKFTrajectories",
             "CentralCKFTracks",
             "CentralCKFTrackAssociations",
             "CentralCKFTrackParameters",
-            "CentralCKFSeededTrajectories",
-            "CentralCKFSeededTracks",
-            "CentralCKFSeededTrackAssociations",
-            "CentralCKFSeededTrackParameters",
             //tracking properties - true seeding
+            "CentralCKFTruthSeededTrajectoriesUnfiltered",
+            "CentralCKFTruthSeededTracksUnfiltered",
+            "CentralCKFTruthSeededTrackUnfilteredAssociations",
+            "CentralCKFTruthSeededTrackParametersUnfiltered",
+             //tracking properties - realistic seeding
             "CentralCKFTrajectoriesUnfiltered",
             "CentralCKFTracksUnfiltered",
             "CentralCKFTrackUnfilteredAssociations",
             "CentralCKFTrackParametersUnfiltered",
-             //tracking properties - realistic seeding
-            "CentralCKFSeededTrajectoriesUnfiltered",
-            "CentralCKFSeededTracksUnfiltered",
-            "CentralCKFSeededTrackUnfilteredAssociations",
-            "CentralCKFSeededTrackParametersUnfiltered",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsML",
@@ -315,8 +315,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // DIRC
             "DIRCRawHits",
             "DIRCPID",
+            "DIRCTruthSeededParticleIDs",
             "DIRCParticleIDs",
-            "DIRCSeededParticleIDs",
 
 #if EDM4EIC_VERSION_MAJOR >= 7
             "B0ECalRawHitAssociations",

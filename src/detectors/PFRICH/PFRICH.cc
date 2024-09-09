@@ -99,6 +99,21 @@ extern "C" {
     };
 
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
+          "RICHEndcapNTruthSeededLUTPID",
+          {
+          "ReconstructedTruthSeededChargedWithoutPIDParticles",
+          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
+          },
+          {
+          "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
+          "ReconstructedTruthSeededChargedWithPFRICHPIDParticleAssociations",
+          "RICHEndcapNTruthSeededParticleIDs",
+          },
+          pid_cfg,
+          app
+          ));
+
+    app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           "RICHEndcapNLUTPID",
           {
           "ReconstructedChargedWithoutPIDParticles",
@@ -108,21 +123,6 @@ extern "C" {
           "ReconstructedChargedWithPFRICHPIDParticles",
           "ReconstructedChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNParticleIDs",
-          },
-          pid_cfg,
-          app
-          ));
-
-    app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
-          "RICHEndcapNSeededLUTPID",
-          {
-          "ReconstructedSeededChargedWithoutPIDParticles",
-          "ReconstructedSeededChargedWithoutPIDParticleAssociations",
-          },
-          {
-          "ReconstructedSeededChargedWithPFRICHPIDParticles",
-          "ReconstructedSeededChargedWithPFRICHPIDParticleAssociations",
-          "RICHEndcapNSeededParticleIDs",
           },
           pid_cfg,
           app
