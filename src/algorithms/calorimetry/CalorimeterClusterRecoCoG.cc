@@ -335,7 +335,7 @@ void CalorimeterClusterRecoCoG::associate(
   // 1. get associated sim hits and sum energy
   // --------------------------------------------------------------------------
   double eSimHitSum = 0.;
-  for (std::size_t iHit = 0; auto clhit : cl.getHits()) {
+  for (auto clhit : cl.getHits()) {
 
     // vector to hold associated sim hits
     std::vector<edm4hep::SimCalorimeterHit> vecAssocSimHits;
