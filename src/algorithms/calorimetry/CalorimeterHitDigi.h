@@ -16,6 +16,10 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <DD4hep/IDDescriptor.h>
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_VERSION_MAJOR >= 7
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#endif
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <random>
@@ -34,7 +38,12 @@ namespace eicrecon {
       edm4hep::SimCalorimeterHitCollection
     >,
     algorithms::Output<
+#if EDM4EIC_VERSION_MAJOR >= 7
+      edm4hep::RawCalorimeterHitCollection,
+      edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
       edm4hep::RawCalorimeterHitCollection
+#endif
     >
   >;
 
@@ -46,7 +55,11 @@ namespace eicrecon {
     CalorimeterHitDigi(std::string_view name)
       : CalorimeterHitDigiAlgorithm{name,
                             {"inputHitCollection"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+                            {"outputRawHitCollection", "outputRawHitAssociationCollection"},
+#else
                             {"outputRawHitCollection"},
+#endif
                             "Smear energy deposit, digitize within ADC range, add pedestal, "
                             "convert time with smearing resolution, and sum signals."} {}
 

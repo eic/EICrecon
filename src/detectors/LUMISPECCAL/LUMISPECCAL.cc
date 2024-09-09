@@ -3,6 +3,7 @@
 //
 //
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <math.h>
@@ -24,7 +25,13 @@ extern "C" {
         InitJANAPlugin(app);
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "EcalLumiSpecRawHits", {"EcalLumiSpecHits"}, {"EcalLumiSpecRawHits"},
+          "EcalLumiSpecRawHits",
+          {"EcalLumiSpecHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"EcalLumiSpecRawHits", "EcalLumiSpecRawHitAssociations"},
+#else
+          {"EcalLumiSpecRawHits"},
+#endif
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}, // flat 2%
             .tRes = 0.0 * dd4hep::ns,
