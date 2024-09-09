@@ -71,7 +71,6 @@ private:
 
     void init() const {
         *m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
-        m_div_ids->clear();
         for (auto d : m_divisions){
             m_div_ids->push_back((*m_id_dec)->index(d));
         }
