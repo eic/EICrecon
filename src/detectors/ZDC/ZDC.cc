@@ -3,6 +3,7 @@
 //
 //
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <math.h>
@@ -27,7 +28,13 @@ extern "C" {
 
         // LYSO part of the ZDC
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "EcalFarForwardZDCRawHits", {"EcalFarForwardZDCHits"}, {"EcalFarForwardZDCRawHits"},
+          "EcalFarForwardZDCRawHits",
+          {"EcalFarForwardZDCHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"EcalFarForwardZDCRawHits", "EcalFarForwardZDCRawHitAssociations"},
+#else
+          {"EcalFarForwardZDCRawHits"},
+#endif
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
@@ -110,7 +117,13 @@ extern "C" {
         );
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "HcalFarForwardZDCRawHits", {"HcalFarForwardZDCHits"}, {"HcalFarForwardZDCRawHits"},
+          "HcalFarForwardZDCRawHits",
+          {"HcalFarForwardZDCHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"HcalFarForwardZDCRawHits", "HcalFarForwardZDCRawHitAssociations"},
+#else
+          {"HcalFarForwardZDCRawHits"},
+#endif
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
@@ -132,8 +145,8 @@ extern "C" {
             .pedMeanADC = 400,
             .pedSigmaADC = 10,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 0.0,
-            .thresholdValue = -100.0,
+            .thresholdFactor = 4.0,
+            .thresholdValue = 0.0,
             .sampFrac = "1.0",
             .readout = "HcalFarForwardZDCHits",
             .layerField = "layer",
