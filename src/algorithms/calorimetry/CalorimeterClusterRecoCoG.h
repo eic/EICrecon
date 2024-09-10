@@ -17,6 +17,8 @@
 #include <edm4hep/MCParticle.h>
 #if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#else
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #endif
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
