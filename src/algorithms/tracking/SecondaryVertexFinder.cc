@@ -258,13 +258,16 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
       //     const std::vector<InputTrack>& paramVector,
       //     const VertexingOptions& vertexingOptions,
       //     MagneticFieldProvider::Cache& fieldCache)
+      std::vector<Acts::Vertex<Acts::BoundTrackParameters>> verticesSec;
       if (resultSecondary.ok()) {
         std::cout << "Secondary vertex fit succeeded" << std::endl;
-        auto secvertex = resultSecondary.value();
-        // verticesSecondary = std::move(resultSecondary.value());
-        // }
-/*
-        // for (const auto& vtx : verticesSecondary) {
+        //auto secvertex = resultSecondary.value();
+        verticesSec = std::move(resultSecondary.value());
+      }else {
+        std::cout << "Secondary vertex fit failed" << std::endl;
+      }
+
+         for (const auto& secvertex : verticesSec) {
         edm4eic::Cov4f cov(secvertex.fullCovariance()(0, 0), secvertex.fullCovariance()(1, 1),
                            secvertex.fullCovariance()(2, 2), secvertex.fullCovariance()(3, 3),
                            secvertex.fullCovariance()(0, 1), secvertex.fullCovariance()(0, 2),
@@ -281,12 +284,9 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
             (float)secvertex.time(),
         });                              // vtxposition
         eicvertex.setPositionError(cov); // covariance
-*/
-        // }
-      } else {
-        std::cout << "Secondary vertex fit failed" << std::endl;
+
       }
-      // empty the vector for the next set of tracks
+             // empty the vector for the next set of tracks
       inputTrackPointersSecondary.clear();
     }
   }
