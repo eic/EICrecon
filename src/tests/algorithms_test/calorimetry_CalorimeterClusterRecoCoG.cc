@@ -82,7 +82,9 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   hit1.setPosition(position);
   hit1.setDimension({0,0,0});
   hit1.setLocal(position);
+#if EDM4EIC_VERSION_MAJOR >= 7
   hit1.setRawHit(rawhit1);
+#endif
   pclust.addToHits(hit1);
   pclust.addToWeights(1);
 
@@ -159,7 +161,9 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   hit2.setPosition(position);
   hit2.setDimension({0,0,0});
   hit2.setLocal(position);
+#if EDM4EIC_VERSION_MAJOR >= 7
   hit2.setRawHit(rawhit2);
+#endif
   pclust.addToHits(hit2);
   pclust.addToWeights(1);
 
