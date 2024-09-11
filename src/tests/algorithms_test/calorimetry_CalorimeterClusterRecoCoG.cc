@@ -2,13 +2,14 @@
 // Copyright (C) 2024, Sebouh Paul
 
 
-#include <Evaluator/DD4hepUnits.h>                 // for MeV, mm, keV, ns
 #include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>      // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/Vector2i.h>
+#include <edm4hep/Vector3d.h>
 #if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #endif
