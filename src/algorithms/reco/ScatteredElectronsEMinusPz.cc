@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Daniel Brandenburg
+// Copyright (C) 2024 Daniel Brandenburg, Dmitry Kalinkin
 
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzM4D.h>
@@ -22,12 +22,8 @@ namespace eicrecon {
 
   /**
    * @brief Initialize the ScatteredElectronsEMinusPz Algorithm
-   *
-   * @param logger
    */
-  void ScatteredElectronsEMinusPz::init(std::shared_ptr<spdlog::logger>& logger) {
-    m_log = logger;
-  }
+  void ScatteredElectronsEMinusPz::init() { }
 
   /**
    * @brief Produce a list of scattered electron candidates
@@ -36,26 +32,21 @@ namespace eicrecon {
    * @param rcele  - input collection of all electron candidates
    * @return std::unique_ptr<edm4eic::ReconstructedParticleCollection>
    */
-  std::unique_ptr<edm4eic::ReconstructedParticleCollection> ScatteredElectronsEMinusPz::execute(
-                const edm4eic::ReconstructedParticleCollection *rcparts,
-                const edm4eic::ReconstructedParticleCollection *rcele
-        ){
+  void ScatteredElectronsEMinusPz::process(
+      const ScatteredElectronsEMinusPz::Input& input,
+      const ScatteredElectronsEMinusPz::Output& output
+  ) const {
+    auto [rcparts, rcele] = input;
+    auto [out_electrons] = output;
 
     // this map will store intermediate results
     // so that we can sort them before filling output
     // collection
-    std::map<double, edm4eic::ReconstructedParticle> scatteredElectronsMap;
+    std::map<double, edm4eic::ReconstructedParticle, std::greater<int>> scatteredElectronsMap;
 
-    // our output collection of scattered electrons
-    // ordered by E-Pz
-    auto out_electrons =  std::make_unique<
-        edm4eic::ReconstructedParticleCollection
-      >();
     out_electrons->setSubsetCollection();
 
-    m_log->trace( "We have {} candidate electrons",
-        rcele->size()
-      );
+    trace("We have {} candidate electrons", rcele->size());
 
     // Lorentz Vector for the scattered electron,
     // hadronic final state, and individual hadron
@@ -95,7 +86,7 @@ namespace eicrecon {
           // Sum hadronic final state
           vHadronicFinalState += vHadron;
         } else {
-          m_log->trace( "Skipping electron in hadronic final state" );
+          trace("Skipping electron in hadronic final state");
         }
       } // hadron loop (reconstructed particles)
 
@@ -105,22 +96,20 @@ namespace eicrecon {
       // candidates but we will rank them by their E-Pz
       double EPz=(vScatteredElectron+vHadronicFinalState).E()
               - (vScatteredElectron+vHadronicFinalState).Pz();
-      m_log->trace( "\tE-Pz={}", EPz );
-      m_log->trace( "\tScatteredElectron has Pxyz=( {}, {}, {} )", e.getMomentum().x, e.getMomentum().y, e.getMomentum().z );
+      trace("\tE-Pz={}", EPz);
+      trace("\tScatteredElectron has Pxyz=( {}, {}, {} )", e.getMomentum().x, e.getMomentum().y, e.getMomentum().z);
 
       // Store the result of this calculation
       scatteredElectronsMap[ EPz ] = e;
     } // electron loop
 
-    m_log->trace( "Selecting candidates with {} < E-Pz < {}", m_cfg.minEMinusPz, m_cfg.maxEMinusPz );
+    trace("Selecting candidates with {} < E-Pz < {}", m_cfg.minEMinusPz, m_cfg.maxEMinusPz);
 
-    // map sorts in descending order by default
-    // sort by descending
     bool first = true;
-    // for (auto kv : scatteredElectronsMap) {
-    for (auto kv = scatteredElectronsMap.rbegin(); kv != scatteredElectronsMap.rend(); ++kv) {
+    // map defined with std::greater<> will be iterated in descending order by the key
+    for (auto kv : scatteredElectronsMap) {
 
-      double EMinusPz = kv->first;
+      double EMinusPz = kv.first;
       // Do not save electron candidates that
       // are not within range
       if ( EMinusPz > m_cfg.maxEMinusPz
@@ -131,18 +120,13 @@ namespace eicrecon {
       // For logging and development
       // report the highest E-Pz candidate chosen
       if ( first ){
-        m_log->trace( "Max E-Pz Candidate:" );
-        m_log->trace( "\tE-Pz={}", EMinusPz );
-        m_log->trace( "\tScatteredElectron has Pxyz=( {}, {}, {} )", kv->second.getMomentum().x, kv->second.getMomentum().y, kv->second.getMomentum().z );
+        trace("Max E-Pz Candidate:");
+        trace("\tE-Pz={}", EMinusPz);
+        trace("\tScatteredElectron has Pxyz=( {}, {}, {} )", kv.second.getMomentum().x, kv.second.getMomentum().y, kv.second.getMomentum().z);
         first = false;
       }
-      out_electrons->push_back( kv->second );
+      out_electrons->push_back( kv.second );
     } // reverse loop on scatteredElectronsMap
-
-
-    // Return Electron candidates ranked
-    // in order from largest E-Pz to smallest
-    return out_electrons;
   }
 
 } // namespace eicrecon
