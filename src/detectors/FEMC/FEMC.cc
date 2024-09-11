@@ -172,8 +172,8 @@ extern "C" {
             .dimScaledLocalDistXY = {1.5,1.5},
             .splitCluster = false,
             .minClusterHitEdep = 0.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .minClusterCenterEdep = 40.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
             .transverseEnergyProfileScale = 1.,
           },
           app   // TODO: Remove me once fixed
