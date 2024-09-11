@@ -39,6 +39,9 @@ namespace eicrecon {
     auto [rcparts, rcele] = input;
     auto [out_electrons] = output;
 
+    static const auto m_electron = m_particleSvc.particle(11).mass;
+    static const auto m_pion = m_particleSvc.particle(211).mass;
+
     // this map will store intermediate results
     // so that we can sort them before filling output
     // collection
