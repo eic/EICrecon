@@ -225,8 +225,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 
     for (const auto& t : vtx.tracks()) {
 #if Acts_VERSION_MAJOR >= 33
-      const auto& trk = &t.originalParams;
-      const auto& par = finderCfg.extractParameters(trk);
+      const auto& par = finderCfg.extractParameters(t.originalParams);
 #else
       const auto& par = *t.originalParams;
 #endif
