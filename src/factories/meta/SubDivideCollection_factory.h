@@ -43,12 +43,6 @@ public:
       split_collections.push_back(gsl::not_null<typename T::collection_type*>(split.get()));
     }
     m_algo->process(m_input(),split_collections);
-    //Log how the hits were divided between the collection names
-    this->logger()->debug("Divided {} hits between {} collections", m_input()->size(), split_collections.size());
-    //How many hits in each output collection
-    for (size_t i = 0; i < split_collections.size(); i++) {
-      this->logger()->debug("Collection {} takes {} hits", i, split_collections[i]->size());
-    }
 
 };
 }; // SplitGeometry_factory
