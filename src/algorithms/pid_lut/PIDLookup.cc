@@ -8,7 +8,6 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/podioVersion.h>
-#include <podio/ObjectID.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <stdexcept>
