@@ -44,28 +44,26 @@ void PIDLookup::process(const Input& input, const Output& output) const {
   auto [recoparts_out, partassocs_out, partids_out] = output;
 
   for (const auto& recopart_without_pid : *recoparts_in) {
-    edm4hep::MCParticle mcpart;
     auto recopart = recopart_without_pid.clone();
 
     // Find MCParticle from associations and propagate the relevant ones further
-    bool assoc_found = false;
+    auto best_assoc = edm4eic::MCRecoParticleAssociation::makeEmpty();
     for (auto assoc_in : *partassocs_in) {
       if (assoc_in.getRec() == recopart_without_pid) {
-        if (assoc_found) {
-          warning("Found a duplicate association for ReconstructedParticle at index {}", recopart_without_pid.getObjectID().index);
-          warning("The previous MCParticle was at {} and the duplicate is at {}", mcpart.getObjectID().index, assoc_in.getSim().getObjectID().index);
+        if ((not best_assoc.isAvailable()) || (best_assoc.getWeight() < assoc_in.getWeight())) {
+          best_assoc = assoc_in;
         }
-        assoc_found    = true;
-        mcpart         = assoc_in.getSim();
         auto assoc_out = assoc_in.clone();
         assoc_out.setRec(recopart);
         partassocs_out->push_back(assoc_out);
       }
     }
-    if (not assoc_found) {
+    if (not best_assoc.isAvailable()) {
       recoparts_out->push_back(recopart);
       continue;
     }
+
+    edm4hep::MCParticle mcpart = best_assoc.getSim();
 
     int true_pdg    = mcpart.getPDG();
     int true_charge = mcpart.getCharge();
