@@ -19,9 +19,9 @@ namespace eicrecon {
 
 using PrimaryVerticesAlgorithm = algorithms::Algorithm<
    algorithms::Input<edm4eic::VertexCollection>,
-   algorithms::Output<edm4eic::VertexCollection>>;   
-       
-    class PrimaryVertices : 
+   algorithms::Output<edm4eic::VertexCollection>>;
+
+    class PrimaryVertices :
        public PrimaryVerticesAlgorithm,
        public WithPodConfig<PrimaryVerticesConfig>{
 
@@ -34,7 +34,7 @@ using PrimaryVerticesAlgorithm = algorithms::Algorithm<
 
          void init() final;
          void process(const Input&, const Output&) const final;
-         
+
     private:
 
     };
