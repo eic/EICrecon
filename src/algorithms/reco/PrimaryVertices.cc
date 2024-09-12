@@ -47,16 +47,16 @@ namespace eicrecon {
       );
 
     for ( const auto& vtx: *rcvtx ) {
-    
+
       const auto &v = vtx.getPosition();
-      
+
       // some basic vertex selection
       if ( sqrt( v.x*v.x + v.y*v.y ) / edm4eic::unit::mm > m_cfg.maxVr ||
            fabs( v.z ) / edm4eic::unit::mm > m_cfg.maxVz )
            continue;
-           
+
       if ( vtx.getChi2() > m_cfg.maxChi2 ) continue;
-      
+
       int N_trk = vtx.getAssociatedParticles().size();
       trace( "\t N_trk = {}", N_trk );
       primaryVertexMap.insert({N_trk, vtx});
