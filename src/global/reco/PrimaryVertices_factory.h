@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Daniel Brandenburg
+// Copyright (C) 2024 Xin Dong
 
 #pragma once
 
@@ -11,6 +11,7 @@
 
 #include "algorithms/reco/PrimaryVertices.h"
 #include "algorithms/reco/PrimaryVerticesConfig.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
@@ -26,21 +27,24 @@ private:
     PodioInput<edm4eic::Vertex> m_rc_vertices_input {this};
 
     // Declare outputs
-    PodioOutput<edm4eic::Vertex> m_out_primary_vertices {this};
+    PodioOutput<edm4eic::Vertex> m_primary_vertices_output {this};
+
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:
     void Configure() {
-        m_algo = std::make_unique<AlgoT>();
-        m_algo->init(logger());
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level((algorithms::LogLevel)logger()->level());
+
         m_algo->applyConfig(config());
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        auto output = m_algo->execute(m_rc_vertices_input());
-        m_out_primary_vertices() = std::move(output);
+        m_algo->process({m_rc_vertices_input()}, {m_primary_vertices_output().get()});
     }
 };
 
