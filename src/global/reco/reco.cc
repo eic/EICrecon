@@ -13,6 +13,7 @@
 #include <edm4hep/MCParticle.h>
 #include <map>
 #include <memory>
+#include <functional>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -27,6 +28,8 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
+#include "algorithms/meta/SubDivideFunctors.h"
 #include "factories/reco/FarForwardNeutronReconstruction_factory.h"
 #ifdef USE_ONNX
 #include "factories/reco/InclusiveKinematicsML_factory.h"
@@ -41,12 +44,12 @@
 #include "factories/reco/HadronicFinalState_factory.h"
 #endif
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
-#include "global/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "global/reco/MC2SmearedParticle_factory.h"
 #include "global/reco/MatchClusters_factory.h"
 #include "global/reco/ReconstructedElectrons_factory.h"
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "global/reco/ScatteredElectronsTruth_factory.h"
+
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -248,10 +251,11 @@ void InitPlugin(JApplication *app) {
             app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<ChargedReconstructedParticleSelector_factory>(
+    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::ReconstructedParticle>>(
             "GeneratedChargedParticles",
             {"GeneratedParticles"},
             {"GeneratedChargedParticles"},
+            {.function = BooleanSplit<&edm4eic::ReconstructedParticle::getCharge>{std::vector<float>{0.0},std::not_equal_to<float>{}}},
             app
     ));
 
