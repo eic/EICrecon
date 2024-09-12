@@ -5,8 +5,8 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
+#include <string>
+#include <string_view>
 
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"

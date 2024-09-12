@@ -8,7 +8,8 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
-#include <iterator>
+#include <functional>
+#include <gsl/pointers>
 #include <map>
 #include <utility>
 
