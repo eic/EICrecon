@@ -377,9 +377,6 @@ int Execute(JApplication* app, UserOptions& options) {
 
   std::cout << std::endl;
 
-  // std::cout << "JANA " << JVersion::GetVersion() << " [" << JVersion::GetRevision() << "]" <<
-  // std::endl;
-
   if (options.flags[ShowConfigs]) {
     // Load all plugins, collect all parameters, exit without running anything
     app->Initialize();
@@ -407,6 +404,12 @@ int Execute(JApplication* app, UserOptions& options) {
     // TODO: more elegant processing here
     PrintPodioCollections(app);
   } else {
+    if ((JVersion::GetMajorNumber() == 2) && (JVersion::GetMinorNumber() == 3) && (JVersion::GetPatchNumber() <= 1)) {
+      // JANA2 2.3.x has a bug with not filtering default-state parameters, which causes enormous printouts
+      if (not app->GetJParameterManager()->Exists("jana:parameter_verbosity")) {
+        app->GetJParameterManager()->SetParameter("jana:parameter_verbosity", 0);
+      }
+    }
     // Run JANA in normal mode
     try {
       JSignalHandler::register_handlers(app);
