@@ -431,12 +431,13 @@ jobs:
     - detector-info
     strategy:
       matrix:
-        - beam: 5x41
-          detector_config: craterlake_5x41
-        - beam: 10x100
-          detector_config: craterlake
-        - beam: 18x275
-          detector_config: craterlake_18x275
+        include:
+          - beam: 5x41
+            detector_config: craterlake_5x41
+          - beam: 10x100
+            detector_config: craterlake
+          - beam: 18x275
+            detector_config: craterlake_18x275
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v4
     - name: Retrieve simulation files
