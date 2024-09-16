@@ -40,7 +40,10 @@ class GeometrySplit {
 public:
 
     GeometrySplit(std::vector<std::vector<long int>> ids, std::string readout, std::vector<std::string> divisions)
-    : m_ids(ids), m_readout(readout), m_divisions(divisions){};
+    : m_ids(ids), m_readout(readout), m_divisions(divisions),
+      is_init(std::make_shared<std::once_flag>()),
+      m_id_dec(std::make_shared<dd4hep::DDSegmentation::BitFieldCoder*>()),
+      m_div_ids(std::make_shared<std::vector<size_t>>()) {};
 
     template <typename T>
     std::vector<int> operator()(T& instance) const {
@@ -51,9 +54,10 @@ public:
         //Check which detector division to put the hit into
         auto cellID = instance.getCellID();
         std::vector<long int> det_ids;
-        for(auto d : m_div_ids){
-            det_ids.push_back(m_id_dec->get(cellID, d));
+        for(auto d : *m_div_ids){
+            det_ids.push_back((*m_id_dec)->get(cellID, d));
         }
+
         auto index = std::find(m_ids.begin(),m_ids.end(),det_ids);
 
         std::vector<int> ids;
@@ -66,9 +70,9 @@ public:
 private:
 
     void init() const {
-        m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
+        *m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
         for (auto d : m_divisions){
-            m_div_ids.push_back(m_id_dec->index(d));
+            m_div_ids->push_back((*m_id_dec)->index(d));
         }
     }
 
@@ -76,9 +80,9 @@ private:
     std::vector<std::string> m_divisions;
     std::string m_readout;
 
-    mutable std::shared_ptr<std::once_flag> is_init = std::make_shared<std::once_flag>();
-    mutable dd4hep::DDSegmentation::BitFieldCoder* m_id_dec;
-    mutable std::vector<size_t> m_div_ids;
+    std::shared_ptr<std::once_flag> is_init;
+    std::shared_ptr<dd4hep::DDSegmentation::BitFieldCoder*> m_id_dec;
+    std::shared_ptr<std::vector<size_t>> m_div_ids;
 
 };
 
