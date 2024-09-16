@@ -42,6 +42,8 @@ namespace eicrecon {
           out_collection->push_back(hit);
         }
       }
+      //Log how many hits were collected from N input collections
+      this->debug("Collected {} hits from {} input collections", out_collection->size(), in_collections.size());
     }
 
   };

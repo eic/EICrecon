@@ -35,6 +35,7 @@ public:
         }
         typename T::collection_type* merged_collection = m_output().get();
         m_algo->process(in_collections, merged_collection);
+
     };
 
     };
