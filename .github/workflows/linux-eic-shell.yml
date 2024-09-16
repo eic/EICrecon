@@ -401,7 +401,7 @@ jobs:
             detector_config: craterlake_tracking_only
           - beam: 18x275
             minq2: 1000
-            detector_config: craterlake
+            detector_config: craterlake_18x275
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v4
     - name: Retrieve simulation files
@@ -449,7 +449,7 @@ jobs:
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           url=root://dtn-eic.jlab.org//work/eic2/EPIC/EVGEN/SIDIS/pythia6-eic/1.0.0/${{matrix.beam}}/q2_0to1/pythia_ep_noradcor_${{matrix.beam}}_q2_0.000000001_1.0_run1.ab.hepmc3.tree.root
-          npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root -v WARNING
+          npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}_${{matrix.beam}}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root -v WARNING
     - uses: actions/upload-artifact@v4
       with:
         name: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root
