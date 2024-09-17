@@ -14,6 +14,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
 
@@ -135,5 +136,40 @@ extern "C" {
           )
         );
 
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "HcalBarrelSplitMergeProtoClusters",
+            {"HcalBarrelIslandProtoClusters",
+             "CalorimeterTrackProjections"},
+            {"HcalBarrelSplitMergeProtoClusters"},
+            {
+              .idCalo = "HcalBarrel_ID",
+              .minSigCut = -2.0,
+              .avgEP = 0.50,
+              .sigEP = 0.25,
+              .drAdd = 0.40,
+              .sampFrac = 1.0,
+              .transverseEnergyProfileScale = 1.0
+            },
+            app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "HcalBarrelSplitMergeClusters",
+            {"HcalBarrelSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
+             "HcalBarrelHits"},                          // edm4hep::SimCalorimeterHitCollection
+            {"HcalBarrelSplitMergeClusters",             // edm4eic::Cluster
+             "HcalBarrelSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 6.2,
+              .enableEtaBounds = false
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
     }
 }
