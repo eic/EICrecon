@@ -41,7 +41,6 @@ namespace eicrecon {
   using namespace dd4hep;
 
   void CalorimeterClusterRecoCoG::init() {
-
     // select weighting method
     std::string ew = m_cfg.energyWeight;
     // make it case-insensitive
@@ -57,7 +56,6 @@ namespace eicrecon {
   void CalorimeterClusterRecoCoG::process(
       const CalorimeterClusterRecoCoG::Input& input,
       const CalorimeterClusterRecoCoG::Output& output) const {
-
 #if EDM4EIC_VERSION_MAJOR >= 7
     const auto [proto, mchitassociations] = input;
 #else
@@ -66,7 +64,6 @@ namespace eicrecon {
     auto [clusters, associations] = output;
 
     for (const auto& pcl : *proto) {
-
       // skip protoclusters with no hits
       if (pcl.hits_size() == 0) {
         continue;
@@ -97,11 +94,9 @@ namespace eicrecon {
         associate(cl, mchits, associations);
       }
 #endif
-
-    }  // end protocluster loop
+    }
 }
 
-//------------------------------------------------------------------------
 std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   edm4eic::MutableCluster cl;
   cl.setNhits(pcl.hits_size());
@@ -295,7 +290,6 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   return std::move(cl);
 }
 
-//------------------------------------------------------------------------
 void CalorimeterClusterRecoCoG::associate(
   const edm4eic::Cluster& cl,
 #if EDM4EIC_VERSION_MAJOR >= 7
@@ -305,7 +299,6 @@ void CalorimeterClusterRecoCoG::associate(
 #endif
   edm4eic::MCRecoClusterParticleAssociationCollection* assocs
 ) const {
-
   // --------------------------------------------------------------------------
   // Association Logic
   // --------------------------------------------------------------------------
@@ -336,13 +329,11 @@ void CalorimeterClusterRecoCoG::associate(
   // --------------------------------------------------------------------------
   double eSimHitSum = 0.;
   for (auto clhit : cl.getHits()) {
-
     // vector to hold associated sim hits
     std::vector<edm4hep::SimCalorimeterHit> vecAssocSimHits;
 
 #if EDM4EIC_VERSION_MAJOR >= 7
     for (const auto& hitAssoc : *mchitassociations) {
-
       // if found corresponding raw hit, add sim hit to vector
       // and increment energy sum
       if (clhit.getRawHit() == hitAssoc.getRawHit()) {
@@ -350,14 +341,14 @@ void CalorimeterClusterRecoCoG::associate(
         eSimHitSum += vecAssocSimHits.back().getEnergy();
       }
 
-    }  // end association loop
+    }
 #else
     for (const auto& mchit : *mchits) {
       if (mchit.getCellID() == clhit.getCellID()) {
          vecAssocSimHits.push_back(mchit);
         break;
       }
-    }  // end sim hit loop
+    }
 
     // if no matching cell ID found, continue
     // otherwise increment sum
@@ -375,7 +366,6 @@ void CalorimeterClusterRecoCoG::associate(
     // ------------------------------------------------------------------------
     for (const auto& simHit : vecAssocSimHits) {
       for (const auto& contrib : simHit.getContributions()) {
-
         // --------------------------------------------------------------------
         // grab primary responsible for contribution & increment relevant sum
         // --------------------------------------------------------------------
@@ -388,16 +378,15 @@ void CalorimeterClusterRecoCoG::associate(
           primary.getEnergy(),
           mapMCParToContrib[primary]
         );
-      }  // end contribution loop
-    }  // end associated sim hit loop
-  }  // end hit loop
+      }
+    }
+  }
   debug("Found {} primaries contributing a total of {} GeV", mapMCParToContrib.size(), eSimHitSum);
 
   // --------------------------------------------------------------------------
   // 3. create association for each contributing primary
   // --------------------------------------------------------------------------
   for (const auto& parAndContrib : mapMCParToContrib) {
-
     // calculate weight
     const double weight = parAndContrib.second / eSimHitSum;
 
@@ -416,14 +405,10 @@ void CalorimeterClusterRecoCoG::associate(
       parAndContrib.first.getEnergy(),
       weight
     );
+  }
+}
 
-  }  // end contributor loop
-
-}  // end 'associate(edm4eic::Cluster&, edm4eic::MCRecoCalorimeterHitAssocationCollection OR edm4hep::SimCalorimeterHitCollection*, edm4eic::MCRecoClusterParticleAssociationCollection*)'
-
-//------------------------------------------------------------------------
 edm4hep::MCParticle CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) const {
-
   // get contributing particle
   const auto contributor = contrib.getParticle();
 
@@ -436,7 +421,6 @@ edm4hep::MCParticle CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHi
     if (primary.getGeneratorStatus() == 1) break;
   }
   return primary;
+}
 
-}  // end 'get_primary(edm4hep::CaloHitContribution&, edm4hep::MCParticle&)'
-
-} // eicrecon
+}
