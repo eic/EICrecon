@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Derek Anderson
 
-#ifndef EICRECON_TRACKCLUSTERMERGESPLITTER_H
-#define EICRECON_TRACKCLUSTERMERGESPLITTER_H
+#pragma once
 
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
@@ -116,5 +115,3 @@ namespace eicrecon {
   };  // end TrackClusterMergeSplitter
 
 }  // end eicrecon namespace
-
-#endif
