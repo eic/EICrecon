@@ -42,32 +42,26 @@ namespace eicrecon {
     // ordered by N_trk = associatedParticle array size
     out_primary_vertices->setSubsetCollection();
 
-    trace( "We have {} candidate vertices",
-        rcvtx->size()
-      );
+    trace("We have {} candidate vertices", rcvtx->size());
 
-    for ( const auto& vtx: *rcvtx ) {
-
+    for (const auto& vtx: *rcvtx) {
       const auto &v = vtx.getPosition();
 
       // some basic vertex selection
-      if ( sqrt( v.x*v.x + v.y*v.y ) / edm4eic::unit::mm > m_cfg.maxVr ||
-           fabs( v.z ) / edm4eic::unit::mm > m_cfg.maxVz )
-           continue;
+      if (sqrt( v.x*v.x + v.y*v.y ) / edm4eic::unit::mm > m_cfg.maxVr ||
+          fabs( v.z ) / edm4eic::unit::mm > m_cfg.maxVz )
+        continue;
 
-      if ( vtx.getChi2() > m_cfg.maxChi2 ) continue;
+      if (vtx.getChi2() > m_cfg.maxChi2) continue;
 
       int N_trk = vtx.getAssociatedParticles().size();
       trace( "\t N_trk = {}", N_trk );
       primaryVertexMap.insert({N_trk, vtx});
     } // vertex loop
 
-    // map sorts in descending order by default
-    // sort by descending
     bool first = true;
-    for (auto kv : primaryVertexMap) {
-
-      int N_trk = kv.first;
+    // map defined with std::greater<> will be iterated in descending order by the key
+    for (auto [N_trk, vertex] : primaryVertexMap) {
       // Do not save primary candidates that
       // are not within range
       if ( N_trk > m_cfg.maxNtrk
@@ -77,15 +71,13 @@ namespace eicrecon {
 
       // For logging and development
       // report the highest N_trk candidate chosen
-      if ( first ){
-        trace( "Max N_trk Candidate:" );
-        trace( "\t N_trk = {}", N_trk );
-        trace( "\t Primary vertex has xyz=( {}, {}, {} )", kv.second.getPosition().x, kv.second.getPosition().y, kv.second.getPosition().z );
+      if (first) {
+        trace("Max N_trk Candidate:");
+        trace("\t N_trk = {}", N_trk);
+        trace("\t Primary vertex has xyz=( {}, {}, {} )", vertex.getPosition().x, vertex.getPosition().y, vertex.getPosition().z);
         first = false;
       }
-      out_primary_vertices->push_back( kv.second );
-    } // reverse loop on primaryVertexMap
-
+      out_primary_vertices->push_back(vertex);
+    } // loop on primaryVertexMap
   }
-
 } // namespace eicrecon
