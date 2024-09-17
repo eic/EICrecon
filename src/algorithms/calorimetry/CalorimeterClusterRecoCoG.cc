@@ -386,23 +386,23 @@ void CalorimeterClusterRecoCoG::associate(
   // --------------------------------------------------------------------------
   // 3. create association for each contributing primary
   // --------------------------------------------------------------------------
-  for (const auto& parAndContrib : mapMCParToContrib) {
+  for (auto [part, contribution] : mapMCParToContrib) {
     // calculate weight
-    const double weight = parAndContrib.second / eSimHitSum;
+    const double weight = contribution / eSimHitSum;
 
     // set association
     auto assoc = assocs->create();
     assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-    assoc.setSimID(parAndContrib.first.getObjectID().index);
+    assoc.setSimID(part.getObjectID().index);
     assoc.setWeight(weight);
     assoc.setRec(cl);
-    assoc.setSim(parAndContrib.first);
+    assoc.setSim(part);
     debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with weight ({})",
       cl.getObjectID().index,
-      parAndContrib.first.getObjectID().index,
-      parAndContrib.first.getPDG(),
-      parAndContrib.first.getGeneratorStatus(),
-      parAndContrib.first.getEnergy(),
+      part.getObjectID().index,
+      part.getPDG(),
+      part.getGeneratorStatus(),
+      part.getEnergy(),
       weight
     );
   }
