@@ -9,9 +9,8 @@
 #include <podio/RelationRange.h>
 #include <stdint.h>
 #include <cmath>
+#include <cstddef>
 #include <gsl/pointers>
-#include <stdexcept>
-#include <utility>
 
 // algorithm definition
 #include "TrackClusterMergeSplitter.h"

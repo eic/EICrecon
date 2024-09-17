@@ -5,23 +5,22 @@
 #define EICRECON_TRACKCLUSTERMERGESPLITTER_H
 
 #include <DD4hep/Detector.h>
-#include <edm4eic/CalorimeterHit.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <stddef.h>
+#include <podio/ObjectID.h>
 #include <algorithm>
-#include <algorithms/algorithm.h>
 #include <map>
 #include <set>
 #include <string>
 #include <string_view>
 #include <vector>
 
+#include "TrackClusterMergeSplitterConfig.h"
 // for algorithm configuration
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "TrackClusterMergeSplitterConfig.h"
 
 
 
