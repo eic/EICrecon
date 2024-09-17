@@ -50,7 +50,7 @@ namespace eicrecon {
    *           E/p relative to the provided mean E/p and
    *           its RMS; and
    *       ii. If the significance is less than the
-   *           signficance specified by `minSigCut`,
+   *           significance specified by `minSigCut`,
    *           merge all clusters within `drAdd`.
    *    4. Create a protocluster for each merged cluster
    *       and copy all unused protoclusters into output.
