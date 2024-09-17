@@ -1,14 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Daniel Brandenburg, Xin Dong
 
+#include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/VertexCollection.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/Vector3f.h>
+#include <edm4hep/Vector4f.h>
 #include <fmt/core.h>
-#include <podio/ObjectID.h>
-#include <iterator>
+#include <podio/RelationRange.h>
+#include <cmath>
+#include <functional>
+#include <gsl/pointers>
 #include <map>
-#include <utility>
 
 #include "algorithms/reco/PrimaryVertices.h"
 #include "algorithms/reco/PrimaryVerticesConfig.h"
