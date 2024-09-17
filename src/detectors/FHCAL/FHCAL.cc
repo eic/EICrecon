@@ -131,7 +131,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertTruthClusters",
             {"HcalEndcapPInsertTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalEndcapPInsertRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalEndcapPInsertHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalEndcapPInsertTruthClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -149,7 +153,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertClusters",
             {"HcalEndcapPInsertImagingProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalEndcapPInsertRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalEndcapPInsertClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -252,7 +260,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "LFHCALTruthClusters",
             {"LFHCALTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "LFHCALRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "LFHCALHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"LFHCALTruthClusters",             // edm4eic::Cluster
              "LFHCALTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -270,7 +282,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "LFHCALClusters",
             {"LFHCALIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "LFHCALRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "LFHCALHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"LFHCALClusters",             // edm4eic::Cluster
              "LFHCALClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {

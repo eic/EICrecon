@@ -91,7 +91,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalEndcapPTruthClusters",
             {"EcalEndcapPTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapPRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "EcalEndcapPHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalEndcapPTruthClusters",             // edm4eic::Cluster
              "EcalEndcapPTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -108,7 +112,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalEndcapPClusters",
             {"EcalEndcapPIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapPRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "EcalEndcapPHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalEndcapPClusters",             // edm4eic::Cluster
              "EcalEndcapPClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -220,7 +228,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalEndcapPInsertTruthClusters",
             {"EcalEndcapPInsertTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapPInsertRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitCollection
+#else
              "EcalEndcapPInsertHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalEndcapPInsertTruthClusters",             // edm4eic::Cluster
              "EcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -237,7 +249,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalEndcapPInsertClusters",
             {"EcalEndcapPInsertIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapPInsertRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitCollection
+#else
              "EcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalEndcapPInsertClusters",             // edm4eic::Cluster
              "EcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
