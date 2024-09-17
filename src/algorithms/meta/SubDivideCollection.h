@@ -56,6 +56,13 @@ namespace eicrecon {
 
           }
 
+          //Log how the hits were divided between the collection names
+          this->debug("Divided {} hits between {} collections", entries->size(), subdivided_entries.size());
+          //How many hits in each output collection
+          for (size_t i = 0; i < subdivided_entries.size(); i++) {
+            this->debug("Collection {} takes {} hits", i, subdivided_entries[i]->size());
+          }
+
         };
 
   };

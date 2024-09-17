@@ -401,7 +401,7 @@ jobs:
             detector_config: craterlake_tracking_only
           - beam: 18x275
             minq2: 1000
-            detector_config: craterlake
+            detector_config: craterlake_18x275
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v4
     - name: Retrieve simulation files
@@ -431,8 +431,13 @@ jobs:
     - detector-info
     strategy:
       matrix:
-        beam: [5x41, 10x100, 18x275]
-        detector_config: [craterlake]
+        include:
+          - beam: 5x41
+            detector_config: craterlake_5x41
+          - beam: 10x100
+            detector_config: craterlake
+          - beam: 18x275
+            detector_config: craterlake_18x275
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v4
     - name: Retrieve simulation files
@@ -855,15 +860,19 @@ jobs:
     - npsim-minbias
     strategy:
       matrix:
-        CC: [clang]
-        beam: [10x100, 18x275]
-        minq2: [0]
-        detector_config: [craterlake]
         include:
         - CC: clang
           beam: 5x41
           minq2: 0
+          detector_config: craterlake_5x41
+        - CC: clang
+          beam: 10x100
+          minq2: 0
           detector_config: craterlake
+        - CC: clang
+          beam: 18x275
+          minq2: 0
+          detector_config: craterlake_18x275
         - CC: clang
           beam: 10x100
           minq2: 1000
@@ -871,7 +880,7 @@ jobs:
         - CC: clang
           beam: 18x275
           minq2: 1000
-          detector_config: craterlake
+          detector_config: craterlake_18x275
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889

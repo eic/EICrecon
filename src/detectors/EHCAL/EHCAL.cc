@@ -16,6 +16,7 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -121,6 +122,42 @@ extern "C" {
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
               .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "HcalEndcapNSplitMergeProtoClusters",
+            {"HcalEndcapNIslandProtoClusters",
+             "CalorimeterTrackProjections"},
+            {"HcalEndcapNSplitMergeProtoClusters"},
+            {
+              .idCalo = "HcalEndcapN_ID",
+              .minSigCut = -2.0,
+              .avgEP = 0.60,
+              .sigEP = 0.40,
+              .drAdd = 0.40,
+              .sampFrac = 1.0,
+              .transverseEnergyProfileScale = 1.0
+            },
+            app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "HcalEndcapNSplitMergeClusters",
+            {"HcalEndcapNSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
+             "HcalEndcapNHits"},                          // edm4hep::SimCalorimeterHitCollection
+            {"HcalEndcapNSplitMergeClusters",             // edm4eic::Cluster
+             "HcalEndcapNSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 6.2,
+              .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
           )
