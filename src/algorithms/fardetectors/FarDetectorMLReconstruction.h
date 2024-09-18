@@ -61,6 +61,7 @@ namespace eicrecon {
       float m_beamE{10.0};
       std::once_flag m_initBeamE;
       float nnInput[4]  = {0.0,0.0,0.0,0.0};
+      bool m_initialized{false};
 
   };
 
