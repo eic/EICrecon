@@ -74,12 +74,12 @@ extern "C" {
           "EcalEndcapPIslandProtoClusters", {"EcalEndcapPRecHits"}, {"EcalEndcapPIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {10.0 * dd4hep::cm, 10.0 * dd4hep::cm},
-            .splitCluster = true,
+            .dimScaledLocalDistXY = {1.5,1.5},
+            .splitCluster = false,
             .minClusterHitEdep = 0.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
-            .transverseEnergyProfileScale = 0.04,
+            .minClusterCenterEdep = 40.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
+            .transverseEnergyProfileScale = 1.,
           },
           app   // TODO: Remove me once fixed
         ));
