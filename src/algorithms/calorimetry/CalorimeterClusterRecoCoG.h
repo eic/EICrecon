@@ -12,9 +12,16 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
+#if EDM4EIC_VERSION_MAJOR >= 7
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#else
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#endif
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -50,7 +57,11 @@ namespace eicrecon {
   using CalorimeterClusterRecoCoGAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4eic::ProtoClusterCollection,
+#if EDM4EIC_VERSION_MAJOR >= 7
+      std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>
+#else
       std::optional<edm4hep::SimCalorimeterHitCollection>
+#endif
     >,
     algorithms::Output<
       edm4eic::ClusterCollection,
@@ -65,7 +76,11 @@ namespace eicrecon {
   public:
     CalorimeterClusterRecoCoG(std::string_view name)
       : CalorimeterClusterRecoCoGAlgorithm{name,
+#if EDM4EIC_VERSION_MAJOR >= 7
+                            {"inputProtoClusterCollection", "mcRawHitAssocations"},
+#else
                             {"inputProtoClusterCollection", "mcHits"},
+#endif
                             {"outputClusterCollection", "outputAssociations"},
                             "Reconstruct a cluster with the Center of Gravity method. For "
                             "simulation results it optionally creates a Cluster <-> MCParticle "
@@ -81,6 +96,13 @@ namespace eicrecon {
 
   private:
     std::optional<edm4eic::MutableCluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
+#if EDM4EIC_VERSION_MAJOR >= 7
+    void associate(const edm4eic::Cluster& cl, const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations, edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
+#else
+    void associate(const edm4eic::Cluster& cl, const edm4hep::SimCalorimeterHitCollection* mchits, edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
+#endif
+    edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
+
   };
 
 } // eicrecon

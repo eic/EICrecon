@@ -6,10 +6,12 @@
 #include <JANA/JApplication.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/InclusiveKinematics.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
+#include <fmt/core.h>
 #include <map>
 #include <memory>
 
@@ -18,10 +20,10 @@
 #if EDM4EIC_VERSION_MAJOR >= 6
 #include "algorithms/reco/HadronicFinalState.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
+#include "algorithms/reco/InclusiveKinematicsESigma.h"
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
-#include "algorithms/reco/InclusiveKinematicseSigma.h"
 #endif
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
@@ -43,6 +45,7 @@
 #include "global/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "global/reco/MC2SmearedParticle_factory.h"
 #include "global/reco/MatchClusters_factory.h"
+#include "global/reco/PrimaryVertices_factory.h"
 #include "global/reco/ReconstructedElectrons_factory.h"
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "global/reco/ScatteredElectronsTruth_factory.h"
@@ -158,12 +161,24 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
-    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicseSigma>>(
-        "InclusiveKinematicseSigma",
+    app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsESigma>>(
+        "InclusiveKinematicsESigma",
         {
           "MCParticles",
           "ScatteredElectronsTruth",
           "HadronicFinalState"
+        },
+        {
+          "InclusiveKinematicsESigma"
+        },
+        app
+    ));
+
+    // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
+        "InclusiveKinematicseSigma_legacy",
+        {
+          "InclusiveKinematicsESigma"
         },
         {
           "InclusiveKinematicseSigma"
@@ -369,6 +384,19 @@ void InitPlugin(JApplication *app) {
               .m_pid_use_MC_truth = true,
             },
             app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<PrimaryVertices_factory>(
+        "PrimaryVertices",
+        {
+          "CentralTrackVertices"
+        },
+        {
+          "PrimaryVertices"
+        },
+        {
+        },
+        app
     ));
 
 

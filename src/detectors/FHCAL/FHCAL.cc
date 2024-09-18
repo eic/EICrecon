@@ -1,10 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 Friederike Bock, Wouter Deconinck
 
+#include <DD4hep/Detector.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <TString.h>
 #include <math.h>
+#include <algorithm>
+#include <gsl/pointers>
+#include <memory>
+#include <stdexcept>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
@@ -18,6 +24,8 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -34,7 +42,13 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalEndcapPInsert_resolutionTDC = 10 * dd4hep::picosecond;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-           "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"}, {"HcalEndcapPInsertRawHits"},
+           "HcalEndcapPInsertRawHits",
+           {"HcalEndcapPInsertHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+           {"HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitAssociations"},
+#else
+           {"HcalEndcapPInsertRawHits"},
+#endif
            {
              .eRes = {},
              .tRes = 0.0 * dd4hep::ns,
@@ -82,24 +96,31 @@ extern "C" {
       app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
         "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertSubcellHits"},
         {
-          .MIP = 800. * dd4hep::keV,
+          .MIP = 480. * dd4hep::keV,
           .Emin_in_MIPs=0.5,
           .tmax=162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
         },
         app   // TODO: Remove me once fixed
       ));
 
-      double side_length=18.89 * dd4hep::mm;
+      // define the distance between neighbors in terms of the largest possible distance between subcell hits
+      auto detector = app->GetService<DD4hep_service>()->detector();
+      double side_length;
+      try {
+        side_length = std::max({detector->constant<double>("HcalEndcapPInsertCellSizeLGRight"), detector->constant<double>("HcalEndcapPInsertCellSizeLGLeft")});
+      } catch (std::runtime_error&) {
+        side_length = 31. * dd4hep::mm;
+      }
       app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
           "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"}, {"HcalEndcapPInsertImagingProtoClusters"},
           {
               .neighbourLayersRange = 1,
-              .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-              .layerDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+              .localDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
+              .layerDistXY = {0.25*side_length, 0.25*side_length*sin(M_PI/3)},
               .layerMode = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
               .sectorDist = 10.0 * dd4hep::cm,
               .minClusterHitEdep = 5.0 * dd4hep::keV,
-              .minClusterCenterEdep = 5.0 * dd4hep::MeV,
+              .minClusterCenterEdep = 3.0 * dd4hep::MeV,
               .minClusterEdep = 11.0 * dd4hep::MeV,
               .minClusterNhits = 100,
           },
@@ -110,7 +131,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertTruthClusters",
             {"HcalEndcapPInsertTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalEndcapPInsertRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalEndcapPInsertHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalEndcapPInsertTruthClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -128,7 +153,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertClusters",
             {"HcalEndcapPInsertImagingProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalEndcapPInsertRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalEndcapPInsertClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -150,7 +179,13 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "LFHCALRawHits", {"LFHCALHits"}, {"LFHCALRawHits"},
+          "LFHCALRawHits",
+          {"LFHCALHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"LFHCALRawHits", "LFHCALRawHitAssociations"},
+#else
+          {"LFHCALRawHits"},
+#endif
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,
@@ -225,7 +260,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "LFHCALTruthClusters",
             {"LFHCALTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "LFHCALRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "LFHCALHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"LFHCALTruthClusters",             // edm4eic::Cluster
              "LFHCALTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -243,7 +282,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "LFHCALClusters",
             {"LFHCALIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "LFHCALRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "LFHCALHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"LFHCALClusters",             // edm4eic::Cluster
              "LFHCALClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -252,6 +295,42 @@ extern "C" {
               .logWeightBase = 4.5,
               .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "LFHCALSplitMergeProtoClusters",
+            {"LFHCALIslandProtoClusters",
+             "CalorimeterTrackProjections"},
+            {"LFHCALSplitMergeProtoClusters"},
+            {
+              .idCalo = "LFHCAL_ID",
+              .minSigCut = -2.0,
+              .avgEP = 0.50,
+              .sigEP = 0.25,
+              .drAdd = 0.30,
+              .sampFrac = 1.0,
+              .transverseEnergyProfileScale = 1.0
+            },
+            app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "LFHCALSplitMergeClusters",
+            {"LFHCALSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
+             "LFHCALHits"},                          // edm4hep::SimCalorimeterHitCollection
+            {"LFHCALSplitMergeClusters",             // edm4eic::Cluster
+             "LFHCALSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 4.5,
+              .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
           )

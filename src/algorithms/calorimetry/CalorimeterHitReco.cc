@@ -8,6 +8,7 @@
 #include "CalorimeterHitReco.h"
 
 #include <DD4hep/Alignments.h>
+#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
@@ -16,11 +17,15 @@
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/Volumes.h>
 #include <DD4hep/config.h>
+#include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include <DDSegmentation/MultiSegmentation.h>
+#include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
@@ -172,6 +177,11 @@ void CalorimeterHitReco::process(
             continue;
         }
 
+        if (rh.getAmplitude() > m_cfg.capADC) {
+            error("Encountered hit with amplitude {} outside of ADC capacity {}", rh.getAmplitude(), m_cfg.capADC);
+            continue;
+        }
+
         // get layer and sector ID
         const int lid =
                 id_dec != nullptr && !m_cfg.layerField.empty() ? static_cast<int>(id_dec->get(cellID, layer_idx)) : -1;
@@ -236,7 +246,18 @@ void CalorimeterHitReco::process(
         const auto pos = local.nominal().worldToLocal(gpos);
         std::vector<double> cdim;
         // get segmentation dimensions
-        auto segmentation_type = m_converter->findReadout(local).segmentation().type();
+
+        const dd4hep::DDSegmentation::Segmentation* segmentation = m_converter->findReadout(local).segmentation()->segmentation;
+        auto segmentation_type = segmentation->type();
+
+        while (segmentation_type == "MultiSegmentation"){
+            const auto* multi_segmentation = dynamic_cast<const dd4hep::DDSegmentation::MultiSegmentation*>(segmentation);
+            const dd4hep::DDSegmentation::Segmentation& sub_segmentation = multi_segmentation->subsegmentation(cellID);
+
+            segmentation = &sub_segmentation;
+            segmentation_type = segmentation->type();
+        }
+
         if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
             auto cell_dim = m_converter->cellDimensions(cellID);
             cdim.resize(3);
@@ -265,6 +286,9 @@ void CalorimeterHitReco::process(
         const decltype(edm4eic::CalorimeterHitData::local) local_position(pos.x() / dd4hep::mm, pos.y() / dd4hep::mm,
                                                                        pos.z() / dd4hep::mm);
 
+#if EDM4EIC_VERSION_MAJOR >= 7
+        auto recohit =
+#endif
         recohits->create(
             rh.getCellID(),
             energy,
@@ -276,6 +300,9 @@ void CalorimeterHitReco::process(
             sid,
             lid,
             local_position);
+#if EDM4EIC_VERSION_MAJOR >= 7
+        recohit.setRawHit(rh);
+#endif
     }
 }
 

@@ -34,7 +34,7 @@ void InitPlugin(JApplication *app) {
         },
         {
           "ForwardRomanPotRawHits",
-          "ForwardRomanPotHitAssociations"
+          "ForwardRomanPotRawHitAssociations"
         },
         {
             .threshold = 10.0 * dd4hep::keV,

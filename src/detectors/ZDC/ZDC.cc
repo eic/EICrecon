@@ -3,6 +3,7 @@
 //
 //
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <math.h>
@@ -27,7 +28,13 @@ extern "C" {
 
         // LYSO part of the ZDC
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "EcalFarForwardZDCRawHits", {"EcalFarForwardZDCHits"}, {"EcalFarForwardZDCRawHits"},
+          "EcalFarForwardZDCRawHits",
+          {"EcalFarForwardZDCHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"EcalFarForwardZDCRawHits", "EcalFarForwardZDCRawHitAssociations"},
+#else
+          {"EcalFarForwardZDCRawHits"},
+#endif
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
@@ -64,7 +71,6 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = true,
             .minClusterHitEdep = 0.1 * dd4hep::MeV,
             .minClusterCenterEdep = 3.0 * dd4hep::MeV,
@@ -78,7 +84,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalFarForwardZDCTruthClusters",
             {"EcalFarForwardZDCTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalFarForwardZDCRawHitAssociations"},       // edm4eic::MCRecoClusterHitAssociationCollection
+#else
              "EcalFarForwardZDCHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalFarForwardZDCTruthClusters",             // edm4eic::Cluster
              "EcalFarForwardZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -96,7 +106,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalFarForwardZDCClusters",
             {"EcalFarForwardZDCIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalFarForwardZDCRawHitAssociations"},  // edm4eic::MCRecoClusterHitAssociationCollection
+#else
              "EcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalFarForwardZDCClusters",             // edm4eic::Cluster
              "EcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -111,7 +125,13 @@ extern "C" {
         );
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "HcalFarForwardZDCRawHits", {"HcalFarForwardZDCHits"}, {"HcalFarForwardZDCRawHits"},
+          "HcalFarForwardZDCRawHits",
+          {"HcalFarForwardZDCHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"HcalFarForwardZDCRawHits", "HcalFarForwardZDCRawHitAssociations"},
+#else
+          {"HcalFarForwardZDCRawHits"},
+#endif
           {
             .tRes = 0.0 * dd4hep::ns,
             .capADC = 32768,
@@ -133,8 +153,8 @@ extern "C" {
             .pedMeanADC = 400,
             .pedSigmaADC = 10,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 0.0,
-            .thresholdValue = -100.0,
+            .thresholdFactor = 4.0,
+            .thresholdValue = 0.0,
             .sampFrac = "1.0",
             .readout = "HcalFarForwardZDCHits",
             .layerField = "layer",
@@ -158,8 +178,8 @@ extern "C" {
             "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCImagingProtoClusters"},
             {
                 .neighbourLayersRange = 1,
-                .localDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
-                .layerDistXY = {0.76*side_length, 0.76*side_length*sin(M_PI/3)},
+                .localDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
+                .layerDistXY = {0.25*side_length, 0.25*side_length*sin(M_PI/3)},
                 .layerMode=eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
                 .sectorDist = 10.0 * dd4hep::cm,
                 .minClusterHitEdep = 100.0 * dd4hep::keV,
@@ -186,14 +206,18 @@ extern "C" {
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
            "HcalFarForwardZDCClusters",
-          {"HcalFarForwardZDCImagingProtoClusters",  // edm4eic::ProtoClusterCollection
+          {"HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+           "HcalFarForwardZDCRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
            "HcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
           {"HcalFarForwardZDCClusters",             // edm4eic::Cluster
            "HcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
           {
             .energyWeight = "log",
             .sampFrac = 0.0203,
-            .logWeightBaseCoeffs={5.0,0.65,0.31},
+            .logWeightBaseCoeffs={5.8,0.65,0.31},
             .logWeightBase_Eref=50*dd4hep::GeV,
             .longitudinalShowerInfoAvailable = true,
           },
@@ -211,7 +235,6 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = true,
             .minClusterHitEdep = 0.1 * dd4hep::MeV,
             .minClusterCenterEdep = 3.0 * dd4hep::MeV,
@@ -224,7 +247,11 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalFarForwardZDCTruthClusters",
             {"HcalFarForwardZDCTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalFarForwardZDCRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalFarForwardZDCHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalFarForwardZDCTruthClusters",             // edm4eic::Cluster
              "HcalFarForwardZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -241,7 +268,11 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalFarForwardZDCClustersBaseline",
             {"HcalFarForwardZDCIslandProtoClustersBaseline",  // edm4eic::ProtoClusterCollection
-             "HcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalFarForwardZDCRawHitAssociations"},          // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
+             "HcalFarForwardZDCHits"},                        // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalFarForwardZDCClustersBaseline",             // edm4eic::Cluster
              "HcalFarForwardZDCClusterAssociationsBaseline"}, // edm4eic::MCRecoClusterParticleAssociation
             {

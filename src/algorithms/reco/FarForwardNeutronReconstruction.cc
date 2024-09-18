@@ -4,6 +4,7 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <math.h>
 #include <gsl/pointers>
 #include <stdexcept>
@@ -46,17 +47,13 @@ namespace eicrecon {
 
       double Etot_hcal=0, Etot_ecal=0;
       double Emax=0;
-      double x=0;
-      double y=0;
-      double z=0;
+      edm4hep::Vector3f position;
       for (const auto& cluster : *clustersHcal) {
           double E = cluster.getEnergy();
-          Etot_hcal+=E;
-          if(E>Emax){
-            Emax=E;
-            x=cluster.getPosition().x;
-            y=cluster.getPosition().y;
-            z=cluster.getPosition().z;
+          Etot_hcal += E;
+          if (E > Emax){
+            Emax = E;
+            position = cluster.getPosition();
           }
       }
       for (const auto& cluster : *clustersEcal) {
@@ -64,7 +61,7 @@ namespace eicrecon {
           Etot_ecal+=E;
       }
       double Etot=Etot_hcal+Etot_ecal;
-      if (Etot>0){
+      if (Etot > 0 && Emax > 0){
           auto rec_part = out_neutrons->create();
           double corr=calc_corr(Etot,m_cfg.scale_corr_coeff_hcal);
           Etot_hcal=Etot_hcal/(1+corr);
@@ -73,12 +70,10 @@ namespace eicrecon {
           Etot=Etot_hcal+Etot_ecal;
           rec_part.setEnergy(Etot);
           rec_part.setPDG(2112);
-          double p=sqrt(Etot*Etot-m_neutron*m_neutron);
-          double r=sqrt(x*x+y*y+z*z);
-          double px=p*x/r;
-          double py=p*y/r;
-          double pz=p*z/r;
-          rec_part.setMomentum({(float)px, (float)py, (float)pz});
+          double p = sqrt(Etot*Etot-m_neutron*m_neutron);
+          double r = edm4hep::utils::magnitude(position);
+          edm4hep::Vector3f momentum = position * (p / r);
+          rec_part.setMomentum(momentum);
           rec_part.setCharge(0);
           rec_part.setMass(m_neutron);
           for (const auto& cluster : *clustersHcal){

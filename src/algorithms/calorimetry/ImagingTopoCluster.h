@@ -1,17 +1,27 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng, Sylvester Joosten, Whitney Armstrong
+// Copyright (C) 2022 Chao Peng, Sylvester Joosten, Whitney Armstrong, Wouter Deconinck
 
 /*
  *  Topological Cell Clustering Algorithm for Imaging Calorimetry
  *  1. group all the adjacent pixels
  *
  *  Author: Chao Peng (ANL), 06/02/2021
- *  References: https://arxiv.org/pdf/1603.02934.pdf
+ *  Original reference: https://arxiv.org/pdf/1603.02934.pdf
+ *
+ *  Modifications:
+ *
+ *  Wouter Deconinck (Manitoba), 08/24/2024
+ *  - converted hit storage model from std::vector to std::set sorted on layer
+ *    where only hits remaining to be assigned to a group are in the set
+ *  - erase hits that are too low in energy to be part of a cluster
+ *  - converted group storage model from std::set to std::list to allow adding
+ *    hits while keeping iterators valid
  *
  */
 #pragma once
 
 #include <algorithm>
+#include <numeric>
 
 #include <algorithms/algorithm.h>
 #include <DD4hep/BitFieldCoder.h>
@@ -40,16 +50,6 @@ namespace eicrecon {
     >
   >;
 
-  /** Topological Cell Clustering Algorithm.
-   *
-   * Topological Cell Clustering Algorithm for Imaging Calorimetry
-   *  1. group all the adjacent pixels
-   *
-   *  Author: Chao Peng (ANL), 06/02/2021
-   *  References: https://arxiv.org/pdf/1603.02934.pdf
-   *
-   * \ingroup reco
-   */
   class ImagingTopoCluster
       : public ImagingTopoClusterAlgorithm,
         public WithPodConfig<ImagingTopoClusterConfig> {
@@ -64,8 +64,13 @@ namespace eicrecon {
   private:
 
     // unitless counterparts of the input parameters
-    double localDistXY[2]{0, 0}, layerDistEtaPhi[2]{0, 0}, layerDistXY[2]{0, 0}, sectorDist{0};
-    double minClusterHitEdep{0}, minClusterCenterEdep{0}, minClusterEdep{0}, minClusterNhits{0};
+    std::array<double,2> localDistXY{0, 0};
+    std::array<double,2> layerDistEtaPhi{0, 0};
+    std::array<double,2> layerDistXY{0, 0};
+    double sectorDist{0};
+    double minClusterHitEdep{0};
+    double minClusterCenterEdep{0};
+    double minClusterEdep{0};
 
   public:
     void init() {
@@ -77,6 +82,10 @@ namespace eicrecon {
         }
         if (m_cfg.layerDistEtaPhi.size() != 2) {
             error( "Expected 2 values (eta_dist, phi_dist) for layerDistEtaPhi" );
+            return;
+        }
+        if (m_cfg.minClusterCenterEdep < m_cfg.minClusterHitEdep) {
+            error( "minClusterCenterEdep must be greater than or equal to minClusterHitEdep" );
             return;
         }
 
@@ -106,7 +115,7 @@ namespace eicrecon {
           break;
         case ImagingTopoClusterConfig::ELayerMode::xy:
           info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-               "Local [x, y] distance between hits <= [{:.4f}, {:.4f} rad].",
+               "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
                m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]
                );
           break;
@@ -124,21 +133,55 @@ namespace eicrecon {
         const auto [hits] = input;
         auto [proto] = output;
 
-        // group neighbouring hits
-        std::vector<bool> visits(hits->size(), false);
-        std::vector<std::set<std::size_t>> groups;
-        for (size_t i = 0; i < hits->size(); ++i) {
-            debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {})", i + 1,
-                         (*hits)[i].getLocal().x, (*hits)[i].getLocal().y, (*hits)[i].getPosition().z,
-                         (*hits)[i].getPosition().x, (*hits)[i].getPosition().y, (*hits)[i].getPosition().z
-            );
-            // already in a group, or not energetic enough to form a cluster
-            if (visits[i] || (*hits)[i].getEnergy() < minClusterCenterEdep) {
-                continue;
+        // Sort hit indices (podio collections do not support std::sort)
+        auto compare = [&hits](const auto& a, const auto& b) {
+            // if !(a < b) and !(b < a), then a and b are equivalent
+            // and only one of them will be allowed in a set
+            if ((*hits)[a].getLayer() == (*hits)[b].getLayer()) {
+              return (*hits)[a].getObjectID().index < (*hits)[b].getObjectID().index;
             }
+            return (*hits)[a].getLayer() < (*hits)[b].getLayer();
+        };
+        // indices contains the remaining hit indices that have not
+        // been assigned to a group yet
+        std::set<std::size_t, decltype(compare)> indices(compare);
+        // set does not have a size yet, so cannot fill with iota
+        for (std::size_t i = 0; i < hits->size(); ++i) {
+            indices.insert(i);
+        }
+        // ensure no hits were dropped due to equivalency in set
+        if (hits->size() != indices.size()) {
+            error("equivalent hits were dropped: #hits {:d}, #indices {:d}", hits->size(), indices.size());
+        }
+
+        // Group neighbouring hits
+        std::vector<std::list<std::size_t>> groups;
+        // because indices changes, the loop over indices requires some care:
+        // - we must use iterators instead of range-for
+        // - erase returns an incremented iterator and therefore acts as idx++
+        // - when the set becomes empty on erase, idx is invalid and idx++ will be too
+        // (also applies to loop in bfs_group below)
+        for (auto idx = indices.begin(); idx != indices.end();
+                 indices.empty() ? idx = indices.end() : idx) {
+
+            debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {}), energy = {}", *idx,
+                         (*hits)[*idx].getLocal().x, (*hits)[*idx].getLocal().y, (*hits)[*idx].getPosition().z,
+                         (*hits)[*idx].getPosition().x, (*hits)[*idx].getPosition().y, (*hits)[*idx].getPosition().z,
+                         (*hits)[*idx].getEnergy()
+            );
+
+            // not energetic enough for cluster center, but could still be cluster hit
+            if ((*hits)[*idx].getEnergy() < minClusterCenterEdep) {
+              idx++;
+              continue;
+            }
+
             // create a new group, and group all the neighbouring hits
-            groups.emplace_back();
-            bfs_group(*hits, groups.back(), i, visits);
+            groups.emplace_back(std::list{*idx});
+            bfs_group(*hits, indices, groups.back(), *idx);
+
+            // wait with erasing until after bfs_group to ensure iterator is not invalidated in bfs_group
+            idx = indices.erase(idx); // takes role of idx++
         }
         debug("found {} potential clusters (groups of hits)", groups.size());
         for (size_t i = 0; i < groups.size(); ++i) {
@@ -147,7 +190,7 @@ namespace eicrecon {
 
         // form clusters
         for (const auto &group : groups) {
-            if (static_cast<int>(group.size()) < m_cfg.minClusterNhits) {
+            if (group.size() < m_cfg.minClusterNhits) {
                 continue;
             }
             double energy = 0.;
@@ -198,35 +241,44 @@ namespace eicrecon {
     }
 
     // grouping function with Breadth-First Search
-    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t> &group, std::size_t idx, std::vector<bool> &visits) const {
-      visits[idx] = true;
+    // note: template to allow Compare only known in local scope of caller
+    template<typename Compare>
+    void bfs_group(const edm4eic::CalorimeterHitCollection &hits, std::set<std::size_t,Compare>& indices, std::list<std::size_t> &group, const std::size_t idx) const {
 
-      // not a qualified hit to participate clustering, stop here
-      if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
-        return;
-      }
+      // loop over group as it grows, until the end is stable and we reach it
+      for (auto idx1 = group.begin(); idx1 != group.end(); ++idx1) {
+        // check neighbours (note comments on loop over set above)
+        for (auto idx2 = indices.begin(); idx2 != indices.end();
+            indices.empty() ? idx2 = indices.end() : idx2) {
 
-      group.insert(idx);
-      size_t prev_size = 0;
+          // skip idx1 and original idx
+          // (we cannot erase idx since it would invalidate iterator in calling scope)
+          if (*idx2 == *idx1 || *idx2 == idx) {
+            idx2++;
+            continue;
+          }
 
-      while (prev_size != group.size()) {
-        prev_size = group.size();
-        for (std::size_t idx1 : group) {
-          // check neighbours
-          for (std::size_t idx2 = 0; idx2 < hits.size(); ++idx2) {
-            // not a qualified hit to participate clustering, skip
-            if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
-              continue;
-            }
-            if ((!visits[idx2])
-                && is_neighbour(hits[idx1], hits[idx2])) {
-              group.insert(idx2);
-              visits[idx2] = true;
-            }
+          // skip rest of list of hits when we're past relevant layers
+          //if (hits[*idx2].getLayer() - hits[*idx1].getLayer() > m_cfg.neighbourLayersRange) {
+          //  break;
+          //}
+
+          // not energetic enough for cluster hit
+          if (hits[*idx2].getEnergy() < m_cfg.minClusterHitEdep) {
+            idx2 = indices.erase(idx2);
+            continue;
+          }
+
+          if (is_neighbour(hits[*idx1], hits[*idx2])) {
+            group.push_back(*idx2);
+            idx2 = indices.erase(idx2); // takes role of idx2++
+          } else {
+            idx2++;
           }
         }
       }
     }
+
   };
 
 } // namespace eicrecon

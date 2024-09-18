@@ -29,19 +29,21 @@ private:
     // Declare outputs
     PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles {this};
 
+    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
 public:
     void Configure() {
-        m_algo = std::make_unique<AlgoT>();
-        m_algo->init(logger());
-        m_algo->applyConfig(config());
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+        m_algo->init();
     }
 
     void ChangeRun(int64_t run_number) {
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        auto output = m_algo->execute(m_rc_particles_input(), m_rc_electrons_input());
-        m_out_reco_particles() = std::move(output);
+        m_algo->process({m_rc_particles_input(), m_rc_electrons_input()},
+                        {m_out_reco_particles().get()});
     }
 };
 

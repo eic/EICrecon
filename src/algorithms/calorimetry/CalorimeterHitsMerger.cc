@@ -121,7 +121,7 @@ void CalorimeterHitsMerger::process(
                 gpos.x() / dd4hep::mm, gpos.y() / dd4hep::mm, gpos.z() / dd4hep::mm
         );
         const decltype(edm4eic::CalorimeterHitData::local) local(
-                pos.x(), pos.y(), pos.z()
+                pos.x() / dd4hep::mm, pos.y() / dd4hep::mm, pos.z() / dd4hep::mm
         );
 
         out_hits->create(

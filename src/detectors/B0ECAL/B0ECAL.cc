@@ -3,6 +3,7 @@
 //
 //
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <math.h>
@@ -24,7 +25,13 @@ extern "C" {
         InitJANAPlugin(app);
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "B0ECalRawHits", {"B0ECalHits"}, {"B0ECalRawHits"},
+          "B0ECalRawHits",
+          {"B0ECalHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"B0ECalRawHits", "B0ECalRawHitAssociations"},
+#else
+          {"B0ECalRawHits"},
+#endif
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
@@ -77,7 +84,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "B0ECalClusters",
             {"B0ECalIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "B0ECalRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "B0ECalHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"B0ECalClusters",             // edm4eic::Cluster
              "B0ECalClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -94,7 +105,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "B0ECalTruthClusters",
             {"B0ECalTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "B0ECalRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "B0ECalHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"B0ECalTruthClusters",             // edm4eic::Cluster
              "B0ECalTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
