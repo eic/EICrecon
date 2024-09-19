@@ -134,10 +134,10 @@ extern "C" {
 #endif
           {
             .tRes = 0.0 * dd4hep::ns,
-            .capADC = 32768,
-            .dyRangeADC = 800 * dd4hep::MeV,
+            .capADC = 65536,
+            .dyRangeADC = 1000. * dd4hep::MeV,
             .pedMeanADC = 400,
-            .pedSigmaADC = 10,
+            .pedSigmaADC = 2,
             .resolutionTDC = 10 * dd4hep::picosecond,
             .corrMeanScale = "1.0",
             .readout = "HcalFarForwardZDCHits",
@@ -148,12 +148,12 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
           "HcalFarForwardZDCRecHits", {"HcalFarForwardZDCRawHits"}, {"HcalFarForwardZDCRecHits"},
           {
-            .capADC = 32678,
-            .dyRangeADC = 800. * dd4hep::MeV,
+            .capADC = 65536,
+            .dyRangeADC = 1000. * dd4hep::MeV,
             .pedMeanADC = 400,
-            .pedSigmaADC = 10,
+            .pedSigmaADC = 2,
             .resolutionTDC = 10 * dd4hep::picosecond,
-            .thresholdFactor = 4.0,
+            .thresholdFactor = 3.0,
             .thresholdValue = 0.0,
             .sampFrac = "1.0",
             .readout = "HcalFarForwardZDCHits",
