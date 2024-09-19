@@ -11,6 +11,7 @@
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
+#include <fmt/core.h>
 #include <map>
 #include <memory>
 
@@ -44,6 +45,7 @@
 #include "global/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "global/reco/MC2SmearedParticle_factory.h"
 #include "global/reco/MatchClusters_factory.h"
+#include "global/reco/PrimaryVertices_factory.h"
 #include "global/reco/ReconstructedElectrons_factory.h"
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "global/reco/ScatteredElectronsTruth_factory.h"
@@ -382,6 +384,19 @@ void InitPlugin(JApplication *app) {
               .m_pid_use_MC_truth = true,
             },
             app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<PrimaryVertices_factory>(
+        "PrimaryVertices",
+        {
+          "CentralTrackVertices"
+        },
+        {
+          "PrimaryVertices"
+        },
+        {
+        },
+        app
     ));
 
 

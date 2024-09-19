@@ -83,7 +83,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalLumiSpecClusters",
             {"EcalLumiSpecIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalLumiSpecRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "EcalLumiSpecHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalLumiSpecClusters",             // edm4eic::Cluster
              "EcalLumiSpecClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -100,7 +104,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalLumiSpecTruthClusters",
             {"EcalLumiSpecTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalLumiSpecRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "EcalLumiSpecHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalLumiSpecTruthClusters",             // edm4eic::Cluster
              "EcalLumiSpecTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {

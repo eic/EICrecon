@@ -24,6 +24,7 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
@@ -130,7 +131,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertTruthClusters",
             {"HcalEndcapPInsertTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalEndcapPInsertRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalEndcapPInsertHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalEndcapPInsertTruthClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -148,7 +153,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalEndcapPInsertClusters",
             {"HcalEndcapPInsertImagingProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalEndcapPInsertRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalEndcapPInsertClusters",             // edm4eic::Cluster
              "HcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -251,7 +260,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "LFHCALTruthClusters",
             {"LFHCALTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "LFHCALRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "LFHCALHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"LFHCALTruthClusters",             // edm4eic::Cluster
              "LFHCALTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -269,7 +282,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "LFHCALClusters",
             {"LFHCALIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "LFHCALRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "LFHCALHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"LFHCALClusters",             // edm4eic::Cluster
              "LFHCALClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -278,6 +295,42 @@ extern "C" {
               .logWeightBase = 4.5,
               .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "LFHCALSplitMergeProtoClusters",
+            {"LFHCALIslandProtoClusters",
+             "CalorimeterTrackProjections"},
+            {"LFHCALSplitMergeProtoClusters"},
+            {
+              .idCalo = "LFHCAL_ID",
+              .minSigCut = -2.0,
+              .avgEP = 0.50,
+              .sigEP = 0.25,
+              .drAdd = 0.30,
+              .sampFrac = 1.0,
+              .transverseEnergyProfileScale = 1.0
+            },
+            app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "LFHCALSplitMergeClusters",
+            {"LFHCALSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
+             "LFHCALHits"},                          // edm4hep::SimCalorimeterHitCollection
+            {"LFHCALSplitMergeClusters",             // edm4eic::Cluster
+             "LFHCALSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 4.5,
+              .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
           )
