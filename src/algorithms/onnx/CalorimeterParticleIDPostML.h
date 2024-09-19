@@ -16,11 +16,11 @@ namespace eicrecon {
 using CalorimeterParticleIDPostMLAlgorithm =
   algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection,
-					  std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
-					  edm4eic::TensorCollection>,
+                                          std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
+                                          edm4eic::TensorCollection>,
     algorithms::Output<edm4eic::ClusterCollection,
                       std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
-					  edm4hep::ParticleIDCollection>
+                                          edm4hep::ParticleIDCollection>
   >;
 
 class CalorimeterParticleIDPostML : public CalorimeterParticleIDPostMLAlgorithm,
@@ -29,9 +29,9 @@ class CalorimeterParticleIDPostML : public CalorimeterParticleIDPostMLAlgorithm,
 public:
   CalorimeterParticleIDPostML(std::string_view name)
       : CalorimeterParticleIDPostMLAlgorithm{name,
-											 {"inputClusters", "inputClusterAssociations", "inputPredictionsTensor"},
-											 {"outputClusters", "outputClusterAssociations", "outputParticleIDs"},
-											 ""} {
+                                                                                         {"inputClusters", "inputClusterAssociations", "inputPredictionsTensor"},
+                                                                                         {"outputClusters", "outputClusterAssociations", "outputParticleIDs"},
+                                                                                         ""} {
   }
 
   void init() final;

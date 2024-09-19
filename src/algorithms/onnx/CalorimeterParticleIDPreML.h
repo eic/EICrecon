@@ -14,9 +14,9 @@ namespace eicrecon {
 
 using CalorimeterParticleIDPreMLAlgorithm =
   algorithms::Algorithm<algorithms::Input<edm4eic::ClusterCollection,
-										  std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
+                                                                                  std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
                           algorithms::Output<edm4eic::TensorCollection,
-											 std::optional<edm4eic::TensorCollection>>>;
+                                                                                         std::optional<edm4eic::TensorCollection>>>;
 
 class CalorimeterParticleIDPreML : public CalorimeterParticleIDPreMLAlgorithm,
                               public WithPodConfig<NoConfig> {

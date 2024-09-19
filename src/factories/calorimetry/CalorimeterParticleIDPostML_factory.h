@@ -27,18 +27,18 @@ private:
 
 public:
   void Configure() {
-	m_algo = std::make_unique<AlgoT>(GetPrefix());
-	m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-	m_algo->applyConfig(config());
-	m_algo->init();
+        m_algo = std::make_unique<AlgoT>(GetPrefix());
+        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+        m_algo->applyConfig(config());
+        m_algo->init();
   }
 
   void ChangeRun(int64_t run_number) {
   }
 
   void Process(int64_t run_number, uint64_t event_number) {
-	m_algo->process({m_cluster_input(), m_cluster_assoc_input(), m_prediction_tensor_input()},
-					{m_cluster_output().get(), m_cluster_assoc_output().get(), m_particle_id_output().get()});
+        m_algo->process({m_cluster_input(), m_cluster_assoc_input(), m_prediction_tensor_input()},
+                                        {m_cluster_output().get(), m_cluster_assoc_output().get(), m_particle_id_output().get()});
   }
 };
 

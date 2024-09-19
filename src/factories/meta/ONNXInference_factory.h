@@ -39,12 +39,12 @@ public:
     void Process(int64_t run_number, uint64_t event_number) {
         std::vector<gsl::not_null<const edm4eic::TensorCollection*>> in_collections;
         for (const auto& in_collection : m_input_tensors()) {
-		  in_collections.push_back(gsl::not_null<const edm4eic::TensorCollection*>{in_collection});
+                  in_collections.push_back(gsl::not_null<const edm4eic::TensorCollection*>{in_collection});
         }
 
         std::vector<gsl::not_null<edm4eic::TensorCollection*>> out_collections;
         for (const auto& out_collection : m_output_tensors()) {
-		  out_collections.push_back(gsl::not_null<edm4eic::TensorCollection*>{out_collection.get()});
+                  out_collections.push_back(gsl::not_null<edm4eic::TensorCollection*>{out_collection.get()});
         }
 
         m_algo->process(in_collections,
