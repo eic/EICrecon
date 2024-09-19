@@ -1,7 +1,5 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2021 - 2024, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul
 
 #include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -77,12 +75,12 @@ extern "C" {
           "EcalEndcapPIslandProtoClusters", {"EcalEndcapPRecHits"}, {"EcalEndcapPIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {10.0 * dd4hep::cm, 10.0 * dd4hep::cm},
-            .splitCluster = true,
+            .dimScaledLocalDistXY = {1.5,1.5},
+            .splitCluster = false,
             .minClusterHitEdep = 0.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
-            .transverseEnergyProfileScale = 0.04,
+            .minClusterCenterEdep = 60.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
+            .transverseEnergyProfileScale = 1.,
           },
           app   // TODO: Remove me once fixed
         ));
@@ -213,12 +211,11 @@ extern "C" {
           "EcalEndcapPInsertIslandProtoClusters", {"EcalEndcapPInsertRecHits"}, {"EcalEndcapPInsertIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {10.0 * dd4hep::cm, 10.0 * dd4hep::cm},
             .dimScaledLocalDistXY = {1.5,1.5},
             .splitCluster = false,
             .minClusterHitEdep = 0.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .minClusterCenterEdep = 60.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
             .transverseEnergyProfileScale = 1.,
           },
           app   // TODO: Remove me once fixed
