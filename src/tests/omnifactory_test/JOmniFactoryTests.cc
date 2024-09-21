@@ -5,6 +5,7 @@
 #include <JANA/JMultifactory.h>
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <fmt/core.h>
@@ -64,7 +65,7 @@ struct BasicTestAlg : public JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
 
 template <typename OutputCollectionT, typename MultifactoryT>
 MultifactoryT* RetrieveMultifactory(JFactorySet* facset, std::string output_collection_name) {
-    auto fac = facset->GetFactory<OutputCollectionT>(output_collection_name);
+    auto fac = facset->GetFactory(JTypeInfo::demangle<OutputCollectionT>(), output_collection_name);
     REQUIRE(fac != nullptr);
     auto helper = dynamic_cast<JMultifactoryHelperPodio<OutputCollectionT>*>(fac);
     REQUIRE(helper != nullptr);
