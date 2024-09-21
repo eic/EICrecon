@@ -181,10 +181,11 @@ TEST_CASE("JParameterManager correctly understands which values are defaulted an
     REQUIRE(b->config().threshold == 12.0);
 
     std::cout << "Showing the full table of config parameters" << std::endl;
-    app.GetJParameterManager()->PrintParameters(true, false, true);
+    app.GetJParameterManager()->PrintParameters(2, 1); // verbosity, strictness
 
     std::cout << "Showing only overridden config parameters" << std::endl;
-    app.GetJParameterManager()->PrintParameters(false, false, true);
+    app.GetJParameterManager()->PrintParameters(1, 1); // verbosity, strictness
+
 }
 
 TEST_CASE("Wiring itself is correctly defaulted") {
@@ -221,11 +222,11 @@ TEST_CASE("Wiring itself is correctly defaulted") {
 
 
     b->logger()->info("Showing the full table of config parameters");
-    app.GetJParameterManager()->PrintParameters(true, false, true);
+    app.GetJParameterManager()->PrintParameters(2,1); // verbosity, strictness
 
     b->logger()->info("Showing only overridden config parameters");
     // Should be empty because everything is defaulted
-    app.GetJParameterManager()->PrintParameters(false, false, true);
+    app.GetJParameterManager()->PrintParameters(1,1); // verbosity, strictness
 }
 
 struct VariadicTestAlg : public JOmniFactory<VariadicTestAlg, BasicTestAlgConfig> {
