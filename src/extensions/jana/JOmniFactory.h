@@ -473,7 +473,6 @@ public:
                         std::vector<std::string> default_input_collection_names,
                         std::vector<std::string> default_output_collection_names ) {
 
-        // TODO: NWB: JMultiFactory::GetTag,SetTag are not currently usable
         m_prefix = (this->GetPluginName().empty()) ? tag : this->GetPluginName() + ":" + tag;
 
         // Obtain collection name overrides if provided.
