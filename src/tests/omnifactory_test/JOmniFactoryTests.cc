@@ -56,7 +56,6 @@ struct BasicTestAlg : public JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
         m_process_call_count++;
         logger()->info("Calling BasicTestAlg::Process with bucket_count={}, threshold={}", config().bucket_count, config().threshold);
         // Provide empty collections (as opposed to nulls) so that PODIO doesn't crash
-        // TODO: NWB: I though multifactories already took care of this under the hood somewhere
         output_hits_left() = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
         output_hits_right() = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
         output_vechits().push_back(new edm4hep::SimCalorimeterHit());
