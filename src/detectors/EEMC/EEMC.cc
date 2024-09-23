@@ -15,8 +15,11 @@
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/CalorimeterParticleIDPostML_factory.h"
+#include "factories/calorimetry/CalorimeterParticleIDPreML_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
+#include "factories/meta/ONNXInference_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -112,15 +115,15 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "EcalEndcapNClusters",
+             "EcalEndcapNClustersWithoutPID",
             {"EcalEndcapNIslandProtoClusters",  // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
              "EcalEndcapNRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
              "EcalEndcapNHits"},                // edm4hep::SimCalorimeterHitCollection
 #endif
-            {"EcalEndcapNClusters",             // edm4eic::Cluster
-             "EcalEndcapNClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {"EcalEndcapNClustersWithoutPID",             // edm4eic::Cluster
+             "EcalEndcapNClusterAssociationsWithoutPID"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
@@ -149,6 +152,47 @@ extern "C" {
             app   // TODO: remove me once fixed
           )
         );
+
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPreML_factory>(
+            "EcalEndcapNParticleIDPreML",
+            {
+              "EcalEndcapNClustersWithoutPID",
+              "EcalEndcapNClusterAssociationsWithoutPID",
+            },
+            {
+              "EcalEndcapNParticleIDInput_features",
+              "EcalEndcapNParticleIDTarget",
+            },
+            app
+        ));
+        app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
+            "EcalEndcapNParticleIDInference",
+            {
+              "EcalEndcapNParticleIDInput_features",
+            },
+            {
+              "EcalEndcapNParticleIDOutput_label",
+              "EcalEndcapNParticleIDOutput_probability_tensor",
+            },
+            {
+              .modelPath = "calibrations/onnx/EcalEndcapN_pi_rejection.onnx",
+            },
+            app
+        ));
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPostML_factory>(
+            "EcalEndcapNParticleIDPostML",
+            {
+              "EcalEndcapNClustersWithoutPID",
+              "EcalEndcapNClusterAssociationsWithoutPID",
+              "EcalEndcapNParticleIDOutput_probability_tensor",
+            },
+            {
+              "EcalEndcapNClusters",
+              "EcalEndcapNClusterAssociations",
+              "EcalEndcapNClusterParticleIDs",
+            },
+            app
+        ));
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
