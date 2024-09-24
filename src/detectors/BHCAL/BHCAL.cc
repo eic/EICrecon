@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 David Lawrence, Derek Anderson, Wouter Deconinck
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <memory>
@@ -13,6 +14,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
 
@@ -42,7 +44,13 @@ extern "C" {
           ") == 1";
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
+          "HcalBarrelRawHits",
+          {"HcalBarrelHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"HcalBarrelRawHits", "HcalBarrelRawHitAssociations"},
+#else
+          {"HcalBarrelRawHits"},
+#endif
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,
@@ -98,7 +106,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalBarrelClusters",
             {"HcalBarrelIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalBarrelRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalBarrelHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalBarrelClusters",             // edm4eic::Cluster
              "HcalBarrelClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -115,7 +127,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalBarrelTruthClusters",
             {"HcalBarrelTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalBarrelRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalBarrelHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalBarrelTruthClusters",             // edm4eic::Cluster
              "HcalBarrelTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -128,5 +144,40 @@ extern "C" {
           )
         );
 
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "HcalBarrelSplitMergeProtoClusters",
+            {"HcalBarrelIslandProtoClusters",
+             "CalorimeterTrackProjections"},
+            {"HcalBarrelSplitMergeProtoClusters"},
+            {
+              .idCalo = "HcalBarrel_ID",
+              .minSigCut = -2.0,
+              .avgEP = 0.50,
+              .sigEP = 0.25,
+              .drAdd = 0.40,
+              .sampFrac = 1.0,
+              .transverseEnergyProfileScale = 1.0
+            },
+            app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "HcalBarrelSplitMergeClusters",
+            {"HcalBarrelSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
+             "HcalBarrelHits"},                          // edm4hep::SimCalorimeterHitCollection
+            {"HcalBarrelSplitMergeClusters",             // edm4eic::Cluster
+             "HcalBarrelSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 6.2,
+              .enableEtaBounds = false
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
     }
 }

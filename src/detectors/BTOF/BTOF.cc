@@ -75,6 +75,21 @@ void InitPlugin(JApplication *app) {
     };
 
     app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
+          "CombinedTOFTruthSeededLUTPID",
+          {
+          "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
+          "ReconstructedTruthSeededChargedWithPFRICHPIDParticleAssociations",
+          },
+          {
+          "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticles",
+          "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleAssociations",
+          "CombinedTOFTruthSeededParticleIDs",
+          },
+          pid_cfg,
+          app
+          ));
+
+    app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
           "CombinedTOFLUTPID",
           {
           "ReconstructedChargedWithPFRICHPIDParticles",
@@ -84,21 +99,6 @@ void InitPlugin(JApplication *app) {
           "ReconstructedChargedWithPFRICHTOFPIDParticles",
           "ReconstructedChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFParticleIDs",
-          },
-          pid_cfg,
-          app
-          ));
-
-    app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
-          "CombinedTOFSeededLUTPID",
-          {
-          "ReconstructedSeededChargedWithPFRICHPIDParticles",
-          "ReconstructedSeededChargedWithPFRICHPIDParticleAssociations",
-          },
-          {
-          "ReconstructedSeededChargedWithPFRICHTOFPIDParticles",
-          "ReconstructedSeededChargedWithPFRICHTOFPIDParticleAssociations",
-          "CombinedTOFSeededParticleIDs",
           },
           pid_cfg,
           app

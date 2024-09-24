@@ -7,13 +7,18 @@
 #include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/GenericParticleHypothesis.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <boost/move/utility_core.hpp>
+#include <edm4eic/Track.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
 #if Acts_VERSION_MAJOR >= 32
 #include <Acts/Propagator/VoidNavigator.hpp>
 #else
@@ -26,17 +31,23 @@
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/IterativeVertexFinder.hpp>
+#include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov4f.h>
-#include <math.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackParameters.h>
+#include <edm4eic/Trajectory.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/Vector2f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU>
 #include <algorithm>
+#include <cmath>
 #include <optional>
 #include <tuple>
 #include <utility>
@@ -56,7 +67,8 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 }
 
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
-    std::vector<const ActsExamples::Trajectories*> trajectories) {
+    std::vector<const ActsExamples::Trajectories*> trajectories,
+    const edm4eic::ReconstructedParticleCollection* reconParticles) {
 
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
 
@@ -172,11 +184,14 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     }
     /// CKF can provide multiple track trajectories for a single input seed
     for (auto& tip : tips) {
+      ActsExamples::TrackParameters par = trajectory->trackParameters(tip);
+
 #if Acts_VERSION_MAJOR >= 33
       inputTracks.emplace_back(&(trajectory->trackParameters(tip)));
 #else
       inputTrackPointers.push_back(&(trajectory->trackParameters(tip)));
 #endif
+      m_log->trace("Track local position at input = {} mm, {} mm", par.localPosition().x() / Acts::UnitConstants::mm, par.localPosition().y() / Acts::UnitConstants::mm);
     }
   }
 
@@ -207,7 +222,37 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
          (float)vtx.time(),
     }); // vtxposition
     eicvertex.setPositionError(cov);                          // covariance
-  }
+
+    for (const auto& t : vtx.tracks()) {
+#if Acts_VERSION_MAJOR >= 33
+      const auto& par = finderCfg.extractParameters(t.originalParams);
+#else
+      const auto& par = *t.originalParams;
+#endif
+      m_log->trace("Track local position from vertex = {} mm, {} mm", par.localPosition().x() / Acts::UnitConstants::mm, par.localPosition().y() / Acts::UnitConstants::mm);
+      float loc_a = par.localPosition().x();
+      float loc_b = par.localPosition().y();
+
+      for (const auto& part : *reconParticles) {
+        const auto& tracks = part.getTracks();
+        for (const auto trk : tracks) {
+          const auto& traj = trk.getTrajectory();
+          const auto& trkPars = traj.getTrackParameters();
+          for (const auto par : trkPars) {
+            const double EPSILON = 1.0e-4; // mm
+            if (fabs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) < EPSILON
+              && fabs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
+              m_log->trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm", par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
+              eicvertex.addToAssociatedParticles(part);
+            } // endif
+          } // end for par
+        } // end for trk
+      } // end for part
+    } // end for t
+    m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.", vtx.position().x() / Acts::UnitConstants::mm, vtx.position().y() / Acts::UnitConstants::mm, vtx.position().z() / Acts::UnitConstants::mm);
+
+  } // end for vtx
+
 
   return std::move(outputVertices);
 }

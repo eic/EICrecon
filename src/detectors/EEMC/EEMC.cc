@@ -3,6 +3,7 @@
 //
 //
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <math.h>
@@ -15,6 +16,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -30,7 +32,13 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalEndcapN_pedSigmaADC = 1;
         decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapN_resolutionTDC = 10 * dd4hep::picosecond;
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "EcalEndcapNRawHits", {"EcalEndcapNHits"}, {"EcalEndcapNRawHits"},
+          "EcalEndcapNRawHits",
+          {"EcalEndcapNHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"EcalEndcapNRawHits", "EcalEndcapNRawHitAssociations"},
+#else
+          {"EcalEndcapNRawHits"},
+#endif
           {
             .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
@@ -85,7 +93,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalEndcapNTruthClusters",
             {"EcalEndcapNTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapNRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "EcalEndcapNHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalEndcapNTruthClusters",             // edm4eic::Cluster
              "EcalEndcapNTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -102,7 +114,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalEndcapNClusters",
             {"EcalEndcapNIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapNRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "EcalEndcapNHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalEndcapNClusters",             // edm4eic::Cluster
              "EcalEndcapNClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -110,6 +126,42 @@ extern "C" {
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
               .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "EcalEndcapNSplitMergeProtoClusters",
+            {"EcalEndcapNIslandProtoClusters",
+             "CalorimeterTrackProjections"},
+            {"EcalEndcapNSplitMergeProtoClusters"},
+            {
+              .idCalo = "EcalEndcapN_ID",
+              .minSigCut = -1.0,
+              .avgEP = 1.0,
+              .sigEP = 0.10,
+              .drAdd = 0.08,
+              .sampFrac = 1.0,
+              .transverseEnergyProfileScale = 1.0
+            },
+            app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "EcalEndcapNSplitMergeClusters",
+            {"EcalEndcapNSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
+             "EcalEndcapNHits"},                          // edm4hep::SimCalorimeterHitCollection
+            {"EcalEndcapNSplitMergeClusters",             // edm4eic::Cluster
+             "EcalEndcapNSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 3.6,
+              .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
           )

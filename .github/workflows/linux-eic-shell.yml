@@ -401,7 +401,7 @@ jobs:
             detector_config: craterlake_tracking_only
           - beam: 18x275
             minq2: 1000
-            detector_config: craterlake
+            detector_config: craterlake_18x275
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v4
     - name: Retrieve simulation files
@@ -431,8 +431,13 @@ jobs:
     - detector-info
     strategy:
       matrix:
-        beam: [5x41, 10x100, 18x275]
-        detector_config: [craterlake]
+        include:
+          - beam: 5x41
+            detector_config: craterlake_5x41
+          - beam: 10x100
+            detector_config: craterlake
+          - beam: 18x275
+            detector_config: craterlake_18x275
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v4
     - name: Retrieve simulation files
@@ -713,11 +718,17 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
+          prmon --json-summary rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json -- \
           $PWD/install/bin/eicrecon $JANA_OPTIONS -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups) -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v4
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v4
+      with:
+        name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json
+        path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json
         if-no-files-found: error
     - name: Convert execution graphs
       uses: eic/run-cvmfs-osg-eic-shell@main
@@ -849,15 +860,19 @@ jobs:
     - npsim-minbias
     strategy:
       matrix:
-        CC: [clang]
-        beam: [10x100, 18x275]
-        minq2: [0]
-        detector_config: [craterlake]
         include:
         - CC: clang
           beam: 5x41
           minq2: 0
+          detector_config: craterlake_5x41
+        - CC: clang
+          beam: 10x100
+          minq2: 0
           detector_config: craterlake
+        - CC: clang
+          beam: 18x275
+          minq2: 0
+          detector_config: craterlake_18x275
         - CC: clang
           beam: 10x100
           minq2: 1000
@@ -865,7 +880,7 @@ jobs:
         - CC: clang
           beam: 18x275
           minq2: 1000
-          detector_config: craterlake
+          detector_config: craterlake_18x275
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
@@ -896,11 +911,17 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
+          prmon --json-summary rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.prmon.json -- \
           $PWD/install/bin/eicrecon $JANA_OPTIONS -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups)
     - uses: actions/upload-artifact@v4
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v4
+      with:
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.prmon.json
+        path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.prmon.json
         if-no-files-found: error
     - name: Convert execution graphs
       uses: eic/run-cvmfs-osg-eic-shell@main

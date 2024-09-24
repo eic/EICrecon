@@ -24,7 +24,7 @@ curl --location https://get.epic-eic.org | bash
 # or, if /cvmfs is available:
 # n.b. on JLab ifarm you may need to do 'module load singularity/3.9.5' first
 
-singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl:nightly eic-shell
+singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly eic-shell
 
 ```
 Once inside the eic-shell, you should source the geometry setup script since this is not done by default.
