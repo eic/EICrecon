@@ -22,154 +22,32 @@
 
 void eicrecon::MatrixTransferStatic::init() {
 
+  m_nomMomentum           = m_cfg.nomMomentum; //extract the nominal value first -- will be overwritten by MCParticle
+  m_local_x_offset        = m_cfg.local_x_offset;
+  m_local_y_offset        = m_cfg.local_y_offset;
+  m_local_x_slope_offset  = m_cfg.local_x_slope_offset;
+  m_local_y_slope_offset  = m_cfg.local_y_slope_offset;
+
 }
 
 void eicrecon::MatrixTransferStatic::process(
     const MatrixTransferStatic::Input& input,
-    const MatrixTransferStatic::Output& output) const {
+    const MatrixTransferStatic::Output& output) {
 
-  const auto [mcparts, rechits] = input;
+  const auto [mcparts,rechits] = input;
   auto [outputParticles] = output;
 
-  std::vector<std::vector<double>> aX(m_cfg.aX);
-  std::vector<std::vector<double>> aY(m_cfg.aY);
+  //Set beam energy from first MCBeamElectron, using std::call_once
+  std::call_once(m_initBeamE,[&](){
 
-  //----- Define constants here ------
-  double aXinv[2][2] = {{0.0, 0.0},
-                        {0.0, 0.0}};
-  double aYinv[2][2] = {{0.0, 0.0},
-                        {0.0, 0.0}};
+    m_initialized = initalizeMatrix(*mcparts);
 
-  double nomMomentum     = m_cfg.nomMomentum; //extract the nominal value first -- will be overwritten by MCParticle
-  double local_x_offset  = m_cfg.local_x_offset;
-  double local_y_offset  = m_cfg.local_y_offset;
-  double local_x_slope_offset  = m_cfg.local_x_slope_offset;
-  double local_y_slope_offset  = m_cfg.local_y_slope_offset;
+  });
 
-  double numBeamProtons = 0;
-  double runningMomentum = 0.0;
-
-  for (const auto& p: *mcparts) {
-          if(mcparts->size() == 1 && p.getPDG() == 2212){
-                runningMomentum = p.getMomentum().z;
-                numBeamProtons++;
-          }
-        if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
-                runningMomentum += p.getMomentum().z;
-                numBeamProtons++;
-        }
-  }
-
-  if(numBeamProtons == 0) {error("No beam protons to choose matrix!! Skipping!!"); return;}
-
-  nomMomentum = runningMomentum/numBeamProtons;
-
-  double nomMomentumError = 0.05;
-
-  //This is a temporary solution to get the beam energy information
-  //needed to select the correct matrix
-
-  if(abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
-
-     aX[0][0] = 3.251116; //a
-     aX[0][1] = 30.285734; //b
-     aX[1][0] = 0.186036375; //c
-     aX[1][1] = 0.196439472; //d
-
-     aY[0][0] = 0.4730500000; //a
-     aY[0][1] = 3.062999454; //b
-     aY[1][0] = 0.0204108951; //c
-     aY[1][1] = -0.139318692; //d
-
-     local_x_offset       = -0.339334;
-     local_y_offset       = -0.000299454;
-     local_x_slope_offset = -0.219603248;
-     local_y_slope_offset = -0.000176128;
-
-  }
-  else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
-
-     aX[0][0] = 3.152158; //a
-     aX[0][1] = 20.852072; //b
-     aX[1][0] = 0.181649517; //c
-     aX[1][1] = -0.303998487; //d
-
-     aY[0][0] = 0.5306100000; //a
-     aY[0][1] = 3.19623343; //b
-     aY[1][0] = 0.0226283320; //c
-     aY[1][1] = -0.082666019; //d
-
-     local_x_offset       = -0.329072;
-     local_y_offset       = -0.00028343;
-     local_x_slope_offset = -0.218525084;
-     local_y_slope_offset = -0.00015321;
-
-  }
-  else if(abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
-
-         aX[0][0] = 3.135997; //a
-         aX[0][1] = 18.482273; //b
-         aX[1][0] = 0.176479921; //c
-         aX[1][1] = -0.497839483; //d
-
-         aY[0][0] = 0.4914400000; //a
-         aY[0][1] = 4.53857451; //b
-         aY[1][0] = 0.0179664765; //c
-         aY[1][1] = 0.004160679; //d
-
-         local_x_offset       = -0.283273;
-         local_y_offset       = -0.00552451;
-         local_x_slope_offset = -0.21174031;
-         local_y_slope_offset = -0.003212011;
-
-  }
-  else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
-
-      aX[0][0] = 1.6248;
-      aX[0][1] = 12.966293;
-      aX[1][0] = 0.1832;
-      aX[1][1] = -2.8636535;
-
-      aY[0][0] = 0.0001674; //a
-      aY[0][1] = -28.6003; //b
-      aY[1][0] = 0.0000837; //c
-      aY[1][1] = -2.87985; //d
-
-      local_x_offset       = -11.9872;
-      local_y_offset       = -0.0146;
-      local_x_slope_offset = -14.75315;
-      local_y_slope_offset = -0.0073;
-
-  }
-  else {
-    error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
+  if(!m_initialized){
+    debug("No valid matrix can be identified for reconstruction");
     return;
   }
-
-  double determinant = aX[0][0] * aX[1][1] - aX[0][1] * aX[1][0];
-
-  if (determinant == 0) {
-    error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
-    return;
-  }
-
-  aXinv[0][0] =  aX[1][1] / determinant;
-  aXinv[0][1] = -aX[0][1] / determinant;
-  aXinv[1][0] = -aX[1][0] / determinant;
-  aXinv[1][1] =  aX[0][0] / determinant;
-
-
-  determinant = aY[0][0] * aY[1][1] - aY[0][1] * aY[1][0];
-
-  if (determinant == 0) {
-    error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
-    return;
-  }
-
-  aYinv[0][0] =  aY[1][1] / determinant;
-  aYinv[0][1] = -aY[0][1] / determinant;
-  aYinv[1][0] = -aY[1][0] / determinant;
-  aYinv[1][1] =  aY[0][0] / determinant;
 
   //---- begin Reconstruction code ----
 
@@ -227,8 +105,8 @@ void eicrecon::MatrixTransferStatic::process(
 
     // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
     // trajectory
-    double XL[2] = {goodHit[0].x - local_x_offset, goodHit[1].x - local_x_offset};
-    double YL[2] = {goodHit[0].y - local_y_offset, goodHit[1].y - local_y_offset};
+    double XL[2] = {goodHit[0].x - m_local_x_offset, goodHit[1].x - m_local_x_offset};
+    double YL[2] = {goodHit[0].y - m_local_y_offset, goodHit[1].y - m_local_y_offset};
 
     double base = goodHit[1].z - goodHit[0].z;
 
@@ -238,17 +116,17 @@ void eicrecon::MatrixTransferStatic::process(
     else{
 
       double Xip[2] = {0.0, 0.0};
-      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - local_x_slope_offset};
+      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - m_local_x_slope_offset};
       double Yip[2] = {0.0, 0.0};
-      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - local_y_slope_offset};
+      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - m_local_y_slope_offset};
 
       // use the hit information and calculated slope at the RP + the transfer matrix inverse to calculate the
       // Polar Angle and deltaP at the IP
 
       for (unsigned i0 = 0; i0 < 2; i0++) {
         for (unsigned i1 = 0; i1 < 2; i1++) {
-          Xip[i0] += aXinv[i0][i1] * Xrp[i1];
-          Yip[i0] += aYinv[i0][i1] * Yrp[i1];
+          Xip[i0] += m_aXinv[i0][i1] * Xrp[i1];
+          Yip[i0] += m_aYinv[i0][i1] * Yrp[i1];
         }
       }
 
@@ -257,7 +135,7 @@ void eicrecon::MatrixTransferStatic::process(
       double rsy = Yip[1] * dd4hep::mrad;
 
       // calculate momentum magnitude from measured deltaP – using thin lens optics.
-      double p = nomMomentum * (1 + 0.01 * Xip[0]);
+      double p = m_nomMomentum * (1 + 0.01 * Xip[0]);
       double norm = std::sqrt(1.0 + rsx * rsx + rsy * rsy);
 
       edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
@@ -280,4 +158,153 @@ void eicrecon::MatrixTransferStatic::process(
     }
   } // end enough hits for matrix reco
 
+}
+
+// Initalize the matrix based on the MC particle collections
+bool eicrecon::MatrixTransferStatic::initalizeMatrix(const edm4hep::MCParticleCollection& mcparts) {
+
+  // Check size of MC particle collection
+  if(mcparts.size() == 0){
+    error("No MCParticles found in collection!");
+    return false;
+  }
+
+  double numBeamProtons = 0;
+  double runningMomentum = 0.0;
+
+  for (const auto p: mcparts) {
+    if(mcparts.size() == 1 && p.getPDG() == 2212){
+      runningMomentum = p.getMomentum().z;
+      numBeamProtons++;
+    }
+    if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+      runningMomentum += p.getMomentum().z;
+      numBeamProtons++;
+    }
+  }
+
+  if(numBeamProtons == 0) {error("No beam protons to choose matrix!"); return false;}
+
+  double nomMomentum = runningMomentum/numBeamProtons;
+
+  // Fractional error allowed in beam momentum
+  double nomMomentumError = 0.05;
+
+  double aX[2][2] = {{0.0, 0.0},
+                    {0.0, 0.0}};
+  double aY[2][2] = {{0.0, 0.0},
+                    {0.0, 0.0}};
+
+  //This is a temporary solution to get the beam energy information
+  //needed to select the correct matrix
+  if(abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
+
+    aX[0][0] = 3.251116; //a
+    aX[0][1] = 30.285734; //b
+    aX[1][0] = 0.186036375; //c
+    aX[1][1] = 0.196439472; //d
+
+    aY[0][0] = 0.4730500000; //a
+    aY[0][1] = 3.062999454; //b
+    aY[1][0] = 0.0204108951; //c
+    aY[1][1] = -0.139318692; //d
+
+    m_local_x_offset       = -0.339334;
+    m_local_y_offset       = -0.000299454;
+    m_local_x_slope_offset = -0.219603248;
+    m_local_y_slope_offset = -0.000176128;
+
+    m_nomMomentum = 275.0;
+
+  }
+  else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
+
+    aX[0][0] = 3.152158; //a
+    aX[0][1] = 20.852072; //b
+    aX[1][0] = 0.181649517; //c
+    aX[1][1] = -0.303998487; //d
+
+    aY[0][0] = 0.5306100000; //a
+    aY[0][1] = 3.19623343; //b
+    aY[1][0] = 0.0226283320; //c
+    aY[1][1] = -0.082666019; //d
+
+    m_local_x_offset       = -0.329072;
+    m_local_y_offset       = -0.00028343;
+    m_local_x_slope_offset = -0.218525084;
+    m_local_y_slope_offset = -0.00015321;
+
+    m_nomMomentum = 100.0;
+
+  }
+  else if(abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
+
+    aX[0][0] = 3.135997; //a
+    aX[0][1] = 18.482273; //b
+    aX[1][0] = 0.176479921; //c
+    aX[1][1] = -0.497839483; //d
+
+    aY[0][0] = 0.4914400000; //a
+    aY[0][1] = 4.53857451; //b
+    aY[1][0] = 0.0179664765; //c
+    aY[1][1] = 0.004160679; //d
+
+    m_local_x_offset       = -0.283273;
+    m_local_y_offset       = -0.00552451;
+    m_local_x_slope_offset = -0.21174031;
+    m_local_y_slope_offset = -0.003212011;
+
+    m_nomMomentum = 41.0;
+
+  }
+  else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
+
+    aX[0][0] = 1.6248;
+    aX[0][1] = 12.966293;
+    aX[1][0] = 0.1832;
+    aX[1][1] = -2.8636535;
+
+    aY[0][0] = 0.0001674; //a
+    aY[0][1] = -28.6003; //b
+    aY[1][0] = 0.0000837; //c
+    aY[1][1] = -2.87985; //d
+
+    m_local_x_offset       = -11.9872;
+    m_local_y_offset       = -0.0146;
+    m_local_x_slope_offset = -14.75315;
+    m_local_y_slope_offset = -0.0073;
+
+    m_nomMomentum = 135.0;
+
+  }
+  else {
+    error("No valid matrix found to match beam momentum!");
+    return false;
+  }
+
+  double determinantX = aX[0][0] * aX[1][1] - aX[0][1] * aX[1][0];
+
+  if (determinantX == 0) {
+    error("Reco x matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+    return false;
+  }
+
+  m_aXinv[0][0] =  aX[1][1] / determinantX;
+  m_aXinv[0][1] = -aX[0][1] / determinantX;
+  m_aXinv[1][0] = -aX[1][0] / determinantX;
+  m_aXinv[1][1] =  aX[0][0] / determinantX;
+
+  double determinantY = aY[0][0] * aY[1][1] - aY[0][1] * aY[1][0];
+
+  if (determinantY == 0) {
+    error("Reco y matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+    return false;
+  }
+
+  m_aYinv[0][0] =  aY[1][1] / determinantY;
+  m_aYinv[0][1] = -aY[0][1] / determinantY;
+  m_aYinv[1][0] = -aY[1][0] / determinantY;
+  m_aYinv[1][1] =  aY[0][0] / determinantY;
+
+  return true;
 }

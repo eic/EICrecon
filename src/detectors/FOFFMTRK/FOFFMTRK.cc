@@ -67,7 +67,13 @@ void InitPlugin(JApplication *app) {
 
     recon_cfg.readout              = "ForwardOffMTrackerRecHits";
 
-    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardOffMRecParticles",{"MCParticles","ForwardOffMTrackerRecHits"},{"ForwardOffMRecParticles"},recon_cfg,app));
+    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
+        "ForwardOffMRecParticles",
+        {"MCParticles","ForwardOffMTrackerRecHits"},
+        {"ForwardOffMRecParticles"},
+        recon_cfg,
+        app
+    ));
 
 }
 }
