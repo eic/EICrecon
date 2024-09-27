@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <DDRec/CellIDPositionConverter.h>
 #include <TRandomGen.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
@@ -33,13 +34,16 @@ public:
                                     "Apply threshold, digitize within ADC range, "
                                     "convert time with smearing resolution."} {}
 
-  void init() final;
+  void init(const dd4hep::rec::CellIDPositionConverter* converter);
   void process(const Input&, const Output&) const final;
 
 private:
   /** Random number generation*/
   TRandomMixMax m_random;
   std::function<double()> m_gauss;
+
+  // Cell ID position converter
+  const dd4hep::rec::CellIDPositionConverter* m_converter;
 
   // FIXME replace with standard random engine
   // std::default_random_engine generator; // TODO: need something more appropriate here

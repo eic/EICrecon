@@ -20,12 +20,14 @@
 
 namespace eicrecon {
 
-void SiliconTrackerDigi::init() {
+void SiliconTrackerDigi::init(const dd4hep::rec::CellIDPositionConverter* converter) {
     // Create random gauss function
     m_gauss = [&](){
         return m_random.Gaus(0, m_cfg.timeResolution);
         //return m_rng.gaussian<double>(0., m_cfg.timeResolution);
     };
+
+    m_converter = converter;
 }
 
 

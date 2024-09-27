@@ -6,7 +6,7 @@
 #include "algorithms/digi/SiliconTrackerDigi.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
-
+#include "services/geometry/dd4hep/DD4hep_service.h"
 
 namespace eicrecon {
 
@@ -25,12 +25,14 @@ private:
     ParameterRef<double> m_threshold {this, "threshold", config().threshold};
     ParameterRef<double> m_timeResolution {this, "timeResolution", config().timeResolution};
 
+    Service<DD4hep_service> m_geoSvc {this};
+
 public:
     void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
         m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
         m_algo->applyConfig(config());
-        m_algo->init();
+        m_algo->init(m_geoSvc().converter());
     }
 
     void ChangeRun(int64_t run_number) {
