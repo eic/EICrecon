@@ -25,6 +25,7 @@
 
 #include "BTOFHitDigi.h"
 #include "algorithms/digi/BTOFHitDigiConfig.h"
+#include "Math/SpecFunc.h"
 
 //using namespace dd4hep;
 //using namespace dd4hep::Geometry;
@@ -62,6 +63,12 @@ void BTOFHitDigi::init(const dd4hep::Detector *detector, std::shared_ptr<spdlog:
 
 }
 
+double BTOFHitDigi::_integralGaus(double mean, double sd, double low_lim, double up_lim) {
+    double up = -0.5*ROOT::Math::erf(TMath::Sqrt(2)*(mean - up_lim)/sd);
+    double low = -0.5*ROOT::Math::erf(TMath::Sqrt(2)*(mean - low_lim)/sd);
+    return up - low;
+}
+
 
 std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm4hep::SimTrackerHitCollection *simhits) {
     //auto rawhits = std::make_unique<edm4eic::RawTrackerHitCollection>();
@@ -79,9 +86,11 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
     }
 
         double thres[int(adc_range)];
-        thres[0]=0.0;
-        thres[1]=-0.005;
-        double Vm=-0.05;
+        thres[0] = 0.0;
+        thres[1] = m_cfg.t_thres;
+        //double Vm=-0.05;
+	// SP noted that max dE experienced by LGAD should be 0.8 keV
+	double Vm = m_cfg.Vm;
         
         for (int t = 2; t < adc_range; t++)
         {
@@ -99,6 +108,7 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
         auto   mid      = (*simhits)[ixs[0]].getCellID();
 	auto   truePos = (*simhits)[ixs[0]].getPosition();
 	auto   localPos_hit = _neighborFinder.global2Local(dd4hep::Position(truePos.x/10., truePos.y/10., truePos.z/10.));
+	auto   cellDimension = _neighborFinder.cellDimension(mid);
 
         double sum_charge = 0.0;
         double mpv_analog = 0.0; //SP
@@ -120,11 +130,10 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
 
                 auto localPos_neighbour = _neighborFinder.cell2LocalPosition(neighbour);
                 
-                double distanceX = localPos_hit.x() - localPos_neighbour.x();
-                double distanceY = localPos_hit.y() - localPos_neighbour.y();
-
-                double exponent = -0.5 * ((pow((distanceX) / m_cfg.sigma_sharing, 2)) + (pow((distanceY) / m_cfg.sigma_sharing, 2)));
-                double charge = exp(exponent) / (2 * TMath::Pi() * m_cfg.sigma_sharing * m_cfg.sigma_sharing);
+		double charge = sum_charge*_integralGaus(localPos_hit.x(), m_cfg.sigma_sharingx, 
+				                         localPos_neighbour.x()-0.5*cellDimension[0], localPos_neighbour.x()+0.5*cellDimension[0])
+                                          *_integralGaus(localPos_hit.y(), m_cfg.sigma_sharingy, 
+				                         localPos_neighbour.y()-0.5*cellDimension[1], localPos_neighbour.y()+0.5*cellDimension[1]);
                 
 
             //Added by SP
@@ -143,8 +152,9 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
         //Added by SP
 //-------------------------------------------------------------
                 double intersectionX=0.0;
-		int tdc = 0;
+		int tdc = std::numeric_limits<int>::max();
 		int adc = 0;
+                double V=0.0;
                 
                 for (int j = 0; j < nBins - 1; j++) {
                     double x1, y1, x2, y2;
@@ -155,24 +165,23 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
                         intersectionX = x1 + (x2 - x1) * (thres[1] - y1) / (y2 - y1);
                         
                         tdc = /*BTOFHitDigi::ToDigitalCode(*/ceil(intersectionX/0.02);//, tdc_bit);
+			for (j = 0; j < nBins - 1; j++) {
+                            //double x1, y1, x2, y2;
+                            glandau.GetPoint(j, x1, y1);
+                            glandau.GetPoint(j+1, x2, y2);
+                            
+                            if (abs(y2) < abs(y1))//To get peak of the Analog signal
+                            {
+                                V=y1;
+                                break;
+                            }
+                        }
                         break;
                     }
                 }
 
-                double V=0.0;
                  
-                for (int j = 0; j < nBins - 1; j++) {
-                    double x1, y1, x2, y2;
-                    glandau.GetPoint(j, x1, y1);
-                    glandau.GetPoint(j+1, x2, y2);
-                    
-                    if (abs(y2) < abs(y1))//To get peak of the Analog signal
-                    {
-                        V=y1;
-                        break;
-                    }
-                }
-                
+               
                 adc = round(V/Vm*adc_range);
                 rawhits -> create(neighbour, adc, tdc);
 

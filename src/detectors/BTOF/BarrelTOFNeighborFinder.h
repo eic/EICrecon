@@ -32,6 +32,7 @@ public:
   dd4hep::Position    local2GlobalInStaveFromCell(const dd4hep::rec::CellID& cell,
                                                   const dd4hep::Position& pos);
   dd4hep::rec::CellID globalPosition2Cell(const dd4hep::Position& pos);
+  std::vector<double> cellDimension(const dd4hep::rec::CellID& cell);
 
 private:
   void _findAllNeighborsInSensor(dd4hep::rec::CellID hitCell,

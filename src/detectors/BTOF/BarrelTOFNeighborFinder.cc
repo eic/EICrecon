@@ -193,4 +193,7 @@ dd4hep::Position BarrelTOFNeighborFinder::cell2LocalPosition(const dd4hep::rec::
   return position;
 }
 
-
+std::vector<double> BarrelTOFNeighborFinder::cellDimension(const dd4hep::rec::CellID& hitCell) {
+  if(!_converter) _initWithCell(hitCell);
+  return _converter -> cellDimensions(hitCell);
+}

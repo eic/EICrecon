@@ -59,6 +59,7 @@ namespace eicrecon {
     protected:  
       BarrelTOFNeighborFinder _neighborFinder; 
       std::shared_ptr<spdlog::logger> m_log; 
+      double _integralGaus(double mean, double sd, double low_lim, double up_lim);
       
       // unitless counterparts of inputs
       double           dyRangeADC{0}, stepTDC{0}, tRes{0};
