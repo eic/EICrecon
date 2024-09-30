@@ -30,7 +30,7 @@ public:
 
     void Close() override;
 
-    void GetEvent(std::shared_ptr<JEvent>) override;
+    Result Emit(JEvent& event) override;
 
     static std::string GetDescription();
 
