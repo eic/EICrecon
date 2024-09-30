@@ -37,7 +37,7 @@ extern "C" {
             .tRes = 0.0 * dd4hep::ns,
             .threshold= 5.0 * dd4hep::MeV,
             .capADC = 16384,
-            .dyRangeADC = 20 * dd4hep::GeV,
+            .dyRangeADC = 170 * dd4hep::GeV,
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
             .resolutionTDC = 1e-11,
@@ -50,7 +50,7 @@ extern "C" {
           "B0ECalRecHits", {"B0ECalRawHits"}, {"B0ECalRecHits"},
           {
             .capADC = 16384,
-            .dyRangeADC = 20. * dd4hep::GeV,
+            .dyRangeADC = 170. * dd4hep::GeV,
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
             .resolutionTDC = 1e-11,
