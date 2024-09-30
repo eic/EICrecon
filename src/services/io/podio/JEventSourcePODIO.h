@@ -9,7 +9,7 @@
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 #include <podio/ROOTFrameReader.h>
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 #include <set>
 #include <string>
@@ -25,7 +25,7 @@ public:
 
     void Close() override;
 
-    void GetEvent(std::shared_ptr<JEvent>) override;
+    Result Emit(JEvent& event) override;
 
     static std::string GetDescription();
 
