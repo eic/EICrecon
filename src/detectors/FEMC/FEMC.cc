@@ -76,7 +76,7 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .dimScaledLocalDistXY = {1.5,1.5},
-            .splitCluster = false,
+            .splitCluster = true,
             .minClusterHitEdep = 0.0 * dd4hep::MeV,
             .minClusterCenterEdep = 60.0 * dd4hep::MeV,
             .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
@@ -212,7 +212,7 @@ extern "C" {
           {
             .sectorDist = 5.0 * dd4hep::cm,
             .dimScaledLocalDistXY = {1.5,1.5},
-            .splitCluster = false,
+            .splitCluster = true,
             .minClusterHitEdep = 0.0 * dd4hep::MeV,
             .minClusterCenterEdep = 60.0 * dd4hep::MeV,
             .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
