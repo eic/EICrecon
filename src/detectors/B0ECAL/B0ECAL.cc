@@ -33,11 +33,11 @@ extern "C" {
           {"B0ECalRawHits"},
 #endif
           {
-            .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
+            .eRes = {0.0326 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
             .threshold= 5.0 * dd4hep::MeV,
             .capADC = 16384,
-            .dyRangeADC = 20 * dd4hep::GeV,
+            .dyRangeADC = 170 * dd4hep::GeV,
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
             .resolutionTDC = 1e-11,
@@ -50,12 +50,12 @@ extern "C" {
           "B0ECalRecHits", {"B0ECalRawHits"}, {"B0ECalRecHits"},
           {
             .capADC = 16384,
-            .dyRangeADC = 20. * dd4hep::GeV,
+            .dyRangeADC = 170. * dd4hep::GeV,
             .pedMeanADC = 100,
             .pedSigmaADC = 1,
             .resolutionTDC = 1e-11,
             .thresholdFactor = 0.0,
-            .thresholdValue = 0.0,
+            .thresholdValue = 1.0,
             .sampFrac = "0.998",
             .readout = "B0ECalHits",
             .sectorField = "sector",
