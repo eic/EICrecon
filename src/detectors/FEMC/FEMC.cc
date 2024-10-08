@@ -1,7 +1,5 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2021 - 2024, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul
 
 #include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -16,6 +14,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -76,12 +75,12 @@ extern "C" {
           "EcalEndcapPIslandProtoClusters", {"EcalEndcapPRecHits"}, {"EcalEndcapPIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {10.0 * dd4hep::cm, 10.0 * dd4hep::cm},
-            .splitCluster = true,
+            .dimScaledLocalDistXY = {1.5,1.5},
+            .splitCluster = false,
             .minClusterHitEdep = 0.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
-            .transverseEnergyProfileScale = 0.04,
+            .minClusterCenterEdep = 60.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
+            .transverseEnergyProfileScale = 1.,
           },
           app   // TODO: Remove me once fixed
         ));
@@ -90,7 +89,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalEndcapPTruthClusters",
             {"EcalEndcapPTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapPRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "EcalEndcapPHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalEndcapPTruthClusters",             // edm4eic::Cluster
              "EcalEndcapPTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -107,7 +110,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalEndcapPClusters",
             {"EcalEndcapPIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapPRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "EcalEndcapPHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalEndcapPClusters",             // edm4eic::Cluster
              "EcalEndcapPClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -115,6 +122,42 @@ extern "C" {
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
               .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "EcalEndcapPSplitMergeProtoClusters",
+            {"EcalEndcapPIslandProtoClusters",
+             "CalorimeterTrackProjections"},
+            {"EcalEndcapPSplitMergeProtoClusters"},
+            {
+              .idCalo = "EcalEndcapP_ID",
+              .minSigCut = -2.0,
+              .avgEP = 1.0,
+              .sigEP = 0.10,
+              .drAdd = 0.30,
+              .sampFrac = 1.0,
+              .transverseEnergyProfileScale = 1.0
+            },
+            app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "EcalEndcapPSplitMergeClusters",
+            {"EcalEndcapPSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
+             "EcalEndcapPHits"},                          // edm4hep::SimCalorimeterHitCollection
+            {"EcalEndcapPSplitMergeClusters",             // edm4eic::Cluster
+             "EcalEndcapPSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 3.6,
+              .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
           )
@@ -168,12 +211,11 @@ extern "C" {
           "EcalEndcapPInsertIslandProtoClusters", {"EcalEndcapPInsertRecHits"}, {"EcalEndcapPInsertIslandProtoClusters"},
           {
             .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {10.0 * dd4hep::cm, 10.0 * dd4hep::cm},
             .dimScaledLocalDistXY = {1.5,1.5},
             .splitCluster = false,
             .minClusterHitEdep = 0.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 10.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric = "globalDistEtaPhi",
+            .minClusterCenterEdep = 60.0 * dd4hep::MeV,
+            .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
             .transverseEnergyProfileScale = 1.,
           },
           app   // TODO: Remove me once fixed
@@ -183,7 +225,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalEndcapPInsertTruthClusters",
             {"EcalEndcapPInsertTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapPInsertRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitCollection
+#else
              "EcalEndcapPInsertHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalEndcapPInsertTruthClusters",             // edm4eic::Cluster
              "EcalEndcapPInsertTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -200,7 +246,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalEndcapPInsertClusters",
             {"EcalEndcapPInsertIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapPInsertRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitCollection
+#else
              "EcalEndcapPInsertHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalEndcapPInsertClusters",             // edm4eic::Cluster
              "EcalEndcapPInsertClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {

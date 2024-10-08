@@ -97,8 +97,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFBarrelRawHitAssociations",
             "TOFEndcapRawHitAssociations",
 
+            "CombinedTOFTruthSeededParticleIDs",
             "CombinedTOFParticleIDs",
-            "CombinedTOFSeededParticleIDs",
 
             // DRICH
             "DRICHRawHits",
@@ -107,14 +107,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "DRICHGasTracks",
             "DRICHAerogelIrtCherenkovParticleID",
             "DRICHGasIrtCherenkovParticleID",
+            "DRICHTruthSeededParticleIDs",
             "DRICHParticleIDs",
-            "DRICHSeededParticleIDs",
 
             // PFRICH
             "RICHEndcapNRawHits",
             "RICHEndcapNRawHitsAssociations",
+            "RICHEndcapNTruthSeededParticleIDs",
             "RICHEndcapNParticleIDs",
-            "RICHEndcapNSeededParticleIDs",
 
             // MPGD
             "MPGDBarrelRecHits",
@@ -175,36 +175,39 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "GeneratedBreitFrameParticles",
             "ReconstructedParticles",
             "ReconstructedParticleAssociations",
+            "ReconstructedTruthSeededChargedParticles",
+            "ReconstructedTruthSeededChargedParticleAssociations",
+            "ReconstructedChargedRealPIDParticles",
             "ReconstructedChargedParticles",
             "ReconstructedChargedParticleAssociations",
-            "ReconstructedChargedRealPIDParticles",
-            "ReconstructedSeededChargedParticles",
-            "ReconstructedSeededChargedParticleAssociations",
             "MCScatteredElectronAssociations", // Remove if/when used internally
             "MCNonScatteredElectronAssociations", // Remove if/when used internally
             "ReconstructedChargedParticleIDs",
             "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",
             "CentralTrackVertices",
+<<<<<<< HEAD
             "CentralSecondaryTrackVertices",
+=======
+            "CentralCKFTruthSeededTrajectories",
+            "CentralCKFTruthSeededTracks",
+            "CentralCKFTruthSeededTrackAssociations",
+            "CentralCKFTruthSeededTrackParameters",
+>>>>>>> b2a846e4c0cf3f5bde06de7ec84929ff4c3b216c
             "CentralCKFTrajectories",
             "CentralCKFTracks",
             "CentralCKFTrackAssociations",
             "CentralCKFTrackParameters",
-            "CentralCKFSeededTrajectories",
-            "CentralCKFSeededTracks",
-            "CentralCKFSeededTrackAssociations",
-            "CentralCKFSeededTrackParameters",
             //tracking properties - true seeding
+            "CentralCKFTruthSeededTrajectoriesUnfiltered",
+            "CentralCKFTruthSeededTracksUnfiltered",
+            "CentralCKFTruthSeededTrackUnfilteredAssociations",
+            "CentralCKFTruthSeededTrackParametersUnfiltered",
+             //tracking properties - realistic seeding
             "CentralCKFTrajectoriesUnfiltered",
             "CentralCKFTracksUnfiltered",
             "CentralCKFTrackUnfilteredAssociations",
             "CentralCKFTrackParametersUnfiltered",
-             //tracking properties - realistic seeding
-            "CentralCKFSeededTrajectoriesUnfiltered",
-            "CentralCKFSeededTracksUnfiltered",
-            "CentralCKFSeededTrackUnfilteredAssociations",
-            "CentralCKFSeededTrackParametersUnfiltered",
             "InclusiveKinematicsDA",
             "InclusiveKinematicsJB",
             "InclusiveKinematicsML",
@@ -222,6 +225,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedElectrons",
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",
+            "PrimaryVertices",
 #if EDM4EIC_VERSION_MAJOR >= 6
             "HadronicFinalState",
 #endif
@@ -236,12 +240,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalEndcapNTruthClusterAssociations",
             "EcalEndcapNClusters",
             "EcalEndcapNClusterAssociations",
+            "EcalEndcapNSplitMergeClusters",
+            "EcalEndcapNSplitMergeClusterAssociations",
             "EcalEndcapPRawHits",
             "EcalEndcapPRecHits",
             "EcalEndcapPTruthClusters",
             "EcalEndcapPTruthClusterAssociations",
             "EcalEndcapPClusters",
             "EcalEndcapPClusterAssociations",
+            "EcalEndcapPSplitMergeClusters",
+            "EcalEndcapPSplitMergeClusterAssociations",
             "EcalEndcapPInsertRawHits",
             "EcalEndcapPInsertRecHits",
             "EcalEndcapPInsertTruthClusters",
@@ -271,6 +279,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalEndcapNMergedHits",
             "HcalEndcapNClusters",
             "HcalEndcapNClusterAssociations",
+            "HcalEndcapNSplitMergeClusters",
+            "HcalEndcapNSplitMergeClusterAssociations",
             "HcalEndcapPInsertRawHits",
             "HcalEndcapPInsertRecHits",
             "HcalEndcapPInsertMergedHits",
@@ -280,10 +290,14 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "LFHCALRecHits",
             "LFHCALClusters",
             "LFHCALClusterAssociations",
+            "LFHCALSplitMergeClusters",
+            "LFHCALSplitMergeClusterAssociations",
             "HcalBarrelRawHits",
             "HcalBarrelRecHits",
             "HcalBarrelClusters",
             "HcalBarrelClusterAssociations",
+            "HcalBarrelSplitMergeClusters",
+            "HcalBarrelSplitMergeClusterAssociations",
             "B0ECalRawHits",
             "B0ECalRecHits",
             "B0ECalClusters",
@@ -316,8 +330,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // DIRC
             "DIRCRawHits",
             "DIRCPID",
+            "DIRCTruthSeededParticleIDs",
             "DIRCParticleIDs",
-            "DIRCSeededParticleIDs",
 
 #if EDM4EIC_VERSION_MAJOR >= 7
             "B0ECalRawHitAssociations",
@@ -384,7 +398,7 @@ void JEventProcessorPODIO::Init() {
     //       I definitely don't trust PODIO to do this for me.
 
     if (m_output_include_collections_set) {
-      m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead.");
+      m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead. Address this to remove the 10 second delay.");
       // Adding a delay to ensure users notice the deprecation warning.
       using namespace std::chrono_literals;
       std::this_thread::sleep_for(10s);
@@ -549,7 +563,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
 void JEventProcessorPODIO::Finish() {
     if (m_output_include_collections_set) {
-      m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead.");
+      m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead. Address this to remove the 10 second delay.");
       // Adding a delay to ensure users notice the deprecation warning.
       using namespace std::chrono_literals;
       std::this_thread::sleep_for(10s);
