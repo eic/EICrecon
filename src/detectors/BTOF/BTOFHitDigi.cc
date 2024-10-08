@@ -142,7 +142,7 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
                 fLandau.SetParameters(mpv_analog, m_cfg.sigma_analog);                
 
                 TGraph glandau;
-                scalingFactor=charge/fLandau.Integral(tMin, tMax);
+                scalingFactor = -charge/Vm/fLandau.GetMinimum(tMin, tMax)*adc_range;
                 for (int j = 0; j < nBins; ++j) {
                     double x = fLandau.GetXmin() + j * (fLandau.GetXmax() - fLandau.GetXmin()) / (nBins - 1);
                     double y = -1 * fLandau.Eval(x) * scalingFactor;
@@ -161,11 +161,11 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
                     glandau.GetPoint(j, x1, y1);
                     glandau.GetPoint(j + 1, x2, y2);
                     
-                    if ((y1 >= thres[1] && y2 <= thres[1])) {
+                    if ((y1 >= (-thres[1]*adc_range/Vm) && y2 <= (-thres[1]*adc_range/Vm))) {
                         intersectionX = x1 + (x2 - x1) * (thres[1] - y1) / (y2 - y1);
                         
                         tdc = /*BTOFHitDigi::ToDigitalCode(*/ceil(intersectionX/0.02);//, tdc_bit);
-			for (j = 0; j < nBins - 1; j++) {
+			for (; j < nBins - 1; j++) {
                             //double x1, y1, x2, y2;
                             glandau.GetPoint(j, x1, y1);
                             glandau.GetPoint(j+1, x2, y2);
@@ -182,7 +182,7 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
 
                  
                
-                adc = round(V/Vm*adc_range);
+                adc = round(-V);
                 rawhits -> create(neighbour, adc, tdc);
 
             }

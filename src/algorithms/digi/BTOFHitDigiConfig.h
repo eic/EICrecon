@@ -21,10 +21,10 @@ namespace eicrecon {
     double gain = 80;
     double risetime = 0.45;//0.02; //in ns
     double sigma_analog = 0.293951;
-    double sigma_sharingx = 0.05;
+    double sigma_sharingx = 0.1;
     double sigma_sharingy = 0.5;
-    double Vm = -1.2e-4*gain;
-    double t_thres = 0.1*Vm;
+    double Vm = -1e-4*gain;
+    double t_thres = 0.01*Vm;
  
   };
 
