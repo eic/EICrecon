@@ -19,4 +19,3 @@ namespace eicrecon {
   };  // end TrackClusterSubtractionConfig
 
 }  // end eicrecon namespace
-
