@@ -5,3 +5,4 @@ leak:edm4hep::*::createBuffers
 leak:libActsCore.so
 leak:libCling.so
 leak:libCore.so
+leak:libJANA.so
