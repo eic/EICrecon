@@ -117,14 +117,14 @@ namespace eicrecon {
                 debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations will be performed.");
                 continue;
             } else {
-                associate(cl, mchitassociations, associations);
+                associate_mc_particles(cl, mchitassociations, associations);
             }
 #else
             if (mchits->size() == 0) {
                 debug("Provided SimCalorimeterHitCollection is empty. No truth association will be performed.");
                 continue;
             } else {
-                associate(cl, mchits, associations);
+                associate_mc_particles(cl, mchits, associations);
             }
 #endif
         }
@@ -352,84 +352,83 @@ namespace eicrecon {
 #else
             for (const auto& mchit : *mchits) {
                 if (mchit.getCellID() == clhit.getCellID()) {
-                vecAssocSimHits.push_back(mchit);
-                break;
+                    vecAssocSimHits.push_back(mchit);
+                    break;
+                }
             }
-        }
 
-        // if no matching cell ID found, continue
-        // otherwise increment sum
-        if (vecAssocSimHits.empty()) {
-            debug("No matching SimHit for hit {}", clhit.getCellID());
-            continue;
-        } else {
-            eSimHitSum += vecAssocSimHits.back().getEnergy();
-        }
+            // if no matching cell ID found, continue
+            // otherwise increment sum
+            if (vecAssocSimHits.empty()) {
+                debug("No matching SimHit for hit {}", clhit.getCellID());
+                continue;
+            } else {
+                eSimHitSum += vecAssocSimHits.back().getEnergy();
+            }
 #endif
-        debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
+            debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
 
-        // ------------------------------------------------------------------------
-        // 2. loop through associated sim hits
-        // ------------------------------------------------------------------------
-        for (const auto& simHit : vecAssocSimHits) {
-            for (const auto& contrib : simHit.getContributions()) {
-                // --------------------------------------------------------------------
-                // grab primary responsible for contribution & increment relevant sum
-                // --------------------------------------------------------------------
-                edm4hep::MCParticle primary = get_primary(contrib);
-                mapMCParToContrib[primary] += contrib.getEnergy();
+            // ------------------------------------------------------------------------
+            // 2. loop through associated sim hits
+            // ------------------------------------------------------------------------
+            for (const auto& simHit : vecAssocSimHits) {
+                for (const auto& contrib : simHit.getContributions()) {
+                    // --------------------------------------------------------------------
+                    // grab primary responsible for contribution & increment relevant sum
+                    // --------------------------------------------------------------------
+                    edm4hep::MCParticle primary = get_primary(contrib);
+                    mapMCParToContrib[primary] += contrib.getEnergy();
 
-                trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
-                    primary.getObjectID().index,
-                    primary.getPDG(),
-                    primary.getEnergy(),
-                    mapMCParToContrib[primary]
-                 );
+                    trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
+                        primary.getObjectID().index,
+                        primary.getPDG(),
+                        primary.getEnergy(),
+                        mapMCParToContrib[primary]
+                    );
+                }
             }
         }
+        debug("Found {} primaries contributing a total of {} GeV", mapMCParToContrib.size(), eSimHitSum);
+
+        // --------------------------------------------------------------------------
+        // 3. create association for each contributing primary
+        // --------------------------------------------------------------------------
+        for (auto [part, contribution] : mapMCParToContrib) {
+            // calculate weight
+            const double weight = contribution / eSimHitSum;
+
+            // set association
+            auto assoc = assocs->create();
+            assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
+            assoc.setSimID(part.getObjectID().index);
+            assoc.setWeight(weight);
+            assoc.setRec(cl);
+            assoc.setSim(part);
+            debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with weight ({})",
+                cl.getObjectID().index,
+                part.getObjectID().index,
+                part.getPDG(),
+                part.getGeneratorStatus(),
+                part.getEnergy(),
+                weight
+            );
+        }
     }
-    debug("Found {} primaries contributing a total of {} GeV", mapMCParToContrib.size(), eSimHitSum);
 
-    // --------------------------------------------------------------------------
-    // 3. create association for each contributing primary
-    // --------------------------------------------------------------------------
-    for (auto [part, contribution] : mapMCParToContrib) {
-        // calculate weight
-        const double weight = contribution / eSimHitSum;
+    edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const {
+        // get contributing particle
+        const auto contributor = contrib.getParticle();
 
-        // set association
-        auto assoc = assocs->create();
-        assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-        assoc.setSimID(part.getObjectID().index);
-        assoc.setWeight(weight);
-        assoc.setRec(cl);
-        assoc.setSim(part);
-        debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with weight ({})",
-            cl.getObjectID().index,
-            part.getObjectID().index,
-            part.getPDG(),
-            part.getGeneratorStatus(),
-            part.getEnergy(),
-            weight
-        );
+        // walk back through parents to find primary
+        //   - TODO finalize primary selection. This
+        //     can be improved!!
+        edm4hep::MCParticle primary = contributor;
+        while (primary.parents_size() > 0) {
+            if (primary.getGeneratorStatus() != 0) break;
+            primary = primary.getParents(0);
+         }
+         return primary;
     }
-}
-
-edm4hep::MCParticle CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) const {
-    // get contributing particle
-    const auto contributor = contrib.getParticle();
-
-    // walk back through parents to find primary
-    //   - TODO finalize primary selection. This
-    //     can be improved!!
-    edm4hep::MCParticle primary = contributor;
-    while (primary.parents_size() > 0) {
-      if (primary.getGeneratorStatus() != 0) break;
-      primary = primary.getParents(0);
-    }
-    return primary;
-}
-
 
 };
 
