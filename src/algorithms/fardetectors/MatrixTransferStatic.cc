@@ -252,7 +252,7 @@ void eicrecon::MatrixTransferStatic::process(
         }
       }
 
-	  Yip[1] = Yrp[0]/aY[0][1];
+          Yip[1] = Yrp[0]/aY[0][1];
 
       // convert polar angles to radians
       double rsx = Xip[1] * dd4hep::mrad;
