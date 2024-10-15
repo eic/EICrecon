@@ -40,7 +40,7 @@ extern "C" {
           {"EcalEndcapNRawHits"},
 #endif
           {
-            .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
+            .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
             .threshold =  0.0 * dd4hep::MeV,  // Use ADC cut instead
             .capADC = EcalEndcapN_capADC,
