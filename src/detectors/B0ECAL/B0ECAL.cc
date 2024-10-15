@@ -34,7 +34,7 @@ extern "C" {
 #endif
           {
                          // The stocastic term is set using light yield in PbOW4 of N_photons = 145.75 / GeV / mm, for 6x6 mm2 sensors with PDE=0.18 (a=1/sqrt(145.75*36*0.18))
-            .eRes = {0.0326 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
+            .eRes = {0.0326 * sqrt(dd4hep::GeV), 0.00, 0.0 * dd4hep::GeV},
             .tRes = 0.0 * dd4hep::ns,
             .threshold= 5.0 * dd4hep::MeV,
             .capADC = 16384,
