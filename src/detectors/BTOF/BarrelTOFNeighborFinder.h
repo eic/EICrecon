@@ -38,7 +38,7 @@ private:
   void _findAllNeighborsInSensor(dd4hep::rec::CellID hitCell,
                                  std::shared_ptr<std::vector<dd4hep::rec::CellID>>& ans,
                                  std::unordered_set<dd4hep::rec::CellID>& dp);
-  int _getSensorID(const dd4hep::rec::CellID& hitCell);
+  const dd4hep::rec::CellID _getSensorID(const dd4hep::rec::CellID& hitCell);
   // need to initialize the class with a cell from Barrel TOF
   void _initWithCell(const dd4hep::rec::CellID& hitCell);
 

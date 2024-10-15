@@ -47,7 +47,9 @@ void BarrelTOFNeighborFinder::_findAllNeighborsInSensor(
     }
 
     try {
-      _converter -> position(testCell);
+      auto pos = _converter -> position(testCell);
+      if(testCell != _converter -> cellID(pos))
+        continue;
     } catch (const std::invalid_argument& err) {
       // Ignore CellID that is invalid
       continue;
@@ -106,12 +108,15 @@ BarrelTOFNeighborFinder::findAllNeighborInSensor(const dd4hep::rec::CellID& hitC
   return neighbors;
 }
 
-int BarrelTOFNeighborFinder::_getSensorID(const dd4hep::rec::CellID& hitCell) {
+const dd4hep::rec::CellID BarrelTOFNeighborFinder::_getSensorID(const dd4hep::rec::CellID& hitCell) {
   _initWithCell(hitCell);
-  // when x or y-index goes out of bound, sometimes the position will corresponds to a new sensor
-  // will fetch the new cellID here
-  auto newID = _converter->cellID(_converter->position(hitCell)); 
-  return _decoder->get(newID, "sensor"); 
+  // fix x-y, what you left with are ids that corresponds to sensor info
+  // cellID may change when position changes. 
+  auto sensorID = hitCell;//_converter -> cellID(_converter -> position(hitCell));
+  _decoder -> set(sensorID, "x", 0);
+  _decoder -> set(sensorID, "y", 0);
+
+  return sensorID; 
 }
 
 /****************************************

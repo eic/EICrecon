@@ -161,8 +161,9 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
                     glandau.GetPoint(j, x1, y1);
                     glandau.GetPoint(j + 1, x2, y2);
                     
-                    if ((y1 >= (-thres[1]*adc_range/Vm) && y2 <= (-thres[1]*adc_range/Vm))) {
-                        intersectionX = x1 + (x2 - x1) * (thres[1] - y1) / (y2 - y1);
+		    double norm_threshold = -thres[1]*adc_range/Vm;
+                    if (y1 >= norm_threshold && y2 <= norm_threshold) {
+                        intersectionX = x1 + (x2 - x1) * (norm_threshold - y1) / (y2 - y1);
                         
                         tdc = /*BTOFHitDigi::ToDigitalCode(*/ceil(intersectionX/0.02);//, tdc_bit);
 			for (; j < nBins - 1; j++) {
@@ -182,8 +183,11 @@ std::unique_ptr<edm4eic::RawTrackerHitCollection> BTOFHitDigi::execute(const edm
 
                  
                
-                adc = round(-V);
-                rawhits -> create(neighbour, adc, tdc);
+		// limit the range of adc values
+                adc = std::min(static_cast<double>(adc_range), round(-V));
+		// only store valid hits
+		if(tdc < std::numeric_limits<int>::max() && adc > 0)
+                    rawhits -> create(neighbour, adc, tdc);
 
             }
 //-----------------------------------------------------------
