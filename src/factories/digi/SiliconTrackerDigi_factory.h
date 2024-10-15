@@ -24,7 +24,8 @@ private:
 
     ParameterRef<double> m_threshold {this, "threshold", config().threshold};
     ParameterRef<double> m_timeResolution {this, "timeResolution", config().timeResolution};
-
+    ParameterRef<bool> m_add_noise_hits {this, "AddNoiseHits", config().add_noise_hits};
+ 
     Service<DD4hep_service> m_geoSvc {this};
 
 public:

@@ -88,6 +88,52 @@ void SiliconTrackerDigi::process(
         }
     }
 
+    //Add some noise hits
+    int num_noise_hits = 10; //Add a fixed number for now
+    int noise_hits_counter(0);
+
+    if(m_cfg.add_noise_hits){ //We are only doing this for BVTX right now
+
+	while(noise_hits_counter < num_noise_hits){
+	
+		//System is fixed
+		unsigned long sys_bits = 31;
+
+		//Determine layer (0, 1, or 4)
+		unsigned long layer_bits;
+		auto layer_rand = m_random.Uniform();
+		
+		if( layer_rand < (36./(36.+48.+120.) ) 
+			{ layer_bits = 0; }
+		else if( layer_rand < (36.+48.) / (36.+48.+120.) ) 
+			{ layer_bits = 1; } 
+		else 
+			{ layer_bits = 4; }
+
+		//Determine module (integer from [0,127])
+		unsigned long module_bits;
+		module_bits = (unsigned long) std::floor( m_random.Uniform(0,128) );
+
+		//Set sensor bits (always 1???)
+		unsigned long sensor_bits = 1;
+	
+		//FIX ME: Determine xy pixel position within module
+		unsigned long xy_bits = 0;		
+
+		//FIX ME: Determine z pixel position within module
+		unsigned long z_bits = 0;
+
+		//Create CellID value
+		unsigned long cell_id = (zbits<<48) + 
+					(xybits<<32) + 
+					(sensor_bits<<24) + 
+					(module_bits<<12) + 
+					(layer_bits<<8) + 
+					(sys_bits<<0);
+	}
+    }
+    //Finished adding noise hits
+
     for (auto item : cell_hit_map) {
         raw_hits->push_back(item.second);
 
