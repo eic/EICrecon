@@ -1,7 +1,6 @@
-
-//
-// Template for this file generated with eicmkplugin.py
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2024 Chun Yuen Tsang, Souvik Paul, Prithwish Tribedy
+// Date: 10/15/2024
 
 #include "BarrelTOFNeighborFinder.h"
 #include "services/geometry/richgeo/RichGeo.h"
@@ -33,13 +32,13 @@ void BarrelTOFNeighborFinder::_findAllNeighborsInSensor(
   dp.insert(hitCell);
 
   auto sensorID = _getSensorID(hitCell);
-  auto xID = _decoder -> get(hitCell, "x");
-  auto yID = _decoder -> get(hitCell, "y");
+  auto xID      = _decoder->get(hitCell, "x");
+  auto yID      = _decoder->get(hitCell, "y");
   for (const auto& dir : searchDirs) {
     auto testCell = hitCell;
     try {
-      _decoder -> set(testCell, "x", xID + dir.first);
-      _decoder -> set(testCell, "y", yID + dir.second);
+      _decoder->set(testCell, "x", xID + dir.first);
+      _decoder->set(testCell, "y", yID + dir.second);
     } catch (const std::runtime_error& err) {
       // catch overflow error
       // ignore if invalid position ID
@@ -47,8 +46,8 @@ void BarrelTOFNeighborFinder::_findAllNeighborsInSensor(
     }
 
     try {
-      auto pos = _converter -> position(testCell);
-      if(testCell != _converter -> cellID(pos))
+      auto pos = _converter->position(testCell);
+      if (testCell != _converter->cellID(pos))
         continue;
     } catch (const std::invalid_argument& err) {
       // Ignore CellID that is invalid
@@ -84,7 +83,6 @@ void BarrelTOFNeighborFinder::_initWithCell(const dd4hep::rec::CellID& hitCell) 
   }
 }
 
-
 const std::shared_ptr<std::vector<dd4hep::rec::CellID>>
 BarrelTOFNeighborFinder::findAllNeighborInSensor(const dd4hep::rec::CellID& hitCell) {
   _initWithCell(hitCell);
@@ -108,15 +106,16 @@ BarrelTOFNeighborFinder::findAllNeighborInSensor(const dd4hep::rec::CellID& hitC
   return neighbors;
 }
 
-const dd4hep::rec::CellID BarrelTOFNeighborFinder::_getSensorID(const dd4hep::rec::CellID& hitCell) {
+const dd4hep::rec::CellID
+BarrelTOFNeighborFinder::_getSensorID(const dd4hep::rec::CellID& hitCell) {
   _initWithCell(hitCell);
   // fix x-y, what you left with are ids that corresponds to sensor info
-  // cellID may change when position changes. 
-  auto sensorID = hitCell;//_converter -> cellID(_converter -> position(hitCell));
-  _decoder -> set(sensorID, "x", 0);
-  _decoder -> set(sensorID, "y", 0);
+  // cellID may change when position changes.
+  auto sensorID = hitCell; //_converter -> cellID(_converter -> position(hitCell));
+  _decoder->set(sensorID, "x", 0);
+  _decoder->set(sensorID, "y", 0);
 
-  return sensorID; 
+  return sensorID;
 }
 
 /****************************************
@@ -160,8 +159,7 @@ BarrelTOFNeighborFinder::local2GlobalInStaveFromCell(const dd4hep::rec::CellID& 
   return position;
 }
 
-dd4hep::Position
-BarrelTOFNeighborFinder::global2Local(const dd4hep::Position& pos) {
+dd4hep::Position BarrelTOFNeighborFinder::global2Local(const dd4hep::Position& pos) {
   // convert local position to global position
   // assuming the local position is located at the same volume as cell
   if (!_detector)
@@ -173,13 +171,11 @@ BarrelTOFNeighborFinder::global2Local(const dd4hep::Position& pos) {
 
   double g[3], l[3];
   pos.GetCoordinates(g);
-  currMatrix->MasterToLocal(g, l); 
+  currMatrix->MasterToLocal(g, l);
   dd4hep::Position position;
-  position.SetCoordinates(l);      
+  position.SetCoordinates(l);
   return position;
 }
-
-
 
 dd4hep::Position BarrelTOFNeighborFinder::cell2LocalPosition(const dd4hep::rec::CellID& cell) {
   if (!_detector)
@@ -199,6 +195,7 @@ dd4hep::Position BarrelTOFNeighborFinder::cell2LocalPosition(const dd4hep::rec::
 }
 
 std::vector<double> BarrelTOFNeighborFinder::cellDimension(const dd4hep::rec::CellID& hitCell) {
-  if(!_converter) _initWithCell(hitCell);
-  return _converter -> cellDimensions(hitCell);
+  if (!_converter)
+    _initWithCell(hitCell);
+  return _converter->cellDimensions(hitCell);
 }
