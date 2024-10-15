@@ -144,13 +144,19 @@ BTOFHitReconstruction::process(const edm4eic::RawTrackerHitCollection& TDCADC_hi
     // TDC to time
     float time = first_tdc * m_cfg.t_slope + m_cfg.t_intercept;
     // >oO trace
+    double varX = cellSize[0] / mm;
+    varX *= varX;
+    double varY = cellSize[1] / mm;
+    varY *= varY;
+    double varZ = cellSize.size() > 2? cellSize[2] / mm : 0;
+    varZ *= varZ;
+
     if (m_cfg.use_ave) {
       rec_hits->create(id,
                        edm4hep::Vector3f{static_cast<float>(ave_x / mm),
                                          static_cast<float>(ave_y / mm),
                                          static_cast<float>(ave_z / mm)}, // mm
-                       edm4eic::CovDiag3f{cellSize[0] / mm, cellSize[1] / mm,
-                                          cellSize[2] / mm}, // should be the covariance of position
+                       edm4eic::CovDiag3f{varX, varY, varZ}, // should be the covariance of position
                        time,                                 // ns
                        0.0F,                                 // covariance of time
                        charge,                               // total ADC sum
@@ -160,8 +166,7 @@ BTOFHitReconstruction::process(const edm4eic::RawTrackerHitCollection& TDCADC_hi
                        edm4hep::Vector3f{static_cast<float>(maxADC_x / mm),
                                          static_cast<float>(maxADC_y / mm),
                                          static_cast<float>(maxADC_z / mm)}, // mm
-                       edm4eic::CovDiag3f{cellSize[0] / mm, cellSize[1] / mm,
-                                          cellSize[2] / mm}, // should be the covariance of position
+                       edm4eic::CovDiag3f{varX, varY, varZ}, // should be the covariance of position
                        time,                                 // ns
                        0.0F,                                 // covariance of time
                        charge,                               // total ADC sum
