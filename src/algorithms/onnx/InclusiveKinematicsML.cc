@@ -34,6 +34,8 @@ namespace eicrecon {
     // onnxruntime setup
     m_env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "inclusive-kinematics-ml");
     Ort::SessionOptions session_options;
+    session_options.SetInterOpNumThreads(1);
+    session_options.SetIntraOpNumThreads(1);
     try {
       m_session = Ort::Session(m_env, m_cfg.modelPath.c_str(), session_options);
 
