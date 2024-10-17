@@ -98,6 +98,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFEndcapRawHitAssociations",
 
             "CombinedTOFTruthSeededParticleIDs",
+            "BTOFHitDigi",
             "CombinedTOFParticleIDs",
 
             // DRICH
