@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 Wouter Deconinck, Tooba Ali, Dmitry Kalinkin
 
+#include <edm4eic/EDM4eicVersion.h>
+
+#if EDM4EIC_VERSION_MAJOR >= 8
 #include <fmt/core.h>
 #include <onnxruntime_c_api.h>
 #include <onnxruntime_cxx_api.h>
@@ -184,3 +187,4 @@ namespace eicrecon {
   }
 
 } // namespace eicrecon
+#endif
