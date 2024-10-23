@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Chun Yuen Tsang, Prithwish Tribedy
-// 
+//
 // Spread energy desposition from one strip to neighboring strips within sensor boundaries
 
 // Author: Chun Yuen Tsang
@@ -32,18 +32,18 @@
 
 namespace eicrecon {
 
-using BTOFChargeSharingAlgorithm = 
-	algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-	                      algorithms::Output<edm4hep::SimTrackerHitCollection>>;
+using BTOFChargeSharingAlgorithm =
+        algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
+                              algorithms::Output<edm4hep::SimTrackerHitCollection>>;
 
-class BTOFChargeSharing : public BTOFChargeSharingAlgorithm, 
-	                  public WithPodConfig<TOFHitDigiConfig> {
+class BTOFChargeSharing : public BTOFChargeSharingAlgorithm,
+                          public WithPodConfig<TOFHitDigiConfig> {
 
 public:
   BTOFChargeSharing(std::string_view name) : BTOFChargeSharingAlgorithm{name,
-		                                  {"TOFBarrelHits"},
-						  {"TOFBarrelSharedHits"},
-						  ""} {};
+                                                  {"TOFBarrelHits"},
+                                                  {"TOFBarrelSharedHits"},
+                                                  ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;
