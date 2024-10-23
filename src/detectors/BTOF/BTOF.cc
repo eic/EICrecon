@@ -17,7 +17,10 @@
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/tracking/BTOFHitReconstruction_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "factories/digi/BTOFChargeSharing_factory.h"
+#include "factories/digi/TOFPulseGeneration_factory.h"
+#include "factories/digi/TOFPulseDigitization_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -36,12 +39,40 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<BTOFHitReconstruction_factory>(
-      "TOFBarrelRecHit", {"TOFBarrelADCTDC"}, // Input data collection tags
-      {"TOFBarrelRecHit"},                    // Output data tag
+// Convert raw digitized hits into hits with geometry info (ready for tracking)
+      app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+        "TOFBarrelRecHit",
+        {"TOFBarrelRawHit"},    // Input data collection tags
+        {"TOFBarrelRecHit"},     // Output data tag
+        {
+            .timeResolution = 10,
+        },
+        app
+    ));         // Hit reco default config for factories
+
+  app->Add(new JOmniFactoryGeneratorT<BTOFChargeSharing_factory>(
+      "BTOFChargeSharing",
+      {"TOFBarrelHits"},
+      {"TOFBarrelSharedHits"},
       {},
-      app)); // Hit reco default config for factories
+      app
+  ));
+
+  app->Add(new JOmniFactoryGeneratorT<TOFPulseGeneration_factory>(
+      "BTOFPulseGeneration",
+      {"TOFBarrelSharedHits"},
+      {"TOFBarrelPulse"},
+      {},
+      app
+  ));
+
+  app->Add(new JOmniFactoryGeneratorT<TOFPulseDigitization_factory>(
+      "BTOFPulseDigitization",
+      {"TOFBarrelPulse"},
+      {"TOFBarrelADCTDC"},
+      {},
+      app
+  ));
 
   int BarrelTOF_ID = 0;
   try {
