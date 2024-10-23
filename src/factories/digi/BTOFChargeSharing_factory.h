@@ -5,7 +5,7 @@
 
 #include "extensions/jana/JOmniFactory.h"
 
-#include "detectors/BTOF/BTOFChargeSharing.h"
+#include "algorithms/digi/BTOFChargeSharing.h"
 #include <iostream>
 
 namespace eicrecon {

@@ -5,7 +5,7 @@
 
 #include "extensions/jana/JOmniFactory.h"
 
-#include "detectors/BTOF/TOFPulseGeneration.h"
+#include "algorithms/digi/TOFPulseGeneration.h"
 #include <iostream>
 
 namespace eicrecon {
