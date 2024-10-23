@@ -54,6 +54,7 @@ protected:
   const dd4hep::rec::CellID _getSensorID(const dd4hep::rec::CellID& hitCell) const;
   double _integralGaus(double mean, double sd, double low_lim, double up_lim) const;
   dd4hep::Position _cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
+  dd4hep::Position _global2Local(const dd4hep::Position& pos) const;
 
 
   // can't cache our results if process has to be const

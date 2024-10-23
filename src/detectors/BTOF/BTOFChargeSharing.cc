@@ -106,14 +106,19 @@ double BTOFChargeSharing::_integralGaus(double mean, double sd, double low_lim, 
 }
 
 dd4hep::Position BTOFChargeSharing::_cell2LocalPosition(const dd4hep::rec::CellID& cell) const {
-  auto geoManager = m_detector->world().volume()->GetGeoManager();
   auto position   = m_converter -> position(cell); // global position
-  auto node       = geoManager->FindNode(position.x(), position.y(), position.z());
+  return this -> _global2Local(position);
+}
+
+dd4hep::Position BTOFChargeSharing::_global2Local(const dd4hep::Position& pos) const {
+  auto geoManager = m_detector->world().volume()->GetGeoManager();
+  auto node       = geoManager->FindNode(pos.x(), pos.y(), pos.z());
   auto currMatrix = geoManager->GetCurrentMatrix();
 
   double g[3], l[3];
-  position.GetCoordinates(g);
+  pos.GetCoordinates(g);
   currMatrix->MasterToLocal(g, l);
+  dd4hep::Position position;
   position.SetCoordinates(l);
   return position;
 }
@@ -146,7 +151,8 @@ void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input,
     double edep = hit.getEDep();
     double time = hit.getTime();
     auto momentum = hit.getMomentum();
-    auto localPos_hit = this -> _cell2LocalPosition(cellID);
+    auto truePos = hit.getPosition();
+    auto localPos_hit = this -> _global2Local(dd4hep::Position(truePos.x / 10., truePos.y / 10., truePos.z / 10.));
 
     for(const auto neighbor : *neighbors) {
        // integrate over neighbor area to get total energy deposition
