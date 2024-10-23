@@ -64,7 +64,7 @@ extern "C" {
          },
          {
            "TaggerTrackerRawHits",
-           "TaggerTrackerHitAssociations"
+           "TaggerTrackerRawHitAssociations"
          },
          {
            .threshold = 1.5 * dd4hep::keV,

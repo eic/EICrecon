@@ -19,15 +19,7 @@ using ROOT::Math::PxPyPzEVector;
 
 namespace eicrecon {
 
-  void InclusiveKinematicsTruth::init() {
-    // m_pidSvc = service("ParticleSvc");
-    // if (!m_pidSvc) {
-    //   error() << "Unable to locate Particle Service. "
-    //           << "Make sure you have ParticleSvc in the configuration."
-    //           << endmsg;
-    //   return StatusCode::FAILURE;
-    // }
-  }
+  void InclusiveKinematicsTruth::init() { }
 
   void InclusiveKinematicsTruth::process(
       const InclusiveKinematicsTruth::Input& input,
@@ -50,7 +42,7 @@ namespace eicrecon {
     }
     const auto ei_p = ei_coll[0].getMomentum();
     const auto ei_p_mag = edm4hep::utils::magnitude(ei_p);
-    const auto ei_mass = m_electron;
+    static const auto ei_mass = m_particleSvc.particle(11).mass;
     const PxPyPzEVector ei(ei_p.x, ei_p.y, ei_p.z, std::hypot(ei_p_mag, ei_mass));
 
     // Get incoming hadron beam
@@ -61,7 +53,7 @@ namespace eicrecon {
     }
     const auto pi_p = pi_coll[0].getMomentum();
     const auto pi_p_mag = edm4hep::utils::magnitude(pi_p);
-    const auto pi_mass = pi_coll[0].getPDG() == 2212 ? m_proton : m_neutron;
+    const auto pi_mass = m_particleSvc.particle(pi_coll[0].getPDG()).mass;
     const PxPyPzEVector pi(pi_p.x, pi_p.y, pi_p.z, std::hypot(pi_p_mag, pi_mass));
 
     // Get first scattered electron
@@ -76,7 +68,7 @@ namespace eicrecon {
     }
     const auto ef_p = ef_coll[0].getMomentum();
     const auto ef_p_mag = edm4hep::utils::magnitude(ef_p);
-    const auto ef_mass = m_electron;
+    static const auto ef_mass = m_particleSvc.particle(11).mass;
     const PxPyPzEVector ef(ef_p.x, ef_p.y, ef_p.z, std::hypot(ef_p_mag, ef_mass));
 
     // DIS kinematics calculations

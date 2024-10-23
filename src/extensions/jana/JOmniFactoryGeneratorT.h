@@ -98,9 +98,6 @@ public:
             factory->SetApplication(m_app);
             factory->SetPluginName(this->GetPluginName());
             factory->SetFactoryName(JTypeInfo::demangle<FactoryT>());
-            // factory->SetTag(wiring.m_tag);
-            // We do NOT want to do this because JMF will use the tag to suffix the collection names
-            // TODO: NWB: Change this in JANA
             factory->config() = wiring.m_default_cfg;
 
             // Set up all of the wiring prereqs so that Init() can do its thing

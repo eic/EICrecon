@@ -21,12 +21,14 @@ private:
 
     ParameterRef<std::vector<double>> m_ldxy {this, "localDistXY", config().localDistXY};
     ParameterRef<std::vector<double>> m_ldep {this, "layerDistEtaPhi", config().layerDistEtaPhi};
+    ParameterRef<std::vector<double>> m_ldxy_adjacent {this, "layerDistXY", config().layerDistXY};
+    ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_laymode {this, "layerMode", config().layerMode};
     ParameterRef<int> m_nlr {this, "neighbourLayersRange", config().neighbourLayersRange};
     ParameterRef<double> m_sd {this, "sectorDist", config().sectorDist};
     ParameterRef<double> m_mched {this, "minClusterHitEdep", config().minClusterHitEdep};
     ParameterRef<double> m_mcced {this, "minClusterCenterEdep", config().minClusterCenterEdep};
     ParameterRef<double> m_mced {this, "minClusterEdep", config().minClusterEdep};
-    ParameterRef<int> m_mcnh {this, "minClusterNhits", config().minClusterNhits};
+    ParameterRef<std::size_t> m_mcnh {this, "minClusterNhits", config().minClusterNhits};
 
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
 

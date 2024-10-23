@@ -31,7 +31,7 @@ cmake_minimum_required(VERSION 3.24)
 # 3.27: find_package() uses upper-case <PACKAGENAME>_ROOT variables
 cmake_policy(SET CMP0144 NEW)
 
-project(EICrecon)
+project(EICrecon LANGUAGES CXX)
 
 # CMake includes
 include(CheckCXXCompilerFlag)
@@ -150,13 +150,10 @@ set(CMAKE_INSTALL_RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Check and print what JANA2 is used
-find_package(JANA 2.0.8 REQUIRED)
+find_package(JANA REQUIRED)
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
-add_compile_definitions(HAVE_PODIO)
-# TODO: NWB: Do this correctly in JANA via target_compile_definitions for v2.1.1
-# TODO: NWB: Maybe we want these to be prefixed, e.g. JANA2_HAVE_PODIO
 
 # Algorithms
 find_package(algorithms 1.0.0 REQUIRED Core)
@@ -197,8 +194,7 @@ endif()
 find_package(DD4hep REQUIRED)
 
 # ACTS cmake-lint: disable=C0103
-find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo
-                                      PluginDD4hep)
+find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
 set(Acts_VERSION_MIN "19.0.0")
 set(Acts_VERSION
     "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")

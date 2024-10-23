@@ -5,6 +5,7 @@
 #include <JANA/JMultifactory.h>
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <fmt/core.h>
@@ -55,7 +56,6 @@ struct BasicTestAlg : public JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
         m_process_call_count++;
         logger()->info("Calling BasicTestAlg::Process with bucket_count={}, threshold={}", config().bucket_count, config().threshold);
         // Provide empty collections (as opposed to nulls) so that PODIO doesn't crash
-        // TODO: NWB: I though multifactories already took care of this under the hood somewhere
         output_hits_left() = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
         output_hits_right() = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
         output_vechits().push_back(new edm4hep::SimCalorimeterHit());
@@ -64,7 +64,7 @@ struct BasicTestAlg : public JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
 
 template <typename OutputCollectionT, typename MultifactoryT>
 MultifactoryT* RetrieveMultifactory(JFactorySet* facset, std::string output_collection_name) {
-    auto fac = facset->GetFactory<OutputCollectionT>(output_collection_name);
+    auto fac = facset->GetFactory(JTypeInfo::demangle<OutputCollectionT>(), output_collection_name);
     REQUIRE(fac != nullptr);
     auto helper = dynamic_cast<JMultifactoryHelperPodio<OutputCollectionT>*>(fac);
     REQUIRE(helper != nullptr);
@@ -180,10 +180,11 @@ TEST_CASE("JParameterManager correctly understands which values are defaulted an
     REQUIRE(b->config().threshold == 12.0);
 
     std::cout << "Showing the full table of config parameters" << std::endl;
-    app.GetJParameterManager()->PrintParameters(true, false, true);
+    app.GetJParameterManager()->PrintParameters(2, 1); // verbosity, strictness
 
     std::cout << "Showing only overridden config parameters" << std::endl;
-    app.GetJParameterManager()->PrintParameters(false, false, true);
+    app.GetJParameterManager()->PrintParameters(1, 1); // verbosity, strictness
+
 }
 
 TEST_CASE("Wiring itself is correctly defaulted") {
@@ -220,11 +221,11 @@ TEST_CASE("Wiring itself is correctly defaulted") {
 
 
     b->logger()->info("Showing the full table of config parameters");
-    app.GetJParameterManager()->PrintParameters(true, false, true);
+    app.GetJParameterManager()->PrintParameters(2,1); // verbosity, strictness
 
     b->logger()->info("Showing only overridden config parameters");
     // Should be empty because everything is defaulted
-    app.GetJParameterManager()->PrintParameters(false, false, true);
+    app.GetJParameterManager()->PrintParameters(1,1); // verbosity, strictness
 }
 
 struct VariadicTestAlg : public JOmniFactory<VariadicTestAlg, BasicTestAlgConfig> {

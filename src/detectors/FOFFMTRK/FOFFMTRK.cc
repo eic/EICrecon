@@ -29,7 +29,7 @@ void InitPlugin(JApplication *app) {
         },
         {
           "ForwardOffMTrackerRawHits",
-          "ForwardOffMTrackerHitAssociations"
+          "ForwardOffMTrackerRawHitAssociations"
         },
         {
             .threshold = 10.0 * dd4hep::keV,
