@@ -120,7 +120,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         for (size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
           // FIXME why not pars.getCovariance()(i,j) = covariance(a,b) / x / y;
           cov(i,j) = covariance(a,b) / x / y;
+          ++j;
         }
+        ++i;
       }
       pars.setCovariance(cov);
 
