@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Chun Yuen Tsang, Prithwish Tribedy
-// 
+//
 // Spread energy desposition from one strip to neighboring strips within sensor boundaries
 
 // Author: Chun Yuen Tsang
@@ -118,8 +118,8 @@ dd4hep::Position BTOFChargeSharing::_cell2LocalPosition(const dd4hep::rec::CellI
   return position;
 }
 
-void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input, 
-		                const BTOFChargeSharing::Output& output) const {
+void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input,
+                                const BTOFChargeSharing::Output& output) const {
   const auto [simhits] = input;
   auto [sharedHits] = output;
   std::shared_ptr<std::vector<dd4hep::rec::CellID>> neighbors;
@@ -131,14 +131,14 @@ void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input,
       if(it != m_cache.end())
         neighbors = it -> second;
     }*/
-    
-    if(!neighbors){ 
+
+    if(!neighbors){
       std::unordered_set<dd4hep::rec::CellID> dp;
       neighbors = std::make_shared<std::vector<dd4hep::rec::CellID>>();
       this -> _findAllNeighborsInSensor(cellID, neighbors, dp);
 
       // fill cache
-      /*if(m_useCache) 
+      /*if(m_useCache)
          for(const auto cell : *neighbors)
            m_cache[cell] = neighbors;*/
     }
@@ -152,7 +152,7 @@ void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input,
        // integrate over neighbor area to get total energy deposition
        auto localPos_neighbor = this -> _cell2LocalPosition(neighbor);
        auto cellDimension = m_converter -> cellDimensions(neighbor);
- 
+
        double edep_cell = edep *
                       _integralGaus(localPos_hit.x(), m_cfg.sigma_sharingx,
                                     localPos_neighbor.x() - 0.5 * cellDimension[0],
@@ -164,8 +164,8 @@ void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input,
        if(edep_cell > 0) {
          auto globalPos = m_converter -> position(neighbor);
          auto hit =  sharedHits->create();
-         hit.setCellID(neighbor); 
-         hit.setEDep(edep_cell); 
+         hit.setCellID(neighbor);
+         hit.setEDep(edep_cell);
          hit.setTime(time);
          hit.setPosition({globalPos.x(), globalPos.y(), globalPos.z()});
          hit.setMomentum({momentum.x, momentum.y, momentum.z});

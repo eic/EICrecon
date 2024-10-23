@@ -37,7 +37,7 @@ double TOFPulseGeneration::_Landau(double x, double mean, double std) const {
 }
 
 void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
-		                 const TOFPulseGeneration::Output& output) const {
+                                 const TOFPulseGeneration::Output& output) const {
   const auto [simhits] = input;
   auto [rawADCs] = output;
 
@@ -98,7 +98,7 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
     time_series.setCharge(1.); // placeholder. Don't know what to assign when there are two or more hits
     time_series.setInterval(interval);
 
-    for(const auto ADC : ADCs) 
+    for(const auto ADC : ADCs)
       time_series.addToAdcCounts(ADC);
   }
 } // TOFPulseGeneration:process

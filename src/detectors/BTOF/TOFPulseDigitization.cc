@@ -30,8 +30,8 @@ using namespace dd4hep::xml;
 
 namespace eicrecon {
 
-void TOFPulseDigitization::process(const TOFPulseDigitization::Input& input, 
-		                   const TOFPulseDigitization::Output& output) const {
+void TOFPulseDigitization::process(const TOFPulseDigitization::Input& input,
+                                   const TOFPulseDigitization::Output& output) const {
   const auto [simhits] = input;
   auto [rawhits] = output;
 
@@ -41,7 +41,7 @@ void TOFPulseDigitization::process(const TOFPulseDigitization::Input& input,
   double Vm = m_cfg.Vm;
   int adc_range = m_cfg.adc_range;
 
-  // normalized time threshold 
+  // normalized time threshold
   // convert threshold EDep to voltage
   double norm_threshold = -thres * adc_range / Vm;
 
@@ -74,7 +74,7 @@ void TOFPulseDigitization::process(const TOFPulseDigitization::Input& input,
     if (tdc < std::numeric_limits<int>::max())
       rawhits->create(pulse.getCellID(), adc, tdc);
     //-----------------------------------------------------------
-    
+
   }
 } // TOFPulseDigitization:process
 } // namespace eicrecon

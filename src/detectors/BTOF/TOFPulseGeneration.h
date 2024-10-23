@@ -30,17 +30,17 @@
 
 namespace eicrecon {
 
-using TOFPulseGenerationAlgorithm = 
-	algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-	                      algorithms::Output<edm4hep::RawTimeSeriesCollection>>;
+using TOFPulseGenerationAlgorithm =
+        algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
+                              algorithms::Output<edm4hep::RawTimeSeriesCollection>>;
 
 class TOFPulseGeneration : public TOFPulseGenerationAlgorithm,
-	                   public WithPodConfig<TOFHitDigiConfig> {
+                           public WithPodConfig<TOFHitDigiConfig> {
 
 public:
   TOFPulseGeneration(std::string_view name)
-      : TOFPulseGenerationAlgorithm{name, 
-		                    {"TOFBarrelSharedHits"},
+      : TOFPulseGenerationAlgorithm{name,
+                                    {"TOFBarrelSharedHits"},
                                     {"TOFBarrelPulse"},
                                     {}} {}
   void init() {};
