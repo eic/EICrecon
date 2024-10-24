@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Chun Yuen Tsang, Prithwish Tribedy
 //
-// Spread energy desposition from one strip to neighboring strips within sensor boundaries
+// Spread energy deposition from one strip to neighboring strips within sensor boundaries
 
 // Author: Chun Yuen Tsang
 // Date: 10/22/2024
@@ -44,13 +44,13 @@ void BTOFChargeSharing::init() {
 }
 
 void BTOFChargeSharing::_findAllNeighborsInSensor(
-    dd4hep::rec::CellID hitCell, std::shared_ptr<std::vector<dd4hep::rec::CellID>>& ans,
+    dd4hep::rec::CellID hitCell, std::shared_ptr<std::vector<dd4hep::rec::CellID>>& answer,
     std::unordered_set<dd4hep::rec::CellID>& dp) const {
   // use MST to find all neighbor within a sensor
   // I can probably write down the formula by hand, but why do things manually when computer do
   // everything for you?
   const std::vector<std::pair<int, int>> searchDirs{{0, 1}, {0, -1}, {1, 0}, {-1, 0}};
-  ans->push_back(hitCell);
+  answer->push_back(hitCell);
   dp.insert(hitCell);
 
   auto sensorID = this -> _getSensorID(hitCell);
@@ -81,7 +81,7 @@ void BTOFChargeSharing::_findAllNeighborsInSensor(
       auto testSensorID = _getSensorID(testCell);
       if (testSensorID == sensorID) {
         // inside the same sensor
-        this->_findAllNeighborsInSensor(testCell, ans, dp);
+        this->_findAllNeighborsInSensor(testCell, answer, dp);
       }
     }
   }
