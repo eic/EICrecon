@@ -6,21 +6,29 @@
 // Author: Chun Yuen Tsang
 // Date: 10/22/2024
 
-#include "DD4hep/Detector.h"
-#include "DDRec/Surface.h"
-#include "TF1.h"
-#include "TMath.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <TGraph.h>
-#include <bitset>
-#include <fmt/format.h>
-#include <iostream>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Handle.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/Segmentations.h>
+#include <DD4hep/Volumes.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <Math/SpecFuncMathCore.h>
+#include <TGeoManager.h>
+#include <TGeoMatrix.h>
+#include <TGeoVolume.h>
+#include <algorithms/geo.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
+#include <gsl/pointers>
+#include <stdexcept>
+#include <utility>
 #include <vector>
 
 #include "BTOFChargeSharing.h"
-#include "Math/SpecFunc.h"
+#include "DD4hep/Detector.h"
+#include "TMath.h"
 #include "algorithms/digi/TOFHitDigiConfig.h"
-#include <algorithms/geo.h>
 
 // using namespace dd4hep;
 // using namespace dd4hep::Geometry;

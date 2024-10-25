@@ -7,19 +7,16 @@
 // Author: Souvik Paul, Chun Yuen Tsang
 // Date: 22/10/2024
 
-#include "DD4hep/Detector.h"
-#include "DDRec/Surface.h"
-#include "TF1.h"
-#include "TMath.h"
-#include <Evaluator/DD4hepUnits.h>
-#include <TGraph.h>
-#include <bitset>
-#include <fmt/format.h>
-#include <iostream>
+#include <math.h>
+#include <podio/RelationRange.h>
+#include <stdlib.h>
+#include <algorithm>
+#include <gsl/pointers>
+#include <limits>
 #include <vector>
 
+#include "DD4hep/Detector.h"
 #include "TOFPulseDigitization.h"
-#include "Math/SpecFunc.h"
 #include "algorithms/digi/TOFHitDigiConfig.h"
 
 // using namespace dd4hep;

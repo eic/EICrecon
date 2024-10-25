@@ -8,25 +8,18 @@
 
 #pragma once
 
-#include "TF1.h"
-#include <iostream>
-#include <memory>
-#include <string_view>
-#include <random>
-#include <vector>
-#include <unordered_set>
-
-#include <DD4hep/Detector.h>
+#include <DD4hep/Objects.h>
+#include <DDRec/CellIDPositionConverter.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
-#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <podio/ObjectID.h>
-#include <spdlog/spdlog.h>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <unordered_set>
+#include <vector>
 
 #include "DD4hep/Detector.h"
-#include "DDRec/Surface.h"
-#include <DDRec/CellIDPositionConverter.h>
-
 #include "algorithms/digi/TOFHitDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 

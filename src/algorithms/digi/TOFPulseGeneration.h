@@ -10,20 +10,11 @@
 
 #pragma once
 
-#include <iostream>
-#include <memory>
-#include <random>
-#include <vector>
-
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <spdlog/spdlog.h>
-
-#include "DD4hep/Detector.h"
-#include "DDRec/Surface.h"
-#include <DDRec/CellIDPositionConverter.h>
+#include <string>
+#include <string_view>
 
 #include "algorithms/digi/TOFHitDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
