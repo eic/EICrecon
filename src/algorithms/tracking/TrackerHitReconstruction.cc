@@ -99,11 +99,11 @@ std::unique_ptr<edm4eic::TrackerHitCollection> TrackerHitReconstruction::process
 
     // generate valid random cell id
     for (const auto& hit0 : raw_hits) {
-        uint64_t id0,vol_id;        
+        uint64_t id0,vol_id;
         id0 = hit0.getCellID();
         // vol ID is the last 8 bits in Si tracker. Need to make it more flexible
         // may want to predefine the layer/module ID as well to speed up the radom ID generation
-        vol_id = id0 & 0xFF; 
+        vol_id = id0 & 0xFF;
         // std::cout<<"::: "<<raw_hits.size()<<"/"<<id0<<"=="<<std::bitset<8>(id0)<<"  ::"<<vol_id<<std::endl;
 
         // Setup random number generator
@@ -130,7 +130,7 @@ std::unique_ptr<edm4eic::TrackerHitCollection> TrackerHitReconstruction::process
         break;
     }
 
-    // generate noise hits from ids. 
+    // generate noise hits from ids.
        for (auto id : noise_ids) {
         // Get position and dimension
         auto pos = m_converter->position(id);
