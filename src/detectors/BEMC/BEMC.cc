@@ -175,7 +175,11 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
            "EcalBarrelImagingClusters",
           {"EcalBarrelImagingProtoClusters",
+#if EDM4EIC_VERSION_MAJOR >= 7
+           "EcalBarrelImagingRawHitAssociations"},
+#else
            "EcalBarrelImagingHits"},
+#endif
           {"EcalBarrelImagingClusters",
            "EcalBarrelImagingClusterAssociations",
            "EcalBarrelImagingLayers"
