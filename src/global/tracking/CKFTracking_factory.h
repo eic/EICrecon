@@ -54,8 +54,8 @@ public:
             m_acts_trajectories_output(),
             m_acts_tracks_output()
         ) = m_algo->process(
-            *m_measurements_input(),
-            *m_parameters_input()
+            *m_parameters_input(),
+            *m_measurements_input()
         );
     }
 };
