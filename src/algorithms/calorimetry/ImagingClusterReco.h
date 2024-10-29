@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten, Chao Peng, Wouter Deconinck, David Lawrence
+// Copyright (C) 2022 - 2024, Sylvester Joosten, Chao Peng, Wouter Deconinck, David Lawrence, Derek Anderson
 
 /*
  *  Reconstruct the cluster/layer info for imaging calorimeter
@@ -353,6 +353,7 @@ namespace eicrecon {
             for (const auto& mchit : *mchits) {
                 if (mchit.getCellID() == clhit.getCellID()) {
                     vecAssocSimHits.push_back(mchit);
+                    eSimHitSum += vecAssocSimHits.back().getEnergy();
                     break;
                 }
             }
@@ -362,8 +363,6 @@ namespace eicrecon {
             if (vecAssocSimHits.empty()) {
                 debug("No matching SimHit for hit {}", clhit.getCellID());
                 continue;
-            } else {
-                eSimHitSum += vecAssocSimHits.back().getEnergy();
             }
 #endif
             debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
