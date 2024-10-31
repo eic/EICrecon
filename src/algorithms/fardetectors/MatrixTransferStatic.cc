@@ -81,10 +81,10 @@ void eicrecon::MatrixTransferStatic::process(
      aY[1][0] = 0.0204108951; //c
      aY[1][1] = -0.139318692; //d
 
-     local_x_offset       = -0.339334;
-     local_y_offset       = -0.000299454;
-     local_x_slope_offset = -0.219603248;
-     local_y_slope_offset = -0.000176128;
+     local_x_offset       = -1209.29;//-0.339334; these are the local coordinate values
+     local_y_offset       = 0.00132511;//-0.000299454;
+     local_x_slope_offset = -45.4772;//-0.219603248;
+     local_y_slope_offset = 0.000745498;//-0.000176128;
 
   }
   else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
@@ -99,10 +99,10 @@ void eicrecon::MatrixTransferStatic::process(
      aY[1][0] = 0.0226283320; //c
      aY[1][1] = -0.082666019; //d
 
-     local_x_offset       = -0.329072;
-     local_y_offset       = -0.00028343;
-     local_x_slope_offset = -0.218525084;
-     local_y_slope_offset = -0.00015321;
+     local_x_offset       = -1209.27;//-0.329072;
+     local_y_offset       = 0.00355218;//-0.00028343;
+     local_x_slope_offset = -45.4737;//-0.218525084;
+     local_y_slope_offset = 0.00204394;//-0.00015321;
 
   }
   else if(abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
@@ -117,10 +117,10 @@ void eicrecon::MatrixTransferStatic::process(
          aY[1][0] = 0.0179664765; //c
          aY[1][1] = 0.004160679; //d
 
-         local_x_offset       = -0.283273;
-         local_y_offset       = -0.00552451;
-         local_x_slope_offset = -0.21174031;
-         local_y_slope_offset = -0.003212011;
+         local_x_offset       = -1209.22;//-0.283273;
+         local_y_offset       = 0.00868737;//-0.00552451;
+         local_x_slope_offset = -45.4641;//-0.21174031;
+         local_y_slope_offset = 0.00498786;//-0.003212011;
 
   }
   else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
@@ -202,16 +202,16 @@ void eicrecon::MatrixTransferStatic::process(
 
     if(!goodHit2 && gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
 
-      goodHit[1].x = pos0.x();
-      goodHit[1].y = pos0.y();
-      goodHit[1].z = gpos.z();
+      goodHit[1].x = gpos.x(); //pos0.x() - pos0 is local coordinates, gpos is global
+      goodHit[1].y = gpos.y(); //pos0.y() - temporarily changing to global to solve the local coordinate issue
+      goodHit[1].z = gpos.z(); //         - which is unique to the Roman pots situation
       goodHit2 = true;
 
     }
     if(!goodHit1 && gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ){
 
-      goodHit[0].x = pos0.x();
-      goodHit[0].y = pos0.y();
+      goodHit[0].x = gpos.x(); //pos0.x()
+      goodHit[0].y = gpos.y(); //pos0.y()
       goodHit[0].z = gpos.z();
       goodHit1 = true;
 
@@ -251,6 +251,8 @@ void eicrecon::MatrixTransferStatic::process(
           Yip[i0] += aYinv[i0][i1] * Yrp[i1];
         }
       }
+
+          Yip[1] = Yrp[0]/aY[0][1];
 
       // convert polar angles to radians
       double rsx = Xip[1] * dd4hep::mrad;

@@ -150,13 +150,10 @@ set(CMAKE_INSTALL_RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Check and print what JANA2 is used
-find_package(JANA 2.0.8 REQUIRED)
+find_package(JANA REQUIRED)
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
-add_compile_definitions(HAVE_PODIO)
-# TODO: NWB: Do this correctly in JANA via target_compile_definitions for v2.1.1
-# TODO: NWB: Maybe we want these to be prefixed, e.g. JANA2_HAVE_PODIO
 
 # Algorithms
 find_package(algorithms 1.0.0 REQUIRED Core)
