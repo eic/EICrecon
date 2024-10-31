@@ -109,8 +109,8 @@ namespace eicrecon {
         std::vector<ActsExamples::Trajectories*>,
         std::vector<ActsExamples::ConstTrackContainer*>
     >
-    CKFTracking::process(const edm4eic::Measurement2DCollection& meas2Ds,
-                         const edm4eic::TrackParametersCollection &init_trk_params) {
+    CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
+                         const edm4eic::Measurement2DCollection& meas2Ds) {
 
 
         // create sourcelink and measurement containers
