@@ -30,7 +30,7 @@ void InitPlugin(JApplication *app) {
         },
         {
             .threshold = 0.54 * dd4hep::keV,
-	    .add_noise_hits = false,
+	    .add_noise_hits = true,
         },
         app
     ));

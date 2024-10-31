@@ -26,6 +26,7 @@ void SiliconTrackerDigi::init(const dd4hep::rec::CellIDPositionConverter* conver
         return m_random.Gaus(0, m_cfg.timeResolution);
         //return m_rng.gaussian<double>(0., m_cfg.timeResolution);
     };
+    
 
     m_converter = converter;
 }
@@ -40,7 +41,6 @@ void SiliconTrackerDigi::process(
 
     // A map of unique cellIDs with temporary structure RawHit
     std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
-
 
     for (const auto& sim_hit : *sim_hits) {
 
@@ -91,6 +91,9 @@ void SiliconTrackerDigi::process(
     //Add some noise hits
     int num_noise_hits = 10; //Add a fixed number for now
     int noise_hits_counter(0);
+    unsigned long xyz_bits_max = 65535;
+
+    TRandomMixMax my_rand_gen; 
 
     if(m_cfg.add_noise_hits){ //We are only doing this for BVTX right now
 
@@ -101,35 +104,66 @@ void SiliconTrackerDigi::process(
 
 		//Determine layer (0, 1, or 4)
 		unsigned long layer_bits;
-		auto layer_rand = m_random.Uniform();
+		double layer_rand = my_rand_gen.Uniform();
 		
-		if( layer_rand < (36./(36.+48.+120.) ) 
-			{ layer_bits = 0; }
+		if( layer_rand < (36./(36.+48.+120.)) ) 
+			{ layer_bits = 1; }
 		else if( layer_rand < (36.+48.) / (36.+48.+120.) ) 
-			{ layer_bits = 1; } 
+			{ layer_bits = 2; } 
 		else 
 			{ layer_bits = 4; }
 
 		//Determine module (integer from [0,127])
 		unsigned long module_bits;
-		module_bits = (unsigned long) std::floor( m_random.Uniform(0,128) );
+		module_bits = (unsigned long) std::floor( my_rand_gen.Uniform(0.,128.) );
 
-		//Set sensor bits (always 1???)
+		//Set sensor bits (always)
 		unsigned long sensor_bits = 1;
-	
-		//FIX ME: Determine xy pixel position within module
+
+		//Determine xy pixel position within module
 		unsigned long xy_bits = 0;		
 
-		//FIX ME: Determine z pixel position within module
-		unsigned long z_bits = 0;
+		//Range is based on layer
+		if(layer_bits == 1)
+			xy_bits = (unsigned long) std::floor( my_rand_gen.Uniform(0,43) );
+		else if(layer_bits == 2)
+			xy_bits = (unsigned long) std::floor( my_rand_gen.Uniform(0,57) );
+		else
+			xy_bits = (unsigned long) std::floor( my_rand_gen.Uniform(0,146) );
+
+		//Check which side of module the hit is on
+		if( my_rand_gen.Uniform()<0.5 ){
+			xy_bits = xyz_bits_max - xy_bits;
+		}
+
+		//Determine z pixel position within module
+		unsigned long z_bits = (unsigned long) std::floor( my_rand_gen.Uniform(0,6749) );
+		
+		//Check if hit is at positive or negative z
+		if( my_rand_gen.Uniform()<0.5 ){
+                        z_bits = xyz_bits_max - z_bits;
+                } 
 
 		//Create CellID value
-		unsigned long cell_id = (zbits<<48) + 
-					(xybits<<32) + 
+		unsigned long cell_id = (z_bits<<48) + 
+					(xy_bits<<32) + 
 					(sensor_bits<<24) + 
 					(module_bits<<12) + 
 					(layer_bits<<8) + 
 					(sys_bits<<0);
+
+		if (cell_hit_map.count(cell_id) == 0) {
+            		// This cell doesn't have hits
+			cell_hit_map[cell_id] = {
+                		cell_id,
+                		(std::int32_t) 100,
+                		(std::int32_t) 100
+            		};
+        	} else { // Don't add noise hits to cells with previous real or noise hits (for now)
+			continue;
+		}
+	
+		noise_hits_counter++;
 	}
     }
     //Finished adding noise hits
