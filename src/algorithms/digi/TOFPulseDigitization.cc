@@ -16,11 +16,6 @@
 #include "TOFPulseDigitization.h"
 #include "algorithms/digi/TOFHitDigiConfig.h"
 
-// using namespace dd4hep;
-// using namespace dd4hep::Geometry;
-// using namespace dd4hep::DDRec;
-// using namespace eicrecon;
-using namespace dd4hep::xml;
 
 namespace eicrecon {
 
