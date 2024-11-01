@@ -68,7 +68,7 @@ extern "C" {
             .resolutionTDC = EcalBarrelScFi_resolutionTDC,
             .thresholdFactor = 0.0, // use only thresholdValue
             .thresholdValue = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
-            .sampFrac = "0.10200085",
+            .sampFrac = "0.09320426",
             .readout = "EcalBarrelScFiHits",
             .layerField = "layer",
             .sectorField = "sector",
@@ -175,7 +175,11 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
            "EcalBarrelImagingClusters",
           {"EcalBarrelImagingProtoClusters",
+#if EDM4EIC_VERSION_MAJOR >= 7
+           "EcalBarrelImagingRawHitAssociations"},
+#else
            "EcalBarrelImagingHits"},
+#endif
           {"EcalBarrelImagingClusters",
            "EcalBarrelImagingClusterAssociations",
            "EcalBarrelImagingLayers"
