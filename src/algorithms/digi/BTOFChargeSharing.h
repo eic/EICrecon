@@ -3,9 +3,6 @@
 //
 // Spread energy deposition from one strip to neighboring strips within sensor boundaries
 
-// Author: Chun Yuen Tsang
-// Date: 10/22/2024
-
 #pragma once
 
 #include <DD4hep/Objects.h>
