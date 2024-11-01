@@ -4,9 +4,6 @@
 //
 // Convert energy deposition into ADC pulses
 // ADC pulses are assumed to follow the shape of landau function
-//
-// Author: Souvik Paul, Chun Yuen Tsang
-// Date: 22/10/2024
 
 #pragma once
 
