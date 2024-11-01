@@ -136,11 +136,6 @@ void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input,
       std::unordered_set<dd4hep::rec::CellID> dp;
       neighbors = std::make_shared<std::vector<dd4hep::rec::CellID>>();
       this -> _findAllNeighborsInSensor(cellID, neighbors, dp);
-
-      // fill cache
-      /*if(m_useCache)
-         for(const auto cell : *neighbors)
-           m_cache[cell] = neighbors;*/
     }
 
     double edep = hit.getEDep();
