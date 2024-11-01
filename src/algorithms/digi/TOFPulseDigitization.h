@@ -3,9 +3,6 @@
 // Special Acknowledgement: Kolja Kauder
 //
 // Convert ADC pulses from TOFPulseGeneration into ADC and TDC values
-//
-// Author: Souvik Paul, Chun Yuen Tsang
-// Date: 22/10/2024
 
 #pragma once
 
