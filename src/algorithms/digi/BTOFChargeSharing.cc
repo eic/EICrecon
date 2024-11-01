@@ -131,11 +131,6 @@ void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input,
 
   for(const auto & hit : *simhits) {
     auto cellID = hit.getCellID();
-    /*if(m_useCache) {
-      auto it = m_cache.find(cellID);
-      if(it != m_cache.end())
-        neighbors = it -> second;
-    }*/
 
     if(!neighbors){
       std::unordered_set<dd4hep::rec::CellID> dp;
