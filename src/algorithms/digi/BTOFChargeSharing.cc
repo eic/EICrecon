@@ -8,6 +8,7 @@
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
 #include <DD4hep/Volumes.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Math/SpecFuncMathCore.h>

@@ -12,7 +12,6 @@
 #include <limits>
 #include <vector>
 
-#include "DD4hep/Detector.h"
 #include "TOFPulseDigitization.h"
 #include "algorithms/digi/TOFHitDigiConfig.h"
 
