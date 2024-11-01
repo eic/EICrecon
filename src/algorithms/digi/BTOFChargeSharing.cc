@@ -142,7 +142,7 @@ void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input,
     double time = hit.getTime();
     auto momentum = hit.getMomentum();
     auto truePos = hit.getPosition();
-    auto localPos_hit = this -> _global2Local(dd4hep::Position(truePos.x / 10., truePos.y / 10., truePos.z / 10.));
+    auto localPos_hit = this -> _global2Local(dd4hep::Position(truePos.x*dd4hep::mm, truePos.y*dd4hep::mm, truePos.z*dd4hep::mm));
 
     for(const auto neighbor : *neighbors) {
        // integrate over neighbor area to get total energy deposition
