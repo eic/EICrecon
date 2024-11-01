@@ -15,6 +15,7 @@
 #include <gsl/pointers>
 #include <unordered_map>
 #include <utility>
+#include <TRandom3.h>
 
 #include "algorithms/digi/SiliconTrackerDigiConfig.h"
 
@@ -89,11 +90,11 @@ void SiliconTrackerDigi::process(
     }
 
     //Add some noise hits
-    int num_noise_hits = 10; //Add a fixed number for now
+    TRandom3 my_rand_gen(0);    
+
+    int num_noise_hits = my_rand_gen.Poisson(433);
     int noise_hits_counter(0);
     unsigned long xyz_bits_max = 65535;
-
-    TRandomMixMax my_rand_gen; 
 
     if(m_cfg.add_noise_hits){ //We are only doing this for BVTX right now
 
@@ -113,9 +114,9 @@ void SiliconTrackerDigi::process(
 		else 
 			{ layer_bits = 4; }
 
-		//Determine module (integer from [0,127])
+		//Determine module (integer from [1,128])
 		unsigned long module_bits;
-		module_bits = (unsigned long) std::floor( my_rand_gen.Uniform(0.,128.) );
+		module_bits = (unsigned long) std::floor( my_rand_gen.Uniform(1.,129.) );
 
 		//Set sensor bits (always)
 		unsigned long sensor_bits = 1;
@@ -162,6 +163,9 @@ void SiliconTrackerDigi::process(
         	} else { // Don't add noise hits to cells with previous real or noise hits (for now)
 			continue;
 		}
+
+		// Check that cellid is actually on surface
+
 	
 		noise_hits_counter++;
 	}
