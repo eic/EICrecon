@@ -12,7 +12,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "DD4hep/Detector.h"
 #include "TMath.h"
 #include "TOFPulseGeneration.h"
 #include "algorithms/digi/TOFHitDigiConfig.h"
