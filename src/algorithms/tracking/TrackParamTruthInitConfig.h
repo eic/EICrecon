@@ -12,7 +12,7 @@ struct TrackParamTruthInitConfig {
     double maxVertexY       = 80  * dd4hep::mm;
     double maxVertexZ       = 200 * dd4hep::mm;
     double minMomentum      = 100 * dd4hep::MeV;
-    double maxEtaForward    = 6.0;
+    double maxEtaForward    = 10.0;
     double maxEtaBackward   = 4.1;
     double momentumSmear    = 0.1;
 
