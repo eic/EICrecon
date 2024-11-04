@@ -60,7 +60,7 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
 void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
     const auto &mcParticles   = *(event->GetCollection<edm4hep::MCParticle>("MCParticles"));
     const auto &trackSegments = *(event->GetCollection<edm4eic::TrackSegment>("CentralTrackSegments"));
-    const auto &barrelHits    = *(event->GetCollection<edm4eic::TrackerHit>("TOFBarrelRecHit"));
+    const auto &barrelHits    = *(event->GetCollection<edm4eic::TrackerHit>("TOFBarrelRecHits"));
     const auto &endcapHits    = *(event->GetCollection<edm4eic::TrackerHit>("TOFEndcapRecHits"));
 
     // List TOF Barrel hits from barrel
