@@ -46,14 +46,9 @@ protected:
   dd4hep::Position _cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
   dd4hep::Position _global2Local(const dd4hep::Position& pos) const;
 
-
-  // can't cache our results if process has to be const
-  //bool m_useCache                                         = true;
   const dd4hep::DDSegmentation::BitFieldCoder* m_decoder  = nullptr;
   const dd4hep::Detector* m_detector                      = nullptr;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
-
-  //std::unordered_map<dd4hep::rec::CellID, std::shared_ptr<std::vector<dd4hep::rec::CellID>>> m_cache;
 
 };
 
