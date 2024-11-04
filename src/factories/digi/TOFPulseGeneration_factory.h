@@ -12,7 +12,7 @@ namespace eicrecon {
 
 class TOFPulseGeneration_factory : public JOmniFactory<TOFPulseGeneration_factory, TOFHitDigiConfig> {
 public:
-    using AlgoT = eicrecon::TOFPulseGeneration;
+  using AlgoT = eicrecon::TOFPulseGeneration;
 private:
   std::unique_ptr<AlgoT> m_algo;
 
@@ -27,6 +27,8 @@ private:
   ParameterRef<int> m_tdc_range{this, "tdcRange", config().tdc_range};
   ParameterRef<int> m_nBins{this, "nBins", config().nBins};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};
+
+  Service<AlgorithmsInit_service> m_algorithmsInit {this};
 public:
   void Configure() {
     m_algo = std::make_unique<eicrecon::TOFPulseGeneration>(GetPrefix());
