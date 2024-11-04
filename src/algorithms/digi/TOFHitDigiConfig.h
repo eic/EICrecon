@@ -12,8 +12,6 @@ struct TOFHitDigiConfig {
   double threshold{1.0 * dd4hep::keV};
   double tRes = 0.1; /// TODO 8 of what units??? Same TODO in juggler. Probably [ns]
                      // digitization settings
-  // unsigned int             pedMeanADC{0};
-  // double                   pedSigmaADC{0};
   double resolutionTDC{1};
   double resolutionADC{1};
 
