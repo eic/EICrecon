@@ -20,7 +20,7 @@ private:
 
   PodioOutput<edm4eic::RawTrackerHit> m_out_reco_particles{this};
 
-  ParameterRef<double> m_t_thres{this, "t_thres", config().t_thres};
+  ParameterRef<double> m_t_thres{this, "tThreshold", config().t_thres};
 public:
   void Configure() {
     m_algo = std::make_unique<eicrecon::TOFPulseDigitization>(GetPrefix());
