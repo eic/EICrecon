@@ -12,7 +12,7 @@ namespace eicrecon {
 
 class TOFPulseDigitization_factory : public JOmniFactory<TOFPulseDigitization_factory, TOFHitDigiConfig> {
 public:
-    using AlgoT = eicrecon::TOFPulseDigitization;
+  using AlgoT = eicrecon::TOFPulseDigitization;
 private:
   std::unique_ptr<AlgoT> m_algo;
 
@@ -21,6 +21,8 @@ private:
   PodioOutput<edm4eic::RawTrackerHit> m_out_reco_particles{this};
 
   ParameterRef<double> m_t_thres{this, "tThreshold", config().t_thres};
+
+  Service<AlgorithmsInit_service> m_algorithmsInit {this};
 public:
   void Configure() {
     m_algo = std::make_unique<eicrecon::TOFPulseDigitization>(GetPrefix());
