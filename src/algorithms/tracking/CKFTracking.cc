@@ -336,6 +336,15 @@ namespace eicrecon {
 
         std::optional<unsigned int> lastSeed;
         for (const auto& track : constTracks) {
+#if Acts_VERSION_MAJOR >= 34
+          // Some B0 tracks fail to extrapolate to the perigee surface. The
+          // Acts::extrapolateTrackToReferenceSurface will not set
+          // referenceSurface in that case, which is what we check here.
+          if (not track.hasReferenceSurface()) {
+            m_log->warn("Skipping a track not on perigee surface");
+            continue;
+          }
+#endif
           if (!lastSeed) {
             lastSeed = constSeedNumber(track);
           }
