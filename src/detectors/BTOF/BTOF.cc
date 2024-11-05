@@ -32,23 +32,31 @@ void InitPlugin(JApplication* app) {
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "TOFBarrelRawHit", {"TOFBarrelHits"}, {"TOFBarrelRawHit", "TOFBarrelRawHitAssociations"},
+      "TOFBarrelRawHits",
       {
-          .threshold      = 6.0 * dd4hep::keV,
-          .timeResolution = 0.025, // [ns]
+        "TOFBarrelHits"
       },
-      app));
+      {
+        "TOFBarrelRawHits",
+        "TOFBarrelRawHitAssociations"
+      },
+      {
+        .threshold = 6.0 * dd4hep::keV,
+        .timeResolution = 0.025,    // [ns]
+      },
+      app
+  ));
 
-// Convert raw digitized hits into hits with geometry info (ready for tracking)
-      app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-        "TOFBarrelRecHit",
-        {"TOFBarrelRawHit"},    // Input data collection tags
-        {"TOFBarrelRecHit"},     // Output data tag
-        {
-            .timeResolution = 10,
-        },
-        app
-    ));         // Hit reco default config for factories
+  // Convert raw digitized hits into hits with geometry info (ready for tracking)
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "TOFBarrelRecHits",
+      {"TOFBarrelRawHits"},    // Input data collection tags
+      {"TOFBarrelRecHits"},    // Output data tag
+      {
+          .timeResolution = 10,
+      },
+      app
+  ));         // Hit reco default config for factories
 
   app->Add(new JOmniFactoryGeneratorT<BTOFChargeSharing_factory>(
       "BTOFChargeSharing",
