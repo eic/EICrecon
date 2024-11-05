@@ -12,6 +12,7 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
@@ -179,5 +180,20 @@ extern "C" {
             app   // TODO: Remove me once fixed
           )
         );
+
+        // --------------------------------------------------------------------
+        // NEW
+        // --------------------------------------------------------------------
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
+          "HcalBarrelMergedHits", {"HcalBarrelRecHits"}, {"HcalBarrelMergedHits"},
+          {
+            .readout = "HcalBarrelHits",
+            .fields = {"eta"},
+            .refs = {1}
+          },
+          app   // TODO: Remove me once fixed
+        ));
+
+
     }
 }
