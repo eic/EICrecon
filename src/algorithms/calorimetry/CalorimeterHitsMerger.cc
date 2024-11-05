@@ -12,16 +12,17 @@
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
-#include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/VolumeManager.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include <edm4eic/CalorimeterHit.h>  // NEW
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <fmt/core.h>
 #include <algorithm>
+#include <algorithms/service.h>  // NEW
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
@@ -31,6 +32,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitsMergerConfig.h"
+#include "services/evaluator/EvaluatorSvc.h"  // NEW
 
 namespace eicrecon {
 
@@ -41,8 +43,8 @@ void CalorimeterHitsMerger::init() {
         return;
     }
 
+    id_desc = m_detector->readout(m_cfg.readout).idSpec();
     try {
-        auto id_desc = m_detector->readout(m_cfg.readout).idSpec();
         id_mask = 0;
         std::vector<std::pair<std::string, int>> ref_fields;
         for (size_t i = 0; i < m_cfg.fields.size(); ++i) {
@@ -59,6 +61,26 @@ void CalorimeterHitsMerger::init() {
     }
     id_mask = ~id_mask;
     debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
+
+
+    // ------------------------------------------------------------------------
+    // NEW
+    // ------------------------------------------------------------------------
+    std::function hit_to_map = [this](const edm4eic::CalorimeterHit& hit) {
+      std::unordered_map<std::string, double> params;
+      for (const auto& name_field : id_desc.fields()) {
+        params.emplace(name_field.first, name_field.second->value(hit.getCellID()));
+        trace("{} = {}", name_field.first, name_field.second->value(hit.getCellID()) );
+      }
+      return params;
+    };
+
+    auto& svc = algorithms::ServiceSvc::instance();
+    if (!m_cfg.mergeMatrix.empty()) {
+      make_mask = svc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.mergeMatrix, hit_to_map);
+    }
+    // ------------------------------------------------------------------------
+
 }
 
 void CalorimeterHitsMerger::process(

@@ -11,11 +11,13 @@
 #pragma once
 
 #include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>  // NEW
 #include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <stdint.h>
+#include <functional>
 #include <gsl/pointers>
 #include <string>
 #include <string_view>
@@ -51,9 +53,20 @@ namespace eicrecon {
   private:
     uint64_t id_mask{0}, ref_mask{0};
 
+  // --------------------------------------------------------------------------
+  // NEW
+  // --------------------------------------------------------------------------
+  /* TODO might not need this as a member...
+   */ 
+  private:
+    std::function<int(const edm4eic::CalorimeterHit& other)> make_mask;
+
   private:
     const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
     const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
+
+  private:
+    dd4hep::IDDescriptor id_desc;  // NEW
 
   };
 
