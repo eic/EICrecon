@@ -184,12 +184,17 @@ extern "C" {
         // --------------------------------------------------------------------
         // NEW
         // --------------------------------------------------------------------
+        /* TODO
+         *   - work out how to update adjacency matrix based on provided mappings
+         *   - tie matrix to mappings 
+         *   - factory for clustering merged hits
+         */
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
           "HcalBarrelMergedHits", {"HcalBarrelRecHits"}, {"HcalBarrelMergedHits"},
           {
             .readout = "HcalBarrelHits",
-            .fields = {"eta"},
-            .refs = {1}
+            .fields = {"phi"},
+            .mappings = {"std::floor(phi/5)"}
           },
           app   // TODO: Remove me once fixed
         ));
