@@ -92,6 +92,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFEndcapRawHits",
 
             "TOFBarrelHits",
+            "TOFBarrelADCTDC"
             "TOFEndcapHits",
 
             "TOFBarrelRawHitAssociations",
