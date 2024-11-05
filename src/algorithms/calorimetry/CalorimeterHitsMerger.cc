@@ -43,41 +43,57 @@ void CalorimeterHitsMerger::init() {
         return;
     }
 
-    id_desc = m_detector->readout(m_cfg.readout).idSpec();
-    try {
-        id_mask = 0;
-        std::vector<std::pair<std::string, int>> ref_fields;
-        for (size_t i = 0; i < m_cfg.fields.size(); ++i) {
-            id_mask |= id_desc.field(m_cfg.fields[i])->mask();
-            // use the provided id number to find ref cell, or use 0
-            int ref = i < m_cfg.refs.size() ? m_cfg.refs[i] : 0;
-            ref_fields.emplace_back(m_cfg.fields[i], ref);
-        }
-        ref_mask = id_desc.encode(ref_fields);
-    } catch (...) {
-        auto mess = fmt::format("Failed to load ID decoder for {}", m_cfg.readout);
-        warning(mess);
-//        throw std::runtime_error(mess);
-    }
-    id_mask = ~id_mask;
-    debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
-
-
     // ------------------------------------------------------------------------
     // NEW
     // ------------------------------------------------------------------------
-    std::function hit_to_map = [this](const edm4eic::CalorimeterHit& hit) {
-      std::unordered_map<std::string, double> params;
-      for (const auto& name_field : id_desc.fields()) {
-        params.emplace(name_field.first, name_field.second->value(hit.getCellID()));
-        trace("{} = {}", name_field.first, name_field.second->value(hit.getCellID()) );
+    // initialize descriptor + decoders
+    try {
+      id_desc = m_detector->readout(m_cfg.readout).idSpec();
+      id_decoder = id_desc.decoder();
+      for (const auto& field : m_cfg.fields) {
+        const short index = id_decoder->index(field);
       }
-      return params;
-    };
+    } catch (...) {
+      auto mess = fmt::format("Failed to load ID decoder for {}", m_cfg.readout);
+      warning(mess);
+//        throw std::runtime_error(mess);
+    }
 
-    auto& svc = algorithms::ServiceSvc::instance();
-    if (!m_cfg.mergeMatrix.empty()) {
-      make_mask = svc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.mergeMatrix, hit_to_map);
+    // if field-by-field mappings provided, initialize functionals
+    if (m_cfg.mappings.empty()) {
+      id_mask = 0;
+      std::vector<RefField> ref_fields;  // NEW
+      for (size_t i = 0; i < m_cfg.fields.size(); ++i) {
+          id_mask |= id_desc.field(m_cfg.fields[i])->mask();
+          // use the provided id number to find ref cell, or use 0
+          int ref = i < m_cfg.refs.size() ? m_cfg.refs[i] : 0;
+          ref_fields.emplace_back(m_cfg.fields[i], ref);
+      }
+      ref_mask = id_desc.encode(ref_fields);
+      id_mask = ~id_mask;
+      debug("ID mask in {:s}: {:#064b}", m_cfg.readout, id_mask);
+    } else {
+
+      // lambda to translate IDDescriptor fields into function parameters
+      std::function hit_to_map = [this](const edm4eic::CalorimeterHit& hit) {
+        std::unordered_map<std::string, double> params;
+        for (const auto& name_field : id_desc.fields()) {
+          params.emplace(name_field.first, name_field.second->value(hit.getCellID()));
+          trace("{} = {}", name_field.first, name_field.second->value(hit.getCellID()));
+        }
+        return params;
+      };
+
+      // intialize functions
+      auto& svc = algorithms::ServiceSvc::instance();
+      for (std::size_t iMap = 0; const auto& mapping : m_cfg.mappings) {
+        if (iMap < m_cfg.fields.size()) {
+          ref_maps.emplace_back(
+            svc.service<EvaluatorSvc>("EvaluatorSvc")->compile(mapping, hit_to_map)
+          );
+        }
+        ++iMap;
+      }  // end loop over mappings
     }
     // ------------------------------------------------------------------------
 
@@ -90,14 +106,19 @@ void CalorimeterHitsMerger::process(
     const auto [in_hits] = input;
     auto [out_hits] = output;
 
+    // ------------------------------------------------------------------------
+    // NEW
+    // ------------------------------------------------------------------------
     // find the hits that belong to the same group (for merging)
-    std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
-    std::size_t ix = 0;
-    for (const auto &h : *in_hits) {
+    MergeMap merge_map;
+    if (m_cfg.mappings.empty()) {
+      for (std::size_t ix = 0; const auto &h : *in_hits) {
         uint64_t id = h.getCellID() & id_mask;
         merge_map[id].push_back(ix);
-
         ix++;
+      }
+    } else {
+      build_map_via_funcs(in_hits,merge_map);
     }
 
     // sort hits by energy from large to small
@@ -161,5 +182,43 @@ void CalorimeterHitsMerger::process(
 
     debug("Size before = {}, after = {}", in_hits->size(), out_hits->size());
 }
+
+// --------------------------------------------------------------------------
+// NEW
+// --------------------------------------------------------------------------
+void CalorimeterHitsMerger::build_map_via_funcs(
+  const edm4eic::CalorimeterHitCollection* in_hits,
+  MergeMap& merge_map
+) const {
+
+  std::vector<RefField> ref_fields;
+  for (std::size_t iHit = 0; const auto& hit : *in_hits) {
+
+    // make sure vector is clear
+    ref_indices.clear();
+    for (std::size_t iField = 0; const auto& name_field : id_desc.fields()) {
+
+      // if mapping provided for field, apply it
+      // otherwise just copy index
+      if (std::find(m_cfg.fields, name_field.first)){
+        ref_fields.push_back(
+          {name_field.first, ref_maps[iField](hit)}
+        );
+      } else {
+        ref_fields.push_back(
+          {name_field.first, id_decoder->get(hit.getCellID(), name_field.first)}
+        );
+      }
+      ++iField;
+    }
+    const uint64_t ref_id = id_desc.encode(ref_fields);
+
+    // add hit to appropriate group
+    merge_map[ref_id].push_back(iHit);
+    ++iHit
+
+  }  // end hit loop
+
+}  // end 'build_map_via_funcs(edm4eic::CalorimeterHitsCollection*, MergeMap&)'
 
 } // namespace eicrecon

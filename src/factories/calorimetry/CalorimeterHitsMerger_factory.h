@@ -20,9 +20,9 @@ private:
     PodioOutput<edm4eic::CalorimeterHit> m_hits_output {this};
 
     ParameterRef<std::string> m_readout {this, "readout", config().readout};
-    ParameterRef<std::string> m_mergeMatrix {this, "mergeMatrix", config().mergeMatrix};
     ParameterRef<std::vector<std::string>> m_fields {this, "fields", config().fields};
     ParameterRef<std::vector<int>> m_refs {this, "refs", config().refs};
+    ParameterRef<std::vector<std::string>> m_mappings {this, "mappings", config().mappings};
 
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
 

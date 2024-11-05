@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <DD4hep/BitFieldCoder.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>  // NEW
 #include <DDRec/CellIDPositionConverter.h>
@@ -21,11 +22,20 @@
 #include <gsl/pointers>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <vector>
 
 #include "CalorimeterHitsMergerConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
+
+  // --------------------------------------------------------------------------
+  // NEW
+  // --------------------------------------------------------------------------
+  // aliases for convenience
+  using MergeMap = std::unordered_map<uint64_t, std::vector<std::size_t>>;
+  using RefField = std::pair<std::string, int>;
 
   using CalorimeterHitsMergerAlgorithm = algorithms::Algorithm<
     algorithms::Input<
@@ -56,17 +66,20 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   // NEW
   // --------------------------------------------------------------------------
-  /* TODO might not need this as a member...
-   */ 
   private:
-    std::function<int(const edm4eic::CalorimeterHit& other)> make_mask;
+    std::vector<std::function<int(const edm4eic::CalorimeterHit& other)>> ref_maps;
+    dd4hep::IDDescriptor id_desc;
+    dd4hep::BitFieldCoder* id_decoder;
 
   private:
     const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
     const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
 
+  // --------------------------------------------------------------------------
+  // NEW
+  // --------------------------------------------------------------------------
   private:
-    dd4hep::IDDescriptor id_desc;  // NEW
+    void build_map_via_funcs(const edm4eic::CalorimeterHitCollection* in_hits, MergeMap& merge_map) const;
 
   };
 
