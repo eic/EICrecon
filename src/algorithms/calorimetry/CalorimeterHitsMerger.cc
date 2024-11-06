@@ -91,6 +91,7 @@ void CalorimeterHitsMerger::init() {
           ref_maps.emplace_back(
             svc.service<EvaluatorSvc>("EvaluatorSvc")->compile(mapping, hit_to_map)
           );
+          trace("Mapping for field {} = {}", m_cfg.fields.at(iMap), mapping);
         }
         ++iMap;
       }  // end loop over mappings
@@ -120,6 +121,7 @@ void CalorimeterHitsMerger::process(
     } else {
       build_map_via_funcs(in_hits,merge_map);
     }
+    debug("Merge map built: merging {} hits into {} merged hits", in_hits->size(), merge_map.size());
 
     // sort hits by energy from large to small
     for (auto &it : merge_map) {
