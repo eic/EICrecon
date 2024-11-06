@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <functional>
 #include <gsl/pointers>
+#include <map>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -36,6 +37,7 @@ namespace eicrecon {
   // aliases for convenience
   using MergeMap = std::unordered_map<uint64_t, std::vector<std::size_t>>;
   using RefField = std::pair<std::string, int>;
+  using MapFunc = std::function<int(const edm4eic::CalorimeterHit&)>;
 
   using CalorimeterHitsMergerAlgorithm = algorithms::Algorithm<
     algorithms::Input<
@@ -67,7 +69,7 @@ namespace eicrecon {
   // NEW
   // --------------------------------------------------------------------------
   private:
-    std::vector<std::function<int(const edm4eic::CalorimeterHit& other)>> ref_maps;
+    mutable std::map<std::string, MapFunc> ref_maps;
     dd4hep::IDDescriptor id_desc;
     dd4hep::BitFieldCoder* id_decoder;
 

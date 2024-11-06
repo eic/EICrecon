@@ -59,7 +59,8 @@ void CalorimeterHitsMerger::init() {
 //        throw std::runtime_error(mess);
     }
 
-    // if field-by-field mappings provided, initialize functionals
+    // if no field-by-field mappings provided, initialize relevant bitmasks
+    // otherwise intialize relevant functionals
     if (m_cfg.mappings.empty()) {
       id_mask = 0;
       std::vector<RefField> ref_fields;  // NEW
@@ -84,13 +85,13 @@ void CalorimeterHitsMerger::init() {
         return params;
       };
 
+
       // intialize functions
+      //   - NOTE this assumes provided fields are 1-to-1!
       auto& svc = algorithms::ServiceSvc::instance();
       for (std::size_t iMap = 0; const auto& mapping : m_cfg.mappings) {
         if (iMap < m_cfg.fields.size()) {
-          ref_maps.emplace_back(
-            svc.service<EvaluatorSvc>("EvaluatorSvc")->compile(mapping, hit_to_map)
-          );
+          ref_maps[m_cfg.fields.at(iMap)] = svc.service<EvaluatorSvc>("EvaluatorSvc")->compile(mapping, hit_to_map);
           trace("Mapping for field {} = {}", m_cfg.fields.at(iMap), mapping);
         }
         ++iMap;
@@ -200,7 +201,7 @@ void CalorimeterHitsMerger::build_map_via_funcs(
     ref_fields.clear();
     for (std::size_t iField = 0; const auto& name_field : id_desc.fields()) {
 
-      // check if field has associated mapping
+      // check if field has associated mapping 
       const bool foundMapping = (
         std::find(m_cfg.fields.begin(), m_cfg.fields.end(), name_field.first) != m_cfg.fields.end()
       );
@@ -209,7 +210,7 @@ void CalorimeterHitsMerger::build_map_via_funcs(
       // otherwise just copy index
       if (foundMapping) {
         ref_fields.push_back(
-          {name_field.first, ref_maps[iField](hit)}
+          {name_field.first, ref_maps[name_field.first](hit)}
         );
       } else {
         ref_fields.push_back(
