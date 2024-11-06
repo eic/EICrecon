@@ -198,7 +198,7 @@ void CalorimeterHitsMerger::build_map_via_funcs(
     ref_fields.clear();
     for (std::size_t iField = 0; const auto& name_field : id_desc.fields()) {
 
-      // check if field has associated mapping 
+      // check if field has associated mapping
       const bool foundMapping = (
         std::find(m_cfg.fields.begin(), m_cfg.fields.end(), name_field.first) != m_cfg.fields.end()
       );
