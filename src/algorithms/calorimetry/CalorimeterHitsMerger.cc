@@ -195,12 +195,17 @@ void CalorimeterHitsMerger::build_map_via_funcs(
   for (std::size_t iHit = 0; const auto& hit : *in_hits) {
 
     // make sure vector is clear
-    ref_indices.clear();
+    ref_fields.clear();
     for (std::size_t iField = 0; const auto& name_field : id_desc.fields()) {
+
+      // check if field has associated mapping 
+      const bool foundMapping = (
+        std::find(m_cfg.fields.begin(), m_cfg.fields.end(), name_field.first) != m_cfg.fields.end()
+      );
 
       // if mapping provided for field, apply it
       // otherwise just copy index
-      if (std::find(m_cfg.fields, name_field.first)){
+      if (foundMapping) {
         ref_fields.push_back(
           {name_field.first, ref_maps[iField](hit)}
         );
@@ -215,7 +220,7 @@ void CalorimeterHitsMerger::build_map_via_funcs(
 
     // add hit to appropriate group
     merge_map[ref_id].push_back(iHit);
-    ++iHit
+    ++iHit;
 
   }  // end hit loop
 
