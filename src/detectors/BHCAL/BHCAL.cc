@@ -186,7 +186,7 @@ extern "C" {
         // --------------------------------------------------------------------
         /* TODO
          *   - work out how to update adjacency matrix based on provided mappings
-         *   - tie matrix to mappings 
+         *   - tie matrix to mappings
          *   - add factory for clustering merged hits
          */
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
