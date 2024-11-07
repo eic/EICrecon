@@ -15,7 +15,7 @@ struct TOFHitDigiConfig {
   double resolutionTDC{1};
   double resolutionADC{1};
 
-  // Parameters of AC-LGAD signal generation - Added by Souvik
+  // Parameters of AC-LGAD signal generation
   double gain           = 80;
   double risetime       = 0.45; // 0.02; //in ns
   double sigma_analog   = 0.293951;

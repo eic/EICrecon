@@ -44,6 +44,54 @@ void BTOFChargeSharing::init() {
   m_decoder = seg.decoder();
 }
 
+void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input,
+                                const BTOFChargeSharing::Output& output) const {
+  const auto [simhits] = input;
+  auto [sharedHits] = output;
+  std::shared_ptr<std::vector<dd4hep::rec::CellID>> neighbors;
+
+  for(const auto & hit : *simhits) {
+    auto cellID = hit.getCellID();
+
+    if(!neighbors){
+      std::unordered_set<dd4hep::rec::CellID> dp;
+      neighbors = std::make_shared<std::vector<dd4hep::rec::CellID>>();
+      this -> _findAllNeighborsInSensor(cellID, neighbors, dp);
+    }
+
+    double edep = hit.getEDep();
+    double time = hit.getTime();
+    auto momentum = hit.getMomentum();
+    auto truePos = hit.getPosition();
+    auto localPos_hit = this -> _global2Local(dd4hep::Position(truePos.x*dd4hep::mm, truePos.y*dd4hep::mm, truePos.z*dd4hep::mm));
+
+    for(const auto neighbor : *neighbors) {
+       // integrate over neighbor area to get total energy deposition
+       auto localPos_neighbor = this -> _cell2LocalPosition(neighbor);
+       auto cellDimension = m_converter -> cellDimensions(neighbor);
+
+       double edep_cell = edep *
+                      _integralGaus(localPos_hit.x(), m_cfg.sigma_sharingx,
+                                    localPos_neighbor.x() - 0.5 * cellDimension[0],
+                                    localPos_neighbor.x() + 0.5 * cellDimension[0]) *
+                      _integralGaus(localPos_hit.y(), m_cfg.sigma_sharingy,
+                                    localPos_neighbor.y() - 0.5 * cellDimension[1],
+                                    localPos_neighbor.y() + 0.5 * cellDimension[1]);
+
+       if(edep_cell > 0) {
+         auto globalPos = m_converter -> position(neighbor);
+         auto hit =  sharedHits->create();
+         hit.setCellID(neighbor);
+         hit.setEDep(edep_cell);
+         hit.setTime(time);
+         hit.setPosition({globalPos.x(), globalPos.y(), globalPos.z()});
+         hit.setMomentum({momentum.x, momentum.y, momentum.z});
+       }
+    }
+  }
+} // BTOFChargeSharing:process
+
+
 void BTOFChargeSharing::_findAllNeighborsInSensor(
     dd4hep::rec::CellID hitCell, std::shared_ptr<std::vector<dd4hep::rec::CellID>>& answer,
     std::unordered_set<dd4hep::rec::CellID>& dp) const {
@@ -105,8 +153,8 @@ double BTOFChargeSharing::_integralGaus(double mean, double sd, double low_lim, 
   double up = mean > up_lim? -0.5 : 0.5;
   double low = mean > low_lim? -0.5 : 0.5;
   if(sd > 0) {
-    up  = -0.5 * ROOT::Math::erf(TMath::Sqrt(2) * (mean - up_lim) / sd);
-    low = -0.5 * ROOT::Math::erf(TMath::Sqrt(2) * (mean - low_lim) / sd);
+    up  = -0.5 * std::erf(std::sqrt(2) * (mean - up_lim) / sd);
+    low = -0.5 * std::erf(std::sqrt(2) * (mean - low_lim) / sd);
   }
   return up - low;
 }
@@ -129,50 +177,4 @@ dd4hep::Position BTOFChargeSharing::_global2Local(const dd4hep::Position& pos) c
   return position;
 }
 
-void BTOFChargeSharing::process(const BTOFChargeSharing::Input& input,
-                                const BTOFChargeSharing::Output& output) const {
-  const auto [simhits] = input;
-  auto [sharedHits] = output;
-  std::shared_ptr<std::vector<dd4hep::rec::CellID>> neighbors;
-
-  for(const auto & hit : *simhits) {
-    auto cellID = hit.getCellID();
-
-    if(!neighbors){
-      std::unordered_set<dd4hep::rec::CellID> dp;
-      neighbors = std::make_shared<std::vector<dd4hep::rec::CellID>>();
-      this -> _findAllNeighborsInSensor(cellID, neighbors, dp);
-    }
-
-    double edep = hit.getEDep();
-    double time = hit.getTime();
-    auto momentum = hit.getMomentum();
-    auto truePos = hit.getPosition();
-    auto localPos_hit = this -> _global2Local(dd4hep::Position(truePos.x*dd4hep::mm, truePos.y*dd4hep::mm, truePos.z*dd4hep::mm));
-
-    for(const auto neighbor : *neighbors) {
-       // integrate over neighbor area to get total energy deposition
-       auto localPos_neighbor = this -> _cell2LocalPosition(neighbor);
-       auto cellDimension = m_converter -> cellDimensions(neighbor);
-
-       double edep_cell = edep *
-                      _integralGaus(localPos_hit.x(), m_cfg.sigma_sharingx,
-                                    localPos_neighbor.x() - 0.5 * cellDimension[0],
-                                    localPos_neighbor.x() + 0.5 * cellDimension[0]) *
-                      _integralGaus(localPos_hit.y(), m_cfg.sigma_sharingy,
-                                    localPos_neighbor.y() - 0.5 * cellDimension[1],
-                                    localPos_neighbor.y() + 0.5 * cellDimension[1]);
-
-       if(edep_cell > 0) {
-         auto globalPos = m_converter -> position(neighbor);
-         auto hit =  sharedHits->create();
-         hit.setCellID(neighbor);
-         hit.setEDep(edep_cell);
-         hit.setTime(time);
-         hit.setPosition({globalPos.x(), globalPos.y(), globalPos.z()});
-         hit.setMomentum({momentum.x, momentum.y, momentum.z});
-       }
-    }
-  }
-} // BTOFChargeSharing:process
 } // namespace eicrecon

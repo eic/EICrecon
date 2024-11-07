@@ -24,8 +24,7 @@ void TOFPulseDigitization::process(const TOFPulseDigitization::Input& input,
   auto [rawhits] = output;
 
   double thres = m_cfg.t_thres;
-  // double Vm=-0.05;
-  //  SP noted that max dE experienced by LGAD should be 0.8 keV
+  // Vm in unit of GeV. When Edep = Vm, ADC = cfg.adc_range-1
   double Vm = m_cfg.Vm;
   int adc_range = m_cfg.adc_range;
 
@@ -34,8 +33,6 @@ void TOFPulseDigitization::process(const TOFPulseDigitization::Input& input,
   double norm_threshold = -thres * adc_range / Vm;
 
   for(const auto& pulse : *simhits) {
-    // Added by SP
-    //-------------------------------------------------------------
     double intersectionX = 0.0;
     int tdc              = std::numeric_limits<int>::max();
     int adc              = 0;

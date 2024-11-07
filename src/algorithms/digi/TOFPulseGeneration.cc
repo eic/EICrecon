@@ -29,7 +29,6 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
   const auto [simhits] = input;
   auto [rawADCs] = output;
 
-  //  SP noted that max dE experienced by LGAD should be 0.8 keV
   double Vm = m_cfg.Vm;
   double tMin = m_cfg.tMin;
   double tMax = m_cfg.tMax;
@@ -46,7 +45,7 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
   for (const auto& hit : *simhits) {
     auto cellID          = hit.getCellID();
     double sum_charge = 0.0;
-    double mpv_analog = 0.0; // SP
+    double mpv_analog = 0.0; 
 
     double  time       = hit.getTime();
     double  charge     = hit.getEDep();
@@ -56,8 +55,6 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
     auto& ADCs = adc_sum[cellID];
     if(ADCs.size() == 0) ADCs.resize(nBins, 0);
 
-    // Added by SP
-    //-------------------------------------------------------------
     mpv_analog = time + m_cfg.risetime;
 
     double landau_min = this -> _Landau(0, mpv_analog, m_cfg.sigma_analog);
