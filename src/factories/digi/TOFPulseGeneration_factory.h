@@ -25,7 +25,6 @@ private:
   ParameterRef<double> m_tMax{this, "tMax", config().tMax};
   ParameterRef<int> m_adc_range{this, "adcRange", config().adc_range};
   ParameterRef<int> m_tdc_range{this, "tdcRange", config().tdc_range};
-  ParameterRef<int> m_nBins{this, "nBins", config().nBins};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};
 
   Service<AlgorithmsInit_service> m_algorithmsInit {this};

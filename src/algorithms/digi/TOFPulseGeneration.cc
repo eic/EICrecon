@@ -35,7 +35,7 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
   double tMax = m_cfg.tMax;
   int adc_range = m_cfg.adc_range;
   int tdc_range = m_cfg.tdc_range;
-  int nBins = m_cfg.nBins;
+  int nBins = m_cfg.tdc_range;
 
   // signal sum
   // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an
@@ -49,7 +49,7 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
     double mpv_analog = 0.0; // SP
 
     double  time       = hit.getTime();
-    double  charge     = hit.getEDep() * m_cfg.gain;
+    double  charge     = hit.getEDep();
     // reduce computation power by not simulating low-charge hits
     if(charge < m_cfg.ignore_thres) continue;
 
@@ -68,11 +68,11 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
       landau_min = std::min(landau_min, this -> _Landau(x, mpv_analog, m_cfg.sigma_analog));
     }
 
-    double scalingFactor = -1. / Vm / landau_min * adc_range;
+    double scalingFactor = -1. / Vm / m_cfg.gain / landau_min * adc_range;
 
     for (int j = 0; j < nBins; ++j) {
       double x = tMin + j * interval;
-      double y = -1 * charge * this -> _Landau(x, mpv_analog, m_cfg.sigma_analog) * scalingFactor;
+      double y = -1 * charge * m_cfg.gain * this -> _Landau(x, mpv_analog, m_cfg.sigma_analog) * scalingFactor;
       ADCs[j] += y;;
     }
 

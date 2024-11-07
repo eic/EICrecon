@@ -35,7 +35,7 @@ void BTOFChargeSharing::init() {
   m_detector = algorithms::GeoSvc::instance().detector();;
   m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
 
-  auto seg       = m_detector->readout("TOFBarrelHits").segmentation();
+  auto seg       = m_detector->readout(m_cfg.readout).segmentation();
   auto type      = seg.type();
   if (type != "CartesianGridXY")
     throw std::runtime_error("Unsupported segmentation type: " + type +
@@ -101,8 +101,13 @@ BTOFChargeSharing::_getSensorID(const dd4hep::rec::CellID& hitCell) const {
 
 double BTOFChargeSharing::_integralGaus(double mean, double sd, double low_lim, double up_lim) const {
   // return integral Gauss(mean, sd) dx from x = low_lim to x = up_lim
-  double up  = -0.5 * ROOT::Math::erf(TMath::Sqrt(2) * (mean - up_lim) / sd);
-  double low = -0.5 * ROOT::Math::erf(TMath::Sqrt(2) * (mean - low_lim) / sd);
+  // default value is set when sd = 0
+  double up = mean > up_lim? -0.5 : 0.5;
+  double low = mean > low_lim? -0.5 : 0.5;
+  if(sd > 0) {
+    up  = -0.5 * ROOT::Math::erf(TMath::Sqrt(2) * (mean - up_lim) / sd);
+    low = -0.5 * ROOT::Math::erf(TMath::Sqrt(2) * (mean - low_lim) / sd);
+  }
   return up - low;
 }
 

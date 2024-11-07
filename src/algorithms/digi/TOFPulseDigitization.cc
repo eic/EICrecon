@@ -48,7 +48,7 @@ void TOFPulseDigitization::process(const TOFPulseDigitization::Input& input,
     for (const auto adc : adcs) {
       if (adc_prev >= norm_threshold && adc <= norm_threshold) {
         intersectionX = time_bin*time_interval + time_interval * (norm_threshold - adc_prev) / (adc - adc_prev);
-        tdc = ceil(intersectionX / 0.02);
+        tdc = static_cast<int>(intersectionX / time_interval);
       }
       if (abs(adc) > abs(V)) // To get peak of the Analog signal
         V = adc;
