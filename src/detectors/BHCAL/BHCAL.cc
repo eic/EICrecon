@@ -194,7 +194,7 @@ extern "C" {
           {
             .readout = "HcalBarrelHits",
             .fields = {"phi"},
-            .mappings = {"std::floor(phi/5)"}
+            .mappings = {"phi-(5*((phi/5)-floor(phi/5)))"}
           },
           app   // TODO: Remove me once fixed
         ));
