@@ -45,7 +45,7 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
   for (const auto& hit : *simhits) {
     auto cellID          = hit.getCellID();
     double sum_charge = 0.0;
-    double mpv_analog = 0.0; 
+    double mpv_analog = 0.0;
 
     double  time       = hit.getTime();
     double  charge     = hit.getEDep();
