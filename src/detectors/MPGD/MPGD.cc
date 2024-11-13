@@ -10,6 +10,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/digi/MPGDTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
@@ -19,7 +20,7 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     // Digitization
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "MPGDBarrelRawHits",
         {
           "MPGDBarrelHits"
@@ -29,6 +30,9 @@ void InitPlugin(JApplication *app) {
           "MPGDBarrelRawHitAssociations"
         },
         {
+	    .readout = "MPGDBarrelHits",
+	    .x_field  = "phi",
+	    .y_field  = "z",
             .threshold = 100 * dd4hep::eV,
             .timeResolution = 10,
         },
