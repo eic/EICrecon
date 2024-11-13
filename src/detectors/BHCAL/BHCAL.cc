@@ -17,6 +17,60 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
+// TEST
+#include <iostream>
+
+// ----------------------------------------------------------------------------
+// Helper method to generate appropriate phi map
+// ----------------------------------------------------------------------------
+std::string MakePhiMap(const std::size_t nMerge = 1) {
+
+  // convert num to merge to string
+  const std::string sNum = std::to_string(nMerge);
+
+  // construct mapping
+  std::string map  = "";
+  if (nMerge > 1) {
+    map = "phi-(" + sNum + "*((phi/" + sNum + ")-floor(phi/" + sNum + ")))";
+  } else {
+    map = "phi";
+  }
+  return map;
+
+}  // end 'MakePhiMap(std::size_t)'
+
+
+
+// ----------------------------------------------------------------------------
+// Helper method to generate appropriate adjacency matrix
+// ----------------------------------------------------------------------------
+std::string MakeAdjacencyMatrix(const std::size_t nMerge = 1) {
+
+  // set up checks at wraparound
+  const std::string sMerge    = std::to_string(nMerge);
+  const std::string wrapDef   = "(abs(phi_1 - phi_2) == (320 - 1))";
+  const std::string wrapMerge = "(abs(320 - abs(phi_1 - phi_2)) <= " + sMerge + ")";
+
+  // combine strings into horizontal adjacency conditions
+  const std::string phiAdjacent  = "(abs(phi_1 - phi_2) == " + sMerge + ")";
+  const std::string wrapAdjacent = nMerge > 1 ? wrapMerge : wrapDef;
+
+  // put everything together
+  std::string matrix("");
+  matrix += "(";
+  // check for vertically adjacent tiles
+  matrix += "  ( (abs(eta_1 - eta_2) == 1) && (abs(phi_1 - phi_2) == 0) ) ||";
+  // check for horizontally adjacent tiles
+  matrix += "  ( (abs(eta_1 - eta_2) == 0) && " + phiAdjacent + " ) ||";
+  // check for horizontally adjacent tiles at wraparound
+  matrix += "  ( (abs(eta_1 - eta_2) == 0) && " + wrapAdjacent + " )";
+  matrix += ") == 1";
+  return matrix;
+
+}  // end 'MakeAdjacencyMatrix(std::size_t)'
+
+
+
 extern "C" {
 
     void InitPlugin(JApplication *app) {
@@ -24,6 +78,15 @@ extern "C" {
         using namespace eicrecon;
 
         InitJANAPlugin(app);
+
+        // ---------------------------------------------------------------------
+        // no. of adjacent phi tiles to merge into a tower
+        // ---------------------------------------------------------------------
+        const std::size_t nPhiToMerge = 3;
+
+        // TODO wire into main reconstruction flow
+        const std::string phiMap    = MakePhiMap(nPhiToMerge);
+        const std::string adjMatrix = MakeAdjacencyMatrix(nPhiToMerge);
 
         // Make sure digi and reco use the same value
         decltype(CalorimeterHitDigiConfig::capADC)        HcalBarrel_capADC = 65536; //65536,  16bit ADC
@@ -185,7 +248,6 @@ extern "C" {
         // NEW
         // --------------------------------------------------------------------
         /* TODO
-         *   - work out how to update adjacency matrix based on provided mappings
          *   - tie matrix to mappings
          *   - add factory for clustering merged hits
          */
@@ -194,7 +256,7 @@ extern "C" {
           {
             .readout = "HcalBarrelHits",
             .fields = {"phi"},
-            .mappings = {"phi-(5*((phi/5)-floor(phi/5)))"}
+            .mappings = {phiMap}
           },
           app   // TODO: Remove me once fixed
         ));
