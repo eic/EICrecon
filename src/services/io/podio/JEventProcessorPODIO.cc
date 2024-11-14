@@ -290,11 +290,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "LFHCALSplitMergeClusterAssociations",
             "HcalBarrelRawHits",
             "HcalBarrelRecHits",
+            "HcalBarrelMergedHits",
             "HcalBarrelClusters",
             "HcalBarrelClusterAssociations",
             "HcalBarrelSplitMergeClusters",
             "HcalBarrelSplitMergeClusterAssociations",
-            "HcalBarrelMergedHits",  // NEW
             "B0ECalRawHits",
             "B0ECalRecHits",
             "B0ECalClusters",

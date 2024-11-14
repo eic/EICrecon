@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng, Jihee Kim, Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, David Lawrence
+// Copyright (C) 2022 Chao Peng, Jihee Kim, Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, David Lawrence, Derek Anderson
 
 /*
  *  An algorithm to group readout hits from a calorimeter
@@ -16,13 +16,13 @@
 #include <DD4hep/Readout.h>
 #include <DD4hep/VolumeManager.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <edm4eic/CalorimeterHit.h>  // NEW
+#include <edm4eic/CalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <fmt/core.h>
 #include <algorithm>
-#include <algorithms/service.h>  // NEW
+#include <algorithms/service.h>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
@@ -32,7 +32,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitsMergerConfig.h"
-#include "services/evaluator/EvaluatorSvc.h"  // NEW
+#include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
 
@@ -43,9 +43,6 @@ void CalorimeterHitsMerger::init() {
         return;
     }
 
-    // ------------------------------------------------------------------------
-    // NEW
-    // ------------------------------------------------------------------------
     // initialize descriptor + decoders
     try {
       id_desc = m_detector->readout(m_cfg.readout).idSpec();
@@ -63,7 +60,7 @@ void CalorimeterHitsMerger::init() {
     // otherwise intialize relevant functionals
     if (m_cfg.mappings.empty()) {
       id_mask = 0;
-      std::vector<RefField> ref_fields;  // NEW
+      std::vector<RefField> ref_fields;
       for (size_t i = 0; i < m_cfg.fields.size(); ++i) {
           id_mask |= id_desc.field(m_cfg.fields[i])->mask();
           // use the provided id number to find ref cell, or use 0
@@ -97,7 +94,6 @@ void CalorimeterHitsMerger::init() {
         ++iMap;
       }  // end loop over mappings
     }
-    // ------------------------------------------------------------------------
 
 }
 
@@ -108,9 +104,6 @@ void CalorimeterHitsMerger::process(
     const auto [in_hits] = input;
     auto [out_hits] = output;
 
-    // ------------------------------------------------------------------------
-    // NEW
-    // ------------------------------------------------------------------------
     // find the hits that belong to the same group (for merging)
     MergeMap merge_map;
     if (m_cfg.mappings.empty()) {
@@ -186,9 +179,6 @@ void CalorimeterHitsMerger::process(
     debug("Size before = {}, after = {}", in_hits->size(), out_hits->size());
 }
 
-// --------------------------------------------------------------------------
-// NEW
-// --------------------------------------------------------------------------
 void CalorimeterHitsMerger::build_map_via_funcs(
   const edm4eic::CalorimeterHitCollection* in_hits,
   MergeMap& merge_map
