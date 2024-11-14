@@ -82,7 +82,6 @@ void CalorimeterHitsMerger::init() {
         return params;
       };
 
-
       // intialize functions
       //   - NOTE this assumes provided fields are 1-to-1!
       auto& svc = algorithms::ServiceSvc::instance();
