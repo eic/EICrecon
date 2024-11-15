@@ -38,7 +38,7 @@ namespace eicrecon {
     float rMinMiddle       = 20. * Acts::UnitConstants::mm; // Middle spacepoint must fall between these two radii
     float rMaxMiddle       = 400. * Acts::UnitConstants::mm;
 
-    float deltaPhiMax      = 0.085; // Max difference in phi between middle and either top or bottom sp 
+    float deltaPhiMax      = 0.085; // Max difference in phi between middle and either top or bottom sp
 
     //////////////////////////////////////////////////////////////////////////
     /// SEED FILTER GENERAL PARAMETERS
