@@ -104,6 +104,7 @@ void eicrecon::TrackSeeding::configure() {
     m_seedFinderConfig.impactMax          = m_cfg.impactMax;
     m_seedFinderConfig.rMinMiddle         = m_cfg.rMinMiddle;
     m_seedFinderConfig.rMaxMiddle         = m_cfg.rMaxMiddle;
+    m_seedFinderConfig.deltaPhiMax        = m_cfg.deltaPhiMax;
 
     m_seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
     m_seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
