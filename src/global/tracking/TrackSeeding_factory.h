@@ -50,6 +50,7 @@ private:
     ParameterRef<float> m_impactMax {this, "impactMax", config().impactMax, "maximum impact parameter allowed for seeds for Acts::OrthogonalSeedFinder. rMin should be larger than impactMax."};
     ParameterRef<float> m_rMinMiddle {this, "rMinMiddle", config().rMinMiddle, "min radius for middle space point for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_rMaxMiddle {this, "rMaxMiddle", config().rMaxMiddle, "max radius for middle space point for Acts::OrthogonalSeedFinder"};
+    ParameterRef<float> m_deltaPhiMax {this, "deltaPhiMax", config().deltaPhiMax, "Max phi difference between middle and top/bottom space point"}; 
     ParameterRef<float> m_locaError {this, "loc_a_Error", config().locaError, "Error on Loc a for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_locbError {this, "loc_b_Error", config().locbError, "Error on Loc b for Acts::OrthogonalSeedFinder"};
     ParameterRef<float> m_phiError {this, "phi_Error", config().phiError, "Error on phi for Acts::OrthogonalSeedFinder"};
