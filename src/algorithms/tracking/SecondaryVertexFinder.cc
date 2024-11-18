@@ -13,7 +13,11 @@
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#if Acts_VERSION_MAJOR >= 32
+#include <Acts/Propagator/VoidNavigator.hpp>
+#else
 #include <Acts/Propagator/detail/VoidPropagatorComponents.hpp>
+#endif
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Utilities/VectorHelpers.hpp>
@@ -28,6 +32,11 @@
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <Acts/Vertexing/TrackAtVertex.hpp>
+#include <edm4eic/TrackParameters.h>
+#include <edm4eic/Trajectory.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/Vector2f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU>
@@ -54,93 +63,44 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryPro
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
+// This fuction will be used to check the goodness of the a two-track vertex
+bool eicrecon::SecondaryVertexFinder::computeVtxcandidate(const edm4eic::Vertex* primvtx,
+            const edm4eic::TrackParameters* trackA,const edm4eic::TrackParameters* trackB,bool isgoodvtx=false){
+  trackA_a=trackA->getLoc().a; trackA_b=trackA->getLoc().a;
+  trackB_a=trackB->getLoc().b; trackB_b=trackB->getLoc().b;
+
+  vtxA_x=primvtx->getPosition().x; vtxA_y=primvtx->getPosition().y;
+  vtxB_x=primvtx->getPosition().x; vtxB_y=primvtx->getPosition().y;
+ 
+  //Calculate DCA
+  deltaA_x=trackA_a-vtxA_x;
+  deltaA_y=trackA_b-vtxA_y;
+
+  deltaB_x=trackB_a-vtxB_x;
+  deltaB_y=trackB_b-vtxB_y;
+
+  deltaxy_A=std::hypot(deltaA_x,deltaA_y);
+  deltaxy_B=std::hypot(deltaB_x,deltaB_y);
+
+  // Set a DCA cut of ~50.um (this is subject to change)
+  if(deltaxy_A >= minR && deltaxy_B >= minR) isgoodvtx=true;
+
+  if(isgoodvtx){
+    return true;
+  }else{
+    return false;
+  }
+}
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::produce(
-    std::vector<const edm4eic::Track*> track,std::vector<const ActsExamples::Trajectories*> trajectories) {
+    std::vector<const edm4eic::Vertex*> primvertex,
+    const edm4eic::TrackParametersCollection* tracks,
+    std::vector<const ActsExamples::Trajectories*> trajectories) {
 
   auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
   auto outputVertices  = std::make_unique<edm4eic::VertexCollection>();
 
-//   using Propagator        = Acts::Propagator<Acts::EigenStepper<>>;
-//   using PropagatorOptions = Acts::PropagatorOptions<>;
-//   using Linearizer        = Acts::HelicalTrackLinearizer<Propagator>;
-//   using VertexFitter      = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, Linearizer>;
-//   using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, Propagator>;
-//   using VertexSeeder         = Acts::ZScanVertexFinder<VertexFitter>;
-//   using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter, VertexSeeder>;
-//   using VertexFinderOptions  = Acts::VertexingOptions<Acts::BoundTrackParameters>;
-
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
 
-//   Acts::EigenStepper<> stepper(m_BField);
-
-//   // Set up propagator with void navigator
-//   auto propagator = std::make_shared<Propagator>(stepper, Acts::detail::VoidNavigator{},
-//                                                  logger().cloneWithSuffix("Prop"));
-//   Acts::PropagatorOptions opts(m_geoctx, m_fieldctx);
-
-//   // Setup the vertex fitter
-//   VertexFitter::Config vertexFitterCfg;
-//   VertexFitter vertexFitter(vertexFitterCfg);
-//   // Setup the track linearizer
-//   Linearizer::Config linearizerCfg(m_BField, propagator);
-//   Linearizer linearizer(linearizerCfg, logger().cloneWithSuffix("HelLin"));
-//   // Setup the seed finder
-//   ImpactPointEstimator::Config ipEstCfg(m_BField, propagator);
-//   ImpactPointEstimator ipEst(ipEstCfg);
-//   VertexSeeder::Config seederCfg(ipEst);
-//   VertexSeeder seeder(seederCfg);
-//   // Set up the actual vertex finder
-//   VertexFinder::Config finderCfg(std::move(vertexFitter), std::move(linearizer), std::move(seeder),
-//                                  std::move(ipEst));
-//   finderCfg.maxVertices                 = m_cfg.maxVertices;
-//   finderCfg.reassignTracksAfterFirstFit = m_cfg.reassignTracksAfterFirstFit;
-// #if Acts_VERSION_MAJOR >= 31
-//   VertexFinder finder(std::move(finderCfg));
-// #else
-//   VertexFinder finder(finderCfg);
-// #endif
-//   VertexFinder::State state(*m_BField, m_fieldctx);
-//   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
-
-//   std::vector<const Acts::BoundTrackParameters*> inputTrackPointers;
-
-//   for (const auto& trajectory : trajectories) {
-//     auto tips = trajectory->tips();
-//     if (tips.empty()) {
-//       continue;
-//     }
-//     /// CKF can provide multiple track trajectories for a single input seed
-//     for (auto& tip : tips) {
-//       inputTrackPointers.push_back(&(trajectory->trackParameters(tip)));
-//     }
-//   }
-
-//   std::vector<Acts::Vertex<Acts::BoundTrackParameters>> vertices;
-//   auto result = finder.find(inputTrackPointers, finderOpts, state);
-//   if (result.ok()) {
-//     vertices = std::move(result.value());
-//   }
-
-//   for (const auto& vtx : vertices) {
-//     edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
-//                        vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
-//                        vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
-//                        vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
-//                        vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
-//     auto eicvertex = primaryVertices->create();
-//     eicvertex.setType(1); // boolean flag if vertex is primary vertex of event
-//     eicvertex.setChi2((float)vtx.fitQuality().first); // chi2
-//     eicvertex.setNdf((float)vtx.fitQuality().second); // ndf
-//     eicvertex.setPosition({
-//         (float)vtx.position().x(),
-//         (float)vtx.position().y(),
-//         (float)vtx.position().z(),
-//         (float)vtx.time(),
-//     });                              // vtxposition
-//     eicvertex.setPositionError(cov); // covariance
-//   }
-
-  // Set-up EigenStepper
   Acts::EigenStepper<> stepperSec(m_BField);
 
   // Set-up the propagator
@@ -148,126 +108,164 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
   using PropagatorOptionsSec = Acts::PropagatorOptions<>;
 
   // Set up propagator with void navigator
+#if Acts_VERSION_MAJOR >= 32
+  auto propagatorSec = std::make_shared<PropagatorSec>(stepperSec, Acts::VoidNavigator{},
+                                                 logger().cloneWithSuffix("PropSec"));
+#else
   auto propagatorSec = std::make_shared<PropagatorSec>(stepperSec, Acts::detail::VoidNavigator{},
                                                  logger().cloneWithSuffix("PropSec"));
-  // Acts::PropagatorOptions optsSec(m_geoctx, m_fieldctx);
+#endif
 
   //set up Impact estimator
+#if Acts_VERSION_MAJOR >= 33
+  using ImpactPointEstimator = Acts::ImpactPointEstimator;
+  using LinearizerSec = Acts::HelicalTrackLinearizer;
+  using VertexFitterSec = Acts::AdaptiveMultiVertexFitter;
+  using VertexSeederSec = Acts::TrackDensityVertexFinder;
+  // The vertex finder type
+  using VertexFinderSec = Acts::AdaptiveMultiVertexFinder;
+  using VertexFinderOptionsSec = Acts::VertexingOptions;
+#else
   using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, PropagatorSec>;
-  ImpactPointEstimator::Config ipEstCfg(m_BField, propagatorSec);
-  ImpactPointEstimator ipEst(ipEstCfg);
+  using LinearizerSec = Acts::HelicalTrackLinearizer<PropagatorSec>;
+  using VertexFitterSec = Acts::AdaptiveMultiVertexFitter<Acts::BoundTrackParameters, LinearizerSec>;
+  using VertexSeederSec = Acts::Acts::ZScanVertexFinder<VertexFitterSec>;
+  // The vertex finder type
+  using VertexFinderSec = Acts::AdaptiveMultiVertexFinder<VertexFitterSec, VertexSeederSec>;
+  using VertexFinderOptionsSec = Acts::VertexingOptions<Acts::BoundTrackParameters>;
+#endif
 
   // using LinearizerSec = Acts::HelicalTrackLinearizer<PropagatorSec>;
-  using LinearizerSec = Acts::HelicalTrackLinearizer<PropagatorSec>;
   // Setup the track linearizer
   LinearizerSec::Config linearizerCfgSec(m_BField, propagatorSec);
   LinearizerSec linearizerSec(linearizerCfgSec, logger().cloneWithSuffix("HelLinSec"));
 
-  //using VertexFitterSec = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, LinearizerSec>;
   //Trying multivertex fitter here...
-  using VertexFitterSec = Acts::AdaptiveMultiVertexFitter<Acts::BoundTrackParameters, LinearizerSec>;
   // Setup the vertex fitter
+  ImpactPointEstimator::Config ipEstCfg(m_BField, propagatorSec);
+  ImpactPointEstimator ipEst(ipEstCfg);
   VertexFitterSec::Config vertexFitterCfgSec(ipEst);
+#if Acts_VERSION_MAJOR >= 33
+  vertexFitterCfgSec.extractParameters
+    .connect<&Acts::InputTrack::extractParameters>();
+  vertexFitterCfgSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(
+    &linearizerSec);
+#endif
   VertexFitterSec vertexFitterSec(vertexFitterCfgSec);
 
+#if Acts_VERSION_MAJOR >= 33
   // Set up the vertex seed finder
-  using VertexSeederSec = Acts::TrackDensityVertexFinder<VertexFitterSec, Acts::GaussianTrackDensity<Acts::BoundTrackParameters>>;
-  VertexSeederSec seeder;
+  //VertexSeederSec::Config seedercfg(ipEst);
+  std::shared_ptr<const Acts::IVertexFinder> seeder;
+  Acts::GaussianTrackDensity::Config seederCfg;
+  seederCfg.extractParameters
+    .connect<&Acts::InputTrack::extractParameters>();
+  seeder = std::make_shared<VertexSeederSec>(VertexSeederSec::Config{seederCfg});
+#else
+  // Set up the vertex seed finder
+  VertexSeederSec::Config seedercfg(ipEst);
+  VertexSeederSec seeder(seederCfg);
+#endif
 
-  // The vertex finder type
-  using VertexFinderSec = Acts::AdaptiveMultiVertexFinder<VertexFitterSec, VertexSeederSec>;
 
-  VertexFinderSec::Config vertexfinderCfgSec(std::move(vertexFitterSec), seeder, ipEst,
-                              std::move(linearizerSec), m_BField);
+  VertexFinderSec::Config vertexfinderCfgSec(std::move(vertexFitterSec),
+                              std::move(seeder), 
+                              std::move(ipEst),
+                              m_BField);
+
+  // The vertex finder state
+#if Acts_VERSION_MAJOR >= 31
+  #if Acts_VERSION_MAJOR >= 33
+  // Set the initial variance of the 4D vertex position. Since time is on a
+  // numerical scale, we have to provide a greater value in the corresponding
+  // dimension.
+  vertexfinderCfgSec.initialVariances<<1e+2, 1e+2, 1e+2, 1e+8;
   // We do not want to use a beamspot constraint here
   //vertexfinderCfgSec.useBeamSpotConstraint = false;
-  vertexfinderCfgSec.tracksMaxZinterval = 1. * Acts::UnitConstants::mm;
-
+  vertexfinderCfgSec.tracksMaxZinterval=35. * Acts::UnitConstants::mm;
+  vertexfinderCfgSec.maxIterations=200;
+  vertexfinderCfgSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
+  vertexFitterCfgSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(&linearizerSec);
+  #if Acts_VERSION_MAJOR >= 36
+  vertexfinderCfgSec.field = m_BField;
+  #else
+  vertexfinderCfgSec.bField = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
+    std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
+  #endif
+  #endif
+  VertexFinderSec vertexfinderSec(std::move(vertexfinderCfgSec)); //,logger().clone());
+#else
+  VertexFinder finder(std::move(vertexfinderCfgSec));
+  typename VertexFinderSec::State stateSec(*m_BField, m_fieldctx);
+#endif
   // Instantiate the finder
-  VertexFinderSec vertexfinderSec(std::move(vertexfinderCfgSec),logger().clone());
-  // The vertex finder state
-  typename VertexFinderSec::State stateSec;
+#if Acts_VERSION_MAJOR >= 33
+  auto stateSec = vertexfinderSec.makeState(m_fieldctx);
+#else
+  typename Acts::IVertexFinder::State stateSec;
+#endif
 
-  // Acts::MagneticFieldProvider::Cache fieldCache = m_BField->makeCache(m_fieldctx);
-  //---->VertexFitterSec::State stateSec(m_BField->makeCache(m_fieldctx));
-
-  using VertexFinderOptionsSec = Acts::VertexingOptions<Acts::BoundTrackParameters>;
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
-  // auto bCache = m_magneticField->makeCache(m_fieldctx);
 
+#if Acts_VERSION_MAJOR >= 33
+  std::vector<Acts::InputTrack> inputTracks;
+#else
   std::vector<const Acts::BoundTrackParameters*> inputTrackPointersSecondary;
+#endif
 
-  //checking the track start vertex
-  //if(edm4eic::ReconstructedParticle().getStartVertex().getPosition().x)
-    //std::cout<<"Start vertex of the track: "<<track::getPosition().z<<std::endl;
-    std::cout<<"Start vertex of the track: "<<track.size()<<std::endl;//getPosition().z<<std::endl;
-
+  //Two Track Vertex fitting
   for (std::vector<Acts::BoundTrackParameters>::size_type i = 0; i != trajectories.size(); i++) {
-    // trajectories[i].doSomething();
     auto tips = trajectories[i]->tips();
     if (tips.empty()) {
       continue;
     }
     std::cout << "Trajectory i: " << i << " has " << tips.size() << " tips" << std::endl;
-    for (std::vector<Acts::BoundTrackParameters>::size_type j = i + 1; j != trajectories.size();
-         j++) {
+    for(std::vector<Acts::BoundTrackParameters>::size_type j = i + 1;
+        j != trajectories.size(); j++){
       auto tips2 = trajectories[j]->tips();
       if (tips2.empty()) {
         continue;
       }
       std::cout << "Trajectory j: " << j << " has " << tips2.size() << " tips" << std::endl;
+      // Checking for default DCA cut-condition
+      //secvtxGood=computeVtxcandidate(primvertex,tracks[i],tracks[j]);
+      //if(!secvtxGood) continue;
       for (auto& tip : tips) {
+        /// CKF can provide multiple track trajectories for a single input seed
+#if Acts_VERSION_MAJOR >= 33
+        inputTracks.emplace_back(&(trajectories[i]->trackParameters(tip)));
+#else
         inputTrackPointersSecondary.push_back(&(trajectories[i]->trackParameters(tip)));
-        //print track parameters:
-        // const auto& boundParam = trajectories[i]->trackParameters(tip);
-        //     const auto& parameter  = boundParam.parameters();
-        //     std::cout << "\ti Track parameters: " << std::endl; 
-        //     std::cout << "\ti Loc0: " << parameter[Acts::eBoundLoc0] << std::endl;
-        //     std::cout << "\ti Loc1: " << parameter[Acts::eBoundLoc1] << std::endl;
-        //     std::cout << "\ti Theta: " << parameter[Acts::eBoundTheta] << std::endl;
-        //     std::cout << "\ti Phi: " << parameter[Acts::eBoundPhi] << std::endl;
-        //     std::cout << "\ti QOverP: " << parameter[Acts::eBoundQOverP] << std::endl;
-        //     std::cout << "\ti Time: " << parameter[Acts::eBoundTime] << std::endl;
+#endif
       }
-      for (auto& tip : tips2) {
+      for(auto& tip : tips2){
+#if Acts_VERSION_MAJOR >= 33
+        inputTracks.emplace_back(&(trajectories[j]->trackParameters(tip)));
+#else
         inputTrackPointersSecondary.push_back(&(trajectories[j]->trackParameters(tip)));
-        //print track parameters:
-        // const auto& boundParam = trajectories[j]->trackParameters(tip);
-        //     const auto& parameter  = boundParam.parameters();
-        //     std::cout << "\tj Track parameters: " << std::endl; 
-        //     std::cout << "\tj Loc0: " << parameter[Acts::eBoundLoc0] << std::endl;
-        //     std::cout << "\tj Loc1: " << parameter[Acts::eBoundLoc1] << std::endl;
-        //     std::cout << "\tj Theta: " << parameter[Acts::eBoundTheta] << std::endl;
-        //     std::cout << "\tj Phi: " << parameter[Acts::eBoundPhi] << std::endl;
-        //     std::cout << "\tj QOverP: " << parameter[Acts::eBoundQOverP] << std::endl;
-        //     std::cout << "\tj Time: " << parameter[Acts::eBoundTime] << std::endl;
+#endif
       }
       // run the vertex finder for both tracks
-      // std::vector<Acts::Vertex<Acts::BoundTrackParameters>> verticesSecondary;
-      // std::vector<Acts::Vertex> verticesSecondary;
-      // auto resultSecondary = finder.find(inputTrackPointersSecondary, finderOpts, state);
       std::cout << "Fitting secondary vertex" << std::endl;
+#if Acts_VERSION_MAJOR >= 33
+      std::vector<Acts::Vertex> verticesSec;
+      auto resultSecondary = vertexfinderSec.find(inputTracks, vfOptions, stateSec);
+#else
       auto resultSecondary =
-          //vertexFitterSec.fit(inputTrackPointersSecondary, linearizerSec, vfOptions, stateSec);
           vertexfinderSec.find(inputTrackPointersSecondary, vfOptions, stateSec);
       std::cout << "Secondary vertex fit done" << std::endl;
-      // auto resultSecondary = vertexFitter.fit(inputTrackPointersSecondary, vfOptions,
-      // fieldCache);
 
-      // Acts::Result<Acts::Vertex> Acts::FullBilloirVertexFitter::fit(
-      //     const std::vector<InputTrack>& paramVector,
-      //     const VertexingOptions& vertexingOptions,
-      //     MagneticFieldProvider::Cache& fieldCache)
       std::vector<Acts::Vertex<Acts::BoundTrackParameters>> verticesSec;
+#endif
       if (resultSecondary.ok()) {
         std::cout << "Secondary vertex fit succeeded" << std::endl;
-        //auto secvertex = resultSecondary.value();
         verticesSec = std::move(resultSecondary.value());
       }else {
         std::cout << "Secondary vertex fit failed" << std::endl;
       }
 
-         for (const auto& secvertex : verticesSec) {
+      for (const auto& secvertex : verticesSec) {
+        //std::cout<<"This is really from the secondary vertex tracking...\n"; std::abort();
         edm4eic::Cov4f cov(secvertex.fullCovariance()(0, 0), secvertex.fullCovariance()(1, 1),
                            secvertex.fullCovariance()(2, 2), secvertex.fullCovariance()(3, 3),
                            secvertex.fullCovariance()(0, 1), secvertex.fullCovariance()(0, 2),
@@ -285,9 +283,20 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
         });                              // vtxposition
         eicvertex.setPositionError(cov); // covariance
 
+        for(const auto& trk: secvertex.tracks()){
+#if Acts_VERSION_MAJOR >= 33
+          const auto& par=vertexfinderCfgSec.extractParameters(trk.originalParams);
+#else 
+          const auto& par=trk.originalParams;
+#endif
+        }//end for trk-loop
       }
-             // empty the vector for the next set of tracks
+#if Acts_VERSION_MAJOR >= 33
+      // empty the vector for the next set of tracks
+      inputTracks.clear();
+#else
       inputTrackPointersSecondary.clear();
+#endif
     }
   }
 

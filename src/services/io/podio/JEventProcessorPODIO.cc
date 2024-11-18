@@ -186,18 +186,15 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedBreitFrameParticles",
             "CentralTrackSegments",
             "CentralTrackVertices",
-<<<<<<< HEAD
-            "CentralSecondaryTrackVertices",
-=======
             "CentralCKFTruthSeededTrajectories",
             "CentralCKFTruthSeededTracks",
             "CentralCKFTruthSeededTrackAssociations",
             "CentralCKFTruthSeededTrackParameters",
->>>>>>> b2a846e4c0cf3f5bde06de7ec84929ff4c3b216c
             "CentralCKFTrajectories",
             "CentralCKFTracks",
             "CentralCKFTrackAssociations",
             "CentralCKFTrackParameters",
+            "CentralSecondaryTrackVertices",
             //tracking properties - true seeding
             "CentralCKFTruthSeededTrajectoriesUnfiltered",
             "CentralCKFTruthSeededTracksUnfiltered",

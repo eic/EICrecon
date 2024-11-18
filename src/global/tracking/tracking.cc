@@ -235,7 +235,9 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
             "CentralSecondaryTrackVertices",
             //{"CentralCKFActsTrajectories"},
-            {"CentralCKFTracks", "CentralCKFActsTrajectories"},
+            {"CentralTrackVertices","CentralCKFTrackParameters", "CentralCKFActsTrajectories"},
+            //{"CentralTrackVertices","ReconstructedParticles", "CentralCKFActsTrajectories"},
+            //{"CentralTrackVertices", "CentralCKFActsTrajectories"},
             //{"CentralTrackVertices", "CentralCKFActsTrajectories"},
             {"CentralSecondaryTrackVertices"},
             {},
