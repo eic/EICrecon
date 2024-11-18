@@ -174,7 +174,7 @@ void JEventSourcePODIO::Open() {
 //------------------------------------------------------------------------------
 void JEventSourcePODIO::Close() {
     // m_reader.close();
-    // TODO: ROOTFrameReader does not appear to have a close() method.
+    // TODO: ROOTReader does not appear to have a close() method.
 }
 
 
@@ -196,7 +196,7 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
             Nevents_read = 0;
         }else{
             // m_reader.close();
-            // TODO:: ROOTFrameReader does not appear to have a close() method.
+            // TODO:: ROOTReader does not appear to have a close() method.
             throw RETURN_STATUS::kNO_MORE_EVENTS;
         }
     }
