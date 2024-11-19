@@ -153,7 +153,7 @@ namespace eicrecon {
                         static_cast<float>(boundCov(Acts::eBoundPhi, Acts::eBoundQOverP))
                 };
                 const float time{static_cast<float>(boundParams(Acts::eBoundTime))};
-                const float timeError{sqrt(static_cast<float>(boundCov(Acts::eBoundTime, Acts::eBoundTime)))};
+                const float timeError{static_cast<float>(sqrt(static_cast<float>(boundCov(Acts::eBoundTime, Acts::eBoundTime))))};
                 const float theta(boundParams[Acts::eBoundTheta]);
                 const float phi(boundParams[Acts::eBoundPhi]);
                 const decltype(edm4eic::TrackPoint::directionError) directionError{
