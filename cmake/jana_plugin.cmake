@@ -57,6 +57,11 @@ macro(plugin_add _name)
       PROPERTIES PREFIX ""
                  OUTPUT_NAME "${_name}"
                  SUFFIX ".so")
+    target_compile_definitions(
+      ${PLUGIN_NAME}_plugin
+      PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
+              "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
+              "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
     target_link_libraries(${_name}_plugin ${JANA_LIB} podio::podio
                           podio::podioRootIO spdlog::spdlog fmt::fmt)
     target_link_libraries(${_name}_plugin Microsoft.GSL::GSL)
@@ -82,6 +87,11 @@ macro(plugin_add _name)
       PROPERTIES PREFIX "lib"
                  OUTPUT_NAME "${_name}"
                  SUFFIX ${suffix})
+    target_compile_definitions(
+      ${PLUGIN_NAME}_library
+      PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
+              "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
+              "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
 
     target_include_directories(
       ${_name}_library
