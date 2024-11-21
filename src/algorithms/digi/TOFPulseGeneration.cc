@@ -60,7 +60,7 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
     // because voltage is negative
     // calculation of the extreme values for Landau distribution can be found on lin 514-520 of https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB
     // Landau reaches minimum for mpv = 0 and sigma = 1 at x = -0.22278
-    const double x_when_landau_min = -0.22278;     
+    const double x_when_landau_min = -0.22278;
     double landau_min = this -> _Landau(-m_cfg.gain, x_when_landau_min, 0, 1)/m_cfg.sigma_analog;
     double scalingFactor = 1. / Vm / landau_min * adc_range;
 
