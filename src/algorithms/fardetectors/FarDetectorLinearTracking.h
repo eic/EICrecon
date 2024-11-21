@@ -26,7 +26,7 @@ namespace edm4hep {
 namespace eicrecon {
 
 using FarDetectorLinearTrackingAlgorithm =
-    algorithms::Algorithm<algorithms::Input<std::vector<edm4hep::TrackerHitCollection>>,
+    algorithms::Algorithm<algorithms::Input<std::vector<edm4hep::TrackerHit3DCollection>>,
                           algorithms::Output<edm4eic::TrackSegmentCollection>>;
 
 class FarDetectorLinearTracking : public FarDetectorLinearTrackingAlgorithm,
@@ -52,7 +52,7 @@ private:
 
   void
   buildMatrixRecursive(int level, Eigen::MatrixXd* hitMatrix,
-                       const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
+                       const std::vector<gsl::not_null<const edm4hep::TrackerHit3DCollection*>>& hits,
                        gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
 
   void checkHitCombination(Eigen::MatrixXd* hitMatrix,
