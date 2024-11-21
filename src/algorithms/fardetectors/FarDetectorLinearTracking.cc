@@ -6,7 +6,15 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/vector_utils.h>
+#include <edm4hep/EDM4hepVersion.h>
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 0)
 #include <edm4hep/TrackerHitCollection.h>
+namespace edm4hep {
+  using TrackerHit3DCollection = TrackerHitCollection;
+}
+#else
+#include <edm4hep/TrackerHit3DCollection.h>
+#endif
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -71,7 +79,7 @@ namespace eicrecon {
 
     void FarDetectorLinearTracking::buildMatrixRecursive(int level,
                                                         Eigen::MatrixXd* hitMatrix,
-                                                        const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
+                                                        const std::vector<gsl::not_null<const edm4hep::TrackerHit3DCollection*>>& hits,
                                                         gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks ) const {
 
       // Iterate over hits in this layer
