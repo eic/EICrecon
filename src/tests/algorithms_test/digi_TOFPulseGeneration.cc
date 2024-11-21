@@ -47,7 +47,7 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
   auto detector = algorithms::GeoSvc::instance().detector();
   auto id_desc  = detector->readout(cfg.readout).idSpec();
 
-  cfg.gain         = 10;
+  cfg.gain         = 113;
   cfg.Vm           = -1e-4;
   cfg.ignore_thres = 1e-4 / 5;
 

@@ -35,7 +35,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 protected:
-  double _Landau(double x, double mean, double std) const;
+  double _Landau(double amp, double x, double mean, double std) const;
 };
 
 } // namespace eicrecon

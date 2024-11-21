@@ -19,9 +19,8 @@
 
 namespace eicrecon {
 
-double TOFPulseGeneration::_Landau(double x, double mean, double std) const {
-  double C = -113.755;
-  return C * TMath::Landau(x, mean, std, kTRUE);
+double TOFPulseGeneration::_Landau(double amp, double x, double mean, double std) const {
+  return amp*TMath::Landau(x, mean, std, kTRUE);
 }
 
 void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
@@ -57,19 +56,17 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
 
     mpv_analog = time + m_cfg.risetime;
 
-    double landau_min = this -> _Landau(0, mpv_analog, m_cfg.sigma_analog);
-    // find minimum of the landau function
-    // minimum = peak because prefactor is negative
-    for (int j = 0; j < nBins; ++j) {
-      double x = tMin + j * interval;
-      landau_min = std::min(landau_min, this -> _Landau(x, mpv_analog, m_cfg.sigma_analog));
-    }
-
-    double scalingFactor = -1. / Vm / m_cfg.gain / landau_min * adc_range;
+    // amplitude has to be negative
+    // because voltage is negative
+    // calculation of the extreme values for Landau distribution can be found on lin 514-520 of https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB
+    // Landau reaches minimum for mpv = 0 and sigma = 1 at x = -0.22278
+    const double x_when_landau_min = -0.22278;     
+    double landau_min = this -> _Landau(-m_cfg.gain, x_when_landau_min, 0, 1)/m_cfg.sigma_analog;
+    double scalingFactor = 1. / Vm / landau_min * adc_range;
 
     for (int j = 0; j < nBins; ++j) {
       double x = tMin + j * interval;
-      double y = -1 * charge * m_cfg.gain * this -> _Landau(x, mpv_analog, m_cfg.sigma_analog) * scalingFactor;
+      double y = charge * this -> _Landau(-m_cfg.gain, x, mpv_analog, m_cfg.sigma_analog) * scalingFactor;
       ADCs[j] += y;;
     }
 
