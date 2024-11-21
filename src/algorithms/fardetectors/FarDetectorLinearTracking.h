@@ -7,7 +7,15 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/interfaces/WithPodConfig.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/EDM4hepVersion.h>
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 0)
 #include <edm4hep/TrackerHitCollection.h>
+namespace edm4hep {
+  using TrackerHit3DCollection = TrackerHitCollection;
+}
+#else
+#include <edm4hep/TrackerHit3DCollection.h>
+#endif
 #include <gsl/pointers>
 #include <string>
 #include <string_view>

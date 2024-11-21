@@ -9,7 +9,15 @@
 #include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/EDM4hepVersion.h>
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 0)
 #include <edm4hep/TrackerHitCollection.h>
+namespace edm4hep {
+  using TrackerHit3DCollection = TrackerHitCollection;
+}
+#else
+#include <edm4hep/TrackerHit3DCollection.h>
+#endif
 #include <podio/ObjectID.h>
 #include <string>
 #include <string_view>
@@ -32,7 +40,7 @@ namespace eicrecon {
 
 using FarDetectorTrackerClusterAlgorithm =
     algorithms::Algorithm<algorithms::Input<std::vector<edm4eic::RawTrackerHitCollection>>,
-                          algorithms::Output<std::vector<edm4hep::TrackerHitCollection>>>;
+                          algorithms::Output<std::vector<edm4hep::TrackerHit3DCollection>>>;
 
 class FarDetectorTrackerCluster : public FarDetectorTrackerClusterAlgorithm,
                                   public WithPodConfig<FarDetectorTrackerClusterConfig> {
@@ -55,7 +63,7 @@ public:
   std::vector<FDTrackerCluster> ClusterHits(const edm4eic::RawTrackerHitCollection&) const;
 
   /** Convert clusters to TrackerHits **/
-  void ConvertClusters(const std::vector<FDTrackerCluster>&, edm4hep::TrackerHitCollection&) const;
+  void ConvertClusters(const std::vector<FDTrackerCluster>&, edm4hep::TrackerHit3DCollection&) const;
 
 private:
   const dd4hep::Detector* m_detector{nullptr};
