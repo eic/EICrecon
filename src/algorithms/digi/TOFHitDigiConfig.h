@@ -17,7 +17,7 @@ struct TOFHitDigiConfig {
 
   // Parameters of AC-LGAD signal generation
   double gain           = 80;
-  double risetime       = 0.45; // 0.02; //in ns
+  double risetime       = 0.45; //in ns
   double sigma_analog   = 0.293951;
   double sigma_sharingx = 0.1;
   double sigma_sharingy = 0.5;
