@@ -174,7 +174,7 @@ FarDetectorTrackerCluster::ClusterHits(const edm4eic::RawTrackerHitCollection& i
 // Convert to global coordinates and create TrackerHits
 void FarDetectorTrackerCluster::ConvertClusters(
     const std::vector<FDTrackerCluster>& clusters,
-    edm4hep::TrackerHitCollection& outputClusters) const {
+    edm4hep::TrackerHit3DCollection& outputClusters) const {
 
   // Get context of first hit
   const dd4hep::VolumeManagerContext* context = m_cellid_converter->findContext(clusters[0].cellID);
