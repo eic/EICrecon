@@ -11,13 +11,13 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <Math/SpecFuncMathCore.h>
 #include <TGeoManager.h>
 #include <TGeoMatrix.h>
 #include <TGeoVolume.h>
 #include <algorithms/geo.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
+#include <cmath>
 #include <gsl/pointers>
 #include <stdexcept>
 #include <utility>
@@ -25,7 +25,6 @@
 
 #include "BTOFChargeSharing.h"
 #include "DD4hep/Detector.h"
-#include "TMath.h"
 #include "algorithms/digi/TOFHitDigiConfig.h"
 
 

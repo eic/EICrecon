@@ -1,38 +1,25 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Chun Yuen Tsang, Prithwish Tribedy
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <TMath.h>
+#include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp> // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
-#include <catch2/matchers/catch_matchers.hpp>
-#include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/ProtoClusterCollection.h>
-#include <edm4eic/unit_system.h>
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4hep/RawCalorimeterHitCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
-#include <edm4hep/Vector2i.h>
-#include <edm4hep/Vector3d.h>
-#include <edm4hep/Vector3f.h>
-#include <math.h>
-#include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/RawTimeSeriesCollection.h>
 #include <spdlog/common.h> // for level_enum
 #include <spdlog/logger.h> // for logger
 #include <spdlog/spdlog.h> // for default_logger
+#include <cmath>
+#include <gsl/pointers>
+#include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <tuple>
-#include <vector>
+#include <utility>
 
 #include "algorithms/digi/TOFHitDigiConfig.h"
 #include "algorithms/digi/TOFPulseDigitization.h"
-#include <DD4hep/Segmentations.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <algorithms/geo.h>
-#include <algorithms/logger.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-
-#include "TF1.h"
-#include "TGraphErrors.h"
 
 TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseDigitization]") {
   const float EPSILON = 1e-5;

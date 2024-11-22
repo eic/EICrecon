@@ -6,8 +6,8 @@
 // ADC pulses are assumed to follow the shape of landau function
 
 #include <DDRec/CellIDPositionConverter.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <RtypesCore.h>
-#include <algorithm>
 #include <gsl/pointers>
 #include <unordered_map>
 #include <vector>
