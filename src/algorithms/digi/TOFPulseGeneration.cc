@@ -33,7 +33,7 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
   const auto [simhits] = input;
   auto [rawADCs] = output;
 
-  double interval = m_cfg.tInterval; 
+  double interval = m_cfg.tInterval;
   double Vm = m_cfg.Vm;
   double tMin = _DigitizeTime(m_cfg.tMin);
   double tMax = _DigitizeTime(m_cfg.tMax);
@@ -68,10 +68,10 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
     const double x_when_landau_min = -0.22278;
     double landau_min = this -> _Landau(-m_cfg.gain, x_when_landau_min, 0, 1)/m_cfg.sigma_analog;
     double scalingFactor = 1. / Vm / landau_min * adc_range;
- 
+
     {
         int j;
-        for (double t = tMin, j = 0; t < tMax; ++j, t += interval) 
+        for (double t = tMin, j = 0; t < tMax; ++j, t += interval)
           ADCs[j] += charge * this -> _Landau(-m_cfg.gain, t, mpv_analog, m_cfg.sigma_analog) * scalingFactor;
     }
 
@@ -81,7 +81,7 @@ void TOFPulseGeneration::process(const TOFPulseGeneration::Input& input,
  for(const auto &[cellID, ADCs] : adc_sum) {
     auto time_series = rawADCs -> create();
     time_series.setCellID(cellID);
-    time_series.setTime(tMin); 
+    time_series.setTime(tMin);
     time_series.setCharge(1.); // placeholder. Don't know what to assign when there are two or more hits
     time_series.setInterval(interval);
 
