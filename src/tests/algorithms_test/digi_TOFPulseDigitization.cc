@@ -62,6 +62,7 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseDigitization]") {
   algo.init();
 
   SECTION("TDC vs analytic solution scan") {
+    logger->info("Begin TDC vs analytic solution scan");
 
     // test pulse with gaussian shape
     for (double tdc_frac = 0.4; tdc_frac < 1; tdc_frac += 0.1) {
@@ -109,6 +110,7 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseDigitization]") {
   }
 
   SECTION("ADC scan") {
+    logger->info("Begin ADC scan");
 
     // test pulse with gaussian shape
     for (double adc_frac = 0.4; adc_frac < 1; adc_frac += 0.1) {

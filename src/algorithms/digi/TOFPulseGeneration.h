@@ -36,6 +36,7 @@ public:
 
 protected:
   double _Landau(double amp, double x, double mean, double std) const;
+  double _DigitizeTime(double time) const;
 };
 
 } // namespace eicrecon
