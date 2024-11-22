@@ -81,52 +81,52 @@ void MPGDTrackerDigi::process(
         auto hit_time_stamp = (std::int32_t) (result_time * 1e3);
 
 	// Segmentation: Simulate the strip, two-coordinate, readout of MPGDs.
-	// - Overwrite and extend segmentation stored in "sim_hit" (which is
-	//  anyway expected to be along a single coordinate).
+	// - Overwrite and extend segmentation stored in "sim_hit", which is
+	//  anyway expected to be along a single coordinate (this happens to
+	//  allow one to reconstruct data w/ a segmentation differing from that
+	//  used when generating the data).
 	// - New segmentation is along the two coordinates, described by two
-	//  volumeID's with each a distinctive "sensor" field.
-	//  N.B.: Assumptions on the <id> bit-pattern:
-	//   - volumeID: least-significant 32 bits, hitID: most-significant 32.
-	//   - The bit-field defining "sensor" is fixed = cellID>>24&0x3.
-	// - 1st segmentation, corresponding to a volumeID w/ a "sensor" of
-	//  the input "sim_hits" parity, is re-evaluated => provides for
-	//  reconstructing given simulation data w/ different segmentations.
-	// - 2nd volumeID is derived from that by flipping sensorID ^= 0x1.
+	//  cellID's with each a distinctive "strip" field.
+	//  N.B.: Assumptions on the IDDescriptor: the "strip" specification is
+	//  fixed = cellID>>32&0x1 (while more bits can still be alloted to the
+	//  "strip" field, only that they are not used).
+	// - The two cellID's, w/ "strip" setting of 0 (called 'p', which
+	//  happens t be that of input "sim_hit") and 1 (called 'n') are
+	//  evaluated based on "sim_hit" coordinates.
 	// - To get the new cellID's, we need the local position.
 	const edm4hep::Vector3d &pos = sim_hit.getPosition();
-	Position gpos(pos.x/10,pos.y/10,pos.z/10);
-	auto volman = m_detector->volumeManager();
-	CellID cID = sim_hit.getCellID(), vID =  cID&0xffffffff;
+	const double &mm = dd4hep::mm;
+	Position gpos(pos.x*mm,pos.y*mm,pos.z*mm);
+	const CellID volMask = 0xffffffff, stripBit = ((CellID)0x1)<<32;
+	CellID cID = sim_hit.getCellID(), vID = cID&volMask;
 	DetElement local = volman.lookupDetElement(vID);
 	const auto lpos = local.nominal().worldToLocal(gpos);
-	// p "sensor", w/ strip-discriminator as is from "sim_hit"
+	// p "strip"
 	CellID cIDp = m_seg->cellID(lpos,dummy,vID);
+	// n "strip"
+	CellID vIDn = vID|stripBit;
+	CellID cIDn = m_seg->cellID(lpos,dummy,vIDn);
+	sim2IDs.push_back({cIDp,cIDn}); // Remember cellIDs. 
+
 	if(level() >= algorithms::LogLevel::kDebug) {
-	  CellID hIDp = cIDp>>32, sIDp = cIDp>>32&0x3, vIDp = cIDp&0xffffffff;
+	  CellID hIDp = cIDp>>34, sIDp = cIDp>>32&0x3, vIDp = cIDp&(volMask|stripBit);
 	  debug("--------------------");
 	  debug("Hit cellIDp  = 0x{:08x}, 0x{:09x} 0x{:02x}", hIDp, vIDp, sIDp);
 #define MPGDDigi_DEBUG
 #ifdef MPGDDigi_DEBUG
-	  // Let's check that we recover the cellID stored in "sim_hit" starting
-	  // from the position of "sim_hit". Assuming...
+	  // Let's check that we recover the cellID stored in "sim_hit",
+	  // assuming...
 	  // ...the 32 bits of the hitID field are subdivided into 2 bits for
-	  //   the strip-discriminator field and the remaining 30 bits are
+	  //   the strip-discriminator field and the remaining 30 bits, to be
 	  //   equally shared by the two coordinates,
 	  // ...segmentations @ reconstruction and simulation time are identical.
-	  CellID hID =  cID>>32,  sID = vID>>32&0x3;
+	  CellID hID =  cID>>34,  sID = vID>>32&0x3;
 	  debug("Hit cellID   = 0x{:08x}, 0x{:09x} 0x{:02x}", hID,  vID,  sID);
 	  CellID xid = hID&0x7fff, xidp = hIDp&0x7fff;
 	  if (xid!=xidp)
 	    printf("** MPGDTrackerDigi: Strip segmentation inconsistency: m_seg(0x%lx) != sim_hit(0x%lx)\n",xidp,xid);
 #endif
-	}
-	// n "sensor", w/ the odd parity bit of strip-discriminator set. It's expected to have strips along the 2nd coordinate.
-	CellID vIDn = vID|0x100000000;
-	CellID cIDn = m_seg->cellID(lpos,dummy,vIDn);
-	sim2IDs.push_back({cIDp,cIDn}); // Remember cellIDs. 
-
-	if(level() >= algorithms::LogLevel::kDebug) {
-	  CellID hIDn = cIDn>>32, sIDn = cIDn>>32&0x3;
+	  CellID hIDn = cIDn>>34, sIDn = cIDn>>32&0x3;
 	  debug("Hit cellIDn  = 0x{:08x}, 0x{:09x} 0x{:02x}", hIDn, vIDn, sIDn);
 	  debug("   position  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getPosition().x, sim_hit.getPosition().y, sim_hit.getPosition().z);
 	  debug("   xy_radius = {:.2f}", std::hypot(sim_hit.getPosition().x, sim_hit.getPosition().y));
@@ -156,8 +156,8 @@ void MPGDTrackerDigi::process(
             continue;
         }
 
+	// ***** SUPERPOSITION OF HITS
 	for (CellID cID : {cIDp,cIDn}) {
-	//for (CellID cID : {cIDp}) {
 	    if (cell_hit_map.count(cID) == 0) {
 		// This cell doesn't have hits
 		cell_hit_map[cID] = {
@@ -181,13 +181,13 @@ void MPGDTrackerDigi::process(
         }
     }
 
+    // ***** raw_hit INSTANTIATION AND raw<-sim_hit's ASSOCIATION
     for (auto item : cell_hit_map) {
         raw_hits->push_back(item.second);	
 	Sim2IDs::const_iterator sim_it = sim2IDs.cbegin();
         for (const auto& sim_hit : *sim_hits) {
 	    CellIDs cIDs = *sim_it++;
 	    for (CellID cID : {cIDs.first,cIDs.second}) {
-	      //for (CellID cID : {cIDs.first}) {
 		if (item.first == cID) {
 		    // set association
 		    auto hitassoc = associations->create();
