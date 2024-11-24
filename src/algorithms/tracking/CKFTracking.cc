@@ -56,6 +56,7 @@
 #include <functional>
 #include <list>
 #include <optional>
+#include <ranges>
 #include <utility>
 
 #include "ActsGeometryProvider.h"
@@ -260,6 +261,7 @@ namespace eicrecon {
 #else
         Acts::TrackAccessor<unsigned int> seedNumber("seed");
 #endif
+        std::vector<Acts::TrackIndexType> failed_tracks;
 
         // Loop over seeds
         for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
@@ -291,6 +293,7 @@ namespace eicrecon {
                     ACTS_ERROR("Extrapolation for seed "
                         << iseed << " and track " << track.index()
                         << " failed with error " << extrapolationResult.error());
+                    failed_tracks.push_back(track.index());
                     continue;
                 }
 #endif
@@ -299,6 +302,18 @@ namespace eicrecon {
             }
         }
 
+        for (Acts::TrackIndexType track_index : std::ranges::reverse_view(failed_tracks)) {
+          // NOTE This does not remove track states corresponding to the
+          // removed tracks. Doing so would require implementing some garbage
+          // collection. We'll just assume no algorithm will access them
+          // directly.
+          acts_tracks.removeTrack(track_index);
+#if Acts_VERSION_MAJOR < 36
+          // Workaround an upstream bug in Acts::VectorTrackContainer::removeTrack_impl()
+          // https://github.com/acts-project/acts/commit/94cf81f3f1109210b963977e0904516b949b1154
+          trackContainer->m_particleHypothesis.erase(trackContainer->m_particleHypothesis.begin() + track_index);
+#endif
+        }
 
         // Move track states and track container to const containers
         // NOTE Using the non-const containers leads to references to
@@ -336,15 +351,6 @@ namespace eicrecon {
 
         std::optional<unsigned int> lastSeed;
         for (const auto& track : constTracks) {
-#if Acts_VERSION_MAJOR >= 34
-          // Some B0 tracks fail to extrapolate to the perigee surface. The
-          // Acts::extrapolateTrackToReferenceSurface will not set
-          // referenceSurface in that case, which is what we check here.
-          if (not track.hasReferenceSurface()) {
-            m_log->warn("Skipping a track not on perigee surface");
-            continue;
-          }
-#endif
           if (!lastSeed) {
             lastSeed = constSeedNumber(track);
           }
