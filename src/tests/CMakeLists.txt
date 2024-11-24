@@ -9,5 +9,6 @@ else()
 endif()
 
 add_subdirectory(tracking_test)
+add_subdirectory(pid_angleres)
 add_subdirectory(track_propagation_test)
 add_subdirectory(geometry_navigation_test)
