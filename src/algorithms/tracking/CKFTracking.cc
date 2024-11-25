@@ -7,7 +7,9 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#if Acts_VERSION_MAJOR >= 32
 #include <Acts/EventData/TrackStateProxy.hpp>
+#endif
 #include <Acts/EventData/Types.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
