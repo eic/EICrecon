@@ -24,7 +24,7 @@ double TOFPulseGeneration::_Landau(double amp, double x, double mean, double std
 }
 
 double TOFPulseGeneration::_DigitizeTime(double time) const {
-  // digitization always round down to tbe previous bin
+  // digitization always round down to the previous bin
   return static_cast<int>(time/m_cfg.tInterval + 1e-3)*m_cfg.tInterval;
 }
 
