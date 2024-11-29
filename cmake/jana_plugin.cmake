@@ -23,25 +23,6 @@ macro(plugin_add _name)
     endif()
   endforeach()
 
-  # Include JANA by default
-  find_package(JANA REQUIRED)
-
-  # TODO: NWB: This really needs to be a dependency of JANA itself. If we don't
-  # do this here, CMake will later refuse to accept that podio is indeed a
-  # dependency of JANA and aggressively reorders my target_link_list to reflect
-  # this misapprehension.
-  # https://gitlab.kitware.com/cmake/cmake/blob/v3.13.2/Source/cmComputeLinkDepends.cxx
-  find_package(podio REQUIRED)
-
-  # include logging by default
-  find_package(spdlog REQUIRED)
-
-  # include fmt by default
-  find_package(fmt 9.0.0 REQUIRED)
-
-  # include gsl by default
-  find_package(Microsoft.GSL CONFIG)
-
   # Define plugin
   if(${_name}_WITH_PLUGIN)
     add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
