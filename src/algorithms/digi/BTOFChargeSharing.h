@@ -23,20 +23,19 @@
 namespace eicrecon {
 
 using BTOFChargeSharingAlgorithm =
-        algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-                              algorithms::Output<edm4hep::SimTrackerHitCollection>>;
+    algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
+                          algorithms::Output<edm4hep::SimTrackerHitCollection>>;
 
 class BTOFChargeSharing : public BTOFChargeSharingAlgorithm,
                           public WithPodConfig<TOFHitDigiConfig> {
 
 public:
-  BTOFChargeSharing(std::string_view name) : BTOFChargeSharingAlgorithm{name,
-                                                  {"TOFBarrelHits"},
-                                                  {"TOFBarrelSharedHits"},
-                                                  ""} {};
+  BTOFChargeSharing(std::string_view name)
+      : BTOFChargeSharingAlgorithm{name, {"TOFBarrelHits"}, {"TOFBarrelSharedHits"}, ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;
+
 protected:
   void _findAllNeighborsInSensor(dd4hep::rec::CellID hitCell,
                                  std::shared_ptr<std::vector<dd4hep::rec::CellID>>& answer,
@@ -49,7 +48,6 @@ protected:
   const dd4hep::DDSegmentation::BitFieldCoder* m_decoder  = nullptr;
   const dd4hep::Detector* m_detector                      = nullptr;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
-
 };
 
 } // namespace eicrecon

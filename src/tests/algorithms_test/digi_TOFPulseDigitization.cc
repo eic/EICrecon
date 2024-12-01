@@ -7,14 +7,14 @@
 #include <TMath.h>
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp> // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
+#include <cmath>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
+#include <gsl/pointers>
+#include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <spdlog/common.h> // for level_enum
 #include <spdlog/logger.h> // for logger
 #include <spdlog/spdlog.h> // for default_logger
-#include <cmath>
-#include <gsl/pointers>
-#include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <tuple>
 #include <utility>
 
@@ -41,8 +41,8 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseDigitization]") {
   cfg.t_thres      = cfg.Vm * 0.1;
   cfg.tdc_bit      = 8;
   cfg.adc_bit      = 7;
-  cfg.tdc_range = pow(2, cfg.tdc_bit);
-  cfg.adc_range             = pow(2, cfg.adc_bit);
+  cfg.tdc_range    = pow(2, cfg.tdc_bit);
+  cfg.adc_range    = pow(2, cfg.adc_bit);
 
   // check if max pulse height is linearly proportional to the initial Edep
   algo.applyConfig(cfg);

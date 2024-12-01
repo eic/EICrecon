@@ -19,19 +19,16 @@
 namespace eicrecon {
 
 using TOFPulseGenerationAlgorithm =
-        algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-                              algorithms::Output<edm4hep::RawTimeSeriesCollection>>;
+    algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
+                          algorithms::Output<edm4hep::RawTimeSeriesCollection>>;
 
 class TOFPulseGeneration : public TOFPulseGenerationAlgorithm,
                            public WithPodConfig<TOFHitDigiConfig> {
 
 public:
   TOFPulseGeneration(std::string_view name)
-      : TOFPulseGenerationAlgorithm{name,
-                                    {"TOFBarrelSharedHits"},
-                                    {"TOFBarrelPulse"},
-                                    {}} {}
-  void init() {};
+      : TOFPulseGenerationAlgorithm{name, {"TOFBarrelSharedHits"}, {"TOFBarrelPulse"}, {}} {}
+  void init(){};
   void process(const Input&, const Output&) const final;
 
 protected:

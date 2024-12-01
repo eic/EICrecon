@@ -18,19 +18,16 @@
 namespace eicrecon {
 
 using TOFPulseDigitizationAlgorithm =
-        algorithms::Algorithm<algorithms::Input<edm4hep::RawTimeSeriesCollection>,
-                              algorithms::Output<edm4eic::RawTrackerHitCollection>>;
+    algorithms::Algorithm<algorithms::Input<edm4hep::RawTimeSeriesCollection>,
+                          algorithms::Output<edm4eic::RawTrackerHitCollection>>;
 
 class TOFPulseDigitization : public TOFPulseDigitizationAlgorithm,
                              public WithPodConfig<TOFHitDigiConfig> {
 
 public:
-  TOFPulseDigitization(std::string_view name) :
-          TOFPulseDigitizationAlgorithm{name,
-                                        {"TOFBarrelPulse"},
-                                        {"TOFBarrelADCTDC"},
-                                        {}} {}
-  void init() {};
+  TOFPulseDigitization(std::string_view name)
+      : TOFPulseDigitizationAlgorithm{name, {"TOFBarrelPulse"}, {"TOFBarrelADCTDC"}, {}} {}
+  void init(){};
   void process(const Input&, const Output&) const final;
 };
 

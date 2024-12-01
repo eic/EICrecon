@@ -13,6 +13,7 @@ namespace eicrecon {
 class BTOFChargeSharing_factory : public JOmniFactory<BTOFChargeSharing_factory, TOFHitDigiConfig> {
 public:
   using AlgoT = eicrecon::BTOFChargeSharing;
+
 private:
   std::unique_ptr<AlgoT> m_algo;
 
@@ -23,7 +24,8 @@ private:
   ParameterRef<double> m_sigma_sharingx{this, "sigmaSharingX", config().sigma_sharingx};
   ParameterRef<double> m_sigma_sharingy{this, "sigmaSharingY", config().sigma_sharingy};
 
-  Service<AlgorithmsInit_service> m_algorithmsInit {this};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
+
 public:
   void Configure() {
     m_algo = std::make_unique<eicrecon::BTOFChargeSharing>(GetPrefix());
@@ -32,8 +34,7 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {
-  }
+  void ChangeRun(int64_t run_number) {}
 
   void Process(int64_t run_number, uint64_t event_number) {
     m_algo->process({m_in_sim_track()}, {m_out_reco_particles().get()});

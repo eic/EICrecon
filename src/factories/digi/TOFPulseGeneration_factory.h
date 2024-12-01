@@ -10,9 +10,11 @@
 
 namespace eicrecon {
 
-class TOFPulseGeneration_factory : public JOmniFactory<TOFPulseGeneration_factory, TOFHitDigiConfig> {
+class TOFPulseGeneration_factory
+    : public JOmniFactory<TOFPulseGeneration_factory, TOFHitDigiConfig> {
 public:
   using AlgoT = eicrecon::TOFPulseGeneration;
+
 private:
   std::unique_ptr<AlgoT> m_algo;
 
@@ -27,7 +29,8 @@ private:
   ParameterRef<int> m_tdc_range{this, "tdcRange", config().tdc_range};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};
 
-  Service<AlgorithmsInit_service> m_algorithmsInit {this};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
+
 public:
   void Configure() {
     m_algo = std::make_unique<eicrecon::TOFPulseGeneration>(GetPrefix());
@@ -36,8 +39,7 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {
-  }
+  void ChangeRun(int64_t run_number) {}
 
   void Process(int64_t run_number, uint64_t event_number) {
     m_algo->process({m_in_sim_track()}, {m_out_reco_particles().get()});

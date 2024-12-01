@@ -4,19 +4,19 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
+#include <algorithm>
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp> // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <fmt/core.h>
+#include <gsl/pointers>
+#include <limits>
+#include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <podio/RelationRange.h>
 #include <spdlog/common.h> // for level_enum
 #include <spdlog/logger.h> // for logger
 #include <spdlog/spdlog.h> // for default_logger
-#include <algorithm>
-#include <gsl/pointers>
-#include <limits>
-#include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <tuple>
 #include <utility>
 #include <vector>
