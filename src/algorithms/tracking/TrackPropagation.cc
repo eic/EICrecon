@@ -295,7 +295,7 @@ void TrackPropagation::propagateToSurfaceList(
 
         // time
         const float time{static_cast<float>(parameter(Acts::eBoundTime))};
-        const float timeError{sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime)))};
+        const float timeError{static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime)))};
 
         // Direction
         const float theta(parameter[Acts::eBoundTheta]);
