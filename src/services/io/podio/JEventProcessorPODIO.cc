@@ -62,8 +62,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "MCParticlesHeadOnFrameNoBeamFX",
 
             // All tracking hits combined
+            "CentralCalorimeterRecHits",
             "CentralTrackingRecHits",
             "CentralTrackingRawHitAssociations",
+            "CentralTrackingCalorimeterRecHits",
             "CentralTrackSeedingResults",
             "CentralTrackerMeasurements",
 
@@ -258,6 +260,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalBarrelTruthClusterAssociations",
             "EcalBarrelImagingRawHits",
             "EcalBarrelImagingRecHits",
+            "EcalBarrelImaging1stLayerRecHits",
+            "EcalBarrelImagingTrackerRecHits",
             "EcalBarrelImagingClusters",
             "EcalBarrelImagingClusterAssociations",
             "EcalBarrelScFiRawHits",
