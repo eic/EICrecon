@@ -1,10 +1,4 @@
 ```bash
-eicrecon
--Pplugins=dump_flags,track_propagation_test
--Ppodio:output_file=/home/romanov/work/data/eicrecon_test/processed.ana.root
--Ptrack_propagation_test:LogLevel=trace
--Pjana:nevents=10000
--Pdd4hep:xml_files=epic_arches.xml
--Phistsfile=/home/romanov/work/data/eicrecon_test/histogram.ana.root
-/home/romanov/eic/soft/eicrecon/main/src/examples/test_data_generator/2022-11-15_pgun_pi-_epic_arches_e0.01-30GeV_alldir_4prt_1000evt.edm4hep.root
+    #run reconstruction
+    eicrecon  -Pjana:nevents=${NEVE} -Pplugins=pid_angleres -Pdd4hep:xml_files=${XMLPATH}/${XMLFILE} -Phistsfile=${OUTDIR}/rootfiles/eicrecon_${EICVER}_${EPICVER}_${PART}_${MOM}GeV_${THMIN}deg_${THMAX}deg.ana.root -Ppodio:output_file=${OUTDIR}/rootfiles/eicrecon_${EICVER}_${EPICVER}_${PART}_${MOM}GeV_${THMIN}deg_${THMAX}deg.podio.root ${INDIR}/npsim_${EPICVER}_${PART}_${MOM}GeV_${THMIN}deg_${THMAX}deg_1.edm4eic.root >> ${OUTDIR}/logs/eicrecon_${EPICVER}_${EPICVER}_${PART}_${MOM}GeV_${THMIN}deg_${THMAX}deg.out
 ```
