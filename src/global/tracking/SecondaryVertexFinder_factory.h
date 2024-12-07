@@ -28,7 +28,7 @@ private:
 
     Input<edm4eic::Vertex> m_vertex_input {this};
     PodioInput<edm4eic::TrackParameters> m_trackparam_input {this};
-    //PodioInput<edm4eic::ReconstructedParticle> m_trkparam_input {this};
+    PodioInput<edm4eic::ReconstructedParticle> m_reco_input {this};
     Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
     PodioOutput<edm4eic::Vertex> m_vertices_output {this};
 
@@ -51,7 +51,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_vertices_output() = m_algo->produce(m_vertex_input(),m_trackparam_input(),m_acts_trajectories_input());
+        m_vertices_output() = m_algo->produce(m_vertex_input(),m_trackparam_input(),m_reco_input(),m_acts_trajectories_input());
     }
 };
 

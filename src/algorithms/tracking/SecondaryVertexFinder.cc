@@ -3,6 +3,7 @@
 //
 
 #include "SecondaryVertexFinder.h"
+#include "TrackingSecUtilityTool.h"
 
 #include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
@@ -64,7 +65,7 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 }
 
 // This fuction will be used to check the goodness of the a two-track vertex
-bool eicrecon::SecondaryVertexFinder::computeVtxcandidate(const edm4eic::Vertex* primvtx,
+bool eicrecon::TrackingSecUtilityTool::computeVtxcandidate(const edm4eic::Vertex* primvtx,
             const edm4eic::TrackParameters* trackA,const edm4eic::TrackParameters* trackB,bool isgoodvtx=false){
   trackA_a=trackA->getLoc().a; trackA_b=trackA->getLoc().a;
   trackB_a=trackB->getLoc().b; trackB_b=trackB->getLoc().b;
@@ -94,6 +95,7 @@ bool eicrecon::SecondaryVertexFinder::computeVtxcandidate(const edm4eic::Vertex*
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::produce(
     std::vector<const edm4eic::Vertex*> primvertex,
     const edm4eic::TrackParametersCollection* tracks,
+    const edm4eic::ReconstructedParticleCollection* recotracks,
     std::vector<const ActsExamples::Trajectories*> trajectories) {
 
   auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
