@@ -125,7 +125,7 @@ jobs:
         echo "cache_dir=${{ github.workspace }}/.ccache" > ~/.ccache/ccache.conf
         echo "max_size=1500MB" >> ~/.ccache/ccache.conf
         echo "compression=true" >> ~/.ccache/ccache.conf
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Build and install
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -181,7 +181,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         filter: "tree:0"
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Download build artifact
       uses: actions/download-artifact@v4
       with:
@@ -315,7 +315,7 @@ jobs:
     outputs:
       hash: ${{ steps.detector-info.outputs.hash }}
     steps:
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Get detector info
       id: detector-info
       run: |
@@ -334,7 +334,7 @@ jobs:
         particle: [pi, e]
         detector_config: [craterlake]
     steps:
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
       uses: actions/cache@v4
@@ -367,7 +367,7 @@ jobs:
     - uses: actions/checkout@v4
       with:
         filter: "tree:0"
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
       uses: actions/cache@v4
@@ -403,7 +403,7 @@ jobs:
             minq2: 1000
             detector_config: craterlake_18x275
     steps:
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
       uses: actions/cache@v4
@@ -439,7 +439,7 @@ jobs:
           - beam: 18x275
             detector_config: craterlake_18x275
     steps:
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
       uses: actions/cache@v4
@@ -491,7 +491,7 @@ jobs:
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - name: Setup cvmfs
-      uses: cvmfs-contrib/github-action-cvmfs@v4
+      uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Run EICrecon (digitization)
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -553,7 +553,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -600,7 +600,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -653,7 +653,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -698,7 +698,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -812,7 +812,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -898,7 +898,7 @@ jobs:
     - uses: actions/download-artifact@v4
       with:
         name: sim_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4hep.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
