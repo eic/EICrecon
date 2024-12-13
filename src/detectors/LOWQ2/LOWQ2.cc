@@ -143,6 +143,17 @@ extern "C" {
          app
     ));
 
+    // Pre-ML reconstruction
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
+        "TaggerTrackerTransportationPreML",
+        {"TaggerTrackerProjectedTracks","MCScatteredElectrons","MCBeamElectrons"},
+        {"TaggerTrackerFeatureTensor","TaggerTrackerTargetTensor"},
+        {
+          .beamE = 10.0,
+        },
+        app
+    ));
+
     // Vector reconstruction at origin
     app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
         "TaggerTrackerTrajectories",
