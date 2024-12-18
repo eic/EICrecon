@@ -117,6 +117,8 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseGeneration]") {
     for (double time = 0; time < 12; time += 1.) times.push_back(time);
     // test multiple EICROC cycle
     for (double time = 10; time < 101; time += 25.) times.push_back(time);
+    // test negative time
+    times.push_back(-10);
 
     for (double time : times) {
       edm4hep::SimTrackerHitCollection rawhits_coll;
@@ -139,7 +141,7 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseGeneration]") {
 
       REQUIRE(time_series_coll->size() == 1);
       auto min_adc          = std::numeric_limits<int>::max();
-      unsigned int time_bin = 0;
+      int time_bin = 0;
       for(const auto& pulse: *time_series_coll) {
         //auto pulse = (*time_series_coll)[0];
         REQUIRE(pulse.getCellID() == cellID);
@@ -158,7 +160,7 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseGeneration]") {
     }
 
     // test linearlity
-    TF1 tf1("tf1", "pol1", 0, *std::max_element(times.begin(), times.end()));
+    TF1 tf1("tf1", "pol1", *std::min_element(times.begin(), times.end()), *std::max_element(times.begin(), times.end()));
     graph.Fit(&tf1, "R0");
     // slope can't be consistent with zero
     REQUIRE(!(tf1.GetParameter(1) - tf1.GetParError(1) < 0 && 0 < tf1.GetParameter(1) + tf1.GetParError(1) ));

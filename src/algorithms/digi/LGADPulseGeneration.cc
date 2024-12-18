@@ -84,7 +84,7 @@ void LGADPulseGeneration::process(const LGADPulseGeneration::Input& input,
     if (charge < m_cfg.ignore_thres)
       continue;
 
-    int n_EICROC_cycle = int(time/m_cfg.tMax + 1e-3);
+    int n_EICROC_cycle = static_cast<int>(std::floor(time/m_cfg.tMax + 1e-3));
     double time_in_cycle = time - n_EICROC_cycle * m_cfg.tMax;
     double mpv_analog = time_in_cycle + m_cfg.risetime;
     this -> _FillADCArray(adc_sum, charge, mpv_analog, n_EICROC_cycle, cellID);

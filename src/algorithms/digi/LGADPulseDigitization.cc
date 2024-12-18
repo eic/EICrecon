@@ -35,7 +35,7 @@ void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
     double adc_prev      = 0;
     double time_interval = pulse.getInterval();
     auto adcs            = pulse.getAdcCounts();
-    double n_EICROC_cycle = int(pulse.getTime()/m_cfg.tMax + 1e-3);
+    double n_EICROC_cycle = static_cast<int>(std::floor(pulse.getTime()/m_cfg.tMax + 1e-3));
     for (const auto adc : adcs) {
       if (adc_prev >= thres && adc <= thres) {
         intersectionX = time_bin * time_interval +

@@ -49,8 +49,9 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
   SECTION("TDC vs analytic solution scan") {
     logger->info("Begin TDC vs analytic solution scan");
 
-    for(double time = 0; time <= cfg.tMax; time += cfg.tMax) {
-      if(time == 0) logger->info("Generation pulse at the first EICROC cycle");
+    for(double time = -cfg.tMax; time <= cfg.tMax; time += cfg.tMax) {
+      if(time < 0) logger->info("Generation pulse at the negative time");
+      else if(time == 0) logger->info("Generation pulse at the first EICROC cycle");
       else logger->info("Generation pulse at the second EICROC cycle");
 
       // test pulse with gaussian shape
@@ -94,7 +95,8 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
         auto hit = (*rawhits_coll)[0];
         REQUIRE(hit.getCellID() == cellID);
         REQUIRE(hit.getCharge() == test_peak);
-        if(time == 0) REQUIRE(hit.getTimeStamp() == analytic_TDC);
+	if(time < 0) REQUIRE(hit.getTimeStamp() == analytic_TDC - cfg.tdc_range);
+	else if(time == 0) REQUIRE(hit.getTimeStamp() == analytic_TDC);
         else REQUIRE(hit.getTimeStamp() == analytic_TDC + cfg.tdc_range);
       }
     }
