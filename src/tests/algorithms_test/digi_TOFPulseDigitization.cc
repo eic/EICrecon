@@ -18,22 +18,21 @@
 #include <tuple>
 #include <utility>
 
-#include "algorithms/digi/TOFHitDigiConfig.h"
-#include "algorithms/digi/TOFPulseDigitization.h"
+#include "algorithms/digi/LGADHitDigiConfig.h"
+#include "algorithms/digi/LGADPulseDigitization.h"
 
 TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseDigitization]") {
   const float EPSILON = 1e-5;
 
-  eicrecon::TOFPulseDigitization algo("TOFPulseDigitization");
+  eicrecon::LGADPulseDigitization algo("TOFPulseDigitization");
 
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("TOFPulseDigitization");
   logger->set_level(spdlog::level::trace);
 
-  eicrecon::TOFHitDigiConfig cfg;
-  cfg.readout = "MockTOFHits";
+  eicrecon::LGADHitDigiConfig cfg;
 
   auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout(cfg.readout).idSpec();
+  auto id_desc  = detector->readout("MockTOFHits").idSpec();
 
   cfg.gain         = 10;
   cfg.Vm           = -1e-4;
@@ -41,6 +40,7 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseDigitization]") {
   cfg.t_thres      = cfg.Vm * 0.1;
   cfg.tdc_bit      = 8;
   cfg.adc_bit      = 7;
+  cfg.tMax         = 10 * dd4hep::ns;
   cfg.tdc_range    = pow(2, cfg.tdc_bit);
   cfg.adc_range    = pow(2, cfg.adc_bit);
 
@@ -51,48 +51,54 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseDigitization]") {
   SECTION("TDC vs analytic solution scan") {
     logger->info("Begin TDC vs analytic solution scan");
 
-    // test pulse with gaussian shape
-    for (double tdc_frac = 0.4; tdc_frac < 1; tdc_frac += 0.1) {
-      edm4hep::RawTimeSeriesCollection time_series_coll;
-      auto rawhits_coll = std::make_unique<edm4eic::RawTrackerHitCollection>();
+    for(double time = 0; time <= cfg.tMax; time += cfg.tMax) {
+      if(time == 0) logger->info("Generation pulse at the first EICROC cycle");
+      else logger->info("Generation pulse at the second EICROC cycle");
 
-      auto pulse = time_series_coll.create();
-      auto cellID =
-          id_desc.encode({{"system", 0}, {"module", 0}, {"sensor", 1}, {"x", 1}, {"y", 1}});
+      // test pulse with gaussian shape
+      for (double tdc_frac = 0.4; tdc_frac < 1; tdc_frac += 0.1) {
+        edm4hep::RawTimeSeriesCollection time_series_coll;
+        auto rawhits_coll = std::make_unique<edm4eic::RawTrackerHitCollection>();
 
-      pulse.setCellID(cellID);
-      pulse.setCharge(1.); // placeholder
-      pulse.setTime(1.);   // placeholder
-      pulse.setInterval(1);
+        auto pulse = time_series_coll.create();
+        auto cellID =
+            id_desc.encode({{"system", 0}, {"module", 0}, {"sensor", 1}, {"x", 1}, {"y", 1}});
 
-      int test_peak_TDC   = static_cast<int>(tdc_frac * cfg.tdc_range);
-      int test_peak       = static_cast<int>(0.7 * cfg.adc_range);
-      int test_peak_sigma = static_cast<int>(0.1 * cfg.tdc_range);
+        pulse.setCellID(cellID);
+        pulse.setCharge(1.); // placeholder
+        pulse.setTime(time);   // placeholder
+        pulse.setInterval(1);
 
-      for (int i = 0; i < cfg.tdc_range; ++i) {
-        int ADC =
-            -test_peak *
-            TMath::Exp(-0.5 * pow((i - test_peak_TDC) / static_cast<double>(test_peak_sigma), 2));
-        pulse.addToAdcCounts(ADC);
+        int test_peak_TDC   = static_cast<int>(tdc_frac * cfg.tdc_range);
+        int test_peak       = static_cast<int>(0.7 * cfg.adc_range);
+        int test_peak_sigma = static_cast<int>(0.1 * cfg.tdc_range);
+
+        for (int i = 0; i < cfg.tdc_range; ++i) {
+          int ADC =
+              -test_peak *
+              TMath::Exp(-0.5 * pow((i - test_peak_TDC) / static_cast<double>(test_peak_sigma), 2));
+          pulse.addToAdcCounts(ADC);
+        }
+
+        // calculate analytically when the pulse passes t_thres
+        // ADC = amp*exp(-(TDC - mean)^2/(2sigma^2))
+        // TDC = mean - (-2*sigma^2*ln(ADC/amp))^0.5
+        int analytic_TDC = ceil(test_peak_TDC - sqrt(-2 * pow(test_peak_sigma, 2) *
+                                                     TMath::Log(cfg.adc_range * 0.1 / test_peak)));
+
+        // Constructing input and output as per the algorithm's expected signature
+        auto input  = std::make_tuple(&time_series_coll);
+        auto output = std::make_tuple(rawhits_coll.get());
+
+        algo.process(input, output);
+
+        REQUIRE(rawhits_coll->size() == 1);
+        auto hit = (*rawhits_coll)[0];
+        REQUIRE(hit.getCellID() == cellID);
+        REQUIRE(hit.getCharge() == test_peak);
+	if(time == 0) REQUIRE(hit.getTimeStamp() == analytic_TDC);
+	else REQUIRE(hit.getTimeStamp() == analytic_TDC + cfg.tdc_range);
       }
-
-      // calculate analytically when the pulse passes t_thres
-      // ADC = amp*exp(-(TDC - mean)^2/(2sigma^2))
-      // TDC = mean - (-2*sigma^2*ln(ADC/amp))^0.5
-      int analytic_TDC = ceil(test_peak_TDC - sqrt(-2 * pow(test_peak_sigma, 2) *
-                                                   TMath::Log(cfg.adc_range * 0.1 / test_peak)));
-
-      // Constructing input and output as per the algorithm's expected signature
-      auto input  = std::make_tuple(&time_series_coll);
-      auto output = std::make_tuple(rawhits_coll.get());
-
-      algo.process(input, output);
-
-      REQUIRE(rawhits_coll->size() == 1);
-      auto hit = (*rawhits_coll)[0];
-      REQUIRE(hit.getCellID() == cellID);
-      REQUIRE(hit.getCharge() == test_peak);
-      REQUIRE(hit.getTimeStamp() == analytic_TDC);
     }
   }
 
@@ -110,7 +116,7 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseDigitization]") {
 
       pulse.setCellID(cellID);
       pulse.setCharge(1.); // placeholder
-      pulse.setTime(1.);   // placeholder
+      pulse.setTime(0.);   // placeholder
       pulse.setInterval(1);
 
       int test_peak_TDC   = static_cast<int>(0.5 * cfg.tdc_range);

@@ -5,15 +5,15 @@
 
 #include "extensions/jana/JOmniFactory.h"
 
-#include "algorithms/digi/TOFPulseGeneration.h"
+#include "algorithms/digi/LGADPulseGeneration.h"
 #include <iostream>
 
 namespace eicrecon {
 
-class TOFPulseGeneration_factory
-    : public JOmniFactory<TOFPulseGeneration_factory, TOFHitDigiConfig> {
+class LGADPulseGeneration_factory
+    : public JOmniFactory<LGADPulseGeneration_factory, LGADHitDigiConfig> {
 public:
-  using AlgoT = eicrecon::TOFPulseGeneration;
+  using AlgoT = eicrecon::LGADPulseGeneration;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
@@ -23,7 +23,6 @@ private:
   PodioOutput<edm4hep::RawTimeSeries> m_out_reco_particles{this};
 
   ParameterRef<double> m_Vm{this, "Vm", config().Vm};
-  ParameterRef<double> m_tMin{this, "tMin", config().tMin};
   ParameterRef<double> m_tMax{this, "tMax", config().tMax};
   ParameterRef<int> m_adc_range{this, "adcRange", config().adc_range};
   ParameterRef<int> m_tdc_range{this, "tdcRange", config().tdc_range};
@@ -33,7 +32,9 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<eicrecon::TOFPulseGeneration>(GetPrefix());
+    std::unique_ptr<eicrecon::PulseShape> landau = std::make_unique<eicrecon::LandauPulse>(config().gain, config().Vm,
+		                                          config().sigma_analog, config().adc_range);
+    m_algo = std::make_unique<eicrecon::LGADPulseGeneration>(GetPrefix(), std::move(landau));
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();

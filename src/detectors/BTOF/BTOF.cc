@@ -19,8 +19,8 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/digi/BTOFChargeSharing_factory.h"
-#include "factories/digi/TOFPulseGeneration_factory.h"
-#include "factories/digi/TOFPulseDigitization_factory.h"
+#include "factories/digi/LGADPulseGeneration_factory.h"
+#include "factories/digi/LGADPulseDigitization_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -66,7 +66,7 @@ void InitPlugin(JApplication* app) {
       app
   ));
 
-  app->Add(new JOmniFactoryGeneratorT<TOFPulseGeneration_factory>(
+  app->Add(new JOmniFactoryGeneratorT<LGADPulseGeneration_factory>(
       "BTOFPulseGeneration",
       {"TOFBarrelSharedHits"},
       {"TOFBarrelPulse"},
@@ -74,7 +74,7 @@ void InitPlugin(JApplication* app) {
       app
   ));
 
-  app->Add(new JOmniFactoryGeneratorT<TOFPulseDigitization_factory>(
+  app->Add(new JOmniFactoryGeneratorT<LGADPulseDigitization_factory>(
       "BTOFPulseDigitization",
       {"TOFBarrelPulse"},
       {"TOFBarrelADCTDC"},

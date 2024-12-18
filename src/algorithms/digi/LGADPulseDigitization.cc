@@ -2,7 +2,7 @@
 // Copyright (C) 2024 Souvik Paul, Chun Yuen Tsang, Prithwish Tribedy
 // Special Acknowledgement: Kolja Kauder
 //
-// Convert ADC pulses from TOFPulseGeneration into ADC and TDC values
+// Convert ADC pulses from LGADPulseGeneration into ADC and TDC values
 
 #include <algorithm>
 #include <gsl/pointers>
@@ -12,13 +12,13 @@
 #include <stdlib.h>
 #include <vector>
 
-#include "TOFPulseDigitization.h"
-#include "algorithms/digi/TOFHitDigiConfig.h"
+#include "LGADPulseDigitization.h"
+#include "algorithms/digi/LGADHitDigiConfig.h"
 
 namespace eicrecon {
 
-void TOFPulseDigitization::process(const TOFPulseDigitization::Input& input,
-                                   const TOFPulseDigitization::Output& output) const {
+void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
+                                   const LGADPulseDigitization::Output& output) const {
   const auto [simhits] = input;
   auto [rawhits]       = output;
 
@@ -41,11 +41,12 @@ void TOFPulseDigitization::process(const TOFPulseDigitization::Input& input,
     double adc_prev      = 0;
     double time_interval = pulse.getInterval();
     auto adcs            = pulse.getAdcCounts();
+    double n_EICROC_cycle = int(pulse.getTime()/m_cfg.tMax + 1e-3);
     for (const auto adc : adcs) {
       if (adc_prev >= norm_threshold && adc <= norm_threshold) {
         intersectionX = time_bin * time_interval +
                         time_interval * (norm_threshold - adc_prev) / (adc - adc_prev);
-        tdc = static_cast<int>(intersectionX / time_interval);
+        tdc = static_cast<int>(intersectionX / time_interval) + n_EICROC_cycle * m_cfg.tdc_range;
       }
       if (abs(adc) > abs(V)) // To get peak of the Analog signal
         V = adc;
@@ -60,5 +61,5 @@ void TOFPulseDigitization::process(const TOFPulseDigitization::Input& input,
       rawhits->create(pulse.getCellID(), adc, tdc);
     //-----------------------------------------------------------
   }
-} // TOFPulseDigitization:process
+} // LGADPulseDigitization:process
 } // namespace eicrecon

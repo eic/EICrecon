@@ -2,7 +2,7 @@
 // Copyright (C) 2024 Souvik Paul, Chun Yuen Tsang, Prithwish Tribedy
 // Special Acknowledgement: Kolja Kauder
 //
-// Convert ADC pulses from TOFPulseGeneration into ADC and TDC values
+// Convert ADC pulses from LGADPulseGeneration into ADC and TDC values
 
 #pragma once
 
@@ -12,21 +12,21 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/digi/TOFHitDigiConfig.h"
+#include "algorithms/digi/LGADHitDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using TOFPulseDigitizationAlgorithm =
+using LGADPulseDigitizationAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::RawTimeSeriesCollection>,
                           algorithms::Output<edm4eic::RawTrackerHitCollection>>;
 
-class TOFPulseDigitization : public TOFPulseDigitizationAlgorithm,
-                             public WithPodConfig<TOFHitDigiConfig> {
+class LGADPulseDigitization : public LGADPulseDigitizationAlgorithm,
+                             public WithPodConfig<LGADHitDigiConfig> {
 
 public:
-  TOFPulseDigitization(std::string_view name)
-      : TOFPulseDigitizationAlgorithm{name, {"TOFBarrelPulse"}, {"TOFBarrelADCTDC"}, {}} {}
+  LGADPulseDigitization(std::string_view name)
+      : LGADPulseDigitizationAlgorithm{name, {"LGADPulse"}, {"ADCTDCOutput"}, {}} {}
   void init(){};
   void process(const Input&, const Output&) const final;
 };

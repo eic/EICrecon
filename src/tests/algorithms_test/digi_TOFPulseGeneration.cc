@@ -23,26 +23,30 @@
 
 #include "TF1.h"
 #include "TGraphErrors.h"
-#include "algorithms/digi/TOFHitDigiConfig.h"
-#include "algorithms/digi/TOFPulseGeneration.h"
+#include "algorithms/digi/LGADHitDigiConfig.h"
+#include "algorithms/digi/LGADPulseGeneration.h"
 
 TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
   const float EPSILON = 1e-5;
+  eicrecon::LGADHitDigiConfig cfg;
+  cfg.gain         = 113;
+  cfg.Vm           = 1e-4 * dd4hep::GeV;
+  cfg.ignore_thres = 1e-4 / 5;
+  cfg.sigma_analog = 0.293951 * dd4hep::ns;
+  cfg.adc_bit      = 8;
+  cfg.adc_range    = pow(2, cfg.adc_bit);
 
-  eicrecon::TOFPulseGeneration algo("TOFPulseGeneration");
+  std::unique_ptr<eicrecon::PulseShape> landau = std::make_unique<eicrecon::LandauPulse>(cfg.gain, cfg.Vm,
+                                        cfg.sigma_analog, cfg.adc_range);
+
+  eicrecon::LGADPulseGeneration algo("TOFPulseGeneration", std::move(landau));
 
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("TOFPulseGeneration");
   logger->set_level(spdlog::level::trace);
 
-  eicrecon::TOFHitDigiConfig cfg;
-  cfg.readout = "MockTOFHits";
 
   auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout(cfg.readout).idSpec();
-
-  cfg.gain         = 113;
-  cfg.Vm           = -1e-4;
-  cfg.ignore_thres = 1e-4 / 5;
+  auto id_desc  = detector->readout("MockTOFHits").idSpec();
 
   SECTION("Pulse height linearlity test") {
     // check if max pulse height is linearly proportional to the initial Edep
@@ -61,7 +65,7 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
       hit.setCellID(cellID);
       hit.setEDep(
           edep); // in GeV. Since Vm = 1e-4*gain, EDep = 1e-4 GeV corresponds to ADC = max_adc
-      hit.setTime(1.5); // in ns
+      hit.setTime(1.5 * dd4hep::ns); // in ns
 
       // Constructing input and output as per the algorithm's expected signature
       auto input  = std::make_tuple(&rawhits_coll);
@@ -73,17 +77,16 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
         REQUIRE(time_series_coll->size() == 0);
       else {
         REQUIRE(time_series_coll->size() == 1);
-        auto pulse = (*time_series_coll)[0];
-        REQUIRE(pulse.getCellID() == cellID);
-
-        auto adcs    = pulse.getAdcCounts();
-        auto min_adc = std::numeric_limits<int>::max();
-        for (const auto adc : adcs)
-          min_adc = std::min(min_adc, adc);
+	auto min_adc = std::numeric_limits<int>::max();
+        for(const auto& pulse : (*time_series_coll)) {
+          REQUIRE(pulse.getCellID() == cellID);
+          auto adcs    = pulse.getAdcCounts();
+          for (const auto adc : adcs)
+            min_adc = std::min(min_adc, adc);
+	}
         int npt = graph.GetN();
         graph.SetPoint(npt, edep, min_adc);
         graph.SetPointError(npt, 0, 0.5);
-
         // make sure when energy deposition = Vm, ADC reaches max value
         if (edep == 1e-4)
           REQUIRE(min_adc == -cfg.adc_range + 1);
@@ -93,6 +96,8 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
     // test linearlity
     TF1 tf1("tf1", "pol1", 0, 1e-4);
     graph.Fit(&tf1, "R0");
+    // slope can't be consistent with zero
+    REQUIRE(!(tf1.GetParameter(1) - tf1.GetParError(1) < 0 && 0 < tf1.GetParameter(1) + tf1.GetParError(1) ));
     double chi2_dof = tf1.GetChisquare() / tf1.GetNDF();
     logger->info("Chi-square/dof value for Edep vs min-adc = {}", chi2_dof);
     REQUIRE(chi2_dof < 2);
@@ -104,7 +109,14 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
     algo.init();
 
     TGraphErrors graph;
-    for (double time = 0; time < 12; time += 1.) {
+    std::vector<double> times;
+
+    // test within the same EICROC cycle
+    for (double time = 0; time < 12; time += 1.) times.push_back(time);
+    // test multiple EICROC cycle
+    for (double time = 10; time < 101; time += 25.) times.push_back(time);
+
+    for (double time : times) {
       edm4hep::SimTrackerHitCollection rawhits_coll;
       auto time_series_coll = std::make_unique<edm4hep::RawTimeSeriesCollection>();
 
@@ -114,7 +126,7 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
 
       hit.setCellID(cellID);
       hit.setEDep(
-          0.5e-4); // in GeV. Since Vm = 1e-4*gain, EDep = 1e-4 GeV corresponds to ADC = max_adc
+          0.5e-4 * dd4hep::GeV); // in GeV. Since Vm = 1e-4*gain, EDep = 1e-4 GeV corresponds to ADC = max_adc
       hit.setTime(time); // in ns
 
       // Constructing input and output as per the algorithm's expected signature
@@ -124,17 +136,19 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
       algo.process(input, output);
 
       REQUIRE(time_series_coll->size() == 1);
-      auto pulse = (*time_series_coll)[0];
-      REQUIRE(pulse.getCellID() == cellID);
-
-      auto adcs             = pulse.getAdcCounts();
       auto min_adc          = std::numeric_limits<int>::max();
       unsigned int time_bin = 0;
-      for (unsigned int i = 0; i < adcs.size(); ++i) {
-        auto adc = adcs[i];
-        if (adc < min_adc)
-          time_bin = i;
-        min_adc = std::min(min_adc, adc);
+      for(const auto& pulse: *time_series_coll) {
+        //auto pulse = (*time_series_coll)[0];
+        REQUIRE(pulse.getCellID() == cellID);
+
+        auto adcs             = pulse.getAdcCounts();
+        for (unsigned int i = 0; i < adcs.size(); ++i) {
+          auto adc = adcs[i];
+          if (adc < min_adc) 
+            time_bin = i + pulse.getTime()/cfg.tMax*cfg.tdc_range;
+          min_adc = std::min(min_adc, adc);
+        }
       }
       int npt = graph.GetN();
       graph.SetPoint(npt, time, time_bin);
@@ -142,8 +156,10 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
     }
 
     // test linearlity
-    TF1 tf1("tf1", "pol1", 0, 12);
+    TF1 tf1("tf1", "pol1", 0, *std::max_element(times.begin(), times.end()));
     graph.Fit(&tf1, "R0");
+    // slope can't be consistent with zero
+    REQUIRE(!(tf1.GetParameter(1) - tf1.GetParError(1) < 0 && 0 < tf1.GetParameter(1) + tf1.GetParError(1) ));
     double chi2_dof = tf1.GetChisquare() / tf1.GetNDF();
     logger->info("Chi-square/dof value for time vs TDC-bin = {}", chi2_dof);
     REQUIRE(chi2_dof < 2);

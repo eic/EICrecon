@@ -17,7 +17,7 @@
 #include <vector>
 
 #include "DD4hep/Detector.h"
-#include "algorithms/digi/TOFHitDigiConfig.h"
+#include "algorithms/digi/BTOFChargeSharingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -27,7 +27,7 @@ using BTOFChargeSharingAlgorithm =
                           algorithms::Output<edm4hep::SimTrackerHitCollection>>;
 
 class BTOFChargeSharing : public BTOFChargeSharingAlgorithm,
-                          public WithPodConfig<TOFHitDigiConfig> {
+                          public WithPodConfig<BTOFChargeSharingConfig> {
 
 public:
   BTOFChargeSharing(std::string_view name)

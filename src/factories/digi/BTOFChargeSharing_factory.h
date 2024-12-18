@@ -10,7 +10,7 @@
 
 namespace eicrecon {
 
-class BTOFChargeSharing_factory : public JOmniFactory<BTOFChargeSharing_factory, TOFHitDigiConfig> {
+class BTOFChargeSharing_factory : public JOmniFactory<BTOFChargeSharing_factory, BTOFChargeSharingConfig> {
 public:
   using AlgoT = eicrecon::BTOFChargeSharing;
 

@@ -25,7 +25,7 @@
 
 #include "BTOFChargeSharing.h"
 #include "DD4hep/Detector.h"
-#include "algorithms/digi/TOFHitDigiConfig.h"
+#include "algorithms/digi/BTOFChargeSharingConfig.h"
 
 namespace eicrecon {
 

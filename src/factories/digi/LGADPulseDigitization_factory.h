@@ -5,15 +5,15 @@
 
 #include "extensions/jana/JOmniFactory.h"
 
-#include "algorithms/digi/TOFPulseDigitization.h"
+#include "algorithms/digi/LGADPulseDigitization.h"
 #include <iostream>
 
 namespace eicrecon {
 
-class TOFPulseDigitization_factory
-    : public JOmniFactory<TOFPulseDigitization_factory, TOFHitDigiConfig> {
+class LGADPulseDigitization_factory
+    : public JOmniFactory<LGADPulseDigitization_factory, LGADHitDigiConfig> {
 public:
-  using AlgoT = eicrecon::TOFPulseDigitization;
+  using AlgoT = eicrecon::LGADPulseDigitization;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
@@ -28,7 +28,7 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<eicrecon::TOFPulseDigitization>(GetPrefix());
+    m_algo = std::make_unique<eicrecon::LGADPulseDigitization>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();
