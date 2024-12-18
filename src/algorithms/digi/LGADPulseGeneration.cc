@@ -52,7 +52,7 @@ void LGADPulseGeneration::_FillADCArray(AdcArray& adc_sum, double charge, double
   // keep filling the array until added amplitude < ignore_thres
   for (unsigned int j = 0; j <= ADCs.size(); ++j, t += interval) {
     double amplitude = m_pulse -> Eval(t, mpv_analog, charge);
-    if(std::fabs(amplitude) > std::fabs(m_cfg.ignore_thres * adc_range/m_cfg.Vm)){ 
+    if(std::fabs(amplitude) > std::fabs(m_cfg.ignore_thres * adc_range/m_cfg.Vm)){
       if(j >= ADCs.size()) {
         // pulse has to be saved in the next clock cycle
         this -> _FillADCArray(adc_sum, charge, mpv_analog - tMax, n_EICROC_cycle+1, cellID);

@@ -77,13 +77,13 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
         REQUIRE(time_series_coll->size() == 0);
       else {
         REQUIRE(time_series_coll->size() == 1);
-	auto min_adc = std::numeric_limits<int>::max();
+        auto min_adc = std::numeric_limits<int>::max();
         for(const auto& pulse : (*time_series_coll)) {
           REQUIRE(pulse.getCellID() == cellID);
           auto adcs    = pulse.getAdcCounts();
           for (const auto adc : adcs)
             min_adc = std::min(min_adc, adc);
-	}
+        }
         int npt = graph.GetN();
         graph.SetPoint(npt, edep, min_adc);
         graph.SetPointError(npt, 0, 0.5);
@@ -145,7 +145,7 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
         auto adcs             = pulse.getAdcCounts();
         for (unsigned int i = 0; i < adcs.size(); ++i) {
           auto adc = adcs[i];
-          if (adc < min_adc) 
+          if (adc < min_adc)
             time_bin = i + pulse.getTime()/cfg.tMax*cfg.tdc_range;
           min_adc = std::min(min_adc, adc);
         }
