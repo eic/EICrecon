@@ -18,31 +18,27 @@
 #include <tuple>
 #include <utility>
 
-#include "algorithms/digi/LGADHitDigiConfig.h"
 #include "algorithms/digi/LGADPulseDigitization.h"
 
-TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseDigitization]") {
+TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
   const float EPSILON = 1e-5;
 
-  eicrecon::LGADPulseDigitization algo("TOFPulseDigitization");
+  eicrecon::LGADPulseDigitization algo("LGADPulseDigitization");
 
-  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("TOFPulseDigitization");
+  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("LGADPulseDigitization");
   logger->set_level(spdlog::level::trace);
 
-  eicrecon::LGADHitDigiConfig cfg;
+  eicrecon::LGADPulseDigitizationConfig cfg;
 
   auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockTOFHits").idSpec();
+  auto id_desc  = detector->readout("MockLGADHits").idSpec();
 
-  cfg.gain         = 10;
-  cfg.Vm           = -1e-4;
-  cfg.ignore_thres = 1e-4 / 5;
-  cfg.t_thres      = cfg.Vm * 0.1;
   cfg.tdc_bit      = 8;
   cfg.adc_bit      = 7;
   cfg.tMax         = 10 * dd4hep::ns;
   cfg.tdc_range    = pow(2, cfg.tdc_bit);
   cfg.adc_range    = pow(2, cfg.adc_bit);
+  cfg.t_thres      = cfg.adc_range * 0.1;
 
   // check if max pulse height is linearly proportional to the initial Edep
   algo.applyConfig(cfg);

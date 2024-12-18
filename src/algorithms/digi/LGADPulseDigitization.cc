@@ -13,7 +13,7 @@
 #include <vector>
 
 #include "LGADPulseDigitization.h"
-#include "algorithms/digi/LGADHitDigiConfig.h"
+#include "algorithms/digi/LGADPulseDigitizationConfig.h"
 
 namespace eicrecon {
 
@@ -22,14 +22,8 @@ void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
   const auto [simhits] = input;
   auto [rawhits]       = output;
 
-  double thres = m_cfg.t_thres;
-  // Vm in unit of GeV. When Edep = Vm, ADC = cfg.adc_range-1
-  double Vm     = m_cfg.Vm;
+  double thres = -m_cfg.t_thres;
   int adc_range = m_cfg.adc_range;
-
-  // normalized time threshold
-  // convert threshold EDep to voltage
-  double norm_threshold = -thres * adc_range / Vm;
 
   for (const auto& pulse : *simhits) {
     double intersectionX = 0.0;
@@ -43,9 +37,9 @@ void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
     auto adcs            = pulse.getAdcCounts();
     double n_EICROC_cycle = int(pulse.getTime()/m_cfg.tMax + 1e-3);
     for (const auto adc : adcs) {
-      if (adc_prev >= norm_threshold && adc <= norm_threshold) {
+      if (adc_prev >= thres && adc <= thres) {
         intersectionX = time_bin * time_interval +
-                        time_interval * (norm_threshold - adc_prev) / (adc - adc_prev);
+                        time_interval * (thres - adc_prev) / (adc - adc_prev);
         tdc = static_cast<int>(intersectionX / time_interval) + n_EICROC_cycle * m_cfg.tdc_range;
       }
       if (abs(adc) > abs(V)) // To get peak of the Analog signal

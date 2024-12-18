@@ -14,7 +14,7 @@
 
 #include "TMath.h"
 #include "LGADPulseGeneration.h"
-#include "algorithms/digi/LGADHitDigiConfig.h"
+#include "algorithms/digi/LGADPulseGenerationConfig.h"
 
 namespace eicrecon {
 

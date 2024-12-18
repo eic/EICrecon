@@ -11,7 +11,7 @@
 namespace eicrecon {
 
 class LGADPulseDigitization_factory
-    : public JOmniFactory<LGADPulseDigitization_factory, LGADHitDigiConfig> {
+    : public JOmniFactory<LGADPulseDigitization_factory, LGADPulseDigitizationConfig> {
 public:
   using AlgoT = eicrecon::LGADPulseDigitization;
 

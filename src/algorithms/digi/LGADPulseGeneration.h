@@ -13,7 +13,7 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/digi/LGADHitDigiConfig.h"
+#include "algorithms/digi/LGADPulseGenerationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -31,7 +31,7 @@ public:
   virtual ~PulseShape() {};
 };
 
-// default pulse shapt is Landau
+// default pulse shape is Landau
 class LandauPulse : public PulseShape {
 public:
   LandauPulse(double gain, double Vm, double sigma_analog, double adc_range);
@@ -44,7 +44,7 @@ private:
 
 
 class LGADPulseGeneration : public LGADPulseGenerationAlgorithm,
-                           public WithPodConfig<LGADHitDigiConfig> {
+                           public WithPodConfig<LGADPulseGenerationConfig> {
 // The key pair is <NO of 40 MHz cycle since t = 0, cellID>
 typedef std::unordered_map<dd4hep::rec::CellID, std::unordered_map<int, std::vector<double>>> AdcArray;
 

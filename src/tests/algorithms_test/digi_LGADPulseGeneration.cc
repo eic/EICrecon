@@ -23,12 +23,11 @@
 
 #include "TF1.h"
 #include "TGraphErrors.h"
-#include "algorithms/digi/LGADHitDigiConfig.h"
 #include "algorithms/digi/LGADPulseGeneration.h"
 
-TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
+TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseGeneration]") {
   const float EPSILON = 1e-5;
-  eicrecon::LGADHitDigiConfig cfg;
+  eicrecon::LGADPulseGenerationConfig cfg;
   cfg.gain         = 113;
   cfg.Vm           = 1e-4 * dd4hep::GeV;
   cfg.ignore_thres = 1e-4 / 5;
@@ -39,14 +38,14 @@ TEST_CASE("the BTOF charge sharing algorithm runs", "[TOFPulseGeneration]") {
   std::unique_ptr<eicrecon::PulseShape> landau = std::make_unique<eicrecon::LandauPulse>(cfg.gain, cfg.Vm,
                                         cfg.sigma_analog, cfg.adc_range);
 
-  eicrecon::LGADPulseGeneration algo("TOFPulseGeneration", std::move(landau));
+  eicrecon::LGADPulseGeneration algo("LGADPulseGeneration", std::move(landau));
 
-  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("TOFPulseGeneration");
+  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("LGADPulseGeneration");
   logger->set_level(spdlog::level::trace);
 
 
   auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockTOFHits").idSpec();
+  auto id_desc  = detector->readout("MockLGADHits").idSpec();
 
   SECTION("Pulse height linearlity test") {
     // check if max pulse height is linearly proportional to the initial Edep

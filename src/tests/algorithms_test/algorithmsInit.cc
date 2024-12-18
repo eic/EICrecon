@@ -44,14 +44,14 @@ public:
     detector->add(id_desc_tracker);
     detector->add(readoutTracker);
 
-    dd4hep::Readout readoutTOF(std::string("MockTOFHits"));
-    dd4hep::IDDescriptor id_desc_TOF("MockTOFHits", "system:8,layer:4,module:12,sensor:10,x:40:-8,y:-16");
+    dd4hep::Readout readoutLGAD(std::string("MockLGADHits"));
+    dd4hep::IDDescriptor id_desc_LGAD("MockLGADHits", "system:8,layer:4,module:12,sensor:10,x:40:-8,y:-16");
     //Create segmentation with 1x1 mm pixels
-    dd4hep::Segmentation segmentation_TOF("CartesianGridXY","TOFHitsSeg", id_desc_tracker.decoder());
-    readoutTOF.setIDDescriptor(id_desc_TOF);
-    readoutTOF.setSegmentation(segmentation_TOF);
-    detector->add(id_desc_TOF);
-    detector->add(readoutTOF);
+    dd4hep::Segmentation segmentation_LGAD("CartesianGridXY","LGADHitsSeg", id_desc_tracker.decoder());
+    readoutLGAD.setIDDescriptor(id_desc_LGAD);
+    readoutLGAD.setSegmentation(segmentation_LGAD);
+    detector->add(id_desc_LGAD);
+    detector->add(readoutLGAD);
 
     m_detector = std::move(detector);
 

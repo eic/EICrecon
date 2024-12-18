@@ -12,7 +12,7 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/digi/LGADHitDigiConfig.h"
+#include "algorithms/digi/LGADPulseDigitizationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -22,7 +22,7 @@ using LGADPulseDigitizationAlgorithm =
                           algorithms::Output<edm4eic::RawTrackerHitCollection>>;
 
 class LGADPulseDigitization : public LGADPulseDigitizationAlgorithm,
-                             public WithPodConfig<LGADHitDigiConfig> {
+                             public WithPodConfig<LGADPulseDigitizationConfig> {
 
 public:
   LGADPulseDigitization(std::string_view name)
