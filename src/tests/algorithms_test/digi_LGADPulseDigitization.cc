@@ -92,8 +92,8 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
         auto hit = (*rawhits_coll)[0];
         REQUIRE(hit.getCellID() == cellID);
         REQUIRE(hit.getCharge() == test_peak);
-	if(time == 0) REQUIRE(hit.getTimeStamp() == analytic_TDC);
-	else REQUIRE(hit.getTimeStamp() == analytic_TDC + cfg.tdc_range);
+        if(time == 0) REQUIRE(hit.getTimeStamp() == analytic_TDC);
+        else REQUIRE(hit.getTimeStamp() == analytic_TDC + cfg.tdc_range);
       }
     }
   }

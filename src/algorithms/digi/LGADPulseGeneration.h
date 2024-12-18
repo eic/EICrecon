@@ -56,8 +56,8 @@ public:
 
 protected:
   double _Landau(double amp, double x, double mean, double std) const;
-  void _FillADCArray(AdcArray& adc_sum, double charge, double mpv_analog, 
-		  int n_EICROC_cycle, dd4hep::rec::CellID cellID) const;
+  void _FillADCArray(AdcArray& adc_sum, double charge, double mpv_analog,
+                  int n_EICROC_cycle, dd4hep::rec::CellID cellID) const;
   std::unique_ptr<PulseShape> m_pulse;
 };
 
