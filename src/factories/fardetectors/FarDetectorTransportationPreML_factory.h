@@ -10,7 +10,7 @@
 
 namespace eicrecon {
 
-class FarDetectorTransportationPreML_factory : public JOmniFactory<FarDetectorTransportationPreML_factory, NoConfig> {
+class FarDetectorTransportationPreML_factory : public JOmniFactory<FarDetectorTransportationPreML_factory, FarDetectorTransportationPreMLConfig> {
 
 public:
   using AlgoT = eicrecon::FarDetectorTransportationPreML;
@@ -18,6 +18,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::TrackParameters>  m_trackparam_input      {this};
+  PodioInput<edm4hep::MCParticle>       m_scatteredelectrons_input {this};
   PodioInput<edm4hep::MCParticle>       m_beamelectrons_input   {this};
 
   PodioOutput<edm4eic::Tensor>          m_feature_tensor_output {this};
@@ -35,7 +36,7 @@ public:
   }
 
   void Process(int64_t run_number, uint64_t event_number) {
-        m_algo->process({m_trackparam_input(),m_beamelectrons_input()},
+        m_algo->process({m_trackparam_input(),m_scatteredelectrons_input(), m_beamelectrons_input()},
                                         {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }
 };

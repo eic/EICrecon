@@ -45,8 +45,8 @@ namespace eicrecon {
         //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
         m_beamE = round(m_beamE);
       });
-    }
-    
+    }    
+
     edm4eic::MutableTensor feature_tensor = feature_tensors->create();
     feature_tensor.addToShape(inputTracks->size());
     feature_tensor.addToShape(4); // x,z,dirx,diry
