@@ -4,21 +4,23 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <TMath.h>
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp> // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
-#include <cmath>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
-#include <gsl/pointers>
-#include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <spdlog/common.h> // for level_enum
 #include <spdlog/logger.h> // for logger
 #include <spdlog/spdlog.h> // for default_logger
+#include <cmath>
+#include <gsl/pointers>
+#include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <tuple>
 #include <utility>
 
 #include "algorithms/digi/LGADPulseDigitization.h"
+#include "algorithms/digi/LGADPulseDigitizationConfig.h"
 
 TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
   const float EPSILON = 1e-5;
