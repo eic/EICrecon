@@ -4,12 +4,12 @@
 //
 // Convert ADC pulses from LGADPulseGeneration into ADC and TDC values
 
-#include <algorithm>
-#include <gsl/pointers>
-#include <limits>
-#include <math.h>
 #include <podio/RelationRange.h>
 #include <stdlib.h>
+#include <algorithm>
+#include <cmath>
+#include <gsl/pointers>
+#include <limits>
 #include <vector>
 
 #include "LGADPulseDigitization.h"
