@@ -17,61 +17,6 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
-namespace eicrecon {
-
-  // --------------------------------------------------------------------------
-  // Helper method to generate appropriate phi map
-  // --------------------------------------------------------------------------
-  std::string MakePhiMap(const std::size_t nMerge = 1) {
-
-    // convert num to merge to string
-    const std::string sNum = std::to_string(nMerge);
-
-    // construct mapping
-    std::string map  = "";
-    if (nMerge > 1) {
-      map = "phi-(" + sNum + "*((phi/" + sNum + ")-floor(phi/" + sNum + ")))";
-    } else {
-      map = "phi";
-    }
-    return map;
-
-  }  // end 'MakePhiMap(std::size_t)'
-
-  // --------------------------------------------------------------------------
-  // Helper method to generate appropriate adjacency matrix
-  // --------------------------------------------------------------------------
-  std::string MakeAdjacencyMatrix(const std::size_t nMerge = 1) {
-
-    // set up checks at wraparound.
-    // magic constants:
-    //   320 - number of tiles per row
-    const std::string sMerge    = std::to_string(nMerge);
-    const std::string wrapDef   = "(abs(phi_1 - phi_2) == (320 - 1))";
-    const std::string wrapMerge = "(abs(320 - abs(phi_1 - phi_2)) <= " + sMerge + ")";
-
-    // combine strings into horizontal adjacency conditions
-    const std::string phiAdjacent  = "(abs(phi_1 - phi_2) == " + sMerge + ")";
-    const std::string wrapAdjacent = nMerge > 1 ? wrapMerge : wrapDef;
-
-    // put everything together
-    std::string matrix("");
-    matrix += "(";
-    // check for vertically adjacent tiles
-    matrix += "  ( (abs(eta_1 - eta_2) == 1) && (abs(phi_1 - phi_2) == 0) ) ||";
-    // check for horizontally adjacent tiles
-    matrix += "  ( (abs(eta_1 - eta_2) == 0) && " + phiAdjacent + " ) ||";
-    // check for horizontally adjacent tiles at wraparound
-    matrix += "  ( (abs(eta_1 - eta_2) == 0) && " + wrapAdjacent + " )";
-    matrix += ") == 1";
-    return matrix;
-
-  }  // end 'MakeAdjacencyMatrix(std::size_t)'
-
-}
-
-
-
 extern "C" {
 
     void InitPlugin(JApplication *app) {
@@ -87,15 +32,17 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::pedSigmaADC)   HcalBarrel_pedSigmaADC = 2;
         decltype(CalorimeterHitDigiConfig::resolutionTDC) HcalBarrel_resolutionTDC = 1 * dd4hep::picosecond;
 
-        // ---------------------------------------------------------------------
-        // if needed, merge adjacent tiles into a tower and adjust maps/matrices
-        // ---------------------------------------------------------------------
-        const std::size_t nPhiToMerge = 1;
-        const std::string phiMap      = MakePhiMap(nPhiToMerge);
-        const std::string adjMatrix   = MakeAdjacencyMatrix(nPhiToMerge);
-
-        // set matrix
-        decltype(CalorimeterIslandClusterConfig::adjacencyMatrix) HcalBarrel_adjacencyMatrix = adjMatrix;
+        // Set default adjacency matrix. Magic constants:
+        //  320 - number of tiles per row
+        decltype(CalorimeterIslandClusterConfig::adjacencyMatrix) HcalBarrel_adjacencyMatrix =
+          "("
+          // check for vertically adjacent tiles
+          "  ( (abs(eta_1 - eta_2) == 1) && (abs(phi_1 - phi_2) == 0) ) ||"
+          // check for horizontally adjacent tiles
+          "  ( (abs(eta_1 - eta_2) == 0) && (abs(phi_1 - phi_2) == 1) ) ||"
+          // check for horizontally adjacent tiles at wraparound
+          "  ( (abs(eta_1 - eta_2) == 0) && (abs(phi_1 - phi_2) == (320 - 1)) )"
+          ") == 1";
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
           "HcalBarrelRawHits",
@@ -139,12 +86,16 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
 
+        // --------------------------------------------------------------------
+        // If needed, merge adjacent phi tiles into towers. By default,
+        // NO merging will be done. This can be changed at runtime.
+        // --------------------------------------------------------------------
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
           "HcalBarrelMergedHits", {"HcalBarrelRecHits"}, {"HcalBarrelMergedHits"},
           {
             .readout = "HcalBarrelHits",
             .fields = {"phi"},
-            .mappings = {phiMap}
+            .mappings = {"phi"}
           },
           app   // TODO: Remove me once fixed
         ));
