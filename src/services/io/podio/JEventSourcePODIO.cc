@@ -14,16 +14,12 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <TObject.h>
-#include <fmt/color.h>
 #include <fmt/core.h>
-#include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/podioVersion.h>
 #include <algorithm>
-#include <cstdlib>
 #include <exception>
-#include <filesystem>
 #include <iostream>
 #include <map>
 #include <utility>
@@ -130,17 +126,6 @@ void JEventSourcePODIO::Open() {
 
     // Open primary events file
     try {
-
-        // Verify file exists
-        // if( ! std::filesystem::exists(GetResourceName()) ){
-        //     // Here we go against the standard practice of throwing an error and print
-        //     // the message and exit immediately. This is because we want the last message
-        //     // on the screen to be that the file doesn't exist.
-        //     auto mess = fmt::format(fmt::emphasis::bold | fg(fmt::color::red),"ERROR: ");
-        //     mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!",  GetResourceName());
-        //     std::cerr << std::endl << std::endl << mess << std::endl << std::endl;
-        //     std::_Exit(EXIT_FAILURE);
-        // }
 
         m_reader.openFile( GetResourceName() );
 
