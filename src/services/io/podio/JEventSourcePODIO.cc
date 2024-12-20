@@ -14,16 +14,12 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <TObject.h>
-#include <fmt/color.h>
 #include <fmt/core.h>
-#include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/podioVersion.h>
 #include <algorithm>
-#include <cstdlib>
 #include <exception>
-#include <filesystem>
 #include <iostream>
 #include <map>
 #include <utility>
