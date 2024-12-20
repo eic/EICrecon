@@ -131,17 +131,6 @@ void JEventSourcePODIO::Open() {
     // Open primary events file
     try {
 
-        // Verify file exists
-        // if( ! std::filesystem::exists(GetResourceName()) ){
-        //     // Here we go against the standard practice of throwing an error and print
-        //     // the message and exit immediately. This is because we want the last message
-        //     // on the screen to be that the file doesn't exist.
-        //     auto mess = fmt::format(fmt::emphasis::bold | fg(fmt::color::red),"ERROR: ");
-        //     mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!",  GetResourceName());
-        //     std::cerr << std::endl << std::endl << mess << std::endl << std::endl;
-        //     std::_Exit(EXIT_FAILURE);
-        // }
-
         m_reader.openFile( GetResourceName() );
 
         auto version = m_reader.currentFileVersion();
