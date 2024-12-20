@@ -11,6 +11,8 @@ add_executable(
   calorimetry_CalorimeterHitDigi.cc
   calorimetry_CalorimeterClusterRecoCoG.cc
   calorimetry_HEXPLIT.cc
+  digi_LGADPulseGeneration.cc
+  digi_LGADPulseDigitization.cc
   pid_MergeTracks.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc
