@@ -5,12 +5,11 @@
 
 namespace eicrecon {
 
-  struct EnergyPositionClusterMergerConfig {
+struct EnergyPositionClusterMergerConfig {
 
-    double                   energyRelTolerance{0.5};
-    double                   phiTolerance{0.1};
-    double                   etaTolerance{0.2};
+  double energyRelTolerance{0.5};
+  double phiTolerance{0.1};
+  double etaTolerance{0.2};
+};
 
-  };
-
-} // eicrecon
+} // namespace eicrecon

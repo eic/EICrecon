@@ -4,7 +4,7 @@
 #pragma once
 
 namespace eicrecon {
-    struct TrackerHitReconstructionConfig {
-        float timeResolution = 10;
-    };
-}
+struct TrackerHitReconstructionConfig {
+  float timeResolution = 10;
+};
+} // namespace eicrecon

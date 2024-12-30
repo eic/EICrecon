@@ -6,7 +6,6 @@
 // the vector types like "vector<edm4hep::EventHeader>".
 //
 
-
 #include <vector>
 #ifdef __ROOTCLING__
 
