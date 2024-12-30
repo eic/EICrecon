@@ -11,40 +11,39 @@
 
 namespace eicrecon {
 
-  template<class T>
-    using CollectionCollectorAlgorithm =  algorithms::Algorithm<
-      typename algorithms::Input<std::vector<const T>>,
-      typename algorithms::Output<T>
-    >;
+template <class T>
+using CollectionCollectorAlgorithm =
+    algorithms::Algorithm<typename algorithms::Input<std::vector<const T>>,
+                          typename algorithms::Output<T>>;
 
-  template<class T>
-  class CollectionCollector : public CollectionCollectorAlgorithm<T>  {
+template <class T> class CollectionCollector : public CollectionCollectorAlgorithm<T> {
 
-    public:
-    CollectionCollector(std::string_view name)
+public:
+  CollectionCollector(std::string_view name)
       : CollectionCollectorAlgorithm<T>{name,
-                      {"inputCollections"},
-                        {"outputCollection"},
-                          "Merge content of collections into one subset collection"
-                      }{}
+                                        {"inputCollections"},
+                                        {"outputCollection"},
+                                        "Merge content of collections into one subset collection"} {
+  }
 
-    void init() final { };
+  void init() final {};
 
-    void process(const typename CollectionCollector::Input& input, const typename CollectionCollector::Output& output) const final{
+  void process(const typename CollectionCollector::Input& input,
+               const typename CollectionCollector::Output& output) const final {
 
-      const auto [in_collections] = input;
-      auto [out_collection]       = output;
+    const auto [in_collections] = input;
+    auto [out_collection]       = output;
 
-      out_collection->setSubsetCollection();
+    out_collection->setSubsetCollection();
 
-      for (const auto& collection : in_collections) {
-        for (const auto& hit : *collection) {
-          out_collection->push_back(hit);
-        }
+    for (const auto& collection : in_collections) {
+      for (const auto& hit : *collection) {
+        out_collection->push_back(hit);
       }
-      //Log how many hits were collected from N input collections
-      this->debug("Collected {} hits from {} input collections", out_collection->size(), in_collections.size());
     }
-
-  };
-} // eicrecon
+    //Log how many hits were collected from N input collections
+    this->debug("Collected {} hits from {} input collections", out_collection->size(),
+                in_collections.size());
+  }
+};
+} // namespace eicrecon

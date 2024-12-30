@@ -25,36 +25,30 @@
 
 namespace eicrecon {
 
-  using CalorimeterHitsMergerAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4eic::CalorimeterHitCollection
-    >,
-    algorithms::Output<
-      edm4eic::CalorimeterHitCollection
-    >
-  >;
+using CalorimeterHitsMergerAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::CalorimeterHitCollection>,
+                          algorithms::Output<edm4eic::CalorimeterHitCollection>>;
 
-  class CalorimeterHitsMerger
-  : public CalorimeterHitsMergerAlgorithm,
-    public WithPodConfig<CalorimeterHitsMergerConfig> {
+class CalorimeterHitsMerger : public CalorimeterHitsMergerAlgorithm,
+                              public WithPodConfig<CalorimeterHitsMergerConfig> {
 
-  public:
-    CalorimeterHitsMerger(std::string_view name)
+public:
+  CalorimeterHitsMerger(std::string_view name)
       : CalorimeterHitsMergerAlgorithm{name,
-                            {"inputHitCollection"},
-                            {"outputHitCollection"},
-                            "Group readout hits from a calorimeter."} {}
+                                       {"inputHitCollection"},
+                                       {"outputHitCollection"},
+                                       "Group readout hits from a calorimeter."} {}
 
-    void init() final;
-    void process(const Input&, const Output&) const final;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
-    uint64_t id_mask{0}, ref_mask{0};
+private:
+  uint64_t id_mask{0}, ref_mask{0};
 
-  private:
-    const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
-    const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
-
-  };
+private:
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+  const dd4hep::rec::CellIDPositionConverter* m_converter{
+      algorithms::GeoSvc::instance().cellIDPositionConverter()};
+};
 
 } // namespace eicrecon

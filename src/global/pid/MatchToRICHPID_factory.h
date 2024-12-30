@@ -38,8 +38,9 @@ public:
   void ChangeRun(int64_t run_number) {};
 
   void Process(int64_t run_number, uint64_t event_number) {
-    m_algo->process({m_recoparticles_input(), m_assocs_input(), m_cherenkov_particle_ids_input()},
-                    {m_recoparticles_output().get(), m_assocs_output().get(), m_pids_output().get()});
+    m_algo->process(
+        {m_recoparticles_input(), m_assocs_input(), m_cherenkov_particle_ids_input()},
+        {m_recoparticles_output().get(), m_assocs_output().get(), m_pids_output().get()});
   }
 };
 

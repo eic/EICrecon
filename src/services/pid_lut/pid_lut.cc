@@ -11,7 +11,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
+  auto& serviceSvc        = algorithms::ServiceSvc::instance();
   auto& pidLookupTableSvc = eicrecon::PIDLookupTableSvc::instance();
   serviceSvc.add<eicrecon::PIDLookupTableSvc>(&pidLookupTableSvc);
 }
