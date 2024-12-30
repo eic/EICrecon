@@ -12,7 +12,8 @@ namespace eicrecon {
 
     std::string              readout{""};
     std::vector<std::string> fields{};
-    std::vector<int>         refs{};
+    std::vector<int>         fieldRefs{};
+    std::vector<std::string> fieldTransformations{};
 
   };
 
