@@ -85,6 +85,7 @@ extern "C" {
             .readout = "HcalEndcapPInsertHits",
             .fields = {"layer", "slice"},
             .fieldRefs = {1, 0},
+            .fieldTransformations = {"", ""}
           },
           app   // TODO: Remove me once fixed
         ));
