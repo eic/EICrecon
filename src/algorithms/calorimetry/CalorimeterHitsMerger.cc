@@ -187,7 +187,7 @@ void CalorimeterHitsMerger::build_map_via_funcs(
 ) const {
 
   // throw error if field and transformation vectors
-  // are different sizes 
+  // are different sizes
   if (m_cfg.fields.size() != m_fieldTransformations.size()) {
     error(
       "field and transformation vectors are different sizes ({} vs. {}). Vectors should be 1-to-1.",
