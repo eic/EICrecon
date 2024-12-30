@@ -92,7 +92,7 @@ void CalorimeterHitsMerger::init() {
       // grab provided field reference masks
       // and transformations
       uint64_t field_mask = m_cfg.fieldRefs.at(iField);
-      std::string field_transfrom = m_cfg.fieldTransformations.at(iField);
+      std::string field_transform = m_cfg.fieldTransformations.at(iField);
 
       // grab name and value of provided field
       auto name_field = id_desc.field(field);
@@ -101,8 +101,8 @@ void CalorimeterHitsMerger::init() {
       //   - if no transformation provided, reference
       //     mask will be used
       if (field_transform.empty()) {
-        ref_maps[field] = [field_mask, name_field](const edm4eic::CalorimterHit& hit) -> int {
-          return (name_field->value(hit.cellID()) & ~field_mask) | field_mask;
+        ref_maps[field] = [field_mask, name_field](const edm4eic::CalorimeterHit& hit) -> int {
+          return (name_field->value(hit.getCellID()) & ~field_mask) | field_mask;
         };
         trace("{}: using mask {:#064b}", field, field_mask);
       } else {
