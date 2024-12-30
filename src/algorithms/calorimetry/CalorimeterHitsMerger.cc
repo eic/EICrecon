@@ -123,15 +123,7 @@ void CalorimeterHitsMerger::process(
 
     // find the hits that belong to the same group (for merging)
     MergeMap merge_map;
-    if (m_cfg.fieldTransformations.empty()) {
-      for (std::size_t ix = 0; const auto &h : *in_hits) {
-        uint64_t id = h.getCellID() & id_mask;
-        merge_map[id].push_back(ix);
-        ix++;
-      }
-    } else {
-      build_map_via_funcs(in_hits,merge_map);
-    }
+    build_merge_map(in_hits, merge_map);
     debug("Merge map built: merging {} hits into {} merged hits", in_hits->size(), merge_map.size());
 
     // sort hits by energy from large to small
@@ -196,26 +188,19 @@ void CalorimeterHitsMerger::process(
     debug("Size before = {}, after = {}", in_hits->size(), out_hits->size());
 }
 
-void CalorimeterHitsMerger::build_map_via_funcs(
-  const edm4eic::CalorimeterHitCollection* in_hits,
-  MergeMap& merge_map
-) const {
+void CalorimeterHitsMerger::build_merge_map(
+      const edm4eic::CalorimeterHitCollection* in_hits,
+      MergeMap& merge_map) const {
 
   std::vector<RefField> ref_fields;
   for (std::size_t iHit = 0; const auto& hit : *in_hits) {
 
-    // make sure vector is clear
     ref_fields.clear();
     for (std::size_t iField = 0; const auto& name_field : id_desc.fields()) {
 
-      // check if field has associated mapping
-      const bool foundMapping = (
-        std::find(m_cfg.fields.begin(), m_cfg.fields.end(), name_field.first) != m_cfg.fields.end()
-      );
-
-      // if mapping provided for field, apply it
-      // otherwise just copy index
-      if (foundMapping) {
+      // apply mapping to field if provided,
+      // otherwise copy value of field
+      if (ref_maps.count(name_field.first) > 0) {
         ref_fields.push_back(
           {name_field.first, ref_maps[name_field.first](hit)}
         );
@@ -226,14 +211,14 @@ void CalorimeterHitsMerger::build_map_via_funcs(
       }
       ++iField;
     }
-    const uint64_t ref_id = id_desc.encode(ref_fields);
 
-    // add hit to appropriate group
+    // encode new cell ID and add hit to m
+    const uint64_t ref_id = id_desc.encode(ref_fields);
     merge_map[ref_id].push_back(iHit);
     ++iHit;
 
   }  // end hit loop
 
-}  // end 'build_map_via_funcs(edm4eic::CalorimeterHitsCollection*, MergeMap&)'
+}  // end 'build_merge_map(edm4eic::CalorimeterHitsCollection*, MergeMap&)'
 
 } // namespace eicrecon
