@@ -56,6 +56,8 @@ void CalorimeterHitsMerger::init() {
 //        throw std::runtime_error(mess);
     }
 
+
+/* TO REMOVE
     // if no field-by-field transformations provided, initialize relevant bitmasks
     // otherwise intialize relevant functionals
     if (m_cfg.fieldTransformations.empty()) {
@@ -93,6 +95,7 @@ void CalorimeterHitsMerger::init() {
         ++iMap;
       }  // end loop over fieldTransformations
     }
+*/
 
 }
 
@@ -183,6 +186,35 @@ void CalorimeterHitsMerger::build_map_via_funcs(
   MergeMap& merge_map
 ) const {
 
+  // throw error if field and transformation vectors
+  // are different sizes 
+  if (m_cfg.fields.size() != m_fieldTransformations.size()) {
+    error(
+      "field and transformation vectors are different sizes ({} vs. {}). Vectors should be 1-to-1.",
+      m_cfg.fields.size(),
+      m_fieldTransformations.size()
+    );
+    return;
+  }
+
+  // loop over hits
+  std::vector<RefField> ref_fields;
+  for (std::size_t iHit = 0; const auto& hit : *in_hits) {
+
+    // loop through readout fields
+    for (std::size_t iField = 0; const auto& name_field : id_desc.fields()) {
+
+
+
+    }  // end field loop
+
+    // add hit to appropriate group
+    merge_map[ref_id].push_back(iHit);
+    ++iHit;
+
+  }  // end hit loop
+
+/* TO REMOVE
   std::vector<RefField> ref_fields;
   for (std::size_t iHit = 0; const auto& hit : *in_hits) {
 
@@ -213,6 +245,7 @@ void CalorimeterHitsMerger::build_map_via_funcs(
     // add hit to appropriate group
     merge_map[ref_id].push_back(iHit);
     ++iHit;
+*/
 
   }  // end hit loop
 
