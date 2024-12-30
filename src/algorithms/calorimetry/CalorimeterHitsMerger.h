@@ -60,7 +60,7 @@ namespace eicrecon {
     void process(const Input&, const Output&) const final;
 
   private:
-    uint64_t id_mask{0}, ref_mask{0};
+    uint64_t ref_mask{0};
 
   private:
     mutable std::map<std::string, MapFunc> ref_maps;
@@ -72,7 +72,7 @@ namespace eicrecon {
     const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
 
   private:
-    void build_map_via_funcs(const edm4eic::CalorimeterHitCollection* in_hits, MergeMap& merge_map) const;
+    void build_merge_map(const edm4eic::CalorimeterHitCollection* in_hits, MergeMap& merge_map) const;
 
   };
 
