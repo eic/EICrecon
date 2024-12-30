@@ -21,8 +21,8 @@ private:
 
     ParameterRef<std::string> m_readout {this, "readout", config().readout};
     ParameterRef<std::vector<std::string>> m_fields {this, "fields", config().fields};
-    ParameterRef<std::vector<int>> m_refs {this, "refs", config().refs};
-    ParameterRef<std::vector<std::string>> m_mappings {this, "mappings", config().mappings};
+    ParameterRef<std::vector<int>> m_field_refs {this, "fieldRefs", config().refs};
+    ParameterRef<std::vector<std::string>> m_field_transformations {this, "fieldTransormations", config().mappings};
 
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
 

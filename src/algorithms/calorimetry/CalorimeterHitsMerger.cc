@@ -56,15 +56,15 @@ void CalorimeterHitsMerger::init() {
 //        throw std::runtime_error(mess);
     }
 
-    // if no field-by-field mappings provided, initialize relevant bitmasks
+    // if no field-by-field transformations provided, initialize relevant bitmasks
     // otherwise intialize relevant functionals
-    if (m_cfg.mappings.empty()) {
+    if (m_cfg.fieldTransformations.empty()) {
       id_mask = 0;
       std::vector<RefField> ref_fields;
       for (size_t i = 0; i < m_cfg.fields.size(); ++i) {
           id_mask |= id_desc.field(m_cfg.fields[i])->mask();
           // use the provided id number to find ref cell, or use 0
-          int ref = i < m_cfg.refs.size() ? m_cfg.refs[i] : 0;
+          int ref = i < m_cfg.fieldRefs.size() ? m_cfg.fieldRefs[i] : 0;
           ref_fields.emplace_back(m_cfg.fields[i], ref);
       }
       ref_mask = id_desc.encode(ref_fields);
@@ -85,13 +85,13 @@ void CalorimeterHitsMerger::init() {
       // intialize functions
       //   - NOTE this assumes provided fields are 1-to-1!
       auto& svc = algorithms::ServiceSvc::instance();
-      for (std::size_t iMap = 0; const auto& mapping : m_cfg.mappings) {
+      for (std::size_t iMap = 0; const auto& mapping : m_cfg.fieldTransformations) {
         if (iMap < m_cfg.fields.size()) {
           ref_maps[m_cfg.fields.at(iMap)] = svc.service<EvaluatorSvc>("EvaluatorSvc")->compile(mapping, hit_to_map);
           trace("Mapping for field {} = {}", m_cfg.fields.at(iMap), mapping);
         }
         ++iMap;
-      }  // end loop over mappings
+      }  // end loop over fieldTransformations
     }
 
 }
@@ -105,7 +105,7 @@ void CalorimeterHitsMerger::process(
 
     // find the hits that belong to the same group (for merging)
     MergeMap merge_map;
-    if (m_cfg.mappings.empty()) {
+    if (m_cfg.fieldTransformations.empty()) {
       for (std::size_t ix = 0; const auto &h : *in_hits) {
         uint64_t id = h.getCellID() & id_mask;
         merge_map[id].push_back(ix);

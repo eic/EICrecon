@@ -95,7 +95,7 @@ extern "C" {
           {
             .readout = "HcalBarrelHits",
             .fields = {"phi"},
-            .mappings = {"phi"}
+            .fieldTransformations = {"phi"}
           },
           app   // TODO: Remove me once fixed
         ));
