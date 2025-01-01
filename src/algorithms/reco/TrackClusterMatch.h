@@ -12,7 +12,7 @@
 
 
 namespace eicrecon {
-    
+
   using TrackClusterMatchAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4eic::ClusterCollection,
