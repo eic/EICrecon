@@ -68,8 +68,6 @@ void LGADPulseGeneration::process(const LGADPulseGeneration::Input& input,
   const auto [simhits] = input;
   auto [rawADCs]       = output;
 
-  int tdc_range   = m_cfg.tdc_range;
-
   // signal sum
   // NOTE: we take the cellID of the most energetic hit in this group so it is a real cellID from an
   // MC hit
