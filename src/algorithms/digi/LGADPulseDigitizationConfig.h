@@ -13,8 +13,8 @@ struct LGADPulseDigitizationConfig {
   // total number of TDC/ADC values
   // Since digitizer starts at zero, max ADC value = adc_range - 1
   // Similar for TDC
-  int adc_range = pow(2, adc_bit);
-  int tdc_range = pow(2, tdc_bit);
+  int adc_range = std::pow(2, adc_bit);
+  int tdc_range = std::pow(2, tdc_bit);
 
 
   double t_thres      = 0.1 * adc_range;  // TDC value = time when pulse exceed t_thres
