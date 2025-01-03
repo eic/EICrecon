@@ -36,7 +36,7 @@ public:
   void init() final;
   void process(const Input&, const Output&) const final;
 
-protected:
+private:
   void _findAllNeighborsInSensor(dd4hep::rec::CellID hitCell,
                                  std::shared_ptr<std::vector<dd4hep::rec::CellID>>& answer,
                                  std::unordered_set<dd4hep::rec::CellID>& dp) const;
