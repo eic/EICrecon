@@ -171,7 +171,17 @@ private:
   double minR=0.05;
 };
 
+/*
 //Create template to remove double counted tracks
+template <class Trk>
+  void InDetVKalVxInJetTool::removeDoubleEntries(std::vector<const Trk*>& ListTracks) const
+  {
+    typename std::vector<const Trk*>::iterator   TransfEnd;
+    sort(ListTracks.begin(),ListTracks.end());
+    TransfEnd =  unique(ListTracks.begin(),ListTracks.end());
+    ListTracks.erase( TransfEnd, ListTracks.end());
+  }
 
+*/
 } // End namespace
 #endif
