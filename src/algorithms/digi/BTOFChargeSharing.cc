@@ -138,9 +138,7 @@ const dd4hep::rec::CellID
 BTOFChargeSharing::_getSensorID(const dd4hep::rec::CellID& hitCell) const {
   // fix x-y, what you left with are ids that corresponds to sensor info
   // cellID may change when position changes.
-  auto sensorID = hitCell; //_converter -> cellID(_converter -> position(hitCell));
-  m_decoder->set(sensorID, "x", 0);
-  m_decoder->set(sensorID, "y", 0);
+  auto sensorID = m_decoder->get(hitCell, "sensor");
 
   return sensorID;
 }
