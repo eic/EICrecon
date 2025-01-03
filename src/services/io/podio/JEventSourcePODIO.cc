@@ -14,16 +14,12 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <TObject.h>
-#include <fmt/color.h>
 #include <fmt/core.h>
-#include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/podioVersion.h>
 #include <algorithm>
-#include <cstdlib>
 #include <exception>
-#include <filesystem>
 #include <iostream>
 #include <map>
 #include <utility>
@@ -69,6 +65,9 @@ struct InsertingVisitor {
 //------------------------------------------------------------------------------
 JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* app) : JEventSource(resource_name, app) {
     SetTypeName(NAME_OF_THIS); // Provide JANA with class name
+#if JANA_NEW_CALLBACK_STYLE
+    SetCallbackStyle(CallbackStyle::ExpertMode); // Use new, exception-free Emit() callback
+#endif
 
     // Tell JANA that we want it to call the FinishEvent() method.
     // EnableFinishEvent();
@@ -128,17 +127,6 @@ void JEventSourcePODIO::Open() {
     // Open primary events file
     try {
 
-        // Verify file exists
-        if( ! std::filesystem::exists(GetResourceName()) ){
-            // Here we go against the standard practice of throwing an error and print
-            // the message and exit immediately. This is because we want the last message
-            // on the screen to be that the file doesn't exist.
-            auto mess = fmt::format(fmt::emphasis::bold | fg(fmt::color::red),"ERROR: ");
-            mess += fmt::format(fmt::emphasis::bold, "file: {} does not exist!",  GetResourceName());
-            std::cerr << std::endl << std::endl << mess << std::endl << std::endl;
-            std::_Exit(EXIT_FAILURE);
-        }
-
         m_reader.openFile( GetResourceName() );
 
         auto version = m_reader.currentFileVersion();
@@ -185,7 +173,12 @@ void JEventSourcePODIO::Close() {
 ///
 /// \param event
 //------------------------------------------------------------------------------
-void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
+#if JANA_NEW_CALLBACK_STYLE
+JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
+#else
+void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
+    auto &event = *_event;
+#endif
 
     /// Calls to GetEvent are synchronized with each other, which means they can
     /// read and write state on the JEventSource without causing race conditions.
@@ -194,10 +187,12 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
     if( Nevents_read >= Nevents_in_file ) {
         if( m_run_forever ){
             Nevents_read = 0;
-        }else{
-            // m_reader.close();
-            // TODO:: ROOTReader does not appear to have a close() method.
+        } else {
+#if JANA_NEW_CALLBACK_STYLE
+            return Result::FailureFinished;
+#else
             throw RETURN_STATUS::kNO_MORE_EVENTS;
+#endif
         }
     }
 
@@ -208,19 +203,22 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> event) {
     if (event_headers.size() != 1) {
         throw JException("Bad event headers: Entry %d contains %d items, but 1 expected.", Nevents_read, event_headers.size());
     }
-    event->SetEventNumber(event_headers[0].getEventNumber());
-    event->SetRunNumber(event_headers[0].getRunNumber());
+    event.SetEventNumber(event_headers[0].getEventNumber());
+    event.SetRunNumber(event_headers[0].getRunNumber());
 
     // Insert contents odf frame into JFactories
     VisitPodioCollection<InsertingVisitor> visit;
     for (const std::string& coll_name : frame->getAvailableCollections()) {
         const podio::CollectionBase* collection = frame->get(coll_name);
-        InsertingVisitor visitor(*event, coll_name);
+        InsertingVisitor visitor(event, coll_name);
         visit(visitor, *collection);
     }
 
-    event->Insert(frame.release()); // Transfer ownership from unique_ptr to JFactoryT<podio::Frame>
+    event.Insert(frame.release()); // Transfer ownership from unique_ptr to JFactoryT<podio::Frame>
     Nevents_read += 1;
+#if JANA_NEW_CALLBACK_STYLE
+    return Result::Success;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -254,7 +252,7 @@ double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string reso
 
     // PODIO FrameReader segfaults on legacy input files, so we use ROOT to validate beforehand. Of course,
     // we can't validate if ROOT can't read the file.
-    std::unique_ptr<TFile> file = std::make_unique<TFile>(resource_name.c_str());
+    std::unique_ptr<TFile> file = std::unique_ptr<TFile>{TFile::Open(resource_name.c_str())};
     if (!file || file->IsZombie()) return 0.0;
 
     // We test the format the same way that PODIO's python API does. See python/podio/reading.py

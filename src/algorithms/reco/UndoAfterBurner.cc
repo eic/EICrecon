@@ -115,6 +115,9 @@ void eicrecon::UndoAfterBurner::process(
 
     // Now, loop through events and apply operations to the MCparticles
     for (const auto& p: *mcparts) {
+        if (p.isCreatedInSimulation()) {
+            continue;
+        }
 
         ROOT::Math::PxPyPzEVector mc(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
 
