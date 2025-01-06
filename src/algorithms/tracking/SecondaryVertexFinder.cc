@@ -3,7 +3,6 @@
 //
 
 #include "SecondaryVertexFinder.h"
-#include "TrackingSecUtilityTool.h"
 
 #include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
@@ -64,34 +63,6 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryPro
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
-// This fuction will be used to check the goodness of the a two-track vertex
-bool eicrecon::TrackingSecUtilityTool::computeVtxcandidate(const edm4eic::Vertex* primvtx,
-            const edm4eic::TrackParameters* trackA,const edm4eic::TrackParameters* trackB,bool isgoodvtx=false){
-  trackA_a=trackA->getLoc().a; trackA_b=trackA->getLoc().a;
-  trackB_a=trackB->getLoc().b; trackB_b=trackB->getLoc().b;
-
-  vtxA_x=primvtx->getPosition().x; vtxA_y=primvtx->getPosition().y;
-  vtxB_x=primvtx->getPosition().x; vtxB_y=primvtx->getPosition().y;
- 
-  //Calculate DCA
-  deltaA_x=trackA_a-vtxA_x;
-  deltaA_y=trackA_b-vtxA_y;
-
-  deltaB_x=trackB_a-vtxB_x;
-  deltaB_y=trackB_b-vtxB_y;
-
-  deltaxy_A=std::hypot(deltaA_x,deltaA_y);
-  deltaxy_B=std::hypot(deltaB_x,deltaB_y);
-
-  // Set a DCA cut of ~50.um (this is subject to change)
-  if(deltaxy_A >= minR && deltaxy_B >= minR) isgoodvtx=true;
-
-  if(isgoodvtx){
-    return true;
-  }else{
-    return false;
-  }
-}
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::produce(
     std::vector<const edm4eic::Vertex*> primvertex,
     const edm4eic::TrackParametersCollection* tracks,
