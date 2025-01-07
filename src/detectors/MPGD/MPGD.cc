@@ -57,7 +57,7 @@ void InitPlugin(JApplication *app) {
           "MPGDBarrelRawHitAssociations"
         },
         {
-	    .readout = "MPGDBarrelHits",
+            .readout = "MPGDBarrelHits",
             .threshold = 100 * dd4hep::eV,
             .timeResolution = 10,
         },
@@ -105,7 +105,7 @@ void InitPlugin(JApplication *app) {
           "OuterMPGDBarrelRawHitAssociations"
         },
         {
-	    .readout = "OuterMPGDBarrelHits",
+            .readout = "OuterMPGDBarrelHits",
             .threshold = 100 * dd4hep::eV,
             .timeResolution = 10,
         },
