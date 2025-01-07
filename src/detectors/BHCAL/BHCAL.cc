@@ -94,9 +94,7 @@ extern "C" {
           "HcalBarrelMergedHits", {"HcalBarrelRecHits"}, {"HcalBarrelMergedHits"},
           {
             .readout = "HcalBarrelHits",
-            .fields = {"phi"},
-            .fieldRefs = {0},
-            .fieldTransformations = {"phi"}
+            .fieldTransformations = {"phi:phi"}
           },
           app   // TODO: Remove me once fixed
         ));
