@@ -18,7 +18,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
-#include "factories/digi/BTOFChargeSharing_factory.h"
+#include "factories/digi/LGADChargeSharing_factory.h"
 #include "factories/digi/LGADPulseGeneration_factory.h"
 #include "factories/digi/LGADPulseDigitization_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
@@ -57,17 +57,26 @@ void InitPlugin(JApplication* app) {
       },
       app
   ));         // Hit reco default config for factories
+  
 
-  app->Add(new JOmniFactoryGeneratorT<BTOFChargeSharing_factory>(
-      "BTOFChargeSharing",
+
+
+  app->Add(new JOmniFactoryGeneratorT<LGADChargeSharing_factory>(
+      "LGADChargeSharing",
       {"TOFBarrelHits"},
       {"TOFBarrelSharedHits"},
-      {},
+      {
+          .sigma_sharingx = 0.1 * dd4hep::cm,
+	  .sigma_sharingy = 0.5 * dd4hep::cm,
+          .readout = "TOFBarrelHits",
+	  .same_sensor_condition = "sensor_1 == sensor_2",
+	  .neighbor_fields = {"x", "y"}
+      },
       app
   ));
 
   app->Add(new JOmniFactoryGeneratorT<LGADPulseGeneration_factory>(
-      "BTOFPulseGeneration",
+      "LGADPulseGeneration",
       {"TOFBarrelSharedHits"},
       {"TOFBarrelPulse"},
       {},
@@ -75,7 +84,7 @@ void InitPlugin(JApplication* app) {
   ));
 
   app->Add(new JOmniFactoryGeneratorT<LGADPulseDigitization_factory>(
-      "BTOFPulseDigitization",
+      "LGADPulseDigitization",
       {"TOFBarrelPulse"},
       {"TOFBarrelADCTDC"},
       {},

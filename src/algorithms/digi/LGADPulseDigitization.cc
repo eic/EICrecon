@@ -22,7 +22,7 @@ void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
   const auto [simhits] = input;
   auto [rawhits]       = output;
 
-  double thres = -m_cfg.t_thres;
+  double thres = m_cfg.t_thres;
   int adc_range = m_cfg.adc_range;
 
   for (const auto& pulse : *simhits) {

@@ -12,8 +12,8 @@ struct LGADPulseGenerationConfig {
   double gain           = 113.755;
   double risetime       = 0.45 * dd4hep::ns;
   double sigma_analog   = 0.293951 * dd4hep::ns;
-  double Vm = -1e-4 * dd4hep::GeV; // Vm = voltage maximum. When EDep = 1e-4 GeV, voltage
-                                   // corresponds to ADC = adc_max
+  double Vm = 1e-4 * dd4hep::GeV; // Vm = voltage maximum. When EDep = 1e-4 GeV, voltage
+                                  // corresponds to ADC = adc_max
   double ignore_thres = 0.001 * Vm; // If EDep below this value, digitization for the cell will be
                                    // ignored. Speed up calculation
   int adc_bit = 8;

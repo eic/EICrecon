@@ -40,7 +40,7 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
   cfg.tMax         = 10 * dd4hep::ns;
   cfg.tdc_range    = pow(2, cfg.tdc_bit);
   cfg.adc_range    = pow(2, cfg.adc_bit);
-  cfg.t_thres      = cfg.adc_range * 0.1;
+  cfg.t_thres      = -cfg.adc_range * 0.1;
 
   // check if max pulse height is linearly proportional to the initial Edep
   algo.applyConfig(cfg);

@@ -7,12 +7,14 @@
 
 namespace eicrecon {
 
-struct BTOFChargeSharingConfig {
+struct LGADChargeSharingConfig {
   // Parameters of AC-LGAD signal generation
-  double sigma_sharingx = 0.1 * dd4hep::cm;
-  double sigma_sharingy = 0.5 * dd4hep::cm;
+  double sigma_sharingx;
+  double sigma_sharingy;
 
-  std::string readout = "TOFBarrelHits";
+  std::string readout;
+  std::string same_sensor_condition;
+  std::vector<std::string> neighbor_fields;
 };
 
 } // namespace eicrecon

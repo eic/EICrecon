@@ -17,30 +17,29 @@
 #include <vector>
 
 #include "DD4hep/Detector.h"
-#include "algorithms/digi/BTOFChargeSharingConfig.h"
+#include "algorithms/digi/LGADChargeSharingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using BTOFChargeSharingAlgorithm =
+using LGADChargeSharingAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
                           algorithms::Output<edm4hep::SimTrackerHitCollection>>;
 
-class BTOFChargeSharing : public BTOFChargeSharingAlgorithm,
-                          public WithPodConfig<BTOFChargeSharingConfig> {
+class LGADChargeSharing : public LGADChargeSharingAlgorithm,
+                          public WithPodConfig<LGADChargeSharingConfig> {
 
 public:
-  BTOFChargeSharing(std::string_view name)
-      : BTOFChargeSharingAlgorithm{name, {"TOFBarrelHits"}, {"TOFBarrelSharedHits"}, ""} {};
+  LGADChargeSharing(std::string_view name)
+      : LGADChargeSharingAlgorithm{name, {"TOFBarrelHits"}, {"TOFBarrelSharedHits"}, ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;
 
 private:
   void _findAllNeighborsInSensor(dd4hep::rec::CellID hitCell,
-                                 std::shared_ptr<std::vector<dd4hep::rec::CellID>>& answer,
+                                 std::vector<dd4hep::rec::CellID>& answer,
                                  std::unordered_set<dd4hep::rec::CellID>& dp) const;
-  const dd4hep::rec::CellID _getSensorID(const dd4hep::rec::CellID& hitCell) const;
   double _integralGaus(double mean, double sd, double low_lim, double up_lim) const;
   dd4hep::Position _cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
   dd4hep::Position _global2Local(const dd4hep::Position& pos) const;
@@ -48,6 +47,11 @@ private:
   const dd4hep::DDSegmentation::BitFieldCoder* m_decoder  = nullptr;
   const dd4hep::Detector* m_detector                      = nullptr;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
+  dd4hep::IDDescriptor m_idSpec;
+
+  // helper function to find neighbors
+  std::function<bool(const dd4hep::rec::CellID &id1, const dd4hep::rec::CellID &id2)> _is_same_sensor;
+
 };
 
 } // namespace eicrecon
