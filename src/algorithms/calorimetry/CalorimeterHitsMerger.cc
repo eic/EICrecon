@@ -43,22 +43,32 @@ void CalorimeterHitsMerger::init() {
         return;
     }
 
-    // check that input field and transformation vectors
-    // are the same length
-    if (m_cfg.fields.size() != m_cfg.fieldTransformations.size()) {
-      error(
-        "Size of field and transformation vectors are different ({} vs. {}).",
-        m_cfg.fields.size(),
-        m_cfg.fieldTransformations.size()
+    // split parameters into vectors of fields
+    // and of transformations
+    std::vector<std::string> fields;
+    std::vector<std::string> transforms;
+    for (const std::string& field_transform : m_cfg.fieldTransformations) {
+
+      const std::size_t isplit = field_transform.find_first_of(':');
+      if (isplit == std::string::npos) {
+        warning("transform '{}' ill-formatted. Format is <field>:<transformation>.", field_transform);
+      }
+
+
+      fields.emplace_back(
+        field_transform.substr(0, isplit)
       );
-      return;
+      transforms.emplace_back(
+        field_transform.substr(isplit + 1)
+      );
     }
+
 
     // initialize descriptor + decoders
     try {
       id_desc = m_detector->readout(m_cfg.readout).idSpec();
       id_decoder = id_desc.decoder();
-      for (const auto& field : m_cfg.fields) {
+      for (const std::string& field : fields) {
         const short index = id_decoder->index(field);
       }
     } catch (...) {
@@ -79,10 +89,10 @@ void CalorimeterHitsMerger::init() {
 
     // loop through provided readout fields
     auto& svc = algorithms::ServiceSvc::instance();
-    for (std::size_t iField = 0; std::string& field : m_cfg.fields) {
+    for (std::size_t iField = 0; std::string& field : fields) {
 
       // grab provided transformation and field
-      std::string field_transform = m_cfg.fieldTransformations.at(iField);
+      const std::string field_transform = transforms.at(iField);
       auto name_field = id_desc.field(field);
 
       // set transformation for each field

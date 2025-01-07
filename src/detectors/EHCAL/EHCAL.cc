@@ -71,8 +71,7 @@ extern "C" {
           "HcalEndcapNMergedHits", {"HcalEndcapNRecHits"}, {"HcalEndcapNMergedHits"},
           {
             .readout = "HcalEndcapNHits",
-            .fields = {"layer", "slice"},
-            .fieldTransformations = {"4", "0"}
+            .fieldTransformations = {"layer:4", "slice:0"}
           },
           app   // TODO: Remove me once fixed
         ));
