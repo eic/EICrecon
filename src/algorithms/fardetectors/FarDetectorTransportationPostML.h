@@ -4,6 +4,7 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <optional>
@@ -11,12 +12,14 @@
 #include <string_view>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/fardetectors/FarDetectorTransportationPostMLConfig.h"
 
 namespace eicrecon {
 
 using FarDetectorTransportationPostMLAlgorithm =
   algorithms::Algorithm<
-    algorithms::Input<edm4eic::TensorCollection>,
+    algorithms::Input<
+      edm4eic::TensorCollection,
       std::optional<edm4hep::MCParticleCollection>
     >,
     algorithms::Output<

@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "algorithms/onnx/FarDetectorTransportationPostML.h"
+#include "algorithms/fardetectors/FarDetectorTransportationPostML.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 

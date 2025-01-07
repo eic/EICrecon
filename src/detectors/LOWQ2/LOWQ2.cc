@@ -27,6 +27,7 @@
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/meta/ONNXInference_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -145,11 +146,28 @@ extern "C" {
          app
     ));
 
-    // Pre-ML reconstruction
     app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
         "TaggerTrackerTransportationPreML",
         {"TaggerTrackerProjectedTracks","MCScatteredElectrons","MCBeamElectrons"},
         {"TaggerTrackerFeatureTensor","TaggerTrackerTargetTensor"},
+        {
+          .beamE = 10.0,
+        },
+        app
+    ));
+    app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
+        "TaggerTrackerTransportationInference",
+        {"TaggerTrackerFeatureTensor"},
+        {"TaggerTrackerPredictionTensor"},
+        {
+          .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
+        },
+        app
+    ));
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
+        "TaggerTrackerTransportationPostML",
+        {"TaggerTrackerPredictionTensor","MCBeamElectrons"},
+        {"TaggerTrackerReconstructedParticles"},
         {
           .beamE = 10.0,
         },

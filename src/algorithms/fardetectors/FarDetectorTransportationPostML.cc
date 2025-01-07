@@ -64,27 +64,40 @@ namespace eicrecon {
 
     auto prediction_tensor_data = prediction_tensor.getFloatData();
 
-    edm4eic::MutableReconstructedParticle particle;
-
-    for ( auto prediction: prediction_tensor_data) {
-
-      // Scale prediction to beam energy
-      prediction[0] *= m_beamE; 
-      prediction[1] *= m_beamE;
-      prediction[2] *= m_beamE;
-      
-      // Calculate reconstructed electron energy
-      double energy = sqrt(pow(prediction[0],2) + pow(prediction[1],2) + pow(prediction[2],2) + pow(0.000511,2));
-
-      particle = out_particles->create();
-
-      particle.setEnergy(energy);
-      particle.setMomentum({prediction[0], prediction[1], prediction[2]});
-      particle.setCharge(-1);
-      particle.setMass(0.000511);
-      particle.setPID(11);
+    // Ensure the size of prediction_tensor_data is a multiple of its shape
+    if (prediction_tensor_data.size() % 3 != 0) {
+        error("The size of prediction_tensor_data is not a multiple of 3.");
+        throw std::runtime_error("The size of prediction_tensor_data is not a multiple of 3.");
     }
 
+    
+    edm4eic::MutableReconstructedParticle particle;
+
+    // Iterate over the prediction_tensor_data in steps of three
+    for (size_t i = 0; i < prediction_tensor_data.size(); i += 3) {
+        if (i + 2 >= prediction_tensor_data.size()) {
+            error("Incomplete data for a prediction tensor at the end of the vector.");
+            throw std::runtime_error("Incomplete data for a prediction tensor at the end of the vector.");
+        }
+
+        // Extract the current prediction
+        float px = prediction_tensor_data[i] * m_beamE;
+        float py = prediction_tensor_data[i + 1] * m_beamE;
+        float pz = prediction_tensor_data[i + 2] * m_beamE;
+
+        // Calculate reconstructed electron energy
+        double energy = sqrt(px * px + py * py + pz * pz + 0.000511 * 0.000511);
+
+        particle = out_particles->create();
+
+        particle.setEnergy(energy);
+        particle.setMomentum({px, py, pz});
+        particle.setCharge(-1);
+        particle.setMass(0.000511);
+        particle.setPDG(11);
+    }
+
+    // TODO: Implement the association of the reconstructed particles with the tracks
     
   }
 
