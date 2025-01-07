@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
+// Derived from "../SiliconTrackerDigi.h".
+
 #pragma once
 
 #include <DD4hep/Detector.h>
@@ -33,7 +35,7 @@ public:
       : MPGDTrackerDigiAlgorithm{name,
                                     {"inputHitCollection"},
                                     {"outputRawHitCollection", "outputHitAssociations"},
-                                    "Apply threshold, digitize within ADC range, "
+                                    "2D-strip segmentation, apply threshold, digitize within ADC range, "
                                     "convert time with smearing resolution."} {}
 
   void init() final;
@@ -51,11 +53,8 @@ private:
 
   /** Segmentation */
   const dd4hep::Detector* m_detector{nullptr};
-  const dd4hep::BitFieldCoder* m_id_dec{nullptr};
   const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
   dd4hep::Segmentation m_seg;
-  int m_x_idx{0};
-  int m_y_idx{0};
 };
 
 } // namespace eicrecon

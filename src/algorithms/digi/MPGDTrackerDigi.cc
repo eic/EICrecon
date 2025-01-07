@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
-// https://github.com/eic/EICrecon/blob/6a948d54af18666526ccd5611ad2c818121f290f/src/algorithms/fardetectors/FarDetectorTrackerCluster.cc#L36 
-// https://github.com/AIDASoft/DD4hep/issues/1297#issuecomment-2230272779
 #include "MPGDTrackerDigi.h"
 
 #include <Evaluator/DD4hepUnits.h>
@@ -12,7 +10,6 @@
 #include <JANA/JException.h>
 // Access "algorithms:GeoSvc"
 #include <algorithms/geo.h>
-#include <algorithms/logger.h>
 #include <fmt/core.h>
 #include <algorithm>
 #include <cmath>
@@ -34,26 +31,35 @@ void MPGDTrackerDigi::init() {
         //return m_rng.gaussian<double>(0., m_cfg.timeResolution);
     };
 
-    // Access segmentation decoder
-    m_detector         = algorithms::GeoSvc::instance().detector();
-    m_cellid_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
+    // Access id decoder
+    m_detector = algorithms::GeoSvc::instance().detector();
+    const dd4hep::BitFieldCoder* m_id_dec;
     if (m_cfg.readout.empty()) {
-      throw JException("Readout is empty");
+	throw JException("Readout is empty");
     }
     try {
-      m_seg    = m_detector->readout(m_cfg.readout).segmentation();
-      m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
-      if (!m_cfg.x_field.empty()) {
-	m_x_idx = m_id_dec->index(m_cfg.x_field);
-	debug("Find layer field {}, index = {}", m_cfg.x_field, m_x_idx);
-      }
-      if (!m_cfg.y_field.empty()) {
-	m_y_idx = m_id_dec->index(m_cfg.y_field);
-	debug("Find layer field {}, index = {}", m_cfg.y_field, m_y_idx);
-      }
+	m_seg =    m_detector->readout(m_cfg.readout).segmentation();
+	m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
     } catch (...) {
-      error("Failed to load ID decoder for {}", m_cfg.readout);
+      critical("Failed to load ID decoder for \"{}\" readout", m_cfg.readout);
       throw JException("Failed to load ID decoder");
+    }
+    // Method "process" relies on a strict assumption on the IDDescriptor:
+    // - Must have a "strip" field.
+    // - That "strip" field includes bits 30|31.
+    // Let's check.
+    try {
+	int m_strip_idx = m_id_dec->index("strip");
+	const CellID stripBit = ((CellID)0x3)<<30;
+	CellID stripVal = m_id_dec->get(stripBit,"strip");
+	if (stripVal!=0x3)
+	    throw std::runtime_error("Invalid \"strip\" field in IDDescriptor for \"" + m_cfg.readout + "\" readout");
+	debug("Find valid \"strip\" field in IDDescriptor for \"{}\" readout",
+	      m_cfg.readout);
+    } catch (...) {
+	critical("Missing or invalid \"strip\" field in IDDescriptor for \"{}\" readout",
+		 m_cfg.readout);
+	throw JException("Invalid IDDescriptor");
     }
 }
 
@@ -62,6 +68,17 @@ void MPGDTrackerDigi::process(
         const MPGDTrackerDigi::Input& input,
         const MPGDTrackerDigi::Output& output) const {
 
+    // ********** SIMULATE THE 2D-strip READOUT of MPGDs.
+    // - Overwrite and extend segmentation stored in "sim_hit", which is anyway
+    //  expected to be along a single coordinate (this happens to allow one to
+    //  reconstruct data w/ a segmentation differing from that used when
+    //  generating the data).
+    // - New segmentation is along two coordinates, described by two cellID's
+    //  with each a distinctive "strip" field.
+    //   N.B.: Assumptions on the IDDescriptor: the "strip" specification
+    //  is fixed = cellID>>32&0x3.
+    // - The simulation is simplistic: single-hit cluster per coordinate. 
+
     const auto [sim_hits] = input;
     auto [raw_hits,associations] = output;
 
@@ -69,94 +86,90 @@ void MPGDTrackerDigi::process(
     std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
     // Prepare for strip segmentation
     const Position dummy(0,0,0);
-    auto volman = m_detector->volumeManager();
+    const VolumeManager& volman = m_detector->volumeManager();
 
     using CellIDs = std::pair<CellID,CellID>;
     using Sim2IDs = std::vector<CellIDs>; Sim2IDs sim2IDs;
     for (const edm4hep::SimTrackerHit& sim_hit : *sim_hits) {
 
-        // time smearing
+        // ***** TIME SMEARING
+	// - Simplistic treatment.
+	// - A more realistic one would have to distinguish a smearing common to
+	//  both coordinates of the 2D-strip readout (due to the drifing of the
+	//  leading primary electrons) from other smearing effects, specific to
+	//  each coordinate.
         double time_smearing = m_gauss();
         double result_time = sim_hit.getTime() + time_smearing;
         auto hit_time_stamp = (std::int32_t) (result_time * 1e3);
 
-	// Segmentation: Simulate the strip, two-coordinate, readout of MPGDs.
-	// - Overwrite and extend segmentation stored in "sim_hit", which is
-	//  anyway expected to be along a single coordinate (this happens to
-	//  allow one to reconstruct data w/ a segmentation differing from that
-	//  used when generating the data).
-	// - New segmentation is along the two coordinates, described by two
-	//  cellID's with each a distinctive "strip" field.
-	//  N.B.: Assumptions on the IDDescriptor: the "strip" specification is
-	//  fixed = cellID>>32&0x1 (while more bits can still be alloted to the
-	//  "strip" field, only that they are not used).
-	// - The two cellID's, w/ "strip" setting of 0 (called 'p', which
-	//  happens t be that of input "sim_hit") and 1 (called 'n') are
-	//  evaluated based on "sim_hit" coordinates.
+	// ***** SEGMENTATION
+	// - The two cellID's, w/ "strip" setting of 0x1 (called 'p') and 0x2
+	//  (called 'n') are evaluated based on "sim_hit" Cartesian coordinates.
 	// - To get the new cellID's, we need the local position.
 	const edm4hep::Vector3d &pos = sim_hit.getPosition();
 	const double &mm = dd4hep::mm;
 	Position gpos(pos.x*mm,pos.y*mm,pos.z*mm);
-	const CellID volMask = 0xffffffff, stripBit = ((CellID)0x1)<<32;
-	CellID cID = sim_hit.getCellID(), vID = cID&volMask;
+	const CellID volMask = 0xffffffff;
+	CellID cID = sim_hit.getCellID(), vID = cID&volMask /* not necessary but cleaner*/;
 	DetElement local = volman.lookupDetElement(vID);
 	const auto lpos = local.nominal().worldToLocal(gpos);
 	// p "strip"
-	CellID cIDp = m_seg->cellID(lpos,dummy,vID);
+	CellID stripBitp = ((CellID)0x1)<<30, vIDp = vID|stripBitp;
+	CellID cIDp = m_seg->cellID(lpos,dummy,vIDp);
 	// n "strip"
-	CellID vIDn = vID|stripBit;
+	CellID stripBitn = ((CellID)0x2)<<30, vIDn = vID|stripBitn;
 	CellID cIDn = m_seg->cellID(lpos,dummy,vIDn);
 	sim2IDs.push_back({cIDp,cIDn}); // Remember cellIDs. 
-
+	// ***** DEBUGGING INFO
 	if(level() >= algorithms::LogLevel::kDebug) {
-	  CellID hIDp = cIDp>>34, sIDp = cIDp>>32&0x3, vIDp = cIDp&(volMask|stripBit);
-	  debug("--------------------");
-	  debug("Hit cellIDp  = 0x{:08x}, 0x{:09x} 0x{:02x}", hIDp, vIDp, sIDp);
-#define MPGDDigi_DEBUG
+	    CellID hIDp = cIDp>>32, sIDp = cIDp>>30&0x3;
+	    debug("--------------------");
+	    debug("Hit cellIDp  = 0x{:08x}, 0x{:08x} 0x{:02x}", hIDp, vIDp, sIDp);
+	    CellID hIDn = cIDn>>32, sIDn = cIDn>>30&0x3;
+	    debug("Hit cellIDn  = 0x{:08x}, 0x{:08x} 0x{:02x}", hIDn, vIDn, sIDn);
+	    //#define MPGDDigi_DEBUG
 #ifdef MPGDDigi_DEBUG
-	  // Let's check that we recover the cellID stored in "sim_hit",
-	  // assuming...
-	  // ...the 32 bits of the hitID field are subdivided into 2 bits for
-	  //   the strip-discriminator field and the remaining 30 bits, to be
-	  //   equally shared by the two coordinates,
-	  // ...segmentations @ reconstruction and simulation time are identical.
-	  CellID hID =  cID>>34,  sID = vID>>32&0x3;
-	  debug("Hit cellID   = 0x{:08x}, 0x{:09x} 0x{:02x}", hID,  vID,  sID);
-	  CellID xid = hID&0x7fff, xidp = hIDp&0x7fff;
-	  if (xid!=xidp)
-	    printf("** MPGDTrackerDigi: Strip segmentation inconsistency: m_seg(0x%lx) != sim_hit(0x%lx)\n",xidp,xid);
+	    // Let's check that we recover the cellID stored in "sim_hit",
+	    // assuming...
+	    // ...strip field: =0: pixels, =1: 1st coord., =2: 2nd coord.
+	    // ...the 32 bits of the hitID field are equally shared by the two
+	    //   coordinates,
+	    // ...segmentations @ reconstruction and simulation time are identical.
+	    CellID hID =  cID>>32,  sID = vID>>30&0x3;
+	    debug("Hit cellID   = 0x{:08x}, 0x{:08x} 0x{:02x}", hID,  vID,  sID);
+	    CellID xid = hID&0xffff,     xidp = hIDp&0xffff;
+	    CellID yid = hID>>16&0xffff, yidn = hIDn>>16&0xffff;
+	    if (xid!=xidp || yid!=yidn)
+		printf("** MPGDTrackerDigi: Strip segmentation inconsistency: m_seg(0x%4lx,0x%4lx) != sim_hit(0x%4lx,0x%4lx)\n",xidp,xid,yidn,yid);
 #endif
-	  CellID hIDn = cIDn>>34, sIDn = cIDn>>32&0x3;
-	  debug("Hit cellIDn  = 0x{:08x}, 0x{:09x} 0x{:02x}", hIDn, vIDn, sIDn);
-	  debug("   position  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getPosition().x, sim_hit.getPosition().y, sim_hit.getPosition().z);
-	  debug("   xy_radius = {:.2f}", std::hypot(sim_hit.getPosition().x, sim_hit.getPosition().y));
-	  debug("   momentum  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getMomentum().x, sim_hit.getMomentum().y, sim_hit.getMomentum().z);
-	  debug("   edep = {:.2f}", sim_hit.getEDep());
-	  debug("   time = {:.4f}[ns]", sim_hit.getTime());
-	  debug("   particle time = {}[ns]", sim_hit.getMCParticle().getTime());
-	  debug("   time smearing: {:.4f}, resulting time = {:.4f} [ns]", time_smearing, result_time);
-	  debug("   hit_time_stamp: {} [~ps]", hit_time_stamp);
+	    debug("   position  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getPosition().x, sim_hit.getPosition().y, sim_hit.getPosition().z);
+	    debug("   xy_radius = {:.2f}", std::hypot(sim_hit.getPosition().x, sim_hit.getPosition().y));
+	    debug("   momentum  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getMomentum().x, sim_hit.getMomentum().y, sim_hit.getMomentum().z);
+	    debug("   edep = {:.2f}", sim_hit.getEDep());
+	    debug("   time = {:.4f}[ns]", sim_hit.getTime());
+	    debug("   particle time = {}[ns]", sim_hit.getMCParticle().getTime());
+	    debug("   time smearing: {:.4f}, resulting time = {:.4f} [ns]", time_smearing, result_time);
+	    debug("   hit_time_stamp: {} [~ps]", hit_time_stamp);
 	}
-#define MPGDDigi_DEBUG
 #ifdef MPGDDigi_DEBUG
 	// Check cellID -> position
 	for (CellID cID : {cIDp,cIDn}) {
-	  dd4hep::DDSegmentation::Vector3D lpos = m_seg->position(cID);
-	  double X = lpos.X, Y = lpos.Y, Z = lpos.Z;
-	  double phi = atan2(Y,X), R = sqrt(X*X+Y*Y);
-	  CellID hID = cID>>32, vID = cID&0xffffffff, sID = cID>>32&0x3;
-	  CellID modID = cID>>12&0xfff, phiID = hID>>2&0x7fff, ZID = hID>>17;
-	  printf("0x%08lx(0x%03lx) 0x%08lx(0x%04lx,0x%04lx) 0x%02lx: %.3f,%.3f,%.3f cm %.3f rad %.3f cm\n",
-		 vID,modID,hID,phiID,ZID,sID,lpos.X/cm,lpos.Y/cm,lpos.Z/cm,phi,R/cm);
+	    dd4hep::DDSegmentation::Vector3D lpos = m_seg->position(cID);
+	    double X = lpos.X, Y = lpos.Y, Z = lpos.Z;
+	    CellID hID = cID>>32, vID = cID&0xffffffff, sID = cID>>30&0x3;
+	    CellID modID = cID>>12&0xfff, phiID = hID&0xffff, ZID = hID>>16;
+	    printf("0x%08lx(0x%04lx) 0x%08lx(0x%04lx,0x%04lx) 0x%02lx: %7.3f,%7.3f,%7.3f\n",
+		   vID,modID,hID,phiID,ZID,sID,lpos.X/cm,lpos.Y/cm,lpos.Z/cm);
 	}
 #endif
 
+	// ***** APPLY THRESHOLD
         if (sim_hit.getEDep() < m_cfg.threshold) {
             debug("  edep is below threshold of {:.2f} [keV]", m_cfg.threshold / keV);
             continue;
         }
 
-	// ***** SUPERPOSITION OF HITS
+	// ***** HIT ACCUMULATION
 	for (CellID cID : {cIDp,cIDn}) {
 	    if (cell_hit_map.count(cID) == 0) {
 		// This cell doesn't have hits

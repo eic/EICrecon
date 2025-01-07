@@ -25,8 +25,6 @@ private:
     ParameterRef<double> m_threshold {this, "threshold", config().threshold};
     ParameterRef<double> m_timeResolution {this, "timeResolution", config().timeResolution};
     ParameterRef<std::string> m_readout {this, "readoutClass", config().readout};
-    ParameterRef<std::string> m_x_field {this, "xField", config().x_field};
-    ParameterRef<std::string> m_y_field {this, "yField", config().y_field};
 
 public:
     void Configure() {
