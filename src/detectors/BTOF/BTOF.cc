@@ -57,7 +57,7 @@ void InitPlugin(JApplication* app) {
       },
       app
   ));         // Hit reco default config for factories
-  
+
 
 
 
@@ -67,10 +67,10 @@ void InitPlugin(JApplication* app) {
       {"TOFBarrelSharedHits"},
       {
           .sigma_sharingx = 0.1 * dd4hep::cm,
-	  .sigma_sharingy = 0.5 * dd4hep::cm,
+          .sigma_sharingy = 0.5 * dd4hep::cm,
           .readout = "TOFBarrelHits",
-	  .same_sensor_condition = "sensor_1 == sensor_2",
-	  .neighbor_fields = {"x", "y"}
+          .same_sensor_condition = "sensor_1 == sensor_2",
+          .neighbor_fields = {"x", "y"}
       },
       app
   ));
