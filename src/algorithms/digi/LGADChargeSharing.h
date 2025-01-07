@@ -5,12 +5,13 @@
 
 #pragma once
 
+#include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <memory>
+#include <functional>
 #include <string>
 #include <string_view>
 #include <unordered_set>

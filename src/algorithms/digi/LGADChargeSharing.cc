@@ -15,18 +15,21 @@
 #include <TGeoMatrix.h>
 #include <TGeoVolume.h>
 #include <algorithms/geo.h>
-#include <cmath>
+#include <algorithms/service.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <cmath>
 #include <gsl/pointers>
 #include <stdexcept>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "LGADChargeSharing.h"
 #include "DD4hep/Detector.h"
-#include "services/evaluator/EvaluatorSvc.h"
+#include "LGADChargeSharing.h"
 #include "algorithms/digi/LGADChargeSharingConfig.h"
+#include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
 
