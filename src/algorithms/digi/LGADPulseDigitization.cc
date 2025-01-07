@@ -38,9 +38,7 @@ void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
     double n_EICROC_cycle = static_cast<int>(std::floor(pulse.getTime()/m_cfg.tMax + 1e-3));
     for (const auto adc : adcs) {
       if (adc_prev >= thres && adc <= thres) {
-        intersectionX = time_bin * time_interval +
-                        time_interval * (thres - adc_prev) / (adc - adc_prev);
-        tdc = static_cast<int>(intersectionX / time_interval) + n_EICROC_cycle * m_cfg.tdc_range;
+        tdc = time_bin + n_EICROC_cycle * m_cfg.tdc_range;
       }
       if (abs(adc) > abs(V)) // To get peak of the Analog signal
         V = adc;
