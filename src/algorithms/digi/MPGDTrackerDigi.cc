@@ -2,21 +2,38 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 #include "MPGDTrackerDigi.h"
 
+#include <DD4hep/Alignments.h>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Handle.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/VolumeManager.h>
+#include <DD4hep/config.h>
+#include <DD4hep/detail/SegmentationsInterna.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JException.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <Parsers/Primitives.h>
+// Access "algorithms:GeoSvc"
+#include <algorithms/geo.h>
+#include <algorithms/logger.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <JANA/JException.h>
-// Access "algorithms:GeoSvc"
-#include <algorithms/geo.h>
 #include <fmt/core.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <gsl/pointers>
+#include <initializer_list>
+#include <stdexcept>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "algorithms/digi/MPGDTrackerDigiConfig.h"
 
