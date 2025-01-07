@@ -72,8 +72,7 @@ extern "C" {
           {
             .readout = "HcalEndcapNHits",
             .fields = {"layer", "slice"},
-            .fieldRefs = {4, 0}, // place merged hits at ~1 interaction length deep
-            .fieldTransformations = {"", ""} // currently unused
+            .fieldTransformations = {"4", "0"}
           },
           app   // TODO: Remove me once fixed
         ));

@@ -43,16 +43,8 @@ void CalorimeterHitsMerger::init() {
         return;
     }
 
-    // check that input field, mask, and transformation vectors
+    // check that input field and transformation vectors
     // are the same length
-    if (m_cfg.fields.size() != m_cfg.fieldRefs.size()) {
-      error(
-        "Size of field and reference mask vectors are different ({} vs. {}).",
-        m_cfg.fields.size(),
-        m_cfg.fieldRefs.size()
-      );
-      return;
-    }
     if (m_cfg.fields.size() != m_cfg.fieldTransformations.size()) {
       error(
         "Size of field and transformation vectors are different ({} vs. {}).",
@@ -89,26 +81,13 @@ void CalorimeterHitsMerger::init() {
     auto& svc = algorithms::ServiceSvc::instance();
     for (std::size_t iField = 0; std::string& field : m_cfg.fields) {
 
-      // grab provided field reference masks
-      // and transformations
-      uint64_t field_mask = m_cfg.fieldRefs.at(iField);
+      // grab provided transformation and field
       std::string field_transform = m_cfg.fieldTransformations.at(iField);
-
-      // grab name and value of provided field
       auto name_field = id_desc.field(field);
 
-      // set mask or transformation for each field
-      //   - if no transformation provided, reference
-      //     mask will be used
-      if (field_transform.empty()) {
-        ref_maps[field] = [field_mask, name_field](const edm4eic::CalorimeterHit& hit) -> int {
-          return (name_field->value(hit.getCellID()) & ~field_mask) | field_mask;
-        };
-        trace("{}: using mask {:#064b}", field, field_mask);
-      } else {
-        ref_maps[field] = svc.service<EvaluatorSvc>("EvaluatorSvc")->compile(field_transform, hit_transform);
-        trace("{}: using transformation '{}'", field, field_transform);
-      }
+      // set transformation for each field
+      ref_maps[field] = svc.service<EvaluatorSvc>("EvaluatorSvc")->compile(field_transform, hit_transform);
+      trace("{}: using transformation '{}'", field, field_transform);
       ++iField;
     }  // end field loop
 
@@ -212,7 +191,7 @@ void CalorimeterHitsMerger::build_merge_map(
       ++iField;
     }
 
-    // encode new cell ID and add hit to m
+    // encode new cell ID and add hit to map
     const uint64_t ref_id = id_desc.encode(ref_fields);
     merge_map[ref_id].push_back(iHit);
     ++iHit;
