@@ -83,7 +83,7 @@ extern "C" {
           "HcalEndcapPInsertMergedHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertMergedHits"},
           {
             .readout = "HcalEndcapPInsertHits",
-            .fieldTransformations = {"layer:1", "layer:0"}
+            .fieldTransformations = {"layer:1", "slice:0"}
           },
           app   // TODO: Remove me once fixed
         ));
