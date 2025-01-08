@@ -14,7 +14,7 @@
 namespace eicrecon {
 
   void FarDetectorTransportationPostML::init() {
-    
+
     m_beamE = m_cfg.beamE;
 
   }
@@ -39,7 +39,7 @@ namespace eicrecon {
         //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
         m_beamE = round(m_beamE);
       });
-    }   
+    }
 
     if (prediction_tensors->size() != 1) {
       error("Expected to find a single tensor, found {}", prediction_tensors->size());
@@ -70,7 +70,7 @@ namespace eicrecon {
         throw std::runtime_error("The size of prediction_tensor_data is not a multiple of 3.");
     }
 
-    
+
     edm4eic::MutableReconstructedParticle particle;
 
     // Iterate over the prediction_tensor_data in steps of three
@@ -98,7 +98,7 @@ namespace eicrecon {
     }
 
     // TODO: Implement the association of the reconstructed particles with the tracks
-    
+
   }
 
 } // namespace eicrecon

@@ -27,7 +27,7 @@ using FarDetectorTransportationPostMLAlgorithm =
     >
   >;
 
-class FarDetectorTransportationPostML 
+class FarDetectorTransportationPostML
 : public FarDetectorTransportationPostMLAlgorithm,
   public WithPodConfig<FarDetectorTransportationPostMLConfig> {
 
@@ -41,7 +41,7 @@ public:
 
   void init() final;
   void process(const Input&, const Output&) const final;
-  
+
   private:
     mutable float m_beamE = 10.0;
     mutable std::once_flag m_initBeamE;
