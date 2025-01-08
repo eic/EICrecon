@@ -40,14 +40,14 @@ void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
       if (adc_prev >= thres && adc <= thres) {
         tdc = time_bin + n_EICROC_cycle * m_cfg.tdc_range;
       }
-      if (abs(adc) > abs(V)) // To get peak of the Analog signal
+      if (std::abs(adc) > std::abs(V)) // To get peak of the Analog signal
         V = adc;
       adc_prev = adc;
       ++time_bin;
     }
 
     // limit the range of adc values
-    adc = std::min(static_cast<double>(adc_range), round(-V));
+    adc = std::min(static_cast<double>(adc_range), std::round(-V));
     // only store valid hits
     if (tdc < std::numeric_limits<int>::max())
       rawhits->create(pulse.getCellID(), adc, tdc);
