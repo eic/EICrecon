@@ -15,7 +15,7 @@
 
 // ***** NOTA BENE:
 // 2D-STRIP DIGITIZATION
-// - Is prodided by "MPGDTrackerDigi".
+// - Is produced by "MPGDTrackerDigi".
 // - Relies on "MultiSegmentation" <readout> in "compact" geometry file.
 // PIXEL DIGITIZATION
 // - Is prodided by "SiliconTrackerDigi".
