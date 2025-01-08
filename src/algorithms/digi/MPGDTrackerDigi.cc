@@ -151,20 +151,6 @@ void MPGDTrackerDigi::process(
             debug("Hit cellIDp  = 0x{:08x}, 0x{:08x} 0x{:02x}", hIDp, vIDp, sIDp);
             CellID hIDn = cIDn>>32, sIDn = cIDn>>30&0x3;
             debug("Hit cellIDn  = 0x{:08x}, 0x{:08x} 0x{:02x}", hIDn, vIDn, sIDn);
-#ifdef MPGDDigi_DEBUG
-            // Let's check that we recover the cellID stored in "sim_hit",
-            // assuming...
-            // ...strip field: =0: pixels, =1: 1st coord., =2: 2nd coord.
-            // ...the 32 bits of the hitID field are equally shared by the two
-            //   coordinates,
-            // ...segmentations @ reconstruction and simulation time are identical.
-            CellID hID =  vID>>32,  sID = vID>>30&0x3;
-            debug("Hit cellID   = 0x{:08x}, 0x{:08x} 0x{:02x}", hID,  vID,  sID);
-            CellID xid = hID&0xffff,     xidp = hIDp&0xffff;
-            CellID yid = hID>>16&0xffff, yidn = hIDn>>16&0xffff;
-            if (xid!=xidp || yid!=yidn)
-                printf("** MPGDTrackerDigi: Strip segmentation inconsistency: m_seg(0x%4lx,0x%4lx) != sim_hit(0x%4lx,0x%4lx)\n",xidp,xid,yidn,yid);
-#endif
             debug("   position  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getPosition().x, sim_hit.getPosition().y, sim_hit.getPosition().z);
             debug("   xy_radius = {:.2f}", std::hypot(sim_hit.getPosition().x, sim_hit.getPosition().y));
             debug("   momentum  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getMomentum().x, sim_hit.getMomentum().y, sim_hit.getMomentum().z);
@@ -174,17 +160,6 @@ void MPGDTrackerDigi::process(
             debug("   time smearing: {:.4f}, resulting time = {:.4f} [ns]", time_smearing, result_time);
             debug("   hit_time_stamp: {} [~ps]", hit_time_stamp);
         }
-#ifdef MPGDDigi_DEBUG
-        // Check cellID -> position
-        for (CellID cID : {cIDp,cIDn}) {
-            dd4hep::DDSegmentation::Vector3D lpos = m_seg->position(cID);
-            double X = lpos.X, Y = lpos.Y, Z = lpos.Z;
-            CellID hID = cID>>32, vID = cID&0xffffffff, sID = cID>>30&0x3;
-            CellID modID = cID>>12&0xfff, phiID = hID&0xffff, ZID = hID>>16;
-            printf("0x%08lx(0x%04lx) 0x%08lx(0x%04lx,0x%04lx) 0x%02lx: %7.3f,%7.3f,%7.3f\n",
-                   vID,modID,hID,phiID,ZID,sID,lpos.X/cm,lpos.Y/cm,lpos.Z/cm);
-        }
-#endif
 
         // ***** APPLY THRESHOLD
         if (sim_hit.getEDep() < m_cfg.threshold) {
