@@ -122,7 +122,7 @@ void MPGDTrackerDigi::process(
         //  (called 'n') are evaluated based on "sim_hit" Cartesian coordinates.
         // - To get the new cellID's, we need the local position.
         const edm4hep::Vector3d &pos = sim_hit.getPosition();
-        const double &mm = dd4hep::mm;
+        using dd4hep::mm;
         Position gpos(pos.x*mm,pos.y*mm,pos.z*mm);
         const CellID volMask = 0xffffffff;
         CellID cID = sim_hit.getCellID(), vID = cID&volMask /* not necessary but cleaner*/;
