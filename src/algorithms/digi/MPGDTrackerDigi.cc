@@ -118,9 +118,16 @@ void MPGDTrackerDigi::process(
         auto hit_time_stamp = (std::int32_t) (result_time * 1e3);
 
         // ***** SEGMENTATION
-        // - The two cellID's, w/ "strip" setting of 0x1 (called 'p') and 0x2
-        //  (called 'n') are evaluated based on "sim_hit" Cartesian coordinates.
-        // - To get the new cellID's, we need the local position.
+        // - The two cellID's are encoded via a "dd4hep::MultiSegmentation"
+        //  discriminating on the strip field, w/ "strip" setting of 0x1 (
+        //  called 'p') and 0x2 (called 'n').
+        // - They are evaluatedd based on "sim_hit" Cartesian coordinates
+        //  positions
+        //   Given that all the segmentation classes foreseen for MPGDs (
+        //  "CartesianGrid.." for Outer and EndCaps, "CylindricalGridPhiZ" for
+        //  "CyMBaL") disregard the _global_ position argument to
+        //  "dd4hep::Segmentation::cellID", we need the _local_ position and
+        //  only that.
         const edm4hep::Vector3d &pos = sim_hit.getPosition();
         using dd4hep::mm;
         Position gpos(pos.x*mm,pos.y*mm,pos.z*mm);
