@@ -5,7 +5,6 @@
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/Segmentations.h>
-#include <DDRec/CellIDPositionConverter.h>
 #include <TRandomGen.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
