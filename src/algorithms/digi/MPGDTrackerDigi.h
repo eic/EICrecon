@@ -51,7 +51,6 @@ private:
 
   /** Segmentation */
   const dd4hep::Detector* m_detector{nullptr};
-  const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
   dd4hep::Segmentation m_seg;
 };
 
