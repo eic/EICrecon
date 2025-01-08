@@ -105,7 +105,7 @@ extern "C" {
         ));
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-          "HcalBarrelIslandProtoClusters", {"HcalBarrelMergedHits"}, {"HcalBarrelIslandProtoClusters"},
+          "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
           {
             .adjacencyMatrix = HcalBarrel_adjacencyMatrix,
             .readout = "HcalBarrelHits",
