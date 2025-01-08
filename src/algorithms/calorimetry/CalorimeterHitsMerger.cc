@@ -16,13 +16,12 @@
 #include <DD4hep/Readout.h>
 #include <DD4hep/VolumeManager.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <edm4eic/CalorimeterHit.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <algorithms/service.h>
 #include <fmt/core.h>
 #include <algorithm>
-#include <algorithms/service.h>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>

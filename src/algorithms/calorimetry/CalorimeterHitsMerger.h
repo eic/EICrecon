@@ -10,20 +10,22 @@
 
 #pragma once
 
-#include <DD4hep/BitFieldCoder.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <stdint.h>
+#include <cstddef>
 #include <functional>
 #include <gsl/pointers>
 #include <map>
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "CalorimeterHitsMergerConfig.h"
