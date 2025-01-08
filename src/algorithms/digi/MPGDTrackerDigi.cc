@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
+// Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov, Yann Bedfer
 #include "MPGDTrackerDigi.h"
 
 #include <DD4hep/Alignments.h>
@@ -67,9 +67,7 @@ void MPGDTrackerDigi::init() {
     // Let's check.
     try {
         int m_strip_idx = m_id_dec->index("strip");
-        const CellID stripBit = ((CellID)0x3)<<30;
-        CellID stripVal = m_id_dec->get(stripBit,"strip");
-        if (stripVal!=0x3)
+        if (m_id_dec["strip"].mask() != ((CellID)0x3)<<30)
             throw std::runtime_error("Invalid \"strip\" field in IDDescriptor for \"" + m_cfg.readout + "\" readout");
         debug("Find valid \"strip\" field in IDDescriptor for \"{}\" readout",
               m_cfg.readout);
@@ -124,7 +122,7 @@ void MPGDTrackerDigi::process(
         //  (called 'n') are evaluated based on "sim_hit" Cartesian coordinates.
         // - To get the new cellID's, we need the local position.
         const edm4hep::Vector3d &pos = sim_hit.getPosition();
-        const double &mm = dd4hep::mm;
+        using dd4hep::mm;
         Position gpos(pos.x*mm,pos.y*mm,pos.z*mm);
         const CellID volMask = 0xffffffff;
         CellID cID = sim_hit.getCellID(), vID = cID&volMask /* not necessary but cleaner*/;
@@ -144,7 +142,6 @@ void MPGDTrackerDigi::process(
             debug("Hit cellIDp  = 0x{:08x}, 0x{:08x} 0x{:02x}", hIDp, vIDp, sIDp);
             CellID hIDn = cIDn>>32, sIDn = cIDn>>30&0x3;
             debug("Hit cellIDn  = 0x{:08x}, 0x{:08x} 0x{:02x}", hIDn, vIDn, sIDn);
-            //#define MPGDDigi_DEBUG
 #ifdef MPGDDigi_DEBUG
             // Let's check that we recover the cellID stored in "sim_hit",
             // assuming...

@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
-
-// Derived from "../SiliconTrackerDigi.h".
+// Copyright (C) 2024 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov, Yann Bedfer
 
 #pragma once
 
@@ -53,7 +51,6 @@ private:
 
   /** Segmentation */
   const dd4hep::Detector* m_detector{nullptr};
-  const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
   dd4hep::Segmentation m_seg;
 };
 
