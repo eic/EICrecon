@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov, Yann Bedfer
 
-// Derived from "../SiliconTrackerDigi.h".
-
 #pragma once
 
 #include <DD4hep/Detector.h>
