@@ -66,8 +66,7 @@ void MPGDTrackerDigi::init() {
     // - That "strip" field includes bits 30|31.
     // Let's check.
     try {
-        int m_strip_idx = m_id_dec->index("strip");
-        if (m_id_dec["strip"].mask() != ((CellID)0x3)<<30)
+        if (m_id_dec->get(((CellID)0x3)<<30,"strip") != 0x3)
             throw std::runtime_error("Invalid \"strip\" field in IDDescriptor for \"" + m_cfg.readout + "\" readout");
         debug("Find valid \"strip\" field in IDDescriptor for \"{}\" readout",
               m_cfg.readout);
@@ -121,7 +120,7 @@ void MPGDTrackerDigi::process(
         // - The two cellID's are encoded via a "dd4hep::MultiSegmentation"
         //  discriminating on the strip field, w/ "strip" setting of 0x1 (
         //  called 'p') and 0x2 (called 'n').
-        // - They are evaluatedd based on "sim_hit" Cartesian coordinates
+        // - They are evaluated based on "sim_hit" Cartesian coordinates
         //  positions
         //   Given that all the segmentation classes foreseen for MPGDs (
         //  "CartesianGrid.." for Outer and EndCaps, "CylindricalGridPhiZ" for
