@@ -21,13 +21,17 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
+#if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
 #include "factories/fardetectors/FarDetectorTransportationPostML_factory.h"
+#endif
 #include "factories/fardetectors/FarDetectorMLReconstruction_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/meta/ONNXInference_factory.h"
+#endif
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -146,6 +150,7 @@ extern "C" {
          app
     ));
 
+#if EDM4EIC_VERSION_MAJOR >= 8
     app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
         "TaggerTrackerTransportationPreML",
         {"TaggerTrackerProjectedTracks","MCScatteredElectrons","MCBeamElectrons"},
@@ -173,6 +178,7 @@ extern "C" {
         },
         app
     ));
+#endif
 
     // Vector reconstruction at origin
     app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
