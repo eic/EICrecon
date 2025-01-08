@@ -142,7 +142,6 @@ void MPGDTrackerDigi::process(
             debug("Hit cellIDp  = 0x{:08x}, 0x{:08x} 0x{:02x}", hIDp, vIDp, sIDp);
             CellID hIDn = cIDn>>32, sIDn = cIDn>>30&0x3;
             debug("Hit cellIDn  = 0x{:08x}, 0x{:08x} 0x{:02x}", hIDn, vIDn, sIDn);
-            //#define MPGDDigi_DEBUG
 #ifdef MPGDDigi_DEBUG
             // Let's check that we recover the cellID stored in "sim_hit",
             // assuming...
