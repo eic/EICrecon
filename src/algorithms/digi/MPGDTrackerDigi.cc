@@ -130,8 +130,10 @@ void MPGDTrackerDigi::process(
         const edm4hep::Vector3d &pos = sim_hit.getPosition();
         using dd4hep::mm;
         Position gpos(pos.x*mm,pos.y*mm,pos.z*mm);
-        const CellID volMask = 0xffffffff;
-        CellID cID = sim_hit.getCellID(), vID = cID&volMask /* not necessary but cleaner*/;
+        CellID vID = // Note: Only the bits corresponding to the volumeID will
+          // be used. The rest, encoding the segmentation stored in "sim_hit",
+          // being disregared.
+          sim_hit.getCellID();
         DetElement local = volman.lookupDetElement(vID);
         const auto lpos = local.nominal().worldToLocal(gpos);
         // p "strip"
@@ -140,6 +142,7 @@ void MPGDTrackerDigi::process(
         // n "strip"
         CellID stripBitn = ((CellID)0x2)<<30, vIDn = vID|stripBitn;
         CellID cIDn = m_seg->cellID(lpos,dummy,vIDn);
+
         sim2IDs.push_back({cIDp,cIDn}); // Remember cellIDs.
         // ***** DEBUGGING INFO
         if(level() >= algorithms::LogLevel::kDebug) {
@@ -155,7 +158,7 @@ void MPGDTrackerDigi::process(
             // ...the 32 bits of the hitID field are equally shared by the two
             //   coordinates,
             // ...segmentations @ reconstruction and simulation time are identical.
-            CellID hID =  cID>>32,  sID = vID>>30&0x3;
+            CellID hID =  vID>>32,  sID = vID>>30&0x3;
             debug("Hit cellID   = 0x{:08x}, 0x{:08x} 0x{:02x}", hID,  vID,  sID);
             CellID xid = hID&0xffff,     xidp = hIDp&0xffff;
             CellID yid = hID>>16&0xffff, yidn = hIDn>>16&0xffff;
