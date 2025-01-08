@@ -67,9 +67,7 @@ void MPGDTrackerDigi::init() {
     // Let's check.
     try {
         int m_strip_idx = m_id_dec->index("strip");
-        const CellID stripBit = ((CellID)0x3)<<30;
-        CellID stripVal = m_id_dec->get(stripBit,"strip");
-        if (stripVal!=0x3)
+        if (m_id_dec["strip"].mask() != ((CellID)0x3)<<30)
             throw std::runtime_error("Invalid \"strip\" field in IDDescriptor for \"" + m_cfg.readout + "\" readout");
         debug("Find valid \"strip\" field in IDDescriptor for \"{}\" readout",
               m_cfg.readout);
