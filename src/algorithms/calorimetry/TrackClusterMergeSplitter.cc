@@ -425,7 +425,7 @@ namespace eicrecon {
         const float weight = old_clust.getHitContributions()[iHit] / hit.getEnergy();
         /* FIXME this needs some care: how should weights
          * get updated when merging?
-         */ 
+         */
 
         // update running tallies
         eClust += hit.getEnergy() * weight;
