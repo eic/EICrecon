@@ -304,7 +304,12 @@ extern "C" {
             "LFHCALSplitMergeProtoClusters",
             {"LFHCALIslandProtoClusters",
              "CalorimeterTrackProjections"},
+#if EDM4EIC_VERSION_MAJOR >= 8
+            {"LFHCALSplitMergeProtoClusters",
+             "LFHCALTrackSplitMergeClusterMatches"},
+#else
             {"LFHCALSplitMergeProtoClusters"},
+#endif
             {
               .idCalo = "LFHCAL_ID",
               .minSigCut = -2.0,

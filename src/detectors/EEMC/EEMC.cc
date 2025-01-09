@@ -152,7 +152,12 @@ extern "C" {
             "EcalEndcapNSplitMergeProtoClusters",
             {"EcalEndcapNIslandProtoClusters",
              "CalorimeterTrackProjections"},
+#if EDM4EIC_VERSION_MAJOR >= 8
+            {"EcalEndcapNSplitMergeProtoClusters",
+             "EcalEndcapNTrackSplitMergeClusterMatches"},
+#else
             {"EcalEndcapNSplitMergeProtoClusters"},
+#endif
             {
               .idCalo = "EcalEndcapN_ID",
               .minSigCut = -1.0,

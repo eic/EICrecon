@@ -32,6 +32,7 @@ namespace eicrecon {
 
       // output collections
       PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output {this};
+      PodioOutput<edm4eic::TrackClusterMatch> m_track_cluster_match_output {this};
 
       // parameter bindings
       ParameterRef<std::string> m_idCalo {this, "idCalo", config().idCalo};
@@ -61,7 +62,11 @@ namespace eicrecon {
       void Process(int64_t run_number, uint64_t event_number) {
         m_algo->process(
           {m_protoclusters_input(), m_track_projections_input()},
+#if EDM4EIC_VERSION_MAJOR >= 8
+          {m_protoclusters_output().get(), m_track_cluster_match_output().get()}
+#else
           {m_protoclusters_output().get()}
+#endif
         );
       }
 

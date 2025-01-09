@@ -139,7 +139,12 @@ extern "C" {
             "HcalEndcapNSplitMergeProtoClusters",
             {"HcalEndcapNIslandProtoClusters",
              "CalorimeterTrackProjections"},
+#if EDM4EIC_VERSION_MAJOR >= 8
+            {"HcalEndcapNSplitMergeProtoClusters",
+             "HcalEndcapNTrackSplitMergeClusterMatches"},
+#else
             {"HcalEndcapNSplitMergeProtoClusters"},
+#endif
             {
               .idCalo = "HcalEndcapN_ID",
               .minSigCut = -2.0,

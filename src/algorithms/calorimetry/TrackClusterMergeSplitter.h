@@ -5,6 +5,7 @@
 
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
+#include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -65,7 +66,12 @@ namespace eicrecon {
       edm4eic::TrackSegmentCollection
     >,
     algorithms::Output<
+#if EDM4EIC_VERSION_MAJOR >= 8
+      edm4eic::ProtoClusterCollection,
+      edm4eic::TrackClusterMatchCollection
+#else
       edm4eic::ProtoClusterCollection
+#endif
     >
   >;
 
@@ -92,7 +98,11 @@ namespace eicrecon {
         TrackClusterMergeSplitterAlgorithm {
           name,
           {"InputProtoClusterCollection", "InputTrackProjections"},
+#if EDM4EIC_VERSION_MAJOR >= 8
+          {"OutputProtoClusterCollection", "OutputTrackClusterMatches"},
+#else
           {"OutputProtoClusterCollection"},
+#endif
           "Merges or splits clusters based on tracks projected to them."
         } {}
 

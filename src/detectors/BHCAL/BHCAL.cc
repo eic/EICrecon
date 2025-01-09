@@ -166,7 +166,12 @@ extern "C" {
             "HcalBarrelSplitMergeProtoClusters",
             {"HcalBarrelIslandProtoClusters",
              "CalorimeterTrackProjections"},
+#if EDM4EIC_VERSION_MAJOR >= 8
+            {"HcalBarrelSplitMergeProtoClusters",
+             "HcalBarrelTrackSplitMergeClusterMatches"},
+#else
             {"HcalBarrelSplitMergeProtoClusters"},
+#endif
             {
               .idCalo = "HcalBarrel_ID",
               .minSigCut = -2.0,

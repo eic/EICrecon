@@ -66,7 +66,11 @@ namespace eicrecon {
 
     // grab inputs/outputs
     const auto [in_protoclusters, in_projections] = input;
+#if EDM4EIC_VERSION_MAJOR >= 8
+    auto [out_protoclusters, out_trackClusterMatches] = output;
+#else
     auto [out_protoclusters] = output;
+#endif
 
     // exit if no clusters in collection
     if (in_protoclusters->size() == 0) {
