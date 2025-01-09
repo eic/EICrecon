@@ -15,8 +15,6 @@
 #include <podio/ROOTFrameReader.h>
 #endif
 #include <stddef.h>
-#include <memory>
-#include <set>
 #include <string>
 
 #if ((JANA_VERSION_MAJOR == 2) && (JANA_VERSION_MINOR >= 3)) || (JANA_VERSION_MAJOR > 2)
