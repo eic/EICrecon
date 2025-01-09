@@ -301,14 +301,14 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-            "LFHCALSplitMergeProtoClusters",
-            {"LFHCALIslandProtoClusters",
+            "LFHCALSplitMergeClusters",
+            {"LFHCALIslandClusters",
              "CalorimeterTrackProjections"},
 #if EDM4EIC_VERSION_MAJOR >= 8
-            {"LFHCALSplitMergeProtoClusters",
+            {"LFHCALSplitMergeClusters",
              "LFHCALTrackSplitMergeClusterMatches"},
 #else
-            {"LFHCALSplitMergeProtoClusters"},
+            {"LFHCALSplitMergeClusters"},
 #endif
             {
               .idCalo = "LFHCAL_ID",
@@ -323,21 +323,5 @@ extern "C" {
           )
         );
 
-        app->Add(
-          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "LFHCALSplitMergeClusters",
-            {"LFHCALSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
-             "LFHCALHits"},                          // edm4hep::SimCalorimeterHitCollection
-            {"LFHCALSplitMergeClusters",             // edm4eic::Cluster
-             "LFHCALSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-            {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 4.5,
-              .enableEtaBounds = false
-            },
-            app   // TODO: Remove me once fixed
-          )
-        );
     }
 }

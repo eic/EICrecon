@@ -27,11 +27,11 @@ namespace eicrecon {
       std::unique_ptr<AlgoT> m_algo;
 
       // input collections
-      PodioInput<edm4eic::ProtoCluster> m_protoclusters_input {this};
+      PodioInput<edm4eic::Cluster> m_clusters_input {this};
       PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
 
       // output collections
-      PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output {this};
+      PodioOutput<edm4eic::Cluster> m_clusters_output {this};
       PodioOutput<edm4eic::TrackClusterMatch> m_track_cluster_match_output {this};
 
       // parameter bindings
@@ -61,11 +61,11 @@ namespace eicrecon {
 
       void Process(int64_t run_number, uint64_t event_number) {
         m_algo->process(
-          {m_protoclusters_input(), m_track_projections_input()},
+          {m_clusters_input(), m_track_projections_input()},
 #if EDM4EIC_VERSION_MAJOR >= 8
-          {m_protoclusters_output().get(), m_track_cluster_match_output().get()}
+          {m_clusters_output().get(), m_track_cluster_match_output().get()}
 #else
-          {m_protoclusters_output().get()}
+          {m_clusters_output().get()}
 #endif
         );
       }
