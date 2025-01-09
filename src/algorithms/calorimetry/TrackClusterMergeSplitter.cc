@@ -333,14 +333,8 @@ namespace eicrecon {
 
     // if only 1 matched track, no need to split
     if (to_split.size() == 1) {
-      edm4eic::MutableCluster new_clust = out_clusters->create();
-      for (const auto& old_clust : to_merge) {
-        /* TODO weights, energy, etc. will need to be recalculated */
-        for (const auto& hit : old_clust.getHits()) {
-          new_clust.addToHits( hit );
-        }
-        trace("Merged input cluster {} into output cluster {}", old_clust.getObjectID().index, new_clust.getObjectID().index);
-      }
+      edm4eic::MutableCluster new_clust = merge_clusters(to_merge);
+      out_clusters->push_back(new_clust);
       return;
     }
 
@@ -352,6 +346,7 @@ namespace eicrecon {
     trace("Splitting merged cluster across {} tracks", to_split.size());
 
     // loop over all hits from all clusters to merge
+    /* FIXME this needs some care... */
     std::vector<float> weights( to_split.size(), 1. );
     for (const auto& old_clust : to_merge) {
       for (const auto& hit : old_clust.getHits()) {
@@ -392,11 +387,68 @@ namespace eicrecon {
         /* TODO weights, energy, etc. will need to be recalculated */
         for (std::size_t iProj = 0; auto& new_clust : new_clusters) {
           new_clust.addToHits( hit );
+          new_clust.addToHitContributions( hit.getEnergy() * weights[iProj] );
+          ++iProj;
         }
 
       }  // end hits to merge loop
     }  // end clusters to merge loop
 
   }  // end 'merge_and_split_clusters(VecClust&, VecProj&, edm4eic::MutableCluster&)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Merge clusters
+  // --------------------------------------------------------------------------
+  /* FIXME I might also need to optionally provide the projection here */
+  /* FIXME work on variable names... */
+  edm4eic::MutableCluster TrackClusterMergeSplitter::merge_clusters(const VecClust& old_clusts) const {
+
+    // create new cluster to merge
+    // into
+    edm4eic::MutableCluster new_clust;
+
+    // determine total no. of hits
+    std::size_t nHits = 0;
+    for (const auto& old_clust : old_clusts) {
+      nHits += old_clust.getNhits();
+    }
+    new_clust.setNhits(nHits);
+
+    float eClust = 0.;
+    float wClust = 0.;
+    float tClust = 0.;
+    for (const auto& old_clust : old_clusts) {
+      for (std::size_t iHit = 0; const auto& hit : old_clust.getHits()) {
+
+        const float weight = old_clust.getHitContributions()[iHit] / hit.getEnergy();
+        /* FIXME this needs some care: how should weights
+         * get updated when merging?
+         */ 
+
+        // update running tallies
+        eClust += hit.getEnergy() * weight;
+        tClust += (hit.getTime() - tClust) * (hit.getEnergy() / eClust);
+        wClust += weight;
+
+        // add hits and increment counter
+        new_clust.addToHits(hit);
+        new_clust.addToHitContributions(hit.getEnergy() * weight);
+        ++iHit;
+      }  // end hit loop
+      trace("Merged input cluster {} into output cluster {}", old_clust.getObjectID().index, new_clust.getObjectID().index);
+    }  // end cluster loop
+
+    /* TODO add center of gravity calc here */
+    /* TODO add shape calc here */
+
+    new_clust.setEnergy(eClust);
+    new_clust.setEnergyError(0.);
+    new_clust.setTime(tClust);
+    new_clust.setTimeError(0.);
+    return new_clust;
+
+  }  // end 'merge_cluster(VecClust&)'
 
 }  // end eicrecon namespace
