@@ -30,50 +30,50 @@ void InitPlugin(JApplication *app) {
     unsigned int SiFactoryPattern = 0; // Default
     std::string SiFactoryPattern_str;
     app->SetDefaultParameter("MPGD:SiFactoryPattern",SiFactoryPattern_str,
-			     "Hexadecimal Pattern of MPGDs digitized via \"SiliconTrackerDigi\"");
+                             "Hexadecimal Pattern of MPGDs digitized via \"SiliconTrackerDigi\"");
     if (!SiFactoryPattern_str.empty()) {
-	try {
-	    SiFactoryPattern = std::stoul(SiFactoryPattern_str,nullptr,16);
-	} catch (const std::invalid_argument& e) {
-	    throw JException("Option \"MPGD:SiFactoryPattern\": Error (\"%s\") parsing input string: '%s'",e.what(),SiFactoryPattern_str.c_str());
-	}
+        try {
+            SiFactoryPattern = std::stoul(SiFactoryPattern_str,nullptr,16);
+        } catch (const std::invalid_argument& e) {
+            throw JException("Option \"MPGD:SiFactoryPattern\": Error (\"%s\") parsing input string: '%s'",e.what(),SiFactoryPattern_str.c_str());
+        }
     }
 
-    // ***** "MPGDBarrel" (=CyMBaL) 
+    // ***** "MPGDBarrel" (=CyMBaL)
     // Digitization
     if (SiFactoryPattern&0x1) {
-	app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-	    "MPGDBarrelRawHits",
-	    {
-	      "MPGDBarrelHits"
-	    },
-	    {
-	      "MPGDBarrelRawHits",
-	      "MPGDBarrelRawHitAssociations"
-	    },
-	    {
-		.threshold = 100 * dd4hep::eV,
-		.timeResolution = 10,
-	    },
-	    app
-	));
+        app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+            "MPGDBarrelRawHits",
+            {
+              "MPGDBarrelHits"
+            },
+            {
+              "MPGDBarrelRawHits",
+              "MPGDBarrelRawHitAssociations"
+            },
+            {
+                .threshold = 100 * dd4hep::eV,
+                .timeResolution = 10,
+            },
+            app
+        ));
     }
     else {
-	app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-	    "MPGDBarrelRawHits",
-	    {
-	      "MPGDBarrelHits"
-	    },
-	    {
-	      "MPGDBarrelRawHits",
-	      "MPGDBarrelRawHitAssociations"
-	    },
-	    {
-		.readout = "MPGDBarrelHits",
-		.threshold = 100 * dd4hep::eV,
-		.timeResolution = 10,
-	    },
-	    app
+        app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
+            "MPGDBarrelRawHits",
+            {
+              "MPGDBarrelHits"
+            },
+            {
+              "MPGDBarrelRawHits",
+              "MPGDBarrelRawHitAssociations"
+            },
+            {
+                .readout = "MPGDBarrelHits",
+                .threshold = 100 * dd4hep::eV,
+                .timeResolution = 10,
+            },
+            app
         ));
     }
 
@@ -91,38 +91,38 @@ void InitPlugin(JApplication *app) {
     // ***** OuterMPGDBarrel
     // Digitization
     if (SiFactoryPattern&0x2) {
-	app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-	    "OuterMPGDBarrelRawHits",
-	    {
-	      "OuterMPGDBarrelHits"
-	    },
-	    {
-	      "OuterMPGDBarrelRawHits",
-	      "OuterMPGDBarrelRawHitAssociations"
-	    },
-	    {
-		.threshold = 100 * dd4hep::eV,
-		.timeResolution = 10,
-	    },
-	    app
+        app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+            "OuterMPGDBarrelRawHits",
+            {
+              "OuterMPGDBarrelHits"
+            },
+            {
+              "OuterMPGDBarrelRawHits",
+              "OuterMPGDBarrelRawHitAssociations"
+            },
+            {
+                .threshold = 100 * dd4hep::eV,
+                .timeResolution = 10,
+            },
+            app
         ));
     }
     else {
-	app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-	    "OuterMPGDBarrelRawHits",
-	    {
+        app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
+            "OuterMPGDBarrelRawHits",
+            {
               "OuterMPGDBarrelHits"
-	    },
-	    {
+            },
+            {
               "OuterMPGDBarrelRawHits",
               "OuterMPGDBarrelRawHitAssociations"
-	    },
-	    {
-		.readout = "OuterMPGDBarrelHits",
-		.threshold = 100 * dd4hep::eV,
-		.timeResolution = 10,
-	    },
-	    app
+            },
+            {
+                .readout = "OuterMPGDBarrelHits",
+                .threshold = 100 * dd4hep::eV,
+                .timeResolution = 10,
+            },
+            app
         ));
     }
 
