@@ -440,13 +440,22 @@ namespace eicrecon {
       trace("Merged input cluster {} into output cluster {}", old_clust.getObjectID().index, new_clust.getObjectID().index);
     }  // end cluster loop
 
-    /* TODO add center of gravity calc here */
+    // update cluster position by taking energy-weighted
+    // average of positions of clusters to merge
+    edm4hep::Vector3f rClust = new_clust.getPosition();
+    for (const auto& old_clust : old_clusts) {
+      rClust = rClust + ((old_clust.getEnergy() / eClust) * old_clust.getPosition());
+    }
+
     /* TODO add shape calc here */
 
+    // set parameters
     new_clust.setEnergy(eClust);
     new_clust.setEnergyError(0.);
     new_clust.setTime(tClust);
     new_clust.setTimeError(0.);
+    new_clust.setPosition(rClust);
+    new_clust.setPositionError({});
     return new_clust;
 
   }  // end 'merge_cluster(VecClust&)'
