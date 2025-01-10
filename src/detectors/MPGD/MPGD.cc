@@ -13,14 +13,11 @@
 #include "factories/digi/MPGDTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
-// ***** NOTA BENE:
-// 2D-STRIP DIGITIZATION
+// 2D-STRIP DIGITIZATION = DEFAULT
 // - Is produced by "MPGDTrackerDigi".
 // - Relies on "MultiSegmentation" <readout> in "compact" geometry file.
-// PIXEL DIGITIZATION
-// - Is prodided by "SiliconTrackerDigi".
-// TEMPORARILY PROVIDE FOR SWITCHING BACK TO PIXEL DIGITIZATION
-#define Si_FACTORY_PATTERN 0 // Bit pattern: 0x1=CyMBaL, 0x2=Outer,...
+// PIXEL DIGITIZATION = BROUGHT INTO PLAY BY OPTION "MPGD:SiFactoryPattern".
+// - Is produced by "SiliconTrackerDigi".
 
 extern "C" {
 void InitPlugin(JApplication *app) {
@@ -28,42 +25,57 @@ void InitPlugin(JApplication *app) {
 
     using namespace eicrecon;
 
+    // PIXEL DIGITIZATION?
+    // It's encoded in bit pattern "SiFactoryPattern": 0x1=CyMBaL, 0x2=OuterBarrel, ...
+    unsigned int SiFactoryPattern = 0; // Default
+    std::string SiFactoryPattern_str;
+    app->SetDefaultParameter("MPGD:SiFactoryPattern",SiFactoryPattern_str,
+			     "Hexadecimal Pattern of MPGDs digitized via \"SiliconTrackerDigi\"");
+    if (!SiFactoryPattern_str.empty()) {
+	try {
+	    SiFactoryPattern = std::stoul(SiFactoryPattern_str,nullptr,16);
+	} catch (const std::invalid_argument& e) {
+	    throw JException("Option \"MPGD:SiFactoryPattern\": Error (\"%s\") parsing input string: '%s'",e.what(),SiFactoryPattern_str.c_str());
+	}
+    }
+
+    // ***** "MPGDBarrel" (=CyMBaL) 
     // Digitization
-#if defined(Si_FACTORY_PATTERN) && (Si_FACTORY_PATTERN & 1) != 0
-#  warning Switching back MPGDBarrel digitization to SiliconTrackerDigi
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "MPGDBarrelRawHits",
-        {
-          "MPGDBarrelHits"
-        },
-        {
-          "MPGDBarrelRawHits",
-          "MPGDBarrelRawHitAssociations"
-        },
-        {
-            .threshold = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
-        app
-    ));
-#else
-    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-        "MPGDBarrelRawHits",
-        {
-          "MPGDBarrelHits"
-        },
-        {
-          "MPGDBarrelRawHits",
-          "MPGDBarrelRawHitAssociations"
-        },
-        {
-            .readout = "MPGDBarrelHits",
-            .threshold = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
-        app
-    ));
-#endif
+    if (SiFactoryPattern&0x1) {
+	app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+	    "MPGDBarrelRawHits",
+	    {
+	      "MPGDBarrelHits"
+	    },
+	    {
+	      "MPGDBarrelRawHits",
+	      "MPGDBarrelRawHitAssociations"
+	    },
+	    {
+		.threshold = 100 * dd4hep::eV,
+		.timeResolution = 10,
+	    },
+	    app
+	));
+    }
+    else {
+	app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
+	    "MPGDBarrelRawHits",
+	    {
+	      "MPGDBarrelHits"
+	    },
+	    {
+	      "MPGDBarrelRawHits",
+	      "MPGDBarrelRawHitAssociations"
+	    },
+	    {
+		.readout = "MPGDBarrelHits",
+		.threshold = 100 * dd4hep::eV,
+		.timeResolution = 10,
+	    },
+	    app
+        ));
+    }
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -76,42 +88,43 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+    // ***** OuterMPGDBarrel
     // Digitization
-#if defined(Si_FACTORY_PATTERN) && (Si_FACTORY_PATTERN & 2) != 0
-#  warning Switching back OuterMPGDBarrel digitization to SiliconTrackerDigi
-   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "OuterMPGDBarrelRawHits",
-        {
-          "OuterMPGDBarrelHits"
-        },
-        {
-          "OuterMPGDBarrelRawHits",
-          "OuterMPGDBarrelRawHitAssociations"
-        },
-        {
-            .threshold = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
-        app
-    ));
-#else
-    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-        "OuterMPGDBarrelRawHits",
-        {
-          "OuterMPGDBarrelHits"
-        },
-        {
-          "OuterMPGDBarrelRawHits",
-          "OuterMPGDBarrelRawHitAssociations"
-        },
-        {
-            .readout = "OuterMPGDBarrelHits",
-            .threshold = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
-        app
-    ));
-#endif
+    if (SiFactoryPattern&0x2) {
+	app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+	    "OuterMPGDBarrelRawHits",
+	    {
+	      "OuterMPGDBarrelHits"
+	    },
+	    {
+	      "OuterMPGDBarrelRawHits",
+	      "OuterMPGDBarrelRawHitAssociations"
+	    },
+	    {
+		.threshold = 100 * dd4hep::eV,
+		.timeResolution = 10,
+	    },
+	    app
+        ));
+    }
+    else {
+	app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
+	    "OuterMPGDBarrelRawHits",
+	    {
+              "OuterMPGDBarrelHits"
+	    },
+	    {
+              "OuterMPGDBarrelRawHits",
+              "OuterMPGDBarrelRawHitAssociations"
+	    },
+	    {
+		.readout = "OuterMPGDBarrelHits",
+		.threshold = 100 * dd4hep::eV,
+		.timeResolution = 10,
+	    },
+	    app
+        ));
+    }
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
     app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -124,6 +137,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+    // ***** "BackwardMPGDEndcap"
     // Digitization
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "BackwardMPGDEndcapRawHits",
@@ -152,6 +166,7 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+    // ""ForwardMPGDEndcap"
     // Digitization
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "ForwardMPGDEndcapRawHits",
