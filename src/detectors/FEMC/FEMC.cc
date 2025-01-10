@@ -130,7 +130,7 @@ extern "C" {
         app->Add(
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
             "EcalEndcapPSplitMergeClusters",
-            {"EcalEndcapPIslandClusters",
+            {"EcalEndcapPClusters",
              "CalorimeterTrackProjections"},
 #if EDM4EIC_VERSION_MAJOR >= 8
             {"EcalEndcapPSplitMergeClusters",

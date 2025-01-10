@@ -302,7 +302,7 @@ extern "C" {
         app->Add(
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
             "LFHCALSplitMergeClusters",
-            {"LFHCALIslandClusters",
+            {"LFHCALClusters",
              "CalorimeterTrackProjections"},
 #if EDM4EIC_VERSION_MAJOR >= 8
             {"LFHCALSplitMergeClusters",
