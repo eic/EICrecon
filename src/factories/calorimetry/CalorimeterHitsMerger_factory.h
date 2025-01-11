@@ -20,8 +20,7 @@ private:
     PodioOutput<edm4eic::CalorimeterHit> m_hits_output {this};
 
     ParameterRef<std::string> m_readout {this, "readout", config().readout};
-    ParameterRef<std::vector<std::string>> m_fields {this, "fields", config().fields};
-    ParameterRef<std::vector<int>> m_refs {this, "refs", config().refs};
+    ParameterRef<std::vector<std::string>> m_field_transformations {this, "fieldTransformations", config().fieldTransformations};
 
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
