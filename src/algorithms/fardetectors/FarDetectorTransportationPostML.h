@@ -4,15 +4,16 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TensorCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <mutex>
 #include <optional>
 #include <string>
 #include <string_view>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/fardetectors/FarDetectorTransportationPostMLConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

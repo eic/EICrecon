@@ -5,14 +5,11 @@
 
 #if EDM4EIC_VERSION_MAJOR >= 8
 
+#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <cmath>
-#include <cstdint>
-#include <exception>
 #include <gsl/pointers>
-#include <vector>
 
 #include "FarDetectorTransportationPreML.h"
 #include "algorithms/fardetectors/FarDetectorTransportationPreML.h"
