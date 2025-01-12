@@ -1,5 +1,25 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov, Yann Bedfer
+
+/*
+  Digitization specific to MPGDs.
+  - What's special in MPGDs is their 2D-strip readout: i.e. simultaneous
+   registering along two sets of coordinate strips.
+  - The "process" method involves a combination of segmentation, simulation and
+   digitization.
+  - The segmentation done when producing "sim_hits", and stored as a pixel
+   cellID, is overwritten by strip cellIDs, via "dd4hep::MultiSegmentation".
+  - The simulation will eventually involve simulating the amplitude and timing
+   correlation of the two coordinates, and the spreading of the charge on
+   adjacent strips producing multi-hit clusters.
+    The preliminary version is rudimentary: single-hit clusters, with identical
+   timing and uncorrelated amplitudes.
+  - The digitization follows the standard steps, only that it needs to be
+   convoluted with the simulation.
+  NOTA BENE: The file could be simplified, see issue #1702.
+ */
+
+
 #include "MPGDTrackerDigi.h"
 
 #include <DD4hep/Alignments.h>
@@ -58,23 +78,20 @@ void MPGDTrackerDigi::init() {
         m_seg =    m_detector->readout(m_cfg.readout).segmentation();
         m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
     } catch (...) {
-      critical("Failed to load ID decoder for \"{}\" readout", m_cfg.readout);
-      throw JException("Failed to load ID decoder");
+	critical("Failed to load ID decoder for \"{}\" readout.", m_cfg.readout);
+	throw JException("Failed to load ID decoder");
     }
     // Method "process" relies on a strict assumption on the IDDescriptor:
     // - Must have a "strip" field.
     // - That "strip" field includes bits 30|31.
     // Let's check.
-    try {
-        if (m_id_dec->get(((CellID)0x3)<<30,"strip") != 0x3)
-            throw std::runtime_error("Invalid \"strip\" field in IDDescriptor for \"" + m_cfg.readout + "\" readout");
-        debug("Find valid \"strip\" field in IDDescriptor for \"{}\" readout",
-              m_cfg.readout);
-    } catch (...) {
-        critical("Missing or invalid \"strip\" field in IDDescriptor for \"{}\" readout",
-                 m_cfg.readout);
+    if (m_id_dec->get(((CellID)0x3)<<30,"strip") != 0x3) {
+        critical("Missing or invalid \"strip\" field in IDDescriptor for \"{}\" readout.",
+		 m_cfg.readout);
         throw JException("Invalid IDDescriptor");
     }
+    debug("Find valid \"strip\" field in IDDescriptor for \"{}\" readout.",
+          m_cfg.readout);
 }
 
 
@@ -109,7 +126,7 @@ void MPGDTrackerDigi::process(
         // ***** TIME SMEARING
         // - Simplistic treatment.
         // - A more realistic one would have to distinguish a smearing common to
-        //  both coordinates of the 2D-strip readout (due to the drifing of the
+        //  both coordinates of the 2D-strip readout (due to the drifting of the
         //  leading primary electrons) from other smearing effects, specific to
         //  each coordinate.
         double time_smearing = m_gauss();
