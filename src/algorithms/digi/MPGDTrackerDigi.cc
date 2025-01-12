@@ -78,8 +78,8 @@ void MPGDTrackerDigi::init() {
         m_seg =    m_detector->readout(m_cfg.readout).segmentation();
         m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
     } catch (...) {
-	critical("Failed to load ID decoder for \"{}\" readout.", m_cfg.readout);
-	throw JException("Failed to load ID decoder");
+        critical("Failed to load ID decoder for \"{}\" readout.", m_cfg.readout);
+        throw JException("Failed to load ID decoder");
     }
     // Method "process" relies on a strict assumption on the IDDescriptor:
     // - Must have a "strip" field.
@@ -87,7 +87,7 @@ void MPGDTrackerDigi::init() {
     // Let's check.
     if (m_id_dec->get(((CellID)0x3)<<30,"strip") != 0x3) {
         critical("Missing or invalid \"strip\" field in IDDescriptor for \"{}\" readout.",
-		 m_cfg.readout);
+                 m_cfg.readout);
         throw JException("Invalid IDDescriptor");
     }
     debug("Find valid \"strip\" field in IDDescriptor for \"{}\" readout.",
