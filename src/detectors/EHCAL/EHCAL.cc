@@ -71,8 +71,7 @@ extern "C" {
           "HcalEndcapNMergedHits", {"HcalEndcapNRecHits"}, {"HcalEndcapNMergedHits"},
           {
             .readout = "HcalEndcapNHits",
-            .fields = {"layer", "slice"},
-            .refs = {4, 0}, // place merged hits at ~1 interaction length deep
+            .fieldTransformations = {"layer:4", "slice:0"}
           },
           app   // TODO: Remove me once fixed
         ));
