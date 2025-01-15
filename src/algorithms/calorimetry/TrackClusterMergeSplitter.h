@@ -6,7 +6,10 @@
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_VERSION_MAJOR >= 8
 #include <edm4eic/TrackClusterMatchCollection.h>
+#endif
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
