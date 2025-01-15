@@ -12,6 +12,7 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
@@ -66,6 +67,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
+
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
           "HcalBarrelRecHits", {"HcalBarrelRawHits"}, {"HcalBarrelRecHits"},
           {
@@ -83,10 +85,25 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
+
+        // --------------------------------------------------------------------
+        // If needed, merge adjacent phi tiles into towers. By default,
+        // NO merging will be done. This can be changed at runtime.
+        // --------------------------------------------------------------------
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
+          "HcalBarrelMergedHits", {"HcalBarrelRecHits"}, {"HcalBarrelMergedHits"},
+          {
+            .readout = "HcalBarrelHits",
+            .fieldTransformations = {"phi:phi"}
+          },
+          app   // TODO: Remove me once fixed
+        ));
+
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "HcalBarrelTruthProtoClusters", {"HcalBarrelRecHits", "HcalBarrelHits"}, {"HcalBarrelTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
+
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
           {
@@ -179,5 +196,6 @@ extern "C" {
             app   // TODO: Remove me once fixed
           )
         );
+
     }
 }
