@@ -61,9 +61,10 @@ namespace eicrecon {
   }
 
   inline
+  template<Vector3>
   PxPyPzEVector
   round_beam_four_momentum(
-      const edm4hep::Vector3f& p_in,
+      const Vector3& p_in,
       const float mass,
       const std::vector<float>& pz_set,
       const float crossing_angle = 0.0) {
