@@ -119,7 +119,7 @@ namespace eicrecon {
       void get_projections(const edm4eic::TrackSegmentCollection* projections, VecProj& relevant_projects) const;
       void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters, const VecProj& projections, MapToVecProj& matches) const;
       void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, edm4eic::ClusterCollection* out_clusters) const;
-      edm4eic::MutableCluster merge_clusters(const VecClust& old_clusts) const;
+      void merge_clusters(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust) const;
 
       // calorimeter id
       int m_idCalo {0};

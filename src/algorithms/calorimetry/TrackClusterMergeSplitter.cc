@@ -333,8 +333,8 @@ namespace eicrecon {
 
     // if only 1 matched track, no need to split
     if (to_split.size() == 1) {
-      edm4eic::MutableCluster new_clust = merge_clusters(to_merge);
-      out_clusters->push_back(new_clust);
+      edm4eic::MutableCluster new_clust = out_clusters->create();
+      merge_clusters(to_merge, new_clust);
       return;
     }
 
@@ -403,11 +403,10 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   /* FIXME I might also need to optionally provide the projection here */
   /* FIXME work on variable names... */
-  edm4eic::MutableCluster TrackClusterMergeSplitter::merge_clusters(const VecClust& old_clusts) const {
-
-    // create new cluster to merge
-    // into
-    edm4eic::MutableCluster new_clust;
+  void TrackClusterMergeSplitter::merge_clusters(
+    const VecClust& old_clusts,
+    edm4eic::MutableCluster& new_clust
+  ) const {
 
     // determine total no. of hits
     std::size_t nHits = 0;
@@ -456,7 +455,6 @@ namespace eicrecon {
     new_clust.setTimeError(0.);
     new_clust.setPosition(rClust);
     new_clust.setPositionError({});
-    return new_clust;
 
   }  // end 'merge_cluster(VecClust&)'
 
