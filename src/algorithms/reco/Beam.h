@@ -60,7 +60,6 @@ namespace eicrecon {
     return find_first_with_pdg(rcparts, {11});
   }
 
-  inline
   template<Vector3>
   PxPyPzEVector
   round_beam_four_momentum(
