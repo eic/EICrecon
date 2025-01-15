@@ -10,6 +10,7 @@
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include <edm4eic/TrackClusterMatchCollection.h>
 #endif
+#include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
@@ -55,9 +56,11 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   using MatrixF = std::vector<std::vector<float>>;
   using VecMatrix = std::vector<MatrixF>;
+  using VecTrk = std::vector<edm4eic::Track>;
   using VecProj = std::vector<edm4eic::TrackPoint>;
   using VecClust = std::vector<edm4eic::Cluster>;
   using SetClust = std::set<edm4eic::Cluster, CompareClust>;
+  using MapToVecTrk = std::map<edm4eic::Cluster, VecTrk, CompareClust>;
   using MapToVecProj = std::map<edm4eic::Cluster, VecProj, CompareClust>;
   using MapToVecClust = std::map<edm4eic::Cluster, VecClust, CompareClust>;
 
@@ -119,9 +122,9 @@ namespace eicrecon {
     private:
 
       // private methods
-      void get_projections(const edm4eic::TrackSegmentCollection* projections, VecProj& relevant_projects) const;
-      void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters, const VecProj& projections, MapToVecProj& matches) const;
-      void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, edm4eic::ClusterCollection* out_clusters) const;
+      void get_projections(const edm4eic::TrackSegmentCollection* projections, VecProj& relevant_projects, VecTrk& relevant_trks) const;
+      void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters, const VecProj& projections, const VecTrk& tracks, MapToVecProj& matched_projects, MapToVecTrk& matched_tracks) const;
+      void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, std::vector<edm4eic::MutableCluster>& new_clusters) const;
       void make_cluster(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust, std::optional<MatrixF> split_weights = std::nullopt) const;
 
       // calorimeter id

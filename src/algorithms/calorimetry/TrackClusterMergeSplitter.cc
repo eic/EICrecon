@@ -12,9 +12,6 @@
 #include <cstddef>
 #include <gsl/pointers>
 
-// TEST
-#include <iostream>
-
 // algorithm definition
 #include "TrackClusterMergeSplitter.h"
 #include "algorithms/calorimetry/TrackClusterMergeSplitterConfig.h"
@@ -70,7 +67,7 @@ namespace eicrecon {
     // grab inputs/outputs
     const auto [in_clusters, in_projections] = input;
 #if EDM4EIC_VERSION_MAJOR >= 8
-    auto [out_clusters, out_trackClusterMatches] = output;
+    auto [out_clusters, out_matches] = output;
 #else
     auto [out_clusters] = output;
 #endif
@@ -84,18 +81,20 @@ namespace eicrecon {
     // ------------------------------------------------------------------------
     // 1. Identify projections to calorimeter
     // ------------------------------------------------------------------------
+    VecTrk  vecTrack;
     VecProj vecProject;
-    get_projections(in_projections, vecProject);
+    get_projections(in_projections, vecProject, vecTrack);
 
     // ------------------------------------------------------------------------
     // 2. Match relevant projections to clusters
     // ------------------------------------------------------------------------
+    MapToVecTrk  mapTrkToMatch;
     MapToVecProj mapProjToSplit;
     if (vecProject.size() == 0) {
       debug("No projections to match clusters to.");
       return;
     } else {
-      match_clusters_to_tracks(in_clusters, vecProject, mapProjToSplit);
+      match_clusters_to_tracks(in_clusters, vecProject, vecTrack, mapProjToSplit, mapTrkToMatch);
     }
 
     // ------------------------------------------------------------------------
@@ -199,11 +198,30 @@ namespace eicrecon {
     //    each track pointing to merged cluster
     // ------------------------------------------------------------------------
     for (auto& [clustSeed, vecClustToMerge] : mapClustToMerge) {
+
+      // create a cluster for each projection to merged cluster
+      std::vector<edm4eic::MutableCluster> new_clusters;
+      for (const auto& proj : mapProjToSplit[clustSeed]) {
+        new_clusters.push_back( out_clusters->create() );
+      }
+
+      // merge & split as needed 
       merge_and_split_clusters(
         vecClustToMerge,
         mapProjToSplit[clustSeed],
-        out_clusters
+        new_clusters
       );
+
+#if EDM4EIC_VERSION_MAJOR >= 8
+      // and finally create a track-cluster match for each pair
+      for (std::size_t iTrk = 0; const auto& trk : mapTrkToMatch[clustSeed]) {
+        edm4eic::MutableTrackClusterMatch match = out_matches->create();
+        match.setCluster( new_clusters[iTrk] );
+        match.setTrack( trk );
+        match.setWeight( 1.0 );  // FIXME placeholder
+        trace("Matched output cluster {} to track {}", new_clusters[iTrk].getObjectID().index, trk.getObjectID().index);
+      }
+#endif
     }  // end clusters to merge loop
 
     // ------------------------------------------------------------------------
@@ -223,7 +241,6 @@ namespace eicrecon {
         in_cluster.getObjectID().index,
         out_cluster.getObjectID().index
       );
-
     }  // end cluster loop
 
   }  // end 'process(Input&, Output&)'
@@ -233,9 +250,12 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Collect projections pointing to calorimeter
   // --------------------------------------------------------------------------
+  /*! FIXME remove this once cluster-track matching has been centralized
+   */
   void TrackClusterMergeSplitter::get_projections(
     const edm4eic::TrackSegmentCollection* projections,
-    VecProj& relevant_projects
+    VecProj& relevant_projects,
+    VecTrk& relevant_trks
   ) const {
 
     // return if projections are empty
@@ -252,6 +272,8 @@ namespace eicrecon {
           (point.surface == 1)
         ) {
           relevant_projects.push_back(point);
+          relevant_trks.push_back(project.getTrack());
+          break;
         }
       }  // end point loop
     }  // end projection loop
@@ -269,7 +291,9 @@ namespace eicrecon {
   void TrackClusterMergeSplitter::match_clusters_to_tracks(
     const edm4eic::ClusterCollection* clusters,
     const VecProj& projections,
-    MapToVecProj& matches
+    const VecTrk& tracks,
+    MapToVecProj& matched_projects,
+    MapToVecTrk& matched_tracks
   ) const {
 
 
@@ -311,13 +335,14 @@ namespace eicrecon {
 
       // record match if found
       if (foundMatch) {
-        matches[match].push_back(project);
+        matched_projects[match].push_back(project);
+        matched_tracks[match].push_back(tracks[iProject]);
         trace("Matched cluster to track projection: eta-phi distance = {}", dMatch);
       }
-    }  // end cluster loop
-    debug("Finished matching clusters to track projections: {} matches", matches.size());
+    }  // end projection loop
+    debug("Finished matching clusters to track projections: {} matches", matched_projects.size());
 
-  }  // end 'match_clusters_to_tracks(edm4eic::ClusterCollection*, VecTrkPoint&, MapToVecProj&)'
+  }  // end 'match_clusters_to_tracks(edm4eic::ClusterCollection*, VecProj&, VecTrk&, MapToVecProj&, MapToVecTrk&)'
 
 
 
@@ -331,22 +356,18 @@ namespace eicrecon {
   void TrackClusterMergeSplitter::merge_and_split_clusters(
     const VecClust& to_merge,
     const VecProj& to_split,
-    edm4eic::ClusterCollection* out_clusters
+    std::vector<edm4eic::MutableCluster>& new_clusters
   ) const {
 
     // if only 1 matched track, no need to split
+    // otherwise split merged cluster for each
+    // matched track
     if (to_split.size() == 1) {
-      edm4eic::MutableCluster new_clust = out_clusters->create();
-      make_cluster(to_merge, new_clust);
+      make_cluster(to_merge, new_clusters.front());
       return;
+    } else {
+      trace("Splitting merged cluster across {} tracks", to_split.size());
     }
-
-    // otherwise split merged cluster for each matched track
-    std::vector<edm4eic::MutableCluster> new_clusters;
-    for (const auto& proj : to_split) {
-      new_clusters.push_back( out_clusters->create() );
-    }
-    trace("Splitting merged cluster across {} tracks", to_split.size());
 
     // calculate weights for splitting
     VecMatrix weights(to_split.size(), MatrixF(to_merge.size()));
@@ -400,7 +421,7 @@ namespace eicrecon {
      ++iProj;
    }
 
-  }  // end 'merge_and_split_clusters(VecClust&, VecProj&, edm4eic::MutableCluster&)'
+  }  // end 'merge_and_split_clusters(VecClust&, VecProj&, std::vector<edm4eic::MutableCluster>&)'
 
 
 
