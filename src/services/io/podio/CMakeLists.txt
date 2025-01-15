@@ -42,13 +42,12 @@ add_custom_command(
     EDM4EIC_INCLUDE_DIR=${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}
   MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/make_datamodel_glue.py
   DEPENDS ${EDM_VERSION_INCLUDES}
-  COMMENT Create datamodel glue headers)
+  COMMENT "Create datamodel glue headers")
 add_custom_target(
   podio_datamodel_glue
   DEPENDS
     ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
-  COMMENT Create
-  datamodel glue headers)
+  COMMENT "Create datamodel glue headers")
 
 plugin_add_dependencies(${PLUGIN_NAME} podio_datamodel_glue)
 
