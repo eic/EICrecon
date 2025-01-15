@@ -73,7 +73,6 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
 
   using Propagator        = Acts::Propagator<Acts::EigenStepper<>>;
-  using PropagatorOptions = Acts::PropagatorOptions<>;
 #if Acts_VERSION_MAJOR >= 33
   using Linearizer        = Acts::HelicalTrackLinearizer;
   using VertexFitter      = Acts::FullBilloirVertexFitter;
@@ -102,7 +101,6 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   auto propagator = std::make_shared<Propagator>(
     stepper, Acts::detail::VoidNavigator{}, logger().cloneWithSuffix("Prop"));
 #endif
-  Acts::PropagatorOptions opts(m_geoctx, m_fieldctx);
 
   // Setup the track linearizer
 #if Acts_VERSION_MAJOR >= 33
