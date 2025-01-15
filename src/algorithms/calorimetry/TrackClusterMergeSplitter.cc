@@ -205,7 +205,7 @@ namespace eicrecon {
         new_clusters.push_back( out_clusters->create() );
       }
 
-      // merge & split as needed 
+      // merge & split as needed
       merge_and_split_clusters(
         vecClustToMerge,
         mapProjToSplit[clustSeed],
