@@ -16,6 +16,7 @@
 #include <podio/ObjectID.h>
 #include <algorithm>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
@@ -52,6 +53,8 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Convenience types
   // --------------------------------------------------------------------------
+  using MatrixF = std::vector<std::vector<float>>;
+  using VecMatrix = std::vector<MatrixF>;
   using VecProj = std::vector<edm4eic::TrackPoint>;
   using VecClust = std::vector<edm4eic::Cluster>;
   using SetClust = std::set<edm4eic::Cluster, CompareClust>;
@@ -119,7 +122,7 @@ namespace eicrecon {
       void get_projections(const edm4eic::TrackSegmentCollection* projections, VecProj& relevant_projects) const;
       void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters, const VecProj& projections, MapToVecProj& matches) const;
       void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, edm4eic::ClusterCollection* out_clusters) const;
-      void merge_clusters(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust) const;
+      void make_cluster(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust, std::optional<MatrixF> split_weights = std::nullopt) const;
 
       // calorimeter id
       int m_idCalo {0};

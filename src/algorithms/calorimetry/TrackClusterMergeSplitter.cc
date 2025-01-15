@@ -12,6 +12,9 @@
 #include <cstddef>
 #include <gsl/pointers>
 
+// TEST
+#include <iostream>
+
 // algorithm definition
 #include "TrackClusterMergeSplitter.h"
 #include "algorithms/calorimetry/TrackClusterMergeSplitterConfig.h"
@@ -334,7 +337,7 @@ namespace eicrecon {
     // if only 1 matched track, no need to split
     if (to_split.size() == 1) {
       edm4eic::MutableCluster new_clust = out_clusters->create();
-      merge_clusters(to_merge, new_clust);
+      make_cluster(to_merge, new_clust);
       return;
     }
 
@@ -345,13 +348,17 @@ namespace eicrecon {
     }
     trace("Splitting merged cluster across {} tracks", to_split.size());
 
-    // loop over all hits from all clusters to merge
-    /* FIXME this needs some care... */
-    std::vector<float> weights( to_split.size(), 1. );
-    for (const auto& old_clust : to_merge) {
-      for (const auto& hit : old_clust.getHits()) {
+    // calculate weights for splitting
+    VecMatrix weights(to_split.size(), MatrixF(to_merge.size()));
+    for (std::size_t iClust = 0; const auto& old_clust : to_merge) {
 
-        // calculate hit's weight for each track
+      // set aside enough space for each hit
+      for (std::size_t iProj = 0; iProj < to_split.size(); ++iProj) {
+        weights[iProj][iClust].resize( old_clust.getHits().size() );
+      }
+
+      // now loop through each combination of projection & hit
+      for (std::size_t iHit = 0; const auto& hit : old_clust.getHits()) {
         for (std::size_t iProj = 0; const auto& proj : to_split) {
 
           // get track eta, phi
@@ -370,42 +377,40 @@ namespace eicrecon {
           );
 
           // set weight
-          weights[iProj] = std::exp(-1. * dist / m_cfg.transverseEnergyProfileScale) * mom;
+          weights[iProj][iClust][iHit] = std::exp(-1. * dist / m_cfg.transverseEnergyProfileScale) * mom ;
           ++iProj;
         }
 
-        // normalize weights
+        // normalize weights over all projections
         float wTotal = 0.;
-        for (const float weight : weights) {
-          wTotal += weight;
+        for (const MatrixF& matrix : weights) {
+          wTotal += matrix[iClust][iHit];
         }
-        for (float& weight : weights) {
-          weight /= wTotal;
+        for (MatrixF& matrix : weights) {
+          matrix[iClust][iHit] /= wTotal;
         }
-
-        // add hit to each split merged cluster w/ relevant weight
-        /* TODO weights, energy, etc. will need to be recalculated */
-        for (std::size_t iProj = 0; auto& new_clust : new_clusters) {
-          new_clust.addToHits( hit );
-          new_clust.addToHitContributions( hit.getEnergy() * weights[iProj] );
-          ++iProj;
-        }
-
+        ++iHit;
       }  // end hits to merge loop
+      ++iClust;
     }  // end clusters to merge loop
+
+   // make new clusters with relevant splitting weights
+   for (std::size_t iProj = 0; auto& new_clust : new_clusters) {
+     make_cluster(to_merge, new_clust, weights[iProj]);
+     ++iProj;
+   }
 
   }  // end 'merge_and_split_clusters(VecClust&, VecProj&, edm4eic::MutableCluster&)'
 
 
 
   // --------------------------------------------------------------------------
-  //! Merge clusters
+  //! Make new cluster out of old ones
   // --------------------------------------------------------------------------
-  /* FIXME I might also need to optionally provide the projection here */
-  /* FIXME work on variable names... */
-  void TrackClusterMergeSplitter::merge_clusters(
+  void TrackClusterMergeSplitter::make_cluster(
     const VecClust& old_clusts,
-    edm4eic::MutableCluster& new_clust
+    edm4eic::MutableCluster& new_clust,
+    std::optional<MatrixF> split_weights
   ) const {
 
     // determine total no. of hits
@@ -418,13 +423,14 @@ namespace eicrecon {
     float eClust = 0.;
     float wClust = 0.;
     float tClust = 0.;
-    for (const auto& old_clust : old_clusts) {
+    for (std::size_t iClust = 0; const auto& old_clust : old_clusts) {
       for (std::size_t iHit = 0; const auto& hit : old_clust.getHits()) {
 
-        const float weight = old_clust.getHitContributions()[iHit] / hit.getEnergy();
-        /* FIXME this needs some care: how should weights
-         * get updated when merging?
-         */
+        // get weight and update if needed
+        float weight = old_clust.getHitContributions()[iHit] / hit.getEnergy();
+        if (split_weights.has_value()) {
+          weight *= split_weights.value()[iClust][iHit];
+        }
 
         // update running tallies
         eClust += hit.getEnergy() * weight;
@@ -437,6 +443,7 @@ namespace eicrecon {
         ++iHit;
       }  // end hit loop
       trace("Merged input cluster {} into output cluster {}", old_clust.getObjectID().index, new_clust.getObjectID().index);
+      ++iClust;
     }  // end cluster loop
 
     // update cluster position by taking energy-weighted
