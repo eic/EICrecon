@@ -137,8 +137,10 @@ namespace eicrecon {
 
         for (const auto& meas2D : meas2Ds) {
 
+            Acts::GeometryIdentifier geoId = meas2D.getSurface();
+
             // --follow example from ACTS to create source links
-            sourceLinkStorage.emplace_back(meas2D.getSurface(), hit_index);
+            sourceLinkStorage.emplace_back(geoId, hit_index);
             ActsExamples::IndexSourceLink& sourceLink = sourceLinkStorage.back();
             // Add to output containers:
             // index map and source link container are geometry-ordered.
@@ -158,7 +160,20 @@ namespace eicrecon {
             cov(0, 1) = meas2D.getCovariance().xy;
             cov(1, 0) = meas2D.getCovariance().xy;
 
-#if Acts_VERSION_MAJOR > 36 || (Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR >= 1)
+#if Acts_VERSION_MAJOR >= 37
+            std::array<Acts::BoundIndices, 2> indices = {Acts::eBoundLoc0, Acts::eBoundLoc1};
+            Acts::visit_measurement(
+              indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
+                ActsExamples::FixedBoundMeasurementProxy<dim> measurement =
+                  measurements->makeMeasurement<dim>();
+                measurement.setSourceLink(sourceLink);
+                measurement.setSubspaceIndices(indices);
+                measurement.parameters() = loc;
+                measurement.covariance() = cov;
+                return measurement;
+              }
+            );
+#elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR >= 1
             auto measurement = ActsExamples::makeVariableSizeMeasurement(
               Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
             measurements->emplace_back(std::move(measurement));
