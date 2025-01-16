@@ -7,6 +7,8 @@
 #include <string>
 // dd4hep utilities
 #include <DD4hep/Detector.h>
+// edm utilities
+#include <edm4eic/EDM4eicVersion.h>
 // eicrecon components
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
