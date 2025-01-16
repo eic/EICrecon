@@ -294,6 +294,7 @@ namespace eicrecon {
                 auto extrapolationResult = Acts::extrapolateTrackToReferenceSurface(
                     track, *pSurface, extrapolator, extrapolationOptions,
                     Acts::TrackExtrapolationStrategy::firstOrLast, logger());
+
                 if (!extrapolationResult.ok()) {
                     ACTS_ERROR("Extrapolation for seed "
                         << iseed << " and track " << track.index()
@@ -371,6 +372,11 @@ namespace eicrecon {
           }
 
           lastSeed = constSeedNumber(track);
+
+          if (!track.hasReferenceSurface()) {
+            ACTS_WARNING("Track has no reference surface.");
+            continue;
+          }
 
           tips.push_back(track.tipIndex());
           parameters.emplace(
