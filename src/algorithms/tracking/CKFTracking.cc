@@ -130,8 +130,10 @@ namespace eicrecon {
 
           // need list here for stable addresses
         std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
         ActsExamples::IndexSourceLinkContainer src_links;
         src_links.reserve(meas2Ds.size());
+#endif
         std::size_t  hit_index = 0;
 
 
@@ -146,13 +148,14 @@ namespace eicrecon {
             // index map and source link container are geometry-ordered.
             // since the input is also geometry-ordered, new items can
             // be added at the end.
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
             src_links.insert(src_links.end(), sourceLink);
+#endif
             // ---
             // Create ACTS measurements
             Acts::Vector2 loc = Acts::Vector2::Zero();
             loc[Acts::eBoundLoc0] = meas2D.getLoc().a;
             loc[Acts::eBoundLoc1] = meas2D.getLoc().b;
-
 
             Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
             cov(0, 0) = meas2D.getCovariance().xx;
@@ -160,7 +163,14 @@ namespace eicrecon {
             cov(0, 1) = meas2D.getCovariance().xy;
             cov(1, 0) = meas2D.getCovariance().xy;
 
-#if Acts_VERSION_MAJOR >= 37
+#if Acts_VERSION_MAJOR > 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR >= 1)
+            std::array<Acts::BoundIndices, 2> indices = {Acts::eBoundLoc0, Acts::eBoundLoc1};
+            Acts::visit_measurement(
+              indices.size(), [&](auto dim) -> ActsExamples::FixedBoundMeasurementProxy<6> {
+                return measurements->emplaceMeasurement<dim>(sourceLink, indices, loc, cov);
+              }
+            );
+#elif Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR == 0
             std::array<Acts::BoundIndices, 2> indices = {Acts::eBoundLoc0, Acts::eBoundLoc1};
             Acts::visit_measurement(
               indices.size(), [&](auto dim) -> ActsExamples::FixedBoundMeasurementProxy<6> {
@@ -262,7 +272,11 @@ namespace eicrecon {
                 &measSel);
 
         ActsExamples::IndexSourceLinkAccessor slAccessor;
+#if Acts_VERSION_MAJOR >= 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR >= 1)
+        slAccessor.container = &measurements->orderedIndices();
+#else
         slAccessor.container = &src_links;
+#endif
         Acts::SourceLinkAccessorDelegate<ActsExamples::IndexSourceLinkAccessor::Iterator>
                 slAccessorDelegate;
         slAccessorDelegate.connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
