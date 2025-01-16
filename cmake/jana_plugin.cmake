@@ -107,6 +107,17 @@ macro(plugin_add _name)
   endif()
 endmacro()
 
+# add_dependencies for both a plugin and a library
+macro(plugin_add_dependencies _name)
+  if(${_name}_WITH_PLUGIN)
+    add_dependencies(${_name}_plugin ${ARGN})
+  endif(${_name}_WITH_PLUGIN)
+
+  if(${_name}_WITH_LIBRARY)
+    add_dependencies(${_name}_library ${ARGN})
+  endif(${_name}_WITH_LIBRARY)
+endmacro()
+
 # target_link_libraries for both a plugin and a library
 macro(plugin_link_libraries _name)
   if(${_name}_WITH_PLUGIN)
