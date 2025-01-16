@@ -138,15 +138,20 @@ public:
     void setOutputDir(std::string dir) { m_outputDir = dir; }
     std::string getOutputDir() const { return m_outputDir; }
 
-    void setContainerView(std::array<int,3> view) { m_containerView = Acts::ViewConfig{view}; }
+#if Acts_VERSION_MAJOR >= 37
+    using Color = Acts::Color;
+#else
+    using Color = Acts::ColorRGB;
+#endif
+    void setContainerView(std::array<int,3> c) { m_containerView.color = Color(c); }
     const Acts::ViewConfig& getContainerView() const { return m_containerView; }
-    void setVolumeView(std::array<int,3> view) { m_volumeView = Acts::ViewConfig{view}; }
+    void setVolumeView(std::array<int,3> c) { m_volumeView.color = Color(c); }
     const Acts::ViewConfig& getVolumeView() const { return m_volumeView; }
-    void setSensitiveView(std::array<int,3> view) { m_sensitiveView = Acts::ViewConfig{view}; }
+    void setSensitiveView(std::array<int,3> c) { m_sensitiveView.color = Color(c); }
     const Acts::ViewConfig& getSensitiveView() const { return m_sensitiveView; }
-    void setPassiveView(std::array<int,3> view) { m_passiveView = Acts::ViewConfig{view}; }
+    void setPassiveView(std::array<int,3> c) { m_passiveView.color = Color(c); }
     const Acts::ViewConfig& getPassiveView() const { return m_passiveView; }
-    void setGridView(std::array<int,3> view) { m_gridView = Acts::ViewConfig{view}; }
+    void setGridView(std::array<int,3> c) { m_gridView.color = Color(c); }
     const Acts::ViewConfig& getGridView() const { return m_gridView; }
 
 };
