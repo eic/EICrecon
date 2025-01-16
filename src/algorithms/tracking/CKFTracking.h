@@ -41,9 +41,15 @@ namespace eicrecon {
     public:
         /// Track finder function that takes input measurements, initial trackstate
         /// and track finder options and returns some track-finder-specific result.
+#if Acts_VERSION_MAJOR >= 36
+        using TrackFinderOptions =
+            Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
+                                                   ActsExamples::TrackContainer>;
+#else
         using TrackFinderOptions =
             Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
                                                    Acts::VectorMultiTrajectory>;
+#endif
         using TrackFinderResult =
             Acts::Result<std::vector<ActsExamples::TrackContainer::TrackProxy>>;
 

@@ -6,8 +6,10 @@
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
+#if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
+#endif
 #include <Acts/Geometry/Layer.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Geometry/TrackingVolume.hpp>
@@ -38,12 +40,17 @@ namespace eicrecon{
   using Navigator  = Acts::Navigator;
   using Propagator = Acts::Propagator<Stepper, Navigator>;
 
+#if Acts_VERSION_MAJOR >= 36
+  using CKF =
+      Acts::CombinatorialKalmanFilter<Propagator, ActsExamples::TrackContainer>;
+#else
   using CKF =
       Acts::CombinatorialKalmanFilter<Propagator, Acts::VectorMultiTrajectory>;
 
   using TrackContainer =
       Acts::TrackContainer<Acts::VectorTrackContainer,
                            Acts::VectorMultiTrajectory, std::shared_ptr>;
+#endif
 
   /** Finder implementation .
    *
@@ -58,7 +65,11 @@ namespace eicrecon{
     eicrecon::CKFTracking::TrackFinderResult operator()(
         const ActsExamples::TrackParameters& initialParameters,
         const eicrecon::CKFTracking::TrackFinderOptions& options,
+#if Acts_VERSION_MAJOR >= 36
+        ActsExamples::TrackContainer& tracks) const override {
+#else
         TrackContainer& tracks) const override {
+#endif
       return trackFinder.findTracks(initialParameters, options, tracks);
     };
   };
