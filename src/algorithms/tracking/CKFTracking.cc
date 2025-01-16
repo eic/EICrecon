@@ -138,8 +138,10 @@ namespace eicrecon {
 
           // need list here for stable addresses
         std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
         ActsExamples::IndexSourceLinkContainer src_links;
         src_links.reserve(meas2Ds.size());
+#endif
         std::size_t  hit_index = 0;
 
 
@@ -154,7 +156,9 @@ namespace eicrecon {
             // index map and source link container are geometry-ordered.
             // since the input is also geometry-ordered, new items can
             // be added at the end.
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
             src_links.insert(src_links.end(), sourceLink);
+#endif
             // ---
             // Create ACTS measurements
             std::array<Acts::BoundIndices, 2> indices{Acts::eBoundLoc0, Acts::eBoundLoc1};
@@ -169,7 +173,19 @@ namespace eicrecon {
             cov(0, 1) = meas2D.getCovariance().xy;
             cov(1, 0) = meas2D.getCovariance().xy;
 
-#if Acts_VERSION_MAJOR >= 37
+#if Acts_VERSION_MAJOR > 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR >= 1)
+            Acts::visit_measurement(
+              indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
+                if constexpr (dim == indices.size()) {
+                  return ActsExamples::VariableBoundMeasurementProxy{
+                    measurements->emplaceMeasurement<dim>(geoId, indices, loc, cov)
+                  };
+                } else {
+                  throw std::runtime_error("Dimension not supported in measurement creation");
+                }
+              }
+            );
+#elif Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR == 0
             Acts::visit_measurement(
               indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
                 if constexpr (dim == indices.size()) {
@@ -276,7 +292,11 @@ namespace eicrecon {
                 &measSel);
 
         ActsExamples::IndexSourceLinkAccessor slAccessor;
+#if Acts_VERSION_MAJOR > 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR >= 1)
+        slAccessor.container = &measurements->orderedIndices();
+#else
         slAccessor.container = &src_links;
+#endif
         Acts::SourceLinkAccessorDelegate<ActsExamples::IndexSourceLinkAccessor::Iterator>
                 slAccessorDelegate;
         slAccessorDelegate.connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
