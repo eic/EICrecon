@@ -160,14 +160,19 @@ namespace eicrecon {
             cov(0, 1) = meas2D.getCovariance().xy;
             cov(1, 0) = meas2D.getCovariance().xy;
 
-#if Acts_VERSION_MAJOR >= 36
+#if Acts_VERSION_MAJOR > 36 || (Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR >= 1)
+            auto measurement = ActsExamples::makeVariableSizeMeasurement(
+              Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
+            measurements->emplace_back(std::move(measurement));
+#elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR == 0
             auto measurement = ActsExamples::makeFixedSizeMeasurement(
               Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
+            measurements->emplace_back(std::move(measurement));
 #else
             auto measurement = Acts::makeMeasurement(
               Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-#endif
             measurements->emplace_back(std::move(measurement));
+#endif
 
             hit_index++;
         }
