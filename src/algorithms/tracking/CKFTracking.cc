@@ -163,14 +163,8 @@ namespace eicrecon {
 #if Acts_VERSION_MAJOR >= 37
             std::array<Acts::BoundIndices, 2> indices = {Acts::eBoundLoc0, Acts::eBoundLoc1};
             Acts::visit_measurement(
-              indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
-                ActsExamples::FixedBoundMeasurementProxy<dim> measurement =
-                  measurements->makeMeasurement<dim>();
-                measurement.setSourceLink(sourceLink);
-                measurement.setSubspaceIndices(indices);
-                measurement.parameters() = loc;
-                measurement.covariance() = cov;
-                return measurement;
+              indices.size(), [&](auto dim) -> ActsExamples::FixedBoundMeasurementProxy<6> {
+                return measurements->emplaceMeasurement<dim>(sourceLink, indices, loc, cov);
               }
             );
 #elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR >= 1
