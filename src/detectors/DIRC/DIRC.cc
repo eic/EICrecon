@@ -1,14 +1,8 @@
-// Copyright 2022,2023 Christopher Dilks, Nilanga Wickramaarachchi
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, Dmitry Kalinkin
+// Copyright (C) 2022 - 2025 Christopher Dilks, Nilanga Wickramaarachchi, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
-#include <stddef.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
