@@ -11,7 +11,6 @@
 #include <Acts/EventData/TrackStateProxy.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/Layer.hpp>
-#include <Acts/Propagator/ActionList.hpp>
 #include <boost/container/vector.hpp>
 #include <boost/move/utility_core.hpp>
 #if Acts_VERSION_MAJOR < 36
@@ -28,12 +27,20 @@
 
 #include "Acts/EventData/ProxyAccessor.hpp"
 #if Acts_VERSION_MAJOR >= 34
+#if Acts_VERSION_MAJOR >= 37
+#include "Acts/Propagator/ActorList.hpp"
+#else
 #include "Acts/Propagator/AbortList.hpp"
+#include <Acts/Propagator/ActionList.hpp>
+#endif
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/MaterialInteractor.hpp"
 #include "Acts/Propagator/Navigator.hpp"
 #endif
 #include <Acts/Propagator/Propagator.hpp>
+#if Acts_VERSION_MAJOR >= 36
+#include "Acts/Propagator/PropagatorOptions.hpp"
+#endif
 #if Acts_VERSION_MAJOR >= 34
 #include "Acts/Propagator/StandardAborters.hpp"
 #endif
@@ -211,7 +218,11 @@ namespace eicrecon {
 
         ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("CKF", m_log, {"^No tracks found$"}));
 
+#if Acts_VERSION_MAJOR >= 36
+        Acts::PropagatorPlainOptions pOptions(m_geoctx, m_fieldctx);
+#else
         Acts::PropagatorPlainOptions pOptions;
+#endif
         pOptions.maxSteps = 10000;
 
         ActsExamples::PassThroughCalibrator pcalibrator;
@@ -222,13 +233,25 @@ namespace eicrecon {
 #endif
         Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
+#if Acts_VERSION_MAJOR >= 36
+        Acts::CombinatorialKalmanFilterExtensions<ActsExamples::TrackContainer>
+                extensions;
+#else
         Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory>
                 extensions;
+#endif
         extensions.calibrator.connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
                 &calibrator);
+#if Acts_VERSION_MAJOR >= 36
+        extensions.updater.connect<
+                &Acts::GainMatrixUpdater::operator()<
+                typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(
+                &kfUpdater);
+#else
         extensions.updater.connect<
                 &Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
                 &kfUpdater);
+#endif
 #if Acts_VERSION_MAJOR < 34
         extensions.smoother.connect<
                 &Acts::GainMatrixSmoother::operator()<Acts::VectorMultiTrajectory>>(
@@ -255,13 +278,29 @@ namespace eicrecon {
                 extensions, pOptions);
 #endif
 
-#if Acts_VERSION_MAJOR >= 34
+#if Acts_VERSION_MAJOR >= 36
+        using Extrapolator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+# if Acts_VERSION_MAJOR >= 37
+        using ExtrapolatorOptions =
+            Extrapolator::template Options<Acts::ActorList<Acts::MaterialInteractor,
+                                                           Acts::EndOfWorldReached>>;
+# else
+        using ExtrapolatorOptions =
+            Extrapolator::template Options<Acts::ActionList<Acts::MaterialInteractor>,
+                                           Acts::AbortList<Acts::EndOfWorldReached>>;
+# endif
+        Extrapolator extrapolator(
+            Acts::EigenStepper<>(m_BField),
+            Acts::Navigator({m_geoSvc->trackingGeometry()},
+                            logger().cloneWithSuffix("Navigator")),
+            logger().cloneWithSuffix("Propagator"));
+        ExtrapolatorOptions extrapolationOptions(m_geoctx, m_fieldctx);
+#elif Acts_VERSION_MAJOR >= 34
         Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> extrapolator(
             Acts::EigenStepper<>(m_BField),
             Acts::Navigator({m_geoSvc->trackingGeometry()},
                             logger().cloneWithSuffix("Navigator")),
             logger().cloneWithSuffix("Propagator"));
-
         Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>,
                                 Acts::AbortList<Acts::EndOfWorldReached>>
             extrapolationOptions(m_geoctx, m_fieldctx);
