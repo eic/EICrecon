@@ -57,7 +57,7 @@ void SiliconTrackerDigi::process(
         debug("   time = {:.4f}[ns]", sim_hit.getTime());
 #if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
         debug("   particle time = {}[ns]", sim_hit.getParticle().getTime());
-#else 
+#else
         debug("   particle time = {}[ns]", sim_hit.getMCParticle().getTime());
 #endif
         debug("   time smearing: {:.4f}, resulting time = {:.4f} [ns]", time_smearing, result_time);
