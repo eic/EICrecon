@@ -72,17 +72,17 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
 
-  using Propagator        = Acts::Propagator<Acts::EigenStepper<>>;
+  using Propagator = Acts::Propagator<Acts::EigenStepper<>>;
 #if Acts_VERSION_MAJOR >= 33
-  using Linearizer        = Acts::HelicalTrackLinearizer;
-  using VertexFitter      = Acts::FullBilloirVertexFitter;
+  using Linearizer           = Acts::HelicalTrackLinearizer;
+  using VertexFitter         = Acts::FullBilloirVertexFitter;
   using ImpactPointEstimator = Acts::ImpactPointEstimator;
   using VertexSeeder         = Acts::ZScanVertexFinder;
   using VertexFinder         = Acts::IterativeVertexFinder;
   using VertexFinderOptions  = Acts::VertexingOptions;
 #else
-  using Linearizer        = Acts::HelicalTrackLinearizer<Propagator>;
-  using VertexFitter      = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, Linearizer>;
+  using Linearizer   = Acts::HelicalTrackLinearizer<Propagator>;
+  using VertexFitter = Acts::FullBilloirVertexFitter<Acts::BoundTrackParameters, Linearizer>;
   using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, Propagator>;
   using VertexSeeder         = Acts::ZScanVertexFinder<VertexFitter>;
   using VertexFinder         = Acts::IterativeVertexFinder<VertexFitter, VertexSeeder>;
@@ -95,17 +95,17 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 
   // Set up propagator with void navigator
 #if Acts_VERSION_MAJOR >= 32
-  auto propagator = std::make_shared<Propagator>(
-    stepper, Acts::VoidNavigator{}, logger().cloneWithSuffix("Prop"));
+  auto propagator = std::make_shared<Propagator>(stepper, Acts::VoidNavigator{},
+                                                 logger().cloneWithSuffix("Prop"));
 #else
-  auto propagator = std::make_shared<Propagator>(
-    stepper, Acts::detail::VoidNavigator{}, logger().cloneWithSuffix("Prop"));
+  auto propagator = std::make_shared<Propagator>(stepper, Acts::detail::VoidNavigator{},
+                                                 logger().cloneWithSuffix("Prop"));
 #endif
 
   // Setup the track linearizer
 #if Acts_VERSION_MAJOR >= 33
   Linearizer::Config linearizerCfg;
-  linearizerCfg.bField = m_BField;
+  linearizerCfg.bField     = m_BField;
   linearizerCfg.propagator = propagator;
 #else
   Linearizer::Config linearizerCfg(m_BField, propagator);
@@ -115,10 +115,8 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   // Setup the vertex fitter
   VertexFitter::Config vertexFitterCfg;
 #if Acts_VERSION_MAJOR >= 33
-  vertexFitterCfg.extractParameters
-    .connect<&Acts::InputTrack::extractParameters>();
-  vertexFitterCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(
-      &linearizer);
+  vertexFitterCfg.extractParameters.connect<&Acts::InputTrack::extractParameters>();
+  vertexFitterCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(&linearizer);
 #endif
   VertexFitter vertexFitter(vertexFitterCfg);
 
@@ -127,43 +125,37 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   ImpactPointEstimator ipEst(ipEstCfg);
   VertexSeeder::Config seederCfg(ipEst);
 #if Acts_VERSION_MAJOR >= 33
-  seederCfg.extractParameters
-    .connect<&Acts::InputTrack::extractParameters>();
+  seederCfg.extractParameters.connect<&Acts::InputTrack::extractParameters>();
   auto seeder = std::make_shared<VertexSeeder>(seederCfg);
 #else
   VertexSeeder seeder(seederCfg);
 #endif
 
   // Set up the actual vertex finder
-  VertexFinder::Config finderCfg(
-    std::move(vertexFitter),
+  VertexFinder::Config finderCfg(std::move(vertexFitter),
 #if Acts_VERSION_MAJOR < 33
-    std::move(linearizer),
+                                 std::move(linearizer),
 #endif
-    std::move(seeder),
-    std::move(ipEst));
+                                 std::move(seeder), std::move(ipEst));
   finderCfg.maxVertices                 = m_cfg.maxVertices;
   finderCfg.reassignTracksAfterFirstFit = m_cfg.reassignTracksAfterFirstFit;
 #if Acts_VERSION_MAJOR >= 31
- #if Acts_VERSION_MAJOR >= 33
+#if Acts_VERSION_MAJOR >= 33
   finderCfg.extractParameters.connect<&Acts::InputTrack::extractParameters>();
   finderCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(&linearizer);
-  #if Acts_VERSION_MAJOR >= 36
+#if Acts_VERSION_MAJOR >= 36
   finderCfg.field = m_BField;
-  #else
+#else
   finderCfg.field = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
-    std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
-  #endif
- #endif
+      std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
+#endif
+#endif
   VertexFinder finder(std::move(finderCfg));
 #else
   VertexFinder finder(finderCfg);
 #endif
 #if Acts_VERSION_MAJOR >= 33
-  Acts::IVertexFinder::State state(
-    std::in_place_type<VertexFinder::State>,
-    *m_BField,
-    m_fieldctx);
+  Acts::IVertexFinder::State state(std::in_place_type<VertexFinder::State>, *m_BField, m_fieldctx);
 #else
   VertexFinder::State state(*m_BField, m_fieldctx);
 #endif
@@ -189,7 +181,9 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 #else
       inputTrackPointers.push_back(&(trajectory->trackParameters(tip)));
 #endif
-      m_log->trace("Track local position at input = {} mm, {} mm", par.localPosition().x() / Acts::UnitConstants::mm, par.localPosition().y() / Acts::UnitConstants::mm);
+      m_log->trace("Track local position at input = {} mm, {} mm",
+                   par.localPosition().x() / Acts::UnitConstants::mm,
+                   par.localPosition().y() / Acts::UnitConstants::mm);
     }
   }
 
@@ -205,21 +199,22 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   }
 
   for (const auto& vtx : vertices) {
-    edm4eic::Cov4f cov(vtx.fullCovariance()(0,0), vtx.fullCovariance()(1,1), vtx.fullCovariance()(2,2), vtx.fullCovariance()(3,3),
-                       vtx.fullCovariance()(0,1), vtx.fullCovariance()(0,2), vtx.fullCovariance()(0,3),
-                       vtx.fullCovariance()(1,2), vtx.fullCovariance()(1,3),
-                       vtx.fullCovariance()(2,3));
+    edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
+                       vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
+                       vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
+                       vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
+                       vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
     auto eicvertex = outputVertices->create();
-    eicvertex.setType(1);                                  // boolean flag if vertex is primary vertex of event
-    eicvertex.setChi2((float)vtx.fitQuality().first);      // chi2
-    eicvertex.setNdf((float)vtx.fitQuality().second);      // ndf
+    eicvertex.setType(1); // boolean flag if vertex is primary vertex of event
+    eicvertex.setChi2((float)vtx.fitQuality().first); // chi2
+    eicvertex.setNdf((float)vtx.fitQuality().second); // ndf
     eicvertex.setPosition({
-         (float)vtx.position().x(),
-         (float)vtx.position().y(),
-         (float)vtx.position().z(),
-         (float)vtx.time(),
-    }); // vtxposition
-    eicvertex.setPositionError(cov);                          // covariance
+        (float)vtx.position().x(),
+        (float)vtx.position().y(),
+        (float)vtx.position().z(),
+        (float)vtx.time(),
+    });                              // vtxposition
+    eicvertex.setPositionError(cov); // covariance
 
     for (const auto& t : vtx.tracks()) {
 #if Acts_VERSION_MAJOR >= 33
@@ -227,30 +222,38 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 #else
       const auto& par = *t.originalParams;
 #endif
-      m_log->trace("Track local position from vertex = {} mm, {} mm", par.localPosition().x() / Acts::UnitConstants::mm, par.localPosition().y() / Acts::UnitConstants::mm);
+      m_log->trace("Track local position from vertex = {} mm, {} mm",
+                   par.localPosition().x() / Acts::UnitConstants::mm,
+                   par.localPosition().y() / Acts::UnitConstants::mm);
       float loc_a = par.localPosition().x();
       float loc_b = par.localPosition().y();
 
       for (const auto& part : *reconParticles) {
         const auto& tracks = part.getTracks();
         for (const auto trk : tracks) {
-          const auto& traj = trk.getTrajectory();
+          const auto& traj    = trk.getTrajectory();
           const auto& trkPars = traj.getTrackParameters();
           for (const auto par : trkPars) {
             const double EPSILON = 1.0e-4; // mm
-            if (fabs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) < EPSILON
-              && fabs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
-              m_log->trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm", par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
+            if (fabs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
+                    EPSILON &&
+                fabs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
+                    EPSILON) {
+              m_log->trace(
+                  "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
+                  par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
               eicvertex.addToAssociatedParticles(part);
             } // endif
           } // end for par
         } // end for trk
       } // end for part
     } // end for t
-    m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.", vtx.position().x() / Acts::UnitConstants::mm, vtx.position().y() / Acts::UnitConstants::mm, vtx.position().z() / Acts::UnitConstants::mm);
+    m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.",
+                 vtx.position().x() / Acts::UnitConstants::mm,
+                 vtx.position().y() / Acts::UnitConstants::mm,
+                 vtx.position().z() / Acts::UnitConstants::mm);
 
   } // end for vtx
-
 
   return std::move(outputVertices);
 }

@@ -8,7 +8,7 @@
 namespace algorithms {
 
 const std::shared_ptr<ParticleSvc::ParticleMap> ParticleSvc::kParticleMap =
-// clang-format off
+    // clang-format off
   std::make_shared<ParticleSvc::ParticleMap>(ParticleSvc::ParticleMap{
     {           0, {           0,   0,   0.0           , "unknown" }},
     {          11, {          11,  -1,   0.000510998928, "e-" }},
