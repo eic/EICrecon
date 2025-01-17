@@ -18,26 +18,26 @@
 
 namespace eicrecon {
 
-    class TrackerMeasurementFromHits {
-    public:
-        void init(const dd4hep::Detector* detector,
-                  const dd4hep::rec::CellIDPositionConverter* converter,
-                  std::shared_ptr<const ActsGeometryProvider> acts_context,
-                  std::shared_ptr<spdlog::logger> logger);
+class TrackerMeasurementFromHits {
+public:
+  void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter,
+            std::shared_ptr<const ActsGeometryProvider> acts_context,
+            std::shared_ptr<spdlog::logger> logger);
 
-        std::unique_ptr<edm4eic::Measurement2DCollection> produce(const edm4eic::TrackerHitCollection& trk_hits);
+  std::unique_ptr<edm4eic::Measurement2DCollection>
+  produce(const edm4eic::TrackerHitCollection& trk_hits);
 
-    private:
-        std::shared_ptr<spdlog::logger> m_log;
+private:
+  std::shared_ptr<spdlog::logger> m_log;
 
-        /// Geometry and Cell ID position converter
-        const dd4hep::Detector* m_dd4hepGeo;
-        const dd4hep::rec::CellIDPositionConverter* m_converter;
+  /// Geometry and Cell ID position converter
+  const dd4hep::Detector* m_dd4hepGeo;
+  const dd4hep::rec::CellIDPositionConverter* m_converter;
 
-        std::shared_ptr<const ActsGeometryProvider> m_acts_context;
+  std::shared_ptr<const ActsGeometryProvider> m_acts_context;
 
-        /// Detector-specific information
-        int m_detid_b0tracker;
-    };
+  /// Detector-specific information
+  int m_detid_b0tracker;
+};
 
-}
+} // namespace eicrecon

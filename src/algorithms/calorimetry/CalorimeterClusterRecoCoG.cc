@@ -38,66 +38,71 @@
 
 namespace eicrecon {
 
-  using namespace dd4hep;
+using namespace dd4hep;
 
-  void CalorimeterClusterRecoCoG::init() {
-    // select weighting method
-    std::string ew = m_cfg.energyWeight;
-    // make it case-insensitive
-    std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
-    auto it = weightMethods.find(ew);
-    if (it == weightMethods.end()) {
-      error("Cannot find energy weighting method {}, choose one from [{}]", m_cfg.energyWeight, boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", "));
-      return;
-    }
-    weightFunc = it->second;
+void CalorimeterClusterRecoCoG::init() {
+  // select weighting method
+  std::string ew = m_cfg.energyWeight;
+  // make it case-insensitive
+  std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
+  auto it = weightMethods.find(ew);
+  if (it == weightMethods.end()) {
+    error("Cannot find energy weighting method {}, choose one from [{}]", m_cfg.energyWeight,
+          boost::algorithm::join(weightMethods | boost::adaptors::map_keys, ", "));
+    return;
   }
-
-  void CalorimeterClusterRecoCoG::process(
-      const CalorimeterClusterRecoCoG::Input& input,
-      const CalorimeterClusterRecoCoG::Output& output) const {
-#if EDM4EIC_VERSION_MAJOR >= 7
-    const auto [proto, mchitassociations] = input;
-#else
-    const auto [proto, mchits] = input;
-#endif
-    auto [clusters, associations] = output;
-
-    for (const auto& pcl : *proto) {
-      // skip protoclusters with no hits
-      if (pcl.hits_size() == 0) {
-        continue;
-      }
-
-      auto cl_opt = reconstruct(pcl);
-      if (! cl_opt.has_value()) {
-        continue;
-      }
-      auto cl = *std::move(cl_opt);
-
-      debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / dd4hep::GeV, cl.getPosition().x / dd4hep::mm, cl.getPosition().y / dd4hep::mm, cl.getPosition().z / dd4hep::mm);
-      clusters->push_back(cl);
-
-      // If sim hits are available, associate cluster with MCParticle
-#if EDM4EIC_VERSION_MAJOR >= 7
-      if (mchitassociations->size() == 0) {
-        debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations will be performed.");
-        continue;
-      } else {
-        associate(cl, mchitassociations, associations);
-      }
-#else
-      if (mchits->size() == 0) {
-        debug("Provided SimCalorimeterHitCollection is empty. No truth association will be performed.");
-        continue;
-      } else {
-        associate(cl, mchits, associations);
-      }
-#endif
-    }
+  weightFunc = it->second;
 }
 
-std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
+void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& input,
+                                        const CalorimeterClusterRecoCoG::Output& output) const {
+#if EDM4EIC_VERSION_MAJOR >= 7
+  const auto [proto, mchitassociations] = input;
+#else
+  const auto [proto, mchits] = input;
+#endif
+  auto [clusters, associations] = output;
+
+  for (const auto& pcl : *proto) {
+    // skip protoclusters with no hits
+    if (pcl.hits_size() == 0) {
+      continue;
+    }
+
+    auto cl_opt = reconstruct(pcl);
+    if (!cl_opt.has_value()) {
+      continue;
+    }
+    auto cl = *std::move(cl_opt);
+
+    debug("{} hits: {} GeV, ({}, {}, {})", cl.getNhits(), cl.getEnergy() / dd4hep::GeV,
+          cl.getPosition().x / dd4hep::mm, cl.getPosition().y / dd4hep::mm,
+          cl.getPosition().z / dd4hep::mm);
+    clusters->push_back(cl);
+
+    // If sim hits are available, associate cluster with MCParticle
+#if EDM4EIC_VERSION_MAJOR >= 7
+    if (mchitassociations->size() == 0) {
+      debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
+            "will be performed.");
+      continue;
+    } else {
+      associate(cl, mchitassociations, associations);
+    }
+#else
+    if (mchits->size() == 0) {
+      debug(
+          "Provided SimCalorimeterHitCollection is empty. No truth association will be performed.");
+      continue;
+    } else {
+      associate(cl, mchits, associations);
+    }
+#endif
+  }
+}
+
+std::optional<edm4eic::MutableCluster>
+CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   edm4eic::MutableCluster cl;
   cl.setNhits(pcl.hits_size());
 
@@ -113,8 +118,8 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   // Used to optionally constrain the cluster eta to those of the contributing hits
   float minHitEta = std::numeric_limits<float>::max();
   float maxHitEta = std::numeric_limits<float>::min();
-  auto time      = 0;
-  auto timeError = 0;
+  auto time       = 0;
+  auto timeError  = 0;
   for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
     const auto& hit   = pcl.getHits()[i];
     const auto weight = pcl.getWeights()[i];
@@ -141,12 +146,12 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   float tw = 0.;
   auto v   = cl.getPosition();
 
-  double logWeightBase=m_cfg.logWeightBase;
-  if (m_cfg.logWeightBaseCoeffs.size() != 0){
-    double l=log(cl.getEnergy()/m_cfg.logWeightBase_Eref);
-    logWeightBase=0;
-    for(std::size_t i =0; i<m_cfg.logWeightBaseCoeffs.size(); i++){
-      logWeightBase += m_cfg.logWeightBaseCoeffs[i]*pow(l,i);
+  double logWeightBase = m_cfg.logWeightBase;
+  if (m_cfg.logWeightBaseCoeffs.size() != 0) {
+    double l      = log(cl.getEnergy() / m_cfg.logWeightBase_Eref);
+    logWeightBase = 0;
+    for (std::size_t i = 0; i < m_cfg.logWeightBaseCoeffs.size(); i++) {
+      logWeightBase += m_cfg.logWeightBaseCoeffs[i] * pow(l, i);
     }
   }
 
@@ -154,7 +159,7 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
     const auto& hit   = pcl.getHits()[i];
     const auto weight = pcl.getWeights()[i];
     //      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
-    float w           = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);
+    float w = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);
     tw += w;
     v = v + (hit.getPosition() * w);
   }
@@ -175,7 +180,8 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
       const double newR     = edm4hep::utils::magnitude(cl.getPosition());
       const double newPhi   = edm4hep::utils::angleAzimuthal(cl.getPosition());
       cl.setPosition(edm4hep::utils::sphericalToVector(newR, newTheta, newPhi));
-      debug("Bound cluster position to contributing hits due to {}", (overflow ? "overflow" : "underflow"));
+      debug("Bound cluster position to contributing hits due to {}",
+            (overflow ? "overflow" : "underflow"));
     }
   }
 
@@ -189,10 +195,10 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
   //    x-y-z cluster widths (3D)
   float radius = 0, dispersion = 0, w_sum = 0;
 
-  Eigen::Matrix2f sum2_2D = Eigen::Matrix2f::Zero();
-  Eigen::Matrix3f sum2_3D = Eigen::Matrix3f::Zero();
-  Eigen::Vector2f sum1_2D = Eigen::Vector2f::Zero();
-  Eigen::Vector3f sum1_3D = Eigen::Vector3f::Zero();
+  Eigen::Matrix2f sum2_2D         = Eigen::Matrix2f::Zero();
+  Eigen::Matrix3f sum2_3D         = Eigen::Matrix3f::Zero();
+  Eigen::Vector2f sum1_2D         = Eigen::Vector2f::Zero();
+  Eigen::Vector3f sum1_3D         = Eigen::Vector3f::Zero();
   Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
   Eigen::Vector3cf eigenValues_3D = Eigen::Vector3cf::Zero();
   // the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
@@ -203,13 +209,14 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
       float w = weightFunc(hit.getEnergy(), totalE, logWeightBase, 0);
 
       // theta, phi
-      Eigen::Vector2f pos2D( edm4hep::utils::anglePolar( hit.getPosition() ), edm4hep::utils::angleAzimuthal( hit.getPosition() ) );
+      Eigen::Vector2f pos2D(edm4hep::utils::anglePolar(hit.getPosition()),
+                            edm4hep::utils::angleAzimuthal(hit.getPosition()));
       // x, y, z
-      Eigen::Vector3f pos3D( hit.getPosition().x, hit.getPosition().y, hit.getPosition().z );
+      Eigen::Vector3f pos3D(hit.getPosition().x, hit.getPosition().y, hit.getPosition().z);
 
       const auto delta = cl.getPosition() - hit.getPosition();
-      radius          += delta * delta;
-      dispersion      += delta * delta * w;
+      radius += delta * delta;
+      dispersion += delta * delta * w;
 
       // Weighted Sum x*x, x*y, x*z, y*y, etc.
       sum2_2D += w * pos2D * pos2D.transpose();
@@ -222,9 +229,9 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
       w_sum += w;
     }
 
-    radius     = sqrt((1. / (cl.getNhits() - 1.)) * radius);
-    if( w_sum > 0 ) {
-      dispersion = sqrt( dispersion / w_sum );
+    radius = sqrt((1. / (cl.getNhits() - 1.)) * radius);
+    if (w_sum > 0) {
+      dispersion = sqrt(dispersion / w_sum);
 
       // normalize matrices
       sum2_2D /= w_sum;
@@ -237,41 +244,35 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
       Eigen::Matrix3f cov3 = sum2_3D - sum1_3D * sum1_3D.transpose();
 
       // Solve for eigenvalues.  Corresponds to cluster's 2nd moments (widths)
-      Eigen::EigenSolver<Eigen::Matrix2f> es_2D(cov2, false); // set to true for eigenvector calculation
-      Eigen::EigenSolver<Eigen::Matrix3f> es_3D(cov3, true); // set to true for eigenvector calculation
+      Eigen::EigenSolver<Eigen::Matrix2f> es_2D(cov2,
+                                                false); // set to true for eigenvector calculation
+      Eigen::EigenSolver<Eigen::Matrix3f> es_3D(cov3,
+                                                true); // set to true for eigenvector calculation
 
       // eigenvalues of symmetric real matrix are always real
       eigenValues_2D = es_2D.eigenvalues();
       eigenValues_3D = es_3D.eigenvalues();
       //find the eigenvector corresponding to the largest eigenvalue
-      auto eigenvectors= es_3D.eigenvectors();
-      auto max_eigenvalue_it = std::max_element(
-        eigenValues_3D.begin(),
-        eigenValues_3D.end(),
-        [](auto a, auto b) {
-            return std::real(a) < std::real(b);
-        }
-      );
-      auto axis_eigen = eigenvectors.col(std::distance(
-            eigenValues_3D.begin(),
-            max_eigenvalue_it
-        ));
-      axis = {
-        axis_eigen(0,0).real(),
-        axis_eigen(1,0).real(),
-        axis_eigen(2,0).real(),
+      auto eigenvectors = es_3D.eigenvectors();
+      auto max_eigenvalue_it =
+          std::max_element(eigenValues_3D.begin(), eigenValues_3D.end(),
+                           [](auto a, auto b) { return std::real(a) < std::real(b); });
+      auto axis_eigen = eigenvectors.col(std::distance(eigenValues_3D.begin(), max_eigenvalue_it));
+      axis            = {
+          axis_eigen(0, 0).real(),
+          axis_eigen(1, 0).real(),
+          axis_eigen(2, 0).real(),
       };
     }
   }
 
-  cl.addToShapeParameters( radius );
-  cl.addToShapeParameters( dispersion );
-  cl.addToShapeParameters( eigenValues_2D[0].real() ); // 2D theta-phi cluster width 1
-  cl.addToShapeParameters( eigenValues_2D[1].real() ); // 2D theta-phi cluster width 2
-  cl.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
-  cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
-  cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
-
+  cl.addToShapeParameters(radius);
+  cl.addToShapeParameters(dispersion);
+  cl.addToShapeParameters(eigenValues_2D[0].real()); // 2D theta-phi cluster width 1
+  cl.addToShapeParameters(eigenValues_2D[1].real()); // 2D theta-phi cluster width 2
+  cl.addToShapeParameters(eigenValues_3D[0].real()); // 3D x-y-z cluster width 1
+  cl.addToShapeParameters(eigenValues_3D[1].real()); // 3D x-y-z cluster width 2
+  cl.addToShapeParameters(eigenValues_3D[2].real()); // 3D x-y-z cluster width 3
 
   double dot_product = cl.getPosition() * axis;
   if (dot_product < 0) {
@@ -291,14 +292,13 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
 }
 
 void CalorimeterClusterRecoCoG::associate(
-  const edm4eic::Cluster& cl,
+    const edm4eic::Cluster& cl,
 #if EDM4EIC_VERSION_MAJOR >= 7
-  const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+    const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
 #else
-  const edm4hep::SimCalorimeterHitCollection* mchits,
+    const edm4hep::SimCalorimeterHitCollection* mchits,
 #endif
-  edm4eic::MCRecoClusterParticleAssociationCollection* assocs
-) const {
+    edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
   // Association Logic
   // --------------------------------------------------------------------------
@@ -340,12 +340,11 @@ void CalorimeterClusterRecoCoG::associate(
         vecAssocSimHits.push_back(hitAssoc.getSimHit());
         eSimHitSum += vecAssocSimHits.back().getEnergy();
       }
-
     }
 #else
     for (const auto& mchit : *mchits) {
       if (mchit.getCellID() == clhit.getCellID()) {
-         vecAssocSimHits.push_back(mchit);
+        vecAssocSimHits.push_back(mchit);
         break;
       }
     }
@@ -359,7 +358,8 @@ void CalorimeterClusterRecoCoG::associate(
       eSimHitSum += vecAssocSimHits.back().getEnergy();
     }
 #endif
-    debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
+    debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(),
+          clhit.getCellID());
 
     // ------------------------------------------------------------------------
     // 2. loop through associated sim hits
@@ -373,11 +373,8 @@ void CalorimeterClusterRecoCoG::associate(
         mapMCParToContrib[primary] += contrib.getEnergy();
 
         trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
-          primary.getObjectID().index,
-          primary.getPDG(),
-          primary.getEnergy(),
-          mapMCParToContrib[primary]
-        );
+              primary.getObjectID().index, primary.getPDG(), primary.getEnergy(),
+              mapMCParToContrib[primary]);
       }
     }
   }
@@ -397,18 +394,15 @@ void CalorimeterClusterRecoCoG::associate(
     assoc.setWeight(weight);
     assoc.setRec(cl);
     assoc.setSim(part);
-    debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with weight ({})",
-      cl.getObjectID().index,
-      part.getObjectID().index,
-      part.getPDG(),
-      part.getGeneratorStatus(),
-      part.getEnergy(),
-      weight
-    );
+    debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with "
+          "weight ({})",
+          cl.getObjectID().index, part.getObjectID().index, part.getPDG(),
+          part.getGeneratorStatus(), part.getEnergy(), weight);
   }
 }
 
-edm4hep::MCParticle CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) const {
+edm4hep::MCParticle
+CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) const {
   // get contributing particle
   const auto contributor = contrib.getParticle();
 
@@ -417,10 +411,11 @@ edm4hep::MCParticle CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHi
   //     can be improved!!
   edm4hep::MCParticle primary = contributor;
   while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) break;
+    if (primary.getGeneratorStatus() != 0)
+      break;
     primary = primary.getParents(0);
   }
   return primary;
 }
 
-}
+} // namespace eicrecon

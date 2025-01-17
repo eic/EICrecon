@@ -13,122 +13,85 @@
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
 
-    using namespace eicrecon;
+  using namespace eicrecon;
 
-    // Digitization
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "MPGDBarrelRawHits",
-        {
-          "MPGDBarrelHits"
-        },
-        {
-          "MPGDBarrelRawHits",
-          "MPGDBarrelRawHitAssociations"
-        },
-        {
-            .threshold = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
-        app
-    ));
+  // Digitization
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+      "MPGDBarrelRawHits", {"MPGDBarrelHits"},
+      {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"},
+      {
+          .threshold      = 100 * dd4hep::eV,
+          .timeResolution = 10,
+      },
+      app));
 
-    // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-        "MPGDBarrelRecHits",
-        {"MPGDBarrelRawHits"},     // Input data collection tags
-        {"MPGDBarrelRecHits"},     // Output data tag
-        {
-            .timeResolution = 10,
-        },
-        app
-    ));
+  // Convert raw digitized hits into hits with geometry info (ready for tracking)
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
+      {"MPGDBarrelRecHits"},                      // Output data tag
+      {
+          .timeResolution = 10,
+      },
+      app));
 
-    // Digitization
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "OuterMPGDBarrelRawHits",
-        {
-          "OuterMPGDBarrelHits"
-        },
-        {
-          "OuterMPGDBarrelRawHits",
-          "OuterMPGDBarrelRawHitAssociations"
-        },
-        {
-            .threshold = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
-        app
-    ));
+  // Digitization
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+      "OuterMPGDBarrelRawHits", {"OuterMPGDBarrelHits"},
+      {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"},
+      {
+          .threshold      = 100 * dd4hep::eV,
+          .timeResolution = 10,
+      },
+      app));
 
-    // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-        "OuterMPGDBarrelRecHits",
-        {"OuterMPGDBarrelRawHits"},     // Input data collection tags
-        {"OuterMPGDBarrelRecHits"},     // Output data tag
-        {
-            .timeResolution = 10,
-        },
-        app
-    ));
+  // Convert raw digitized hits into hits with geometry info (ready for tracking)
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
+      {"OuterMPGDBarrelRecHits"},                           // Output data tag
+      {
+          .timeResolution = 10,
+      },
+      app));
 
-    // Digitization
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "BackwardMPGDEndcapRawHits",
-        {
-          "BackwardMPGDEndcapHits"
-        },
-        {
-          "BackwardMPGDEndcapRawHits",
-          "BackwardMPGDEndcapRawHitAssociations"
-        },
-        {
-            .threshold = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
-        app
-    ));
+  // Digitization
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+      "BackwardMPGDEndcapRawHits", {"BackwardMPGDEndcapHits"},
+      {"BackwardMPGDEndcapRawHits", "BackwardMPGDEndcapRawHitAssociations"},
+      {
+          .threshold      = 100 * dd4hep::eV,
+          .timeResolution = 10,
+      },
+      app));
 
-    // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-        "BackwardMPGDEndcapRecHits",
-        {"BackwardMPGDEndcapRawHits"},     // Input data collection tags
-        {"BackwardMPGDEndcapRecHits"},     // Output data tag
-        {
-            .timeResolution = 10,
-        },
-        app
-    ));
+  // Convert raw digitized hits into hits with geometry info (ready for tracking)
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "BackwardMPGDEndcapRecHits", {"BackwardMPGDEndcapRawHits"}, // Input data collection tags
+      {"BackwardMPGDEndcapRecHits"},                              // Output data tag
+      {
+          .timeResolution = 10,
+      },
+      app));
 
-    // Digitization
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "ForwardMPGDEndcapRawHits",
-        {
-          "ForwardMPGDEndcapHits"
-        },
-        {
-          "ForwardMPGDEndcapRawHits",
-          "ForwardMPGDEndcapRawHitAssociations"
-        },
-        {
-            .threshold = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
-        app
-    ));
+  // Digitization
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+      "ForwardMPGDEndcapRawHits", {"ForwardMPGDEndcapHits"},
+      {"ForwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHitAssociations"},
+      {
+          .threshold      = 100 * dd4hep::eV,
+          .timeResolution = 10,
+      },
+      app));
 
-    // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-        "ForwardMPGDEndcapRecHits",
-        {"ForwardMPGDEndcapRawHits"},     // Input data collection tags
-        {"ForwardMPGDEndcapRecHits"},     // Output data tag
-        {
-            .timeResolution = 10,
-        },
-        app
-    ));
-
+  // Convert raw digitized hits into hits with geometry info (ready for tracking)
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "ForwardMPGDEndcapRecHits", {"ForwardMPGDEndcapRawHits"}, // Input data collection tags
+      {"ForwardMPGDEndcapRecHits"},                             // Output data tag
+      {
+          .timeResolution = 10,
+      },
+      app));
 }
 } // extern "C"
