@@ -4,16 +4,18 @@
 
 #include "IterativeVertexFinder.h"
 
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <Acts/EventData/GenericParticleHypothesis.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Utilities/Delegate.hpp>
-#include <Acts/Vertexing/IVertexFinder.hpp>
-#include <Acts/Vertexing/LinearizedTrack.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <boost/move/utility_core.hpp>
 #include <edm4eic/Track.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
@@ -24,6 +26,7 @@
 #endif
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <Acts/Utilities/VectorHelpers.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
@@ -33,6 +36,7 @@
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <boost/container/vector.hpp>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackParameters.h>
@@ -40,7 +44,12 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <Eigen/LU>
+#include <algorithm>
 #include <cmath>
+#include <optional>
+#include <tuple>
 #include <utility>
 
 #include "extensions/spdlog/SpdlogToActs.h"
