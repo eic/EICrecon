@@ -90,7 +90,7 @@ void PhotoMultiplierHitDigi::process(
             if (m_rngUni() > m_cfg.safetyFactor) continue;
 
             // quantum efficiency
-            if (!qe_pass(edep_eV, m_rngUni())) continue;
+            if (m_cfg.enableQuantumEfficiency and !qe_pass(edep_eV, m_rngUni())) continue;
 
             // pixel gap cuts
             if(m_cfg.enablePixelGaps) {
@@ -205,16 +205,18 @@ void PhotoMultiplierHitDigi::qe_init()
           debug("  {:>10.4} {:<}",en,qe);
         trace("{:=^60}","");
 
-        // sanity checks
-        if (qeff.empty()) {
-            qeff = {{2.6, 0.3}, {7.0, 0.3}};
-            warning("Invalid quantum efficiency data provided, using default values {} {:.2f} {} {:.2f} {} {:.2f} {} {:.2f} {}","{{", qeff.front().first, ",", qeff.front().second, "},{",qeff.back().first,",",qeff.back().second,"}}");
-        }
-        if (qeff.front().first > 3.0) {
-            warning("Quantum efficiency data start from {:.2f} {}", qeff.front().first, " eV, maybe you are using wrong units?");
-        }
-        if (qeff.back().first < 3.0) {
-            warning("Quantum efficiency data end at {:.2f} {}", qeff.back().first, " eV, maybe you are using wrong units?");
+        if (m_cfg.enableQuantumEfficiency) {
+            // sanity checks
+            if (qeff.empty()) {
+                qeff = {{2.6, 0.3}, {7.0, 0.3}};
+                warning("Invalid quantum efficiency data provided, using default values {} {:.2f} {} {:.2f} {} {:.2f} {} {:.2f} {}","{{", qeff.front().first, ",", qeff.front().second, "},{",qeff.back().first,",",qeff.back().second,"}}");
+            }
+            if (qeff.front().first > 3.0) {
+                warning("Quantum efficiency data start from {:.2f} {}", qeff.front().first, " eV, maybe you are using wrong units?");
+            }
+            if (qeff.back().first < 3.0) {
+                warning("Quantum efficiency data end at {:.2f} {}", qeff.back().first, " eV, maybe you are using wrong units?");
+            }
         }
 }
 
