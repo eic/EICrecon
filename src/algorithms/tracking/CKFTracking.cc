@@ -167,7 +167,7 @@ namespace eicrecon {
             std::array<Acts::BoundIndices, 2> indices = {Acts::eBoundLoc0, Acts::eBoundLoc1};
             Acts::visit_measurement(
               indices.size(), [&](auto dim) -> ActsExamples::FixedBoundMeasurementProxy<6> {
-                return measurements->emplaceMeasurement<dim>(sourceLink, indices, loc, cov);
+                return measurements->emplaceMeasurement<dim>(geoId, indices, loc, cov);
               }
             );
 #elif Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR == 0
