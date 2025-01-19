@@ -126,7 +126,7 @@ void eicrecon::UndoAfterBurner::process(
         mc = rotationAboutX(mc);
         mc = headOnBoostVector(mc);
 
-        edm4hep::Vector3f mcMom(mc.Px(), mc.Py(), mc.Pz());
+        decltype(edm4hep::MCParticleData::momentum) mcMom(mc.Px(), mc.Py(), mc.Pz());
         edm4hep::MutableMCParticle MCTrack(p.clone());
         MCTrack.setMomentum(mcMom);
 

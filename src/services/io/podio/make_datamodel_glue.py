@@ -67,6 +67,11 @@ if not EDM4EIC_INCLUDE_DIR:
 
 def AddCollections(datamodelName, collectionfiles):
     for f in collectionfiles:
+        # require at least a class definition, not a using alias
+        with open(f, 'r') as file:
+            if not "class" in file.read():
+                continue
+
         header_fname = f.split('/'+datamodelName)[-1]
         basename = header_fname.split('/')[-1].split('Collection.h')[0]
 
