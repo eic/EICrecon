@@ -13,6 +13,7 @@
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
@@ -218,7 +219,11 @@ void IrtCherenkovParticleID::process(
             if(hit_assoc.getRawHit().isAvailable()) {
               if(hit_assoc.getRawHit().id() == raw_hit.id()) {
 #if EDM4EIC_VERSION_MAJOR >= 6
+# if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
+                mc_photon = hit_assoc.getSimHit().getParticle();
+# else
                 mc_photon = hit_assoc.getSimHit().getMCParticle();
+# endif
 #else
                 // hit association found, get the MC photon and break the loop
                 if(hit_assoc.simHits_size() > 0) {
