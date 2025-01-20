@@ -2,6 +2,7 @@
 // Copyright (C) 2022 - 2025 Christopher Dilks, Nilanga Wickramaarachchi, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/JApplication.h>
 #include <algorithm>
 #include <gsl/pointers>
@@ -16,8 +17,15 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "global/digi/PhotoMultiplierHitDigi_factory.h"
+#if EDM4EIC_VERSION_MAJOR >= 8
+#include "global/pid/DIRCParticleIDPreML_factory.h"
+#include "global/pid/DIRCParticleIDPostML_factory.h"
+#endif
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
+#if EDM4EIC_VERSION_MAJOR >= 8
+#include "factories/meta/ONNXInference_factory.h"
+#endif
 
 
 extern "C" {
@@ -52,6 +60,50 @@ extern "C" {
           digi_cfg,
           app
           ));
+
+    app->Add(new JOmniFactoryGeneratorT<DIRCParticleIDPreML_factory>(
+        "DIRCBarrelParticleIDPreML",
+        {
+          "DIRCRawHits",
+          "ReconstructedChargedWithoutPIDParticles",
+          "ReconstructedChargedWithoutPIDParticleAssociations",
+        },
+        {
+          "DIRCBarrelParticleIDDIRCInput_features",
+          "DIRCBarrelParticleIDTrackInput_features",
+          "DIRCBarrelParticleIDPIDTarget",
+        },
+        {},
+        app
+        ));
+    app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
+        "DIRCBarrelParticleIDInference",
+        {
+          "DIRCBarrelParticleIDTrackInput_features",
+          "DIRCBarrelParticleIDDIRCInput_features",
+        },
+        {
+          "DIRCBarrelParticleIDOutput_probability_tensor",
+        },
+        {
+          .modelPath = "calibrations/onnx/DIRCBarrel.onnx",
+        },
+        app
+    ));
+    app->Add(new JOmniFactoryGeneratorT<DIRCParticleIDPostML_factory>(
+        "DIRCBarrelParticleIDPostML",
+        {
+          "ReconstructedChargedWithoutPIDParticles",
+          "ReconstructedChargedWithoutPIDParticleAssociations",
+          "DIRCBarrelParticleIDOutput_probability_tensor",
+        },
+        {
+          "ReconstructedChargedWithRealDIRCParticles",
+          "ReconstructedChargedWithRealDIRCParticleAssociations",
+          "DIRCBarrelParticleIDs",
+        },
+        app
+    ));
 
     int BarrelDIRC_ID = 0;
     try {
