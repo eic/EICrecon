@@ -22,6 +22,7 @@
 #include <exception>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -199,12 +200,17 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
     auto frame_data = m_reader.readEntry("events", Nevents_read);
     auto frame = std::make_unique<podio::Frame>(std::move(frame_data));
 
-    const auto& event_headers = frame->get<edm4hep::EventHeaderCollection>("EventHeader"); // TODO: What is the collection name?
-    if (event_headers.size() != 1) {
-        throw JException("Bad event headers: Entry %d contains %d items, but 1 expected.", Nevents_read, event_headers.size());
+    if(m_use_event_headers){
+        const auto& event_headers = frame->get<edm4hep::EventHeaderCollection>("EventHeader");
+        if (event_headers.size() != 1) {
+            LOG_WARN(default_cerr_logger) << "Missing or bad event headers: Entry " << Nevents_read << " contains " << event_headers.size() << " items, but 1 expected. Will not use event and run numbers from header" << LOG_END;
+            m_use_event_headers = false;
+        }
+        else {
+            event.SetEventNumber(event_headers[0].getEventNumber());
+            event.SetRunNumber(event_headers[0].getRunNumber());
+        }
     }
-    event.SetEventNumber(event_headers[0].getEventNumber());
-    event.SetRunNumber(event_headers[0].getRunNumber());
 
     // Insert contents odf frame into JFactories
     VisitPodioCollection<InsertingVisitor> visit;
