@@ -264,6 +264,11 @@ void CalorimeterHitReco::process(
             cdim[0] = cell_dim[0];
             cdim[1] = cell_dim[1];
             debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
+        } else if (segmentation_type == "CartesianStripZ") {
+            auto cell_dim = m_converter->cellDimensions(cellID);
+            cdim.resize(3);
+            cdim[0] = cell_dim[0];
+            debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
         } else {
             if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
                 warning("Unsupported segmentation type \"{}\"", segmentation_type);
