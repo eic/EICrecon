@@ -22,6 +22,8 @@ private:
 
   PodioOutput<edm4eic::ReconstructedParticle> m_particle_output {this};
 
+  ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron", config(). requireBeamElectron};
+
 public:
   void Configure() {
         m_algo = std::make_unique<AlgoT>(GetPrefix());
