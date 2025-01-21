@@ -42,6 +42,8 @@ namespace eicrecon {
 
     std::string readout{""};
 
+    bool requireBeamProton{true};
+
   };
 
 }

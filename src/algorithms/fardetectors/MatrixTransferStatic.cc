@@ -61,7 +61,12 @@ void eicrecon::MatrixTransferStatic::process(
         }
   }
 
-  if(numBeamProtons == 0) {error("No beam protons to choose matrix!! Skipping!!"); return;}
+  if(numBeamProtons == 0) {
+    if (m_cfg.requireBeamProton) {
+      error("No beam protons to choose matrix!! Skipping!!");
+    }
+    return;
+  }
 
   nomMomentum = runningMomentum/numBeamProtons;
 
