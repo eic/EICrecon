@@ -611,7 +611,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon $JANA_OPTIONS $JANA_OPTIONS_GUN -Pplugins=${{ matrix.test_plugins }} -Phistsfile=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Pplugins=${{ matrix.test_plugins }} -Phistsfile=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: actions/upload-artifact@v4
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root
