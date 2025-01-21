@@ -332,9 +332,7 @@ jobs:
     - detector-info
     strategy:
       matrix:
-        particle: [pi, e]bool requireBeamProton{true};
-bool requireBeamProton{true};
-
+        particle: [pi, e]
         detector_config: [craterlake]
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
