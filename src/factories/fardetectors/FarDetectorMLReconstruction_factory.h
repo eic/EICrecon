@@ -35,6 +35,7 @@ private:
     ParameterRef<std::string> m_modelPath       {this, "modelPath",       config().modelPath       };
     ParameterRef<std::string> m_methodName      {this, "methodName",      config().methodName      };
 
+    ParameterRef<bool> m_requireBeamElectron    {this, "requireBeamElectron", config(). requireBeamElectron};
 
 public:
     void Configure() {
