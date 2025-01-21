@@ -5,13 +5,19 @@
 
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
-#include <edm4eic/ProtoClusterCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_VERSION_MAJOR >= 8
+#include <edm4eic/TrackClusterMatchCollection.h>
+#endif
+#include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
 #include <algorithm>
 #include <map>
+#include <optional>
 #include <set>
 #include <string>
 #include <string_view>
@@ -26,14 +32,14 @@
 namespace eicrecon {
 
   // --------------------------------------------------------------------------
-  //! Comparator struct for protoclusters
+  //! Comparator struct for clusters
   // --------------------------------------------------------------------------
   /*! Organizes protoclusters by their ObjectID's in decreasing collection
    *  ID first, and second by decreasing index second.
    */
-  struct CompareProto {
+  struct CompareClust {
 
-    bool operator() (const edm4eic::ProtoCluster& lhs, const edm4eic::ProtoCluster& rhs) const {
+    bool operator() (const edm4eic::Cluster& lhs, const edm4eic::Cluster& rhs) const {
       if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
         return (lhs.getObjectID().index < rhs.getObjectID().index);
       } else {
@@ -41,18 +47,22 @@ namespace eicrecon {
       }
     }
 
-  };  // end CompareObjectID
+  };  // end CompareCluster
 
 
 
   // --------------------------------------------------------------------------
   //! Convenience types
   // --------------------------------------------------------------------------
+  using MatrixF = std::vector<std::vector<float>>;
+  using VecMatrix = std::vector<MatrixF>;
+  using VecTrk = std::vector<edm4eic::Track>;
   using VecProj = std::vector<edm4eic::TrackPoint>;
-  using VecClust = std::vector<edm4eic::ProtoCluster>;
-  using SetClust = std::set<edm4eic::ProtoCluster, CompareProto>;
-  using MapToVecProj = std::map<edm4eic::ProtoCluster, VecProj, CompareProto>;
-  using MapToVecClust = std::map<edm4eic::ProtoCluster, VecClust, CompareProto>;
+  using VecClust = std::vector<edm4eic::Cluster>;
+  using SetClust = std::set<edm4eic::Cluster, CompareClust>;
+  using MapToVecTrk = std::map<edm4eic::Cluster, VecTrk, CompareClust>;
+  using MapToVecProj = std::map<edm4eic::Cluster, VecProj, CompareClust>;
+  using MapToVecClust = std::map<edm4eic::Cluster, VecClust, CompareClust>;
 
 
 
@@ -61,11 +71,16 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<
-      edm4eic::ProtoClusterCollection,
+      edm4eic::ClusterCollection,
       edm4eic::TrackSegmentCollection
     >,
     algorithms::Output<
-      edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 8
+      edm4eic::ClusterCollection,
+      edm4eic::TrackClusterMatchCollection
+#else
+      edm4eic::ClusterCollection
+#endif
     >
   >;
 
@@ -92,7 +107,11 @@ namespace eicrecon {
         TrackClusterMergeSplitterAlgorithm {
           name,
           {"InputProtoClusterCollection", "InputTrackProjections"},
+#if EDM4EIC_VERSION_MAJOR >= 8
+          {"OutputProtoClusterCollection", "OutputTrackClusterMatches"},
+#else
           {"OutputProtoClusterCollection"},
+#endif
           "Merges or splits clusters based on tracks projected to them."
         } {}
 
@@ -103,11 +122,10 @@ namespace eicrecon {
     private:
 
       // private methods
-      void get_projections(const edm4eic::TrackSegmentCollection* projections, VecProj& relevant_projects) const;
-      void match_clusters_to_tracks(const edm4eic::ProtoClusterCollection* clusters, const VecProj& projections, MapToVecProj& matches) const;
-      void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, edm4eic::ProtoClusterCollection* out_protoclusters) const;
-      float get_cluster_energy(const edm4eic::ProtoCluster& clust) const;
-      edm4hep::Vector3f get_cluster_position(const edm4eic::ProtoCluster& clust) const;
+      void get_projections(const edm4eic::TrackSegmentCollection* projections, VecProj& relevant_projects, VecTrk& relevant_trks) const;
+      void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters, const VecProj& projections, const VecTrk& tracks, MapToVecProj& matched_projects, MapToVecTrk& matched_tracks) const;
+      void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, std::vector<edm4eic::MutableCluster>& new_clusters) const;
+      void make_cluster(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust, std::optional<MatrixF> split_weights = std::nullopt) const;
 
       // calorimeter id
       int m_idCalo {0};
