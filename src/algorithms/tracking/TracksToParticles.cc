@@ -27,6 +27,7 @@ namespace eicrecon {
         const auto [tracks, track_assocs] = input;
         auto [parts, part_assocs]         = output;
 
+                    warning("enter");
         for (const auto &track: *tracks) {
           auto trajectory = track.getTrajectory();
           for (const auto &trk: trajectory.getTrackParameters()) {
@@ -34,11 +35,25 @@ namespace eicrecon {
                                                         trk.getPhi());
             const auto charge_rec = std::copysign(1., trk.getQOverP());
 
+            edm4eic::MutableReconstructedParticle rec_part;
+            bool isAvailable = false;
 
             debug("Converting track: index={:<4} momentum={:<8.3f} theta={:<8.3f} phi={:<8.2f} charge={:<4}",
                   trk.getObjectID().index, edm4hep::utils::magnitude(mom), edm4hep::utils::anglePolar(mom), edm4hep::utils::angleAzimuthal(mom), charge_rec);
 
-            auto rec_part = parts->create();
+            double max_weight = -1.;
+            for (auto track_assoc : *track_assocs) {
+                if (track_assoc.getRec() == track) {
+                    if ((track_assoc.getSim().getColorFlow().a == 2025) &&
+                        (track_assoc.getSim().getColorFlow().b == 2025)) {
+                    trace("Found track association: index={} -> index={}, weight={}",
+                          track_assoc.getRec().getObjectID().index,
+                          track_assoc.getSim().getObjectID().index,
+                          track_assoc.getWeight());
+
+                    if (not isAvailable) {
+                            isAvailable = true;
+            rec_part = parts->create();
             rec_part.addToTracks(track);
             rec_part.setType(0);
             rec_part.setEnergy(edm4hep::utils::magnitude(mom));
@@ -47,10 +62,57 @@ namespace eicrecon {
             rec_part.setMass(0.);
             rec_part.setGoodnessOfPID(0); // assume no PID until proven otherwise
             // rec_part.covMatrix()  // @TODO: covariance matrix on 4-momentum
+            }
+
+                    auto part_assoc = part_assocs->create();
+                    part_assoc.setRec(rec_part);
+                    part_assoc.setSim(track_assoc.getSim());
+                    part_assoc.setRecID(part_assoc.getRec().getObjectID().index);
+                    part_assoc.setSimID(part_assoc.getSim().getObjectID().index);
+                    part_assoc.setWeight(track_assoc.getWeight());
+
+                    warning("flow1 {} flow2 {}", track_assoc.getSim().getColorFlow().a, track_assoc.getSim().getColorFlow().b);
+
+                    if (max_weight < track_assoc.getWeight()) {
+                        max_weight = track_assoc.getWeight();
+                        edm4hep::Vector3f referencePoint = {
+                            static_cast<float>(track_assoc.getSim().getVertex().x),
+                            static_cast<float>(track_assoc.getSim().getVertex().y),
+                            static_cast<float>(track_assoc.getSim().getVertex().z)}; // @TODO: not sure if vertex/reference point makes sense here
+                        rec_part.setReferencePoint(referencePoint);
+                    }
+                    }
+                }
+            }
+          }
+        }
+
+        if (parts->size() < 1) {
+        warning("Did not find hackathon's track of interest. Skipping...");
+        return;
+        }
+        if (parts->size() > 1) {
+        warning("Found several ({}) tracks of interest", parts->size());
+        }
+
+        for (const auto &track: *tracks) {
+          auto trajectory = track.getTrajectory();
+          for (const auto &trk: trajectory.getTrackParameters()) {
+            const auto mom = edm4hep::utils::sphericalToVector(1.0 / std::abs(trk.getQOverP()), trk.getTheta(),
+                                                        trk.getPhi());
+            const auto charge_rec = std::copysign(1., trk.getQOverP());
+
+            edm4eic::MutableReconstructedParticle rec_part;
+            bool isAvailable = false;
+
+            debug("Converting track: index={:<4} momentum={:<8.3f} theta={:<8.3f} phi={:<8.2f} charge={:<4}",
+                  trk.getObjectID().index, edm4hep::utils::magnitude(mom), edm4hep::utils::anglePolar(mom), edm4hep::utils::angleAzimuthal(mom), charge_rec);
 
             double max_weight = -1.;
             for (auto track_assoc : *track_assocs) {
                 if (track_assoc.getRec() == track) {
+                    if ((track_assoc.getSim().getColorFlow().a != 2025) ||
+                        (track_assoc.getSim().getColorFlow().b != 2025)) {
                     trace("Found track association: index={} -> index={}, weight={}",
                           track_assoc.getRec().getObjectID().index,
                           track_assoc.getSim().getObjectID().index,
@@ -62,6 +124,21 @@ namespace eicrecon {
                     part_assoc.setSimID(part_assoc.getSim().getObjectID().index);
                     part_assoc.setWeight(track_assoc.getWeight());
 
+                    if (not isAvailable) {
+            isAvailable = true;
+            rec_part = parts->create();
+            rec_part.addToTracks(track);
+            rec_part.setType(0);
+            rec_part.setEnergy(edm4hep::utils::magnitude(mom));
+            rec_part.setMomentum(mom);
+            rec_part.setCharge(charge_rec);
+            rec_part.setMass(0.);
+            rec_part.setGoodnessOfPID(0); // assume no PID until proven otherwise
+            // rec_part.covMatrix()  // @TODO: covariance matrix on 4-momentum
+            }
+
+                    warning("flow1 {} flow2 {}", track_assoc.getSim().getColorFlow().a, track_assoc.getSim().getColorFlow().b);
+
                     if (max_weight < track_assoc.getWeight()) {
                         max_weight = track_assoc.getWeight();
                         edm4hep::Vector3f referencePoint = {
@@ -69,6 +146,7 @@ namespace eicrecon {
                             static_cast<float>(track_assoc.getSim().getVertex().y),
                             static_cast<float>(track_assoc.getSim().getVertex().z)}; // @TODO: not sure if vertex/reference point makes sense here
                         rec_part.setReferencePoint(referencePoint);
+                    }
                     }
                 }
             }
