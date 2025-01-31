@@ -233,13 +233,11 @@ void InitPlugin(JApplication *app) {
             ));
 
     app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
-            "CentralSecondaryTrackVertices",
-            //{"CentralCKFActsTrajectories"},
-            {"CentralTrackVertices","CentralCKFTrackParameters", "CentralCKFActsTrajectories"},
-            //{"CentralTrackVertices","ReconstructedParticles", "CentralCKFActsTrajectories"},
-            //{"CentralTrackVertices", "CentralCKFActsTrajectories"},
-            //{"CentralTrackVertices", "CentralCKFActsTrajectories"},
-            {"CentralSecondaryTrackVertices"},
+            "AMVSecondaryTrackVertices",
+            {"ReconstructedParticles",
+             "CentralCKFActsTrajectories"},
+            {//"AMVPrimaryTrackVertices",
+             "AMVSecondaryTrackVertices"},
             {},
             app
             ));

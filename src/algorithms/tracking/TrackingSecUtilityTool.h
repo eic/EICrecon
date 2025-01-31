@@ -10,6 +10,24 @@
 #include <TMath.h>
 #include <TProfile.h>
 
+
+#include <Acts/Geometry/GeometryContext.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <edm4eic/VertexCollection.h>
+#include <edm4eic/Vertex.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackParameters.h>
+#include <edm4eic/Trajectory.h>
+#include <spdlog/logger.h>
+
+#include "ActsExamples/EventData/Trajectories.hpp"
+#include "ActsGeometryProvider.h"
+#include "DD4hepBField.h"
+#include "SecondaryVertexFinderConfig.h"
+#include "IterativeVertexFinder.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
 #include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
 #include "Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
@@ -25,6 +43,11 @@
 #include "Acts/Propagator/EigenStepper.hpp"
 #include "Acts/Propagator/Propagator.hpp"
 #include "Acts/Vertexing/ImpactPointEstimator.hpp"
+#include <Acts/Vertexing/Vertex.hpp>
+#include <Acts/Vertexing/IterativeVertexFinder.hpp>
+#include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
+#include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
+#include <Acts/Vertexing/VertexingOptions.hpp>
 
 namespace eicrecon{
 class TrackingSecUtilityTool{
@@ -37,7 +60,8 @@ public:
   // Calculate an initial Primary Vertex
   std::unique_ptr<edm4eic::VertexCollection>
   calcPrimaryVtx(const edm4eic::ReconstructedParticleCollection*,
-          std::vector<const ActsExamples::Trajectories*> trajectories);
+          std::vector<const ActsExamples::Trajectories*>,Acts::AdaptiveMultiVertexFinder&,Acts::VertexingOptions,
+          Acts::AdaptiveMultiVertexFinder::Config&,Acts::IVertexFinder::State&);
 
   //Calculate secondary vertex and store secVtx container
   std::unique_ptr<edm4eic::VertexCollection>
@@ -53,6 +77,9 @@ public:
   getSecVtx(const edm4eic::Vertex*,const TLorentzVector&,
             const edm4eic::TrackParameters,
             const edm4eic::TrackParameters,std::vector<double>&);
+
+  //This is just a test
+  void write2screen();
 
 private:
   //Histos

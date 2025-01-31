@@ -26,11 +26,10 @@ private:
     using AlgoT = eicrecon::SecondaryVertexFinder;
     std::unique_ptr<AlgoT> m_algo;
 
-    Input<edm4eic::Vertex> m_vertex_input {this};
-    PodioInput<edm4eic::TrackParameters> m_trackparam_input {this};
     PodioInput<edm4eic::ReconstructedParticle> m_reco_input {this};
     Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
-    PodioOutput<edm4eic::Vertex> m_vertices_output {this};
+    //PodioOutput<edm4eic::Vertex> prm_vertices_output {this};
+    PodioOutput<edm4eic::Vertex> sec_vertices_output {this};
 
     ParameterRef<int> m_maxVertices {this, "maxVertices", config().maxVertices,
                            "Maximum num vertices that can be found"};
@@ -51,7 +50,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_vertices_output() = m_algo->produce(m_vertex_input(),m_trackparam_input(),m_reco_input(),m_acts_trajectories_input());
+        sec_vertices_output() = m_algo->produce(m_reco_input(),m_acts_trajectories_input());
     }
 };
 

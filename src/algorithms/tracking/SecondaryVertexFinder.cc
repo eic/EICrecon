@@ -3,7 +3,14 @@
 //
 
 #include "SecondaryVertexFinder.h"
-
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
+#include <JANA/JEventProcessor.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <JANA/Services/JGlobalRootLock.h>
 #include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
@@ -49,6 +56,9 @@
 #include <utility>
 
 #include "edm4eic/ReconstructedParticle.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/log/Log_service.h"
+#include "services/rootfile/RootFile_service.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
@@ -61,13 +71,58 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryPro
   m_BField =
       std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
+
+/*
+  std::string plugin_name = ("secvtx_studies");
+  // ===============================================================================================
+  // Get JANA application and seup general variables
+  // ===============================================================================================
+  auto app = GetApplication();
+  //m_log = app->GetService<Log_service>()->logger(plugin_name);
+
+  // Ask service locator for the DD4hep geometry
+  auto dd4hep_service = app->GetService<DD4hep_service>();
+
+  // Ask service locator a file to write histograms to
+  auto root_file_service = app->GetService<RootFile_service>();
+
+  // Get TDirectory for histograms root file
+  auto globalRootLock = app->GetService<JGlobalRootLock>();
+  globalRootLock->acquire_write_lock();
+  auto *file = root_file_service->GetHistFile();
+  globalRootLock->release_lock();
+
+  // ===============================================================================================
+  // Create a directory for this plugin. And subdirectories for series of histograms
+  // ===============================================================================================
+  m_dir_main = file->mkdir(plugin_name.c_str());
+
+  // ===============================================================================================
+  //  hists
+  // ===============================================================================================
+    m_hb_massPiPi1  = new TH1D("massPiPi1"," mass PiPi",100,200., 2000.);
+    m_hb_massEE     = new TH1D("massEE"," massEE", 100,0., 200.);
+    m_hb_nvrt2      = new TH1D("nvrt2"," vertices2", 50,0., 50.);
+    m_hb_ratio      = new TH1D("ratio"," ratio", 51,0., 1.02);
+    m_hb_totmass    = new TH1D("totmass"," totmass", 250,0., 10000.);
+    m_hb_totmassEE  = new TH1D("massEEcomvrt"," totmass EE common vertex", 100,0., 1000.);
+    m_hb_totmass2T0 = new TH1D("mass2trcomvrt0"," totmass 2tr common vertex", 800,0., 4000.);
+    m_hb_totmass2T1 = new TH1D("mass2trcomvrt1"," totmass 2tr common vertex", 200,0., 10000.);
+    m_hb_totmass2T2 = new TH1D("mass2trcomvrt2"," totmass 2tr common vertex", 200,0., 10000.);
+    m_hb_impact     = new TH1D("impact", " impact", 100,0., 20.);
+    m_hb_impactR    = new TH1D("impactR"," impactR", 400,-30., 70.);
+    m_hb_impactZ    = new TH1D("impactZ"," impactZ", 100,-30., 70.);
+*/
 }
 
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::produce(
-    std::vector<const edm4eic::Vertex*> primvertex,
-    const edm4eic::TrackParametersCollection* tracks,
     const edm4eic::ReconstructedParticleCollection* recotracks,
     std::vector<const ActsExamples::Trajectories*> trajectories) {
+/*
+void eicrecon::SecondaryVertexFinder::produce(const Input& input,const Output& output)const{
+  const auto [primvertex,tracks,recotracks,trajectories]=input;
+  auto[amvprimvtx,amvsecvtx]=output;
+*/
 
   auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
   auto outputVertices  = std::make_unique<edm4eic::VertexCollection>();
@@ -185,8 +240,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
 #else
   std::vector<const Acts::BoundTrackParameters*> inputTrackPointersSecondary;
 #endif
-
+  //std::unique_ptr<eicrecon::TrackingSecUtilityTool> utilityTool(new eicrecon::TrackingSecUtilityTool());
+  //utilityTool->calcPrimaryVtx(recotracks,trajectories,vertexfinderSec,vfOptions,vertexfinderCfgSec,stateSec);
   //Two Track Vertex fitting
+  calcPrimaryVtx(recotracks,trajectories,vertexfinderSec,vfOptions,vertexfinderCfgSec,stateSec);
   for (std::vector<Acts::BoundTrackParameters>::size_type i = 0; i != trajectories.size(); i++) {
     auto tips = trajectories[i]->tips();
     if (tips.empty()) {
@@ -237,6 +294,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
         std::cout << "Secondary vertex fit failed" << std::endl;
       }
 
+  //utilityTool->write2screen();
       for (const auto& secvertex : verticesSec) {
         //std::cout<<"This is really from the secondary vertex tracking...\n"; std::abort();
         edm4eic::Cov4f cov(secvertex.fullCovariance()(0, 0), secvertex.fullCovariance()(1, 1),
