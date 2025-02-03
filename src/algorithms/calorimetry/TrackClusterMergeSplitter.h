@@ -34,7 +34,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Comparator struct for clusters
   // --------------------------------------------------------------------------
-  /*! Organizes protoclusters by their ObjectID's in decreasing collection
+  /*! Organizes clusters by their ObjectID's in decreasing collection
    *  ID first, and second by decreasing index second.
    */
   struct CompareClust {
@@ -89,8 +89,8 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Track-Based Cluster Merger/Splitter
   // --------------------------------------------------------------------------
-  /*! An algorithm which takes a collection of proto-clusters, matches
-   *  track projections, and then decides to merge or split those proto-
+  /*! An algorithm which takes a collection of clusters, matches
+   *  track projections, and then decides to merge or split those
    *  clusters based on average E/p from simulations.
    *
    *  Heavily inspired by Eur. Phys. J. C (2017) 77:466
@@ -126,6 +126,7 @@ namespace eicrecon {
       void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters, const VecProj& projections, const VecTrk& tracks, MapToVecProj& matched_projects, MapToVecTrk& matched_tracks) const;
       void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, std::vector<edm4eic::MutableCluster>& new_clusters) const;
       void make_cluster(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust, std::optional<MatrixF> split_weights = std::nullopt) const;
+      void calculate_shape_parameters(edm4eic::MutableCluster& clust) const;
 
       // calorimeter id
       int m_idCalo {0};
