@@ -43,13 +43,13 @@ env:
   JANA_OPTIONS: "-Pjana:ticker_interval=60000 -Pjana:extended_report=1 -Pjana:warmup_timeout=0 -Pjana:timeout=0"
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0:intercept_tls_get_addr=0
   LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
-  UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1:silence_unsigned_overflow=1,report_error_type=1
+  UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1:silence_unsigned_overflow=1:report_error_type=1
 
 jobs:
   env:
     # env cannot be used in matrix, but outputs can
     # so this job turns env into outputs
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       platform_json: ${{ steps.define.outputs.platform_json }}
       release_json: ${{ steps.define.outputs.release_json }}
@@ -60,7 +60,7 @@ jobs:
         echo "release_json=[\"${{ env.release }}\"]" >> $GITHUB_OUTPUT
 
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: env
     strategy:
       # include multiple compilers for one release version,
@@ -175,7 +175,7 @@ jobs:
         if-no-files-found: error
 
   clang-tidy-iwyu:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: build
     steps:
     - uses: actions/checkout@v4
@@ -252,7 +252,7 @@ jobs:
       run: git diff --exit-code
 
   llvm-cov:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs: build
     permissions:
       statuses: write
@@ -311,7 +311,7 @@ jobs:
         path: build/codecov_report/
 
   detector-info:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       hash: ${{ steps.detector-info.outputs.hash }}
     steps:
@@ -326,7 +326,7 @@ jobs:
         echo "hash=${hash%% *}" | tee $GITHUB_OUTPUT
 
   npsim-gun:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - detector-info
     strategy:
@@ -356,7 +356,7 @@ jobs:
         if-no-files-found: error
 
   npsim-gun-EcalLumiSpec:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - detector-info
     strategy:
@@ -390,7 +390,7 @@ jobs:
         if-no-files-found: error
 
   npsim-dis:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - detector-info
     strategy:
@@ -426,7 +426,7 @@ jobs:
         if-no-files-found: error
 
   npsim-minbias:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - detector-info
     strategy:
@@ -462,7 +462,7 @@ jobs:
         if-no-files-found: error
 
   eicrecon-two-stage-running:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - build
     - npsim-gun
@@ -526,7 +526,7 @@ jobs:
         if-no-files-found: error
 
   eicrecon-eicmkplugin:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - build
     - npsim-gun
@@ -569,7 +569,7 @@ jobs:
           $PWD/install/bin/eicrecon $JANA_OPTIONS -Pplugins=MyCustomPlugin -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
 
   eicrecon-test-plugins:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - build
     - npsim-gun
@@ -618,7 +618,7 @@ jobs:
         if-no-files-found: error
 
   eicrecon-benchmarks-plugins:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - build
     - npsim-gun
@@ -671,7 +671,7 @@ jobs:
         if-no-files-found: error
 
   eicrecon-gun:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - build
     - npsim-gun
@@ -754,7 +754,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v7
+      uses: dawidd6/action-download-artifact@v8
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -785,7 +785,7 @@ jobs:
         if-no-files-found: error
 
   eicrecon-gun-EcalLumiSpec:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - build
     - npsim-gun-EcalLumiSpec
@@ -852,7 +852,7 @@ jobs:
         if-no-files-found: error
 
   eicrecon-dis:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
     - build
     - npsim-dis
@@ -954,7 +954,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v7
+      uses: dawidd6/action-download-artifact@v8
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -985,7 +985,7 @@ jobs:
         if-no-files-found: error
 
   trigger-container:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' }}
     needs:
     - eicrecon-gun
@@ -1017,7 +1017,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-docs:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - eicrecon-gun
       - eicrecon-dis
@@ -1055,7 +1055,7 @@ jobs:
           if-no-files-found: error
 
   list-open-prs:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       json: ${{ steps.remap.outputs.json }}
     steps:
@@ -1074,7 +1074,7 @@ jobs:
           include.*.head_sha: ${{ toJSON(fromJSON(steps.query.outputs.data).*.head.sha) }}
 
   get-docs-from-open-prs:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - build-docs
       - list-open-prs
@@ -1084,7 +1084,7 @@ jobs:
       max-parallel: 4
     steps:
       - name: Download docs artifact (other PRs)
-        uses: dawidd6/action-download-artifact@v7
+        uses: dawidd6/action-download-artifact@v8
         if: github.event.pull_request.number != matrix.pr
         with:
           commit: ${{ matrix.head_sha }}
@@ -1101,7 +1101,7 @@ jobs:
           path: publishing_docs/pr/${{ matrix.pr }}/
       - name: Download capybara artifact (other PRs)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v7
+        uses: dawidd6/action-download-artifact@v8
         if: github.event.pull_request.number != matrix.pr
         with:
           commit: ${{ matrix.head_sha }}
@@ -1125,7 +1125,7 @@ jobs:
           if-no-files-found: ignore
 
   get-docs-from-main:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - build-docs
     steps:
@@ -1133,7 +1133,7 @@ jobs:
       # - If we run this on a non-main branch, we download from main with action-download-artifact.
       # - If we run this on the main branch, we have to download from this pipeline with download-artifact.
       - name: Download docs artifact (in PR)
-        uses: dawidd6/action-download-artifact@v7
+        uses: dawidd6/action-download-artifact@v8
         if: github.ref_name != 'main'
         with:
           branch: main
@@ -1150,7 +1150,7 @@ jobs:
           path: publishing_docs/
       - name: Download capybara artifact (in PR)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v7
+        uses: dawidd6/action-download-artifact@v8
         if: github.ref_name != 'main'
         with:
           commit: ${{ matrix.head_sha }}
@@ -1182,7 +1182,7 @@ jobs:
           if-no-files-found: error
 
   collect-docs:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     needs:
       - get-docs-from-main
       - get-docs-from-open-prs
@@ -1241,7 +1241,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

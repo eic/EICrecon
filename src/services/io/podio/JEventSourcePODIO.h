@@ -15,8 +15,6 @@
 #include <podio/ROOTFrameReader.h>
 #endif
 #include <stddef.h>
-#include <memory>
-#include <set>
 #include <string>
 
 #if ((JANA_VERSION_MAJOR == 2) && (JANA_VERSION_MINOR >= 3)) || (JANA_VERSION_MAJOR > 2)
@@ -56,11 +54,8 @@ protected:
     size_t Nevents_in_file = 0;
     size_t Nevents_read = 0;
 
-    std::string m_include_collections_str;
-    std::string m_exclude_collections_str;
-    std::set<std::string> m_INPUT_INCLUDE_COLLECTIONS;
-    std::set<std::string> m_INPUT_EXCLUDE_COLLECTIONS;
     bool m_run_forever=false;
+    bool m_use_event_headers=true;
 
 };
 

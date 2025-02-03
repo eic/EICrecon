@@ -155,6 +155,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TaggerTrackerTracks",
             "TaggerTrackerTrajectories",
             "TaggerTrackerTrackParameters",
+            "TaggerTrackerReconstructedParticles",
 
             // Forward & Far forward hits
             "B0TrackerRecHits",
@@ -291,6 +292,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "LFHCALSplitMergeClusterAssociations",
             "HcalBarrelRawHits",
             "HcalBarrelRecHits",
+            "HcalBarrelMergedHits",
             "HcalBarrelClusters",
             "HcalBarrelClusterAssociations",
             "HcalBarrelSplitMergeClusters",
