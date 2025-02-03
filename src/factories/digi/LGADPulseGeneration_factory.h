@@ -32,9 +32,7 @@ private:
 
 public:
   void Configure() {
-    std::unique_ptr<eicrecon::PulseShape> landau = std::make_unique<eicrecon::LandauPulse>(config().gain, config().Vm,
-                                                          config().sigma_analog, config().adc_range);
-    m_algo = std::make_unique<eicrecon::LGADPulseGeneration>(GetPrefix(), std::move(landau));
+    m_algo = std::make_unique<eicrecon::LGADPulseGeneration>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();

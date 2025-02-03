@@ -38,10 +38,7 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseGeneration]") {
   cfg.adc_bit      = 8;
   cfg.adc_range    = pow(2, cfg.adc_bit);
 
-  std::unique_ptr<eicrecon::PulseShape> landau = std::make_unique<eicrecon::LandauPulse>(cfg.gain, cfg.Vm,
-                                        cfg.sigma_analog, cfg.adc_range);
-
-  eicrecon::LGADPulseGeneration algo("LGADPulseGeneration", std::move(landau));
+  eicrecon::LGADPulseGeneration algo("LGADPulseGeneration");
 
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("LGADPulseGeneration");
   logger->set_level(spdlog::level::trace);

@@ -19,22 +19,6 @@
 
 namespace eicrecon {
 
-LandauPulse::LandauPulse(double gain, double Vm, double sigma_analog, double adc_range) {
-  m_gain = gain;
-  m_sigma_analog = sigma_analog;
-
-  // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
-  // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =
-  // 0 and sigma = 1 at x = -0.22278
-  const double x_when_landau_min = -0.22278;
-  const double landau_min    = -gain * TMath::Landau(x_when_landau_min, 0, 1, kTRUE) / m_sigma_analog;
-  m_scalingFactor = 1. / Vm / landau_min * adc_range;
-}
-
-double LandauPulse::Eval(double time, double hit_time, double charge) {
-  return charge * m_gain * TMath::Landau(time, hit_time, m_sigma_analog, kTRUE) * m_scalingFactor;
-}
-
 void LGADPulseGeneration::_FillADCArray(AdcArray& adc_sum, double charge, double mpv_analog, int n_EICROC_cycle, dd4hep::rec::CellID cellID) const {
   double Vm       = m_cfg.Vm;
   double t        = 0;
@@ -61,6 +45,11 @@ void LGADPulseGeneration::_FillADCArray(AdcArray& adc_sum, double charge, double
     }
   }
 
+}
+
+void LGADPulseGeneration::init() {
+    m_pulse = std::make_unique<LGADPulseGeneration::LandauPulse>(m_cfg.gain, m_cfg.Vm,
+                                                                 m_cfg.sigma_analog, m_cfg.adc_range);
 }
 
 void LGADPulseGeneration::process(const LGADPulseGeneration::Input& input,
