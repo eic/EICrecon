@@ -7,14 +7,12 @@
 
 #include <DDRec/CellIDPositionConverter.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <RtypesCore.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <unordered_map>
 #include <vector>
 
 #include "LGADPulseGeneration.h"
-#include "TMath.h"
 #include "algorithms/digi/LGADPulseGenerationConfig.h"
 
 namespace eicrecon {

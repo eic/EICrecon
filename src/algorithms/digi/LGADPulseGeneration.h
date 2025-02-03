@@ -8,6 +8,8 @@
 #pragma once
 
 #include <DDRec/CellIDPositionConverter.h>
+#include <RtypesCore.h>
+#include <TMath.h>
 #include <algorithms/algorithm.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
@@ -15,7 +17,6 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
 #include "algorithms/digi/LGADPulseGenerationConfig.h"

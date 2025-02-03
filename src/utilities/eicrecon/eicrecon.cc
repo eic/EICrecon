@@ -3,10 +3,10 @@
 //
 //
 
+#include <JANA/JApplication.h>
 #include <string>
 #include <vector>
 
-#include "JANA/JApplication.h"
 #include "eicrecon_cli.h"
 
 /// The default plugins
