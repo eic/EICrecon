@@ -142,6 +142,11 @@ namespace eicrecon {
       void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, std::vector<edm4eic::MutableCluster>& new_clusters) const;
       void make_cluster(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust, std::optional<MatrixF> split_weights = std::nullopt) const;
       void calculate_shape_parameters(edm4eic::MutableCluster& clust) const;
+#if EDM4EIC_VERSION_MAJOR >= 7
+      void collect_associations(const edm4eic::MutableCluster& new_clust, const VecClust& old_clusts, const edm4eic::MCRecoClusterParticleAssociationCollection* old_clust_assocs, const edm4eic::MCRecoCalorimeterHitAssociationCollection* old_hit_assocs, edm4eic::MCRecoClusterParticleAssociationCollection* new_clust_assocs) const;
+#else
+      void collect_associations(const edm4eic::MutableCluster& new_clust, const VecClust& old_clusts, const edm4eic::MCRecoClusterParticleAssociationCollection* old_clust_assocs, const edm4hep::SimCalorimeterHitCollection* old_sim_hits, edm4eic::MCRecoClusterParticleAssociationCollection* new_clust_assocs) const;
+#endif
 
       // calorimeter id
       int m_idCalo {0};
