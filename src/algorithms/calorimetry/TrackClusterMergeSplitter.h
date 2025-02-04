@@ -7,12 +7,18 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include <edm4eic/TrackClusterMatchCollection.h>
 #endif
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#if EDM4EIC_VERSION_MAJOR >= 7
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#else
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#endif
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
 #include <algorithm>
@@ -72,15 +78,20 @@ namespace eicrecon {
   using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4eic::ClusterCollection,
-      edm4eic::TrackSegmentCollection
+      edm4eic::TrackSegmentCollection,
+      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
+#if EDM4EIC_VERSION_MAJOR >= 7
+      std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>
+#else
+      std::optional<edm4hep::SimCalorimeterHitCollection>
+#endif
     >,
     algorithms::Output<
-#if EDM4EIC_VERSION_MAJOR >= 8
       edm4eic::ClusterCollection,
-      edm4eic::TrackClusterMatchCollection
-#else
-      edm4eic::ClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 8
+      edm4eic::TrackClusterMatchCollection,
 #endif
+      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>
     >
   >;
 
@@ -106,11 +117,15 @@ namespace eicrecon {
       TrackClusterMergeSplitter(std::string_view name) :
         TrackClusterMergeSplitterAlgorithm {
           name,
-          {"InputProtoClusterCollection", "InputTrackProjections"},
-#if EDM4EIC_VERSION_MAJOR >= 8
-          {"OutputProtoClusterCollection", "OutputTrackClusterMatches"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"InputClusterCollection", "InputTrackProjections", "InputMCClusterAssociations", "InputMCHitAssociations"},
 #else
-          {"OutputProtoClusterCollection"},
+          {"InputClusterCollection", "InputTrackProjections", "InputMCClusterAssociations", "InputMCHits"},
+#endif
+#if EDM4EIC_VERSION_MAJOR >= 8
+          {"OutputProtoClusterCollection", "OutputTrackClusterMatches", "OutputMCClusterAssociations"},
+#else
+          {"OutputProtoClusterCollection", "OutputMCClusterAssociations"},
 #endif
           "Merges or splits clusters based on tracks projected to them."
         } {}

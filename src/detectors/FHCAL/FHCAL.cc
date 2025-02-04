@@ -303,13 +303,18 @@ extern "C" {
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
             "LFHCALSplitMergeClusters",
             {"LFHCALClusters",
-             "CalorimeterTrackProjections"},
-#if EDM4EIC_VERSION_MAJOR >= 8
-            {"LFHCALSplitMergeClusters",
-             "LFHCALTrackSplitMergeClusterMatches"},
+             "CalorimeterTrackProjections",
+             "LFHCALClusterAssociations",
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "LFHCALRawHitAssocitions"},
 #else
-            {"LFHCALSplitMergeClusters"},
+             "LFHCALHit"},
 #endif
+            {"LFHCALSplitMergeClusters",
+#if EDM4EIC_VERSION_MAJOR >= 8
+             "LFHCALTrackSplitMergeClusterMatches",
+#endif
+             "LHFCALSplitMergeClusterAssociations"},
             {
               .idCalo = "LFHCAL_ID",
               .minSigCut = -2.0,

@@ -68,11 +68,15 @@ namespace eicrecon {
   ) const {
 
     // grab inputs/outputs
-    const auto [in_clusters, in_projections] = input;
-#if EDM4EIC_VERSION_MAJOR >= 8
-    auto [out_clusters, out_matches] = output;
+#if EDM4EIC_VERSION_MAJOR >= 7
+    const auto [in_clusters, in_projections, in_clust_associations, in_hit_associations] = input;
 #else
-    auto [out_clusters] = output;
+    const auto [in_clusters, in_projections, in_clust_associations, in_sim_hits] = input;
+#endif
+#if EDM4EIC_VERSION_MAJOR >= 8
+    auto [out_clusters, out_matches, out_clust_associations] = output;
+#else
+    auto [out_clusters, out_clust_associations] = output;
 #endif
 
     // exit if no clusters in collection

@@ -138,13 +138,18 @@ extern "C" {
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
             "HcalEndcapNSplitMergeClusters",
             {"HcalEndcapNClusters",
-             "CalorimeterTrackProjections"},
-#if EDM4EIC_VERSION_MAJOR >= 8
-            {"HcalEndcapNSplitMergeClusters",
-             "HcalEndcapNTrackSplitMergeClusterMatches"},
+             "CalorimeterTrackProjections",
+             "HcalEndcapNClusterAssociations",
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalEndcapNRawHitAssocitions"},
 #else
-            {"HcalEndcapNSplitMergeClusters"},
+             "HcalEndcapNHits"},
 #endif
+            {"HcalEndcapNSplitMergeClusters",
+#if EDM4EIC_VERSION_MAJOR >= 8
+             "HcalEndcapNTrackSplitMergeClusterMatches",
+#endif
+             "HcalEndcapNTrackSplitMergeClusterAssociations"},
             {
               .idCalo = "HcalEndcapN_ID",
               .minSigCut = -2.0,
