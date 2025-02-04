@@ -248,6 +248,19 @@ namespace eicrecon {
         in_cluster.getObjectID().index,
         out_cluster.getObjectID().index
       );
+
+      // if provided, copy corresponding associations to
+      // output collection
+      for (auto in_assoc : *in_clust_associations) {
+        if (in_assoc.getRec() == in_cluster) {
+          edm4eic::MutableMCRecoClusterParticleAssociation out_assoc = in_assoc.clone();
+          out_clust_associations->push_back(out_assoc);
+          trace("Copied input association {} onto output association {}",
+            in_assoc.getObjectID().index,
+            out_assoc.getObjectID().index
+          );
+        }
+      }  // end association loop
     }  // end cluster loop
 
   }  // end 'process(Input&, Output&)'
