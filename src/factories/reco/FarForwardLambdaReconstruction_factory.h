@@ -20,7 +20,7 @@ namespace eicrecon {
     PodioInput<edm4eic::ReconstructedParticle> m_gammas_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_lambda_output {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_decay_products_output {this};
-    
+
     ParameterRef<double> m_rotY     {this, "rotY",          config().rotY};
     ParameterRef<double> m_zmax     {this, "zmax",          config().zmax};
     ParameterRef<double> m_lambda_max_mass_dev     {this, "lambda_max_mass_dev",          config().lambda_max_mass_dev};

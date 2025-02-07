@@ -30,7 +30,7 @@ namespace eicrecon {
 
     ParameterRef<double> m_gamma_max_length     {this, "gamma_max_length",          config().gamma_max_length};
     ParameterRef<double> m_gamma_max_width     {this, "gamma_max_width",          config().gamma_max_width};
-    
+
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
 public:

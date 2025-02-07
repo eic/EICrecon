@@ -34,13 +34,13 @@ using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
        public:
          FarForwardLambdaReconstruction(std::string_view name)
                   : FarForwardLambdaReconstructionAlgorithm{name,
-							    {"inputNeutrons", "inputPhotons"},
-							    {"outputLambda", "outputLambdaDecayProducts"},
+                                                            {"inputNeutrons", "inputPhotons"},
+                                                            {"outputLambda", "outputLambdaDecayProducts"},
                                         "Reconstructs lambda candidates and their decay products from the reconstructed neutrons and photons"} {}
 
          void init() final;
          void process(const Input&, const Output&) const final;
-         
+
     private:
         std::shared_ptr<spdlog::logger> m_log;
         double m_neutron{0.93956542052};
