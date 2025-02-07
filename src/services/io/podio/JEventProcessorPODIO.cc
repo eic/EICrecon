@@ -324,7 +324,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCTruthClusters",
             "HcalFarForwardZDCTruthClusterAssociations",
             "ReconstructedFarForwardZDCNeutrons",
-
+	    "ReconstructedFarForwardZDCGammas",
+	    "ReconstructedFarForwardZDCLambdas",
+	    
             // DIRC
             "DIRCRawHits",
             "DIRCPID",
