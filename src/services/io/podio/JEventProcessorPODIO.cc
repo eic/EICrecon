@@ -323,6 +323,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",
             "HcalFarForwardZDCTruthClusterAssociations",
+            "ReconstructedFarForwardZDCNeutronsStandAlone",
             "ReconstructedFarForwardZDCNeutrons",
             "ReconstructedFarForwardZDCGammas",
             "ReconstructedFarForwardZDCLambdas",
