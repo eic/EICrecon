@@ -28,6 +28,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/reco/FarForwardNeutronReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #ifdef USE_ONNX
@@ -309,6 +310,16 @@ void InitPlugin(JApplication *app) {
             {"ReconstructedBreitFrameParticles"},
             {},
             app
+    ));
+    app->Add(new JOmniFactoryGeneratorT<FarForwardNeutronReconstruction_factory>(
+           "ReconstructedFarForwardZDCNeutronsStandAlone",
+           {"HcalFarForwardZDCClusters","EcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
+          {"ReconstructedFarForwardZDCNeutronsStandAlone"}, // edm4eic::ReconstrutedParticleCollection,
+          {
+            .scale_corr_coeff_hcal={-0.0756, -1.91, 2.30},
+            .scale_corr_coeff_ecal={-0.352, -1.34, 1.61}
+          },
+          app
     ));
     app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
            "ReconstructedFarForwardZDCNeutrons",
