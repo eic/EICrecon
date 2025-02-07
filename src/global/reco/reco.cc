@@ -28,7 +28,8 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
-#include "factories/reco/FarForwardNeutronReconstruction_factory.h"
+#include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
+#include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #ifdef USE_ONNX
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #endif
@@ -309,16 +310,32 @@ void InitPlugin(JApplication *app) {
             {},
             app
     ));
-    app->Add(new JOmniFactoryGeneratorT<FarForwardNeutronReconstruction_factory>(
+    app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
            "ReconstructedFarForwardZDCNeutrons",
-           {"HcalFarForwardZDCClusters","EcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
-          {"ReconstructedFarForwardZDCNeutrons"}, // edm4eic::ReconstrutedParticleCollection,
-          {
-            .scale_corr_coeff_hcal={-0.0756, -1.91, 2.30},
-            .scale_corr_coeff_ecal={-0.352, -1.34, 1.61}
-          },
+           {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
+	   {"ReconstructedFarForwardZDCNeutrons", "ReconstructedFarForwardZDCGammas"}, // edm4eic::ReconstrutedParticleCollection,
+	   {
+            .n_scale_corr_coeff_hcal={-0.11, -1.5, 0},
+            .gamma_scale_corr_coeff_hcal={0, -.13, 0},
+	    .gamma_zmax=300*dd4hep::mm,
+	    .gamma_max_length=100*dd4hep::mm,
+	    .gamma_max_width=12*dd4hep::mm
+	    },
           app   // TODO: Remove me once fixed
     ));
+    app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
+	   "ReconstructedFarForwardZDCLambdas",
+           {"ReconstructedFarForwardZDCNeutrons", "ReconstructedFarForwardZDCGammas"}, // edm4eic::ReconstrutedParticleCollection,
+	   {"ReconstructedFarForwardZDCLambdas"}, // edm4eic::ReconstrutedParticleCollection, 
+	   {
+	     .rotY=-0.025,
+	     .zmax=35800*dd4hep::mm,
+	     .lambda_max_mass_dev=0.030*dd4hep::GeV,
+	     .iterations=10
+            },
+          app   // TODO: Remove me once fixed
+    ));
+
 #if EDM4EIC_VERSION_MAJOR >= 6
     app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
         "HadronicFinalState",
