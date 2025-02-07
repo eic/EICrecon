@@ -148,12 +148,13 @@ namespace eicrecon {
             src_links.insert(src_links.end(), sourceLink);
             // ---
             // Create ACTS measurements
-            Acts::Vector2 loc = Acts::Vector2::Zero();
+            std::array<Acts::BoundIndices, 2> indices{Acts::eBoundLoc0, Acts::eBoundLoc1};
+
+            Acts::ActsVector<2> loc = Acts::Vector2::Zero();
             loc[Acts::eBoundLoc0] = meas2D.getLoc().a;
             loc[Acts::eBoundLoc1] = meas2D.getLoc().b;
 
-
-            Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
+            Acts::ActsSquareMatrix<2> cov = Acts::ActsSquareMatrix<2>::Zero();
             cov(0, 0) = meas2D.getCovariance().xx;
             cov(1, 1) = meas2D.getCovariance().yy;
             cov(0, 1) = meas2D.getCovariance().xy;
