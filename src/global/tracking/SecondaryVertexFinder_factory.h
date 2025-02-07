@@ -20,38 +20,42 @@
 namespace eicrecon {
 
 class SecondaryVertexFinder_factory :
-        public JOmniFactory<SecondaryVertexFinder_factory, SecondaryVertexFinderConfig> {
+  public JOmniFactory<SecondaryVertexFinder_factory, SecondaryVertexFinderConfig> {
 
 private:
-    using AlgoT = eicrecon::SecondaryVertexFinder;
-    std::unique_ptr<AlgoT> m_algo;
+  using AlgoT = eicrecon::SecondaryVertexFinder;
+  std::unique_ptr<AlgoT> m_algo;
 
-    PodioInput<edm4eic::ReconstructedParticle> m_reco_input {this};
-    Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
-    //PodioOutput<edm4eic::Vertex> prm_vertices_output {this};
-    PodioOutput<edm4eic::Vertex> sec_vertices_output {this};
+  PodioInput<edm4eic::ReconstructedParticle> m_reco_input {this};
+  Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
+  PodioOutput<edm4eic::Vertex> prm_vertices_output {this};
+  PodioOutput<edm4eic::Vertex> sec_vertices_output {this};
 
-    ParameterRef<int> m_maxVertices {this, "maxVertices", config().maxVertices,
-                           "Maximum num vertices that can be found"};
-    ParameterRef<bool> m_reassignTracksAfterFirstFit {this, "reassignTracksAfterFirstFit",
-                           config().reassignTracksAfterFirstFit,
-                           "Whether or not to reassign tracks after first fit"};
+  ParameterRef<int> m_maxVertices {this, "maxVertices", config().maxVertices,
+                         "Maximum num vertices that can be found"};
+  ParameterRef<bool> m_reassignTracksAfterFirstFit {this, "reassignTracksAfterFirstFit",
+                         config().reassignTracksAfterFirstFit,
+                         "Whether or not to reassign tracks after first fit"};
 
-    Service<ACTSGeo_service> m_ACTSGeoSvc {this};
+  Service<ACTSGeo_service> m_ACTSGeoSvc {this};
 
 public:
-    void Configure() {
-        m_algo = std::make_unique<AlgoT>();
-        m_algo->applyConfig(config());
-        m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
-    }
+  void Configure() {
+    m_algo = std::make_unique<AlgoT>();
+    m_algo->applyConfig(config());
+    m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+  }
 
-    void ChangeRun(int64_t run_number) {
-    }
+  void ChangeRun(int64_t run_number) {
+  }
 
-    void Process(int64_t run_number, uint64_t event_number) {
-        sec_vertices_output() = m_algo->produce(m_reco_input(),m_acts_trajectories_input());
-    }
+  void Process(int64_t run_number, uint64_t event_number) {
+    std::tie(prm_vertices_output(),sec_vertices_output())
+      = m_algo->produce(m_reco_input(),m_acts_trajectories_input());
+    /*
+    sec_vertices_output() = m_algo->produce(m_reco_input(),m_acts_trajectories_input());
+    */
+  }
 };
 
 } // eicrecon

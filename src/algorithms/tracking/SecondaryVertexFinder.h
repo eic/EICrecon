@@ -34,6 +34,7 @@
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <edm4eic/VertexCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/Vertex.h>
 #include <edm4eic/unit_system.h>
 #include <edm4eic/TrackParametersCollection.h>
@@ -57,7 +58,7 @@
 
 namespace eicrecon {
 class SecondaryVertexFinder
-    : public eicrecon::WithPodConfig<eicrecon::SecondaryVertexFinderConfig>,JEventProcessor{
+    : public eicrecon::WithPodConfig<eicrecon::SecondaryVertexFinderConfig>{
 public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
@@ -67,107 +68,35 @@ public:
           const edm4eic::ReconstructedParticleCollection*,
           std::vector<const ActsExamples::Trajectories*> trajectories);
 */
-  std::unique_ptr<edm4eic::VertexCollection>
+  //std::unique_ptr<edm4eic::VertexCollection>
+  //std::tuple<std::unique_ptr<edm4eic::TrackCollection>,std::unique_ptr<edm4eic::VertexCollection>>
+  std::tuple<std::unique_ptr<edm4eic::VertexCollection>,std::unique_ptr<edm4eic::VertexCollection>>
   produce(const edm4eic::ReconstructedParticleCollection*,
           std::vector<const ActsExamples::Trajectories*> trajectories);
 
   // Calculate an initial Primary Vertex
-  void calcPrimaryVtx(const edm4eic::ReconstructedParticleCollection*,
+  std::unique_ptr<edm4eic::VertexCollection>
+  calcPrimaryVtx(const edm4eic::ReconstructedParticleCollection*,
           std::vector<const ActsExamples::Trajectories*> trajectories,Acts::AdaptiveMultiVertexFinder&,
           Acts::VertexingOptions,Acts::AdaptiveMultiVertexFinder::Config&,Acts::IVertexFinder::State&);
 
   //Calculate secondary vertex and store secVtx container
   std::unique_ptr<edm4eic::VertexCollection>
   calcSecVtx(const edm4eic::ReconstructedParticleCollection*,
-          std::vector<const ActsExamples::Trajectories*> trajectries);
-                                                                   // Functions to be used to check efficacy of sec. vertex         bool computeVtxcandidate(const edm4eic::Vertex*,                                          const edm4eic::TrackParameters*,                                 const edm4eic::TrackParameters*,bool);  //Calculate multi-secvertex and store secVtx container
+          std::vector<const ActsExamples::Trajectories*> trajectories,Acts::AdaptiveMultiVertexFinder&,
+          Acts::VertexingOptions,Acts::AdaptiveMultiVertexFinder::Config&,Acts::IVertexFinder::State&,
+          std::vector<Acts::Vertex>);
+
+  // Functions to be used to check efficacy of sec. vertex 
   std::unique_ptr<edm4eic::VertexCollection>
   getSecVtx(const edm4eic::Vertex*,const TLorentzVector&,
             const edm4eic::TrackParameters,
             const edm4eic::TrackParameters,std::vector<double>&);
 
+  // Inline functions to calculate the AMVF primary vertex
   inline void setprmvtx(std::vector<Acts::Vertex> vtx){prmvtx=vtx;};
   inline std::vector<Acts::Vertex> getprmvtx(){return prmvtx;};
 private:
-    TDirectory *m_dir_main;
-  //TrackingSecUtilityTool* utilityTool=NULL;
-  //Histos
-  //struct histos{
-    TH1D* m_hb_massKPi;
-    TH1D* m_hb_massPiPi1;
-    TH1D* m_hb_massEE;
-    TH1D* m_hb_totmassEE;
-    TH1D* m_hb_totmass2T0;
-    TH1D* m_hb_totmass2T1;
-    TH1D* m_hb_totmass2T2;
-    TH1D* m_hb_nvrt2;
-    TH1D* m_hb_ratio;
-    TH1D* m_hb_totmass;
-    TH1D* m_hb_impact;
-    TH1D* m_hb_impactR;
-    TH2D* m_hb_impactRZ;
-    TH1D* m_hb_trkD0{};
-    TH1D* m_hb_ntrk{};
-    TH1D* m_hb_impactZ{};
-    TH1D* m_hb_r2d{};
-    TH1D* m_hb_r1dc{};
-    TH1D* m_hb_r2dc{};
-    TH1D* m_hb_r3dc{};
-    TH1D* m_hb_rNdc{};
-    TH1D* m_hb_dstToMat{};
-    TH1D* m_hb_jmom{};
-    TH1D* m_hb_mom{};
-    TH1D* m_hb_signif3D{};
-    TH1D* m_hb_impV0{};
-    TH1D* m_hb_sig3DTot{};
-    TH1D* m_hb_goodvrtN{};
-    TH1D* m_hb_distVV{};
-    TH1D* m_hb_diffPS{};
-    TH1D* m_hb_sig3D1tr{};
-    TH1D* m_hb_sig3D2tr{};
-    TH1D* m_hb_sig3DNtr{};
-    TH1D* m_hb_trkPtMax{};
-    TH1D* m_hb_rawVrtN{};
-    TH1D* m_hb_lifetime{};
-    TH1D* m_hb_trkPErr{};
-    TH1D* m_hb_deltaRSVPV{};
-  //};
-  //std::unique_ptr<histos> m_h;
-
-  // two-track vertex container (D0 and B0)
-  // two-body decay modes
-  struct vrt2Tr{
-    int i=0, j=0;
-    int badVrt=0;
-    Acts::Vector3 fitVertex;
-    TLorentzVector momentum;
-    long int vertexCharge;
-    std::vector<double> errorMatrix;
-    std::vector<double> chi2PerTrk;
-    std::vector< std::vector<double> > trkAtVrt;
-    double signif3D=0.;
-    double signif3DProj=0.;
-    double signif2D=0.;
-    double chi2=0.;
-    double dRSVPV=-1.;
-  };
-
-  //For multivertex' container
-  struct multiVrt{
-    bool Good=true;
-    std::deque<long int> selTrk;
-    Acts::Vector3 vertex;
-    TLorentzVector vertexMom;
-    long int vertexCharge{};
-    std::vector<double> vertexCov;
-    std::vector<double> chi2PerTrk;
-    std::vector< std::vector<double> > trkAtVrt;
-    double chi2{};
-    int nCloseVrt=0;
-    double dCloseVrt=1000000.;
-    double projectedVrt=0.;
-    int detachedTrack=-1;
-  };
 
   const double m_massPi =139.5702;
   const double m_massP  =938.272;
@@ -204,15 +133,15 @@ private:
 
 };
 
-void SecondaryVertexFinder::calcPrimaryVtx(
+std::unique_ptr<edm4eic::VertexCollection>
+SecondaryVertexFinder::calcPrimaryVtx(
     const edm4eic::ReconstructedParticleCollection* reconParticles,
     std::vector<const ActsExamples::Trajectories*> trajectories,Acts::AdaptiveMultiVertexFinder& finder,
     Acts::VertexingOptions finderOpts, Acts::AdaptiveMultiVertexFinder::Config& finderCfg,
     Acts::IVertexFinder::State& state){
 
-  auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
+  auto prmVertices = std::make_unique<edm4eic::VertexCollection>();
   std::vector<TVector3> tempvtx;
-  std::cout<<"****Just checking to make sure that this thing is called******\n";
 #if Acts_VERSION_MAJOR >= 33
   std::vector<Acts::InputTrack> inputTracks;
 #else
@@ -248,14 +177,14 @@ void SecondaryVertexFinder::calcPrimaryVtx(
     vertices = std::move(result.value());
     setprmvtx(vertices);
   }
-
+  std::cout<<"**** Here we go Primary Vertex Multiplicity: "<<getprmvtx().size()<<" : "<<vertices.size()<<"\n";
   // -----> Fix: Use for later
   for (const auto& vtx : vertices) {
     edm4eic::Cov4f cov(vtx.fullCovariance()(0,0), vtx.fullCovariance()(1,1), vtx.fullCovariance()(2,2), vtx.fullCovariance()(3,3),
                        vtx.fullCovariance()(0,1), vtx.fullCovariance()(0,2), vtx.fullCovariance()(0,3),
                        vtx.fullCovariance()(1,2), vtx.fullCovariance()(1,3),
                        vtx.fullCovariance()(2,3));
-    auto eicvertex = outputVertices->create();
+    auto eicvertex = prmVertices->create();
     eicvertex.setType(1);                                  // boolean flag if vertex is primary vertex of event
     eicvertex.setChi2((float)vtx.fitQuality().first);      // chi2
     eicvertex.setNdf((float)vtx.fitQuality().second);      // ndf
@@ -267,6 +196,7 @@ void SecondaryVertexFinder::calcPrimaryVtx(
     }); // vtxposition
     eicvertex.setPositionError(cov);                          // covariance
 
+/*
     for (const auto& t : vtx.tracks()){
 #if Acts_VERSION_MAJOR >= 33
       const auto& par = finderCfg.extractParameters(t.originalParams);
@@ -295,6 +225,110 @@ void SecondaryVertexFinder::calcPrimaryVtx(
     } // end for t
     m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.", vtx.position().x() / Acts::UnitConstants::mm, vtx.position().y() / Acts::UnitConstants::mm, vtx.position().z() / Acts::UnitConstants::mm);
 
+*/
   } // end for vtx
+  return std::move(prmVertices);
+}
+
+std::unique_ptr<edm4eic::VertexCollection>
+SecondaryVertexFinder::calcSecVtx(
+    const edm4eic::ReconstructedParticleCollection* reconParticles,
+    std::vector<const ActsExamples::Trajectories*> trajectories,Acts::AdaptiveMultiVertexFinder& vertexfinderSec,
+    Acts::VertexingOptions vfOptions, Acts::AdaptiveMultiVertexFinder::Config& vertexfinderCfgSec,
+    Acts::IVertexFinder::State& stateSec,std::vector<Acts::Vertex> prmvtx){
+
+  std::cout<<"==========> primvtx.size = "<<prmvtx.size()<<"\n";
+  auto secVertices = std::make_unique<edm4eic::VertexCollection>();
+#if Acts_VERSION_MAJOR >= 33
+  std::vector<Acts::InputTrack> inputTracks;
+#else
+  std::vector<const Acts::BoundTrackParameters*> inputTrackPointersSecondary;
+#endif
+  for(unsigned int i = 0; i < trajectories.size(); i++) {
+    auto tips = trajectories[i]->tips();
+    if (tips.empty()) {
+      continue;
+    }
+    std::cout << "Trajectory i: " << i << " has " << tips.size() << " tips" << std::endl;
+    for(unsigned int j=i+1; j < trajectories.size(); j++){
+      auto tips2 = trajectories[j]->tips();
+      if (tips2.empty()) {
+        continue;
+      }
+      std::cout << "Trajectory j: " << j << " has " << tips2.size() << " tips" << std::endl;
+      // Checking for default DCA cut-condition
+      //secvtxGood=computeVtxcandidate(primvertex,tracks[i],tracks[j]);
+      //if(!secvtxGood) continue;
+      for (auto& tip : tips) {
+        /// CKF can provide multiple track trajectories for a single input seed
+#if Acts_VERSION_MAJOR >= 33
+        inputTracks.emplace_back(&(trajectories[i]->trackParameters(tip)));
+#else
+        inputTrackPointersSecondary.push_back(&(trajectories[i]->trackParameters(tip)));
+#endif
+      }
+      for(auto& tip : tips2){
+#if Acts_VERSION_MAJOR >= 33
+        inputTracks.emplace_back(&(trajectories[j]->trackParameters(tip)));
+#else
+        inputTrackPointersSecondary.push_back(&(trajectories[j]->trackParameters(tip)));
+#endif
+      }
+      // run the vertex finder for both tracks
+      std::cout << "Fitting secondary vertex" << std::endl;
+#if Acts_VERSION_MAJOR >= 33
+      std::vector<Acts::Vertex> verticesSec;
+      auto resultSecondary = vertexfinderSec.find(inputTracks, vfOptions, stateSec);
+#else
+      auto resultSecondary =
+          vertexfinderSec.find(inputTrackPointersSecondary, vfOptions, stateSec);
+      std::cout << "Secondary vertex fit done" << std::endl;
+
+      std::vector<Acts::Vertex<Acts::BoundTrackParameters>> verticesSec;
+#endif
+      if (resultSecondary.ok()) {
+        std::cout << "Secondary vertex fit succeeded" << std::endl;
+        verticesSec = std::move(resultSecondary.value());
+      }else {
+        std::cout << "Secondary vertex fit failed" << std::endl;
+      }
+      for (const auto& secvertex : verticesSec) {
+        //std::cout<<"This is really from the secondary vertex tracking...\n"; std::abort();
+        edm4eic::Cov4f cov(secvertex.fullCovariance()(0, 0), secvertex.fullCovariance()(1, 1),
+                           secvertex.fullCovariance()(2, 2), secvertex.fullCovariance()(3, 3),
+                           secvertex.fullCovariance()(0, 1), secvertex.fullCovariance()(0, 2),
+                           secvertex.fullCovariance()(0, 3), secvertex.fullCovariance()(1, 2),
+                           secvertex.fullCovariance()(1, 3), secvertex.fullCovariance()(2, 3));
+        auto eicvertex = secVertices->create();
+        eicvertex.setType(0); // boolean flag if vertex is primary vertex of event
+        eicvertex.setChi2((float)secvertex.fitQuality().first); // chi2
+        eicvertex.setNdf((float)secvertex.fitQuality().second); // ndf
+        eicvertex.setPosition({
+            (float)secvertex.position().x(),
+            (float)secvertex.position().y(),
+            (float)secvertex.position().z(),
+            (float)secvertex.time(),
+        });                              // vtxposition
+        eicvertex.setPositionError(cov); // covariance
+
+/*
+        for(const auto& trk: secvertex.tracks()){
+#if Acts_VERSION_MAJOR >= 33
+          const auto& par=vertexfinderCfgSec.extractParameters(trk.originalParams);
+#else
+          const auto& par=trk.originalParams;
+#endif
+        }//end for trk-loop
+*/
+      }
+#if Acts_VERSION_MAJOR >= 33
+      // empty the vector for the next set of tracks
+      inputTracks.clear();
+#else
+      inputTrackPointersSecondary.clear();
+#endif
+    } //end of int j=i+1
+  } // end of int i=0; i<trajectories.size()
+  return secVertices;
 }
 } // namespace eicrecon

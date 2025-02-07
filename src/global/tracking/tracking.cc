@@ -236,8 +236,8 @@ void InitPlugin(JApplication *app) {
             "AMVSecondaryTrackVertices",
             {"ReconstructedParticles",
              "CentralCKFActsTrajectories"},
-            {//"AMVPrimaryTrackVertices",
-             "AMVSecondaryTrackVertices"},
+            {"AMVPrimaryVertices",
+             "AMVSecondaryTrackVertices",},
             {},
             app
             ));
