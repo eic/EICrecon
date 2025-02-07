@@ -10,7 +10,7 @@ There are many coding guidelines which could be selected by the whole community,
 - member functions: camelCase
 - members:  m_snake_case
 - local variables: snake_case
-- constands, definitions: SCREAMING_SNAKE_CASE
+- constants, definitions: SCREAMING_SNAKE_CASE
 - base namespace: eicrecon
 - indent: 4 spaces
 
