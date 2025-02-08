@@ -173,13 +173,9 @@ namespace eicrecon {
             Acts::visit_measurement(
               indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
                 if constexpr (dim == indices.size()) {
-                  ActsExamples::FixedBoundMeasurementProxy<dim> measurement =
-                    measurements->makeMeasurement<dim>();
-                  measurement.setSourceLink(sourceLink);
-                  measurement.setSubspaceIndices(indices);
-                  measurement.parameters() = loc;
-                  measurement.covariance() = cov;
-                  return measurement;
+                  return ActsExamples::VariableBoundMeasurementProxy{
+                    measurements->emplaceMeasurement<dim>(Acts::SourceLink{sourceLink}, indices, loc, cov)
+                  };
                 } else {
                   throw std::runtime_error("Dimension not supported in measurement creation");
                 }
