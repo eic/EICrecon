@@ -53,7 +53,7 @@ namespace eicrecon {
       double z= (cluster.getPosition().z*cos(m_cfg.rot_y)+cluster.getPosition().x*sin(m_cfg.rot_y))*dd4hep::mm;
 
       /*std::cout << "zcut=" << m_cfg.gamma_zmax << " z recon=" << z << std::endl;
-      std::cout	<< "l1=" << l1 << " l2=" << l2 << " l3=" << l3 << std::endl;
+      std::cout << "l1=" << l1 << " l2=" << l2 << " l3=" << l3 << std::endl;
       std::cout << "max length=" << m_cfg.gamma_max_length << " max width=" << m_cfg.gamma_max_width << std::endl;*/
       if (z> m_cfg.gamma_zmax)
         return false;

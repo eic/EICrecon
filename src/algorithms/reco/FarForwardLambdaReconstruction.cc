@@ -54,10 +54,10 @@ namespace eicrecon {
 
 
       /*std::cout << "nx recon " << xn.X() << " g1x recon " << x1.X() << " g2x recon " << x2.X() << std::endl;
-      
-	std::cout << "nz recon " << xn.Z() << " g1z recon " << x1.Z() << " g2z recon " << x2.Z() << " z face=" << m_cfg.zmax<< std::endl;*/
 
-      
+        std::cout << "nz recon " << xn.Z() << " g1z recon " << x1.Z() << " g2z recon " << x2.Z() << " z face=" << m_cfg.zmax<< std::endl;*/
+
+
       TVector3 vtx(0,0,0);
       double f=0;
       double df=0.5;
@@ -93,9 +93,9 @@ namespace eicrecon {
           g1.Boost(b);
           g2.Boost(b);
 
-	  //convert vertex to mm:
-	  vtx=vtx*(1/dd4hep::mm);
-	  
+          //convert vertex to mm:
+          vtx=vtx*(1/dd4hep::mm);
+
           auto rec_part = out_lambdas->create();
           rec_part.setPDG(3122);
           //edm4hep::Vector3f position(vtx.X(), vtx.Y(), vtx.Z());

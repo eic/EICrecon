@@ -328,7 +328,7 @@ void InitPlugin(JApplication *app) {
            {
             .n_scale_corr_coeff_hcal={-0.11, -1.5, 0},
             .gamma_scale_corr_coeff_hcal={0, -.13, 0},
-	    .rot_y=-0.025,
+            .rot_y=-0.025,
             .gamma_zmax=(300+35800)*dd4hep::mm,
             .gamma_max_length=100*dd4hep::mm,
             .gamma_max_width=12*dd4hep::mm

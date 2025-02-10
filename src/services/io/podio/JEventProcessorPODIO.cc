@@ -327,7 +327,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ReconstructedFarForwardZDCNeutrons",
             "ReconstructedFarForwardZDCGammas",
             "ReconstructedFarForwardZDCLambdas",
-	    "ReconstructedFarForwardZDCLambdaDecayProducts",
+            "ReconstructedFarForwardZDCLambdaDecayProducts",
 
             // DIRC
             "DIRCRawHits",
