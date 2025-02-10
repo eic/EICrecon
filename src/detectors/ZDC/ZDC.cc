@@ -168,7 +168,7 @@ extern "C" {
           {
             .MIP = 472. * dd4hep::keV,
             .Emin_in_MIPs=0.5,
-	    .delta_in_MIPs=0.01,
+            .delta_in_MIPs=0.01,
             .tmax=269 * dd4hep::ns,
           },
           app   // TODO: Remove me once fixed
