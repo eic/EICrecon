@@ -44,14 +44,20 @@ namespace eicrecon {
       TVector3 x1;
       TVector3 x2;
 
-      toTVector3(xn,(*neutrons)[0].getReferencePoint());
-      toTVector3(x1,(*gammas)[0].getReferencePoint());
-      toTVector3(x2,(*gammas)[1].getReferencePoint());
+      toTVector3(xn,(*neutrons)[0].getReferencePoint()*dd4hep::mm);
+      toTVector3(x1,(*gammas)[0].getReferencePoint()*dd4hep::mm);
+      toTVector3(x2,(*gammas)[1].getReferencePoint()*dd4hep::mm);
 
-      xn.RotateY(-m_cfg.rotY);
-      x1.RotateY(-m_cfg.rotY);
-      x2.RotateY(-m_cfg.rotY);
+      xn.RotateY(-m_cfg.rot_y);
+      x1.RotateY(-m_cfg.rot_y);
+      x2.RotateY(-m_cfg.rot_y);
 
+
+      /*std::cout << "nx recon " << xn.X() << " g1x recon " << x1.X() << " g2x recon " << x2.X() << std::endl;
+      
+	std::cout << "nz recon " << xn.Z() << " g1z recon " << x1.Z() << " g2z recon " << x2.Z() << " z face=" << m_cfg.zmax<< std::endl;*/
+
+      
       TVector3 vtx(0,0,0);
       double f=0;
       double df=0.5;
@@ -59,7 +65,7 @@ namespace eicrecon {
       for(int i = 0; i<m_cfg.iterations; i++){
         TLorentzVector n(pn*(xn-vtx).Unit(), En);
         TLorentzVector g1(E1*(x1-vtx).Unit(), E1);
-        TLorentzVector g2(E2*(x1-vtx).Unit(), E2);
+        TLorentzVector g2(E2*(x2-vtx).Unit(), E2);
         double theta_open=g1.Angle(g2.Vect());
         TLorentzVector lambda=n+g1+g2;
         if (theta_open>theta_open_expected)
@@ -76,18 +82,20 @@ namespace eicrecon {
             return;
 
           // rotate everything back to the lab coordinates.
-          vtx.RotateY(m_cfg.rotY);
-          lambda.RotateY(m_cfg.rotY);
-          n.RotateY(m_cfg.rotY);
-          g1.RotateY(m_cfg.rotY);
-          g2.RotateY(m_cfg.rotY);
+          vtx.RotateY(m_cfg.rot_y);
+          lambda.RotateY(m_cfg.rot_y);
+          n.RotateY(m_cfg.rot_y);
+          g1.RotateY(m_cfg.rot_y);
+          g2.RotateY(m_cfg.rot_y);
 
           auto b=-lambda.BoostVector();
           n.Boost(b);
           g1.Boost(b);
           g2.Boost(b);
 
-
+	  //convert vertex to mm:
+	  vtx=vtx*(1/dd4hep::mm);
+	  
           auto rec_part = out_lambdas->create();
           rec_part.setPDG(3122);
           //edm4hep::Vector3f position(vtx.X(), vtx.Y(), vtx.Z());

@@ -9,7 +9,7 @@ namespace eicrecon {
 
   struct FarForwardLambdaReconstructionConfig {
     /** transformation from global coordinates to proton-frame coordinates*/
-    double rotY=-0.025;
+    double rot_y=-0.025;
     /** distance to the ZDC */
     double zmax=35800*dd4hep::mm;
     /** maximum deviation between reconstructed mass and PDG mass */

@@ -45,22 +45,17 @@ namespace eicrecon {
      and that the sqrt(second largest eigenvalue) is less than gamma_max_width
   */
     bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) const{
-      double l1=sqrt(cluster.getShapeParameters(4));
-      double l2=sqrt(cluster.getShapeParameters(5));
-      double l3=sqrt(cluster.getShapeParameters(6));
+      double l1=sqrt(cluster.getShapeParameters(4))*dd4hep::mm;
+      double l2=sqrt(cluster.getShapeParameters(5))*dd4hep::mm;
+      double l3=sqrt(cluster.getShapeParameters(6))*dd4hep::mm;
 
-      auto volman = m_detector->volumeManager();
-      auto alignment = volman.lookupDetElement(cluster.getHits(0).getCellID()).nominal();
+      //z in the local coordinates
+      double z= (cluster.getPosition().z*cos(m_cfg.rot_y)+cluster.getPosition().x*sin(m_cfg.rot_y))*dd4hep::mm;
 
-      auto local_position = alignment.worldToLocal({cluster.getPosition().x, cluster.getPosition().y, cluster.getPosition().z});
-      double x=local_position.x();
-      double y=local_position.y();
-      double z=local_position.z();
-      if (x< m_cfg.gamma_xmin || x> m_cfg.gamma_xmax)
-        return false;
-      if (y< m_cfg.gamma_ymin || y> m_cfg.gamma_ymax)
-        return false;
-      if (z< m_cfg.gamma_zmin || z> m_cfg.gamma_zmax)
+      /*std::cout << "zcut=" << m_cfg.gamma_zmax << " z recon=" << z << std::endl;
+      std::cout	<< "l1=" << l1 << " l2=" << l2 << " l3=" << l3 << std::endl;
+      std::cout << "max length=" << m_cfg.gamma_max_length << " max width=" << m_cfg.gamma_max_width << std::endl;*/
+      if (z> m_cfg.gamma_zmax)
         return false;
       if (l1> m_cfg.gamma_max_length || l2> m_cfg.gamma_max_length || l3 > m_cfg.gamma_max_length)
         return false;

@@ -328,7 +328,8 @@ void InitPlugin(JApplication *app) {
            {
             .n_scale_corr_coeff_hcal={-0.11, -1.5, 0},
             .gamma_scale_corr_coeff_hcal={0, -.13, 0},
-            .gamma_zmax=300*dd4hep::mm,
+	    .rot_y=-0.025,
+            .gamma_zmax=(300+35800)*dd4hep::mm,
             .gamma_max_length=100*dd4hep::mm,
             .gamma_max_width=12*dd4hep::mm
             },
@@ -337,9 +338,9 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
            "ReconstructedFarForwardZDCLambdas",
            {"ReconstructedFarForwardZDCNeutrons", "ReconstructedFarForwardZDCGammas"}, // edm4eic::ReconstrutedParticleCollection,
-           {"ReconstructedFarForwardZDCLambdas"}, // edm4eic::ReconstrutedParticleCollection,
+           {"ReconstructedFarForwardZDCLambdas", "ReconstructedFarForwardZDCLambdaDecayProducts"}, // edm4eic::ReconstrutedParticleCollection,
            {
-             .rotY=-0.025,
+             .rot_y=-0.025,
              .zmax=35800*dd4hep::mm,
              .lambda_max_mass_dev=0.030*dd4hep::GeV,
              .iterations=10
