@@ -17,7 +17,7 @@ class PIDLookupTable : public algorithms::LoggerMixin {
 public:
     /// The histogram entry with access counter, where the probabilities are stored in metadata
     struct Entry : public boost::histogram::accumulators::count<unsigned char, false> {
-        double prob_electron, prob_pion, prob_kaon, prob_proton;
+        float prob_electron, prob_pion, prob_kaon, prob_proton;
     };
 
     struct Binning {
