@@ -7,11 +7,10 @@
 #include <algorithms/geo.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <spdlog/logger.h>
+#include <gsl/pointers>
 #include <memory>
-#include <optional>
 #include <string>                                 // for basic_string
 #include <string_view>                            // for string_view
-#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/FarForwardLambdaReconstructionConfig.h"

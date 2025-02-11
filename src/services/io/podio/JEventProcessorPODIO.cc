@@ -17,6 +17,7 @@
 #endif
 #include <chrono>
 #include <exception>
+#include <ostream>
 #include <thread>
 
 #include "services/log/Log_service.h"
