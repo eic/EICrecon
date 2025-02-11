@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 <OG PEOPLE>, Derek Anderson 
+// Copyright (C) 2025 <OG PEOPLE>, Derek Anderson
 
 #pragma once
 
@@ -37,10 +37,10 @@ namespace eicrecon {
   /*! An algorithm which takes a collection of clusters,
    *  computes their cluster shape parameters, and saves
    *  outputs the same clusters with computed parameters.
-   */ 
+   */
   class ClusterShapeCalculator
     : public ClusterShapeCalculatorAlgorithm
-    , public WithPodConfig<NoConfig> 
+    , public WithPodConfig<NoConfig>
   {
 
     public:
