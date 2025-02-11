@@ -1,3 +1,3 @@
 [codespell]
-skip = *.drawio,*.svg
+skip = *.drawio,*.svg,.github/iwyu.imp
 ignore-words = .codespell-ignore

@@ -41,6 +41,7 @@ namespace eicrecon {
       double safetyFactor = 1.0; // allowed range: (0,1]
 
       // quantum efficiency
+      bool enableQuantumEfficiency = true;
       // - wavelength units are [nm]
       // FIXME: figure out how users can override this, maybe an external `yaml` file
       std::vector<std::pair<double, double> > quantumEfficiency = {
