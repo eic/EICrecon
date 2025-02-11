@@ -196,36 +196,6 @@ SecondaryVertexFinder::calcPrimaryVtx(
     }); // vtxposition
     eicvertex.setPositionError(cov);                          // covariance
 
-/*
-    for (const auto& t : vtx.tracks()){
-#if Acts_VERSION_MAJOR >= 33
-      const auto& par = finderCfg.extractParameters(t.originalParams);
-#else
-      const auto& par = *t.originalParams;
-#endif
-      m_log->trace("Track local position from vertex = {} mm, {} mm", par.localPosition().x() / Acts::UnitConstants::mm, par.localPosition().y() / Acts::UnitConstants::mm);
-      float loc_a = par.localPosition().x();
-      float loc_b = par.localPosition().y();
-
-      for (const auto& part : *reconParticles) {
-        const auto& tracks = part.getTracks();
-        for (const auto trk : tracks) {
-          const auto& traj = trk.getTrajectory();
-          const auto& trkPars = traj.getTrackParameters();
-          for (const auto par : trkPars) {
-            const double EPSILON = 1.0e-4; // mm
-            if (fabs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) < EPSILON
-              && fabs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
-              m_log->trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm", par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
-              eicvertex.addToAssociatedParticles(part);
-            } // endif
-          } // end for par
-        } // end for trk
-      } // end for part
-    } // end for t
-    m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.", vtx.position().x() / Acts::UnitConstants::mm, vtx.position().y() / Acts::UnitConstants::mm, vtx.position().z() / Acts::UnitConstants::mm);
-
-*/
   } // end for vtx
   return std::move(prmVertices);
 }
@@ -311,16 +281,35 @@ SecondaryVertexFinder::calcSecVtx(
         });                              // vtxposition
         eicvertex.setPositionError(cov); // covariance
 
-/*
-        for(const auto& trk: secvertex.tracks()){
+        for (const auto& t : secvertex.tracks()){
 #if Acts_VERSION_MAJOR >= 33
-          const auto& par=vertexfinderCfgSec.extractParameters(trk.originalParams);
+          const auto& par = vertexfinderCfgSec.extractParameters(t.originalParams);
 #else
-          const auto& par=trk.originalParams;
+          const auto& par = *t.originalParams;
 #endif
-        }//end for trk-loop
-*/
-      }
+          m_log->trace("Track local position from vertex = {} mm, {} mm", par.localPosition().x() / Acts::UnitConstants::mm, par.localPosition().y() / Acts::UnitConstants::mm);
+          float loc_a = par.localPosition().x();
+          float loc_b = par.localPosition().y();
+          
+          for (const auto& part : *reconParticles) {
+            const auto& tracks = part.getTracks();
+            for (const auto trk : tracks) {
+              const auto& traj = trk.getTrajectory();
+              const auto& trkPars = traj.getTrackParameters();
+              for (const auto par : trkPars) {
+                const double EPSILON = 1.0e-4; // mm
+                if (fabs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) < EPSILON
+                  && fabs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
+                  m_log->trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm", par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
+                  eicvertex.addToAssociatedParticles(part);
+                } // endif
+              } // end for par
+            } // end for trk
+          } // end for part
+        } // end for t
+        //m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.", secvertex.position().x() / Acts::UnitConstants::mm, secvertex.position().y() / Acts::UnitConstants::mm, secvertex.position().z() / Acts::UnitConstants::mm);
+      } // end for secvertex
+
 #if Acts_VERSION_MAJOR >= 33
       // empty the vector for the next set of tracks
       inputTracks.clear();

@@ -205,102 +205,15 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
 #else
   std::vector<const Acts::BoundTrackParameters*> inputTrackPointersSecondary;
 #endif
-  //std::unique_ptr<eicrecon::TrackingSecUtilityTool> utilityTool(new eicrecon::TrackingSecUtilityTool());
-  //utilityTool->calcPrimaryVtx(recotracks,trajectories,vertexfinderSec,vfOptions,vertexfinderCfgSec,stateSec);
-  //Two Track Vertex fitting
+  // Calculate primary vertex using AMVF
   primaryVertices=
-  calcPrimaryVtx(recotracks,trajectories,vertexfinderSec,vfOptions,vertexfinderCfgSec,stateSec);
+    calcPrimaryVtx(recotracks,trajectories,vertexfinderSec,vfOptions,vertexfinderCfgSec,stateSec);
+  // Primary vertex collection container to be used in Sec. Vertex fitting
   std::vector<Acts::Vertex> primvtx=getprmvtx();
+  //Evaluate Two Track Vertex fitting
   outputVertices=
-  calcSecVtx(recotracks,trajectories,vertexfinderSec,vfOptions,vertexfinderCfgSec,stateSec,primvtx);
-/*
-  for (std::vector<Acts::BoundTrackParameters>::size_type i = 0; i != trajectories.size(); i++) {
-    auto tips = trajectories[i]->tips();
-    if (tips.empty()) {
-      continue;
-    }
-    std::cout << "Trajectory i: " << i << " has " << tips.size() << " tips" << std::endl;
-    for(std::vector<Acts::BoundTrackParameters>::size_type j = i + 1;
-        j != trajectories.size(); j++){
-      auto tips2 = trajectories[j]->tips();
-      if (tips2.empty()) {
-        continue;
-      }
-      std::cout << "Trajectory j: " << j << " has " << tips2.size() << " tips" << std::endl;
-      // Checking for default DCA cut-condition
-      //secvtxGood=computeVtxcandidate(primvertex,tracks[i],tracks[j]);
-      //if(!secvtxGood) continue;
-      for (auto& tip : tips) {
-        /// CKF can provide multiple track trajectories for a single input seed
-#if Acts_VERSION_MAJOR >= 33
-        inputTracks.emplace_back(&(trajectories[i]->trackParameters(tip)));
-#else
-        inputTrackPointersSecondary.push_back(&(trajectories[i]->trackParameters(tip)));
-#endif
-      }
-      for(auto& tip : tips2){
-#if Acts_VERSION_MAJOR >= 33
-        inputTracks.emplace_back(&(trajectories[j]->trackParameters(tip)));
-#else
-        inputTrackPointersSecondary.push_back(&(trajectories[j]->trackParameters(tip)));
-#endif
-      }
-      // run the vertex finder for both tracks
-      std::cout << "Fitting secondary vertex" << std::endl;
-#if Acts_VERSION_MAJOR >= 33
-      std::vector<Acts::Vertex> verticesSec;
-      auto resultSecondary = vertexfinderSec.find(inputTracks, vfOptions, stateSec);
-#else
-      auto resultSecondary =
-          vertexfinderSec.find(inputTrackPointersSecondary, vfOptions, stateSec);
-      std::cout << "Secondary vertex fit done" << std::endl;
+    calcSecVtx(recotracks,trajectories,vertexfinderSec,vfOptions,vertexfinderCfgSec,stateSec,primvtx);
 
-      std::vector<Acts::Vertex<Acts::BoundTrackParameters>> verticesSec;
-#endif
-      if (resultSecondary.ok()) {
-        std::cout << "Secondary vertex fit succeeded" << std::endl;
-        verticesSec = std::move(resultSecondary.value());
-      }else {
-        std::cout << "Secondary vertex fit failed" << std::endl;
-      }
-
-  //utilityTool->write2screen();
-      for (const auto& secvertex : verticesSec) {
-        //std::cout<<"This is really from the secondary vertex tracking...\n"; std::abort();
-        edm4eic::Cov4f cov(secvertex.fullCovariance()(0, 0), secvertex.fullCovariance()(1, 1),
-                           secvertex.fullCovariance()(2, 2), secvertex.fullCovariance()(3, 3),
-                           secvertex.fullCovariance()(0, 1), secvertex.fullCovariance()(0, 2),
-                           secvertex.fullCovariance()(0, 3), secvertex.fullCovariance()(1, 2),
-                           secvertex.fullCovariance()(1, 3), secvertex.fullCovariance()(2, 3));
-        auto eicvertex = outputVertices->create();
-        eicvertex.setType(0); // boolean flag if vertex is primary vertex of event
-        eicvertex.setChi2((float)secvertex.fitQuality().first); // chi2
-        eicvertex.setNdf((float)secvertex.fitQuality().second); // ndf
-        eicvertex.setPosition({
-            (float)secvertex.position().x(),
-            (float)secvertex.position().y(),
-            (float)secvertex.position().z(),
-            (float)secvertex.time(),
-        });                              // vtxposition
-        eicvertex.setPositionError(cov); // covariance
-
-        for(const auto& trk: secvertex.tracks()){
-#if Acts_VERSION_MAJOR >= 33
-          const auto& par=vertexfinderCfgSec.extractParameters(trk.originalParams);
-#else 
-          const auto& par=trk.originalParams;
-#endif
-        }//end for trk-loop
-      }
-#if Acts_VERSION_MAJOR >= 33
-      // empty the vector for the next set of tracks
-      inputTracks.clear();
-#else
-      inputTrackPointersSecondary.clear();
-#endif
-    }
-  }
-*/
   //return std::move(outputVertices);
   return std::make_tuple(std::move(primaryVertices),std::move(outputVertices));
 }
