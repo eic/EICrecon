@@ -141,7 +141,7 @@ extern "C" {
              "CalorimeterTrackProjections",
              "HcalEndcapNClusterAssociations",
 #if EDM4EIC_VERSION_MAJOR >= 7
-             "HcalEndcapNRawHitAssocitions"},
+             "HcalEndcapNRawHitAssociations"},
 #else
              "HcalEndcapNHits"},
 #endif
