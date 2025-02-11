@@ -38,14 +38,14 @@
 namespace eicrecon {
 
   // --------------------------------------------------------------------------
-  //! Comparator struct for clusters
+  //! Comparator struct for object IDs
   // --------------------------------------------------------------------------
-  /*! Organizes clusters by their ObjectID's in decreasing collection
+  /*! Organizes objects by their ObjectID's in decreasing collection
    *  ID first, and second by decreasing index second.
    */
-  struct CompareClust {
+  template <typename T> struct CompareObjectID {
 
-    bool operator() (const edm4eic::Cluster& lhs, const edm4eic::Cluster& rhs) const {
+    bool operator() (const T& lhs, const T& rhs) const {
       if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
         return (lhs.getObjectID().index < rhs.getObjectID().index);
       } else {
@@ -53,7 +53,10 @@ namespace eicrecon {
       }
     }
 
-  };  // end CompareCluster
+  };  // end CompareObjectID
+
+  // specialization for clusters
+  using CompareClust = CompareObjectID<edm4eic::Cluster>;
 
 
 
