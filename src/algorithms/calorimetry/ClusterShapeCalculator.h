@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 <OG PEOPLE>, Derek Anderson 
+// Copyright (C) 2025 Chao Peng, Dhevan Gangadharan, Sebouh Paul, Derek Anderson
 
 #pragma once
+
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "ClusterShapeCalculatorConfig.h"
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <optional>
 #include <string>
 #include <string_view>
-
-#include "algorithms/interfaces/WithPodConfig.h"
 
 
 
@@ -40,7 +42,7 @@ namespace eicrecon {
    */ 
   class ClusterShapeCalculator
     : public ClusterShapeCalculatorAlgorithm
-    , public WithPodConfig<NoConfig> 
+    , public WithPodConfig<ClusterShapeCalculatorConfig>
   {
 
     public:

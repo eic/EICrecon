@@ -12,7 +12,7 @@
 namespace eicrecon {
 
   class ClusterShapeCalculator_factory
-    : public JOmniFactory<ClusterShapeCalculator_factory, NoConfig>
+    : public JOmniFactory<ClusterShapeCalculator_factory, ClusterShapeCalculatorConfig>
   {
 
     public:
@@ -31,6 +31,9 @@ namespace eicrecon {
       // output collections
       PodioOutput<edm4eic::Cluster> m_clusters_output {this};
       PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_assocs_output {this};
+
+      // parameter bindings
+      ParameterRef<bool> m_longitudinalShowerInfoAvailable {this, "longitudinalShowerInfoAvailable", config().longitudinalShowerInfoAvailable};
 
       // services
       Service<AlgorithmsInit_service> m_algoInitSvc {this};

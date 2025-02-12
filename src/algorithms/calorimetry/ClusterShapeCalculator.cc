@@ -1,5 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 <OG PEOPLE>, Derek Anderson
+// Copyright (C) 2025 Chao Peng, Dhevan Gangadharan, Sebouh Paul, Derek Anderson
+
+// algorithm definition
+#include "ClusterShapeCalculator.h"
 
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -7,9 +10,6 @@
 #include <Eigen/Eigenvalues>
 #include <Eigen/Householder>
 #include <cmath>
-
-// algorithm definition
-#include "ClusterShapeCalculator.h"
 
 
 
@@ -33,6 +33,12 @@ namespace eicrecon {
    *  and computes their cluster shape parameters.  Clusters are copied
    *  onto output with computed shape parameters.  If associations are
    *  provided, they are copied to the output.
+   *
+   *  Parameters calculated:
+   *    - radius,
+   *    - dispersion (energy weighted radius),
+   *    - theta-phi cluster widths (2D)
+   *    - x-y-z cluster widths (3D)
    */
   void ClusterShapeCalculator::process(
     const ClusterShapeCalculator::Input& input,
@@ -150,6 +156,22 @@ namespace eicrecon {
         out_clust.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z out_cluster width 1
         out_clust.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z out_cluster width 2
         out_clust.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z out_cluster width 3
+
+        // check axis orientation
+        double dot_product = out_clust.getPosition() * axis;
+        if (dot_product < 0) {
+          axis = -1 * axis;
+        }
+
+        // set intrinsic theta/phi
+        if (m_cfg.longitudinalShowerInfoAvailable) {
+          out_clust.setIntrinsicTheta( edm4hep::utils::anglePolar(axis) );
+          out_clust.setIntrinsicPhi( edm4hep::utils::angleAzimuthal(axis) );
+          // TODO intrinsicDirectionError
+        } else {
+          out_clust.setIntrinsicTheta(NAN);
+          out_clust.setIntrinsicPhi(NAN);
+        }
       }  // end shape parameter calculation
 
       // ----------------------------------------------------------------------
