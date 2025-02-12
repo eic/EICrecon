@@ -50,7 +50,6 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   cfg.sampFrac = 0.0203;
   cfg.logWeightBaseCoeffs = {5.0,0.65,0.31};
   cfg.logWeightBase_Eref = 50 * edm4eic::unit::GeV;
-  cfg.longitudinalShowerInfoAvailable = true;
 
 
   algo.applyConfig(cfg);
