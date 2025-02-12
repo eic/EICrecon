@@ -39,7 +39,7 @@ namespace eicrecon {
   /*! An algorithm which takes a collection of clusters,
    *  computes their cluster shape parameters, and saves
    *  outputs the same clusters with computed parameters.
-   */ 
+   */
   class ClusterShapeCalculator
     : public ClusterShapeCalculatorAlgorithm
     , public WithPodConfig<ClusterShapeCalculatorConfig>
