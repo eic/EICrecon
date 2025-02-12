@@ -89,10 +89,22 @@ jobs:
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: 24.04.0-stable
+            release: 24.09.0-stable
           - CC: clang
             CMAKE_BUILD_TYPE: Release
-            release: 24.05.2-stable
+            release: 24.10.1-stable
+          - CC: clang
+            CMAKE_BUILD_TYPE: Release
+            release: 24.11.2-stable
+          - CC: clang
+            CMAKE_BUILD_TYPE: Release
+            release: 24.12.0-stable
+          - CC: clang
+            CMAKE_BUILD_TYPE: Release
+            release: 25.01.1-stable
+          - CC: clang
+            CMAKE_BUILD_TYPE: Release
+            release: 25.02.0-stable
     steps:
     - name: mmap rnd_bits workaround
       # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
