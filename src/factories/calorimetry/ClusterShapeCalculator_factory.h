@@ -26,11 +26,11 @@ namespace eicrecon {
 
       // input collections
       PodioInput<edm4eic::Cluster> m_clusters_input {this};
-      PodioInput<edm4eic::MCRecoCalorimeterHitAssociation> m_assocs_input {this};
+      PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_assocs_input {this};
 
       // output collections
       PodioOutput<edm4eic::Cluster> m_clusters_output {this};
-      PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_assocs_output {this};
+      PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assocs_output {this};
 
       // parameter bindings
       ParameterRef<bool> m_longitudinalShowerInfoAvailable {this, "longitudinalShowerInfoAvailable", config().longitudinalShowerInfoAvailable};
