@@ -3,7 +3,9 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#if Acts_VERSION_MAJOR >= 34
 #include <Acts/EventData/TransformationHelpers.hpp>
+#endif
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
