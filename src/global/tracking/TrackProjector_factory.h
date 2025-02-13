@@ -1,6 +1,5 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright 2022 - 2025 Dmitry Romanov, Dmitry Kalinkin
 
 #pragma once
 
@@ -17,30 +16,38 @@
 
 namespace eicrecon {
 
-class TrackProjector_factory :
-        public JOmniFactory<TrackProjector_factory> {
+class TrackProjector_factory : public JOmniFactory<TrackProjector_factory> {
 
 private:
-    using AlgoT = eicrecon::TrackProjector;
-    std::unique_ptr<AlgoT> m_algo;
+  using AlgoT = eicrecon::TrackProjector;
 
-    Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
-    PodioOutput<edm4eic::TrackSegment> m_segments_output {this};
+  std::unique_ptr<AlgoT> m_algo;
 
-    Service<ACTSGeo_service> m_ACTSGeoSvc {this};
+  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  PodioOutput<edm4eic::TrackSegment> m_segments_output{this};
 
 public:
-    void Configure() {
-        m_algo = std::make_unique<AlgoT>();
-        m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
-    }
+  void Configure() {
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level((algorithms::LogLevel)logger()->level());
+    m_algo->init();
+  }
 
-    void ChangeRun(int64_t run_number) {
-    }
+  void ChangeRun(int64_t run_number) {}
 
-    void Process(int64_t run_number, uint64_t event_number) {
-        m_segments_output() = m_algo->execute(m_acts_trajectories_input());
+  void Process(int64_t run_number, uint64_t event_number) {
+    std::vector<gsl::not_null<const ActsExamples::Trajectories *>> acts_trajectories_input;
+    for (auto acts_traj : m_acts_trajectories_input()) {
+      acts_trajectories_input.push_back(acts_traj);
     }
+    m_algo->process(
+        {
+            acts_trajectories_input,
+        },
+        {
+            m_segments_output().get(),
+        });
+  }
 };
 
-} // eicrecon
+} // namespace eicrecon
