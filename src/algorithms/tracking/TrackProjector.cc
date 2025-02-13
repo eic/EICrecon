@@ -22,6 +22,7 @@
 #include <utility>
 
 #include "TrackProjector.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 #if FMT_VERSION >= 90000
@@ -31,7 +32,8 @@ template<> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_format
 namespace eicrecon {
 
     void TrackProjector::init() {
-        // Nothing
+        auto& serviceSvc = algorithms::ServiceSvc::instance();
+        m_geo_provider = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
     }
 
 

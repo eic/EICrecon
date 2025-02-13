@@ -26,6 +26,8 @@ private:
   Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
   PodioOutput<edm4eic::TrackSegment> m_segments_output{this};
 
+  Service<AlgorithmsInit_service> m_algorithmsInit {this};
+
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
