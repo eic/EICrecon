@@ -7,7 +7,8 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <memory>
-#include <spdlog/logger.h>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include "ActsGeometryProvider.h"

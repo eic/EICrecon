@@ -3,9 +3,11 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/EventData/TransformationHelpers.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <algorithms/service.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/TrackParametersCollection.h>
@@ -15,11 +17,10 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
-#include <spdlog/logger.h>
 #include <stdint.h>
 #include <cmath>
+#include <gsl/pointers>
 #include <iterator>
-#include <utility>
 
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
