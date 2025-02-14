@@ -105,9 +105,7 @@ namespace eicrecon {
           auto rec_part = out_neutrons->create();
           double corr=calc_corr(Etot,m_cfg.n_scale_corr_coeff_hcal);
           Etot_hcal=Etot_hcal/(1+corr);
-          //corr=calc_corr(Etot,m_cfg.scale_corr_coeff_ecal);
-          //Etot_ecal=Etot_ecal/(1+corr);
-          Etot=Etot_hcal;//+Etot_ecal;
+          Etot=Etot_hcal;
           rec_part.setEnergy(Etot);
           rec_part.setPDG(2112);
           double p = sqrt(Etot*Etot-m_neutron*m_neutron);
