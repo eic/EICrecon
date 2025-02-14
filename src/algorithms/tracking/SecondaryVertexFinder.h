@@ -177,7 +177,6 @@ SecondaryVertexFinder::calcPrimaryVtx(
     vertices = std::move(result.value());
     setprmvtx(vertices);
   }
-  std::cout<<"**** Here we go Primary Vertex Multiplicity: "<<getprmvtx().size()<<" : "<<vertices.size()<<"\n";
   // -----> Fix: Use for later
   for (const auto& vtx : vertices) {
     edm4eic::Cov4f cov(vtx.fullCovariance()(0,0), vtx.fullCovariance()(1,1), vtx.fullCovariance()(2,2), vtx.fullCovariance()(3,3),
@@ -207,7 +206,6 @@ SecondaryVertexFinder::calcSecVtx(
     Acts::VertexingOptions vfOptions, Acts::AdaptiveMultiVertexFinder::Config& vertexfinderCfgSec,
     Acts::IVertexFinder::State& stateSec,std::vector<Acts::Vertex> prmvtx){
 
-  std::cout<<"==========> primvtx.size = "<<prmvtx.size()<<"\n";
   auto secVertices = std::make_unique<edm4eic::VertexCollection>();
 #if Acts_VERSION_MAJOR >= 33
   std::vector<Acts::InputTrack> inputTracks;
@@ -245,14 +243,13 @@ SecondaryVertexFinder::calcSecVtx(
 #endif
       }
       // run the vertex finder for both tracks
-      std::cout << "Fitting secondary vertex" << std::endl;
 #if Acts_VERSION_MAJOR >= 33
       std::vector<Acts::Vertex> verticesSec;
       auto resultSecondary = vertexfinderSec.find(inputTracks, vfOptions, stateSec);
 #else
       auto resultSecondary =
           vertexfinderSec.find(inputTrackPointersSecondary, vfOptions, stateSec);
-      std::cout << "Secondary vertex fit done" << std::endl;
+      //std::cout << "Secondary vertex fit done" << std::endl;
 
       std::vector<Acts::Vertex<Acts::BoundTrackParameters>> verticesSec;
 #endif
