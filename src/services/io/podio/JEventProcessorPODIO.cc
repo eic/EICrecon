@@ -16,7 +16,8 @@
 #include <podio/ROOTFrameWriter.h>
 #endif
 #include <exception>
-#include <thread>
+#include <ostream>
+#include <stdexcept>
 
 #include "services/log/Log_service.h"
 
