@@ -84,15 +84,15 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "B0ECalClustersWithoutShapeParameters",
+             "B0ECalClustersWithoutShapes",
             {"B0ECalIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
              "B0ECalRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
              "B0ECalHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
-            {"B0ECalClustersWithoutShapeParameters", // edm4eic::Cluster
-             "B0ECalClusterAssociationsWithoutShapeParameters"}, // edm4eic::MCRecoClusterParticleAssociation
+            {"B0ECalClustersWithoutShapes", // edm4eic::Cluster
+             "B0ECalClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
@@ -105,9 +105,9 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
-            "B0ECalClustersWithShapeParameters",
-            {"B0ECalClustersWithoutShapeParameters",
-             "B0ECalClusterAssociationsWithoutShapeParameters"},
+            "B0ECalClustersWithShapes",
+            {"B0ECalClustersWithoutShapes",
+             "B0ECalClusterAssociationsWithoutShapes"},
             {"B0ECalClusters",
              "B0ECalClusterAssociations"},
             {},
@@ -117,15 +117,15 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "B0ECalTruthClustersWithoutShapeParameters",
+             "B0ECalTruthClustersWithoutShapes",
             {"B0ECalTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
              "B0ECalRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
              "B0ECalHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
-            {"B0ECalTruthClustersWithoutShapeParameters", // edm4eic::Cluster
-             "B0ECalTruthClusterAssociationsWithoutShapeParameters"}, // edm4eic::MCRecoClusterParticleAssociation
+            {"B0ECalTruthClustersWithoutShapes", // edm4eic::Cluster
+             "B0ECalTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
@@ -138,9 +138,9 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
-            "B0ECalTruthClustersWithShapeParameters",
-            {"B0ECalTruthClustersWithoutShapeParameters",
-             "B0ECalTruthClusterAssociationsWithoutShapeParameters"},
+            "B0ECalTruthClustersWithShapes",
+            {"B0ECalTruthClustersWithoutShapes",
+             "B0ECalTruthClusterAssociationsWithoutShapes"},
             {"B0ECalTruthClusters",
              "B0ECalTruthClusterAssociations"},
             {},
