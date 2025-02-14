@@ -92,8 +92,6 @@ namespace eicrecon {
 
           auto rec_part = out_lambdas->create();
           rec_part.setPDG(3122);
-          //edm4hep::Vector3f position(vtx.X(), vtx.Y(), vtx.Z());
-          //edm4hep::Vector3f momentum(lambda.X(), lambda.Y(), lambda.Z());
 
           rec_part.setEnergy(lambda.E());
           rec_part.setMomentum({static_cast<float>(lambda.X()), static_cast<float>(lambda.Y()), static_cast<float>(lambda.Z())});
