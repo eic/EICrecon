@@ -118,11 +118,7 @@ namespace eicrecon {
           for (const auto& cluster : *clustersHcal){
             rec_part.addToClusters(cluster);
           }
-          /*for (const auto& cluster : *clustersEcal){
-            rec_part.addToClusters(cluster);
-            }*/
       }
-        //m_log->debug("Found {} neutron candidates", out_neutrons->size());
 
     }
 }
