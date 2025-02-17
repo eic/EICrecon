@@ -52,13 +52,10 @@ namespace eicrecon {
       //z in the local coordinates
       double z= (cluster.getPosition().z*cos(m_cfg.rot_y)+cluster.getPosition().x*sin(m_cfg.rot_y))*dd4hep::mm;
 
-      if (z> m_cfg.gamma_zmax)
-        return false;
-      if (l1> m_cfg.gamma_max_length || l2> m_cfg.gamma_max_length || l3 > m_cfg.gamma_max_length)
-        return false;
-      if ((l1> m_cfg.gamma_max_width) + (l2> m_cfg.gamma_max_width) + (l3 > m_cfg.gamma_max_width)>2)
-        return false;
-      return true;
+      bool isZMoreThanMax = (z > m_cfg.gamma_zmax);
+      bool isLengthMoreThanMax = (l1> m_cfg.gamma_max_length || l2> m_cfg.gamma_max_length || l3 > m_cfg.gamma_max_length);
+      bool areWidthsMoreThanMax = (l1> m_cfg.gamma_max_width)+(l2> m_cfg.gamma_max_width)+(l3 > m_cfg.gamma_max_width)>=2;
+      return !(isZMoreThanMax || isLengthMoreThanMax || areWidthsMoreThanMax);
 
     }
 
