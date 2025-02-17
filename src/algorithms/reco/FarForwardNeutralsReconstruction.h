@@ -41,9 +41,10 @@ using FarForwardNeutralsReconstructionAlgorithm = algorithms::Algorithm<
 
          void init() final;
          void process(const Input&, const Output&) const final;
+    private:
          double calc_corr(double Etot, const std::vector<double>&) const;
          bool isGamma(const edm4eic::Cluster& cluster) const;
-    private:
+
         std::shared_ptr<spdlog::logger> m_log;
         const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
         const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
