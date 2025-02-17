@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>                                 // for basic_string
 #include <string_view>                            // for string_view
-
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/FarForwardLambdaReconstructionConfig.h"
 
@@ -42,9 +42,7 @@ using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
 
     private:
         std::shared_ptr<spdlog::logger> m_log;
-        double m_neutron{0.93956542052};
-      double m_pi0{0.1349768277676847};
-      double m_lambda{1.115683138712051};
+       const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
         const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
     };

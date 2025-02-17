@@ -14,7 +14,7 @@
 #include <string>                                 // for basic_string
 #include <string_view>                            // for string_view
 #include <vector>
-
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/FarForwardNeutralsReconstructionConfig.h"
 
@@ -45,8 +45,7 @@ using FarForwardNeutralsReconstructionAlgorithm = algorithms::Algorithm<
          bool isGamma(const edm4eic::Cluster& cluster) const;
     private:
         std::shared_ptr<spdlog::logger> m_log;
-        double m_neutron{0.93956542052*dd4hep::GeV};
-
+        const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
         const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
     };

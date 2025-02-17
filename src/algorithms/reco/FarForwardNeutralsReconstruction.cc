@@ -101,6 +101,7 @@ namespace eicrecon {
       }
 
       double Etot=Etot_hcal;
+      double m_neutron=m_particleSvc.particle(2112).mass;
       if (Etot > 0 && Emax > 0){
           auto rec_part = out_neutrons->create();
           double corr=calc_corr(Etot,m_cfg.n_scale_corr_coeff_hcal);
