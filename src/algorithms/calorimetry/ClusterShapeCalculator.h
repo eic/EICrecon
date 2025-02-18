@@ -51,8 +51,8 @@ namespace eicrecon {
       ClusterShapeCalculator(std::string_view name) :
         ClusterShapeCalculatorAlgorithm {
           name,
-          {"InputClusters", "InputMCClusterAssociations"},
-          {"OutputClusters", "OutputMCClusterAssociations"},
+          {"inputClusters", "inputMCClusterAssociations"},
+          {"outputClusters", "outputMCClusterAssociations"},
           "Computes cluster shape parameters."
         } {}
 
