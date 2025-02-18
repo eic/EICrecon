@@ -50,7 +50,11 @@ class AlgorithmsInit_service : public JService
         [[maybe_unused]] auto& actsSvc = algorithms::ActsSvc::instance();
         serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& g) {
             this->m_log->debug("Initializing algorithms::ActsSvc");
-            g.init(this->m_actsgeo_service->actsGeoProvider());
+            try {
+                g.init(this->m_actsgeo_service->actsGeoProvider());
+            } catch(...) {
+                g.init(std::move(std::current_exception()));
+            }
         });
 
         // Register Log_service as algorithms::LogSvc
