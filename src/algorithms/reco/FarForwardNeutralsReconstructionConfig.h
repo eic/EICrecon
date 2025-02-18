@@ -13,7 +13,7 @@ namespace eicrecon {
     /** Correction factors for gammas in the Hcal */
     std::vector<double>      gamma_scale_corr_coeff_hcal={0, -0.13, 0};
     /** rotation from global to local coordinates */
-    double rot_y=-0.025;
+    double global_to_local_rotation=-0.025;
     /** position cuts for the clusters identified as photons */
     double gamma_zmax=(300+35800)*dd4hep::mm;
     /** cuts for the sqrts of the largest and second largest eigenvalues of the moment matrix */
