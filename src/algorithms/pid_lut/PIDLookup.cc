@@ -126,7 +126,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
         identified_pdg = 321; // kaon
         recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 2]);
       } else if (random_unit_interval < (entry->prob_electron + entry->prob_pion +
-                                         entry->prob_kaon + entry->prob_electron)) {
+                                         entry->prob_kaon + entry->prob_proton)) {
         identified_pdg = 2212; // proton
         recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 1]);
       }
