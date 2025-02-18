@@ -34,10 +34,12 @@ using FarForwardNeutralsReconstructionAlgorithm = algorithms::Algorithm<
        public WithPodConfig<FarForwardNeutralsReconstructionConfig> {
        public:
          FarForwardNeutralsReconstruction(std::string_view name)
-                  : FarForwardNeutralsReconstructionAlgorithm{name,
-                                        {"inputClustersHcal"},
-                  {"outputNeutrons", "outputGammas"},
-                                        "Merges all HCAL clusters in a collection into a neutron candidate and photon candidates "} {}
+                  : FarForwardNeutralsReconstructionAlgorithm{
+                      name,
+                      {"inputClustersHcal"},
+                      {"outputNeutrons", "outputGammas"},
+                      "Merges all HCAL clusters in a collection into a neutron candidate and photon candidates "}
+                  {}
 
          void init() final;
          void process(const Input&, const Output&) const final;
