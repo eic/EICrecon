@@ -9,11 +9,11 @@ namespace eicrecon {
 
   struct FarForwardLambdaReconstructionConfig {
     /** transformation from global coordinates to proton-frame coordinates*/
-    double global_to_proton_rotation=-0.025;
+    double globalToProtonRotation=-0.025;
     /** distance to the ZDC */
-    double zmax=35800*dd4hep::mm;
+    double zMax=35800*dd4hep::mm;
     /** maximum deviation between reconstructed mass and PDG mass */
-    double lambda_max_mass_dev=0.030*dd4hep::GeV;
+    double lambdaMaxMassDev=0.030*dd4hep::GeV;
     /** number of iterations for the IDOLA algorithm */
     int iterations=10;
   };

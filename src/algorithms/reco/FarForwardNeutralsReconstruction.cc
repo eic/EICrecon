@@ -25,11 +25,11 @@
 namespace eicrecon {
 
     void FarForwardNeutralsReconstruction::init() {
-      if (m_cfg.n_scale_corr_coeff_hcal.size() < 3) {
-        error("Invalid configuration.  m_cfg.n_scale_corr_coeff_hcal should have at least 3 parameters");
-        throw std::runtime_error("Invalid configuration.  m_cfg.n_scale_corr_coeff_hcal should have at least 3 parameters");
+      if (m_cfg.neutronScaleCorrCoeffHcal.size() < 3) {
+        error("Invalid configuration.  m_cfg.neutronScaleCorrCoeffHcal should have at least 3 parameters");
+        throw std::runtime_error("Invalid configuration.  m_cfg.neutronScaleCorrCoeffHcal should have at least 3 parameters");
       }
-      if (m_cfg.gamma_scale_corr_coeff_hcal.size() < 3) {
+      if (m_cfg.gammaScaleCorrCoeffHcal.size() < 3) {
         error("Invalid configuration.  m_cfg.gamma_scale_corr_coeff_ecal should have at least 3 parameters");
         throw std::runtime_error("Invalid configuration.  m_cfg.gamma_scale_corr_coeff_ecal should have at least 3 parameters");
       }
@@ -50,11 +50,11 @@ namespace eicrecon {
       double l3=sqrt(cluster.getShapeParameters(6))*dd4hep::mm;
 
       //z in the local coordinates
-      double z= (cluster.getPosition().z*cos(m_cfg.rot_y)+cluster.getPosition().x*sin(m_cfg.rot_y))*dd4hep::mm;
+      double z= (cluster.getPosition().z*cos(m_cfg.globalToProtonRotation)+cluster.getPosition().x*sin(m_cfg.globalToProtonRotation))*dd4hep::mm;
 
-      bool isZMoreThanMax = (z > m_cfg.gamma_zmax);
-      bool isLengthMoreThanMax = (l1> m_cfg.gamma_max_length || l2> m_cfg.gamma_max_length || l3 > m_cfg.gamma_max_length);
-      bool areWidthsMoreThanMax = (l1> m_cfg.gamma_max_width)+(l2> m_cfg.gamma_max_width)+(l3 > m_cfg.gamma_max_width)>=2;
+      bool isZMoreThanMax = (z > m_cfg.gammaZMax);
+      bool isLengthMoreThanMax = (l1> m_cfg.gammaMaxLength || l2> m_cfg.gammaMaxLength || l3 > m_cfg.gammaMaxLength);
+      bool areWidthsMoreThanMax = (l1> m_cfg.gammaMaxWidth)+(l2> m_cfg.gammaMaxWidth)+(l3 > m_cfg.gammaMaxWidth)>=2;
       return !(isZMoreThanMax || isLengthMoreThanMax || areWidthsMoreThanMax);
 
     }
@@ -76,7 +76,7 @@ namespace eicrecon {
             auto rec_part = out_gammas->create();
             rec_part.setPDG(22);
             edm4hep::Vector3f position = cluster.getPosition();
-            double corr=calc_corr(E,m_cfg.gamma_scale_corr_coeff_hcal);
+            double corr=calc_corr(E,m_cfg.gammaScaleCorrCoeffHcal);
             E=E/(1+corr);
             double p = E;
             double r = edm4hep::utils::magnitude(position);
@@ -101,7 +101,7 @@ namespace eicrecon {
       double m_neutron=m_particleSvc.particle(2112).mass;
       if (Etot > 0 && Emax > 0){
           auto rec_part = out_neutrons->create();
-          double corr=calc_corr(Etot,m_cfg.n_scale_corr_coeff_hcal);
+          double corr=calc_corr(Etot,m_cfg.neutronScaleCorrCoeffHcal);
           Etot_hcal=Etot_hcal/(1+corr);
           Etot=Etot_hcal;
           rec_part.setEnergy(Etot);

@@ -9,16 +9,16 @@ namespace eicrecon {
 
   struct FarForwardNeutralsReconstructionConfig {
     /** Correction factors for neutrons in the Hcal */
-    std::vector<double>      n_scale_corr_coeff_hcal={-0.11, -1.5, 0};
+    std::vector<double>      neutronScaleCorrCoeffHcal={-0.11, -1.5, 0};
     /** Correction factors for gammas in the Hcal */
-    std::vector<double>      gamma_scale_corr_coeff_hcal={0, -0.13, 0};
+    std::vector<double>      gammaScaleCorrCoeffHcal={0, -0.13, 0};
     /** rotation from global to local coordinates */
-    double global_to_local_rotation=-0.025;
+    double globalToProtonRotation=-0.025;
     /** position cuts for the clusters identified as photons */
-    double gamma_zmax=(300+35800)*dd4hep::mm;
+    double gammaZMax=(300+35800)*dd4hep::mm;
     /** cuts for the sqrts of the largest and second largest eigenvalues of the moment matrix */
-    double gamma_max_length=100*dd4hep::mm;
-    double gamma_max_width=12*dd4hep::mm;
+    double gammaMaxLength=100*dd4hep::mm;
+    double gammaMaxWidth=12*dd4hep::mm;
   };
 
 } // eicrecon

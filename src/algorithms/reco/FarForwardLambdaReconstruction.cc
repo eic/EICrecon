@@ -50,9 +50,9 @@ namespace eicrecon {
       toTVector3(x1,(*gammas)[0].getReferencePoint()*dd4hep::mm);
       toTVector3(x2,(*gammas)[1].getReferencePoint()*dd4hep::mm);
 
-      xn.RotateY(-m_cfg.rot_y);
-      x1.RotateY(-m_cfg.rot_y);
-      x2.RotateY(-m_cfg.rot_y);
+      xn.RotateY(-m_cfg.globalToProtonRotation);
+      x1.RotateY(-m_cfg.globalToProtonRotation);
+      x2.RotateY(-m_cfg.globalToProtonRotation);
 
       TVector3 vtx(0,0,0);
       double f=0;
@@ -69,20 +69,20 @@ namespace eicrecon {
         else if (theta_open<theta_open_expected)
           f+=df;
 
-        vtx=lambda.Vect()*(f*m_cfg.zmax/lambda.Z());
+        vtx=lambda.Vect()*(f*m_cfg.zMax/lambda.Z());
         df/=2;
 
         if (i==m_cfg.iterations-1){
           double mass_rec=lambda.M();
-          if (abs(mass_rec-m_lambda)>m_cfg.lambda_max_mass_dev)
+          if (abs(mass_rec-m_lambda)>m_cfg.lambdaMaxMassDev)
             return;
 
           // rotate everything back to the lab coordinates.
-          vtx.RotateY(m_cfg.rot_y);
-          lambda.RotateY(m_cfg.rot_y);
-          n.RotateY(m_cfg.rot_y);
-          g1.RotateY(m_cfg.rot_y);
-          g2.RotateY(m_cfg.rot_y);
+          vtx.RotateY(m_cfg.globalToProtonRotation);
+          lambda.RotateY(m_cfg.globalToProtonRotation);
+          n.RotateY(m_cfg.globalToProtonRotation);
+          g1.RotateY(m_cfg.globalToProtonRotation);
+          g2.RotateY(m_cfg.globalToProtonRotation);
 
           auto b=-lambda.BoostVector();
           n.Boost(b);
