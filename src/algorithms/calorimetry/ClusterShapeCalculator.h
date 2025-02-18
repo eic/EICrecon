@@ -53,7 +53,7 @@ namespace eicrecon {
           name,
           {"inputClusters", "inputMCClusterAssociations"},
           {"outputClusters", "outputMCClusterAssociations"},
-          "Computes cluster shape parameters."
+          "Computes cluster shape parameters"
         } {}
 
       // public methods
