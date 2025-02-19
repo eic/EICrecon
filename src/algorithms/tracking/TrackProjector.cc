@@ -20,7 +20,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
-#include <stdint.h>
+#include <cstdint>
 #include <cmath>
 #include <gsl/pointers>
 #include <iterator>
@@ -48,7 +48,7 @@ namespace eicrecon {
         debug("Track projector event process. Num of input trajectories: {}", std::size(acts_trajectories));
 
         // Loop over the trajectories
-        for (size_t i = 0; const auto &traj: acts_trajectories) {
+        for (std::size_t i = 0; const auto &traj: acts_trajectories) {
             // Get the entry index for the single trajectory
             // The trajectory entry indices and the multiTrajectory
             const auto &mj = traj->multiTrajectory();
