@@ -217,11 +217,16 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>(
+        "CentralTrackSegments",
+        {
+            "CentralCKFActsTrajectories",
+            "CentralCKFTracks",
+        },
+        {
             "CentralTrackSegments",
-            {"CentralCKFActsTrajectories"},
-            {"CentralTrackSegments"},
-            app
-            ));
+        },
+        app
+    ));
 
     app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
             "CentralTrackVertices",

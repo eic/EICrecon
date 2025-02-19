@@ -5,6 +5,7 @@
 
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/algorithm.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <memory>
 #include <string>
@@ -15,9 +16,9 @@
 
 namespace eicrecon {
 
-using TrackProjectorAlgorithm =
-    algorithms::Algorithm<algorithms::Input<std::vector<ActsExamples::Trajectories>>,
-                          algorithms::Output<edm4eic::TrackSegmentCollection>>;
+using TrackProjectorAlgorithm = algorithms::Algorithm<
+    algorithms::Input<std::vector<ActsExamples::Trajectories>, edm4eic::TrackCollection>,
+    algorithms::Output<edm4eic::TrackSegmentCollection>>;
 
 class TrackProjector : public TrackProjectorAlgorithm {
 public:
