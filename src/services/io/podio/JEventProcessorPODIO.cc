@@ -18,7 +18,6 @@
 #include <exception>
 #include <ostream>
 #include <stdexcept>
-#include <thread>
 
 #include "services/log/Log_service.h"
 

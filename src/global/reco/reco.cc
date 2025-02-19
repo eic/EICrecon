@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024, Dmitry Romanov, Nathan Brei, Tooba Ali, Wouter Deconinck, Dmitry Kalinkin, John Lajoie, Simon Gardner, Tristan Protzman, Daniel Brandenburg, Derek M Anderson, Sebouh Paul, Tyler Kutz, Alex Jentsch, Jihee Kim, Brian Page
 
-
+#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/Cluster.h>
@@ -11,9 +11,12 @@
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
+#include <algorithm>
+#include <gsl/pointers>
 #include <fmt/core.h>
 #include <map>
 #include <memory>
+#include <stdexcept>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -28,9 +31,8 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
-#include "factories/reco/FarForwardNeutronReconstruction_factory.h"
-#include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
+#include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #ifdef USE_ONNX
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #endif
@@ -312,16 +314,6 @@ void InitPlugin(JApplication *app) {
             {"ReconstructedBreitFrameParticles"},
             {},
             app
-    ));
-    app->Add(new JOmniFactoryGeneratorT<FarForwardNeutronReconstruction_factory>(
-           "ReconstructedFarForwardZDCNeutronsStandAlone",
-           {"HcalFarForwardZDCClusters","EcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
-          {"ReconstructedFarForwardZDCNeutronsStandAlone"}, // edm4eic::ReconstrutedParticleCollection,
-          {
-            .scale_corr_coeff_hcal={-0.0756, -1.91, 2.30},
-            .scale_corr_coeff_ecal={-0.352, -1.34, 1.61}
-          },
-          app
     ));
 
     auto detector = app->GetService<DD4hep_service>()->detector();
