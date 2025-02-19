@@ -321,16 +321,16 @@ void InitPlugin(JApplication *app) {
       try {
         z_zdc = detector->constant<double>("HcalFarForwardZDC_SiPMonTile_r_pos");
       } catch (std::runtime_error&) {
-	z_zdc = 35800;
+        z_zdc = 35800;
       }
 
-    
+
     app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
            "ReconstructedFarForwardZDCNeutrons",
            {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
            {"ReconstructedFarForwardZDCNeutrons", "ReconstructedFarForwardZDCGammas"}, // edm4eic::ReconstrutedParticleCollection,
            {
-	    //.neutronScaleCorrCoeffHcal={-0.11, -1.5, 0},
+            //.neutronScaleCorrCoeffHcal={-0.11, -1.5, 0},
             //.gammaScaleCorrCoeffHcal={0, -.13, 0},
             .globalToProtonRotation=-0.025,
             //.gammaZMax=(300+z_zdc)*dd4hep::mm,
