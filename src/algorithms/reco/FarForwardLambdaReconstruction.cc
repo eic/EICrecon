@@ -35,15 +35,15 @@ namespace eicrecon {
       std::vector<edm4eic::ReconstructedParticle> neutrons={};
       std::vector<edm4eic::ReconstructedParticle> gammas={};
       for (auto part: *neutrals){
-	if (part.getPDG()==2112){
-	  neutrons.push_back(part);
-	}
-	if (part.getPDG()==22){
+        if (part.getPDG()==2112){
+          neutrons.push_back(part);
+        }
+        if (part.getPDG()==22){
           gammas.push_back(part);
         }
       }
 
-      
+
       if (neutrons.size()!=1 || gammas.size()!=2)
         return;
       double m_neutron=m_particleSvc.particle(2112).mass;
