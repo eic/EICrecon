@@ -17,8 +17,7 @@ namespace eicrecon {
      private:
          std::unique_ptr<AlgoT> m_algo;
     PodioInput<edm4eic::Cluster> m_clusters_hcal_input {this};
-    PodioOutput<edm4eic::ReconstructedParticle> m_neutrons_output {this};
-    PodioOutput<edm4eic::ReconstructedParticle> m_gammas_output {this};
+    PodioOutput<edm4eic::ReconstructedParticle> m_neutrals_output {this};
     ParameterRef<std::vector<double>> m_n_scale_corr_coeff_hcal     {this, "neutronScaleCorrCoeffHcal",          config().neutronScaleCorrCoeffHcal};
     ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_hcal     {this, "gammaScaleCorrCoeffHcal",          config().gammaScaleCorrCoeffHcal};
     ParameterRef<double> m_global_to_proton_rotation     {this, "globalToProtonRotation",          config().globalToProtonRotation};
@@ -42,7 +41,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-      m_algo->process({m_clusters_hcal_input(),},{m_neutrons_output().get(), m_gammas_output().get()});
+      m_algo->process({m_clusters_hcal_input(),},{m_neutrals_output().get(),});
     }
 };
 

@@ -25,7 +25,6 @@ using FarForwardNeutralsReconstructionAlgorithm = algorithms::Algorithm<
        const edm4eic::ClusterCollection
     >,
     algorithms::Output<
-      edm4eic::ReconstructedParticleCollection,
       edm4eic::ReconstructedParticleCollection
     >
     >;
@@ -37,7 +36,7 @@ using FarForwardNeutralsReconstructionAlgorithm = algorithms::Algorithm<
                   : FarForwardNeutralsReconstructionAlgorithm{
                       name,
                       {"inputClustersHcal"},
-                      {"outputNeutrons", "outputGammas"},
+                      {"outputNeutrals"},
                       "Merges all HCAL clusters in a collection into a neutron candidate and photon candidates "}
                   {}
 

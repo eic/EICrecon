@@ -30,25 +30,36 @@ namespace eicrecon {
 
     void FarForwardLambdaReconstruction::process(const FarForwardLambdaReconstruction::Input& input,
                       const FarForwardLambdaReconstruction::Output& output) const {
-      const auto [neutrons, gammas] = input;
+      const auto [neutrals] = input;
       auto [out_lambdas, out_decay_products] = output;
+      std::vector<edm4eic::ReconstructedParticle> neutrons={};
+      std::vector<edm4eic::ReconstructedParticle> gammas={};
+      for (auto part: *neutrals){
+	if (part.getPDG()==2112){
+	  neutrons.push_back(part);
+	}
+	if (part.getPDG()==22){
+          gammas.push_back(part);
+        }
+      }
 
-      if (neutrons->size()!=1 || gammas->size()!=2)
+      
+      if (neutrons.size()!=1 || gammas.size()!=2)
         return;
       double m_neutron=m_particleSvc.particle(2112).mass;
       double m_pi0=m_particleSvc.particle(111).mass;
       double m_lambda=m_particleSvc.particle(3122).mass;
-      double En=(*neutrons)[0].getEnergy();
+      double En=neutrons[0].getEnergy();
       double pn=sqrt(En*En-m_neutron*m_neutron);
-      double E1=(*gammas)[0].getEnergy();
-      double E2=(*gammas)[1].getEnergy();
+      double E1=gammas[0].getEnergy();
+      double E2=gammas[1].getEnergy();
       TVector3 xn;
       TVector3 x1;
       TVector3 x2;
 
-      toTVector3(xn,(*neutrons)[0].getReferencePoint()*dd4hep::mm);
-      toTVector3(x1,(*gammas)[0].getReferencePoint()*dd4hep::mm);
-      toTVector3(x2,(*gammas)[1].getReferencePoint()*dd4hep::mm);
+      toTVector3(xn,neutrons[0].getReferencePoint()*dd4hep::mm);
+      toTVector3(x1,gammas[0].getReferencePoint()*dd4hep::mm);
+      toTVector3(x2,gammas[1].getReferencePoint()*dd4hep::mm);
 
       xn.RotateY(-m_cfg.globalToProtonRotation);
       x1.RotateY(-m_cfg.globalToProtonRotation);

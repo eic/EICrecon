@@ -319,7 +319,7 @@ void InitPlugin(JApplication *app) {
     auto detector = app->GetService<DD4hep_service>()->detector();
     double z_zdc;
       try {
-        z_zdc = detector->constant<double>("HcalFarForwardZDC_SiPMonTile_r_pos");
+        z_zdc = detector->constant<double>("HcalFarForwardZDC_SiPMonTile_r_pos")/dd4hep::mm;
       } catch (std::runtime_error&) {
         z_zdc = 35800;
       }
@@ -328,25 +328,25 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
            "ReconstructedFarForwardZDCNeutrons",
            {"HcalFarForwardZDCClusters"},  // edm4eic::ClusterCollection
-           {"ReconstructedFarForwardZDCNeutrons", "ReconstructedFarForwardZDCGammas"}, // edm4eic::ReconstrutedParticleCollection,
+           {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
            {
-            //.neutronScaleCorrCoeffHcal={-0.11, -1.5, 0},
-            //.gammaScaleCorrCoeffHcal={0, -.13, 0},
+            .neutronScaleCorrCoeffHcal={-0.11, -1.5, 0},
+            .gammaScaleCorrCoeffHcal={0, -.13, 0},
             .globalToProtonRotation=-0.025,
-            //.gammaZMax=(300+z_zdc)*dd4hep::mm,
-            //.gammaMaxLength=100*dd4hep::mm,
-            //.gammaMaxWidth=12*dd4hep::mm
+            .gammaZMax=(300+z_zdc)*dd4hep::mm,
+            .gammaMaxLength=100*dd4hep::mm,
+            .gammaMaxWidth=12*dd4hep::mm
             },
           app   // TODO: Remove me once fixed
     ));
     app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
            "ReconstructedFarForwardZDCLambdas",
-           {"ReconstructedFarForwardZDCNeutrons", "ReconstructedFarForwardZDCGammas"}, // edm4eic::ReconstrutedParticleCollection,
+           {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
            {"ReconstructedFarForwardZDCLambdas", "ReconstructedFarForwardZDCLambdaDecayProducts"}, // edm4eic::ReconstrutedParticleCollection,
            {
              .globalToProtonRotation=-0.025,
-             //.zMax=z_zdc*dd4hep::mm,
-             //.lambdaMaxMassDev=0.030*dd4hep::GeV,
+             .zMax=z_zdc*dd4hep::mm,
+             .lambdaMaxMassDev=0.030*dd4hep::GeV,
              .iterations=10
             },
           app   // TODO: Remove me once fixed

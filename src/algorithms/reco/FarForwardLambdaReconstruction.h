@@ -19,7 +19,6 @@ namespace eicrecon {
 
 using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
    algorithms::Input<
-      const edm4eic::ReconstructedParticleCollection,
       const edm4eic::ReconstructedParticleCollection
     >,
     algorithms::Output<
@@ -33,7 +32,7 @@ using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
        public:
          FarForwardLambdaReconstruction(std::string_view name)
                   : FarForwardLambdaReconstructionAlgorithm{name,
-                                                            {"inputNeutrons", "inputPhotons"},
+                                                            {"inputNeutrals"},
                                                             {"outputLambda", "outputLambdaDecayProducts"},
                                         "Reconstructs lambda candidates and their decay products from the reconstructed neutrons and photons"} {}
 

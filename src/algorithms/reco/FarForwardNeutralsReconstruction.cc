@@ -64,7 +64,7 @@ namespace eicrecon {
     void FarForwardNeutralsReconstruction::process(const FarForwardNeutralsReconstruction::Input& input,
                       const FarForwardNeutralsReconstruction::Output& output) const {
       const auto [clustersHcal] = input;
-      auto [out_neutrons, out_gammas] = output;
+      auto [out_neutrals] = output;
 
       double Etot_hcal=0;
       double Emax=0;
@@ -73,7 +73,7 @@ namespace eicrecon {
           double E = cluster.getEnergy();
 
           if(isGamma(cluster)){
-            auto rec_part = out_gammas->create();
+            auto rec_part = out_neutrals->create();
             rec_part.setPDG(22);
             edm4hep::Vector3f position = cluster.getPosition();
             double corr=calc_corr(E,m_cfg.gammaScaleCorrCoeffHcal);
@@ -100,7 +100,7 @@ namespace eicrecon {
       double Etot=Etot_hcal;
       double m_neutron=m_particleSvc.particle(2112).mass;
       if (Etot > 0 && Emax > 0){
-          auto rec_part = out_neutrons->create();
+          auto rec_part = out_neutrals->create();
           double corr=calc_corr(Etot,m_cfg.neutronScaleCorrCoeffHcal);
           Etot_hcal=Etot_hcal/(1+corr);
           Etot=Etot_hcal;

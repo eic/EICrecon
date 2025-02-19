@@ -16,8 +16,7 @@ namespace eicrecon {
    using AlgoT = eicrecon::FarForwardLambdaReconstruction;
      private:
          std::unique_ptr<AlgoT> m_algo;
-    PodioInput<edm4eic::ReconstructedParticle> m_neutrons_input {this};
-    PodioInput<edm4eic::ReconstructedParticle> m_gammas_input {this};
+    PodioInput<edm4eic::ReconstructedParticle> m_neutrals_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_lambda_output {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_decay_products_output {this};
 
@@ -40,7 +39,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-      m_algo->process({m_neutrons_input(),m_gammas_input()},{m_lambda_output().get(), m_decay_products_output().get()});
+      m_algo->process({m_neutrals_input()},{m_lambda_output().get(), m_decay_products_output().get()});
     }
 };
 
