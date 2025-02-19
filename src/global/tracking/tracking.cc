@@ -6,6 +6,7 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <fmt/core.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <map>
