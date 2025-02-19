@@ -8,7 +8,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <math.h>
 #include <gsl/pointers>
-
+#include <vector>
 
 #include "FarForwardLambdaReconstruction.h"
 #include "TLorentzVector.h"
