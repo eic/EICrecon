@@ -13,9 +13,10 @@ namespace eicrecon {
 
   class FarForwardLambdaReconstruction_factory : public JOmniFactory<FarForwardLambdaReconstruction_factory,FarForwardLambdaReconstructionConfig> {
 
-   using AlgoT = eicrecon::FarForwardLambdaReconstruction;
-     private:
-         std::unique_ptr<AlgoT> m_algo;
+    public:
+      using AlgoT = eicrecon::FarForwardLambdaReconstruction;
+    private:
+      std::unique_ptr<AlgoT> m_algo;
     PodioInput<edm4eic::ReconstructedParticle> m_neutrals_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_lambda_output {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_decay_products_output {this};
