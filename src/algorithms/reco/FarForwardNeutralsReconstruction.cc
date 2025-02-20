@@ -102,6 +102,7 @@ namespace eicrecon {
 
       double Etot=Etot_hcal;
       double m_neutron=m_particleSvc.particle(2112).mass;
+      int n_neutrons;
       if (Etot > 0 && Emax > 0){
           auto rec_part = out_neutrals->create();
           double corr=calc_corr(Etot,m_cfg.neutronScaleCorrCoeffHcal);
@@ -119,7 +120,11 @@ namespace eicrecon {
           for (const auto& cluster : *clustersHcal){
             rec_part.addToClusters(cluster);
           }
+	  n_neutrons=1;
+      } else {
+	n_neutrons=0;
       }
+      debug("Found {} neutron candidates", n_neutrons);
 
     }
 }
