@@ -34,7 +34,7 @@ namespace eicrecon {
         throw std::runtime_error("Invalid configuration.  m_cfg.gamma_scale_corr_coeff_ecal should have at least 3 parameters");
       }
       trace("gamma detection params:   max length={},   max width={},   max z={}", m_cfg.gammaMaxLength, m_cfg.gammaMaxWidth,
-	    m_cfg.gammaZMax);
+            m_cfg.gammaZMax);
     }
     /** calculates the correction for a given uncorrected total energy and a set of coefficients*/
     double FarForwardNeutralsReconstruction::calc_corr(double Etot, const std::vector<double>& coeffs) const{
