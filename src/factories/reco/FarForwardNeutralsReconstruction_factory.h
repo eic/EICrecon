@@ -13,9 +13,10 @@ namespace eicrecon {
 
   class FarForwardNeutralsReconstruction_factory : public JOmniFactory<FarForwardNeutralsReconstruction_factory,FarForwardNeutralsReconstructionConfig> {
 
-   using AlgoT = eicrecon::FarForwardNeutralsReconstruction;
-     private:
-         std::unique_ptr<AlgoT> m_algo;
+    public:
+      using AlgoT = eicrecon::FarForwardNeutralsReconstruction;
+    private:
+      std::unique_ptr<AlgoT> m_algo;
     PodioInput<edm4eic::Cluster> m_clusters_hcal_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_neutrals_output {this};
     ParameterRef<std::vector<double>> m_n_scale_corr_coeff_hcal     {this, "neutronScaleCorrCoeffHcal",          config().neutronScaleCorrCoeffHcal};
