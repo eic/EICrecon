@@ -6,6 +6,7 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
 #include <math.h>
 #include <gsl/pointers>
 #include <vector>
