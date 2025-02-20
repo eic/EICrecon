@@ -120,9 +120,9 @@ namespace eicrecon {
           for (const auto& cluster : *clustersHcal){
             rec_part.addToClusters(cluster);
           }
-	  n_neutrons=1;
+          n_neutrons=1;
       } else {
-	n_neutrons=0;
+        n_neutrons=0;
       }
       debug("Found {} neutron candidates", n_neutrons);
 
