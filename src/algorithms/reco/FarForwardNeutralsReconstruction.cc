@@ -33,6 +33,8 @@ namespace eicrecon {
         error("Invalid configuration.  m_cfg.gamma_scale_corr_coeff_ecal should have at least 3 parameters");
         throw std::runtime_error("Invalid configuration.  m_cfg.gamma_scale_corr_coeff_ecal should have at least 3 parameters");
       }
+      trace("gamma detection params:   max length={},   max width={},   max z={}", m_cfg.gammaMaxLength, m_cfg.gammaMaxWidth,
+	    m_cfg.gammaZMax);
     }
     /** calculates the correction for a given uncorrected total energy and a set of coefficients*/
     double FarForwardNeutralsReconstruction::calc_corr(double Etot, const std::vector<double>& coeffs) const{
@@ -51,7 +53,7 @@ namespace eicrecon {
 
       //z in the local coordinates
       double z= (cluster.getPosition().z*cos(m_cfg.globalToProtonRotation)+cluster.getPosition().x*sin(m_cfg.globalToProtonRotation))*dd4hep::mm;
-      trace("zcut = {}, z recon = {}", m_cfg.gamma_zmax, z);
+      trace("z recon = {}", z);
       trace("l1 = {}, l2 = {}, l3 = {}", l1, l2, l3);
       bool isZMoreThanMax = (z > m_cfg.gammaZMax);
       bool isLengthMoreThanMax = (l1> m_cfg.gammaMaxLength || l2> m_cfg.gammaMaxLength || l3 > m_cfg.gammaMaxLength);
