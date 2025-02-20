@@ -18,13 +18,13 @@ namespace eicrecon {
          std::unique_ptr<AlgoT> m_algo;
     PodioInput<edm4eic::Cluster> m_clusters_hcal_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_neutrals_output {this};
-    ParameterRef<std::vector<double>> m_n_scale_corr_coeff_hcal     {this, "neutronScaleCorrCoeffHcal",          config().neutronScaleCorrCoeffHcal};
-    ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_hcal     {this, "gammaScaleCorrCoeffHcal",          config().gammaScaleCorrCoeffHcal};
-    ParameterRef<double> m_global_to_proton_rotation     {this, "globalToProtonRotation",          config().globalToProtonRotation};
-    ParameterRef<double> m_gamma_zmax     {this, "gammaZMax",          config().gammaZMax};
+    ParameterRef<std::vector<double>> m_n_scale_corr_coeff_hcal {this, "neutronScaleCorrCoeffHcal", config().neutronScaleCorrCoeffHcal};
+    ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_hcal {this, "gammaScaleCorrCoeffHcal", config().gammaScaleCorrCoeffHcal};
+    ParameterRef<double> m_global_to_proton_rotation {this, "globalToProtonRotation", config().globalToProtonRotation};
+    ParameterRef<double> m_gamma_zmax {this, "gammaZMax", config().gammaZMax};
 
-    ParameterRef<double> m_gamma_max_length     {this, "gammaMaxLength",          config().gammaMaxLength};
-    ParameterRef<double> m_gamma_max_width     {this, "gammaMaxWidth",          config().gammaMaxWidth};
+    ParameterRef<double> m_gamma_max_length {this, "gammaMaxLength", config().gammaMaxLength};
+    ParameterRef<double> m_gamma_max_width {this, "gammaMaxWidth", config().gammaMaxWidth};
 
     Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
