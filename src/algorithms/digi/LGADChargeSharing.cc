@@ -135,7 +135,7 @@ void LGADChargeSharing::_findAllNeighborsInSensor(
         auto pos = m_converter->position(testCell);
         if (testCell != m_converter->cellID(pos))
           continue;
-      } catch (const std::invalid_argument& err) {
+      } catch (const std::runtime_error& err) {
         // Ignore CellID that is invalid
         continue;
       }
