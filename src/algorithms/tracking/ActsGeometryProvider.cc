@@ -29,6 +29,7 @@
 #include <type_traits>
 
 #include "ActsGeometryProvider.h"
+#include "DD4hepBField.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 // Formatter for Eigen matrices
@@ -194,4 +195,8 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo,
     }
 
     m_init_log->info("ActsGeometryProvider initialization complete");
+}
+
+std::shared_ptr<const Acts::MagneticFieldProvider> ActsGeometryProvider::getFieldProvider() const  {
+    return m_magneticField;
 }
