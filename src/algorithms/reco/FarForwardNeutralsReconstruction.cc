@@ -51,7 +51,8 @@ namespace eicrecon {
 
       //z in the local coordinates
       double z= (cluster.getPosition().z*cos(m_cfg.globalToProtonRotation)+cluster.getPosition().x*sin(m_cfg.globalToProtonRotation))*dd4hep::mm;
-
+      trace("zcut = {}, z recon = {}", m_cfg.gamma_zmax, z);
+      trace("l1 = {}, l2 = {}, l3 = {}", l1, l2, l3);
       bool isZMoreThanMax = (z > m_cfg.gammaZMax);
       bool isLengthMoreThanMax = (l1> m_cfg.gammaMaxLength || l2> m_cfg.gammaMaxLength || l3 > m_cfg.gammaMaxLength);
       bool areWidthsMoreThanMax = (l1> m_cfg.gammaMaxWidth)+(l2> m_cfg.gammaMaxWidth)+(l3 > m_cfg.gammaMaxWidth)>=2;
