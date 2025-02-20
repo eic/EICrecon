@@ -67,7 +67,7 @@ namespace eicrecon {
 
       debug("nx recon = {}, g1x recon = {}, g2x recon = {}", xn.X(), x1.X(), x2.X());
       debug("nz recon = {}, g1z recon = {}, g2z recon = {}, z face = {}", xn.Z(), x1.Z(), x2.Z(), m_cfg.zMax);
-      
+
       TVector3 vtx(0,0,0);
       double f=0;
       double df=0.5;
