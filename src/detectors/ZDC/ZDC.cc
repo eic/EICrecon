@@ -104,7 +104,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "EcalFarForwardZDCTruthClustersWithShapes",
+            "EcalFarForwardZDCTruthClusters",
             {"EcalFarForwardZDCTruthClustersWithoutShapes",
              "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
             {"EcalFarForwardZDCTruthClusters",
@@ -139,7 +139,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "EcalFarForwardZDCClustersWithShapes",
+            "EcalFarForwardZDCClusters",
             {"EcalFarForwardZDCClustersWithoutShapes",
              "EcalFarForwardZDCClusterAssociationsWithoutShapes"},
             {"EcalFarForwardZDCClusters",
@@ -252,7 +252,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalFarForwardZDCClustersWithShapes",
+            "HcalFarForwardZDCClusters",
             {"HcalFarForwardZDCClustersWithoutShapes",
              "HcalFarForwardZDCClusterAssociationsWithoutShapes"},
             {"HcalFarForwardZDCClusters",
@@ -306,7 +306,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalFarForwardZDCTruthClustersWithShapes",
+            "HcalFarForwardZDCTruthClusters",
             {"HcalFarForwardZDCTruthClustersWithoutShapes",
              "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
             {"HcalFarForwardZDCTruthClusters",

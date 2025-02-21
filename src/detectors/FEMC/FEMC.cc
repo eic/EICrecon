@@ -109,7 +109,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "EcalEndcapPTruthClustersWithShapes",
+            "EcalEndcapPTruthClusters",
             {"EcalEndcapPTruthClustersWithoutShapes",
              "EcalEndcapPTruthClusterAssociationsWithoutShapes"},
             {"EcalEndcapPTruthClusters",
@@ -142,7 +142,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "EcalEndcapPClustersWithShapes",
+            "EcalEndcapPClusters",
             {"EcalEndcapPClustersWithoutShapes",
              "EcalEndcapPClusterAssociationsWithoutShapes"},
             {"EcalEndcapPClusters",
@@ -190,7 +190,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "EcalEndcapPSplitMergeClustersWithShapes",
+            "EcalEndcapPSplitMergeClusters",
             {"EcalEndcapPSplitMergeClustersWithoutShapes",
              "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
             {"EcalEndcapPSplitMergeClusters",
@@ -281,7 +281,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "EcalEndcapPInsertTruthClustersWithShapes",
+            "EcalEndcapPInsertTruthClusters",
             {"EcalEndcapPInsertTruthClustersWithoutShapes",
              "EcalEndcapPInsertTruthClusterAssociationsWithoutShapes"},
             {"EcalEndcapPInsertTruthClusters",
@@ -314,7 +314,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "EcalEndcapPInsertClustersWithShapes",
+            "EcalEndcapPInsertClusters",
             {"EcalEndcapPInsertClustersWithoutShapes",
              "EcalEndcapPInsertClusterAssociationsWithoutShapes"},
             {"EcalEndcapPInsertClusters",

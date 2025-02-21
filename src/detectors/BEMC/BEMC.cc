@@ -114,7 +114,7 @@ extern "C" {
         );
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "EcalBarrelScFiClustersWithShapes",
+            "EcalBarrelScFiClusters",
             {"EcalBarrelScFiClustersWithoutShapes",
              "EcalBarrelScFiClusterAssociationsWithoutShapes"},
             {"EcalBarrelScFiClusters",

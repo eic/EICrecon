@@ -102,7 +102,7 @@ extern "C" {
         );
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "EcalLumiSpecClustersWithShapes",
+            "EcalLumiSpecClusters",
             {"EcalLumiSpecClustersWithoutShapes",
              "EcalLumiSpecClusterAssociationsWithoutShapes"},
             {"EcalLumiSpecClusters",
@@ -134,7 +134,7 @@ extern "C" {
         );
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "EcalLumiSpecTruthClustersWithShapes",
+            "EcalLumiSpecTruthClusters",
             {"EcalLumiSpecTruthClustersWithoutShapes",
              "EcalLumiSpecTruthClusterAssociationsWithoutShapes"},
             {"EcalLumiSpecTruthClusters",

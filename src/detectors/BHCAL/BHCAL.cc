@@ -143,7 +143,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalBarrelClustersWithShapes",
+            "HcalBarrelClusters",
             {"HcalBarrelClustersWithoutShapes",
              "HcalBarrelClusterAssociationsWithoutShapes"},
             {"HcalBarrelClusters",
@@ -176,7 +176,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalBarrelTruthClustersWithShapes",
+            "HcalBarrelTruthClusters",
             {"HcalBarrelTruthClustersWithoutShapes",
              "HcalBarrelTruthClusterAssociationsWithoutShapes"},
             {"HcalBarrelTruthClusters",
@@ -224,7 +224,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalBarrelSplitMergeClustersWithShapes",
+            "HcalBarrelSplitMergeClusters",
             {"HcalBarrelSplitMergeClustersWithoutShapes",
              "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"},
             {"HcalBarrelSplitMergeClusters",

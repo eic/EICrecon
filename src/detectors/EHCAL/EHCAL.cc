@@ -115,7 +115,7 @@ extern "C" {
         );
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalEndcapNTruthClustersWithShapes",
+            "HcalEndcapNTruthClusters",
             {"HcalEndcapNTruthClustersWithoutShapes",
              "HcalEndcapNTruthClusterAssociationsWithoutShapes"},
             {"HcalEndcapNTruthClusters",
@@ -146,7 +146,7 @@ extern "C" {
         );
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalEndcapNClustersWithShapes",
+            "HcalEndcapNClusters",
             {"HcalEndcapNClustersWithoutShapes",
              "HcalEndcapNClusterAssociationsWithoutShapes"},
             {"HcalEndcapNClusters",
@@ -191,7 +191,7 @@ extern "C" {
         );
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalEndcapNSplitMergeClustersWithShapes",
+            "HcalEndcapNSplitMergeClusters",
             {"HcalEndcapNSplitMergeClustersWithoutShapes",
              "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
             {"HcalEndcapNSplitMergeClusters",

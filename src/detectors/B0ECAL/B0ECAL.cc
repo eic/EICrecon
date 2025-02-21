@@ -105,7 +105,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "B0ECalClustersWithShapes",
+            "B0ECalClusters",
             {"B0ECalClustersWithoutShapes",
              "B0ECalClusterAssociationsWithoutShapes"},
             {"B0ECalClusters",
@@ -138,7 +138,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "B0ECalTruthClustersWithShapes",
+            "B0ECalTruthClusters",
             {"B0ECalTruthClustersWithoutShapes",
              "B0ECalTruthClusterAssociationsWithoutShapes"},
             {"B0ECalTruthClusters",

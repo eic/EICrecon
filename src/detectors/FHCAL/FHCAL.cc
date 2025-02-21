@@ -150,7 +150,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalEndcapPInsertTruthClustersWithShapes",
+            "HcalEndcapPInsertTruthClusters",
             {"HcalEndcapPInsertTruthClustersWithoutShapes",
              "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"},
             {"HcalEndcapPInsertTruthClusters",
@@ -185,7 +185,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalEndcapPInsertClustersWithShapes",
+            "HcalEndcapPInsertClusters",
             {"HcalEndcapPInsertClustersWithoutShapes",
              "HcalEndcapPInsertClusterAssociationsWithoutShapes"},
             {"HcalEndcapPInsertClusters",
@@ -305,7 +305,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "LFHCALTruthClustersWithShapes",
+            "LFHCALTruthClusters",
             {"LFHCALTruthClustersWithoutShapes",
              "LFHCALTruthClusterAssociationsWithoutShapes"},
             {"LFHCALTruthClusters",
@@ -340,7 +340,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "LFHCALClustersWithShapes",
+            "LFHCALClusters",
             {"LFHCALClustersWithoutShapes",
              "LFHCALClusterAssociationsWithoutShapes"},
             {"LFHCALClusters",
@@ -390,7 +390,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "LFHCALSplitMergeClustersWithShapes",
+            "LFHCALSplitMergeClusters",
             {"LFHCALSplitMergeClustersWithoutShapes",
              "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
             {"LFHCALSplitMergeClusters",
