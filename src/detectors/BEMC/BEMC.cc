@@ -19,7 +19,7 @@
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
-#include "factories/calorimetry/ClusterShapeCalculator_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 
 
 extern "C" {
@@ -113,7 +113,7 @@ extern "C" {
           )
         );
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "EcalBarrelScFiClustersWithShapes",
             {"EcalBarrelScFiClustersWithoutShapes",
              "EcalBarrelScFiClusterAssociationsWithoutShapes"},

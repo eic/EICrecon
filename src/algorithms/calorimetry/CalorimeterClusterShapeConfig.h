@@ -5,12 +5,12 @@
 
 namespace eicrecon {
 
-  struct ClusterShapeCalculatorConfig {
+  struct CalorimeterClusterShapeConfig {
 
     // determines if intrinsic theta/phi
     // are calculated
     bool longitudinalShowerInfoAvailable = false;
 
-  };  // end ClusterShapeCalculatorConfig
+  };  // end CalorimeterClusterShapeConfig
 
 }  // namespace eicrecon

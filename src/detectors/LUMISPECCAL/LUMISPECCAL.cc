@@ -16,7 +16,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/ClusterShapeCalculator_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 
 extern "C" {
     void InitPlugin(JApplication *app) {
@@ -101,7 +101,7 @@ extern "C" {
           )
         );
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "EcalLumiSpecClustersWithShapes",
             {"EcalLumiSpecClustersWithoutShapes",
              "EcalLumiSpecClusterAssociationsWithoutShapes"},
@@ -133,7 +133,7 @@ extern "C" {
           )
         );
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "EcalLumiSpecTruthClustersWithShapes",
             {"EcalLumiSpecTruthClustersWithoutShapes",
              "EcalLumiSpecTruthClusterAssociationsWithoutShapes"},

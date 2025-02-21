@@ -16,7 +16,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/ClusterShapeCalculator_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 
@@ -103,7 +103,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "EcalFarForwardZDCTruthClustersWithShapes",
             {"EcalFarForwardZDCTruthClustersWithoutShapes",
              "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
@@ -138,7 +138,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "EcalFarForwardZDCClustersWithShapes",
             {"EcalFarForwardZDCClustersWithoutShapes",
              "EcalFarForwardZDCClusterAssociationsWithoutShapes"},
@@ -251,7 +251,7 @@ extern "C" {
         ));
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "HcalFarForwardZDCClustersWithShapes",
             {"HcalFarForwardZDCClustersWithoutShapes",
              "HcalFarForwardZDCClusterAssociationsWithoutShapes"},
@@ -305,7 +305,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "HcalFarForwardZDCTruthClustersWithShapes",
             {"HcalFarForwardZDCTruthClustersWithoutShapes",
              "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
@@ -339,7 +339,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "HcalFarForwardZDCClustersBaselineWithShapes",
             {"HcalFarForwardZDCClustersBaselineWithoutShapes",
              "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"},

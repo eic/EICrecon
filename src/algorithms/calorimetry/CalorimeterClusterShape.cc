@@ -2,7 +2,7 @@
 // Copyright (C) 2025 Chao Peng, Dhevan Gangadharan, Sebouh Paul, Derek Anderson
 
 // algorithm definition
-#include "ClusterShapeCalculator.h"
+#include "CalorimeterClusterShape.h"
 
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -18,7 +18,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Initialize algorithm
   // --------------------------------------------------------------------------
-  void ClusterShapeCalculator::init() {
+  void CalorimeterClusterShape::init() {
 
     //... nothing to do ...//
 
@@ -40,9 +40,9 @@ namespace eicrecon {
    *    - theta-phi cluster widths (2D)
    *    - x-y-z cluster widths (3D)
    */
-  void ClusterShapeCalculator::process(
-    const ClusterShapeCalculator::Input& input,
-    const ClusterShapeCalculator::Output& output
+  void CalorimeterClusterShape::process(
+    const CalorimeterClusterShape::Input& input,
+    const CalorimeterClusterShape::Output& output
   ) const {
 
     // grab inputs/outputs

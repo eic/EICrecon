@@ -16,7 +16,7 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/ClusterShapeCalculator_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
@@ -114,7 +114,7 @@ extern "C" {
           )
         );
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "HcalEndcapNTruthClustersWithShapes",
             {"HcalEndcapNTruthClustersWithoutShapes",
              "HcalEndcapNTruthClusterAssociationsWithoutShapes"},
@@ -145,7 +145,7 @@ extern "C" {
           )
         );
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "HcalEndcapNClustersWithShapes",
             {"HcalEndcapNClustersWithoutShapes",
              "HcalEndcapNClusterAssociationsWithoutShapes"},
@@ -190,7 +190,7 @@ extern "C" {
           )
         );
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "HcalEndcapNSplitMergeClustersWithShapes",
             {"HcalEndcapNSplitMergeClustersWithoutShapes",
              "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},

@@ -20,7 +20,7 @@
 #include "factories/calorimetry/CalorimeterParticleIDPreML_factory.h"
 #endif
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/ClusterShapeCalculator_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/meta/ONNXInference_factory.h"
@@ -118,7 +118,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "EcalEndcapNTruthClustersWithShapes",
             {"EcalEndcapNTruthClustersWithoutShapes",
              "EcalEndcapNTruthClusterAssociationsWithoutShapes"},
@@ -160,7 +160,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
 #if EDM4EIC_VERSION_MAJOR >= 8
             "EcalEndcapNClustersWithoutPIDButWithShapes",
             {"EcalEndcapNClustersWithoutPIDAndShapes",
@@ -259,7 +259,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "EcalEndcapNSplitMergeClustersWithShapes",
             {"EcalEndcapNSplitMergeClustersWithoutShapes",
              "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},

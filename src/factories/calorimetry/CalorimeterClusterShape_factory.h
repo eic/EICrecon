@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "algorithms/calorimetry/ClusterShapeCalculator.h"
+#include "algorithms/calorimetry/CalorimeterClusterShape.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
@@ -11,13 +11,13 @@
 
 namespace eicrecon {
 
-  class ClusterShapeCalculator_factory
-    : public JOmniFactory<ClusterShapeCalculator_factory, ClusterShapeCalculatorConfig>
+  class CalorimeterClusterShape_factory
+    : public JOmniFactory<CalorimeterClusterShape_factory, CalorimeterClusterShapeConfig>
   {
 
     public:
 
-      using AlgoT = eicrecon::ClusterShapeCalculator;
+      using AlgoT = eicrecon::CalorimeterClusterShape;
 
     private:
 
@@ -57,6 +57,6 @@ namespace eicrecon {
         );
       }
 
-  };  // end ClusterShapeCalculator_factory
+  };  // end CalorimeterClusterShape_factory
 
 }  // end eicrecon namespace

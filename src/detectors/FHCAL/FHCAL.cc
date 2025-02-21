@@ -22,7 +22,7 @@
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/ClusterShapeCalculator_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
@@ -149,7 +149,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "HcalEndcapPInsertTruthClustersWithShapes",
             {"HcalEndcapPInsertTruthClustersWithoutShapes",
              "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"},
@@ -184,7 +184,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "HcalEndcapPInsertClustersWithShapes",
             {"HcalEndcapPInsertClustersWithoutShapes",
              "HcalEndcapPInsertClusterAssociationsWithoutShapes"},
@@ -304,7 +304,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "LFHCALTruthClustersWithShapes",
             {"LFHCALTruthClustersWithoutShapes",
              "LFHCALTruthClusterAssociationsWithoutShapes"},
@@ -339,7 +339,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "LFHCALClustersWithShapes",
             {"LFHCALClustersWithoutShapes",
              "LFHCALClusterAssociationsWithoutShapes"},
@@ -389,7 +389,7 @@ extern "C" {
         );
 
         app->Add(
-          new JOmniFactoryGeneratorT<ClusterShapeCalculator_factory>(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
             "LFHCALSplitMergeClustersWithShapes",
             {"LFHCALSplitMergeClustersWithoutShapes",
              "LFHCALSplitMergeClusterAssociationsWithoutShapes"},

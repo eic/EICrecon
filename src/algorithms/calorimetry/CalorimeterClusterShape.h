@@ -4,7 +4,7 @@
 #pragma once
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "ClusterShapeCalculatorConfig.h"
+#include "CalorimeterClusterShapeConfig.h"
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
@@ -20,7 +20,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Algorithm input/output
   // --------------------------------------------------------------------------
-  using ClusterShapeCalculatorAlgorithm = algorithms::Algorithm<
+  using CalorimeterClusterShapeAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4eic::ClusterCollection,
       std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>
@@ -40,16 +40,16 @@ namespace eicrecon {
    *  computes their cluster shape parameters, and saves
    *  outputs the same clusters with computed parameters.
    */
-  class ClusterShapeCalculator
-    : public ClusterShapeCalculatorAlgorithm
-    , public WithPodConfig<ClusterShapeCalculatorConfig>
+  class CalorimeterClusterShape
+    : public CalorimeterClusterShapeAlgorithm
+    , public WithPodConfig<CalorimeterClusterShapeConfig>
   {
 
     public:
 
       // ctor
-      ClusterShapeCalculator(std::string_view name) :
-        ClusterShapeCalculatorAlgorithm {
+      CalorimeterClusterShape(std::string_view name) :
+        CalorimeterClusterShapeAlgorithm {
           name,
           {"inputClusters", "inputMCClusterAssociations"},
           {"outputClusters", "outputMCClusterAssociations"},
