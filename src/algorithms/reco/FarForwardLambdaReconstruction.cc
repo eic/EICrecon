@@ -47,9 +47,9 @@ namespace eicrecon {
 
       if (neutrons.size()!=1 || gammas.size()!=2)
         return;
-      double m_neutron=m_particleSvc.particle(2112).mass;
-      double m_pi0=m_particleSvc.particle(111).mass;
-      double m_lambda=m_particleSvc.particle(3122).mass;
+      static const double m_neutron = m_particleSvc.particle(2112).mass;
+      static const double m_pi0 = m_particleSvc.particle(111).mass;
+      static const double m_lambda = m_particleSvc.particle(3122).mass;
       double En=neutrons[0].getEnergy();
       double pn=sqrt(En*En-m_neutron*m_neutron);
       double E1=gammas[0].getEnergy();
