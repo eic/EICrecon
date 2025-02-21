@@ -102,7 +102,7 @@ namespace eicrecon {
       }
 
       double Etot=Etot_hcal;
-      double m_neutron=m_particleSvc.particle(2112).mass;
+      static const double m_neutron = m_particleSvc.particle(2112).mass;
       int n_neutrons;
       if (Etot > 0 && Emax > 0){
           auto rec_part = out_neutrals->create();

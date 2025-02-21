@@ -43,16 +43,19 @@ namespace eicrecon {
           gammas.push_back(part);
         }
       }
-
+      
 
       if (neutrons.size()<1 || gammas.size()<2)
         return;
+
+      static const double m_neutron = m_particleSvc.particle(2112).mass;
+      static const double m_pi0 = m_particleSvc.particle(111).mass;
+      static const double m_lambda = m_particleSvc.particle(3122).mass;
+
       for (std::size_t i_n=0; i_n<neutrons.size(); i_n++){
 	for (std::size_t i_1=0; i_1<gammas.size()-1; i_1++){
 	  for (std::size_t i_2=i_1+1; i_2<gammas.size(); i_2++){
-	    double m_neutron=m_particleSvc.particle(2112).mass;
-	    double m_pi0=m_particleSvc.particle(111).mass;
-	    double m_lambda=m_particleSvc.particle(3122).mass;
+	    
 	    double En=neutrons[i_n].getEnergy();
 	    double pn=sqrt(En*En-m_neutron*m_neutron);
 	    double E1=gammas[i_1].getEnergy();
