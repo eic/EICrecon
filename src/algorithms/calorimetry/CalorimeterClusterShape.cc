@@ -11,6 +11,9 @@
 #include <Eigen/Householder>
 #include <cmath>
 
+// TEST
+#include <iostream>
+
 
 
 namespace eicrecon {
@@ -22,7 +25,7 @@ namespace eicrecon {
 
     //... nothing to do ...//
 
-  }  // end 'init(dd4hep::Detector*)'
+  }  // end 'init()'
 
 
 
@@ -174,6 +177,9 @@ namespace eicrecon {
         }
       }  // end shape parameter calculation
 
+      out_clusters->push_back(out_clust);
+      trace("Completed shape calculation for cluster {}", in_clust.getObjectID().index);
+
       // ----------------------------------------------------------------------
       // if provided, copy associations
       // ----------------------------------------------------------------------
@@ -189,6 +195,8 @@ namespace eicrecon {
         }
       }  // end input association loop
     }  // end input cluster loop
+    debug("Completed processing input clusters");
+
   }  // end 'process(Input&, Output&)'
 
 }  // end eicrecon namespace
