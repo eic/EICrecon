@@ -76,9 +76,9 @@ namespace eicrecon {
           // pick out surface specified in configuration
           if (point.surface != m_cfg.surfaceToUse) {
             continue;
-          }        
+          }
 
-          // add to map and break 
+          // add to map and break
           mapClustToProj[ match.getCluster() ].push_back(point);
           break;
         }
@@ -103,7 +103,7 @@ namespace eicrecon {
 
     // ------------------------------------------------------------------------
     // 2. Subtract energy for tracks
-    // ------------------------------------------------------------------------ 
+    // ------------------------------------------------------------------------
     // FIXME need to think: for charged particles, energy reconstruction
     // should use only the portion of energy relevant to the charged
     // track if there is something leftover after subtraction...
