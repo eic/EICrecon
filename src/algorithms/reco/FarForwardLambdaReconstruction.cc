@@ -32,7 +32,7 @@ namespace eicrecon {
     void FarForwardLambdaReconstruction::process(const FarForwardLambdaReconstruction::Input& input,
                       const FarForwardLambdaReconstruction::Output& output) const {
       const auto [neutrals] = input;
-      auto [out_lambdas, out_decay_products] = output;
+      auto [out_lambdas] = output;
       std::vector<edm4eic::ReconstructedParticle> neutrons={};
       std::vector<edm4eic::ReconstructedParticle> gammas={};
       for (auto part: *neutrals){
@@ -123,30 +123,32 @@ namespace eicrecon {
 	    rec_part.setCharge(0);
 	    rec_part.setMass(mass_rec);
 	      
-	    rec_part = out_decay_products->create();
-	    rec_part.setPDG(2112);
-	    rec_part.setEnergy(n.E());
-	    rec_part.setMomentum({static_cast<float>(n.X()), static_cast<float>(n.Y()), static_cast<float>(n.Z())});
-	    rec_part.setReferencePoint({static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
-	    rec_part.setCharge(0);
-	    rec_part.setMass(m_neutron);
+	    auto neutron = out_lambdas->create();
+	    neutron.setPDG(2112);
+	    neutron.setEnergy(n.E());
+	    neutron.setMomentum({static_cast<float>(n.X()), static_cast<float>(n.Y()), static_cast<float>(n.Z())});
+	    neutron.setReferencePoint({static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
+	    neutron.setCharge(0);
+	    neutron.setMass(m_neutron);
+	    rec_part.addToParticles(neutron);
 	    
-	    rec_part = out_decay_products->create();
-	    rec_part.setPDG(22);
-	    rec_part.setEnergy(g1.E());
-	    rec_part.setMomentum({static_cast<float>(g1.X()), static_cast<float>(g1.Y()), static_cast<float>(g1.Z())});
-	    rec_part.setReferencePoint({static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
-	    rec_part.setCharge(0);
-	    rec_part.setMass(0);
+	    auto gamma1 = out_lambdas->create();
+	    gamma1.setPDG(22);
+	    gamma1.setEnergy(g1.E());
+	    gamma1.setMomentum({static_cast<float>(g1.X()), static_cast<float>(g1.Y()), static_cast<float>(g1.Z())});
+	    gamma1.setReferencePoint({static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
+	    gamma1.setCharge(0);
+	    gamma1.setMass(0);
+	    rec_part.addToParticles(gamma1);
 
-	    rec_part = out_decay_products->create();
-	    rec_part.setPDG(22);
-	    rec_part.setEnergy(g2.E());
-	    rec_part.setMomentum({static_cast<float>(g2.X()), static_cast<float>(g2.Y()), static_cast<float>(g2.Z())});
-	    rec_part.setReferencePoint({static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
-	    rec_part.setCharge(0);
-	    rec_part.setMass(0);
-
+	    auto gamma2 = out_lambdas->create();
+	    gamma2.setPDG(22);
+	    gamma2.setEnergy(g2.E());
+	    gamma2.setMomentum({static_cast<float>(g2.X()), static_cast<float>(g2.Y()), static_cast<float>(g2.Z())});
+	    gamma2.setReferencePoint({static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
+	    gamma2.setCharge(0);
+	    gamma2.setMass(0);
+	    rec_part.addToParticles(gamma2);
 	    continue;
 	  }
 	}

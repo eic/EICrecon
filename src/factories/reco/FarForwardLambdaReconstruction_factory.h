@@ -19,7 +19,6 @@ namespace eicrecon {
       std::unique_ptr<AlgoT> m_algo;
     PodioInput<edm4eic::ReconstructedParticle> m_neutrals_input {this};
     PodioOutput<edm4eic::ReconstructedParticle> m_lambda_output {this};
-    PodioOutput<edm4eic::ReconstructedParticle> m_decay_products_output {this};
 
     ParameterRef<double> m_rot_y {this, "globalToProtonRotation", config().globalToProtonRotation};
     ParameterRef<double> m_zmax {this, "zMax", config().zMax};
@@ -40,7 +39,7 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
-      m_algo->process({m_neutrals_input()},{m_lambda_output().get(), m_decay_products_output().get()});
+      m_algo->process({m_neutrals_input()},{m_lambda_output().get()});
     }
 };
 

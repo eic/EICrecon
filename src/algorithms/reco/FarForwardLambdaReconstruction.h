@@ -21,8 +21,8 @@ using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
    algorithms::Input<
       const edm4eic::ReconstructedParticleCollection
     >,
+  /*output collection contains the lambda candidates and their decay products in the CM frame*/
     algorithms::Output<
-      edm4eic::ReconstructedParticleCollection,
       edm4eic::ReconstructedParticleCollection
     >
     >;
@@ -33,7 +33,7 @@ using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
          FarForwardLambdaReconstruction(std::string_view name)
                   : FarForwardLambdaReconstructionAlgorithm{name,
                                                             {"inputNeutrals"},
-                                                            {"outputLambda", "outputLambdaDecayProducts"},
+                                                            {"outputLambdaAndDecayProducts"},
                                         "Reconstructs lambda candidates and their decay products from the reconstructed neutrons and photons"} {}
 
          void init() final;

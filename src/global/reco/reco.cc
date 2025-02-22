@@ -342,7 +342,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
            "ReconstructedFarForwardZDCLambdas",
            {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
-           {"ReconstructedFarForwardZDCLambdas", "ReconstructedFarForwardZDCLambdaDecayProducts"}, // edm4eic::ReconstrutedParticleCollection,
+           {"ReconstructedFarForwardZDCLambdaAndDecayProducts"}, // edm4eic::ReconstrutedParticleCollection,
            {
              .globalToProtonRotation=-0.025,
              .zMax=z_zdc*dd4hep::mm,
