@@ -23,25 +23,6 @@ macro(plugin_add _name)
     endif()
   endforeach()
 
-  # Include JANA by default
-  find_package(JANA REQUIRED)
-
-  # TODO: NWB: This really needs to be a dependency of JANA itself. If we don't
-  # do this here, CMake will later refuse to accept that podio is indeed a
-  # dependency of JANA and aggressively reorders my target_link_list to reflect
-  # this misapprehension.
-  # https://gitlab.kitware.com/cmake/cmake/blob/v3.13.2/Source/cmComputeLinkDepends.cxx
-  find_package(podio REQUIRED)
-
-  # include logging by default
-  find_package(spdlog REQUIRED)
-
-  # include fmt by default
-  find_package(fmt 9.0.0 REQUIRED)
-
-  # include gsl by default
-  find_package(Microsoft.GSL CONFIG)
-
   # Define plugin
   if(${_name}_WITH_PLUGIN)
     add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
@@ -57,6 +38,11 @@ macro(plugin_add _name)
       PROPERTIES PREFIX ""
                  OUTPUT_NAME "${_name}"
                  SUFFIX ".so")
+    target_compile_definitions(
+      ${PLUGIN_NAME}_plugin
+      PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
+              "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
+              "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
     target_link_libraries(${_name}_plugin ${JANA_LIB} podio::podio
                           podio::podioRootIO spdlog::spdlog fmt::fmt)
     target_link_libraries(${_name}_plugin Microsoft.GSL::GSL)
@@ -82,6 +68,11 @@ macro(plugin_add _name)
       PROPERTIES PREFIX "lib"
                  OUTPUT_NAME "${_name}"
                  SUFFIX ${suffix})
+    target_compile_definitions(
+      ${PLUGIN_NAME}_library
+      PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
+              "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
+              "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
 
     target_include_directories(
       ${_name}_library
@@ -114,6 +105,17 @@ macro(plugin_add _name)
       target_link_libraries(${_name}_plugin ${_name}_library)
     endif()
   endif()
+endmacro()
+
+# add_dependencies for both a plugin and a library
+macro(plugin_add_dependencies _name)
+  if(${_name}_WITH_PLUGIN)
+    add_dependencies(${_name}_plugin ${ARGN})
+  endif(${_name}_WITH_PLUGIN)
+
+  if(${_name}_WITH_LIBRARY)
+    add_dependencies(${_name}_library ${ARGN})
+  endif(${_name}_WITH_LIBRARY)
 endmacro()
 
 # target_link_libraries for both a plugin and a library
@@ -296,11 +298,13 @@ macro(plugin_add_acts _name)
   )
   if(${_name}_WITH_LIBRARY)
     target_compile_definitions(
-      ${PLUGIN_NAME}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}")
+      ${PLUGIN_NAME}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
+                                     "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
   endif()
   if(${_name}_WITH_PLUGIN)
     target_compile_definitions(
-      ${PLUGIN_NAME}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}")
+      ${PLUGIN_NAME}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
+                                    "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
   endif()
 
 endmacro()

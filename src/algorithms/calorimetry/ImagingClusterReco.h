@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten, Chao Peng, Wouter Deconinck, David Lawrence
+// Copyright (C) 2022 - 2024, Sylvester Joosten, Chao Peng, Wouter Deconinck, David Lawrence, Derek Anderson
 
 /*
  *  Reconstruct the cluster/layer info for imaging calorimeter
@@ -22,7 +22,11 @@
 
 // Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
+#if EDM4EIC_VERSION_MAJOR >= 7
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#else
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#endif
 #include <edm4hep/utils/vector_utils.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
@@ -37,7 +41,11 @@ namespace eicrecon {
   using ImagingClusterRecoAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4eic::ProtoClusterCollection,
+#if EDM4EIC_VERSION_MAJOR >= 7
+      edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
       edm4hep::SimCalorimeterHitCollection
+#endif
     >,
     algorithms::Output<
       edm4eic::ClusterCollection,
@@ -60,7 +68,11 @@ namespace eicrecon {
   public:
     ImagingClusterReco(std::string_view name)
       : ImagingClusterRecoAlgorithm{name,
+#if EDM4EIC_VERSION_MAJOR >= 7
+                            {"inputProtoClusterCollection", "mcRawHitAssocations"},
+#else
                             {"inputProtoClusterCollection", "mcHits"},
+#endif
                             {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
                             "Reconstruct the cluster/layer info for imaging calorimeter."} {}
 
@@ -70,7 +82,11 @@ namespace eicrecon {
 
     void process(const Input& input, const Output& output) const final {
 
+#if EDM4EIC_VERSION_MAJOR >= 7
+        const auto [proto, mchitassociations] = input;
+#else
         const auto [proto, mchits] = input;
+#endif
         auto [clusters, associations, layers] = output;
 
         for (const auto& pcl: *proto) {
@@ -95,45 +111,22 @@ namespace eicrecon {
             }
             clusters->push_back(cl);
 
-            // If mcHits are available, associate cluster with MCParticle
-            if (mchits->size() > 0) {
-
-                // 1. find pclhit with the largest energy deposition
-                auto pclhits = pcl.getHits();
-                auto pclhit = std::max_element(
-                        pclhits.begin(),
-                        pclhits.end(),
-                        [](const auto &pclhit1, const auto &pclhit2) {
-                            return pclhit1.getEnergy() < pclhit2.getEnergy();
-                        }
-                );
-
-                // 2. find mchit with same CellID
-                const edm4hep::SimCalorimeterHit* mchit = nullptr;
-                for (auto h : *mchits) {
-                    if (h.getCellID() == pclhit->getCellID()) {
-                        mchit = &h;
-                        break;
-                    }
-                }
-                if( !mchit ){
-                    // break if no matching hit found for this CellID
-                    warning("Proto-cluster has highest energy in CellID {}, but no mc hit with that CellID was found.", pclhit->getCellID());
-                    break;
-                }
-
-                // 3. find mchit's MCParticle
-                const auto &mcp = mchit->getContributions(0).getParticle();
-
-                // set association
-                auto clusterassoc = associations->create();
-                clusterassoc.setRecID(cl.getObjectID().index);
-                clusterassoc.setSimID(mcp.getObjectID().index);
-                clusterassoc.setWeight(1.0);
-                clusterassoc.setRec(cl);
-                clusterassoc.setSim(mcp);
+            // If sim hits are available, associate cluster with MCParticle
+#if EDM4EIC_VERSION_MAJOR >= 7
+            if (mchitassociations->size() == 0) {
+                debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations will be performed.");
+                continue;
+            } else {
+                associate_mc_particles(cl, mchitassociations, associations);
             }
-
+#else
+            if (mchits->size() == 0) {
+                debug("Provided SimCalorimeterHitCollection is empty. No truth association will be performed.");
+                continue;
+            } else {
+                associate_mc_particles(cl, mchits, associations);
+            }
+#endif
         }
 
         // debug output
@@ -303,6 +296,139 @@ namespace eicrecon {
         // theta and phi
         return {std::acos(dir(2)), std::atan2(dir(1), dir(0))};
     }
+
+    void associate_mc_particles(
+        const edm4eic::Cluster& cl,
+#if EDM4EIC_VERSION_MAJOR >= 7
+        const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+#else
+        const edm4hep::SimCalorimeterHitCollection* mchits,
+#endif
+        edm4eic::MCRecoClusterParticleAssociationCollection* assocs
+    ) const {
+        // --------------------------------------------------------------------------
+        // Association Logic
+        // --------------------------------------------------------------------------
+        /*  1. identify all sim hits associated with a given protocluster, and sum
+         *     the energy of the sim hits.
+         *  2. for each sim hit
+         *     - identify parents of each contributing particles; and
+         *     - if parent is a primary particle, add to list of contributors
+         *       and sum the energy contributed by the parent.
+         *  3. create an association for each contributing primary with a weight
+         *     of contributed energy over total sim hit energy.
+         */
+
+        // lambda to compare MCParticles
+        auto compare = [](const edm4hep::MCParticle& lhs, const edm4hep::MCParticle& rhs) {
+            if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
+                return (lhs.getObjectID().index < rhs.getObjectID().index);
+            } else {
+                return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
+            }
+        };
+
+        // bookkeeping maps for associated primaries
+        std::map<edm4hep::MCParticle, double, decltype(compare)> mapMCParToContrib(compare);
+
+        // --------------------------------------------------------------------------
+        // 1. get associated sim hits and sum energy
+        // --------------------------------------------------------------------------
+        double eSimHitSum = 0.;
+        for (auto clhit : cl.getHits()) {
+            // vector to hold associated sim hits
+            std::vector<edm4hep::SimCalorimeterHit> vecAssocSimHits;
+
+#if EDM4EIC_VERSION_MAJOR >= 7
+            for (const auto& hitAssoc : *mchitassociations) {
+                // if found corresponding raw hit, add sim hit to vector
+                // and increment energy sum
+                if (clhit.getRawHit() == hitAssoc.getRawHit()) {
+                    vecAssocSimHits.push_back(hitAssoc.getSimHit());
+                    eSimHitSum += vecAssocSimHits.back().getEnergy();
+                }
+
+            }
+#else
+            for (const auto& mchit : *mchits) {
+                if (mchit.getCellID() == clhit.getCellID()) {
+                    vecAssocSimHits.push_back(mchit);
+                    eSimHitSum += vecAssocSimHits.back().getEnergy();
+                    break;
+                }
+            }
+
+            // if no matching cell ID found, continue
+            // otherwise increment sum
+            if (vecAssocSimHits.empty()) {
+                debug("No matching SimHit for hit {}", clhit.getCellID());
+                continue;
+            }
+#endif
+            debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(), clhit.getCellID());
+
+            // ------------------------------------------------------------------------
+            // 2. loop through associated sim hits
+            // ------------------------------------------------------------------------
+            for (const auto& simHit : vecAssocSimHits) {
+                for (const auto& contrib : simHit.getContributions()) {
+                    // --------------------------------------------------------------------
+                    // grab primary responsible for contribution & increment relevant sum
+                    // --------------------------------------------------------------------
+                    edm4hep::MCParticle primary = get_primary(contrib);
+                    mapMCParToContrib[primary] += contrib.getEnergy();
+
+                    trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
+                        primary.getObjectID().index,
+                        primary.getPDG(),
+                        primary.getEnergy(),
+                        mapMCParToContrib[primary]
+                    );
+                }
+            }
+        }
+        debug("Found {} primaries contributing a total of {} GeV", mapMCParToContrib.size(), eSimHitSum);
+
+        // --------------------------------------------------------------------------
+        // 3. create association for each contributing primary
+        // --------------------------------------------------------------------------
+        for (auto [part, contribution] : mapMCParToContrib) {
+            // calculate weight
+            const double weight = contribution / eSimHitSum;
+
+            // set association
+            auto assoc = assocs->create();
+            assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
+            assoc.setSimID(part.getObjectID().index);
+            assoc.setWeight(weight);
+            assoc.setRec(cl);
+            assoc.setSim(part);
+            debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with weight ({})",
+                cl.getObjectID().index,
+                part.getObjectID().index,
+                part.getPDG(),
+                part.getGeneratorStatus(),
+                part.getEnergy(),
+                weight
+            );
+        }
+    }
+
+    edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const {
+        // get contributing particle
+        const auto contributor = contrib.getParticle();
+
+        // walk back through parents to find primary
+        //   - TODO finalize primary selection. This
+        //     can be improved!!
+        edm4hep::MCParticle primary = contributor;
+        while (primary.parents_size() > 0) {
+            if (primary.getGeneratorStatus() != 0) break;
+            primary = primary.getParents(0);
+         }
+         return primary;
+    }
+
 };
 
 } // namespace eicrecon

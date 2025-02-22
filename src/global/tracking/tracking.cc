@@ -6,6 +6,7 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <fmt/core.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <map>
@@ -50,7 +51,7 @@ void InitPlugin(JApplication *app) {
         {"SiBarrelHits", "SiBarrelRawHits", "SiBarrelRawHitAssociations", "SiBarrelTrackerRecHits"},
         {"VertexBarrelHits", "SiBarrelVertexRawHits", "SiBarrelVertexRawHitAssociations", "SiBarrelVertexRecHits"},
         {"TrackerEndcapHits", "SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitAssociations", "SiEndcapTrackerRecHits"},
-        {"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelRecHit"},
+        {"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelRecHits"},
         {"TOFEndcapHits", "TOFEndcapRawHits", "TOFEndcapRawHitAssociations", "TOFEndcapRecHits"},
         {"MPGDBarrelHits", "MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations", "MPGDBarrelRecHits"},
         {"OuterMPGDBarrelHits", "OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations", "OuterMPGDBarrelRecHits"},
@@ -217,11 +218,16 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>(
+        "CentralTrackSegments",
+        {
+            "CentralCKFActsTrajectories",
+            "CentralCKFTracks",
+        },
+        {
             "CentralTrackSegments",
-            {"CentralCKFActsTrajectories"},
-            {"CentralTrackSegments"},
-            app
-            ));
+        },
+        app
+    ));
 
     app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
             "CentralTrackVertices",

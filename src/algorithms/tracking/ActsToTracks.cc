@@ -11,6 +11,7 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
@@ -120,7 +121,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         for (size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
           // FIXME why not pars.getCovariance()(i,j) = covariance(a,b) / x / y;
           cov(i,j) = covariance(a,b) / x / y;
+          ++j;
         }
+        ++i;
       }
       pars.setCovariance(cov);
 
@@ -194,7 +197,11 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                         for (const auto raw_hit_assoc : *raw_hit_assocs) {
                           if (raw_hit_assoc.getRawHit() == raw_hit) {
                             auto sim_hit = raw_hit_assoc.getSimHit();
+#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
+                            auto mc_particle = sim_hit.getParticle();
+#else
                             auto mc_particle = sim_hit.getMCParticle();
+#endif
                             mcparticle_weight_by_hit_count[mc_particle]++;
                           }
                         }

@@ -167,6 +167,9 @@ find_package(EDM4EIC 5.0 REQUIRED)
 # spdlog
 find_package(spdlog REQUIRED)
 
+# fmt
+find_package(fmt 9.0.0 REQUIRED)
+
 # Guidelines Support Library
 find_package(Microsoft.GSL CONFIG)
 
@@ -285,7 +288,6 @@ add_subdirectory(src/services)
 add_subdirectory(src/algorithms)
 add_subdirectory(src/benchmarks)
 add_subdirectory(src/detectors)
-add_subdirectory(src/examples)
 add_subdirectory(src/extensions)
 add_subdirectory(src/factories)
 add_subdirectory(src/global)

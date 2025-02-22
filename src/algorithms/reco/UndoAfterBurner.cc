@@ -115,6 +115,9 @@ void eicrecon::UndoAfterBurner::process(
 
     // Now, loop through events and apply operations to the MCparticles
     for (const auto& p: *mcparts) {
+        if (p.isCreatedInSimulation()) {
+            continue;
+        }
 
         ROOT::Math::PxPyPzEVector mc(p.getMomentum().x, p.getMomentum().y, p.getMomentum().z, p.getEnergy());
 
@@ -123,7 +126,7 @@ void eicrecon::UndoAfterBurner::process(
         mc = rotationAboutX(mc);
         mc = headOnBoostVector(mc);
 
-        edm4hep::Vector3f mcMom(mc.Px(), mc.Py(), mc.Pz());
+        decltype(edm4hep::MCParticleData::momentum) mcMom(mc.Px(), mc.Py(), mc.Pz());
         edm4hep::MutableMCParticle MCTrack(p.clone());
         MCTrack.setMomentum(mcMom);
 
