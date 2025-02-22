@@ -13,8 +13,10 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "services/log/Log_service.h"
+#include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 /**
@@ -32,6 +34,7 @@ class AlgorithmsInit_service : public JService
         // Get services
         m_log_service = srv_locator->get<Log_service>();
         m_dd4hep_service = srv_locator->get<DD4hep_service>();
+        m_actsgeo_service = srv_locator->get<ACTSGeo_service>();
 
         // Logger for ServiceSvc
         m_log = m_log_service->logger("AlgorithmsInit");
@@ -41,6 +44,17 @@ class AlgorithmsInit_service : public JService
         serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) {
             this->m_log->debug("Initializing algorithms::GeoSvc");
             g.init(const_cast<dd4hep::Detector*>(this->m_dd4hep_service->detector().get()));
+        });
+
+        // Register DD4hep_service as algorithms::ActsSvc
+        [[maybe_unused]] auto& actsSvc = algorithms::ActsSvc::instance();
+        serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& g) {
+            this->m_log->debug("Initializing algorithms::ActsSvc");
+            try {
+                g.init(this->m_actsgeo_service->actsGeoProvider());
+            } catch(...) {
+                g.init(std::move(std::current_exception()));
+            }
         });
 
         // Register Log_service as algorithms::LogSvc
@@ -81,5 +95,6 @@ class AlgorithmsInit_service : public JService
     AlgorithmsInit_service() = default;
     std::shared_ptr<Log_service> m_log_service;
     std::shared_ptr<DD4hep_service> m_dd4hep_service;
+    std::shared_ptr<ACTSGeo_service> m_actsgeo_service;
     std::shared_ptr<spdlog::logger> m_log;
 };
