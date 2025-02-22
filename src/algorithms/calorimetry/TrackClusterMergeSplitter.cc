@@ -630,7 +630,7 @@ namespace eicrecon {
    *  As in `CalorimeterClusterRecoCoG`, an association is made for each
    *  contributing primary with a weight equal to the ratio of the
    *  contributed energy energy over total sim hit energy.
-   */ 
+   */
   void TrackClusterMergeSplitter::collect_associations(
     const edm4eic::MutableCluster& new_clust,
     const VecClust& old_clusts,
