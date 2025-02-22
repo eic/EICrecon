@@ -24,6 +24,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  PodioInput<edm4eic::Track> m_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_segments_output{this};
 
   Service<AlgorithmsInit_service> m_algorithmsInit {this};
@@ -45,6 +46,7 @@ public:
     m_algo->process(
         {
             acts_trajectories_input,
+            m_tracks_input(),
         },
         {
             m_segments_output().get(),
