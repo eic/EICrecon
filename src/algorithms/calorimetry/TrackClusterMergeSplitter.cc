@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Derek Anderson
 
-#include <edm4eic/CalorimeterHit.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -406,16 +405,12 @@ namespace eicrecon {
     }
 
     // calculate weights for splitting
-    VecMatrix weights(to_split.size(), MatrixF(to_merge.size()));
-    for (std::size_t iClust = 0; const auto& old_clust : to_merge) {
+    VecWeights weights(to_split.size());
+    for (const auto& old_clust : to_merge) {
+      for (const auto& hit : old_clust.getHits()) {
 
-      // set aside enough space for each hit
-      for (std::size_t iProj = 0; iProj < to_split.size(); ++iProj) {
-        weights[iProj][iClust].resize( old_clust.getHits().size() );
-      }
-
-      // now loop through each combination of projection & hit
-      for (std::size_t iHit = 0; const auto& hit : old_clust.getHits()) {
+        // calculate a weight for each projection
+        double wTotal = 0.;
         for (std::size_t iProj = 0; const auto& proj : to_split) {
 
           // get track eta, phi
@@ -433,22 +428,20 @@ namespace eicrecon {
             std::remainder(phiHit - phiProj, 2. * M_PI)
           );
 
-          // set weight
-          weights[iProj][iClust][iHit] = std::exp(-1. * dist / m_cfg.transverseEnergyProfileScale) * mom ;
+          // get weight
+          const float weight = std::exp(-1. * dist / m_cfg.transverseEnergyProfileScale) * mom ;
+
+          // set weight & increment sum of weights
+          weights[iProj][hit] = weight;
+          wTotal += weight;
           ++iProj;
         }
 
         // normalize weights over all projections
-        float wTotal = 0.;
-        for (const MatrixF& matrix : weights) {
-          wTotal += matrix[iClust][iHit];
+        for (std::size_t iProj = 0; iProj < to_split.size(); ++iProj) {
+          weights[iProj][hit] /= wTotal;
         }
-        for (MatrixF& matrix : weights) {
-          matrix[iClust][iHit] /= wTotal;
-        }
-        ++iHit;
       }  // end hits to merge loop
-      ++iClust;
     }  // end clusters to merge loop
 
    // make new clusters with relevant splitting weights
@@ -467,7 +460,7 @@ namespace eicrecon {
   void TrackClusterMergeSplitter::make_cluster(
     const VecClust& old_clusts,
     edm4eic::MutableCluster& new_clust,
-    std::optional<MatrixF> split_weights
+    std::optional<MapToWeight> split_weights
   ) const {
 
     // determine total no. of hits
@@ -480,13 +473,13 @@ namespace eicrecon {
     float eClust = 0.;
     float wClust = 0.;
     float tClust = 0.;
-    for (std::size_t iClust = 0; const auto& old_clust : old_clusts) {
+    for (const auto& old_clust : old_clusts) {
       for (std::size_t iHit = 0; const auto& hit : old_clust.getHits()) {
 
         // get weight and update if needed
         float weight = old_clust.getHitContributions()[iHit] / hit.getEnergy();
         if (split_weights.has_value()) {
-          weight *= split_weights.value()[iClust][iHit];
+          weight *= split_weights.value().at(hit);
         }
 
         // update running tallies
@@ -500,7 +493,6 @@ namespace eicrecon {
         ++iHit;
       }  // end hit loop
       trace("Merged input cluster {} into output cluster {}", old_clust.getObjectID().index, new_clust.getObjectID().index);
-      ++iClust;
     }  // end cluster loop
 
     // update cluster position by taking energy-weighted
@@ -638,7 +630,7 @@ namespace eicrecon {
    *  As in `CalorimeterClusterRecoCoG`, an association is made for each
    *  contributing primary with a weight equal to the ratio of the
    *  contributed energy energy over total sim hit energy.
-   */
+   */ 
   void TrackClusterMergeSplitter::collect_associations(
     const edm4eic::MutableCluster& new_clust,
     const VecClust& old_clusts,

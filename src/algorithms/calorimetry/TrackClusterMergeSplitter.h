@@ -5,6 +5,7 @@
 
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
+#include <edm4eic/CalorimeterHit.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
@@ -55,16 +56,15 @@ namespace eicrecon {
 
   };  // end CompareObjectID
 
-  // specialization for clusters
+  // specialization for clusters, hits
   using CompareClust = CompareObjectID<edm4eic::Cluster>;
+  using CompareHit = CompareObjectID<edm4eic::CalorimeterHit>;
 
 
 
   // --------------------------------------------------------------------------
   //! Convenience types
   // --------------------------------------------------------------------------
-  using MatrixF = std::vector<std::vector<float>>;
-  using VecMatrix = std::vector<MatrixF>;
   using VecTrk = std::vector<edm4eic::Track>;
   using VecProj = std::vector<edm4eic::TrackPoint>;
   using VecClust = std::vector<edm4eic::Cluster>;
@@ -72,6 +72,8 @@ namespace eicrecon {
   using MapToVecTrk = std::map<edm4eic::Cluster, VecTrk, CompareClust>;
   using MapToVecProj = std::map<edm4eic::Cluster, VecProj, CompareClust>;
   using MapToVecClust = std::map<edm4eic::Cluster, VecClust, CompareClust>;
+  using MapToWeight = std::map<edm4eic::CalorimeterHit, double, CompareHit>;
+  using VecWeights = std::vector<MapToWeight>;
 
 
 
@@ -143,7 +145,7 @@ namespace eicrecon {
       void get_projections(const edm4eic::TrackSegmentCollection* projections, VecProj& relevant_projects, VecTrk& relevant_trks) const;
       void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters, const VecProj& projections, const VecTrk& tracks, MapToVecProj& matched_projects, MapToVecTrk& matched_tracks) const;
       void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, std::vector<edm4eic::MutableCluster>& new_clusters) const;
-      void make_cluster(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust, std::optional<MatrixF> split_weights = std::nullopt) const;
+      void make_cluster(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust, std::optional<MapToWeight> split_weights = std::nullopt) const;
       void calculate_shape_parameters(edm4eic::MutableCluster& clust) const;
 #if EDM4EIC_VERSION_MAJOR >= 7
       void collect_associations(const edm4eic::MutableCluster& new_clust, const VecClust& old_clusts, const edm4eic::MCRecoClusterParticleAssociationCollection* old_clust_assocs, const edm4eic::MCRecoCalorimeterHitAssociationCollection* old_hit_assocs, edm4eic::MCRecoClusterParticleAssociationCollection* new_clust_assocs) const;
