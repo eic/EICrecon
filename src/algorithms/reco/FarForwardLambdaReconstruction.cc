@@ -8,6 +8,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <math.h>
+#include <cstddef>
 #include <gsl/pointers>
 #include <vector>
 
@@ -43,7 +44,7 @@ namespace eicrecon {
           gammas.push_back(part);
         }
       }
-      
+
 
       if (neutrons.size()<1 || gammas.size()<2)
         return;
@@ -155,8 +156,3 @@ namespace eicrecon {
       }
     }
 }
-
-
-
-
-
