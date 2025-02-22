@@ -1,38 +1,38 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025 Dmitry Romanov, Dmitry Kalinkin
 
 #pragma once
 
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <algorithms/algorithm.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <spdlog/logger.h>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include "ActsGeometryProvider.h"
 
-
 namespace eicrecon {
 
-        /** Extract the particles form fit trajectories.
-         *
-         * \ingroup tracking
-         */
-        class TrackProjector {
+using TrackProjectorAlgorithm = algorithms::Algorithm<
+    algorithms::Input<std::vector<ActsExamples::Trajectories>, edm4eic::TrackCollection>,
+    algorithms::Output<edm4eic::TrackSegmentCollection>>;
 
-        public:
+class TrackProjector : public TrackProjectorAlgorithm {
+public:
+  TrackProjector(std::string_view name)
+      : TrackProjectorAlgorithm{name,
+                                {"inputActsTrajectories"},
+                                {"outputTrackSegments"},
+                                "Exports track states as segments"} {}
 
-            void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-            std::unique_ptr<edm4eic::TrackSegmentCollection> execute(std::vector<const ActsExamples::Trajectories*> trajectories);
+private:
+  std::shared_ptr<const ActsGeometryProvider> m_geo_provider;
+};
 
-        private:
-            std::shared_ptr<const ActsGeometryProvider> m_geo_provider;
-            std::shared_ptr<spdlog::logger> m_log;
-
-        };
-
-
-
-} // eicrecon
+} // namespace eicrecon

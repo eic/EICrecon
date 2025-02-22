@@ -24,10 +24,11 @@
 #include <string>
 #include <unordered_map>
 
-#include "DD4hepBField.h"
-
 namespace dd4hep::rec {
     class Surface;
+}
+namespace eicrecon::BField {
+    class DD4hepBField;
 }
 
 /** Draw the surfaces and save to obj file.
@@ -52,7 +53,7 @@ public:
      */
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry() const { return m_trackingGeo;}
 
-    std::shared_ptr<const Acts::MagneticFieldProvider> getFieldProvider() const  { return m_magneticField; }
+    std::shared_ptr<const Acts::MagneticFieldProvider> getFieldProvider() const;
 
     double centralMagneticField() const  {
         return m_dd4hepDetector->field().magneticField({0, 0, 0}).z() * (Acts::UnitConstants::T / dd4hep::tesla);
