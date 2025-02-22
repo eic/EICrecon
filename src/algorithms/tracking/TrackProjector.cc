@@ -19,8 +19,9 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
-#include <stdint.h>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
 #include <gsl/pointers>
 #include <iterator>
 
@@ -41,13 +42,13 @@ namespace eicrecon {
 
 
     void TrackProjector::process(const Input& input, const Output& output) const {
-        const auto [trajectories] = input;
+        const auto [acts_trajectories, tracks] = input;
         auto [track_segments] = output;
 
-        debug("Track projector event process. Num of input trajectories: {}", std::size(trajectories));
+        debug("Track projector event process. Num of input trajectories: {}", std::size(acts_trajectories));
 
         // Loop over the trajectories
-        for (const auto &traj: trajectories) {
+        for (std::size_t i = 0; const auto &traj: acts_trajectories) {
             // Get the entry index for the single trajectory
             // The trajectory entry indices and the multiTrajectory
             const auto &mj = traj->multiTrajectory();
@@ -71,6 +72,13 @@ namespace eicrecon {
             debug("  Num state in trajectory {}", m_nStates);
 
             auto track_segment = track_segments->create();
+
+            // corresponding track
+            if (tracks->size() == acts_trajectories.size()) {
+              trace("track segment connected to track {}", i);
+              track_segment.setTrack((*tracks)[i]);
+              ++i;
+            }
 
             // visit the track points
             mj.visitBackwards(trackTip, [&](auto &&trackstate) {
