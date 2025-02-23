@@ -18,8 +18,8 @@ namespace eicrecon {
   //! Particle Flow tools namespace
   // --------------------------------------------------------------------------
   /*! This namespace collects a variety of useful types and methods
-   *  used throughout particle flow algorithms. 
-   */ 
+   *  used throughout particle flow algorithms.
+   */
   namespace PFTools {
 
     // ------------------------------------------------------------------------

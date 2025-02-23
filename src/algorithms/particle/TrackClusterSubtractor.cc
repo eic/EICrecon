@@ -77,7 +77,7 @@ namespace eicrecon {
 
     // ------------------------------------------------------------------------
     // 2. Subtract energy for tracks
-    // ------------------------------------------------------------------------ 
+    // ------------------------------------------------------------------------
     // FIXME need to think: for charged particles, energy reconstruction
     // should use only the portion of energy relevant to the charged
     // track if there is something leftover after subtraction...
