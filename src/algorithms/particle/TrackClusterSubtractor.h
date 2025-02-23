@@ -36,6 +36,7 @@ namespace eicrecon {
     >,
     algorithms::Output<
       edm4eic::ClusterCollection,
+      edm4eic::ClusterCollection,
       edm4eic::TrackClusterMatchCollection
     >
   >;
@@ -60,8 +61,10 @@ namespace eicrecon {
       TrackClusterSubtractor(std::string_view name) :
         TrackClusterSubtractorAlgorithm {
           name,
-          {"InputTrackClusterMatches", "InputTrackProjections"},
-          {"OutputClusterCollection", "OutputTrackClusterMatches"},
+          {"inputTrackClusterMatches", "inputTrackProjections"},
+          {"outputSubtractedClusterCollection",
+           "outputRemnantClusterCollection",
+           "outputTrackSubtractedClusterMatches"},
           "Subtracts energy of tracks pointing to clusters."
         } {}
 

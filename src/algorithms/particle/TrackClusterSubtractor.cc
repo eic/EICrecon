@@ -50,7 +50,7 @@ namespace eicrecon {
 
     // grab inputs/outputs
     const auto [in_matches, in_projections] = input;
-    auto [out_clusters, out_matches] = output;
+    auto [out_sub_clusters, out_remain_clusters, out_sub_matches] = output;
 
     // exit if no matched tracks in collection
     if (in_matches->size() == 0) {
@@ -79,9 +79,6 @@ namespace eicrecon {
     // ------------------------------------------------------------------------
     // 2. Subtract energy for tracks
     // ------------------------------------------------------------------------ 
-    // FIXME need to think: for charged particles, energy reconstruction
-    // should use only the portion of energy relevant to the charged
-    // track if there is something leftover after subtraction...
     for (const auto& [cluster, projects] : mapClustToProj) {
 
       // do subtraction
@@ -90,21 +87,52 @@ namespace eicrecon {
       const double eSub = cluster.getEnergy() - eToSub;
       trace("Subtracted {} GeV from cluster with {} GeV", eToSub, cluster.getEnergy());
 
-      // if greater than 0, scale energy accordingly and
-      // write out remnant cluster
-      if (is_zero(eSub)) {
-        continue;
-      }
-      const double scale = eSub / cluster.getEnergy();
+      // check if consistent with zero,
+      // set eSub accordingly
+      const bool isZero = is_zero(eSub);
+      const double eSubToUse = isZero ? 0. : eSub;
 
-      // update cluster energy
-      edm4eic::MutableCluster remnant_clust = cluster.clone();
-      remnant_clust.setEnergy( scale * cluster.getEnergy() );
-      out_clusters->push_back(remnant_clust);
-      trace("Create remnant cluster with {} GeV", remnant_clust.getEnergy());
+      // calculate energy fractions
+      const double remainFrac = eSubToUse / cluster.getEnergy();
+      const double subtractFrac = 1. - remainFrac;
+
+      // scale subtracted cluster energy
+      edm4eic::MutableCluster sub_clust = cluster.clone();
+      sub_clust.setEnergy( subtractFrac * cluster.getEnergy() );
+      out_sub_clusters->push_back(sub_clust);
+      trace(
+        "Created subtracted cluster with {} GeV (originally {} GeV)",
+        sub_clust.getEnergy(),
+        cluster.getEnergy()
+      );
+
+      // create track cluster matches
+      for (const auto& project : projects) {
+        edm4eic::MutableTrackClusterMatch match = out_sub_matches->create();
+        match.setCluster( sub_clust );
+        match.setTrack( project.getTrack() );
+        match.setWeight( 1.0 );  // FIXME placeholder
+        trace(
+          "Matched subtracted cluster {} to track {}",
+          sub_clust.getObjectID().index,
+          project.getTrack().getObjectID().index
+        );
+      }
+
+      // if NOT consistent with zero, write
+      // out remnant cluster
+      if (!isZero) {
+        edm4eic::MutableCluster remain_clust = cluster.clone();
+        remain_clust.setEnergy( remainFrac * cluster.getEnergy() );
+        out_remain_clusters->push_back(remain_clust);
+        trace(
+          "Created remnant cluster with {} GeV",
+          remain_clust.getEnergy()
+        );
+      }
 
     }  // end cluster-to-projections loop
-    debug("Finished subtraction, {} clusters leftover", out_clusters->size());
+    debug("Finished subtraction, {} remnant clusters", out_remain_clusters->size());
 
   }  // end 'get_projections(edm4eic::CalorimeterHit&, edm4eic::TrackSegmentCollection&, VecTrkPoint&)'
 
