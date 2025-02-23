@@ -40,6 +40,10 @@ namespace eicrecon {
       ParameterRef<double> m_fracEnergyToSub {this, "fracEnergyToSub", config().fracEnergyToSub};
       ParameterRef<int32_t> m_defaultMassPdg {this, "defaultMassPdg", config().defaultMassPdg};
       ParameterRef<uint64_t> m_surfaceToUse {this, "surfaceToUse", config().surfaceToUse};
+      ParameterRef<bool> m_doNSigmaCut {this, "doNSigmaCut", config().doNSigmaCut};
+      ParameterRef<uint32_t> m_nSigmaMax {this, "nSigmaMax", config().nSigmaMax};
+      ParameterRef<double> m_trkReso {this, "trkReso", config().trkReso};
+      ParameterRef<double> m_calReso {this, "calReso", config().calReso};
 
       // services
       Service<AlgorithmsInit_service> m_algoInitSvc {this};

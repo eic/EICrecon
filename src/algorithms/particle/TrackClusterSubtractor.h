@@ -47,7 +47,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   /*! An algorithm which takes a collection of clusters and their matched
    *  tracks, subtracts the sum of all tracks pointing to the cluster,
-   *  and outputs the remnant cluster and their matched tracks.
+   *  and outputs the remnant cluster and their matched tracks.  
    */
   class TrackClusterSubtractor
     : public TrackClusterSubtractorAlgorithm
@@ -73,6 +73,7 @@ namespace eicrecon {
 
       // private methods
       double sum_track_energy(const PFTools::VecSeg& projects) const;
+      bool is_zero(const double difference) const;
 
       // services
       const algorithms::ParticleSvc& m_parSvc = algorithms::ParticleSvc::instance();
