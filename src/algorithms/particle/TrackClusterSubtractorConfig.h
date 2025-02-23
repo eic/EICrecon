@@ -9,8 +9,9 @@ namespace eicrecon {
 
   struct TrackClusterSubtractorConfig {
 
-    uint64_t surfaceToUse = 1;  // index of surface to use for projections
-    double fracEnergyToSub = 1.0;  // fraction of energy to subtract
+    double   fracEnergyToSub = 1.0;  ///< fraction of track energy to subtract
+    int32_t  defaultMassPdg  = 211;  ///< default mass to use for track energy
+    uint64_t surfaceToUse    = 1;    ///< index of surface to use for measuring momentum
 
   };  // end TrackClusterSubtractorConfig
 

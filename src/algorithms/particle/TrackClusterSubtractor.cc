@@ -60,46 +60,20 @@ namespace eicrecon {
     // ------------------------------------------------------------------------
     // 1. Build map of clusters onto projections
     // ------------------------------------------------------------------------
-    PFTools::MapToVecProj mapClustToProj;
+    PFTools::MapToVecSeg mapClustToProj;
     for (const auto& match : *in_matches) {
       for (const auto& project : *in_projections) {
 
         // pick out corresponding projection from track
         if (match.getTrack() != project.getTrack()) {
           continue;
+        } else {
+          mapClustToProj[ match.getCluster() ].push_back( project );
         }
 
-        // locate relevant point to measure momentum
-        bool foundPoint = false;
-        for (const auto& point : project.getPoints()) {
-
-          // pick out surface specified in configuration
-          if (point.surface != m_cfg.surfaceToUse) {
-            continue;
-          }        
-
-          // add to map and break 
-          mapClustToProj[ match.getCluster() ].push_back(point);
-          break;
-        }
-
-        // break if needed
-        if (foundPoint) {
-          break;
-        }
       }  // end projection loop
     }  // end track-cluster match loop
     debug("Built map of clusters-onto-tracks, size = {}", mapClustToProj.size());
-
-    // lambda to sum momenta of matched tracks
-    //   - FIXME should account for mass somehow...
-    auto sumMomenta = [](const PFTools::VecProj& projects) {
-      double sum = 0.;
-      for (const auto& project : projects) {
-        sum += edm4hep::utils::magnitude( project.momentum );
-      }
-      return sum;
-    };
 
     // ------------------------------------------------------------------------
     // 2. Subtract energy for tracks
@@ -110,9 +84,9 @@ namespace eicrecon {
     for (const auto& [cluster, projects] : mapClustToProj) {
 
       // do subtraction
-      const double eTrk = sumMomenta(projects);
-      const double eToSub = m_cfg.fracEnergyToSub * eTrk;
-      const double eSub = cluster.getEnergy() - eSub;
+      const double eTrkSum = sum_track_energy(projects);
+      const double eToSub = m_cfg.fracEnergyToSub * eTrkSum;
+      const double eSub = cluster.getEnergy() - eToSub;
       trace("Subtracted {} GeV from cluster with {} GeV", eToSub, cluster.getEnergy());
 
       // if greater than 0, scale energy accordingly and
@@ -132,5 +106,47 @@ namespace eicrecon {
     debug("Finished subtraction, {} clusters leftover", out_clusters->size());
 
   }  // end 'get_projections(edm4eic::CalorimeterHit&, edm4eic::TrackSegmentCollection&, VecTrkPoint&)'
+
+
+
+  // --------------------------------------------------------------------------
+  //! Sum energy of tracks
+  // --------------------------------------------------------------------------
+  /*! Sums energy of tracks projected to the surface in the
+   *  calorimeter specified by `surfaceToUse`. Uses PDG of
+   *  track to select mass for energy; if not available,
+   *  uses mass set by `defaultMassPdg`.
+   */
+  double TrackClusterSubtractor::sum_track_energy(const PFTools::VecSeg& projects) const {
+
+    double eSum = 0.;
+    for (const auto& project : projects) {
+
+      // measure momentum at specified surface
+      double momentum = 0.;
+      for (const auto& point : project.getPoints()) {
+        if (point.surface != m_cfg.surfaceToUse) {
+          continue;
+        } else {
+          momentum = edm4hep::utils::magnitude( point.momentum );
+          break;
+        }
+      }
+
+      // get mass based on track pdg
+      double mass = m_parSvc.particle(m_cfg.defaultMassPdg).mass;
+      if (project.getTrack().getPdg() != 0) {
+        mass = m_parSvc.particle(project.getTrack().getPdg()).mass;
+      }
+
+      // increment sum
+      eSum += sqrt((momentum*momentum) + (mass*mass));
+    }
+
+    // output debugging and exit
+    trace("Sum of track energy = {} GeV", eSum);
+    return eSum;
+
+  }  // end 'Sum_track_energy(PFTools::VecSeg&)'
 
 }  // end eicrecon namespace

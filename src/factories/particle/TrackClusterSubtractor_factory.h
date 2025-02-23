@@ -37,8 +37,9 @@ namespace eicrecon {
       PodioOutput<edm4eic::TrackClusterMatch> m_track_cluster_match_output {this};
 
       // parameter bindings
-      ParameterRef<uint64_t> m_surfaceToUse {this, "surfaceToUse", config().surfaceToUse};
       ParameterRef<double> m_fracEnergyToSub {this, "fracEnergyToSub", config().fracEnergyToSub};
+      ParameterRef<int32_t> m_defaultMassPdg {this, "defaultMassPdg", config().defaultMassPdg};
+      ParameterRef<uint64_t> m_surfaceToUse {this, "surfaceToUse", config().surfaceToUse};
 
       // services
       Service<AlgorithmsInit_service> m_algoInitSvc {this};

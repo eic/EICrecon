@@ -51,9 +51,11 @@ namespace eicrecon {
     typedef std::vector<MatrixF> VecMatrixF;
     typedef std::vector<edm4eic::Track> VecTrk;
     typedef std::vector<edm4eic::TrackPoint> VecProj;
+    typedef std::vector<edm4eic::TrackSegment> VecSeg;
     typedef std::vector<edm4eic::Cluster> VecClust;
     typedef std::set<edm4eic::Cluster, CompareClust> SetClust;
     typedef std::map<edm4eic::Cluster, VecTrk, CompareClust> MapToVecTrk;
+    typedef std::map<edm4eic::Cluster, VecSeg, CompareClust> MapToVecSeg;
     typedef std::map<edm4eic::Cluster, VecProj, CompareClust> MapToVecProj;
     typedef std::map<edm4eic::Cluster, VecClust, CompareClust> MapToVecClust;
 

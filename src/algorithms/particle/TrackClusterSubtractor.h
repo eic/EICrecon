@@ -20,8 +20,8 @@
 
 #include "PFTools.h"
 #include "TrackClusterSubtractorConfig.h"
+#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
 
 
 namespace eicrecon {
@@ -67,12 +67,15 @@ namespace eicrecon {
 
       // public methods
       void init();
-      void process (const Input&, const Output&) const final;
+      void process(const Input&, const Output&) const final;
 
     private:
 
       // private methods
-      /* TODO fill in */
+      double sum_track_energy(const PFTools::VecSeg& projects) const;
+
+      // services
+      const algorithms::ParticleSvc& m_parSvc = algorithms::ParticleSvc::instance();
 
   };  // end TrackClusterSubtractor
 
