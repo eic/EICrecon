@@ -42,7 +42,6 @@ using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
     private:
         std::shared_ptr<spdlog::logger> m_log;
        const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
-        const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
     };
 } // namespace eicrecon
