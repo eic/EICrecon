@@ -77,6 +77,9 @@ namespace eicrecon {
 
     dd4hep::IDDescriptor id_spec;
 
+    enum readout_enum { kSimpleReadout, kPoissonPhotonReadout, kSipmReadout };
+    enum readout_enum readoutType{kSimpleReadout};
+
   private:
     const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 
