@@ -48,7 +48,7 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   /*! An algorithm which takes a collection of clusters and their matched
    *  tracks, subtracts the sum of all tracks pointing to the cluster,
-   *  and outputs the remnant cluster and their matched tracks.  
+   *  and outputs the remnant cluster and their matched tracks.
    */
   class TrackClusterSubtractor
     : public TrackClusterSubtractorAlgorithm
