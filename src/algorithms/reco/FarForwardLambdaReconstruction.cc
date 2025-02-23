@@ -45,7 +45,6 @@ namespace eicrecon {
         }
       }
 
-
       if (neutrons.size()<1 || gammas.size()<2)
         return;
 
