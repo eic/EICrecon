@@ -87,10 +87,11 @@ namespace eicrecon {
               g2={E2*(x2-vtx).Unit(), E2};
               double theta_open=g1.Angle(g2.Vect());
               lambda=n+g1+g2;
-              if (theta_open>theta_open_expected)
+              if (theta_open>theta_open_expected) {
                 f-=df;
-              else if (theta_open<theta_open_expected)
+              } else if (theta_open<theta_open_expected) {
                 f+=df;
+              }
 
               vtx=lambda.Vect()*(f*m_cfg.zMax/lambda.Z());
               df/=2;
