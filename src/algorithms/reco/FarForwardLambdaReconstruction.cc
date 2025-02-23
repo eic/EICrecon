@@ -29,7 +29,6 @@ namespace eicrecon {
     v1.SetXYZ(v2.x,v2.y,v2.z);
   }
 
-
     void FarForwardLambdaReconstruction::process(const FarForwardLambdaReconstruction::Input& input,
                       const FarForwardLambdaReconstruction::Output& output) const {
       const auto [neutrals] = input;
