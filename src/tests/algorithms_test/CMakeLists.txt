@@ -10,6 +10,7 @@ add_executable(
   tracking_SiliconSimpleCluster.cc
   calorimetry_CalorimeterHitDigi.cc
   calorimetry_CalorimeterClusterRecoCoG.cc
+  calorimetry_CalorimeterClusterShape.cc
   calorimetry_HEXPLIT.cc
   pid_MergeTracks.cc
   pid_MergeParticleID.cc

@@ -2,10 +2,10 @@
 // Copyright (C) 2024, Sebouh Paul
 
 
-#include <catch2/catch_test_macros.hpp>            // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
+#include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
-#include <edm4eic/CalorimeterHitCollection.h>      // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
+#include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector2i.h>
@@ -22,20 +22,18 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <math.h>
-#include <spdlog/common.h>                         // for level_enum
-#include <spdlog/logger.h>                         // for logger
-#include <spdlog/spdlog.h>                         // for default_logger
-#include <memory>                                  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
+#include <memory>
 #include <tuple>
 #include <vector>
 
-#include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"        // for CalorimeterClusterRecoCoG
-#include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"  // for CalorimeterClusterRecoCoGConfig
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
 
 using eicrecon::CalorimeterClusterRecoCoG;
 using eicrecon::CalorimeterClusterRecoCoGConfig;
-
-using edm4eic::CalorimeterHit;
 
 TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" ) {
   const float EPSILON = 1e-5;
@@ -202,7 +200,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
   hitassoc2.setSimHit(simhit2);
 #endif
 
- // Constructing input and output as per the algorithm's expected signature
+  // Constructing input and output as per the algorithm's expected signature
 #if EDM4EIC_VERSION_MAJOR >= 7
   auto input = std::make_tuple(&pclust_coll, &hitassocs_coll);
 #else
@@ -214,9 +212,6 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]" )
 
   REQUIRE(clust_coll->size() == 1);
   auto clust = (*clust_coll)[0];
-  REQUIRE_THAT(clust.getIntrinsicTheta(), Catch::Matchers::WithinAbs(M_PI / 4, EPSILON));
-  // std::abs() checks if we land on -M_PI
-  REQUIRE_THAT(std::abs(clust.getIntrinsicPhi()), Catch::Matchers::WithinAbs(M_PI, EPSILON));
 
   REQUIRE(assoc_coll->size() == 2);
 
