@@ -340,7 +340,7 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-            "HcalFarForwardZDCClustersBaselineWithShapes",
+            "HcalFarForwardZDCClustersBaseline",
             {"HcalFarForwardZDCClustersBaselineWithoutShapes",
              "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"},
             {"HcalFarForwardZDCClustersBaseline",

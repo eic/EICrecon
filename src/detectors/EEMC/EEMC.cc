@@ -162,7 +162,7 @@ extern "C" {
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
 #if EDM4EIC_VERSION_MAJOR >= 8
-            "EcalEndcapNClustersWithoutPIDButWithShapes",
+            "EcalEndcapNClustersWithoutPID",
             {"EcalEndcapNClustersWithoutPIDAndShapes",
              "EcalEndcapNClusterAssociationsWithoutPIDAndShapes"},
             {"EcalEndcapNClustersWithoutPID",
