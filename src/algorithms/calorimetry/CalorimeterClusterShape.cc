@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Chao Peng, Dhevan Gangadharan, Sebouh Paul, Derek Anderson
 
-// algorithm definition
 #include "CalorimeterClusterShape.h"
 
 #include <edm4hep/Vector3f.h>
@@ -11,27 +10,14 @@
 #include <Eigen/Householder>
 #include <cmath>
 
-// TEST
-#include <iostream>
-
-
-
 namespace eicrecon {
 
-  // --------------------------------------------------------------------------
-  //! Initialize algorithm
-  // --------------------------------------------------------------------------
   void CalorimeterClusterShape::init() {
 
     //... nothing to do ...//
 
   }  // end 'init()'
 
-
-
-  // --------------------------------------------------------------------------
-  //! Process inputs
-  // --------------------------------------------------------------------------
   /*! Primary algorithm call: algorithm ingests a collection of clusters
    *  and computes their cluster shape parameters.  Clusters are copied
    *  onto output with computed shape parameters.  If associations are
