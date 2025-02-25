@@ -72,7 +72,7 @@ namespace eicrecon {
           for (std::size_t iHit = 0; const auto& hit : out_clust.getHits()) {
 
             // get weight of hit
-            const float w = out_clust.getHitContributions()[iHit] / hit.getEnergy();
+            const float w = out_clust.getHitContributions()[iHit] / out_clust.getEnergy();
 
             // theta, phi
             Eigen::Vector2f pos2D( edm4hep::utils::anglePolar( hit.getPosition() ), edm4hep::utils::angleAzimuthal( hit.getPosition() ) );
