@@ -144,7 +144,6 @@ namespace eicrecon {
             gamma1_cm.setCharge(0);
             gamma1_cm.setMass(0);
             rec_lambda.addToParticles(gammas[i_1]);
-            gamma1_cm.addToParticles(rec_lambda);
             gamma1_cm.addToParticles(gammas[i_1]);
 
             auto gamma2_cm = out_decay_products->create();
