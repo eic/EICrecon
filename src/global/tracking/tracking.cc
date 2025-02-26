@@ -3,6 +3,8 @@
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
+#include <algorithm>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
@@ -347,23 +349,31 @@ void InitPlugin(JApplication* app) {
 
   // COMBINED TRACKS
 
-  std::vector<std::string> input_track_collections;
-  //Check size of input_rec_collections to determine if CentralCKFTracks should be added to the input_track_collections
+  std::vector<std::string> input_track_collections, input_track_assoc_collections;
+  // Check size of input_rec_collections to determine if CentralCKFTracks should be added to the
+  // input_track_collections
   if (input_rec_collections.size() > 0) {
     input_track_collections.push_back("CentralCKFTracks");
+    input_track_assoc_collections.push_back("CentralCKFTrackAssociations");
   }
   // Check if the B0Tracker readout is present in the current configuration
   if (readouts.find("B0TrackerHits") != readouts.end()) {
     input_track_collections.push_back("B0TrackerCKFTracks");
+    input_track_assoc_collections.push_back("B0TrackerCKFTrackAssociations");
   }
   // Check if the TaggerTracker readout is present in the current configuration
   if (readouts.find("TaggerTrackerHits") != readouts.end()) {
     input_track_collections.push_back("TaggerTrackerTracks");
+    // TaggerTracker has no corresponding associations
   }
 
   // Add central and other tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
       "CombinedTracks", input_track_collections, {"CombinedTracks"}, app));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
+      "CombinedTrackAssociations", input_track_assoc_collections, {"CombinedTrackAssociations"},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedTruthSeededParticlesWithAssociations",
@@ -379,7 +389,7 @@ void InitPlugin(JApplication* app) {
       "ChargedParticlesWithAssociations",
       {
           "CombinedTracks",
-          "CentralCKFTrackAssociations",
+          "CombinedTrackAssociations",
       },
       {"ReconstructedChargedWithoutPIDParticles",
        "ReconstructedChargedWithoutPIDParticleAssociations"},
