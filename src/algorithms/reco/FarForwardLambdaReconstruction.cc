@@ -131,7 +131,6 @@ namespace eicrecon {
             neutron_cm.setCharge(0);
             neutron_cm.setMass(m_neutron);
             //link the reconstructed lambda to the input neutron,
-            // the cm neutron to the reconstructed lambda,
             // and the cm neutron to the input neutron
             rec_lambda.addToParticles(neutrons[i_n]);
             neutron_cm.addToParticles(neutrons[i_n]);
@@ -154,7 +153,6 @@ namespace eicrecon {
             gamma2_cm.setCharge(0);
             gamma2_cm.setMass(0);
             rec_lambda.addToParticles(gammas[i_2]);
-            gamma2_cm.addToParticles(rec_lambda);
             gamma2_cm.addToParticles(gammas[i_2]);
             continue;
           }
