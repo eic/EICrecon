@@ -22,9 +22,9 @@ private:
   using AlgoT = eicrecon::AmbiguitySolver;
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input {this};
+  ContainerInput<ActsExamples::ConstTrackContainer> m_acts_tracks_input {this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input {this};
-  Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output {this};
+  ContainerOutput<ActsExamples::ConstTrackContainer> m_acts_tracks_output {this};
   Output<ActsExamples::Trajectories> m_acts_trajectories_output {this};
 
   ParameterRef<std::uint32_t> m_maximumSharedHits{this, "maximumSharedHits", config().maximum_shared_hits,

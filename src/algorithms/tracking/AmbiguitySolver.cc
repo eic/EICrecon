@@ -62,42 +62,40 @@ void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
 }
 
 
-std::tuple<std::vector<ActsExamples::ConstTrackContainer*>, std::vector<ActsExamples::Trajectories*>>
-AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,
+std::tuple<ActsExamples::ConstTrackContainer, std::vector<ActsExamples::Trajectories*>>
+AmbiguitySolver::process(const ActsExamples::ConstTrackContainer& input_trks,
                          const edm4eic::Measurement2DCollection& meas2Ds) {
 
   // Assuming ActsExamples::ConstTrackContainer is compatible with Acts::ConstVectorTrackContainer
   // Create track container
   std::vector<ActsExamples::Trajectories*> output_trajectories;
-  std::vector<ActsExamples::ConstTrackContainer*> output_tracks;
 
-  auto& input_trks = input_container.front();
   Acts::GreedyAmbiguityResolution::State state;
-  m_core->computeInitialState(*input_trks, state, &sourceLinkHash, &sourceLinkEquality);
+  m_core->computeInitialState(input_trks, state, &sourceLinkHash, &sourceLinkEquality);
   m_core->resolve(state);
 
   ActsExamples::TrackContainer solvedTracks{std::make_shared<Acts::VectorTrackContainer>(),
                                             std::make_shared<Acts::VectorMultiTrajectory>()};
-  solvedTracks.ensureDynamicColumns(*input_trks);
+  solvedTracks.ensureDynamicColumns(input_trks);
 
   for (auto iTrack : state.selectedTracks) {
 
         auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
-        auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
+        auto srcProxy  = input_trks.getTrack(state.trackTips.at(iTrack));
         destProxy.copyFrom(srcProxy, false);
         destProxy.tipIndex() = srcProxy.tipIndex();
 
    }
 
-   output_tracks.push_back(new ActsExamples::ConstTrackContainer(
+   ActsExamples::ConstTrackContainer output_tracks(
         std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
-        input_trks->trackStateContainerHolder()));
+        input_trks.trackStateContainerHolder());
 
    //Make output trajectories
    ActsExamples::Trajectories::IndexedParameters parameters;
    std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
 
-   for (const auto& track : *(output_tracks.front())) {
+   for (const auto& track : output_tracks) {
 
         tips.clear();
         parameters.clear();
@@ -110,7 +108,7 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
                                                   track.particleHypothesis()}});
 
         output_trajectories.push_back(new ActsExamples::Trajectories(
-             ((*output_tracks.front())).trackStateContainer(),
+             output_tracks.trackStateContainer(),
              tips, parameters));
 
    }

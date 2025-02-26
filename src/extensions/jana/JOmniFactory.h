@@ -62,6 +62,29 @@ public:
     };
 
 
+    template <typename T>
+    class ContainerInput : public InputBase {
+
+        const T m_data;
+
+    public:
+        ContainerInput(JOmniFactory* owner, std::string default_tag="") {
+            owner->RegisterInput(this);
+            this->collection_names.push_back(default_tag);
+            this->type_name = JTypeInfo::demangle<T>();
+        }
+
+        const T& operator()() { return m_data; }
+
+    private:
+        friend class JOmniFactory;
+
+        void GetCollection(const JEvent& event) {
+            m_data = event.Get<std::vector<T>>(this->collection_names[0]).front();
+        }
+    };
+
+
     template <typename PodioT>
     class PodioInput : public InputBase {
 
@@ -158,6 +181,34 @@ public:
 
         void SetCollection(JOmniFactory& fac) override {
             fac.SetData<T>(this->collection_names[0], this->m_data);
+        }
+
+        void Reset() override { }
+    };
+
+
+    template <typename T>
+    class ContainerOutput : public OutputBase {
+        T m_data;
+
+    public:
+        ContainerOutput(JOmniFactory* owner, std::string default_tag_name="") {
+            owner->RegisterOutput(this);
+            this->collection_names.push_back(default_tag_name);
+            this->type_name = JTypeInfo::demangle<T>();
+        }
+
+        T& operator()() { return m_data; }
+
+    private:
+        friend class JOmniFactory;
+
+        void CreateHelperFactory(JOmniFactory& fac) override {
+            fac.DeclareOutput<T>(this->collection_names[0]);
+        }
+
+        void SetCollection(JOmniFactory& fac) override {
+            fac.SetData<T>(this->collection_names[0], std::vector<T>{this->m_data});
         }
 
         void Reset() override { }

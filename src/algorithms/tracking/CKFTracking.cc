@@ -112,7 +112,7 @@ namespace eicrecon {
 
     std::tuple<
         std::vector<ActsExamples::Trajectories*>,
-        std::vector<ActsExamples::ConstTrackContainer*>
+        ActsExamples::ConstTrackContainer
     >
     CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
                          const edm4eic::Measurement2DCollection& meas2Ds) {
@@ -320,24 +320,13 @@ namespace eicrecon {
         }
 
         // Move track states and track container to const containers
-        // NOTE Using the non-const containers leads to references to
-        // implicitly converted temporaries inside the Trajectories.
         auto constTrackStateContainer =
             std::make_shared<Acts::ConstVectorMultiTrajectory>(
                 std::move(*trackStateContainer));
-
         auto constTrackContainer =
             std::make_shared<Acts::ConstVectorTrackContainer>(
                 std::move(*trackContainer));
-
-        // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
-        //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
-        std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
-        constTracks_v.push_back(
-          new ActsExamples::ConstTrackContainer(
-            constTrackContainer,
-            constTrackStateContainer));
-        auto& constTracks = *(constTracks_v.front());
+        ActsExamples::ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
 
         // Seed number column accessor
 #if Acts_VERSION_MAJOR >= 32
@@ -388,7 +377,7 @@ namespace eicrecon {
           constTracks.trackStateContainer(),
           std::move(tips), std::move(parameters)));
 
-        return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
+        return std::make_tuple(std::move(acts_trajectories), std::move(constTracks));
     }
 
 } // namespace eicrecon

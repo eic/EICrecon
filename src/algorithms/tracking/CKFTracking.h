@@ -72,7 +72,7 @@ namespace eicrecon {
 
         std::tuple<
             std::vector<ActsExamples::Trajectories*>,
-            std::vector<ActsExamples::ConstTrackContainer*>
+            ActsExamples::ConstTrackContainer
         >
         process(const edm4eic::TrackParametersCollection& init_trk_params,
                 const edm4eic::Measurement2DCollection& meas2Ds);
