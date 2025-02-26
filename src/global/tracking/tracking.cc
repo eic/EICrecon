@@ -3,6 +3,7 @@
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
