@@ -451,7 +451,7 @@ void InitPlugin(JApplication *app) {
         {"CombinedTrackAssociations"},
         app
         ));
-    
+
     app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
         "ChargedTruthSeededParticlesWithAssociations",
         {
