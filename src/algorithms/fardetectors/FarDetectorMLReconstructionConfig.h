@@ -11,5 +11,7 @@ namespace eicrecon {
     std::string modelPath;
     std::string methodName;
 
+    bool requireBeamElectron{true};
+
   };
 }

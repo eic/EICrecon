@@ -35,7 +35,9 @@ namespace eicrecon {
       std::call_once(m_initBeamE,[&](){
         // Check if beam electrons are present
         if(beamElectrons->size() == 0){
-          error("No beam electrons found keeping default 10GeV beam energy.");
+          if (m_cfg.requireBeamElectron) {
+            error("No beam electrons found keeping default 10GeV beam energy.");
+          }
           return;
         }
         m_beamE = beamElectrons->at(0).getEnergy();
