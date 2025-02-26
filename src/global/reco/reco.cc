@@ -343,7 +343,7 @@ void InitPlugin(JApplication *app) {
            "ReconstructedFarForwardZDCLambdas",
            {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
            {"ReconstructedFarForwardZDCLambdas",
-	    "ReconstructedFarForwardZDCLambdaDecayProductsCM"}, // edm4eic::ReconstrutedParticleCollection,
+            "ReconstructedFarForwardZDCLambdaDecayProductsCM"}, // edm4eic::ReconstrutedParticleCollection,
            {
              .globalToProtonRotation=-0.025,
              .zMax=z_zdc*dd4hep::mm,

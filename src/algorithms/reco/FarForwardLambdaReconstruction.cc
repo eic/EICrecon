@@ -130,13 +130,13 @@ namespace eicrecon {
             neutron_cm.setReferencePoint({static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
             neutron_cm.setCharge(0);
             neutron_cm.setMass(m_neutron);
-	    //link the reconstructed lambda to the input neutron,
-	    // the cm neutron to the reconstructed lambda,
-	    // and the cm neutron to the input neutron
+            //link the reconstructed lambda to the input neutron,
+            // the cm neutron to the reconstructed lambda,
+            // and the cm neutron to the input neutron
             rec_lambda.addToParticles(neutrons[i_n]);
-	    neutron_cm.addToParticles(rec_lambda);
-	    neutron_cm.addToParticles(neutrons[i_n]);
-	    
+            neutron_cm.addToParticles(rec_lambda);
+            neutron_cm.addToParticles(neutrons[i_n]);
+
             auto gamma1_cm = out_decay_products->create();
             gamma1_cm.setPDG(22);
             gamma1_cm.setEnergy(g1.E());
@@ -145,8 +145,8 @@ namespace eicrecon {
             gamma1_cm.setCharge(0);
             gamma1_cm.setMass(0);
             rec_lambda.addToParticles(gammas[i_1]);
-	    gamma1_cm.addToParticles(rec_lambda);
-	    gamma1_cm.addToParticles(gammas[i_1]);
+            gamma1_cm.addToParticles(rec_lambda);
+            gamma1_cm.addToParticles(gammas[i_1]);
 
             auto gamma2_cm = out_decay_products->create();
             gamma2_cm.setPDG(22);
@@ -156,7 +156,7 @@ namespace eicrecon {
             gamma2_cm.setCharge(0);
             gamma2_cm.setMass(0);
             rec_lambda.addToParticles(gammas[i_2]);
-	    gamma2_cm.addToParticles(rec_lambda);
+            gamma2_cm.addToParticles(rec_lambda);
             gamma2_cm.addToParticles(gammas[i_2]);
             continue;
           }
