@@ -9,6 +9,8 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <functional>
+#include <map>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -59,6 +61,33 @@ namespace eicrecon {
       // public methods
       void init() final;
       void process(const Input&, const Output&) const final;
+
+    private:
+
+      //! constant weighting
+      static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) {
+        return 1.0;
+      }
+
+      //! linear weighting by energy
+      static double linearWeight(double E, double /*tE*/, double /*p*/, int /*type*/) {
+        return E;
+      }
+
+      //! log weighting by energy
+      static double logWeight(double E, double tE, double base, int /*type*/) {
+        return std::max(0., base + std::log(E / tE));
+      }
+
+      //! map of weighting method to function
+      const std::map<std::string, std::function<double(double, double, double, int)>> m_weightMethods = {
+        {"none", constWeight},
+        {"linear", linearWeight},
+        {"log", logWeight}
+      };
+
+      //! weight function selected by m_cfg.energyWeight
+      std::function<double(double, double, double, int)> m_weightFunc;
 
   };
 

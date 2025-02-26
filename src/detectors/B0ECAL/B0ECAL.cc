@@ -110,7 +110,10 @@ extern "C" {
              "B0ECalClusterAssociationsWithoutShapes"},
             {"B0ECalClusters",
              "B0ECalClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 3.6
+            },
             app
           )
         );
@@ -143,7 +146,10 @@ extern "C" {
              "B0ECalTruthClusterAssociationsWithoutShapes"},
             {"B0ECalTruthClusters",
              "B0ECalTruthClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
             app
           )
         );

@@ -120,7 +120,9 @@ extern "C" {
             {"EcalBarrelScFiClusters",
              "EcalBarrelScFiClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 6.2
             },
             app
           )

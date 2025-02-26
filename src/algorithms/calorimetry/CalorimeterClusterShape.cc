@@ -3,6 +3,9 @@
 
 #include "CalorimeterClusterShape.h"
 
+#include <boost/algorithm/string/join.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <boost/range/adaptor/map.hpp>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <Eigen/Core>
@@ -14,7 +17,21 @@ namespace eicrecon {
 
   void CalorimeterClusterShape::init() {
 
-    //... nothing to do ...//
+    // select weighting method
+    std::string ew = m_cfg.energyWeight;
+
+    // make it case-insensitive
+    std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
+    auto it = m_weightMethods.find(ew);
+    if (it == m_weightMethods.end()) {
+      error(
+        "Cannot find energy weighting method {}, choose one from [{}]",
+         m_cfg.energyWeight,
+         boost::algorithm::join(m_weightMethods | boost::adaptors::map_keys, ", ")
+      );
+    } else {
+      m_weightFunc = it->second;
+    }
 
   }  // end 'init()'
 
@@ -50,6 +67,16 @@ namespace eicrecon {
       // copy input cluster
       edm4eic::MutableCluster out_clust = in_clust.clone();
 
+      // set up base for weights
+      double logWeightBase=m_cfg.logWeightBase;
+      if (m_cfg.logWeightBaseCoeffs.size() != 0){
+        double l=log(out_clust.getEnergy()/m_cfg.logWeightBase_Eref);
+        logWeightBase=0;
+        for(std::size_t i =0; i<m_cfg.logWeightBaseCoeffs.size(); i++){
+          logWeightBase += m_cfg.logWeightBaseCoeffs[i]*pow(l,i);
+        }
+      }
+
       // ----------------------------------------------------------------------
       // do shape parameter calculation
       // ----------------------------------------------------------------------
@@ -72,7 +99,7 @@ namespace eicrecon {
           for (std::size_t iHit = 0; const auto& hit : out_clust.getHits()) {
 
             // get weight of hit
-            const float w = out_clust.getHitContributions()[iHit] / out_clust.getEnergy();
+            const float w = m_weightFunc(hit.getEnergy(), out_clust.getEnergy(), logWeightBase, 0);
 
             // theta, phi
             Eigen::Vector2f pos2D( edm4hep::utils::anglePolar( hit.getPosition() ), edm4hep::utils::angleAzimuthal( hit.getPosition() ) );

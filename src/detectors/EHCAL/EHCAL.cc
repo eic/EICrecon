@@ -120,7 +120,10 @@ extern "C" {
              "HcalEndcapNTruthClusterAssociationsWithoutShapes"},
             {"HcalEndcapNTruthClusters",
              "HcalEndcapNTruthClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
             app
           )
         );
@@ -151,7 +154,10 @@ extern "C" {
              "HcalEndcapNClusterAssociationsWithoutShapes"},
             {"HcalEndcapNClusters",
              "HcalEndcapNClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
             app
           )
         );
@@ -196,7 +202,10 @@ extern "C" {
              "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
             {"HcalEndcapNSplitMergeClusters",
              "HcalEndcapNSplitMergeClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
             app
           )
         );

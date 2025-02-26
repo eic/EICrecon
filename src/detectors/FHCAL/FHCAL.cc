@@ -156,7 +156,9 @@ extern "C" {
             {"HcalEndcapPInsertTruthClusters",
              "HcalEndcapPInsertTruthClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 3.6
             },
             app
           )
@@ -191,7 +193,9 @@ extern "C" {
             {"HcalEndcapPInsertClusters",
              "HcalEndcapPInsertClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 3.6
             },
             app
           )
@@ -311,7 +315,9 @@ extern "C" {
             {"LFHCALTruthClusters",
              "LFHCALTruthClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 4.5
             },
             app
           )
@@ -346,7 +352,9 @@ extern "C" {
             {"LFHCALClusters",
              "LFHCALClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 4.5
             },
             app
           )

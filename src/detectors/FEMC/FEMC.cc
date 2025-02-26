@@ -114,7 +114,10 @@ extern "C" {
              "EcalEndcapPTruthClusterAssociationsWithoutShapes"},
             {"EcalEndcapPTruthClusters",
              "EcalEndcapPTruthClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
             app
           )
         );
@@ -147,7 +150,10 @@ extern "C" {
              "EcalEndcapPClusterAssociationsWithoutShapes"},
             {"EcalEndcapPClusters",
              "EcalEndcapPClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 3.6
+            },
             app
           )
         );
@@ -195,7 +201,10 @@ extern "C" {
              "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
             {"EcalEndcapPSplitMergeClusters",
              "EcalEndcapPSplitMergeClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 3.6
+            },
             app
           )
         );
@@ -286,7 +295,10 @@ extern "C" {
              "EcalEndcapPInsertTruthClusterAssociationsWithoutShapes"},
             {"EcalEndcapPInsertTruthClusters",
              "EcalEndcapPInsertTruthClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
             app
           )
         );
@@ -319,7 +331,10 @@ extern "C" {
              "EcalEndcapPInsertClusterAssociationsWithoutShapes"},
             {"EcalEndcapPInsertClusters",
              "EcalEndcapPInsertClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 3.6
+            },
             app
           )
         );

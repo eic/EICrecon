@@ -124,7 +124,10 @@ extern "C" {
              "EcalEndcapNTruthClusterAssociationsWithoutShapes"},
             {"EcalEndcapNTruthClusters",
              "EcalEndcapNTruthClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 4.6
+            },
             app
           )
         );
@@ -174,7 +177,10 @@ extern "C" {
             {"EcalEndcapNClusters",
              "EcalEndcapNClusterAssociations"},
 #endif
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 3.6
+            },
             app
           )
         );
@@ -265,7 +271,10 @@ extern "C" {
              "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
             {"EcalEndcapNSplitMergeClusters",
              "EcalEndcapNSplitMergeClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 3.6
+            },
             app
           )
         );

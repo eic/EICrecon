@@ -107,7 +107,10 @@ extern "C" {
              "EcalLumiSpecClusterAssociationsWithoutShapes"},
             {"EcalLumiSpecClusters",
              "EcalLumiSpecClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 3.6
+            },
             app
           )
         );
@@ -139,7 +142,10 @@ extern "C" {
              "EcalLumiSpecTruthClusterAssociationsWithoutShapes"},
             {"EcalLumiSpecTruthClusters",
              "EcalLumiSpecTruthClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 4.6
+            },
             app
           )
         );

@@ -110,7 +110,9 @@ extern "C" {
             {"EcalFarForwardZDCTruthClusters",
              "EcalFarForwardZDCTruthClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 3.6
             },
             app
           )
@@ -145,7 +147,9 @@ extern "C" {
             {"EcalFarForwardZDCClusters",
              "EcalFarForwardZDCClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 6.2
             },
             app
           )
@@ -258,7 +262,10 @@ extern "C" {
             {"HcalFarForwardZDCClusters",
              "HcalFarForwardZDCClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBaseCoeffs={5.8,0.65,0.31},
+              .logWeightBase_Eref=50*dd4hep::GeV
             },
             app
           )
@@ -312,7 +319,9 @@ extern "C" {
             {"HcalFarForwardZDCTruthClusters",
              "HcalFarForwardZDCTruthClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 3.6
             },
             app
           )
@@ -346,7 +355,9 @@ extern "C" {
             {"HcalFarForwardZDCClustersBaseline",
              "HcalFarForwardZDCClusterAssociationsBaseline"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 6.2
             },
             app
           )

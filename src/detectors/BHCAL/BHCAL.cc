@@ -148,7 +148,10 @@ extern "C" {
              "HcalBarrelClusterAssociationsWithoutShapes"},
             {"HcalBarrelClusters",
              "HcalBarrelClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
             app
           )
         );
@@ -181,7 +184,10 @@ extern "C" {
              "HcalBarrelTruthClusterAssociationsWithoutShapes"},
             {"HcalBarrelTruthClusters",
              "HcalBarrelTruthClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
             app
           )
         );
