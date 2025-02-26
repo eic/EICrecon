@@ -134,7 +134,6 @@ namespace eicrecon {
             // the cm neutron to the reconstructed lambda,
             // and the cm neutron to the input neutron
             rec_lambda.addToParticles(neutrons[i_n]);
-            neutron_cm.addToParticles(rec_lambda);
             neutron_cm.addToParticles(neutrons[i_n]);
 
             auto gamma1_cm = out_decay_products->create();
