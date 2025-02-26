@@ -359,7 +359,7 @@ void InitPlugin(JApplication *app) {
         {},
         app
         ));
-    
+
     app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
         "B0TrackerCKFTrajectories",
         {
