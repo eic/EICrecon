@@ -58,6 +58,6 @@ void InitPlugin(JApplication* app) {
       "RICHEndcapNRawHits", {"RICHEndcapNHits"},
       {"RICHEndcapNRawHits", "RICHEndcapNRawHitsAssociations"}, digi_cfg, app));
 
-    
+
   }
 }

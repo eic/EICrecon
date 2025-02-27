@@ -148,7 +148,7 @@ void InitPlugin(JApplication* app) {
       {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
       {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg, app));
 
-    
+
     // clang-format on
   }
 }
