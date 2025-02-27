@@ -168,6 +168,7 @@ extern "C" {
           {
             .MIP = 472. * dd4hep::keV,
             .Emin_in_MIPs=0.5,
+            .delta_in_MIPs=0.01,
             .tmax=269 * dd4hep::ns,
           },
           app   // TODO: Remove me once fixed
@@ -179,13 +180,13 @@ extern "C" {
             {
                 .neighbourLayersRange = 1,
                 .localDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
-                .layerDistXY = {0.25*side_length, 0.25*side_length*sin(M_PI/3)},
+                .layerDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
                 .layerMode=eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
                 .sectorDist = 10.0 * dd4hep::cm,
-                .minClusterHitEdep = 100.0 * dd4hep::keV,
+                .minClusterHitEdep = 50.0 * dd4hep::keV,
                 .minClusterCenterEdep = 3.0 * dd4hep::MeV,
                 .minClusterEdep = 11.0 * dd4hep::MeV,
-                .minClusterNhits = 100,
+                .minClusterNhits = 30,
             },
             app   // TODO: Remove me once fixed
         ));

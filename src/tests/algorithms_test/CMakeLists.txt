@@ -15,8 +15,7 @@ add_executable(
   digi_LGADPulseDigitization.cc
   pid_MergeTracks.cc
   pid_MergeParticleID.cc
-  pid_lut_PIDLookup.cc
-  reco_FarForwardNeutronReconstruction.cc)
+  pid_lut_PIDLookup.cc)
 
 # Explicit linking to podio::podio is needed due to
 # https://github.com/JeffersonLab/JANA2/issues/151
