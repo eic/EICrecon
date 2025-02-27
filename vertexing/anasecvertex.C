@@ -133,7 +133,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h2LambdapTvy->GetXaxis()->SetTitle("rapidity y");
   h2LambdapTvy->GetYaxis()->SetTitle("P_{T} [GeV]"); 
 
-  TH2D*h2Lambdapveta=new TH2D("h2Lambdapveta","#Lambda p Vs #eta",100,-2,4,100,0,20); 
+  TH2D*h2Lambdapveta=new TH2D("h2Lambdapveta","#Lambda p Vs #eta",100,0,10,100,0,20); 
   h2Lambdapveta->GetXaxis()->SetTitle("pseudorapidity #eta"); 
   h2Lambdapveta->GetYaxis()->SetTitle("P [GeV]");
 
@@ -156,9 +156,14 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h1secZ->SetLineWidth(2);
 
   TH1 *h1R = new TH1D("h1R","Distance R mm ",200,0,200);
-  h1R->GetXaxis()->SetTitle("Distance between secondary vertex and primary vertex [mm]");
+  h1R->GetXaxis()->SetTitle("#Delta R (Sec vtx - Prim vtx) [mm]");
   h1R->GetXaxis()->CenterTitle();
   h1R->SetLineWidth(2);
+
+  TH1 *h1mcR = new TH1D("h1mcR","Distance (MC) R mm ",200,0,200);
+  h1mcR->GetXaxis()->SetTitle("#Delta R (Sec vtx - MC Prim vtx) [mm]");
+  h1mcR->GetXaxis()->CenterTitle();
+  h1mcR->SetLineWidth(2);
 
   TH1 *h1secvtxNum = new TH1D("h1secvtxNum","",15,0,60);
   h1secvtxNum->GetXaxis()->SetTitle("No. of Two-Track Vertices");
@@ -609,10 +614,25 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
           for(int j=0; j<proton_index.size(); j++){
             TLorentzVector proton_mom_vec;
             proton_mom_vec.SetXYZM(rcMomPx[proton_index[j]], rcMomPy[proton_index[j]], rcMomPz[proton_index[j]], gprotonMass);
+            //Delta R sec. vtx - reco prim. vtx
             double deltaX=svert_vx[pi_index[j]]-CTVx[pi_index[j]];
             double deltaY=svert_vy[pi_index[j]]-CTVy[pi_index[j]];
             double deltaZ=svert_vz[pi_index[j]]-CTVz[pi_index[j]];
             double deltaR=std::sqrt(deltaX*deltaX+deltaY*deltaY+deltaZ*deltaZ);
+            // DecayR MC decay vertex
+            TVector3 mc_prmvtx_decay(-999.,-999.,-999.);
+            TVector3 sec_vtx_decay(-999.,-999.,-999.);
+            for(int mcvtx=0; mcvtx<mcEndPointX.GetSize(); mcvtx++){
+              mc_prmvtx_decay.SetXYZ(mcEndPointX[mcvtx], mcEndPointY[mcvtx], mcEndPointZ[mcvtx]);
+              sec_vtx_decay.SetXYZ(svert_vx[pi_index[j]], svert_vy[pi_index[j]], svert_vz[pi_index[j]]);
+              if(rcTrkqOverP[pi_index[i]]*rcTrkqOverP[proton_index[j]]<0){
+                double mc_decay_dx = sec_vtx_decay.x()-mc_prmvtx_decay.x();
+                double mc_decay_dy = sec_vtx_decay.y()-mc_prmvtx_decay.y();
+                double mc_decay_dz = sec_vtx_decay.z()-mc_prmvtx_decay.z();
+                double mc_decay_dr = std::sqrt(mc_decay_dx*mc_decay_dx + mc_decay_dy*mc_decay_dy + mc_decay_dz*mc_decay_dz);
+                h1mcR->Fill(deltaR);
+              }
+            }
 
             h1secX->Fill(deltaX);
             h1secY->Fill(deltaY);
@@ -658,6 +678,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h1secY->Write();
   h1secZ->Write();
   h1R->Write();
+  h1mcR->Write();
   h1secvtxNum->Write();
   h2LambdapTvy->Write();
   h2Lambdapveta->Write();
