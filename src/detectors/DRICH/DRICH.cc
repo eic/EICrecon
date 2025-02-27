@@ -186,7 +186,7 @@ extern "C" {
           app
           ));
 
-    
+
     // clang-format on
   }
 }
