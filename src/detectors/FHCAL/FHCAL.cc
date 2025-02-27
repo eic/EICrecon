@@ -301,10 +301,20 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-            "LFHCALSplitMergeProtoClusters",
-            {"LFHCALIslandProtoClusters",
-             "CalorimeterTrackProjections"},
-            {"LFHCALSplitMergeProtoClusters"},
+            "LFHCALSplitMergeClusters",
+            {"LFHCALClusters",
+             "CalorimeterTrackProjections",
+             "LFHCALClusterAssociations",
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "LFHCALRawHitAssocitions"},
+#else
+             "LFHCALHit"},
+#endif
+            {"LFHCALSplitMergeClusters",
+#if EDM4EIC_VERSION_MAJOR >= 8
+             "LFHCALTrackSplitMergeClusterMatches",
+#endif
+             "LHFCALSplitMergeClusterAssociations"},
             {
               .idCalo = "LFHCAL_ID",
               .minSigCut = -2.0,
@@ -318,21 +328,5 @@ extern "C" {
           )
         );
 
-        app->Add(
-          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "LFHCALSplitMergeClusters",
-            {"LFHCALSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
-             "LFHCALHits"},                          // edm4hep::SimCalorimeterHitCollection
-            {"LFHCALSplitMergeClusters",             // edm4eic::Cluster
-             "LFHCALSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
-            {
-              .energyWeight = "log",
-              .sampFrac = 1.0,
-              .logWeightBase = 4.5,
-              .enableEtaBounds = false
-            },
-            app   // TODO: Remove me once fixed
-          )
-        );
     }
 }
