@@ -320,8 +320,9 @@ void PrintPodioCollections(JApplication* app) {
       for (auto* event_source : event_sources) {
         //                    std::cout << event_source->GetPluginName() << std::endl;  // podio.so
         //                    std::cout << event_source->GetResourceName() << std::endl;
-        if (event_source->GetPluginName().find("podio") != std::string::npos)
-          event_source->DoInitialize();
+        if (event_source->GetPluginName().find("podio") != std::string::npos) {
+          event_source->DoOpen();
+        }
       }
     }
   }
