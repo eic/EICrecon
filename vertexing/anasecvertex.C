@@ -615,16 +615,16 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
             TLorentzVector proton_mom_vec;
             proton_mom_vec.SetXYZM(rcMomPx[proton_index[j]], rcMomPy[proton_index[j]], rcMomPz[proton_index[j]], gprotonMass);
             //Delta R sec. vtx - reco prim. vtx
-            double deltaX=svert_vx[pi_index[j]]-CTVx[pi_index[j]];
-            double deltaY=svert_vy[pi_index[j]]-CTVy[pi_index[j]];
-            double deltaZ=svert_vz[pi_index[j]]-CTVz[pi_index[j]];
+            double deltaX=svert_vx[pi_index[i]]-CTVx[pi_index[i]];
+            double deltaY=svert_vy[pi_index[i]]-CTVy[pi_index[i]];
+            double deltaZ=svert_vz[pi_index[i]]-CTVz[pi_index[i]];
             double deltaR=std::sqrt(deltaX*deltaX+deltaY*deltaY+deltaZ*deltaZ);
             // DecayR MC decay vertex
             TVector3 mc_prmvtx_decay(-999.,-999.,-999.);
             TVector3 sec_vtx_decay(-999.,-999.,-999.);
             for(int mcvtx=0; mcvtx<mcEndPointX.GetSize(); mcvtx++){
               mc_prmvtx_decay.SetXYZ(mcEndPointX[mcvtx], mcEndPointY[mcvtx], mcEndPointZ[mcvtx]);
-              sec_vtx_decay.SetXYZ(svert_vx[pi_index[j]], svert_vy[pi_index[j]], svert_vz[pi_index[j]]);
+              sec_vtx_decay.SetXYZ(svert_vx[pi_index[i]], svert_vy[pi_index[i]], svert_vz[pi_index[i]]);
               if(rcTrkqOverP[pi_index[i]]*rcTrkqOverP[proton_index[j]]<0){
                 double mc_decay_dx = sec_vtx_decay.x()-mc_prmvtx_decay.x();
                 double mc_decay_dy = sec_vtx_decay.y()-mc_prmvtx_decay.y();
