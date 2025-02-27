@@ -88,7 +88,7 @@ TEST_CASE( "the subcell-splitting algorithm runs", "[HEXPLIT]" ) {
     Esum+=subcell.getEnergy();
     i++;
     if (i%12==0){
-      REQUIRE(abs(Esum-E[i/12-1])/E[i/12-1]<tol);
+      REQUIRE(fabs(Esum-E[i/12-1])/E[i/12-1]<tol);
       Esum=0;
     }
   }
