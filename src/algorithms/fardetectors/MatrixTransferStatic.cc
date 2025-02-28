@@ -159,6 +159,25 @@ void eicrecon::MatrixTransferStatic::process(
       local_y_slope_offset = -0.0073;
 
   }
+  else if(abs(130.0 - nomMomentum)/130.0 < nomMomentumError){ //130 GeV deuterons
+
+      aX[0][0] = 1.6248;
+      aX[0][1] = 12.966293;
+      aX[1][0] = 0.1832;
+      aX[1][1] = -2.8636535;
+
+      aY[0][0] = 0.0001674; //a
+      aY[0][1] = -28.6003; //b
+      aY[1][0] = 0.0000837; //c
+      aY[1][1] = -2.87985; //d
+
+      local_x_offset       = -11.9872;
+      local_y_offset       = -0.0146;
+      local_x_slope_offset = -14.75315;
+      local_y_slope_offset = -0.0073;
+
+  }
+
   else {
     error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
     return;
@@ -200,7 +219,10 @@ void eicrecon::MatrixTransferStatic::process(
   bool goodHit1 = false;
   bool goodHit2 = false;
 
-  std::cout << "size of RP hit array = " << rechits.size() << std::endl;
+  int numGoodHits1 = 0;
+  int numGoodHits2 = 0;
+
+  //std::cout << "size of RP hit array = " << rechits->size() << std::endl;
 
   for (const auto &h: *rechits) {
 
@@ -217,23 +239,29 @@ void eicrecon::MatrixTransferStatic::process(
     gpos = gpos/dd4hep::mm;
     pos0 = pos0/dd4hep::mm;
 
-    //std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
-    //std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
+    //std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << "  E_dep = " << h.getEdep() << std::endl;
 
-    if(!goodHit2 && gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
+    if(gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
 
+      //std::cout << "[gpos.x(), gpos.y(), gpos.z()] = " << gpos.x() <<", "<< gpos.y() << ", " << gpos.z() << "  E_dep = " << h.getEdep()*1000 << " MeV " << std::endl;
+      numGoodHits2++;
       goodHit[1].x = gpos.x(); //pos0.x() - pos0 is local coordinates, gpos is global
       goodHit[1].y = gpos.y(); //pos0.y() - temporarily changing to global to solve the local coordinate issue
       goodHit[1].z = gpos.z(); //         - which is unique to the Roman pots situation
-      goodHit2 = true;
+      if(numGoodHits2 == 1){goodHit2 = true;}
+      else goodHit2 = false; 
+      //std::cout << "goodHit2 = " << goodHit2 << std::endl;
 
     }
-    if(!goodHit1 && gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ){
+    if(gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ){
 
+      //std::cout << "[gpos.x(), gpos.y(), gpos.z()] = " << gpos.x() <<", "<< gpos.y() << ", " << gpos.z() << "  E_dep = " << h.getEdep()*1000 << " MeV " << std::endl;
+      numGoodHits1++;
       goodHit[0].x = gpos.x(); //pos0.x()
       goodHit[0].y = gpos.y(); //pos0.y()
       goodHit[0].z = gpos.z();
-      goodHit1 = true;
+      if(numGoodHits1 == 1){goodHit1 = true;}
+      else goodHit1 = false;
 
     }
 
@@ -285,6 +313,8 @@ void eicrecon::MatrixTransferStatic::process(
       edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
                                 static_cast<float>(p / norm)};
       auto refPoint = goodHit[0];
+
+	  //std::cout << "RP Reco Momentum ---> px = " << prec.x << "  py = " << prec.y << "  pz = " << prec.z << std::endl;
 
       //----- end reconstruction code ------
 
