@@ -87,6 +87,24 @@ void eicrecon::MatrixTransferStatic::process(
      local_y_slope_offset = 0.000745498;//-0.000176128;
 
   }
+  else if(abs(130.0 - nomMomentum)/130.0 < nomMomentumError){ //NOT TUNED -- just for testing purposes
+
+     aX[0][0] = 3.251116; //a
+     aX[0][1] = 30.285734; //b
+     aX[1][0] = 0.186036375; //c
+     aX[1][1] = 0.196439472; //d
+
+     aY[0][0] = 0.4730500000; //a
+     aY[0][1] = 3.062999454; //b
+     aY[1][0] = 0.0204108951; //c
+     aY[1][1] = -0.139318692; //d
+
+     local_x_offset       = -1209.29;//-0.339334; these are the local coordinate values
+     local_y_offset       = 0.00132511;//-0.000299454;
+     local_x_slope_offset = -45.4772;//-0.219603248;
+     local_y_slope_offset = 0.000745498;//-0.000176128;
+
+  }
   else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
 
      aX[0][0] = 3.152158; //a
@@ -181,6 +199,8 @@ void eicrecon::MatrixTransferStatic::process(
 
   bool goodHit1 = false;
   bool goodHit2 = false;
+
+  std::cout << "size of RP hit array = " << rechits.size() << std::endl;
 
   for (const auto &h: *rechits) {
 
