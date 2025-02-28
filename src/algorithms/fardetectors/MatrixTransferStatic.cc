@@ -249,7 +249,7 @@ void eicrecon::MatrixTransferStatic::process(
       goodHit[1].y = gpos.y(); //pos0.y() - temporarily changing to global to solve the local coordinate issue
       goodHit[1].z = gpos.z(); //         - which is unique to the Roman pots situation
       if(numGoodHits2 == 1){goodHit2 = true;}
-      else goodHit2 = false; 
+      else goodHit2 = false;
       //std::cout << "goodHit2 = " << goodHit2 << std::endl;
 
     }
@@ -314,7 +314,7 @@ void eicrecon::MatrixTransferStatic::process(
                                 static_cast<float>(p / norm)};
       auto refPoint = goodHit[0];
 
-	  //std::cout << "RP Reco Momentum ---> px = " << prec.x << "  py = " << prec.y << "  pz = " << prec.z << std::endl;
+          //std::cout << "RP Reco Momentum ---> px = " << prec.x << "  py = " << prec.y << "  pz = " << prec.z << std::endl;
 
       //----- end reconstruction code ------
 
