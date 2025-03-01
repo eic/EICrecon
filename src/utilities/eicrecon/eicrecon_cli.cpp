@@ -6,8 +6,9 @@
 
 #include <JANA/CLI/JBenchmarker.h>
 #include <JANA/CLI/JSignalHandler.h>
-#include <JANA/CLI/JVersion.h>
+#include <JANA/JVersion.h>
 #include <JANA/Services/JComponentManager.h>
+#include <string.h>
 #include <algorithm>
 #include <cstdlib>
 #include <filesystem>
@@ -15,7 +16,6 @@
 #include <memory>
 #include <set>
 #include <stdexcept>
-#include <string.h>
 #include <string>
 #include <utility>
 
