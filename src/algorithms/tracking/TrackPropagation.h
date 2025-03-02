@@ -43,7 +43,7 @@ namespace eicrecon {
         void init(const dd4hep::Detector* detector, std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
 
         void process(
-                const std::tuple<const edm4eic::TrackCollection&, const std::vector<const ActsExamples::Trajectories*>, const std::vector<const ActsExamples::ConstTrackContainer*>> input,
+                const std::tuple<const edm4eic::TrackCollection&, const std::vector<const ActsExamples::Trajectories*>, const ActsExamples::ConstTrackContainer&> input,
                 const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
 
             const auto [tracks, acts_trajectories, acts_tracks] = input;
