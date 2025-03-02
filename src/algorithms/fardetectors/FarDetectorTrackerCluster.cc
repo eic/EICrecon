@@ -30,7 +30,7 @@ void FarDetectorTrackerCluster::init() {
   m_cellid_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
 
   if (m_cfg.readout.empty()) {
-    throw JException("Readout is empty");
+    error("Config readout field is empty");
   }
   try {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
@@ -43,9 +43,9 @@ void FarDetectorTrackerCluster::init() {
       m_y_idx = m_id_dec->index(m_cfg.y_field);
       debug("Find layer field {}, index = {}", m_cfg.y_field, m_y_idx);
     }
+    m_initialized = true;
   } catch (...) {
     error("Failed to load ID decoder for {}", m_cfg.readout);
-    throw JException("Failed to load ID decoder");
   }
 }
 
@@ -54,6 +54,12 @@ void FarDetectorTrackerCluster::process(const FarDetectorTrackerCluster::Input& 
 
   const auto [inputHitsCollections] = input;
   auto [outputClustersCollection]   = output;
+
+  // Return if configurations are not set properly
+  if (!m_initialized) {
+    debug("Initialization did not complete");
+    return;
+  }
 
   // Loop over input and output collections - Any collection should only contain hits from a single
   // surface
