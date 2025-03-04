@@ -32,11 +32,6 @@ file(RELATIVE_PATH DATAMODEL_RELATIVE_PATH ${PROJECT_SOURCE_DIR}/src
 
 # Generate the datamodel header files.
 add_custom_command(
-  OUTPUT ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}
-  COMMAND ${CMAKE_COMMAND} -E make_directory
-          ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}
-  COMMENT Create datamodel glue directory)
-add_custom_command(
   OUTPUT
     ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
     ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_includes.h
@@ -46,9 +41,15 @@ add_custom_command(
     EDM4HEP_INCLUDE_DIR=${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}
     EDM4EIC_INCLUDE_DIR=${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}
   MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/make_datamodel_glue.py
-  DEPENDS ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}
-          ${EDM_VERSION_INCLUDES}
-  COMMENT Create datamodel glue headers)
+  DEPENDS ${EDM_VERSION_INCLUDES}
+  COMMENT "Create datamodel glue headers")
+add_custom_target(
+  podio_datamodel_glue
+  DEPENDS
+    ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
+  COMMENT "Create datamodel glue headers")
+
+plugin_add_dependencies(${PLUGIN_NAME} podio_datamodel_glue)
 
 # Install datamodel_glue headers
 install(
@@ -70,16 +71,3 @@ plugin_link_libraries(
   EDM4EIC::edm4eic
   EDM4EIC::edm4eic_utils
   podio::podioRootIO)
-
-# Create a ROOT dictionary with the vector<edm4hep::XXXData> types defined.
-# Without this, root will complain about not having a compiled CollectionProxy.
-root_generate_dictionary(
-  G__datamodel_vectors
-  ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_includes.h
-  MODULE ${PLUGIN_NAME}_plugin LINKDEF datamodel_LinkDef.h)
-
-# Install root dictionaries made by PODIO
-set(my_root_dict_files
-    ${CMAKE_CURRENT_BINARY_DIR}/lib${PLUGIN_NAME}_plugin_rdict.pcm
-    ${CMAKE_CURRENT_BINARY_DIR}/lib${PLUGIN_NAME}_plugin.rootmap)
-install(FILES ${my_root_dict_files} DESTINATION ${PLUGIN_OUTPUT_DIRECTORY})
