@@ -33,6 +33,8 @@
 #include "Acts/Vertexing/TrackDensityVertexFinder.hpp"
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/IterativeVertexFinder.hpp>
+#include "Acts/Vertexing/AdaptiveGridTrackDensity.hpp"
+#include "Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp"
 #include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
 #include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
@@ -128,32 +130,51 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
   using VertexFinderOptionsSec = Acts::VertexingOptions<Acts::BoundTrackParameters>;
 #endif
 
+   // Set up track density used during vertex seeding
+  Acts::AdaptiveGridTrackDensity::Config trkDensityCfg;
+  // Bin extent in z-direction
+  trkDensityCfg.spatialBinExtent = 5. * Acts::UnitConstants::um;
+  // Bin extent in t-direction
+  trkDensityCfg.temporalBinExtent = 19. * Acts::UnitConstants::mm;
+  trkDensityCfg.useTime = m_cfg.useTime;
+  Acts::AdaptiveGridTrackDensity trkDensity(trkDensityCfg);
+
   // using LinearizerSec = Acts::HelicalTrackLinearizer<PropagatorSec>;
   // Setup the track linearizer
   LinearizerSec::Config linearizerCfgSec(m_BField, propagatorSec);
   LinearizerSec linearizerSec(linearizerCfgSec, logger().cloneWithSuffix("HelLinSec"));
 
   //Trying multivertex fitter here...
+  // Set up deterministic annealing with user-defined temperatures
+  Acts::AnnealingUtility::Config annealingCfg;
+  annealingCfg.setOfTemperatures = {0.95,1.0,1.05};
+  Acts::AnnealingUtility annealingUtility(annealingCfg);
   // Setup the vertex fitter
   ImpactPointEstimator::Config ipEstCfg(m_BField, propagatorSec);
   ImpactPointEstimator ipEst(ipEstCfg);
   VertexFitterSec::Config vertexFitterCfgSec(ipEst);
+
+  vertexFitterCfgSec.annealingTool = annealingUtility;
+  vertexFitterCfgSec.minWeight = 0.001;
+  vertexFitterCfgSec.doSmoothing = true;
+  vertexFitterCfgSec.useTime = m_cfg.useTime;
 #if Acts_VERSION_MAJOR >= 33
   vertexFitterCfgSec.extractParameters
     .connect<&Acts::InputTrack::extractParameters>();
   vertexFitterCfgSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(
     &linearizerSec);
 #endif
-  VertexFitterSec vertexFitterSec(vertexFitterCfgSec);
+  VertexFitterSec vertexFitterSec(std::move(vertexFitterCfgSec));
 
 #if Acts_VERSION_MAJOR >= 33
-  // Set up the vertex seed finder
-  //VertexSeederSec::Config seedercfg(ipEst);
+
+  // Set up vertex seeder and finder
+  using seedFinder = Acts::AdaptiveGridDensityVertexFinder;
   std::shared_ptr<const Acts::IVertexFinder> seeder;
-  Acts::GaussianTrackDensity::Config seederCfg;
+  seedFinder::Config seederCfg(trkDensity);
   seederCfg.extractParameters
-    .connect<&Acts::InputTrack::extractParameters>();
-  seeder = std::make_shared<VertexSeederSec>(VertexSeederSec::Config{seederCfg});
+      .connect<&Acts::InputTrack::extractParameters>();
+  seeder = std::make_shared<seedFinder>(seedFinder::Config{seederCfg}); 
 #else
   // Set up the vertex seed finder
   VertexSeederSec::Config seedercfg(ipEst);
@@ -173,12 +194,28 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
   // numerical scale, we have to provide a greater value in the corresponding
   // dimension.
   vertexfinderCfgSec.initialVariances<<1e+2, 1e+2, 1e+2, 1e+8;
-  // We do not want to use a beamspot constraint here
-  //vertexfinderCfgSec.useBeamSpotConstraint = false;
-  vertexfinderCfgSec.tracksMaxZinterval=35. * Acts::UnitConstants::mm;
+  //Use time for Sec. Vertex
+  vertexfinderCfgSec.useTime = true;
+  vertexfinderCfgSec.tracksMaxZinterval=15 * Acts::UnitConstants::mm;
   vertexfinderCfgSec.maxIterations=200;
+  vertexfinderCfgSec.doFullSplitting = true;
+  // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
+  vertexfinderCfgSec.tracksMaxSignificance = 5;
+  vertexfinderCfgSec.maxMergeVertexSignificance = 3;
+
+  if(m_cfg.useTime){
+    // When using time, we have an extra contribution to the chi2 by the time
+    // coordinate. We thus need to increase tracksMaxSignificance (i.e., the
+    // maximum chi2 that a track can have to be associated with a vertex).
+    vertexfinderCfgSec.tracksMaxSignificance = 6.7;
+    // Using the same p-value for 2 dof instead of 1.
+    // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
+    vertexfinderCfgSec.maxMergeVertexSignificance = 5;
+  }
+
   vertexfinderCfgSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
   vertexFitterCfgSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(&linearizerSec);
+
   #if Acts_VERSION_MAJOR >= 36
   vertexfinderCfgSec.field = m_BField;
   #else
