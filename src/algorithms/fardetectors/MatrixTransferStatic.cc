@@ -239,7 +239,7 @@ void eicrecon::MatrixTransferStatic::process(
     gpos = gpos/dd4hep::mm;
     pos0 = pos0/dd4hep::mm;
 
-    //std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << "  E_dep = " << h.getEdep() << std::endl;
+   trace("gpos.z() = {}, pos0.z() = {}, E_dep = {}", gpos.z(), pos0.z(), h.getEdep());
 
     if(gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
 
