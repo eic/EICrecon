@@ -314,7 +314,7 @@ void eicrecon::MatrixTransferStatic::process(
                                 static_cast<float>(p / norm)};
       auto refPoint = goodHit[0];
 
-          //std::cout << "RP Reco Momentum ---> px = " << prec.x << "  py = " << prec.y << "  pz = " << prec.z << std::endl;
+      trace("RP Reco Momentum ---> px = {},  py = {}, pz = {}", prec.x, prec.y, prec.z);
 
       //----- end reconstruction code ------
 
