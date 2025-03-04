@@ -255,7 +255,7 @@ void eicrecon::MatrixTransferStatic::process(
     }
     if(gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ){
 
-      //std::cout << "[gpos.x(), gpos.y(), gpos.z()] = " << gpos.x() <<", "<< gpos.y() << ", " << gpos.z() << "  E_dep = " << h.getEdep()*1000 << " MeV " << std::endl;
+      trace("[gpos.x(), gpos.y(), gpos.z()] = {}, {}, {};  E_dep = {} MeV", gpos.x(), gpos.y(), gpos.z(), h.getEdep()*1000);
       numGoodHits1++;
       goodHit[0].x = gpos.x(); //pos0.x()
       goodHit[0].y = gpos.y(); //pos0.y()
