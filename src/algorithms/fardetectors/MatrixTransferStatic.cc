@@ -222,7 +222,7 @@ void eicrecon::MatrixTransferStatic::process(
   int numGoodHits1 = 0;
   int numGoodHits2 = 0;
 
-  //std::cout << "size of RP hit array = " << rechits->size() << std::endl;
+  trace("size of RP hit array = {}", rechits->size());
 
   for (const auto &h: *rechits) {
 
