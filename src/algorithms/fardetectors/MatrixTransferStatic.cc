@@ -243,7 +243,7 @@ void eicrecon::MatrixTransferStatic::process(
 
     if(gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
 
-      //std::cout << "[gpos.x(), gpos.y(), gpos.z()] = " << gpos.x() <<", "<< gpos.y() << ", " << gpos.z() << "  E_dep = " << h.getEdep()*1000 << " MeV " << std::endl;
+      trace("[gpos.x(), gpos.y(), gpos.z()] = {}, {}, {};  E_dep = {} MeV", gpos.x(), gpos.y(), gpos.z(), h.getEdep()*1000);
       numGoodHits2++;
       goodHit[1].x = gpos.x(); //pos0.x() - pos0 is local coordinates, gpos is global
       goodHit[1].y = gpos.y(); //pos0.y() - temporarily changing to global to solve the local coordinate issue
