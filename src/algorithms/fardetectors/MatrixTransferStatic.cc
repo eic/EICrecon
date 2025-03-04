@@ -250,7 +250,6 @@ void eicrecon::MatrixTransferStatic::process(
       goodHit[1].z = gpos.z(); //         - which is unique to the Roman pots situation
       if(numGoodHits2 == 1){goodHit2 = true;}
       else goodHit2 = false;
-      //std::cout << "goodHit2 = " << goodHit2 << std::endl;
 
     }
     if(gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ){
