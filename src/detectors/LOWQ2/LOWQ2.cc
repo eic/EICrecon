@@ -20,6 +20,7 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/digi/LGADChargeSharing_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
@@ -42,11 +43,25 @@ extern "C" {
 
     std::string tracker_readout = "TaggerTrackerHits";
 
+    app->Add(new JOmniFactoryGeneratorT<LGADChargeSharing_factory>(
+      "TaggerTrackerChargeSharing",
+      {"TaggerTrackerHits"},
+      {"TaggerTrackerSharedHits"},
+      {
+          .sigma_sharingx = 10 * dd4hep::um,
+          .sigma_sharingy = 10 * dd4hep::um,
+          .readout = tracker_readout,
+          .same_sensor_condition = "layer_1 == layer_2",
+          .neighbor_fields = {"x", "y"}
+      },
+      app
+  ));
+
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
          {
-           "TaggerTrackerHits"
+           "TaggerTrackerSharedHits"
          },
          {
            "TaggerTrackerRawHits",

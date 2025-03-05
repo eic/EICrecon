@@ -140,6 +140,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ForwardMPGDEndcapRawHitAssociations",
 
             // LOWQ2 hits
+            "TaggerTrackerHits",
+            "TaggerTrackerSharedHits",
             "TaggerTrackerRawHits",
             "TaggerTrackerRawHitAssociations",
             "TaggerTrackerM1L0ClusterPositions",
