@@ -15,9 +15,9 @@
 #else
 #include <podio/ROOTFrameWriter.h>
 #endif
-#include <chrono>
 #include <exception>
-#include <thread>
+#include <ostream>
+#include <stdexcept>
 
 #include "services/log/Log_service.h"
 
@@ -62,6 +62,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "MCParticlesHeadOnFrameNoBeamFX",
 
             // All tracking hits combined
+            "CentralTrackTruthSeeds",
             "CentralTrackingRecHits",
             "CentralTrackingRawHitAssociations",
             "CentralTrackSeedingResults",
@@ -92,6 +93,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFEndcapRawHits",
 
             "TOFBarrelHits",
+            "TOFBarrelADCTDC",
             "TOFEndcapHits",
 
             "TOFBarrelRawHitAssociations",
@@ -323,7 +325,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",
             "HcalFarForwardZDCTruthClusterAssociations",
-            "ReconstructedFarForwardZDCNeutrons",
+            "ReconstructedFarForwardZDCNeutrals",
+            "ReconstructedFarForwardZDCLambdas",
+            "ReconstructedFarForwardZDCLambdaDecayProductsCM",
 
             // DIRC
             "DIRCRawHits",
@@ -396,10 +400,8 @@ void JEventProcessorPODIO::Init() {
     //       I definitely don't trust PODIO to do this for me.
 
     if (m_output_include_collections_set) {
-      m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead. Address this to remove the 10 second delay.");
-      // Adding a delay to ensure users notice the deprecation warning.
-      using namespace std::chrono_literals;
-      std::this_thread::sleep_for(10s);
+      m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead.");
+      throw std::runtime_error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead.");
     }
 
 }
@@ -561,10 +563,8 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
 
 void JEventProcessorPODIO::Finish() {
     if (m_output_include_collections_set) {
-      m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead. Address this to remove the 10 second delay.");
-      // Adding a delay to ensure users notice the deprecation warning.
-      using namespace std::chrono_literals;
-      std::this_thread::sleep_for(10s);
+      m_log->error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead.");
+      throw std::runtime_error("The podio:output_include_collections was provided, but is deprecated. Use podio:output_collections instead.");
     }
 
     m_writer->finish();

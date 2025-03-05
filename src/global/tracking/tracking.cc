@@ -6,6 +6,7 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <fmt/core.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <map>
@@ -38,9 +39,9 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-            "InitTrackParams",
+            "CentralTrackTruthSeeds",
             {"MCParticles"},
-            {"InitTrackParams"},
+            {"CentralTrackTruthSeeds"},
             {},
             app
             ));
@@ -95,7 +96,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
         "CentralCKFTruthSeededTrajectories",
         {
-            "InitTrackParams",
+            "CentralTrackTruthSeeds",
             "CentralTrackerMeasurements"
         },
         {
@@ -217,11 +218,16 @@ void InitPlugin(JApplication *app) {
     ));
 
     app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>(
+        "CentralTrackSegments",
+        {
+            "CentralCKFActsTrajectories",
+            "CentralCKFTracks",
+        },
+        {
             "CentralTrackSegments",
-            {"CentralCKFActsTrajectories"},
-            {"CentralTrackSegments"},
-            app
-            ));
+        },
+        app
+    ));
 
     app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
             "CentralTrackVertices",
