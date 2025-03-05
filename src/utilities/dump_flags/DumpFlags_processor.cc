@@ -10,6 +10,7 @@
 #include <spdlog/spdlog.h>
 #include <string.h>
 #include <exception>
+#include <fstream>
 #include <map>
 #include <ostream>
 

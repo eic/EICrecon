@@ -39,9 +39,6 @@ void LGADChargeSharing::init() {
 
   auto seg  = m_detector->readout(m_cfg.readout).segmentation();
   auto type = seg.type();
-  if (type != "CartesianGridXY")
-    throw std::runtime_error("Unsupported segmentation type: " + type +
-                             ". BarrelTOF must use CartesianGridXY.");
   // retrieve meaning of cellID bits
   m_decoder = seg.decoder();
   m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
