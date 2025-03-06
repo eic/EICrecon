@@ -18,8 +18,11 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
+#incluse "algorithms/meta/PulseShapeFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/digi/LGADChargeSharing_factory.h"
+#include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
@@ -42,11 +45,39 @@ extern "C" {
 
     std::string tracker_readout = "TaggerTrackerHits";
 
+    app->Add(new JOmniFactoryGeneratorT<LGADChargeSharing_factory>(
+      "TaggerTrackerChargeSharing",
+      {"TaggerTrackerHits"},
+      {"TaggerTrackerSharedHits"},
+      {
+          .sigma_sharingx = 10 * dd4hep::um,
+          .sigma_sharingy = 10 * dd4hep::um,
+          .readout = tracker_readout,
+          .same_sensor_condition = "layer_1 == layer_2",
+          .neighbor_fields = {"x", "y"}
+      },
+      app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
+      "TaggerTrackerPulseGeneration",
+      {"TaggerTrackerSharedHits"},
+      {"TaggerTrackerHitPulses"},
+      {
+          .pulse_shape_function = LandauPulse{113.755, 1.0 * dd4hep::Vm, 5.0 * dd4hep::ns, 1000},
+          .ignore_thres = 0.001 * dd4hep::Vm,
+          .timestep = 0.2 * dd4hep::ns,
+      },
+      app
+    ));
+
+
+
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
          {
-           "TaggerTrackerHits"
+           "TaggerTrackerSharedHits"
          },
          {
            "TaggerTrackerRawHits",
