@@ -195,7 +195,7 @@ extern "C" {
             {
               .longitudinalShowerInfoAvailable = true,
               .energyWeight = "log",
-              .logWeightBase = 3.6
+              .logWeightBase = 6.2
             },
             app
           )
