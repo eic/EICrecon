@@ -17,6 +17,14 @@ namespace eicrecon {
     //! weighting method to use
     std::string energyWeight = "none";
 
+    //! sampling fraction
+    /*! if the fraction is applied *after* clustering, this
+     *  parameter can be used to determine the total energy
+     *  of the cluster before applying the fraction, which
+     *  is a necessary input for the log-weight calculation.
+     */
+    double sampFrac = 1.;
+
     //! optional parameters for having the log weight base
     //! depend on the energy via
     //!

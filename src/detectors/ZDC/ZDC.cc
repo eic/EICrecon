@@ -265,6 +265,7 @@ extern "C" {
             {
               .longitudinalShowerInfoAvailable = true,
               .energyWeight = "log",
+              .sampFrac = 0.0203,
               .logWeightBaseCoeffs={5.8,0.65,0.31},
               .logWeightBase_Eref=50*dd4hep::GeV
             },
@@ -358,6 +359,7 @@ extern "C" {
             {
               .longitudinalShowerInfoAvailable = true,
               .energyWeight = "log",
+              .sampFrac = 0.0203,
               .logWeightBase = 6.2
             },
             app
