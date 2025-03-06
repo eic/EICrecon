@@ -62,6 +62,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "MCParticlesHeadOnFrameNoBeamFX",
 
             // All tracking hits combined
+            "CentralTrackTruthSeeds",
             "CentralTrackingRecHits",
             "CentralTrackingRawHitAssociations",
             "CentralTrackSeedingResults",
@@ -324,7 +325,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",
             "HcalFarForwardZDCTruthClusterAssociations",
-            "ReconstructedFarForwardZDCNeutrons",
+            "ReconstructedFarForwardZDCNeutrals",
+            "ReconstructedFarForwardZDCLambdas",
+            "ReconstructedFarForwardZDCLambdaDecayProductsCM",
 
             // DIRC
             "DIRCRawHits",
