@@ -170,7 +170,7 @@ float * CalculateM02andWeightedPosition(std::vector<towersStrct> cluster_towers,
 
       vecTwrTmp = TVector3(cluster_towers.at(cellI).posx, cluster_towers.at(cellI).posy, cluster_towers.at(cellI).posz );
       // scale cluster position to z-plane
-      vecTwr*=abs(vecTwrTmp.Z()/vecTwr.Z());
+      vecTwr*=std::abs(vecTwrTmp.Z()/vecTwr.Z());
       float dx2 = pow(vecTwrTmp.X()-vecTwr.X(),2);
       float dy2 = pow(vecTwrTmp.Y()-vecTwr.Y(),2);
       float dz2 = pow(vecTwrTmp.Z()-vecTwr.Z(),2);
