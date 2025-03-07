@@ -27,7 +27,7 @@
 #include "services/geometry/richgeo/RichGeo.h"
 
 void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
-
+#if _TODAY_
   // begin envelope
   /* FIXME: have no connection to GEANT G4LogicalVolume pointers; however all is needed
    * is to make them unique so that std::map work internally; resort to using integers,
@@ -192,6 +192,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
 
   // define the `cell ID -> pixel position` converter
   SetReadoutIDToPositionLambda();
+#endif
 }
 
 // destructor

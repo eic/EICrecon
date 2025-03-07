@@ -118,6 +118,39 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
   else if(m_detName=="PFRICH") {
     m_log->error("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
   }
+  
+  // QRICH DD4hep-ACTS bindings --------------------------------------------------------------------
+  else if(m_detName=="QRICH") {
+    printf("richgeo::ActsGeo::TrackingPlanes() for QRICH!\n");
+    double rmin = 100 * dd4hep::mm, rmax = 800 * dd4hep::mm;
+	
+    switch(radiator) {
+      case kAerogel:
+	{
+	  double step = 5 * dd4hep::mm, zmid = (1550. - 500./2 + 5. + 25./2) * dd4hep::mm;
+	  for(int i=0; i<numPlanes; i++) {
+	    auto z         = zmid + step*(i - (numPlanes-1)/2.);
+	    discs.push_back(eicrecon::DiscSurfaceConfig{"ForwardRICH_ID", z, rmin, rmax});
+	    m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
+	  } //for i
+	}
+        break;
+      case kGas:
+	{
+	  // FIXME: make it simple for now;
+	  double step = 5 * dd4hep::cm, zmid = 1550. * dd4hep::mm;
+	  for(int i=0; i<numPlanes; i++) {
+	    auto z         = zmid + step*(i - (numPlanes-1)/2.);
+	    discs.push_back(eicrecon::DiscSurfaceConfig{"ForwardRICH_ID", z, rmin, rmax});
+	    m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
+	  } //for i
+	}
+        break;
+      default:
+        m_log->error("unknown radiator number {}",numPlanes);
+        return discs;
+    }
+  }
 
   // ------------------------------------------------------------------------------------------------
   else m_log->error("ActsGeo is not defined for detector '{}'",m_detName);
@@ -157,7 +190,8 @@ std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int rad
     };
   }
 
-  // otherwise return a cut which always passes
+  // otherwise return a cut which always passes; FIXME: this should work for QRICH, right?;
+  printf("richgeo::ActsGeo::TrackPointCut() for QRICH!\n");
   return [] (edm4eic::TrackPoint p) { return true; };
 
 }

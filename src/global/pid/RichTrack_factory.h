@@ -53,6 +53,8 @@ public:
     }
 
     void Process(int64_t run_number, uint64_t event_number) {
+      printf("RichTrack_factory::Process() ...\n");
+      
         m_algo->propagateToSurfaceList(
             {*m_tracks_input(), m_acts_trajectories_input(), m_acts_tracks_input()},
             {m_track_segments_output().get()}

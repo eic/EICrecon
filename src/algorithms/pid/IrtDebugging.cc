@@ -1,15 +1,22 @@
 // Copyright 2023, Christopher Dilks, adapted from Alexander Kiselev's Juggler implementation `IRTAlgorithm`
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
-#include "IrtCherenkovParticleID.h"
+#include <TFile.h>
+
+#if 1//_TODAY_
+#include "IrtDebugging.h"
 
 #include <IRT/ChargedParticle.h>
+#if _TODAY_
 #include <IRT/CherenkovPID.h>
 #include <IRT/OpticalPhoton.h>
 #include <IRT/RadiatorHistory.h>
 #include <IRT/SinglePDF.h>
 #include <TString.h>
+#endif
+#include <edm4hep/SimTrackerHitCollection.h>
 #include <TVector3.h>
+#if _TODAY_
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
@@ -32,18 +39,34 @@
 #include <vector>
 
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
+#endif
 #include "algorithms/pid/Tools.h"
 
 namespace eicrecon {
 
-void IrtCherenkovParticleID::init(
-    CherenkovDetectorCollection*     irt_det_coll,
-    std::shared_ptr<spdlog::logger>& logger
-    )
+void IrtDebugging::init(
+			CherenkovDetectorCollection*     irt_det_coll//,
+			//std::shared_ptr<spdlog::logger>& logger
+			)
 {
-#if _TODAY_
+  printf("@@@ IrtDebugging::init() ...\n");
+
+  {
+    auto fcfg = new TFile("qrich.root");//cfname ? cfname : dfname);
+    printf("@@@ %p\n", fcfg);
+    //if (!fcfg) return;
+    //auto geometry = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
+     m_irt_det_coll = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
+    printf("@@@ %p\n", m_irt_det_coll);
+    //auto fdata = new TFile(dfname);
+    //m_Tree = dynamic_cast<TTree*>(fdata->Get("t")); 
+    //m_Tree->SetBranchAddress("e", &m_Event);
+
+    //m_RICH = geometry->GetDetector(dname);
+  }
   // members
-  m_irt_det_coll = irt_det_coll;
+  //+  m_irt_det_coll = irt_det_coll;
+#if _TODAY_
   m_log          = logger;
 
   // print the configuration parameters
@@ -51,16 +74,20 @@ void IrtCherenkovParticleID::init(
 
   // inform the user if a cheat mode is enabled
   m_cfg.PrintCheats(m_log);
+#endif
 
   // extract the the relevant `CherenkovDetector`, set to `m_irt_det`
   auto& detectors = m_irt_det_coll->GetDetectors();
+  printf("@@@ %ld\n", detectors.size());
   if(detectors.size() == 0)
     throw std::runtime_error("No CherenkovDetectors found in input collection `irt_det_coll`");
-  if(detectors.size() > 1)
-    m_log->warn("IrtCherenkovParticleID currently only supports 1 CherenkovDetector at a time; taking the first");
+  //if(detectors.size() > 1)
+  //m_log->warn("IrtCherenkovParticleID currently only supports 1 CherenkovDetector at a time; taking the first");
   auto this_detector = *detectors.begin();
   m_det_name         = this_detector.first;
   m_irt_det          = this_detector.second;
+  printf("@@@ %ld\n", m_irt_det->Radiators().size());
+#if _TODAY_
   m_log->debug("Initializing IrtCherenkovParticleID algorithm for CherenkovDetector '{}'", m_det_name);
 
   // readout decoding
@@ -76,16 +103,20 @@ void IrtCherenkovParticleID::init(
     // m_log->trace("- {}", rad_name);
     // for(auto [energy,rindex] : irt_rad->m_ri_lookup_table) m_log->trace("  {:>5} eV   {:<}", energy, rindex);
   }
+#endif
 
   // build `m_pid_radiators`, the list of radiators to use for PID
-  m_log->debug("Obtain List of Radiators:");
+  //m_log->debug("Obtain List of Radiators:");
   for(auto [rad_name,irt_rad] : m_irt_det->Radiators()) {
     if(rad_name!="Filter") {
       m_pid_radiators.insert({ std::string(rad_name), irt_rad });
-      m_log->debug("- {}", rad_name.Data());
+      //m_log->debug("- {}", rad_name.Data());
+      
+      printf("@@@ %s\n", rad_name.Data());
     }
   }
 
+#if _TODAY_
   // check radiators' configuration, and pass it to `m_irt_det`'s radiators
   for(auto [rad_name,irt_rad] : m_pid_radiators) {
     // find `cfg_rad`, the associated `IrtCherenkovParticleIDConfig` radiator
@@ -121,36 +152,76 @@ void IrtCherenkovParticleID::init(
 #endif
 }
 
-void IrtCherenkovParticleID::process(
-    const IrtCherenkovParticleID::Input& input,
-    const IrtCherenkovParticleID::Output& output) const
+void IrtDebugging::process(
+			   const IrtDebugging::Input& input,
+			   const IrtDebugging::Output& output
+			   ) const
 {
-#if _TODAY_
-  const auto [in_aerogel_tracks, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_assocs] = input;
-  auto [out_aerogel_particleIDs, out_gas_particleIDs] = output;
+  printf("@@@ IrtDebugging::process() ...\n");
+  
+  const auto [in_aerogel_tracks, in_sim_hits/*, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_assocs*/] = input;
+  //auto [out_aerogel_particleIDs/*, out_gas_particleIDs*/] = output;
+  auto [out_irt_debug_info/*, out_gas_particleIDs*/] = output;
 
+#if _TODAY_
   // logging
   m_log->trace("{:=^70}"," call IrtCherenkovParticleID::AlgorithmProcess ");
   m_log->trace("number of raw sensor hits: {}", in_raw_hits->size());
   m_log->trace("number of raw sensor hit with associated photons: {}", in_hit_assocs->size());
+#endif
 
   std::map<std::string, const edm4eic::TrackSegmentCollection*> in_charged_particles{
-    {"Aerogel", in_aerogel_tracks},
-    {"Gas", in_gas_tracks},
-    {"Merged", in_merged_tracks},
+    {"Aerogel", in_aerogel_tracks}//,
+    //{"Gas", in_gas_tracks},
+    //{"Merged", in_merged_tracks},
   };
 
   // start output collections
-  std::map<std::string, edm4eic::CherenkovParticleIDCollection*> out_cherenkov_pids{
-    {"Aerogel", out_aerogel_particleIDs},
-    {"Gas", out_gas_particleIDs}
+  std::map<std::string, edm4eic::IrtDebugInfoCollection*> out_cherenkov_pids{
+    //{"Aerogel", out_aerogel_particleIDs}//,
+    {"Aerogel", out_irt_debug_info}//,
+    //{"Gas", out_gas_particleIDs}
   };
 
+  printf("(1) --> %ld\n", in_charged_particles.size());
+  // FIXME: deal with just aerogel for now;
+  const auto &particles = in_charged_particles.begin()->second;
+  printf("(2) --> %ld\n", particles->size());
+  auto particle      = particles->at(0);//i_charged_particle);
+  printf("(3)   --> %ld\n", particle.points_size());
+  for(const auto& point : particle.getPoints()) {
+    TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
+    TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
+    
+    //irt_rad->AddLocation(position, momentum);
+    //Tools::PrintTVector3(m_log, " point: x", position);
+    //Tools::PrintTVector3(m_log, "        p", momentum);
+#if 1
+    printf("x=%7.2f y=%7.2f z=%7.2f -> px=%8.4f py=%8.4f pz=%7.2f\n",
+    	   position.X(), position.Y(), position.Z(), 
+    	   momentum.X(), momentum.Y(), momentum.Z());
+#endif
+  } //for point
+
+#if 1//_TODAY_
+  printf("(4) --> %ld\n", in_sim_hits->size());
+  for(auto hit: *in_sim_hits) {
+    TVector3 position = Tools::PodioVector3_to_TVector3(hit.getPosition());
+    //printf("x=%7.2f y=%7.2f z=%7.2f\n", position.X(), position.Y(), position.Z());
+  } //for hit
+#endif
+  
+  auto info = out_irt_debug_info->create();
+  info.setDummy(777.);
+
+
+  
   // check `in_charged_particles`: each radiator should have the same number of TrackSegments
   std::unordered_map<std::size_t, std::size_t> in_charged_particle_size_distribution;
   for(const auto& [rad_name, in_charged_particle] : in_charged_particles) {
     ++in_charged_particle_size_distribution[in_charged_particle->size()];
   }
+#if _ORIG_
   if (in_charged_particle_size_distribution.size() != 1) {
     std::vector<size_t> in_charged_particle_sizes;
     std::transform(in_charged_particles.begin(), in_charged_particles.end(),
@@ -159,12 +230,14 @@ void IrtCherenkovParticleID::process(
     m_log->error("radiators have differing numbers of TrackSegments {}", fmt::join(in_charged_particle_sizes, ", "));
     return;
   }
+#endif
 
   // loop over charged particles ********************************************
-  m_log->trace("{:#<70}","### CHARGED PARTICLES ");
+  //m_log->trace("{:#<70}","### CHARGED PARTICLES ");
   std::size_t num_charged_particles = in_charged_particle_size_distribution.begin()->first;
+  printf("(5) --> Here! %2ld\n", num_charged_particles);
   for(long i_charged_particle=0; i_charged_particle<num_charged_particles; i_charged_particle++) {
-    m_log->trace("{:-<70}", fmt::format("--- charged particle #{} ", i_charged_particle));
+    //m_log->trace("{:-<70}", fmt::format("--- charged particle #{} ", i_charged_particle));
 
     // start an `irt_particle`, for `IRT`
     auto irt_particle = std::make_unique<ChargedParticle>();
@@ -172,10 +245,12 @@ void IrtCherenkovParticleID::process(
     // loop over radiators
     for(auto [rad_name,irt_rad] : m_pid_radiators) {
 
+      printf("(6) --> Here! %s\n", rad_name.c_str());//num_charged_particles);
+#if _TODAY_
       // get the `charged_particle` for this radiator
       auto charged_particle_list_it = in_charged_particles.find(rad_name);
       if(charged_particle_list_it == in_charged_particles.end()) {
-        m_log->error("Cannot find radiator '{}' in `in_charged_particles`", rad_name);
+        //m_log->error("Cannot find radiator '{}' in `in_charged_particles`", rad_name);
         continue;
       }
       const auto *charged_particle_list = charged_particle_list_it->second;
@@ -183,9 +258,13 @@ void IrtCherenkovParticleID::process(
 
       // set number of bins for this radiator and charged particle
       if(charged_particle.points_size()==0) {
-        m_log->trace("No propagated track points in radiator '{}'", rad_name);
+        //m_log->trace("No propagated track points in radiator '{}'", rad_name);
         continue;
       }
+
+      
+      printf("(7) --> Here! %2ld\n", i_charged_particle);
+#if _TODAY_
       irt_rad->SetTrajectoryBinCount(charged_particle.points_size() - 1);
 
       // start a new IRT `RadiatorHistory`
@@ -307,10 +386,11 @@ void IrtCherenkovParticleID::process(
          */
       } // end `in_hit_assocs` loop
 
+#endif
+#endif
     } // end radiator loop
 
-
-
+#if _TODAY_
     // particle identification +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
     // define a mass hypothesis for each particle we want to check
@@ -437,8 +517,9 @@ void IrtCherenkovParticleID::process(
      * - all `irt_photon` raw pointers
      */
 
-  } // end `in_charged_particles` loop
 #endif
+  } // end `in_charged_particles` loop
 }
 
 } // namespace eicrecon
+#endif

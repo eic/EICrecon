@@ -24,3 +24,5 @@ add_subdirectory(LUMISPECCAL) # Lumi spectrometer calorimeter
 add_subdirectory(DRICH)
 add_subdirectory(DIRC)
 add_subdirectory(PFRICH)
+
+add_subdirectory(QRICH)

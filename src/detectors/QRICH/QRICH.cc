@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Dmitry Kalinkin
 
+#if 1//_TODAY_
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -37,15 +38,17 @@
 #include "services/geometry/richgeo/RichGeo.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
 
+#include "global/pid/IrtDebugging_factory.h"
+
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
 
-    //exit(0);
-    printf("@@@ DRICH InitPlugin()\n");
+    printf("@@@ QRICH InitPlugin()\n");
     
     using namespace eicrecon;
 
+#if _TODAY_
     // configuration parameters ///////////////////////////////////////////////
 
     // digitization
@@ -83,6 +86,7 @@ extern "C" {
       {900,  0.04},
       {1000, 0.00}
     };
+#endif
 
     // Track propagation
     TrackPropagationConfig aerogel_track_cfg;
@@ -91,8 +95,9 @@ extern "C" {
     // get RICH geo service
     auto richGeoSvc = app->GetService<RichGeo_service>();
     auto dd4hepGeo = richGeoSvc->GetDD4hepGeo();
-    if (dd4hepGeo->world().children().contains("DRICH")) {
-      auto actsGeo = richGeoSvc->GetActsGeo("DRICH");
+    if (dd4hepGeo->world().children().contains("QRICH")) {
+      printf("@@@ QRICH geometry found!\n");
+      auto actsGeo = richGeoSvc->GetActsGeo("QRICH");
       auto aerogel_tracking_planes = actsGeo->TrackingPlanes(richgeo::kAerogel, 5);
       auto aerogel_track_point_cut = actsGeo->TrackPointCut(richgeo::kAerogel);
       auto gas_tracking_planes = actsGeo->TrackingPlanes(richgeo::kGas, 10);
@@ -102,11 +107,12 @@ extern "C" {
       aerogel_track_cfg.filter_surfaces.push_back(filter_surface);
       aerogel_track_cfg.target_surfaces = aerogel_tracking_planes;
       aerogel_track_cfg.track_point_cut = aerogel_track_point_cut;
-      gas_track_cfg.filter_surfaces.push_back(filter_surface);
-      gas_track_cfg.target_surfaces = gas_tracking_planes;
-      gas_track_cfg.track_point_cut = gas_track_point_cut;
+      //gas_track_cfg.filter_surfaces.push_back(filter_surface);
+      //gas_track_cfg.target_surfaces = gas_tracking_planes;
+      //gas_track_cfg.track_point_cut = gas_track_point_cut;
     }
 
+#if _TODAY_
     // IRT PID
     IrtCherenkovParticleIDConfig irt_cfg;
     // - refractive index interpolation
@@ -144,15 +150,31 @@ extern "C" {
           digi_cfg,
           app
           ));
+#endif
 
     // charged particle tracks
     app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
-          "DRICHAerogelTracks",
+          "QRICHAerogelTracks",
           {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
-          {"DRICHAerogelTracks"},
+          {"QRICHAerogelTracks"},
           aerogel_track_cfg,
           app
           ));
+    
+    // QRICH IRT debugging algorithm;
+#if 1//_NOW_
+    app->Add(new JOmniFactoryGeneratorT<IrtDebugging_factory>(
+          "IrtDebugging",
+          {
+            "QRICHAerogelTracks", "QRICHHits"//, "QRICHRawHitsAssociations"
+          },
+          {"IrtDebugInfoTables"},
+          //irt_cfg,
+          app
+          ));
+#endif
+    
+#if _TODAY_
     app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
           "DRICHGasTracks",
           {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
@@ -168,7 +190,9 @@ extern "C" {
           {},
           app
           ));
-
+#endif
+    
+#if _TODAY_
     // PID algorithm
     app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
           "DRICHIrtCherenkovParticleID",
@@ -241,5 +265,7 @@ extern "C" {
           app
           ));
     // clang-format on
+#endif
   }
 }
+#endif

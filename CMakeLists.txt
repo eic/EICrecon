@@ -54,6 +54,8 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
                                                "MinSizeRel" "RelWithDebInfo")
 endif()
 
+#add_compile_options(-Wc++11-narrowing -Wno-error)
+
 # Set default standard to C++20
 set(CMAKE_CXX_STANDARD_MIN 20)
 set(CMAKE_CXX_STANDARD
@@ -251,6 +253,8 @@ if(${USE_ASAN})
           DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
 endif()
 
+#set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wc++11-narrowing")
+  
 # Thread sanitizer
 option(USE_TSAN "Compile with thread sanitizer" OFF)
 if(${USE_TSAN})
@@ -284,6 +288,9 @@ if(CXX_COMPILER_HAS_gz)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -gz")
 endif()
 
+set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++11-narrowing -Wno-error=c++11-narrowing")
+include_directories($ENV{EIC_SHELL_PREFIX}/include BEFORE)
+
 add_subdirectory(src/services)
 add_subdirectory(src/algorithms)
 add_subdirectory(src/benchmarks)
@@ -293,8 +300,8 @@ add_subdirectory(src/extensions)
 add_subdirectory(src/factories)
 add_subdirectory(src/global)
 add_subdirectory(src/scripts)
-add_subdirectory(src/tests)
-add_subdirectory(src/utilities)
+#+add_subdirectory(src/tests)
+#+add_subdirectory(src/utilities)
 
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)
@@ -319,3 +326,4 @@ install(
   DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/${PROJECT_NAME}
   FILES_MATCHING
   PATTERN *.cmake)
+

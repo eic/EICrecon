@@ -24,7 +24,7 @@
 #include <utility>
 
 void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
-
+#if _TODAY_
   // begin envelope
   /* FIXME: have no connection to GEANT G4LogicalVolume pointers; however all is needed
    * is to make them unique so that std::map work internally; resort to using integers,
@@ -203,6 +203,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 
   // define the `cell ID -> pixel position` converter
   SetReadoutIDToPositionLambda();
+#endif
 }
 TVector3 richgeo::IrtGeoDRICH::GetSensorSurfaceNorm(CellIDType id){
   TVector3 sensorNorm;
@@ -229,7 +230,7 @@ richgeo::IrtGeoDRICH::~IrtGeoDRICH() {
   delete m_irtPhotonDetector;
   delete m_aerogelFlatSurface;
   delete m_filterFlatSurface;
-  delete m_mirrorSphericalSurface;
+  //delete m_mirrorSphericalSurface;
   delete m_mirrorOpticalBoundary;
   delete m_sensorFlatSurface;
 }

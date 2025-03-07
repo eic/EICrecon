@@ -42,7 +42,7 @@ void richgeo::IrtGeo::Bind() {
 
 // define the `cell ID -> pixel position` converter, correcting to sensor surface
 void richgeo::IrtGeo::SetReadoutIDToPositionLambda() {
-
+#if _TODAY_
   m_irtDetector->m_ReadoutIDToPosition = [
     &m_log = this->m_log, // capture logger by reference
     // capture instance members by value, so those owned by `this` are not mutable here
@@ -68,7 +68,7 @@ void richgeo::IrtGeo::SetReadoutIDToPositionLambda() {
       m_log->warn("dist(pixel,sensor) is too large: {} mm",dist);
     return TVector3( pixel_surface_centroid.x(), pixel_surface_centroid.y(), pixel_surface_centroid.z());
   };
-
+#endif
 }
 // ------------------------------------------------
 
