@@ -31,7 +31,7 @@ private:
     PodioInput<edm4eic::TrackParameters> m_parameters_input {this};
     PodioInput<edm4eic::Measurement2D> m_measurements_input {this};
     Output<ActsExamples::Trajectories> m_acts_trajectories_output {this};
-    Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output {this};
+    ContainerOutput<ActsExamples::ConstTrackContainer> m_acts_tracks_output {this};
 
     ParameterRef<std::vector<double>> m_etaBins {this, "EtaBins", config().etaBins, "Eta Bins for ACTS CKF tracking reco"};
     ParameterRef<std::vector<double>> m_chi2CutOff {this, "Chi2CutOff", config().chi2CutOff, "Chi2 Cut Off for ACTS CKF tracking"};
