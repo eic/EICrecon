@@ -102,6 +102,11 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
         tips.clear();
         parameters.clear();
 
+        if (!track.hasReferenceSurface()) {
+           ACTS_WARNING("Track has no reference surface.");
+           continue;
+        }
+
         tips.push_back(track.tipIndex());
         parameters.emplace(
            std::pair{track.tipIndex(),
