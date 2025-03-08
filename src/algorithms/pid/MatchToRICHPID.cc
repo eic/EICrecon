@@ -105,7 +105,7 @@ namespace eicrecon {
                 return false;
             }
 
-            // get averge momentum direction of the track's TrackPoints
+            // get average momentum direction of the track's TrackPoints
             decltype(edm4eic::TrackPoint::momentum) in_track_p{0.0, 0.0, 0.0};
             for (const auto& in_track_point : in_track.getPoints())
                 in_track_p = in_track_p + ( in_track_point.momentum / in_track.points_size() );

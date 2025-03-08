@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 wfan, Whitney Armstrong, Sylvester Joosten
+// Copyright (C) 2022 - 2025 wfan, Whitney Armstrong, Sylvester Joosten, Dmitry Kalinkin
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#if Acts_VERSION_MAJOR >= 34
+#include <Acts/EventData/TransformationHelpers.hpp>
+#endif
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <algorithms/service.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/TrackParametersCollection.h>
@@ -15,13 +19,14 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
-#include <spdlog/logger.h>
-#include <stdint.h>
 #include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <gsl/pointers>
 #include <iterator>
-#include <utility>
 
 #include "TrackProjector.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 #if FMT_VERSION >= 90000
@@ -30,31 +35,30 @@ template<> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_format
 
 namespace eicrecon {
 
-    void
-    TrackProjector::init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger) {
-        m_log = logger;
-        m_geo_provider = geo_svc;
+    void TrackProjector::init() {
+        auto& serviceSvc = algorithms::ServiceSvc::instance();
+        m_geo_provider = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
     }
 
 
-    std::unique_ptr<edm4eic::TrackSegmentCollection> TrackProjector::execute(std::vector<const ActsExamples::Trajectories *> trajectories) {
+    void TrackProjector::process(const Input& input, const Output& output) const {
+        const auto [acts_trajectories, tracks] = input;
+        auto [track_segments] = output;
 
-        // create output collections
-        auto track_segments = std::make_unique<edm4eic::TrackSegmentCollection>();
-        m_log->debug("Track projector event process. Num of input trajectories: {}", std::size(trajectories));
+        debug("Track projector event process. Num of input trajectories: {}", std::size(acts_trajectories));
 
         // Loop over the trajectories
-        for (const auto &traj: trajectories) {
+        for (std::size_t i = 0; const auto &traj: acts_trajectories) {
             // Get the entry index for the single trajectory
             // The trajectory entry indices and the multiTrajectory
             const auto &mj = traj->multiTrajectory();
             const auto &trackTips = traj->tips();
-            m_log->debug("------ Trajectory ------");
-            m_log->debug("  Num of elements in trackTips {}", trackTips.size());
+            debug("------ Trajectory ------");
+            debug("  Num of elements in trackTips {}", trackTips.size());
 
             // Skip empty
             if (trackTips.empty()) {
-                m_log->debug("  Empty multiTrajectory.");
+                debug("  Empty multiTrajectory.");
                 continue;
             }
             const auto &trackTip = trackTips.front();
@@ -64,10 +68,17 @@ namespace eicrecon {
             int m_nMeasurements = trajState.nMeasurements;
             int m_nStates = trajState.nStates;
             int m_nCalibrated = 0;
-            m_log->debug("  Num measurement in trajectory {}", m_nMeasurements);
-            m_log->debug("  Num state in trajectory {}", m_nStates);
+            debug("  Num measurement in trajectory {}", m_nMeasurements);
+            debug("  Num state in trajectory {}", m_nStates);
 
             auto track_segment = track_segments->create();
+
+            // corresponding track
+            if (tracks->size() == acts_trajectories.size()) {
+              trace("track segment connected to track {}", i);
+              track_segment.setTrack((*tracks)[i]);
+              ++i;
+            }
 
             // visit the track points
             mj.visitBackwards(trackTip, [&](auto &&trackstate) {
@@ -153,7 +164,7 @@ namespace eicrecon {
                         static_cast<float>(boundCov(Acts::eBoundPhi, Acts::eBoundQOverP))
                 };
                 const float time{static_cast<float>(boundParams(Acts::eBoundTime))};
-                const float timeError{sqrt(static_cast<float>(boundCov(Acts::eBoundTime, Acts::eBoundTime)))};
+                const float timeError{static_cast<float>(sqrt(boundCov(Acts::eBoundTime, Acts::eBoundTime)))};
                 const float theta(boundParams[Acts::eBoundTheta]);
                 const float phi(boundParams[Acts::eBoundPhi]);
                 const decltype(edm4eic::TrackPoint::directionError) directionError{
@@ -185,40 +196,39 @@ namespace eicrecon {
                                           });
 
 
-                m_log->debug("  ******************************");
-                m_log->debug("    position: {}", position);
-                m_log->debug("    positionError: {}", positionError);
-                m_log->debug("    momentum: {}", momentum);
-                m_log->debug("    momentumError: {}", momentumError);
-                m_log->debug("    time: {}", time);
-                m_log->debug("    timeError: {}", timeError);
-                m_log->debug("    theta: {}", theta);
-                m_log->debug("    phi: {}", phi);
-                m_log->debug("    directionError: {}", directionError);
-                m_log->debug("    pathLength: {}", pathLength);
-                m_log->debug("    pathLengthError: {}", pathLengthError);
-                m_log->debug("    geoID = {}", geoID);
-                m_log->debug("    volume = {}, layer = {}", volume, layer);
-                m_log->debug("    pathlength = {}", pathLength);
-                m_log->debug("    hasCalibrated = {}", trackstate.hasCalibrated());
-                m_log->debug("  ******************************");
+                debug("  ******************************");
+                debug("    position: {}", position);
+                debug("    positionError: {}", positionError);
+                debug("    momentum: {}", momentum);
+                debug("    momentumError: {}", momentumError);
+                debug("    time: {}", time);
+                debug("    timeError: {}", timeError);
+                debug("    theta: {}", theta);
+                debug("    phi: {}", phi);
+                debug("    directionError: {}", directionError);
+                debug("    pathLength: {}", pathLength);
+                debug("    pathLengthError: {}", pathLengthError);
+                debug("    geoID = {}", geoID);
+                debug("    volume = {}, layer = {}", volume, layer);
+                debug("    pathlength = {}", pathLength);
+                debug("    hasCalibrated = {}", trackstate.hasCalibrated());
+                debug("  ******************************");
 
                 // Local position on the reference surface.
-                //m_log->debug("boundParams[eBoundLoc0] = {}", boundParams[Acts::eBoundLoc0]);
-                //m_log->debug("boundParams[eBoundLoc1] = {}", boundParams[Acts::eBoundLoc1]);
-                //m_log->debug("boundParams[eBoundPhi] = {}", boundParams[Acts::eBoundPhi]);
-                //m_log->debug("boundParams[eBoundTheta] = {}", boundParams[Acts::eBoundTheta]);
-                //m_log->debug("boundParams[eBoundQOverP] = {}", boundParams[Acts::eBoundQOverP]);
-                //m_log->debug("boundParams[eBoundTime] = {}", boundParams[Acts::eBoundTime]);
-                //m_log->debug("predicted variables: {}", trackstate.predicted());
+                //debug("boundParams[eBoundLoc0] = {}", boundParams[Acts::eBoundLoc0]);
+                //debug("boundParams[eBoundLoc1] = {}", boundParams[Acts::eBoundLoc1]);
+                //debug("boundParams[eBoundPhi] = {}", boundParams[Acts::eBoundPhi]);
+                //debug("boundParams[eBoundTheta] = {}", boundParams[Acts::eBoundTheta]);
+                //debug("boundParams[eBoundQOverP] = {}", boundParams[Acts::eBoundQOverP]);
+                //debug("boundParams[eBoundTime] = {}", boundParams[Acts::eBoundTime]);
+                //debug("predicted variables: {}", trackstate.predicted());
             });
 
-            m_log->debug("  Num calibrated state in trajectory {}", m_nCalibrated);
-            m_log->debug("------ end of trajectory process ------");
+            debug("  Num calibrated state in trajectory {}", m_nCalibrated);
+            debug("------ end of trajectory process ------");
         }
 
-        m_log->debug("END OF Track projector event process");
-        return std::move(track_segments);
+        debug("END OF Track projector event process");
     }
 
 

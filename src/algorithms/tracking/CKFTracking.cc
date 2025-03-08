@@ -7,6 +7,10 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#if Acts_VERSION_MAJOR >= 32
+#include <Acts/EventData/TrackStateProxy.hpp>
+#endif
+#include <Acts/EventData/Types.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
@@ -56,6 +60,7 @@
 #include <functional>
 #include <list>
 #include <optional>
+#include <ranges>
 #include <utility>
 
 #include "ActsGeometryProvider.h"
@@ -109,8 +114,8 @@ namespace eicrecon {
         std::vector<ActsExamples::Trajectories*>,
         std::vector<ActsExamples::ConstTrackContainer*>
     >
-    CKFTracking::process(const edm4eic::Measurement2DCollection& meas2Ds,
-                         const edm4eic::TrackParametersCollection &init_trk_params) {
+    CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
+                         const edm4eic::Measurement2DCollection& meas2Ds) {
 
 
         // create sourcelink and measurement containers
@@ -260,6 +265,7 @@ namespace eicrecon {
 #else
         Acts::TrackAccessor<unsigned int> seedNumber("seed");
 #endif
+        std::vector<Acts::TrackIndexType> failed_tracks;
 
         // Loop over seeds
         for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
@@ -291,6 +297,7 @@ namespace eicrecon {
                     ACTS_ERROR("Extrapolation for seed "
                         << iseed << " and track " << track.index()
                         << " failed with error " << extrapolationResult.error());
+                    failed_tracks.push_back(track.index());
                     continue;
                 }
 #endif
@@ -299,6 +306,18 @@ namespace eicrecon {
             }
         }
 
+        for (Acts::TrackIndexType track_index : std::ranges::reverse_view(failed_tracks)) {
+          // NOTE This does not remove track states corresponding to the
+          // removed tracks. Doing so would require implementing some garbage
+          // collection. We'll just assume no algorithm will access them
+          // directly.
+          acts_tracks.removeTrack(track_index);
+#if Acts_VERSION_MAJOR < 36
+          // Workaround an upstream bug in Acts::VectorTrackContainer::removeTrack_impl()
+          // https://github.com/acts-project/acts/commit/94cf81f3f1109210b963977e0904516b949b1154
+          trackContainer->m_particleHypothesis.erase(trackContainer->m_particleHypothesis.begin() + track_index);
+#endif
+        }
 
         // Move track states and track container to const containers
         // NOTE Using the non-const containers leads to references to

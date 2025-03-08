@@ -8,6 +8,7 @@
 #include <algorithms/geo.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
+#include <algorithms/interfaces/ParticleSvc.h>
 #include <catch2/generators/catch_generators_random.hpp>
 #include <catch2/interfaces/catch_interfaces_reporter.hpp>
 #include <catch2/reporters/catch_reporter_event_listener.hpp>
@@ -43,6 +44,15 @@ public:
     detector->add(id_desc_tracker);
     detector->add(readoutTracker);
 
+    dd4hep::Readout readoutLGAD(std::string("MockLGADHits"));
+    dd4hep::IDDescriptor id_desc_LGAD("MockLGADHits", "system:8,layer:4,module:12,sensor:10,x:40:-8,y:-16");
+    //Create segmentation with 1x1 mm pixels
+    dd4hep::Segmentation segmentation_LGAD("CartesianGridXY","LGADHitsSeg", id_desc_tracker.decoder());
+    readoutLGAD.setIDDescriptor(id_desc_LGAD);
+    readoutLGAD.setSegmentation(segmentation_LGAD);
+    detector->add(id_desc_LGAD);
+    detector->add(readoutLGAD);
+
     m_detector = std::move(detector);
 
     auto& serviceSvc = algorithms::ServiceSvc::instance();
@@ -63,6 +73,9 @@ public:
 
     auto& lutSvc = eicrecon::PIDLookupTableSvc::instance();
     serviceSvc.add<eicrecon::PIDLookupTableSvc>(&lutSvc);
+
+    auto& particleSvc = algorithms::ParticleSvc::instance();
+    serviceSvc.add<algorithms::ParticleSvc>(&particleSvc);
 
     serviceSvc.init();
   }

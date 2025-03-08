@@ -1,15 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 David Lawrence, Derek Anderson, Wouter Deconinck
 
-#include <DD4hep/Detector.h>
-#include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Readout.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <algorithm>
-#include <gsl/pointers>
 #include <memory>
-#include <stdexcept>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
@@ -17,37 +12,12 @@
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
+#include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
-
-    bool UseSectorIndexedBHCalReadout(JApplication *app) {
-
-        using namespace eicrecon;
-
-        // grab detector & segmentation descriptor
-        auto detector   = app->GetService<DD4hep_service>()->detector();
-        dd4hep::IDDescriptor descriptor;
-        try {
-          descriptor = detector->readout("HcalBarrelHits").idSpec();
-        } catch(const std::runtime_error &e) {
-          // detector not found in the geometry, result should not matter -
-          // default to non-deprecated behavior
-          return true;
-        }
-
-        // check if sector field is present
-        bool useSectorIndex = false;
-        try {
-          auto sector = descriptor.field("sector");
-          return true;
-        } catch(const std::runtime_error &e) {
-          return false;
-        }
-
-    }  // end 'UseSectorIndexedBHCalReadout(JApplication*)'
 
     void InitPlugin(JApplication *app) {
 
@@ -74,21 +44,14 @@ extern "C" {
           "  ( (abs(eta_1 - eta_2) == 0) && (abs(phi_1 - phi_2) == (320 - 1)) )"
           ") == 1";
 
-        // If using readout structure with sector segmentation,
-        // ensure adjacency matrix uses sector indices
-        if ( UseSectorIndexedBHCalReadout(app) ) {
-          HcalBarrel_adjacencyMatrix =
-            "("
-            "  abs(fmod(tower_1, 24) - fmod(tower_2, 24))"
-            "  + min("
-            "      abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5)),"
-            "      (32 * 2 * 5) - abs((sector_1 - sector_2) * (2 * 5) + (floor(tower_1 / 24) - floor(tower_2 / 24)) * 5 + fmod(tile_1, 5) - fmod(tile_2, 5))"
-            "    )"
-            ") == 1";
-        }
-
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-          "HcalBarrelRawHits", {"HcalBarrelHits"}, {"HcalBarrelRawHits"},
+          "HcalBarrelRawHits",
+          {"HcalBarrelHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"HcalBarrelRawHits", "HcalBarrelRawHitAssociations"},
+#else
+          {"HcalBarrelRawHits"},
+#endif
           {
             .eRes = {},
             .tRes = 0.0 * dd4hep::ns,
@@ -104,6 +67,7 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
+
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
           "HcalBarrelRecHits", {"HcalBarrelRawHits"}, {"HcalBarrelRecHits"},
           {
@@ -121,18 +85,31 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
+
+        // --------------------------------------------------------------------
+        // If needed, merge adjacent phi tiles into towers. By default,
+        // NO merging will be done. This can be changed at runtime.
+        // --------------------------------------------------------------------
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
+          "HcalBarrelMergedHits", {"HcalBarrelRecHits"}, {"HcalBarrelMergedHits"},
+          {
+            .readout = "HcalBarrelHits",
+            .fieldTransformations = {"phi:phi"}
+          },
+          app   // TODO: Remove me once fixed
+        ));
+
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "HcalBarrelTruthProtoClusters", {"HcalBarrelRecHits", "HcalBarrelHits"}, {"HcalBarrelTruthProtoClusters"},
           app   // TODO: Remove me once fixed
         ));
+
         app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
           "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
           {
             .adjacencyMatrix = HcalBarrel_adjacencyMatrix,
             .readout = "HcalBarrelHits",
             .sectorDist = 5.0 * dd4hep::cm,
-            .localDistXY = {15*dd4hep::mm, 15*dd4hep::mm},
-            .dimScaledLocalDistXY = {50.0*dd4hep::mm, 50.0*dd4hep::mm},
             .splitCluster = false,
             .minClusterHitEdep = 5.0 * dd4hep::MeV,
             .minClusterCenterEdep = 30.0 * dd4hep::MeV,
@@ -146,7 +123,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalBarrelClusters",
             {"HcalBarrelIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalBarrelRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalBarrelHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalBarrelClusters",             // edm4eic::Cluster
              "HcalBarrelClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
@@ -163,9 +144,49 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalBarrelTruthClusters",
             {"HcalBarrelTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalBarrelRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
              "HcalBarrelHits"},                     // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalBarrelTruthClusters",             // edm4eic::Cluster
              "HcalBarrelTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 6.2,
+              .enableEtaBounds = false
+            },
+            app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "HcalBarrelSplitMergeProtoClusters",
+            {"HcalBarrelIslandProtoClusters",
+             "CalorimeterTrackProjections"},
+            {"HcalBarrelSplitMergeProtoClusters"},
+            {
+              .idCalo = "HcalBarrel_ID",
+              .minSigCut = -2.0,
+              .avgEP = 0.50,
+              .sigEP = 0.25,
+              .drAdd = 0.40,
+              .sampFrac = 1.0,
+              .transverseEnergyProfileScale = 1.0
+            },
+            app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "HcalBarrelSplitMergeClusters",
+            {"HcalBarrelSplitMergeProtoClusters",        // edm4eic::ProtoClusterCollection
+             "HcalBarrelHits"},                          // edm4hep::SimCalorimeterHitCollection
+            {"HcalBarrelSplitMergeClusters",             // edm4eic::Cluster
+             "HcalBarrelSplitMergeClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,

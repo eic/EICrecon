@@ -6,8 +6,9 @@
 
 #include <JANA/CLI/JBenchmarker.h>
 #include <JANA/CLI/JSignalHandler.h>
-#include <JANA/CLI/JVersion.h>
+#include <JANA/JVersion.h>
 #include <JANA/Services/JComponentManager.h>
+#include <string.h>
 #include <algorithm>
 #include <cstdlib>
 #include <filesystem>
@@ -15,7 +16,6 @@
 #include <memory>
 #include <set>
 #include <stdexcept>
-#include <string.h>
 #include <string>
 #include <utility>
 
@@ -320,8 +320,9 @@ void PrintPodioCollections(JApplication* app) {
       for (auto* event_source : event_sources) {
         //                    std::cout << event_source->GetPluginName() << std::endl;  // podio.so
         //                    std::cout << event_source->GetResourceName() << std::endl;
-        if (event_source->GetPluginName().find("podio") != std::string::npos)
-          event_source->DoInitialize();
+        if (event_source->GetPluginName().find("podio") != std::string::npos) {
+          event_source->DoOpen();
+        }
       }
     }
   }
@@ -377,9 +378,6 @@ int Execute(JApplication* app, UserOptions& options) {
 
   std::cout << std::endl;
 
-  // std::cout << "JANA " << JVersion::GetVersion() << " [" << JVersion::GetRevision() << "]" <<
-  // std::endl;
-
   if (options.flags[ShowConfigs]) {
     // Load all plugins, collect all parameters, exit without running anything
     app->Initialize();
@@ -407,9 +405,17 @@ int Execute(JApplication* app, UserOptions& options) {
     // TODO: more elegant processing here
     PrintPodioCollections(app);
   } else {
+    if ((JVersion::GetMajorNumber() == 2) && (JVersion::GetMinorNumber() == 3) && (JVersion::GetPatchNumber() <= 1)) {
+      // JANA2 2.3.x has a bug with not filtering default-state parameters, which causes enormous printouts
+      if (not app->GetJParameterManager()->Exists("jana:parameter_verbosity")) {
+        app->GetJParameterManager()->SetParameter("jana:parameter_verbosity", 0);
+      }
+    }
+    if (not app->GetJParameterManager()->Exists("jana:parameter_strictness")) {
+      app->GetJParameterManager()->SetParameter("jana:parameter_strictness", 2);
+    }
     // Run JANA in normal mode
     try {
-      printJANAHeaderIMG();
       JSignalHandler::register_handlers(app);
       app->Run();
     } catch (JException& e) {

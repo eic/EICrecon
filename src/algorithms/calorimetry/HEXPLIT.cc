@@ -82,6 +82,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input,
   auto [subcellHits] = output;
 
   double MIP=m_cfg.MIP/dd4hep::GeV;
+  double delta=m_cfg.delta_in_MIPs*MIP;
   double Emin=m_cfg.Emin_in_MIPs*MIP;
   double tmax=m_cfg.tmax/dd4hep::ns;
 
@@ -125,7 +126,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input,
     }
     double weights[SUBCELLS];
     for(int k=0; k<NEIGHBORS; k++){
-      Eneighbors[k]=std::max(Eneighbors[k],MIP);
+      Eneighbors[k]=std::max(Eneighbors[k],delta);
     }
     double sum_weights=0;
     for(int k=0; k<SUBCELLS; k++){

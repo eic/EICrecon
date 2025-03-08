@@ -3,6 +3,7 @@
 //
 //
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <math.h>
@@ -37,7 +38,11 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
            "EcalBarrelScFiRawHits",
            {"EcalBarrelScFiHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+           {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitAssociations"},
+#else
            {"EcalBarrelScFiRawHits"},
+#endif
            {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
@@ -63,7 +68,7 @@ extern "C" {
             .resolutionTDC = EcalBarrelScFi_resolutionTDC,
             .thresholdFactor = 0.0, // use only thresholdValue
             .thresholdValue = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
-            .sampFrac = "0.10200085",
+            .sampFrac = "0.09285755",
             .readout = "EcalBarrelScFiHits",
             .layerField = "layer",
             .sectorField = "sector",
@@ -90,7 +95,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalBarrelScFiClusters",
             {"EcalBarrelScFiProtoClusters",        // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalBarrelScFiRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociation
+#else
              "EcalBarrelScFiHits"},                // edm4hep::SimCalorimeterHitCollection
+#endif
             {"EcalBarrelScFiClusters",             // edm4eic::Cluster
              "EcalBarrelScFiClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
              {
@@ -113,7 +122,11 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
            "EcalBarrelImagingRawHits",
           {"EcalBarrelImagingHits"},
+#if EDM4EIC_VERSION_MAJOR >= 7
+          {"EcalBarrelImagingRawHits", "EcalBarrelImagingRawHitAssociations"},
+#else
           {"EcalBarrelImagingRawHits"},
+#endif
           {
              .eRes = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
              .tRes = 0.0 * dd4hep::ns,
@@ -137,7 +150,7 @@ extern "C" {
             .resolutionTDC = EcalBarrelImaging_resolutionTDC,
             .thresholdFactor = 0.0, // use only thresholdValue
             .thresholdValue = 41, // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
-            .sampFrac = "0.00619766",
+            .sampFrac = "0.00429453",
             .readout = "EcalBarrelImagingHits",
             .layerField = "layer",
             .sectorField = "sector",
@@ -162,7 +175,11 @@ extern "C" {
         app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
            "EcalBarrelImagingClusters",
           {"EcalBarrelImagingProtoClusters",
+#if EDM4EIC_VERSION_MAJOR >= 7
+           "EcalBarrelImagingRawHitAssociations"},
+#else
            "EcalBarrelImagingHits"},
+#endif
           {"EcalBarrelImagingClusters",
            "EcalBarrelImagingClusterAssociations",
            "EcalBarrelImagingLayers"

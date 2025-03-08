@@ -87,6 +87,7 @@ void eicrecon::TrackSeeding::configure() {
     // Finder parameters
     m_seedFinderConfig.seedFilter = std::make_unique<Acts::SeedFilter<eicrecon::SpacePoint>>(Acts::SeedFilter<eicrecon::SpacePoint>(m_seedFilterConfig));
     m_seedFinderConfig.rMax               = m_cfg.rMax;
+    m_seedFinderConfig.rMin               = m_cfg.rMin;
     m_seedFinderConfig.deltaRMinTopSP     = m_cfg.deltaRMinTopSP;
     m_seedFinderConfig.deltaRMaxTopSP     = m_cfg.deltaRMaxTopSP;
     m_seedFinderConfig.deltaRMinBottomSP  = m_cfg.deltaRMinBottomSP;
@@ -103,6 +104,7 @@ void eicrecon::TrackSeeding::configure() {
     m_seedFinderConfig.impactMax          = m_cfg.impactMax;
     m_seedFinderConfig.rMinMiddle         = m_cfg.rMinMiddle;
     m_seedFinderConfig.rMaxMiddle         = m_cfg.rMaxMiddle;
+    m_seedFinderConfig.deltaPhiMax        = m_cfg.deltaPhiMax;
 
     m_seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
     m_seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;

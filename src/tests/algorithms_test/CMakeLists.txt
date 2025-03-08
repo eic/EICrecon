@@ -11,10 +11,11 @@ add_executable(
   calorimetry_CalorimeterHitDigi.cc
   calorimetry_CalorimeterClusterRecoCoG.cc
   calorimetry_HEXPLIT.cc
+  digi_LGADPulseGeneration.cc
+  digi_LGADPulseDigitization.cc
   pid_MergeTracks.cc
   pid_MergeParticleID.cc
-  pid_lut_PIDLookup.cc
-  reco_FarForwardNeutronReconstruction.cc)
+  pid_lut_PIDLookup.cc)
 
 # Explicit linking to podio::podio is needed due to
 # https://github.com/JeffersonLab/JANA2/issues/151
@@ -23,6 +24,7 @@ target_link_libraries(
   PRIVATE Catch2::Catch2WithMain
           algorithms_calorimetry_library
           algorithms_fardetectors_library
+          algorithms_interfaces_library # for ParticleSvc
           algorithms_pid_library
           algorithms_pid_lut_library
           algorithms_reco_library
