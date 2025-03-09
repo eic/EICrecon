@@ -10,6 +10,7 @@ add_executable(
   tracking_SiliconSimpleCluster.cc
   calorimetry_CalorimeterHitDigi.cc
   calorimetry_CalorimeterClusterRecoCoG.cc
+  calorimetry_CalorimeterClusterShape.cc
   calorimetry_HEXPLIT.cc
   digi_LGADPulseGeneration.cc
   digi_LGADPulseDigitization.cc
