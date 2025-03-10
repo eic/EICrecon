@@ -39,9 +39,9 @@ void InitPlugin(JApplication *app) {
     using namespace eicrecon;
 
     app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-            "InitTrackParams",
+            "CentralTrackTruthSeeds",
             {"MCParticles"},
-            {"InitTrackParams"},
+            {"CentralTrackTruthSeeds"},
             {},
             app
             ));
@@ -96,7 +96,7 @@ void InitPlugin(JApplication *app) {
     app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
         "CentralCKFTruthSeededTrajectories",
         {
-            "InitTrackParams",
+            "CentralTrackTruthSeeds",
             "CentralTrackerMeasurements"
         },
         {
