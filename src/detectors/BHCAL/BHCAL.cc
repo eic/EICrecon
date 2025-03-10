@@ -228,7 +228,10 @@ extern "C" {
              "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"},
             {"HcalBarrelSplitMergeClusters",
              "HcalBarrelSplitMergeClusterAssociations"},
-            {},
+            {
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
             app
           )
         );

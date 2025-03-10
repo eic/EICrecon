@@ -398,7 +398,9 @@ extern "C" {
             {"LFHCALSplitMergeClusters",
              "LFHCALSplitMergeClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 4.5
             },
             app
           )
