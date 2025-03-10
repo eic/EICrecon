@@ -146,7 +146,6 @@ namespace eicrecon {
       void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters, const VecProj& projections, const VecTrk& tracks, MapToVecProj& matched_projects, MapToVecTrk& matched_tracks) const;
       void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, std::vector<edm4eic::MutableCluster>& new_clusters) const;
       void make_cluster(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust, std::optional<MapToWeight> split_weights = std::nullopt) const;
-      void calculate_shape_parameters(edm4eic::MutableCluster& clust) const;
 #if EDM4EIC_VERSION_MAJOR >= 7
       void collect_associations(const edm4eic::MutableCluster& new_clust, const VecClust& old_clusts, const edm4eic::MCRecoClusterParticleAssociationCollection* old_clust_assocs, const edm4eic::MCRecoCalorimeterHitAssociationCollection* old_hit_assocs, edm4eic::MCRecoClusterParticleAssociationCollection* new_clust_assocs) const;
 #else

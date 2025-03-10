@@ -510,114 +510,7 @@ namespace eicrecon {
     new_clust.setPosition(rClust);
     new_clust.setPositionError({});
 
-    // calculate new shape parameters
-    calculate_shape_parameters(new_clust);
-
   }  // end 'merge_cluster(VecClust&)'
-
-
-
-  // --------------------------------------------------------------------------
-  //! Calculate cluster shape parameters
-  // --------------------------------------------------------------------------
-  /*! Calculation originally written by Chao Peng, Dhevan Gangadharan,
-   *  and Sebouh Paul.  Code is copied from the `CalorimeterClusterRecoCoG`
-   *  algorithm.
-   */
-  void TrackClusterMergeSplitter::calculate_shape_parameters(edm4eic::MutableCluster& clust) const {
-
-    // create addresses for quantities we'll need later
-    float radius = 0, dispersion = 0, w_sum = 0;
-
-    // set up matrices/vectors
-    Eigen::Matrix2f sum2_2D = Eigen::Matrix2f::Zero();
-    Eigen::Matrix3f sum2_3D = Eigen::Matrix3f::Zero();
-    Eigen::Vector2f sum1_2D = Eigen::Vector2f::Zero();
-    Eigen::Vector3f sum1_3D = Eigen::Vector3f::Zero();
-    Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
-    Eigen::Vector3cf eigenValues_3D = Eigen::Vector3cf::Zero();
-
-    // the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
-    edm4hep::Vector3f axis;
-    if (clust.getNhits() > 1) {
-      for (std::size_t iHit = 0; const auto& hit : clust.getHits()) {
-
-        // get weight of hit
-        const float w = clust.getHitContributions()[iHit] / hit.getEnergy();
-
-        // theta, phi
-        Eigen::Vector2f pos2D( edm4hep::utils::anglePolar( hit.getPosition() ), edm4hep::utils::angleAzimuthal( hit.getPosition() ) );
-        // x, y, z
-        Eigen::Vector3f pos3D( hit.getPosition().x, hit.getPosition().y, hit.getPosition().z );
-
-        const auto delta = clust.getPosition() - hit.getPosition();
-        radius     += delta * delta;
-        dispersion += delta * delta * w;
-
-        // Weighted Sum x*x, x*y, x*z, y*y, etc.
-        sum2_2D += w * pos2D * pos2D.transpose();
-        sum2_3D += w * pos3D * pos3D.transpose();
-
-        // Weighted Sum x, y, z
-        sum1_2D += w * pos2D;
-        sum1_3D += w * pos3D;
-
-        w_sum += w;
-        ++iHit;
-      }  // end hit loop
-
-      radius = sqrt((1. / (clust.getNhits() - 1.)) * radius);
-      if( w_sum > 0 ) {
-        dispersion = sqrt( dispersion / w_sum );
-
-        // normalize matrices
-        sum2_2D /= w_sum;
-        sum2_3D /= w_sum;
-        sum1_2D /= w_sum;
-        sum1_3D /= w_sum;
-
-        // 2D and 3D covariance matrices
-        Eigen::Matrix2f cov2 = sum2_2D - sum1_2D * sum1_2D.transpose();
-        Eigen::Matrix3f cov3 = sum2_3D - sum1_3D * sum1_3D.transpose();
-
-        // Solve for eigenvalues.  Corresponds to cluster's 2nd moments (widths)
-        Eigen::EigenSolver<Eigen::Matrix2f> es_2D(cov2, false); // set to true for eigenvector calculation
-        Eigen::EigenSolver<Eigen::Matrix3f> es_3D(cov3, true); // set to true for eigenvector calculation
-
-        // eigenvalues of symmetric real matrix are always real
-        eigenValues_2D = es_2D.eigenvalues();
-        eigenValues_3D = es_3D.eigenvalues();
-        //find the eigenvector corresponding to the largest eigenvalue
-        auto eigenvectors= es_3D.eigenvectors();
-        auto max_eigenvalue_it = std::max_element(
-          eigenValues_3D.begin(),
-          eigenValues_3D.end(),
-          [](auto a, auto b) {
-              return std::real(a) < std::real(b);
-          }
-        );
-        auto axis_eigen = eigenvectors.col(std::distance(
-              eigenValues_3D.begin(),
-              max_eigenvalue_it
-          ));
-        axis = {
-          axis_eigen(0,0).real(),
-          axis_eigen(1,0).real(),
-          axis_eigen(2,0).real(),
-        };
-      }  // end if weight sum is nonzero
-    }  // end if n hits > 1
-
-    // set shape parameters
-    clust.addToShapeParameters( radius );
-    clust.addToShapeParameters( dispersion );
-    clust.addToShapeParameters( eigenValues_2D[0].real() ); // 2D theta-phi cluster width 1
-    clust.addToShapeParameters( eigenValues_2D[1].real() ); // 2D theta-phi cluster width 2
-    clust.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
-    clust.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
-    clust.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
-
-  }  // end 'calculate_shape_parameters(edm4eic::MutableCluster&)'
 
 
 
@@ -630,7 +523,7 @@ namespace eicrecon {
    *  As in `CalorimeterClusterRecoCoG`, an association is made for each
    *  contributing primary with a weight equal to the ratio of the
    *  contributed energy energy over total sim hit energy.
-   */ 
+   */
   void TrackClusterMergeSplitter::collect_associations(
     const edm4eic::MutableCluster& new_clust,
     const VecClust& old_clusts,
