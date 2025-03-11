@@ -144,8 +144,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     std::move(ipEst));
   finderCfg.maxVertices                 = m_cfg.maxVertices;
   finderCfg.reassignTracksAfterFirstFit = m_cfg.reassignTracksAfterFirstFit;
-#if Acts_VERSION_MAJOR >= 31
- #if Acts_VERSION_MAJOR >= 33
+#if Acts_VERSION_MAJOR >= 33
   finderCfg.extractParameters.connect<&Acts::InputTrack::extractParameters>();
   finderCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(&linearizer);
   #if Acts_VERSION_MAJOR >= 36
@@ -154,11 +153,8 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   finderCfg.field = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
     std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
   #endif
- #endif
-  VertexFinder finder(std::move(finderCfg));
-#else
-  VertexFinder finder(finderCfg);
 #endif
+  VertexFinder finder(std::move(finderCfg));
 #if Acts_VERSION_MAJOR >= 33
   Acts::IVertexFinder::State state(
     std::in_place_type<VertexFinder::State>,
