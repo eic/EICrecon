@@ -29,7 +29,7 @@ using SiliconPulseGenerationAlgorithm =
                           algorithms::Output<edm4hep::RawTimeSeriesCollection>>;
 
 class SiliconPulseGeneration : public SiliconPulseGenerationAlgorithm,
-                            public WithPodConfig<SiliconPulseGenerationConfig> {
+                               public WithPodConfig<SiliconPulseGenerationConfig> {
 
 public:
   SiliconPulseGeneration(std::string_view name)
@@ -39,7 +39,7 @@ public:
 
 private:
 
-  std::function<double(const double)> m_pulse;
+  std::shared_ptr<SignalPulse> m_pulse;
   int m_max_time_bins = 10000;
 
 };

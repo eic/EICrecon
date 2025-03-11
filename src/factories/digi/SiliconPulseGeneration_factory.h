@@ -22,9 +22,7 @@ private:
 
   PodioOutput<edm4hep::RawTimeSeries> m_out_reco_particles{this};
 
-  ParameterRef<double> m_Vm{this, "Vm", config().Vm};
-  ParameterRef<double> m_tMax{this, "tMax", config().tMax};
-  ParameterRef<int> m_adc_range{this, "adcRange", config().adc_range};
+  ParameterRef<double> m_timestep{this, "timestep", config().timestep};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};

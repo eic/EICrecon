@@ -13,7 +13,6 @@
 #include <vector>
 
 #include "SiliconPulseGeneration.h"
-#include "algorithms/digi/SiliconPulseGenerationConfig.h"
 
 namespace eicrecon {
 
@@ -29,30 +28,29 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
   for (const auto& hit : *simhits) {
 
     auto   cellID = hit.getCellID();
-    double time   = hit.getTime();
+    double time   = hit.getTime() * dd4hep::ns;
     double charge = hit.getEDep();
 
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
-    int signal_time = m_cfg.timestep*static_cast<int>(time / m_cfg.timestep);
+    double signal_time = m_cfg.timestep*static_cast<int>(time / m_cfg.timestep);
     
     auto time_series = rawADCs->create();
     time_series.setCellID(cellID);
     time_series.setTime(signal_time);
     time_series.setCharge(charge);
+    time_series.setInterval(m_cfg.timestep);
     
-    double mpv_analog = time + m_cfg.risetime;
+    m_pulse->setHitCharge(charge);
+    m_pulse->setHitTime(time);
 
-    m_pulse -> setCharge(charge);
-    m_pulse -> setTime(time);
-
-    for(int i = signal_time; i < m_max_bins; i ++) {
-      t = signal_time + i*m_cfg.timestep;
-      auto signal = m_pulse(t);
+    for(int i = signal_time; i < m_max_time_bins; i ++) {
+      double t = signal_time + i*m_cfg.timestep;
+      auto signal = (*m_pulse)(t);
+      // std::cout << "Signal: " << signal << std::endl;
       if (signal < m_cfg.ignore_thres) break;
       time_series.addToAdcCounts(signal);
     }
   }
 
-  }
 } // SiliconPulseGeneration:process
 } // namespace eicrecon

@@ -18,7 +18,7 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
-#incluse "algorithms/meta/PulseShapeFunctors.h"
+#include "algorithms/digi/PulseShapeFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/digi/LGADChargeSharing_factory.h"
@@ -43,41 +43,23 @@ extern "C" {
 
     using namespace eicrecon;
 
-    std::string tracker_readout = "TaggerTrackerHits";
-
-    app->Add(new JOmniFactoryGeneratorT<LGADChargeSharing_factory>(
-      "TaggerTrackerChargeSharing",
-      {"TaggerTrackerHits"},
-      {"TaggerTrackerSharedHits"},
-      {
-          .sigma_sharingx = 10 * dd4hep::um,
-          .sigma_sharingy = 10 * dd4hep::um,
-          .readout = tracker_readout,
-          .same_sensor_condition = "layer_1 == layer_2",
-          .neighbor_fields = {"x", "y"}
-      },
-      app
-    ));
-
     app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
       "TaggerTrackerPulseGeneration",
-      {"TaggerTrackerSharedHits"},
+      {"TaggerTrackerHits"},
       {"TaggerTrackerHitPulses"},
       {
-          .pulse_shape_function = LandauPulse{113.755, 1.0 * dd4hep::Vm, 5.0 * dd4hep::ns, 1000},
-          .ignore_thres = 0.001 * dd4hep::Vm,
+          .pulse_shape_function = std::make_shared<LandauPulse>(113.755, 1.0 * dd4hep::ns, 0.1 * dd4hep::ns),
+          .ignore_thres = 50.0,
           .timestep = 0.2 * dd4hep::ns,
       },
       app
     ));
 
-
-
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
          {
-           "TaggerTrackerSharedHits"
+           "TaggerTrackerHits"
          },
          {
            "TaggerTrackerRawHits",
