@@ -19,6 +19,7 @@
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 
 
 extern "C" {
@@ -93,23 +94,37 @@ extern "C" {
         ));
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "EcalBarrelScFiClusters",
-            {"EcalBarrelScFiProtoClusters",        // edm4eic::ProtoClusterCollection
+             "EcalBarrelScFiClustersWithoutShapes",
+            {"EcalBarrelScFiProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-             "EcalBarrelScFiRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociation
+             "EcalBarrelScFiRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociation
 #else
-             "EcalBarrelScFiHits"},                // edm4hep::SimCalorimeterHitCollection
+             "EcalBarrelScFiHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
-            {"EcalBarrelScFiClusters",             // edm4eic::Cluster
-             "EcalBarrelScFiClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
+             "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
              {
                .energyWeight = "log",
                .sampFrac = 1.0,
                .logWeightBase = 6.2,
-               .longitudinalShowerInfoAvailable = true,
                .enableEtaBounds = false
              },
             app   // TODO: Remove me once fixed
+          )
+        );
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+            "EcalBarrelScFiClusters",
+            {"EcalBarrelScFiClustersWithoutShapes",
+             "EcalBarrelScFiClusterAssociationsWithoutShapes"},
+            {"EcalBarrelScFiClusters",
+             "EcalBarrelScFiClusterAssociations"},
+            {
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
+            app
           )
         );
 
