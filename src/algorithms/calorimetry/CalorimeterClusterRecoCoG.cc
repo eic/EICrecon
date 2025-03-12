@@ -20,9 +20,6 @@
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <Eigen/Core>
-#include <Eigen/Eigenvalues>
-#include <Eigen/Householder> // IWYU pragma: keep
 #include <cctype>
 #include <complex>
 #include <cstddef>
@@ -178,115 +175,6 @@ std::optional<edm4eic::MutableCluster> CalorimeterClusterRecoCoG::reconstruct(co
       debug("Bound cluster position to contributing hits due to {}", (overflow ? "overflow" : "underflow"));
     }
   }
-
-  // Additional convenience variables
-
-  //_______________________________________
-  // Calculate cluster profile:
-  //    radius,
-  //    dispersion (energy weighted radius),
-  //    theta-phi cluster widths (2D)
-  //    x-y-z cluster widths (3D)
-  float radius = 0, dispersion = 0, w_sum = 0;
-
-  Eigen::Matrix2f sum2_2D = Eigen::Matrix2f::Zero();
-  Eigen::Matrix3f sum2_3D = Eigen::Matrix3f::Zero();
-  Eigen::Vector2f sum1_2D = Eigen::Vector2f::Zero();
-  Eigen::Vector3f sum1_3D = Eigen::Vector3f::Zero();
-  Eigen::Vector2cf eigenValues_2D = Eigen::Vector2cf::Zero();
-  Eigen::Vector3cf eigenValues_3D = Eigen::Vector3cf::Zero();
-  // the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
-  edm4hep::Vector3f axis;
-
-  if (cl.getNhits() > 1) {
-    for (const auto& hit : pcl.getHits()) {
-      float w = weightFunc(hit.getEnergy(), totalE, logWeightBase, 0);
-
-      // theta, phi
-      Eigen::Vector2f pos2D( edm4hep::utils::anglePolar( hit.getPosition() ), edm4hep::utils::angleAzimuthal( hit.getPosition() ) );
-      // x, y, z
-      Eigen::Vector3f pos3D( hit.getPosition().x, hit.getPosition().y, hit.getPosition().z );
-
-      const auto delta = cl.getPosition() - hit.getPosition();
-      radius          += delta * delta;
-      dispersion      += delta * delta * w;
-
-      // Weighted Sum x*x, x*y, x*z, y*y, etc.
-      sum2_2D += w * pos2D * pos2D.transpose();
-      sum2_3D += w * pos3D * pos3D.transpose();
-
-      // Weighted Sum x, y, z
-      sum1_2D += w * pos2D;
-      sum1_3D += w * pos3D;
-
-      w_sum += w;
-    }
-
-    radius     = sqrt((1. / (cl.getNhits() - 1.)) * radius);
-    if( w_sum > 0 ) {
-      dispersion = sqrt( dispersion / w_sum );
-
-      // normalize matrices
-      sum2_2D /= w_sum;
-      sum2_3D /= w_sum;
-      sum1_2D /= w_sum;
-      sum1_3D /= w_sum;
-
-      // 2D and 3D covariance matrices
-      Eigen::Matrix2f cov2 = sum2_2D - sum1_2D * sum1_2D.transpose();
-      Eigen::Matrix3f cov3 = sum2_3D - sum1_3D * sum1_3D.transpose();
-
-      // Solve for eigenvalues.  Corresponds to cluster's 2nd moments (widths)
-      Eigen::EigenSolver<Eigen::Matrix2f> es_2D(cov2, false); // set to true for eigenvector calculation
-      Eigen::EigenSolver<Eigen::Matrix3f> es_3D(cov3, true); // set to true for eigenvector calculation
-
-      // eigenvalues of symmetric real matrix are always real
-      eigenValues_2D = es_2D.eigenvalues();
-      eigenValues_3D = es_3D.eigenvalues();
-      //find the eigenvector corresponding to the largest eigenvalue
-      auto eigenvectors= es_3D.eigenvectors();
-      auto max_eigenvalue_it = std::max_element(
-        eigenValues_3D.begin(),
-        eigenValues_3D.end(),
-        [](auto a, auto b) {
-            return std::real(a) < std::real(b);
-        }
-      );
-      auto axis_eigen = eigenvectors.col(std::distance(
-            eigenValues_3D.begin(),
-            max_eigenvalue_it
-        ));
-      axis = {
-        axis_eigen(0,0).real(),
-        axis_eigen(1,0).real(),
-        axis_eigen(2,0).real(),
-      };
-    }
-  }
-
-  cl.addToShapeParameters( radius );
-  cl.addToShapeParameters( dispersion );
-  cl.addToShapeParameters( eigenValues_2D[0].real() ); // 2D theta-phi cluster width 1
-  cl.addToShapeParameters( eigenValues_2D[1].real() ); // 2D theta-phi cluster width 2
-  cl.addToShapeParameters( eigenValues_3D[0].real() ); // 3D x-y-z cluster width 1
-  cl.addToShapeParameters( eigenValues_3D[1].real() ); // 3D x-y-z cluster width 2
-  cl.addToShapeParameters( eigenValues_3D[2].real() ); // 3D x-y-z cluster width 3
-
-
-  double dot_product = cl.getPosition() * axis;
-  if (dot_product < 0) {
-    axis = -1 * axis;
-  }
-
-  if (m_cfg.longitudinalShowerInfoAvailable) {
-    cl.setIntrinsicTheta(edm4hep::utils::anglePolar(axis));
-    cl.setIntrinsicPhi(edm4hep::utils::angleAzimuthal(axis));
-    // TODO intrinsicDirectionError
-  } else {
-    cl.setIntrinsicTheta(NAN);
-    cl.setIntrinsicPhi(NAN);
-  }
-
   return std::move(cl);
 }
 
