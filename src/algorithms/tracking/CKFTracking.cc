@@ -7,18 +7,14 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#if Acts_VERSION_MAJOR >= 32
 #include <Acts/EventData/TrackStateProxy.hpp>
-#endif
 #include <Acts/EventData/Types.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
-#if Acts_VERSION_MAJOR >= 32
 #include "Acts/EventData/ProxyAccessor.hpp"
-#endif
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
@@ -260,11 +256,7 @@ namespace eicrecon {
 
         // Add seed number column
         acts_tracks.addColumn<unsigned int>("seed");
-#if Acts_VERSION_MAJOR >= 32
         Acts::ProxyAccessor<unsigned int> seedNumber("seed");
-#else
-        Acts::TrackAccessor<unsigned int> seedNumber("seed");
-#endif
         std::vector<Acts::TrackIndexType> failed_tracks;
 
         // Loop over seeds
@@ -281,7 +273,7 @@ namespace eicrecon {
             auto& tracksForSeed = result.value();
             for (auto& track : tracksForSeed) {
 
-#if Acts_VERSION_MAJOR >=34
+#if Acts_VERSION_MAJOR >= 34
                 auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
                 if (!smoothingResult.ok()) {
                     ACTS_ERROR("Smoothing for seed "
@@ -340,11 +332,7 @@ namespace eicrecon {
         auto& constTracks = *(constTracks_v.front());
 
         // Seed number column accessor
-#if Acts_VERSION_MAJOR >= 32
         const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
-#else
-        const Acts::ConstTrackAccessor<unsigned int> constSeedNumber("seed");
-#endif
 
         // Prepare the output data with MultiTrajectory, per seed
         std::vector<ActsExamples::Trajectories*> acts_trajectories;
