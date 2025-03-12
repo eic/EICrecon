@@ -17,6 +17,7 @@
 #include <fmt/core.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
+#include <podio/podioVersion.h>
 #include <algorithm>
 #include <exception>
 #include <iostream>
