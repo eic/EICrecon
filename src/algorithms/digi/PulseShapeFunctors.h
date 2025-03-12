@@ -20,6 +20,8 @@ public:
         m_hit_time = hit_time;
     }
 
+    virtual float getMaximumTime() const = 0;
+
 protected:
     double m_charge;
     double m_hit_time;
@@ -32,16 +34,19 @@ protected:
 class LandauPulse: public SignalPulse {
 public:
 
-LandauPulse(double gain, double sigma_analog, double risetime) : m_gain(gain), m_sigma_analog(sigma_analog), m_risetime(risetime) {};
+LandauPulse(double gain, double sigma_analog) : m_gain(gain), m_sigma_analog(sigma_analog) {};
 
 double operator()(double time) const {
-    return m_charge * m_gain * TMath::Landau(time, m_hit_time-m_risetime, m_sigma_analog, kTRUE);
+    return m_charge * m_gain * TMath::Landau(time, m_hit_time+3*m_sigma_analog, m_sigma_analog, kTRUE);
+}
+
+float getMaximumTime() const {
+    return m_hit_time+3*m_sigma_analog;
 }
 
 private:
     const double m_gain;
     const double m_sigma_analog;
-    const double m_risetime;
 };
 
 } // eicrecon
