@@ -18,9 +18,9 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4hep::SimTrackerHit> m_in_sim_track{this};
+  PodioInput<edm4hep::SimTrackerHit> m_in_sim_hits{this};
 
-  PodioOutput<edm4hep::TimeSeries> m_out_reco_particles{this};
+  PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
 
   ParameterRef<double> m_timestep{this, "timestep", config().timestep};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};
@@ -38,7 +38,7 @@ public:
   void ChangeRun(int64_t run_number) {}
 
   void Process(int64_t run_number, uint64_t event_number) {
-    m_algo->process({m_in_sim_track()}, {m_out_reco_particles().get()});
+    m_algo->process({m_in_sim_hits()}, {m_out_pulses().get()});
   }
 };
 
