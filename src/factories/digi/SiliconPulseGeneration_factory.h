@@ -20,7 +20,7 @@ private:
 
   PodioInput<edm4hep::SimTrackerHit> m_in_sim_track{this};
 
-  PodioOutput<edm4hep::RawTimeSeries> m_out_reco_particles{this};
+  PodioOutput<edm4hep::TimeSeries> m_out_reco_particles{this};
 
   ParameterRef<double> m_timestep{this, "timestep", config().timestep};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};

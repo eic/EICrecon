@@ -11,7 +11,7 @@
 #include <RtypesCore.h>
 #include <TMath.h>
 #include <algorithms/algorithm.h>
-#include <edm4hep/RawTimeSeriesCollection.h>
+#include <edm4hep/TimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <memory>
 #include <string>
@@ -26,7 +26,7 @@ namespace eicrecon {
 
 using SiliconPulseGenerationAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-                          algorithms::Output<edm4hep::RawTimeSeriesCollection>>;
+                          algorithms::Output<edm4hep::TimeSeriesCollection>>;
 
 class SiliconPulseGeneration : public SiliconPulseGenerationAlgorithm,
                                public WithPodConfig<SiliconPulseGenerationConfig> {

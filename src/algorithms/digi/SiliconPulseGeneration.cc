@@ -37,7 +37,6 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     auto time_series = rawADCs->create();
     time_series.setCellID(cellID);
     time_series.setTime(signal_time);
-    time_series.setCharge(charge);
     time_series.setInterval(m_cfg.timestep);
     
     m_pulse->setHitCharge(charge);
@@ -48,7 +47,7 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
       auto signal = (*m_pulse)(t);
       // std::cout << "Signal: " << signal << std::endl;
       if (signal < m_cfg.ignore_thres) break;
-      time_series.addToAdcCounts(signal);
+      time_series.addToAmplitude(signal);
     }
   }
 
