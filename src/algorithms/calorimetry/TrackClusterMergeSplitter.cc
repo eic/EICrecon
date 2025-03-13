@@ -2,14 +2,13 @@
 // Copyright (C) 2024 Derek Anderson
 
 #include <edm4hep/MCParticle.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <Eigen/Core>
-#include <Eigen/Eigenvalues>
-#include <Eigen/Householder>
 #include <stdint.h>
 #include <cmath>
 #include <cstddef>
