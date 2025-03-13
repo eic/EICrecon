@@ -22,6 +22,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
@@ -50,6 +51,16 @@ extern "C" {
           .pulse_shape_function = std::make_shared<LandauPulse>(1, 2 * dd4hep::ns),
           .ignore_thres = 150.0,
           .timestep = 0.2 * dd4hep::ns,
+      },
+      app
+    ));
+
+    app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+      "TaggerTrackerPulseCombiner",
+      {"TaggerTrackerHitPulses"},
+      {"TaggerTrackerCombinedPulses"},
+      {
+          .minimum_separation = 25 * dd4hep::ns,
       },
       app
     ));
