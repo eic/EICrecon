@@ -23,3 +23,6 @@ plugin_add_event_model(${PLUGIN_NAME})
 
 # Add libraries (same as target_include_directories but for both plugin and
 # library) plugin_link_libraries(${PLUGIN_NAME} ... )
+
+# Link DD4hep library
+plugin_link_libraries(${PLUGIN_NAME} DD4hep::DDDigi)

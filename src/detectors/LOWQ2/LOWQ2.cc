@@ -23,6 +23,7 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/digi/LGADChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
+#include "factories/digi/PulseNoise_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
@@ -43,6 +44,7 @@ extern "C" {
 
     using namespace eicrecon;
 
+    //  Generate signal pulse from hits
     app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
       "TaggerTrackerPulseGeneration",
       {"TaggerTrackerHits"},
@@ -51,6 +53,19 @@ extern "C" {
           .pulse_shape_function = std::make_shared<LandauPulse>(1, 2 * dd4hep::ns),
           .ignore_thres = 150.0,
           .timestep = 0.2 * dd4hep::ns,
+      },
+      app
+    ));
+
+    // Add noise to pulses
+    app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "TaggerTrackerPulseNoise",
+      {"TaggerTrackerHitPulses"},
+      {"TaggerTrackerHitPulsesWithNoise"},
+      {
+          .poles = 5,
+          .varience = 1,
+          .alpha = 0.5,
       },
       app
     ));
