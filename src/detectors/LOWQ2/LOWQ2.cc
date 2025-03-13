@@ -48,8 +48,8 @@ extern "C" {
       {"TaggerTrackerHits"},
       {"TaggerTrackerHitPulses"},
       {
-          .pulse_shape_function = std::make_shared<LandauPulse>(113.755, 1 * dd4hep::ns),
-          .ignore_thres = 10000.0,
+          .pulse_shape_function = std::make_shared<LandauPulse>(1, 2 * dd4hep::ns),
+          .ignore_thres = 150.0,
           .timestep = 0.2 * dd4hep::ns,
       },
       app
