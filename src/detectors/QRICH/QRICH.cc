@@ -166,7 +166,13 @@ extern "C" {
     app->Add(new JOmniFactoryGeneratorT<IrtDebugging_factory>(
           "IrtDebugging",
           {
-            "QRICHAerogelTracks", "QRICHHits"//, "QRICHRawHitsAssociations"
+            "MCParticles",
+	    //"CentralCKFTracks",
+	    //"CentralTrackAssociations",
+	    //"CentralCKFTrackAssociations",
+	    "ReconstructedChargedWithoutPIDParticles",
+	    "ReconstructedChargedWithoutPIDParticleAssociations",
+	    "QRICHAerogelTracks", "QRICHHits"//, "QRICHRawHitsAssociations"
           },
           {"IrtDebugInfoTables"},
           //irt_cfg,

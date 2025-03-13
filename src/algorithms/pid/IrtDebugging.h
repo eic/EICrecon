@@ -12,10 +12,16 @@
 #include <algorithms/algorithm.h>
 //#include <qq.h>
 //#include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include "edm4eic/IrtDebugInfoCollection.h"
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+//#include <edm4eic/MCRecoParticleAssociation.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
 
 #if _TODAY_
 #include <spdlog/logger.h>
@@ -34,6 +40,12 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #endif
 
+class TTree;
+class TFile;
+class TBranch;
+class CherenkovEvent;
+//#include <mutex>
+
 namespace eicrecon {
 #if 1//_TODAY_
   // - `in_raw_hits` is a collection of digitized (raw) sensor hits, possibly including noise hits
@@ -45,6 +57,12 @@ namespace eicrecon {
   //using IrtCherenkovParticleIDAlgorithm = algorithms::Algorithm<
   using IrtDebuggingAlgorithm = algorithms::Algorithm<
     algorithms::Input<
+      const edm4hep::MCParticleCollection,
+  //const edm4eic::TrackCollection,
+      //const edm4eic::MCRecoParticleAssociationCollection,
+  //const edm4eic::MCRecoTrackParticleAssociationCollection,
+    edm4eic::ReconstructedParticleCollection,//> m_recoparticles_output{this};
+    edm4eic::MCRecoParticleAssociationCollection,//> m_recoassocs_output{this};
       const edm4eic::TrackSegmentCollection,
       const edm4hep::SimTrackerHitCollection//,
       //const edm4eic::TrackSegmentCollection,
@@ -67,24 +85,39 @@ namespace eicrecon {
   public:
     IrtDebugging(std::string_view name)// {}
 #if 1//_TODAY_
-      : IrtDebuggingAlgorithm{name,
+      : /*m_ThreadCounter(0),*/ m_Event(0), m_EventPtr(0), m_Instance(0), IrtDebuggingAlgorithm{name,
                             {
-			      "inputAerogelTrackSegments", "inputSimHits"//, //"inputGasTrackSegments", "inputMergedTrackSegments",
-                              //"inputRawHits", "inputRawHitAssociations"
-                            },
-                            {"outputAerogelParticleIDs"/*, "outputGasParticleIDs"*/},
-                            "Effectively 'zip' the input particle IDs"} {}
+  "inputMCParticles",
+    "inputRecoParticles",
+    "inputMCRecoAssotiations",
+    "inputAerogelTrackSegments", "inputSimHits"//, //"inputGasTrackSegments", "inputMergedTrackSegments",
+    //"inputRawHits", "inputRawHitAssociations"
+    },
+      {"outputAerogelParticleIDs"/*, "outputGasParticleIDs"*/},
+    "Effectively 'zip' the input particle IDs"} {}
 #endif
     
     void init(CherenkovDetectorCollection* irt_det_coll/*, std::shared_ptr<spdlog::logger>& logger*/);
 
     void process(const Input&, const Output&) const;
+    ~IrtDebugging();// {};
 
+    //std::mutex m_OutputTreeMutex;
+  
   private:
     //std::shared_ptr<spdlog::logger> m_log;
     CherenkovDetectorCollection*    m_irt_det_coll;
     CherenkovDetector*              m_irt_det;
 
+    //private:
+    static TFile *m_OutputFile;
+    // m_EventPtr: need this because process() is const;
+    /*static thread_local*/ CherenkovEvent *m_Event, **m_EventPtr;
+    static TTree *m_EventTree;
+    static unsigned m_InstanceCounter;
+    static TBranch *m_EventBranch;
+    unsigned m_Instance;
+    
 #if _TODAY_
     const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
 

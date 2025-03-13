@@ -42,17 +42,75 @@
 #endif
 #include "algorithms/pid/Tools.h"
 
-namespace eicrecon {
+#include <TFile.h>
+#include <TTree.h>
+#include <TBranch.h>
+#include "IRT/CherenkovEvent.h"
+#include <mutex>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4hep/utils/kinematics.h>
+#include <edm4eic/TrackCollection.h>
 
+//DreamReadout* DreamReadout::m_Instance = 0;
+//thread_local CherenkovEvent *eicrecon::IrtDebugging::m_Event = 0;
+
+// IrtDebugging::process() is const -> move mutex out for the time being;
+static std::mutex m_OutputTreeMutex;
+
+//static TFile *m_OutputFile;// = 0;
+TFile *eicrecon::IrtDebugging::m_OutputFile = 0;
+//    /*static thread_local*/ CherenkovEvent *m_Event;
+TTree *eicrecon::IrtDebugging::m_EventTree = 0;
+TBranch *eicrecon::IrtDebugging::m_EventBranch = 0;
+unsigned eicrecon::IrtDebugging::m_InstanceCounter = 0;
+
+static std::map<CherenkovRadiator*, std::string> radiators;
+
+namespace eicrecon {
+  IrtDebugging::~IrtDebugging()
+  {
+    {
+      std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
+      
+      printf("@@@ IrtDebugging::~IrtDebugging() ... %2d\n", m_InstanceCounter);
+      m_InstanceCounter--;
+#if 1
+      if (!m_InstanceCounter) {
+	m_OutputFile->cd();
+	m_EventTree->Write();
+	m_OutputFile->Close();
+      } //if
+#endif
+    }
+  }
+  
 void IrtDebugging::init(
 			CherenkovDetectorCollection*     irt_det_coll//,
 			//std::shared_ptr<spdlog::logger>& logger
 			)
 {
-  printf("@@@ IrtDebugging::init() ...\n");
 
   {
-    auto fcfg = new TFile("qrich.root");//cfname ? cfname : dfname);
+    std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
+    
+    printf("@@@ IrtDebugging::init() ... %2d\n", m_InstanceCounter);
+#if 1
+    m_Event = new CherenkovEvent();
+    m_EventPtr = &m_Event;
+      
+    if (!m_InstanceCounter) {//m_Event) {
+      m_OutputFile = new TFile("qrich-events.root", "RECREATE");
+      
+      m_EventTree = new TTree("t", "My tree");
+      m_EventBranch = m_EventTree->Branch("e", "CherenkovEvent", 0/*&m_Event*/, 16000, 2);
+    } //if
+#endif
+    m_Instance = m_InstanceCounter++;
+    //m_InstanceCounter++;
+  }
+  
+  {
+    auto fcfg = new TFile("qrich-optics.root");//cfname ? cfname : dfname);
     printf("@@@ %p\n", fcfg);
     //if (!fcfg) return;
     //auto geometry = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
@@ -86,7 +144,7 @@ void IrtDebugging::init(
   auto this_detector = *detectors.begin();
   m_det_name         = this_detector.first;
   m_irt_det          = this_detector.second;
-  printf("@@@ %ld\n", m_irt_det->Radiators().size());
+  printf("@@@ %ld radiators defined\n", m_irt_det->Radiators().size());
 #if _TODAY_
   m_log->debug("Initializing IrtCherenkovParticleID algorithm for CherenkovDetector '{}'", m_det_name);
 
@@ -113,6 +171,7 @@ void IrtDebugging::init(
       //m_log->debug("- {}", rad_name.Data());
       
       printf("@@@ %s\n", rad_name.Data());
+      radiators[irt_rad] = rad_name.Data();
     }
   }
 
@@ -158,11 +217,150 @@ void IrtDebugging::process(
 			   ) const
 {
   printf("@@@ IrtDebugging::process() ...\n");
-  
-  const auto [in_aerogel_tracks, in_sim_hits/*, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_assocs*/] = input;
-  //auto [out_aerogel_particleIDs/*, out_gas_particleIDs*/] = output;
-  auto [out_irt_debug_info/*, out_gas_particleIDs*/] = output;
 
+  // Reset output event structure;
+  m_Event->Reset();
+
+  // Intermediate variables, for less typing;
+  const auto [in_mc_particles,
+	      in_reco_particles,
+	      in_mc_reco_associations,
+	      in_aerogel_tracks, in_sim_hits] = input;
+  auto [out_irt_debug_info] = output;
+
+  // First build MC->reco lookup table;
+  std::map<unsigned, std::vector<unsigned>> assoc_lookup_table;
+  for(const auto &assoc: *in_mc_reco_associations) {
+    // MC particle index in its respective in_mc_particles array;
+    unsigned mcid = assoc.getSimID();//.id().index;
+    // Reco particle index in its respective in_reco_particles array;
+    //auto& rcparticle = assoc.getRec();
+    unsigned rcid = assoc.getRecID();//.id().index;
+    
+    auto rcparticle = (*in_reco_particles)[rcid];//assoc.getRecID()];
+    //auto tnum = rcparticle.getTracks().size();
+    //printf("tnum: %ld\n", tnum);
+    for(auto &track: rcparticle.getTracks())
+      assoc_lookup_table[mcid].push_back(track.id().index);
+  } //for assoc
+    
+  // Create event structure a la standalone pfRICH/IRT code; use MC particles (in_mc_particles)
+  // in this first iteration (and only select primary ones); later on should do it probably
+  // the same way as in ATHENA IRT codes, where one had an option to build this event
+  // structure using reconstructed tracks (in_reco_particles);
+  {
+    for(const auto &mcparticle: *in_mc_particles) {
+      // Deal only with charged primary ones, for the time being; FIXME: low momentum cutoff?;
+      if (mcparticle.isCreatedInSimulation() || !mcparticle.getCharge()) continue;
+      //printf("charge: %f\n", mcparticle.getCharge());
+
+      unsigned mcid = mcparticle.id().index;
+      
+      // Now check that MC->reco association exists; for now ignore cases where more than one track
+      // is associated with a given MC particle;
+      if (assoc_lookup_table.find(mcid) == assoc_lookup_table.end()) continue;
+      auto &rctracks = assoc_lookup_table[mcid];
+      if (rctracks.size() > 1) continue;
+      auto &rctrack = rctracks[0];
+
+      // Now add a charged particle to the event structure; 'true': primary;
+      auto particle = new ChargedParticle(mcparticle.getPDG(), true);
+      // FIXME: check units;
+      particle->SetVertexPosition((1/dd4hep::mm)  * Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
+      particle->SetVertexMomentum((1/dd4hep::GeV) * Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
+      particle->SetVertexTime    ((1/dd4hep::ns)  * mcparticle.getTime());
+      
+      m_Event->AddChargedParticle(particle);
+    } //for mcparticle
+
+    // Now loop through simulated hits;
+    for(auto mchit: *in_sim_hits) {
+      // Get photon which created this hit; filter out charged particles;
+      auto &mcparticle = mchit.getMCParticle();
+      //printf("%4d -> %d\n", mcparticle.id().index, mcparticle.getPDG());
+      if (mcparticle.getPDG() != -22) continue;
+      
+      auto photon = new OpticalPhoton();
+
+      // Information provided by the hit itself: detection position and time;
+      photon->SetDetectionPosition((1/dd4hep::mm)  * Tools::PodioVector3_to_TVector3(mchit.getPosition()));
+      photon->SetDetectionTime    ((1/dd4hep::ns)  * mchit.getTime());
+
+      // Information inherited from photon MCParticle; FIXME: units?;
+      photon->SetVertexPosition   ((1/dd4hep::mm)  * Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
+      photon->SetVertexMomentum   ((1/dd4hep::GeV) * Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
+      photon->SetVertexTime       ((1/dd4hep::ns)  * mcparticle.getTime());
+      
+      // photon->SetVertexParentMomentum((1/GeV)*TVector3(pparent.x(), pparent.y(), pparent.z()));
+
+      TVector3 vtx = /*(1/dd4hep::mm)**/Tools::PodioVector3_to_TVector3(mcparticle.getVertex()), n0(0,0,1);
+      //printf("%p -> %d\n", m_irt_det, m_irt_det->GetSector(vtx));
+      auto mc_rad = m_irt_det->GuessRadiator(vtx, n0); // assume IP is at (0,0,0)
+      printf("%s\n", mc_rad ? radiators[mc_rad].c_str() : "");
+      //printf("%s\n", rptr.first.Data());
+
+      
+#if _TODAY_
+#if _TODAY_
+      {
+	auto radiator = m_Geometry->FindRadiator(track->GetLogicalVolumeAtVertex());
+	//assert(radiator);
+	
+	if (radiator) {
+	  photon->SetVertexAttenuationLength(GetAttenuationLength(radiator, e));
+	  photon->SetVertexRefractiveIndex (GetRefractiveIndex(radiator, e));
+	  
+	  auto history = parent->FindRadiatorHistory(radiator);
+	  // FIXME: this happens with the sensor window volumes; why?;
+	  if (!history) {
+	    history = new RadiatorHistory();
+	    parent->StartRadiatorHistory(std::make_pair(radiator, history));
+	  } //if
+	  history->AddOpticalPhoton(photon);
+	} else {
+	  if (m_Geometry->CheckBits(_STORE_ORPHAN_PHOTONS_))
+	    parent->AddOrphanPhoton(photon);
+	} //if
+      }
+#endif	  
+
+#if _TODAY_
+      auto pd = m_Geometry->FindPhotonDetector(lto);
+      
+      if (pd) {
+	photon->SetPhotonDetector(pd);
+      }
+#endif
+#if _TODAY_
+      photon->SetVolumeCopy(xto->GetTouchable()->GetCopyNumber(pd->GetCopyIdentifierLevel()));
+#endif
+#if _TODAY_	      
+      // The logic behind this multiplication and division by the same number is 
+      // to select calibration photons, which originate from the same QE(lambda) 
+      // parent distribution, but do not pass the overall efficiency test;
+      if (GetQE(pd, track->GetTotalEnergy())*pd->GetScaleFactor() > G4UniformRand()) { 
+	if (pd->GetGeometricEfficiency()/pd->GetScaleFactor() > G4UniformRand())
+	  photon->SetDetected(true);
+	else
+	  photon->SetCalibrationFlag();
+      } //if
+      
+      if (!info->Parent()) m_EventPtr->AddOrphanPhoton(photon);
+#endif
+      
+      //TVector3 position = Tools::PodioVector3_to_TVector3(hit.getPosition());
+      //printf("x=%7.2f y=%7.2f z=%7.2f\n", position.X(), position.Y(), position.Z());
+#endif
+    } //for hit
+  }
+
+
+
+  
+
+
+  
+#if _OLD_
 #if _TODAY_
   // logging
   m_log->trace("{:=^70}"," call IrtCherenkovParticleID::AlgorithmProcess ");
@@ -187,23 +385,28 @@ void IrtDebugging::process(
   // FIXME: deal with just aerogel for now;
   const auto &particles = in_charged_particles.begin()->second;
   printf("(2) --> %ld\n", particles->size());
-  auto particle      = particles->at(0);//i_charged_particle);
-  printf("(3)   --> %ld\n", particle.points_size());
-  for(const auto& point : particle.getPoints()) {
-    TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
-    TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
-    
-    //irt_rad->AddLocation(position, momentum);
-    //Tools::PrintTVector3(m_log, " point: x", position);
-    //Tools::PrintTVector3(m_log, "        p", momentum);
+  for(auto particle: *particles) {
+    //auto particle      = particles->at(0);//i_charged_particle);
+    printf("(3)   --> %ld\n", particle.points_size());
+    auto track = particle.getTrack();
+    TVector3 momentum = Tools::PodioVector3_to_TVector3(track.getMomentum());
+    printf("%3d / %3d (%3d) vs %3d\n", track.id().collectionID, particle.id().collectionID, track.id().index, in_reco_particles->getID());//momentum.Mag());
+    for(const auto& point : particle.getPoints()) {
+      TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
+      TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
+      
+      //irt_rad->AddLocation(position, momentum);
+      //Tools::PrintTVector3(m_log, " point: x", position);
+      //Tools::PrintTVector3(m_log, "        p", momentum);
 #if 1
-    printf("x=%7.2f y=%7.2f z=%7.2f -> px=%8.4f py=%8.4f pz=%7.2f\n",
-    	   position.X(), position.Y(), position.Z(), 
-    	   momentum.X(), momentum.Y(), momentum.Z());
+      printf("x=%7.2f y=%7.2f z=%7.2f -> px=%8.4f py=%8.4f pz=%7.2f\n",
+	     position.X(), position.Y(), position.Z(), 
+	     momentum.X(), momentum.Y(), momentum.Z());
 #endif
-  } //for point
-
-#if 1//_TODAY_
+    } //for point
+  } //for particle
+  
+#if 0//_TODAY_
   printf("(4) --> %ld\n", in_sim_hits->size());
   for(auto hit: *in_sim_hits) {
     TVector3 position = Tools::PodioVector3_to_TVector3(hit.getPosition());
@@ -212,7 +415,7 @@ void IrtDebugging::process(
 #endif
   
   auto info = out_irt_debug_info->create();
-  info.setDummy(777.);
+  info.setDummy(777. + m_Instance*10);
 
 
   
@@ -232,6 +435,66 @@ void IrtDebugging::process(
   }
 #endif
 
+#if 0
+  {
+    for(const auto& assoc : *in_mc_particles) {
+      //for(const auto& assoc : in_mc_particles) {
+      //m_log->trace("{:-^50}"," Particle ");
+
+      auto simpart_p = edm4hep::utils::p(assoc);//.getMomentum());//simpart);
+      printf("p (%d): %f\n", assoc.isCreatedInSimulation(), simpart_p);//, recpart_p, recpart_p - simpart_p);
+      info.setP(simpart_p);//assoc.getMomentum().x());//100.*(recpart_p - simpart_p)/simpart_p);
+      //auto simpart_p = edm4hep::utils::p(assoc);//simpart);
+      
+    } //for assoc
+  }
+#endif
+#if 0
+  {
+    for(const auto& assoc : *in_reco_particles) {
+      //for(const auto& assoc : in_mc_particles) {
+      //m_log->trace("{:-^50}"," Particle ");
+
+      auto simpart_p = edm4hep::utils::p(assoc);//.getMomentum());//simpart);
+      printf("p: %f\n", simpart_p);//, recpart_p, recpart_p - simpart_p);
+      info.setP(simpart_p);//assoc.getMomentum().x());//100.*(recpart_p - simpart_p)/simpart_p);
+      //auto simpart_p = edm4hep::utils::p(assoc);//simpart);
+      
+    } //for assoc
+  }
+#endif
+  
+  // Loop over charged particles;
+#if 0//_NEW_
+  {
+    for(const auto& assoc : *in_mc_reco_associations) {
+      //for(const auto& assoc : in_mc_particles) {
+      //m_log->trace("{:-^50}"," Particle ");
+      auto& simpart = assoc.getSim();
+      auto& recpart = assoc.getRec();//.getTracks.at(0);
+      //printf("@@@ %3d %3d\n", simpart.isAvailable(), recpart.isAvailable());
+      printf("@@@ %3d %3d\n", assoc.getSimID(), assoc.getRecID());//simpart.isAvailable(), recpart.isAvailable());
+
+      auto track = (*in_reco_particles)[assoc.getRecID()];
+      
+      //auto simpart_p = edm4hep::utils::p(simpart);
+      //printf("%f -> %d\n", simpart_p, recpart.getPdg());
+
+      //auto tnum = recpart.getTracks().size();
+      //printf("tnum: %ld\n", tnum);
+      //auto &track = *recpart.tracks_begin();
+      
+#if 1
+      auto simpart_p = edm4hep::utils::p(simpart);
+      auto recpart_p = edm4hep::utils::p(track);//recpart); // unused
+      printf("%f %f -> %f\n", simpart_p, recpart_p, recpart_p - simpart_p);
+      info.setPdiff(100.*(recpart_p - simpart_p)/simpart_p);
+#endif
+    } //for assoc
+  }
+#endif
+
+#if _OLD_
   // loop over charged particles ********************************************
   //m_log->trace("{:#<70}","### CHARGED PARTICLES ");
   std::size_t num_charged_particles = in_charged_particle_size_distribution.begin()->first;
@@ -518,7 +781,19 @@ void IrtDebugging::process(
      */
 
 #endif
+
   } // end `in_charged_particles` loop
+#endif
+#endif
+  
+#if 1//_NOW_
+  {
+    std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
+    
+    m_EventBranch->SetAddress(m_EventPtr);
+    m_EventTree->Fill();
+  }
+#endif
 }
 
 } // namespace eicrecon

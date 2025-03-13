@@ -29,6 +29,14 @@ private:
   using AlgoT = eicrecon::IrtDebugging;//CherenkovParticleID;
     std::unique_ptr<AlgoT> m_algo;
 
+  PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
+  //PodioInput<edm4eic::ReconstructedParticle> m_reco_particles_input {this};
+  //PodioInput<edm4eic::MCRecoParticleAssociation> m_mc_reco_associations_input {this};
+  //PodioInput<edm4eic::Track> m_tracks_input {this};
+  //PodioInput<edm4eic::MCRecoTrackParticleAssociation> m_track_assocs_input {this};
+  PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input {this};
+  PodioInput<edm4eic::MCRecoParticleAssociation> m_recoassocs_input {this};
+  
     PodioInput<edm4eic::TrackSegment> m_aerogel_tracks_input {this};
 #if _TODAY_
     PodioInput<edm4eic::TrackSegment> m_gas_tracks_input {this};
@@ -81,6 +89,11 @@ public:
 #if 1//_TODAY_
       m_algo->process(
         {
+	  m_mc_particles_input(),
+	  m_recoparticles_input(),
+	  m_recoassocs_input(),
+	  //m_reco_particles_input(),
+	  //m_mc_reco_associations_input(),
           m_aerogel_tracks_input(),
 	  m_sim_hits_input()//,
           //m_gas_tracks_input(),
