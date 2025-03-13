@@ -1,16 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Souvik Paul, Chun Yuen Tsang, Prithwish Tribedy
-// Special Acknowledgement: Kolja Kauder
+// Copyright (C) 2025 Simon Gardner
 //
-// Convert energy deposition into ADC pulses
-// ADC pulses are assumed to follow the shape of landau function
+// Adds noise to a time series pulse
+//
 
 #include <DDRec/CellIDPositionConverter.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <cmath>
-#include <gsl/pointers>
-#include <unordered_map>
-#include <vector>
 
 #include "PulseNoise.h"
 
