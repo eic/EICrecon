@@ -65,7 +65,7 @@ extern "C" {
           .poles = 5,
           .varience = 1.0,
           .alpha = 0.5,
-          .scale = 1000.0,
+          .scale = 500.0,
       },
       app
     ));
