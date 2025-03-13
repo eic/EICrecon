@@ -1,23 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Souvik Paul, Chun Yuen Tsang, Prithwish Tribedy
-// Special Acknowledgement: Kolja Kauder
+// Copyright (C) 2025 
 //
-// Convert energy deposition into ADC pulses
-// ADC pulses are assumed to follow the shape of landau function
+// Convert energy deposition into analog pulses
 
 #pragma once
 
-#include <DDRec/CellIDPositionConverter.h>
-#include <RtypesCore.h>
-#include <TMath.h>
 #include <algorithms/algorithm.h>
 #include <edm4hep/TimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <memory>
 #include <string>
 #include <string_view>
-#include <unordered_map>
-#include <vector>
 
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

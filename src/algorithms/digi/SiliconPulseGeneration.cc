@@ -5,12 +5,7 @@
 // Convert energy deposition into ADC pulses
 // ADC pulses are assumed to follow the shape of landau function
 
-#include <DDRec/CellIDPositionConverter.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <cmath>
-#include <gsl/pointers>
-#include <unordered_map>
-#include <vector>
 
 #include "SiliconPulseGeneration.h"
 
