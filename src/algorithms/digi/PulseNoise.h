@@ -45,6 +45,7 @@ private:
   size_t m_poles    = 5;
   double m_varience = 1.0;
   double m_alpha    = 0.5;
+  double m_scale    = 1000.0;
 
 
 };
