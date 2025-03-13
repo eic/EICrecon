@@ -37,11 +37,11 @@ public:
 LandauPulse(double gain, double sigma_analog) : m_gain(gain), m_sigma_analog(sigma_analog) {};
 
 double operator()(double time) const {
-    return m_charge * m_gain * TMath::Landau(time, m_hit_time+3*m_sigma_analog, m_sigma_analog, kTRUE);
+    return m_charge * m_gain * TMath::Landau(time, m_hit_time+3.5*m_sigma_analog, m_sigma_analog, kTRUE);
 }
 
 float getMaximumTime() const {
-    return m_hit_time+3*m_sigma_analog;
+    return m_hit_time+3.5*m_sigma_analog;
 }
 
 private:
