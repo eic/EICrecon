@@ -21,7 +21,6 @@
 #include "algorithms/digi/PulseShapeFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/digi/LGADChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
