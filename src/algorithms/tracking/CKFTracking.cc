@@ -4,23 +4,29 @@
 #include "CKFTracking.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/TrackStateProxy.hpp>
 #include <Acts/EventData/Types.hpp>
+#include <Acts/Geometry/Layer.hpp>
+#include <Acts/Propagator/ActionList.hpp>
+#include <boost/container/vector.hpp>
+#include <boost/move/utility_core.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
-#include "Acts/EventData/ProxyAccessor.hpp"
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
+
+#include "Acts/EventData/ProxyAccessor.hpp"
 #if Acts_VERSION_MAJOR >= 34
 #include "Acts/Propagator/AbortList.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
@@ -33,7 +39,9 @@
 #endif
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#if Acts_VERSION_MAJOR < 34
 #include <Acts/TrackFitting/GainMatrixSmoother.hpp>
+#endif
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #if Acts_VERSION_MAJOR >= 34
@@ -50,13 +58,17 @@
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <functional>
 #include <list>
 #include <optional>
+#include <ostream>
 #include <ranges>
+#include <system_error>
 #include <utility>
 
 #include "ActsGeometryProvider.h"

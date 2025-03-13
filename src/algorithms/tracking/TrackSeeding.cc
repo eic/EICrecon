@@ -25,6 +25,7 @@
 #include <cmath>
 #include <functional>
 #include <limits>
+#include <optional>
 #include <tuple>
 #include <type_traits>
 
