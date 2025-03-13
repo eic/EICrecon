@@ -38,7 +38,7 @@ void PulseNoise::process(const PulseNoise::Input& input,
       // out_pulse.addToAmplitude(noise);
       out_pulse.addToAmplitude(pulse.getAmplitude()[i] + noise);
     }
-    
+
   }
 
 } // PulseNoise:process
