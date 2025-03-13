@@ -16,6 +16,9 @@ struct PulseNoiseConfig {
   // Noise alpha
   double alpha = 0.5;
 
+  // Noise scale
+  double scale = 1000;
+
 };
 
 } // namespace eicrecon
