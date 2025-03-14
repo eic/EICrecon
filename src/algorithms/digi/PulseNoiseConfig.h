@@ -10,8 +10,8 @@ struct PulseNoiseConfig {
   // Number of poles in the noise filter
   size_t poles = 5;
 
-  // Noise varience
-  double varience = 1;
+  // Noise variance
+  double variance = 1;
 
   // Noise alpha
   double alpha = 0.5;
