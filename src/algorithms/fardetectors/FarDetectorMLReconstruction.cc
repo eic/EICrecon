@@ -102,7 +102,7 @@ namespace eicrecon {
       float theta   = edm4eic::anglePolar(momentum);
       float phi     = edm4eic::angleAzimuthal(momentum);
       float qOverP  = charge/edm4eic::magnitude(momentum);
-      float time;
+      float time = 0;
       // PDG
       int32_t pdg = 11;
       // Point Error
@@ -115,12 +115,12 @@ namespace eicrecon {
 
       int32_t trackType = 0;
       edm4hep::Vector3f position = {0,0,0};
-      float timeError;
+      float timeError = 0;
       float charge    = -1;
       float chi2      = 0;
       uint32_t ndf    = 0;
 
-      auto outTrack      = outputFarDetectorMLTracks->create(trackType,position,momentum,error,time,timeError,charge,chi2,ndf);
+      auto outTrack      = outputFarDetectorMLTracks->create(trackType,position,momentum,error,time,timeError,charge,chi2,ndf,pdg);
       outTrack.setTrajectory(trajectory);
 
     }
