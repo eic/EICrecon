@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
