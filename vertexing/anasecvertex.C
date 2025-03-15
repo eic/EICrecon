@@ -21,6 +21,15 @@
 #include "DD4hep/Detector.h"
 #include "DD4hep/DetElement.h"
 
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrajectoryCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+
 #include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
 #include "Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp"
 #include "Acts/Geometry/TrackingGeometry.hpp"
@@ -138,7 +147,20 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h2Lambdapveta->GetYaxis()->SetTitle("P [GeV]");
 
   TH1D* h1MassL=new TH1D("h1MassL","",100,0.9,1.5);
-  h1MassL->GetXaxis()->SetTitle("Sec. Vertex Mass [GeV]");
+  h1MassL->GetXaxis()->SetTitle("Invariant Mass [GeV]");
+
+  TH1D* h1MassLsvtx=new TH1D("h1MassLsvtx","",100,0.9,1.5);
+  h1MassLsvtx->GetXaxis()->SetTitle("Sec. Vertex Mass [GeV]");
+
+  TH1* h1secChi2= new TH1D("h1secChi2","",100,0,10);
+  h1secChi2->GetXaxis()->SetTitle("Sec Vertex #Chi^{2}");
+  h1secChi2->GetXaxis()->CenterTitle();
+  h1secChi2->SetLineWidth(2);
+
+  TH1* h1secChi2red= new TH1D("h1secChi2red","",100,0,10);
+  h1secChi2red->GetXaxis()->SetTitle("Sec Vertex Reduced #Chi^{2}");
+  h1secChi2red->GetXaxis()->CenterTitle();
+  h1secChi2red->SetLineWidth(2);
 
   TH1* h1secX= new TH1D("h1secX","",100,-7.5,7.5);
   h1secX->GetXaxis()->SetTitle("x_{sec.vtx}-x_{prm.vtx} [mm]");
@@ -180,6 +202,17 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h1DistSiBarr->GetXaxis()->CenterTitle();
   h1DistSiBarr->SetLineWidth(2);
 
+  std::string histname;
+  std::string title[]={"SV time to MC vertex [ns]","SV time to PV [ns]","SV time to Vertex Barrel [ns]"};
+  TH1 *h1Time[4];
+  for(int n=0; n<3; n++){
+    histname="h1Time_"+std::to_string(n);
+    h1Time[n]=new TH1D(histname.c_str(),"Time [ns] ",340,0,170);
+    h1Time[n]->GetXaxis()->SetTitle(title[n].c_str());
+    h1Time[n]->GetXaxis()->CenterTitle();
+    h1Time[n]->SetLineWidth(2);
+  }
+
   // Define variables
   int pid_code = 13;
   std::string coll = "CentralCKFTrackParameters"; //Real-seeded track parameters
@@ -194,6 +227,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   TTreeReaderArray<int> mcPartGenStatus = {treereader, "MCParticles.generatorStatus"};
   TTreeReaderArray<int> mcPartPdg = {treereader, "MCParticles.PDG"};
   TTreeReaderArray<float> mcPartCharge = {treereader, "MCParticles.charge"};
+  TTreeReaderArray<float> mcPartTime = {treereader, "MCParticles.time"};
   TTreeReaderArray<unsigned int> mcPartParent_begin = {treereader, "MCParticles.parents_begin"};
   TTreeReaderArray<unsigned int> mcPartParent_end = {treereader, "MCParticles.parents_end"};
   TTreeReaderArray<int> mcPartParent_index = {treereader, "_MCParticles_parents.index"};
@@ -212,6 +246,23 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   TTreeReaderArray<double> mcEndPointZ = {treereader, "MCParticles.endpoint.z"};
 
   //----------------- Reconstructed Particles ------------------
+  // Vertexing Detectors
+  TTreeReaderArray<float> sibarrel_x(treereader, Form("%s.position.x",sibarrelvtx.c_str()));
+  TTreeReaderArray<float> sibarrel_y(treereader, Form("%s.position.y",sibarrelvtx.c_str()));
+  TTreeReaderArray<float> sibarrel_z(treereader, Form("%s.position.z",sibarrelvtx.c_str()));
+  TTreeReaderArray<float> sibarrel_t(treereader, Form("%s.time",sibarrelvtx.c_str()));
+  TTreeReaderArray<float> sibarrel_Edep(treereader, Form("%s.edep",sibarrelvtx.c_str()));
+
+  TTreeReaderArray<float> vtxbarrel_len(treereader, Form("%s.pathLength",vtxbarrel.c_str()));
+  TTreeReaderArray<float> vtxbarrel_t(treereader, Form("%s.time",vtxbarrel.c_str()));
+  TTreeReaderArray<float> vtxbarrel_Edep(treereader, Form("%s.EDep",vtxbarrel.c_str()));
+  TTreeReaderArray<double> vtxbarrel_x(treereader, Form("%s.position.x",vtxbarrel.c_str()));
+  TTreeReaderArray<double> vtxbarrel_y(treereader, Form("%s.position.y",vtxbarrel.c_str()));
+  TTreeReaderArray<double> vtxbarrel_z(treereader, Form("%s.position.z",vtxbarrel.c_str()));
+  TTreeReaderArray<float> vtxbarrel_px(treereader, Form("%s.momentum.x",vtxbarrel.c_str()));
+  TTreeReaderArray<float> vtxbarrel_py(treereader, Form("%s.momentum.y",vtxbarrel.c_str()));
+  TTreeReaderArray<float> vtxbarrel_pz(treereader, Form("%s.momentum.z",vtxbarrel.c_str()));
+
   // ********** Reco Charged Particles
   TTreeReaderArray<unsigned int> assocChSimID = {treereader, "ReconstructedChargedParticleAssociations.simID"};
   TTreeReaderArray<unsigned int> assocChRecID = {treereader, "ReconstructedChargedParticleAssociations.recID"};
@@ -229,6 +280,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   TTreeReaderArray<float> CTVx = {treereader, "CentralTrackVertices.position.x"};
   TTreeReaderArray<float> CTVy = {treereader, "CentralTrackVertices.position.y"};
   TTreeReaderArray<float> CTVz = {treereader, "CentralTrackVertices.position.z"};
+  TTreeReaderArray<float> CTVt = {treereader, "CentralTrackVertices.position.t"};
   TTreeReaderArray<int> CTVndf = {treereader, "CentralTrackVertices.ndf"};
   TTreeReaderArray<float> CTVchi2 = {treereader, "CentralTrackVertices.chi2"};
   TTreeReaderArray<float> CTVerr_xx = {treereader, "CentralTrackVertices.positionError.xx"};
@@ -236,9 +288,11 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   TTreeReaderArray<float> CTVerr_zz = {treereader, "CentralTrackVertices.positionError.zz"};
   // ******* Secondary Vertex
   TTreeReaderArray<float> svert_chi2(treereader, Form("%s.chi2",svert.c_str()));
+  TTreeReaderArray<int> svert_ndf(treereader, Form("%s.ndf",svert.c_str()));
   TTreeReaderArray<float> svert_vx(treereader, Form("%s.position.x",svert.c_str()));
   TTreeReaderArray<float> svert_vy(treereader, Form("%s.position.y",svert.c_str()));
   TTreeReaderArray<float> svert_vz(treereader, Form("%s.position.z",svert.c_str()));
+  TTreeReaderArray<float> svert_vt(treereader, Form("%s.position.t",svert.c_str()));
   TTreeReaderArray<unsigned int> svertAssoc(treereader, Form("%s.associatedParticles_begin",svert.c_str()));
 
   TTreeReaderArray<float> track_qoverp(treereader, Form("%s.qOverP",coll.c_str()));
@@ -254,6 +308,8 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   TTreeReaderArray<float> prt_pz(treereader,Form("%s.momentum.z",recoprt.c_str()));
   TTreeReaderArray<float> prt_M(treereader,Form("%s.mass",recoprt.c_str()));
   TTreeReaderArray<float> prt_charge(treereader,Form("%s.charge",recoprt.c_str()));
+
+  TTreeReaderArray<int> vtxbarrel_MCpart={treereader,"_VertexBarrelHits_MCParticle.index"};
 
   TTreeReaderArray<int> prim_vtx_index = {treereader, "PrimaryVertices_objIdx.index"};
 
@@ -302,173 +358,71 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   Acts::ImpactPointEstimator ImPoEs(ImPoEs_cfg);
 
   int nevents = 0;
-  while(treereader.Next())
-    {
-      if(nevents%2==0) printf("\n[i] New event %d\n",nevents);
-      //if(nevents==20) break;
-      //printf("\n+++++ New Event %d +++++\n", nevents);
-
-      // find MC primary vertex
-      int nMCPart = mcPartMass.GetSize();
-      TVector3 vertex_mc(-999., -999., -999.);
-      for(int imc=0; imc<nMCPart; imc++){
-        if(mcPartGenStatus[imc] == 4 && mcPartPdg[imc] == 11){
-          vertex_mc.SetXYZ(mcEndPointX[imc], mcEndPointY[imc], mcEndPointZ[imc]);
-          printf("[i] Primary vertex (x, y, z) = (%2.4f, %2.4f, %2.4f)\n", vertex_mc.x(), vertex_mc.y(), vertex_mc.z());
-          break;
-        }
+  while(treereader.Next()){
+    if(nevents%1000==0) printf("\n[i] New event %d\n",nevents);
+    //if(nevents==20) break;
+    //printf("\n+++++ New Event %d +++++\n", nevents);
+  
+    // find MC primary vertex
+    int nMCPart = mcPartMass.GetSize();
+    TVector3 vertex_mc(-999., -999., -999.);
+    for(int imc=0; imc<nMCPart; imc++){
+      if(mcPartGenStatus[imc] == 4 && mcPartPdg[imc] == 11){
+        vertex_mc.SetXYZ(mcEndPointX[imc], mcEndPointY[imc], mcEndPointZ[imc]);
+        printf("[i] Primary vertex (x, y, z) = (%2.4f, %2.4f, %2.4f)\n", vertex_mc.x(), vertex_mc.y(), vertex_mc.z());
+        break;
       }
-
-      // get RC primary vertex
-      TVector3 vertex_rc(-999., -999., -999.);
-      if(prim_vtx_index.GetSize()>0){
-        int rc_vtx_index = prim_vtx_index[0];
-        vertex_rc.SetXYZ(CTVx[rc_vtx_index], CTVy[rc_vtx_index], CTVz[rc_vtx_index]);
-      }
-      
-      int nAssoc = assocChRecID.GetSize();
-      map<int, int> assoc_map;
-
-      for(int j=0; j<nAssoc; j++){
-        assoc_map[assocChSimID[j]] = assocChRecID[j];
-      }
-
-      bool hasLambda = false;
-      for(int imc=0; imc<nMCPart; imc++){
-        // loop over primary particles
-        if(mcPartGenStatus[imc] == 1 && mcPartCharge[imc] != 0){
-          double dist=sqrt(pow(mcPartVx[imc]-vertex_mc.x(),2) + pow(mcPartVy[imc]-vertex_mc.y(),2) + pow(mcPartVz[imc]-vertex_mc.z(),2));      
-          if(dist < 1e-4){
-            // check if the MC particle is reconstructed
-            int rc_index = -1;
-            if(assoc_map.find(imc) != assoc_map.end()) rc_index = assoc_map[imc];
-            if(rc_index>-1){
-              TVector3 rc_vec(rcMomPx[rc_index], rcMomPy[rc_index], rcMomPz[rc_index]);
-            
-              Acts::BoundVector params;
-              params(Acts::eBoundLoc0)   = rcTrkLoca[rc_index];
-              params(Acts::eBoundLoc1)   = rcTrkLocb[rc_index];
-              params(Acts::eBoundPhi)    = rcTrkPhi[rc_index];
-              params(Acts::eBoundTheta)  = rcTrkTheta[rc_index];
-              params(Acts::eBoundQOverP) = rcTrkqOverP[rc_index];
-              params(Acts::eBoundTime)   = 0;
-            
-              //FIXME: Set covariance matrix based on input ROOT file information
-              Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
-            
-              Acts::Vector3 mc_vtx_pos(vertex_mc.x() * Acts::UnitConstants::mm, vertex_mc.y() * Acts::UnitConstants::mm, vertex_mc.z() * Acts::UnitConstants::mm);
-            
-              Acts::Vector3 rc_vtx_pos(vertex_rc.x() * Acts::UnitConstants::mm, vertex_rc.y() * Acts::UnitConstants::mm, vertex_rc.z() * Acts::UnitConstants::mm);
-              
-              if(mcPartPdg[imc] == -211 || mcPartPdg[imc] == 2212){
-                // Acts::ParticleHypothesis particle_hypothesis;
-              
-                int ip = 0;
-                if(mcPartPdg[imc] == 2212) ip = 1;
-              
-                Acts::BoundTrackParameters track_parameters(perigee,params,cov,Acts::ParticleHypothesis::pion());
-                if(mcPartPdg[imc] == 2212) track_parameters = Acts::BoundTrackParameters(perigee,params,cov,Acts::ParticleHypothesis::proton());
-              
-                //--- Get track parameters at 3D DCA to MC primary vertex ----
-                auto result = ImPoEs.estimate3DImpactParameters(trackingGeoCtx,fieldctx,track_parameters,mc_vtx_pos,ImPoEs_state);
-                if(result.ok()){
-                  Acts::BoundTrackParameters trk_boundpar_vtx = result.value();
-                  const auto& trk_vtx_params  = trk_boundpar_vtx.parameters();
-                  auto trk_vtx_gbl_pos = trk_boundpar_vtx.position(trackingGeoCtx);
-                  //cout << "real: " << trk_vtx_params[Acts::eBoundLoc0] << "  " << trk_vtx_params[Acts::eBoundLoc1] << endl;
-                
-                  double dca_xy = sqrt( pow(trk_vtx_gbl_pos.x()-mc_vtx_pos.x(),2) + pow(trk_vtx_gbl_pos.y()-mc_vtx_pos.y(),2) );
-                  double dca_z = trk_vtx_gbl_pos.z()-mc_vtx_pos.z();
-                
-                  hRcPrimPartLocaToMCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_xy);
-                  hRcPrimPartLocbToMCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_z);
-                }
-              
-                //--- Get track parameters at 3D DCA to RC primary vertex ----
-                if(prim_vtx_index.GetSize()>0){
-                  auto result = ImPoEs.estimate3DImpactParameters(trackingGeoCtx,fieldctx,track_parameters,rc_vtx_pos,ImPoEs_state);
-                  if(result.ok()){
-                    Acts::BoundTrackParameters trk_boundpar_vtx = result.value();
-                    const auto& trk_vtx_params  = trk_boundpar_vtx.parameters();
-                    auto trk_vtx_gbl_pos = trk_boundpar_vtx.position(trackingGeoCtx);
-                    double dca_xy = sqrt( pow(trk_vtx_gbl_pos.x()-rc_vtx_pos.x(),2) + pow(trk_vtx_gbl_pos.y()-rc_vtx_pos.y(),2) );
-                    double dca_z = trk_vtx_gbl_pos.z()-rc_vtx_pos.z();
-                    hRcPrimPartLocaToRCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_xy);
-                    hRcPrimPartLocbToRCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_z);
-                  }
-                }
-              }
-            }
-          }
-        }
-      
-        // Lambda
-        if(mcPartPdg[imc] == 3122){
-          hEventStat->Fill(1.5);
-          int nDuaghters = mcPartDaughter_end[imc]-mcPartDaughter_begin[imc];
-          if(nDuaghters!=2) continue;
-        
-          // find Lambda that decay into pi+K
-          bool is_piproton_decay = false;
+    }
+  
+    // get RC primary vertex
+    TVector3 vertex_rc(-999., -999., -999.);
+    if(prim_vtx_index.GetSize()>0){
+      int rc_vtx_index = prim_vtx_index[0];
+      vertex_rc.SetXYZ(CTVx[rc_vtx_index], CTVy[rc_vtx_index], CTVz[rc_vtx_index]);
+    }
+    
+    int nAssoc = assocChRecID.GetSize();
+    map<int, int> assoc_map;
+  
+    for(int j=0; j<nAssoc; j++){
+      assoc_map[assocChSimID[j]] = assocChRecID[j];
+    }
+  
+    bool hasLambda = false;
+    for(int imc=0; imc<nMCPart; imc++){
+      // loop over primary particles
+      if(mcPartGenStatus[imc] == 1 && mcPartCharge[imc] != 0){
+        double dist=sqrt(pow(mcPartVx[imc]-vertex_mc.x(),2) + pow(mcPartVy[imc]-vertex_mc.y(),2) + pow(mcPartVz[imc]-vertex_mc.z(),2));      
+        if(dist < 1e-4){
+          // check if the MC particle is reconstructed
+          int rc_index = -1;
+          if(assoc_map.find(imc) != assoc_map.end()) rc_index = assoc_map[imc];
+          if(rc_index>-1){
+            TVector3 rc_vec(rcMomPx[rc_index], rcMomPy[rc_index], rcMomPz[rc_index]);
           
-          int daug_index_1 = mcPartDaughter_index[mcPartDaughter_begin[imc]];
-          int daug_index_2 = mcPartDaughter_index[mcPartDaughter_begin[imc]+1];
-          int daug_pdg_1 = mcPartPdg[daug_index_1];
-          int daug_pdg_2 = mcPartPdg[daug_index_2];
-          if((daug_pdg_1==2212 && daug_pdg_2==-211) || (daug_pdg_1==-211 && daug_pdg_2==2212)){
-            is_piproton_decay = true;
-          }
-          if(!is_piproton_decay) continue;
-          hasLambda = true;
-          hEventStat->Fill(2.5);
-        
-          // Lambda kinematics
-          TLorentzVector mc_mom_vec;
-          mc_mom_vec.SetXYZM(mcMomPx[imc], mcMomPy[imc], mcMomPz[imc], mcPartMass[imc]);
-          double mcRap = mc_mom_vec.Rapidity();
-          double mcPt = mc_mom_vec.Pt();
-          hMCLambdaPtRap->Fill(mcRap, mcPt);
-        
-          // decay dauther kinematics
-          int daug_pi_index = daug_pdg_1==-211 ? daug_index_1 : daug_index_2;
-          int daug_proton_index  = daug_pdg_1==2212 ? daug_index_1 : daug_index_2;
-          for(int ip = 0; ip<2; ip++){
-            int mc_part_index;
-            if(ip==0) mc_part_index = daug_pi_index;
-            if(ip==1) mc_part_index = daug_proton_index;
+            Acts::BoundVector params;
+            params(Acts::eBoundLoc0)   = rcTrkLoca[rc_index];
+            params(Acts::eBoundLoc1)   = rcTrkLocb[rc_index];
+            params(Acts::eBoundPhi)    = rcTrkPhi[rc_index];
+            params(Acts::eBoundTheta)  = rcTrkTheta[rc_index];
+            params(Acts::eBoundQOverP) = rcTrkqOverP[rc_index];
+            params(Acts::eBoundTime)   = 0;
           
-            TLorentzVector mc_part_vec;
-            mc_part_vec.SetXYZM(mcMomPx[mc_part_index], mcMomPy[mc_part_index], mcMomPz[mc_part_index], mcPartMass[mc_part_index]);
-            if(ip==0) hMcPiPtEta->Fill(mc_part_vec.Eta(), mc_part_vec.Pt());
-            if(ip==1) hMcProtonEta->Fill(mc_part_vec.Eta(), mc_part_vec.Pt());
+            //FIXME: Set covariance matrix based on input ROOT file information
+            Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
           
-            int rc_part_index = -1;
-            if(assoc_map.find(mc_part_index) != assoc_map.end()) rc_part_index = assoc_map[mc_part_index];
+            Acts::Vector3 mc_vtx_pos(vertex_mc.x() * Acts::UnitConstants::mm, vertex_mc.y() * Acts::UnitConstants::mm, vertex_mc.z() * Acts::UnitConstants::mm);
           
-            if(rc_part_index>=0){
-              if(ip==0) hMcPiPtEtaReco->Fill(mc_part_vec.Eta(), mc_part_vec.Pt());
-              if(ip==1) hMcProtonEtaReco->Fill(mc_part_vec.Eta(), mc_part_vec.Pt());
+            Acts::Vector3 rc_vtx_pos(vertex_rc.x() * Acts::UnitConstants::mm, vertex_rc.y() * Acts::UnitConstants::mm, vertex_rc.z() * Acts::UnitConstants::mm);
             
-              TVector3 rc_vec(rcMomPx[rc_part_index], rcMomPy[rc_part_index], rcMomPz[rc_part_index]);
-              
-              Acts::BoundVector params;
-              params(Acts::eBoundLoc0)   = rcTrkLoca[rc_part_index];
-              params(Acts::eBoundLoc1)   = rcTrkLocb[rc_part_index];
-              params(Acts::eBoundPhi)    = rcTrkPhi[rc_part_index];
-              params(Acts::eBoundTheta)  = rcTrkTheta[rc_part_index];
-              params(Acts::eBoundQOverP) = rcTrkqOverP[rc_part_index];
-              params(Acts::eBoundTime)   = 0;
+            if(mcPartPdg[imc] == -211 || mcPartPdg[imc] == 2212){
+              // Acts::ParticleHypothesis particle_hypothesis;
             
-              //FIXME: Set covariance matrix based on input ROOT file information
-              Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
+              int ip = 0;
+              if(mcPartPdg[imc] == 2212) ip = 1;
             
-              Acts::Vector3 mc_vtx_pos(vertex_mc.x() * Acts::UnitConstants::mm, vertex_mc.y() * Acts::UnitConstants::mm, vertex_mc.z() * Acts::UnitConstants::mm);
-            
-              Acts::Vector3 rc_vtx_pos(vertex_rc.x() * Acts::UnitConstants::mm, vertex_rc.y() * Acts::UnitConstants::mm, vertex_rc.z() * Acts::UnitConstants::mm);
-            
-              
               Acts::BoundTrackParameters track_parameters(perigee,params,cov,Acts::ParticleHypothesis::pion());
-              if(ip==1) track_parameters = Acts::BoundTrackParameters(perigee,params,cov,Acts::ParticleHypothesis::proton());
+              if(mcPartPdg[imc] == 2212) track_parameters = Acts::BoundTrackParameters(perigee,params,cov,Acts::ParticleHypothesis::proton());
             
               //--- Get track parameters at 3D DCA to MC primary vertex ----
               auto result = ImPoEs.estimate3DImpactParameters(trackingGeoCtx,fieldctx,track_parameters,mc_vtx_pos,ImPoEs_state);
@@ -476,12 +430,15 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
                 Acts::BoundTrackParameters trk_boundpar_vtx = result.value();
                 const auto& trk_vtx_params  = trk_boundpar_vtx.parameters();
                 auto trk_vtx_gbl_pos = trk_boundpar_vtx.position(trackingGeoCtx);
+                //cout << "real: " << trk_vtx_params[Acts::eBoundLoc0] << "  " << trk_vtx_params[Acts::eBoundLoc1] << endl;
+              
                 double dca_xy = sqrt( pow(trk_vtx_gbl_pos.x()-mc_vtx_pos.x(),2) + pow(trk_vtx_gbl_pos.y()-mc_vtx_pos.y(),2) );
                 double dca_z = trk_vtx_gbl_pos.z()-mc_vtx_pos.z();
-                hRcSecPartLocaToMCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_xy);
-                hRcSecPartLocbToMCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_z);
-              }
               
+                hRcPrimPartLocaToMCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_xy);
+                hRcPrimPartLocbToMCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_z);
+              }
+            
               //--- Get track parameters at 3D DCA to RC primary vertex ----
               if(prim_vtx_index.GetSize()>0){
                 auto result = ImPoEs.estimate3DImpactParameters(trackingGeoCtx,fieldctx,track_parameters,rc_vtx_pos,ImPoEs_state);
@@ -491,181 +448,338 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
                   auto trk_vtx_gbl_pos = trk_boundpar_vtx.position(trackingGeoCtx);
                   double dca_xy = sqrt( pow(trk_vtx_gbl_pos.x()-rc_vtx_pos.x(),2) + pow(trk_vtx_gbl_pos.y()-rc_vtx_pos.y(),2) );
                   double dca_z = trk_vtx_gbl_pos.z()-rc_vtx_pos.z();
-                  hRcSecPartLocaToRCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_xy);
-                  hRcSecPartLocbToRCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_z);
+                  hRcPrimPartLocaToRCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_xy);
+                  hRcPrimPartLocbToRCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_z);
                 }
               }
             }
           }
+        }
+      }
+
+      // Lambda
+      if(mcPartPdg[imc] == 3122){
+        hEventStat->Fill(1.5);
+        int nDuaghters = mcPartDaughter_end[imc]-mcPartDaughter_begin[imc];
+        if(nDuaghters!=2) continue;
+      
+        // find Lambda that decay into pi+K
+        bool is_piproton_decay = false;
         
-          // decay vertex
-          TVector3 mc_vtx_decay(-999.,-999.,-999.);
-          mc_vtx_decay.SetXYZ(mcEndPointX[imc], mcEndPointY[imc], mcEndPointZ[imc]);
-          double mc_decay_dvx = mc_vtx_decay.x()-vertex_mc.x();
-          double mc_decay_dvy = mc_vtx_decay.y()-vertex_mc.y();
-          double mc_decay_dvz = mc_vtx_decay.z()-vertex_mc.z();
-          double mc_decay_dvr = mc_decay_dvx*mc_decay_dvx + mc_decay_dvy*mc_decay_dvy;
-          hLambdaDecayVxVy->Fill(mc_decay_dvx, mc_decay_dvy);
-          hLambdaDecayVrVz->Fill(mc_decay_dvz, mc_decay_dvr);
+        int daug_index_1 = mcPartDaughter_index[mcPartDaughter_begin[imc]];
+        int daug_index_2 = mcPartDaughter_index[mcPartDaughter_begin[imc]+1];
+        int daug_pdg_1 = mcPartPdg[daug_index_1];
+        int daug_pdg_2 = mcPartPdg[daug_index_2];
+        if((daug_pdg_1==2212 && daug_pdg_2==-211) || (daug_pdg_1==-211 && daug_pdg_2==2212)){
+          is_piproton_decay = true;
+        }
+        if(!is_piproton_decay) continue;
+        hasLambda = true;
+        hEventStat->Fill(2.5);
+      
+        // Lambda kinematics
+        TLorentzVector mc_mom_vec;
+        mc_mom_vec.SetXYZM(mcMomPx[imc], mcMomPy[imc], mcMomPz[imc], mcPartMass[imc]);
+        double mcRap = mc_mom_vec.Rapidity();
+        double mcPt = mc_mom_vec.Pt();
+        hMCLambdaPtRap->Fill(mcRap, mcPt);
+      
+        // decay dauther kinematics
+        int daug_pi_index = daug_pdg_1==-211 ? daug_index_1 : daug_index_2;
+        int daug_proton_index  = daug_pdg_1==2212 ? daug_index_1 : daug_index_2;
+        for(int ip = 0; ip<2; ip++){
+          int mc_part_index;
+          if(ip==0) mc_part_index = daug_pi_index;
+          if(ip==1) mc_part_index = daug_proton_index;
         
-          //printf("[i] Found Lambda decay at (%2.4f, %2.4f, %2.4f)\n", mc_vtx_decay.x(), mc_vtx_decay.y(), mc_vtx_decay.z() );
+          TLorentzVector mc_part_vec;
+          mc_part_vec.SetXYZM(mcMomPx[mc_part_index], mcMomPy[mc_part_index], mcMomPz[mc_part_index], mcPartMass[mc_part_index]);
+          if(ip==0) hMcPiPtEta->Fill(mc_part_vec.Eta(), mc_part_vec.Pt());
+          if(ip==1) hMcProtonEta->Fill(mc_part_vec.Eta(), mc_part_vec.Pt());
         
-          // check if the decay vertex is reconstructed
-          TVector3 rc_vtx_decay(-999, -999, -999);
-          for(unsigned int v=0; v<CTVx.GetSize(); v++){
-            if( vtxAssocPart_end[v]-vtxAssocPart_begin[v] != 2) continue;
+          int rc_part_index = -1;
+          if(assoc_map.find(mc_part_index) != assoc_map.end()) rc_part_index = assoc_map[mc_part_index];
+        
+          if(rc_part_index>=0){
+            if(ip==0) hMcPiPtEtaReco->Fill(mc_part_vec.Eta(), mc_part_vec.Pt());
+            if(ip==1) hMcProtonEtaReco->Fill(mc_part_vec.Eta(), mc_part_vec.Pt());
           
-            bool found_lambda = true;
-            for(int irc = vtxAssocPart_begin[v]; irc < vtxAssocPart_end[v]; irc++){
-              int index = vtxAssocPart_index[irc];
-              int iSimPartID = -1;
-              for(int j=0; j<nAssoc; j++){
-                if(assocChRecID[j]==index){
-                  iSimPartID = assocChSimID[j];
-                  break;
-                }
+            TVector3 rc_vec(rcMomPx[rc_part_index], rcMomPy[rc_part_index], rcMomPz[rc_part_index]);
+            
+            Acts::BoundVector params;
+            params(Acts::eBoundLoc0)   = rcTrkLoca[rc_part_index];
+            params(Acts::eBoundLoc1)   = rcTrkLocb[rc_part_index];
+            params(Acts::eBoundPhi)    = rcTrkPhi[rc_part_index];
+            params(Acts::eBoundTheta)  = rcTrkTheta[rc_part_index];
+            params(Acts::eBoundQOverP) = rcTrkqOverP[rc_part_index];
+            params(Acts::eBoundTime)   = 0;
+          
+            //FIXME: Set covariance matrix based on input ROOT file information
+            Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
+          
+            Acts::Vector3 mc_vtx_pos(vertex_mc.x() * Acts::UnitConstants::mm, vertex_mc.y() * Acts::UnitConstants::mm, vertex_mc.z() * Acts::UnitConstants::mm);
+          
+            Acts::Vector3 rc_vtx_pos(vertex_rc.x() * Acts::UnitConstants::mm, vertex_rc.y() * Acts::UnitConstants::mm, vertex_rc.z() * Acts::UnitConstants::mm);
+          
+            
+            Acts::BoundTrackParameters track_parameters(perigee,params,cov,Acts::ParticleHypothesis::pion());
+            if(ip==1) track_parameters = Acts::BoundTrackParameters(perigee,params,cov,Acts::ParticleHypothesis::proton());
+          
+            //--- Get track parameters at 3D DCA to MC primary vertex ----
+            auto result = ImPoEs.estimate3DImpactParameters(trackingGeoCtx,fieldctx,track_parameters,mc_vtx_pos,ImPoEs_state);
+            if(result.ok()){
+              Acts::BoundTrackParameters trk_boundpar_vtx = result.value();
+              const auto& trk_vtx_params  = trk_boundpar_vtx.parameters();
+              auto trk_vtx_gbl_pos = trk_boundpar_vtx.position(trackingGeoCtx);
+              double dca_xy = sqrt( pow(trk_vtx_gbl_pos.x()-mc_vtx_pos.x(),2) + pow(trk_vtx_gbl_pos.y()-mc_vtx_pos.y(),2) );
+              double dca_z = trk_vtx_gbl_pos.z()-mc_vtx_pos.z();
+              hRcSecPartLocaToMCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_xy);
+              hRcSecPartLocbToMCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_z);
+            }
+            
+            //--- Get track parameters at 3D DCA to RC secondary vertex ----
+            if(svertAssoc.GetSize()>0){
+              auto result = ImPoEs.estimate3DImpactParameters(trackingGeoCtx,fieldctx,track_parameters,rc_vtx_pos,ImPoEs_state);
+              if(result.ok()){
+                Acts::BoundTrackParameters trk_boundpar_vtx = result.value();
+                const auto& trk_vtx_params  = trk_boundpar_vtx.parameters();
+                auto trk_vtx_gbl_pos = trk_boundpar_vtx.position(trackingGeoCtx);
+                double dca_xy = sqrt( pow(trk_vtx_gbl_pos.x()-rc_vtx_pos.x(),2) + pow(trk_vtx_gbl_pos.y()-rc_vtx_pos.y(),2) );
+                double dca_z = trk_vtx_gbl_pos.z()-rc_vtx_pos.z();
+                hRcSecPartLocaToRCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_xy);
+                hRcSecPartLocbToRCVtx[ip]->Fill(rc_vec.Pt(), rc_vec.Eta(), dca_z);
               }
-              if(iSimPartID!=daug_index_1 && iSimPartID!=daug_index_2){
-                found_lambda = false;
+            }
+          }
+        }
+
+        // decay vertex
+        TVector3 mc_vtx_decay(-999.,-999.,-999.);
+        mc_vtx_decay.SetXYZ(mcEndPointX[imc], mcEndPointY[imc], mcEndPointZ[imc]);
+        double mc_decay_dvx = mc_vtx_decay.x()-vertex_mc.x();
+        double mc_decay_dvy = mc_vtx_decay.y()-vertex_mc.y();
+        double mc_decay_dvz = mc_vtx_decay.z()-vertex_mc.z();
+        double mc_decay_dvr = mc_decay_dvx*mc_decay_dvx + mc_decay_dvy*mc_decay_dvy;
+        hLambdaDecayVxVy->Fill(mc_decay_dvx, mc_decay_dvy);
+        hLambdaDecayVrVz->Fill(mc_decay_dvz, mc_decay_dvr);
+      
+        //printf("[i] Found Lambda decay at (%2.4f, %2.4f, %2.4f)\n", mc_vtx_decay.x(), mc_vtx_decay.y(), mc_vtx_decay.z() );
+      
+        // check if the decay vertex is reconstructed
+        TVector3 rc_vtx_decay(-999, -999, -999);
+        for(unsigned int v=0; v<CTVx.GetSize(); v++){
+          if( vtxAssocPart_end[v]-vtxAssocPart_begin[v] != 2) continue;
+        
+          bool found_lambda = true;
+          for(int irc = vtxAssocPart_begin[v]; irc < vtxAssocPart_end[v]; irc++){
+            int index = vtxAssocPart_index[irc];
+            int iSimPartID = -1;
+            for(int j=0; j<nAssoc; j++){
+              if(assocChRecID[j]==index){
+                iSimPartID = assocChSimID[j];
                 break;
               }
             }
-            if(found_lambda){
-              hMCLambdaPtRapReco->Fill(mcRap, mcPt);
-              rc_vtx_decay.SetXYZ(CTVx[v], CTVy[v], CTVz[v]);
-              double rc_decay_dvx = rc_vtx_decay.x() - mc_vtx_decay.x();
-              double rc_decay_dvy = rc_vtx_decay.y() - mc_vtx_decay.y();
-              double rc_decay_dvz = rc_vtx_decay.z() - mc_vtx_decay.z();
-              double rc_decay_dvr = rc_decay_dvx*rc_decay_dvx + rc_decay_dvy*rc_decay_dvy;
-              hLambdaVtxDist->Fill(rc_decay_dvz, rc_decay_dvr);
-              hLambdaDecayVxVyReco->Fill(mc_decay_dvx, mc_decay_dvy);
-              hLambdaDecayVrVzReco->Fill(mc_decay_dvz, mc_decay_dvr);
-              printf("[i] Reco Lambda decay at (%2.4f, %2.4f, %2.4f)\n", rc_vtx_decay.x(), rc_vtx_decay.y(), rc_vtx_decay.z() );
-            }
-          }
-        }
-      }
-      hEventStat->Fill(0.5);
-      hMcVtxX->Fill(vertex_mc.x());
-      hMcVtxY->Fill(vertex_mc.y());
-      hMcVtxZ->Fill(vertex_mc.z());
-
-      hNRecoVtx->Fill(CTVx.GetSize());
-      h1secvtxNum->Fill(svert_vx.GetSize());
-
-      // loop over reconstructed particles
-      const bool select_lambda = true;
-      if(!select_lambda) hasLambda = true;
-      if(hasLambda && (prim_vtx_index.GetSize()>0 && svertAssoc.GetSize()>0)){
-        // find pion and proton based on true pdg
-        vector<int> pi_index;
-        vector<int> proton_index;
-        vector<int> pi_dca_index;
-        vector<int> proton_dca_index;
-        pi_index.clear();
-        proton_index.clear();
-        pi_dca_index.clear();
-        proton_dca_index.clear();
-        for(int rc_index=0; rc_index<rcMomPx.GetSize(); rc_index++){
-          int iSimPartID = -1;
-          for(int j=0; j<nAssoc; j++){
-            if(assocChRecID[j]==rc_index){
-              iSimPartID = assocChSimID[j];
+            if(iSimPartID!=daug_index_1 && iSimPartID!=daug_index_2){
+              found_lambda = false;
               break;
             }
           }
-          if(iSimPartID<0) continue;
-          if(mcPartPdg[iSimPartID] == -211 || mcPartPdg[iSimPartID] == 2212){
-            if(mcPartPdg[iSimPartID] == -211) pi_index.push_back(rc_index);
-            if(mcPartPdg[iSimPartID] == 2212) proton_index.push_back(rc_index);
-            
-            Acts::BoundVector params;
-            params(Acts::eBoundLoc0)   = rcTrkLoca[rc_index];
-            params(Acts::eBoundLoc1)   = rcTrkLocb[rc_index];
-            params(Acts::eBoundPhi)    = rcTrkPhi[rc_index];
-            params(Acts::eBoundTheta)  = rcTrkTheta[rc_index];
-            params(Acts::eBoundQOverP) = rcTrkqOverP[rc_index];
-            params(Acts::eBoundTime)   = 0;
-            
-            //FIXME: Set covariance matrix based on input ROOT file information
-            Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
-            Acts::Vector3 rc_vtx_pos(vertex_rc.x() * Acts::UnitConstants::mm, vertex_rc.y() * Acts::UnitConstants::mm, vertex_rc.z() * Acts::UnitConstants::mm);
-            Acts::BoundTrackParameters track_parameters(perigee,params,cov,Acts::ParticleHypothesis::pion());
-            if(mcPartPdg[iSimPartID] == 2212) track_parameters = Acts::BoundTrackParameters(perigee,params,cov,Acts::ParticleHypothesis::proton());
+          if(found_lambda){
+            hMCLambdaPtRapReco->Fill(mcRap, mcPt);
+            rc_vtx_decay.SetXYZ(CTVx[v], CTVy[v], CTVz[v]);
+            double rc_decay_dvx = rc_vtx_decay.x() - mc_vtx_decay.x();
+            double rc_decay_dvy = rc_vtx_decay.y() - mc_vtx_decay.y();
+            double rc_decay_dvz = rc_vtx_decay.z() - mc_vtx_decay.z();
+            double rc_decay_dvr = rc_decay_dvx*rc_decay_dvx + rc_decay_dvy*rc_decay_dvy;
+            hLambdaVtxDist->Fill(rc_decay_dvz, rc_decay_dvr);
+            hLambdaDecayVxVyReco->Fill(mc_decay_dvx, mc_decay_dvy);
+            hLambdaDecayVrVzReco->Fill(mc_decay_dvz, mc_decay_dvr);
+            printf("[i] Reco Lambda decay at (%2.4f, %2.4f, %2.4f)\n", rc_vtx_decay.x(), rc_vtx_decay.y(), rc_vtx_decay.z() );
+          }
+        }
+      }
+    }
+    hEventStat->Fill(0.5);
+    hMcVtxX->Fill(vertex_mc.x());
+    hMcVtxY->Fill(vertex_mc.y());
+    hMcVtxZ->Fill(vertex_mc.z());
+  
+    hNRecoVtx->Fill(CTVx.GetSize());
+    h1secvtxNum->Fill(svert_vx.GetSize());
+  
+    // loop over reconstructed particles
+    const bool select_lambda = true;
+    if(!select_lambda) hasLambda = true;
+    if(hasLambda && (prim_vtx_index.GetSize()>0 && svertAssoc.GetSize()>0)){
+      // find pion and proton based on true pdg
+      vector<int> pi_index;
+      vector<int> proton_index;
+      vector<int> pi_dca_index;
+      vector<int> proton_dca_index;
+      pi_index.clear();
+      proton_index.clear();
+      pi_dca_index.clear();
+      proton_dca_index.clear();
+      for(int rc_index=0; rc_index<rcMomPx.GetSize(); rc_index++){
+        int iSimPartID = -1;
+        for(int j=0; j<nAssoc; j++){
+          if(assocChRecID[j]==rc_index){
+            iSimPartID = assocChSimID[j];
+            break;
+          }
+        }
+        if(iSimPartID<0) continue;
+        if(mcPartPdg[iSimPartID] == -211 || mcPartPdg[iSimPartID] == 2212){
+          if(mcPartPdg[iSimPartID] == -211) pi_index.push_back(rc_index);
+          if(mcPartPdg[iSimPartID] == 2212) proton_index.push_back(rc_index);
           
-            auto result = ImPoEs.estimate3DImpactParameters(trackingGeoCtx,fieldctx,track_parameters,rc_vtx_pos,ImPoEs_state);
-            if(result.ok()){
-              Acts::BoundTrackParameters trk_boundpar_vtx = result.value();
-              auto trk_vtx_gbl_pos = trk_boundpar_vtx.position(trackingGeoCtx);
-              double dca_xy = sqrt( pow(trk_vtx_gbl_pos.x()-rc_vtx_pos.x(),2) + pow(trk_vtx_gbl_pos.y()-rc_vtx_pos.y(),2) );
-              double dca_z = trk_vtx_gbl_pos.z()-rc_vtx_pos.z();
-              if(dca_xy>0.04){
-                if(mcPartPdg[iSimPartID] == -211) pi_dca_index.push_back(rc_index);
-                if(mcPartPdg[iSimPartID] == 2212) proton_dca_index.push_back(rc_index);
-              }
-            }
-          }
-        }
-      
-        // proton pion pair
-        for(int i=0; i<pi_index.size(); i++){
-          TLorentzVector pi_mom_vec;
-          pi_mom_vec.SetXYZM(rcMomPx[pi_index[i]], rcMomPy[pi_index[i]], rcMomPz[pi_index[i]], gPionMass);
-          for(int j=0; j<proton_index.size(); j++){
-            TLorentzVector proton_mom_vec;
-            proton_mom_vec.SetXYZM(rcMomPx[proton_index[j]], rcMomPy[proton_index[j]], rcMomPz[proton_index[j]], gprotonMass);
-            //Delta R sec. vtx - reco prim. vtx
-            double deltaX=svert_vx[pi_index[i]]-CTVx[pi_index[i]];
-            double deltaY=svert_vy[pi_index[i]]-CTVy[pi_index[i]];
-            double deltaZ=svert_vz[pi_index[i]]-CTVz[pi_index[i]];
-            double deltaR=std::sqrt(deltaX*deltaX+deltaY*deltaY+deltaZ*deltaZ);
-            // DecayR MC decay vertex
-            TVector3 mc_prmvtx_decay(-999.,-999.,-999.);
-            TVector3 sec_vtx_decay(-999.,-999.,-999.);
-            for(int mcvtx=0; mcvtx<mcEndPointX.GetSize(); mcvtx++){
-              mc_prmvtx_decay.SetXYZ(mcEndPointX[mcvtx], mcEndPointY[mcvtx], mcEndPointZ[mcvtx]);
-              sec_vtx_decay.SetXYZ(svert_vx[pi_index[i]], svert_vy[pi_index[i]], svert_vz[pi_index[i]]);
-              if(rcTrkqOverP[pi_index[i]]*rcTrkqOverP[proton_index[j]]<0){
-                double mc_decay_dx = sec_vtx_decay.x()-mc_prmvtx_decay.x();
-                double mc_decay_dy = sec_vtx_decay.y()-mc_prmvtx_decay.y();
-                double mc_decay_dz = sec_vtx_decay.z()-mc_prmvtx_decay.z();
-                double mc_decay_dr = std::sqrt(mc_decay_dx*mc_decay_dx + mc_decay_dy*mc_decay_dy + mc_decay_dz*mc_decay_dz);
-                h1mcR->Fill(deltaR);
-              }
-            }
-
-            h1secX->Fill(deltaX);
-            h1secY->Fill(deltaY);
-            h1secZ->Fill(deltaZ);
-
-            if(rcTrkqOverP[pi_index[i]]*rcTrkqOverP[proton_index[j]]<0){
-              hEventStat->Fill(3.5);
-              TLorentzVector parent = pi_mom_vec + proton_mom_vec;
-              h3InvMass[0]->Fill(parent.Pt(), parent.Rapidity(), parent.M());
-              h2LambdapTvy->Fill(parent.Pt(),parent.Rapidity());
-              h2Lambdapveta->Fill(parent.P(),parent.PseudoRapidity());
-              h1MassL->Fill(parent.M());
-              h1R->Fill(deltaR);
-            }
-          }
-        }
-      
-        for(int i=0; i<pi_dca_index.size(); i++){
-          TLorentzVector pi_mom_vec;
-          pi_mom_vec.SetXYZM(rcMomPx[pi_dca_index[i]], rcMomPy[pi_dca_index[i]], rcMomPz[pi_dca_index[i]], gPionMass);
-          for(int j=0; j<proton_dca_index.size(); j++){
-            TLorentzVector proton_mom_vec;
-            proton_mom_vec.SetXYZM(rcMomPx[proton_dca_index[j]], rcMomPy[proton_dca_index[j]], rcMomPz[proton_dca_index[j]], gprotonMass);
-            if(rcTrkqOverP[pi_dca_index[i]]*rcTrkqOverP[proton_dca_index[j]]<0){
-              TLorentzVector parent = pi_mom_vec + proton_mom_vec;
-              h3InvMass[1]->Fill(parent.Pt(), parent.Rapidity(), parent.M());
+          Acts::BoundVector params;
+          params(Acts::eBoundLoc0)   = rcTrkLoca[rc_index];
+          params(Acts::eBoundLoc1)   = rcTrkLocb[rc_index];
+          params(Acts::eBoundPhi)    = rcTrkPhi[rc_index];
+          params(Acts::eBoundTheta)  = rcTrkTheta[rc_index];
+          params(Acts::eBoundQOverP) = rcTrkqOverP[rc_index];
+          params(Acts::eBoundTime)   = 0;
+          
+          //FIXME: Set covariance matrix based on input ROOT file information
+          Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
+          Acts::Vector3 rc_vtx_pos(vertex_rc.x() * Acts::UnitConstants::mm, vertex_rc.y() * Acts::UnitConstants::mm, vertex_rc.z() * Acts::UnitConstants::mm);
+          Acts::BoundTrackParameters track_parameters(perigee,params,cov,Acts::ParticleHypothesis::pion());
+          if(mcPartPdg[iSimPartID] == 2212) track_parameters = Acts::BoundTrackParameters(perigee,params,cov,Acts::ParticleHypothesis::proton());
+        
+          auto result = ImPoEs.estimate3DImpactParameters(trackingGeoCtx,fieldctx,track_parameters,rc_vtx_pos,ImPoEs_state);
+          if(result.ok()){
+            Acts::BoundTrackParameters trk_boundpar_vtx = result.value();
+            auto trk_vtx_gbl_pos = trk_boundpar_vtx.position(trackingGeoCtx);
+            double dca_xy = sqrt( pow(trk_vtx_gbl_pos.x()-rc_vtx_pos.x(),2) + pow(trk_vtx_gbl_pos.y()-rc_vtx_pos.y(),2) );
+            double dca_z = trk_vtx_gbl_pos.z()-rc_vtx_pos.z();
+            if(dca_xy>0.04){
+              if(mcPartPdg[iSimPartID] == -211) pi_dca_index.push_back(rc_index);
+              if(mcPartPdg[iSimPartID] == 2212) proton_dca_index.push_back(rc_index);
             }
           }
         }
       }
-	      
-      nevents++;
+    
+      // proton pion pair
+      for(int i=0; i<pi_index.size(); i++){
+        TLorentzVector pi_mom_vec;
+        pi_mom_vec.SetXYZM(rcMomPx[pi_index[i]], rcMomPy[pi_index[i]], rcMomPz[pi_index[i]], gPionMass);
+        for(int j=0; j<proton_index.size(); j++){
+          TLorentzVector proton_mom_vec;
+          proton_mom_vec.SetXYZM(rcMomPx[proton_index[j]], rcMomPy[proton_index[j]], rcMomPz[proton_index[j]], gprotonMass);
+          //Delta R sec. vtx - reco prim. vtx
+          double deltaX=svert_vx[pi_index[i]]-CTVx[pi_index[i]];
+          double deltaY=svert_vy[pi_index[i]]-CTVy[pi_index[i]];
+          double deltaZ=svert_vz[pi_index[i]]-CTVz[pi_index[i]];
+          double deltaR=std::sqrt(deltaX*deltaX+deltaY*deltaY+deltaZ*deltaZ);
+          // DecayR MC decay vertex
+          TVector3 mc_prmvtx_decay(-999.,-999.,-999.);
+          TVector3 sec_vtx_decay(-999.,-999.,-999.);
+          for(int mcvtx=0; mcvtx<mcEndPointX.GetSize(); mcvtx++){
+            mc_prmvtx_decay.SetXYZ(mcEndPointX[mcvtx], mcEndPointY[mcvtx], mcEndPointZ[mcvtx]);
+            sec_vtx_decay.SetXYZ(svert_vx[pi_index[i]], svert_vy[pi_index[i]], svert_vz[pi_index[i]]);
+            if(rcTrkqOverP[pi_index[i]]*rcTrkqOverP[proton_index[j]]<0){
+              double mc_decay_dx = sec_vtx_decay.x()-mc_prmvtx_decay.x();
+              double mc_decay_dy = sec_vtx_decay.y()-mc_prmvtx_decay.y();
+              double mc_decay_dz = sec_vtx_decay.z()-mc_prmvtx_decay.z();
+              double mc_decay_dr = std::sqrt(mc_decay_dx*mc_decay_dx + mc_decay_dy*mc_decay_dy + mc_decay_dz*mc_decay_dz);
+              h1mcR->Fill(deltaR);
+            }
+          }
+  
+          h1secX->Fill(deltaX);
+          h1secY->Fill(deltaY);
+          h1secZ->Fill(deltaZ);
+  
+          if(rcTrkqOverP[pi_index[i]]*rcTrkqOverP[proton_index[j]]<0){
+            hEventStat->Fill(3.5);
+            TLorentzVector parent = pi_mom_vec + proton_mom_vec;
+            h3InvMass[0]->Fill(parent.Pt(), parent.Rapidity(), parent.M());
+            h2LambdapTvy->Fill(parent.Pt(),parent.Rapidity());
+            h2Lambdapveta->Fill(parent.P(),parent.PseudoRapidity());
+            h1MassL->Fill(parent.M());
+            h1R->Fill(deltaR);
+          }
+          //---- Propagate track to Perigee surface at sec. vertex = (x,y,z) mm ----
+          //-----pi^-
+          Acts::BoundVector pi_params,proton_params;
+          pi_params(Acts::eBoundLoc0)   = rcTrkLoca[pi_index[i]];
+          pi_params(Acts::eBoundLoc1)   = rcTrkLocb[pi_index[i]];
+          pi_params(Acts::eBoundPhi)    = rcTrkPhi[pi_index[i]];
+          pi_params(Acts::eBoundTheta)  = rcTrkTheta[pi_index[i]];
+          pi_params(Acts::eBoundQOverP) = rcTrkqOverP[pi_index[i]];
+          pi_params(Acts::eBoundTime)   = 0;
+          //----proton
+          proton_params(Acts::eBoundLoc0)   = rcTrkLoca[proton_index[j]];
+          proton_params(Acts::eBoundLoc1)   = rcTrkLocb[proton_index[j]];
+          proton_params(Acts::eBoundPhi)    = rcTrkPhi[proton_index[j]];
+          proton_params(Acts::eBoundTheta)  = rcTrkTheta[proton_index[j]];
+          proton_params(Acts::eBoundQOverP) = rcTrkqOverP[proton_index[j]];
+          proton_params(Acts::eBoundTime)   = 0;
+          
+          //FIXME: Set covariance matrix based on input ROOT file information
+          Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
+          // Define Perigee surface to which to propagate track
+          auto perigee_svtx = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(svert_vx[pi_index[i]], svert_vy[pi_index[i]], svert_vz[pi_index[i]]));
+          
+          
+          Acts::BoundTrackParameters pi_track_params(perigee_svtx,pi_params,cov,Acts::ParticleHypothesis::pion());
+          Acts::BoundTrackParameters proton_track_params(perigee_svtx,proton_params,cov,Acts::ParticleHypothesis::proton());
+          
+          // Create propagator options
+          Acts::PropagatorOptions<> piOptions(trackingGeoCtx, fieldctx);
+          Acts::PropagatorOptions<> protonOptions(trackingGeoCtx, fieldctx);
+          auto pi_intersect = perigee_svtx->intersect(trackingGeoCtx,pi_track_params.position(trackingGeoCtx),
+                              pi_track_params.direction(),Acts::BoundaryCheck(false)).closest();
+          auto proton_intersect = perigee_svtx->intersect(trackingGeoCtx,proton_track_params.position(trackingGeoCtx),
+                                  proton_track_params.direction(),Acts::BoundaryCheck(false)).closest();
+  
+          piOptions.direction = Acts::Direction::fromScalarZeroAsPositive(pi_intersect.pathLength());
+          protonOptions.direction = Acts::Direction::fromScalarZeroAsPositive(proton_intersect.pathLength());
+
+          // Do the propagation to linPoint
+          auto result_perigee_pi = propagator.propagateToSurface(pi_track_params, *perigee_svtx, piOptions);
+          auto result_perigee_proton = propagator.propagateToSurface(proton_track_params, *perigee_svtx, protonOptions);
+
+          TLorentzVector pi_mom_svtx,proton_mom_svtx,L_svtx;
+          if(result_perigee_pi.ok() && result_perigee_proton.ok()){
+            // Momentum
+            const decltype(edm4eic::TrackPoint::momentum) pi_mom = edm4hep::utils::sphericalToVector(
+                    static_cast<float>(1.0 / std::abs(pi_params[Acts::eBoundQOverP])),
+                    static_cast<float>(pi_params[Acts::eBoundTheta]),
+                    static_cast<float>(pi_params[Acts::eBoundPhi])
+            );
+            const decltype(edm4eic::TrackPoint::momentum) proton_mom = edm4hep::utils::sphericalToVector(
+                    static_cast<float>(1.0 / std::abs(proton_params[Acts::eBoundQOverP])),
+                    static_cast<float>(proton_params[Acts::eBoundTheta]),
+                    static_cast<float>(proton_params[Acts::eBoundPhi])
+            );
+            pi_mom_svtx.SetXYZM(pi_mom.x,pi_mom.y,pi_mom.z,gPionMass);
+            proton_mom_svtx.SetXYZM(proton_mom.x,proton_mom.y,proton_mom.z,gprotonMass);
+            L_svtx=pi_mom_svtx+proton_mom_svtx;
+            h1MassLsvtx->Fill(L_svtx.M());
+          }
+        }
+      }
+    
+      for(int i=0; i<pi_dca_index.size(); i++){
+        TLorentzVector pi_mom_vec;
+        pi_mom_vec.SetXYZM(rcMomPx[pi_dca_index[i]], rcMomPy[pi_dca_index[i]], rcMomPz[pi_dca_index[i]], gPionMass);
+        for(int j=0; j<proton_dca_index.size(); j++){
+          TLorentzVector proton_mom_vec;
+          proton_mom_vec.SetXYZM(rcMomPx[proton_dca_index[j]], rcMomPy[proton_dca_index[j]], rcMomPz[proton_dca_index[j]], gprotonMass);
+          if(rcTrkqOverP[pi_dca_index[i]]*rcTrkqOverP[proton_dca_index[j]]<0){
+            TLorentzVector parent = pi_mom_vec + proton_mom_vec;
+            h3InvMass[1]->Fill(parent.Pt(), parent.Rapidity(), parent.M());
+          }
+        }
+      }
     }
+            
+    nevents++;
+  }
 
   TFile *outfile = new TFile(outname.Data(), "recreate");
 
@@ -683,6 +797,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h2LambdapTvy->Write();
   h2Lambdapveta->Write();
   h1MassL->Write();
+  h1MassLsvtx->Write();
   
   hLambdaDecayVxVy->Write();
   hLambdaDecayVrVz->Write();
