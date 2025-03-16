@@ -115,7 +115,6 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('#pragma once\n')
     f.write('\n')
     f.write('#include <stdexcept>\n')
-    f.write('#include <podio/podioVersion.h>\n')
     f.write('#include <podio/CollectionBase.h>\n')
     f.write('\n\n')
     f.write('\n'.join(type_map))

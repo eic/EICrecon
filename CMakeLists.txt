@@ -198,7 +198,7 @@ find_package(DD4hep REQUIRED)
 
 # ACTS cmake-lint: disable=C0103
 find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
-set(Acts_VERSION_MIN "19.0.0")
+set(Acts_VERSION_MIN "33.0.0")
 set(Acts_VERSION
     "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
 if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN} AND NOT "${Acts_VERSION}"
