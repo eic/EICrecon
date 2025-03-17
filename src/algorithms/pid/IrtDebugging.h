@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <TRandomGen.h>
+//#include <TRandom.h>
+
 #if 1//_TODAY_
 #include <IRT/CherenkovDetector.h>
 #include <IRT/CherenkovDetectorCollection.h>
@@ -42,6 +45,7 @@
 
 class TTree;
 class TFile;
+class TH1D;
 class TBranch;
 class CherenkovEvent;
 //#include <mutex>
@@ -117,12 +121,16 @@ namespace eicrecon {
     static unsigned m_InstanceCounter;
     static TBranch *m_EventBranch;
     unsigned m_Instance;
+
+  static TH1D *m_Debug;
+    
+    TRandomMixMax m_random;
+    std::function<double()> m_rngUni;
     
 #if _TODAY_
     const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
-
-    uint64_t    m_cell_mask;
 #endif
+    //uint64_t    m_cell_mask;
     std::string m_det_name;
 #if _TODAY_
     std::unordered_map<int,double>           m_pdg_mass;

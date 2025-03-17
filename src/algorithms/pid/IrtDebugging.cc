@@ -44,12 +44,14 @@
 
 #include <TFile.h>
 #include <TTree.h>
+#include <TH1D.h>
 #include <TBranch.h>
 #include "IRT/CherenkovEvent.h"
 #include <mutex>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4hep/utils/kinematics.h>
 #include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackSegment.h>
 
 //DreamReadout* DreamReadout::m_Instance = 0;
 //thread_local CherenkovEvent *eicrecon::IrtDebugging::m_Event = 0;
@@ -63,6 +65,7 @@ TFile *eicrecon::IrtDebugging::m_OutputFile = 0;
 TTree *eicrecon::IrtDebugging::m_EventTree = 0;
 TBranch *eicrecon::IrtDebugging::m_EventBranch = 0;
 unsigned eicrecon::IrtDebugging::m_InstanceCounter = 0;
+TH1D *eicrecon::IrtDebugging::m_Debug = 0;
 
 static std::map<CherenkovRadiator*, std::string> radiators;
 
@@ -78,6 +81,9 @@ namespace eicrecon {
       if (!m_InstanceCounter) {
 	m_OutputFile->cd();
 	m_EventTree->Write();
+
+	m_Debug->Write();
+	
 	m_OutputFile->Close();
       } //if
 #endif
@@ -90,6 +96,11 @@ void IrtDebugging::init(
 			)
 {
 
+  m_random.SetSeed(0x12345678);//m_cfg.seed);
+  m_rngUni = [&](){
+    return m_random.Uniform(0., 1.0);
+  };
+  
   {
     std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
     
@@ -103,6 +114,8 @@ void IrtDebugging::init(
       
       m_EventTree = new TTree("t", "My tree");
       m_EventBranch = m_EventTree->Branch("e", "CherenkovEvent", 0/*&m_Event*/, 16000, 2);
+      
+      m_Debug = new TH1D("debug", "", 1000, 0, 1000);
     } //if
 #endif
     m_Instance = m_InstanceCounter++;
@@ -147,11 +160,13 @@ void IrtDebugging::init(
   printf("@@@ %ld radiators defined\n", m_irt_det->Radiators().size());
 #if _TODAY_
   m_log->debug("Initializing IrtCherenkovParticleID algorithm for CherenkovDetector '{}'", m_det_name);
+#endif
 
   // readout decoding
-  m_cell_mask = m_irt_det->GetReadoutCellMask();
-  m_log->debug("readout cellMask = {:#X}", m_cell_mask);
+  //m_cell_mask = m_irt_det->GetReadoutCellMask();
+  //m_log->debug("readout cellMask = {:#X}", m_cell_mask);
 
+#if _OLD_
   // rebin refractive index tables to have `m_cfg.numRIndexBins` bins
   m_log->trace("Rebinning refractive index tables to have {} bins",m_cfg.numRIndexBins);
   for(auto [rad_name,irt_rad] : m_irt_det->Radiators()) {
@@ -229,7 +244,7 @@ void IrtDebugging::process(
   auto [out_irt_debug_info] = output;
 
   // First build MC->reco lookup table;
-  std::map<unsigned, std::vector<unsigned>> assoc_lookup_table;
+  std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
   for(const auto &assoc: *in_mc_reco_associations) {
     // MC particle index in its respective in_mc_particles array;
     unsigned mcid = assoc.getSimID();//.id().index;
@@ -241,8 +256,22 @@ void IrtDebugging::process(
     //auto tnum = rcparticle.getTracks().size();
     //printf("tnum: %ld\n", tnum);
     for(auto &track: rcparticle.getTracks())
-      assoc_lookup_table[mcid].push_back(track.id().index);
+      MCParticle_to_Tracks_lut[mcid].push_back(track.id().index);
   } //for assoc
+
+  // Then track -> aerogel projection lookup table; FIXME: other radiators; 
+  std::map<unsigned, edm4eic::TrackSegment> Track_to_TrackSegment_lut;
+  for(auto segment: *in_aerogel_tracks) {
+    //auto particle      = particles->at(0);//i_charged_particle);
+    //printf("(3)   --> %ld\n", particle.points_size());
+    auto track = segment.getTrack();
+    Track_to_TrackSegment_lut[track.id().index] = segment;
+  } //for particle
+    
+  // Help optical photons to find their parents;
+  std::map<unsigned, ChargedParticle*> MCParticle_to_ChargedParticle;
+  
+  unsigned counter = 0;
     
   // Create event structure a la standalone pfRICH/IRT code; use MC particles (in_mc_particles)
   // in this first iteration (and only select primary ones); later on should do it probably
@@ -258,99 +287,172 @@ void IrtDebugging::process(
       
       // Now check that MC->reco association exists; for now ignore cases where more than one track
       // is associated with a given MC particle;
-      if (assoc_lookup_table.find(mcid) == assoc_lookup_table.end()) continue;
-      auto &rctracks = assoc_lookup_table[mcid];
+      if (MCParticle_to_Tracks_lut.find(mcid) == MCParticle_to_Tracks_lut.end()) continue;
+      auto &rctracks = MCParticle_to_Tracks_lut[mcid];
       if (rctracks.size() > 1) continue;
       auto &rctrack = rctracks[0];
 
       // Now add a charged particle to the event structure; 'true': primary;
       auto particle = new ChargedParticle(mcparticle.getPDG(), true);
       // FIXME: check units;
-      particle->SetVertexPosition((1/dd4hep::mm)  * Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
-      particle->SetVertexMomentum((1/dd4hep::GeV) * Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
-      particle->SetVertexTime    ((1/dd4hep::ns)  * mcparticle.getTime());
+      particle->SetVertexPosition(/*(1/dd4hep::mm)  **/ Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
+      particle->SetVertexMomentum(/*(1/dd4hep::GeV) **/ Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
+      particle->SetVertexTime    (/*(1/dd4hep::ns)  **/ mcparticle.getTime());
       
       m_Event->AddChargedParticle(particle);
+      MCParticle_to_ChargedParticle[mcid] = particle;
+
+      {
+	auto aerogel = m_irt_det->GetRadiator("Aerogel");
+	
+	auto history = new RadiatorHistory();
+	particle->StartRadiatorHistory(std::make_pair(aerogel, history));
+
+	auto segment = Track_to_TrackSegment_lut[rctrack];//.id().index];
+	for(const auto& point : segment.getPoints()) {
+	  TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
+	  TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
+	  
+	  //irt_rad->AddLocation(position, momentum);
+	  //Tools::PrintTVector3(m_log, " point: x", position);
+	  //Tools::PrintTVector3(m_log, "        p", momentum);
+#if 1
+	  printf("x=%7.2f y=%7.2f z=%7.2f -> px=%8.4f py=%8.4f pz=%7.2f\n",
+		 position.X(), position.Y(), position.Z(), 
+		 momentum.X(), momentum.Y(), momentum.Z());
+#endif
+
+	  auto step = new ChargedParticleStep(position, momentum);
+	  history->AddStep(step);
+	} //for point
+      }
     } //for mcparticle
 
+#if 0
+#if 0
+    TVector3 momentum = Tools::PodioVector3_to_TVector3(track.getMomentum());
+    printf("%3d / %3d (%3d) vs %3d\n", track.id().collectionID, particle.id().collectionID, track.id().index, in_reco_particles->getID());//momentum.Mag());
+    for(const auto& point : particle.getPoints()) {
+      TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
+      TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
+      
+      //irt_rad->AddLocation(position, momentum);
+      //Tools::PrintTVector3(m_log, " point: x", position);
+      //Tools::PrintTVector3(m_log, "        p", momentum);
+#if 1
+      printf("x=%7.2f y=%7.2f z=%7.2f -> px=%8.4f py=%8.4f pz=%7.2f\n",
+	     position.X(), position.Y(), position.Z(), 
+	     momentum.X(), momentum.Y(), momentum.Z());
+#endif
+    } //for point
+#endif
+#endif
+    
     // Now loop through simulated hits;
     for(auto mchit: *in_sim_hits) {
+      //auto cell_id   = mchit.getCellID();
+      //uint64_t sensor_id = cell_id & m_irt_det->m_cell_mask;
+      //printf("cell: %lX\n", cell_id);
+
+      printf("dE: %7.2f\n", 1E9 * mchit.getEDep());
+      
       // Get photon which created this hit; filter out charged particles;
       auto &mcparticle = mchit.getMCParticle();
       //printf("%4d -> %d\n", mcparticle.id().index, mcparticle.getPDG());
       if (mcparticle.getPDG() != -22) continue;
+
+      counter++;
       
+      // Create an optical photon class instance and populate it; units: [mm], [ns], [eV];
       auto photon = new OpticalPhoton();
 
       // Information provided by the hit itself: detection position and time;
-      photon->SetDetectionPosition((1/dd4hep::mm)  * Tools::PodioVector3_to_TVector3(mchit.getPosition()));
-      photon->SetDetectionTime    ((1/dd4hep::ns)  * mchit.getTime());
+      photon->SetDetectionPosition(/*(1/dd4hep::mm)  **/ Tools::PodioVector3_to_TVector3(mchit.getPosition()));
+      photon->SetDetectionTime    (/*(1/dd4hep::ns)  **/ mchit.getTime());
 
       // Information inherited from photon MCParticle; FIXME: units?;
-      photon->SetVertexPosition   ((1/dd4hep::mm)  * Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
-      photon->SetVertexMomentum   ((1/dd4hep::GeV) * Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
-      photon->SetVertexTime       ((1/dd4hep::ns)  * mcparticle.getTime());
+      photon->SetVertexPosition   (/*(1/dd4hep::mm)  **/ Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
+      photon->SetVertexMomentum   (/*(1/dd4hep::GeV) **/ 1E9 * Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
+      photon->SetVertexTime       (/*(1/dd4hep::ns)  **/ mcparticle.getTime());
+      //printf("time: %f %f\n",  photon->GetVertexTime(), photon->GetDetectionTime());
+      //auto &vtx1 = photon->GetVertexPosition(), &vtx2 = photon->GetDetectionPosition();
+      //printf("%f %f %f-> %f %f %f\n", vtx1[0], vtx1[1], vtx1[2], vtx2[0], vtx2[1], vtx2[2]);
+      //printf("p: %f\n", photon->GetVertexMomentum().Mag());
       
       // photon->SetVertexParentMomentum((1/GeV)*TVector3(pparent.x(), pparent.y(), pparent.z()));
 
+      // FIXME: (0,0,1) or (0,0,-1)?; should be different for e-endcap?;
       TVector3 vtx = /*(1/dd4hep::mm)**/Tools::PodioVector3_to_TVector3(mcparticle.getVertex()), n0(0,0,1);
       //printf("%p -> %d\n", m_irt_det, m_irt_det->GetSector(vtx));
-      auto mc_rad = m_irt_det->GuessRadiator(vtx, n0); // assume IP is at (0,0,0)
-      printf("%s\n", mc_rad ? radiators[mc_rad].c_str() : "");
+      auto radiator = m_irt_det->GuessRadiator(vtx, n0); // assume IP is at (0,0,0)
+      //printf("%s\n", radiator ? radiators[radiator].c_str() : "");
       //printf("%s\n", rptr.first.Data());
 
-      
-#if _TODAY_
-#if _TODAY_
-      {
-	auto radiator = m_Geometry->FindRadiator(track->GetLogicalVolumeAtVertex());
-	//assert(radiator);
+      auto parents = mcparticle.getParents();
+      if (parents.size() != 1) continue;
+      unsigned parent_id = mcparticle.parents_begin()->id().index;
+      if (MCParticle_to_ChargedParticle.find(parent_id) == MCParticle_to_ChargedParticle.end()) continue;
+      auto parent = MCParticle_to_ChargedParticle[parent_id];
 	
-	if (radiator) {
-	  photon->SetVertexAttenuationLength(GetAttenuationLength(radiator, e));
-	  photon->SetVertexRefractiveIndex (GetRefractiveIndex(radiator, e));
-	  
-	  auto history = parent->FindRadiatorHistory(radiator);
-	  // FIXME: this happens with the sensor window volumes; why?;
-	  if (!history) {
-	    history = new RadiatorHistory();
-	    parent->StartRadiatorHistory(std::make_pair(radiator, history));
-	  } //if
-	  history->AddOpticalPhoton(photon);
-	} else {
-	  if (m_Geometry->CheckBits(_STORE_ORPHAN_PHOTONS_))
-	    parent->AddOrphanPhoton(photon);
+      // FIXME: a hack for now;
+      //if (!radiator || strcmp(radiators[radiator].c_str(), "Aerogel")) continue;
+      if (radiator) {
+	printf("%s -> p: %f\n", radiators[radiator].c_str(), photon->GetVertexMomentum().Mag());
+	//photon->SetVertexAttenuationLength(GetAttenuationLength(radiator, e));
+	photon->SetVertexAttenuationLength(40.0);
+	//photon->SetVertexRefractiveIndex (GetRefractiveIndex(radiator, e));
+	photon->SetVertexRefractiveIndex (1.040);
+	
+	auto history = parent->FindRadiatorHistory(radiator);
+	// FIXME: this happens with the sensor window volumes; why?;
+	if (!history) {
+	  history = new RadiatorHistory();
+	  parent->StartRadiatorHistory(std::make_pair(radiator, history));
 	} //if
-      }
-#endif	  
+	
+	history->AddOpticalPhoton(photon);
+      } else {
+	if (m_irt_det_coll->CheckBits(_STORE_ORPHAN_PHOTONS_))
+	  parent->AddOrphanPhoton(photon);
+      } //if
 
-#if _TODAY_
-      auto pd = m_Geometry->FindPhotonDetector(lto);
-      
+      // FIXME: this is a hack;
+      //printf("--> %ld photon detector(s)\n", m_irt_det->m_PhotonDetectors.size());
+      if (m_irt_det->m_PhotonDetectors.size() != 1) continue;
+      //auto pd = m_Geometry->FindPhotonDetector(lto);
+      auto pd = m_irt_det->m_PhotonDetectors[0];
       if (pd) {
 	photon->SetPhotonDetector(pd);
-      }
+	// FIXME: a hack;
+	//photon->SetVolumeCopy(xto->GetTouchable()->GetCopyNumber(pd->GetCopyIdentifierLevel()));
+	photon->SetVolumeCopy(0);
+
+	//printf("-> %f %f\n", pd->GetGeometricEfficiency(), pd->GetScaleFactor());
+#if 1
+	double rndm = m_rngUni();
+	(rndm > 0.90) ? photon->SetDetected(true) :  photon->SetCalibrationFlag();
+	printf("@@@ %7.5f -> %d %d\n", rndm, photon->WasDetected(), photon->IsUsefulForCalibration());
+#else
+	// The logic behind this multiplication and division by the same number is 
+	// to select calibration photons, which originate from the same QE(lambda) 
+	// parent distribution, but do not pass the overall efficiency test;
+	{
+	  double QE = 0.20, scale_factor = 1/QE;
+	  
+	  //if (/*GetQE(pd, track->GetTotalEnergy())*/0.20*pd->GetScaleFactor() > m_rngUni()) {
+	  if (QE*scale_factor > m_rngUni()) {
+	    //if (pd->GetGeometricEfficiency()/pd->GetScaleFactor() > m_rngUni())
+	    if (pd->GetGeometricEfficiency()/scale_factor > m_rngUni())
+	      photon->SetDetected(true);
+	    else
+	      photon->SetCalibrationFlag();
+	  } //if
+	}
 #endif
-#if _TODAY_
-      photon->SetVolumeCopy(xto->GetTouchable()->GetCopyNumber(pd->GetCopyIdentifierLevel()));
-#endif
-#if _TODAY_	      
-      // The logic behind this multiplication and division by the same number is 
-      // to select calibration photons, which originate from the same QE(lambda) 
-      // parent distribution, but do not pass the overall efficiency test;
-      if (GetQE(pd, track->GetTotalEnergy())*pd->GetScaleFactor() > G4UniformRand()) { 
-	if (pd->GetGeometricEfficiency()/pd->GetScaleFactor() > G4UniformRand())
-	  photon->SetDetected(true);
-	else
-	  photon->SetCalibrationFlag();
       } //if
-      
-      if (!info->Parent()) m_EventPtr->AddOrphanPhoton(photon);
-#endif
-      
-      //TVector3 position = Tools::PodioVector3_to_TVector3(hit.getPosition());
-      //printf("x=%7.2f y=%7.2f z=%7.2f\n", position.X(), position.Y(), position.Z());
-#endif
+
+
+      //? if (!info->Parent()) m_EventPtr->AddOrphanPhoton(photon);
     } //for hit
   }
 
@@ -792,6 +894,9 @@ void IrtDebugging::process(
     
     m_EventBranch->SetAddress(m_EventPtr);
     m_EventTree->Fill();
+
+    //printf("m_Debug: %p\n", m_Debug
+    m_Debug->Fill(counter);
   }
 #endif
 }
