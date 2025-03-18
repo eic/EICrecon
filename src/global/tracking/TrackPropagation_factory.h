@@ -29,7 +29,7 @@ private:
 
     PodioInput<edm4eic::Track> m_tracks_input {this};
     Input<ActsExamples::Trajectories> m_acts_trajectories_input {this};
-    Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input {this};
+    ContainerInput<ActsExamples::ConstTrackContainer> m_acts_tracks_input {this};
     PodioOutput<edm4eic::TrackSegment> m_track_segments_output {this};
 
     Service<DD4hep_service> m_GeoSvc {this};
