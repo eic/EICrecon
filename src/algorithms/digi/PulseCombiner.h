@@ -32,8 +32,11 @@ public:
 
 private:
 
+  std::vector<std::vector<edm4hep::TimeSeries*>> clusterPulses(const std::vector<edm4hep::TimeSeries*>& pulses) const;
+  edm4hep::MutableTimeSeries sumPulses(const std::vector<edm4hep::TimeSeries*>& pulses) const;
   int m_minimum_separation = 1000*dd4hep::ns;
-
+  int m_max_time_bins = 10000;
+  
 };
 
 } // namespace eicrecon

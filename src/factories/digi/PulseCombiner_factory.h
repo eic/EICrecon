@@ -22,7 +22,7 @@ private:
 
   PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
 
-  ParameterRef<double> m_minimum_separation{this, "minimum_seperation", config().minimum_seperation};
+  ParameterRef<double> m_minimum_separation{this, "minimum_seperation", config().minimum_separation};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

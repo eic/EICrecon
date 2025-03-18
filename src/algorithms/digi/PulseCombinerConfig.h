@@ -7,7 +7,7 @@
 
 namespace eicrecon {
 
-struct SiliconPulseGenerationConfig {
+struct PulseCombinerConfig {
   double minimum_separation = 50 * dd4hep::ns; // Minimum digitization time step
 };
 
