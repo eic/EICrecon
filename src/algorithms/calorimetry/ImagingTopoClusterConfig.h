@@ -33,6 +33,7 @@ namespace eicrecon {
     // minimum number of hits (to save this cluster)
     std::size_t minClusterNhits = 10;
 
+    std::string adjacencyMatrix;
   };
 
   std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode& layerMode) {
