@@ -105,6 +105,10 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   TH2F *hMcProtonEta = new TH2F("hMcProtonEta", "MC proton from #Lambda decay;#eta^{MC};p_{T}^{MC} (GeV/c)", 20, -5, 5, 100, 0, 10);
   TH2F *hMcProtonEtaReco = new TH2F("hMcProtonEtaReco", "RC proton from #Lambda decay;#eta^{MC};p_{T}^{MC} (GeV/c)", 20, -5, 5, 100, 0, 10);
 
+  TH2F *h2PiPtEtaReco = new TH2F("h2PiPtEtaReco", "Reco. #pi from #Lambda decay;#eta^{Reco};p_{T}^{MC} (GeV/c)", 40, -5, 5, 100, 0, 10);
+
+  TH2F *h2ProtonPtEtaReco = new TH2F("h2ProtonEtaReco", "Reco. proton from #Lambda decay;#eta^{Reco};p_{T}^{MC} (GeV/c)", 40, -5, 5, 100, 0, 10);
+
   TH1F *hNRecoVtx = new TH1F("hNRecoVtx", "Number of reconstructed vertices;N", 10, 0, 10);
 
   const char* part_name[2] = {"Pi", "proton"};
@@ -138,11 +142,11 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
 
   // Secondary vertex to primary vertex: x,y,z
   //------Lambda kinematic plots
-  TH2D*h2LambdapTvy=new TH2D("h2LambdapTvy","#Lambda P_{T} Vs y ",100,-2,4,100,0,10);
+  TH2D*h2LambdapTvy=new TH2D("h2LambdapTvy","#Lambda P_{T} Vs y ",40,-5,5,100,0,10);
   h2LambdapTvy->GetXaxis()->SetTitle("rapidity y");
   h2LambdapTvy->GetYaxis()->SetTitle("P_{T} [GeV]"); 
 
-  TH2D*h2Lambdapveta=new TH2D("h2Lambdapveta","#Lambda p Vs #eta",100,0,10,100,0,20); 
+  TH2D*h2Lambdapveta=new TH2D("h2Lambdapveta","#Lambda p Vs #eta",40,-5,5,100,0,20); 
   h2Lambdapveta->GetXaxis()->SetTitle("pseudorapidity #eta"); 
   h2Lambdapveta->GetYaxis()->SetTitle("P [GeV]");
 
@@ -151,6 +155,9 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
 
   TH1D* h1MassLsvtx=new TH1D("h1MassLsvtx","",100,0.9,1.5);
   h1MassLsvtx->GetXaxis()->SetTitle("Sec. Vertex Mass [GeV]");
+
+  TH1D* h1MassLvtxBarr=new TH1D("h1MassLvtxBarr","",350,0.0,3.5);
+  h1MassLvtxBarr->GetXaxis()->SetTitle("Sec. Vertex Barrel Mass [GeV]");
 
   TH1* h1secChi2= new TH1D("h1secChi2","",100,0,10);
   h1secChi2->GetXaxis()->SetTitle("Sec Vertex #Chi^{2}");
@@ -697,8 +704,8 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
             hEventStat->Fill(3.5);
             TLorentzVector parent = pi_mom_vec + proton_mom_vec;
             h3InvMass[0]->Fill(parent.Pt(), parent.Rapidity(), parent.M());
-            h2LambdapTvy->Fill(parent.Pt(),parent.Rapidity());
-            h2Lambdapveta->Fill(parent.P(),parent.PseudoRapidity());
+            h2LambdapTvy->Fill(parent.Rapidity(),parent.Pt());
+            h2Lambdapveta->Fill(parent.PseudoRapidity(),parent.P());
             h1MassL->Fill(parent.M());
             h1R->Fill(deltaR);
           }
@@ -744,6 +751,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
           auto result_perigee_proton = propagator.propagateToSurface(proton_track_params, *perigee_svtx, protonOptions);
 
           TLorentzVector pi_mom_svtx,proton_mom_svtx,L_svtx;
+          TLorentzVector pi_mom_vtxBarr,proton_mom_vtxBarr,L_vtxBarr;
           if(result_perigee_pi.ok() && result_perigee_proton.ok()){
             // Momentum
             const decltype(edm4eic::TrackPoint::momentum) pi_mom = edm4hep::utils::sphericalToVector(
@@ -760,6 +768,15 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
             proton_mom_svtx.SetXYZM(proton_mom.x,proton_mom.y,proton_mom.z,gprotonMass);
             L_svtx=pi_mom_svtx+proton_mom_svtx;
             h1MassLsvtx->Fill(L_svtx.M());
+            h2PiPtEtaReco->Fill(pi_mom_svtx.Eta(),pi_mom_svtx.Pt());
+            h2ProtonPtEtaReco->Fill(proton_mom_svtx.Eta(),proton_mom_svtx.Pt());
+          }
+          // Vertex Barrel Invariant Mass
+          if(vtxbarrel_px.GetSize()>=2){
+            pi_mom_vtxBarr.SetXYZM(vtxbarrel_px[pi_index[i]],vtxbarrel_py[pi_index[i]],vtxbarrel_pz[pi_index[i]],gPionMass);
+            proton_mom_vtxBarr.SetXYZM(vtxbarrel_px[proton_index[j]],vtxbarrel_py[proton_index[j]],vtxbarrel_pz[proton_index[j]],gprotonMass);
+            L_vtxBarr=pi_mom_vtxBarr+proton_mom_vtxBarr;
+            h1MassLvtxBarr->Fill(L_vtxBarr.M());
           }
         }
       }
@@ -798,6 +815,9 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h2Lambdapveta->Write();
   h1MassL->Write();
   h1MassLsvtx->Write();
+  h1MassLvtxBarr->Write();
+  h2PiPtEtaReco->Write();
+  h2ProtonPtEtaReco->Write();
   
   hLambdaDecayVxVy->Write();
   hLambdaDecayVrVz->Write();
