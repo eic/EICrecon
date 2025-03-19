@@ -49,9 +49,9 @@ extern "C" {
       {"TaggerTrackerHits"},
       {"TaggerTrackerHitPulses"},
       {
-          .pulse_shape_function = std::make_shared<LandauPulse>(1, 2 * dd4hep::ns),
+          .pulse_shape_function = std::make_shared<LandauPulse>(1, 2 * edm4eic::unit::ns),
           .ignore_thres = 150.0,
-          .timestep = 0.2 * dd4hep::ns,
+          .timestep = 0.2 * edm4eic::unit::ns,
       },
       app
     ));
@@ -63,7 +63,7 @@ extern "C" {
       {"TaggerTrackerHitPulsesWithNoise"},
       {
           .poles = 5,
-          .varience = 1.0,
+          .variance = 1.0,
           .alpha = 0.5,
           .scale = 500.0,
       },
@@ -81,8 +81,8 @@ extern "C" {
            "TaggerTrackerRawHitAssociations"
          },
          {
-           .threshold = 1.5 * dd4hep::keV,
-           .timeResolution = 2 * dd4hep::ns,
+           .threshold = 1.5 * edm4eic::unit::keV,
+           .timeResolution = 2 * edm4eic::unit::ns,
          },
          app
     ));
