@@ -24,19 +24,28 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
   std::map<uint64_t, std::vector<edm4hep::TimeSeries>> cell_pulses;
   for (const edm4hep::TimeSeries& pulse: *inPulses) {  
     cell_pulses[0].push_back(pulse);
-    // cell_pulses[pulse.getCellID()].push_back(&pulse);
+    // cell_pulses[pulse.getCellID()].push_back(pulse);
   }
 
   // Loop over detector elements and combine pulses
   for (const auto& [cellID, pulses] : cell_pulses) {
-    // std::cout << "Processing cellID: " << cellID << std::endl;
     if(pulses.size() == 1) {
       outPulses->push_back(pulses.at(0).clone());
     }
     else{
       std::vector<std::vector<edm4hep::TimeSeries>> clusters = clusterPulses(pulses);
+      int clusterCount = 0;
       for (auto cluster: clusters) {
-        outPulses->push_back(*sumPulses(cluster));
+        // Clone the first pulse in the cluster
+        auto sum_pulse = outPulses->create();
+        sum_pulse.setCellID(cluster[0].getCellID());
+        sum_pulse.setInterval(cluster[0].getInterval());
+        sum_pulse.setTime(cluster[0].getTime());
+        
+        auto newPulse = sumPulses(cluster);
+        for(int i = 0; i < newPulse.size(); i++) {  
+          sum_pulse.addToAmplitude(newPulse[i]);  
+        }
       }      
     }
   }
@@ -64,8 +73,7 @@ std::vector<std::vector<edm4hep::TimeSeries>> PulseCombiner::clusterPulses(const
   for (auto pulse: ordered_pulses) {
     float pulseStartTime = pulse.getTime();
     float pulseEndTime = pulse.getTime() + pulse.getInterval()*pulse.getAmplitude().size();
-    // std::cout << pulse->getAmplitude().size() << std::endl;
-
+    
     if(!isNewPulse) {
       if (pulseStartTime < clusterEndTime + m_minimum_separation) {
         cluster_pulses.back().push_back(pulse);
@@ -85,68 +93,43 @@ std::vector<std::vector<edm4hep::TimeSeries>> PulseCombiner::clusterPulses(const
 
 } // PulseCombiner::clusterPulses
 
-edm4hep::MutableTimeSeries* PulseCombiner::sumPulses(const std::vector<edm4hep::TimeSeries> pulses) const {
-  // Clone the first pulse in the cluster
-  edm4hep::MutableTimeSeries* sum_pulse = new edm4hep::MutableTimeSeries();
-  sum_pulse->setCellID(pulses[0].getCellID());
-  sum_pulse->setInterval(pulses[0].getInterval());
-  sum_pulse->setTime(pulses[0].getTime());
-
-  
+std::vector<float> PulseCombiner::sumPulses(const std::vector<edm4hep::TimeSeries> pulses) const {
+    
   // Find maximum time of pulses in cluster
   float maxTime = 0;
   for (auto pulse: pulses) {
-    // std::cout << "Pulse" << std::endl;
-    // std::cout << pulse->getTime() << std::endl;
-    // std::cout << pulse->getInterval() << std::endl;
-    // std::cout << pulse->getAmplitude().size() << std::endl;
-    // std::cout << pulse->getTime() + pulse->getInterval()*pulse->getAmplitude().size() << std::endl;
-    // std::cout << maxTime << std::endl;
     maxTime = std::max(maxTime, pulse.getTime() + pulse.getInterval()*pulse.getAmplitude().size());
-    // std::cout << maxTime << std::endl;
   }
 
   //Calculate maxTime in interval bins
-  maxTime = maxTime - pulses[0].getTime();
-  int maxStep = maxTime/pulses[0].getInterval();
+  int maxStep = (maxTime - pulses[0].getTime())/pulses[0].getInterval();
 
   std::vector<float> newPulse(maxStep, 0.0);
 
-  std::cout << "Summing pulses" << std::endl;
-  std::cout << "Max time: " << maxTime << std::endl;
-  std::cout << "Max step: " << maxStep << std::endl;
-  
   for(auto pulse: pulses) {
     //Calculate start and end of pulse in interval bins
     int startStep = (pulse.getTime() - pulses[0].getTime())/pulse.getInterval();
-    int endStep = startStep + pulse.getAmplitude().size();
+    int pulseSize = pulse.getAmplitude().size();
+    int endStep = startStep + pulseSize;
     for(int i = 0; i < newPulse.size(); i++) {
-      // std::cout << "i: " << i << std::endl;
       // Add pulse values to new pulse
+      float contribution = 0;
       if(i >= startStep && i < endStep){
-        newPulse[startStep + i] += pulse.getAmplitude()[i - startStep];
+        contribution = pulse.getAmplitude()[i - startStep];
       } else { // Interpolate first and last two values to extrapolate over 0
-        float contribution = 0;
         if(i < startStep) {
           contribution = pulse.getAmplitude()[0] + (pulse.getAmplitude()[1] - pulse.getAmplitude()[0])*(i - startStep);
         } else if(i >= endStep) {
-          contribution = pulse.getAmplitude()[endStep - startStep - 1] + (pulse.getAmplitude()[endStep - startStep - 1] - pulse.getAmplitude()[endStep - startStep - 2])*(i - endStep);
+          contribution = pulse.getAmplitude()[pulseSize-1] + (pulse.getAmplitude()[pulseSize-1] - pulse.getAmplitude()[pulseSize-2])*(i - endStep);
         }
-        if(contribution>0){
-          newPulse[i] += contribution;
-        }
+      }
+      if(contribution>0){
+        newPulse[i] += contribution;
       }
     }
   }
     
-  std::cout << "Summed pulse size" << std::endl;
-  std::cout << newPulse.size() << std::endl;
-  for(int i = 0; i < newPulse.size(); i++) {
-    std::cout << newPulse[i] << std::endl;
-    sum_pulse->addToAmplitude(newPulse[i]);
-  }
-
-  return sum_pulse;
+  return newPulse;
 } // PulseCombiner::sumPulses
 
 } // namespace eicrecon
