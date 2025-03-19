@@ -27,7 +27,7 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     double charge = hit.getEDep();
 
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
-    double signal_time = m_timestep*static_cast<int>(time / m_timestep);
+    double signal_time = m_timestep*std::floor(time / m_timestep);
 
     auto time_series = rawPulses->create();
     time_series.setCellID(cellID);
@@ -53,7 +53,6 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     }
 
     time_series.setTime(signal_time);
-
   }
 
 } // SiliconPulseGeneration:process

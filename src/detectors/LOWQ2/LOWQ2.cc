@@ -50,7 +50,7 @@ extern "C" {
       {"TaggerTrackerHitPulses"},
       {
           .pulse_shape_function = std::make_shared<LandauPulse>(1, 2 * edm4eic::unit::ns),
-          .ignore_thres = 150.0,
+          .ignore_thres = 15.0e-8,
           .timestep = 0.2 * edm4eic::unit::ns,
       },
       app
