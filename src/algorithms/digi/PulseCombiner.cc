@@ -3,7 +3,6 @@
 //
 // Combine pulses into a larger pulse if they are within a certain time of each other
 
-#include <Evaluator/DD4hepUnits.h>
 #include <unordered_map>
 #include <vector>
 

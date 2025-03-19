@@ -3,12 +3,12 @@
 
 #pragma once
 
-#include <DD4hep/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 
 namespace eicrecon {
 
 struct PulseCombinerConfig {
-  double minimum_separation = 50 * dd4hep::ns; // Minimum digitization time step
+  double minimum_separation = 50 * edm4eic::unit::ns; // Minimum digitization time step
 };
 
 } // namespace eicrecon

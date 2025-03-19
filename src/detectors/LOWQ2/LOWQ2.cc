@@ -4,7 +4,6 @@
 //
 
 #include <edm4eic/EDM4eicVersion.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackSegment.h>
@@ -63,7 +62,7 @@ extern "C" {
       {"TaggerTrackerHitPulses"},
       {"TaggerTrackerCombinedPulses"},
       {
-          .minimum_separation = 25 * dd4hep::ns,
+          .minimum_separation = 25 * edm4eic::unit::ns,
       },
       app
     ));
