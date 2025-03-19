@@ -31,10 +31,10 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
   for (const auto& [cellID, pulses] : cell_pulses) {
     if(pulses.size() == 1) {
       outPulses->push_back(pulses.at(0).clone());
+      debug("CellID {} has only one pulse, no combination needed", cellID);
     }
     else{
       std::vector<std::vector<edm4hep::TimeSeries>> clusters = clusterPulses(pulses);
-      int clusterCount = 0;
       for (auto cluster: clusters) {
         // Clone the first pulse in the cluster
         auto sum_pulse = outPulses->create();
@@ -43,11 +43,13 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
         sum_pulse.setTime(cluster[0].getTime());
         
         auto newPulse = sumPulses(cluster);
-        for(int i = 0; i < newPulse.size(); i++) {  
-          sum_pulse.addToAmplitude(newPulse[i]);  
+        for(auto pulse : newPulse) {  
+          sum_pulse.addToAmplitude(pulse);  
         }
-      }      
+      }  
+      debug("CellID {} has {} pulses, combined into {} clusters", cellID, pulses.size(), clusters.size());
     }
+
   }
 
 } // PulseCombiner:process
@@ -73,7 +75,6 @@ std::vector<std::vector<edm4hep::TimeSeries>> PulseCombiner::clusterPulses(const
   for (auto pulse: ordered_pulses) {
     float pulseStartTime = pulse.getTime();
     float pulseEndTime = pulse.getTime() + pulse.getInterval()*pulse.getAmplitude().size();
-    
     if(!isNewPulse) {
       if (pulseStartTime < clusterEndTime + m_minimum_separation) {
         cluster_pulses.back().push_back(pulse);
