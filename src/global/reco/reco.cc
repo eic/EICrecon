@@ -53,6 +53,7 @@
 #include "global/reco/ReconstructedElectrons_factory.h"
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "global/reco/ScatteredElectronsTruth_factory.h"
+#include "global/reco/TrackClusterMatch_factory.h"
 
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -308,6 +309,14 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+    app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
+      "ReconstructedParticles_notruth",
+      {"CombinedTracks","EcalClusters"},
+      {"ReconstructedParticles_notruth"},
+      {},
+      app
+    ));
+
     app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
             "ReconstructedBreitFrameParticles",
             {"MCParticles","InclusiveKinematicsElectron","ReconstructedParticles"},
@@ -432,6 +441,8 @@ void InitPlugin(JApplication *app) {
         },
         app
     ));
+
+
 
 
 }
