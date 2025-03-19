@@ -21,7 +21,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
 
   // Create map containing vector of pulses from each CellID
   std::map<uint64_t, std::vector<edm4hep::TimeSeries>> cell_pulses;
-  for (const edm4hep::TimeSeries& pulse: *inPulses) {  
+  for (const edm4hep::TimeSeries& pulse: *inPulses) {
     cell_pulses[pulse.getCellID()].push_back(pulse);
   }
 
@@ -39,12 +39,12 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
         sum_pulse.setCellID(cluster[0].getCellID());
         sum_pulse.setInterval(cluster[0].getInterval());
         sum_pulse.setTime(cluster[0].getTime());
-        
+
         auto newPulse = sumPulses(cluster);
-        for(auto pulse : newPulse) {  
-          sum_pulse.addToAmplitude(pulse);  
+        for(auto pulse : newPulse) {
+          sum_pulse.addToAmplitude(pulse);
         }
-      }  
+      }
       debug("CellID {} has {} pulses, combined into {} clusters", cellID, pulses.size(), clusters.size());
     }
 
@@ -87,13 +87,13 @@ std::vector<std::vector<edm4hep::TimeSeries>> PulseCombiner::clusterPulses(const
       isNewPulse = false;
     }
   }
-  
+
   return cluster_pulses;
 
 } // PulseCombiner::clusterPulses
 
 std::vector<float> PulseCombiner::sumPulses(const std::vector<edm4hep::TimeSeries> pulses) const {
-    
+
   // Find maximum time of pulses in cluster
   float maxTime = 0;
   for (auto pulse: pulses) {
@@ -127,7 +127,7 @@ std::vector<float> PulseCombiner::sumPulses(const std::vector<edm4hep::TimeSerie
       }
     }
   }
-    
+
   return newPulse;
 } // PulseCombiner::sumPulses
 
