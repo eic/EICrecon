@@ -715,6 +715,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
           double cosx2=(Pxn*(Pxp+Pxn)+Pyn*(Pyp+Pyn)+Pzn*(Pzp+Pzn))/(Ppi*PN);
           double QT = Pproton*sqrt(1-cosx1*cosx1);
           double Alpha = (Pproton*cosx1-Ppi*cosx2)/(Pproton*cosx1+Ppi*cosx2);
+          APplot->Fill(Alpha,QT);
   
           if(rcTrkqOverP[pi_index[i]]*rcTrkqOverP[proton_index[j]]<0){
             hEventStat->Fill(3.5);
@@ -724,7 +725,6 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
             h2Lambdapveta->Fill(parent.PseudoRapidity(),parent.P());
             h1MassL->Fill(parent.M());
             h1R->Fill(deltaR);
-            APplot->Fill(Alpha,QT);
           }
           //---- Propagate track to Perigee surface at sec. vertex = (x,y,z) mm ----
           //-----pi^-
