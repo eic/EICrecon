@@ -22,7 +22,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
   // Create map containing vector of pulses from each CellID
   std::map<uint64_t, std::vector<edm4hep::TimeSeries>> cell_pulses;
   for (const edm4hep::TimeSeries& pulse: *inPulses) {
-    cell_pulses[pulse.getCellID()].push_back(pulse);    
+    cell_pulses[pulse.getCellID()].push_back(pulse);
   }
 
   // Loop over detector elements and combine pulses
@@ -125,7 +125,7 @@ std::vector<float> PulseCombiner::sumPulses(const std::vector<edm4hep::TimeSerie
         }
       }
       newPulse[i] += contribution;
-      
+
     }
   }
 
