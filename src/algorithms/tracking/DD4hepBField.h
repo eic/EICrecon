@@ -43,7 +43,11 @@ namespace eicrecon::BField {
 
     Acts::MagneticFieldProvider::Cache makeCache(const Acts::MagneticFieldContext& mctx) const override
     {
+#if Acts_VERSION_MAJOR >= 32
       return Acts::MagneticFieldProvider::Cache(std::in_place_type<Cache>, mctx);
+#else
+      return Acts::MagneticFieldProvider::Cache::make<Cache>(mctx);
+#endif
     }
 
     /** construct constant magnetic field from field vector.
@@ -63,6 +67,7 @@ namespace eicrecon::BField {
      */
     Acts::Result<Acts::Vector3> getField(const Acts::Vector3& position, Acts::MagneticFieldProvider::Cache& cache) const override;
 
+#if Acts_VERSION_MAJOR < 39
     /** @brief retrieve magnetic field value & its gradient
      *
      * @param [in]  position   global position
@@ -78,6 +83,8 @@ namespace eicrecon::BField {
      */
     Acts::Result<Acts::Vector3> getFieldGradient(const Acts::Vector3& position, Acts::ActsMatrix<3, 3>& /*derivative*/,
                                                  Acts::MagneticFieldProvider::Cache& cache) const override;
+#endif
+
   };
 
   using BFieldVariant = std::variant<std::shared_ptr<const DD4hepBField>>;
