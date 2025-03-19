@@ -150,6 +150,8 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h2Lambdapveta->GetXaxis()->SetTitle("pseudorapidity #eta"); 
   h2Lambdapveta->GetYaxis()->SetTitle("P [GeV]");
 
+  TH2D* APplot=new TH2D("APplot","APplot",400,-1.,1.,400,0.,1.);
+
   TH1D* h1MassL=new TH1D("h1MassL","",100,0.9,1.5);
   h1MassL->GetXaxis()->SetTitle("Invariant Mass [GeV]");
 
@@ -673,9 +675,15 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
       for(int i=0; i<pi_index.size(); i++){
         TLorentzVector pi_mom_vec;
         pi_mom_vec.SetXYZM(rcMomPx[pi_index[i]], rcMomPy[pi_index[i]], rcMomPz[pi_index[i]], gPionMass);
+        double Pxn=rcMomPx[pi_index[i]];
+        double Pyn=rcMomPy[pi_index[i]];
+        double Pzn=rcMomPz[pi_index[i]];
         for(int j=0; j<proton_index.size(); j++){
           TLorentzVector proton_mom_vec;
           proton_mom_vec.SetXYZM(rcMomPx[proton_index[j]], rcMomPy[proton_index[j]], rcMomPz[proton_index[j]], gprotonMass);
+          double Pxp=rcMomPx[proton_index[j]];
+          double Pyp=rcMomPy[proton_index[j]];
+          double Pzp=rcMomPz[proton_index[j]];
           //Delta R sec. vtx - reco prim. vtx
           double deltaX=svert_vx[pi_index[i]]-CTVx[pi_index[i]];
           double deltaY=svert_vy[pi_index[i]]-CTVy[pi_index[i]];
@@ -699,6 +707,14 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
           h1secX->Fill(deltaX);
           h1secY->Fill(deltaY);
           h1secZ->Fill(deltaZ);
+          // Armenteros-Podolanski
+          double Pproton=sqrt(Pxp*Pxp+Pyp*Pyp+Pzp*Pzp);
+          double Ppi=sqrt(Pxn*Pxn+Pyn*Pyn+Pzn*Pzn);
+          double PN=sqrt((Pxp+Pxn)*(Pxp+Pxn)+(Pyp+Pyn)*(Pyp+Pyn)+(Pzp+Pzn)*(Pzp+Pzn));
+          double cosx1=(Pxp*(Pxp+Pxn)+Pyp*(Pyp+Pyn)+Pzp*(Pzp+Pzn))/(Pproton*PN);
+          double cosx2=(Pxn*(Pxp+Pxn)+Pyn*(Pyp+Pyn)+Pzn*(Pzp+Pzn))/(Ppi*PN);
+          double QT = Pproton*sqrt(1-cosx1*cosx1);
+          double Alpha = (Pproton*cosx1-Ppi*cosx2)/(Pproton*cosx1+Ppi*cosx2);
   
           if(rcTrkqOverP[pi_index[i]]*rcTrkqOverP[proton_index[j]]<0){
             hEventStat->Fill(3.5);
@@ -708,6 +724,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
             h2Lambdapveta->Fill(parent.PseudoRapidity(),parent.P());
             h1MassL->Fill(parent.M());
             h1R->Fill(deltaR);
+            APplot->Fill(Alpha,QT);
           }
           //---- Propagate track to Perigee surface at sec. vertex = (x,y,z) mm ----
           //-----pi^-
@@ -818,6 +835,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h1MassLvtxBarr->Write();
   h2PiPtEtaReco->Write();
   h2ProtonPtEtaReco->Write();
+  APplot->Write();
   
   hLambdaDecayVxVy->Write();
   hLambdaDecayVrVz->Write();
