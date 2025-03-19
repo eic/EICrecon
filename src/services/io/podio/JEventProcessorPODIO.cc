@@ -138,6 +138,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TaggerTrackerHits",
             "TaggerTrackerHitPulses",
             "TaggerTrackerCombinedPulses",
+            "TaggerTrackerCombinedPulsesWithNoise",
             "TaggerTrackerRawHits",
             "TaggerTrackerRawHitAssociations",
             "TaggerTrackerM1L0ClusterPositions",

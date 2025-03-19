@@ -23,6 +23,7 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseNoise_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
@@ -43,6 +44,7 @@ extern "C" {
 
     using namespace eicrecon;
 
+    //  Generate signal pulse from hits
     app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
       "TaggerTrackerPulseGeneration",
       {"TaggerTrackerHits"},
@@ -55,12 +57,27 @@ extern "C" {
       app
     ));
 
+    // Combine pulses into larger pulses
     app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
       "TaggerTrackerPulseCombiner",
       {"TaggerTrackerHitPulses"},
       {"TaggerTrackerCombinedPulses"},
       {
           .minimum_separation = 25 * dd4hep::ns,
+      },
+      app
+    ));
+
+    // Add noise to pulses
+    app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "TaggerTrackerPulseNoise",
+      {"TaggerTrackerCombinedPulses"},
+      {"TaggerTrackerCombinedPulsesWithNoise"},
+      {
+          .poles = 5,
+          .varience = 1.0,
+          .alpha = 0.5,
+          .scale = 500.0,
       },
       app
     ));
