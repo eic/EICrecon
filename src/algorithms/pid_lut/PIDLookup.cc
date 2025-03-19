@@ -8,7 +8,6 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <podio/podioVersion.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <stdexcept>
@@ -48,13 +47,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     auto recopart = recopart_without_pid.clone();
 
     // Find MCParticle from associations and propagate the relevant ones further
-#if podio_VERSION >= PODIO_VERSION(0, 17, 4)
     auto best_assoc = edm4eic::MCRecoParticleAssociation::makeEmpty();
-#else
-    edm4eic::MCRecoParticleAssociationCollection _best_assoc_coll;
-    edm4eic::MCRecoParticleAssociation best_assoc = _best_assoc_coll.create();
-    best_assoc.unlink();
-#endif
     for (auto assoc_in : *partassocs_in) {
       if (assoc_in.getRec() == recopart_without_pid) {
         if ((not best_assoc.isAvailable()) || (best_assoc.getWeight() < assoc_in.getWeight())) {
