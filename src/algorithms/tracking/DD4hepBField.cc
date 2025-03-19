@@ -39,11 +39,13 @@ namespace eicrecon::BField {
     return Acts::Result<Acts::Vector3>::success({field.x(), field.y(), field.z()});
   }
 
+#if Acts_VERSION_MAJOR < 39
   Acts::Result<Acts::Vector3> DD4hepBField::getFieldGradient(const Acts::Vector3& position,
                                                              Acts::ActsMatrix<3, 3>& /*derivative*/,
                                                              Acts::MagneticFieldProvider::Cache& cache) const
   {
     return this->getField(position, cache);
   }
+#endif
 
 } // namespace eicrecon::BField
