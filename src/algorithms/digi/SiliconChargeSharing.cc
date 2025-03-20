@@ -37,6 +37,7 @@ void SiliconChargeSharing::init() {
   m_detector  = algorithms::GeoSvc::instance().detector();
   m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
   m_seg       = m_detector->readout(m_cfg.readout).segmentation();
+  m_minEDep   = m_cfg.m_minEDep;
 }
 
 void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
@@ -79,11 +80,12 @@ void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCel
 
   // Calculate deposited energy in cell
   double edepCell = energyAtCell(testCellID, hitPos,edep);
-  std::cout << "testCellID: " << testCellID << std::endl;
-  std::cout << "edepCell: " << edepCell << std::endl;
-  if(edepCell <= 0) {
+  if(edepCell <= m_minEDep) {
     return;
   }
+  std::cout << "testCellID: " << testCellID << std::endl;
+  std::cout << "edep: " << edep << std::endl;
+  std::cout << "edepCell: " << edepCell << std::endl;
 
   // Store cellID and deposited energy
   cell_charge.push_back(std::make_pair(testCellID, edepCell));
@@ -141,14 +143,11 @@ double SiliconChargeSharing::energyAtCell(const dd4hep::rec::CellID& cell, dd4he
   auto localPos      = cell2LocalPosition(cell);
 
   // cout the local position and hit position
-  std::cout << "localPos: " << localPos << std::endl;
-  std::cout << "hitPos: " << hitPos << std::endl;
   auto cellDimension = m_converter->cellDimensions(cell);
   double energy = edep*integralGaus(hitPos.x(), m_cfg.sigma_sharingx, localPos.x() - 0.5 * cellDimension[0],
                       localPos.x() + 0.5 * cellDimension[0]) *
                   integralGaus(hitPos.y(), m_cfg.sigma_sharingy, localPos.y() - 0.5 * cellDimension[1],
                       localPos.y() + 0.5 * cellDimension[1]);
-  std::cout << "energy: " << energy << std::endl;
   return energy;
 }
 

@@ -23,6 +23,7 @@ private:
 
   ParameterRef<double> m_sigma_sharingx{this, "sigmaSharingX", config().sigma_sharingx};
   ParameterRef<double> m_sigma_sharingy{this, "sigmaSharingY", config().sigma_sharingy};
+  ParameterRef<double> m_minEDep{this, "minEDep", config().m_minEDep};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

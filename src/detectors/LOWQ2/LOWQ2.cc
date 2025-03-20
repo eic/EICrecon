@@ -48,8 +48,9 @@ extern "C" {
       {"TaggerTrackerHits"},
       {"TaggerTrackerSharedHits"},
       {
-          .sigma_sharingx = 30 * dd4hep::um,
-          .sigma_sharingy = 30 * dd4hep::um,
+          .sigma_sharingx = 15 * dd4hep::um,
+          .sigma_sharingy = 15 * dd4hep::um,
+          .m_minEDep = 1.0e-7,
           .readout = readout,
       },
       app

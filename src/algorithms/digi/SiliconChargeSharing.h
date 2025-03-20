@@ -49,7 +49,8 @@ private:
 
   const dd4hep::Detector*                      m_detector  = nullptr;
   const dd4hep::rec::CellIDPositionConverter*  m_converter = nullptr;
-  dd4hep::Segmentation                   m_seg;
+  dd4hep::Segmentation                         m_seg;
+  float m_minEDep = 0;
 
 };
 
