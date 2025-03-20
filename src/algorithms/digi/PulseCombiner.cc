@@ -39,7 +39,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
   // Create map containing vector of pulses from each CellID
   std::map<uint64_t, std::vector<edm4hep::TimeSeries>> cell_pulses;
   for (const edm4hep::TimeSeries& pulse: *inPulses) {
-    uint64_t shiftedCellID = pulse.getCellID() & m_detector_bitmask; 
+    uint64_t shiftedCellID = pulse.getCellID() & m_detector_bitmask;
     cell_pulses[shiftedCellID].push_back(pulse);
   }
 
