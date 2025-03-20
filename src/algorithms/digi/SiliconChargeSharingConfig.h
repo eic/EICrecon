@@ -11,8 +11,6 @@ struct SiliconChargeSharingConfig {
   double sigma_sharingy;
 
   std::string readout;
-  std::string same_sensor_condition;
-  std::vector<std::string> neighbor_fields;
 };
 
 } // namespace eicrecon

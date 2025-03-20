@@ -48,11 +48,9 @@ extern "C" {
       {"TaggerTrackerHits"},
       {"TaggerTrackerSharedHits"},
       {
-          .sigma_sharingx = 10 * dd4hep::um,
-          .sigma_sharingy = 10 * dd4hep::um,
+          .sigma_sharingx = 30 * dd4hep::um,
+          .sigma_sharingy = 30 * dd4hep::um,
           .readout = readout,
-          .same_sensor_condition = "layer_1 == layer_2",
-          .neighbor_fields = {"x", "y"}
       },
       app
   ));
