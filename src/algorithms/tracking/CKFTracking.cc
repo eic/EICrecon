@@ -46,6 +46,9 @@
 #endif
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#if Acts_VERSION_MAJOR >= 39
+#include <Acts/TrackFinding/TrackStateCreator.hpp>
+#endif
 #if Acts_VERSION_MAJOR < 34
 #include <Acts/TrackFitting/GainMatrixSmoother.hpp>
 #endif
@@ -270,8 +273,10 @@ namespace eicrecon {
         Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory>
                 extensions;
 #endif
+#if Acts_VERSION_MAJOR < 39
         extensions.calibrator.connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
                 &calibrator);
+#endif
 #if Acts_VERSION_MAJOR >= 36
         extensions.updater.connect<
                 &Acts::GainMatrixUpdater::operator()<
@@ -287,9 +292,11 @@ namespace eicrecon {
                 &Acts::GainMatrixSmoother::operator()<Acts::VectorMultiTrajectory>>(
                 &kfSmoother);
 #endif
+#if Acts_VERSION_MAJOR < 39
         extensions.measurementSelector.connect<
                 &Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(
                 &measSel);
+#endif
 
         ActsExamples::IndexSourceLinkAccessor slAccessor;
 #if Acts_VERSION_MAJOR > 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR >= 1)
@@ -297,19 +304,40 @@ namespace eicrecon {
 #else
         slAccessor.container = &src_links;
 #endif
+#if Acts_VERSION_MAJOR >=39
+        using TrackStateCreatorType =
+            Acts::TrackStateCreator<ActsExamples::IndexSourceLinkAccessor::Iterator,
+                                    ActsExamples::TrackContainer>;
+        TrackStateCreatorType trackStateCreator;
+        trackStateCreator.sourceLinkAccessor
+            .template connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
+        trackStateCreator.calibrator
+            .template connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(&calibrator);
+        trackStateCreator.measurementSelector
+            .template connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
+
+        extensions.createTrackStates
+            .template connect<&TrackStateCreatorType::createTrackStates>(
+                &trackStateCreator);
+#else
         Acts::SourceLinkAccessorDelegate<ActsExamples::IndexSourceLinkAccessor::Iterator>
                 slAccessorDelegate;
         slAccessorDelegate.connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
+#endif
 
         // Set the CombinatorialKalmanFilter options
-#if Acts_VERSION_MAJOR < 34
+#if Acts_VERSION_MAJOR >= 39
         CKFTracking::TrackFinderOptions options(
-                m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
-                extensions, pOptions, &(*pSurface));
-#else
+                m_geoctx, m_fieldctx, m_calibctx,
+                extensions, pOptions);
+#elif Acts_VERSION_MAJOR >= 34
         CKFTracking::TrackFinderOptions options(
                 m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
                 extensions, pOptions);
+#else
+        CKFTracking::TrackFinderOptions options(
+                m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
+                extensions, pOptions, &(*pSurface));
 #endif
 
 #if Acts_VERSION_MAJOR >= 36
