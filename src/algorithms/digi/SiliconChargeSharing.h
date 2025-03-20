@@ -38,21 +38,18 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  void _findAllNeighborsInSensor(dd4hep::rec::CellID hitCell,
-                                 std::vector<dd4hep::rec::CellID>& answer,
-                                 std::unordered_set<dd4hep::rec::CellID>& dp) const;
-  double _integralGaus(double mean, double sd, double low_lim, double up_lim) const;
-  dd4hep::Position _cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
-  dd4hep::Position _global2Local(const dd4hep::Position& pos) const;
+  void findAllNeighborsInSensor(dd4hep::rec::CellID test_CellID,
+                                std::unordered_set<dd4hep::rec::CellID>& tested_cells,
+                                std::vector<std::pair<dd4hep::rec::CellID, double>>& cell_charge,
+                                double edep, dd4hep::Position hitPos) const;
+  double energyAtCell(const dd4hep::rec::CellID& cell, dd4hep::Position hitPos, double edep) const;
+  double integralGaus(double mean, double sd, double low_lim, double up_lim) const;
+  dd4hep::Position cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
+  dd4hep::Position global2Local(const edm4hep::SimTrackerHit& hit) const;
 
-  const dd4hep::DDSegmentation::BitFieldCoder* m_decoder   = nullptr;
   const dd4hep::Detector*                      m_detector  = nullptr;
   const dd4hep::rec::CellIDPositionConverter*  m_converter = nullptr;
   dd4hep::Segmentation                   m_seg;
-  dd4hep::IDDescriptor m_idSpec;
-
-  // helper function to find neighbors
-  std::function<bool(const dd4hep::rec::CellID &id1, const dd4hep::rec::CellID &id2)> _is_same_sensor;
 
 };
 

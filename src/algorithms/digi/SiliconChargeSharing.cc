@@ -34,32 +34,9 @@
 namespace eicrecon {
 
 void SiliconChargeSharing::init() {
-  m_detector = algorithms::GeoSvc::instance().detector();
+  m_detector  = algorithms::GeoSvc::instance().detector();
   m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
-
-  m_seg  = m_detector->readout(m_cfg.readout).segmentation();
-  auto type = m_seg.type();
-  // retrieve meaning of cellID bits
-  m_decoder = m_seg.decoder();
-  m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
-
-  // convert cellID to name value pairs for EvaluatorSvc to determine of different cells are neighbors
-  std::function hit_pair_to_map = [this](const dd4hep::rec::CellID& id1, const dd4hep::rec::CellID& id2) {
-      std::unordered_map<std::string, double> params;
-      for(const auto &p : m_idSpec.fields()) {
-        const std::string &name = p.first;
-        const dd4hep::IDDescriptor::Field* field = p.second;
-        params.emplace(name + "_1", field->value(id1));
-        params.emplace(name + "_2", field->value(id2));
-        trace("{}_1 = {}", name, field->value(id1));
-        trace("{}_2 = {}", name, field->value(id2));
-      }
-      return params;
-    };
-
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
-  _is_same_sensor = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.same_sensor_condition, hit_pair_to_map);
-
+  m_seg       = m_detector->readout(m_cfg.readout).segmentation();
 }
 
 void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
@@ -68,108 +45,63 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
   auto [sharedHits]    = output;
 
   for (const auto& hit : *simhits) {
-    auto cellID = hit.getCellID();
-
-    std::unordered_set<dd4hep::rec::CellID> dp;
-    std::vector<dd4hep::rec::CellID> neighbors;
     
-    std::set<dd4hep::rec::CellID> answer;
-    
-    m_seg.neighbours(cellID, answer);
-    std::cout << m_cfg.readout << std::endl;
-    std::cout << "CellID: " << cellID << std::endl;
-    for (const auto& field : m_cfg.neighbor_fields) {
-      std::cout << field << ": " << m_decoder->get(cellID, field) << std::endl;
+    auto   cellID   = hit.getCellID();   
+    double edep     = hit.getEDep();
+    double time     = hit.getTime();
+    auto   momentum = hit.getMomentum();
+    auto   hitPos   = global2Local(hit);
+
+    std::unordered_set<dd4hep::rec::CellID> tested_cells;
+    std::vector<std::pair<dd4hep::rec::CellID,double>> cell_charge;
+    findAllNeighborsInSensor(cellID, tested_cells, cell_charge, edep, hitPos);
+
+    // Create a new simhit for each cell with deposited energy
+    for(const auto& [testCellID, edep_cell] : cell_charge) {
+      auto globalPos = m_converter->position(testCellID);
+      auto hit = sharedHits->create();
+      hit.setCellID(testCellID);
+      hit.setEDep(edep_cell);
+      hit.setTime(time);
+      hit.setPosition({globalPos.x(), globalPos.y(), globalPos.z()});
+      hit.setMomentum({momentum.x, momentum.y, momentum.z});
     }
-    for (const auto& neighbour : answer) {
-      std::cout << "Neighbour: " << neighbour << std::endl;
-      // cout x and y field values of the neighbour
-      for (const auto& field : m_cfg.neighbor_fields) {
-        std::cout << field << ": " << m_decoder->get(neighbour, field) << std::endl;
-      }
 
-    }
-    this->_findAllNeighborsInSensor(cellID, neighbors, dp);
-
-    double edep       = hit.getEDep();
-    double time       = hit.getTime();
-    auto momentum     = hit.getMomentum();
-    auto truePos      = hit.getPosition();
-    auto localPos_hit = this->_global2Local(
-        dd4hep::Position(truePos.x * dd4hep::mm, truePos.y * dd4hep::mm, truePos.z * dd4hep::mm));
-
-    for (const auto neighbor : neighbors) {
-      // integrate over neighbor area to get total energy deposition
-      auto localPos_neighbor = this->_cell2LocalPosition(neighbor);
-      auto cellDimension     = m_converter->cellDimensions(neighbor);
-
-      double edep_cell = edep *
-                         _integralGaus(localPos_hit.x(), m_cfg.sigma_sharingx,
-                                       localPos_neighbor.x() - 0.5 * cellDimension[0],
-                                       localPos_neighbor.x() + 0.5 * cellDimension[0]) *
-                         _integralGaus(localPos_hit.y(), m_cfg.sigma_sharingy,
-                                       localPos_neighbor.y() - 0.5 * cellDimension[1],
-                                       localPos_neighbor.y() + 0.5 * cellDimension[1]);
-
-      if (edep_cell > 0) {
-        auto globalPos = m_converter->position(neighbor);
-        auto hit       = sharedHits->create();
-        hit.setCellID(neighbor);
-        hit.setEDep(edep_cell);
-        hit.setTime(time);
-        hit.setPosition({globalPos.x(), globalPos.y(), globalPos.z()});
-        hit.setMomentum({momentum.x, momentum.y, momentum.z});
-      }
-    }
-  }
+  } // for simhits
 } // SiliconChargeSharing:process
 
-void SiliconChargeSharing::_findAllNeighborsInSensor(
-    dd4hep::rec::CellID hitCell, std::vector<dd4hep::rec::CellID>& answer,
-    std::unordered_set<dd4hep::rec::CellID>& dp) const {
-  // search all neighbors with DFS
-  answer.push_back(hitCell);
-  dp.insert(hitCell);
+// recursively find neighbors where a charge is deposited 
+void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCellID,
+    std::unordered_set<dd4hep::rec::CellID>& tested_cells, std::vector<std::pair<dd4hep::rec::CellID,double>>& cell_charge, double edep, dd4hep::Position hitPos) const {
 
-  for(const auto& field : m_cfg.neighbor_fields) {
-    // searchDir should either be +1 or -1
-    for(int searchDir = -1; searchDir <= 1; searchDir += 2) {
-      auto fieldID = m_decoder->get(hitCell, field);
-      auto testCell = hitCell;
-      try {
-        m_decoder->set(testCell, field, fieldID + searchDir);
-      } catch (const std::runtime_error& err) {
-        // catch overflow error
-        // ignore if invalid position ID
-        continue;
-      }
-      std::cout << "Neighbourserach CellID: " << testCell << std::endl;
-      for (const auto& field : m_cfg.neighbor_fields) {
-        std::cout << field << ": " << m_decoder->get(testCell, field) << std::endl;
-      }
+  // Tag cell as tested
+  tested_cells.insert(testCellID);
 
-      // check if new cellID really exists
-      try {
-        auto pos = m_converter->position(testCell);
-        if (testCell != m_converter->cellID(pos))
-          continue;
-      } catch (const std::runtime_error& err) {
-        // Ignore CellID that is invalid
-        continue;
-      }
+  // Calculate deposited energy in cell
+  double edepCell = energyAtCell(testCellID, hitPos,edep);
+  std::cout << "testCellID: " << testCellID << std::endl;
+  std::cout << "edepCell: " << edepCell << std::endl;
+  if(edepCell <= 0) {
+    return;
+  }
 
-      // only look for cells that have not been searched
-      // if (dp.find(testCell) == dp.end()) {
-      //   if (_is_same_sensor(hitCell, testCell)) {
-      //     // inside the same sensor
-      //     this->_findAllNeighborsInSensor(testCell, answer, dp);
-      //   }
-      // }
+  // Store cellID and deposited energy
+  cell_charge.push_back(std::make_pair(testCellID, edepCell));
+  
+  // As there is charge in the cell, test the neighbors too
+  std::set<dd4hep::rec::CellID> testCellNeighbours;    
+  m_seg.neighbours(testCellID, testCellNeighbours);
+
+  for (const auto& neighbourCell : testCellNeighbours) {
+    if (tested_cells.find(neighbourCell) == tested_cells.end()) {
+      findAllNeighborsInSensor(neighbourCell, tested_cells, cell_charge, edep, hitPos);
     }
   }
+
 }
 
-double SiliconChargeSharing::_integralGaus(double mean, double sd, double low_lim,
+// Calculate integral of Gaussian distribution
+double SiliconChargeSharing::integralGaus(double mean, double sd, double low_lim,
                                         double up_lim) const {
   // return integral Gauss(mean, sd) dx from x = low_lim to x = up_lim
   // default value is set when sd = 0
@@ -182,22 +114,43 @@ double SiliconChargeSharing::_integralGaus(double mean, double sd, double low_li
   return up - low;
 }
 
-dd4hep::Position SiliconChargeSharing::_cell2LocalPosition(const dd4hep::rec::CellID& cell) const {
-  auto position = m_converter->position(cell); // global position
-  return this->_global2Local(position);
+// Convert cellID to local position
+dd4hep::Position SiliconChargeSharing::cell2LocalPosition(const dd4hep::rec::CellID& cell) const {
+  auto position = m_seg->position(cell); // local position
+  return position;
 }
 
-dd4hep::Position SiliconChargeSharing::_global2Local(const dd4hep::Position& pos) const {
-  auto geoManager = m_detector->world().volume()->GetGeoManager();
-  auto node       = geoManager->FindNode(pos.x(), pos.y(), pos.z());
-  auto currMatrix = geoManager->GetCurrentMatrix();
+// Convert global position to local position
+dd4hep::Position SiliconChargeSharing::global2Local(const edm4hep::SimTrackerHit& hit) const {
+  auto  volumeManager = m_detector->volumeManager();
+  auto  detelement    = volumeManager.lookupDetElement(hit.getCellID());
+  const TGeoMatrix& transform = detelement.nominal().worldTransformation();
 
-  double g[3], l[3];
-  pos.GetCoordinates(g);
-  currMatrix->MasterToLocal(g, l);
+  // Units given by transformation do not match with the units of the hit position
+  double g[3] = {hit.getPosition().x/10, hit.getPosition().y/10, hit.getPosition().z/10}; 
+  double l[3];
+  
+  transform.MasterToLocal(g, l);
   dd4hep::Position position;
   position.SetCoordinates(l);
   return position;
 }
+
+// Calculate energy deposition in a cell relative to the hit position
+double SiliconChargeSharing::energyAtCell(const dd4hep::rec::CellID& cell, dd4hep::Position hitPos, double edep) const {
+  auto localPos      = cell2LocalPosition(cell);
+
+  // cout the local position and hit position
+  std::cout << "localPos: " << localPos << std::endl;
+  std::cout << "hitPos: " << hitPos << std::endl;
+  auto cellDimension = m_converter->cellDimensions(cell);
+  double energy = edep*integralGaus(hitPos.x(), m_cfg.sigma_sharingx, localPos.x() - 0.5 * cellDimension[0],
+                      localPos.x() + 0.5 * cellDimension[0]) *
+                  integralGaus(hitPos.y(), m_cfg.sigma_sharingy, localPos.y() - 0.5 * cellDimension[1],
+                      localPos.y() + 0.5 * cellDimension[1]);
+  std::cout << "energy: " << energy << std::endl;
+  return energy;
+}
+
 
 } // namespace eicrecon
