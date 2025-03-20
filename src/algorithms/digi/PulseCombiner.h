@@ -36,7 +36,7 @@ private:
   std::vector<std::vector<edm4hep::TimeSeries>> clusterPulses(const std::vector<edm4hep::TimeSeries> pulses) const;
   std::vector<float> sumPulses(const std::vector<edm4hep::TimeSeries> pulses) const;
   float m_minimum_separation = 1000*edm4eic::unit::ns;
-  int m_max_time_bins = 10000;
+  uint64_t m_detector_bitmask = 0xFFFFFFFFFFFFFFFF;
 
 };
 

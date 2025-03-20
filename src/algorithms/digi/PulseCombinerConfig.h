@@ -9,6 +9,8 @@ namespace eicrecon {
 
 struct PulseCombinerConfig {
   double minimum_separation = 50 * edm4eic::unit::ns; // Minimum digitization time step
+  std::string readout = "";
+  std::string combine_field = "";
 };
 
 } // namespace eicrecon

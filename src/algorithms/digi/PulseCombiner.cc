@@ -7,11 +7,28 @@
 #include <vector>
 
 #include "PulseCombiner.h"
+#include <algorithms/geo.h>
+#include <JANA/JException.h>
 
 namespace eicrecon {
 
 void PulseCombiner::init() {
   m_minimum_separation = m_cfg.minimum_separation;
+
+  // Get the detector readout and set bit shift if set
+  if(!(m_cfg.readout.empty() && m_cfg.combine_field.empty())) {
+    try {
+      auto detector = algorithms::GeoSvc::instance().detector();
+      auto id_dec = detector->readout(m_cfg.readout).idSpec().decoder();
+      // Get the bitshift for the detector
+      int bitshift = id_dec->highestBit() - (*id_dec)[m_cfg.combine_field].offset() - (*id_dec)[m_cfg.combine_field].width();
+      m_detector_bitmask = m_detector_bitmask >> bitshift;
+    } catch (...) {
+      error("Failed set bitshift for detector {} with segmentation id {}", m_cfg.readout, m_cfg.combine_field);
+      throw JException("Failed to load ID decoder");
+    }
+  }
+
 }
 
 void PulseCombiner::process(const PulseCombiner::Input& input,
@@ -22,7 +39,8 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
   // Create map containing vector of pulses from each CellID
   std::map<uint64_t, std::vector<edm4hep::TimeSeries>> cell_pulses;
   for (const edm4hep::TimeSeries& pulse: *inPulses) {
-    cell_pulses[pulse.getCellID()].push_back(pulse);
+    uint64_t shiftedCellID = pulse.getCellID() & m_detector_bitmask; 
+    cell_pulses[shiftedCellID].push_back(pulse);
   }
 
   // Loop over detector elements and combine pulses
