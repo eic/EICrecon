@@ -27,20 +27,20 @@
 #include <vector>
 
 #include "DD4hep/Detector.h"
-#include "LGADChargeSharing.h"
-#include "algorithms/digi/LGADChargeSharingConfig.h"
+#include "SiliconChargeSharing.h"
+#include "algorithms/digi/SiliconChargeSharingConfig.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
 
-void LGADChargeSharing::init() {
+void SiliconChargeSharing::init() {
   m_detector = algorithms::GeoSvc::instance().detector();
   m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
 
-  auto seg  = m_detector->readout(m_cfg.readout).segmentation();
-  auto type = seg.type();
+  m_seg  = m_detector->readout(m_cfg.readout).segmentation();
+  auto type = m_seg.type();
   // retrieve meaning of cellID bits
-  m_decoder = seg.decoder();
+  m_decoder = m_seg.decoder();
   m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
 
   // convert cellID to name value pairs for EvaluatorSvc to determine of different cells are neighbors
@@ -62,8 +62,8 @@ void LGADChargeSharing::init() {
 
 }
 
-void LGADChargeSharing::process(const LGADChargeSharing::Input& input,
-                                const LGADChargeSharing::Output& output) const {
+void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
+                                const SiliconChargeSharing::Output& output) const {
   const auto [simhits] = input;
   auto [sharedHits]    = output;
 
@@ -72,6 +72,23 @@ void LGADChargeSharing::process(const LGADChargeSharing::Input& input,
 
     std::unordered_set<dd4hep::rec::CellID> dp;
     std::vector<dd4hep::rec::CellID> neighbors;
+    
+    std::set<dd4hep::rec::CellID> answer;
+    
+    m_seg.neighbours(cellID, answer);
+    std::cout << m_cfg.readout << std::endl;
+    std::cout << "CellID: " << cellID << std::endl;
+    for (const auto& field : m_cfg.neighbor_fields) {
+      std::cout << field << ": " << m_decoder->get(cellID, field) << std::endl;
+    }
+    for (const auto& neighbour : answer) {
+      std::cout << "Neighbour: " << neighbour << std::endl;
+      // cout x and y field values of the neighbour
+      for (const auto& field : m_cfg.neighbor_fields) {
+        std::cout << field << ": " << m_decoder->get(neighbour, field) << std::endl;
+      }
+
+    }
     this->_findAllNeighborsInSensor(cellID, neighbors, dp);
 
     double edep       = hit.getEDep();
@@ -105,9 +122,9 @@ void LGADChargeSharing::process(const LGADChargeSharing::Input& input,
       }
     }
   }
-} // LGADChargeSharing:process
+} // SiliconChargeSharing:process
 
-void LGADChargeSharing::_findAllNeighborsInSensor(
+void SiliconChargeSharing::_findAllNeighborsInSensor(
     dd4hep::rec::CellID hitCell, std::vector<dd4hep::rec::CellID>& answer,
     std::unordered_set<dd4hep::rec::CellID>& dp) const {
   // search all neighbors with DFS
@@ -126,6 +143,10 @@ void LGADChargeSharing::_findAllNeighborsInSensor(
         // ignore if invalid position ID
         continue;
       }
+      std::cout << "Neighbourserach CellID: " << testCell << std::endl;
+      for (const auto& field : m_cfg.neighbor_fields) {
+        std::cout << field << ": " << m_decoder->get(testCell, field) << std::endl;
+      }
 
       // check if new cellID really exists
       try {
@@ -138,17 +159,17 @@ void LGADChargeSharing::_findAllNeighborsInSensor(
       }
 
       // only look for cells that have not been searched
-      if (dp.find(testCell) == dp.end()) {
-        if (_is_same_sensor(hitCell, testCell)) {
-          // inside the same sensor
-          this->_findAllNeighborsInSensor(testCell, answer, dp);
-        }
-      }
+      // if (dp.find(testCell) == dp.end()) {
+      //   if (_is_same_sensor(hitCell, testCell)) {
+      //     // inside the same sensor
+      //     this->_findAllNeighborsInSensor(testCell, answer, dp);
+      //   }
+      // }
     }
   }
 }
 
-double LGADChargeSharing::_integralGaus(double mean, double sd, double low_lim,
+double SiliconChargeSharing::_integralGaus(double mean, double sd, double low_lim,
                                         double up_lim) const {
   // return integral Gauss(mean, sd) dx from x = low_lim to x = up_lim
   // default value is set when sd = 0
@@ -161,12 +182,12 @@ double LGADChargeSharing::_integralGaus(double mean, double sd, double low_lim,
   return up - low;
 }
 
-dd4hep::Position LGADChargeSharing::_cell2LocalPosition(const dd4hep::rec::CellID& cell) const {
+dd4hep::Position SiliconChargeSharing::_cell2LocalPosition(const dd4hep::rec::CellID& cell) const {
   auto position = m_converter->position(cell); // global position
   return this->_global2Local(position);
 }
 
-dd4hep::Position LGADChargeSharing::_global2Local(const dd4hep::Position& pos) const {
+dd4hep::Position SiliconChargeSharing::_global2Local(const dd4hep::Position& pos) const {
   auto geoManager = m_detector->world().volume()->GetGeoManager();
   auto node       = geoManager->FindNode(pos.x(), pos.y(), pos.z());
   auto currMatrix = geoManager->GetCurrentMatrix();

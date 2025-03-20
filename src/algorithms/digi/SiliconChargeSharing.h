@@ -18,21 +18,21 @@
 #include <vector>
 
 #include "DD4hep/Detector.h"
-#include "algorithms/digi/LGADChargeSharingConfig.h"
+#include "algorithms/digi/SiliconChargeSharingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using LGADChargeSharingAlgorithm =
+using SiliconChargeSharingAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
                           algorithms::Output<edm4hep::SimTrackerHitCollection>>;
 
-class LGADChargeSharing : public LGADChargeSharingAlgorithm,
-                          public WithPodConfig<LGADChargeSharingConfig> {
+class SiliconChargeSharing : public SiliconChargeSharingAlgorithm,
+                          public WithPodConfig<SiliconChargeSharingConfig> {
 
 public:
-  LGADChargeSharing(std::string_view name)
-      : LGADChargeSharingAlgorithm{name, {"TOFBarrelHits"}, {"TOFBarrelSharedHits"}, ""} {};
+  SiliconChargeSharing(std::string_view name)
+      : SiliconChargeSharingAlgorithm{name, {"TOFBarrelHits"}, {"TOFBarrelSharedHits"}, ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -45,9 +45,10 @@ private:
   dd4hep::Position _cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
   dd4hep::Position _global2Local(const dd4hep::Position& pos) const;
 
-  const dd4hep::DDSegmentation::BitFieldCoder* m_decoder  = nullptr;
-  const dd4hep::Detector* m_detector                      = nullptr;
-  const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
+  const dd4hep::DDSegmentation::BitFieldCoder* m_decoder   = nullptr;
+  const dd4hep::Detector*                      m_detector  = nullptr;
+  const dd4hep::rec::CellIDPositionConverter*  m_converter = nullptr;
+  dd4hep::Segmentation                   m_seg;
   dd4hep::IDDescriptor m_idSpec;
 
   // helper function to find neighbors

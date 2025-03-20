@@ -18,7 +18,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
-#include "factories/digi/LGADChargeSharing_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/LGADPulseGeneration_factory.h"
 #include "factories/digi/LGADPulseDigitization_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
@@ -61,7 +61,7 @@ void InitPlugin(JApplication* app) {
 
 
 
-  app->Add(new JOmniFactoryGeneratorT<LGADChargeSharing_factory>(
+  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "LGADChargeSharing",
       {"TOFBarrelHits"},
       {"TOFBarrelSharedHits"},
