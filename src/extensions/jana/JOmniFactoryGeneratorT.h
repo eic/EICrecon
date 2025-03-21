@@ -8,102 +8,80 @@
 #include <JANA/JFactoryGenerator.h>
 #include <vector>
 
+
 template<class FactoryT>
 class JOmniFactoryGeneratorT : public JFactoryGenerator {
 public:
     using FactoryConfigType = typename FactoryT::ConfigType;
 
-private:
     struct TypedWiring {
-        std::string m_tag;
-        std::vector<std::string> m_default_input_tags;
-        std::vector<std::string> m_default_output_tags;
-        FactoryConfigType m_default_cfg; /// Must be properly copyable!
-    };
-
-    struct UntypedWiring {
-        std::string m_tag;
-        std::vector<std::string> m_default_input_tags;
-        std::vector<std::string> m_default_output_tags;
-        std::map<std::string, std::string> m_config_params;
+        std::string tag = "";
+        JEventLevel level = JEventLevel::PhysicsEvent;
+        std::vector<std::string> input_names = {};
+        std::vector<JEventLevel> input_levels = {};
+        std::vector<std::string> output_names = {};
+        FactoryConfigType configs = {}; /// Must be copyable!
     };
 
 public:
 
+    explicit JOmniFactoryGeneratorT(JApplication* app=nullptr) {
+        m_app = app;
+    }
 
     explicit JOmniFactoryGeneratorT(std::string tag,
-                                    std::vector<std::string> default_input_tags,
-                                    std::vector<std::string> default_output_tags,
-                                    FactoryConfigType cfg,
-                                    JApplication* app) {
-        m_app = app;
-        m_wirings.push_back({.m_tag=tag,
-                             .m_default_input_tags=default_input_tags,
-                             .m_default_output_tags=default_output_tags,
-                             .m_default_cfg=cfg
-                            });
+                                    std::vector<std::string> input_names,
+                                    std::vector<std::string> output_names,
+                                    FactoryConfigType configs,
+                                    JApplication* app=nullptr) {
+        m_typed_wirings.push_back({.tag=tag, .input_names=input_names, .output_names=output_names, .configs=configs });
+        m_app = nullptr;
     };
 
     explicit JOmniFactoryGeneratorT(std::string tag,
-                                    std::vector<std::string> default_input_tags,
-                                    std::vector<std::string> default_output_tags,
-                                    JApplication* app) {
+                                    std::vector<std::string> input_names,
+                                    std::vector<std::string> output_names,
+                                    JApplication* app=nullptr) {
+        m_typed_wirings.push_back({.tag=tag, .input_names=input_names, .output_names=output_names });
         m_app = app;
-        m_wirings.push_back({.m_tag=tag,
-                                .m_default_input_tags=default_input_tags,
-                                .m_default_output_tags=default_output_tags
-                                });
-
     }
 
-    explicit JOmniFactoryGeneratorT(JApplication* app) : m_app(app) {
+    explicit JOmniFactoryGeneratorT(TypedWiring&& wiring) {
+        m_typed_wirings.push_back(std::move(wiring));
     }
+
 
     void AddWiring(std::string tag,
-                   std::vector<std::string> default_input_tags,
-                   std::vector<std::string> default_output_tags,
-                   FactoryConfigType cfg) {
+                   std::vector<std::string> input_names,
+                   std::vector<std::string> output_names,
+                   FactoryConfigType configs={}) {
 
-        m_wirings.push_back({.m_tag=tag,
-                             .m_default_input_tags=default_input_tags,
-                             .m_default_output_tags=default_output_tags,
-                             .m_default_cfg=cfg
-                            });
+        m_typed_wirings.push_back({.tag=tag,
+                                   .input_names=input_names,
+                                   .output_names=output_names,
+                                   .configs=configs
+                                  });
     }
 
-    void AddWiring(std::string tag,
-                   std::vector<std::string> default_input_tags,
-                   std::vector<std::string> default_output_tags,
-                   std::map<std::string, std::string> config_params) {
 
-        // Create throwaway factory so we can populate its config using our map<string,string>.
-        FactoryT factory;
-        factory.ConfigureAllParameters(config_params);
-        auto config = factory.config();
-
-        m_wirings.push_back({.m_tag=tag,
-                             .m_default_input_tags=default_input_tags,
-                             .m_default_output_tags=default_output_tags,
-                             .m_default_cfg=config
-                            });
-
+    void AddWiring(TypedWiring wiring) {
+        m_typed_wirings.push_back(wiring);
     }
 
     void GenerateFactories(JFactorySet *factory_set) override {
 
-        for (const auto& wiring : m_wirings) {
-
+        for (const auto& wiring : m_typed_wirings) {
 
             FactoryT *factory = new FactoryT;
-            factory->SetApplication(m_app);
+            factory->SetApplication(GetApplication());
             factory->SetPluginName(this->GetPluginName());
-            factory->SetFactoryName(JTypeInfo::demangle<FactoryT>());
-            factory->config() = wiring.m_default_cfg;
+            factory->SetTypeName(JTypeInfo::demangle<FactoryT>());
+            factory->config() = wiring.configs;
 
             // Set up all of the wiring prereqs so that Init() can do its thing
             // Specifically, it needs valid input/output tags, a valid logger, and
             // valid default values in its Config object
-            factory->PreInit(wiring.m_tag, wiring.m_default_input_tags, wiring.m_default_output_tags);
+            factory->PreInit(wiring.tag, wiring.level, wiring.input_names, wiring.input_levels, wiring.output_names);
 
             // Factory is ready
             factory_set->Add(factory);
@@ -111,7 +89,7 @@ public:
     }
 
 private:
-    std::vector<TypedWiring> m_wirings;
-    JApplication* m_app;
-
+    std::vector<TypedWiring> m_typed_wirings;
+    JApplication* m_app = nullptr;
 };
+

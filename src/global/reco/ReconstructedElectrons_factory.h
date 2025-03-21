@@ -17,7 +17,7 @@ private:
     std::unique_ptr<eicrecon::ElectronReconstruction> m_algo;
 
     // Declare inputs
-    PodioInput<edm4eic::ReconstructedParticle> m_in_rc_particles {this, "ReconstructedParticles"};
+    PodioInput<edm4eic::ReconstructedParticle> m_in_rc_particles {this, InputOptions("ReconstructedParticles")};
 
 
     // Declare outputs

@@ -86,12 +86,12 @@ TEST_CASE("Registering Podio outputs works") {
     REQUIRE(alg.GetOutputs()[2]->type_name == "edm4hep::SimCalorimeterHit");
 }
 
-TEST_CASE("Configuration object is correctly wired from untyped wiring data") {
+TEST_CASE("Configuration object is correctly wired from typed wiring data") {
     JApplication app;
     app.AddPlugin("log");
     app.Initialize();
     JOmniFactoryGeneratorT<BasicTestAlg> facgen (&app);
-    facgen.AddWiring("ECalTestAlg", {}, {"ECalLeftHits", "ECalRightHits", "ECalVecHits"}, {{"threshold", "6.1"}, {"bucket_count", "22"}});
+    facgen.AddWiring("ECalTestAlg", {}, {"ECalLeftHits", "ECalRightHits", "ECalVecHits"}, {.threshold=6.1, .bucket_count=22});
 
     JFactorySet facset;
     facgen.GenerateFactories(&facset);
@@ -110,14 +110,14 @@ TEST_CASE("Configuration object is correctly wired from untyped wiring data") {
     REQUIRE(basictestalg->m_init_call_count == 0);
 }
 
-TEST_CASE("Multiple configuration objects are correctly wired from untyped wiring data") {
+TEST_CASE("Multiple configuration objects are correctly wired from typed wiring data") {
     JApplication app;
     app.AddPlugin("log");
     app.Initialize();
     JOmniFactoryGeneratorT<BasicTestAlg> facgen (&app);
-    facgen.AddWiring("BCalTestAlg", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {{"threshold", "6.1"}, {"bucket_count", "22"}});
-    facgen.AddWiring("CCalTestAlg", {}, {"CCalLeftHits", "CCalRightHits", "CCalVecHits"}, {{"threshold", "9.0"}, {"bucket_count", "27"}});
-    facgen.AddWiring("ECalTestAlg", {}, {"ECalLeftHits", "ECalRightHits", "ECalVecHits"}, {{"threshold", "16.25"}, {"bucket_count", "49"}});
+    facgen.AddWiring("BCalTestAlg", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {.threshold=6.1, .bucket_count=22});
+    facgen.AddWiring("CCalTestAlg", {}, {"CCalLeftHits", "CCalRightHits", "CCalVecHits"}, {.threshold=9.0, .bucket_count=27});
+    facgen.AddWiring("ECalTestAlg", {}, {"ECalLeftHits", "ECalRightHits", "ECalVecHits"}, {.threshold=16.25, .bucket_count=49});
 
     JFactorySet facset;
     facgen.GenerateFactories(&facset);
@@ -153,7 +153,7 @@ TEST_CASE("JParameterManager correctly understands which values are defaulted an
     app.AddPlugin("log");
 
     auto facgen = new JOmniFactoryGeneratorT<BasicTestAlg>(&app);
-    facgen->AddWiring("FunTest", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {{"threshold", "6.1"}, {"bucket_count", "22"}});
+    facgen->AddWiring("FunTest", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {.threshold=6.1, .bucket_count=22});
     app.Add(facgen);
 
     app.GetJParameterManager()->SetParameter("FunTest:threshold", 12.0);
@@ -192,7 +192,7 @@ TEST_CASE("Wiring itself is correctly defaulted") {
     app.AddPlugin("log");
 
     auto facgen = new JOmniFactoryGeneratorT<BasicTestAlg>(&app);
-    facgen->AddWiring("FunTest", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {{"threshold", "6.1"}});
+    facgen->AddWiring("FunTest", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {.threshold=6.1});
     app.Add(facgen);
     app.Initialize();
 
