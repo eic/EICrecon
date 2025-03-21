@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Chun Yuen Tsang, Prithwish Tribedy
+// Copyright (C) 2024-2025 Chun Yuen Tsang, Prithwish Tribedy, Simon Gardner
 //
 // Spread energy deposition from one strip to neighboring strips within sensor boundaries
 
