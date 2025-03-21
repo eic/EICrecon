@@ -14,9 +14,8 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <cmath>
 #include <fmt/core.h>
-#include <stdlib.h>
+#include <cmath>
 #include <gsl/pointers>
 #include <vector>
 
@@ -71,7 +70,7 @@ void eicrecon::MatrixTransferStatic::process(
   //This is a temporary solution to get the beam energy information
   //needed to select the correct matrix
 
-  if(abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
+  if(std::abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
 
      aX[0][0] = 3.251116; //a
      aX[0][1] = 30.285734; //b
@@ -89,17 +88,17 @@ void eicrecon::MatrixTransferStatic::process(
      local_y_slope_offset = 0.000745498;//-0.000176128;
 
   }
-  else if(abs(130.0 - nomMomentum)/130.0 < nomMomentumError){ //NOT TUNED -- just for testing purposes
+  else if(std::abs(130.0 - nomMomentum)/130.0 < nomMomentumError){ //NOT TUNED -- just for testing purposes
 
-     aX[0][0] = 3.251116; //a
-     aX[0][1] = 30.285734; //b
-     aX[1][0] = 0.186036375; //c
-     aX[1][1] = 0.196439472; //d
+     aX[0][0] = 3.16912; //a
+     aX[0][1] = 22.4693; //b
+     aX[1][0] = 0.182402; //c
+     aX[1][1] = -0.218209; //d
 
-     aY[0][0] = 0.4730500000; //a
-     aY[0][1] = 3.062999454; //b
-     aY[1][0] = 0.0204108951; //c
-     aY[1][1] = -0.139318692; //d
+     aY[0][0] = 0.520743; //a
+     aY[0][1] = 3.17339; //b
+     aY[1][0] = 0.0222482; //c
+     aY[1][1] = -0.0923779; //d
 
      local_x_offset       = -1209.29;//-0.339334; these are the local coordinate values
      local_y_offset       = 0.00132511;//-0.000299454;
@@ -107,7 +106,7 @@ void eicrecon::MatrixTransferStatic::process(
      local_y_slope_offset = 0.000745498;//-0.000176128;
 
   }
-  else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
+  else if(std::abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
 
      aX[0][0] = 3.152158; //a
      aX[0][1] = 20.852072; //b
@@ -125,7 +124,7 @@ void eicrecon::MatrixTransferStatic::process(
      local_y_slope_offset = 0.00204394;//-0.00015321;
 
   }
-  else if(abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
+  else if(std::abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
 
          aX[0][0] = 3.135997; //a
          aX[0][1] = 18.482273; //b
@@ -141,42 +140,6 @@ void eicrecon::MatrixTransferStatic::process(
          local_y_offset       = 0.00868737;//-0.00552451;
          local_x_slope_offset = -45.4641;//-0.21174031;
          local_y_slope_offset = 0.00498786;//-0.003212011;
-
-  }
-  else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
-
-      aX[0][0] = 1.6248;
-      aX[0][1] = 12.966293;
-      aX[1][0] = 0.1832;
-      aX[1][1] = -2.8636535;
-
-      aY[0][0] = 0.0001674; //a
-      aY[0][1] = -28.6003; //b
-      aY[1][0] = 0.0000837; //c
-      aY[1][1] = -2.87985; //d
-
-      local_x_offset       = -11.9872;
-      local_y_offset       = -0.0146;
-      local_x_slope_offset = -14.75315;
-      local_y_slope_offset = -0.0073;
-
-  }
-  else if(abs(130.0 - nomMomentum)/130.0 < nomMomentumError){ //130 GeV deuterons
-
-      aX[0][0] = 1.6248;
-      aX[0][1] = 12.966293;
-      aX[1][0] = 0.1832;
-      aX[1][1] = -2.8636535;
-
-      aY[0][0] = 0.0001674; //a
-      aY[0][1] = -28.6003; //b
-      aY[1][0] = 0.0000837; //c
-      aY[1][1] = -2.87985; //d
-
-      local_x_offset       = -11.9872;
-      local_y_offset       = -0.0146;
-      local_x_slope_offset = -14.75315;
-      local_y_slope_offset = -0.0073;
 
   }
 
