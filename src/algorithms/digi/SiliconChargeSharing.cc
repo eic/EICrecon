@@ -46,8 +46,8 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
   auto [sharedHits]    = output;
 
   for (const auto& hit : *simhits) {
-    
-    auto   cellID     = hit.getCellID();   
+
+    auto   cellID     = hit.getCellID();
     double edep       = hit.getEDep();
     double time       = hit.getTime();
     auto   momentum   = hit.getMomentum();
@@ -73,7 +73,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
   } // for simhits
 } // SiliconChargeSharing:process
 
-// Recursively find neighbors where a charge is deposited 
+// Recursively find neighbors where a charge is deposited
 void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCellID,
     std::unordered_set<dd4hep::rec::CellID>& tested_cells, std::vector<std::pair<dd4hep::rec::CellID,double>>& cell_charge, double edep, dd4hep::Position hitPos) const {
 
@@ -91,9 +91,9 @@ void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCel
 
   // Store cellID and deposited energy
   cell_charge.push_back(std::make_pair(testCellID, edepCell));
-  
+
   // As there is charge in the cell, test the neighbors too
-  std::set<dd4hep::rec::CellID> testCellNeighbours;    
+  std::set<dd4hep::rec::CellID> testCellNeighbours;
   m_seg.neighbours(testCellID, testCellNeighbours);
 
   for (const auto& neighbourCell : testCellNeighbours) {
@@ -131,9 +131,9 @@ dd4hep::Position SiliconChargeSharing::global2Local(const edm4hep::SimTrackerHit
   const TGeoMatrix& transform = detelement.nominal().worldTransformation();
 
   // Units given by transformation do not match with the units of the hit position
-  double g[3] = {hit.getPosition().x/10, hit.getPosition().y/10, hit.getPosition().z/10}; 
+  double g[3] = {hit.getPosition().x/10, hit.getPosition().y/10, hit.getPosition().z/10};
   double l[3];
-  
+
   transform.MasterToLocal(g, l);
   dd4hep::Position position;
   position.SetCoordinates(l);
