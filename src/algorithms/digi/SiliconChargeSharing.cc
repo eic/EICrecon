@@ -47,11 +47,12 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 
   for (const auto& hit : *simhits) {
     
-    auto   cellID   = hit.getCellID();   
-    double edep     = hit.getEDep();
-    double time     = hit.getTime();
-    auto   momentum = hit.getMomentum();
-    auto   hitPos   = global2Local(hit);
+    auto   cellID     = hit.getCellID();   
+    double edep       = hit.getEDep();
+    double time       = hit.getTime();
+    auto   momentum   = hit.getMomentum();
+    auto   hitPos     = global2Local(hit);
+    auto   mcParticle = hit.getMCParticle();
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::vector<std::pair<dd4hep::rec::CellID,double>> cell_charge;
@@ -66,12 +67,13 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
       hit.setTime(time);
       hit.setPosition({globalPos.x(), globalPos.y(), globalPos.z()});
       hit.setMomentum({momentum.x, momentum.y, momentum.z});
+      hit.setMCParticle(mcParticle);
     }
 
   } // for simhits
 } // SiliconChargeSharing:process
 
-// recursively find neighbors where a charge is deposited 
+// Recursively find neighbors where a charge is deposited 
 void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCellID,
     std::unordered_set<dd4hep::rec::CellID>& tested_cells, std::vector<std::pair<dd4hep::rec::CellID,double>>& cell_charge, double edep, dd4hep::Position hitPos) const {
 

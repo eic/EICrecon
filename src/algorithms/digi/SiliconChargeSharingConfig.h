@@ -6,7 +6,7 @@
 namespace eicrecon {
 
 struct SiliconChargeSharingConfig {
-  // Parameters of AC-Silicon signal generation
+  // Parameters of Silicon signal generation
   double sigma_sharingx;
   double sigma_sharingy;
   double m_minEDep;
