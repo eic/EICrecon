@@ -4,4 +4,4 @@
 
 #cmake -B build -S .  #-DCMAKE_INSTALL_PREFIX=/home/simong/EIC/epic/install
 cmake --build build -j8
-cmake --install build 
+cmake --install build
