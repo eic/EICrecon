@@ -25,10 +25,6 @@ public:
 
 public:
 
-    explicit JOmniFactoryGeneratorT(JApplication* app=nullptr) {
-        m_app = app;
-    }
-
     explicit JOmniFactoryGeneratorT(std::string tag,
                                     std::vector<std::string> input_names,
                                     std::vector<std::string> output_names,
@@ -46,27 +42,6 @@ public:
         m_app = app;
     }
 
-    explicit JOmniFactoryGeneratorT(TypedWiring&& wiring) {
-        m_typed_wirings.push_back(std::move(wiring));
-    }
-
-
-    void AddWiring(std::string tag,
-                   std::vector<std::string> input_names,
-                   std::vector<std::string> output_names,
-                   FactoryConfigType configs={}) {
-
-        m_typed_wirings.push_back({.tag=tag,
-                                   .input_names=input_names,
-                                   .output_names=output_names,
-                                   .configs=configs
-                                  });
-    }
-
-
-    void AddWiring(TypedWiring wiring) {
-        m_typed_wirings.push_back(wiring);
-    }
 
     void GenerateFactories(JFactorySet *factory_set) override {
 
