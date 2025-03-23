@@ -67,4 +67,3 @@ private:
     std::vector<TypedWiring> m_typed_wirings;
     JApplication* m_app = nullptr;
 };
-
