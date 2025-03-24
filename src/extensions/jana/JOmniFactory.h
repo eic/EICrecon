@@ -13,6 +13,7 @@
 #include <JANA/CLI/JVersion.h>
 #include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
+#include <spdlog/mdc.h>
 #include <spdlog/spdlog.h>
 
 #include "services/io/podio/datamodel_glue.h"
@@ -555,6 +556,8 @@ public:
             for (auto* output : m_outputs) {
                 output->Reset();
             }
+            spdlog::mdc::put("r", std::to_string(event->GetRunNumber()));
+            spdlog::mdc::put("e", std::to_string(event->GetEventNumber()));
             static_cast<AlgoT*>(this)->Process(event->GetRunNumber(), event->GetEventNumber());
             for (auto* output : m_outputs) {
                 output->SetCollection(*this);
