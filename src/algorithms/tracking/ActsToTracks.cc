@@ -193,16 +193,22 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                     //if (raw_hit_assocs->has_value()) {
                     #if EDM4EIC_VERSION_MAJOR >= 7
                       for (auto& hit : meas2D.getHits()) {
-                        auto raw_hit = hit.getRawHit();
+                        #if EDM4EIC_VERSION_MAJOR >= 9
+                          auto raw_hits = hit.getRawHits();
+                        #else
+                          std::vector<edm4eic::RawTrackerHit> raw_hits = {hit.getRawHit()};
+                        #endif
                         for (const auto raw_hit_assoc : *raw_hit_assocs) {
-                          if (raw_hit_assoc.getRawHit() == raw_hit) {
-                            auto sim_hit = raw_hit_assoc.getSimHit();
+                          for (const auto raw_hit : raw_hits) {
+                            if (raw_hit_assoc.getRawHit() == raw_hit) {
+                              auto sim_hit = raw_hit_assoc.getSimHit();
 #if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
-                            auto mc_particle = sim_hit.getParticle();
+                              auto mc_particle = sim_hit.getParticle();
 #else
-                            auto mc_particle = sim_hit.getMCParticle();
+                              auto mc_particle = sim_hit.getMCParticle();
 #endif
-                            mcparticle_weight_by_hit_count[mc_particle]++;
+                              mcparticle_weight_by_hit_count[mc_particle]++;
+                            }
                           }
                         }
                       }
