@@ -85,9 +85,6 @@ void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCel
   if(edepCell <= m_minEDep) {
     return;
   }
-  std::cout << "testCellID: " << testCellID << std::endl;
-  std::cout << "edep: " << edep << std::endl;
-  std::cout << "edepCell: " << edepCell << std::endl;
 
   // Store cellID and deposited energy
   cell_charge.push_back(std::make_pair(testCellID, edepCell));
