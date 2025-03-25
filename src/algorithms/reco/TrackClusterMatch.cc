@@ -22,12 +22,12 @@ namespace eicrecon {
         m_log = logger;
         m_detector = detector;
     }
-    
+
     void TrackClusterMatch::execute(const TrackClusterMatch::Input& input, const TrackClusterMatch::Output& output) const {
         auto [tracks, clusters] = input;
         auto [matched_particles] = output;
         m_log->trace("We have {} tracks and {} clusters", tracks->size(), clusters->size());
-        
+
         // Loop across each cluster, and find the cloeset projected track
         for (auto cluster : *clusters) {
             const double cluster_eta = edm4hep::utils::eta(cluster.getPosition());
@@ -46,7 +46,7 @@ namespace eicrecon {
                     if (id == m_detector->constant<int>("EcalBarrel")) {
                         m_log->trace("Skipping track point not at the calorimeter");
                     }
-                    if (point.system != id || point.surface != 1) { 
+                    if (point.system != id || point.surface != 1) {
                         m_log->trace("Skipping track point not at the calorimeter");
                         continue;
                     }
@@ -83,4 +83,4 @@ namespace eicrecon {
         double dphi = cluster_phi - track_phi;
         return std::hypot(deta, dphi);
     }
-} 
+}
