@@ -22,7 +22,7 @@ namespace eicrecon {
         m_log = logger;
         m_detector = detector;
     }
-    
+
     void TrackClusterMatch::execute(const TrackClusterMatch::Input& input, const TrackClusterMatch::Output& output) const {
         auto [tracks, clusters] = input;
         auto [matched_particles] = output;
@@ -92,4 +92,4 @@ namespace eicrecon {
         double dphi = cluster_phi - track_phi;
         return std::hypot(deta, dphi);
     }
-} 
+}
