@@ -8,9 +8,8 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4hep/TrackerHitCollection.h>
-#include <podio/ObjectID.h>
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/Measurement2DCollection.h>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -31,8 +30,8 @@ struct FDTrackerCluster {
 namespace eicrecon {
 
 using FarDetectorTrackerClusterAlgorithm =
-    algorithms::Algorithm<algorithms::Input<std::vector<edm4eic::RawTrackerHitCollection>>,
-                          algorithms::Output<std::vector<edm4hep::TrackerHitCollection>>>;
+    algorithms::Algorithm<algorithms::Input<std::vector<edm4eic::TrackerHitCollection>>,
+                          algorithms::Output<std::vector<edm4eic::Measurement2DCollection>>>;
 
 class FarDetectorTrackerCluster : public FarDetectorTrackerClusterAlgorithm,
                                   public WithPodConfig<FarDetectorTrackerClusterConfig> {
@@ -52,15 +51,15 @@ public:
   void process(const Input&, const Output&) const final;
 
   /** Cluster hits **/
-  std::vector<FDTrackerCluster> ClusterHits(const edm4eic::RawTrackerHitCollection&) const;
+  std::vector<edm4eic::Measurement2D> ClusterHits(const edm4eic::TrackerHitCollection&) const;
 
   /** Convert clusters to TrackerHits **/
-  void ConvertClusters(const std::vector<FDTrackerCluster>&, edm4hep::TrackerHitCollection&) const;
+  // void ConvertClusters(const std::vector<FDTrackerCluster>&, edm4eic::TrackerHitCollection&) const;
 
 private:
   const dd4hep::Detector* m_detector{nullptr};
   const dd4hep::BitFieldCoder* m_id_dec{nullptr};
-  const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
+  // const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
   dd4hep::Segmentation m_seg;
 
   int m_x_idx{0};

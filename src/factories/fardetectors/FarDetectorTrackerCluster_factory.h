@@ -17,8 +17,8 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  VariadicPodioInput<edm4eic::RawTrackerHit> m_raw_hits_input {this};
-  VariadicPodioOutput<edm4hep::TrackerHit>   m_clustered_hits_output {this};
+  VariadicPodioInput<edm4eic::TrackerHit>     m_raw_hits_input {this};
+  VariadicPodioOutput<edm4eic::Measurement2D> m_clustered_hits_output {this};
 
   Service<AlgorithmsInit_service> m_algorithmsInit {this};
 
@@ -45,13 +45,13 @@ public:
   }
 
   void Process(int64_t run_number, uint64_t event_number) {
-    std::vector<gsl::not_null<edm4hep::TrackerHitCollection*>> clustered_collections;
+    std::vector<gsl::not_null<edm4eic::Measurement2DCollection*>> clustered_collections;
     for (const auto& clustered : m_clustered_hits_output()) {
-      clustered_collections.push_back(gsl::not_null<edm4hep::TrackerHitCollection*>(clustered.get()));
+      clustered_collections.push_back(gsl::not_null<edm4eic::Measurement2DCollection*>(clustered.get()));
     }
 
     auto in1 = m_raw_hits_input();
-    std::vector<gsl::not_null<const edm4eic::RawTrackerHitCollection*>> in2;
+    std::vector<gsl::not_null<const edm4eic::TrackerHitCollection*>> in2;
     std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
 
 
