@@ -49,8 +49,6 @@ add_custom_target(
     ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
   COMMENT "Create datamodel glue headers")
 
-plugin_add_dependencies(${PLUGIN_NAME} podio_datamodel_glue)
-
 # Install datamodel_glue headers
 install(
   FILES

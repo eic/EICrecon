@@ -47,6 +47,11 @@ macro(plugin_add _name)
                           podio::podioRootIO spdlog::spdlog fmt::fmt)
     target_link_libraries(${_name}_plugin Microsoft.GSL::GSL)
 
+    # Ensure datamodel headers are available
+    if(TARGET podio_datamodel_glue)
+      add_dependencies(${_name}_plugin podio_datamodel_glue)
+    endif()
+
     # Install plugin
     install(
       TARGETS ${_name}_plugin
@@ -88,6 +93,11 @@ macro(plugin_add _name)
       spdlog::spdlog
       fmt::fmt
       Microsoft.GSL::GSL)
+
+    # Ensure datamodel headers are available
+    if(TARGET podio_datamodel_glue)
+      add_dependencies(${_name}_library podio_datamodel_glue)
+    endif()
 
     # Install library
     install(
