@@ -309,10 +309,19 @@ void InitPlugin(JApplication *app) {
         app
     ));
 
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster>>(
+      "BarrelClusters",
+      {
+        "HcalBarrelClusters",
+        "EcalBarrelScFiClusters",
+      },
+      {"BarrelClusters"},
+      app));
+
     app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "ReconstructedParticles_notruth",
-      {"CombinedTracks","EcalClusters"},
-      {"ReconstructedParticles_notruth"},
+      "TrackClusterMatcher",
+      {"CalorimeterTrackProjections", "BarrelClusters"},
+      {"TrackClusterMatches"},
       {},
       app
     ));
