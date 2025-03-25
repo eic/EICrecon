@@ -1,4 +1,4 @@
-// Copyright 2023-2024, Simon Gardner
+// Copyright 2023-2025, Simon Gardner
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 //
@@ -20,6 +20,7 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
@@ -40,13 +41,26 @@ extern "C" {
 
     using namespace eicrecon;
 
-    std::string tracker_readout = "TaggerTrackerHits";
+    std::string readout = "TaggerTrackerHits";
+
+    app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
+      "TaggerTrackerChargeSharing",
+      {"TaggerTrackerHits"},
+      {"TaggerTrackerSharedHits"},
+      {
+          .sigma_sharingx = 15 * dd4hep::um,
+          .sigma_sharingy = 15 * dd4hep::um,
+          .m_minEDep = 1.0e-7,
+          .readout = readout,
+      },
+      app
+  ));
 
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
          "TaggerTrackerRawHits",
          {
-           "TaggerTrackerHits"
+           "TaggerTrackerSharedHits"
          },
          {
            "TaggerTrackerRawHits",
@@ -61,7 +75,6 @@ extern "C" {
 
     // Divide collection based on geometry segmentation labels
     // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
-    std::string readout = "TaggerTrackerHits";
     std::vector<std::string> geometryLabels {"module","layer"};
     std::vector<int> moduleIDs{1,2};
     std::vector<int> layerIDs {0,1,2,3};
