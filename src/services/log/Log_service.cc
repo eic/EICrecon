@@ -6,6 +6,7 @@
 
 #include <JANA/JException.h>
 #include <spdlog/spdlog.h>
+#include <spdlog/version.h>
 #include <exception>
 
 #include "extensions/spdlog/SpdlogExtensions.h"
@@ -20,7 +21,11 @@ Log_service::Log_service(JApplication *app) {
     m_application->SetDefaultParameter("eicrecon:LogLevel", m_log_level_str, "log_level: trace, debug, info, warn, error, critical, off");
     spdlog::default_logger()->set_level(eicrecon::ParseLogLevel(m_log_level_str));
 
+#if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
     m_log_format_str = "[%n] [%&] [%^%l%$] %v";
+#else
+    m_log_format_str = "[%n] [%^%l%$] %v";
+#endif
     m_application->SetDefaultParameter("eicrecon:LogFormat", m_log_level_str, "spdlog pattern string");
     spdlog::set_pattern(m_log_format_str);
 }

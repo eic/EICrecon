@@ -165,7 +165,7 @@ find_package(EDM4HEP 0.7.1 REQUIRED)
 find_package(EDM4EIC 5.0 REQUIRED)
 
 # spdlog
-find_package(spdlog 1.14 REQUIRED)
+find_package(spdlog REQUIRED)
 
 # fmt
 find_package(fmt 9.0.0 REQUIRED)
