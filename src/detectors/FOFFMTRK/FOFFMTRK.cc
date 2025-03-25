@@ -7,10 +7,10 @@
 #include <JANA/JApplication.h>
 #include <vector>
 
-#include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+#include "algorithms/fardetectors/MatrixTransferStaticConfig_OMD.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/fardetectors/MatrixTransferStatic_factory.h"
+#include "factories/fardetectors/MatrixTransferStatic_OMD_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 
@@ -19,7 +19,7 @@ void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
     using namespace eicrecon;
 
-    MatrixTransferStaticConfig recon_cfg;
+    MatrixTransferStaticConfig_OMD recon_cfg;
 
         //Digitized hits, especially for thresholds
         app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -60,14 +60,14 @@ void InitPlugin(JApplication *app) {
     recon_cfg.local_y_slope_offset = -0.0073;   // in mrad
     recon_cfg.nomMomentum          =  137.5;    // in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
 
-    recon_cfg.hit1minZ = 22499.0;
-    recon_cfg.hit1maxZ = 22522.0;
-    recon_cfg.hit2minZ = 24499.0;
-    recon_cfg.hit2maxZ = 24522.0;
+    recon_cfg.hit1minZ = 22490.0;
+    recon_cfg.hit1maxZ = 22512.0;
+    recon_cfg.hit2minZ = 24512.0;
+    recon_cfg.hit2maxZ = 24535.0;
 
     recon_cfg.readout              = "ForwardOffMTrackerRecHits";
 
-    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardOffMRecParticles",{"MCParticles","ForwardOffMTrackerRecHits"},{"ForwardOffMRecParticles"},recon_cfg,app));
+    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_OMD_factory>("ForwardOffMRecParticles",{"MCParticles","ForwardOffMTrackerRecHits"},{"ForwardOffMRecParticles"},recon_cfg,app));
 
 }
 }
