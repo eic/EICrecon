@@ -120,7 +120,7 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
         id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
         edm4hep::Vector3f(0.0, 0.0, 0.0),                      // Vector3f position,
         edm4eic::CovDiag3f(),                                      // Cov3f cov,
-        5.0,                                                   // float time
+        0.0,                                                   // float time
         0.0,                                                   // float timeError,
         5.0,                                                   // float edep,
         0.0                                                    // float edepError
