@@ -25,7 +25,7 @@ macro(plugin_add _name)
 
   # Define plugin
   if(${_name}_WITH_PLUGIN)
-    add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
+    add_library(${_name}_plugin SHARED)
 
     target_include_directories(
       ${_name}_plugin
