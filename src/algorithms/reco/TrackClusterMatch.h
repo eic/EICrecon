@@ -4,6 +4,7 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -26,16 +27,16 @@ namespace eicrecon {
 
     class TrackClusterMatch : public TrackClusterMatchAlgorithm, WithPodConfig<TrackClusterMatchConfig> {
     private:
-        std::shared_ptr<spdlog::logger> m_log;
-        const dd4hep::Detector* m_detector;
+        const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
         double distance(const edm4hep::Vector3f& v1, const edm4hep::Vector3f& v2) const;
+        static double Phi_mpi_pi(double phi) {return std::remainder(phi, 2 * M_PI);}
 
 
     public:
         TrackClusterMatch(std::string_view name) :
                 TrackClusterMatchAlgorithm{name, {"inputTracks", "inputClusters"}, {"outputParticles"}, ""} {}
 
-        void init(std::shared_ptr<spdlog::logger> logger, const dd4hep::Detector* detector);
-        void execute(const Input&, const Output&) const;
+        void init() final {};
+        void process(const Input&, const Output&) const final;
     };
 }

@@ -53,7 +53,11 @@
 #include "global/reco/ReconstructedElectrons_factory.h"
 #include "global/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "global/reco/ScatteredElectronsTruth_factory.h"
+
+#if EDM4EIC_VERSION_MAJOR >= 8
 #include "global/reco/TrackClusterMatch_factory.h"
+#endif
+
 
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -318,6 +322,7 @@ void InitPlugin(JApplication *app) {
       {"BarrelClusters"},
       app));
 
+    #if EDM4EIC_VERSION_MAJOR >= 8
     app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
       "TrackClusterMatcher",
       {"CalorimeterTrackProjections", "BarrelClusters"},
@@ -325,6 +330,7 @@ void InitPlugin(JApplication *app) {
       {},
       app
     ));
+    #endif // EDM4EIC_VERSION_MAJOR >= 8
 
     app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
             "ReconstructedBreitFrameParticles",
