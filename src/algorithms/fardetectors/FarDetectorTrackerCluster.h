@@ -17,16 +17,6 @@
 #include "FarDetectorTrackerClusterConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-// Cluster struct
-struct FDTrackerCluster {
-  unsigned long cellID{0};
-  double x{0.0};
-  double y{0.0};
-  double energy{0.0};
-  double time{0.0};
-  double timeError{0.0};
-  std::vector<podio::ObjectID> rawHits;
-};
 namespace eicrecon {
 
 using FarDetectorTrackerClusterAlgorithm =
@@ -51,7 +41,7 @@ public:
   void process(const Input&, const Output&) const final;
 
   /** Cluster hits **/
-  std::vector<edm4eic::Measurement2D> ClusterHits(const edm4eic::TrackerHitCollection&) const;
+  void ClusterHits(const edm4eic::TrackerHitCollection&, edm4eic::Measurement2DCollection&) const;
 
 private:
   const dd4hep::Detector* m_detector{nullptr};

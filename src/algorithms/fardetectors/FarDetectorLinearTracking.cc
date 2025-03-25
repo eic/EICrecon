@@ -64,6 +64,10 @@ namespace eicrecon {
             info("Too many hits in layer");
             return;
           }
+          if((*layerHits).size()==0){
+            info("No hits in layer");
+            return;
+          }
           convertedHits.push_back(ConvertClusters(*layerHits));
         }
 
@@ -82,7 +86,7 @@ namespace eicrecon {
 
       // Iterate over hits in this layer
       for(auto hit : hits[level]){
-        
+
         hitMatrix->col(level) << hit;
 
         // Check the last two hits are within a certain angle of the optimum direction
@@ -169,7 +173,7 @@ namespace eicrecon {
       debug("Angle: {}, Tolerance {}",angle,m_cfg.step_angle_tolerance);
 
       if(angle>m_cfg.step_angle_tolerance) return false;
-
+      
       return true;
 
     }
@@ -185,7 +189,7 @@ namespace eicrecon {
       for (auto cluster : clusters) {
 
         auto globalPos = context->localToWorld({cluster.getLoc()[0], cluster.getLoc()[1], 0});
-        pointPositions.push_back(Eigen::Vector3d(globalPos.x(), globalPos.y(), globalPos.z()));
+        pointPositions.push_back(Eigen::Vector3d(globalPos.x()/ dd4hep::mm, globalPos.y()/ dd4hep::mm, globalPos.z()/ dd4hep::mm));
       
       }
 

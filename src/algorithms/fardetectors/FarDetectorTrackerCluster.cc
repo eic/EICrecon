@@ -63,18 +63,13 @@ void FarDetectorTrackerCluster::process(const FarDetectorTrackerCluster::Input& 
     auto outputClusters = outputClustersCollection[i];
 
     // Make clusters
-    auto clusters = ClusterHits(*inputHits);
-
-    for(auto cluster: clusters){
-      clusters.push_back(cluster);
-    }
-
+    ClusterHits(*inputHits, *outputClusters);
 
   }
 }
 
 // Create vector of Measurement2D from list of hits
-std::vector<edm4eic::Measurement2D>  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection& inputHits) const {
+void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection& inputHits, edm4eic::Measurement2DCollection& outputClusters) const {
 
 
   ROOT::VecOps::RVec<unsigned long> id;
@@ -96,8 +91,6 @@ std::vector<edm4eic::Measurement2D>  FarDetectorTrackerCluster::ClusterHits(cons
   // Set up clustering variables
   ROOT::VecOps::RVec<bool> available(id.size(), 1);
   auto indices = Enumerate(id);
-
-  std::vector<edm4eic::Measurement2D> clusters;
 
   // Loop while there are unclustered hits
   while (ROOT::VecOps::Any(available)) {
@@ -165,7 +158,7 @@ std::vector<edm4eic::Measurement2D>  FarDetectorTrackerCluster::ClusterHits(cons
     edm4eic::Cov3f    covariance;
 
     // Create cluster
-    edm4eic::MutableMeasurement2D cluster(id[maxIndex], xyPos, t0, covariance);
+    auto cluster = outputClusters->create(id[maxIndex], xyPos, t0, covariance);
 
     // Add hits to cluster
     for(auto hit : clusterHits){
@@ -173,10 +166,7 @@ std::vector<edm4eic::Measurement2D>  FarDetectorTrackerCluster::ClusterHits(cons
       cluster.addToHits(hit);
     }
 
-    clusters.push_back(cluster);
   }
-
-  return clusters;
 
 }
 

@@ -46,7 +46,8 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
                      0.0                                                    // float edepError
     );
 
-    std::vector<edm4eic::Measurement2D> clusterPositions = algo.ClusterHits(hits_coll);
+    edm4eic::Measurement2DCollection clusterPositions;
+    algo.ClusterHits(hits_coll, clusterPositions);
 
     REQUIRE(clusterPositions.size() == 1);
     REQUIRE(clusterPositions[0].getHits().size() == 1);
@@ -76,7 +77,8 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
         0.0                                                    // float edepError
     );
 
-    std::vector<edm4eic::Measurement2D> clusterPositions = algo.ClusterHits(hits_coll);
+    edm4eic::Measurement2DCollection clusterPositions;
+    algo.ClusterHits(hits_coll, clusterPositions);
 
     REQUIRE(clusterPositions.size() == 2);
     REQUIRE(clusterPositions[0].getHits().size() == 1);
@@ -104,7 +106,8 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
         0.0                                                    // float edepError
     );
 
-    std::vector<edm4eic::Measurement2D> clusterPositions = algo.ClusterHits(hits_coll);
+    edm4eic::Measurement2DCollection clusterPositions;
+    algo.ClusterHits(hits_coll, clusterPositions);
 
     REQUIRE(clusterPositions.size() == 1);
     REQUIRE(clusterPositions[0].getHits().size() == 2);
@@ -132,7 +135,8 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
         0.0                                                    // float edepError
     );
 
-    std::vector<edm4eic::Measurement2D> clusterPositions = algo.ClusterHits(hits_coll);
+    edm4eic::Measurement2DCollection clusterPositions;
+    algo.ClusterHits(hits_coll, clusterPositions);
 
     REQUIRE(clusterPositions.size() == 2);
     REQUIRE(clusterPositions[0].getHits().size() == 1);
@@ -175,8 +179,9 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
         0.0                                                    // float edepError
     );
 
-    std::vector<edm4eic::Measurement2D> clusterPositions = algo.ClusterHits(hits_coll);
-
+    edm4eic::Measurement2DCollection clusterPositions;
+    algo.ClusterHits(hits_coll, clusterPositions);
+    
     if (pixel2Time < cfg.hit_time_limit) {
       REQUIRE(clusterPositions.size() == 1);
       REQUIRE(clusterPositions[0].getHits().size() == 3);
