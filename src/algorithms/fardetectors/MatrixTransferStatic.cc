@@ -14,6 +14,7 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <exception>
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
@@ -63,7 +64,8 @@ void eicrecon::MatrixTransferStatic::process(
 
   if(numBeamProtons == 0) {
     if (m_cfg.requireBeamProton) {
-      error("No beam protons to choose matrix!! Skipping!!");
+      critical("No beam protons to choose matrix!! Skipping!!");
+      throw std::runtime_error("No beam protons found");
     }
     return;
   }

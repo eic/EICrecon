@@ -6,6 +6,7 @@
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include <cmath>
 #include <cstddef>
+#include <exception>
 #include <fmt/core.h>
 #include <gsl/pointers>
 #include <podio/RelationRange.h>
@@ -35,7 +36,8 @@ namespace eicrecon {
         // Check if beam electrons are present
         if(beamElectrons->size() == 0){
           if (m_cfg.requireBeamElectron) {
-            error("No beam electrons found keeping default 10GeV beam energy.");
+            critical("No beam electrons found keeping default 10GeV beam energy.");
+            throw std::runtime_error("No beam electrons found");
           }
           return;
         }
