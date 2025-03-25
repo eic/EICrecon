@@ -10,39 +10,36 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/TrackStateProxy.hpp>
 #include <Acts/EventData/Types.hpp>
-#include <Acts/Geometry/Layer.hpp>
-#include <boost/container/vector.hpp>
-#include <boost/move/utility_core.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-
-#include "Acts/EventData/ProxyAccessor.hpp"
+#include <Acts/Geometry/Layer.hpp>
 #if Acts_VERSION_MAJOR >= 34
 #if Acts_VERSION_MAJOR >= 37
-#include "Acts/Propagator/ActorList.hpp"
+#include <Acts/Propagator/ActorList.hpp>
 #else
-#include "Acts/Propagator/AbortList.hpp"
+#include <Acts/Propagator/AbortList.hpp>
 #include <Acts/Propagator/ActionList.hpp>
 #endif
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/MaterialInteractor.hpp"
-#include "Acts/Propagator/Navigator.hpp"
+#include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/MaterialInteractor.hpp>
+#include <Acts/Propagator/Navigator.hpp>
 #endif
 #include <Acts/Propagator/Propagator.hpp>
 #if Acts_VERSION_MAJOR >= 36
-#include "Acts/Propagator/PropagatorOptions.hpp"
+#include <Acts/Propagator/PropagatorOptions.hpp>
 #endif
 #if Acts_VERSION_MAJOR >= 34
-#include "Acts/Propagator/StandardAborters.hpp"
+#include <Acts/Propagator/StandardAborters.hpp>
 #endif
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
@@ -55,12 +52,14 @@
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #if Acts_VERSION_MAJOR >= 34
-#include "Acts/Utilities/TrackHelpers.hpp"
+#include <Acts/Utilities/TrackHelpers.hpp>
 #endif
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <boost/container/vector.hpp>
+#include <boost/move/utility_core.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/Measurement2DCollection.h>
