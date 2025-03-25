@@ -27,7 +27,7 @@ namespace eicrecon {
         auto [tracks, clusters] = input;
         auto [matched_particles] = output;
         m_log->trace("We have {} tracks and {} clusters", tracks->size(), clusters->size());
-        
+
         std::set<int> used_tracks;
         // Loop across each cluster, and find the cloeset projected track
         for (auto cluster : *clusters) {
