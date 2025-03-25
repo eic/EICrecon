@@ -173,7 +173,7 @@ namespace eicrecon {
       debug("Angle: {}, Tolerance {}",angle,m_cfg.step_angle_tolerance);
 
       if(angle>m_cfg.step_angle_tolerance) return false;
-      
+
       return true;
 
     }
@@ -190,7 +190,7 @@ namespace eicrecon {
 
         auto globalPos = context->localToWorld({cluster.getLoc()[0], cluster.getLoc()[1], 0});
         pointPositions.push_back(Eigen::Vector3d(globalPos.x()/ dd4hep::mm, globalPos.y()/ dd4hep::mm, globalPos.z()/ dd4hep::mm));
-      
+
       }
 
       return pointPositions;

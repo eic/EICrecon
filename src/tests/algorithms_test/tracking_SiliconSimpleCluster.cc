@@ -31,7 +31,7 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
   auto detector = algorithms::GeoSvc::instance().detector();
   auto id_desc  = detector->readout(cfg.readout).idSpec();
 
-  algo.applyConfig(cfg); 
+  algo.applyConfig(cfg);
   algo.level(algorithms::LogLevel::kTrace);
   algo.init();
 
@@ -181,7 +181,7 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
 
     edm4eic::Measurement2DCollection clusterPositions;
     algo.ClusterHits(hits_coll, clusterPositions);
-    
+
     if (pixel2Time < cfg.hit_time_limit) {
       REQUIRE(clusterPositions.size() == 1);
       REQUIRE(clusterPositions[0].getHits().size() == 3);
