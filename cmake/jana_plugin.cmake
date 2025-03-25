@@ -1,6 +1,34 @@
 # Ensure GNU filesystem layout
 include(GNUInstallDirs)
 
+# Sets up properties common for plugin "library" library or "plugin" library
+macro(_plugin_common_target_properties _target)
+  target_include_directories(
+    ${_target}
+    PUBLIC $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
+           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
+  target_include_directories(${_target} SYSTEM PUBLIC ${JANA_INCLUDE_DIR})
+  target_link_libraries(
+    ${_target}
+    ${JANA_LIB}
+    podio::podio
+    podio::podioRootIO
+    spdlog::spdlog
+    fmt::fmt
+    Microsoft.GSL::GSL)
+
+  target_compile_definitions(
+    ${_target}
+    PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
+            "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
+            "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
+
+  # Ensure datamodel headers are available
+  if(TARGET podio_datamodel_glue)
+    add_dependencies(${_target} podio_datamodel_glue)
+  endif()
+endmacro()
+
 # Common macro to add plugins
 macro(plugin_add _name)
 
@@ -27,30 +55,13 @@ macro(plugin_add _name)
   if(${_name}_WITH_PLUGIN)
     add_library(${_name}_plugin SHARED)
 
-    target_include_directories(
-      ${_name}_plugin
-      PUBLIC $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
-             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
-    target_include_directories(${_name}_plugin SYSTEM
-                               PUBLIC ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
+    _plugin_common_target_properties(${_name}_plugin)
+
     set_target_properties(
       ${_name}_plugin
       PROPERTIES PREFIX ""
                  OUTPUT_NAME "${_name}"
                  SUFFIX ".so")
-    target_compile_definitions(
-      ${PLUGIN_NAME}_plugin
-      PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
-              "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
-              "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
-    target_link_libraries(${_name}_plugin ${JANA_LIB} podio::podio
-                          podio::podioRootIO spdlog::spdlog fmt::fmt)
-    target_link_libraries(${_name}_plugin Microsoft.GSL::GSL)
-
-    # Ensure datamodel headers are available
-    if(TARGET podio_datamodel_glue)
-      add_dependencies(${_name}_plugin podio_datamodel_glue)
-    endif()
 
     # Install plugin
     install(
@@ -62,6 +73,9 @@ macro(plugin_add _name)
   # Define library
   if(${_name}_WITH_LIBRARY)
     add_library(${_name}_library ${${_name}_LIBRARY_TYPE} "")
+
+    _plugin_common_target_properties(${_name}_library)
+
     if(${_name}_LIBRARY_TYPE STREQUAL "STATIC")
       set(suffix ".a")
     endif()
@@ -73,31 +87,6 @@ macro(plugin_add _name)
       PROPERTIES PREFIX "lib"
                  OUTPUT_NAME "${_name}"
                  SUFFIX ${suffix})
-    target_compile_definitions(
-      ${PLUGIN_NAME}_library
-      PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
-              "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
-              "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
-
-    target_include_directories(
-      ${_name}_library
-      PUBLIC $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
-             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
-    target_include_directories(${_name}_library SYSTEM
-                               PUBLIC ${JANA_INCLUDE_DIR})
-    target_link_libraries(
-      ${_name}_library
-      ${JANA_LIB}
-      podio::podio
-      podio::podioRootIO
-      spdlog::spdlog
-      fmt::fmt
-      Microsoft.GSL::GSL)
-
-    # Ensure datamodel headers are available
-    if(TARGET podio_datamodel_glue)
-      add_dependencies(${_name}_library podio_datamodel_glue)
-    endif()
 
     # Install library
     install(
