@@ -47,13 +47,14 @@ namespace eicrecon {
                 }
                 for (auto point : track.getPoints()) {
                     // Check if the point is at the calorimeter
-                    int id = m_detector->volumeManager().lookupDetector(cluster.getHits()[0].getCellID()).id();
-                    // m_log->trace("Track point at detector ID {}", id);
-                    // m_log->trace("EcalBarrel ID is {}", m_detector->constant<uint32_t>("EcalBarrel_ID"));
-                    // m_log->trace("HcalBarrel ID is {}", m_detector->constant<uint32_t>("HcalBarrel_ID"));
+                    // int id = m_detector->volumeManager().lookupDetector(cluster.getHits()[0].getCellID()).id(); // TODO: Find programmatic way to get detector cluster is from
                     uint32_t ecal_barrel_id = 101;
                     uint32_t hcal_barrel_id = 111;
-                    if (!((point.system == ecal_barrel_id) || (point.system == hcal_barrel_id)) ||  point.surface != 1) { // Just try the barrel ECal for now...
+                    bool is_ecal = point.system == ecal_barrel_id;
+                    bool is_hcal = point.system == hcal_barrel_id;
+                    bool is_surface = point.surface == 1;
+
+                    if (!(is_ecal || is_hcal) || !is_surface) {
                         m_log->trace("Skipping track point not at the calorimeter");
                         continue;
                     }
@@ -78,7 +79,6 @@ namespace eicrecon {
                 particle.setCluster(cluster);
                 particle.setTrack(closest_segment.value().getTrack());
                 used_tracks.insert(closest_segment_id);
-                // compare object ID of track from track segment to track in output collection
             }
         }
     }
