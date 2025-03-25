@@ -2,23 +2,23 @@
 // Copyright (C) 2025 Tristan Protzman
 
 #include <edm4eic/EDM4eicVersion.h> // Needs edm4eic::TrackClusterMatch
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <stdint.h>
+#include <gsl/pointers>
+#include <optional>
+#include <set>
+#include <vector>
 #if EDM4EIC_VERSION_MAJOR >= 8
 
-#include "algorithms/reco/TrackClusterMatch.h"
-#include "algorithms/reco/TrackClusterMatchConfig.h"
-#include <spdlog/logger.h>
-
+#include <DD4hep/Detector.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 
-#include <edm4eic/Cluster.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/Track.h>
-#include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrackPoint.h>
-#include <edm4eic/TrackSegment.h>
-
-#include <DD4hep/Detector.h>
+#include "algorithms/reco/TrackClusterMatch.h"
+#include "algorithms/reco/TrackClusterMatchConfig.h"
 
 namespace eicrecon {
     void TrackClusterMatch::process(const TrackClusterMatch::Input& input, const TrackClusterMatch::Output& output) const {

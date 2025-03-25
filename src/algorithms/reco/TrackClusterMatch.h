@@ -5,17 +5,15 @@
 
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <edm4eic/TrackCollection.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/TrackSegmentCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
-#include "algorithms/interfaces/WithPodConfig.h"
-#include <spdlog/logger.h>
-#include <DD4hep/Detector.h>
+#include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <cmath>
+#include <string>
+#include <string_view>
 
-
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/TrackClusterMatchConfig.h"
 
 namespace eicrecon {
