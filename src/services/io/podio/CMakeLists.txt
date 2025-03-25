@@ -37,11 +37,10 @@ add_custom_target(
     ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
   COMMENT "Create datamodel glue headers")
 
-# Install datamodel_glue headers
+# Install datamodel_glue header
 install(
   FILES
     ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
-    ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_includes.h
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${DATAMODEL_RELATIVE_PATH})
 
