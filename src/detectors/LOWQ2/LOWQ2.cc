@@ -3,11 +3,11 @@
 //
 //
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackSegment.h>
+#include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
 #include <math.h>
@@ -20,12 +20,12 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
-#include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
 #include "factories/fardetectors/FarDetectorTransportationPostML_factory.h"
+#include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
 #endif
 #include "factories/fardetectors/FarDetectorMLReconstruction_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"

@@ -8,11 +8,14 @@
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
-#include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/CovDiag3f.h>
 #include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3f.h>
+#include <podio/RelationRange.h>
 #include <gsl/pointers>
-#include <podio/ObjectID.h>
 #include <utility>
 #include <vector>
 

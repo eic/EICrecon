@@ -1,23 +1,29 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Simon Gardner
 
+#include <DD4hep/VolumeManager.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <algorithms/geo.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
+#include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/vector_utils.h>
-#include <edm4eic/Measurement2DCollection.h>
+#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <stdint.h>
-#include <algorithms/geo.h>
 #include <Eigen/Geometry>
 #include <Eigen/Householder>
 #include <Eigen/Jacobi>
 #include <Eigen/QR>
 #include <Eigen/SVD>
+#include <algorithm>
 #include <cmath>
 #include <utility>
 

@@ -5,11 +5,10 @@
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/Segmentations.h>
-#include <DDRec/CellIDPositionConverter.h>
 #include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
-#include <edm4eic/TrackerHitCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <string>
 #include <string_view>
 #include <vector>

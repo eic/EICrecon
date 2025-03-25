@@ -5,19 +5,18 @@
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
-#include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <ROOT/RVec.hxx>
 #include <algorithms/geo.h>
-#include <edm4hep/Vector3d.h>
+#include <edm4eic/Cov3f.h>
+#include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
-#include <gsl/pointers>
 #include <sys/types.h>
+#include <gsl/pointers>
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
 #include "algorithms/fardetectors/FarDetectorTrackerClusterConfig.h"
