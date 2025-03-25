@@ -27,7 +27,6 @@ namespace eicrecon {
 void FarDetectorTrackerCluster::init() {
 
   m_detector         = algorithms::GeoSvc::instance().detector();
-  // m_cellid_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
 
   if (m_cfg.readout.empty()) {
     throw JException("Readout is empty");
@@ -180,32 +179,5 @@ std::vector<edm4eic::Measurement2D>  FarDetectorTrackerCluster::ClusterHits(cons
   return clusters;
 
 }
-
-// // Convert to global coordinates and create TrackerHits
-// void FarDetectorTrackerCluster::ConvertClusters(
-//     const std::vector<FDTrackerCluster>& clusters,
-//     edm4hep::TrackerHitCollection& outputClusters) const {
-
-//   // Get context of first hit
-//   const dd4hep::VolumeManagerContext* context = m_cellid_converter->findContext(clusters[0].cellID);
-
-//   for (auto cluster : clusters) {
-//     auto hitPos = outputClusters.create();
-
-//     auto globalPos = context->localToWorld({cluster.x, cluster.y, 0});
-
-//     // Set cluster members
-//     hitPos.setCellID(cluster.cellID);
-//     hitPos.setPosition(edm4hep::Vector3d(globalPos.x() / dd4hep::mm, globalPos.y() / dd4hep::mm,
-//                                          globalPos.z() / dd4hep::mm));
-//     hitPos.setEDep(cluster.energy);
-//     hitPos.setTime(cluster.time);
-
-//     // Add raw hits to cluster
-//     for (auto hit : cluster.rawHits) {
-//       hitPos.addToRawHits(hit);
-//     }
-//   }
-// }
 
 } // namespace eicrecon

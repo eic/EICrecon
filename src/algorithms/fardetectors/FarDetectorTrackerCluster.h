@@ -53,13 +53,9 @@ public:
   /** Cluster hits **/
   std::vector<edm4eic::Measurement2D> ClusterHits(const edm4eic::TrackerHitCollection&) const;
 
-  /** Convert clusters to TrackerHits **/
-  // void ConvertClusters(const std::vector<FDTrackerCluster>&, edm4eic::TrackerHitCollection&) const;
-
 private:
   const dd4hep::Detector* m_detector{nullptr};
   const dd4hep::BitFieldCoder* m_id_dec{nullptr};
-  // const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
   dd4hep::Segmentation m_seg;
 
   int m_x_idx{0};
