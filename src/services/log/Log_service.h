@@ -2,7 +2,7 @@
 
 
 #include <JANA/JApplication.h>
-#include <JANA/Services/JServiceLocator.h>
+#include <JANA/JServiceFwd.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <memory>
