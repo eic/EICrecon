@@ -51,18 +51,18 @@ void eicrecon::MatrixTransferStatic_OMD::process(
   double runningMomentum = 0.0;
 
   for (const auto& p: *mcparts) {
-        if(mcparts->size() == 1 && p.getPDG() == 2212){ //using particle gun for calibration or acceptance studies
-                runningMomentum = p.getMomentum().z;
-                numBeamProtons++;
-        }
-        if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
-                runningMomentum += p.getMomentum().z;
-                numBeamProtons++;
-        }
-        else if (p.getGeneratorStatus() == 4 && p.getPDG() == 2112) { //look for "beam" neutron for e+D collisions with proton spectator
-                runningMomentum += p.getMomentum().z;
-                numBeamProtons++;
-        }
+      if(mcparts->size() == 1 && p.getPDG() == 2212){ //using particle gun for calibration or acceptance studies
+          runningMomentum = p.getMomentum().z;
+          numBeamProtons++;
+      }
+      if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+          runningMomentum += p.getMomentum().z;
+          numBeamProtons++;
+      }
+      if (p.getGeneratorStatus() == 4 && p.getPDG() == 2112) { //look for "beam" neutron for e+D collisions with proton spectator
+          runningMomentum += p.getMomentum().z;
+          numBeamProtons++;
+      }
   }
 
   if(numBeamProtons == 0) {error("No beam protons to choose matrix!! Skipping!!"); return;}
