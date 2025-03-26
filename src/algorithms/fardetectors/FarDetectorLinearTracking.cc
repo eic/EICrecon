@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Simon Gardner
+// Copyright (C) 2023 - 2025, Simon Gardner
 
 #include <DD4hep/VolumeManager.h>
 #include <Evaluator/DD4hepUnits.h>

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, Dmitry Kalinkin, Simon Gardner
+// Copyright (C) 2024 - 2025, Dmitry Kalinkin, Simon Gardner
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
