@@ -19,6 +19,7 @@
 
 #include "ActsToTracks.h"
 #include "ActsToTracks_factory.h"
+#include "ActsTrajectoriesMerger_factory.h"
 #include "AmbiguitySolver_factory.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
@@ -202,9 +203,27 @@ void InitPlugin(JApplication* app) {
                                                               },
                                                               app));
 
+  app->Add(new JOmniFactoryGeneratorT<ActsTrajectoriesMerger_factory>(
+      "CentralB0CKFActsTrajectories",
+      {
+          "CentralCKFActsTrajectories",
+          "B0TrackerCKFActsTrajectories",
+      },
+      {
+          "CentralAndB0TrackerCKFActsTrajectories",
+      },
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
-      "CentralTrackVertices", {"CentralCKFActsTrajectories", "ReconstructedChargedParticles"},
-      {"CentralTrackVertices"}, {}, app));
+      "CentralTrackVertices",
+      {
+          "CentralAndB0TrackerCKFActsTrajectories",
+          "ReconstructedChargedParticles",
+      },
+      {
+          "CentralTrackVertices",
+      },
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
       "CalorimeterTrackPropagator",
