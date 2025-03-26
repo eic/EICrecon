@@ -479,11 +479,6 @@ namespace eicrecon {
 
           lastSeed = constSeedNumber(track);
 
-          if (!track.hasReferenceSurface()) {
-            ACTS_WARNING("Track has no reference surface.");
-            continue;
-          }
-
           tips.push_back(track.tipIndex());
           parameters.emplace(
               std::pair{track.tipIndex(),
