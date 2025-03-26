@@ -1,23 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 - 2024, Simon Gardner
+// Copyright (C) 2023 - 2025, Simon Gardner
 
 #include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
-#include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <ROOT/RVec.hxx>
 #include <algorithms/geo.h>
-#include <edm4hep/Vector3d.h>
+#include <edm4eic/Cov3f.h>
+#include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
-#include <gsl/pointers>
 #include <sys/types.h>
+#include <gsl/pointers>
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
 #include "algorithms/fardetectors/FarDetectorTrackerClusterConfig.h"
@@ -27,7 +26,6 @@ namespace eicrecon {
 void FarDetectorTrackerCluster::init() {
 
   m_detector         = algorithms::GeoSvc::instance().detector();
-  m_cellid_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
 
   if (m_cfg.readout.empty()) {
     throw JException("Readout is empty");
@@ -64,18 +62,14 @@ void FarDetectorTrackerCluster::process(const FarDetectorTrackerCluster::Input& 
     auto outputClusters = outputClustersCollection[i];
 
     // Make clusters
-    auto clusters = ClusterHits(*inputHits);
+    ClusterHits(*inputHits, *outputClusters);
 
-    // Create TrackerHits from 2D cluster positions
-    ConvertClusters(clusters, *outputClusters);
   }
 }
 
-// Create vector of FDTrackerCluster from list of hits
-std::vector<FDTrackerCluster>
-FarDetectorTrackerCluster::ClusterHits(const edm4eic::RawTrackerHitCollection& inputHits) const {
+// Create vector of Measurement2D from list of hits
+void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection& inputHits, edm4eic::Measurement2DCollection& outputClusters) const {
 
-  std::vector<FDTrackerCluster> clusters;
 
   ROOT::VecOps::RVec<unsigned long> id;
   ROOT::VecOps::RVec<int> x;
@@ -89,8 +83,8 @@ FarDetectorTrackerCluster::ClusterHits(const edm4eic::RawTrackerHitCollection& i
     id.push_back(cellID);
     x.push_back(m_id_dec->get(cellID, m_x_idx));
     y.push_back(m_id_dec->get(cellID, m_y_idx));
-    e.push_back(hit.getCharge());
-    t.push_back(hit.getTimeStamp());
+    e.push_back(hit.getEdep());
+    t.push_back(hit.getTime());
   }
 
   // Set up clustering variables
@@ -112,7 +106,7 @@ FarDetectorTrackerCluster::ClusterHits(const edm4eic::RawTrackerHitCollection& i
 
     ROOT::VecOps::RVec<unsigned long> clusterList = {maxIndex};
     ROOT::VecOps::RVec<float> clusterT;
-    std::vector<podio::ObjectID> clusterHits;
+    std::vector<edm4eic::TrackerHit> clusterHits;
 
     // Loop over hits, adding neighbouring hits as relevant
     while (clusterList.size()) {
@@ -134,7 +128,7 @@ FarDetectorTrackerCluster::ClusterHits(const edm4eic::RawTrackerHitCollection& i
       clusterList.erase(clusterList.begin());
 
       // Adds raw hit to TrackerHit contribution
-      clusterHits.push_back((inputHits)[index].getObjectID());
+      clusterHits.push_back(inputHits[index]);
 
       // Energy
       auto hitE = e[index];
@@ -154,48 +148,25 @@ FarDetectorTrackerCluster::ClusterHits(const edm4eic::RawTrackerHitCollection& i
     // Finalise position
     localPos /= weightSum;
 
+    edm4hep::Vector2f xyPos = {static_cast<float>(localPos.x()), static_cast<float>(localPos.y())};
+
     // Finalise time
     t0     = Mean(clusterT);
     tError = StdDev(clusterT); // TODO fold detector timing resolution into error
 
+    edm4eic::Cov3f    covariance;
+
     // Create cluster
-    clusters.push_back(FDTrackerCluster{.cellID    = id[maxIndex],
-                                        .x         = localPos.x(),
-                                        .y         = localPos.y(),
-                                        .energy    = esum,
-                                        .time      = t0,
-                                        .timeError = tError,
-                                        .rawHits   = clusterHits});
-  }
+    auto cluster = outputClusters->create(id[maxIndex], xyPos, t0, covariance);
 
-  return clusters;
-}
-
-// Convert to global coordinates and create TrackerHits
-void FarDetectorTrackerCluster::ConvertClusters(
-    const std::vector<FDTrackerCluster>& clusters,
-    edm4hep::TrackerHitCollection& outputClusters) const {
-
-  // Get context of first hit
-  const dd4hep::VolumeManagerContext* context = m_cellid_converter->findContext(clusters[0].cellID);
-
-  for (auto cluster : clusters) {
-    auto hitPos = outputClusters.create();
-
-    auto globalPos = context->localToWorld({cluster.x, cluster.y, 0});
-
-    // Set cluster members
-    hitPos.setCellID(cluster.cellID);
-    hitPos.setPosition(edm4hep::Vector3d(globalPos.x() / dd4hep::mm, globalPos.y() / dd4hep::mm,
-                                         globalPos.z() / dd4hep::mm));
-    hitPos.setEDep(cluster.energy);
-    hitPos.setTime(cluster.time);
-
-    // Add raw hits to cluster
-    for (auto hit : cluster.rawHits) {
-      hitPos.addToRawHits(hit);
+    // Add hits to cluster
+    for(auto hit : clusterHits){
+      cluster.addToWeights(1);
+      cluster.addToHits(hit);
     }
+
   }
+
 }
 
 } // namespace eicrecon

@@ -1,12 +1,18 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Simon Gardner
+// Copyright (C) 2023 - 2025, Simon Gardner
 
+#include <DD4hep/VolumeManager.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <algorithms/geo.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
+#include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/vector_utils.h>
-#include <edm4hep/TrackerHitCollection.h>
+#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -17,6 +23,7 @@
 #include <Eigen/Jacobi>
 #include <Eigen/QR>
 #include <Eigen/SVD>
+#include <algorithm>
 #include <cmath>
 #include <utility>
 
@@ -35,6 +42,8 @@ namespace eicrecon {
       m_optimumDirection = Eigen::AngleAxisd(m_cfg.optimum_theta,Eigen::Vector3d::UnitY())*m_optimumDirection;
       m_optimumDirection = Eigen::AngleAxisd(m_cfg.optimum_phi,Eigen::Vector3d::UnitZ())*m_optimumDirection;
 
+      m_cellid_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
+
     }
 
     void FarDetectorLinearTracking::process(
@@ -51,6 +60,8 @@ namespace eicrecon {
           return;
         }
 
+        std::vector<std::vector<Eigen::Vector3d>> convertedHits;
+
         // Check there aren't too many hits in any layer to handle
         // Temporary limit of number of hits per layer before Kalman filtering/GNN implemented
         // TODO - Implement more sensible solution
@@ -59,25 +70,30 @@ namespace eicrecon {
             info("Too many hits in layer");
             return;
           }
+          if((*layerHits).size()==0){
+            info("No hits in layer");
+            return;
+          }
+          convertedHits.push_back(ConvertClusters(*layerHits));
         }
 
         // Create a matrix to store the hit positions
         Eigen::MatrixXd hitMatrix(3,m_cfg.n_layer);
         // Loop over all combinations of hits fitting a track to all layers
-        buildMatrixRecursive(m_cfg.n_layer-1,&hitMatrix,inputhits,outputTracks);
+        buildMatrixRecursive(m_cfg.n_layer-1,&hitMatrix,convertedHits,outputTracks);
 
     }
 
 
     void FarDetectorLinearTracking::buildMatrixRecursive(int level,
                                                         Eigen::MatrixXd* hitMatrix,
-                                                        const std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>& hits,
+                                                        const std::vector<std::vector<Eigen::Vector3d>>& hits,
                                                         gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks ) const {
 
       // Iterate over hits in this layer
-      for(auto hit : (*hits[level])){
-        auto pos = hit.getPosition();
-        hitMatrix->col(level) << pos.x, pos.y, pos.z;
+      for(auto hit : hits[level]){
+
+        hitMatrix->col(level) << hit;
 
         // Check the last two hits are within a certain angle of the optimum direction
         if(m_cfg.restrict_direction && level<m_cfg.n_layer-1){
@@ -167,5 +183,25 @@ namespace eicrecon {
       return true;
 
     }
+
+    // Convert measurements into global coordinates
+    std::vector<Eigen::Vector3d> FarDetectorLinearTracking::ConvertClusters( const edm4eic::Measurement2DCollection& clusters ) const {
+
+      // Get context of first hit
+      const dd4hep::VolumeManagerContext* context = m_cellid_converter->findContext(clusters[0].getSurface());
+
+      std::vector<Eigen::Vector3d> pointPositions;
+
+      for (auto cluster : clusters) {
+
+        auto globalPos = context->localToWorld({cluster.getLoc()[0], cluster.getLoc()[1], 0});
+        pointPositions.push_back(Eigen::Vector3d(globalPos.x()/ dd4hep::mm, globalPos.y()/ dd4hep::mm, globalPos.z()/ dd4hep::mm));
+
+      }
+
+      return pointPositions;
+
+    }
+
 
 }
