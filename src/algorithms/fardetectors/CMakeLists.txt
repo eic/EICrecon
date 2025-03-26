@@ -13,6 +13,6 @@ plugin_glob_all(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_eigen3(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
+plugin_add_torch(${PLUGIN_NAME})
 plugin_add_cern_root(${PLUGIN_NAME})
-
 plugin_link_libraries(${PLUGIN_NAME} ROOT::TMVA)
