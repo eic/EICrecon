@@ -19,7 +19,7 @@ class ActsTrajectoriesMerger_factory :
 private:
     Input<ActsExamples::Trajectories> m_acts_trajectories1_input {this};
     Input<ActsExamples::Trajectories> m_acts_trajectories2_input {this};
-    Output<const ActsExamples::Trajectories> m_acts_trajectories_output {this};
+    Output<ActsExamples::Trajectories> m_acts_trajectories_output {this, "", /* owns_data = */ false};
 
 public:
     void Configure() { }
@@ -27,16 +27,22 @@ public:
     void ChangeRun(int64_t run_number) { }
 
     void Process(int64_t run_number, uint64_t event_number) {
-        m_acts_trajectories_output().insert(
-            m_acts_trajectories_output().end(),
-            m_acts_trajectories1_input().begin(),
-            m_acts_trajectories1_input().end()
-        );
-        m_acts_trajectories_output().insert(
-            m_acts_trajectories_output().end(),
-            m_acts_trajectories2_input().begin(),
-            m_acts_trajectories2_input().end()
-        );
+        for (auto traj : m_acts_trajectories1_input()) {
+            ActsExamples::Trajectories::IndexedParameters trackParameters;
+            for (auto tip : traj->tips()) {
+                trackParameters.insert({tip, traj->trackParameters(tip)});
+            }
+            m_acts_trajectories_output().push_back(
+                new ActsExamples::Trajectories(traj->multiTrajectory(), traj->tips(), trackParameters));
+        }
+        for (auto traj : m_acts_trajectories2_input()) {
+            ActsExamples::Trajectories::IndexedParameters trackParameters;
+            for (auto tip : traj->tips()) {
+                trackParameters.insert({tip, traj->trackParameters(tip)});
+            }
+            m_acts_trajectories_output().push_back(
+                new ActsExamples::Trajectories(traj->multiTrajectory(), traj->tips(), trackParameters));
+        }
     }
 };
 
