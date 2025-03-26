@@ -185,25 +185,6 @@ extern "C" {
           )
         );
 
-        app->Add(
-          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-            "EcalEndcapNSplitMergeProtoClusters",
-            {"EcalEndcapNIslandProtoClusters",
-             "CalorimeterTrackProjections"},
-            {"EcalEndcapNSplitMergeProtoClusters"},
-            {
-              .idCalo = "EcalEndcapN_ID",
-              .minSigCut = -1.0,
-              .avgEP = 1.0,
-              .sigEP = 0.10,
-              .drAdd = 0.08,
-              .sampFrac = 1.0,
-              .transverseEnergyProfileScale = 1.0
-            },
-            app   // TODO: remove me once fixed
-          )
-        );
-
 #if EDM4EIC_VERSION_MAJOR >= 8
         app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPreML_factory>(
             "EcalEndcapNParticleIDPreML",
@@ -248,19 +229,31 @@ extern "C" {
 #endif
 
         app->Add(
-          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "EcalEndcapNSplitMergeClustersWithoutShapes",
-            {"EcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-             "EcalEndcapNHits"}, // edm4hep::SimCalorimeterHitCollection
-            {"EcalEndcapNSplitMergeClustersWithoutShapes", // edm4eic::Cluster
-             "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+          new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+            "EcalEndcapNSplitMergeClustersWithoutShapes",
+            {"EcalEndcapNClustersWithoutPID",
+             "CalorimeterTrackProjections",
+             "EcalEndcapNClusterAssociations",
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapNRawHitAssociations"},
+#else
+             "EcalEndcapNHits"},
+#endif
+            {"EcalEndcapNSplitMergeClustersWithoutShapes",
+#if EDM4EIC_VERSION_MAJOR >= 8
+             "EcalEndcapNTrackSplitMergeClusterMatches",
+#endif
+             "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
             {
-              .energyWeight = "log",
+              .idCalo = "EcalEndcapN_ID",
+              .minSigCut = -1.0,
+              .avgEP = 1.0,
+              .sigEP = 0.10,
+              .drAdd = 0.08,
               .sampFrac = 1.0,
-              .logWeightBase = 3.6,
-              .enableEtaBounds = false
+              .transverseEnergyProfileScale = 1.0
             },
-            app   // TODO: Remove me once fixed
+            app   // TODO: remove me once fixed
           )
         );
 
