@@ -32,6 +32,7 @@ namespace eicrecon {
     public:
         void Configure() {
             m_algo = std::make_unique<eicrecon::TrackClusterMatch>(GetPrefix());
+            m_algo->applyConfig(config());
             m_algo->init();
         }
 
