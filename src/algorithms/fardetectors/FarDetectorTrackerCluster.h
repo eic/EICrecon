@@ -46,6 +46,7 @@ private:
   const dd4hep::Detector* m_detector{nullptr};
   const dd4hep::BitFieldCoder* m_id_dec{nullptr};
   dd4hep::Segmentation m_seg;
+  bool m_initialized{false};
 
   int m_x_idx{0};
   int m_y_idx{0};
