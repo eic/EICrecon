@@ -15,15 +15,8 @@ public:
         m_charge = charge;
     }
 
-    void setHitTime(double hit_time) {
-        m_hit_time = hit_time;
-    }
-
-    virtual float getMaximumTime() const = 0;
-
 protected:
     double m_charge;
-    double m_hit_time;
 
 };
 
@@ -36,11 +29,7 @@ public:
 LandauPulse(double gain, double sigma_analog) : m_gain(gain), m_sigma_analog(sigma_analog) {};
 
 double operator()(double time) const {
-    return m_charge * m_gain * TMath::Landau(time, m_hit_time+3.5*m_sigma_analog, m_sigma_analog, kTRUE);
-}
-
-float getMaximumTime() const {
-    return m_hit_time+3.5*m_sigma_analog;
+    return m_charge * m_gain * TMath::Landau(time, 3.5*m_sigma_analog, m_sigma_analog, kTRUE);
 }
 
 private:

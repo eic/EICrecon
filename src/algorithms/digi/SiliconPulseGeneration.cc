@@ -34,12 +34,11 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     time_series.setInterval(m_timestep);
 
     m_pulse->setHitCharge(charge);
-    m_pulse->setHitTime(time);
 
     float maxSignalTime = m_pulse->getMaximumTime();
 
     for(int i = 0; i < m_max_time_bins; i ++) {
-      double t = signal_time + i*m_timestep;
+      double t = signal_time + i*m_timestep - time;
       auto signal = (*m_pulse)(t);
       if (signal < m_ignore_thres) {
         if (t > maxSignalTime) {
