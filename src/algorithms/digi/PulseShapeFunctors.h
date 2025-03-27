@@ -10,7 +10,7 @@ class SignalPulse {
 
 public:
     virtual double operator()(double time) const = 0;
-    
+
     virtual float getMaximumTime() const = 0;
 
 protected:
