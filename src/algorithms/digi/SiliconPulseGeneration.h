@@ -34,9 +34,10 @@ public:
 private:
 
   std::shared_ptr<SignalPulse> m_pulse;
-  float m_ignore_thres  = 10;
-  float m_timestep      = 0.2 * edm4eic::unit::ns;
-  int   m_max_time_bins = 10000;
+  float m_ignore_thres      = 10;
+  float m_timestep          = 0.2 * edm4eic::unit::ns;
+  float m_min_sampling_time = 0 * edm4eic::unit::ns;
+  int   m_max_time_bins     = 10000;
 
 };
 

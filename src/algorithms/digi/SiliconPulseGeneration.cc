@@ -9,10 +9,15 @@
 namespace eicrecon {
 
 void SiliconPulseGeneration::init() {
-    m_pulse         = m_cfg.pulse_shape_function;
-    m_ignore_thres  = m_cfg.ignore_thres;
-    m_timestep      = m_cfg.timestep;
-    m_max_time_bins = m_cfg.max_time_bins;
+    m_pulse             = m_cfg.pulse_shape_function;
+    m_ignore_thres      = m_cfg.ignore_thres;
+    m_timestep          = m_cfg.timestep;
+    m_min_sampling_time = m_cfg.min_sampling_time;
+    m_max_time_bins     = m_cfg.max_time_bins;
+
+    if(m_pulse->getMaximumTime()>m_min_sampling_time) {
+      m_min_sampling_time = m_pulse->getMaximumTime();
+    }
 }
 
 void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
@@ -33,21 +38,21 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     time_series.setCellID(cellID);
     time_series.setInterval(m_timestep);
 
-    m_pulse->setHitCharge(charge);
-
-    float maxSignalTime = m_pulse->getMaximumTime();
+    bool passed_threshold = false;
 
     for(int i = 0; i < m_max_time_bins; i ++) {
       double t = signal_time + i*m_timestep - time;
-      auto signal = (*m_pulse)(t);
-      if (signal < m_ignore_thres) {
-        if (t > maxSignalTime) {
-          break;
-        } else {
+      auto signal = (*m_pulse)(t,charge);
+      if (std::abs(signal) < m_ignore_thres) {
+        if(passed_threshold==false) {
           signal_time = t;
           continue;
-        }
+        }        
+        if (t > m_min_sampling_time) {
+          break;
+        } 
       }
+      passed_threshold = true;
       time_series.addToAmplitude(signal);
     }
 
