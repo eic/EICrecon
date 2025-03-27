@@ -317,7 +317,7 @@ void InitPlugin(JApplication *app) {
       "BarrelClusters",
       {
         "HcalBarrelClusters",
-        "EcalBarrelScFiClusters",
+        "EcalBarrelClusters",
       },
       {"BarrelClusters"},
       app));
