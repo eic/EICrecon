@@ -13,10 +13,10 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
   //
   reco->IgnoreTimingInChiSquare();
   reco->IgnorePoissonTermInChiSquare();
-  //reco->SetSingleHitCCDFcut(0.005);
+  //reco->SetSingleHitCCDFcut(0.10);
   //reco->RemoveAmbiguousHits();
   // This only affects the calibration stage;
-  //reco->SetDefaultSinglePhotonThetaResolution(0.0040);
+  //reco->SetDefaultSinglePhotonThetaResolution(0.0500);
   // Sensor active area pixelated will be pixellated NxN in digitization;
   reco->SetSensorActiveAreaPixellation(700);
   // [rad] (should match SPE sigma) & [ns];
@@ -24,6 +24,7 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
 
   auto *a1 = reco->UseRadiator("Aerogel");
   //auto *a1 = reco->UseRadiator("BelleIIAerogel3");
+  reco->GetMyRICH()->GetRadiator("GasVolume")->IgnoreInRingImaging();
 
   //reco->SetSinglePhotonTimingResolution(0.030);
   //reco->SetQuietMode();
@@ -43,13 +44,16 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
   auto hmatch = new TH1D("hmatch", "PID evaluation correctness",       3,    0,      3);
   //auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        200,  220,    320);
   auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        40,  270, 290);
+  //auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        40,  200, 350);
   // For a dual aerogel configuration;
   //auto hthtr2  = new TH1D("thtr2",   "Cherenkov angle (track)",        200,  220,    320);
 
+  reco->UseActsTracking();
   reco->UseAutomaticCalibration();
   // This call is mandatory; second argument: statistics (default: all events);
-  //reco->PerformCalibration(50);
-#if _TODAY_
+  reco->PerformCalibration(200);
+  
+#if 1//_TODAY_
   {
     CherenkovEvent *event;
 
@@ -71,7 +75,8 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
       } //for mcparticle
     } //while
   }
-
+#endif
+#if 1//_TODAY_
   auto cv = new TCanvas("cv", "", 1600, 1000);
   cv->Divide(4, 3);
   cv->cd(1); reco->hthph()->Fit("gaus");

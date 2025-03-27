@@ -69,6 +69,154 @@ TH1D *eicrecon::IrtDebugging::m_Debug = 0;
 
 static std::map<CherenkovRadiator*, std::string> radiators;
 
+// FIXME: move to a different place;
+#define _MAGIC_CFF_                         (1239.8)
+
+#define _FAKE_QE_DOWNSCALING_FACTOR_          (30.0/37.0)
+
+// -------------------------------------------------------------------------------------
+
+//#include "algorithms/digi/PhotoMultiplierHitDigi.h"
+
+class LookupTable {
+public:
+  LookupTable() {};
+  ~LookupTable() {};
+  
+  std::vector<std::pair<double, double>> 
+  ApplyFineBinning(const std::vector<std::pair<double, 
+		   double>> &input, unsigned nbins);
+  
+  bool GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>> &table, 
+				 double argument, double *entry) const;
+  
+  bool QE_pass(double ev, double rand) const;
+  
+protected:
+  std::vector<std::pair<double, double>> m_QE_lookup_table;
+};
+
+class G4DataInterpolation {
+public:
+  G4DataInterpolation(const double WL[], const double QE[], unsigned dim, double, double) {
+    //m_Digi = new eicrecon::PhotoMultiplierHitDigi("qe-functionality-only");
+
+    //for(unsigned iq=0; iq<dim; iq++)
+    //m_Digi->qeff.push_back(std::make_pair(WL[iq], QE[iq]);
+  };
+  ~G4DataInterpolation() {};
+
+  //eicrecon::PhotoMultiplierHitDigi *m_Digi;
+  
+  double CubicSplineInterpolation(double eph) const {
+
+    return 0.50;
+  };
+};
+
+std::vector<std::pair<double, double>> 
+  LookupTable::ApplyFineBinning(const std::vector<std::pair<double, 
+				double>> &input, unsigned nbins)
+{
+  std::vector<std::pair<double, double>> ret;
+
+#if 1//_TODAY_
+  // Well, could have probably just reordered the initial vector;
+  std::map<double, double> buffer;
+
+  for(auto entry: input)
+    buffer[entry.first] = entry.second;
+
+  // Sanity checks; return empty map in case do not pass them;
+  if (buffer.size() < 2 || nbins < 2) return ret;
+
+  //m_QE_lookup_table.push_back(std::make_pair((*QE_map.begin()).first , 0.3));
+  //m_QE_lookup_table.push_back(std::make_pair((*QE_map.rbegin()).first, 0.3)); 
+
+  double from = (*buffer.begin()).first;
+  double to   = (*buffer.rbegin()).first;
+  // Will be "nbins+1" equidistant entries;
+  double step = (to - from) / nbins;
+
+  // Just in case somebody considers to call this method twice :-);
+  //m_QE_lookup_table.clear();
+
+  for(auto entry: buffer) {
+    double e1 = entry.first;
+    double qe1 = entry.second;
+
+    if (!ret.size())
+      ret.push_back(std::make_pair(e1, qe1));
+    else {
+      const auto &prev = ret[ret.size()-1];
+
+      double e0 = prev.first;
+      double qe0 = prev.second;
+      double a = (qe1 - qe0) / (e1 - e0);
+      double b = qe0 - a*e0;
+      // FIXME: check floating point accuracy when moving to a next point; do we actually 
+      // care whether the overall number of bins will be "nbins+1" or more?;
+      for(double e = e0+step; e<e1; e+=step)
+	ret.push_back(std::make_pair(e, a*e + b));
+    } //if
+  } //for entry
+#endif
+  
+  //for(auto entry: m_QE_lookup_table) 
+  //printf("%7.2f -> %7.2f\n", entry.first, entry.second);
+  return ret;
+} // LookupTable::ApplyFineBinning()
+
+// -------------------------------------------------------------------------------------
+
+bool LookupTable::GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>> &table, 
+					    double argument, double *entry) const
+{
+#if 1//_TODAY_
+  // Get the tabulated table reference; perform sanity checks;
+  //const std::vector<std::pair<double, double>> &qe = u_quantumEfficiency.value();
+  unsigned dim = table.size(); if (dim < 2) return false;
+
+  // Find a proper bin; no tricks, they are all equidistant;
+  auto const &from = table[0];
+  auto const &to = table[dim-1];
+  double emin = from.first;
+  double emax = to.first;
+  double step = (emax - emin) / (dim - 1);
+  int ibin = (int)floor((argument - emin) / step);
+
+  //printf("%f vs %f, %f -> %d\n", ev, from.first, to. first, ibin);
+  
+  // Out of range check;
+  if (ibin < 0 || ibin >= int(dim)) return false;
+
+  *entry = table[ibin].second;
+#endif
+  return true;
+} // LookupTable::GetFinelyBinnedTableEntry()
+
+// -------------------------------------------------------------------------------------
+
+bool LookupTable::QE_pass(double ev, double rand) const
+{
+#if 1//_TODAY_
+  double value = 0.0;
+  if (!GetFinelyBinnedTableEntry(m_QE_lookup_table, ev, &value)) return false;
+
+  // Get tabulated QE value, compare against the provided random variable;
+  return (rand <= value);//m_QE_lookup_table[ibin].second);
+#endif
+} // LookupTable::QE_pass()
+
+// -------------------------------------------------------------------------------------
+
+static double GetQE(const CherenkovPhotonDetector *pd, double eph) 
+{  
+  return pd->CheckQERange(eph) ? pd->GetQE()->CubicSplineInterpolation(eph) : 0.0;
+} // CherenkovSteppingAction::GetQE()
+
+// -------------------------------------------------------------------------------------
+
 namespace eicrecon {
   IrtDebugging::~IrtDebugging()
   {
@@ -162,6 +310,36 @@ void IrtDebugging::init(
   m_log->debug("Initializing IrtCherenkovParticleID algorithm for CherenkovDetector '{}'", m_det_name);
 #endif
 
+  {
+    // FIXME: assume a single photo detector type;
+    auto pd = m_irt_det->m_PhotonDetectors[0];
+
+#if 1//_THINK_
+    {                      
+      const unsigned qeEntries = 26;
+      
+      // Create HRPPD QE table; use LAPPD #126 from Alexey's March 2022 LAPPD Workshop presentation;
+      double WL[qeEntries] = { 160,  180,  200,  220,  240,  260,  280,  300,  320,  340,  360,  380,  400,  
+			       420,  440,  460,  480,  500,  520,  540,  560,  580,  600,  620,  640,  660};
+      double QE[qeEntries] = {0.25, 0.26, 0.27, 0.30, 0.32, 0.35, 0.36, 0.36, 0.36, 0.36, 0.37, 0.35, 0.30, 
+			      0.27, 0.24, 0.20, 0.18, 0.15, 0.13, 0.11, 0.10, 0.09, 0.08, 0.07, 0.05, 0.05};  
+      
+      double qemax = 0.0, qePhotonEnergy[qeEntries], qeData[qeEntries];
+      for(int iq=0; iq<qeEntries; iq++) {
+	qePhotonEnergy[iq] = dd4hep::eV * _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
+	qeData        [iq] =                             QE[qeEntries - iq - 1] * _FAKE_QE_DOWNSCALING_FACTOR_;
+	
+	if (qeData[iq] > qemax) qemax = qeData[iq];
+      } //for iq
+      
+      pd->SetQE(dd4hep::eV * _MAGIC_CFF_ / WL[qeEntries-1], dd4hep::eV * _MAGIC_CFF_ / WL[0], 
+		// NB: last argument: want a built-in selection of unused photons, which follow the QE(lambda);
+		// see CherenkovSteppingAction::UserSteppingAction() for a usage case;
+		new G4DataInterpolation(qePhotonEnergy, qeData, qeEntries, 0.0, 0.0), qemax ? 1.0/qemax : 1.0);
+    }
+#endif
+  }
+  
   // readout decoding
   //m_cell_mask = m_irt_det->GetReadoutCellMask();
   //m_log->debug("readout cellMask = {:#X}", m_cell_mask);
@@ -421,6 +599,7 @@ void IrtDebugging::process(
       if (m_irt_det->m_PhotonDetectors.size() != 1) continue;
       //auto pd = m_Geometry->FindPhotonDetector(lto);
       auto pd = m_irt_det->m_PhotonDetectors[0];
+      
       if (pd) {
 	photon->SetPhotonDetector(pd);
 	// FIXME: a hack;

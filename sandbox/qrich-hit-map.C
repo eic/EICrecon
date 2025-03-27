@@ -16,7 +16,7 @@ void qrich_hit_map(const char *dfname, const char *cfname = 0)
   int nEvents = t->GetEntries();
   printf("%d events total\n", nEvents);
 
-#if _TODAY_
+#if 1//_TODAY_
   auto hxy = new TH2D("hxy", "", 650, -650., 650., 650, -650.0, 650.);
 
   for(unsigned ev=0; ev<nEvents; ev++) {
