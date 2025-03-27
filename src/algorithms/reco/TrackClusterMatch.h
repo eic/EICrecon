@@ -23,7 +23,7 @@ namespace eicrecon {
     >;
 
 
-    class TrackClusterMatch : public TrackClusterMatchAlgorithm, WithPodConfig<TrackClusterMatchConfig> {
+    class TrackClusterMatch : public TrackClusterMatchAlgorithm, public WithPodConfig<TrackClusterMatchConfig> {
     private:
         const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
         double distance(const edm4hep::Vector3f& v1, const edm4hep::Vector3f& v2) const;
