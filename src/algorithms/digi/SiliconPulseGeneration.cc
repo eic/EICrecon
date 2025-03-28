@@ -39,13 +39,14 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     time_series.setInterval(m_timestep);
 
     bool passed_threshold = false;
+    int  skip_bins = 0;
 
     for(int i = 0; i < m_max_time_bins; i ++) {
       double t = signal_time + i*m_timestep - time;
       auto signal = (*m_pulse)(t,charge);
       if (std::abs(signal) < m_ignore_thres) {
         if(passed_threshold==false) {
-          signal_time = t;
+          skip_bins = i;
           continue;
         }
         if (t > m_min_sampling_time) {
@@ -56,7 +57,7 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
       time_series.addToAmplitude(signal);
     }
 
-    time_series.setTime(signal_time);
+    time_series.setTime(signal_time+skip_bins*m_timestep);
 
   }
 

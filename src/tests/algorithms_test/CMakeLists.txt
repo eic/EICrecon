@@ -30,6 +30,7 @@ target_link_libraries(
           algorithms_pid_library
           algorithms_pid_lut_library
           algorithms_reco_library
+          algorithms_digi_library
           evaluator_library
           pid_lut_library
           podio::podio

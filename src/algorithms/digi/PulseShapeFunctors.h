@@ -16,7 +16,7 @@ public:
 
     virtual double operator()(double time, double charge) = 0;
 
-    virtual float getMaximumTime() const = 0;
+    virtual double getMaximumTime() const = 0;
 
 protected:
     double m_charge;
@@ -44,7 +44,7 @@ double operator()(double time, double charge) {
     return charge * m_gain * TMath::Landau(time, 3.5*m_sigma_analog, m_sigma_analog, kTRUE);
 }
 
-float getMaximumTime() const {
+double getMaximumTime() const {
     return 3.5*m_sigma_analog;
 }
 
@@ -88,7 +88,7 @@ public:
         return m_evaluator(param_map);
     }
 
-    float getMaximumTime() const {
+    double getMaximumTime() const {
         return 0;
     }
 

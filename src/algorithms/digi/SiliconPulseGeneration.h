@@ -28,7 +28,7 @@ class SiliconPulseGeneration : public SiliconPulseGenerationAlgorithm,
 public:
   SiliconPulseGeneration(std::string_view name)
       : SiliconPulseGenerationAlgorithm{name, {"RawHits"}, {"OutputPulses"}, {}} {}
-  virtual void init() final;
+  void init() final;
   void process(const Input&, const Output&) const final;
 
 private:

@@ -16,6 +16,7 @@
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
 
 TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[SiliconPulseGeneration]") {
+  
   eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
   eicrecon::SiliconPulseGenerationConfig cfg;
   cfg.pulse_shape_function = "LandauPulse"; // Example pulse shape
@@ -52,22 +53,30 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
 }
 
 TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[SiliconPulseGeneration]") {
+    
   eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
   eicrecon::SiliconPulseGenerationConfig cfg;
 
   // Square wave expression
-  std::string expression = "(time > param0 && time < param1) ? charge : 0";
+  std::string expression = "(time >= param0 && time < param1) ? charge : 0";
+  
+  double startTime = 0.0 * edm4eic::unit::ns;
+  double endTime   = 1.0 * edm4eic::unit::ns;
+  int    nTimeBins = 10;
+  double timeStep  = (endTime-startTime)/nTimeBins;
+  
   cfg.pulse_shape_function = expression;
-  cfg.pulse_shape_params = {1.0 * edm4eic::unit::ns, 2.0 * edm4eic::unit::ns}; // Example parameters for the square pulse
-  cfg.ignore_thres = 0.1;
-  cfg.timestep = 0.1 * edm4eic::unit::ns;
-  cfg.min_sampling_time = 0.1 * edm4eic::unit::ns;
+  cfg.pulse_shape_params = {startTime, endTime}; // Example parameters for the square pulse
+  cfg.ignore_thres = 1;
+  cfg.timestep = timeStep;
+  cfg.min_sampling_time = startTime+timeStep;
 
   algo.applyConfig(cfg);
   algo.init();
 
-  float charge = 10.0;
-  float time   = 0.0;
+  double charge = 10.0*cfg.ignore_thres;
+  double time   = GENERATE_COPY(0.0, 0.5*timeStep, timeStep);
+  float  rounded_time = std::floor(time / timeStep) * timeStep;
 
   edm4hep::SimTrackerHitCollection hits_coll;
   hits_coll.create(12345, charge, time); // cellID, charge, time
@@ -81,9 +90,9 @@ TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[Silico
 
   REQUIRE(pulses->size() == 1);
   REQUIRE((*pulses)[0].getCellID() == 12345);
-  REQUIRE((*pulses)[0].getTime() == 0.0);
+  REQUIRE((*pulses)[0].getTime() == rounded_time);
   auto amplitudes = (*pulses)[0].getAmplitude();
-  REQUIRE(amplitudes.size() == 10); // Two time bins for the square pulse
+  REQUIRE(amplitudes.size() == nTimeBins); // Two time bins for the square pulse
   for(auto amplitude:amplitudes){
     REQUIRE(amplitude == charge); // All time bins should be zero
   }
