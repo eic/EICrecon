@@ -31,7 +31,7 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
     for(int i=0; i<nHits; i++) {
       hits_coll.create(12345 + i, 10.0, 5.0); // cellID, charge, time
     }
-  
+
     edm4hep::TimeSeriesCollection pulses = algo.GeneratePulses(hits_coll);
 
     REQUIRE(pulses.size() == nHits);
