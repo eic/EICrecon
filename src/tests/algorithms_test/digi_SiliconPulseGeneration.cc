@@ -16,7 +16,7 @@
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
 
 TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[SiliconPulseGeneration]") {
-  
+
   eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
   eicrecon::SiliconPulseGenerationConfig cfg;
   cfg.pulse_shape_function = "LandauPulse"; // Example pulse shape
@@ -53,18 +53,18 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
 }
 
 TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[SiliconPulseGeneration]") {
-    
+
   eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
   eicrecon::SiliconPulseGenerationConfig cfg;
 
   // Square wave expression
   std::string expression = "(time >= param0 && time < param1) ? charge : 0";
-  
+
   double startTime = 0.0 * edm4eic::unit::ns;
   double endTime   = 1.0 * edm4eic::unit::ns;
   int    nTimeBins = 10;
   double timeStep  = (endTime-startTime)/nTimeBins;
-  
+
   cfg.pulse_shape_function = expression;
   cfg.pulse_shape_params = {startTime, endTime}; // Example parameters for the square pulse
   cfg.ignore_thres = 1;
