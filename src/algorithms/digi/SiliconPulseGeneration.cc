@@ -47,10 +47,10 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
         if(passed_threshold==false) {
           signal_time = t;
           continue;
-        }        
+        }
         if (t > m_min_sampling_time) {
           break;
-        } 
+        }
       }
       passed_threshold = true;
       time_series.addToAmplitude(signal);
