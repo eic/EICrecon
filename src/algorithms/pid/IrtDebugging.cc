@@ -77,7 +77,7 @@ static std::map<CherenkovRadiator*, std::string> radiators;
 // -------------------------------------------------------------------------------------
 
 //#include "algorithms/digi/PhotoMultiplierHitDigi.h"
-
+#if _OLD_
 class LookupTable {
 public:
   LookupTable() {};
@@ -95,40 +95,56 @@ public:
 protected:
   std::vector<std::pair<double, double>> m_QE_lookup_table;
 };
+#endif
 
 class G4DataInterpolation {
 public:
   G4DataInterpolation(const double WL[], const double QE[], unsigned dim, double, double) {
     //m_Digi = new eicrecon::PhotoMultiplierHitDigi("qe-functionality-only");
 
-    //for(unsigned iq=0; iq<dim; iq++)
-    //m_Digi->qeff.push_back(std::make_pair(WL[iq], QE[iq]);
+    for(unsigned iq=0; iq<dim; iq++)
+      m_RawData.push_back(std::make_pair(WL[iq], QE[iq]));
   };
   ~G4DataInterpolation() {};
 
-  //eicrecon::PhotoMultiplierHitDigi *m_Digi;
+  //std::vector<std::pair<double, double>> 
+  void CreateLookupTable(unsigned nbins);
   
+  bool GetLookupTableEntry(//const std::vector<std::pair<double, double>> &table, 
+			   double argument, double *entry) const;
+  
+  //bool QE_pass(double ev, double rand) const;
+  
+  std::vector<std::pair<double, double>> m_RawData;
+  
+  //protected:
+  std::vector<std::pair<double, double>> m_LookupTable;
+  
+  //eicrecon::PhotoMultiplierHitDigi *m_Digi;
+#if 0
   double CubicSplineInterpolation(double eph) const {
 
     return 0.50;
   };
+#endif
 };
 
-std::vector<std::pair<double, double>> 
-  LookupTable::ApplyFineBinning(const std::vector<std::pair<double, 
-				double>> &input, unsigned nbins)
+//std::vector<std::pair<double, double>> 
+void G4DataInterpolation::CreateLookupTable(unsigned nbins)//const std::vector<std::pair<double, 
+//double>> &input, unsigned nbins)
 {
-  std::vector<std::pair<double, double>> ret;
-
-#if 1//_TODAY_
-  // Well, could have probably just reordered the initial vector;
+  //std::vector<std::pair<double, double>> ret;
+  m_LookupTable.clear();
+  
+  //#if 1//_TODAY_
+  // FIXME: could have probably just reordered the initial vector;
   std::map<double, double> buffer;
 
-  for(auto entry: input)
+  for(auto entry: m_RawData)//input)
     buffer[entry.first] = entry.second;
 
   // Sanity checks; return empty map in case do not pass them;
-  if (buffer.size() < 2 || nbins < 2) return ret;
+  if (buffer.size() < 2 || nbins < 2) return;// ret;
 
   //m_QE_lookup_table.push_back(std::make_pair((*QE_map.begin()).first , 0.3));
   //m_QE_lookup_table.push_back(std::make_pair((*QE_map.rbegin()).first, 0.3)); 
@@ -145,10 +161,10 @@ std::vector<std::pair<double, double>>
     double e1 = entry.first;
     double qe1 = entry.second;
 
-    if (!ret.size())
-      ret.push_back(std::make_pair(e1, qe1));
+    if (!m_LookupTable.size())
+      m_LookupTable.push_back(std::make_pair(e1, qe1));
     else {
-      const auto &prev = ret[ret.size()-1];
+      const auto &prev = m_LookupTable[m_LookupTable.size()-1];
 
       double e0 = prev.first;
       double qe0 = prev.second;
@@ -157,47 +173,49 @@ std::vector<std::pair<double, double>>
       // FIXME: check floating point accuracy when moving to a next point; do we actually 
       // care whether the overall number of bins will be "nbins+1" or more?;
       for(double e = e0+step; e<e1; e+=step)
-	ret.push_back(std::make_pair(e, a*e + b));
+	m_LookupTable.push_back(std::make_pair(e, a*e + b));
     } //if
   } //for entry
-#endif
+  //#endif
   
-  //for(auto entry: m_QE_lookup_table) 
-  //printf("%7.2f -> %7.2f\n", entry.first, entry.second);
-  return ret;
-} // LookupTable::ApplyFineBinning()
+  for(auto entry: m_LookupTable) 
+    printf("@L@ %7.2f -> %7.2f\n", entry.first, entry.second);
+  //return ret;
+} // G4DataInterpolation::CreateLookupTable()
 
 // -------------------------------------------------------------------------------------
 
-bool LookupTable::GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>> &table, 
-					    double argument, double *entry) const
+bool G4DataInterpolation::GetLookupTableEntry(//const std::vector<std::pair<double, double>> &table, 
+					      double argument, double *entry) const
 {
-#if 1//_TODAY_
+  //#if 1//_TODAY_
   // Get the tabulated table reference; perform sanity checks;
   //const std::vector<std::pair<double, double>> &qe = u_quantumEfficiency.value();
-  unsigned dim = table.size(); if (dim < 2) return false;
+  unsigned dim = m_LookupTable.size(); if (dim < 2) return false;
 
   // Find a proper bin; no tricks, they are all equidistant;
-  auto const &from = table[0];
-  auto const &to = table[dim-1];
+  auto const &from = m_LookupTable[0];
+  auto const &to = m_LookupTable[dim-1];
+  // FIXME: calculate once;
   double emin = from.first;
   double emax = to.first;
   double step = (emax - emin) / (dim - 1);
   int ibin = (int)floor((argument - emin) / step);
 
-  //printf("%f vs %f, %f -> %d\n", ev, from.first, to. first, ibin);
+  //printf("@Q@ %f vs %f, %f -> %d\n", argument, from.first, to.first, ibin);
   
   // Out of range check;
   if (ibin < 0 || ibin >= int(dim)) return false;
 
-  *entry = table[ibin].second;
-#endif
+  *entry = m_LookupTable[ibin].second;
+  //#endif
+  
   return true;
-} // LookupTable::GetFinelyBinnedTableEntry()
+} // G4DataInterpolation::GetLookupTableEntry()
 
 // -------------------------------------------------------------------------------------
-
-bool LookupTable::QE_pass(double ev, double rand) const
+#if _TODAY_
+bool G4DataInterpolation::QE_pass(double ev, double rand) const
 {
 #if 1//_TODAY_
   double value = 0.0;
@@ -206,15 +224,15 @@ bool LookupTable::QE_pass(double ev, double rand) const
   // Get tabulated QE value, compare against the provided random variable;
   return (rand <= value);//m_QE_lookup_table[ibin].second);
 #endif
-} // LookupTable::QE_pass()
-
+} // G4DataInterpolation::QE_pass()
+#endif
 // -------------------------------------------------------------------------------------
-
+#if 0
 static double GetQE(const CherenkovPhotonDetector *pd, double eph) 
 {  
   return pd->CheckQERange(eph) ? pd->GetQE()->CubicSplineInterpolation(eph) : 0.0;
 } // CherenkovSteppingAction::GetQE()
-
+#endif
 // -------------------------------------------------------------------------------------
 
 namespace eicrecon {
@@ -326,16 +344,19 @@ void IrtDebugging::init(
       
       double qemax = 0.0, qePhotonEnergy[qeEntries], qeData[qeEntries];
       for(int iq=0; iq<qeEntries; iq++) {
-	qePhotonEnergy[iq] = dd4hep::eV * _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
+	qePhotonEnergy[iq] = /*dd4hep::eV **/ _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
 	qeData        [iq] =                             QE[qeEntries - iq - 1] * _FAKE_QE_DOWNSCALING_FACTOR_;
 	
 	if (qeData[iq] > qemax) qemax = qeData[iq];
       } //for iq
       
-      pd->SetQE(dd4hep::eV * _MAGIC_CFF_ / WL[qeEntries-1], dd4hep::eV * _MAGIC_CFF_ / WL[0], 
+      //pd->SetQE(dd4hep::eV * _MAGIC_CFF_ / WL[qeEntries-1], dd4hep::eV * _MAGIC_CFF_ / WL[0],
+      pd->SetQE(_MAGIC_CFF_ / WL[qeEntries-1], _MAGIC_CFF_ / WL[0], 
 		// NB: last argument: want a built-in selection of unused photons, which follow the QE(lambda);
 		// see CherenkovSteppingAction::UserSteppingAction() for a usage case;
 		new G4DataInterpolation(qePhotonEnergy, qeData, qeEntries, 0.0, 0.0), qemax ? 1.0/qemax : 1.0);
+      // FIXME: 100 hardcoded;
+      pd->GetQE()->CreateLookupTable(100);
     }
 #endif
   }
@@ -607,7 +628,7 @@ void IrtDebugging::process(
 	photon->SetVolumeCopy(0);
 
 	//printf("-> %f %f\n", pd->GetGeometricEfficiency(), pd->GetScaleFactor());
-#if 1
+#if 0//1
 	double rndm = m_rngUni();
 	(rndm > 0.90) ? photon->SetDetected(true) :  photon->SetCalibrationFlag();
 	printf("@@@ %7.5f -> %d %d\n", rndm, photon->WasDetected(), photon->IsUsefulForCalibration());
@@ -616,12 +637,16 @@ void IrtDebugging::process(
 	// to select calibration photons, which originate from the same QE(lambda) 
 	// parent distribution, but do not pass the overall efficiency test;
 	{
-	  double QE = 0.20, scale_factor = 1/QE;
+	  //auto *QE = pd->GetQE();
+	  //double QE = 0.20, scale_factor = 1/QE;
+	  double e = photon->GetVertexMomentum().Mag(), qe;
+	  if (!pd->GetQE()->GetLookupTableEntry(e, &qe)) qe = 0.0;
+	  printf("@Q@ %7.2f -> %7.2f\n", e, qe);
 	  
-	  //if (/*GetQE(pd, track->GetTotalEnergy())*/0.20*pd->GetScaleFactor() > m_rngUni()) {
-	  if (QE*scale_factor > m_rngUni()) {
-	    //if (pd->GetGeometricEfficiency()/pd->GetScaleFactor() > m_rngUni())
-	    if (pd->GetGeometricEfficiency()/scale_factor > m_rngUni())
+	  if (qe*pd->GetScaleFactor() > m_rngUni()) {
+	  //if (QE*scale_factor > m_rngUni()) {
+	    if (pd->GetGeometricEfficiency()/pd->GetScaleFactor() > m_rngUni())
+	      //if (pd->GetGeometricEfficiency()/scale_factor > m_rngUni())
 	      photon->SetDetected(true);
 	    else
 	      photon->SetCalibrationFlag();
