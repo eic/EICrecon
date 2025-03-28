@@ -56,7 +56,7 @@ TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[Silico
   eicrecon::SiliconPulseGenerationConfig cfg;
 
   // Square wave expression
-  std::string expression = "charge * (time > [0] && time < [1]) ? 1 : 0";
+  std::string expression = "(time > param0 && time < param1) ? charge : 0";
   cfg.pulse_shape_function = expression;
   cfg.pulse_shape_params = {1.0 * edm4eic::unit::ns, 2.0 * edm4eic::unit::ns}; // Example parameters for the square pulse
   cfg.ignore_thres = 0.1;

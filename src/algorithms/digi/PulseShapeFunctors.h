@@ -59,9 +59,9 @@ public:
 
     EvaluatorPulse(const std::string& expression, const std::vector<double>& params) {
 
-        std::vector<std::string> keys;
+        std::vector<std::string> keys = {"time", "charge"};
         for(int i=0; i<params.size(); i++) {
-            std::string p = "[" + std::to_string(i) + "]";
+            std::string p = "param" + std::to_string(i);
             //Check the expression contains the parameter
             if(expression.find(p) == std::string::npos) {
                 throw std::runtime_error("Parameter " + p + " not found in expression");
