@@ -12,6 +12,7 @@ add_executable(
   calorimetry_CalorimeterClusterRecoCoG.cc
   calorimetry_CalorimeterClusterShape.cc
   calorimetry_HEXPLIT.cc
+  digi_SiliconPulseGeneration.cc
   digi_LGADPulseGeneration.cc
   digi_LGADPulseDigitization.cc
   pid_MergeTracks.cc
