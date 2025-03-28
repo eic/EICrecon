@@ -16,8 +16,11 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
+#include "algorithms/digi/PulseShapeFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/digi/SiliconPulseGeneration_factory.h"
+#include "factories/digi/PulseNoise_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -39,7 +42,33 @@ extern "C" {
 
     using namespace eicrecon;
 
-    std::string tracker_readout = "TaggerTrackerHits";
+    //  Generate signal pulse from hits
+    app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
+      "TaggerTrackerPulseGeneration",
+      {"TaggerTrackerHits"},
+      {"TaggerTrackerHitPulses"},
+      {
+          .pulse_shape_function = "LandauPulse",
+          .pulse_shape_params = {1.0, 2 * edm4eic::unit::ns},
+          .ignore_thres = 15.0e-8,
+          .timestep = 0.2 * edm4eic::unit::ns,
+      },
+      app
+    ));
+
+    // Add noise to pulses
+    app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "TaggerTrackerPulseNoise",
+      {"TaggerTrackerHitPulses"},
+      {"TaggerTrackerHitPulsesWithNoise"},
+      {
+          .poles = 5,
+          .variance = 1.0,
+          .alpha = 0.5,
+          .scale = 500.0,
+      },
+      app
+    ));
 
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -52,8 +81,8 @@ extern "C" {
            "TaggerTrackerRawHitAssociations"
          },
          {
-           .threshold = 1.5 * dd4hep::keV,
-           .timeResolution = 2 * dd4hep::ns,
+           .threshold = 1.5 * edm4eic::unit::keV,
+           .timeResolution = 2 * edm4eic::unit::ns,
          },
          app
     ));
