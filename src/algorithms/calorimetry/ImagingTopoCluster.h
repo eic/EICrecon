@@ -38,9 +38,10 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "ImagingTopoClusterConfig.h"
+#include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
-
+  using CaloHit = edm4eic::CalorimeterHit;
   using ImagingTopoClusterAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4eic::CalorimeterHitCollection
@@ -71,7 +72,8 @@ namespace eicrecon {
     double minClusterHitEdep{0};
     double minClusterCenterEdep{0};
     double minClusterEdep{0};
-
+    // Pointer to the geometry service
+    dd4hep::IDDescriptor m_idSpec;
   public:
     void init() {
         // unitless conversion
@@ -126,6 +128,58 @@ namespace eicrecon {
                     "Global distance between hits <= {:.4f} mm.",
                     sectorDist
         );
+
+        auto& serviceSvc = algorithms::ServiceSvc::instance();
+
+        std::function hit_pair_to_map = [this](const edm4eic::CalorimeterHit &h1, const edm4eic::CalorimeterHit &h2) {
+          std::unordered_map<std::string, double> params;
+          for(const auto &p : m_idSpec.fields()) {
+            const std::string &name = p.first;
+            const dd4hep::IDDescriptor::Field* field = p.second;
+            params.emplace(name + "_1", field->value(h1.getCellID()));
+            params.emplace(name + "_2", field->value(h2.getCellID()));
+            trace("{}_1 = {}", name, field->value(h1.getCellID()));
+            trace("{}_2 = {}", name, field->value(h2.getCellID()));
+          }
+          return params;
+        };
+
+        bool method_found = false;
+
+        // Adjacency matrix methods
+        if (!m_cfg.adjacencyMatrix.empty()) {
+          is_neighbour = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.adjacencyMatrix, hit_pair_to_map);
+          method_found = true;
+        } else {
+          is_neighbour = [this](const CaloHit &h1, const CaloHit &h2) {
+            if (h1.getSector() != h2.getSector()) {
+              return std::hypot((h1.getPosition().x - h2.getPosition().x),
+                                (h1.getPosition().y - h2.getPosition().y),
+                                (h1.getPosition().z - h2.getPosition().z)) <= sectorDist;
+            }
+
+            // layer check
+            int ldiff = std::abs(h1.getLayer() - h2.getLayer());
+            // same layer, check local positions
+            if (ldiff == 0) {
+              return (std::abs(h1.getLocal().x - h2.getLocal().x) <= localDistXY[0]) &&
+                (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
+            } else if (ldiff <= m_cfg.neighbourLayersRange) {
+              switch(m_cfg.layerMode){
+              case eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi:
+                return (std::abs(edm4hep::utils::eta(h1.getPosition()) - edm4hep::utils::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
+                  (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) - edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
+                   layerDistEtaPhi[1]);
+              case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
+                return (std::abs(h1.getPosition().x - h2.getPosition().x) <= layerDistXY[0]) &&
+                  (std::abs(h1.getPosition().y - h2.getPosition().y) <= layerDistXY[1]);
+              }
+            }
+            // not in adjacent layers
+            return false;
+
+          };
+        }
     }
 
     void process(const Input& input, const Output& output) const final {
@@ -209,9 +263,10 @@ namespace eicrecon {
     }
 
   private:
-
     // helper function to group hits
-    bool is_neighbour(const edm4eic::CalorimeterHit& h1, const edm4eic::CalorimeterHit& h2) const {
+    std::function<bool(const CaloHit &h1, const CaloHit &h2)> is_neighbour;
+    // helper function to group hits
+    /*bool is_neighbour_default(const edm4eic::CalorimeterHit& h1, const edm4eic::CalorimeterHit& h2) const {
         // different sectors, simple distance check
         if (h1.getSector() != h2.getSector()) {
             return std::hypot((h1.getPosition().x - h2.getPosition().x),
@@ -238,7 +293,7 @@ namespace eicrecon {
         }
         // not in adjacent layers
         return false;
-    }
+        }*/
 
     // grouping function with Breadth-First Search
     // note: template to allow Compare only known in local scope of caller
