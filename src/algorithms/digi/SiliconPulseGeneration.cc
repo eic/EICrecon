@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Simon Gardner
+// Copyright (C) 2024-2025 Simon Gardner, Chun Yuen Tsang, Prithwish Tribedy
 //
 // Convert energy deposition into ADC pulses
 // ADC pulses are assumed to follow the shape of landau function

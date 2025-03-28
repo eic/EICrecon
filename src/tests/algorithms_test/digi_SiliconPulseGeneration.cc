@@ -18,7 +18,7 @@
 TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[SiliconPulseGeneration]") {
   eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
   eicrecon::SiliconPulseGenerationConfig cfg;
-  cfg.pulse_shape = "LandauPulse"; // Example pulse shape
+  cfg.pulse_shape_function = "LandauPulse"; // Example pulse shape
 
   algo.applyConfig(cfg);
   algo.init();
@@ -32,16 +32,22 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
       hits_coll.create(12345 + i, 10.0, 5.0); // cellID, charge, time
     }
 
-    edm4hep::TimeSeriesCollection pulses = algo.GeneratePulses(hits_coll);
+    auto pulses = std::make_unique<edm4hep::TimeSeriesCollection>();
 
-    REQUIRE(pulses.size() == nHits);
-    REQUIRE(pulses[0].getCellID() == 12345);
+    auto input  = std::make_tuple(&hits_coll);
+    auto output = std::make_tuple(pulses.get());
+
+    algo.process(input, output);
+
+    REQUIRE(pulses->size() == nHits);
+    REQUIRE((*pulses)[0].getCellID() == 12345);
     if(nHits > 1) {
-      REQUIRE(pulses[1].getCellID() == 12346);
+      REQUIRE((*pulses)[1].getCellID() == 12346);
     }
     if(nHits > 2) {
-      REQUIRE(pulses[2].getCellID() == 12347);
+      REQUIRE((*pulses)[2].getCellID() == 12347);
     }
+  }
 
 }
 
@@ -66,14 +72,19 @@ TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[Silico
   edm4hep::SimTrackerHitCollection hits_coll;
   hits_coll.create(12345, charge, time); // cellID, charge, time
 
-  edm4hep::TimeSeriesCollection pulses = algo.GeneratePulses(hits_coll);
+  auto pulses = std::make_unique<edm4hep::TimeSeriesCollection>();
 
-  REQUIRE(pulses.size() == 1);
-  REQUIRE(pulses[0].getCellID() == 12345);
-  REQUIRE(pulses[0].getTime() == 0.0);
-  auto adcs = pulses[0].getAdcCounts();
-  REQUIRE(adcs.size() == 10); // Two time bins for the square pulse
-  for(auto adc:adcs){
-    REQUIRE(adc == charge); // All time bins should be zero
+  auto input  = std::make_tuple(&hits_coll);
+  auto output = std::make_tuple(pulses.get());
+
+  algo.process(input,output);
+
+  REQUIRE(pulses->size() == 1);
+  REQUIRE((*pulses)[0].getCellID() == 12345);
+  REQUIRE((*pulses)[0].getTime() == 0.0);
+  auto amplitudes = (*pulses)[0].getAmplitude();
+  REQUIRE(amplitudes.size() == 10); // Two time bins for the square pulse
+  for(auto amplitude:amplitudes){
+    REQUIRE(amplitude == charge); // All time bins should be zero
   }
 }
