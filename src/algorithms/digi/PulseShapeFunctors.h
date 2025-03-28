@@ -12,6 +12,8 @@ namespace eicrecon {
 class SignalPulse {
 
 public:
+    virtual ~SignalPulse() = default; // Virtual destructor
+
     virtual double operator()(double time, double charge) = 0;
     
     virtual float getMaximumTime() const = 0;
