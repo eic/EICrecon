@@ -9,7 +9,7 @@
 namespace eicrecon {
 
 void SiliconPulseGeneration::init() {
-    m_pulse             = m_cfg.pulse_shape_function;
+    m_pulse             = PulseShapeFactory::createPulseShape(m_cfg.pulse_shape_function, m_cfg.pulse_shape_params);
     m_ignore_thres      = m_cfg.ignore_thres;
     m_timestep          = m_cfg.timestep;
     m_min_sampling_time = m_cfg.min_sampling_time;
