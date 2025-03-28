@@ -1,15 +1,3 @@
-# Automatically set plugin name the same as the directory name
-get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
-
-# Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
-# Setting default includes, libraries and installation paths
-plugin_add(${PLUGIN_NAME})
-
-# The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp Then
-# correctly sets sources for ${_name}_plugin and ${_name}_library targets Adds
-# headers to the correct installation directory
-plugin_glob_all(${PLUGIN_NAME})
-
 # Get properties at configuration evaluation time. The `$<TARGET_PROPERTY`
 # generator expression would include multiple additional paths from transitive
 # dependencies such as PODIO and ROOT.
@@ -49,15 +37,24 @@ add_custom_target(
     ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
   COMMENT "Create datamodel glue headers")
 
-plugin_add_dependencies(${PLUGIN_NAME} podio_datamodel_glue)
-
-# Install datamodel_glue headers
+# Install datamodel_glue header
 install(
   FILES
     ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
-    ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_includes.h
   DESTINATION
     ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${DATAMODEL_RELATIVE_PATH})
+
+# Automatically set plugin name the same as the directory name
+get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
+
+# Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
+# Setting default includes, libraries and installation paths
+plugin_add(${PLUGIN_NAME})
+
+# The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp Then
+# correctly sets sources for ${_name}_plugin and ${_name}_library targets Adds
+# headers to the correct installation directory
+plugin_glob_all(${PLUGIN_NAME})
 
 # Add include directories (works same as target_include_directories)
 plugin_include_directories(${PLUGIN_NAME} PRIVATE ${PROJECT_BINARY_DIR}/include)
