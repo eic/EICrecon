@@ -3,7 +3,7 @@
 #pragma once
 
 #include <TMath.h>
-#include "services/evaluator/EvaluatorSvc.h" 
+#include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
 
@@ -13,7 +13,7 @@ class SignalPulse {
 
 public:
     virtual double operator()(double time, double charge) = 0;
-    
+
     virtual float getMaximumTime() const = 0;
 
 protected:
@@ -106,14 +106,14 @@ class PulseShapeFactory {
             }
             //
             // Add more pulse shape variants here as needed
-    
+
             // If type not found, try and make a function using the ElavulatorSvc
             try {
                 return std::make_unique<EvaluatorPulse>(type,params);
             } catch (...) {
                 throw std::invalid_argument("Unable to make pulse shape type: " + type);
             }
-    
+
         }
     };
 
