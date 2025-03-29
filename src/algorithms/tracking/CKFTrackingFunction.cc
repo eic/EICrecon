@@ -18,8 +18,6 @@
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
-#include <Acts/TrackFitting/GainMatrixSmoother.hpp>
-#include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <boost/container/vector.hpp>
@@ -31,10 +29,7 @@
 #include "ActsExamples/EventData/Track.hpp"
 #include "CKFTracking.h"
 
-namespace eicrecon{
-
-  using Updater  = Acts::GainMatrixUpdater;
-  using Smoother = Acts::GainMatrixSmoother;
+namespace eicrecon {
 
   using Stepper    = Acts::EigenStepper<>;
   using Navigator  = Acts::Navigator;
