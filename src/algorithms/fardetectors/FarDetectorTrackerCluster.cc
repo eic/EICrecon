@@ -106,7 +106,7 @@ void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection
 
     ROOT::VecOps::RVec<unsigned long> clusterList = {maxIndex};
     ROOT::VecOps::RVec<float> clusterT;
-    
+
     // Create cluster
     auto cluster = outputClusters->create();
 
@@ -139,7 +139,7 @@ void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection
 
       // Time
       clusterT.push_back(t[index]);
-      
+
       // Adds hit and weight to Measurement2D contribution
       cluster.addToHits(inputHits[index]);
       cluster.addToWeights(weight);
