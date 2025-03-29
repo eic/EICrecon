@@ -43,6 +43,8 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #endif
 
+#include "services/geometry/richgeo/RichGeo_service.h"
+
 class TTree;
 class TFile;
 class TH1D;
@@ -101,7 +103,8 @@ namespace eicrecon {
     "Effectively 'zip' the input particle IDs"} {}
 #endif
     
-    void init(CherenkovDetectorCollection* irt_det_coll/*, std::shared_ptr<spdlog::logger>& logger*/);
+      //+void init(CherenkovDetectorCollection* irt_det_coll/*, std::shared_ptr<spdlog::logger>& logger*/);
+      void init(RichGeo_service &service);
 
     void process(const Input&, const Output&) const;
     ~IrtDebugging();// {};

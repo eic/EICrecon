@@ -235,6 +235,8 @@ static double GetQE(const CherenkovPhotonDetector *pd, double eph)
 #endif
 // -------------------------------------------------------------------------------------
 
+//#include "services/geometry/dd4hep/DD4hep_service.h"
+
 namespace eicrecon {
   IrtDebugging::~IrtDebugging()
   {
@@ -256,8 +258,9 @@ namespace eicrecon {
     }
   }
   
-void IrtDebugging::init(
-			CherenkovDetectorCollection*     irt_det_coll//,
+  
+void IrtDebugging::init(RichGeo_service &service
+			//+CherenkovDetectorCollection*     irt_det_coll//,
 			//std::shared_ptr<spdlog::logger>& logger
 			)
 {
@@ -328,6 +331,35 @@ void IrtDebugging::init(
   m_log->debug("Initializing IrtCherenkovParticleID algorithm for CherenkovDetector '{}'", m_det_name);
 #endif
 
+#if 1
+  {
+    auto *det = service.GetDD4hepGeo();
+    //auto dd4hep_service = srv_locator->get<DD4hep_service>();
+
+    //auto num_px = det->constant<int>("QRICH_num_px");
+    //printf("-> %d\n", num_px); exit(0);
+    const auto *rindex_matrix = det->material("Aerogel_QRICH"/*rad->GetAlternativeMaterialName()*/).property("RINDEX");
+    for(unsigned row=0; row<rindex_matrix->GetRows(); row++) {
+      auto energy = rindex_matrix->Get(row,0) / dd4hep::eV;
+      auto rindex = rindex_matrix->Get(row,1);
+
+      printf("%7.3f %7.3f\n", energy, rindex);
+    } //for row
+    //exit(0);
+    
+#if 0
+    auto *const rad = rad_obj.second;
+    const auto *rindex_matrix = m_det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
+    for(unsigned row=0; row<rindex_matrix->GetRows(); row++) {
+      auto energy = rindex_matrix->Get(row,0) / dd4hep::eV;
+      auto rindex = rindex_matrix->Get(row,1);
+      m_log->debug("  {:>5} eV   {:<}", energy, rindex);
+      rad->m_ri_lookup_table.emplace_back(energy,rindex);
+    }
+#endif
+  }
+#endif
+    
   {
     // FIXME: assume a single photo detector type;
     auto pd = m_irt_det->m_PhotonDetectors[0];

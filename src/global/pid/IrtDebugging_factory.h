@@ -68,7 +68,7 @@ private:
 #endif
 
   //+Service<AlgorithmsInit_service> m_algorithmsInit {this};
-  //+Service<RichGeo_service> m_RichGeoSvc {this};
+  Service<RichGeo_service> m_RichGeoSvc {this};
 
 public:
     void Configure() {
@@ -78,7 +78,7 @@ public:
         m_algo->applyConfig(config());
         m_algo->init(m_RichGeoSvc().GetIrtGeo("DRICH")->GetIrtDetectorCollection(), logger());
 #else
-        m_algo->init(0);//m_RichGeoSvc().GetIrtGeo("DRICH")->GetIrtDetectorCollection(), logger());
+        m_algo->init(m_RichGeoSvc());//m_RichGeoSvc().GetIrtGeo("DRICH")->GetIrtDetectorCollection(), logger());
 #endif
     }
 
