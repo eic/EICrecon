@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck
+// Copyright (C) 2022 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Kalinkin
 
 #include "DD4hepBField.h"
 
@@ -22,6 +22,12 @@ namespace eicrecon::BField {
       position[0] * (dd4hep::mm / Acts::UnitConstants::mm),
       position[1] * (dd4hep::mm / Acts::UnitConstants::mm),
       position[2] * (dd4hep::mm / Acts::UnitConstants::mm));
+
+    // Avoid crash during lookup.
+    // Infinite values are possible due to https://github.com/acts-project/acts/issues/4166.
+    if ((!std::isfinite(position[0])) && (!std::isfinite(position[1])) && (!std::isfinite(position[2]))) {
+      return Acts::Result<Acts::Vector3>::success({0., 0., 0.});
+    }
 
     auto fieldObj = m_det->field();
     auto field = fieldObj.magneticField(pos) * (Acts::UnitConstants::T / dd4hep::tesla);
