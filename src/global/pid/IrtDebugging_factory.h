@@ -1,5 +1,7 @@
-// Copyright 2023, Christopher Dilks
+//
+// Copyright 2025, Alexander Kiselev
 // Subject to the terms in the LICENSE file found in the top-level directory.
+//
 
 #pragma once
 
@@ -78,7 +80,7 @@ public:
         m_algo->applyConfig(config());
         m_algo->init(m_RichGeoSvc().GetIrtGeo("DRICH")->GetIrtDetectorCollection(), logger());
 #else
-        m_algo->init(m_RichGeoSvc());//m_RichGeoSvc().GetIrtGeo("DRICH")->GetIrtDetectorCollection(), logger());
+        m_algo->init(m_RichGeoSvc(), /*);//m_RichGeoSvc().GetIrtGeo("DRICH")->GetIrtDetectorCollection(),*/ logger());
 #endif
     }
 

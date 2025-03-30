@@ -18,13 +18,16 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
   // This only affects the calibration stage;
   //reco->SetDefaultSinglePhotonThetaResolution(0.0500);
   // Sensor active area pixelated will be pixellated NxN in digitization;
-  reco->SetSensorActiveAreaPixellation(700);
+  //reco->SetSensorActiveAreaPixellation(700);
+  reco->SetSensorActiveAreaPixellation(32);
   // [rad] (should match SPE sigma) & [ns];
   //auto *a1 = reco->UseRadiator("Aerogel225",      0.0040);
 
   auto *a1 = reco->UseRadiator("Aerogel");
   //auto *a1 = reco->UseRadiator("BelleIIAerogel3");
   reco->GetMyRICH()->GetRadiator("GasVolume")->IgnoreInRingImaging();
+  reco->GetMyRICH()->GetRadiator("Acrylic")->IgnoreInRingImaging();
+  reco->GetMyRICH()->GetRadiator("QuartzWindow")->IgnoreInRingImaging();
 
   //reco->SetSinglePhotonTimingResolution(0.030);
   //reco->SetQuietMode();

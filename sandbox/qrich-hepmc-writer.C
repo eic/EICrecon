@@ -53,7 +53,7 @@ void qrich_hepmc_writer(const char* out_fname, int n_events)
       //Double_t eta   = rdmn_gen->Uniform(1.5, 1.6);//2.9, 3.0);//2.0, 2.1);
       Double_t th    = 2*std::atan(exp(-eta));
       //Double_t th    = rdmn_gen->Uniform(3.0, 3.1)*M_PI/180;
-      Double_t p     = rdmn_gen->Uniform(6.999, 7.001) + (iq ? 1.0 : 0.0);//30.0, 30.0001);
+      Double_t p     = rdmn_gen->Uniform(6.999, 7.001);// + (iq ? 1.0 : 0.0);//30.0, 30.0001);
       //Double_t phi   = 0;//M_PI/2;//rdmn_gen->Uniform(0.0, 2*M_PI);
       Double_t phi   = 0;//rdmn_gen->Uniform(0.0, 2*M_PI);
       //Double_t phi   = rdmn_gen->Uniform(-5.0+120, 5.0+120)*M_PI/180;
