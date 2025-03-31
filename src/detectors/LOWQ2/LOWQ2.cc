@@ -4,7 +4,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/TrackSegment.h>
+#include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
@@ -145,7 +145,7 @@ extern "C" {
     }
 
     // Combine the tracks from each module into one collection
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
          "TaggerTrackerTrackSegments",
          outputTrackTags,
          {"TaggerTrackerTrackSegments"},

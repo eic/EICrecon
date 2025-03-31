@@ -1,10 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Simon Gardner
+// Copyright (C) 2023-2025, Simon Gardner
 
 #include <edm4eic/Cov6f.h>
-#include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4eic/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <Eigen/LU>
@@ -33,22 +34,20 @@ namespace eicrecon {
     void FarDetectorLinearProjection::process(const FarDetectorLinearProjection::Input& input,
                                               const FarDetectorLinearProjection::Output& output) const {
 
-      const auto [inputSegments] = input;
+      const auto [inputTracks] = input;
       auto [outputTracks]        = output;
 
       Eigen::Matrix3d directions = m_directions;
 
-      for(const auto& segment: *inputSegments ) {
+      for(const auto& track: *inputTracks ) {
 
-        auto inputPoint = segment.getPoints()[0];
-
-        Eigen::Vector3d point_position(inputPoint.position.x,inputPoint.position.y,inputPoint.position.z);
+        Eigen::Vector3d point_position(track.getPosition().x,track.getPosition().y,track.getPosition().z);
         Eigen::Vector3d positionDiff = point_position - m_plane_position;
 
         // Convert spherical coordinates to Cartesian
-        double x = std::sin(inputPoint.theta) * std::cos(inputPoint.phi);
-        double y = std::sin(inputPoint.theta) * std::sin(inputPoint.phi);
-        double z = std::cos(inputPoint.theta);
+        double x = track.getMomentum().x;
+        double y = track.getMomentum().y;
+        double z = track.getMomentum().z;
         directions.block<3,1>(0,2) << x,y,z;
 
         auto projectedPoint = directions.inverse()*positionDiff;
@@ -60,9 +59,9 @@ namespace eicrecon {
         std::uint64_t surface = 0;
         // Plane Point
         edm4hep::Vector2f loc(projectedPoint[0],projectedPoint[1]); //Temp unit transform
-        float theta = inputPoint.theta;//edm4eic::anglePolar(outVec);
-        float phi   = inputPoint.phi  ;//edm4eic::angleAzimuthal(outVec);
-        float qOverP = 0.;
+        float theta = edm4eic::anglePolar(track.getMomentum());
+        float phi   = edm4eic::angleAzimuthal(track.getMomentum());
+        float qOverP    = 0.;
         float time      = 0;
         int32_t pdgCode = 11;
         // Point Error
