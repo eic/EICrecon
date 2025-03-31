@@ -64,9 +64,9 @@ private:
   bool checkHitPair(const Eigen::Vector3d& hit1, const Eigen::Vector3d& hit2) const;
 
   /** Convert 2D clusters to 3D coordinates and match associated particle **/
-  void ConvertClusters( const edm4eic::Measurement2DCollection& clusters, 
-                        const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits, 
-                        std::vector<std::vector<Eigen::Vector3d>>& pointPositions, 
+  void ConvertClusters( const edm4eic::Measurement2DCollection& clusters,
+                        const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
+                        std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
                         std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts ) const;
 
 

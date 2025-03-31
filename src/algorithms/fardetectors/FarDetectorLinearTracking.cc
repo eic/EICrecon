@@ -93,7 +93,7 @@ namespace eicrecon {
         while(layer>=0){
 
           hitMatrix.col(layer) << convertedHits[layer][layerHitIndex[layer]];
-          
+
           bool isValid = true;
           // Check the last two hits are within a certain angle of the optimum direction
           if(layer>0 && m_cfg.restrict_direction) {
@@ -148,7 +148,7 @@ namespace eicrecon {
 
       edm4hep::Vector3d outPos = weightedAnchor.data();
       edm4hep::Vector3d outVec = V.col(0).data();
-      
+
       // Make sure fit was pointing in the right direction
       if(outVec.z>0) outVec = outVec*-1;
 
@@ -166,7 +166,7 @@ namespace eicrecon {
       auto track = (*outputTracks)->create(type,position,momentum,positionMomentumCovariance,time,timeError,charge,chi2,ndf,pdg);
 
       // Add Measurement2D relations and count occurance of particles contributing to the track
-      std::unordered_map<const edm4hep::MCParticle*, int> particleCount; 
+      std::unordered_map<const edm4hep::MCParticle*, int> particleCount;
       for (int layer = 0; layer < layerHitIndex.size(); layer++) {
         track.addToMeasurements((*inputHits[layer])[layerHitIndex[layer]]);
         const auto& assocParticle = assocParts[layer][layerHitIndex[layer]];
