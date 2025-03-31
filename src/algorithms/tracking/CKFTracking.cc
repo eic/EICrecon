@@ -380,7 +380,7 @@ namespace eicrecon {
         // Add seed number column
         acts_tracks.addColumn<unsigned int>("seed");
         Acts::ProxyAccessor<unsigned int> seedNumber("seed");
-        std::vector<Acts::TrackIndexType> failed_tracks;
+        std::set<Acts::TrackIndexType> passed_tracks;
 
         // Loop over seeds
         for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
@@ -401,7 +401,6 @@ namespace eicrecon {
                     ACTS_ERROR("Smoothing for seed "
                         << iseed << " and track " << track.index()
                         << " failed with error " << smoothingResult.error());
-                    failed_tracks.push_back(track.index());
                     continue;
                 }
 
@@ -413,44 +412,30 @@ namespace eicrecon {
                     ACTS_ERROR("Extrapolation for seed "
                         << iseed << " and track " << track.index()
                         << " failed with error " << extrapolationResult.error());
-                    failed_tracks.push_back(track.index());
                     continue;
                 }
 #endif
 
+                passed_tracks.insert(track.index());
                 seedNumber(track) = iseed;
             }
         }
 
-        for (const auto& track : acts_tracks) {
-          // Workaround https://github.com/acts-project/acts/issues/4168
-          if (track.nMeasurements() == 0) {
-              failed_tracks.push_back(track.index());
-              continue;
-          }
-        }
-
-        std::ranges::sort(failed_tracks, std::ranges::greater());
-        for (Acts::TrackIndexType track_index : failed_tracks) {
-          // NOTE This does not remove track states corresponding to the
-          // removed tracks. Doing so would require implementing some garbage
-          // collection. We'll just assume no algorithm will access them
-          // directly.
-          acts_tracks.removeTrack(track_index);
+        for (ssize_t track_index = acts_tracks.size() - 1; track_index >= 0; track_index--) {
+            if (not passed_tracks.count(track_index)) {
+                // NOTE This does not remove track states corresponding to the
+                // removed tracks. Doing so would require implementing some garbage
+                // collection. We'll just assume no algorithm will access them
+                // directly.
+                acts_tracks.removeTrack(track_index);
 #if Acts_VERSION_MAJOR < 36
-          // Workaround an upstream bug in Acts::VectorTrackContainer::removeTrack_impl()
-          // https://github.com/acts-project/acts/commit/94cf81f3f1109210b963977e0904516b949b1154
-          trackContainer->m_particleHypothesis.erase(trackContainer->m_particleHypothesis.begin() + track_index);
+               // Workaround an upstream bug in Acts::VectorTrackContainer::removeTrack_impl()
+               // https://github.com/acts-project/acts/commit/94cf81f3f1109210b963977e0904516b949b1154
+               trackContainer->m_particleHypothesis.erase(trackContainer->m_particleHypothesis.begin() + track_index);
 #endif
+            }
         }
 
-        for (const auto& track : acts_tracks) {
-          // Workaround https://github.com/acts-project/acts/issues/4168
-          if (track.nMeasurements() == 0) {
-              failed_tracks.push_back(track.index());
-              continue;
-          }
-        }
         // Move track states and track container to const containers
         // NOTE Using the non-const containers leads to references to
         // implicitly converted temporaries inside the Trajectories.
