@@ -1,0 +1,34 @@
+# Use this open statement to create an OpenGL view
+/vis/open OGL 600x600-0+0
+#
+# Disable auto refresh and quieten vis messages whilst scene and
+# trajectories are established
+/vis/viewer/set/autoRefresh false
+#
+# Draw geometry
+#/vis/drawVolume
+/vis/drawVolume PFRICH_Vol_0
+#
+# Specify view angle
+#/vis/viewer/set/viewpointThetaPhi 90. 179.
+#
+# Specify zoom value
+#/vis/viewer/zoom 8.0
+#
+# Shift to the pfRICH location
+#/vis/viewer/panTo -1.5 0.0 m
+#
+# Specify style (surface or wireframe)
+/vis/viewer/set/style wireframe
+#
+# Draw smooth trajectories at end of event, showing trajectory points
+# as markers 2 pixels wide:
+/vis/scene/add/trajectories smooth
+#
+# Re-establish auto refreshing and verbosity
+/vis/viewer/set/autoRefresh true
+#
+/vis/ogl/set/displayListLimit 200000
+#
+
+#/run/beamOn 1

@@ -1,6 +1,16 @@
 // Copyright (C) 2022, 2023, Christopher Dilks
 // Subject to the terms in the LICENSE file found in the top-level directory.
 
+#define _ELECTRON_GOING_ENDCAP_CASE_
+
+#ifdef _ELECTRON_GOING_ENDCAP_CASE_
+static const double sign = -1.0;
+#else
+static const double sign =  1.0;
+#endif
+// Does it really matter?;
+static const char *tag = sign > 0.0 ? "ForwardRICH_ID" : "BackwardRICH_ID";
+
 #include "ActsGeo.h"
 
 #include <DD4hep/Objects.h>
@@ -127,10 +137,11 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
     switch(radiator) {
       case kAerogel:
 	{
-	  double step = 5 * dd4hep::mm, zmid = (1550. - 500./2 + 5. + 25./2) * dd4hep::mm;
+	  // Step sign: also want to change order;
+	  double step = sign * 5 * dd4hep::mm, zmid = sign*(1550. - 500./2 + 5. + 25./2) * dd4hep::mm;
 	  for(int i=0; i<numPlanes; i++) {
 	    auto z         = zmid + step*(i - (numPlanes-1)/2.);
-	    discs.push_back(eicrecon::DiscSurfaceConfig{"ForwardRICH_ID", z, rmin, rmax});
+	    discs.push_back(eicrecon::DiscSurfaceConfig{tag, z, rmin, rmax});
 	    m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
 	  } //for i
 	}
@@ -138,10 +149,10 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
       case kGas:
 	{
 	  // FIXME: make it simple for now;
-	  double step = 5 * dd4hep::cm, zmid = 1550. * dd4hep::mm;
+	  double step = sign * 5 * dd4hep::cm, zmid = sign * 1550. * dd4hep::mm;
 	  for(int i=0; i<numPlanes; i++) {
 	    auto z         = zmid + step*(i - (numPlanes-1)/2.);
-	    discs.push_back(eicrecon::DiscSurfaceConfig{"ForwardRICH_ID", z, rmin, rmax});
+	    discs.push_back(eicrecon::DiscSurfaceConfig{tag, z, rmin, rmax});
 	    m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
 	  } //for i
 	}

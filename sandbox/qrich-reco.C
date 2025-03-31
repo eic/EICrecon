@@ -3,6 +3,10 @@
 //
 //   root -l './qrich-reco.C("qrich-events.root", "qrich-optics.root")'
 //
+//      or
+//
+//   root -l './qrich-reco.C("qrich-events.root")'
+//
 
 void qrich_reco(const char *dfname, const char *cfname = 0)
 {
@@ -18,13 +22,10 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
   // This only affects the calibration stage;
   //reco->SetDefaultSinglePhotonThetaResolution(0.0500);
   // Sensor active area pixelated will be pixellated NxN in digitization;
-  //reco->SetSensorActiveAreaPixellation(700);
   reco->SetSensorActiveAreaPixellation(32);
-  // [rad] (should match SPE sigma) & [ns];
-  //auto *a1 = reco->UseRadiator("Aerogel225",      0.0040);
 
   auto *a1 = reco->UseRadiator("Aerogel");
-  //auto *a1 = reco->UseRadiator("BelleIIAerogel3");
+  
   reco->GetMyRICH()->GetRadiator("GasVolume")->IgnoreInRingImaging();
   reco->GetMyRICH()->GetRadiator("Acrylic")->IgnoreInRingImaging();
   reco->GetMyRICH()->GetRadiator("QuartzWindow")->IgnoreInRingImaging();
@@ -47,7 +48,6 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
   auto hmatch = new TH1D("hmatch", "PID evaluation correctness",       3,    0,      3);
   //auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        200,  220,    320);
   auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        40,  270, 290);
-  //auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        40,  200, 350);
   // For a dual aerogel configuration;
   //auto hthtr2  = new TH1D("thtr2",   "Cherenkov angle (track)",        200,  220,    320);
 
@@ -56,7 +56,6 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
   // This call is mandatory; second argument: statistics (default: all events);
   reco->PerformCalibration(200);
   
-#if 1//_TODAY_
   {
     CherenkovEvent *event;
 
@@ -78,8 +77,7 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
       } //for mcparticle
     } //while
   }
-#endif
-#if 1//_TODAY_
+  
   auto cv = new TCanvas("cv", "", 1600, 1000);
   cv->Divide(4, 3);
   cv->cd(1); reco->hthph()->Fit("gaus");
@@ -95,5 +93,4 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
   cv->cd(10); reco->hwl()->Draw();
   cv->cd(11); reco->hvtx()->Draw();
   cv->cd(12); reco->hri()->Draw();
-#endif
 } // qrich_reco()

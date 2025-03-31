@@ -3,6 +3,14 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#define _ELECTRON_GOING_ENDCAP_CASE_
+
+#ifdef _ELECTRON_GOING_ENDCAP_CASE_
+static const double sign = -1.0;
+#else
+static const double sign =  1.0;
+#endif
+
 #include <mutex>
 
 #include <TFile.h>
@@ -37,7 +45,7 @@ TH1D *eicrecon::IrtDebugging::m_Debug = 0;
 // FIXME: move to a different place;
 #define _MAGIC_CFF_                              (1239.8)
 #define _FAKE_QE_DOWNSCALING_FACTOR_          (30.0/37.0)
-#define _REFERENCE_WAVE_LENGTH_                   (350.0)
+#define _REFERENCE_WAVE_LENGTH_                   (390.0)
 
 // -------------------------------------------------------------------------------------
 
@@ -46,7 +54,7 @@ namespace eicrecon {
   {
     std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
       
-    printf("@@@ IrtDebugging::~IrtDebugging() ... %2d\n", m_InstanceCounter);
+    //printf("@@@ IrtDebugging::~IrtDebugging() ... %2d\n", m_InstanceCounter);
     m_InstanceCounter--;
     
     if (!m_InstanceCounter) {
@@ -170,9 +178,6 @@ namespace eicrecon {
 	pd->GetQE()->CreateLookupTable(100);
       }
     }
-  
-    // readout decoding
-    //m_cell_mask = m_irt_det->GetReadoutCellMask(); 
   } // IrtDebugging::init()
 
   // -------------------------------------------------------------------------------------
@@ -204,17 +209,17 @@ namespace eicrecon {
     
       auto rcparticle = (*in_reco_particles)[rcid];//assoc.getRecID()];
       //auto tnum = rcparticle.getTracks().size();
-      //printf("tnum: %ld\n", tnum);
+      printf("tnum: %ld\n", rcparticle.getTracks().size());
       for(auto &track: rcparticle.getTracks())
 	MCParticle_to_Tracks_lut[mcid].push_back(track.id().index);
     } //for assoc
 
     // Then track -> aerogel projection lookup table; FIXME: other radiators; 
     std::map<unsigned, edm4eic::TrackSegment> Track_to_TrackSegment_lut;
+    printf("aerogel track group(s): %ld\n", (*in_aerogel_tracks).size());
     for(auto segment: *in_aerogel_tracks) {
-      //auto particle      = particles->at(0);//i_charged_particle);
-      //printf("(3)   --> %ld\n", particle.points_size());
       auto track = segment.getTrack();
+      printf("(3)   --> %d\n", track.id().index);
       Track_to_TrackSegment_lut[track.id().index] = segment;
     } //for particle
     
@@ -276,10 +281,9 @@ namespace eicrecon {
     // Now loop through simulated hits;
     for(auto mchit: *in_sim_hits) {
       auto cell_id   = mchit.getCellID();
-      // Single level -> no tricks;
-      uint64_t sensorID = cell_id & m_irt_det->GetReadoutCellMask();//m_cell_mask;
-      //printf("cell: %lX\n", cell_id);
-      //printf("@S@: %lu\n", sensorID); 
+      // Use a fully encoded number in std::map, no tricks;
+      uint64_t sensorID = cell_id & m_irt_det->GetReadoutCellMask();
+      //printf("@S@ cell: 0x%lX, sensor: 0x%lX\n", cell_id, sensorID);
 
       //printf("dE: %7.2f\n", 1E9 * mchit.getEDep());
       
@@ -303,7 +307,7 @@ namespace eicrecon {
       photon->SetVertexTime       (mcparticle.getTime());
 
       // FIXME: (0,0,1) or (0,0,-1)?; should be different for e-endcap?;
-      TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex()), n0(0,0,1);
+      TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex()), n0(0,0,1*sign);
       auto radiator = m_irt_det->GuessRadiator(vtx, n0); 
 
       auto parents = mcparticle.getParents();
@@ -317,7 +321,6 @@ namespace eicrecon {
 	
 	// FIXME: really needed in ePIC IRT 2.0 implementation?;
 	//photon->SetVertexAttenuationLength(GetAttenuationLength(radiator, e));
-	//photon->SetVertexAttenuationLength(40.0);
 	{
 	  double e = photon->GetVertexMomentum().Mag();
 	  double ri = radiator->m_RefractiveIndex->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder);
@@ -345,16 +348,17 @@ namespace eicrecon {
       
       if (pd) {
 	photon->SetPhotonDetector(pd);
-	// FIXME: a hack;
+	// VolumeCopy in a standalone GEANT code, encoded sensor ID in ePIC;
 	//photon->SetVolumeCopy(xto->GetTouchable()->GetCopyNumber(pd->GetCopyIdentifierLevel()));
-	photon->SetVolumeCopy(sensorID);//0);
+	photon->SetVolumeCopy(sensorID);
 
 	// The logic behind this multiplication and division by the same number is 
 	// to select calibration photons, which originate from the same QE(lambda) 
 	// parent distribution, but do not pass the overall efficiency test;
 	{
 	  double e = photon->GetVertexMomentum().Mag();
-	  double qe = pd->GetQE()->WithinRange(e) ? pd->GetQE()->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder) : 0.0;
+	  double qe = pd->GetQE()->WithinRange(e) ?
+	    pd->GetQE()->GetInterpolatedValue(e, G4DataInterpolation::FirstOrder) : 0.0;
 	  
 	  if (qe*pd->GetScaleFactor() > m_rngUni()) {
 	    if (pd->GetGeometricEfficiency()/pd->GetScaleFactor() > m_rngUni())

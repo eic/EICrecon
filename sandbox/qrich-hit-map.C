@@ -3,6 +3,10 @@
 //
 //   root -l './qrich-hit-map.C("qrich-events.root", "qrich-optics.root")'
 //
+//    or
+//
+//   root -l './qrich-hit-map.C("qrich-events.root")'
+//
 
 void qrich_hit_map(const char *dfname, const char *cfname = 0)
 {
@@ -14,9 +18,8 @@ void qrich_hit_map(const char *dfname, const char *cfname = 0)
   t->SetBranchAddress("e", &event);
 
   int nEvents = t->GetEntries();
-  printf("%d events total\n", nEvents);
+  printf("%d event(s) total\n", nEvents);
 
-#if 1//_TODAY_
   auto hxy = new TH2D("hxy", "", 650, -650., 650., 650, -650.0, 650.);
 
   for(unsigned ev=0; ev<nEvents; ev++) {
@@ -35,7 +38,6 @@ void qrich_hit_map(const char *dfname, const char *cfname = 0)
 	} //for photon
       } //for rhistory
     } //for particle
-    //#endif
   } //for ev
 
   gStyle->SetOptStat(0);
@@ -45,5 +47,4 @@ void qrich_hit_map(const char *dfname, const char *cfname = 0)
   hxy->GetXaxis()->SetTitleOffset(1.20);
   hxy->GetYaxis()->SetTitleOffset(1.40);
   hxy->Draw("COL");
-#endif
 } // qrich_hit_map()

@@ -48,7 +48,7 @@ extern "C" {
       auto actsGeo = richGeoSvc->GetActsGeo("QRICH");
       auto aerogel_tracking_planes = actsGeo->TrackingPlanes(richgeo::kAerogel, 5);
       auto aerogel_track_point_cut = actsGeo->TrackPointCut(richgeo::kAerogel);
-      auto gas_tracking_planes = actsGeo->TrackingPlanes(richgeo::kGas, 10);
+      auto gas_tracking_planes = actsGeo->TrackingPlanes(richgeo::kGas, 1);//10);
       auto gas_track_point_cut = actsGeo->TrackPointCut(richgeo::kGas);
       auto filter_surface = gas_tracking_planes.back();
       // track propagation to each radiator
