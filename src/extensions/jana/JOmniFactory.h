@@ -560,7 +560,6 @@ public:
                 output->Reset();
             }
 #if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
-            spdlog::mdc::put("r", std::to_string(event->GetRunNumber()));
             spdlog::mdc::put("e", std::to_string(event->GetEventNumber()));
 #endif
             static_cast<AlgoT*>(this)->Process(event->GetRunNumber(), event->GetEventNumber());
