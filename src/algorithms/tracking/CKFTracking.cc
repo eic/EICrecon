@@ -291,7 +291,12 @@ namespace eicrecon {
                 &Acts::GainMatrixSmoother::operator()<Acts::VectorMultiTrajectory>>(
                 &kfSmoother);
 #endif
-#if Acts_VERSION_MAJOR < 39
+#if (Acts_VERSION_MAJOR >= 36) && (Acts_VERSION_MAJOR < 39)
+        extensions.measurementSelector.connect<
+                &Acts::MeasurementSelector::select<
+                typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(
+                &measSel);
+#elif Acts_VERSION_MAJOR < 39
         extensions.measurementSelector.connect<
                 &Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(
                 &measSel);
