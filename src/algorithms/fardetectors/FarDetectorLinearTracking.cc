@@ -112,15 +112,20 @@ namespace eicrecon {
 
           // Iterate current layer
           layerHitIndex[layer]++;
+
+          bool doBreak = false;
           // Set up next combination to check
           while(layerHitIndex[layer]>=convertedHits[layer].size()){
             layerHitIndex[layer] = 0;
+            if(layer==0){
+              doBreak = true;
+              break;
+            }
             layer--;
             // Iterate previous layer
-            if (layer >= 0) {
-              layerHitIndex[layer]++;
-            }
+            layerHitIndex[layer]++;
           }
+          if(doBreak) break;
 
         }
 
