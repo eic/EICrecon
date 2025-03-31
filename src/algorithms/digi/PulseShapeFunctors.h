@@ -31,26 +31,30 @@ public:
 
 LandauPulse(std::vector<double> params) {
 
-    if (params.size() != 2) {
-        throw std::runtime_error("LandauPulse requires 2 parameters");
+    if (params.size() != 2 || params.size() != 3) {
+        throw std::runtime_error("LandauPulse requires 2 or 3 parameters, gain, sigma_analog, [sigma_offset]");
     }
 
     m_gain = params[0];
     m_sigma_analog = params[1];
+    if (params.size() == 3) {
+        m_hit_sigma_offset = params[2];
+    }
 
 };
 
 double operator()(double time, double charge) {
-    return charge * m_gain * TMath::Landau(time, 3.5*m_sigma_analog, m_sigma_analog, kTRUE);
+    return charge * m_gain * TMath::Landau(time, m_hit_sigma_offset*m_sigma_analog, m_sigma_analog, kTRUE);
 }
 
 double getMaximumTime() const {
-    return 3.5*m_sigma_analog;
+    return m_hit_sigma_offset*m_sigma_analog;
 }
 
 private:
-    double m_gain;
-    double m_sigma_analog;
+    double m_gain = 1.0;
+    double m_sigma_analog = 1.0;
+    double m_hit_sigma_offset = 3.5;
 };
 
 // EvaluatorSvc Pulse
