@@ -421,7 +421,7 @@ namespace eicrecon {
             }
         }
 
-        for (ssize_t track_index = acts_tracks.size() - 1; track_index >= 0; track_index--) {
+        for (ssize_t track_index = static_cast<ssize_t>(acts_tracks.size()) - 1; track_index >= 0; track_index--) {
             if (not passed_tracks.count(track_index)) {
                 // NOTE This does not remove track states corresponding to the
                 // removed tracks. Doing so would require implementing some garbage
