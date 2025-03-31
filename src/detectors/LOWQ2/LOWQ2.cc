@@ -79,10 +79,12 @@ extern "C" {
     std::vector<std::string> geometryDivisionCollectionNames;
     std::vector<std::string> outputClusterCollectionNames;
     std::vector<std::string> outputTrackTags;
+    std::vector<std::string> outputTrackAssociationTags;
     std::vector<std::vector<std::string>> moduleClusterTags;
 
     for(int mod_id : moduleIDs){
       outputTrackTags.push_back(fmt::format("TaggerTrackerM{}Tracks",mod_id));
+      outputTrackAssociationTags.push_back(fmt::format("TaggerTrackerM{}TrackAssociations",mod_id));
       moduleClusterTags.push_back({});
       for(int lay_id : layerIDs){
         geometryDivisions.push_back({mod_id,lay_id});
@@ -120,12 +122,15 @@ extern "C" {
     // Linear tracking for each module, loop over modules
     for(int i=0; i<moduleIDs.size(); i++){
       std::string outputTrackTag = outputTrackTags[i];
+      std::string outputTrackAssociationTag = outputTrackAssociationTags[i];
       std::vector<std::string> inputClusterTags = moduleClusterTags[i];
+
+      inputClusterTags.push_back("TaggerTrackerRawHitAssociations");
 
       app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
           outputTrackTag,
-          inputClusterTags,
-          {outputTrackTag},
+          {inputClusterTags},
+          {outputTrackTag,outputTrackAssociationTag},
           {
             .layer_hits_max = 100,
             .chi2_max = 0.001,
@@ -144,6 +149,15 @@ extern "C" {
          "TaggerTrackerTrackSegments",
          outputTrackTags,
          {"TaggerTrackerTrackSegments"},
+         app
+      )
+    );
+
+    // Combine the associations from each module into one collection
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
+         "TaggerTrackerTrackAssociations",
+         outputTrackAssociationTags,
+         {"TaggerTrackerTrackAssociations"},
          app
       )
     );
