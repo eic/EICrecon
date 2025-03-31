@@ -11,6 +11,7 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Eigen/Core>
+#include <cmath>
 #include <limits>
 
 namespace eicrecon::BField {
