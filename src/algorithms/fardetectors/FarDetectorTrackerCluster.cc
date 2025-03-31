@@ -106,6 +106,7 @@ void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection
 
     ROOT::VecOps::RVec<unsigned long> clusterList = {maxIndex};
     ROOT::VecOps::RVec<float> clusterT;
+    ROOT::VecOps::RVec<float> clusterW;
 
     // Create cluster
     auto cluster = outputClusters->create();
@@ -140,9 +141,11 @@ void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection
       // Time
       clusterT.push_back(t[index]);
 
+
       // Adds hit and weight to Measurement2D contribution
       cluster.addToHits(inputHits[index]);
-      cluster.addToWeights(weight);
+      clusterW.push_back(e[index]);
+
     }
 
     // Finalise position
@@ -152,6 +155,13 @@ void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection
 
     // Finalise time
     t0     = Mean(clusterT);
+
+    // Normalize weights then add to cluster
+    clusterW /= weightSum;
+
+    for(auto& w : clusterW) {
+      cluster.addToWeights(w);
+    }
 
     edm4eic::Cov3f    covariance;
 
