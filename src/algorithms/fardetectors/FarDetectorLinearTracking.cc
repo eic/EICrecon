@@ -91,13 +91,12 @@ namespace eicrecon {
 
         // Iterate over all combinations of measurements in the layers without recursion
         while(layer>=0){
-
           hitMatrix.col(layer) << convertedHits[layer][layerHitIndex[layer]];
 
           bool isValid = true;
           // Check the last two hits are within a certain angle of the optimum direction
           if(layer>0 && m_cfg.restrict_direction) {
-            isValid = checkHitPair(hitMatrix.col(layer),hitMatrix.col(layer-1));
+            isValid = checkHitPair(hitMatrix.col(layer-1),hitMatrix.col(layer));
           }
 
           // If valid hit combination, move to the next layer or check the combination
@@ -111,12 +110,16 @@ namespace eicrecon {
             }
           }
 
+          // Iterate current layer
           layerHitIndex[layer]++;
           // Set up next combination to check
           while(layerHitIndex[layer]>=convertedHits[layer].size()){
             layerHitIndex[layer] = 0;
             layer--;
-            layerHitIndex[layer]++;
+            // Iterate previous layer
+            if (layer >= 0) {
+              layerHitIndex[layer]++;
+            }
           }
 
         }
