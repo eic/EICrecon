@@ -8,6 +8,8 @@ static const double sign = -1.0;
 #else
 static const double sign =  1.0;
 #endif
+static const double z0 = 1456.;//1550.0;
+  
 // Does it really matter?;
 static const char *tag = sign > 0.0 ? "ForwardRICH_ID" : "BackwardRICH_ID";
 
@@ -125,20 +127,20 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
   }
 
   // pfRICH DD4hep-ACTS bindings --------------------------------------------------------------------
-  else if(m_detName=="PFRICH") {
-    m_log->error("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
-  }
+  //else if(m_detName=="PFRICH") {
+  //m_log->error("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
+  //}
   
   // QRICH DD4hep-ACTS bindings --------------------------------------------------------------------
-  else if(m_detName=="QRICH") {
-    printf("richgeo::ActsGeo::TrackingPlanes() for QRICH!\n");
+  else if(m_detName=="QRICH" || m_detName=="PFRICH") {
+    printf("richgeo::ActsGeo::TrackingPlanes() for QRICH / PFRICH!\n");
     double rmin = 100 * dd4hep::mm, rmax = 800 * dd4hep::mm;
 	
     switch(radiator) {
       case kAerogel:
 	{
 	  // Step sign: also want to change order;
-	  double step = sign * 5 * dd4hep::mm, zmid = sign*(1550. - 500./2 + 5. + 25./2) * dd4hep::mm;
+	  double step = sign * 5 * dd4hep::mm, zmid = sign*(z0 - 500./2 + 5. + 25./2) * dd4hep::mm;
 	  for(int i=0; i<numPlanes; i++) {
 	    auto z         = zmid + step*(i - (numPlanes-1)/2.);
 	    discs.push_back(eicrecon::DiscSurfaceConfig{tag, z, rmin, rmax});
@@ -149,7 +151,7 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
       case kGas:
 	{
 	  // FIXME: make it simple for now;
-	  double step = sign * 5 * dd4hep::cm, zmid = sign * 1550. * dd4hep::mm;
+	  double step = sign * 5 * dd4hep::cm, zmid = sign * z0 * dd4hep::mm;
 	  for(int i=0; i<numPlanes; i++) {
 	    auto z         = zmid + step*(i - (numPlanes-1)/2.);
 	    discs.push_back(eicrecon::DiscSurfaceConfig{tag, z, rmin, rmax});

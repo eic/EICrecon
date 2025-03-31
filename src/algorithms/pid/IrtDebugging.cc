@@ -90,7 +90,8 @@ namespace eicrecon {
       
       if (!m_InstanceCounter) {
 	// FIXME: hardcoded;
-	m_OutputFile = new TFile("qrich-events.root", "RECREATE");
+	//m_OutputFile = new TFile("qrich-events.root", "RECREATE");
+	m_OutputFile = new TFile("pfrich-events.root", "RECREATE");
 	
 	m_EventTree = new TTree("t", "My tree");
 	m_EventBranch = m_EventTree->Branch("e", "CherenkovEvent", 0/*&m_Event*/, 16000, 2);
@@ -103,7 +104,8 @@ namespace eicrecon {
   
     {
       // FIXME: hardcoded; FIXME: check existence;
-      auto fcfg = new TFile("qrich-optics.root");
+      //auto fcfg = new TFile("qrich-optics.root");
+      auto fcfg = new TFile("pfrich-optics.root");
       m_irt_det_coll = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
     }
     
@@ -124,6 +126,7 @@ namespace eicrecon {
       auto *det = service.GetDD4hepGeo();
 
       for(auto [name,rad] : m_irt_det->Radiators()) {
+	printf("@R@ %s\n", name.Data());
 	const auto *rindex_matrix = det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
 	if (rindex_matrix) {
 	  unsigned dim = rindex_matrix->GetRows();
@@ -277,7 +280,7 @@ namespace eicrecon {
 	} //for point
       }
     } //for mcparticle
-    
+
     // Now loop through simulated hits;
     for(auto mchit: *in_sim_hits) {
       auto cell_id   = mchit.getCellID();
@@ -308,7 +311,9 @@ namespace eicrecon {
 
       // FIXME: (0,0,1) or (0,0,-1)?; should be different for e-endcap?;
       TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex()), n0(0,0,1*sign);
-      auto radiator = m_irt_det->GuessRadiator(vtx, n0); 
+#if 1//_TODAY_
+      //+auto radiator = m_irt_det->GuessRadiator(vtx, n0); 
+      auto radiator = m_irt_det->GetRadiator("Aerogel");//uessRadiator(vtx, n0); 
 
       auto parents = mcparticle.getParents();
       if (parents.size() != 1) continue;
@@ -370,7 +375,8 @@ namespace eicrecon {
       } //if
 
       //? if (!info->Parent()) m_EventPtr->AddOrphanPhoton(photon);
-    } //for hit
+#endif
+    } //for mchit
     
     {
       std::lock_guard<std::mutex> lock(m_OutputTreeMutex);

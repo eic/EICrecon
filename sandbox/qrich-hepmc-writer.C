@@ -49,8 +49,8 @@ void qrich_hepmc_writer(const char* out_fname, int n_events)
     // type 1 is final state; 211: pion; FIXME: give a proper mass;
     for(int iq=0; iq</*2*/1; iq++){
       auto particle = pion;//iq ? pion : kaon;
-      Double_t eta   = 2.40;//rdmn_gen->Uniform(1.30, 3.70);
-      //Double_t eta   = -2.40;//rdmn_gen->Uniform(1.30, 3.70);
+      //Double_t eta   = 2.40;//rdmn_gen->Uniform(1.30, 3.70);
+      Double_t eta   = -2.0;//rdmn_gen->Uniform(1.30, 3.70);
       //Double_t eta   = rdmn_gen->Uniform(1.5, 1.6);//2.9, 3.0);//2.0, 2.1);
       Double_t th    = 2*std::atan(exp(-eta));
       //Double_t th    = rdmn_gen->Uniform(3.0, 3.1)*M_PI/180;
