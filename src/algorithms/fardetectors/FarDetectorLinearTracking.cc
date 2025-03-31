@@ -71,7 +71,7 @@ namespace eicrecon {
             return;
           }
           if((*layerHits).size()==0){
-            info("No hits in layer");
+            trace("No hits in layer");
             return;
           }
           convertedHits.push_back(ConvertClusters(*layerHits));
