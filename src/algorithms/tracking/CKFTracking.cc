@@ -395,7 +395,6 @@ namespace eicrecon {
             // Set seed number for all found tracks
             auto& tracksForSeed = result.value();
             for (auto& track : tracksForSeed) {
-
 #if Acts_VERSION_MAJOR >= 34
                 auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
                 if (!smoothingResult.ok()) {
@@ -423,7 +422,16 @@ namespace eicrecon {
             }
         }
 
-        for (Acts::TrackIndexType track_index : std::ranges::reverse_view(failed_tracks)) {
+        for (const auto& track : acts_tracks) {
+          // Workaround https://github.com/acts-project/acts/issues/4168
+          if (track.nMeasurements() == 0) {
+              failed_tracks.push_back(track.index());
+              continue;
+          }
+        }
+
+        std::ranges::sort(failed_tracks, std::ranges::greater());
+        for (Acts::TrackIndexType track_index : failed_tracks) {
           // NOTE This does not remove track states corresponding to the
           // removed tracks. Doing so would require implementing some garbage
           // collection. We'll just assume no algorithm will access them
@@ -436,6 +444,13 @@ namespace eicrecon {
 #endif
         }
 
+        for (const auto& track : acts_tracks) {
+          // Workaround https://github.com/acts-project/acts/issues/4168
+          if (track.nMeasurements() == 0) {
+              failed_tracks.push_back(track.index());
+              continue;
+          }
+        }
         // Move track states and track container to const containers
         // NOTE Using the non-const containers leads to references to
         // implicitly converted temporaries inside the Trajectories.
