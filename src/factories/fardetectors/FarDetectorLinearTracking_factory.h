@@ -4,8 +4,10 @@
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 // Event Model related classes
-#include <edm4eic/TrackSegmentCollection.h>
-#include <edm4eic/TrackSegment.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/TrackCollection.h>
+#include <edm4eic/Measurement2DCollection.h>
 #include <algorithms/fardetectors/FarDetectorLinearTracking.h>
 
 #include <extensions/jana/JOmniFactory.h>
@@ -22,7 +24,9 @@ private:
     std::unique_ptr<AlgoT> m_algo;
 
     VariadicPodioInput<edm4eic::Measurement2D> m_hits_input    {this};
-    PodioOutput<edm4eic::TrackSegment>      m_tracks_output {this};
+    PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_hits_association_input {this};
+    PodioOutput<edm4eic::Track>      m_tracks_output {this};
+    PodioOutput<edm4eic::MCRecoTrackParticleAssociation> m_tracks_association_output {this};
 
     ParameterRef<int>   n_layer        {this, "numLayers",       config().n_layer         };
     ParameterRef<int>   layer_hits_max {this, "layerHitsMax",    config().layer_hits_max  };
@@ -47,7 +51,11 @@ private:
                 hits.push_back(gsl::not_null<const edm4eic::Measurement2DCollection*>{hit});
             }
 
-            m_algo->process(hits, {m_tracks_output().get()});
+            // Prepare the input tuple
+            auto input = std::make_tuple(hits, m_hits_association_input());
+
+            m_algo->process(input, 
+                            {m_tracks_output().get(), m_tracks_association_output().get()});
         }
         catch(std::exception &e) {
             throw JException(e.what());
