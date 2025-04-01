@@ -36,7 +36,7 @@ private:
 
   std::default_random_engine generator; // TODO: need something more appropriate here
   dd4hep::detail::FalphaNoise m_noise;
-  
+
 };
 
 } // namespace eicrecon
