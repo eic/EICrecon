@@ -155,9 +155,9 @@ extern "C" {
 
     // Combine the associations from each module into one collection
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
-         "TaggerTrackerTrackAssociations",
+         "TaggerTrackerTrackSegmentAssociations",
          outputTrackAssociationTags,
-         {"TaggerTrackerTrackAssociations"},
+         {"TaggerTrackerTrackSegmentAssociations"},
          app
       )
     );
@@ -208,8 +208,8 @@ extern "C" {
     // Vector reconstruction at origin
     app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
         "TaggerTrackerTrajectories",
-        {"TaggerTrackerProjectedTracks","MCBeamElectrons"},
-        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters","TaggerTrackerTracks"},
+        {"TaggerTrackerProjectedTracks","MCBeamElectrons","TaggerTrackerTrackSegments","TaggerTrackerTrackSegmentAssociations"},
+        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters","TaggerTrackerTracks","TaggerTrackerTrackAssociations"},
         {
           .modelPath = "calibrations/tmva/LowQ2_DNN_CPU.weights.xml",
           .methodName = "DNN_CPU",

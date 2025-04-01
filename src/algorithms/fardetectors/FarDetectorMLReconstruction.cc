@@ -52,8 +52,8 @@ namespace eicrecon {
       const FarDetectorMLReconstruction::Input& input,
       const FarDetectorMLReconstruction::Output& output) {
 
-    const auto [inputTracks,beamElectrons] = input;
-    auto [outputFarDetectorMLTrajectories, outputFarDetectorMLTrackParameters, outputFarDetectorMLTracks] = output;
+    const auto [inputProjectedTracks,beamElectrons,inputFittedTracks,inputFittedAssociations] = input;
+    auto [outputFarDetectorMLTrajectories, outputFarDetectorMLTrackParameters, outputFarDetectorMLTracks,outputAssociations] = output;
 
     //Set beam energy from first MCBeamElectron, using std::call_once
     std::call_once(m_initBeamE,[&](){
@@ -71,7 +71,9 @@ namespace eicrecon {
     std::int32_t type   = 0; // Check?
     float        charge = -1;
 
-    for(const auto& track: *inputTracks){
+    for(int i=0; i<inputProjectedTracks->size(); i++){
+      // Get the track parameters
+      auto track = (*inputProjectedTracks)[i];
 
       auto pos        = track.getLoc();
       auto trackphi   = track.getPhi();
@@ -122,6 +124,16 @@ namespace eicrecon {
 
       auto outTrack      = outputFarDetectorMLTracks->create(trackType,position,momentum,error,time,timeError,charge,chi2,ndf,pdg);
       outTrack.setTrajectory(trajectory);
+
+      // Propogate the track associations
+      // The order of the tracks needs to be the same in both collections with no filtering
+      for(auto assoc : *inputFittedAssociations){
+        if(assoc.getRec() == (*inputFittedTracks)[i]){
+          auto outAssoc = assoc.clone();
+          outAssoc.setRec(outTrack);
+          outputAssociations->push_back(outAssoc);
+        }
+      }
 
     }
 
