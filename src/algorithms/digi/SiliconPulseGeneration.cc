@@ -10,10 +10,7 @@ namespace eicrecon {
 
 void SiliconPulseGeneration::init() {
     m_pulse             = PulseShapeFactory::createPulseShape(m_cfg.pulse_shape_function, m_cfg.pulse_shape_params);
-    m_ignore_thres      = m_cfg.ignore_thres;
-    m_timestep          = m_cfg.timestep;
     m_min_sampling_time = m_cfg.min_sampling_time;
-    m_max_time_bins     = m_cfg.max_time_bins;
 
     if(m_pulse->getMaximumTime()>m_min_sampling_time) {
       m_min_sampling_time = m_pulse->getMaximumTime();
@@ -32,19 +29,19 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     double charge = hit.getEDep();
 
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
-    double signal_time = m_timestep*std::floor(time / m_timestep);
+    double signal_time = m_cfg.timestep*std::floor(time / m_cfg.timestep);
 
     auto time_series = rawPulses->create();
     time_series.setCellID(cellID);
-    time_series.setInterval(m_timestep);
+    time_series.setInterval(m_cfg.timestep);
 
     bool passed_threshold = false;
     int  skip_bins = 0;
 
-    for(int i = 0; i < m_max_time_bins; i ++) {
-      double t = signal_time + i*m_timestep - time;
+    for(int i = 0; i < m_cfg.max_time_bins; i ++) {
+      double t = signal_time + i*m_cfg.timestep - time;
       auto signal = (*m_pulse)(t,charge);
-      if (std::abs(signal) < m_ignore_thres) {
+      if (std::abs(signal) < m_cfg.ignore_thres) {
         if(passed_threshold==false) {
           skip_bins = i;
           continue;
@@ -57,7 +54,7 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
       time_series.addToAmplitude(signal);
     }
 
-    time_series.setTime(signal_time+skip_bins*m_timestep);
+    time_series.setTime(signal_time+skip_bins*m_cfg.timestep);
 
   }
 
