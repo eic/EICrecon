@@ -18,15 +18,15 @@
 
 namespace eicrecon {
 
-using LGADHitReconstructionAlgorithm = 
-	algorithms::Algorithm<algorithms::Input<edm4eic::RawTrackerHitCollection>,
-	                      algorithms::Output<edm4eic::TrackerHitCollection>>;
+using LGADHitReconstructionAlgorithm =
+        algorithms::Algorithm<algorithms::Input<edm4eic::RawTrackerHitCollection>,
+                              algorithms::Output<edm4eic::TrackerHitCollection>>;
 
 class LGADHitReconstruction : public LGADHitReconstructionAlgorithm,
-	                      public WithPodConfig<LGADHitReconstructionConfig> {
+                              public WithPodConfig<LGADHitReconstructionConfig> {
 
 public:
-  LGADHitReconstruction(std::string_view name) 
+  LGADHitReconstruction(std::string_view name)
     : LGADHitReconstructionAlgorithm{name, {"TOFBarrelADCTDC"}, {"TOFBarrelRecHit"}, ""} {};
 
   void init() final;

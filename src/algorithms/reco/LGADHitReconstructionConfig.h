@@ -9,6 +9,6 @@ namespace eicrecon {
         double c_slope = 3.86976e-7, c_intercept=2.42716e-5;
         // parameters that convert TDC to hit time (ns)
         double t_slope = 0.0197305, t_intercept = 0.208047;
-	std::string readout = "TOFBarrelHits";
+        std::string readout = "TOFBarrelHits";
     };
 }

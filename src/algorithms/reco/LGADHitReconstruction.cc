@@ -40,13 +40,13 @@ dd4hep::rec::CellID LGADHitReconstruction::getSensorInfos(const dd4hep::rec::Cel
 }
 
 void LGADHitReconstruction::process(const LGADHitReconstruction::Input& input,
-		                    const LGADHitReconstruction::Output& output) const {
+                                    const LGADHitReconstruction::Output& output) const {
   using dd4hep::mm;
 
   const auto [TDCADC_hits] = input;
   auto [rec_hits] = output;
 
-  // collection of ADC values from all sensors and group them by sensor 
+  // collection of ADC values from all sensors and group them by sensor
   std::unordered_map<dd4hep::rec::CellID, std::vector<HitInfo>> hitsBySensors;
 
   for (const auto& TDCADC_hit : *TDCADC_hits) {
@@ -57,8 +57,8 @@ void LGADHitReconstruction::process(const LGADHitReconstruction::Input& input,
     auto pos = m_converter->position(id);
     // Get sensors info
     auto sensorID = this->getSensorInfos(id);
-    hitsBySensors[sensorID].emplace_back(pos.x(), pos.y(), pos.z(), 
-		                         int(TDCADC_hit.getCharge()),
+    hitsBySensors[sensorID].emplace_back(pos.x(), pos.y(), pos.z(),
+                                         int(TDCADC_hit.getCharge()),
                                          int(TDCADC_hit.getTimeStamp()), id);
   }
 
