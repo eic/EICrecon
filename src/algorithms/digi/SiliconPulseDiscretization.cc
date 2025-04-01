@@ -18,7 +18,7 @@ void SiliconPulseDiscretization::init() {
 }
 
 double SiliconPulseDiscretization::_interpolateOrZero(const TGraph &graph, double t,
-		                                   double tMin, double tMax) const {
+                                                   double tMin, double tMax) const {
     // return 0 if t is outside of tMin - tMax range
     // otherwise, return graph interpolation value
     if(t < tMin || t > tMax) return 0;

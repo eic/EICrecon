@@ -36,7 +36,7 @@ public:
 
 private:
   double _interpolateOrZero(const TGraph &graph, double t,
-	                    double tMin, double tMax) const;
+                            double tMin, double tMax) const;
 
 };
 

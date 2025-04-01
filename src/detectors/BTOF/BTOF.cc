@@ -95,9 +95,9 @@ void InitPlugin(JApplication* app) {
       {"TOFBarrelSmoothPulse"},
       {
          .pulse_shape_function = "LandauPulse",
-	 .pulse_shape_params = {gain, sigma_analog, offset*sigma_analog},
-	 .ignore_thres = 0.05 * adc_range,
-	 .timestep = 0.01 * edm4eic::unit::ns,
+         .pulse_shape_params = {gain, sigma_analog, offset*sigma_analog},
+         .ignore_thres = 0.05 * adc_range,
+         .timestep = 0.01 * edm4eic::unit::ns,
       },
       app
   ));
@@ -109,7 +109,7 @@ void InitPlugin(JApplication* app) {
       {"TOFBarrelPulse"},
       {
           .EICROC_period = 25 * edm4eic::unit::ns,
-	  .local_period = 25 * edm4eic::unit::ns / 1024,
+          .local_period = 25 * edm4eic::unit::ns / 1024,
           .global_offset = -offset*sigma_analog + risetime,
       },
       app
