@@ -291,6 +291,7 @@ namespace eicrecon {
                     ACTS_ERROR("Smoothing for seed "
                         << iseed << " and track " << track.index()
                         << " failed with error " << smoothingResult.error());
+                    failed_tracks.push_back(track.index());
                     continue;
                 }
 

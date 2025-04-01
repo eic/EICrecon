@@ -106,7 +106,10 @@ void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection
 
     ROOT::VecOps::RVec<unsigned long> clusterList = {maxIndex};
     ROOT::VecOps::RVec<float> clusterT;
-    std::vector<edm4eic::TrackerHit> clusterHits;
+    ROOT::VecOps::RVec<float> clusterW;
+
+    // Create cluster
+    auto cluster = outputClusters->create();
 
     // Loop over hits, adding neighbouring hits as relevant
     while (clusterList.size()) {
@@ -127,22 +130,22 @@ void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection
       // Removes current hit from remaining found cluster hits
       clusterList.erase(clusterList.begin());
 
-      // Adds raw hit to TrackerHit contribution
-      clusterHits.push_back(inputHits[index]);
-
-      // Energy
-      auto hitE = e[index];
-      esum += hitE;
       // TODO - See if now a single detector element is expected a better function is available.
       auto pos = m_seg->position(id[index]);
 
       // Weighted position
-      float weight = hitE; // TODO - Calculate appropriate weighting based on sensor charge sharing
+      float weight = e[index]; // TODO - Calculate appropriate weighting based on sensor charge sharing
       weightSum += weight;
       localPos += pos * weight;
 
       // Time
       clusterT.push_back(t[index]);
+
+
+      // Adds hit and weight to Measurement2D contribution
+      cluster.addToHits(inputHits[index]);
+      clusterW.push_back(e[index]);
+
     }
 
     // Finalise position
@@ -152,18 +155,20 @@ void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection
 
     // Finalise time
     t0     = Mean(clusterT);
-    tError = StdDev(clusterT); // TODO fold detector timing resolution into error
+
+    // Normalize weights then add to cluster
+    clusterW /= weightSum;
+
+    for(auto& w : clusterW) {
+      cluster.addToWeights(w);
+    }
 
     edm4eic::Cov3f    covariance;
 
-    // Create cluster
-    auto cluster = outputClusters->create(id[maxIndex], xyPos, t0, covariance);
-
-    // Add hits to cluster
-    for(auto hit : clusterHits){
-      cluster.addToWeights(1);
-      cluster.addToHits(hit);
-    }
+    cluster.setSurface(id[maxIndex]);
+    cluster.setLoc(xyPos);
+    cluster.setTime(t0);
+    cluster.setCovariance(covariance);
 
   }
 
