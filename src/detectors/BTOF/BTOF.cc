@@ -22,7 +22,7 @@
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/digi/LGADChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
-#include "factories/digi/SiliconPulseDigitization_factory.h"
+#include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 //#include "factories/digi/PulseCombiner_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
@@ -115,8 +115,8 @@ void InitPlugin(JApplication* app) {
       app
   ));
 
-  app->Add(new JOmniFactoryGeneratorT<SiliconPulseDigitization_factory>(
-      "LGADPulseDigitization",
+  app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
+      "EICROCDigitization",
       {"TOFBarrelPulse"},
       {"TOFBarrelADCTDC"},
       {

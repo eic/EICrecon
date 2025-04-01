@@ -19,18 +19,18 @@
 #include <tuple>
 #include <utility>
 
-#include "algorithms/digi/SiliconPulseDigitization.h"
-#include "algorithms/digi/SiliconPulseDigitizationConfig.h"
+#include "algorithms/digi/EICROCDigitization.h"
+#include "algorithms/digi/EICROCDigitizationConfig.h"
 
-TEST_CASE("the Silicon charge sharing algorithm runs", "[SiliconPulseDigitization]") {
+TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
   const float EPSILON = 1e-5;
 
-  eicrecon::SiliconPulseDigitization algo("SiliconPulseDigitization");
+  eicrecon::EICROCDigitization algo("EICROCDigitization");
 
-  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("SiliconPulseDigitization");
+  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("EICROCDigitization");
   logger->set_level(spdlog::level::trace);
 
-  eicrecon::SiliconPulseDigitizationConfig cfg;
+  eicrecon::EICROCDigitizationConfig cfg;
 
   auto detector = algorithms::GeoSvc::instance().detector();
   auto id_desc  = detector->readout("MockSiliconHits").idSpec();

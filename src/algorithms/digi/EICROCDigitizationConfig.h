@@ -7,7 +7,7 @@
 
 namespace eicrecon {
 
-struct SiliconPulseDigitizationConfig {
+struct EICROCDigitizationConfig {
   int adc_bit = 8;
   int tdc_bit = 10;
   // total number of TDC/ADC values
