@@ -13,8 +13,7 @@ add_executable(
   calorimetry_CalorimeterClusterShape.cc
   calorimetry_HEXPLIT.cc
   digi_SiliconPulseGeneration.cc
-  digi_LGADPulseGeneration.cc
-  digi_LGADPulseDigitization.cc
+  digi_SiliconPulseDigitization.cc
   pid_MergeTracks.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc)

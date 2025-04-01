@@ -2,7 +2,7 @@
 // Copyright (C) 2024 Souvik Paul, Chun Yuen Tsang, Prithwish Tribedy
 // Special Acknowledgement: Kolja Kauder
 //
-// Convert ADC pulses from LGADPulseGeneration into ADC and TDC values
+// Convert ADC pulses from SiliconPulseGeneration into ADC and TDC values
 
 #include <podio/RelationRange.h>
 #include <stdlib.h>
@@ -12,13 +12,13 @@
 #include <limits>
 #include <vector>
 
-#include "LGADPulseDigitization.h"
-#include "algorithms/digi/LGADPulseDigitizationConfig.h"
+#include "SiliconPulseDigitization.h"
+#include "algorithms/digi/SiliconPulseDigitizationConfig.h"
 
 namespace eicrecon {
 
-void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
-                                   const LGADPulseDigitization::Output& output) const {
+void SiliconPulseDigitization::process(const SiliconPulseDigitization::Input& input,
+                                   const SiliconPulseDigitization::Output& output) const {
   const auto [simhits] = input;
   auto [rawhits]       = output;
 
@@ -53,5 +53,5 @@ void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
       rawhits->create(pulse.getCellID(), adc, tdc);
     //-----------------------------------------------------------
   }
-} // LGADPulseDigitization:process
+} // SiliconPulseDigitization:process
 } // namespace eicrecon

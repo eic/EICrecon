@@ -2,7 +2,7 @@
 // Copyright (C) 2024 Souvik Paul, Chun Yuen Tsang, Prithwish Tribedy
 // Special Acknowledgement: Kolja Kauder
 //
-// Convert ADC pulses from LGADPulseGeneration into ADC and TDC values
+// Convert ADC pulses from SiliconPulseGeneration into ADC and TDC values
 
 #pragma once
 
@@ -12,21 +12,21 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/digi/LGADPulseDigitizationConfig.h"
+#include "algorithms/digi/SiliconPulseDigitizationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using LGADPulseDigitizationAlgorithm =
+using SiliconPulseDigitizationAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::RawTimeSeriesCollection>,
                           algorithms::Output<edm4eic::RawTrackerHitCollection>>;
 
-class LGADPulseDigitization : public LGADPulseDigitizationAlgorithm,
-                             public WithPodConfig<LGADPulseDigitizationConfig> {
+class SiliconPulseDigitization : public SiliconPulseDigitizationAlgorithm,
+                             public WithPodConfig<SiliconPulseDigitizationConfig> {
 
 public:
-  LGADPulseDigitization(std::string_view name)
-      : LGADPulseDigitizationAlgorithm{name, {"LGADPulse"}, {"ADCTDCOutput"}, {}} {}
+  SiliconPulseDigitization(std::string_view name)
+      : SiliconPulseDigitizationAlgorithm{name, {"SiliconPulse"}, {"ADCTDCOutput"}, {}} {}
   void init(){};
   void process(const Input&, const Output&) const final;
 };
