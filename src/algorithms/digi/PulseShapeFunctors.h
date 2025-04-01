@@ -31,8 +31,8 @@ public:
 
 LandauPulse(std::vector<double> params) {
 
-    if (params.size() != 2 || params.size() != 3) {
-        throw std::runtime_error("LandauPulse requires 2 or 3 parameters, gain, sigma_analog, [sigma_offset]");
+    if ((params.size() != 2) && (params.size() != 3)) {
+        throw std::runtime_error("LandauPulse requires 2 or 3 parameters, gain, sigma_analog, [hit_sigma_offset], got " + std::to_string(params.size()));
     }
 
     m_gain = params[0];
