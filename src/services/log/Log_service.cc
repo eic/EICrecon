@@ -5,13 +5,19 @@
 #include "Log_service.h"
 
 #include <JANA/JException.h>
+#include <spdlog/details/log_msg.h>
+#include <spdlog/formatter.h>
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
 #if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
 #include <spdlog/mdc.h>
 #endif
+#include <ctime>
 #include <exception>
+#include <map>
+#include <string_view>
+#include <utility>
 
 #include "extensions/spdlog/SpdlogExtensions.h"
 
