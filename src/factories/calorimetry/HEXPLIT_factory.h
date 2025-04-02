@@ -20,6 +20,7 @@ class HEXPLIT_factory : public JOmniFactory<HEXPLIT_factory, HEXPLITConfig> {
 
     ParameterRef<double> m_MIP      {this, "MIP",           config().MIP};
     ParameterRef<double> m_Emin_in_MIPs     {this, "Emin_in_MIPs",          config().Emin_in_MIPs};
+    ParameterRef<double> m_delta_in_MIPs     {this, "delta_in_MIPs",          config().delta_in_MIPs};
     ParameterRef<double> m_tmax     {this, "tmax",          config().tmax};
 
     Service<AlgorithmsInit_service> m_algorithmsInit {this};

@@ -9,12 +9,7 @@
 #include <fmt/core.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
-#include <podio/podioVersion.h>
-#if podio_VERSION >= PODIO_VERSION(0, 99, 0)
 #include <podio/ROOTWriter.h>
-#else
-#include <podio/ROOTFrameWriter.h>
-#endif
 #include <exception>
 #include <ostream>
 #include <stdexcept>
@@ -62,6 +57,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "MCParticlesHeadOnFrameNoBeamFX",
 
             // All tracking hits combined
+            "CentralTrackTruthSeeds",
             "CentralTrackingRecHits",
             "CentralTrackingRawHitAssociations",
             "CentralTrackSeedingResults",
@@ -92,6 +88,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "TOFEndcapRawHits",
 
             "TOFBarrelHits",
+            "TOFBarrelADCTDC",
             "TOFEndcapHits",
 
             "TOFBarrelRawHitAssociations",
@@ -138,6 +135,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ForwardMPGDEndcapRawHitAssociations",
 
             // LOWQ2 hits
+            "TaggerTrackerHits",
+            "TaggerTrackerHitPulses",
+            "TaggerTrackerHitPulsesWithNoise",
             "TaggerTrackerRawHits",
             "TaggerTrackerRawHitAssociations",
             "TaggerTrackerM1L0ClusterPositions",
@@ -224,6 +224,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",
             "PrimaryVertices",
+            "BarrelClusters",
 #if EDM4EIC_VERSION_MAJOR >= 6
             "HadronicFinalState",
 #endif
@@ -324,7 +325,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "HcalFarForwardZDCClusterAssociationsBaseline",
             "HcalFarForwardZDCTruthClusters",
             "HcalFarForwardZDCTruthClusterAssociations",
-            "ReconstructedFarForwardZDCNeutrons",
+            "ReconstructedFarForwardZDCNeutrals",
+            "ReconstructedFarForwardZDCLambdas",
+            "ReconstructedFarForwardZDCLambdaDecayProductsCM",
 
             // DIRC
             "DIRCRawHits",
@@ -347,6 +350,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalFarForwardZDCRawHitAssociations",
             "HcalFarForwardZDCRawHitAssociations",
 #endif
+#if EDM4EIC_VERSION_MAJOR >= 8
+            "TrackClusterMatches",
+#endif
+
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     std::string output_include_collections = "DEPRECATED";
@@ -388,11 +395,7 @@ void JEventProcessorPODIO::Init() {
 
     auto *app = GetApplication();
     m_log = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
-#if podio_VERSION >= PODIO_VERSION(0, 99, 0)
     m_writer = std::make_unique<podio::ROOTWriter>(m_output_file);
-#else
-    m_writer = std::make_unique<podio::ROOTFrameWriter>(m_output_file);
-#endif
     // TODO: NWB: Verify that output file is writable NOW, rather than after event processing completes.
     //       I definitely don't trust PODIO to do this for me.
 

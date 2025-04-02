@@ -16,6 +16,7 @@
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 
@@ -82,20 +83,19 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "EcalFarForwardZDCTruthClusters",
-            {"EcalFarForwardZDCTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+             "EcalFarForwardZDCTruthClustersWithoutShapes",
+            {"EcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-             "EcalFarForwardZDCRawHitAssociations"},       // edm4eic::MCRecoClusterHitAssociationCollection
+             "EcalFarForwardZDCRawHitAssociations"}, // edm4eic::MCRecoClusterHitAssociationCollection
 #else
-             "EcalFarForwardZDCHits"},                     // edm4hep::SimCalorimeterHitCollection
+             "EcalFarForwardZDCHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
-            {"EcalFarForwardZDCTruthClusters",             // edm4eic::Cluster
-             "EcalFarForwardZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {"EcalFarForwardZDCTruthClustersWithoutShapes", // edm4eic::Cluster
+             "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
-              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
@@ -103,24 +103,55 @@ extern "C" {
         );
 
         app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+            "EcalFarForwardZDCTruthClusters",
+            {"EcalFarForwardZDCTruthClustersWithoutShapes",
+             "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
+            {"EcalFarForwardZDCTruthClusters",
+             "EcalFarForwardZDCTruthClusterAssociations"},
+            {
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 3.6
+            },
+            app
+          )
+        );
+
+        app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "EcalFarForwardZDCClusters",
-            {"EcalFarForwardZDCIslandProtoClusters",  // edm4eic::ProtoClusterCollection
+             "EcalFarForwardZDCClustersWithoutShapes",
+            {"EcalFarForwardZDCIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-             "EcalFarForwardZDCRawHitAssociations"},  // edm4eic::MCRecoClusterHitAssociationCollection
+             "EcalFarForwardZDCRawHitAssociations"}, // edm4eic::MCRecoClusterHitAssociationCollection
 #else
-             "EcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
+             "EcalFarForwardZDCHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
-            {"EcalFarForwardZDCClusters",             // edm4eic::Cluster
-             "EcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {"EcalFarForwardZDCClustersWithoutShapes", // edm4eic::Cluster
+             "EcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 6.2,
-              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+            "EcalFarForwardZDCClusters",
+            {"EcalFarForwardZDCClustersWithoutShapes",
+             "EcalFarForwardZDCClusterAssociationsWithoutShapes"},
+            {"EcalFarForwardZDCClusters",
+             "EcalFarForwardZDCClusterAssociations"},
+            {
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
+            app
           )
         );
 
@@ -168,6 +199,7 @@ extern "C" {
           {
             .MIP = 472. * dd4hep::keV,
             .Emin_in_MIPs=0.5,
+            .delta_in_MIPs=0.01,
             .tmax=269 * dd4hep::ns,
           },
           app   // TODO: Remove me once fixed
@@ -179,13 +211,13 @@ extern "C" {
             {
                 .neighbourLayersRange = 1,
                 .localDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
-                .layerDistXY = {0.25*side_length, 0.25*side_length*sin(M_PI/3)},
+                .layerDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
                 .layerMode=eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
                 .sectorDist = 10.0 * dd4hep::cm,
-                .minClusterHitEdep = 100.0 * dd4hep::keV,
+                .minClusterHitEdep = 50.0 * dd4hep::keV,
                 .minClusterCenterEdep = 3.0 * dd4hep::MeV,
                 .minClusterEdep = 11.0 * dd4hep::MeV,
-                .minClusterNhits = 100,
+                .minClusterNhits = 30,
             },
             app   // TODO: Remove me once fixed
         ));
@@ -205,24 +237,41 @@ extern "C" {
         ));
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-           "HcalFarForwardZDCClusters",
+           "HcalFarForwardZDCClustersWithoutShapes",
           {"HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-           "HcalFarForwardZDCRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+           "HcalFarForwardZDCRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-           "HcalFarForwardZDCHits"},                // edm4hep::SimCalorimeterHitCollection
+           "HcalFarForwardZDCHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
-          {"HcalFarForwardZDCClusters",             // edm4eic::Cluster
-           "HcalFarForwardZDCClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+          {"HcalFarForwardZDCClustersWithoutShapes", // edm4eic::Cluster
+           "HcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
           {
             .energyWeight = "log",
             .sampFrac = 0.0203,
             .logWeightBaseCoeffs={5.8,0.65,0.31},
-            .logWeightBase_Eref=50*dd4hep::GeV,
-            .longitudinalShowerInfoAvailable = true,
+            .logWeightBase_Eref=50*dd4hep::GeV
           },
           app   // TODO: Remove me once fixed
         ));
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+            "HcalFarForwardZDCClusters",
+            {"HcalFarForwardZDCClustersWithoutShapes",
+             "HcalFarForwardZDCClusterAssociationsWithoutShapes"},
+            {"HcalFarForwardZDCClusters",
+             "HcalFarForwardZDCClusterAssociations"},
+            {
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .sampFrac = 0.0203,
+              .logWeightBaseCoeffs={5.8,0.65,0.31},
+              .logWeightBase_Eref=50*dd4hep::GeV
+            },
+            app
+          )
+        );
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
           "HcalFarForwardZDCTruthProtoClusters", {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCHits"}, {"HcalFarForwardZDCTruthProtoClusters"},
@@ -245,44 +294,75 @@ extern "C" {
         ));
 
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "HcalFarForwardZDCTruthClusters",
-            {"HcalFarForwardZDCTruthProtoClusters",        // edm4eic::ProtoClusterCollection
+             "HcalFarForwardZDCTruthClustersWithoutShapes",
+            {"HcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-             "HcalFarForwardZDCRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociationCollection
+             "HcalFarForwardZDCRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-             "HcalFarForwardZDCHits"},                     // edm4hep::SimCalorimeterHitCollection
+             "HcalFarForwardZDCHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
-            {"HcalFarForwardZDCTruthClusters",             // edm4eic::Cluster
-             "HcalFarForwardZDCTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
+            {"HcalFarForwardZDCTruthClustersWithoutShapes", // edm4eic::Cluster
+             "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 3.6,
-              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false
             },
             app   // TODO: Remove me once fixed
           )
         );
 
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+            "HcalFarForwardZDCTruthClusters",
+            {"HcalFarForwardZDCTruthClustersWithoutShapes",
+             "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
+            {"HcalFarForwardZDCTruthClusters",
+             "HcalFarForwardZDCTruthClusterAssociations"},
+            {
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 3.6
+            },
+            app
+          )
+        );
+
         app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-             "HcalFarForwardZDCClustersBaseline",
+             "HcalFarForwardZDCClustersBaselineWithoutShapes",
             {"HcalFarForwardZDCIslandProtoClustersBaseline",  // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-             "HcalFarForwardZDCRawHitAssociations"},          // edm4eic::MCRecoCalorimeterHitAssociationCollection
+             "HcalFarForwardZDCRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-             "HcalFarForwardZDCHits"},                        // edm4hep::SimCalorimeterHitCollection
+             "HcalFarForwardZDCHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
-            {"HcalFarForwardZDCClustersBaseline",             // edm4eic::Cluster
-             "HcalFarForwardZDCClusterAssociationsBaseline"}, // edm4eic::MCRecoClusterParticleAssociation
+            {"HcalFarForwardZDCClustersBaselineWithoutShapes", // edm4eic::Cluster
+             "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
             {
               .energyWeight = "log",
               .sampFrac = 0.0203,
               .logWeightBase = 6.2,
-              .longitudinalShowerInfoAvailable = true,
               .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+            "HcalFarForwardZDCClustersBaseline",
+            {"HcalFarForwardZDCClustersBaselineWithoutShapes",
+             "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"},
+            {"HcalFarForwardZDCClustersBaseline",
+             "HcalFarForwardZDCClusterAssociationsBaseline"},
+            {
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .sampFrac = 0.0203,
+              .logWeightBase = 6.2
+            },
+            app
           )
         );
     }

@@ -8,12 +8,7 @@
 #include <JANA/JEvent.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
-#include <podio/podioVersion.h>
-#if podio_VERSION >= PODIO_VERSION(0, 99, 0)
 #include <podio/ROOTReader.h>
-#else
-#include <podio/ROOTFrameReader.h>
-#endif
 #include <stddef.h>
 #include <string>
 
@@ -45,11 +40,7 @@ public:
     void PrintCollectionTypeTable(void);
 
 protected:
-#if podio_VERSION >= PODIO_VERSION(0, 99, 0)
     podio::ROOTReader m_reader;
-#else
-    podio::ROOTFrameReader m_reader;
-#endif
 
     size_t Nevents_in_file = 0;
     size_t Nevents_read = 0;

@@ -4,27 +4,29 @@
 #include "CKFTracking.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#if Acts_VERSION_MAJOR >= 32
 #include <Acts/EventData/TrackStateProxy.hpp>
-#endif
 #include <Acts/EventData/Types.hpp>
+#include <Acts/Geometry/Layer.hpp>
+#include <Acts/Propagator/ActionList.hpp>
+#include <boost/container/vector.hpp>
+#include <boost/move/utility_core.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
-#if Acts_VERSION_MAJOR >= 32
-#include "Acts/EventData/ProxyAccessor.hpp"
-#endif
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
+
+#include "Acts/EventData/ProxyAccessor.hpp"
 #if Acts_VERSION_MAJOR >= 34
 #include "Acts/Propagator/AbortList.hpp"
 #include "Acts/Propagator/EigenStepper.hpp"
@@ -37,7 +39,9 @@
 #endif
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#if Acts_VERSION_MAJOR < 34
 #include <Acts/TrackFitting/GainMatrixSmoother.hpp>
+#endif
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #if Acts_VERSION_MAJOR >= 34
@@ -54,13 +58,17 @@
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
 #include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
 #include <functional>
 #include <list>
 #include <optional>
+#include <ostream>
 #include <ranges>
+#include <system_error>
 #include <utility>
 
 #include "ActsGeometryProvider.h"
@@ -260,11 +268,7 @@ namespace eicrecon {
 
         // Add seed number column
         acts_tracks.addColumn<unsigned int>("seed");
-#if Acts_VERSION_MAJOR >= 32
         Acts::ProxyAccessor<unsigned int> seedNumber("seed");
-#else
-        Acts::TrackAccessor<unsigned int> seedNumber("seed");
-#endif
         std::vector<Acts::TrackIndexType> failed_tracks;
 
         // Loop over seeds
@@ -281,12 +285,13 @@ namespace eicrecon {
             auto& tracksForSeed = result.value();
             for (auto& track : tracksForSeed) {
 
-#if Acts_VERSION_MAJOR >=34
+#if Acts_VERSION_MAJOR >= 34
                 auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
                 if (!smoothingResult.ok()) {
                     ACTS_ERROR("Smoothing for seed "
                         << iseed << " and track " << track.index()
                         << " failed with error " << smoothingResult.error());
+                    failed_tracks.push_back(track.index());
                     continue;
                 }
 
@@ -340,11 +345,7 @@ namespace eicrecon {
         auto& constTracks = *(constTracks_v.front());
 
         // Seed number column accessor
-#if Acts_VERSION_MAJOR >= 32
         const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
-#else
-        const Acts::ConstTrackAccessor<unsigned int> constSeedNumber("seed");
-#endif
 
         // Prepare the output data with MultiTrajectory, per seed
         std::vector<ActsExamples::Trajectories*> acts_trajectories;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022, 2023 Alex Jentsch, Wouter Deconinck, Sylvester Joosten, David Lawrence, Simon Gardner
+// Copyright (C) 2022 - 2025 Alex Jentsch, Wouter Deconinck, Sylvester Joosten, David Lawrence, Simon Gardner
 //
 // This converted from: https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/FarForwardParticles.cpp
 
@@ -14,6 +14,7 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <vector>
@@ -69,7 +70,7 @@ void eicrecon::MatrixTransferStatic::process(
   //This is a temporary solution to get the beam energy information
   //needed to select the correct matrix
 
-  if(abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
+  if(std::abs(275.0 - nomMomentum)/275.0 < nomMomentumError){
 
      aX[0][0] = 3.251116; //a
      aX[0][1] = 30.285734; //b
@@ -87,7 +88,25 @@ void eicrecon::MatrixTransferStatic::process(
      local_y_slope_offset = 0.000745498;//-0.000176128;
 
   }
-  else if(abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
+  else if(std::abs(130.0 - nomMomentum)/130.0 < nomMomentumError){ //NOT TUNED -- just for testing purposes
+
+     aX[0][0] = 3.16912; //a
+     aX[0][1] = 22.4693; //b
+     aX[1][0] = 0.182402; //c
+     aX[1][1] = -0.218209; //d
+
+     aY[0][0] = 0.520743; //a
+     aY[0][1] = 3.17339; //b
+     aY[1][0] = 0.0222482; //c
+     aY[1][1] = -0.0923779; //d
+
+     local_x_offset       = -1209.29;//-0.339334; these are the local coordinate values
+     local_y_offset       = 0.00132511;//-0.000299454;
+     local_x_slope_offset = -45.4772;//-0.219603248;
+     local_y_slope_offset = 0.000745498;//-0.000176128;
+
+  }
+  else if(std::abs(100.0 - nomMomentum)/100.0 < nomMomentumError){
 
      aX[0][0] = 3.152158; //a
      aX[0][1] = 20.852072; //b
@@ -105,7 +124,7 @@ void eicrecon::MatrixTransferStatic::process(
      local_y_slope_offset = 0.00204394;//-0.00015321;
 
   }
-  else if(abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
+  else if(std::abs(41.0 - nomMomentum)/41.0 < nomMomentumError){
 
          aX[0][0] = 3.135997; //a
          aX[0][1] = 18.482273; //b
@@ -123,24 +142,7 @@ void eicrecon::MatrixTransferStatic::process(
          local_y_slope_offset = 0.00498786;//-0.003212011;
 
   }
-  else if(abs(135.0 - nomMomentum)/135.0 < nomMomentumError){ //135 GeV deuterons
 
-      aX[0][0] = 1.6248;
-      aX[0][1] = 12.966293;
-      aX[1][0] = 0.1832;
-      aX[1][1] = -2.8636535;
-
-      aY[0][0] = 0.0001674; //a
-      aY[0][1] = -28.6003; //b
-      aY[1][0] = 0.0000837; //c
-      aY[1][1] = -2.87985; //d
-
-      local_x_offset       = -11.9872;
-      local_y_offset       = -0.0146;
-      local_x_slope_offset = -14.75315;
-      local_y_slope_offset = -0.0073;
-
-  }
   else {
     error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
     return;
@@ -182,6 +184,11 @@ void eicrecon::MatrixTransferStatic::process(
   bool goodHit1 = false;
   bool goodHit2 = false;
 
+  int numGoodHits1 = 0;
+  int numGoodHits2 = 0;
+
+  trace("size of RP hit array = {}", rechits->size());
+
   for (const auto &h: *rechits) {
 
     auto cellID = h.getCellID();
@@ -197,23 +204,28 @@ void eicrecon::MatrixTransferStatic::process(
     gpos = gpos/dd4hep::mm;
     pos0 = pos0/dd4hep::mm;
 
-    //std::cout << "gpos.z() = " << gpos.z() << " pos0.z() = " << pos0.z() << std::endl;
-    //std::cout << "[gpos.x(), gpos.y()] = " << gpos.x() <<", "<< gpos.y() << "  and [pos0.x(), pos0.y()] = "<< pos0.x()<< ", " << pos0.y() << std::endl;
+   trace("gpos.z() = {}, pos0.z() = {}, E_dep = {}", gpos.z(), pos0.z(), h.getEdep());
 
-    if(!goodHit2 && gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
+    if(gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
 
+      trace("[gpos.x(), gpos.y(), gpos.z()] = {}, {}, {};  E_dep = {} MeV", gpos.x(), gpos.y(), gpos.z(), h.getEdep()*1000);
+      numGoodHits2++;
       goodHit[1].x = gpos.x(); //pos0.x() - pos0 is local coordinates, gpos is global
       goodHit[1].y = gpos.y(); //pos0.y() - temporarily changing to global to solve the local coordinate issue
       goodHit[1].z = gpos.z(); //         - which is unique to the Roman pots situation
-      goodHit2 = true;
+      if(numGoodHits2 == 1){goodHit2 = true;}
+      else goodHit2 = false;
 
     }
-    if(!goodHit1 && gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ){
+    if(gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ){
 
+      trace("[gpos.x(), gpos.y(), gpos.z()] = {}, {}, {};  E_dep = {} MeV", gpos.x(), gpos.y(), gpos.z(), h.getEdep()*1000);
+      numGoodHits1++;
       goodHit[0].x = gpos.x(); //pos0.x()
       goodHit[0].y = gpos.y(); //pos0.y()
       goodHit[0].z = gpos.z();
-      goodHit1 = true;
+      if(numGoodHits1 == 1){goodHit1 = true;}
+      else goodHit1 = false;
 
     }
 
@@ -265,6 +277,8 @@ void eicrecon::MatrixTransferStatic::process(
       edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
                                 static_cast<float>(p / norm)};
       auto refPoint = goodHit[0];
+
+      trace("RP Reco Momentum ---> px = {},  py = {}, pz = {}", prec.x, prec.y, prec.z);
 
       //----- end reconstruction code ------
 
