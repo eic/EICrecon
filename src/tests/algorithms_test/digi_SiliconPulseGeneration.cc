@@ -7,7 +7,6 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/TimeSeriesCollection.h>
 #include <podio/RelationRange.h>
-#include <algorithm>
 #include <cmath>
 #include <memory>
 #include <string>

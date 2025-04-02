@@ -6,9 +6,15 @@
 
 #include "SiliconPulseGeneration.h"
 
+#include <RtypesCore.h>
 #include <TMath.h>
+#include <algorithms/service.h>
 #include <cmath>
+#include <functional>
 #include <gsl/pointers>
+#include <stdexcept>
+#include <unordered_map>
+#include <vector>
 
 #include "services/evaluator/EvaluatorSvc.h"
 
