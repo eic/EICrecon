@@ -4,8 +4,8 @@
 // Adds noise to a time series pulse
 //
 
-#include <DDRec/CellIDPositionConverter.h>
-#include <Evaluator/DD4hepUnits.h>
+#include <podio/RelationRange.h>
+#include <gsl/pointers>
 
 #include "PulseNoise.h"
 

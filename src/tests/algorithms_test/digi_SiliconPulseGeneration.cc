@@ -1,15 +1,17 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025, Dmitry Kalinkin, Simon Gardner
 
-#include <algorithms/geo.h>
-#include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/TimeSeriesCollection.h>
-#include <edm4eic/unit_system.h>
-#include <gsl/pointers>
-#include <utility>
+#include <podio/RelationRange.h>
+#include <algorithm>
+#include <cmath>
+#include <memory>
+#include <string>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/digi/SiliconPulseGeneration.h"

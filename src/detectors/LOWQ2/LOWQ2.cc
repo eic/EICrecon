@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 - 2025, Simon Gardner
 
-#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackSegment.h>
@@ -16,11 +15,10 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
-#include "algorithms/digi/PulseShapeFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
+#include "factories/digi/SiliconPulseGeneration_factory.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"

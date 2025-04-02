@@ -7,12 +7,13 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/TimeSeriesCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/TimeSeriesCollection.h>
 #include <memory>
 #include <string>
 #include <string_view>
 
+#include "algorithms/digi/PulseShapeFunctors.h"
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 

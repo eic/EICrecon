@@ -6,13 +6,12 @@
 
 #pragma once
 
-#include <DDRec/CellIDPositionConverter.h>
 #include <DDDigi/noise/FalphaNoise.h>
-#include <RtypesCore.h>
-#include <TMath.h>
 #include <algorithms/algorithm.h>
 #include <edm4hep/TimeSeriesCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
+#include <random>
+#include <string>
+#include <string_view>
 
 #include "algorithms/digi/PulseNoiseConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

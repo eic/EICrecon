@@ -6,6 +6,9 @@
 
 #include "SiliconPulseGeneration.h"
 
+#include <cmath>
+#include <gsl/pointers>
+
 namespace eicrecon {
 
 void SiliconPulseGeneration::init() {
