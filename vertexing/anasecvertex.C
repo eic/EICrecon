@@ -81,9 +81,9 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   //-------- Do Lambda analysis
   TH1F *hEventStat = new TH1F("hEventStat", "Event statistics", 5, 0, 5);
   hEventStat->GetXaxis()->SetBinLabel(1, "MC events");
-  hEventStat->GetXaxis()->SetBinLabel(2, "#Lambda");
-  hEventStat->GetXaxis()->SetBinLabel(3, "#Lambda -> p#pi");
-  hEventStat->GetXaxis()->SetBinLabel(4, "Reco #Lambda");
+  hEventStat->GetXaxis()->SetBinLabel(2, "#Lambda/#bar{#Lambda}");
+  hEventStat->GetXaxis()->SetBinLabel(3, "#Lambda/#bar{#Lambda} -> p#pi");
+  hEventStat->GetXaxis()->SetBinLabel(4, "Reco #Lambda/#bar{#Lambda}");
 
   TH1F *hMcVtxX = new TH1F("hMcVtxX", "x position of MC vertex;x (mm)", 100, -5.05, 4.95);
   TH1F *hMcVtxY = new TH1F("hMcVtxY", "y position of MC vertex;y (mm)", 500, -5.01, 4.99);
@@ -155,6 +155,9 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   TH1D* h1MassL=new TH1D("h1MassL","",100,0.9,1.5);
   h1MassL->GetXaxis()->SetTitle("Invariant Mass [GeV]");
 
+  TH1D* h1MassL_cut=new TH1D("h1MassL_cut","",100,0.9,1.5);
+  h1MassL_cut->GetXaxis()->SetTitle("Invariant Mass [GeV]");
+
   TH1D* h1MassLsvtx=new TH1D("h1MassLsvtx","",100,0.9,1.5);
   h1MassLsvtx->GetXaxis()->SetTitle("Sec. Vertex Mass [GeV]");
 
@@ -185,6 +188,11 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h1secZ->GetXaxis()->SetTitle(" z_{sec.vtx}-z_{prm.vtx} [mm]");
   h1secZ->GetXaxis()->CenterTitle();
   h1secZ->SetLineWidth(2);
+
+  TH1 *h1XY=new TH1D("h1XY","Transverse Distance (x, y) [mm] ",200,0,200);
+  h1XY->GetXaxis()->SetTitle("Sec vtx - Prim vtx transverse distance [mm]");
+  h1XY->GetXaxis()->CenterTitle();
+  h1XY->SetLineWidth(2);
 
   TH1 *h1R = new TH1D("h1R","Distance R mm ",200,0,200);
   h1R->GetXaxis()->SetTitle("#Delta R (Sec vtx - Prim vtx) [mm]");
@@ -424,14 +432,14 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
           
             Acts::Vector3 rc_vtx_pos(vertex_rc.x() * Acts::UnitConstants::mm, vertex_rc.y() * Acts::UnitConstants::mm, vertex_rc.z() * Acts::UnitConstants::mm);
             
-            if(mcPartPdg[imc] == -211 || mcPartPdg[imc] == 2212){
+            if(std::abs(mcPartPdg[imc]) == 211 || std::abs(mcPartPdg[imc]) == 2212){
               // Acts::ParticleHypothesis particle_hypothesis;
             
               int ip = 0;
-              if(mcPartPdg[imc] == 2212) ip = 1;
+              if(std::abs(mcPartPdg[imc]) == 2212) ip = 1;
             
               Acts::BoundTrackParameters track_parameters(perigee,params,cov,Acts::ParticleHypothesis::pion());
-              if(mcPartPdg[imc] == 2212) track_parameters = Acts::BoundTrackParameters(perigee,params,cov,Acts::ParticleHypothesis::proton());
+              if(std::abs(mcPartPdg[imc]) == 2212) track_parameters = Acts::BoundTrackParameters(perigee,params,cov,Acts::ParticleHypothesis::proton());
             
               //--- Get track parameters at 3D DCA to MC primary vertex ----
               auto result = ImPoEs.estimate3DImpactParameters(trackingGeoCtx,fieldctx,track_parameters,mc_vtx_pos,ImPoEs_state);
@@ -466,8 +474,8 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
         }
       }
 
-      // Lambda
-      if(mcPartPdg[imc] == 3122){
+      // Lambda/Lambdabar
+      if(std::abs(mcPartPdg[imc]) == 3122){
         hEventStat->Fill(1.5);
         int nDuaghters = mcPartDaughter_end[imc]-mcPartDaughter_begin[imc];
         if(nDuaghters!=2) continue;
@@ -479,7 +487,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
         int daug_index_2 = mcPartDaughter_index[mcPartDaughter_begin[imc]+1];
         int daug_pdg_1 = mcPartPdg[daug_index_1];
         int daug_pdg_2 = mcPartPdg[daug_index_2];
-        if((daug_pdg_1==2212 && daug_pdg_2==-211) || (daug_pdg_1==-211 && daug_pdg_2==2212)){
+        if((std::abs(daug_pdg_1)==2212 && std::abs(daug_pdg_2)==211) || (std::abs(daug_pdg_1)==211 && std::abs(daug_pdg_2)==2212)){
           is_piproton_decay = true;
         }
         if(!is_piproton_decay) continue;
@@ -494,8 +502,8 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
         hMCLambdaPtRap->Fill(mcRap, mcPt);
       
         // decay dauther kinematics
-        int daug_pi_index = daug_pdg_1==-211 ? daug_index_1 : daug_index_2;
-        int daug_proton_index  = daug_pdg_1==2212 ? daug_index_1 : daug_index_2;
+        int daug_pi_index = std::abs(daug_pdg_1)==211 ? daug_index_1 : daug_index_2;
+        int daug_proton_index  = std::abs(daug_pdg_1)==2212 ? daug_index_1 : daug_index_2;
         for(int ip = 0; ip<2; ip++){
           int mc_part_index;
           if(ip==0) mc_part_index = daug_pi_index;
@@ -639,9 +647,9 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
           }
         }
         if(iSimPartID<0) continue;
-        if(mcPartPdg[iSimPartID] == -211 || mcPartPdg[iSimPartID] == 2212){
-          if(mcPartPdg[iSimPartID] == -211) pi_index.push_back(rc_index);
-          if(mcPartPdg[iSimPartID] == 2212) proton_index.push_back(rc_index);
+        if(std::abs(mcPartPdg[iSimPartID])==211 || std::abs(mcPartPdg[iSimPartID])==2212){
+          if(std::abs(mcPartPdg[iSimPartID])==211) pi_index.push_back(rc_index);
+          if(std::abs(mcPartPdg[iSimPartID])==2212) proton_index.push_back(rc_index);
           
           Acts::BoundVector params;
           params(Acts::eBoundLoc0)   = rcTrkLoca[rc_index];
@@ -664,8 +672,8 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
             double dca_xy = sqrt( pow(trk_vtx_gbl_pos.x()-rc_vtx_pos.x(),2) + pow(trk_vtx_gbl_pos.y()-rc_vtx_pos.y(),2) );
             double dca_z = trk_vtx_gbl_pos.z()-rc_vtx_pos.z();
             if(dca_xy>0.04){
-              if(mcPartPdg[iSimPartID] == -211) pi_dca_index.push_back(rc_index);
-              if(mcPartPdg[iSimPartID] == 2212) proton_dca_index.push_back(rc_index);
+              if(std::abs(mcPartPdg[iSimPartID])==211) pi_dca_index.push_back(rc_index);
+              if(std::abs(mcPartPdg[iSimPartID])==2212) proton_dca_index.push_back(rc_index);
             }
           }
         }
@@ -689,6 +697,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
           double deltaY=svert_vy[pi_index[i]]-CTVy[pi_index[i]];
           double deltaZ=svert_vz[pi_index[i]]-CTVz[pi_index[i]];
           double deltaR=std::sqrt(deltaX*deltaX+deltaY*deltaY+deltaZ*deltaZ);
+          double r_XY=std::hypot(deltaX,deltaY);
           // DecayR MC decay vertex
           TVector3 mc_prmvtx_decay(-999.,-999.,-999.);
           TVector3 sec_vtx_decay(-999.,-999.,-999.);
@@ -701,6 +710,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
               double mc_decay_dz = sec_vtx_decay.z()-mc_prmvtx_decay.z();
               double mc_decay_dr = std::sqrt(mc_decay_dx*mc_decay_dx + mc_decay_dy*mc_decay_dy + mc_decay_dz*mc_decay_dz);
               h1mcR->Fill(deltaR);
+              h1XY->Fill(r_XY);
             }
           }
   
@@ -725,6 +735,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
             h2Lambdapveta->Fill(parent.PseudoRapidity(),parent.P());
             h1MassL->Fill(parent.M());
             h1R->Fill(deltaR);
+            if(r_XY>=45 && r_XY<=85) h1MassL_cut->Fill(parent.M());
           }
           //---- Propagate track to Perigee surface at sec. vertex = (x,y,z) mm ----
           //-----pi^-
@@ -792,8 +803,10 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
           if(vtxbarrel_px.GetSize()>=2){
             pi_mom_vtxBarr.SetXYZM(vtxbarrel_px[pi_index[i]],vtxbarrel_py[pi_index[i]],vtxbarrel_pz[pi_index[i]],gPionMass);
             proton_mom_vtxBarr.SetXYZM(vtxbarrel_px[proton_index[j]],vtxbarrel_py[proton_index[j]],vtxbarrel_pz[proton_index[j]],gprotonMass);
-            L_vtxBarr=pi_mom_vtxBarr+proton_mom_vtxBarr;
-            h1MassLvtxBarr->Fill(L_vtxBarr.M());
+            if(rcTrkqOverP[pi_index[i]]*rcTrkqOverP[proton_index[j]]<0){
+              L_vtxBarr=pi_mom_vtxBarr+proton_mom_vtxBarr;
+              h1MassLvtxBarr->Fill(L_vtxBarr.M());
+            }
           }
         }
       }
@@ -826,11 +839,13 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
   h1secY->Write();
   h1secZ->Write();
   h1R->Write();
+  h1XY->Write();
   h1mcR->Write();
   h1secvtxNum->Write();
   h2LambdapTvy->Write();
   h2Lambdapveta->Write();
   h1MassL->Write();
+  h1MassL_cut->Write();
   h1MassLsvtx->Write();
   h1MassLvtxBarr->Write();
   h2PiPtEtaReco->Write();
