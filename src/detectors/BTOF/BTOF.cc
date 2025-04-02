@@ -21,6 +21,7 @@
 #include "factories/digi/LGADChargeSharing_factory.h"
 #include "factories/digi/LGADPulseGeneration_factory.h"
 #include "factories/digi/LGADPulseDigitization_factory.h"
+#include "factories/reco/LGADHitReconstruction_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -48,13 +49,11 @@ void InitPlugin(JApplication* app) {
   ));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+  app->Add(new JOmniFactoryGeneratorT<LGADHitReconstruction_factory>(
       "TOFBarrelRecHits",
-      {"TOFBarrelRawHits"},    // Input data collection tags
+      {"TOFBarrelADCTDC"},    // Input data collection tags
       {"TOFBarrelRecHits"},    // Output data tag
-      {
-          .timeResolution = 10,
-      },
+      {},
       app
   ));         // Hit reco default config for factories
 
