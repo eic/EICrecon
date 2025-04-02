@@ -4,7 +4,6 @@
 #pragma once
 
 #include <edm4eic/unit_system.h>
-#include "PulseShapeFunctors.h"
 
 namespace eicrecon {
 
@@ -16,8 +15,6 @@ struct SiliconPulseGenerationConfig {
   double timestep          = 0.2 * edm4eic::unit::ns; // Minimum digitization time step
   double min_sampling_time = 0 * edm4eic::unit::ns; // Minimum sampling time
   int    max_time_bins     = 10000;
-
-
 };
 
 } // namespace eicrecon

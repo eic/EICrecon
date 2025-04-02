@@ -13,11 +13,12 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/digi/PulseShapeFunctors.h"
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
+
+class SignalPulse;
 
 using SiliconPulseGenerationAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
