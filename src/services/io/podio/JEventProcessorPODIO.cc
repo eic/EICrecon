@@ -137,7 +137,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             // LOWQ2 hits
             "TaggerTrackerHits",
             "TaggerTrackerHitPulses",
-            "TaggerTrackerHitPulsesWithNoise",
+            "TaggerTrackerCombinedPulses",
+            "TaggerTrackerCombinedPulsesWithNoise",
             "TaggerTrackerRawHits",
             "TaggerTrackerRawHitAssociations",
             "TaggerTrackerM1L0ClusterPositions",
