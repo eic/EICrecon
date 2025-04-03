@@ -8,7 +8,8 @@ static const double sign = -1.0;
 #else
 static const double sign =  1.0;
 #endif
-static const double z0 = 1456.;//1550.0;
+//static const double z0 = 1456.;//1550.0;
+static const double z0 = 1550.0;
   
 // Does it really matter?;
 static const char *tag = sign > 0.0 ? "ForwardRICH_ID" : "BackwardRICH_ID";

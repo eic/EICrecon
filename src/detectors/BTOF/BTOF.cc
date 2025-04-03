@@ -62,6 +62,7 @@ void InitPlugin(JApplication *app) {
     } catch(const std::runtime_error&) {
         // Nothing
     }
+#if _OFF_
     PIDLookupConfig pid_cfg {
       .filename="calibrations/tof.lut",
       .system=BarrelTOF_ID,
@@ -103,5 +104,6 @@ void InitPlugin(JApplication *app) {
           pid_cfg,
           app
           ));
+#endif
 }
 } // extern "C"

@@ -90,8 +90,8 @@ namespace eicrecon {
       
       if (!m_InstanceCounter) {
 	// FIXME: hardcoded;
-	//m_OutputFile = new TFile("qrich-events.root", "RECREATE");
-	m_OutputFile = new TFile("pfrich-events.root", "RECREATE");
+	m_OutputFile = new TFile("qrich-events.root", "RECREATE");
+	//m_OutputFile = new TFile("pfrich-events.root", "RECREATE");
 	
 	m_EventTree = new TTree("t", "My tree");
 	m_EventBranch = m_EventTree->Branch("e", "CherenkovEvent", 0/*&m_Event*/, 16000, 2);
@@ -104,8 +104,8 @@ namespace eicrecon {
   
     {
       // FIXME: hardcoded; FIXME: check existence;
-      //auto fcfg = new TFile("qrich-optics.root");
-      auto fcfg = new TFile("pfrich-optics.root");
+      auto fcfg = new TFile("qrich-optics.root");
+      //auto fcfg = new TFile("pfrich-optics.root");
       m_irt_det_coll = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
     }
     
@@ -312,8 +312,8 @@ namespace eicrecon {
       // FIXME: (0,0,1) or (0,0,-1)?; should be different for e-endcap?;
       TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex()), n0(0,0,1*sign);
 #if 1//_TODAY_
-      //+auto radiator = m_irt_det->GuessRadiator(vtx, n0); 
-      auto radiator = m_irt_det->GetRadiator("Aerogel");//uessRadiator(vtx, n0); 
+      auto radiator = m_irt_det->GuessRadiator(vtx, n0); 
+      //auto radiator = m_irt_det->GetRadiator("Aerogel");//uessRadiator(vtx, n0); 
 
       auto parents = mcparticle.getParents();
       if (parents.size() != 1) continue;
