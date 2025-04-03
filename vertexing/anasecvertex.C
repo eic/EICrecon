@@ -27,8 +27,6 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <edm4hep/Vector3f.h>
-#include <edm4hep/utils/vector_utils.h>
 
 #include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
 #include "Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp"
@@ -272,7 +270,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
 
   TTreeReaderArray<float> vtxbarrel_len(treereader, Form("%s.pathLength",vtxbarrel.c_str()));
   TTreeReaderArray<float> vtxbarrel_t(treereader, Form("%s.time",vtxbarrel.c_str()));
-  TTreeReaderArray<float> vtxbarrel_Edep(treereader, Form("%s.EDep",vtxbarrel.c_str()));
+  //TTreeReaderArray<float> vtxbarrel_Edep(treereader, Form("%s.EDep",vtxbarrel.c_str()));
   TTreeReaderArray<double> vtxbarrel_x(treereader, Form("%s.position.x",vtxbarrel.c_str()));
   TTreeReaderArray<double> vtxbarrel_y(treereader, Form("%s.position.y",vtxbarrel.c_str()));
   TTreeReaderArray<double> vtxbarrel_z(treereader, Form("%s.position.z",vtxbarrel.c_str()));
@@ -337,6 +335,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
     // Load DD4Hep geometry
   dd4hep::Detector& detector = dd4hep::Detector::getInstance();
   detector.fromCompact("/opt/detector/epic-main/share/epic/epic_craterlake.xml");
+  //detector.fromCompact("/opt/detector/epic-main/share/epic/epic_craterlake.xml");
   dd4hep::DetElement geometry = detector.world();
 
   // Convert DD4Hep geometry to tracking geometry
@@ -735,7 +734,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
             h2Lambdapveta->Fill(parent.PseudoRapidity(),parent.P());
             h1MassL->Fill(parent.M());
             h1R->Fill(deltaR);
-            if(r_XY>=45 && r_XY<=85) h1MassL_cut->Fill(parent.M());
+            if(r_XY>=40 && r_XY<=85) h1MassL_cut->Fill(parent.M());
           }
           //---- Propagate track to Perigee surface at sec. vertex = (x,y,z) mm ----
           //-----pi^-
@@ -774,7 +773,7 @@ void anasecvertex(TString listname = "file.list", const TString outname = "test.
           piOptions.direction = Acts::Direction::fromScalarZeroAsPositive(pi_intersect.pathLength());
           protonOptions.direction = Acts::Direction::fromScalarZeroAsPositive(proton_intersect.pathLength());
 
-          // Do the propagation to linPoint
+          // Do the propagation to linePoint
           auto result_perigee_pi = propagator.propagateToSurface(pi_track_params, *perigee_svtx, piOptions);
           auto result_perigee_proton = propagator.propagateToSurface(proton_track_params, *perigee_svtx, protonOptions);
 
