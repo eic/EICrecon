@@ -12,6 +12,7 @@ add_executable(
   calorimetry_CalorimeterClusterRecoCoG.cc
   calorimetry_CalorimeterClusterShape.cc
   calorimetry_HEXPLIT.cc
+  digi_SiliconPulseGeneration.cc
   digi_LGADPulseGeneration.cc
   digi_LGADPulseDigitization.cc
   pid_MergeTracks.cc
@@ -29,6 +30,7 @@ target_link_libraries(
           algorithms_pid_library
           algorithms_pid_lut_library
           algorithms_reco_library
+          algorithms_digi_library
           evaluator_library
           pid_lut_library
           podio::podio

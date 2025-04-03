@@ -4,19 +4,15 @@
 // Adds noise to a time series pulse
 //
 
-#include <DDRec/CellIDPositionConverter.h>
-#include <Evaluator/DD4hepUnits.h>
+#include <podio/RelationRange.h>
+#include <gsl/pointers>
 
 #include "PulseNoise.h"
 
 namespace eicrecon {
 
 void PulseNoise::init() {
-    m_poles    = m_cfg.poles;
-    m_variance = m_cfg.variance;
-    m_alpha    = m_cfg.alpha;
-    m_scale    = m_cfg.scale;
-    m_noise    = dd4hep::detail::FalphaNoise(m_poles, m_variance, m_alpha);
+    m_noise    = dd4hep::detail::FalphaNoise(m_cfg.poles, m_cfg.variance, m_cfg.alpha);
 }
 
 void PulseNoise::process(const PulseNoise::Input& input,
@@ -34,7 +30,7 @@ void PulseNoise::process(const PulseNoise::Input& input,
 
     //Add noise to the pulse
     for (int i = 0; i < pulse.getAmplitude().size(); i++) {
-      double noise = m_noise(generator)*m_scale;
+      double noise = m_noise(generator)*m_cfg.scale;
       out_pulse.addToAmplitude(pulse.getAmplitude()[i] + noise);
     }
 

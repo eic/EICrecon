@@ -1,12 +1,10 @@
-// Copyright 2023-2024, Simon Gardner
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 - 2025, Simon Gardner
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/JApplication.h>
-#include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackSegment.h>
+#include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
 #include <math.h>
@@ -19,15 +17,18 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "algorithms/digi/PulseShapeFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/digi/PulseNoise_factory.h"
+#include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
-#include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
 #include "factories/fardetectors/FarDetectorTransportationPostML_factory.h"
+#include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
 #endif
 #include "factories/fardetectors/FarDetectorMLReconstruction_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
@@ -49,20 +50,10 @@ extern "C" {
       {"TaggerTrackerHits"},
       {"TaggerTrackerHitPulses"},
       {
-          .pulse_shape_function = std::make_shared<LandauPulse>(1, 2 * edm4eic::unit::ns),
+          .pulse_shape_function = "LandauPulse",
+          .pulse_shape_params = {1.0, 2 * edm4eic::unit::ns},
           .ignore_thres = 15.0e-8,
           .timestep = 0.2 * edm4eic::unit::ns,
-      },
-      app
-    ));
-
-    // Combine pulses into larger pulses
-    app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
-      "TaggerTrackerPulseCombiner",
-      {"TaggerTrackerHitPulses"},
-      {"TaggerTrackerCombinedPulses"},
-      {
-          .minimum_separation = 25 * edm4eic::unit::ns,
       },
       app
     ));
@@ -70,13 +61,13 @@ extern "C" {
     // Add noise to pulses
     app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
       "TaggerTrackerPulseNoise",
-      {"TaggerTrackerCombinedPulses"},
-      {"TaggerTrackerCombinedPulsesWithNoise"},
+      {"TaggerTrackerHitPulses"},
+      {"TaggerTrackerHitPulsesWithNoise"},
       {
           .poles = 5,
           .variance = 1.0,
           .alpha = 0.5,
-          .scale = 0.000002,
+          .scale = 500.0,
       },
       app
     ));
@@ -98,6 +89,17 @@ extern "C" {
          app
     ));
 
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "TaggerTrackerRecHits",
+      {"TaggerTrackerRawHits"},
+      {"TaggerTrackerRecHits"},
+      {
+          .timeResolution = 2,
+      },
+      app
+    ));
+
     // Divide collection based on geometry segmentation labels
     // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
     std::string readout = "TaggerTrackerHits";
@@ -115,15 +117,15 @@ extern "C" {
       moduleClusterTags.push_back({});
       for(int lay_id : layerIDs){
         geometryDivisions.push_back({mod_id,lay_id});
-        geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
+        geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RecHits",mod_id,lay_id));
         outputClusterCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id));
         moduleClusterTags.back().push_back(outputClusterCollectionNames.back());
       }
     }
 
-    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::RawTrackerHit>>(
+    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>(
          "TaggerTrackerSplitHits",
-         {"TaggerTrackerRawHits"},
+         {"TaggerTrackerRecHits"},
          geometryDivisionCollectionNames,
          {
           .function = GeometrySplit{geometryDivisions,readout,geometryLabels},

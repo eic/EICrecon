@@ -6,13 +6,12 @@
 
 #pragma once
 
-#include <DDRec/CellIDPositionConverter.h>
 #include <DDDigi/noise/FalphaNoise.h>
-#include <RtypesCore.h>
-#include <TMath.h>
 #include <algorithms/algorithm.h>
 #include <edm4hep/TimeSeriesCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
+#include <random>
+#include <string>
+#include <string_view>
 
 #include "algorithms/digi/PulseNoiseConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -36,11 +35,6 @@ private:
 
   std::default_random_engine generator; // TODO: need something more appropriate here
   dd4hep::detail::FalphaNoise m_noise;
-  size_t m_poles    = 5;
-  double m_variance = 1.0;
-  double m_alpha    = 0.5;
-  double m_scale    = 1000.0;
-
 
 };
 

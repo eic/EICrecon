@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Simon Gardner
+// Copyright (C) 2024-2025 Simon Gardner, Chun Yuen Tsang, Prithwish Tribedy
 //
 
 #pragma once
@@ -23,8 +23,11 @@ private:
 
   PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
 
+  ParameterRef<std::string> m_pulse_shape_function{this, "pulseShapeFunction", config().pulse_shape_function};
+  ParameterRef<std::vector<double>> m_pulse_shape_params{this, "pulseShapeParams", config().pulse_shape_params};
   ParameterRef<double> m_timestep{this, "timestep", config().timestep};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};
+  ParameterRef<double> m_min_sampling_time{this, "minSamplingTime", config().min_sampling_time};
   ParameterRef<int> m_max_time_bins{this, "maxTimeBins", config().max_time_bins};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
