@@ -2,7 +2,7 @@
 // Copyright (C) 2024 Souvik Paul, Chun Yuen Tsang, Prithwish Tribedy
 // Special Acknowledgement: Kolja Kauder
 //
-// Convert ADC pulses from EICROCGeneration into ADC and TDC values
+// Convert ADC pulses into ADC and TDC values
 
 #include <podio/RelationRange.h>
 #include <stdlib.h>
