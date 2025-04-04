@@ -21,9 +21,9 @@ private:
   PodioInput<edm4hep::TimeSeries> m_in_pulses{this};
   PodioOutput<edm4hep::RawTimeSeries> m_out_pulses{this};
 
-  ParameterRef<double> m_EICROC_period{this, "EICROC_period", config().EICROC_period};
-  ParameterRef<double> m_local_period{this, "local_period", config().local_period};
-  ParameterRef<double> m_global_offset{this, "global_offset", config().global_offset};
+  ParameterRef<double> m_EICROC_period{this, "EICROCPeriod", config().EICROC_period};
+  ParameterRef<double> m_local_period{this, "localPeriod", config().local_period};
+  ParameterRef<double> m_global_offset{this, "globalOffset", config().global_offset};
 
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
