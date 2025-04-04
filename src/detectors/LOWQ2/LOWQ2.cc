@@ -3,7 +3,7 @@
 
 #include <JANA/JApplication.h>
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/TrackSegment.h>
+#include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
@@ -106,10 +106,12 @@ extern "C" {
     std::vector<std::string> geometryDivisionCollectionNames;
     std::vector<std::string> outputClusterCollectionNames;
     std::vector<std::string> outputTrackTags;
+    std::vector<std::string> outputTrackAssociationTags;
     std::vector<std::vector<std::string>> moduleClusterTags;
 
     for(int mod_id : moduleIDs){
       outputTrackTags.push_back(fmt::format("TaggerTrackerM{}Tracks",mod_id));
+      outputTrackAssociationTags.push_back(fmt::format("TaggerTrackerM{}TrackAssociations",mod_id));
       moduleClusterTags.push_back({});
       for(int lay_id : layerIDs){
         geometryDivisions.push_back({mod_id,lay_id});
@@ -147,12 +149,15 @@ extern "C" {
     // Linear tracking for each module, loop over modules
     for(int i=0; i<moduleIDs.size(); i++){
       std::string outputTrackTag = outputTrackTags[i];
+      std::string outputTrackAssociationTag = outputTrackAssociationTags[i];
       std::vector<std::string> inputClusterTags = moduleClusterTags[i];
+
+      inputClusterTags.push_back("TaggerTrackerRawHitAssociations");
 
       app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
           outputTrackTag,
-          inputClusterTags,
-          {outputTrackTag},
+          {inputClusterTags},
+          {outputTrackTag,outputTrackAssociationTag},
           {
             .layer_hits_max = 100,
             .chi2_max = 0.001,
@@ -167,10 +172,19 @@ extern "C" {
     }
 
     // Combine the tracks from each module into one collection
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
          "TaggerTrackerTrackSegments",
          outputTrackTags,
          {"TaggerTrackerTrackSegments"},
+         app
+      )
+    );
+
+    // Combine the associations from each module into one collection
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
+         "TaggerTrackerTrackSegmentAssociations",
+         outputTrackAssociationTags,
+         {"TaggerTrackerTrackSegmentAssociations"},
          app
       )
     );
@@ -221,8 +235,8 @@ extern "C" {
     // Vector reconstruction at origin
     app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
         "TaggerTrackerTrajectories",
-        {"TaggerTrackerProjectedTracks","MCBeamElectrons"},
-        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters","TaggerTrackerTracks"},
+        {"TaggerTrackerProjectedTracks","MCBeamElectrons","TaggerTrackerTrackSegments","TaggerTrackerTrackSegmentAssociations"},
+        {"TaggerTrackerTrajectories","TaggerTrackerTrackParameters","TaggerTrackerTracks","TaggerTrackerTrackAssociations"},
         {
           .modelPath = "calibrations/tmva/LowQ2_DNN_CPU.weights.xml",
           .methodName = "DNN_CPU",
