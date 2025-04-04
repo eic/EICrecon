@@ -19,21 +19,21 @@
 #include <tuple>
 #include <utility>
 
-#include "algorithms/digi/LGADPulseDigitization.h"
-#include "algorithms/digi/LGADPulseDigitizationConfig.h"
+#include "algorithms/digi/EICROCDigitization.h"
+#include "algorithms/digi/EICROCDigitizationConfig.h"
 
-TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
+TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
   const float EPSILON = 1e-5;
 
-  eicrecon::LGADPulseDigitization algo("LGADPulseDigitization");
+  eicrecon::EICROCDigitization algo("EICROCDigitization");
 
-  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("LGADPulseDigitization");
+  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("EICROCDigitization");
   logger->set_level(spdlog::level::trace);
 
-  eicrecon::LGADPulseDigitizationConfig cfg;
+  eicrecon::EICROCDigitizationConfig cfg;
 
   auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockLGADHits").idSpec();
+  auto id_desc  = detector->readout("MockSiliconHits").idSpec();
 
   cfg.tdc_bit      = 8;
   cfg.adc_bit      = 7;
