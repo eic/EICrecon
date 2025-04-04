@@ -3,15 +3,17 @@
 
 #pragma once
 
-#include <Eigen/Core>
+#include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/interfaces/WithPodConfig.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4eic/TrackCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/TrackCollection.h>
+#include <edm4hep/MCParticle.h>
+#include <Eigen/Core>
 #include <gsl/pointers>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>

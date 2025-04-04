@@ -3,13 +3,11 @@
 
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/TrackCollection.h>
+#include <edm4eic/vector_utils.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-#include <edm4eic/vector_utils.h>
 #include <fmt/core.h>
-#include <podio/RelationRange.h>
 #include <Eigen/LU>
-#include <cmath>
 #include <cstdint>
 #include <gsl/pointers>
 #include <vector>
