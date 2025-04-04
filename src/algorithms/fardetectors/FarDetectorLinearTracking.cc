@@ -173,7 +173,7 @@ namespace eicrecon {
       // Create the track
       auto track = (*outputTracks)->create(type,position,momentum,positionMomentumCovariance,time,timeError,charge,chi2,ndf,pdg);
 
-      // Add Measurement2D relations and count occurance of particles contributing to the track
+      // Add Measurement2D relations and count occurence of particles contributing to the track
       std::unordered_map<const edm4hep::MCParticle*, int> particleCount;
       for (int layer = 0; layer < layerHitIndex.size(); layer++) {
         track.addToMeasurements((*inputHits[layer])[layerHitIndex[layer]]);
