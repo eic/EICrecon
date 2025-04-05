@@ -37,11 +37,11 @@ extern "C" {
         decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalBarrelScFi_pedMeanADC = 100;
         decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalBarrelScFi_pedSigmaADC = 1;
         decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelScFi_resolutionTDC = 10 * dd4hep::picosecond;
-	app->Add(new JOmniFactoryGeneratorT<CalorimeterHitAttenuation_factory>(
+        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitAttenuation_factory>(
           "EcalBarrelScFiAttenuatedHits", {"EcalBarrelScFiHits"}, {"EcalBarrelScFiAttenuatedHits"},
           {
-	    .attPars = {0.416212, 74.739875, 752.188383},
-	    .layPars = {19.087159, 18.857188, 18.547366, 18.200068, 17.783991, 17.557853},
+            .attPars = {0.416212, 74.739875, 752.188383},
+            .layPars = {19.087159, 18.857188, 18.547366, 18.200068, 17.783991, 17.557853},
           },
           app   // TODO: Remove me once fixed
         ));

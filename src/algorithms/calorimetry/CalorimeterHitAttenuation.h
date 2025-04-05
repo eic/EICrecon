@@ -25,28 +25,28 @@
 
 namespace eicrecon{
 
-	using CalorimeterHitAttenuationAlgorithm = algorithms::Algorithm<
-					    algorithms::Input<edm4hep::SimCalorimeterHitCollection>,
-					    algorithms::Output<edm4hep::SimCalorimeterHitCollection>>;
+        using CalorimeterHitAttenuationAlgorithm = algorithms::Algorithm<
+                                            algorithms::Input<edm4hep::SimCalorimeterHitCollection>,
+                                            algorithms::Output<edm4hep::SimCalorimeterHitCollection>>;
 
-	class CalorimeterHitAttenuation : public CalorimeterHitAttenuationAlgorithm,
-					  public WithPodConfig<CalorimeterHitAttenuationConfig>{
+        class CalorimeterHitAttenuation : public CalorimeterHitAttenuationAlgorithm,
+                                          public WithPodConfig<CalorimeterHitAttenuationConfig>{
 
-		public:
-			CalorimeterHitAttenuation(std::string_view name) 
-				: CalorimeterHitAttenuationAlgorithm{name, {"inputHitCollection"},
-									   {"outputHitCollection"},
-									   "Attenuate hits."} {}
+                public:
+                        CalorimeterHitAttenuation(std::string_view name)
+                                : CalorimeterHitAttenuationAlgorithm{name, {"inputHitCollection"},
+                                                                           {"outputHitCollection"},
+                                                                           "Attenuate hits."} {}
 
-			void init() final;
-			void process (const Input&, const Output&) const final;
+                        void init() final;
+                        void process (const Input&, const Output&) const final;
 
-		private:
-			dd4hep::IDDescriptor id_spec;
-	
-
+                private:
+                        dd4hep::IDDescriptor id_spec;
 
 
-	};
+
+
+        };
 
 } // namespace eicrecon

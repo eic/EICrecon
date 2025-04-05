@@ -8,19 +8,19 @@
 
 namespace eicrecon{
 
-	struct CalorimeterHitAttenuationConfig{
+        struct CalorimeterHitAttenuationConfig{
 
-		// parameters for attenuation
-		std::vector<double>      attPars;
-		std::vector<double>      layPars;
-
-
-		std::string              readout{""};
-		std::vector<std::string> fields{};
+                // parameters for attenuation
+                std::vector<double>      attPars;
+                std::vector<double>      layPars;
 
 
+                std::string              readout{""};
+                std::vector<std::string> fields{};
 
 
-	};
+
+
+        };
 
 } // namespace eicrecon

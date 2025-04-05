@@ -48,55 +48,55 @@ using namespace dd4hep;
 
 namespace eicrecon{
 
-	void CalorimeterHitAttenuation::init(){
+        void CalorimeterHitAttenuation::init(){
 
-	}
+        }
 
-	void CalorimeterHitAttenuation::process(const CalorimeterHitAttenuation::Input& input,
-                        			const CalorimeterHitAttenuation::Output& output) const{
+        void CalorimeterHitAttenuation::process(const CalorimeterHitAttenuation::Input& input,
+                                                const CalorimeterHitAttenuation::Output& output) const{
 
-		const auto [in_hits] = input;
-		auto [out_hits] = output;
+                const auto [in_hits] = input;
+                auto [out_hits] = output;
 
-		/*for(size_t i=0; i<in_hits->size(); i++){
-			auto simhit = (*in_hits)[i];
-			//auto simhit3 = out_hits->create();
+                /*for(size_t i=0; i<in_hits->size(); i++){
+                        auto simhit = (*in_hits)[i];
+                        //auto simhit3 = out_hits->create();
 
-			edm4hep::MutableSimCalorimeterHit simhit2;
-			//simhit2.setCellID(cellID);			
-			edm4hep::MutableCaloHitContribution cont;
-			edm4hep::Vector3f position {1, 1, 1};
+                        edm4hep::MutableSimCalorimeterHit simhit2;
+                        //simhit2.setCellID(cellID);
+                        edm4hep::MutableCaloHitContribution cont;
+                        edm4hep::Vector3f position {1, 1, 1};
 
-			out_hits->create(simhit.getCellID(),
-					 simhit.getEnergy(),
-					 position,
-					 cont);
+                        out_hits->create(simhit.getCellID(),
+                                         simhit.getEnergy(),
+                                         position,
+                                         cont);
 
 
 
-			//info("energy = {}", simhit.getEnergy());
-			//out_hits->push_back(simhit2);
-			//info("CalorimeterHitAttenuationTest> push_back()");
-		}
-	
-		info("CalorimeterHitAttenuationTest> after for loop");*/
+                        //info("energy = {}", simhit.getEnergy());
+                        //out_hits->push_back(simhit2);
+                        //info("CalorimeterHitAttenuationTest> push_back()");
+                }
 
-	
-		std::size_t ix = 0;
-		for(const auto &ih : *in_hits){
-			/*edm4hep::MutableSimCalorimeterHit simhit;
-			simhit.setCellID(ih.getCellID());
-			simhit.setEnergy(ih.getEnergy());
-			simhit.setPosition(ih.getPosition());
-			simhit.setContributions(ih.getContributions());*/
+                info("CalorimeterHitAttenuationTest> after for loop");*/
 
-			auto simhit = ih.clone();
 
-			out_hits->push_back(simhit);
+                std::size_t ix = 0;
+                for(const auto &ih : *in_hits){
+                        /*edm4hep::MutableSimCalorimeterHit simhit;
+                        simhit.setCellID(ih.getCellID());
+                        simhit.setEnergy(ih.getEnergy());
+                        simhit.setPosition(ih.getPosition());
+                        simhit.setContributions(ih.getContributions());*/
 
-			//info("CalorimeterHitAttenuationTest> push_back()");
-		}
+                        auto simhit = ih.clone();
 
-	}
+                        out_hits->push_back(simhit);
+
+                        //info("CalorimeterHitAttenuationTest> push_back()");
+                }
+
+        }
 
 }
