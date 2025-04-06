@@ -301,7 +301,7 @@ add_subdirectory(src/factories)
 add_subdirectory(src/global)
 add_subdirectory(src/scripts)
 #+add_subdirectory(src/tests)
-#+add_subdirectory(src/utilities)
+add_subdirectory(src/utilities)
 
 # Install all cmake helpers
 include(CMakePackageConfigHelpers)

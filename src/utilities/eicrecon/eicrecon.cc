@@ -36,6 +36,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "BTRK",
         "BVTX",
         "PFRICH",
+        "QRICH",
         "DIRC",
         "DRICH",
         "ECTRK",
