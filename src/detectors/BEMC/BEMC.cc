@@ -10,6 +10,7 @@
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/CalorimeterHitAttenuationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitAttenuation_factory.h"
@@ -30,18 +31,32 @@ extern "C" {
 
         InitJANAPlugin(app);
 
+	// Make sure left and right use the same value
+	decltype(CalorimeterHitAttenuationConfig::attPars) EcalBarrelScFi_attPars = {0.416212, 74.739875, 752.188383};
 
         // Make sure digi and reco use the same value
-        decltype(CalorimeterHitDigiConfig::capADC)        EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
-        decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalBarrelScFi_dyRangeADC = 1500 * dd4hep::MeV;
-        decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalBarrelScFi_pedMeanADC = 100;
-        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalBarrelScFi_pedSigmaADC = 1;
-        decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelScFi_resolutionTDC = 10 * dd4hep::picosecond;
-        app->Add(new JOmniFactoryGeneratorT<CalorimeterHitAttenuation_factory>(
-          "EcalBarrelScFiAttenuatedHits", {"EcalBarrelScFiHits"}, {"EcalBarrelScFiAttenuatedHits"},
+        decltype(CalorimeterHitDigiConfig::capADC)         EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)     EcalBarrelScFi_dyRangeADC = 1500 * dd4hep::MeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)     EcalBarrelScFi_pedMeanADC = 100;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)    EcalBarrelScFi_pedSigmaADC = 1;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC)  EcalBarrelScFi_resolutionTDC = 10 * dd4hep::picosecond;
+	app->Add(new JOmniFactoryGeneratorT<CalorimeterHitAttenuation_factory>(
+          "EcalBarrelScFiPAttenuatedHits", {"EcalBarrelScFiHits"}, {"EcalBarrelScFiPAttenuatedHits"},
           {
-            .attPars = {0.416212, 74.739875, 752.188383},
-            .layPars = {19.087159, 18.857188, 18.547366, 18.200068, 17.783991, 17.557853},
+	    .attPars     = EcalBarrelScFi_attPars,
+	    .readout     = "EcalBarrelScFiHits",
+	    .lengthField = "EcalBarrel_Readout_zmax",
+	    .zField      = "z",
+          },
+          app   // TODO: Remove me once fixed
+        ));
+	app->Add(new JOmniFactoryGeneratorT<CalorimeterHitAttenuation_factory>(
+          "EcalBarrelScFiNAttenuatedHits", {"EcalBarrelScFiHits"}, {"EcalBarrelScFiNAttenuatedHits"},
+          {
+            .attPars     = EcalBarrelScFi_attPars,
+            .readout     = "EcalBarrelScFiHits",
+            .lengthField = "EcalBarrel_Readout_zmin",
+            .zField      = "z",
           },
           app   // TODO: Remove me once fixed
         ));
