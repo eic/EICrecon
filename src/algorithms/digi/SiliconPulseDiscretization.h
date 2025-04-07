@@ -6,15 +6,12 @@
 
 #pragma once
 
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDDigi/noise/FalphaNoise.h>
-#include <RtypesCore.h>
-#include <TMath.h>
 #include <TGraph.h>
 #include <algorithms/algorithm.h>
-#include <edm4hep/TimeSeriesCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
+#include <edm4hep/TimeSeriesCollection.h>
+#include <string>
+#include <string_view>
 
 #include "algorithms/digi/SiliconPulseDiscretizationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

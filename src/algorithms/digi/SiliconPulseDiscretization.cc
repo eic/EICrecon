@@ -5,10 +5,13 @@
 //
 
 #include <DDRec/CellIDPositionConverter.h>
-#include <Evaluator/DD4hepUnits.h>
+#include <limits.h>
+#include <podio/RelationRange.h>
+#include <cmath>
+#include <gsl/pointers>
+#include <unordered_map>
 
 #include "SiliconPulseDiscretization.h"
-
 // use TGraph for interpolation
 #include "TGraph.h"
 
