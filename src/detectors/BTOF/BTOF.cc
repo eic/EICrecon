@@ -81,7 +81,7 @@ void InitPlugin(JApplication* app) {
   // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =
   // 0 and sigma = 1 at x = -0.22278
   const double x_when_landau_min = -0.22278;
-  const double landau_min    = TMath::Landau(x_when_landau_min, 0, 1, kTRUE);
+  const double landau_min    = TMath::Landau(x_when_landau_min, 0, 1, true);
   const double sigma_analog = 0.293951 * edm4eic::unit::ns;
   const double Vm = 1e-4 * dd4hep::GeV;
   const double adc_range = 256;
