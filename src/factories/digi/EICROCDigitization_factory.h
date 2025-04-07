@@ -3,10 +3,11 @@
 
 #pragma once
 
-#include "extensions/jana/JOmniFactory.h"
+#include <iostream>
 
 #include "algorithms/digi/EICROCDigitization.h"
-#include <iostream>
+#include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
