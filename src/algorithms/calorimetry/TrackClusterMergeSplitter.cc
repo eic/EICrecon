@@ -425,7 +425,7 @@ namespace eicrecon {
 
 
   // --------------------------------------------------------------------------
-  //! Add a cluster's hits to a protocluster 
+  //! Add a cluster's hits to a protocluster
   // --------------------------------------------------------------------------
   void TrackClusterMergeSplitter::add_cluster_to_proto(
     const edm4eic::Cluster& clust,
