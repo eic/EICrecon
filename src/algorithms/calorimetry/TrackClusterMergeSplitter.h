@@ -9,6 +9,7 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include <edm4eic/TrackClusterMatchCollection.h>
 #endif
@@ -29,7 +30,6 @@
 #include <vector>
 
 #include "TrackClusterMergeSplitterConfig.h"
-// for algorithm configuration
 #include "algorithms/interfaces/WithPodConfig.h"
 
 
@@ -84,9 +84,9 @@ namespace eicrecon {
       edm4eic::TrackSegmentCollection
     >,
     algorithms::Output<
-      edm4eic::ClusterCollection,
+      edm4eic::ProtoClusterCollection,
 #if EDM4EIC_VERSION_MAJOR >= 8
-      edm4eic::TrackClusterMatchCollection
+      edm4eic::TrackClusterMatchCollection  // FIXME this should be a protocluster-track match
 #endif
     >
   >;
@@ -131,7 +131,8 @@ namespace eicrecon {
       // private methods
       void get_projections(const edm4eic::TrackSegmentCollection* projections, VecProj& relevant_projects, VecTrk& relevant_trks) const;
       void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters, const VecProj& projections, const VecTrk& tracks, MapToVecProj& matched_projects, MapToVecTrk& matched_tracks) const;
-      void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, std::vector<edm4eic::MutableCluster>& new_clusters) const;
+      void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, std::vector<edm4eic::MutableProtoCluster>& new_protos) const;
+      void add_cluster_to_proto(const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto, std::optional<MapToWeight> split_weights = std::nullopt) const;
 
       // calorimeter id
       int m_idCalo {0};

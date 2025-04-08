@@ -163,10 +163,10 @@ extern "C" {
         );
         app->Add(
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-            "HcalEndcapNSplitMergeClustersWithoutShapes",
+            "HcalEndcapNSplitMergeProtoClusters",
             {"HcalEndcapNClusters",
              "CalorimeterTrackProjections"},
-            {"HcalEndcapNSplitMergeClustersWithoutShapes",
+            {"HcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8
              "HcalEndcapNTrackSplitMergeClusterMatches"},
 #endif
@@ -180,6 +180,26 @@ extern "C" {
               .transverseEnergyProfileScale = 1.0
             },
             app   // TODO: remove me once fixed
+          )
+        );
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "HcalEndcapNClustersWithoutShapes",
+            {"HcalEndcapNSplitMergeProtoClusters",
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalEndcapNRawHitAssociations"},
+#else
+             "HcalEndcapNHits"},
+#endif
+            {"HcalEndcapNSplitMergeClustersWithoutShapes",
+             "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 6.2,
+              .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
           )
         );
         app->Add(

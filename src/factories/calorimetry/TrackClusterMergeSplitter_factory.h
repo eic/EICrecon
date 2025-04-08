@@ -33,9 +33,9 @@ namespace eicrecon {
       PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
 
       // output collections
-      PodioOutput<edm4eic::Cluster> m_clusters_output {this};
+      PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output {this};
 #if EDM4EIC_VERSION_MAJOR >= 8
-      PodioOutput<edm4eic::TrackClusterMatch> m_track_cluster_match_output {this};
+      PodioOutput<edm4eic::TrackClusterMatch> m_track_cluster_match_output {this};  // FIXME this should be a proto-match
 #endif
 
       // parameter bindings
@@ -67,9 +67,9 @@ namespace eicrecon {
         m_algo->process(
           {m_clusters_input(), m_track_projections_input()},
 #if EDM4EIC_VERSION_MAJOR >= 8
-          {m_clusters_output().get(), m_track_cluster_match_output().get()}
+          {m_protoclusters_output().get(), m_track_cluster_match_output().get()}
 #else
-          {m_clusters_output().get()}
+          {m_protoclusters_output().get()}
 #endif
         );
       }

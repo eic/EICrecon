@@ -69,9 +69,9 @@ namespace eicrecon {
     // grab inputs/outputs
     const auto [in_clusters, in_projections] = input;
 #if EDM4EIC_VERSION_MAJOR >= 8
-    auto [out_clusters, out_matches] = output;
+    auto [out_protos, out_matches] = output;
 #else
-    auto [out_clusters] = output;
+    auto [out_protos] = output;
 #endif
 
     // exit if no clusters in collection
@@ -196,34 +196,36 @@ namespace eicrecon {
     }  // end matched cluster-projection loop
 
     // ------------------------------------------------------------------------
-    // 4. Create an output cluster for each merged cluster and for
-    //    each track pointing to merged cluster
+    // 4. Create an output protocluster for each merged cluster
+    //    and for each track pointing to merged cluster
     // ------------------------------------------------------------------------
     for (auto& [clustSeed, vecClustToMerge] : mapClustToMerge) {
 
       // create a cluster for each projection to merged cluster
-      std::vector<edm4eic::MutableCluster> new_clusters;
+      std::vector<edm4eic::MutableProtoCluster> new_protos;
       for (const auto& proj : mapProjToSplit[clustSeed]) {
-        new_clusters.push_back( out_clusters->create() );
+        new_protos.push_back( out_protos->create() );
       }
 
       // merge & split as needed
       merge_and_split_clusters(
         vecClustToMerge,
         mapProjToSplit[clustSeed],
-        new_clusters
+        new_protos
       );
 
+/* FIXME this will need to be upgraded to a proto-track match
 #if EDM4EIC_VERSION_MAJOR >= 8
       // and finally create a track-cluster match for each pair
       for (std::size_t iTrk = 0; const auto& trk : mapTrkToMatch[clustSeed]) {
         edm4eic::MutableTrackClusterMatch match = out_matches->create();
-        match.setCluster( new_clusters[iTrk] );
+        match.setCluster( new_protos[iTrk] );
         match.setTrack( trk );
         match.setWeight( 1.0 );  // FIXME placeholder
-        trace("Matched output cluster {} to track {}", new_clusters[iTrk].getObjectID().index, trk.getObjectID().index);
+        trace("Matched output cluster {} to track {}", new_protos[iTrk].getObjectID().index, trk.getObjectID().index);
       }
 #endif
+*/
     }  // end clusters to merge loop
 
     // ------------------------------------------------------------------------
@@ -237,11 +239,11 @@ namespace eicrecon {
       }
 
       // copy cluster and add to output collection
-      edm4eic::MutableCluster out_cluster = in_cluster.clone();
-      out_clusters->push_back(out_cluster);
+      edm4eic::MutableProtoCluster out_proto = out_protos->create();
+      /* TODO fill in hits here */
       trace("Copied input cluster {} onto output cluster {}",
         in_cluster.getObjectID().index,
-        out_cluster.getObjectID().index
+        out_proto.getObjectID().index
       );
     }  // end cluster loop
 
@@ -298,7 +300,6 @@ namespace eicrecon {
     MapToVecTrk& matched_tracks
   ) const {
 
-
     // loop over relevant projections
     for (uint32_t iProject = 0; iProject < projections.size(); ++iProject) {
 
@@ -351,21 +352,23 @@ namespace eicrecon {
   // --------------------------------------------------------------------------
   //! Merge identified clusters and split if needed
   // --------------------------------------------------------------------------
-  /*! If multiple tracks are pointing to merged cluster, a new cluster
-   *  is created for each track w/ hits weighted by its distance to
-   *  the track and the track's momentum.
+  /*! If multiple tracks are pointing to merged cluster, a new
+   *  protocluster is created for each track w/ hits weighted by
+   *  its distance to the track and the track's momentum.
    */
   void TrackClusterMergeSplitter::merge_and_split_clusters(
     const VecClust& to_merge,
     const VecProj& to_split,
-    std::vector<edm4eic::MutableCluster>& new_clusters
+    std::vector<edm4eic::MutableProtoCluster>& new_protos
   ) const {
 
     // if only 1 matched track, no need to split
     // otherwise split merged cluster for each
     // matched track
     if (to_split.size() == 1) {
-      /* TODO merge clusters here */ 
+      for (const auto& old_clust : to_merge) {
+        add_cluster_to_proto( old_clust, new_protos.front() );
+      }
       return;
     } else {
       trace("Splitting merged cluster across {} tracks", to_split.size());
@@ -409,10 +412,41 @@ namespace eicrecon {
           weights[iProj][hit] /= wTotal;
         }
       }  // end hits to merge loop
+
+      // merge cluster into split
+      for (std::size_t iProj = 0; iProj < to_split.size(); ++iProj) {
+        add_cluster_to_proto( old_clust, new_protos[iProj], weights[iProj] );
+      }
+
     }  // end clusters to merge loop
 
-    /* TODO merged split clusters here */
+  }  // end 'merge_and_split_clusters(VecClust&, VecProj&, std::vector<edm4eic::MutableProtoCluster>&)'
 
-  }  // end 'merge_and_split_clusters(VecClust&, VecProj&, std::vector<edm4eic::MutableCluster>&)'
+
+
+  // --------------------------------------------------------------------------
+  //! Add a cluster's hits to a protocluster 
+  // --------------------------------------------------------------------------
+  void TrackClusterMergeSplitter::add_cluster_to_proto(
+    const edm4eic::Cluster& clust,
+    edm4eic::MutableProtoCluster& proto,
+    std::optional<MapToWeight> split_weights
+  ) const {
+
+    // loop over hits to add
+    for (const auto& hit : clust.getHits()) {
+
+      // get weight if needed
+      double weight = 1.0;
+      if (split_weights.has_value()) {
+         weight = split_weights.value()[hit];
+      }
+
+      // add to protocluster
+      proto.addToHits( hit );
+      proto.addToWeights( weight );
+    }  // end hit loop
+
+  }  // end 'add_cluster_to_proto(...)'
 
 }  // end eicrecon namespace

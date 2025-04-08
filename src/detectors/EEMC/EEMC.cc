@@ -230,10 +230,10 @@ extern "C" {
 
         app->Add(
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-            "EcalEndcapNSplitMergeClustersWithoutShapes",
+            "EcalEndcapNSplitMergeProtoClusters",
             {"EcalEndcapNClustersWithoutPID",
              "CalorimeterTrackProjections"},
-            {"EcalEndcapNSplitMergeClustersWithoutShapes",
+            {"EcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8
              "EcalEndcapNTrackSplitMergeClusterMatches"},
 #endif
@@ -247,6 +247,27 @@ extern "C" {
               .transverseEnergyProfileScale = 1.0
             },
             app   // TODO: remove me once fixed
+          )
+        );
+
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+             "EcalEndcapNSplitMergeClustersWithoutShapes",
+            {"EcalEndcapNSplitMergeProtoClusters"
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "EcalEndcapNRawHitAssociations"},
+#else
+             "EcalEndcapNHits"},
+#endif
+            {"EcalEndcapNSplitMergeClustersWithoutShapes",
+             "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
+            {
+              .energyWeight = "log",
+              .sampFrac = 1.0,
+              .logWeightBase = 3.6,
+              .enableEtaBounds = false,
+            },
+            app   // TODO: Remove me once fixed
           )
         );
 
