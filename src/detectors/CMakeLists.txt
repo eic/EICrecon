@@ -25,4 +25,5 @@ add_subdirectory(DRICH)
 add_subdirectory(DIRC)
 add_subdirectory(PFRICH)
 
-add_subdirectory(QRICH)
+#add_subdirectory(QRICH)
+add_subdirectory(RICH-IRT)

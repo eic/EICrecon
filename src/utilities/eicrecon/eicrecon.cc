@@ -35,10 +35,13 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
         "ZDC",
         "BTRK",
         "BVTX",
-        "PFRICH",
-        "QRICH",
+	
+        //"PFRICH",
+        //"QRICH",
+        "RICH-IRT",
+        //"DRICH",
+	
         "DIRC",
-        "DRICH",
         "ECTRK",
         "MPGD",
         "B0TRK",

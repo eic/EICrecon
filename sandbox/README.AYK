@@ -1,0 +1,173 @@
+
+#
+# Cannot one just run 'curl --location https://get.epic-eic.org | bash' (it seems to install singularity, etc if needed)
+#
+
+  See https://docs.sylabs.io/guides/3.0/user-guide/installation.html#install-from-source
+
+ Had to install 'Go' and singularity 3.7.3 from sources (version 4 somehow does not have proper dependencies)
+
+export GOPATH=${HOME}/go
+export PATH=/usr/local/go/bin:${PATH}:${GOPATH}/bin
+
+  wget -> mconfig -> make -> make install
+
+  See /home/ayk/go/src/github.com/sylabs
+
+# ------------------------------------------------
+
+cd /DATA00/ayk/ePIC
+
+curl --location https://get.epic-eic.org | bash
+
+./eic-shell
+
+. environ.sh
+
+# Follow steps 3&4 in README-Chandra-1.txt (download and install five packages);
+cmake -S EDM4eic -B EDM4eic/build -DBUILD_DATA_MODEL=ON -DCMAKE_INSTALL_PREFIX=$EIC_SHELL_PREFIX -Wno-dev
+cmake --build EDM4eic/build -j8
+cmake --install EDM4eic/build
+
+# '-b pfrich': IRT 2.0;
+git clone -b pfrich https://github.com/eic/irt.git
+#cmake -S irt -B irt/build -DCMAKE_BUILD_TYPE=Debug -DDELPHES=OFF -DEVALUATION=OFF -DIRT_ROOT_IO=ON -DCMAKE_INSTALL_PREFIX=$EIC_SHELL_PREFIX
+cmake -S irt -B irt/build -DCMAKE_BUILD_TYPE=Debug -DDELPHES=OFF -DEVALUATION=OFF -DCMAKE_INSTALL_PREFIX=$EIC_SHELL_PREFIX -Wno-dev
+cmake --build irt/build -j8
+cmake --install irt/build
+
+cmake -S epic -B epic/build -DCMAKE_INSTALL_PREFIX=$EIC_SHELL_PREFIX -Wno-dev
+cmake --build epic/build -j8
+cmake --install epic/build
+
+cmake -S EICrecon -B EICrecon/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_FIND_DEBUG_MODE=OFF -DEICRECON_VERBOSE_CMAKE=ON -DCMAKE_INSTALL_PREFIX=$EIC_SHELL_PREFIX -Wno-dev
+cmake --build EICrecon/build -j8
+cmake --install EICrecon/build
+
+cmake -S reconstruction_benchmarks -B reconstruction_benchmarks/build -DCMAKE_INSTALL_PREFIX=$EIC_SHELL_PREFIX
+cmake --build reconstruction_benchmarks/build -j8
+cmake --install reconstruction_benchmarks/build
+
+# --------------
+# Do I really need a custom executable?;
+cmake -S npsim -B npsim/build -DCMAKE_INSTALL_PREFIX=$EIC_SHELL_PREFIX
+cmake --build npsim/build -j8
+cmake --install npsim/build
+
+# --------------
+
+# This one is important; isn't it set automatically?;
+export DETECTOR_PATH=/DATA00/ayk/ePIC/prefix/share/epic
+#- export DETECTOR_PATH=/Users/ayk/ePIC/prefix/share/epic
+
+# default: export JANA_PLUGIN_PATH=/opt/local/lib/EICrecon/plugins:/opt/local/plugin
+# This one is important too; what about janatop.so?;
+#export JANA_PLUGIN_PATH=/DATA00/ayk/ePIC/prefix/lib/EICrecon/plugins:/opt/local/plugin
+export JANA_PLUGIN_PATH=/DATA00/ayk/ePIC/prefix/lib/EICrecon/plugins:/opt/local/lib/EICrecon/plugins:/opt/local/plugin
+
+# --------------
+
+# README-Chandra-2.txt
+#npsim --runType run --compactFile $EIC_SHELL_PREFIX/share/epic/epic.xml --outputFile /DATA00/ayk/ePIC/out/sim.edm4hep.root --part.userParticleHandler= --macro /home/chchatte/WorkArea/simulation/EIC/eic/stable/dRICH_newest/drich-dev/macro/macro_sim.edm4hep.mac --enableG4GPS
+
+# README-Chandra-3.txt
+#export workdir=/DATA00/ayk/ePIC/sandbox/
+#mkdir -p $workdir $workdir/out
+#cd $workdir
+cd /DATA00/ayk/ePIC/sandbox
+root -l ../drich-hepmc-writer.C'("out.hepmc",100)'
+
+#npsim --runType run --compactFile ../prefix/share/epic/epic.xml --outputFile ./sim.edm4hep.root --part.userParticleHandler= --inputFiles ./out.hepmc -N 100
+
+root -l sim.edm4hep.root
+root [1] events->Draw("DRICHHits.position.x:DRICHHits.position.y")
+
+eicrecon -Pplugins="janadot" -Ppodio:output_collections="DRICHHits,MCParticles,DRICHRawHits,DRICHRawHitsAssociations,DRICHAerogelTracks,DRICHGasTracks,DRICHMergedTracks,DRICHAerogelIrtCherenkovParticleID,DRICHGasIrtCherenkovParticleID,DRICHMergedIrtCherenkovParticleID,ReconstructedChargedParticles,ReconstructedChargedParticleAssociations,ReconstructedChargedParticleIDs" -Peicrecon:LogLevel="info" -Prichgeo:LogLevel="info" -PDRICH:DRICHRawHits:LogLevel="info" -PDRICH:DRICHMergedTracks:LogLevel="info" -PDRICH:DRICHIrtCherenkovParticleID:LogLevel="info" -PDRICH:DRICHMergedIrtCherenkovParticleID:LogLevel="info" -Ppid:ChargedParticlesWithAssociations:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -PDRICH:DRICHIrtCherenkovParticleID:cheatPhotonVertex="true" -Ppodio:output_file="rec.edm4hep.root" sim.edm4hep.root
+
+eicrecon -Pplugins="janadot" -Ppodio:output_collections="MCParticles" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Ppodio:output_file="rec.edm4hep.root" sim.edm4hep.root
+
+#npsim --runType run --compactFile ../prefix/share/epic/epic_with_simple_rich.xml --outputFile ./sim.edm4hep.root --part.userParticleHandler= --inputFiles ./out.hepmc -N 100
+
+/DATA00/ayk/ePIC/prefix/bin/npsim --runType run --compactFile ../prefix/share/epic/epic_forward_tracking_and_qrich.xml --outputFile ./sim.edm4hep.root --part.userParticleHandler= --inputFiles ./out.hepmc -N 100
+
+eicrecon -Pplugins="janadot" -Ppodio:output_collections="DRICHHits,MCParticles" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,ECTOF,BTOF,FOFFMTRK,RPOTS,B0TRK,DIRC,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC -Ppodio:output_file="rec.edm4hep.root" sim.edm4hep.root
+
+/DATA00/ayk/ePIC/prefix/bin/benchmark_rich_reconstruction -i ./rec.edm4hep.root -o ./ana.edm4hep.root
+root -l ana.edm4hep.root
+root [3] phot->cd();
+root [5] nphot_dist->Draw();
+root [6] phot_spectrum_sim->Draw();
+
+# = DRICH ============================================================
+
+cd /DATA00/ayk/ePIC/sandbox
+
+npsim --runType run --compactFile ../prefix/share/epic/epic_forward_tracking_and_drich.xml --outputFile ./sim.edm4hep.drich.root --part.userParticleHandler= --inputFiles ./out.hepmc -N 100
+
+root -l sim.edm4hep.drich.root
+root [1] events->Draw("DRICHHits.position.y:DRICHHits.position.x")
+
+# It looks like DIRC,ECTOF,BTOF plugins should be present for tracking to work;
+/DATA00/ayk/ePIC/prefix/bin/eicrecon  -Pdd4hep:xml_files="../prefix/share/epic/epic_forward_tracking_and_drich.xml" -Pplugins="janadot" -Ppodio:output_collections="DRICHHits,MCParticles,DRICHRawHits,DRICHRawHitsAssociations,DRICHAerogelTracks,DRICHGasTracks,DRICHMergedTracks,DRICHAerogelIrtCherenkovParticleID,DRICHGasIrtCherenkovParticleID,DRICHMergedIrtCherenkovParticleID,ReconstructedChargedParticles,ReconstructedChargedParticleAssociations,ReconstructedChargedParticleIDs" -Peicrecon:LogLevel="info" -Prichgeo:LogLevel="info" -PDRICH:DRICHRawHits:LogLevel="info" -PDRICH:DRICHMergedTracks:LogLevel="info" -PDRICH:DRICHIrtCherenkovParticleID:LogLevel="info" -PDRICH:DRICHMergedIrtCherenkovParticleID:LogLevel="info" -Ppid:ChargedParticlesWithAssociations:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -PDRICH:DRICHIrtCherenkovParticleID:cheatPhotonVertex="true" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC -Ppodio:output_file="rec.edm4hep.drich.root" sim.edm4hep.drich.root
+
+/DATA00/ayk/ePIC/prefix/bin/benchmark_rich_reconstruction -i ./rec.edm4hep.drich.root -o ./ana.edm4hep.drich.root
+
+root -l ana.edm4hep.drich.root
+root [3] phot->cd();
+root [5] nphot_dist->Draw();
+root [6] phot_spectrum_sim->Draw();
+
+root [3] reco->cd();
+root [4] dp->Draw();
+
+# = QRICH ============================================================
+# qrich.xml, QRICH_geo.cpp, forward_tracking_and_qrich.yml
+
+cd /DATA00/ayk/ePIC/EICrecon/sandbox
+
+npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_qrich.xml --outputFile ./sim.edm4hep.qrich.root --part.userParticleHandler= --inputFiles ./electron-endcap.hepmc -N 100
+
+root -l sim.edm4hep.qrich.root
+root [1] events->Draw("QRICHHits.position.y:QRICHHits.position.x")
+
+/DATA00/ayk/ePIC/prefix/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files="../../prefix/share/epic/epic_tracking_and_qrich.xml" -Ppodio:output_collections="QRICHHits,MCParticles,QRICHAerogelTracks,IrtDebugInfoTables" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC,PFRICH -Ppodio:output_file="rec.edm4hep.qrich.root" sim.edm4hep.qrich.root
+
+/DATA00/ayk/ePIC/prefix/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files="../../prefix/share/epic/epic_tracking_and_qrich.xml" -Ppodio:output_collections="QRICHHits,MCParticles,QRICHAerogelTracks,IrtDebugInfoTables" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.qrich.root" sim.edm4hep.qrich.root -PQRICH:optics=qrich-optics.root
+
+root -l './qrich-hit-map.C("qrich-events.root")'
+root -l './qrich-reco.C("qrich-events.root")'
+
+# Visualize QRICH in a full QRICH+tracking geometry;
+npsim --runType qt --macroFile vis-qrich.mac --compactFile ../../prefix/share/epic/epic_tracking_and_qrich.xml --outputFile ./sim.edm4hep.qrich.root --part.userParticleHandler= --inputFiles ./out.hepmc -N 1000
+
+# Visualize geometry with QRICH only; geometry check: /geometry/test/run QRICH_0
+npsim --runType qt --macroFile vis-qrich.mac --compactFile ../../prefix/share/epic/epic_qrich_only.xml --outputFile ./sim.edm4hep.qrich.root --part.userParticleHandler= --inputFiles ./out.hepmc -N 1000
+
+# - Not used for now ------
+/DATA00/ayk/ePIC/prefix/bin/benchmark_qrich_reconstruction -i ./rec.edm4hep.qrich.root -o ./ana.edm4hep.qrich.root
+
+root -l ana.edm4hep.qrich.root
+root [3] phot->cd();
+root [5] nphot_dist->Draw();
+root [6] phot_spectrum_sim->Draw();
+
+root [3] reco->cd();
+root [4] dp->Draw();
+root [5] debug->Draw();
+
+# = PFRICH ===========================================================
+
+cd /DATA00/ayk/ePIC/EICrecon/sandbox
+
+npsim --runType run --compactFile ../../prefix/share/epic/epic_pfrich_only.xml --outputFile ./sim.edm4hep.pfrich.root --part.userParticleHandler= --inputFiles ./electron-endcap.hepmc -N 300
+
+npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_pfrich.xml --outputFile ./sim.edm4hep.pfrich.root --part.userParticleHandler= --inputFiles ./electron-endcap.hepmc -N 100
+
+root -l sim.edm4hep.pfrich.root
+root [1] events->Draw("PFRICHHits.position.y:PFRICHHits.position.x")
+
+/DATA00/ayk/ePIC/prefix/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files="../../prefix/share/epic/epic_tracking_and_pfrich.xml" -Ppodio:output_collections="PFRICHHits,MCParticles,PFRICHAerogelTracks,IrtDebugInfoTables" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC,QRICH -Ppodio:output_file="rec.edm4hep.pfrich.root" sim.edm4hep.pfrich.root
+
+
+# Visualize geometry with PFRICH only; geometry check: /geometry/test/run PFRICH_Vol_0
+npsim --runType qt --macroFile vis-pfrich.mac --compactFile ../../prefix/share/epic/epic_pfrich_only.xml --outputFile ./sim.edm4hep.pfrich.root --part.userParticleHandler= --inputFiles ./electron-endcap.hepmc -N 100
