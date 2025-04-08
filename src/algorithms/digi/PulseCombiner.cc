@@ -128,7 +128,7 @@ std::vector<float> PulseCombiner::sumPulses(const std::vector<edm4hep::TimeSerie
       float contribution = 0;
       if(i >= startStep && i < endStep){
         contribution = pulse.getAmplitude()[i - startStep];
-      } else if (m_cfg.interpolate_pulses) {         
+      } else if (m_cfg.interpolate_pulses) {
         // Interpolate first and last two values to extrapolate over 0
         if(i < startStep) {
           contribution = pulse.getAmplitude()[0] + (pulse.getAmplitude()[1] - pulse.getAmplitude()[0])*(i - startStep);
