@@ -135,6 +135,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ForwardMPGDEndcapRawHitAssociations",
 
             // LOWQ2 hits
+            "TaggerTrackerHits",
+            "TaggerTrackerHitPulses",
+            "TaggerTrackerHitPulsesWithNoise",
             "TaggerTrackerRawHits",
             "TaggerTrackerRawHitAssociations",
             "TaggerTrackerM1L0ClusterPositions",
@@ -220,6 +223,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "ScatteredElectronsTruth",
             "ScatteredElectronsEMinusPz",
             "PrimaryVertices",
+            "BarrelClusters",
 #if EDM4EIC_VERSION_MAJOR >= 6
             "HadronicFinalState",
 #endif
@@ -345,6 +349,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalFarForwardZDCRawHitAssociations",
             "HcalFarForwardZDCRawHitAssociations",
 #endif
+#if EDM4EIC_VERSION_MAJOR >= 8
+            "TrackClusterMatches",
+#endif
+
     };
     std::vector<std::string> output_exclude_collections;  // need to get as vector, then convert to set
     std::string output_include_collections = "DEPRECATED";
