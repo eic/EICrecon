@@ -21,7 +21,7 @@ void PulseCombiner::init() {
       auto id_spec = detector->readout(m_cfg.readout).idSpec();
       auto id_dec = id_spec.decoder();
       m_detector_bitmask = 0;
-      
+
       for(auto & field : id_spec.fields()) {
         // Get the field name
         std::string field_name = field.first;
