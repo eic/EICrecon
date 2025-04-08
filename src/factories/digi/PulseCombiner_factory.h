@@ -22,9 +22,9 @@ private:
 
   PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
 
-  ParameterRef<double>      m_minimum_separation{this, "minimum_seperation", config().minimum_separation};
+  ParameterRef<double>      m_minimum_separation{this, "minimumSeperation", config().minimum_separation};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
-  ParameterRef<std::string> m_combine_field{this, "combine_field", config().combine_field};
+  ParameterRef<std::string> m_combine_field{this, "combineField", config().combine_field};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

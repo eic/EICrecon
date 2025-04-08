@@ -8,7 +8,6 @@
 
 #include "PulseCombiner.h"
 #include <algorithms/geo.h>
-#include <JANA/JException.h>
 
 namespace eicrecon {
 
@@ -25,7 +24,7 @@ void PulseCombiner::init() {
       m_detector_bitmask = m_detector_bitmask >> bitshift;
     } catch (...) {
       error("Failed set bitshift for detector {} with segmentation id {}", m_cfg.readout, m_cfg.combine_field);
-      throw JException("Failed to load ID decoder");
+      throw std::runtime_error("Failed to load ID decoder");
     }
   }
 
@@ -72,11 +71,8 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
 
 std::vector<std::vector<edm4hep::TimeSeries>> PulseCombiner::clusterPulses(const std::vector<edm4hep::TimeSeries> pulses) const {
 
-  //Clone the pulses aray of pointers so they aren't const
-  std::vector<edm4hep::TimeSeries> ordered_pulses;
-  for(auto pulse : pulses) {
-    ordered_pulses.push_back(pulse);
-  }
+  // Clone the pulses array of pointers so they aren't const
+  std::vector<edm4hep::TimeSeries> ordered_pulses {pulses};
 
   // Sort pulses by time, greaty simplifying the combination process
   std::sort(ordered_pulses.begin(), ordered_pulses.end(), [](edm4hep::TimeSeries a, edm4hep::TimeSeries b) {
@@ -86,23 +82,23 @@ std::vector<std::vector<edm4hep::TimeSeries>> PulseCombiner::clusterPulses(const
   // Create vector of pulses
   std::vector<std::vector<edm4hep::TimeSeries>> cluster_pulses;
   float clusterEndTime = 0;
-  bool isNewPulse = true;
+  bool  makeNewPulse = true;
   // Create clusters of pulse indices which overlap with at least the minimum separation
   for (auto pulse: ordered_pulses) {
     float pulseStartTime = pulse.getTime();
     float pulseEndTime = pulse.getTime() + pulse.getInterval()*pulse.getAmplitude().size();
-    if(!isNewPulse) {
+    if(!makeNewPulse) {
       if (pulseStartTime < clusterEndTime + m_minimum_separation) {
         cluster_pulses.back().push_back(pulse);
         clusterEndTime = std::max(clusterEndTime, pulseEndTime);
       } else {
-        isNewPulse = true;
+        makeNewPulse = true;
       }
     }
-    if(isNewPulse) {
+    if(makeNewPulse) {
       cluster_pulses.push_back({pulse});
       clusterEndTime = pulseEndTime;
-      isNewPulse = false;
+      makeNewPulse = false;
     }
   }
 
@@ -119,7 +115,7 @@ std::vector<float> PulseCombiner::sumPulses(const std::vector<edm4hep::TimeSerie
   }
 
   //Calculate maxTime in interval bins
-  int maxStep = (maxTime - pulses[0].getTime())/pulses[0].getInterval();
+  int maxStep = std::round((maxTime - pulses[0].getTime()) / pulses[0].getInterval());
 
   std::vector<float> newPulse(maxStep, 0.0);
 

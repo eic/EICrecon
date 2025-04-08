@@ -15,7 +15,6 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
-#include "algorithms/digi/PulseShapeFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/PulseNoise_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
