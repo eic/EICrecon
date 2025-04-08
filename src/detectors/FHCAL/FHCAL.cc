@@ -364,9 +364,12 @@ extern "C" {
         app->Add(
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
             "LFHCALSplitMergeProtoClusters",
-            {"LFHCALIslandProtoClusters",
+            {"LFHCALClusters",
              "CalorimeterTrackProjections"},
-            {"LFHCALSplitMergeProtoClusters"},
+            {"LFHCALSplitMergeProtoClusters",
+#if EDM4EIC_VERSION_MAJOR >= 8
+             "LFHCALTrackSplitMergeClusterMatches"},
+#endif
             {
               .idCalo = "LFHCAL_ID",
               .minSigCut = -2.0,
@@ -383,15 +386,19 @@ extern "C" {
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "LFHCALSplitMergeClustersWithoutShapes",
-            {"LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-             "LFHCALHits"}, // edm4hep::SimCalorimeterHitCollection
-            {"LFHCALSplitMergeClustersWithoutShapes", // edm4eic::Cluster
-             "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+            {"LFHCALSplitMergeProtoClusters",
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "LFHCALRawHitAssociations"},
+#else
+             "LFHCALHits"},
+#endif
+            {"LFHCALSplitMergeClustersWithoutShapes",
+             "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
             {
               .energyWeight = "log",
               .sampFrac = 1.0,
               .logWeightBase = 4.5,
-              .enableEtaBounds = false
+              .enableEtaBounds = false,
             },
             app   // TODO: Remove me once fixed
           )
@@ -405,7 +412,9 @@ extern "C" {
             {"LFHCALSplitMergeClusters",
              "LFHCALSplitMergeClusterAssociations"},
             {
-              .longitudinalShowerInfoAvailable = true
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 4.5
             },
             app
           )
