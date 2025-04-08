@@ -18,6 +18,10 @@
 #include <utility>
 #include <vector>
 
+#if __has_include(<DD4hep/plugins/DetectorChecksum.h>)
+#include <DD4hep/plugins/DetectorChecksum.h>
+#endif
+
 #include "DD4hep_service.h"
 #include "services/log/Log_service.h"
 
@@ -146,7 +150,23 @@ void DD4hep_service::Initialize() {
     detector->volumeManager();
     detector->apply("DD4hepVolumeManager", 0, nullptr);
     m_cellid_converter = std::make_unique<const dd4hep::rec::CellIDPositionConverter>(*detector);
-    m_dd4hepGeo        = std::move(detector); // const
+
+// Determine detector checksum
+#if __has_include(<DD4hep/plugins/DetectorChecksum.h>)
+    using dd4hep::detail::DetectorChecksum;
+    DetectorChecksum checksum(*detector);
+    checksum.precision    = 3;
+    checksum.hash_meshes  = true;
+    checksum.hash_readout = true;
+    checksum.analyzeDetector(detector->world());
+    DetectorChecksum::hashes_t hash_vec{checksum.handleHeader().hash};
+    checksum.checksumDetElement(0, detector->world(), hash_vec, true);
+    DetectorChecksum::hash_t hash =
+        dd4hep::detail::hash64(&hash_vec[0], hash_vec.size() * sizeof(DetectorChecksum::hash_t));
+    m_log->info("Geometry checksum 0x%016lx", hash);
+#endif
+
+    m_dd4hepGeo = std::move(detector); // const
 
     m_log->info("Geometry successfully loaded.");
   } catch (std::exception& e) {
