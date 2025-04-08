@@ -12,7 +12,6 @@
 namespace eicrecon {
 
 void PulseCombiner::init() {
-  m_minimum_separation = m_cfg.minimum_separation;
 
   // Get the detector readout and set bit shift if set
   if(!(m_cfg.readout.empty() && m_cfg.combine_field.empty())) {
@@ -88,7 +87,7 @@ std::vector<std::vector<edm4hep::TimeSeries>> PulseCombiner::clusterPulses(const
     float pulseStartTime = pulse.getTime();
     float pulseEndTime = pulse.getTime() + pulse.getInterval()*pulse.getAmplitude().size();
     if(!makeNewPulse) {
-      if (pulseStartTime < clusterEndTime + m_minimum_separation) {
+      if (pulseStartTime < clusterEndTime + m_cfg.minimum_separation) {
         cluster_pulses.back().push_back(pulse);
         clusterEndTime = std::max(clusterEndTime, pulseEndTime);
       } else {
@@ -129,7 +128,8 @@ std::vector<float> PulseCombiner::sumPulses(const std::vector<edm4hep::TimeSerie
       float contribution = 0;
       if(i >= startStep && i < endStep){
         contribution = pulse.getAmplitude()[i - startStep];
-      } else { // Interpolate first and last two values to extrapolate over 0
+      } else if (m_cfg.interpolate_pulses) {         
+        // Interpolate first and last two values to extrapolate over 0
         if(i < startStep) {
           contribution = pulse.getAmplitude()[0] + (pulse.getAmplitude()[1] - pulse.getAmplitude()[0])*(i - startStep);
           if(std::signbit(contribution)!=std::signbit(pulse.getAmplitude()[0])) continue;
