@@ -196,18 +196,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
             "HcalBarrelSplitMergeClustersWithoutShapes",
             {"HcalBarrelClusters",
-             "CalorimeterTrackProjections",
-             "HcalBarrelClusterAssociations",
-#if EDM4EIC_VERSION_MAJOR >= 7
-             "HcalBarrelRawHitAssociations"},
-#else
-             "HcalBarrelHits"},
-#endif
+             "CalorimeterTrackProjections"},
             {"HcalBarrelSplitMergeClustersWithoutShapes",
 #if EDM4EIC_VERSION_MAJOR >= 8
-             "HcalBarrelTrackSplitMergeClusterMatches",
+             "HcalBarrelTrackSplitMergeClusterMatches"},
 #endif
-             "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"},
             {
               .idCalo = "HcalBarrel_ID",
               .minSigCut = -2.0,

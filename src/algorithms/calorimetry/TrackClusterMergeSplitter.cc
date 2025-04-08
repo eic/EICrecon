@@ -67,15 +67,11 @@ namespace eicrecon {
   ) const {
 
     // grab inputs/outputs
-#if EDM4EIC_VERSION_MAJOR >= 7
-    const auto [in_clusters, in_projections, in_clust_associations, in_hit_associations] = input;
-#else
-    const auto [in_clusters, in_projections, in_clust_associations, in_sim_hits] = input;
-#endif
+    const auto [in_clusters, in_projections] = input;
 #if EDM4EIC_VERSION_MAJOR >= 8
-    auto [out_clusters, out_matches, out_clust_associations] = output;
+    auto [out_clusters, out_matches] = output;
 #else
-    auto [out_clusters, out_clust_associations] = output;
+    auto [out_clusters] = output;
 #endif
 
     // exit if no clusters in collection
@@ -218,21 +214,6 @@ namespace eicrecon {
         new_clusters
       );
 
-      // collect associations of merged clusters
-      for (const auto& new_clust : new_clusters) {
-        collect_associations(
-          new_clust,
-          vecClustToMerge,
-          in_clust_associations,
-#if EDM4EIC_VERSION_MAJOR >= 7
-          in_hit_associations,
-#else
-          in_sim_hits,
-#endif
-          out_clust_associations
-        );
-      }
-
 #if EDM4EIC_VERSION_MAJOR >= 8
       // and finally create a track-cluster match for each pair
       for (std::size_t iTrk = 0; const auto& trk : mapTrkToMatch[clustSeed]) {
@@ -262,19 +243,6 @@ namespace eicrecon {
         in_cluster.getObjectID().index,
         out_cluster.getObjectID().index
       );
-
-      // if provided, copy corresponding associations to
-      // output collection
-      for (auto in_assoc : *in_clust_associations) {
-        if (in_assoc.getRec() == in_cluster) {
-          edm4eic::MutableMCRecoClusterParticleAssociation out_assoc = in_assoc.clone();
-          out_clust_associations->push_back(out_assoc);
-          trace("Copied input association {} onto output association {}",
-            in_assoc.getObjectID().index,
-            out_assoc.getObjectID().index
-          );
-        }
-      }  // end association loop
     }  // end cluster loop
 
   }  // end 'process(Input&, Output&)'
@@ -397,7 +365,7 @@ namespace eicrecon {
     // otherwise split merged cluster for each
     // matched track
     if (to_split.size() == 1) {
-      make_cluster(to_merge, new_clusters.front());
+      /* TODO merge clusters here */ 
       return;
     } else {
       trace("Splitting merged cluster across {} tracks", to_split.size());
@@ -443,186 +411,8 @@ namespace eicrecon {
       }  // end hits to merge loop
     }  // end clusters to merge loop
 
-   // make new clusters with relevant splitting weights
-   for (std::size_t iProj = 0; auto& new_clust : new_clusters) {
-     make_cluster(to_merge, new_clust, weights[iProj]);
-     ++iProj;
-   }
+    /* TODO merged split clusters here */
 
   }  // end 'merge_and_split_clusters(VecClust&, VecProj&, std::vector<edm4eic::MutableCluster>&)'
-
-
-
-  // --------------------------------------------------------------------------
-  //! Make new cluster out of old ones
-  // --------------------------------------------------------------------------
-  void TrackClusterMergeSplitter::make_cluster(
-    const VecClust& old_clusts,
-    edm4eic::MutableCluster& new_clust,
-    std::optional<MapToWeight> split_weights
-  ) const {
-
-    // determine total no. of hits
-    std::size_t nHits = 0;
-    for (const auto& old_clust : old_clusts) {
-      nHits += old_clust.getNhits();
-    }
-    new_clust.setNhits(nHits);
-
-    float eClust = 0.;
-    float wClust = 0.;
-    float tClust = 0.;
-    for (const auto& old_clust : old_clusts) {
-      for (std::size_t iHit = 0; const auto& hit : old_clust.getHits()) {
-
-        // get weight and update if needed
-        float weight = old_clust.getHitContributions()[iHit] / hit.getEnergy();
-        if (split_weights.has_value()) {
-          weight *= split_weights.value().at(hit);
-        }
-
-        // update running tallies
-        eClust += hit.getEnergy() * weight;
-        tClust += (hit.getTime() - tClust) * (hit.getEnergy() / eClust);
-        wClust += weight;
-
-        // add hits and increment counter
-        new_clust.addToHits(hit);
-        new_clust.addToHitContributions(hit.getEnergy() * weight);
-        ++iHit;
-      }  // end hit loop
-      trace("Merged input cluster {} into output cluster {}", old_clust.getObjectID().index, new_clust.getObjectID().index);
-    }  // end cluster loop
-
-    // update cluster position by taking energy-weighted
-    // average of positions of clusters to merge
-    edm4hep::Vector3f rClust = new_clust.getPosition();
-    for (const auto& old_clust : old_clusts) {
-      rClust = rClust + ((old_clust.getEnergy() / eClust) * old_clust.getPosition());
-    }
-
-    // set parameters
-    new_clust.setEnergy(eClust);
-    new_clust.setEnergyError(0.);
-    new_clust.setTime(tClust);
-    new_clust.setTimeError(0.);
-    new_clust.setPosition(rClust);
-    new_clust.setPositionError({});
-
-  }  // end 'merge_cluster(VecClust&)'
-
-
-
-  // --------------------------------------------------------------------------
-  //! Collect associations of merged clusters
-  // --------------------------------------------------------------------------
-  /*! This collects the associations of all clusters being merged, and
-   *  and updates the weights of each to reflect the new merged cluster.
-   *
-   *  As in `CalorimeterClusterRecoCoG`, an association is made for each
-   *  contributing primary with a weight equal to the ratio of the
-   *  contributed energy energy over total sim hit energy.
-   */
-  void TrackClusterMergeSplitter::collect_associations(
-    const edm4eic::MutableCluster& new_clust,
-    const VecClust& old_clusts,
-    const edm4eic::MCRecoClusterParticleAssociationCollection* old_clust_assocs,
-#if EDM4EIC_VERSION_MAJOR >= 7
-    const edm4eic::MCRecoCalorimeterHitAssociationCollection* old_hit_assocs,
-#else
-    const edm4hep::SimCalorimeterHitCollection* old_sim_hits,
-#endif
-    edm4eic::MCRecoClusterParticleAssociationCollection* new_clust_assocs
-  ) const {
-
-    // lambda to compare MCParticles
-    auto compare = [](const edm4hep::MCParticle& lhs, const edm4hep::MCParticle& rhs) {
-      if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
-        return (lhs.getObjectID().index < rhs.getObjectID().index);
-      } else {
-        return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
-      }
-    };
-
-    // create a map to hold associated particles and
-    // their weight
-    std::map<edm4hep::MCParticle, double, decltype(compare)> mapMCParToWeight(compare);
-
-    // ------------------------------------------------------------------------
-    // loop through clusters
-    // ------------------------------------------------------------------------
-    double eMergeSimHitSum = 0.;
-    for (const auto& clust : old_clusts) {
-
-      // ----------------------------------------------------------------------
-      // get total sim hit energy of old clust
-      // ----------------------------------------------------------------------
-      double eOldSimHitSum = 0.;
-      for (const auto& recHit : clust.getHits()) {
-#if EDM4EIC_VERSION_MAJOR >= 7
-        for (const auto& hitAssoc : *old_hit_assocs) {
-          if (hitAssoc.getRawHit() == recHit.getRawHit()) {
-            eOldSimHitSum += hitAssoc.getSimHit().getEnergy();
-          }
-        }  // end hit association loop
-#else
-        for (const auto& simHit : *old_sim_hits) {
-          if (simHit.getCellID() == recHit.getCellID()) {
-            eOldSimHitSum += simHit.getEnergy();
-            break;
-          }
-        }  // end sim hit loop
-#endif
-      }  // end rec hit loop
-      eMergeSimHitSum += eOldSimHitSum;
-
-      // ----------------------------------------------------------------------
-      // now collect all associations for this old cluster
-      // ----------------------------------------------------------------------
-      for (const auto& clustAssoc : *old_clust_assocs) {
-        if (clustAssoc.getRec() == clust) {
-          mapMCParToWeight[ clustAssoc.getSim() ] += (clustAssoc.getWeight() * eOldSimHitSum);
-        }
-      }  // end association loop
-    }  // end cluster loop
-
-    // ------------------------------------------------------------------------
-    // scale weights by sum of sim hit energies
-    // ------------------------------------------------------------------------
-    double wAssocSum = 0.;
-    for (auto& [par, weight] : mapMCParToWeight) {
-      weight /= eMergeSimHitSum;
-      wAssocSum += weight;
-    }
-
-    // normalize weights if not already
-    if (wAssocSum != 1.0) {
-      trace("Sum of weight not unity, normalizing by sum ({})", wAssocSum);
-      for (auto& [par, weight] : mapMCParToWeight) {
-        weight /= wAssocSum;
-      }
-    }
-
-    // ------------------------------------------------------------------------
-    // and finally create an association for each unique primary
-    // ------------------------------------------------------------------------
-    for (const auto& [par, weight] : mapMCParToWeight) {
-      auto assoc = new_clust_assocs->create();
-      assoc.setRecID( new_clust.getObjectID().index );
-      assoc.setSimID( par.getObjectID().index );
-      assoc.setWeight( weight );
-      assoc.setRec( new_clust );
-      assoc.setSim( par );
-      trace("Associated output cluster {} to MC Particle {} (pid = {}, status = {}, energy = {}) with weight ({})",
-        new_clust.getObjectID().index,
-        par.getObjectID().index,
-        par.getPDG(),
-        par.getGeneratorStatus(),
-        par.getEnergy(),
-        weight
-      );
-    }
-
-  }  // end 'collect_associations(...)'
 
 }  // end eicrecon namespace

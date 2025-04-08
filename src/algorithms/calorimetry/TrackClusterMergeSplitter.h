@@ -81,20 +81,13 @@ namespace eicrecon {
   using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<
       edm4eic::ClusterCollection,
-      edm4eic::TrackSegmentCollection,
-      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
-#if EDM4EIC_VERSION_MAJOR >= 7
-      std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>
-#else
-      std::optional<edm4hep::SimCalorimeterHitCollection>
-#endif
+      edm4eic::TrackSegmentCollection
     >,
     algorithms::Output<
       edm4eic::ClusterCollection,
 #if EDM4EIC_VERSION_MAJOR >= 8
-      edm4eic::TrackClusterMatchCollection,
+      edm4eic::TrackClusterMatchCollection
 #endif
-      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>
     >
   >;
 
@@ -120,15 +113,11 @@ namespace eicrecon {
       TrackClusterMergeSplitter(std::string_view name) :
         TrackClusterMergeSplitterAlgorithm {
           name,
-#if EDM4EIC_VERSION_MAJOR >= 7
-          {"InputClusterCollection", "InputTrackProjections", "InputMCClusterAssociations", "InputMCHitAssociations"},
-#else
-          {"InputClusterCollection", "InputTrackProjections", "InputMCClusterAssociations", "InputMCHits"},
-#endif
+          {"InputClusterCollection", "InputTrackProjections"},
 #if EDM4EIC_VERSION_MAJOR >= 8
-          {"OutputProtoClusterCollection", "OutputTrackClusterMatches", "OutputMCClusterAssociations"},
+          {"OutputProtoClusterCollection", "OutputTrackClusterMatches"},
 #else
-          {"OutputProtoClusterCollection", "OutputMCClusterAssociations"},
+          {"OutputProtoClusterCollection"},
 #endif
           "Merges or splits clusters based on tracks projected to them."
         } {}
@@ -143,12 +132,6 @@ namespace eicrecon {
       void get_projections(const edm4eic::TrackSegmentCollection* projections, VecProj& relevant_projects, VecTrk& relevant_trks) const;
       void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters, const VecProj& projections, const VecTrk& tracks, MapToVecProj& matched_projects, MapToVecTrk& matched_tracks) const;
       void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split, std::vector<edm4eic::MutableCluster>& new_clusters) const;
-      void make_cluster(const VecClust& old_clusts, edm4eic::MutableCluster& new_clust, std::optional<MapToWeight> split_weights = std::nullopt) const;
-#if EDM4EIC_VERSION_MAJOR >= 7
-      void collect_associations(const edm4eic::MutableCluster& new_clust, const VecClust& old_clusts, const edm4eic::MCRecoClusterParticleAssociationCollection* old_clust_assocs, const edm4eic::MCRecoCalorimeterHitAssociationCollection* old_hit_assocs, edm4eic::MCRecoClusterParticleAssociationCollection* new_clust_assocs) const;
-#else
-      void collect_associations(const edm4eic::MutableCluster& new_clust, const VecClust& old_clusts, const edm4eic::MCRecoClusterParticleAssociationCollection* old_clust_assocs, const edm4hep::SimCalorimeterHitCollection* old_sim_hits, edm4eic::MCRecoClusterParticleAssociationCollection* new_clust_assocs) const;
-#endif
 
       // calorimeter id
       int m_idCalo {0};

@@ -31,19 +31,12 @@ namespace eicrecon {
       // input collections
       PodioInput<edm4eic::Cluster> m_clusters_input {this};
       PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
-      PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_association_input {this};
-#if EDM4EIC_VERSION_MAJOR >= 7
-      PodioInput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_association_input {this};
-#else
-      PodioInput<edm4hep::SimCalorimeterHit> m_sim_hit_input {this};
-#endif
 
       // output collections
       PodioOutput<edm4eic::Cluster> m_clusters_output {this};
 #if EDM4EIC_VERSION_MAJOR >= 8
       PodioOutput<edm4eic::TrackClusterMatch> m_track_cluster_match_output {this};
 #endif
-      PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_association_output {this};
 
       // parameter bindings
       ParameterRef<std::string> m_idCalo {this, "idCalo", config().idCalo};
@@ -72,15 +65,11 @@ namespace eicrecon {
 
       void Process(int64_t run_number, uint64_t event_number) {
         m_algo->process(
-#if EDM4EIC_VERSION_MAJOR >= 7
-          {m_clusters_input(), m_track_projections_input(), m_cluster_association_input(), m_hit_association_input()},
-#else
-          {m_clusters_input(), m_track_projections_input(), m_cluster_association_input(), m_sim_hit_input()},
-#endif
+          {m_clusters_input(), m_track_projections_input()},
 #if EDM4EIC_VERSION_MAJOR >= 8
-          {m_clusters_output().get(), m_track_cluster_match_output().get(), m_cluster_association_output().get()}
+          {m_clusters_output().get(), m_track_cluster_match_output().get()}
 #else
-          {m_clusters_output().get(), m_cluster_association_output().get()}
+          {m_clusters_output().get()}
 #endif
         );
       }

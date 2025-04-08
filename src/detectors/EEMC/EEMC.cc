@@ -232,18 +232,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
             "EcalEndcapNSplitMergeClustersWithoutShapes",
             {"EcalEndcapNClustersWithoutPID",
-             "CalorimeterTrackProjections",
-             "EcalEndcapNClusterAssociations",
-#if EDM4EIC_VERSION_MAJOR >= 7
-             "EcalEndcapNRawHitAssociations"},
-#else
-             "EcalEndcapNHits"},
-#endif
+             "CalorimeterTrackProjections"},
             {"EcalEndcapNSplitMergeClustersWithoutShapes",
 #if EDM4EIC_VERSION_MAJOR >= 8
-             "EcalEndcapNTrackSplitMergeClusterMatches",
+             "EcalEndcapNTrackSplitMergeClusterMatches"},
 #endif
-             "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
             {
               .idCalo = "EcalEndcapN_ID",
               .minSigCut = -1.0,

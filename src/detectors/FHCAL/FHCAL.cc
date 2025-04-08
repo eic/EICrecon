@@ -365,18 +365,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
             "LFHCALSplitMergeClustersWithoutShapes",
             {"LFHCALClusters",
-             "CalorimeterTrackProjections",
-             "LFHCALClusterAssociations",
-#if EDM4EIC_VERSION_MAJOR >= 7
-             "LFHCALRawHitAssocitions"},
-#else
-             "LFHCALHit"},
-#endif
+             "CalorimeterTrackProjections"},
             {"LFHCALSplitMergeClustersWithoutShapes",
 #if EDM4EIC_VERSION_MAJOR >= 8
-             "LFHCALTrackSplitMergeClusterMatches",
+             "LFHCALTrackSplitMergeClusterMatches"},
 #endif
-             "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
             {
               .idCalo = "LFHCAL_ID",
               .minSigCut = -2.0,
