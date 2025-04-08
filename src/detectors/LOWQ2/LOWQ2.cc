@@ -63,6 +63,7 @@ extern "C" {
       {"TaggerTrackerCombinedPulses"},
       {
           .minimum_separation = 25 * edm4eic::unit::ns,
+          .interpolate_pulses = true,
       },
       app
     ));
@@ -76,7 +77,7 @@ extern "C" {
           .poles = 5,
           .variance = 1.0,
           .alpha = 0.5,
-          .scale = 500.0,
+          .scale = 0.000002,
       },
       app
     ));

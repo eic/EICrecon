@@ -9,18 +9,29 @@
 #include "PulseCombiner.h"
 #include <algorithms/geo.h>
 
+
 namespace eicrecon {
 
 void PulseCombiner::init() {
 
-  // Get the detector readout and set bit shift if set
+  // Get the detector readout and set CellID bit mask if set
   if(!(m_cfg.readout.empty() && m_cfg.combine_field.empty())) {
     try {
       auto detector = algorithms::GeoSvc::instance().detector();
-      auto id_dec = detector->readout(m_cfg.readout).idSpec().decoder();
-      // Get the bitshift for the detector
-      int bitshift = id_dec->highestBit() - (*id_dec)[m_cfg.combine_field].offset() - (*id_dec)[m_cfg.combine_field].width();
-      m_detector_bitmask = m_detector_bitmask >> bitshift;
+      auto id_spec = detector->readout(m_cfg.readout).idSpec();
+      auto id_dec = id_spec.decoder();
+      m_detector_bitmask = 0;
+      
+      for(auto & field : id_spec.fields()) {
+        // Get the field name
+        std::string field_name = field.first;
+        // Check if the field is the one we want to combine
+        m_detector_bitmask |= id_spec.field(field_name)->mask();
+        if(field_name == m_cfg.combine_field) {
+          break;
+        }
+      }
+
     } catch (...) {
       error("Failed set bitshift for detector {} with segmentation id {}", m_cfg.readout, m_cfg.combine_field);
       throw std::runtime_error("Failed to load ID decoder");
