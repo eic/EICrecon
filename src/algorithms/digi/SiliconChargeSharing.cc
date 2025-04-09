@@ -16,8 +16,6 @@
 #include <TGeoVolume.h>
 #include <algorithms/geo.h>
 #include <algorithms/service.h>
-#include <edm4hep/Vector3d.h>
-#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
@@ -37,7 +35,6 @@ void SiliconChargeSharing::init() {
   m_detector  = algorithms::GeoSvc::instance().detector();
   m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
   m_seg       = m_detector->readout(m_cfg.readout).segmentation();
-  m_minEDep   = m_cfg.m_minEDep;
 }
 
 void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
@@ -53,6 +50,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     auto   momentum   = hit.getMomentum();
     auto   hitPos     = global2Local(hit);
     auto   mcParticle = hit.getMCParticle();
+
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::vector<std::pair<dd4hep::rec::CellID,double>> cell_charge;
@@ -82,7 +80,8 @@ void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCel
 
   // Calculate deposited energy in cell
   double edepCell = energyAtCell(testCellID, hitPos,edep);
-  if(edepCell <= m_minEDep) {
+  // error("energy {} at cellID {}", edepCell, testCellID);
+  if(edepCell <= m_cfg.min_edep) {
     return;
   }
 

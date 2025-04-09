@@ -9,7 +9,7 @@ struct SiliconChargeSharingConfig {
   // Parameters of Silicon signal generation
   double sigma_sharingx;
   double sigma_sharingy;
-  double m_minEDep;
+  double min_edep;
   std::string readout;
 };
 
