@@ -262,6 +262,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalBarrelImagingRecHits",
             "EcalBarrelImagingClusters",
             "EcalBarrelImagingClusterAssociations",
+            "EcalBarrelScFiPAttenuatedHits",
+            "EcalBarrelScFiNAttenuatedHits",
             "EcalBarrelScFiRawHits",
             "EcalBarrelScFiRecHits",
             "EcalBarrelScFiClusters",
