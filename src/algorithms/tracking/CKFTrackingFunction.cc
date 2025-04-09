@@ -6,18 +6,17 @@
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
+#if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
+#endif
 #include <Acts/Geometry/Layer.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
-#include <Acts/TrackFitting/GainMatrixSmoother.hpp>
-#include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <boost/container/vector.hpp>
@@ -29,21 +28,23 @@
 #include "ActsExamples/EventData/Track.hpp"
 #include "CKFTracking.h"
 
-namespace eicrecon{
-
-  using Updater  = Acts::GainMatrixUpdater;
-  using Smoother = Acts::GainMatrixSmoother;
+namespace eicrecon {
 
   using Stepper    = Acts::EigenStepper<>;
   using Navigator  = Acts::Navigator;
   using Propagator = Acts::Propagator<Stepper, Navigator>;
 
+#if Acts_VERSION_MAJOR >= 36
+  using CKF =
+      Acts::CombinatorialKalmanFilter<Propagator, ActsExamples::TrackContainer>;
+#else
   using CKF =
       Acts::CombinatorialKalmanFilter<Propagator, Acts::VectorMultiTrajectory>;
 
   using TrackContainer =
       Acts::TrackContainer<Acts::VectorTrackContainer,
                            Acts::VectorMultiTrajectory, std::shared_ptr>;
+#endif
 
   /** Finder implementation .
    *
@@ -58,7 +59,11 @@ namespace eicrecon{
     eicrecon::CKFTracking::TrackFinderResult operator()(
         const ActsExamples::TrackParameters& initialParameters,
         const eicrecon::CKFTracking::TrackFinderOptions& options,
+#if Acts_VERSION_MAJOR >= 36
+        ActsExamples::TrackContainer& tracks) const override {
+#else
         TrackContainer& tracks) const override {
+#endif
       return trackFinder.findTracks(initialParameters, options, tracks);
     };
   };
