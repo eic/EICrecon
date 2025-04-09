@@ -45,15 +45,15 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
   for (const auto& hit : *simhits) {
 
     auto   cellID     = hit.getCellID();
-    double edep       = hit.getEDep();
-    double time       = hit.getTime();
+    auto   edep       = hit.getEDep();
+    auto   time       = hit.getTime();
     auto   momentum   = hit.getMomentum();
     auto   hitPos     = global2Local(hit);
     auto   mcParticle = hit.getMCParticle();
 
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
-    std::vector<std::pair<dd4hep::rec::CellID,double>> cell_charge;
+    std::vector<std::pair<dd4hep::rec::CellID,float>> cell_charge;
     findAllNeighborsInSensor(cellID, tested_cells, cell_charge, edep, hitPos);
 
     // Create a new simhit for each cell with deposited energy
@@ -73,13 +73,13 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 
 // Recursively find neighbors where a charge is deposited
 void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCellID,
-    std::unordered_set<dd4hep::rec::CellID>& tested_cells, std::vector<std::pair<dd4hep::rec::CellID,double>>& cell_charge, double edep, dd4hep::Position hitPos) const {
+    std::unordered_set<dd4hep::rec::CellID>& tested_cells, std::vector<std::pair<dd4hep::rec::CellID,float>>& cell_charge, float edep, dd4hep::Position hitPos) const {
 
   // Tag cell as tested
   tested_cells.insert(testCellID);
 
   // Calculate deposited energy in cell
-  double edepCell = energyAtCell(testCellID, hitPos,edep);
+  float edepCell = energyAtCell(testCellID, hitPos,edep);
   // error("energy {} at cellID {}", edepCell, testCellID);
   if(edepCell <= m_cfg.min_edep) {
     return;
@@ -101,12 +101,12 @@ void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCel
 }
 
 // Calculate integral of Gaussian distribution
-double SiliconChargeSharing::integralGaus(double mean, double sd, double low_lim,
-                                        double up_lim) const {
+float SiliconChargeSharing::integralGaus(float mean, float sd, 
+                                         float low_lim, float up_lim) const {
   // return integral Gauss(mean, sd) dx from x = low_lim to x = up_lim
   // default value is set when sd = 0
-  double up  = mean > up_lim ? -0.5 : 0.5;
-  double low = mean > low_lim ? -0.5 : 0.5;
+  float up  = mean > up_lim ? -0.5 : 0.5;
+  float low = mean > low_lim ? -0.5 : 0.5;
   if (sd > 0) {
     up  = -0.5 * std::erf(std::sqrt(2) * (mean - up_lim) / sd);
     low = -0.5 * std::erf(std::sqrt(2) * (mean - low_lim) / sd);
@@ -137,12 +137,12 @@ dd4hep::Position SiliconChargeSharing::global2Local(const edm4hep::SimTrackerHit
 }
 
 // Calculate energy deposition in a cell relative to the hit position
-double SiliconChargeSharing::energyAtCell(const dd4hep::rec::CellID& cell, dd4hep::Position hitPos, double edep) const {
+float SiliconChargeSharing::energyAtCell(const dd4hep::rec::CellID& cell, dd4hep::Position hitPos, float edep) const {
   auto localPos      = cell2LocalPosition(cell);
 
   // cout the local position and hit position
   auto cellDimension = m_converter->cellDimensions(cell);
-  double energy = edep*integralGaus(hitPos.x(), m_cfg.sigma_sharingx, localPos.x() - 0.5 * cellDimension[0],
+  float energy = edep*integralGaus(hitPos.x(), m_cfg.sigma_sharingx, localPos.x() - 0.5 * cellDimension[0],
                       localPos.x() + 0.5 * cellDimension[0]) *
                   integralGaus(hitPos.y(), m_cfg.sigma_sharingy, localPos.y() - 0.5 * cellDimension[1],
                       localPos.y() + 0.5 * cellDimension[1]);

@@ -21,9 +21,9 @@ private:
 
   PodioOutput<edm4hep::SimTrackerHit> m_out_reco_particles{this};
 
-  ParameterRef<double> m_sigma_sharingx{this, "sigmaSharingX", config().sigma_sharingx};
-  ParameterRef<double> m_sigma_sharingy{this, "sigmaSharingY", config().sigma_sharingy};
-  ParameterRef<double> m_min_edep{this, "minEDep", config().min_edep};
+  ParameterRef<float> m_sigma_sharingx{this, "sigmaSharingX", config().sigma_sharingx};
+  ParameterRef<float> m_sigma_sharingy{this, "sigmaSharingY", config().sigma_sharingy};
+  ParameterRef<float> m_min_edep{this, "minEDep", config().min_edep};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};

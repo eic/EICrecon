@@ -40,10 +40,10 @@ public:
 private:
   void findAllNeighborsInSensor(dd4hep::rec::CellID test_CellID,
                                 std::unordered_set<dd4hep::rec::CellID>& tested_cells,
-                                std::vector<std::pair<dd4hep::rec::CellID, double>>& cell_charge,
-                                double edep, dd4hep::Position hitPos) const;
-  double energyAtCell(const dd4hep::rec::CellID& cell, dd4hep::Position hitPos, double edep) const;
-  double integralGaus(double mean, double sd, double low_lim, double up_lim) const;
+                                std::vector<std::pair<dd4hep::rec::CellID, float>>& cell_charge,
+                                float edep, dd4hep::Position hitPos) const;
+  float energyAtCell(const dd4hep::rec::CellID& cell, dd4hep::Position hitPos, float edep) const;
+  float integralGaus(float mean, float sd, float low_lim, float up_lim) const;
   dd4hep::Position cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
   dd4hep::Position global2Local(const edm4hep::SimTrackerHit& hit) const;
 

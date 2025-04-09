@@ -7,9 +7,9 @@ namespace eicrecon {
 
 struct SiliconChargeSharingConfig {
   // Parameters of Silicon signal generation
-  double sigma_sharingx;
-  double sigma_sharingy;
-  double min_edep;
+  float sigma_sharingx;
+  float sigma_sharingy;
+  float min_edep;
   std::string readout;
 };
 
