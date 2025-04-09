@@ -134,23 +134,9 @@ std::vector<float> PulseCombiner::sumPulses(const std::vector<edm4hep::TimeSerie
     int startStep = (pulse.getTime() - pulses[0].getTime())/pulse.getInterval();
     int pulseSize = pulse.getAmplitude().size();
     int endStep = startStep + pulseSize;
-    for(int i = 0; i < newPulse.size(); i++) {
+    for(int i = startStep; i < endStep; i++) {
       // Add pulse values to new pulse
-      float contribution = 0;
-      if(i >= startStep && i < endStep){
-        contribution = pulse.getAmplitude()[i - startStep];
-      } else if (m_cfg.interpolate_pulses) {
-        // Interpolate first and last two values to extrapolate over 0
-        if(i < startStep) {
-          contribution = pulse.getAmplitude()[0] + (pulse.getAmplitude()[1] - pulse.getAmplitude()[0])*(i - startStep);
-          if(std::signbit(contribution)!=std::signbit(pulse.getAmplitude()[0])) continue;
-        } else if(i >= endStep) {
-          contribution = pulse.getAmplitude()[pulseSize-1] + (pulse.getAmplitude()[pulseSize-1] - pulse.getAmplitude()[pulseSize-2])*(i - endStep);
-          if(std::signbit(contribution)!=std::signbit(pulse.getAmplitude()[pulseSize-1])) break;
-        }
-      }
-      newPulse[i] += contribution;
-
+      newPulse[i] += pulse.getAmplitude()[i - startStep];
     }
   }
 
