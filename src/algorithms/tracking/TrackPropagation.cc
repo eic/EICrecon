@@ -245,7 +245,11 @@ void TrackPropagation::propagateToSurfaceList(
 
         ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("PROP", m_log));
 
+#if Acts_VERSION_MAJOR >= 36
+        Propagator::template Options<> options(m_geoContext, m_fieldContext);
+#else
         Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext);
+#endif
 
         auto result = propagator.propagate(initial_bound_parameters, *targetSurf, options);
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, Simon Gardner
+// Copyright (C) 2024 - 2025, Simon Gardner
 
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -21,7 +21,7 @@ public:
 private:
     std::unique_ptr<AlgoT> m_algo;
 
-    VariadicPodioInput<edm4hep::TrackerHit> m_hits_input    {this};
+    VariadicPodioInput<edm4eic::Measurement2D> m_hits_input    {this};
     PodioOutput<edm4eic::TrackSegment>      m_tracks_output {this};
 
     ParameterRef<int>   n_layer        {this, "numLayers",       config().n_layer         };
@@ -42,9 +42,9 @@ private:
     void Process(int64_t run_number, uint64_t event_number) {
 
         try {
-            std::vector<gsl::not_null<const edm4hep::TrackerHitCollection*>>  hits;
+            std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>  hits;
             for( const auto& hit : m_hits_input() ) {
-                hits.push_back(gsl::not_null<const edm4hep::TrackerHitCollection*>{hit});
+                hits.push_back(gsl::not_null<const edm4eic::Measurement2DCollection*>{hit});
             }
 
             m_algo->process(hits, {m_tracks_output().get()});

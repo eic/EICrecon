@@ -3,17 +3,18 @@
 
 #pragma once
 
-#include "extensions/jana/JOmniFactory.h"
-
-#include "algorithms/digi/LGADPulseDigitization.h"
 #include <iostream>
+
+#include "algorithms/digi/EICROCDigitization.h"
+#include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
-class LGADPulseDigitization_factory
-    : public JOmniFactory<LGADPulseDigitization_factory, LGADPulseDigitizationConfig> {
+class EICROCDigitization_factory
+    : public JOmniFactory<EICROCDigitization_factory, EICROCDigitizationConfig> {
 public:
-  using AlgoT = eicrecon::LGADPulseDigitization;
+  using AlgoT = eicrecon::EICROCDigitization;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
@@ -28,7 +29,7 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<eicrecon::LGADPulseDigitization>(GetPrefix());
+    m_algo = std::make_unique<eicrecon::EICROCDigitization>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();

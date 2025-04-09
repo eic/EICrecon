@@ -4,7 +4,6 @@
 //
 
 #include <edm4eic/EDM4eicVersion.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackSegment.h>
@@ -21,6 +20,9 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
+#include "factories/digi/SiliconPulseGeneration_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseNoise_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
@@ -55,6 +57,44 @@ extern "C" {
       },
       app
   ));
+    //  Generate signal pulse from hits
+    app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
+      "TaggerTrackerPulseGeneration",
+      {"TaggerTrackerSharedHits"},
+      {"TaggerTrackerHitPulses"},
+      {
+          .pulse_shape_function = "LandauPulse",
+          .pulse_shape_params = {1.0, 2 * edm4eic::unit::ns},
+          .ignore_thres = 15.0e-8,
+          .timestep = 0.2 * edm4eic::unit::ns,
+      },
+      app
+    ));
+
+    // Combine pulses into larger pulses
+    app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+      "TaggerTrackerPulseCombiner",
+      {"TaggerTrackerHitPulses"},
+      {"TaggerTrackerCombinedPulses"},
+      {
+          .minimum_separation = 25 * edm4eic::unit::ns,
+      },
+      app
+    ));
+
+    // Add noise to pulses
+    app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "TaggerTrackerPulseNoise",
+      {"TaggerTrackerCombinedPulses"},
+      {"TaggerTrackerCombinedPulsesWithNoise"},
+      {
+          .poles = 5,
+          .variance = 1.0,
+          .alpha = 0.5,
+          .scale = 0.000002,
+      },
+      app
+    ));
 
     // Digitization of silicon hits
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -67,8 +107,8 @@ extern "C" {
            "TaggerTrackerRawHitAssociations"
          },
          {
-           .threshold = 1.5 * dd4hep::keV,
-           .timeResolution = 2 * dd4hep::ns,
+           .threshold = 1.5 * edm4eic::unit::keV,
+           .timeResolution = 2 * edm4eic::unit::ns,
          },
          app
     ));

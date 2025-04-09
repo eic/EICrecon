@@ -5,13 +5,13 @@
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
+#include <JANA/JServiceFwd.h>
 #include <JANA/Services/JServiceLocator.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <mutex>
 
-#include "algorithms/tracking/ActsGeometryProvider.h"
-
+class ActsGeometryProvider;
 
 class ACTSGeo_service : public JService
 {

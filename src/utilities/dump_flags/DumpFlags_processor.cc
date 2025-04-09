@@ -12,7 +12,7 @@
 #include <exception>
 #include <fstream>
 #include <map>
-#include <ostream>
+#include <regex>
 
 
 using namespace fmt;
@@ -52,6 +52,14 @@ void DumpFlags_processor::Process(const std::shared_ptr<const JEvent>& event)
 }
 
 
+static std::string json_escape(const std::string &str) {
+    std::string res = str;
+    std::regex newline_re("\n");
+    res = std::regex_replace(res, newline_re, "\\n");
+    std::regex quote_re("\"");
+    res = std::regex_replace(res, quote_re, "\\\"");
+    return res;
+}
 //------------------
 // Finish
 //------------------
@@ -95,14 +103,12 @@ void DumpFlags_processor::Finish()
                                           );
 
         // form json content string
-        std::string json_escaped_descr = param->GetDescription();
-        std::replace(json_escaped_descr.begin(), json_escaped_descr.end(), '"', '\'');
         json_content += fmt::format("    {}[\"{}\", \"{}\", \"{}\", \"{}\"]\n",
                                     line_num++==0?' ': ',',
-                                    param->GetKey(),
-                                    param->GetValue(),
-                                    param->GetDefault(),
-                                    json_escaped_descr);
+                                    json_escape(param->GetKey()),
+                                    json_escape(param->GetValue()),
+                                    json_escape(param->GetDefault()),
+                                    json_escape(param->GetDescription()));
 
         // Print on screen
         if( m_print_to_screen ) fmt::print("    {:{}} : {}\n", param->GetKey(), max_name_len + 3, param->GetValue());

@@ -6,7 +6,11 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/EventData/Seed.hpp>
+#else
 #include <Acts/Seeding/Seed.hpp>
+#endif
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding/SeedFilter.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
@@ -86,7 +90,11 @@ void eicrecon::TrackSeeding::configure() {
     m_seedFilterConfig = m_seedFilterConfig.toInternalUnits();
 
     // Finder parameters
+#if Acts_VERSION_MAJOR >= 37
+    m_seedFinderConfig.seedFilter = std::make_unique<Acts::SeedFilter<proxy_type>>(m_seedFilterConfig);
+#else
     m_seedFinderConfig.seedFilter = std::make_unique<Acts::SeedFilter<eicrecon::SpacePoint>>(Acts::SeedFilter<eicrecon::SpacePoint>(m_seedFilterConfig));
+#endif
     m_seedFinderConfig.rMax               = m_cfg.rMax;
     m_seedFinderConfig.rMin               = m_cfg.rMin;
     m_seedFinderConfig.deltaRMinTopSP     = m_cfg.deltaRMinTopSP;
@@ -121,7 +129,42 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::prod
 
   std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(trk_hits);
 
+#if Acts_VERSION_MAJOR >=37
+  Acts::SeedFinderOrthogonal<proxy_type> finder(m_seedFinderConfig); // FIXME move into class scope
+#else
   Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(m_seedFinderConfig); // FIXME move into class scope
+#endif
+
+#if Acts_VERSION_MAJOR >= 37
+  // Config
+  Acts::SpacePointContainerConfig spConfig;
+
+  // Options
+  Acts::SpacePointContainerOptions spOptions;
+  spOptions.beamPos = {0., 0.};
+
+  ActsExamples::SpacePointContainer container(spacePoints);
+  Acts::SpacePointContainer<decltype(container), Acts::detail::RefHolder>
+      spContainer(spConfig, spOptions, container);
+
+  std::vector<Acts::Seed<proxy_type>> seeds =
+      finder.createSeeds(m_seedFinderOptions, spContainer);
+
+  // need to convert here from seed of proxies to seed of sps
+  eicrecon::SeedContainer seedsToAdd;
+  seedsToAdd.reserve(seeds.size());
+  for (const auto &seed : seeds) {
+    const auto &sps = seed.sp();
+    seedsToAdd.emplace_back(*sps[0]->externalSpacePoint(),
+                            *sps[1]->externalSpacePoint(),
+                            *sps[2]->externalSpacePoint());
+    seedsToAdd.back().setVertexZ(seed.z());
+    seedsToAdd.back().setQuality(seed.seedQuality());
+  }
+
+  std::unique_ptr<edm4eic::TrackParametersCollection> trackparams = makeTrackParams(seedsToAdd);
+
+#else
 
   std::function<std::tuple<Acts::Vector3, Acts::Vector2, std::optional<Acts::ActsScalar>>(
       const eicrecon::SpacePoint *sp)>
@@ -134,6 +177,8 @@ std::unique_ptr<edm4eic::TrackParametersCollection> eicrecon::TrackSeeding::prod
   eicrecon::SeedContainer seeds = finder.createSeeds(m_seedFinderOptions, spacePoints, create_coordinates);
 
   std::unique_ptr<edm4eic::TrackParametersCollection> trackparams = makeTrackParams(seeds);
+
+#endif
 
   for (auto& sp: spacePoints) {
     delete sp;
