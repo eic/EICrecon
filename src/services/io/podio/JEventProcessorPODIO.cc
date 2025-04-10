@@ -16,8 +16,8 @@
 
 #include "services/log/Log_service.h"
 
-
-JEventProcessorPODIO::JEventProcessorPODIO() {
+JEventProcessorPODIO::JEventProcessorPODIO()
+: m_failed_collections{} {
     SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
 
     japp->SetDefaultParameter(
@@ -458,41 +458,47 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     //            that are determined by hash, we have to ensure they are reproducible
     //            even if the collections are filled in unpredictable order (or not at
     //            all). See also below, at "TODO: NWB:".
-    for (const auto& coll_name : m_collections_to_write) {
+    for (const auto& coll : m_collections_to_write) {
         try {
             [[maybe_unused]]
-            const auto* coll_ptr = event->GetCollectionBase(coll_name);
+            const auto* coll_ptr = event->GetCollectionBase(coll);
         }
         catch(std::exception &e) {
-            // chomp
+            // Limit printing warning to just once per factory
+            if (m_failed_collections.count(coll) == 0) {
+                m_log->error("Failed to get {} due to exception: {}", coll, e.what());
+                m_failed_collections.insert(coll);
+            }
         }
     }
 
     // Print the contents of some collections, just for debugging purposes
     // Do this before writing just in case writing crashes
     if (!m_collections_to_print.empty()) {
-        LOG << "========================================" << LOG_END;
-        LOG << "JEventProcessorPODIO: Event " << event->GetEventNumber() << LOG_END;
+        m_log->log(spdlog::level::off, "==================================");
+        m_log->log(spdlog::level::off, "Event {}", event->GetEventNumber());
     }
     for (const auto& coll_name : m_collections_to_print) {
-        LOG << "------------------------------" << LOG_END;
-        LOG << coll_name << LOG_END;
+        m_log->log(spdlog::level::off, "------------------------------");
+        m_log->log(spdlog::level::off, "{}", coll_name);
         try {
             const auto* coll_ptr = event->GetCollectionBase(coll_name);
             if (coll_ptr == nullptr) {
-                LOG << "missing" << LOG_END;
+                m_log->log(spdlog::level::off, "missing");
             } else {
-                coll_ptr->print();
+                std::ostringstream ostr;
+                coll_ptr->print(ostr);
+                m_log->log(spdlog::level::off, ostr.str());
             }
         }
         catch(std::exception &e) {
-            LOG << "missing" << LOG_END;
+            m_log->log(spdlog::level::off, "missing");
         }
     }
 
+    // Print the event number
     m_log->trace("==================================");
-    m_log->trace("Event #{}", event->GetEventNumber());
-
+    m_log->trace("Event {}", event->GetEventNumber());
 
     // Make sure that all factories get called that need to be written into the frame.
     // We need to do this for _all_ factories unless we've constrained it by using includes/excludes.
@@ -513,7 +519,6 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
     //            This means that the collection IDs are stable so the writer doesn't segfault.
     //            The better fix is to maintain a map of collection IDs, or just wait for PODIO to fix the bug.
     std::vector<std::string> successful_collections;
-    static std::set<std::string> failed_collections;
     for (const std::string& coll : m_collections_to_write) {
         try {
             m_log->trace("Ensuring factory for collection '{}' has been called.", coll);
@@ -523,9 +528,9 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
                 // To avoid this, we treat this as a failing collection and omit from this point onwards.
                 // However, this code path is expected to be unreachable because any missing collection will be
                 // replaced with an empty collection in JFactoryPodioTFixed::Create.
-                if (failed_collections.count(coll) == 0) {
+                if (m_failed_collections.count(coll) == 0) {
                     m_log->error("Omitting PODIO collection '{}' because it is null", coll);
-                    failed_collections.insert(coll);
+                    m_failed_collections.insert(coll);
                 }
             }
             else {
@@ -535,9 +540,9 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent> &event) {
         }
         catch(std::exception &e) {
             // Limit printing warning to just once per factory
-            if (failed_collections.count(coll) == 0) {
+            if (m_failed_collections.count(coll) == 0) {
                 m_log->error("Omitting PODIO collection '{}' due to exception: {}.", coll, e.what());
-                failed_collections.insert(coll);
+                m_failed_collections.insert(coll);
             }
         }
     }
@@ -568,4 +573,12 @@ void JEventProcessorPODIO::Finish() {
     }
 
     m_writer->finish();
+
+    // Print summary of failed collections
+    if (! m_failed_collections.empty()) {
+        m_log->error("Failed to get the following collections at least once:");
+        for (const auto& coll : m_failed_collections) {
+            m_log->error("Failed collection '{}'", coll);
+        }
+    }
 }
