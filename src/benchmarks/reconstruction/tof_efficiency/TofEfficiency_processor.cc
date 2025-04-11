@@ -68,9 +68,9 @@ const edm4hep::Vector3f TofEfficiency_processor::ConvertCluster( const edm4eic::
   // Get context of first hit
   const dd4hep::VolumeManagerContext* context = m_converter->findContext(cluster.getSurface());
   auto globalPos = context->localToWorld({cluster.getLoc()[0], cluster.getLoc()[1], 0});
-  return edm4hep::Vector3f{static_cast<float>(globalPos.x()/ dd4hep::mm), 
-	                   static_cast<float>(globalPos.y()/ dd4hep::mm), 
-			   static_cast<float>(globalPos.z()/ dd4hep::mm)};
+  return edm4hep::Vector3f{static_cast<float>(globalPos.x()/ dd4hep::mm),
+                           static_cast<float>(globalPos.y()/ dd4hep::mm),
+                           static_cast<float>(globalPos.z()/ dd4hep::mm)};
 
 }
 
@@ -122,7 +122,7 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
             float hit_px=-1000, hit_py=-1000, hit_pz=-1000, hit_e=-1000;
             if(det==1) {
                 for (const auto hit: barrelHits) {
-	            const auto& hitpos = ConvertCluster(hit);
+                    const auto& hitpos = ConvertCluster(hit);
                     float distance=sqrt((hitpos.x-pos.x)*(hitpos.x-pos.x)+(hitpos.y-pos.y)*(hitpos.y-pos.y)+(hitpos.z-pos.z)*(hitpos.z-pos.z));
                     if(distance<distance_closest) {
                         distance_closest=distance;
