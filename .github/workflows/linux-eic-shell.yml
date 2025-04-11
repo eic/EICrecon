@@ -94,10 +94,6 @@ jobs:
             CMAKE_BUILD_TYPE: Release
             release: 25.01.1-stable
     steps:
-    - name: mmap rnd_bits workaround
-      # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
-      run: |
-        sudo sysctl -w vm.mmap_rnd_bits=28
     - uses: actions/checkout@v4
       with:
         filter: "tree:0"
@@ -472,10 +468,6 @@ jobs:
         particle: [e]
         detector_config: [craterlake]
     steps:
-    - name: mmap rnd_bits workaround
-      # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
-      run: |
-        sudo sysctl -w vm.mmap_rnd_bits=28
     - name: Checkout .github
       uses: actions/checkout@v4
       with:
@@ -536,10 +528,6 @@ jobs:
         particle: [e]
         detector_config: [craterlake]
     steps:
-    - name: mmap rnd_bits workaround
-      # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
-      run: |
-        sudo sysctl -w vm.mmap_rnd_bits=28
     - name: Checkout .github
       uses: actions/checkout@v4
       with:
@@ -583,10 +571,6 @@ jobs:
         - tracking_test
         - track_propagation_test
     steps:
-    - name: mmap rnd_bits workaround
-      # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
-      run: |
-        sudo sysctl -w vm.mmap_rnd_bits=28
     - name: Checkout .github
       uses: actions/checkout@v4
       with:
@@ -636,10 +620,6 @@ jobs:
         - tracking_efficiency
         - tracking_occupancy
     steps:
-    - name: mmap rnd_bits workaround
-      # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
-      run: |
-        sudo sysctl -w vm.mmap_rnd_bits=28
     - name: Checkout .github
       uses: actions/checkout@v4
       with:
@@ -681,10 +661,6 @@ jobs:
         particle: [pi, e]
         detector_config: [craterlake]
     steps:
-    - name: mmap rnd_bits workaround
-      # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
-      run: |
-        sudo sysctl -w vm.mmap_rnd_bits=28
     - name: Checkout .github
       uses: actions/checkout@v4
       with:
@@ -795,10 +771,6 @@ jobs:
         particle: [e]
         detector_config: [ip6_extended]
     steps:
-    - name: mmap rnd_bits workaround
-      # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
-      run: |
-        sudo sysctl -w vm.mmap_rnd_bits=28
     - name: Checkout .github
       uses: actions/checkout@v4
       with:
@@ -881,10 +853,6 @@ jobs:
           minq2: 1000
           detector_config: craterlake_18x275
     steps:
-    - name: mmap rnd_bits workaround
-      # https://github.com/actions/runner/issues/3207#issuecomment-2000066889
-      run: |
-        sudo sysctl -w vm.mmap_rnd_bits=28
     - name: Checkout .github
       uses: actions/checkout@v4
       with:
