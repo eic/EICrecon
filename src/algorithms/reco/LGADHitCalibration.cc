@@ -51,12 +51,12 @@ void LGADHitCalibration::process(const LGADHitCalibration::Input& input,
     double varZ = cellSize.size() > 2? cellSize[2] / mm / std::sqrt(12.) : 0;
     varZ *= varZ;
 
- 
+
 
     calibrated_hits->create(id,
-		            edm4hep::Vector3f{static_cast<float>(pos.x()), 
-			                      static_cast<float>(pos.y()), 
-					      static_cast<float>(pos.z())},
+                            edm4hep::Vector3f{static_cast<float>(pos.x()),
+                                              static_cast<float>(pos.y()),
+                                              static_cast<float>(pos.z())},
                             edm4eic::CovDiag3f{varX, varY, varZ}, // should be the covariance of position
                             time,                                 // ns
                             0.0F,                                 // covariance of time
