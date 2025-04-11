@@ -25,8 +25,8 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/digi/LGADChargeSharing_factory.h"
-#include "factories/reco/LGADHitReconstruction_factory.h"
-//#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/reco/LGADHitCalibration_factory.h"
+#include "factories/reco/LGADHitClustering_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -53,10 +53,22 @@ void InitPlugin(JApplication* app) {
       app
   ));
 
-  // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<LGADHitReconstruction_factory>(
-      "TOFBarrelRecHits",
+  // Convert raw digitized hits into calibrated hits 
+  // time walk correction is still TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
+      "TOFBarrelCalHits",
       {"TOFBarrelADCTDC"},    // Input data collection tags
+      {"TOFBarrelCalHits"},    // Output data tag
+      {},
+      app
+  ));         // Hit reco default config for factories
+
+  // cluster all hits in a sensor into one hit location
+  // Currently it's just a simple weighted average
+  // More sophisticated algorithm TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
+      "TOFBarrelRecHits",
+      {"TOFBarrelCalHits"},    // Input data collection tags
       {"TOFBarrelRecHits"},    // Output data tag
       {},
       app
@@ -90,7 +102,7 @@ void InitPlugin(JApplication* app) {
   const double gain = - adc_range/ Vm / landau_min;
   const int offset = 3;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
-      "LGADPulseGeneration",
+      "TOFBarrelPulseGeneration",
       {"TOFBarrelSharedHits"},
       {"TOFBarrelSmoothPulse"},
       {
@@ -104,7 +116,7 @@ void InitPlugin(JApplication* app) {
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
-      "SiliconPulseDiscretization",
+      "TOFBarrelPulseDiscretization",
       {"TOFBarrelSmoothPulse"},
       {"TOFBarrelPulse"},
       {
@@ -114,6 +126,8 @@ void InitPlugin(JApplication* app) {
       },
       app
   ));
+
+
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
       "EICROCDigitization",

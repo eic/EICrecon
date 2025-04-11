@@ -3,16 +3,16 @@
 
 #pragma once
 
-#include "algorithms/reco/LGADHitReconstruction.h"
+#include "algorithms/reco/LGADHitCalibration.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 namespace eicrecon {
 
-class LGADHitReconstruction_factory
-    : public JOmniFactory<LGADHitReconstruction_factory, LGADHitReconstructionConfig> {
+class LGADHitCalibration_factory
+    : public JOmniFactory<LGADHitCalibration_factory, LGADHitCalibrationConfig> {
 private:
-  std::unique_ptr<eicrecon::LGADHitReconstruction> m_algo;
+  std::unique_ptr<eicrecon::LGADHitCalibration> m_algo;
 
   PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input{this};
   PodioOutput<edm4eic::TrackerHit> m_rec_hits_output{this};
@@ -24,7 +24,7 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<eicrecon::LGADHitReconstruction>(GetPrefix());
+    m_algo = std::make_unique<eicrecon::LGADHitCalibration>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();

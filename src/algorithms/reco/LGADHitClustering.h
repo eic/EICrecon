@@ -5,39 +5,34 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/Measurement2DCollection.h>
 #include <algorithms/algorithm.h>
 #include <memory>
 #include <spdlog/logger.h>
 #include <algorithms/geo.h>
 #include <algorithms/service.h>
 
-#include "LGADHitReconstructionConfig.h"
+#include "LGADHitClusteringConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using LGADHitReconstructionAlgorithm =
-        algorithms::Algorithm<algorithms::Input<edm4eic::RawTrackerHitCollection>,
-                              algorithms::Output<edm4eic::TrackerHitCollection>>;
+using LGADHitClusteringAlgorithm =
+        algorithms::Algorithm<algorithms::Input<edm4eic::TrackerHitCollection>,
+                              algorithms::Output<edm4eic::Measurement2DCollection>>;
 
-class LGADHitReconstruction : public LGADHitReconstructionAlgorithm,
-                              public WithPodConfig<LGADHitReconstructionConfig> {
+class LGADHitClustering : public LGADHitClusteringAlgorithm,
+                              public WithPodConfig<LGADHitClusteringConfig> {
 
 public:
-  LGADHitReconstruction(std::string_view name)
-    : LGADHitReconstructionAlgorithm{name, {"TOFBarrelADCTDC"}, {"TOFBarrelRecHit"}, ""} {};
+  LGADHitClustering(std::string_view name)
+    : LGADHitClusteringAlgorithm{name, {"TOFBarrelCalHit"}, {"TOFBarrelRecHit"}, ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;
 
 private:
-  struct HitInfo {
-    double x, y, z;
-    int adc, tdc;
-    dd4hep::rec::CellID id;
-  };
   dd4hep::rec::CellID getSensorInfos(const dd4hep::rec::CellID& id) const;
   /** algorithm logger */
   std::shared_ptr<spdlog::logger> m_log;
@@ -49,5 +44,7 @@ private:
   const dd4hep::DDSegmentation::BitFieldCoder* m_decoder = nullptr;
 
   const dd4hep::Detector* m_detector = nullptr;
+
+  dd4hep::Segmentation m_seg;
 };
 } // namespace eicrecon
