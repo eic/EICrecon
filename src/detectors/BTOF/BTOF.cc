@@ -19,11 +19,11 @@
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
-#include "factories/digi/LGADChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
 //#include "factories/digi/PulseCombiner_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
@@ -63,7 +63,9 @@ void InitPlugin(JApplication* app) {
   ));         // Hit reco default config for factories
 
 
-  app->Add(new JOmniFactoryGeneratorT<LGADChargeSharing_factory>(
+
+
+  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "LGADChargeSharing",
       {"TOFBarrelHits"},
       {"TOFBarrelSharedHits"},
@@ -71,8 +73,6 @@ void InitPlugin(JApplication* app) {
           .sigma_sharingx = 0.1 * dd4hep::cm,
           .sigma_sharingy = 0.5 * dd4hep::cm,
           .readout = "TOFBarrelHits",
-          .same_sensor_condition = "sensor_1 == sensor_2",
-          .neighbor_fields = {"x", "y"}
       },
       app
   ));
