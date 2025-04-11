@@ -1,10 +1,12 @@
 #include "TofEfficiency_processor.h"
 
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include <JANA/JApplication.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <edm4eic/Measurement2DCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
@@ -52,7 +54,26 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
 
     m_tntuple_track = new TNtuple("track","track with tof","det:proj_x:proj_y:proj_z:proj_pathlength:tofhit_x:tofhit_y:tofhit_z:tofhit_t:tofhit_dca");
     m_tntuple_track->SetDirectory(m_dir_main);
+
+    // convert local position to global position for Measurement2D
+    m_detector = GetApplication() -> GetService<DD4hep_service>() -> detector();
+    m_converter = GetApplication() -> GetService<DD4hep_service>() -> converter();
+
 }
+
+// Convert measurements into global coordinates
+// copied from FarDetectorLinearTracking.cc
+const edm4hep::Vector3f TofEfficiency_processor::ConvertCluster( const edm4eic::Measurement2D& cluster ) const {
+
+  // Get context of first hit
+  const dd4hep::VolumeManagerContext* context = m_converter->findContext(cluster.getSurface());
+  auto globalPos = context->localToWorld({cluster.getLoc()[0], cluster.getLoc()[1], 0});
+  return edm4hep::Vector3f{static_cast<float>(globalPos.x()/ dd4hep::mm), 
+	                   static_cast<float>(globalPos.y()/ dd4hep::mm), 
+			   static_cast<float>(globalPos.z()/ dd4hep::mm)};
+
+}
+
 
 //-------------------------------------------
 // ProcessSequential
@@ -60,14 +81,14 @@ void TofEfficiency_processor::InitWithGlobalRootLock(){
 void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
     const auto &mcParticles   = *(event->GetCollection<edm4hep::MCParticle>("MCParticles"));
     const auto &trackSegments = *(event->GetCollection<edm4eic::TrackSegment>("CentralTrackSegments"));
-    const auto &barrelHits    = *(event->GetCollection<edm4eic::TrackerHit>("TOFBarrelRecHits"));
+    const auto &barrelHits    = *(event->GetCollection<edm4eic::Measurement2D>("TOFBarrelRecHits"));
     const auto &endcapHits    = *(event->GetCollection<edm4eic::TrackerHit>("TOFEndcapRecHits"));
 
     // List TOF Barrel hits from barrel
     logger()->trace("TOF barrel hits:");
     m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[time]");
     for (const auto hit: barrelHits) {
-        const auto& pos = hit.getPosition();
+        const auto& pos = ConvertCluster(hit);
         float r=sqrt(pos.x*pos.x+pos.y*pos.y);
         float phi=acos(pos.x/r); if(pos.y<0) phi+=3.1415927;
         m_th2_btof_phiz->Fill(phi, pos.z);
@@ -101,7 +122,7 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
             float hit_px=-1000, hit_py=-1000, hit_pz=-1000, hit_e=-1000;
             if(det==1) {
                 for (const auto hit: barrelHits) {
-                    const auto& hitpos = hit.getPosition();
+	            const auto& hitpos = ConvertCluster(hit);
                     float distance=sqrt((hitpos.x-pos.x)*(hitpos.x-pos.x)+(hitpos.y-pos.y)*(hitpos.y-pos.y)+(hitpos.z-pos.z)*(hitpos.z-pos.z));
                     if(distance<distance_closest) {
                         distance_closest=distance;
