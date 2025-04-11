@@ -53,7 +53,7 @@ void InitPlugin(JApplication* app) {
       app
   ));
 
-  // Convert raw digitized hits into calibrated hits 
+  // Convert raw digitized hits into calibrated hits
   // time walk correction is still TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
       "TOFBarrelCalHits",

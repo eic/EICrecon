@@ -73,10 +73,10 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
     auto max_charge     = hits[0].getEdep();
     auto earliest_time  = hits[0].getTime();
 
-    ROOT::VecOps::RVec<double> weights; 
+    ROOT::VecOps::RVec<double> weights;
     for (const auto& hit : hits) {
       // weigh all hits by ADC value
-      auto pos = m_seg -> position(hit.getCellID()); 
+      auto pos = m_seg -> position(hit.getCellID());
       ave_x += hit.getEdep() * pos.x();
       ave_y += hit.getEdep() * pos.y();
       ave_z += hit.getEdep() * pos.z();
