@@ -93,10 +93,10 @@ extern "C" {
           app   // TODO: Remove me once fixed
         ));
 
-        
+
        //======================================================================
         // Trying ImagingTopoClustering for ScFi
-        
+
         app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
           "EcalBarrelScFiProtoClusters_Topo", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters_Topo"},
           {
@@ -111,10 +111,10 @@ extern "C" {
           },
           app   // TODO: Remove me once fixed
         ));
-        
+
        //======================================================================
-        
-        
+
+
         app->Add(
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "EcalBarrelScFiClustersWithoutShapes",
