@@ -44,9 +44,10 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
 
     // one TGraph per pulse
     // Interpolate the pulse with TGraph
+    auto& graph = Graph4Cells[cellID];
     for (unsigned int i = 0; i < pulse.getAmplitude().size(); i++) {
       auto currTime = time + i*interval;
-      Graph4Cells[cellID].SetPoint(i, currTime + m_cfg.global_offset, pulse.getAmplitude()[i]);
+      graph.SetPoint(graph.GetN(), currTime + m_cfg.global_offset, pulse.getAmplitude()[i]);
     }
   }
 
