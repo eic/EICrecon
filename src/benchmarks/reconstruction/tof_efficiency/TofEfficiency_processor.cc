@@ -1,20 +1,26 @@
 #include "TofEfficiency_processor.h"
 
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include <DD4hep/VolumeManager.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/Services/JGlobalRootLock.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/Measurement2DCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <spdlog/logger.h>
 #include <cmath>
+#include <gsl/pointers>
 #include <vector>
 
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
 
 //-------------------------------------------
