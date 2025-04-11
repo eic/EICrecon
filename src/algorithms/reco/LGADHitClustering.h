@@ -4,14 +4,16 @@
 #pragma once
 
 #include <DD4hep/Detector.h>
+#include <DD4hep/Segmentations.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <edm4eic/Measurement2DCollection.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
-#include <memory>
+#include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <spdlog/logger.h>
-#include <algorithms/geo.h>
-#include <algorithms/service.h>
+#include <memory>
+#include <string>
+#include <string_view>
 
 #include "LGADHitClusteringConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

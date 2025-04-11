@@ -3,15 +3,14 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <algorithms/algorithm.h>
-#include <memory>
 #include <spdlog/logger.h>
-#include <algorithms/geo.h>
-#include <algorithms/service.h>
+#include <memory>
+#include <string>
+#include <string_view>
 
 #include "LGADHitCalibrationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

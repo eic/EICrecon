@@ -3,21 +3,23 @@
 
 #include "LGADHitClustering.h"
 
+#include <DD4hep/Handle.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/detail/SegmentationsInterna.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <edm4eic/Cov3f.h>
-#include <edm4eic/CovDiag3f.h>
-#include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
-#include <iterator>
-#include <spdlog/common.h>
-#include <stddef.h>
-#include <utility>
 #include <ROOT/RVec.hxx>
+#include <algorithms/geo.h>
+#include <edm4eic/Cov3f.h>
+#include <edm4hep/Vector2f.h>
+#include <algorithm>
+#include <gsl/pointers>
+#include <unordered_map>
+#include <utility>
 #include <vector>
 
-#include "TMatrixT.h"
+#include "algorithms/reco/LGADHitClusteringConfig.h"
 
 namespace eicrecon {
 

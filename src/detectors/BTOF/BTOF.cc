@@ -8,12 +8,12 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <TMath.h>
 #include <edm4eic/unit_system.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
-#include <TMath.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
@@ -23,8 +23,6 @@
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
-#include "factories/digi/LGADChargeSharing_factory.h"
 #include "factories/reco/LGADHitCalibration_factory.h"
 #include "factories/reco/LGADHitClustering_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
