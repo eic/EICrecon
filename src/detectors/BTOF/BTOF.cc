@@ -22,6 +22,7 @@
 #include "factories/digi/LGADChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/reco/LGADHitCalibration_factory.h"
 #include "factories/reco/LGADHitClustering_factory.h"
@@ -112,10 +113,22 @@ void InitPlugin(JApplication* app) {
       app
   ));
 
+  app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+    "TOFBarrelPulseCombiner",
+    {"TOFBarrelSmoothPulses"},
+    {"TOFBarrelCombinedPulses"},
+    {
+        .minimum_separation = 25 * edm4eic::unit::ns,
+    },
+    app
+  ));
+
+
+
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
       "TOFBarrelPulseDiscretization",
-      {"TOFBarrelSmoothPulse"},
+      {"TOFBarrelCombinedPulse"},
       {"TOFBarrelPulse"},
       {
           .EICROC_period = 25 * edm4eic::unit::ns,
