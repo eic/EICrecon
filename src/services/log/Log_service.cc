@@ -9,6 +9,7 @@
 #include <spdlog/formatter.h>
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/dup_filter_sink.h>
 #include <spdlog/version.h>
 #if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
 #include <spdlog/mdc.h>
@@ -78,6 +79,9 @@ Log_service::Log_service(JApplication* app) {
   m_application->SetDefaultParameter("eicrecon:LogFormat", m_log_level_str,
                                      "spdlog pattern string");
   spdlog::set_formatter(std::move(formatter));
+
+  m_log_dup_filter = 30; // seconds
+  m_application->SetDefaultParameter("eicrecon:DupFilter", m_log_dup_filter, "spdlog duplicate filter timeout [s]");
 }
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
@@ -96,6 +100,11 @@ std::shared_ptr<spdlog::logger> Log_service::logger(const std::string& name,
       // or create a new one with current configuration
       logger = spdlog::default_logger()->clone(name);
 
+      // insert duplicate filter
+      auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_st>(std::chrono::seconds(m_log_dup_filter), spdlog::level::info);
+      dup_filter->add_sink(logger->sinks().back());
+      logger->sinks()[0] = dup_filter;
+
       // Set log level for this named logger allowing user to specify as config. parameter
       // e.g. EcalEndcapPRecHits:LogLevel
       std::string log_level_str =
@@ -104,6 +113,7 @@ std::shared_ptr<spdlog::logger> Log_service::logger(const std::string& name,
                                          "log_level for " + name +
                                              ": trace, debug, info, warn, error, critical, off");
       logger->set_level(eicrecon::ParseLogLevel(log_level_str));
+
     }
     return logger;
   } catch (const std::exception& exception) {
