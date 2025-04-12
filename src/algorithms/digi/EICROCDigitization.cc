@@ -28,14 +28,13 @@ void EICROCDigitization::process(const EICROCDigitization::Input& input,
   for (const auto& pulse : *simhits) {
     double intersectionX = 0.0;
     int tdc              = std::numeric_limits<int>::max();
-    int adc              = 0;
     int V                = 0;
 
     int time_bin         = 0;
     double adc_prev      = 0;
     double time_interval = pulse.getInterval();
     auto adcs            = pulse.getAdcCounts();
-    double n_EICROC_cycle = static_cast<int>(std::floor(pulse.getTime()/m_cfg.tMax + 1e-3));
+    int n_EICROC_cycle = static_cast<int>(std::floor(pulse.getTime()/m_cfg.tMax + 1e-3));
     for (const auto adc : adcs) {
       if (adc_prev >= thres && adc <= thres) {
         tdc = time_bin + n_EICROC_cycle * m_cfg.tdc_range;
@@ -47,7 +46,7 @@ void EICROCDigitization::process(const EICROCDigitization::Input& input,
     }
 
     // limit the range of adc values
-    adc = std::min(adc_range, -V);
+    int adc = std::min(adc_range, -V);
     // only store valid hits
     if (tdc < std::numeric_limits<int>::max())
       rawhits->create(pulse.getCellID(), adc, tdc);
