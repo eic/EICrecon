@@ -384,7 +384,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "LFHCALSplitMergeClustersWithoutShapes",
             {"LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "LFHCALRawHitAssociations"}, // edm4hep::MCRecoCalorimeterHitAssociationCollection
+#else
              "LFHCALHits"}, // edm4hep::SimCalorimeterHitCollection
+#endif
             {"LFHCALSplitMergeClustersWithoutShapes", // edm4eic::Cluster
              "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
             {
