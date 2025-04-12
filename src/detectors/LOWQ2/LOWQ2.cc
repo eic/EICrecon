@@ -19,6 +19,7 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
@@ -98,6 +99,17 @@ extern "C" {
          app
     ));
 
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "TaggerTrackerRecHits",
+      {"TaggerTrackerRawHits"},
+      {"TaggerTrackerRecHits"},
+      {
+          .timeResolution = 2,
+      },
+      app
+    ));
+
     // Divide collection based on geometry segmentation labels
     // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
     std::string readout = "TaggerTrackerHits";
@@ -115,15 +127,15 @@ extern "C" {
       moduleClusterTags.push_back({});
       for(int lay_id : layerIDs){
         geometryDivisions.push_back({mod_id,lay_id});
-        geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
+        geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RecHits",mod_id,lay_id));
         outputClusterCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id));
         moduleClusterTags.back().push_back(outputClusterCollectionNames.back());
       }
     }
 
-    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::RawTrackerHit>>(
+    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>(
          "TaggerTrackerSplitHits",
-         {"TaggerTrackerRawHits"},
+         {"TaggerTrackerRecHits"},
          geometryDivisionCollectionNames,
          {
           .function = GeometrySplit{geometryDivisions,readout,geometryLabels},
