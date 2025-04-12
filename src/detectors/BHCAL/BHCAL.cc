@@ -215,7 +215,11 @@ extern "C" {
           new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
              "HcalBarrelSplitMergeClustersWithoutShapes",
             {"HcalBarrelSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-             "HcalBarrelHits"},                          // edm4hep::SimCalorimeterHitCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+             "HcalBarrelRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#else
+             "HcalBarrelHits"}, // edm4hep::SimCalorimeterHitCollection
+#endif
             {"HcalBarrelSplitMergeClustersWithoutShapes", // edm4eic::Cluster
              "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
             {
