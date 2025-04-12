@@ -35,6 +35,7 @@
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/meta/ONNXInference_factory.h"
 #endif
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -106,6 +107,7 @@ extern "C" {
     std::vector<int> layerIDs {0,1,2,3};
     std::vector<std::vector<long int>> geometryDivisions{};
     std::vector<std::string> geometryDivisionCollectionNames;
+    std::vector<std::pair<std::string, std::string>> geometryDivisionHitCollectionNames;
     std::vector<std::string> outputClusterCollectionNames;
     std::vector<std::string> outputTrackTags;
     std::vector<std::vector<std::string>> moduleClusterTags;
@@ -116,6 +118,10 @@ extern "C" {
       for(int lay_id : layerIDs){
         geometryDivisions.push_back({mod_id,lay_id});
         geometryDivisionCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id));
+        geometryDivisionHitCollectionNames.push_back({
+          fmt::format("TaggerTrackerM{}L{}RawHits",mod_id,lay_id),
+          fmt::format("TaggerTrackerM{}L{}RecHits",mod_id,lay_id)
+        });
         outputClusterCollectionNames.push_back(fmt::format("TaggerTrackerM{}L{}ClusterPositions",mod_id,lay_id));
         moduleClusterTags.back().push_back(outputClusterCollectionNames.back());
       }
@@ -132,6 +138,18 @@ extern "C" {
       )
     );
 
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+    for (auto& [rawHitCollection, recHitCollection]: geometryDivisionHitCollectionNames) {
+      app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+        recHitCollection,
+        {rawHitCollection},
+        {recHitCollection},
+        {
+            .timeResolution = 2,
+        },
+        app
+      ));
+    }
 
     app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
         "TaggerTrackerClustering",
