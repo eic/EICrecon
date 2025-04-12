@@ -101,7 +101,7 @@ std::shared_ptr<spdlog::logger> Log_service::logger(const std::string& name,
       logger = spdlog::default_logger()->clone(name);
 
       // insert duplicate filter
-#if SPDLOG_VERSION >= SPDLOG_TO_VERSION(1, 12, 0)
+#if SPDLOG_VERSION >= 11200 // FIXME: SPDLOG_TO_VERSION(1, 12, 0) only after 1.13.0
       auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_st>(std::chrono::seconds(m_log_dup_filter), spdlog::level::info);
 #else 
       auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_st>(std::chrono::seconds(m_log_dup_filter));
