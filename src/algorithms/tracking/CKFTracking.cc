@@ -428,7 +428,7 @@ namespace eicrecon {
                 // collection. We'll just assume no algorithm will access them
                 // directly.
                 acts_tracks.removeTrack(track_index);
-#if Acts_VERSION_MAJOR < 36
+#if Acts_VERSION_MAJOR < 36 || (Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR < 1)
                // Workaround an upstream bug in Acts::VectorTrackContainer::removeTrack_impl()
                // https://github.com/acts-project/acts/commit/94cf81f3f1109210b963977e0904516b949b1154
                trackContainer->m_particleHypothesis.erase(trackContainer->m_particleHypothesis.begin() + track_index);
