@@ -14,6 +14,10 @@
 #include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
 #include <spdlog/spdlog.h>
+#include <spdlog/version.h>
+#if SPDLOG_VERSION >= 11400
+#include <spdlog/mdc.h>
+#endif
 
 #include "services/io/podio/datamodel_glue.h"
 #include "services/log/Log_service.h"
@@ -555,6 +559,9 @@ public:
             for (auto* output : m_outputs) {
                 output->Reset();
             }
+#if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
+            spdlog::mdc::put("e", std::to_string(event->GetEventNumber()));
+#endif
             static_cast<AlgoT*>(this)->Process(event->GetRunNumber(), event->GetEventNumber());
             for (auto* output : m_outputs) {
                 output->SetCollection(*this);
