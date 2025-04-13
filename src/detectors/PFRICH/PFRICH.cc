@@ -33,7 +33,8 @@ extern "C" {
     InitJANAPlugin(app);
 
     printf("@@@ PFRICH InitPlugin()\n");
-    
+
+#if _OLD_
     using namespace eicrecon;
 
     // Track propagation; FIXME: get rid of gas part;
@@ -82,5 +83,6 @@ extern "C" {
           //irt_cfg,
           app
           ));
+#endif
   }
 }

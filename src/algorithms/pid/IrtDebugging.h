@@ -5,10 +5,10 @@
 
 #pragma once
 
+#include <nlohmann/json.hpp>
+
 #include <TRandomGen.h>
 //#include <TRandom.h>
-
-#include <IRT/CherenkovRadiator.h>
 
 #include <algorithms/algorithm.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -17,19 +17,34 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
+//#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+//#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 
 #include <spdlog/logger.h>
-#include "services/geometry/richgeo/RichGeo_service.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+
+#include <IRT/CherenkovRadiator.h>
 
 class TTree;
 class TFile;
 class TH1D;
 class TBranch;
 class CherenkovEvent;
+class CherenkovDetectorCollection;
+class CherenkovDetector;
+
 //#include <mutex>
+
+// JOmniFactoryGeneratorT does not allow to use omre than one extra config parameter ->
+// bunch whatever is needed to pass in a single structure; do not want to repeat parsing
+// of either th eoptics file or a JSON configuration file twice;
+struct IrtDebuggingConfig {
+  IrtDebuggingConfig(): m_irt_geometry(0) {};
+  
+  CherenkovDetectorCollection *m_irt_geometry;
+  nlohmann::json m_json_config;
+};
 
 namespace eicrecon {
   using IrtDebuggingAlgorithm = algorithms::Algorithm<
@@ -46,24 +61,24 @@ namespace eicrecon {
     >;
 
   class IrtDebugging
-    : public IrtDebuggingAlgorithm/*,
-				    public WithPodConfig<IrtCherenkovParticleIDConfig>*/ {
+    : public IrtDebuggingAlgorithm {
 
   public:
     IrtDebugging(std::string_view name)
-      : m_Event(0), m_EventPtr(0), m_Instance(0), IrtDebuggingAlgorithm{name,
-                            {
-			      "inputMCParticles",
-			      "inputRecoParticles",
-			      "inputMCRecoAssotiations",
-			      "inputAerogelTrackSegments",
-			      "inputSimHits"
-			    },
-			    // This part is not activated as of now;
-			    {"outputAerogelParticleIDs"},
-			    "Effectively 'zip' the input particle IDs"} {};
+      : m_Event(0), m_EventPtr(0), m_Instance(0), m_sign(0.0), IrtDebuggingAlgorithm{
+	  name,
+	  {
+	    "inputMCParticles",
+	    "inputRecoParticles",
+	    "inputMCRecoAssotiations",
+	    "inputAerogelTrackSegments",
+	    "inputSimHits"
+	  },
+	  // This part is not activated as of now;
+	  {"outputAerogelParticleIDs"},
+	  "Effectively 'zip' the input particle IDs"} {};
     
-    void init(RichGeo_service &service, std::shared_ptr<spdlog::logger>& logger);
+    void init(DD4hep_service &service, IrtDebuggingConfig &config, std::shared_ptr<spdlog::logger>& logger);
 
     void process(const Input&, const Output&) const;
     
@@ -74,7 +89,7 @@ namespace eicrecon {
   private:
     std::shared_ptr<spdlog::logger> m_log;
     // FIXME: make static?;
-    CherenkovDetectorCollection*    m_irt_det_coll;
+    //CherenkovDetectorCollection*    m_irt_det_coll;
     CherenkovDetector*              m_irt_det;
 
     static TFile *m_OutputFile;
@@ -90,6 +105,11 @@ namespace eicrecon {
     TRandomMixMax m_random;
     std::function<double()> m_rngUni;
     
-    std::string m_det_name;
+    //std::string m_det_name;
+
+    IrtDebuggingConfig m_config;
+
+    // FIXME: do it better later;
+    double m_sign;
   };
 }

@@ -3,13 +3,12 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#define _ELECTRON_GOING_ENDCAP_CASE_
-
-#ifdef _ELECTRON_GOING_ENDCAP_CASE_
-static const double sign = -1.0;
-#else
-static const double sign =  1.0;
-#endif
+//#define _ELECTRON_GOING_ENDCAP_CASE_
+//#ifdef _ELECTRON_GOING_ENDCAP_CASE_
+//static const double sign = -1.0;
+//#else
+//static const double sign =  1.0;
+//#endif
 
 #include <mutex>
 
@@ -29,6 +28,7 @@ static const double sign =  1.0;
 
 #include <IRT/ChargedParticle.h>
 #include "IRT/CherenkovEvent.h"
+#include "IRT/CherenkovDetectorCollection.h"
 
 #include "G4DataInterpolation.h"
 #include "IrtDebugging.h"
@@ -47,6 +47,8 @@ TH1D *eicrecon::IrtDebugging::m_Debug = 0;
 #define _FAKE_QE_DOWNSCALING_FACTOR_          (30.0/37.0)
 #define _REFERENCE_WAVE_LENGTH_                   (390.0)
 
+using json = nlohmann::json;
+
 // -------------------------------------------------------------------------------------
 
 namespace eicrecon {
@@ -63,7 +65,7 @@ namespace eicrecon {
 
       // Write an optics configuration copy into the output event tree; this modified version
       // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
-      m_irt_det_coll->Write();
+      m_config.m_irt_geometry->Write();
       
       m_Debug->Write();
       
@@ -72,14 +74,21 @@ namespace eicrecon {
   } // IrtDebugging::~IrtDebugging()
   
   // -------------------------------------------------------------------------------------
-  
-  void IrtDebugging::init(RichGeo_service &service, std::shared_ptr<spdlog::logger>& logger)
+    
+  void IrtDebugging::init(DD4hep_service &dd4hep_service, IrtDebuggingConfig &config,
+			  std::shared_ptr<spdlog::logger>& logger)
   {
+    printf("IrtDebugging::init() ...\n");
+    
+    // FIXME: is this all thread safe?;
+    m_config = config;
+    
+    // FIXME: hardcoded;
     m_random.SetSeed(0x12345678);//m_cfg.seed);
     m_rngUni = [&](){
       return m_random.Uniform(0., 1.0);
     };
-  
+    
     {
       std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
     
@@ -89,9 +98,21 @@ namespace eicrecon {
       m_EventPtr = &m_Event;
       
       if (!m_InstanceCounter) {
+#if 1
+	{
+	  /*const*/ json *jptr = &config.m_json_config;
+
+	  // FIXME: sanity check;
+	  if (jptr->find("OutputTree") != jptr->end()) //{
+	    ///*const*/ auto &jpref = (*jptr)["Photosensor"];
+	    m_OutputFile = new TFile((*jptr)["OutputTree"].template get<std::string>().c_str(), "RECREATE");
+	    //if (!foptics) continue;
+	}
+#else
 	// FIXME: hardcoded;
 	m_OutputFile = new TFile("qrich-events.root", "RECREATE");
 	//m_OutputFile = new TFile("pfrich-events.root", "RECREATE");
+#endif
 	
 	m_EventTree = new TTree("t", "My tree");
 	m_EventBranch = m_EventTree->Branch("e", "CherenkovEvent", 0/*&m_Event*/, 16000, 2);
@@ -101,29 +122,24 @@ namespace eicrecon {
 
       m_Instance = m_InstanceCounter++;
     }
-  
-    {
-      // FIXME: hardcoded; FIXME: check existence;
-      auto fcfg = new TFile("qrich-optics.root");
-      //auto fcfg = new TFile("pfrich-optics.root");
-      m_irt_det_coll = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
-    }
     
     m_log = logger;
 
-    // Extract the the relevant `CherenkovDetector`, set to `m_irt_det`;
-    auto& detectors = m_irt_det_coll->GetDetectors();
-    //printf("@@@ %ld\n", detectors.size());
-    if(detectors.size() == 0)
-      throw std::runtime_error("No CherenkovDetectors found in input collection `irt_det_coll`");
-    auto this_detector = *detectors.begin();
-    m_det_name         = this_detector.first;
-    m_irt_det          = this_detector.second;
-    //printf("@@@ %ld radiators defined\n", m_irt_det->Radiators().size());
+    // Extract the the relevant `CherenkovDetector`; FIXME: for now assume it is the only one;
+    m_irt_det = config.m_irt_geometry->GetDetectors().begin()->second;
     //m_log->debug("Initializing IrtCherenkovParticleID algorithm for CherenkovDetector '{}'", m_det_name);
+    {
+      // FIXME: hardcoded; FIXME: do it better later;
+      auto aerogel = m_irt_det->GetRadiator("Aerogel");
+      
+      //auto sf = dynamic_cast<FlatSurface*>(radiator->GetFrontSide(0));//isec);
+      //      auto sr = dynamic_cast<FlatSurface*>(radiator->GetRearSide(0));//isec);
+      double zf = dynamic_cast<FlatSurface*>(aerogel->GetFrontSide(0))->GetCenter().Z();//, zr = sr->GetCenter().Z();
+      m_sign = zf > 0.0 ? 1.0 : -1.0;
+    }
 
     {
-      auto *det = service.GetDD4hepGeo();
+      const dd4hep::Detector *det = dd4hep_service.detector();
 
       for(auto [name,rad] : m_irt_det->Radiators()) {
 	printf("@R@ %s\n", name.Data());
@@ -153,9 +169,56 @@ namespace eicrecon {
     }
     
     {
-      // FIXME: assume a single photo detector type;
+      // FIXME: for now assume a single photo detector type; cannot easily store this pointer
       auto pd = m_irt_det->m_PhotonDetectors[0];
-      
+
+#if 1
+      {
+	/*const*/ json *jptr = &config.m_json_config;
+
+	//printf("Here-1\n");
+	if (jptr->find("Photosensor") != jptr->end()) {
+	  /*const*/ auto &jpref = (*jptr)["Photosensor"];
+
+	  //printf("Here-2\n");
+	  if (jpref.find("QuantumEfficiency") != jpref.end()) {
+	    /*const*/ auto &qeref = jpref["QuantumEfficiency"];
+
+	    //printf("Here-3\n");
+	    const unsigned qeEntries = qeref.size();
+	    //printf("@R@ %d\n", qeEntries);//qe.size());
+	    double WL[qeEntries], QE[qeEntries];
+
+	    unsigned counter = 0;
+	    for (json::iterator it = qeref.begin(); it != qeref.end(); ++it) {
+	      //+printf("@R@ %s: %7.2f\n", it.key().c_str(), it.value(). template get<double>());
+
+	      std::string wlstr(it.key().c_str());
+	      // FIXME: do it better later;
+	      wlstr[3] = 0;
+	      WL[counter  ] = atoi(wlstr.c_str());
+	      QE[counter++] = it.value(). template get<double>();
+	      //printf("%7.2f %7.2f\n", WL[counter-1], QE[counter-1]);
+	    } //it
+
+	    double qemax = 0.0, qePhotonEnergy[qeEntries], qeData[qeEntries];
+	    for(int iq=0; iq<qeEntries; iq++) {
+	      qePhotonEnergy[iq] = _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
+	      qeData        [iq] =                QE[qeEntries - iq - 1] * _FAKE_QE_DOWNSCALING_FACTOR_;
+	      
+	      if (qeData[iq] > qemax) qemax = qeData[iq];
+	    } //for iq
+	    
+	    pd->SetQE(_MAGIC_CFF_ / WL[qeEntries-1], _MAGIC_CFF_ / WL[0], 
+		      // NB: last argument: want a built-in selection of unused photons, which follow the QE(lambda);
+		      // see CherenkovSteppingAction::UserSteppingAction() for a usage case;
+		      new G4DataInterpolation(qePhotonEnergy, qeData, qeEntries/*, 0.0, 0.0*/), qemax ? 1.0/qemax : 1.0);
+	    // FIXME: 100 hardcoded;
+	    pd->GetQE()->CreateLookupTable(100);
+	  } //if
+	} //if
+      }
+#else     
       {                      
 	const unsigned qeEntries = 26;
 	
@@ -180,6 +243,7 @@ namespace eicrecon {
 	// FIXME: 100 hardcoded;
 	pd->GetQE()->CreateLookupTable(100);
       }
+#endif
     }
   } // IrtDebugging::init()
 
@@ -310,7 +374,7 @@ namespace eicrecon {
       photon->SetVertexTime       (mcparticle.getTime());
 
       // FIXME: (0,0,1) or (0,0,-1)?; should be different for e-endcap?;
-      TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex()), n0(0,0,1*sign);
+      TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex()), n0(0,0,1*m_sign);
 #if 1//_TODAY_
       auto radiator = m_irt_det->GuessRadiator(vtx, n0); 
       //auto radiator = m_irt_det->GetRadiator("Aerogel");//uessRadiator(vtx, n0); 
@@ -341,8 +405,8 @@ namespace eicrecon {
 	
 	history->AddOpticalPhoton(photon);
       } else {
-	if (m_irt_det_coll->CheckBits(_STORE_ORPHAN_PHOTONS_))
-	  parent->AddOrphanPhoton(photon);
+	//+if (m_irt_det_coll->CheckBits(_STORE_ORPHAN_PHOTONS_))
+	parent->AddOrphanPhoton(photon);
       } //if
 
       // FIXME: this is a hack;
