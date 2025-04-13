@@ -70,6 +70,10 @@ namespace eicrecon {
     auto theta_e = e_boosted.Theta();
 
     // Get hadronic final state variables
+    if (hfs->size() == 0) {
+      debug("No hadronic final state found");
+      return;
+    }
     auto sigma_h = hfs->at(0).getSigma();
     auto ptsum = hfs->at(0).getPT();
     auto gamma_h = hfs->at(0).getGamma();
