@@ -86,12 +86,11 @@ TEST_CASE("Registering Podio outputs works") {
     REQUIRE(alg.GetOutputs()[2]->type_name == "edm4hep::SimCalorimeterHit");
 }
 
-TEST_CASE("Configuration object is correctly wired from untyped wiring data") {
+TEST_CASE("Configuration object is correctly wired from typed wiring data") {
     JApplication app;
     app.AddPlugin("log");
     app.Initialize();
-    JOmniFactoryGeneratorT<BasicTestAlg> facgen (&app);
-    facgen.AddWiring("ECalTestAlg", {}, {"ECalLeftHits", "ECalRightHits", "ECalVecHits"}, {{"threshold", "6.1"}, {"bucket_count", "22"}});
+    JOmniFactoryGeneratorT<BasicTestAlg> facgen ("ECalTestAlg", {}, {"ECalLeftHits", "ECalRightHits", "ECalVecHits"}, {.threshold=6.1, .bucket_count=22});
 
     JFactorySet facset;
     facgen.GenerateFactories(&facset);
@@ -110,50 +109,12 @@ TEST_CASE("Configuration object is correctly wired from untyped wiring data") {
     REQUIRE(basictestalg->m_init_call_count == 0);
 }
 
-TEST_CASE("Multiple configuration objects are correctly wired from untyped wiring data") {
-    JApplication app;
-    app.AddPlugin("log");
-    app.Initialize();
-    JOmniFactoryGeneratorT<BasicTestAlg> facgen (&app);
-    facgen.AddWiring("BCalTestAlg", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {{"threshold", "6.1"}, {"bucket_count", "22"}});
-    facgen.AddWiring("CCalTestAlg", {}, {"CCalLeftHits", "CCalRightHits", "CCalVecHits"}, {{"threshold", "9.0"}, {"bucket_count", "27"}});
-    facgen.AddWiring("ECalTestAlg", {}, {"ECalLeftHits", "ECalRightHits", "ECalVecHits"}, {{"threshold", "16.25"}, {"bucket_count", "49"}});
-
-    JFactorySet facset;
-    facgen.GenerateFactories(&facset);
-    // for (auto* fac : facset.GetAllFactories()) {
-        // std::cout << "typename=" << fac->GetFactoryName() << ", tag=" << fac->GetTag() << std::endl;
-    // }
-    auto b = RetrieveMultifactory<edm4hep::SimCalorimeterHit,BasicTestAlg>(&facset, "BCalLeftHits");
-    auto c = RetrieveMultifactory<edm4hep::SimCalorimeterHit,BasicTestAlg>(&facset, "CCalLeftHits");
-    auto e = RetrieveMultifactory<edm4hep::SimCalorimeterHit,BasicTestAlg>(&facset, "ECalLeftHits");
-
-    REQUIRE(b->threshold() == 6.1);
-    REQUIRE(b->bucket_count() == 22);
-    REQUIRE(b->config().threshold == 6.1);
-    REQUIRE(b->config().bucket_count == 22);
-
-    REQUIRE(c->threshold() == 9.0);
-    REQUIRE(c->bucket_count() == 27);
-    REQUIRE(c->config().threshold == 9.0);
-    REQUIRE(c->config().bucket_count == 27);
-
-    REQUIRE(e->threshold() == 16.25);
-    REQUIRE(e->bucket_count() == 49);
-    REQUIRE(e->config().threshold == 16.25);
-    REQUIRE(e->config().bucket_count == 49);
-
-    REQUIRE(b->m_init_call_count == 0);
-    REQUIRE(c->m_init_call_count == 0);
-    REQUIRE(e->m_init_call_count == 0);
-}
 
 TEST_CASE("JParameterManager correctly understands which values are defaulted and which are overridden") {
     JApplication app;
     app.AddPlugin("log");
 
-    auto facgen = new JOmniFactoryGeneratorT<BasicTestAlg>(&app);
-    facgen->AddWiring("FunTest", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {{"threshold", "6.1"}, {"bucket_count", "22"}});
+    auto facgen = new JOmniFactoryGeneratorT<BasicTestAlg>("FunTest", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {.threshold=6.1, .bucket_count=22});
     app.Add(facgen);
 
     app.GetJParameterManager()->SetParameter("FunTest:threshold", 12.0);
@@ -191,8 +152,7 @@ TEST_CASE("Wiring itself is correctly defaulted") {
     JApplication app;
     app.AddPlugin("log");
 
-    auto facgen = new JOmniFactoryGeneratorT<BasicTestAlg>(&app);
-    facgen->AddWiring("FunTest", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {{"threshold", "6.1"}});
+    auto facgen = new JOmniFactoryGeneratorT<BasicTestAlg>("FunTest", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"}, {.threshold=6.1});
     app.Add(facgen);
     app.Initialize();
 

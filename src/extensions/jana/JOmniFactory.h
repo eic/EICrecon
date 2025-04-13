@@ -10,12 +10,12 @@
  * which might be changed by user parameters.
  */
 
-#include <JANA/CLI/JVersion.h>
+#include <JANA/JVersion.h>
 #include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
+#include <JANA/Components/JHasInputs.h>
 #include <spdlog/spdlog.h>
 
-#include "services/io/podio/datamodel_glue.h"
 #include "services/log/Log_service.h"
 
 #include <string>
@@ -24,103 +24,8 @@
 struct EmptyConfig {};
 
 template <typename AlgoT, typename ConfigT=EmptyConfig>
-class JOmniFactory : public JMultifactory {
+class JOmniFactory : public JMultifactory, public jana::components::JHasInputs {
 public:
-
-    /// ========================
-    /// Handle input collections
-    /// ========================
-
-    struct InputBase {
-        std::string type_name;
-        std::vector<std::string> collection_names;
-        bool is_variadic = false;
-
-        virtual void GetCollection(const JEvent& event) = 0;
-    };
-
-    template <typename T>
-    class Input : public InputBase {
-
-        std::vector<const T*> m_data;
-
-    public:
-        Input(JOmniFactory* owner, std::string default_tag="") {
-            owner->RegisterInput(this);
-            this->collection_names.push_back(default_tag);
-            this->type_name = JTypeInfo::demangle<T>();
-        }
-
-        const std::vector<const T*>& operator()() { return m_data; }
-
-    private:
-        friend class JOmniFactory;
-
-        void GetCollection(const JEvent& event) {
-            m_data = event.Get<T>(this->collection_names[0]);
-        }
-    };
-
-
-    template <typename PodioT>
-    class PodioInput : public InputBase {
-
-        const typename PodioTypeMap<PodioT>::collection_t* m_data;
-
-    public:
-
-        PodioInput(JOmniFactory* owner, std::string default_collection_name="") {
-            owner->RegisterInput(this);
-            this->collection_names.push_back(default_collection_name);
-            this->type_name = JTypeInfo::demangle<PodioT>();
-        }
-
-        const typename PodioTypeMap<PodioT>::collection_t* operator()() {
-            return m_data;
-        }
-
-    private:
-        friend class JOmniFactory;
-
-        void GetCollection(const JEvent& event) {
-            m_data = event.GetCollection<PodioT>(this->collection_names[0]);
-        }
-    };
-
-
-    template <typename PodioT>
-    class VariadicPodioInput : public InputBase {
-
-        std::vector<const typename PodioTypeMap<PodioT>::collection_t*> m_data;
-
-    public:
-
-        VariadicPodioInput(JOmniFactory* owner, std::vector<std::string> default_names = {}) {
-            owner->RegisterInput(this);
-            this->collection_names = default_names;
-            this->type_name = JTypeInfo::demangle<PodioT>();
-            this->is_variadic = true;
-        }
-
-        const std::vector<const typename PodioTypeMap<PodioT>::collection_t*> operator()() {
-            return m_data;
-        }
-
-    private:
-        friend class JOmniFactory;
-
-        void GetCollection(const JEvent& event) {
-            m_data.clear();
-            for (auto& coll_name : this->collection_names) {
-                m_data.push_back(event.GetCollection<PodioT>(coll_name));
-            }
-        }
-    };
-
-    void RegisterInput(InputBase* input) {
-        m_inputs.push_back(input);
-    }
-
 
     /// =========================
     /// Handle output collections
@@ -167,7 +72,7 @@ public:
     template <typename PodioT>
     class PodioOutput : public OutputBase {
 
-        std::unique_ptr<typename PodioTypeMap<PodioT>::collection_t> m_data;
+        std::unique_ptr<typename PodioT::collection_type> m_data;
 
     public:
 
@@ -177,7 +82,7 @@ public:
             this->type_name = JTypeInfo::demangle<PodioT>();
         }
 
-        std::unique_ptr<typename PodioTypeMap<PodioT>::collection_t>& operator()() { return m_data; }
+        std::unique_ptr<typename PodioT::collection_type>& operator()() { return m_data; }
 
     private:
         friend class JOmniFactory;
@@ -195,7 +100,7 @@ public:
         }
 
         void Reset() override {
-            m_data = std::move(std::make_unique<typename PodioTypeMap<PodioT>::collection_t>());
+            m_data = std::move(std::make_unique<typename PodioT::collection_type>());
         }
     };
 
@@ -203,7 +108,7 @@ public:
     template <typename PodioT>
     class VariadicPodioOutput : public OutputBase {
 
-        std::vector<std::unique_ptr<typename PodioTypeMap<PodioT>::collection_t>> m_data;
+        std::vector<std::unique_ptr<typename PodioT::collection_type>> m_data;
 
     public:
 
@@ -214,7 +119,7 @@ public:
             this->is_variadic = true;
         }
 
-        std::vector<std::unique_ptr<typename PodioTypeMap<PodioT>::collection_t>>& operator()() { return m_data; }
+        std::vector<std::unique_ptr<typename PodioT::collection_type>>& operator()() { return m_data; }
 
     private:
         friend class JOmniFactory;
@@ -239,7 +144,7 @@ public:
         void Reset() override {
             m_data.clear();
             for (auto& coll_name : this->collection_names) {
-                m_data.push_back(std::make_unique<typename PodioTypeMap<PodioT>::collection_t>());
+                m_data.push_back(std::make_unique<typename PodioT::collection_type>());
             }
         }
     };
@@ -249,193 +154,12 @@ public:
     }
 
 
-    // =================
-    // Handle parameters
-    // =================
-
-    struct ParameterBase {
-        std::string m_name;
-        std::string m_description;
-        virtual void Configure(JParameterManager& parman, const std::string& prefix) = 0;
-        virtual void Configure(std::map<std::string, std::string> fields) = 0;
-    };
-
-    template <typename T>
-    class ParameterRef : public ParameterBase {
-
-        T* m_data;
-
-    public:
-        ParameterRef(JOmniFactory* owner, std::string name, T& slot, std::string description="") {
-            owner->RegisterParameter(this);
-            this->m_name = name;
-            this->m_description = description;
-            m_data = &slot;
-        }
-
-        const T& operator()() { return *m_data; }
-
-    private:
-        friend class JOmniFactory;
-
-        void Configure(JParameterManager& parman, const std::string& prefix) override {
-            parman.SetDefaultParameter(prefix + ":" + this->m_name, *m_data, this->m_description);
-        }
-        void Configure(std::map<std::string, std::string> fields) override {
-            auto it = fields.find(this->m_name);
-            if (it != fields.end()) {
-                const auto& value_str = it->second;
-                if constexpr (10000 * JVersion::major
-                              + 100 * JVersion::minor
-                                + 1 * JVersion::patch < 20102) {
-                    *m_data = JParameterManager::Parse<T>(value_str);
-                } else {
-                    JParameterManager::Parse(value_str, *m_data);
-                }
-            }
-        }
-    };
-
-    template <typename T>
-    class Parameter : public ParameterBase {
-
-        T m_data;
-
-    public:
-        Parameter(JOmniFactory* owner, std::string name, T default_value, std::string description) {
-            owner->RegisterParameter(this);
-            this->m_name = name;
-            this->m_description = description;
-            m_data = default_value;
-        }
-
-        const T& operator()() { return m_data; }
-
-    private:
-        friend class JOmniFactory;
-
-        void Configure(JParameterManager& parman, const std::string& prefix) override {
-            parman.SetDefaultParameter(m_prefix + ":" + this->m_name, m_data, this->m_description);
-        }
-        void Configure(std::map<std::string, std::string> fields) override {
-            auto it = fields.find(this->m_name);
-            if (it != fields.end()) {
-                const auto& value_str = it->second;
-                if constexpr (10000 * JVersion::major
-                              + 100 * JVersion::minor
-                                + 1 * JVersion::patch < 20102) {
-                    m_data = JParameterManager::Parse<T>(value_str);
-                } else {
-                    JParameterManager::Parse(value_str, m_data);
-                }
-            }
-        }
-    };
-
-    void RegisterParameter(ParameterBase* parameter) {
-        m_parameters.push_back(parameter);
-    }
-
-    void ConfigureAllParameters(std::map<std::string, std::string> fields) {
-        for (auto* parameter : this->m_parameters) {
-            parameter->Configure(fields);
-        }
-    }
-
-    // ===============
-    // Handle services
-    // ===============
-
-    struct ServiceBase {
-        virtual void Init(JApplication* app) = 0;
-    };
-
-    template <typename ServiceT>
-    class Service : public ServiceBase {
-
-        std::shared_ptr<ServiceT> m_data;
-
-    public:
-
-        Service(JOmniFactory* owner) {
-            owner->RegisterService(this);
-        }
-
-        ServiceT& operator()() {
-            return *m_data;
-        }
-
-    private:
-
-        friend class JOmniFactory;
-
-        void Init(JApplication* app) {
-            m_data = app->GetService<ServiceT>();
-        }
-
-    };
-
-    void RegisterService(ServiceBase* service) {
-        m_services.push_back(service);
-    }
-
-
-    // ================
-    // Handle resources
-    // ================
-
-    struct ResourceBase {
-        virtual void ChangeRun(const JEvent& event) = 0;
-    };
-
-    template <typename ServiceT, typename ResourceT, typename LambdaT>
-    class Resource : public ResourceBase {
-        ResourceT m_data;
-        LambdaT m_lambda;
-
-    public:
-
-        Resource(JOmniFactory* owner, LambdaT lambda) : m_lambda(lambda) {
-            owner->RegisterResource(this);
-        };
-
-        const ResourceT& operator()() { return m_data; }
-
-    private:
-        friend class JOmniFactory;
-
-        void ChangeRun(const JEvent& event) {
-            auto run_nr = event.GetRunNumber();
-            std::shared_ptr<ServiceT> service = event.GetJApplication()->template GetService<ServiceT>();
-            m_data = m_lambda(service, run_nr);
-        }
-    };
-
-    void RegisterResource(ResourceBase* resource) {
-        m_resources.push_back(resource);
-    }
-
-
 public:
-    std::vector<InputBase*> m_inputs;
     std::vector<OutputBase*> m_outputs;
-    std::vector<ParameterBase*> m_parameters;
-    std::vector<ServiceBase*> m_services;
-    std::vector<ResourceBase*> m_resources;
 
 private:
-
-    // App belongs on JMultifactory, it is just missing temporarily
-    JApplication* m_app;
-
-    // Plugin name belongs on JMultifactory, it is just missing temporarily
-    std::string m_plugin_name;
-
-    // Prefix for parameters and loggers, derived from plugin name and tag in PreInit().
-    std::string m_prefix;
-
     /// Current logger
-    std::shared_ptr<spdlog::logger> m_logger;
+    std::shared_ptr<spdlog::logger> m_spd_logger;
 
     /// Configuration
     ConfigT m_config;
@@ -470,15 +194,18 @@ public:
     }
 
     inline void PreInit(std::string tag,
-                        std::vector<std::string> default_input_collection_names,
-                        std::vector<std::string> default_output_collection_names ) {
+                        JEventLevel level,
+                        std::vector<std::string> input_collection_names,
+                        std::vector<JEventLevel> input_collection_levels,
+                        std::vector<std::string> output_collection_names ) {
 
         m_prefix = (this->GetPluginName().empty()) ? tag : this->GetPluginName() + ":" + tag;
+        m_level = level;
 
         // Obtain collection name overrides if provided.
         // Priority = [JParameterManager, JOmniFactoryGenerator]
-        m_app->SetDefaultParameter(m_prefix + ":InputTags", default_input_collection_names, "Input collection names");
-        m_app->SetDefaultParameter(m_prefix + ":OutputTags", default_output_collection_names, "Output collection names");
+        m_app->SetDefaultParameter(m_prefix + ":InputTags", input_collection_names, "Input collection names");
+        m_app->SetDefaultParameter(m_prefix + ":OutputTags", output_collection_names, "Output collection names");
 
         // Figure out variadic inputs
         size_t variadic_input_count = 0;
@@ -487,18 +214,31 @@ public:
                variadic_input_count += 1;
             }
         }
-        size_t variadic_input_collection_count = FindVariadicCollectionCount(m_inputs.size(), variadic_input_count, default_input_collection_names.size(), true);
+        size_t variadic_input_collection_count = FindVariadicCollectionCount(m_inputs.size(), variadic_input_count, input_collection_names.size(), true);
 
         // Set input collection names
-        for (size_t i = 0; auto* input : m_inputs) {
-            input->collection_names.clear();
+        size_t i = 0;
+        for (auto* input : m_inputs) {
+            input->names.clear();
             if (input->is_variadic) {
                 for (size_t j = 0; j<(variadic_input_collection_count/variadic_input_count); ++j) {
-                    input->collection_names.push_back(default_input_collection_names[i++]);
+                    input->names.push_back(input_collection_names[i++]);
+                    if (!input_collection_levels.empty()) {
+                        input->levels.push_back(input_collection_levels[i++]);
+                    }
+                    else {
+                        input->levels.push_back(level);
+                    }
                 }
             }
             else {
-                input->collection_names.push_back(default_input_collection_names[i++]);
+                input->names.push_back(input_collection_names[i++]);
+                if (!input_collection_levels.empty()) {
+                    input->levels.push_back(input_collection_levels[i++]);
+                }
+                else {
+                    input->levels.push_back(level);
+                }
             }
         }
 
@@ -509,40 +249,41 @@ public:
                variadic_output_count += 1;
             }
         }
-        size_t variadic_output_collection_count = FindVariadicCollectionCount(m_outputs.size(), variadic_output_count, default_output_collection_names.size(), true);
+        size_t variadic_output_collection_count = FindVariadicCollectionCount(m_outputs.size(), variadic_output_count, output_collection_names.size(), false);
 
         // Set output collection names and create corresponding helper factories
-        for (size_t i = 0; auto* output : m_outputs) {
+        i = 0;
+        for (auto* output : m_outputs) {
             output->collection_names.clear();
             if (output->is_variadic) {
                 for (size_t j = 0; j<(variadic_output_collection_count/variadic_output_count); ++j) {
-                    output->collection_names.push_back(default_output_collection_names[i++]);
+                    output->collection_names.push_back(output_collection_names[i++]);
                 }
             }
             else {
-                output->collection_names.push_back(default_output_collection_names[i++]);
+                output->collection_names.push_back(output_collection_names[i++]);
             }
             output->CreateHelperFactory(*this);
         }
 
-        // Obtain logger (defines the parameter option)
-        m_logger = m_app->GetService<Log_service>()->logger(m_prefix);
+        // Obtain loggers
+        m_logger = m_app->GetService<JParameterManager>()->GetLogger(m_prefix);
+        m_spd_logger = m_app->GetService<Log_service>()->logger(m_prefix);
     }
 
     void Init() override {
-        auto app = GetApplication();
         for (auto* parameter : m_parameters) {
-            parameter->Configure(*(app->GetJParameterManager()), m_prefix);
+            parameter->Init(*(m_app->GetJParameterManager()), m_prefix);
         }
         for (auto* service : m_services) {
-            service->Init(app);
+            service->Fetch(m_app);
         }
         static_cast<AlgoT*>(this)->Configure();
     }
 
     void BeginRun(const std::shared_ptr<const JEvent>& event) override {
         for (auto* resource : m_resources) {
-            resource->ChangeRun(*event);
+            resource->ChangeRun(event->GetRunNumber(), m_app);
         }
         static_cast<AlgoT*>(this)->ChangeRun(event->GetRunNumber());
     }
@@ -567,20 +308,32 @@ public:
 
     using ConfigType = ConfigT;
 
-    void SetApplication(JApplication* app) { m_app = app; }
-
-    JApplication* GetApplication() { return m_app; }
-
-    void SetPluginName(std::string plugin_name) { m_plugin_name = plugin_name; }
-
-    std::string GetPluginName() { return m_plugin_name; }
-
-    inline std::string GetPrefix() { return m_prefix; }
-
     /// Retrieve reference to already-configured logger
-    std::shared_ptr<spdlog::logger> &logger() { return m_logger; }
+    std::shared_ptr<spdlog::logger> &logger() { return m_spd_logger; }
 
     /// Retrieve reference to embedded config object
     ConfigT& config() { return m_config; }
+
+
+    /// Generate summary for UI, inspector
+    void Summarize(JComponentSummary& summary) const override {
+
+        auto* mfs = new JComponentSummary::Component(
+            "OmniFactory", GetPrefix(), GetTypeName(), GetLevel(), GetPluginName());
+
+        for (const auto* input : m_inputs) {
+            size_t subinput_count = input->names.size();
+            for (size_t i=0; i<subinput_count; ++i) {
+                mfs->AddInput(new JComponentSummary::Collection("", input->names[i], input->type_name, input->levels[i]));
+            }
+        }
+        for (const auto* output : m_outputs) {
+            size_t suboutput_count = output->collection_names.size();
+            for (size_t i=0; i<suboutput_count; ++i) {
+                mfs->AddOutput(new JComponentSummary::Collection("", output->collection_names[i], output->type_name, GetLevel()));
+            }
+        }
+        summary.Add(mfs);
+    }
 
 };
