@@ -99,11 +99,14 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNTruthClustersWithoutShapes",
-      {"EcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
+      {
+        "EcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-       "EcalEndcapNRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+            "EcalEndcapNRawHitAssociations"
+      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-       "EcalEndcapNHits"}, // edm4hep::SimCalorimeterHitCollection
+            "EcalEndcapNHits"
+      }, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"EcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -123,11 +126,14 @@ void InitPlugin(JApplication* app) {
 #else
       "EcalEndcapNClustersWithoutShapes",
 #endif
-      {"EcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
+      {
+        "EcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-       "EcalEndcapNRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+            "EcalEndcapNRawHitAssociations"
+      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-       "EcalEndcapNHits"}, // edm4hep::SimCalorimeterHitCollection
+            "EcalEndcapNHits"
+      },                                               // edm4hep::SimCalorimeterHitCollection
 #endif
 #if EDM4EIC_VERSION_MAJOR >= 8
       {"EcalEndcapNClustersWithoutPIDAndShapes",             // edm4eic::Cluster
@@ -214,11 +220,14 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNSplitMergeClustersWithoutShapes",
-      {"EcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+      {
+        "EcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-       "EcalEndcapNRawHitAssociations"}, // edm4hep::MCRecoCalorimeterHitAssociationCollection
+            "EcalEndcapNRawHitAssociations"
+      }, // edm4hep::MCRecoCalorimeterHitAssociationCollection
 #else
-       "EcalEndcapNHits"}, // edm4hep::SimCalorimeterHitCollection
+            "EcalEndcapNHits"
+      }, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"EcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation

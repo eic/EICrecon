@@ -58,7 +58,8 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) { /* nothing to do */ }
+  void ChangeRun(int64_t run_number) { /* nothing to do */
+  }
 
   void Process(int64_t run_number, int64_t event_number) {
     m_algo->process({m_input()}, {m_output().get()});

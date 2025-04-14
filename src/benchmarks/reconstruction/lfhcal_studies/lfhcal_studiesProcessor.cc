@@ -287,7 +287,8 @@ void lfhcal_studiesProcessor::Init() {
     iLy      = m_decoder->index("towery");
     iLz      = m_decoder->index("layerz");
     iPassive = m_decoder->index("passive");
-    std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
+    std::cout << "full list: "
+              << " " << m_decoder->fieldDescription() << std::endl;
   } catch (...) {
     std::cout << "2nd: " << m_decoder << std::endl;
     m_log->error("readoutClass not in the output");

@@ -176,10 +176,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
                   par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
               eicvertex.addToAssociatedParticles(part);
             } // endif
-          } // end for par
-        } // end for trk
-      } // end for part
-    } // end for t
+          }   // end for par
+        }     // end for trk
+      }       // end for part
+    }         // end for t
     m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.",
                  vtx.position().x() / Acts::UnitConstants::mm,
                  vtx.position().y() / Acts::UnitConstants::mm,
