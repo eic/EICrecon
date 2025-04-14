@@ -151,19 +151,31 @@ void DD4hep_service::Initialize() {
     detector->apply("DD4hepVolumeManager", 0, nullptr);
     m_cellid_converter = std::make_unique<const dd4hep::rec::CellIDPositionConverter>(*detector);
 
-// Determine detector checksum
 #if __has_include(<DD4hep/plugins/DetectorChecksum.h>)
+    // Determine detector checksum
+    auto printLevel = dd4hep::printLevel();
+    dd4hep::setPrintLevel(dd4hep::WARNING);
     using dd4hep::detail::DetectorChecksum;
     DetectorChecksum checksum(*detector);
+    checksum.debug        = 0;
     checksum.precision    = 3;
     checksum.hash_meshes  = true;
     checksum.hash_readout = true;
-    checksum.analyzeDetector(detector->world());
-    DetectorChecksum::hashes_t hash_vec{checksum.handleHeader().hash};
-    checksum.checksumDetElement(0, detector->world(), hash_vec, true);
-    DetectorChecksum::hash_t hash =
-        dd4hep::detail::hash64(&hash_vec[0], hash_vec.size() * sizeof(DetectorChecksum::hash_t));
-    m_log->info("Geometry checksum 0x%016lx", hash);
+    std::set<std::string> failing_checksums{"ForwardRomanPot_Station_1",
+                                            "ForwardRomanPot_Station_2", "RICHEndcapN"};
+    for (const auto& [name, det] : detector->world().children()) {
+      m_log->info("Geometry checksum {}", name);
+      if (failing_checksums.contains(name)) {
+        continue;
+      }
+      checksum.analyzeDetector(det);
+      DetectorChecksum::hashes_t hash_vec{checksum.handleHeader().hash};
+      checksum.checksumDetElement(0, det, hash_vec, true);
+      DetectorChecksum::hash_t hash =
+          dd4hep::detail::hash64(&hash_vec[0], hash_vec.size() * sizeof(DetectorChecksum::hash_t));
+      m_log->info("Geometry checksum {} {:#16x}", name, hash);
+    }
+    dd4hep::setPrintLevel(printLevel);
 #endif
 
     m_dd4hepGeo = std::move(detector); // const
