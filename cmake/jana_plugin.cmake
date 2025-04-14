@@ -266,7 +266,7 @@ macro(plugin_add_dd4hep _name)
     find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED)
   endif()
 
-  plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec ${ARGN})
+  plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
 
 endmacro()
 
