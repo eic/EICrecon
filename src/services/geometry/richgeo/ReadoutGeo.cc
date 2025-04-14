@@ -82,7 +82,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep
           } // end xy-segmentation loop
         }
       } // end sensor loop (for all sectors)
-    };  // end definition of m_loopCellIDs
+    }; // end definition of m_loopCellIDs
 
     // define k random cell IDs generator
     m_rngCellIDs = [this](std::function<void(CellIDType)> lambda, float p) {
