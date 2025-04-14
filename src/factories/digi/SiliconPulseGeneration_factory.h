@@ -23,8 +23,10 @@ private:
 
   PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
 
-  ParameterRef<std::string> m_pulse_shape_function{this, "pulseShapeFunction", config().pulse_shape_function};
-  ParameterRef<std::vector<double>> m_pulse_shape_params{this, "pulseShapeParams", config().pulse_shape_params};
+  ParameterRef<std::string> m_pulse_shape_function{this, "pulseShapeFunction",
+                                                   config().pulse_shape_function};
+  ParameterRef<std::vector<double>> m_pulse_shape_params{this, "pulseShapeParams",
+                                                         config().pulse_shape_params};
   ParameterRef<double> m_timestep{this, "timestep", config().timestep};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};
   ParameterRef<double> m_min_sampling_time{this, "minSamplingTime", config().min_sampling_time};

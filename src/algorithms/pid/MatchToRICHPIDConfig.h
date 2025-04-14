@@ -10,4 +10,4 @@ struct MatchToRICHPIDConfig {
   double phiTolerance{0.1};
 };
 
-}
+} // namespace eicrecon

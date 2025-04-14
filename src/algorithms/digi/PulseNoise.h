@@ -22,8 +22,7 @@ using PulseNoiseAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::TimeSeriesCollection>,
                           algorithms::Output<edm4hep::TimeSeriesCollection>>;
 
-class PulseNoise : public PulseNoiseAlgorithm,
-                               public WithPodConfig<PulseNoiseConfig> {
+class PulseNoise : public PulseNoiseAlgorithm, public WithPodConfig<PulseNoiseConfig> {
 
 public:
   PulseNoise(std::string_view name)
@@ -32,10 +31,8 @@ public:
   void process(const Input&, const Output&);
 
 private:
-
   std::default_random_engine generator; // TODO: need something more appropriate here
   dd4hep::detail::FalphaNoise m_noise;
-
 };
 
 } // namespace eicrecon

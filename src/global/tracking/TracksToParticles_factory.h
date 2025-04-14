@@ -13,8 +13,7 @@
 
 namespace eicrecon {
 
-class TracksToParticles_factory
-    : public JOmniFactory<TracksToParticles_factory, NoConfig> {
+class TracksToParticles_factory : public JOmniFactory<TracksToParticles_factory, NoConfig> {
 public:
   using AlgoT = eicrecon::TracksToParticles;
 

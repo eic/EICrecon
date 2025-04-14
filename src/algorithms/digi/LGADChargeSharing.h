@@ -51,8 +51,8 @@ private:
   dd4hep::IDDescriptor m_idSpec;
 
   // helper function to find neighbors
-  std::function<bool(const dd4hep::rec::CellID &id1, const dd4hep::rec::CellID &id2)> _is_same_sensor;
-
+  std::function<bool(const dd4hep::rec::CellID& id1, const dd4hep::rec::CellID& id2)>
+      _is_same_sensor;
 };
 
 } // namespace eicrecon

@@ -10,30 +10,29 @@
 
 namespace eicrecon {
 
-  struct CylinderSurfaceConfig {
-    std::string id;
-    std::variant<std::string, double> rmin;
-    std::variant<std::string, double> zmin;
-    std::variant<std::string, double> zmax;
-  };
+struct CylinderSurfaceConfig {
+  std::string id;
+  std::variant<std::string, double> rmin;
+  std::variant<std::string, double> zmin;
+  std::variant<std::string, double> zmax;
+};
 
-  struct DiscSurfaceConfig {
-    std::string id;
-    std::variant<std::string, double> zmin;
-    std::variant<std::string, double> rmin;
-    std::variant<std::string, double> rmax;
-  };
+struct DiscSurfaceConfig {
+  std::string id;
+  std::variant<std::string, double> zmin;
+  std::variant<std::string, double> rmin;
+  std::variant<std::string, double> rmax;
+};
 
-  using SurfaceConfig = std::variant<CylinderSurfaceConfig,DiscSurfaceConfig>;
+using SurfaceConfig = std::variant<CylinderSurfaceConfig, DiscSurfaceConfig>;
 
-  struct TrackPropagationConfig {
-    std::vector<SurfaceConfig> filter_surfaces{};
-    std::vector<SurfaceConfig> target_surfaces{};
+struct TrackPropagationConfig {
+  std::vector<SurfaceConfig> filter_surfaces{};
+  std::vector<SurfaceConfig> target_surfaces{};
 
-    std::function<bool(edm4eic::TrackPoint)> track_point_cut{
-      [](const edm4eic::TrackPoint&) { return true; }
-    };
-    bool skip_track_on_track_point_cut_failure{false};
-  };
+  std::function<bool(edm4eic::TrackPoint)> track_point_cut{
+      [](const edm4eic::TrackPoint&) { return true; }};
+  bool skip_track_on_track_point_cut_failure{false};
+};
 
-} // eicrecon
+} // namespace eicrecon

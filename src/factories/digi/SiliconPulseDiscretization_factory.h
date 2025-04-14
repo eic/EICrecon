@@ -25,7 +25,6 @@ private:
   ParameterRef<double> m_local_period{this, "localPeriod", config().local_period};
   ParameterRef<double> m_global_offset{this, "globalOffset", config().global_offset};
 
-
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:

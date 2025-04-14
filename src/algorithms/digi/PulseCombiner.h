@@ -22,8 +22,7 @@ using PulseCombinerAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::TimeSeriesCollection>,
                           algorithms::Output<edm4hep::TimeSeriesCollection>>;
 
-class PulseCombiner : public PulseCombinerAlgorithm,
-                               public WithPodConfig<PulseCombinerConfig> {
+class PulseCombiner : public PulseCombinerAlgorithm, public WithPodConfig<PulseCombinerConfig> {
 
 public:
   PulseCombiner(std::string_view name)
@@ -32,11 +31,10 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-
-  std::vector<std::vector<edm4hep::TimeSeries>> clusterPulses(const std::vector<edm4hep::TimeSeries> pulses) const;
+  std::vector<std::vector<edm4hep::TimeSeries>>
+  clusterPulses(const std::vector<edm4hep::TimeSeries> pulses) const;
   std::vector<float> sumPulses(const std::vector<edm4hep::TimeSeries> pulses) const;
   uint64_t m_detector_bitmask = 0xFFFFFFFFFFFFFFFF;
-
 };
 
 } // namespace eicrecon

@@ -21,7 +21,7 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
   eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
   eicrecon::SiliconPulseGenerationConfig cfg;
   cfg.pulse_shape_function = "LandauPulse"; // Example pulse shape
-  cfg.pulse_shape_params = {1.0,1.0}; // Example parameters for the pulse shape
+  cfg.pulse_shape_params   = {1.0, 1.0};    // Example parameters for the pulse shape
 
   algo.applyConfig(cfg);
   algo.init();
@@ -31,7 +31,7 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
 
     edm4hep::SimTrackerHitCollection hits_coll;
 
-    for(int i=0; i<nHits; i++) {
+    for (int i = 0; i < nHits; i++) {
       hits_coll.create(12345 + i, 10.0, 5.0); // cellID, charge, time
     }
 
@@ -44,17 +44,17 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
 
     REQUIRE(pulses->size() == nHits);
     REQUIRE((*pulses)[0].getCellID() == 12345);
-    if(nHits > 1) {
+    if (nHits > 1) {
       REQUIRE((*pulses)[1].getCellID() == 12346);
     }
-    if(nHits > 2) {
+    if (nHits > 2) {
       REQUIRE((*pulses)[2].getCellID() == 12347);
     }
   }
-
 }
 
-TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[SiliconPulseGeneration]") {
+TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse",
+          "[SiliconPulseGeneration]") {
 
   eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
   eicrecon::SiliconPulseGenerationConfig cfg;
@@ -64,21 +64,21 @@ TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[Silico
 
   double startTime = 0.0 * edm4eic::unit::ns;
   double endTime   = 1.0 * edm4eic::unit::ns;
-  int    nTimeBins = 10;
-  double timeStep  = (endTime-startTime)/nTimeBins;
+  int nTimeBins    = 10;
+  double timeStep  = (endTime - startTime) / nTimeBins;
 
   cfg.pulse_shape_function = expression;
-  cfg.pulse_shape_params = {startTime, endTime}; // Example parameters for the square pulse
-  cfg.ignore_thres = 1;
-  cfg.timestep = timeStep;
-  cfg.min_sampling_time = startTime+timeStep;
+  cfg.pulse_shape_params   = {startTime, endTime}; // Example parameters for the square pulse
+  cfg.ignore_thres         = 1;
+  cfg.timestep             = timeStep;
+  cfg.min_sampling_time    = startTime + timeStep;
 
   algo.applyConfig(cfg);
   algo.init();
 
-  double charge = 10.0*cfg.ignore_thres;
-  double time   = GENERATE_COPY(0.0, 0.5*timeStep, timeStep);
-  float  rounded_time = std::floor(time / timeStep) * timeStep;
+  double charge      = 10.0 * cfg.ignore_thres;
+  double time        = GENERATE_COPY(0.0, 0.5 * timeStep, timeStep);
+  float rounded_time = std::floor(time / timeStep) * timeStep;
 
   edm4hep::SimTrackerHitCollection hits_coll;
   hits_coll.create(12345, charge, time); // cellID, charge, time
@@ -88,14 +88,14 @@ TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[Silico
   auto input  = std::make_tuple(&hits_coll);
   auto output = std::make_tuple(pulses.get());
 
-  algo.process(input,output);
+  algo.process(input, output);
 
   REQUIRE(pulses->size() == 1);
   REQUIRE((*pulses)[0].getCellID() == 12345);
   REQUIRE((*pulses)[0].getTime() == rounded_time);
   auto amplitudes = (*pulses)[0].getAmplitude();
   REQUIRE(amplitudes.size() == nTimeBins); // Two time bins for the square pulse
-  for(auto amplitude:amplitudes){
+  for (auto amplitude : amplitudes) {
     REQUIRE(amplitude == charge); // All time bins should be zero
   }
 }

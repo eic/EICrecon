@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 - 2025, Sebouh Paul, Dmitry Kalinkin
 
-
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
@@ -32,12 +31,13 @@
 using eicrecon::CalorimeterClusterShape;
 using eicrecon::CalorimeterClusterShapeConfig;
 
-TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]" ) {
+TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
   const float EPSILON = 1e-5;
 
   CalorimeterClusterShape algo("CalorimeterClusterShape");
 
-  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterClusterShape");
+  std::shared_ptr<spdlog::logger> logger =
+      spdlog::default_logger()->clone("CalorimeterClusterShape");
   logger->set_level(spdlog::level::trace);
 
   CalorimeterClusterShapeConfig cfg;
@@ -59,7 +59,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]" ) {
   hit1.setTime(0);
   hit1.setTimeError(0);
   hit1.setPosition(edm4hep::Vector3f{0, 0, 1 * edm4eic::unit::mm});
-  hit1.setDimension({0,0,0});
+  hit1.setDimension({0, 0, 0});
   hit1.setLocal(edm4hep::Vector3f{0, 0, 1 * edm4eic::unit::mm});
 
   auto hit2 = hits_coll.create();
@@ -69,7 +69,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]" ) {
   hit2.setTime(0);
   hit2.setTimeError(0);
   hit2.setPosition(edm4hep::Vector3f{-1 * edm4eic::unit::mm, 0, 2 * edm4eic::unit::mm});
-  hit2.setDimension({0,0,0});
+  hit2.setDimension({0, 0, 0});
   hit2.setLocal(edm4hep::Vector3f{-1 * edm4eic::unit::mm, 0, 2 * edm4eic::unit::mm});
 
   // Create a cluster with 2 hits
@@ -88,7 +88,7 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]" ) {
   // assoc_in.setSim(...);
 
   // Constructing input and output as per the algorithm's expected signature
-  auto input = std::make_tuple(&clust_in_coll, &assoc_in_coll);
+  auto input  = std::make_tuple(&clust_in_coll, &assoc_in_coll);
   auto output = std::make_tuple(clust_out_coll.get(), assoc_out_coll.get());
 
   algo.process(input, output);
@@ -104,5 +104,4 @@ TEST_CASE( "the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]" ) {
   REQUIRE(assoc_out_coll->size() == 1);
   REQUIRE((*assoc_out_coll)[0].getRec() == clust_out);
   REQUIRE((*assoc_out_coll)[0].getWeight() == assoc_in.getWeight());
-
 }

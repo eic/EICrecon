@@ -30,66 +30,59 @@
 
 namespace eicrecon {
 
-  using Stepper    = Acts::EigenStepper<>;
-  using Navigator  = Acts::Navigator;
-  using Propagator = Acts::Propagator<Stepper, Navigator>;
+using Stepper    = Acts::EigenStepper<>;
+using Navigator  = Acts::Navigator;
+using Propagator = Acts::Propagator<Stepper, Navigator>;
 
 #if Acts_VERSION_MAJOR >= 36
-  using CKF =
-      Acts::CombinatorialKalmanFilter<Propagator, ActsExamples::TrackContainer>;
+using CKF = Acts::CombinatorialKalmanFilter<Propagator, ActsExamples::TrackContainer>;
 #else
-  using CKF =
-      Acts::CombinatorialKalmanFilter<Propagator, Acts::VectorMultiTrajectory>;
+using CKF = Acts::CombinatorialKalmanFilter<Propagator, Acts::VectorMultiTrajectory>;
 
-  using TrackContainer =
-      Acts::TrackContainer<Acts::VectorTrackContainer,
-                           Acts::VectorMultiTrajectory, std::shared_ptr>;
+using TrackContainer =
+    Acts::TrackContainer<Acts::VectorTrackContainer, Acts::VectorMultiTrajectory, std::shared_ptr>;
 #endif
 
-  /** Finder implementation .
+/** Finder implementation .
    *
    * \ingroup track
    */
-  struct CKFTrackingFunctionImpl
-      : public eicrecon::CKFTracking::CKFTrackingFunction {
-    CKF trackFinder;
+struct CKFTrackingFunctionImpl : public eicrecon::CKFTracking::CKFTrackingFunction {
+  CKF trackFinder;
 
-    CKFTrackingFunctionImpl(CKF&& f) : trackFinder(std::move(f)) {}
+  CKFTrackingFunctionImpl(CKF&& f) : trackFinder(std::move(f)) {}
 
-    eicrecon::CKFTracking::TrackFinderResult operator()(
-        const ActsExamples::TrackParameters& initialParameters,
-        const eicrecon::CKFTracking::TrackFinderOptions& options,
+  eicrecon::CKFTracking::TrackFinderResult
+  operator()(const ActsExamples::TrackParameters& initialParameters,
+             const eicrecon::CKFTracking::TrackFinderOptions& options,
 #if Acts_VERSION_MAJOR >= 36
-        ActsExamples::TrackContainer& tracks) const override {
+             ActsExamples::TrackContainer& tracks) const override {
 #else
-        TrackContainer& tracks) const override {
+             TrackContainer& tracks) const override {
 #endif
-      return trackFinder.findTracks(initialParameters, options, tracks);
-    };
+    return trackFinder.findTracks(initialParameters, options, tracks);
   };
+};
 
-} // namespace
+} // namespace eicrecon
 
 namespace eicrecon {
 
-  std::shared_ptr<CKFTracking::CKFTrackingFunction>
-  CKFTracking::makeCKFTrackingFunction(
-      std::shared_ptr<const Acts::TrackingGeometry>      trackingGeometry,
-      std::shared_ptr<const Acts::MagneticFieldProvider> magneticField,
-      const Acts::Logger& logger)
-  {
-    Stepper   stepper(std::move(magneticField));
-    Navigator::Config cfg{trackingGeometry};
-    cfg.resolvePassive   = false;
-    cfg.resolveMaterial  = true;
-    cfg.resolveSensitive = true;
-    Navigator navigator(cfg);
+std::shared_ptr<CKFTracking::CKFTrackingFunction> CKFTracking::makeCKFTrackingFunction(
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
+    std::shared_ptr<const Acts::MagneticFieldProvider> magneticField, const Acts::Logger& logger) {
+  Stepper stepper(std::move(magneticField));
+  Navigator::Config cfg{trackingGeometry};
+  cfg.resolvePassive   = false;
+  cfg.resolveMaterial  = true;
+  cfg.resolveSensitive = true;
+  Navigator navigator(cfg);
 
-    Propagator propagator(std::move(stepper), std::move(navigator));
-    CKF        trackFinder(std::move(propagator), logger.cloneWithSuffix("CKF"));
+  Propagator propagator(std::move(stepper), std::move(navigator));
+  CKF trackFinder(std::move(propagator), logger.cloneWithSuffix("CKF"));
 
-    // build the track finder functions. owns the track finder object.
-    return std::make_shared<CKFTrackingFunctionImpl>(std::move(trackFinder));
-  }
+  // build the track finder functions. owns the track finder object.
+  return std::make_shared<CKFTrackingFunctionImpl>(std::move(trackFinder));
+}
 
-} // namespace eicrecon::Reco
+} // namespace eicrecon

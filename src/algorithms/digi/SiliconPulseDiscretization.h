@@ -23,7 +23,7 @@ using SiliconPulseDiscretizationAlgorithm =
                           algorithms::Output<edm4hep::RawTimeSeriesCollection>>;
 
 class SiliconPulseDiscretization : public SiliconPulseDiscretizationAlgorithm,
-                               public WithPodConfig<SiliconPulseDiscretizationConfig> {
+                                   public WithPodConfig<SiliconPulseDiscretizationConfig> {
 
 public:
   SiliconPulseDiscretization(std::string_view name)
@@ -32,9 +32,7 @@ public:
   void process(const Input&, const Output&) const;
 
 private:
-  double _interpolateOrZero(const TGraph &graph, double t,
-                            double tMin, double tMax) const;
-
+  double _interpolateOrZero(const TGraph& graph, double t, double tMin, double tMax) const;
 };
 
 } // namespace eicrecon

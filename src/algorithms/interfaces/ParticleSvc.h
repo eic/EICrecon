@@ -13,9 +13,9 @@ namespace algorithms {
 class ParticleSvc : public Service<ParticleSvc> {
 public:
   struct ParticleData {
-    int         pdgCode;
-    int         charge;
-    double      mass;
+    int pdgCode;
+    int charge;
+    double mass;
     std::string name;
   };
   using Particle    = ParticleData;
@@ -31,9 +31,7 @@ public:
     }
   }
 
-  virtual std::shared_ptr<ParticleMap> particleMap() const {
-    return m_particleMap;
-  };
+  virtual std::shared_ptr<ParticleMap> particleMap() const { return m_particleMap; };
 
   virtual Particle& particle(int pdg) const {
     if (m_particleMap->count(pdg) == 0) {

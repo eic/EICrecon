@@ -22,12 +22,12 @@ using EICROCDigitizationAlgorithm =
                           algorithms::Output<edm4eic::RawTrackerHitCollection>>;
 
 class EICROCDigitization : public EICROCDigitizationAlgorithm,
-                             public WithPodConfig<EICROCDigitizationConfig> {
+                           public WithPodConfig<EICROCDigitizationConfig> {
 
 public:
   EICROCDigitization(std::string_view name)
       : EICROCDigitizationAlgorithm{name, {"EICROC"}, {"ADCTDCOutput"}, {}} {}
-  void init(){};
+  void init() {};
   void process(const Input&, const Output&) const final;
 };
 
