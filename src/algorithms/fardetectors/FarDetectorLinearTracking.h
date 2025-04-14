@@ -39,15 +39,14 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-
   const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
   Eigen::VectorXd m_layerWeights;
 
   Eigen::Vector3d m_optimumDirection;
 
-  void  buildMatrixRecursive(int level, Eigen::MatrixXd* hitMatrix,
-                       const std::vector<std::vector<Eigen::Vector3d>>& hits,
-                       gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
+  void buildMatrixRecursive(int level, Eigen::MatrixXd* hitMatrix,
+                            const std::vector<std::vector<Eigen::Vector3d>>& hits,
+                            gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
 
   void checkHitCombination(Eigen::MatrixXd* hitMatrix,
                            gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const;
@@ -55,8 +54,8 @@ private:
   bool checkHitPair(const Eigen::Vector3d& hit1, const Eigen::Vector3d& hit2) const;
 
   /** Convert 2D clusters to 3D coordinates **/
-  std::vector<Eigen::Vector3d> ConvertClusters(const edm4eic::Measurement2DCollection& clusters ) const;
-
+  std::vector<Eigen::Vector3d>
+  ConvertClusters(const edm4eic::Measurement2DCollection& clusters) const;
 };
 
 } // namespace eicrecon

@@ -6,10 +6,9 @@
 #include <DD4hep/DD4hepUnits.h>
 
 namespace eicrecon {
-  struct FarDetectorMLReconstructionConfig {
+struct FarDetectorMLReconstructionConfig {
 
-    std::string modelPath;
-    std::string methodName;
-
-  };
-}
+  std::string modelPath;
+  std::string methodName;
+};
+} // namespace eicrecon

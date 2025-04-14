@@ -7,11 +7,11 @@
 
 namespace eicrecon {
 
-  struct SiliconTrackerDigiConfig {
-    // sub-systems should overwrite their own
-    // NB: be aware of thresholds in npsim! E.g. https://github.com/eic/npsim/pull/9/files
-    double threshold  = 0 * dd4hep::keV;
-    double timeResolution = 8;   /// TODO 8 of what units??? Same TODO in juggler. Probably [ns]
-  };
+struct SiliconTrackerDigiConfig {
+  // sub-systems should overwrite their own
+  // NB: be aware of thresholds in npsim! E.g. https://github.com/eic/npsim/pull/9/files
+  double threshold      = 0 * dd4hep::keV;
+  double timeResolution = 8; /// TODO 8 of what units??? Same TODO in juggler. Probably [ns]
+};
 
-} // eicrecon
+} // namespace eicrecon

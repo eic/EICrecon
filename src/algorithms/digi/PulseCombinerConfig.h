@@ -8,8 +8,9 @@
 namespace eicrecon {
 
 struct PulseCombinerConfig {
-  double minimum_separation = 50 * edm4eic::unit::ns; // Minimum distance between pulses to keep separate
-  std::string readout = "";
+  double minimum_separation =
+      50 * edm4eic::unit::ns; // Minimum distance between pulses to keep separate
+  std::string readout       = "";
   std::string combine_field = "";
 };
 

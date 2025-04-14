@@ -12,7 +12,7 @@
 /// The default plugins
 /// Add new default plugin names here and the main() will do JApplication::AddPlugin() for you.
 std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
-// clang-format off
+    // clang-format off
     "log",
     "dd4hep",
     "evaluator",
@@ -49,24 +49,23 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "LUMISPECCAL",
     "podio",
     "janatop",
-// clang-format on
+    // clang-format on
 };
 
-int main( int narg, char **argv)
-{
-    std::vector<std::string> default_plugins = EICRECON_DEFAULT_PLUGINS;
+int main(int narg, char** argv) {
+  std::vector<std::string> default_plugins = EICRECON_DEFAULT_PLUGINS;
 
-    auto options = jana::GetCliOptions(narg, argv, false);
+  auto options = jana::GetCliOptions(narg, argv, false);
 
-    if (jana::HasPrintOnlyCliOptions(options, default_plugins))
-        return -1;
+  if (jana::HasPrintOnlyCliOptions(options, default_plugins))
+    return -1;
 
-    AddAvailablePluginsToOptionParams(options, default_plugins);
+  AddAvailablePluginsToOptionParams(options, default_plugins);
 
-    japp = jana::CreateJApplication(options);
+  japp = jana::CreateJApplication(options);
 
-    auto exit_code = jana::Execute(japp, options);
+  auto exit_code = jana::Execute(japp, options);
 
-    delete japp;
-    return exit_code;
+  delete japp;
+  return exit_code;
 }
