@@ -8,10 +8,9 @@
 
 #include "RootFile_service.h"
 
-
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
-    app->ProvideService(std::make_shared<RootFile_service>(app) );
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->ProvideService(std::make_shared<RootFile_service>(app));
 }
 }

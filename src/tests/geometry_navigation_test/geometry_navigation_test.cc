@@ -7,14 +7,13 @@
 
 #include "GeometryNavigationSteps_processor.h"
 
-
 extern "C" {
-    void InitPlugin(JApplication *app) {
+void InitPlugin(JApplication* app) {
 
-        // Initializes this plugin
-        InitJANAPlugin(app);
+  // Initializes this plugin
+  InitJANAPlugin(app);
 
-        // Adds our processor to JANA2 to execute
-        app->Add(new GeometryNavigationSteps_processor(app));
-    }
+  // Adds our processor to JANA2 to execute
+  app->Add(new GeometryNavigationSteps_processor(app));
+}
 }

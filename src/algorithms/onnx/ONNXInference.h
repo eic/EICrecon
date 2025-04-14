@@ -20,16 +20,11 @@ using ONNXInferenceAlgorithm =
     algorithms::Algorithm<algorithms::Input<std::vector<edm4eic::TensorCollection>>,
                           algorithms::Output<std::vector<edm4eic::TensorCollection>>>;
 
-class ONNXInference : public ONNXInferenceAlgorithm,
-                              public WithPodConfig<ONNXInferenceConfig> {
+class ONNXInference : public ONNXInferenceAlgorithm, public WithPodConfig<ONNXInferenceConfig> {
 
 public:
   ONNXInference(std::string_view name)
-      : ONNXInferenceAlgorithm{name,
-                                       {"inputTensors"},
-                                       {"outputTensors"},
-                                       ""} {
-  }
+      : ONNXInferenceAlgorithm{name, {"inputTensors"}, {"outputTensors"}, ""} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

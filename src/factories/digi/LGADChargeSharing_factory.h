@@ -10,7 +10,8 @@
 
 namespace eicrecon {
 
-class LGADChargeSharing_factory : public JOmniFactory<LGADChargeSharing_factory, LGADChargeSharingConfig> {
+class LGADChargeSharing_factory
+    : public JOmniFactory<LGADChargeSharing_factory, LGADChargeSharingConfig> {
 public:
   using AlgoT = eicrecon::LGADChargeSharing;
 

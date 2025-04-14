@@ -27,7 +27,7 @@ private:
   PodioInput<edm4eic::Track> m_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_segments_output{this};
 
-  Service<AlgorithmsInit_service> m_algorithmsInit {this};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {
@@ -39,7 +39,7 @@ public:
   void ChangeRun(int64_t run_number) {}
 
   void Process(int64_t run_number, uint64_t event_number) {
-    std::vector<gsl::not_null<const ActsExamples::Trajectories *>> acts_trajectories_input;
+    std::vector<gsl::not_null<const ActsExamples::Trajectories*>> acts_trajectories_input;
     for (auto acts_traj : m_acts_trajectories_input()) {
       acts_trajectories_input.push_back(acts_traj);
     }

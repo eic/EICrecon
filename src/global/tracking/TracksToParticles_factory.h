@@ -13,8 +13,7 @@
 
 namespace eicrecon {
 
-class TracksToParticles_factory
-    : public JOmniFactory<TracksToParticles_factory, NoConfig> {
+class TracksToParticles_factory : public JOmniFactory<TracksToParticles_factory, NoConfig> {
 public:
   using AlgoT = eicrecon::TracksToParticles;
 
@@ -34,7 +33,7 @@ public:
     m_algo->init();
   };
 
-  void ChangeRun(int64_t run_number) {};
+  void ChangeRun(int64_t run_number){};
 
   void Process(int64_t run_number, uint64_t event_number) {
     m_algo->process({m_tracks_input(), m_trackassocs_input()},

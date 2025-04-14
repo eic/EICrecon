@@ -25,15 +25,16 @@ using MPGDTrackerDigiAlgorithm =
                                              edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class MPGDTrackerDigi : public MPGDTrackerDigiAlgorithm,
-                           public WithPodConfig<MPGDTrackerDigiConfig> {
+                        public WithPodConfig<MPGDTrackerDigiConfig> {
 
 public:
   MPGDTrackerDigi(std::string_view name)
-      : MPGDTrackerDigiAlgorithm{name,
-                                    {"inputHitCollection"},
-                                    {"outputRawHitCollection", "outputHitAssociations"},
-                                    "2D-strip segmentation, apply threshold, digitize within ADC range, "
-                                    "convert time with smearing resolution."} {}
+      : MPGDTrackerDigiAlgorithm{
+            name,
+            {"inputHitCollection"},
+            {"outputRawHitCollection", "outputHitAssociations"},
+            "2D-strip segmentation, apply threshold, digitize within ADC range, "
+            "convert time with smearing resolution."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

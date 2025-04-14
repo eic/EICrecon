@@ -17,36 +17,28 @@
 
 namespace eicrecon {
 
-using FarDetectorTransportationPostMLAlgorithm =
-  algorithms::Algorithm<
-    algorithms::Input<
-      edm4eic::TensorCollection,
-      std::optional<edm4hep::MCParticleCollection>
-    >,
-    algorithms::Output<
-      edm4eic::ReconstructedParticleCollection
-    >
-  >;
+using FarDetectorTransportationPostMLAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::TensorCollection, std::optional<edm4hep::MCParticleCollection>>,
+    algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 class FarDetectorTransportationPostML
-: public FarDetectorTransportationPostMLAlgorithm,
-  public WithPodConfig<FarDetectorTransportationPostMLConfig> {
+    : public FarDetectorTransportationPostMLAlgorithm,
+      public WithPodConfig<FarDetectorTransportationPostMLConfig> {
 
 public:
   FarDetectorTransportationPostML(std::string_view name)
-      : FarDetectorTransportationPostMLAlgorithm{name,
-                            {"inputPredictionsTensor"},
-                            {"outputParticles"},
-                            "Convert ML output tensor into reconstructed electron"} {
-  }
+      : FarDetectorTransportationPostMLAlgorithm{
+            name,
+            {"inputPredictionsTensor"},
+            {"outputParticles"},
+            "Convert ML output tensor into reconstructed electron"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
 
-  private:
-    mutable float m_beamE = 10.0;
-    mutable std::once_flag m_initBeamE;
-
+private:
+  mutable float m_beamE = 10.0;
+  mutable std::once_flag m_initBeamE;
 };
 
 } // namespace eicrecon

@@ -2,7 +2,7 @@
 // Copyright (C) 2024 Souvik Paul, Chun Yuen Tsang, Prithwish Tribedy
 // Special Acknowledgement: Kolja Kauder
 //
-// Convert ADC pulses from LGADPulseGeneration into ADC and TDC values
+// Convert ADC pulses into ADC and TDC values
 
 #include <podio/RelationRange.h>
 #include <stdlib.h>
@@ -12,17 +12,17 @@
 #include <limits>
 #include <vector>
 
-#include "LGADPulseDigitization.h"
-#include "algorithms/digi/LGADPulseDigitizationConfig.h"
+#include "EICROCDigitization.h"
+#include "algorithms/digi/EICROCDigitizationConfig.h"
 
 namespace eicrecon {
 
-void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
-                                   const LGADPulseDigitization::Output& output) const {
+void EICROCDigitization::process(const EICROCDigitization::Input& input,
+                                 const EICROCDigitization::Output& output) const {
   const auto [simhits] = input;
   auto [rawhits]       = output;
 
-  double thres = m_cfg.t_thres;
+  double thres  = m_cfg.t_thres;
   int adc_range = m_cfg.adc_range;
 
   for (const auto& pulse : *simhits) {
@@ -31,11 +31,11 @@ void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
     int adc              = 0;
     double V             = 0.0;
 
-    int time_bin         = 0;
-    double adc_prev      = 0;
-    double time_interval = pulse.getInterval();
-    auto adcs            = pulse.getAdcCounts();
-    double n_EICROC_cycle = static_cast<int>(std::floor(pulse.getTime()/m_cfg.tMax + 1e-3));
+    int time_bin          = 0;
+    double adc_prev       = 0;
+    double time_interval  = pulse.getInterval();
+    auto adcs             = pulse.getAdcCounts();
+    double n_EICROC_cycle = static_cast<int>(std::floor(pulse.getTime() / m_cfg.tMax + 1e-3));
     for (const auto adc : adcs) {
       if (adc_prev >= thres && adc <= thres) {
         tdc = time_bin + n_EICROC_cycle * m_cfg.tdc_range;
@@ -53,5 +53,5 @@ void LGADPulseDigitization::process(const LGADPulseDigitization::Input& input,
       rawhits->create(pulse.getCellID(), adc, tdc);
     //-----------------------------------------------------------
   }
-} // LGADPulseDigitization:process
+} // EICROCDigitization:process
 } // namespace eicrecon

@@ -8,11 +8,10 @@
 
 namespace eicrecon {
 
-  struct CalorimeterHitsMergerConfig {
+struct CalorimeterHitsMergerConfig {
 
-    std::string              readout{""};
-    std::vector<std::string> fieldTransformations{};
+  std::string readout{""};
+  std::vector<std::string> fieldTransformations{};
+};
 
-  };
-
-} // eicrecon
+} // namespace eicrecon

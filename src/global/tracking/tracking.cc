@@ -47,24 +47,20 @@ void InitPlugin(JApplication* app) {
 
   // Possible collections from arches, brycecanyon and craterlake configurations
   std::vector<std::tuple<std::string, std::string, std::string, std::string>> possible_collections =
-      {
-          {"SiBarrelHits", "SiBarrelRawHits", "SiBarrelRawHitAssociations",
-           "SiBarrelTrackerRecHits"},
-          {"VertexBarrelHits", "SiBarrelVertexRawHits", "SiBarrelVertexRawHitAssociations",
-           "SiBarrelVertexRecHits"},
-          {"TrackerEndcapHits", "SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitAssociations",
-           "SiEndcapTrackerRecHits"},
-          {"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelRecHits"},
-          {"TOFEndcapHits", "TOFEndcapRawHits", "TOFEndcapRawHitAssociations", "TOFEndcapRecHits"},
-          {"MPGDBarrelHits", "MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations",
-           "MPGDBarrelRecHits"},
-          {"OuterMPGDBarrelHits", "OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations",
-           "OuterMPGDBarrelRecHits"},
-          {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRawHits",
-           "BackwardMPGDEndcapRawHitAssociations", "BackwardMPGDEndcapRecHits"},
-          {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRawHits",
-           "ForwardMPGDEndcapRawHitAssociations", "ForwardMPGDEndcapRecHits"},
-      };
+      {{"SiBarrelHits", "SiBarrelRawHits", "SiBarrelRawHitAssociations", "SiBarrelTrackerRecHits"},
+       {"VertexBarrelHits", "SiBarrelVertexRawHits", "SiBarrelVertexRawHitAssociations",
+        "SiBarrelVertexRecHits"},
+       {"TrackerEndcapHits", "SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitAssociations",
+        "SiEndcapTrackerRecHits"},
+       {"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelRecHits"},
+       {"TOFEndcapHits", "TOFEndcapRawHits", "TOFEndcapRawHitAssociations", "TOFEndcapRecHits"},
+       {"MPGDBarrelHits", "MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations", "MPGDBarrelRecHits"},
+       {"OuterMPGDBarrelHits", "OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations",
+        "OuterMPGDBarrelRecHits"},
+       {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRawHits",
+        "BackwardMPGDEndcapRawHitAssociations", "BackwardMPGDEndcapRecHits"},
+       {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHitAssociations",
+        "ForwardMPGDEndcapRecHits"}};
 
   // Filter out collections that are not present in the current configuration
   std::vector<std::string> input_rec_collections;
