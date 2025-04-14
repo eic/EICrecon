@@ -154,7 +154,7 @@ void JetReconstruction<InputT>::process(
     for (unsigned j = 0; j < csts.size(); j++) {
       jet_output.addToParticles(input_collection->at(csts[j].user_index()));
     } // for constituent j
-  } // for jet i
+  }   // for jet i
 
   // return the jets
   return;
