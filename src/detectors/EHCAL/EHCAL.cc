@@ -98,14 +98,11 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNTruthClustersWithoutShapes",
-      {
-        "HcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
+      {"HcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalEndcapNRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+       "HcalEndcapNRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-            "HcalEndcapNHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "HcalEndcapNHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"HcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -119,14 +116,11 @@ void InitPlugin(JApplication* app) {
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNClustersWithoutShapes",
-      {
-        "HcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
+      {"HcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalEndcapNRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+       "HcalEndcapNRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-            "HcalEndcapNHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "HcalEndcapNHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"HcalEndcapNClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -158,14 +152,11 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNSplitMergeClustersWithoutShapes",
-      {
-        "HcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+      {"HcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalEndcapNRawHitAssociations"
-      }, // edm4hep::MCRecoCalorimeterHitAssociationCollection
+       "HcalEndcapNRawHitAssociations"}, // edm4hep::MCRecoCalorimeterHitAssociationCollection
 #else
-            "HcalEndcapNHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "HcalEndcapNHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"HcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation

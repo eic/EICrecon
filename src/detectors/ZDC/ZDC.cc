@@ -84,14 +84,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalFarForwardZDCTruthClustersWithoutShapes",
-      {
-        "EcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
+      {"EcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalFarForwardZDCRawHitAssociations"
-      }, // edm4eic::MCRecoClusterHitAssociationCollection
+       "EcalFarForwardZDCRawHitAssociations"}, // edm4eic::MCRecoClusterHitAssociationCollection
 #else
-            "EcalFarForwardZDCHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "EcalFarForwardZDCHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"EcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -108,14 +105,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalFarForwardZDCClustersWithoutShapes",
-      {
-        "EcalFarForwardZDCIslandProtoClusters", // edm4eic::ProtoClusterCollection
+      {"EcalFarForwardZDCIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalFarForwardZDCRawHitAssociations"
-      }, // edm4eic::MCRecoClusterHitAssociationCollection
+       "EcalFarForwardZDCRawHitAssociations"}, // edm4eic::MCRecoClusterHitAssociationCollection
 #else
-            "EcalFarForwardZDCHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "EcalFarForwardZDCHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"EcalFarForwardZDCClustersWithoutShapes",             // edm4eic::Cluster
        "EcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -219,14 +213,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCClustersWithoutShapes",
-      {
-        "HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
+      {"HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalFarForwardZDCRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+       "HcalFarForwardZDCRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-            "HcalFarForwardZDCHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "HcalFarForwardZDCHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"HcalFarForwardZDCClustersWithoutShapes",             // edm4eic::Cluster
        "HcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -273,14 +264,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCTruthClustersWithoutShapes",
-      {
-        "HcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
+      {"HcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalFarForwardZDCRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+       "HcalFarForwardZDCRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-            "HcalFarForwardZDCHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "HcalFarForwardZDCHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"HcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -297,14 +285,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCClustersBaselineWithoutShapes",
-      {
-        "HcalFarForwardZDCIslandProtoClustersBaseline", // edm4eic::ProtoClusterCollection
+      {"HcalFarForwardZDCIslandProtoClustersBaseline", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalFarForwardZDCRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+       "HcalFarForwardZDCRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-            "HcalFarForwardZDCHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "HcalFarForwardZDCHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"HcalFarForwardZDCClustersBaselineWithoutShapes", // edm4eic::Cluster
        "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
