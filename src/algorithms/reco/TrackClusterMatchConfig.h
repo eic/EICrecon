@@ -7,7 +7,7 @@
 #include <DD4hep/DD4hepUnits.h>
 
 namespace eicrecon {
-    struct TrackClusterMatchConfig {
-        double matching_distance = 0.5;
-    };
-}
+struct TrackClusterMatchConfig {
+  double matching_distance = 0.5;
+};
+} // namespace eicrecon

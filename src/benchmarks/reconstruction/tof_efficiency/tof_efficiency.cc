@@ -8,8 +8,8 @@
 #include "TofEfficiency_processor.h"
 
 extern "C" {
-    void InitPlugin(JApplication *app) {
-        InitJANAPlugin(app);
-        app->Add(new TofEfficiency_processor());
-    }
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->Add(new TofEfficiency_processor());
+}
 }
