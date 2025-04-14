@@ -61,17 +61,17 @@ class ImagingClusterReco : public ImagingClusterRecoAlgorithm,
                            public WithPodConfig<ImagingClusterRecoConfig> {
 
 public:
-  ImagingClusterReco(std::string_view name)
-      : ImagingClusterRecoAlgorithm{
-            name,
+  ImagingClusterReco(std::string_view name) : ImagingClusterRecoAlgorithm {
+    name,
 #if EDM4EIC_VERSION_MAJOR >= 7
-            {"inputProtoClusterCollection", "mcRawHitAssocations"},
+        {"inputProtoClusterCollection", "mcRawHitAssocations"},
 #else
-            {"inputProtoClusterCollection", "mcHits"},
+        {"inputProtoClusterCollection", "mcHits"},
 #endif
-            {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
-            "Reconstruct the cluster/layer info for imaging calorimeter."} {
+        {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
+        "Reconstruct the cluster/layer info for imaging calorimeter."
   }
+  {}
 
 public:
   void init() {}

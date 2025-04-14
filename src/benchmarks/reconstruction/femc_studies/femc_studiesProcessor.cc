@@ -231,7 +231,8 @@ void femc_studiesProcessor::Init() {
   try {
     m_decoder = detector->readout("EcalEndcapPHits").idSpec().decoder();
     std::cout << "1st: " << m_decoder << std::endl;
-    std::cout << "full list: " << " " << m_decoder->fieldDescription() << std::endl;
+    std::cout << "full list: "
+              << " " << m_decoder->fieldDescription() << std::endl;
   } catch (...) {
     std::cout << "2nd: " << m_decoder << std::endl;
     m_log->error("readoutClass not in the output");

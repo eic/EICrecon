@@ -235,19 +235,17 @@ void InitPlugin(JApplication* app) {
        .gammaMaxWidth             = 12 * dd4hep::mm},
       app // TODO: Remove me once fixed
       ));
-  app->Add(
-      new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
-          "ReconstructedFarForwardZDCLambdas",
-          {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
-          {
-              "ReconstructedFarForwardZDCLambdas", "ReconstructedFarForwardZDCLambdaDecayProductsC"
-                                                   "M"}, // edm4eic::ReconstrutedParticleCollection,
-          {.globalToProtonRotation = -0.025,
-           .zMax                   = z_zdc * dd4hep::mm,
-           .lambdaMaxMassDev       = 0.030 * dd4hep::GeV,
-           .iterations             = 10},
-          app // TODO: Remove me once fixed
-          ));
+  app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
+      "ReconstructedFarForwardZDCLambdas",
+      {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
+      {"ReconstructedFarForwardZDCLambdas", "ReconstructedFarForwardZDCLambdaDecayProductsC"
+                                            "M"}, // edm4eic::ReconstrutedParticleCollection,
+      {.globalToProtonRotation = -0.025,
+       .zMax                   = z_zdc * dd4hep::mm,
+       .lambdaMaxMassDev       = 0.030 * dd4hep::GeV,
+       .iterations             = 10},
+      app // TODO: Remove me once fixed
+      ));
 
 #if EDM4EIC_VERSION_MAJOR >= 6
   app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(

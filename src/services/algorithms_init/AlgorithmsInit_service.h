@@ -23,8 +23,8 @@
  */
 class AlgorithmsInit_service : public JService {
 public:
-  AlgorithmsInit_service(JApplication* app) {};
-  virtual ~AlgorithmsInit_service() {};
+  AlgorithmsInit_service(JApplication* app){};
+  virtual ~AlgorithmsInit_service(){};
 
   void acquire_services(JServiceLocator* srv_locator) override {
     auto& serviceSvc = algorithms::ServiceSvc::instance();

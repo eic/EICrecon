@@ -19,7 +19,7 @@
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
 // translation unit
-ACTSGeo_service::~ACTSGeo_service() {};
+ACTSGeo_service::~ACTSGeo_service(){};
 
 //----------------------------------------------------------------
 // detector
