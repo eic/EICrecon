@@ -150,6 +150,26 @@ extern "C" {
             app
           )
         );
+        //======================================================================
+        
+        app->Add(
+          new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+            "EcalBarrelScFiTopoClusters",
+            {"EcalBarrelScFiClustersWithoutShapes",
+             "EcalBarrelScFiClusterAssociationsWithoutShapes"},
+            {"EcalBarrelScFiTopoClusters",
+             "EcalBarrelScFiTopoClusterAssociations"},
+            {
+              .longitudinalShowerInfoAvailable = true,
+              .energyWeight = "log",
+              .logWeightBase = 6.2
+            },
+            app
+          )
+        );
+
+        //======================================================================
+    
 
         // Make sure digi and reco use the same value
         decltype(CalorimeterHitDigiConfig::capADC)        EcalBarrelImaging_capADC = 8192; //8192,  13bit ADC
