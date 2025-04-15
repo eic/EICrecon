@@ -13,39 +13,27 @@
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
-
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
-    using namespace eicrecon;
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  using namespace eicrecon;
 
+  //Digitized hits, especially for thresholds
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+      "ForwardOffMTrackerRawHits", {"ForwardOffMTrackerHits"},
+      {"ForwardOffMTrackerRawHits", "ForwardOffMTrackerRawHitAssociations"},
+      {
+          .threshold      = 10.0 * dd4hep::keV,
+          .timeResolution = 8,
+      },
+      app));
 
-        //Digitized hits, especially for thresholds
-        app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "ForwardOffMTrackerRawHits",
-        {
-          "ForwardOffMTrackerHits"
-        },
-        {
-          "ForwardOffMTrackerRawHits",
-          "ForwardOffMTrackerRawHitAssociations"
-        },
-        {
-            .threshold = 10.0 * dd4hep::keV,
-            .timeResolution = 8,
-        },
-        app
-    ));
-
-        app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-        "ForwardOffMTrackerRecHits",
-        {"ForwardOffMTrackerRawHits"},
-        {"ForwardOffMTrackerRecHits"},
-        {
-            .timeResolution = 8,
-        },
-        app
-    ));
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "ForwardOffMTrackerRecHits", {"ForwardOffMTrackerRawHits"}, {"ForwardOffMTrackerRecHits"},
+      {
+          .timeResolution = 8,
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
       "ForwardOffMRecParticles", {"MCParticles", "ForwardOffMTrackerRecHits"},

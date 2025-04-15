@@ -5,34 +5,33 @@
 
 namespace eicrecon {
 
-  struct MatrixConfig {
-    // Defaults here are for RPOTS
-    double nomMomentum;
-    std::vector<std::vector<double>> aX;
-    std::vector<std::vector<double>> aY;
-    double local_x_offset;
-    double local_y_offset;
-    double local_x_slope_offset;
-    double local_y_slope_offset;
-  };
+struct MatrixConfig {
+  // Defaults here are for RPOTS
+  double nomMomentum;
+  std::vector<std::vector<double>> aX;
+  std::vector<std::vector<double>> aY;
+  double local_x_offset;
+  double local_y_offset;
+  double local_x_slope_offset;
+  double local_y_slope_offset;
+};
 
-  struct MatrixTransferStaticConfig {
+struct MatrixTransferStaticConfig {
 
-    float     partMass  {0.938272};
-    float     partCharge{1};
-    long long partPDG   {2212};
+  float partMass{0.938272};
+  float partCharge{1};
+  long long partPDG{2212};
 
-    double crossingAngle       {0.025};
+  double crossingAngle{0.025};
 
-    std::vector<MatrixConfig> matrix_configs;
+  std::vector<MatrixConfig> matrix_configs;
 
-    double hit1minZ{0};
-    double hit1maxZ{0};
-    double hit2minZ{0};
-    double hit2maxZ{0};
+  double hit1minZ{0};
+  double hit1maxZ{0};
+  double hit2minZ{0};
+  double hit2maxZ{0};
 
-    std::string readout{""};
+  std::string readout{""};
+};
 
-  };
-
-}
+} // namespace eicrecon

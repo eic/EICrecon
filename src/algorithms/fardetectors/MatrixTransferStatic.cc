@@ -21,25 +21,20 @@
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
 
-void eicrecon::MatrixTransferStatic::init() {
+void eicrecon::MatrixTransferStatic::init() {}
 
-}
-
-void eicrecon::MatrixTransferStatic::process(
-    const MatrixTransferStatic::Input& input,
-    const MatrixTransferStatic::Output& output) const {
+void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& input,
+                                             const MatrixTransferStatic::Output& output) const {
 
   const auto [mcparts, rechits] = input;
-  auto [outputParticles] = output;
+  auto [outputParticles]        = output;
 
   std::vector<std::vector<double>> aX;
   std::vector<std::vector<double>> aY;
 
   //----- Define constants here ------
-  double aXinv[2][2] = {{0.0, 0.0},
-                        {0.0, 0.0}};
-  double aYinv[2][2] = {{0.0, 0.0},
-                        {0.0, 0.0}};
+  double aXinv[2][2] = {{0.0, 0.0}, {0.0, 0.0}};
+  double aYinv[2][2] = {{0.0, 0.0}, {0.0, 0.0}};
 
   double nomMomentum;
   double local_x_offset;
@@ -47,23 +42,26 @@ void eicrecon::MatrixTransferStatic::process(
   double local_x_slope_offset;
   double local_y_slope_offset;
 
-  double numBeamProtons = 0;
+  double numBeamProtons  = 0;
   double runningMomentum = 0.0;
 
-  for (const auto& p: *mcparts) {
-          if(mcparts->size() == 1 && p.getPDG() == 2212){
-                runningMomentum = p.getMomentum().z;
-                numBeamProtons++;
-          }
-        if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
-                runningMomentum += p.getMomentum().z;
-                numBeamProtons++;
-        }
+  for (const auto& p : *mcparts) {
+    if (mcparts->size() == 1 && p.getPDG() == 2212) {
+      runningMomentum = p.getMomentum().z;
+      numBeamProtons++;
+    }
+    if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+      runningMomentum += p.getMomentum().z;
+      numBeamProtons++;
+    }
   }
 
-  if(numBeamProtons == 0) {error("No beam protons to choose matrix!! Skipping!!"); return;}
+  if (numBeamProtons == 0) {
+    error("No beam protons to choose matrix!! Skipping!!");
+    return;
+  }
 
-  nomMomentum = runningMomentum/numBeamProtons;
+  nomMomentum = runningMomentum / numBeamProtons;
 
   double nomMomentumError = 0.05;
 
@@ -72,7 +70,8 @@ void eicrecon::MatrixTransferStatic::process(
 
   bool matrix_found = false;
   for (const MatrixConfig& matrix_config : m_cfg.matrix_configs) {
-    if (std::abs(matrix_config.nomMomentum - nomMomentum) / matrix_config.nomMomentum < nomMomentumError) {
+    if (std::abs(matrix_config.nomMomentum - nomMomentum) / matrix_config.nomMomentum <
+        nomMomentumError) {
       if (matrix_found) {
         error("Conflicting matrix values matching momentum {}", nomMomentum);
       }
@@ -81,8 +80,8 @@ void eicrecon::MatrixTransferStatic::process(
       aX = matrix_config.aX;
       aY = matrix_config.aY;
 
-      local_x_offset = matrix_config.local_x_offset;
-      local_y_offset = matrix_config.local_y_offset;
+      local_x_offset       = matrix_config.local_x_offset;
+      local_y_offset       = matrix_config.local_y_offset;
       local_x_slope_offset = matrix_config.local_x_slope_offset;
       local_y_slope_offset = matrix_config.local_y_slope_offset;
     }
@@ -99,11 +98,10 @@ void eicrecon::MatrixTransferStatic::process(
     return;
   }
 
-  aXinv[0][0] =  aX[1][1] / determinant;
+  aXinv[0][0] = aX[1][1] / determinant;
   aXinv[0][1] = -aX[0][1] / determinant;
   aXinv[1][0] = -aX[1][0] / determinant;
-  aXinv[1][1] =  aX[0][0] / determinant;
-
+  aXinv[1][1] = aX[0][0] / determinant;
 
   determinant = aY[0][0] * aY[1][1] - aY[0][1] * aY[1][0];
 
@@ -112,14 +110,14 @@ void eicrecon::MatrixTransferStatic::process(
     return;
   }
 
-  aYinv[0][0] =  aY[1][1] / determinant;
+  aYinv[0][0] = aY[1][1] / determinant;
   aYinv[0][1] = -aY[0][1] / determinant;
   aYinv[1][0] = -aY[1][0] / determinant;
-  aYinv[1][1] =  aY[0][0] / determinant;
+  aYinv[1][1] = aY[0][0] / determinant;
 
   //---- begin Reconstruction code ----
 
-  edm4hep::Vector3f goodHit[2] = {{0.0,0.0,0.0},{0.0,0.0,0.0}};
+  edm4hep::Vector3f goodHit[2] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
 
   double goodHitX[2] = {0.0, 0.0};
   double goodHitY[2] = {0.0, 0.0};
@@ -133,46 +131,51 @@ void eicrecon::MatrixTransferStatic::process(
 
   trace("size of RP hit array = {}", rechits->size());
 
-  for (const auto &h: *rechits) {
+  for (const auto& h : *rechits) {
 
     auto cellID = h.getCellID();
     // The actual hit position in Global Coordinates
     auto gpos = m_converter->position(cellID);
     // local positions
     auto volman = m_detector->volumeManager();
-    auto local = volman.lookupDetElement(cellID);
+    auto local  = volman.lookupDetElement(cellID);
 
-    auto pos0 = local.nominal().worldToLocal(dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
+    auto pos0 = local.nominal().worldToLocal(
+        dd4hep::Position(gpos.x(), gpos.y(), gpos.z())); // hit position in local coordinates
 
     // convert into mm
-    gpos = gpos/dd4hep::mm;
-    pos0 = pos0/dd4hep::mm;
+    gpos = gpos / dd4hep::mm;
+    pos0 = pos0 / dd4hep::mm;
 
-   trace("gpos.z() = {}, pos0.z() = {}, E_dep = {}", gpos.z(), pos0.z(), h.getEdep());
+    trace("gpos.z() = {}, pos0.z() = {}, E_dep = {}", gpos.z(), pos0.z(), h.getEdep());
 
-    if(gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ){
+    if (gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ) {
 
-      trace("[gpos.x(), gpos.y(), gpos.z()] = {}, {}, {};  E_dep = {} MeV", gpos.x(), gpos.y(), gpos.z(), h.getEdep()*1000);
+      trace("[gpos.x(), gpos.y(), gpos.z()] = {}, {}, {};  E_dep = {} MeV", gpos.x(), gpos.y(),
+            gpos.z(), h.getEdep() * 1000);
       numGoodHits2++;
       goodHit[1].x = gpos.x(); //pos0.x() - pos0 is local coordinates, gpos is global
-      goodHit[1].y = gpos.y(); //pos0.y() - temporarily changing to global to solve the local coordinate issue
+      goodHit[1].y =
+          gpos.y(); //pos0.y() - temporarily changing to global to solve the local coordinate issue
       goodHit[1].z = gpos.z(); //         - which is unique to the Roman pots situation
-      if(numGoodHits2 == 1){goodHit2 = true;}
-      else goodHit2 = false;
-
+      if (numGoodHits2 == 1) {
+        goodHit2 = true;
+      } else
+        goodHit2 = false;
     }
-    if(gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ){
+    if (gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ) {
 
-      trace("[gpos.x(), gpos.y(), gpos.z()] = {}, {}, {};  E_dep = {} MeV", gpos.x(), gpos.y(), gpos.z(), h.getEdep()*1000);
+      trace("[gpos.x(), gpos.y(), gpos.z()] = {}, {}, {};  E_dep = {} MeV", gpos.x(), gpos.y(),
+            gpos.z(), h.getEdep() * 1000);
       numGoodHits1++;
       goodHit[0].x = gpos.x(); //pos0.x()
       goodHit[0].y = gpos.y(); //pos0.y()
       goodHit[0].z = gpos.z();
-      if(numGoodHits1 == 1){goodHit1 = true;}
-      else goodHit1 = false;
-
+      if (numGoodHits1 == 1) {
+        goodHit1 = true;
+      } else
+        goodHit1 = false;
     }
-
   }
 
   // NB:
@@ -190,13 +193,12 @@ void eicrecon::MatrixTransferStatic::process(
 
     if (base == 0) {
       info("Detector separation = 0! Cannot calculate slope!");
-    }
-    else{
+    } else {
 
       double Xip[2] = {0.0, 0.0};
-      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base))/dd4hep::mrad - local_x_slope_offset};
+      double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base)) / dd4hep::mrad - local_x_slope_offset};
       double Yip[2] = {0.0, 0.0};
-      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base))/dd4hep::mrad - local_y_slope_offset};
+      double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base)) / dd4hep::mrad - local_y_slope_offset};
 
       // use the hit information and calculated slope at the RP + the transfer matrix inverse to calculate the
       // Polar Angle and deltaP at the IP
@@ -208,19 +210,19 @@ void eicrecon::MatrixTransferStatic::process(
         }
       }
 
-          Yip[1] = Yrp[0]/aY[0][1];
+      Yip[1] = Yrp[0] / aY[0][1];
 
       // convert polar angles to radians
       double rsx = Xip[1] * dd4hep::mrad;
       double rsy = Yip[1] * dd4hep::mrad;
 
       // calculate momentum magnitude from measured deltaP – using thin lens optics.
-      double p = nomMomentum * (1 + 0.01 * Xip[0]);
+      double p    = nomMomentum * (1 + 0.01 * Xip[0]);
       double norm = std::sqrt(1.0 + rsx * rsx + rsy * rsy);
 
-      edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm), static_cast<float>(p * rsy / norm),
-                                static_cast<float>(p / norm)};
-      auto refPoint = goodHit[0];
+      edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm),
+                                static_cast<float>(p * rsy / norm), static_cast<float>(p / norm)};
+      auto refPoint          = goodHit[0];
 
       trace("RP Reco Momentum ---> px = {},  py = {}, pz = {}", prec.x, prec.y, prec.z);
 
@@ -229,7 +231,8 @@ void eicrecon::MatrixTransferStatic::process(
       edm4eic::MutableReconstructedParticle reconTrack;
       reconTrack.setType(0);
       reconTrack.setMomentum(prec);
-      reconTrack.setEnergy(std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
+      reconTrack.setEnergy(
+          std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
       reconTrack.setReferencePoint(refPoint);
       reconTrack.setCharge(m_cfg.partCharge);
       reconTrack.setMass(m_cfg.partMass);
@@ -239,5 +242,4 @@ void eicrecon::MatrixTransferStatic::process(
       outputParticles->push_back(reconTrack);
     }
   } // end enough hits for matrix reco
-
 }
