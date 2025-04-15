@@ -4,6 +4,7 @@
 #include <JANA/JServiceFwd.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
+#include <cstddef>
 #include <memory>
 #include <mutex>
 #include <optional>
