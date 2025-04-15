@@ -8,23 +8,22 @@
 #include <spdlog/logger.h>
 #include <memory>
 
-
 namespace eicrecon {
 
-    /**
+/**
      * Converts edm4hep::MCParticle to edm4eic::ReconstructedParticle
      */
-    class MC2SmearedParticle {
-    public:
+class MC2SmearedParticle {
+public:
+  /** Initialized algorithms with required data. Init function is assumed to be called once **/
+  void init(std::shared_ptr<spdlog::logger> logger);
 
-        /** Initialized algorithms with required data. Init function is assumed to be called once **/
-        void init(std::shared_ptr<spdlog::logger> logger);
+  /** process function convert one data type to another **/
+  std::unique_ptr<edm4eic::ReconstructedParticleCollection>
+  produce(const edm4hep::MCParticleCollection* mc_particles);
 
-        /** process function convert one data type to another **/
-        std::unique_ptr<edm4eic::ReconstructedParticleCollection> produce(const edm4hep::MCParticleCollection* mc_particles);
-
-    private:
-        /** algorithm logger */
-        std::shared_ptr<spdlog::logger> m_log;
-    };
-}
+private:
+  /** algorithm logger */
+  std::shared_ptr<spdlog::logger> m_log;
+};
+} // namespace eicrecon

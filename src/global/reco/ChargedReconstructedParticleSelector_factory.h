@@ -8,34 +8,31 @@
 
 namespace eicrecon {
 
-  class ChargedReconstructedParticleSelector_factory : public JOmniFactory<ChargedReconstructedParticleSelector_factory, NoConfig> {
+class ChargedReconstructedParticleSelector_factory
+    : public JOmniFactory<ChargedReconstructedParticleSelector_factory, NoConfig> {
 
-    private:
+private:
+  // algorithm
+  std::unique_ptr<eicrecon::ChargedReconstructedParticleSelector> m_algo;
 
-      // algorithm
-      std::unique_ptr<eicrecon::ChargedReconstructedParticleSelector> m_algo;
+  // input collection
+  PodioInput<edm4eic::ReconstructedParticle> m_pars_in{this, "GeneratedParticles"};
 
-      // input collection
-      PodioInput<edm4eic::ReconstructedParticle> m_pars_in {this, "GeneratedParticles"};
+  // output collection
+  PodioOutput<edm4eic::ReconstructedParticle> m_pars_out{this};
 
-      // output collection
-      PodioOutput<edm4eic::ReconstructedParticle> m_pars_out {this};
+public:
+  void Configure() {
+    m_algo = std::make_unique<eicrecon::ChargedReconstructedParticleSelector>();
+    m_algo->init(logger());
+  }
 
-    public:
+  void ChangeRun(int64_t run_number) { /* nothing to do */
+  }
 
-      void Configure() {
-        m_algo = std::make_unique<eicrecon::ChargedReconstructedParticleSelector>();
-        m_algo->init(logger());
-      }
+  void Process(int64_t run_number, int64_t event_number) {
+    m_pars_out() = m_algo->process(m_pars_in());
+  }
+};
 
-      void ChangeRun(int64_t run_number) {
-        /* nothing to do */
-      }
-
-     void Process(int64_t run_number, int64_t event_number) {
-        m_pars_out() = m_algo->process(m_pars_in());
-      }
-
-  };
-
-}  // end eicrecon namespace
+} // namespace eicrecon

@@ -25,7 +25,7 @@ namespace eicrecon {
 
 void FarDetectorTrackerCluster::init() {
 
-  m_detector         = algorithms::GeoSvc::instance().detector();
+  m_detector = algorithms::GeoSvc::instance().detector();
 
   if (m_cfg.readout.empty()) {
     throw JException("Readout is empty");
@@ -63,13 +63,13 @@ void FarDetectorTrackerCluster::process(const FarDetectorTrackerCluster::Input& 
 
     // Make clusters
     ClusterHits(*inputHits, *outputClusters);
-
   }
 }
 
 // Create vector of Measurement2D from list of hits
-void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection& inputHits, edm4eic::Measurement2DCollection& outputClusters) const {
-
+void FarDetectorTrackerCluster::ClusterHits(
+    const edm4eic::TrackerHitCollection& inputHits,
+    edm4eic::Measurement2DCollection& outputClusters) const {
 
   ROOT::VecOps::RVec<unsigned long> id;
   ROOT::VecOps::RVec<int> x;
@@ -134,18 +134,17 @@ void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection
       auto pos = m_seg->position(id[index]);
 
       // Weighted position
-      float weight = e[index]; // TODO - Calculate appropriate weighting based on sensor charge sharing
+      float weight =
+          e[index]; // TODO - Calculate appropriate weighting based on sensor charge sharing
       weightSum += weight;
       localPos += pos * weight;
 
       // Time
       clusterT.push_back(t[index]);
 
-
       // Adds hit and weight to Measurement2D contribution
       cluster.addToHits(inputHits[index]);
       clusterW.push_back(e[index]);
-
     }
 
     // Finalise position
@@ -154,24 +153,22 @@ void  FarDetectorTrackerCluster::ClusterHits(const edm4eic::TrackerHitCollection
     edm4hep::Vector2f xyPos = {static_cast<float>(localPos.x()), static_cast<float>(localPos.y())};
 
     // Finalise time
-    t0     = Mean(clusterT);
+    t0 = Mean(clusterT);
 
     // Normalize weights then add to cluster
     clusterW /= weightSum;
 
-    for(auto& w : clusterW) {
+    for (auto& w : clusterW) {
       cluster.addToWeights(w);
     }
 
-    edm4eic::Cov3f    covariance;
+    edm4eic::Cov3f covariance;
 
     cluster.setSurface(id[maxIndex]);
     cluster.setLoc(xyPos);
     cluster.setTime(t0);
     cluster.setCovariance(covariance);
-
   }
-
 }
 
 } // namespace eicrecon

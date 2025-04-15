@@ -38,16 +38,19 @@ public:
     dd4hep::Readout readoutTracker(std::string("MockTrackerHits"));
     dd4hep::IDDescriptor id_desc_tracker("MockTrackerHits", "system:8,layer:8,x:8,y:8");
     //Create segmentation with 1x1 mm pixels
-    dd4hep::Segmentation segmentation("CartesianGridXY","TrackerHitsSeg", id_desc_tracker.decoder());
+    dd4hep::Segmentation segmentation("CartesianGridXY", "TrackerHitsSeg",
+                                      id_desc_tracker.decoder());
     readoutTracker.setIDDescriptor(id_desc_tracker);
     readoutTracker.setSegmentation(segmentation);
     detector->add(id_desc_tracker);
     detector->add(readoutTracker);
 
     dd4hep::Readout readoutSilicon(std::string("MockSiliconHits"));
-    dd4hep::IDDescriptor id_desc_Silicon("MockSiliconHits", "system:8,layer:4,module:12,sensor:10,x:40:-8,y:-16");
+    dd4hep::IDDescriptor id_desc_Silicon("MockSiliconHits",
+                                         "system:8,layer:4,module:12,sensor:10,x:40:-8,y:-16");
     //Create segmentation with 1x1 mm pixels
-    dd4hep::Segmentation segmentation_Silicon("CartesianGridXY","SiliconHitsSeg", id_desc_tracker.decoder());
+    dd4hep::Segmentation segmentation_Silicon("CartesianGridXY", "SiliconHitsSeg",
+                                              id_desc_tracker.decoder());
     readoutSilicon.setIDDescriptor(id_desc_Silicon);
     readoutSilicon.setSegmentation(segmentation_Silicon);
     detector->add(id_desc_Silicon);
@@ -55,14 +58,12 @@ public:
 
     m_detector = std::move(detector);
 
-    auto& serviceSvc = algorithms::ServiceSvc::instance();
+    auto& serviceSvc              = algorithms::ServiceSvc::instance();
     [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
-    serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) {
-      g.init(this->m_detector.get());
-    });
+    serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) { g.init(this->m_detector.get()); });
 
     [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
-    auto seed = Catch::Generators::Detail::getSeed();
+    auto seed                        = Catch::Generators::Detail::getSeed();
     serviceSvc.setInit<algorithms::RandomSvc>([seed](auto&& r) {
       r.setProperty("seed", static_cast<size_t>(seed));
       r.init();
