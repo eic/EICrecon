@@ -158,6 +158,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "TaggerTrackerReconstructedParticles",
 
     // Forward & Far forward hits
+    "B0TrackerTruthSeeds",
     "B0TrackerRecHits",
     "B0TrackerRawHits",
     "B0TrackerHits",
