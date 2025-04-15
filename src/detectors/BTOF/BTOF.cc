@@ -24,7 +24,7 @@
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
-//#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -83,9 +83,16 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+      "TOFBarrelPulseCombiner", {"TOFBarrelSmoothPulses"}, {"TOFBarrelCombinedPulses"},
+      {
+          .minimum_separation = 25 * edm4eic::unit::ns,
+      },
+      app));
+
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
-      "SiliconPulseDiscretization", {"TOFBarrelSmoothPulse"}, {"TOFBarrelPulse"},
+      "SiliconPulseDiscretization", {"TOFBarrelCombinedPulse"}, {"TOFBarrelPulse"},
       {
           .EICROC_period = 25 * edm4eic::unit::ns,
           .local_period  = 25 * edm4eic::unit::ns / 1024,

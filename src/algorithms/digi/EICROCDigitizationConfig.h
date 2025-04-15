@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include <DD4hep/DD4hepUnits.h>
+//#include <DD4hep/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
 
 namespace eicrecon {
 
@@ -21,7 +22,7 @@ struct EICROCDigitizationConfig {
       adc_range; // TDC value = time when pulse exceed t_thres. Negative because Silicon voltage is negative when hit
   // period of the sensor clock. Time internal to sensor will all be digitized to integer multiple
   // of tInterval
-  double tMax = 25 * dd4hep::ns; // 25 ns is the period of 40MHz EIC clock
+  double tMax = 25 * edm4eic::unit::ns;//dd4hep::ns; // 25 ns is the period of 40MHz EIC clock
 };
 
 } // namespace eicrecon
