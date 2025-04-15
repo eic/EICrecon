@@ -17,24 +17,23 @@
 #include "algorithms/reco/TrackClusterMatchConfig.h"
 
 namespace eicrecon {
-    using TrackClusterMatchAlgorithm = algorithms::Algorithm<
+using TrackClusterMatchAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackSegmentCollection, edm4eic::ClusterCollection>,
-    algorithms::Output<edm4eic::TrackClusterMatchCollection>
-    >;
+    algorithms::Output<edm4eic::TrackClusterMatchCollection>>;
 
+class TrackClusterMatch : public TrackClusterMatchAlgorithm,
+                          public WithPodConfig<TrackClusterMatchConfig> {
+private:
+  const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+  double distance(const edm4hep::Vector3f& v1, const edm4hep::Vector3f& v2) const;
+  static double Phi_mpi_pi(double phi) { return std::remainder(phi, 2 * M_PI); }
 
-    class TrackClusterMatch : public TrackClusterMatchAlgorithm, public WithPodConfig<TrackClusterMatchConfig> {
-    private:
-        const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
-        double distance(const edm4hep::Vector3f& v1, const edm4hep::Vector3f& v2) const;
-        static double Phi_mpi_pi(double phi) {return std::remainder(phi, 2 * M_PI);}
+public:
+  TrackClusterMatch(std::string_view name)
+      : TrackClusterMatchAlgorithm{
+            name, {"inputTracks", "inputClusters"}, {"outputParticles"}, ""} {}
 
-
-    public:
-        TrackClusterMatch(std::string_view name) :
-                TrackClusterMatchAlgorithm{name, {"inputTracks", "inputClusters"}, {"outputParticles"}, ""} {}
-
-        void init() final {};
-        void process(const Input&, const Output&) const final;
-    };
-}
+  void init() final{};
+  void process(const Input&, const Output&) const final;
+};
+} // namespace eicrecon
