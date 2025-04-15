@@ -266,8 +266,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "EcalBarrelScFiRawHits",
             "EcalBarrelScFiRecHits",
             "EcalBarrelScFiClusters",
+            "EcalBarrelScFiTopoClusters",    // added for Imaging Topo clustering on SCFI
             "EcalBarrelScFiProtoClusters_Topo", // added for Imaging Topo clustering on SCFI
             "EcalBarrelScFiClusterAssociations",
+            "EcalBarrelScFiTopoClusterAssociations", // added for Imaging Topo clustering on SCFI
             "EcalLumiSpecRawHits",
             "EcalLumiSpecRecHits",
             "EcalLumiSpecTruthClusters",
