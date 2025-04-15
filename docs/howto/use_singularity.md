@@ -72,7 +72,7 @@ And can be used like this:
 
 ```bash
 # Setup the proper detector environment
-source /opt/detector/setup.sh
+source /opt/detector/epic-main/bin/thisepic.sh
 
 # Run particle gun simulation
 ddsim -N2 --compactFile=$DETECTOR_PATH/epic.xml --random.seed 1 --enableGun --gun.energy 2*GeV --gun.thetaMin 0*deg --gun.thetaMax 90*deg --gun.distribution uniform --outputFile ~/test.root
@@ -88,10 +88,10 @@ For farms like at BNL or JLab the images are automatically replicated to
 CVMS:
 
 ```bash
-/cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl*
+/cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl*
 
 # example to run
-singularity run /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl:nightly
+singularity run /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly
 ```
 
 ### eic-shell explained
@@ -106,7 +106,7 @@ singularity like:
 # $PREFIX here is where you installed everything (by default where install.sh executed)
 export EIC_SHELL_PREFIX=...
 export SINGULARITY_BINDPATH=/home
-singularity exec $PREFIX/local/lib/jug_xl-nightly.sif eic-shell $@
+singularity exec $PREFIX/local/lib/eic_xl-nightly.sif eic-shell $@
 ```
 
 The **eic-shell** inside the container loads the proper environment and

@@ -3,8 +3,8 @@
 namespace eicrecon {
 
 struct IterativeVertexFinderConfig {
-  int m_maxVertices                  = 10;
-  bool m_reassignTracksAfterFirstFit = true;
+  int maxVertices                  = 10;
+  bool reassignTracksAfterFirstFit = true;
 };
 
 } // namespace eicrecon

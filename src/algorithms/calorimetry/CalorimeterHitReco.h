@@ -10,15 +10,17 @@
 
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
-#include <spdlog/logger.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <memory>
+#include <functional>
+#include <gsl/pointers>
 #include <string>
 #include <string_view>
 
@@ -27,52 +29,47 @@
 
 namespace eicrecon {
 
-  using CalorimeterHitRecoAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4hep::RawCalorimeterHitCollection
-    >,
-    algorithms::Output<
-      edm4eic::CalorimeterHitCollection
-    >
-  >;
+using CalorimeterHitRecoAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4hep::RawCalorimeterHitCollection>,
+                          algorithms::Output<edm4eic::CalorimeterHitCollection>>;
 
-  class CalorimeterHitReco
-    : public CalorimeterHitRecoAlgorithm,
-      public WithPodConfig<CalorimeterHitRecoConfig> {
+class CalorimeterHitReco : public CalorimeterHitRecoAlgorithm,
+                           public WithPodConfig<CalorimeterHitRecoConfig> {
 
-  public:
-    CalorimeterHitReco(std::string_view name)
+public:
+  CalorimeterHitReco(std::string_view name)
       : CalorimeterHitRecoAlgorithm{name,
-                            {"inputRawHitCollection"},
-                            {"outputRecHitCollection"},
-                            "Reconstruct hit from digitized input."} {}
+                                    {"inputRawHitCollection"},
+                                    {"outputRecHitCollection"},
+                                    "Reconstruct hit from digitized input."} {}
 
-    void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
-    void process(const Input&, const Output&) const final;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
+private:
+  // unitless counterparts of the input parameters
+  double thresholdADC{0};
+  double stepTDC{0};
 
-    // unitless counterparts of the input parameters
-    double thresholdADC{0};
-    double stepTDC{0};
+  std::function<double(const edm4hep::RawCalorimeterHit& h)> sampFrac;
 
-    dd4hep::BitFieldCoder* id_dec = nullptr;
+  dd4hep::IDDescriptor id_spec;
+  dd4hep::BitFieldCoder* id_dec = nullptr;
 
-    mutable uint32_t NcellIDerrors = 0;
-    uint32_t MaxCellIDerrors = 100;
+  mutable uint32_t NcellIDerrors = 0;
+  uint32_t MaxCellIDerrors       = 100;
 
-    size_t sector_idx{0}, layer_idx{0};
+  size_t sector_idx{0}, layer_idx{0};
 
-    mutable bool warned_unsupported_segmentation = false;
+  mutable bool warned_unsupported_segmentation = false;
 
-    dd4hep::DetElement m_local;
-    size_t local_mask = ~static_cast<size_t>(0), gpos_mask = static_cast<size_t>(0);
+  dd4hep::DetElement m_local;
+  size_t local_mask = ~static_cast<size_t>(0), gpos_mask = static_cast<size_t>(0);
 
-  private:
-    const dd4hep::Detector* m_detector;
-    const dd4hep::rec::CellIDPositionConverter* m_converter;
-    std::shared_ptr<spdlog::logger> m_log;
-
-  };
+private:
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+  const dd4hep::rec::CellIDPositionConverter* m_converter{
+      algorithms::GeoSvc::instance().cellIDPositionConverter()};
+};
 
 } // namespace eicrecon

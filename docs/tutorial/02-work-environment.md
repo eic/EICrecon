@@ -24,13 +24,13 @@ curl --location https://get.epic-eic.org | bash
 # or, if /cvmfs is available:
 # n.b. on JLab ifarm you may need to do 'module load singularity/3.9.5' first
 
-singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl:nightly eic-shell
+singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly eic-shell
 
 ```
 Once inside the eic-shell, you should source the geometry setup script since this is not done by default.
 
 ```
-source /opt/detector/setup.sh
+source /opt/detector/epic-main/bin/thisepic.sh
 ```
 
 Next, clone the EICrecon repository. In the future, you may want to work with a prebuilt EICrecon that comes
@@ -137,11 +137,11 @@ eicrecon 2022-09-26_ncdis10x100_minq2-1_100ev.edm4hep.root
 
 ## Generating a podio output file
 To write reconstructed values to an output file, you need to tell *eicrecon* what to write.
-There are several options available, but the mosrt useful one is *podio:output_include_collections*.
+There are several options available, but the mosrt useful one is *podio:output_collections*.
 This is a comma separated list of colelctions to write to the output file. For example:
 
 ```console
-eicrecon -Ppodio:output_include_collections=ReconstructedParticles 2022-09-26_ncdis10x100_minq2-1_100ev.edm4hep.root
+eicrecon -Ppodio:output_collections=ReconstructedParticles 2022-09-26_ncdis10x100_minq2-1_100ev.edm4hep.root
 ```
 
 To see a list of possible collections, run *eicrecon -L* .

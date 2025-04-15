@@ -13,33 +13,27 @@
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
 
-    using namespace eicrecon;
+  using namespace eicrecon;
 
-    // Digitization
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "TOFEndcapRawHits",
-      {"TOFEndcapHits"},
-      {"TOFEndcapRawHits"},
+  // Digitization
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+      "TOFEndcapRawHits", {"TOFEndcapHits"}, {"TOFEndcapRawHits", "TOFEndcapRawHitAssociations"},
       {
-        .threshold = 6.0 * dd4hep::keV,
-        .timeResolution = 0.025,
+          .threshold      = 6.0 * dd4hep::keV,
+          .timeResolution = 0.025,
       },
-      app
-    ));
+      app));
 
-    // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "TOFEndcapRecHits",
-      {"TOFEndcapRawHits"},     // Input data collection tags
-      {"TOFEndcapRecHits"},     // Output data tag
+  // Convert raw digitized hits into hits with geometry info (ready for tracking)
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "TOFEndcapRecHits", {"TOFEndcapRawHits"}, // Input data collection tags
+      {"TOFEndcapRecHits"},                     // Output data tag
       {
-        .timeResolution = 0.025,
+          .timeResolution = 0.025,
       },
-      app
-    ));
-
+      app));
 }
 } // extern "C"

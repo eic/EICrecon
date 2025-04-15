@@ -5,35 +5,40 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
+#include <edm4eic/TrackerHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <gsl/pointers>
+#include <string>
+#include <string_view>
 
 #include "MatrixTransferStaticConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-  class MatrixTransferStatic : public WithPodConfig<MatrixTransferStaticConfig> {
-  public:
+using MatrixTransferStaticAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::TrackerHitCollection>,
+    algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-    //----- Define constants here ------
-    double aXinv[2][2] = {{0.0, 0.0},
-                          {0.0, 0.0}};
-    double aYinv[2][2] = {{0.0, 0.0},
-                          {0.0, 0.0}};
+class MatrixTransferStatic : public MatrixTransferStaticAlgorithm,
+                             public WithPodConfig<MatrixTransferStaticConfig> {
 
-    void init(const dd4hep::Detector* det, const dd4hep::rec::CellIDPositionConverter* id_conv, std::shared_ptr<spdlog::logger> &logger);
+public:
+  MatrixTransferStatic(std::string_view name)
+      : MatrixTransferStaticAlgorithm{name,
+                                      {"mcParticles", "inputHitCollection"},
+                                      {"outputParticleCollection"},
+                                      "Apply matrix method reconstruction to hits."} {}
 
-    std::unique_ptr<edm4eic::ReconstructedParticleCollection> process(const edm4hep::SimTrackerHitCollection &inputhits);
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
-
-    /** algorithm logger */
-    std::shared_ptr<spdlog::logger>   m_log;
-    const dd4hep::Detector* m_detector{nullptr};
-    const dd4hep::rec::CellIDPositionConverter* m_converter{nullptr};
-
-  };
-}
+private:
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+  const dd4hep::rec::CellIDPositionConverter* m_converter{
+      algorithms::GeoSvc::instance().cellIDPositionConverter()};
+};
+} // namespace eicrecon
