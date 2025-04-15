@@ -150,7 +150,7 @@ void InitPlugin(JApplication* app) {
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
         outputTrackTag, {inputClusterTags}, {outputTrackTag, outputTrackAssociationTag},
         {
-            .layer_hits_max       = 100,
+            .layer_hits_max       = 200,
             .chi2_max             = 0.001,
             .n_layer              = 4,
             .restrict_direction   = true,
