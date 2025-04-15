@@ -27,11 +27,29 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     out_pulse.setInterval(pulse.getInterval());
     out_pulse.setTime(pulse.getTime());
 
+    float integral = 0;
     //Add noise to the pulse
     for (int i = 0; i < pulse.getAmplitude().size(); i++) {
       double noise = m_noise(generator) * m_cfg.scale;
       out_pulse.addToAmplitude(pulse.getAmplitude()[i] + noise);
+      integral += pulse.getAmplitude()[i] + noise;
     }
+
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
+    out_pulse.setIntegral(integral);  
+    out_pulse.setPosition(cluster[0].getPosition());
+    for (auto pulse : cluster) {
+      out_pulse.addToPulses(pulse);
+      out_pulse.addToParticles(pulse.getParticle());          
+      // Not sure if we want/need to keep the hits themselves at this point?
+      for (auto hit : pulse.getTrackerHits()) {
+        out_pulse.addToTrackerHits(hit);
+      }
+      for (auto hit : pulse.getCalorimeterHits()) {
+        out_pulse.addToCalorimeterHits(hit);
+      }
+    }
+#endif
   }
 
 } // PulseNoise:process
