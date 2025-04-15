@@ -27,8 +27,9 @@ double SiliconPulseDiscretization::_interpolateOrZero(const TGraph& graph, doubl
     return 0;
   else {
     double height = graph.Eval(t, nullptr, "S"); // spline interpolation
-    if(!std::isfinite(height))
-        error("Pulse interpolation returns nan. This happen mostly because there are multiple pulse height values at the same time. Did you call PulseCombiner?");
+    if (!std::isfinite(height))
+      error("Pulse interpolation returns nan. This happen mostly because there are multiple pulse "
+            "height values at the same time. Did you call PulseCombiner?");
     return height;
   }
 }
@@ -56,8 +57,8 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
   }
 
   // sort all pulses data points to avoid TGraph::Eval giving nan due to non-monotonic data
-  for(auto& [cellID, graph] : Graph4Cells)
-	  graph.Sort();
+  for (auto& [cellID, graph] : Graph4Cells)
+    graph.Sort();
 
   // sum all digitized pulses
   for (const auto& [cellID, graph] : Graph4Cells) {
