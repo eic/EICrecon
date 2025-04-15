@@ -2,10 +2,12 @@
 // Copyright (C) 2022 - 2024, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <fmt/core.h>
 #include <algorithm>
@@ -14,6 +16,7 @@
 #include <memory>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "ActsToTracks.h"
