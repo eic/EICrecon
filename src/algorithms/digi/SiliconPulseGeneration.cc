@@ -156,6 +156,7 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
 
     bool passed_threshold = false;
     int skip_bins         = 0;
+    float integral        = 0;
 
     for (int i = 0; i < m_cfg.max_time_bins; i++) {
       double t    = signal_time + i * m_cfg.timestep - time;
@@ -171,9 +172,19 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
       }
       passed_threshold = true;
       time_series.addToAmplitude(signal);
+      integral += signal;
     }
 
     time_series.setTime(signal_time + skip_bins * m_cfg.timestep);
+
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
+    time_series.setIntegral(integral);
+    time_series.setPosition(hit.getPosition());
+    time_series.addToTrackerHits(hit);
+    time_series.addToParticles(hit.getParticle());
+#endif  
+
+
   }
 
 } // SiliconPulseGeneration:process

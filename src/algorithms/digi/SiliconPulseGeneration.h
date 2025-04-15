@@ -8,7 +8,11 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
+#include <edm4eic/SimPulse.h>
+#else
 #include <edm4hep/TimeSeriesCollection.h>
+#endif
 #include <memory>
 #include <string>
 #include <string_view>
@@ -22,7 +26,11 @@ class SignalPulse;
 
 using SiliconPulseGenerationAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
+                          algorithms::Output<edm4eic::SimPulse>>;
+#else
                           algorithms::Output<edm4hep::TimeSeriesCollection>>;
+#endif
 
 class SiliconPulseGeneration : public SiliconPulseGenerationAlgorithm,
                                public WithPodConfig<SiliconPulseGenerationConfig> {
