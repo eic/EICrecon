@@ -92,7 +92,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
   int layer = 0;
 
   // Iterate over all combinations of measurements in the layers without recursion
-  while (layer >= 0) {
+  while (true) {
     hitMatrix.col(layer) << convertedHits[layer][layerHitIndex[layer]];
 
     bool isValid = true;
