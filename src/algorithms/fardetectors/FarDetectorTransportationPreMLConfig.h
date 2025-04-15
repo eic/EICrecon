@@ -4,10 +4,9 @@
 #pragma once
 
 namespace eicrecon {
-  struct FarDetectorTransportationPreMLConfig {
+struct FarDetectorTransportationPreMLConfig {
 
-    float beamE = 10.0;
-    bool requireBeamElectron{true};
-
-  };
-}
+  float beamE = 10.0;
+  bool requireBeamElectron{true};
+};
+} // namespace eicrecon
