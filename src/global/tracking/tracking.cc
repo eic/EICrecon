@@ -49,8 +49,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
       "TrackTruthSeeds", {"MCParticles"}, {"TrackTruthSeeds"}, {}, app));
 
-  std::vector<std::pair<double, double>> thetaRanges{{0, 25 * dd4hep::mrad},
-                                                     {25 * dd4hep::mrad, 180 * dd4hep::deg}};
+  std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
+                                                     {50 * dd4hep::mrad, 180 * dd4hep::deg}};
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>(
       "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
       {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
