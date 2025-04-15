@@ -52,8 +52,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "MCScatteredProtons",
     "MCParticlesHeadOnFrameNoBeamFX",
 
-    // All tracking hits combined
-    "CentralTrackTruthSeeds",
+    // Central tracking hits combined
+    "CentralTrackerTruthSeeds",
     "CentralTrackingRecHits",
     "CentralTrackingRawHitAssociations",
     "CentralTrackSeedingResults",
@@ -151,6 +151,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "TaggerTrackerM2LocalTrackAssociations",
     "TaggerTrackerLocalTracks",
     "TaggerTrackerLocalTrackAssociations",
+    "TaggerTrackerM1Tracks",
+    "TaggerTrackerM2Tracks",
     "TaggerTrackerProjectedTracks",
     "TaggerTrackerTracks",
     "TaggerTrackerTrajectories",
@@ -163,6 +165,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "B0TrackerRawHits",
     "B0TrackerHits",
     "B0TrackerRawHitAssociations",
+    "B0TrackerSeedingResults",
+    "B0TrackerMeasurements",
 
     "ForwardRomanPotRecHits",
     "ForwardOffMTrackerRecHits",
@@ -189,6 +193,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "MCScatteredElectronAssociations",    // Remove if/when used internally
     "MCNonScatteredElectronAssociations", // Remove if/when used internally
     "ReconstructedBreitFrameParticles",
+
+    // Central tracking
     "CentralTrackSegments",
     "CentralTrackVertices",
     "CentralCKFTruthSeededTrajectories",
@@ -199,16 +205,38 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "CentralCKFTracks",
     "CentralCKFTrackAssociations",
     "CentralCKFTrackParameters",
-    //tracking properties - true seeding
+    // tracking properties - true seeding
     "CentralCKFTruthSeededTrajectoriesUnfiltered",
     "CentralCKFTruthSeededTracksUnfiltered",
     "CentralCKFTruthSeededTrackUnfilteredAssociations",
     "CentralCKFTruthSeededTrackParametersUnfiltered",
-    //tracking properties - realistic seeding
+    // tracking properties - realistic seeding
     "CentralCKFTrajectoriesUnfiltered",
     "CentralCKFTracksUnfiltered",
     "CentralCKFTrackUnfilteredAssociations",
     "CentralCKFTrackParametersUnfiltered",
+
+    // B0 tracking
+    "B0TrackerCKFTruthSeededTrajectories",
+    "B0TrackerCKFTruthSeededTracks",
+    "B0TrackerCKFTruthSeededTrackAssociations",
+    "B0TrackerCKFTruthSeededTrackParameters",
+    "B0TrackerCKFTrajectories",
+    "B0TrackerCKFTracks",
+    "B0TrackerCKFTrackAssociations",
+    "B0TrackerCKFTrackParameters",
+    // tracking properties - true seeding
+    "B0TrackerCKFTruthSeededTrajectoriesUnfiltered",
+    "B0TrackerCKFTruthSeededTracksUnfiltered",
+    "B0TrackerCKFTruthSeededTrackUnfilteredAssociations",
+    "B0TrackerCKFTruthSeededTrackParametersUnfiltered",
+    // tracking properties - realistic seeding
+    "B0TrackerCKFTrajectoriesUnfiltered",
+    "B0TrackerCKFTrackParametersUnfiltered",
+    "B0TrackerCKFTracksUnfiltered",
+    "B0TrackerCKFTrackUnfilteredAssociations",
+
+    // Inclusive kinematics
     "InclusiveKinematicsDA",
     "InclusiveKinematicsJB",
     "InclusiveKinematicsML",

@@ -405,13 +405,6 @@ void InitPlugin(JApplication* app) {
 
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
-      "CombinedTracks", input_track_collections, {"CombinedTracks"}, app));
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
-      "CombinedTrackAssociations", input_track_assoc_collections, {"CombinedTrackAssociations"},
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
       "CentralAndB0CKFTruthSeededTracks", input_truth_track_collections,
       {"CentralAndB0CKFTruthSeededTracks"}, app));
   app->Add(new JOmniFactoryGeneratorT<
