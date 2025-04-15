@@ -85,14 +85,13 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+  // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TaggerTrackerRecHits", {"TaggerTrackerRawHits"}, {"TaggerTrackerRecHits"},
       {
           .timeResolution = 2,
       },
       app));
-
 
   // Divide collection based on geometry segmentation labels
   // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
@@ -120,7 +119,6 @@ void InitPlugin(JApplication* app) {
       moduleClusterTags.back().push_back(outputClusterCollectionNames.back());
     }
   }
-
 
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>(
       "TaggerTrackerSplitHits", {"TaggerTrackerRecHits"}, geometryDivisionCollectionNames,
