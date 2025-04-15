@@ -405,7 +405,8 @@ int Execute(JApplication* app, UserOptions& options) {
     // TODO: more elegant processing here
     PrintPodioCollections(app);
   } else {
-    if ((JVersion::GetMajorNumber() == 2) && (JVersion::GetMinorNumber() == 3) && (JVersion::GetPatchNumber() <= 1)) {
+    if ((JVersion::GetMajorNumber() == 2) && (JVersion::GetMinorNumber() == 3) &&
+        (JVersion::GetPatchNumber() <= 1)) {
       // JANA2 2.3.x has a bug with not filtering default-state parameters, which causes enormous printouts
       if (not app->GetJParameterManager()->Exists("jana:parameter_verbosity")) {
         app->GetJParameterManager()->SetParameter("jana:parameter_verbosity", 0);

@@ -11,8 +11,7 @@
 
 namespace eicrecon {
 
-class PulseNoise_factory
-    : public JOmniFactory<PulseNoise_factory, PulseNoiseConfig> {
+class PulseNoise_factory : public JOmniFactory<PulseNoise_factory, PulseNoiseConfig> {
 public:
   using AlgoT = eicrecon::PulseNoise;
 
