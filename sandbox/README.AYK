@@ -65,6 +65,8 @@ export DETECTOR_PATH=/DATA00/ayk/ePIC/prefix/share/epic
 #export JANA_PLUGIN_PATH=/DATA00/ayk/ePIC/prefix/lib/EICrecon/plugins:/opt/local/plugin
 export JANA_PLUGIN_PATH=/DATA00/ayk/ePIC/prefix/lib/EICrecon/plugins:/opt/local/lib/EICrecon/plugins:/opt/local/plugin
 
+export ROOT_LIBRARY_PATH=/DATA00/ayk/ePIC/prefix/lib:${ROOT_LIBRARY_PATH}
+ 
 # --------------
 
 # README-Chandra-2.txt
@@ -132,16 +134,17 @@ root [1] events->Draw("QRICHHits.position.y:QRICHHits.position.x")
 
 /DATA00/ayk/ePIC/prefix/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files="../../prefix/share/epic/epic_tracking_and_qrich.xml" -Ppodio:output_collections="QRICHHits,MCParticles,QRICHAerogelTracks,IrtDebugInfoTables" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC,PFRICH -Ppodio:output_file="rec.edm4hep.qrich.root" sim.edm4hep.qrich.root
 
-/DATA00/ayk/ePIC/prefix/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files="../../prefix/share/epic/epic_tracking_and_qrich.xml" -Ppodio:output_collections="QRICHHits,MCParticles,QRICHTracks,IrtDebugInfoTables" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.qrich.root" sim.edm4hep.qrich.root -PQRICH:optics=qrich-optics.root
+#/DATA00/ayk/ePIC/prefix/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files="../../prefix/share/epic/epic_tracking_and_qrich.xml" -Ppodio:output_collections="QRICHHits,MCParticles,QRICHTracks,IrtDebugInfoTables" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.qrich.root" sim.edm4hep.qrich.root -PQRICH:optics=qrich-optics.root
+/DATA00/ayk/ePIC/prefix/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files="../../prefix/share/epic/epic_tracking_and_qrich.xml" -Ppodio:output_collections="QRICHHits,MCParticles,QRICHTracks,IrtDebugInfoTables" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.qrich.root" sim.edm4hep.qrich.root -PQRICH:config=qrich-reco.json
 
 root -l './qrich-hit-map.C("qrich-events.root")'
 root -l './qrich-reco.C("qrich-events.root")'
 
 # Visualize QRICH in a full QRICH+tracking geometry;
-npsim --runType qt --macroFile vis-qrich.mac --compactFile ../../prefix/share/epic/epic_tracking_and_qrich.xml --outputFile ./sim.edm4hep.qrich.root --part.userParticleHandler= --inputFiles ./out.hepmc -N 1000
+npsim --runType qt --macroFile vis-qrich.mac --compactFile ../../prefix/share/epic/epic_tracking_and_qrich.xml --outputFile ./sim.edm4hep.qrich.root --part.userParticleHandler= --inputFiles ./electron-endcap.hepmc -N 1000
 
 # Visualize geometry with QRICH only; geometry check: /geometry/test/run QRICH_0
-npsim --runType qt --macroFile vis-qrich.mac --compactFile ../../prefix/share/epic/epic_qrich_only.xml --outputFile ./sim.edm4hep.qrich.root --part.userParticleHandler= --inputFiles ./out.hepmc -N 1000
+npsim --runType qt --macroFile vis-qrich.mac --compactFile ../../prefix/share/epic/epic_qrich_only.xml --outputFile ./sim.edm4hep.qrich.root --part.userParticleHandler= --inputFiles ./electron-endcap.hepmc -N 1000
 
 # - Not used for now ------
 /DATA00/ayk/ePIC/prefix/bin/benchmark_qrich_reconstruction -i ./rec.edm4hep.qrich.root -o ./ana.edm4hep.qrich.root
