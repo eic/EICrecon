@@ -402,11 +402,6 @@ void InitPlugin(JApplication* app) {
     input_truth_track_collections.push_back("B0TrackerCKFTruthSeededTracks");
     input_truth_track_assoc_collections.push_back("B0TrackerCKFTruthSeededTrackAssociations");
   }
-  // Check if the TaggerTracker readout is present in the current configuration
-  if (readouts.find("TaggerTrackerHits") != readouts.end()) {
-    input_track_collections.push_back("TaggerTrackerTracks");
-    // TaggerTracker has no corresponding associations
-  }
 
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
@@ -417,22 +412,36 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
-      "CombinedTruthSeededTracks", input_truth_track_collections, {"CombinedTruthSeededTracks"},
-      app));
+      "CentralAndB0CKFTruthSeededTracks", input_truth_track_collections,
+      {"CentralAndB0CKFTruthSeededTracks"}, app));
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
-      "CombinedTruthSeededTrackAssociations", input_truth_track_assoc_collections,
-      {"CombinedTruthSeededTrackAssociations"}, app));
+      "CentralAndB0CKFTruthSeededTrackAssociations", input_truth_track_assoc_collections,
+      {"CentralAndB0CKFTruthSeededTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedTruthSeededParticlesWithAssociations",
       {
-          "CombinedTruthSeededTracks",
-          "CombinedTruthSeededTrackAssociations",
+          "CentralAndB0CKFTruthSeededTracks",
+          "CentralAndB0CKFTruthSeededTrackAssociations",
       },
       {"ReconstructedTruthSeededChargedWithoutPIDParticles",
        "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations"},
       {}, app));
+
+  // Check if the TaggerTracker readout is present in the current configuration
+  if (readouts.find("TaggerTrackerHits") != readouts.end()) {
+    input_track_collections.push_back("TaggerTrackerTracks");
+    // TaggerTracker has no corresponding associations
+  }
+
+  // Add central, B0, and tagger tracks
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
+      "CombinedTracks", input_track_collections, {"CombinedTracks"}, app));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
+      "CombinedTrackAssociations", input_track_assoc_collections, {"CombinedTrackAssociations"},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedParticlesWithAssociations",
