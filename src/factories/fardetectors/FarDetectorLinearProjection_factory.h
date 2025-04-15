@@ -21,7 +21,7 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4eic::Track> m_hits_input{this};
+  PodioInput<edm4eic::Track> m_tracks_input{this};
   PodioOutput<edm4eic::TrackParameters> m_tracks_output{this};
 
   ParameterRef<std::vector<float>> plane_position{this, "planePosition", config().plane_position};
@@ -39,7 +39,7 @@ public:
   void ChangeRun(int64_t run_number) {}
 
   void Process(int64_t run_number, uint64_t event_number) {
-    m_algo->process({m_hits_input()}, {m_tracks_output().get()});
+    m_algo->process({m_tracks_input()}, {m_tracks_output().get()});
   }
 };
 

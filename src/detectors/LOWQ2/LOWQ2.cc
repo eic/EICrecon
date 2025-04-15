@@ -152,17 +152,17 @@ void InitPlugin(JApplication* app) {
 
   // Combine the tracks from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
-      "TaggerTrackerTrackSegments", outputTrackTags, {"TaggerTrackerTrackSegments"}, app));
+      "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}, app));
 
   // Combine the associations from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
-      "TaggerTrackerTrackAssociations", outputTrackAssociationTags,
-      {"TaggerTrackerTrackAssociations"}, app));
+      "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
+      {"TaggerTrackerLocalTrackAssociations"}, app));
 
   // Project tracks onto a plane
   app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
-      "TaggerTrackerProjectedTracks", {"TaggerTrackerTrackSegments"},
+      "TaggerTrackerProjectedTracks", {"TaggerTrackerLocalTracks"},
       {"TaggerTrackerProjectedTracks"},
       {
           .plane_position = {0.0, 0.0, 0.0},
