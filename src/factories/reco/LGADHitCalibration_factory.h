@@ -33,7 +33,7 @@ public:
   void ChangeRun(int64_t run_number) {}
 
   void Process(int64_t run_number, uint64_t event_number) {
-    m_algo -> process({m_raw_hits_input()}, {m_rec_hits_output().get()});
+    m_algo->process({m_raw_hits_input()}, {m_rec_hits_output().get()});
   }
 };
 

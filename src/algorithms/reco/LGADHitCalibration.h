@@ -18,15 +18,15 @@
 namespace eicrecon {
 
 using LGADHitCalibrationAlgorithm =
-        algorithms::Algorithm<algorithms::Input<edm4eic::RawTrackerHitCollection>,
-                              algorithms::Output<edm4eic::TrackerHitCollection>>;
+    algorithms::Algorithm<algorithms::Input<edm4eic::RawTrackerHitCollection>,
+                          algorithms::Output<edm4eic::TrackerHitCollection>>;
 
 class LGADHitCalibration : public LGADHitCalibrationAlgorithm,
-                              public WithPodConfig<LGADHitCalibrationConfig> {
+                           public WithPodConfig<LGADHitCalibrationConfig> {
 
 public:
   LGADHitCalibration(std::string_view name)
-    : LGADHitCalibrationAlgorithm{name, {"TOFBarrelADCTDC"}, {"TOFBarrelCalHit"}, ""} {};
+      : LGADHitCalibrationAlgorithm{name, {"TOFBarrelADCTDC"}, {"TOFBarrelCalHit"}, ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;

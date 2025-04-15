@@ -22,18 +22,18 @@ void LGADHitCalibration::init() {
 }
 
 void LGADHitCalibration::process(const LGADHitCalibration::Input& input,
-                                    const LGADHitCalibration::Output& output) const {
+                                 const LGADHitCalibration::Output& output) const {
   using dd4hep::mm;
 
   const auto [TDCADC_hits] = input;
-  auto [calibrated_hits] = output;
+  auto [calibrated_hits]   = output;
 
   for (const auto& TDCADC_hit : *TDCADC_hits) {
 
     auto id = TDCADC_hit.getCellID();
 
     // Get position and dimension
-    auto pos = m_converter->position(id);
+    auto pos   = m_converter->position(id);
     double ADC = TDCADC_hit.getCharge();
     double TDC = TDCADC_hit.getTimeStamp();
 
@@ -48,20 +48,18 @@ void LGADHitCalibration::process(const LGADHitCalibration::Input& input,
     varX *= varX; // square of cell size
     double varY = cellSize[1] / mm / std::sqrt(12.);
     varY *= varY;
-    double varZ = cellSize.size() > 2? cellSize[2] / mm / std::sqrt(12.) : 0;
+    double varZ = cellSize.size() > 2 ? cellSize[2] / mm / std::sqrt(12.) : 0;
     varZ *= varZ;
 
-
-
-    calibrated_hits->create(id,
-                            edm4hep::Vector3f{static_cast<float>(pos.x()),
-                                              static_cast<float>(pos.y()),
-                                              static_cast<float>(pos.z())},
-                            edm4eic::CovDiag3f{varX, varY, varZ}, // should be the covariance of position
-                            time,                                 // ns
-                            0.0F,                                 // covariance of time
-                            charge,                               // total ADC sum
-                            0.0F);                                // Error on the energy
+    calibrated_hits->create(
+        id,
+        edm4hep::Vector3f{static_cast<float>(pos.x()), static_cast<float>(pos.y()),
+                          static_cast<float>(pos.z())},
+        edm4eic::CovDiag3f{varX, varY, varZ}, // should be the covariance of position
+        time,                                 // ns
+        0.0F,                                 // covariance of time
+        charge,                               // total ADC sum
+        0.0F);                                // Error on the energy
   }
 }
 

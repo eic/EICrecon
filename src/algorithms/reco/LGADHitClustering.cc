@@ -27,9 +27,9 @@ void LGADHitClustering::init() {
 
   m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
   m_detector  = algorithms::GeoSvc::instance().detector();
-  m_seg = m_detector -> readout(m_cfg.readout).segmentation();
-  auto type = m_seg.type();
-  m_decoder = m_seg.decoder();
+  m_seg       = m_detector->readout(m_cfg.readout).segmentation();
+  auto type   = m_seg.type();
+  m_decoder   = m_seg.decoder();
 }
 
 dd4hep::rec::CellID LGADHitClustering::getSensorInfos(const dd4hep::rec::CellID& id) const {
@@ -47,7 +47,7 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
   using dd4hep::mm;
 
   const auto [calibrated_hits] = input;
-  auto [clusters] = output;
+  auto [clusters]              = output;
 
   // collection of ADC values from all sensors and group them by sensor
   std::unordered_map<dd4hep::rec::CellID, std::vector<edm4eic::TrackerHit>> hitsBySensors;
@@ -63,22 +63,23 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
   }
 
   for (const auto& sensor : hitsBySensors) {
-    auto cluster = clusters -> create();
+    auto cluster = clusters->create();
     // Right now the clustering algorithm a simple average over all hits in a sensors
     // Will be problematic near the edges, but it's just an illustration
     float ave_x = 0, ave_y = 0, ave_z = 0;
     double tot_charge = 0;
     const auto& hits  = sensor.second;
-    if(hits.size() == 0) continue;
+    if (hits.size() == 0)
+      continue;
     // find cellID for the cell with maximum ADC value within a sensor
-    auto id             = hits[0].getCellID();
-    auto max_charge     = hits[0].getEdep();
-    auto earliest_time  = hits[0].getTime();
+    auto id            = hits[0].getCellID();
+    auto max_charge    = hits[0].getEdep();
+    auto earliest_time = hits[0].getTime();
 
     ROOT::VecOps::RVec<double> weights;
     for (const auto& hit : hits) {
       // weigh all hits by ADC value
-      auto pos = m_seg -> position(hit.getCellID());
+      auto pos = m_seg->position(hit.getCellID());
       ave_x += hit.getEdep() * pos.x();
       ave_y += hit.getEdep() * pos.y();
       ave_z += hit.getEdep() * pos.z();
@@ -98,9 +99,8 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
     ave_y /= tot_charge;
     ave_z /= tot_charge;
 
-    for(const auto& w : weights)
-        cluster.addToWeights(w);
-
+    for (const auto& w : weights)
+      cluster.addToWeights(w);
 
     edm4eic::Cov3f covariance;
 

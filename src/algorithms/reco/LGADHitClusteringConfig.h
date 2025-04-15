@@ -4,7 +4,7 @@
 #pragma once
 
 namespace eicrecon {
-    struct LGADHitClusteringConfig {
-        std::string readout = "TOFBarrelHits";
-    };
-}
+struct LGADHitClusteringConfig {
+  std::string readout = "TOFBarrelHits";
+};
+} // namespace eicrecon
