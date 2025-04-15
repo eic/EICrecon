@@ -108,7 +108,8 @@ void InitPlugin(JApplication* app) {
 
   for (int mod_id : moduleIDs) {
     outputTrackTags.push_back(fmt::format("TaggerTrackerM{}LocalTracks", mod_id));
-    outputTrackAssociationTags.push_back(fmt::format("TaggerTrackerM{}LocalTrackAssociations", mod_id));
+    outputTrackAssociationTags.push_back(
+        fmt::format("TaggerTrackerM{}LocalTrackAssociations", mod_id));
     moduleClusterTags.push_back({});
     for (int lay_id : layerIDs) {
       geometryDivisions.push_back({mod_id, lay_id});
