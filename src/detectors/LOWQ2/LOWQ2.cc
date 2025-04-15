@@ -23,6 +23,7 @@
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
@@ -84,6 +85,15 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "TaggerTrackerRecHits", {"TaggerTrackerRawHits"}, {"TaggerTrackerRecHits"},
+      {
+          .timeResolution = 2,
+      },
+      app));
+
+
   // Divide collection based on geometry segmentation labels
   // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
   std::string readout = "TaggerTrackerHits";
@@ -104,15 +114,16 @@ void InitPlugin(JApplication* app) {
     for (int lay_id : layerIDs) {
       geometryDivisions.push_back({mod_id, lay_id});
       geometryDivisionCollectionNames.push_back(
-          fmt::format("TaggerTrackerM{}L{}RawHits", mod_id, lay_id));
+          fmt::format("TaggerTrackerM{}L{}RecHits", mod_id, lay_id));
       outputClusterCollectionNames.push_back(
           fmt::format("TaggerTrackerM{}L{}ClusterPositions", mod_id, lay_id));
       moduleClusterTags.back().push_back(outputClusterCollectionNames.back());
     }
   }
 
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::RawTrackerHit>>(
-      "TaggerTrackerSplitHits", {"TaggerTrackerRawHits"}, geometryDivisionCollectionNames,
+
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>(
+      "TaggerTrackerSplitHits", {"TaggerTrackerRecHits"}, geometryDivisionCollectionNames,
       {
           .function = GeometrySplit{geometryDivisions, readout, geometryLabels},
       },
