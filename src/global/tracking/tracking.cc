@@ -29,8 +29,10 @@
 #include "TrackSeeding_factory.h"
 #include "TrackerMeasurementFromHits_factory.h"
 #include "TracksToParticles_factory.h"
+#include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 //
@@ -41,7 +43,17 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "CentralTrackTruthSeeds", {"MCParticles"}, {"CentralTrackTruthSeeds"}, {}, app));
+      "TrackTruthSeeds", {"MCParticles"}, {"TrackTruthSeeds"}, {}, app));
+
+  std::vector<std::pair<double, double>> thetaRanges{{0, 25 * dd4hep::mrad},
+                                                     {25 * dd4hep::mrad, 180 * dd4hep::deg}};
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>(
+      "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
+      {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
+      {
+          .function = RangeSplit<&edm4eic::TrackParameters::getTheta>(thetaRanges),
+      },
+      app));
 
   // CENTRAL TRACKER
 
@@ -93,7 +105,8 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralCKFTruthSeededTrajectories", {"CentralTrackTruthSeeds", "CentralTrackerMeasurements"},
+      "CentralCKFTruthSeededTrajectories",
+      {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements"},
       {
           "CentralCKFTruthSeededActsTrajectoriesUnfiltered",
           "CentralCKFTruthSeededActsTracksUnfiltered",
@@ -266,7 +279,7 @@ void InitPlugin(JApplication* app) {
       "B0TrackerMeasurements", {"B0TrackerRecHits"}, {"B0TrackerMeasurements"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "B0TrackerCKFTruthSeededTrajectories", {"InitTrackParams", "B0TrackerMeasurements"},
+      "B0TrackerCKFTruthSeededTrajectories", {"B0TrackerTruthSeeds", "B0TrackerMeasurements"},
       {
           "B0TrackerCKFTruthSeededActsTrajectoriesUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
