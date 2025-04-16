@@ -104,7 +104,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
   }
 
   // pfRICH readout --------------------------------------------------------------------
-  else if (m_detName == "PFRICH") {
+  else if (m_detName == "RICHEndcapN") {
     m_log->error("TODO: pfRICH readout bindings have not yet been implemented");
   }
 

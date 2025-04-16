@@ -114,7 +114,7 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
   }
 
   // pfRICH DD4hep-ACTS bindings --------------------------------------------------------------------
-  else if (m_detName == "PFRICH") {
+  else if (m_detName == "RICHEndcapN") {
     m_log->error("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
   }
 
