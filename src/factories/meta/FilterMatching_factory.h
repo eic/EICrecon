@@ -16,7 +16,7 @@ class FilterMatching_factory
 
 public:
   using AlgoT    = eicrecon::FilterMatching<ToFilterObjectT, ToFilterMemberFunctionPtr,
-                                         FilterByObjectT, FilterByMemberFunctionPtr>;
+                                            FilterByObjectT, FilterByMemberFunctionPtr>;
   using FactoryT = JOmniFactory<FilterMatching_factory<ToFilterObjectT, ToFilterMemberFunctionPtr,
                                                        FilterByObjectT, FilterByMemberFunctionPtr>>;
 
