@@ -42,7 +42,6 @@ richgeo::IrtGeo* RichGeo_service::GetIrtGeo(std::string detector_name) {
         throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
       // instantiate IrtGeo-derived object, depending on detector
       auto which_rich = detector_name;
-      std::transform(which_rich.begin(), which_rich.end(), which_rich.begin(), ::toupper);
       if (which_rich == "DRICH")
         m_irtGeo = new richgeo::IrtGeoDRICH(m_dd4hepGeo, m_converter, m_log);
       else if (which_rich == "PFRICH")

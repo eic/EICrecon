@@ -19,10 +19,7 @@
 // constructor
 richgeo::ActsGeo::ActsGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_,
                           std::shared_ptr<spdlog::logger> log_)
-    : m_detName(detName_), m_det(det_), m_log(log_) {
-  // capitalize m_detName
-  std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
-}
+    : m_detName(detName_), m_det(det_), m_log(log_) {}
 
 // generate list ACTS disc surfaces, for a given radiator
 std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiator, int numPlanes) {

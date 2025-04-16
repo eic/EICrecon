@@ -29,9 +29,6 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
                                 gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_,
                                 std::shared_ptr<spdlog::logger> log_)
     : m_detName(detName_), m_readoutClass(readoutClass_), m_det(det_), m_conv(conv_), m_log(log_) {
-  // capitalize m_detName
-  std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
-
   // random number generators
   m_random.SetSeed(1); // default seed
 
