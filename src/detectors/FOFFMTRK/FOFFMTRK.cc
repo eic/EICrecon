@@ -60,10 +60,11 @@ void InitPlugin(JApplication* app) {
               .local_y_slope_offset = -0.00360656,
 
           }},
-          .hit1minZ       = 22499.0,
-          .hit1maxZ       = 22522.0,
-          .hit2minZ       = 24499.0,
-          .hit2maxZ       = 24522.0,
+
+          .hit1minZ       = 22490.0,
+          .hit1maxZ       = 22512.0,
+          .hit2minZ       = 24512.0,
+          .hit2maxZ       = 24535.0,
 
           .readout = "ForwardOffMTrackerRecHits",
       },
