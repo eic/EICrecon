@@ -61,10 +61,10 @@ void InitPlugin(JApplication* app) {
 
           }},
 
-          .hit1minZ       = 22490.0,
-          .hit1maxZ       = 22512.0,
-          .hit2minZ       = 24512.0,
-          .hit2maxZ       = 24535.0,
+          .hit1minZ = 22490.0,
+          .hit1maxZ = 22512.0,
+          .hit2minZ = 24512.0,
+          .hit2maxZ = 24535.0,
 
           .readout = "ForwardOffMTrackerRecHits",
       },
