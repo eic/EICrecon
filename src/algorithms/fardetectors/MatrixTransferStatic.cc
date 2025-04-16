@@ -45,15 +45,19 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
   double numBeamProtons  = 0;
   double runningMomentum = 0.0;
 
-  for (const auto& p : *mcparts) {
-    if (mcparts->size() == 1 && p.getPDG() == 2212) {
-      runningMomentum = p.getMomentum().z;
-      numBeamProtons++;
-    }
-    if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
-      runningMomentum += p.getMomentum().z;
-      numBeamProtons++;
-    }
+  for (const auto& p: *mcparts) {
+        if(mcparts->size() == 1 && p.getPDG() == 2212){ //proton particle gun for testing
+                runningMomentum = p.getMomentum().z;
+                numBeamProtons++;
+        }
+        if (p.getGeneratorStatus() == 4 && p.getPDG() == 2212) { //look for "beam" proton
+                runningMomentum += p.getMomentum().z;
+                numBeamProtons++;
+        }
+		if (p.getGeneratorStatus() == 4 && p.getPDG() == 2112) { //look for "beam" neutron (for deuterons)
+                runningMomentum += p.getMomentum().z;
+                numBeamProtons++;
+        }
   }
 
   if (numBeamProtons == 0) {
