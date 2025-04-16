@@ -37,6 +37,8 @@ private:
   PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output{this};
   PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_raw_assocs_output{this};
 
+  ParameterRef<std::string> m_detectorName{this, "detectorName", config().detectorName, ""};
+  ParameterRef<std::string> m_readoutClass{this, "readoutClass", config().readoutClass, ""};
   ParameterRef<unsigned long> m_seed{this, "seed", config().seed, "random number generator seed"};
   ParameterRef<double> m_hitTimeWindow{this, "hitTimeWindow", config().hitTimeWindow, ""};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().timeResolution, ""};
