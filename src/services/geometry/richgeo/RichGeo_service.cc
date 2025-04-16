@@ -76,15 +76,16 @@ richgeo::ActsGeo* RichGeo_service::GetActsGeo(std::string detector_name) {
 }
 
 // ReadoutGeo -----------------------------------------------------------
-std::shared_ptr<richgeo::ReadoutGeo> RichGeo_service::GetReadoutGeo(std::string detector_name) {
+std::shared_ptr<richgeo::ReadoutGeo> RichGeo_service::GetReadoutGeo(std::string detector_name,
+                                                                    std::string readout_class) {
   // initialize, if not yet initialized
   try {
     m_log->debug("Call RichGeo_service::GetReadoutGeo initializer");
-    auto initialize = [this, &detector_name]() {
+    auto initialize = [this, &detector_name, &readout_class]() {
       if (!m_dd4hepGeo)
         throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
-      m_readoutGeo =
-          std::make_shared<richgeo::ReadoutGeo>(detector_name, m_dd4hepGeo, m_converter, m_log);
+      m_readoutGeo = std::make_shared<richgeo::ReadoutGeo>(detector_name, readout_class,
+                                                           m_dd4hepGeo, m_converter, m_log);
     };
     std::call_once(m_init_readout, initialize);
   } catch (std::exception& ex) {

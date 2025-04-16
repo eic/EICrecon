@@ -24,10 +24,11 @@
 #include "services/geometry/richgeo/RichGeo.h"
 
 // constructor
-richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_,
+richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
+                                gsl::not_null<const dd4hep::Detector*> det_,
                                 gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_,
                                 std::shared_ptr<spdlog::logger> log_)
-    : m_detName(detName_), m_det(det_), m_conv(conv_), m_log(log_) {
+    : m_detName(detName_), m_readoutClass(readoutClass_), m_det(det_), m_conv(conv_), m_log(log_) {
   // capitalize m_detName
   std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
 
@@ -41,7 +42,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep
   m_rngCellIDs = [](std::function<void(CellIDType)> lambda, float p) { return; };
 
   // common objects
-  m_readoutCoder = m_det->readout(m_detName + "Hits").idSpec().decoder();
+  m_readoutCoder = m_det->readout(m_readoutClass).idSpec().decoder();
   m_detRich      = m_det->detector(m_detName);
   m_systemID     = m_detRich.id();
 

@@ -27,7 +27,8 @@ namespace richgeo {
 class ReadoutGeo {
 public:
   // constructor
-  ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_,
+  ReadoutGeo(std::string detName_, std::string readoutClass_,
+             gsl::not_null<const dd4hep::Detector*> det_,
              gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_,
              std::shared_ptr<spdlog::logger> log_);
   ~ReadoutGeo() {}
@@ -69,6 +70,7 @@ protected:
   // common objects
   std::shared_ptr<spdlog::logger> m_log;
   std::string m_detName;
+  std::string m_readoutClass;
   gsl::not_null<const dd4hep::Detector*> m_det;
   gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> m_conv;
   dd4hep::DetElement m_detRich;

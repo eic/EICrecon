@@ -65,14 +65,20 @@ public:
 
     // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
     if (GetPluginName() == "DRICH" || GetPluginName() == "PFRICH") {
-      m_RichGeoSvc().GetReadoutGeo(GetPluginName())->SetSeed(config().seed);
+      m_RichGeoSvc()
+          .GetReadoutGeo(config().detectorName, config().readoutClass)
+          ->SetSeed(config().seed);
       m_algo->SetVisitRngCellIDs(
           [this](std::function<void(PhotoMultiplierHitDigi::CellIDType)> lambda, float p) {
-            m_RichGeoSvc().GetReadoutGeo(GetPluginName())->VisitAllRngPixels(lambda, p);
+            m_RichGeoSvc()
+                .GetReadoutGeo(config().detectorName, config().readoutClass)
+                ->VisitAllRngPixels(lambda, p);
           });
       m_algo->SetPixelGapMask(
           [this](PhotoMultiplierHitDigi::CellIDType cellID, dd4hep::Position pos) {
-            return m_RichGeoSvc().GetReadoutGeo(GetPluginName())->PixelGapMask(cellID, pos);
+            return m_RichGeoSvc()
+                .GetReadoutGeo(config().detectorName, config().readoutClass)
+                ->PixelGapMask(cellID, pos);
           });
     }
 
