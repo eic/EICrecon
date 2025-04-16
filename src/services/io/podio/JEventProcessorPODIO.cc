@@ -176,6 +176,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "ReconstructedTruthSeededChargedParticles",
     "ReconstructedTruthSeededChargedParticleAssociations",
     "ReconstructedChargedRealPIDParticles",
+    "ReconstructedChargedRealPIDParticleIDs",
     "ReconstructedChargedParticles",
     "ReconstructedChargedParticleAssociations",
     "MCScatteredElectronAssociations",    // Remove if/when used internally
