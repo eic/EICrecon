@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Simon Gardner
+// Copyright (C) 2023-2025, Simon Gardner
 
 #pragma once
 
 // Event Model related classes
 #include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <Eigen/Core>
 #include <string>
 #include <string_view>
@@ -17,7 +17,7 @@
 namespace eicrecon {
 
 using FarDetectorLinearProjectionAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::TrackSegmentCollection>,
+    algorithms::Algorithm<algorithms::Input<edm4eic::TrackCollection>,
                           algorithms::Output<edm4eic::TrackParametersCollection>>;
 
 class FarDetectorLinearProjection : public FarDetectorLinearProjectionAlgorithm,
@@ -25,10 +25,8 @@ class FarDetectorLinearProjection : public FarDetectorLinearProjectionAlgorithm,
 
 public:
   FarDetectorLinearProjection(std::string_view name)
-      : FarDetectorLinearProjectionAlgorithm{name,
-                                             {"inputTrackSegments"},
-                                             {"outputTrackParameters"},
-                                             "Project track segments to a plane"} {}
+      : FarDetectorLinearProjectionAlgorithm{
+            name, {"inputTrack"}, {"outputTrackParameters"}, "Project track segments to a plane"} {}
 
   /** One time initialization **/
   void init() final;

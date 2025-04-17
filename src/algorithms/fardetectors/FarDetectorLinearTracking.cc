@@ -6,17 +6,21 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/geo.h>
-#include <edm4eic/Cov2f.h>
-#include <edm4eic/Cov3f.h>
+#include <edm4eic/Cov6f.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
-#include <edm4eic/TrackPoint.h>
-#include <edm4eic/TrackSegmentCollection.h>
-#include <edm4eic/vector_utils.h>
+#include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackerHit.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include <podio/RelationRange.h>
 #include <stdint.h>
 #include <Eigen/Geometry>
 #include <Eigen/Householder>
@@ -25,6 +29,7 @@
 #include <Eigen/SVD>
 #include <algorithm>
 #include <cmath>
+#include <unordered_map>
 #include <utility>
 
 #include "FarDetectorLinearTracking.h"
@@ -50,8 +55,8 @@ void FarDetectorLinearTracking::init() {
 void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& input,
                                         const FarDetectorLinearTracking::Output& output) const {
 
-  const auto [inputhits] = input;
-  auto [outputTracks]    = output;
+  const auto [inputhits, assocHits] = input;
+  auto [outputTracks, assocTracks]  = output;
 
   // Check the number of input collections is correct
   int nCollections = inputhits.size();
@@ -61,6 +66,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
   }
 
   std::vector<std::vector<Eigen::Vector3d>> convertedHits;
+  std::vector<std::vector<edm4hep::MCParticle>> assocParts;
 
   // Check there aren't too many hits in any layer to handle
   // Temporary limit of number of hits per layer before Kalman filtering/GNN implemented
@@ -74,42 +80,65 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
       trace("No hits in layer");
       return;
     }
-    convertedHits.push_back(ConvertClusters(*layerHits));
+    ConvertClusters(*layerHits, *assocHits, convertedHits, assocParts);
   }
 
   // Create a matrix to store the hit positions
   Eigen::MatrixXd hitMatrix(3, m_cfg.n_layer);
-  // Loop over all combinations of hits fitting a track to all layers
-  buildMatrixRecursive(m_cfg.n_layer - 1, &hitMatrix, convertedHits, outputTracks);
-}
 
-void FarDetectorLinearTracking::buildMatrixRecursive(
-    int level, Eigen::MatrixXd* hitMatrix, const std::vector<std::vector<Eigen::Vector3d>>& hits,
-    gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const {
+  // Create vector to store indexes of hits in the track
+  std::vector<int> layerHitIndex(m_cfg.n_layer, 0);
 
-  // Iterate over hits in this layer
-  for (auto hit : hits[level]) {
+  int layer = 0;
 
-    hitMatrix->col(level) << hit;
+  // Iterate over all combinations of measurements in the layers without recursion
+  while (true) {
+    hitMatrix.col(layer) << convertedHits[layer][layerHitIndex[layer]];
 
+    bool isValid = true;
     // Check the last two hits are within a certain angle of the optimum direction
-    if (m_cfg.restrict_direction && level < m_cfg.n_layer - 1) {
-      if (!checkHitPair(hitMatrix->col(level), hitMatrix->col(level + 1))) {
+    if (layer > 0 && m_cfg.restrict_direction) {
+      isValid = checkHitPair(hitMatrix.col(layer - 1), hitMatrix.col(layer));
+    }
+
+    // If valid hit combination, move to the next layer or check the combination
+    if (isValid) {
+      if (layer == m_cfg.n_layer - 1) {
+        // Check the combination, if chi2 limit is passed, add the track to the output
+        checkHitCombination(&hitMatrix, outputTracks, assocTracks, inputhits, assocParts,
+                            layerHitIndex);
+      } else {
+        layer++;
         continue;
       }
     }
 
-    if (level > 0) {
-      buildMatrixRecursive(level - 1, hitMatrix, hits, outputTracks);
-    } else {
-      checkHitCombination(hitMatrix, outputTracks);
+    // Iterate current layer
+    layerHitIndex[layer]++;
+
+    bool doBreak = false;
+    // Set up next combination to check
+    while (layerHitIndex[layer] >= convertedHits[layer].size()) {
+      layerHitIndex[layer] = 0;
+      if (layer == 0) {
+        doBreak = true;
+        break;
+      }
+      layer--;
+      // Iterate previous layer
+      layerHitIndex[layer]++;
     }
+    if (doBreak)
+      break;
   }
 }
 
 void FarDetectorLinearTracking::checkHitCombination(
-    Eigen::MatrixXd* hitMatrix,
-    gsl::not_null<edm4eic::TrackSegmentCollection*> outputTracks) const {
+    Eigen::MatrixXd* hitMatrix, edm4eic::TrackCollection* outputTracks,
+    edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
+    const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
+    const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
+    const std::vector<int>& layerHitIndex) const {
 
   Eigen::Vector3d weightedAnchor = (*hitMatrix) * m_layerWeights / (m_layerWeights.sum());
 
@@ -135,30 +164,36 @@ void FarDetectorLinearTracking::checkHitCombination(
   if (outVec.z > 0)
     outVec = outVec * -1;
 
-  uint64_t surface{0}; // Surface track was propagated to (possibly multiple per detector)
-  uint32_t system{0};  // Detector system track was propagated to
+  int32_t type{0};                                          // Type of track
   edm4hep::Vector3f position(outPos.x, outPos.y, outPos.z); // Position of the trajectory point [mm]
-  edm4eic::Cov3f positionError;                             // Error on the position
-  edm4hep::Vector3f momentum;                               // 3-momentum at the point [GeV]
-  edm4eic::Cov3f momentumError;                             // Error on the 3-momentum
+  edm4hep::Vector3f momentum(outVec.x, outVec.y, outVec.z); // 3-momentum at the point [GeV]
+  edm4eic::Cov6f positionMomentumCovariance;                // Error on the position
   float time{0};                                            // Time at this point [ns]
   float timeError{0};                                       // Error on the time at this point
-  float theta = edm4eic::anglePolar(outVec); // global polar direction of the fitted vector [rad]
-  float phi =
-      edm4eic::angleAzimuthal(outVec); // global azimuthal direction of the fitted vector [rad]
-  edm4eic::Cov2f directionError;       // Error on the polar and azimuthal angles
-  float pathlength{0};                 // Pathlength from the origin to this point
-  float pathlengthError{0};            // Error on the pathlength
+  float charge{-1};                                         // Charge of the particle
+  int32_t ndf{m_cfg.n_layer - 1};                           // Number of degrees of freedom
+  int32_t pdg{11};                                          // PDG code of the particle
 
-  edm4eic::TrackPoint point({surface, system, position, positionError, momentum, momentumError,
-                             time, timeError, theta, phi, directionError, pathlength,
-                             pathlengthError});
+  // Create the track
+  auto track = (*outputTracks)
+                   ->create(type, position, momentum, positionMomentumCovariance, time, timeError,
+                            charge, chi2, ndf, pdg);
 
-  float length      = 0;
-  float lengthError = 0;
-  auto segment      = (*outputTracks)->create(length, lengthError);
+  // Add Measurement2D relations and count occurrence of particles contributing to the track
+  std::unordered_map<const edm4hep::MCParticle*, int> particleCount;
+  for (int layer = 0; layer < layerHitIndex.size(); layer++) {
+    track.addToMeasurements((*inputHits[layer])[layerHitIndex[layer]]);
+    const auto& assocParticle = assocParts[layer][layerHitIndex[layer]];
+    particleCount[&assocParticle]++;
+  }
 
-  segment.addToPoints(point);
+  // Create track associations for each particle
+  for (const auto& [particle, count] : particleCount) {
+    auto trackAssoc = assocTracks->create();
+    trackAssoc.setRec(track);
+    trackAssoc.setSim(*particle);
+    trackAssoc.setWeight(count / static_cast<double>(m_cfg.n_layer));
+  }
 }
 
 // Check if a pair of hits lies close to the optimum direction
@@ -182,23 +217,51 @@ bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
 }
 
 // Convert measurements into global coordinates
-std::vector<Eigen::Vector3d>
-FarDetectorLinearTracking::ConvertClusters(const edm4eic::Measurement2DCollection& clusters) const {
+void FarDetectorLinearTracking::ConvertClusters(
+    const edm4eic::Measurement2DCollection& clusters,
+    const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
+    std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
+    std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const {
 
   // Get context of first hit
   const dd4hep::VolumeManagerContext* context =
       m_cellid_converter->findContext(clusters[0].getSurface());
 
-  std::vector<Eigen::Vector3d> pointPositions;
+  std::vector<Eigen::Vector3d> layerPositions;
+  std::vector<edm4hep::MCParticle> assocParticles;
 
   for (auto cluster : clusters) {
 
     auto globalPos = context->localToWorld({cluster.getLoc()[0], cluster.getLoc()[1], 0});
-    pointPositions.push_back(Eigen::Vector3d(globalPos.x() / dd4hep::mm, globalPos.y() / dd4hep::mm,
+    layerPositions.push_back(Eigen::Vector3d(globalPos.x() / dd4hep::mm, globalPos.y() / dd4hep::mm,
                                              globalPos.z() / dd4hep::mm));
+
+    // Determine the MCParticle associated with this measurement based on the weights
+    // Get hit in measurement with max weight
+    float maxWeight = 0;
+    int maxIndex    = -1;
+    for (int i = 0; i < cluster.getWeights().size(); ++i) {
+      if (cluster.getWeights()[i] > maxWeight) {
+        maxWeight = cluster.getWeights()[i];
+        maxIndex  = i;
+      }
+    }
+    auto maxHit = cluster.getHits()[maxIndex];
+    // Get associated raw hit
+    auto rawHit = maxHit.getRawHit();
+
+    // Loop over the hit associations to find the associated MCParticle
+    for (const auto& hit_assoc : assoc_hits) {
+      if (hit_assoc.getRawHit() == rawHit) {
+        auto mcParticle = hit_assoc.getSimHit().getMCParticle();
+        assocParticles.push_back(mcParticle);
+        break;
+      }
+    }
   }
 
-  return pointPositions;
+  pointPositions.push_back(layerPositions);
+  assoc_parts.push_back(assocParticles);
 }
 
 } // namespace eicrecon
