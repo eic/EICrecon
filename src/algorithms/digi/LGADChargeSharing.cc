@@ -3,22 +3,20 @@
 //
 // Spread energy deposition from one strip to neighboring strips within sensor boundaries
 
+#include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
-#include <DD4hep/Volumes.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <TGeoManager.h>
 #include <TGeoMatrix.h>
-#include <TGeoVolume.h>
 #include <algorithms/geo.h>
 #include <algorithms/service.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
 #include <stdexcept>
