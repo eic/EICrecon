@@ -111,7 +111,6 @@ void InitPlugin(JApplication* app) {
 
   // Divide collection based on geometry segmentation labels
   // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
-  std::string readout = "TaggerTrackerHits";
   std::vector<std::string> geometryLabels{"module", "layer"};
   std::vector<int> moduleIDs{1, 2};
   std::vector<int> layerIDs{0, 1, 2, 3};
