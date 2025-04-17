@@ -44,25 +44,20 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
-    std::string readout = "TaggerTrackerHits";
+  std::string readout = "TaggerTrackerHits";
 
-    app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-      "TaggerTrackerChargeSharing",
-      {"TaggerTrackerHits"},
-      {"TaggerTrackerSharedHits"},
+  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
+      "TaggerTrackerChargeSharing", {"TaggerTrackerHits"}, {"TaggerTrackerSharedHits"},
       {
           .sigma_sharingx = 15 * dd4hep::um,
           .sigma_sharingy = 15 * dd4hep::um,
-          .min_edep = 1.0e-7,
-          .readout = readout,
+          .min_edep       = 1.0e-7,
+          .readout        = readout,
       },
-      app
-  ));
-    //  Generate signal pulse from hits
-    app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
-      "TaggerTrackerPulseGeneration",
-      {"TaggerTrackerSharedHits"},
-      {"TaggerTrackerHitPulses"},
+      app));
+  //  Generate signal pulse from hits
+  app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
+      "TaggerTrackerPulseGeneration", {"TaggerTrackerSharedHits"}, {"TaggerTrackerHitPulses"},
       {
           .pulse_shape_function = "LandauPulse",
           .pulse_shape_params   = {1.0, 2 * edm4eic::unit::ns},
