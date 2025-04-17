@@ -415,7 +415,6 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     }
   } else {
     m_log->debug("Persisting podio types from includes list");
-    m_user_included_collections = true;
 
     // We match up the include list with what is actually present in the event
     std::set<std::string> all_collections_set =
