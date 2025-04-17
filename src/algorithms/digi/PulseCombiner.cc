@@ -8,7 +8,7 @@
 
 #include "PulseCombiner.h"
 #include <algorithms/geo.h>
-
+#include <numeric>
 namespace eicrecon {
 
 void PulseCombiner::init() {
@@ -74,10 +74,14 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
         // Sum the pulse array
         float integral = std::accumulate(newPulse.begin(), newPulse.end(), 0.0f);
         sum_pulse.setIntegral(integral);  
-        sum_pulse.setPosition(cluster[0].getPosition());
+        sum_pulse.setPosition(edm4hep::Vector3f(cluster[0].getPosition().x,
+                                                cluster[0].getPosition().y,
+                                                cluster[0].getPosition().z));
         for (auto pulse : cluster) {
           sum_pulse.addToPulses(pulse);
-          sum_pulse.addToParticles(pulse.getParticle());          
+          for (auto particle : pulse.getParticles()) {
+            sum_pulse.addToParticles(particle);
+          }         
           // Not sure if we want/need to keep the hits themselves at this point?
           for (auto hit : pulse.getTrackerHits()) {
             sum_pulse.addToTrackerHits(hit);

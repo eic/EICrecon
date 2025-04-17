@@ -7,6 +7,7 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <edm4eic/EDM4eicVersion.h>
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
 #include <edm4eic/SimPulseCollection.h>
 #else

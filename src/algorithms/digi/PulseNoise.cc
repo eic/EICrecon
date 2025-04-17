@@ -37,18 +37,21 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
 
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
     out_pulse.setIntegral(integral);  
-    out_pulse.setPosition(cluster[0].getPosition());
-    for (auto pulse : cluster) {
-      out_pulse.addToPulses(pulse);
-      out_pulse.addToParticles(pulse.getParticle());          
-      // Not sure if we want/need to keep the hits themselves at this point?
-      for (auto hit : pulse.getTrackerHits()) {
-        out_pulse.addToTrackerHits(hit);
-      }
-      for (auto hit : pulse.getCalorimeterHits()) {
-        out_pulse.addToCalorimeterHits(hit);
-      }
+    out_pulse.setPosition(pulse.getPosition());
+    for (auto subpulse : pulse.getPulses()) {
+      out_pulse.addToPulses(subpulse);
     }
+    for (auto particle : pulse.getParticles()) {
+      out_pulse.addToParticles(particle);
+    }                  
+    // Not sure if we want/need to keep the hits themselves at this point?
+    for (auto hit : pulse.getTrackerHits()) {
+      out_pulse.addToTrackerHits(hit);
+    }
+    for (auto hit : pulse.getCalorimeterHits()) {
+      out_pulse.addToCalorimeterHits(hit);
+    }
+  
 #endif
   }
 
