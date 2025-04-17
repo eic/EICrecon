@@ -25,7 +25,7 @@ public:
 
   std::unique_ptr<podio::ROOTWriter> m_writer;
   std::mutex m_mutex;
-  bool m_is_first_event            = true;
+  std::once_flag m_is_first_event;
   std::shared_ptr<spdlog::logger> m_log;
   bool m_output_include_collections_set = false;
 
