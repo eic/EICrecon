@@ -15,9 +15,7 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TGeoMatrix.h>
-#include <ctype.h>
 #include <fmt/core.h>
-#include <algorithm>
 #include <cmath>
 #include <map>
 
