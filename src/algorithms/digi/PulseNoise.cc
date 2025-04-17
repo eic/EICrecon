@@ -31,16 +31,16 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     //Add noise to the pulse
     for (int i = 0; i < pulse.getAmplitude().size(); i++) {
       double noise = m_noise(generator) * m_cfg.scale;
-      out_pulse.addToAmplitude(pulse.getAmplitude()[i] + noise);
-      integral += pulse.getAmplitude()[i] + noise;
+      double amplitude = pulse.getAmplitude()[i] + noise;
+      out_pulse.addToAmplitude(amplitude);
+      integral += amplitude;
     }
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
     out_pulse.setIntegral(integral);
     out_pulse.setPosition(pulse.getPosition());
-    for (auto subpulse : pulse.getPulses()) {
-      out_pulse.addToPulses(subpulse);
-    }
+    out_pulse.addToPulses(pulse);
+    
     for (auto particle : pulse.getParticles()) {
       out_pulse.addToParticles(particle);
     }
