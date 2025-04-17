@@ -35,7 +35,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
       integral += pulse.getAmplitude()[i] + noise;
     }
 
-#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
     out_pulse.setIntegral(integral);
     out_pulse.setPosition(pulse.getPosition());
     for (auto subpulse : pulse.getPulses()) {
