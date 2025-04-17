@@ -512,7 +512,6 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
       }
     }
   }
-  m_collections_to_write = successful_collections;
 
   // Frame will contain data from all Podio factories that have been triggered,
   // including by the `event->GetCollectionBase(coll);` above.
