@@ -46,6 +46,8 @@ private:
   float integralGaus(float mean, float sd, float low_lim, float up_lim) const;
   dd4hep::Position cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
   dd4hep::Position global2Local(const edm4hep::SimTrackerHit& hit) const;
+  dd4hep::Segmentation  getLocalSegmentation(
+      const dd4hep::rec::CellID& cellID) const;
 
   const dd4hep::Detector*                      m_detector  = nullptr;
   const dd4hep::rec::CellIDPositionConverter*  m_converter = nullptr;

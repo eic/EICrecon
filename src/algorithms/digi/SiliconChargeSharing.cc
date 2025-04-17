@@ -4,9 +4,16 @@
 // Spread energy deposition from one strip to neighboring strips within sensor boundaries
 
 #include <DD4hep/DetElement.h>
+#include <DD4hep/detail/SegmentationsInterna.h>
+#include <DD4hep/detail/Handle.inl>
 #include <DD4hep/Handle.h>
 #include <DD4hep/Readout.h>
+#include <DD4hep/Objects.h>
 #include <DD4hep/Segmentations.h>
+#include <DD4hep/MultiSegmentation.h>
+#include <DDSegmentation/BitFieldCoder.h>
+#include <DDSegmentation/MultiSegmentation.h>
+#include <DDSegmentation/Segmentation.h>
 #include <DD4hep/Volumes.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
@@ -23,6 +30,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
 
 #include "DD4hep/Detector.h"
 #include "SiliconChargeSharing.h"
@@ -56,6 +64,9 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     std::vector<std::pair<dd4hep::rec::CellID,float>> cell_charge;
     findAllNeighborsInSensor(cellID, tested_cells, cell_charge, edep, hitPos);
 
+    //cout number of neighbors found
+    error("Found {} neighbors for cellID {}", cell_charge.size(), cellID);
+
     // Create a new simhit for each cell with deposited energy
     for(const auto& [testCellID, edep_cell] : cell_charge) {
       auto globalPos = m_converter->position(testCellID);
@@ -80,7 +91,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCel
 
   // Calculate deposited energy in cell
   float edepCell = energyAtCell(testCellID, hitPos,edep);
-  // error("energy {} at cellID {}", edepCell, testCellID);
+  error("energy {} at cellID {}", edepCell, testCellID);
   if(edepCell <= m_cfg.min_edep) {
     return;
   }
@@ -88,11 +99,19 @@ void SiliconChargeSharing::findAllNeighborsInSensor( dd4hep::rec::CellID testCel
   // Store cellID and deposited energy
   cell_charge.push_back(std::make_pair(testCellID, edepCell));
 
+  // Get local segmentation if multiSegmentation is used
+  auto segmentation = getLocalSegmentation(testCellID);
+
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
-  m_seg.neighbours(testCellID, testCellNeighbours);
+  segmentation.neighbours(testCellID, testCellNeighbours);
+  std::string segType = segmentation->type();
+  error("Segmentation type: {}", segType);
+
+  error("sEGMENTATION {} neighbours for cellID {}", testCellNeighbours.size(), testCellID);
 
   for (const auto& neighbourCell : testCellNeighbours) {
+    error("Testing neighbour cellID {}", neighbourCell);
     if (tested_cells.find(neighbourCell) == tested_cells.end()) {
       findAllNeighborsInSensor(neighbourCell, tested_cells, cell_charge, edep, hitPos);
     }
@@ -149,5 +168,18 @@ float SiliconChargeSharing::energyAtCell(const dd4hep::rec::CellID& cell, dd4hep
   return energy;
 }
 
+dd4hep::Segmentation  SiliconChargeSharing::getLocalSegmentation(
+    const dd4hep::rec::CellID& cellID) const {
+  // Get the segmentation type
+  auto segmentation_type = m_seg.type();
+  const dd4hep::DDSegmentation::Segmentation* segmentation = m_seg.segmentation();
+  // Check if the segmentation is a multi-segmentation
+  while (segmentation_type == "MultiSegmentation") {
+    const auto* multi_segmentation = dynamic_cast<const dd4hep::DDSegmentation::MultiSegmentation*>(segmentation);
+    segmentation = &multi_segmentation->subsegmentation(cellID);    
+    segmentation_type = segmentation->type();
+  }
+  return dd4hep::Segmentation(dd4hep::Handle<dd4hep::SegmentationObject>(segmentation));
+}
 
 } // namespace eicrecon
