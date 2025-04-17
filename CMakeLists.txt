@@ -160,7 +160,13 @@ find_package(algorithms 1.0.0 REQUIRED Core)
 
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 REQUIRED)
-find_package(podio REQUIRED)
+find_package(podio 1.0)
+if(NOT podio_FOUND)
+  find_package(podio 0.17 REQUIRED)
+  if(podio_FOUND)
+    message(WARNING "podio < v1.0 is deprecated")
+  endif()
+endif()
 find_package(EDM4HEP 0.7.1 REQUIRED)
 find_package(EDM4EIC 5.0 REQUIRED)
 
