@@ -18,11 +18,11 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
   PodioInput<edm4eic::SimPulse> m_in_pulses{this};
-  #else
+#else
   PodioInput<edm4hep::TimeSeries> m_in_pulses{this};
-  #endif
+#endif
   PodioOutput<edm4hep::RawTimeSeries> m_out_pulses{this};
 
   ParameterRef<double> m_EICROC_period{this, "EICROCPeriod", config().EICROC_period};

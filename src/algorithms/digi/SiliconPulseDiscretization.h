@@ -22,11 +22,11 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
-  
+
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
-using PulseType       = edm4eic::SimPulse;
+using PulseType = edm4eic::SimPulse;
 #else
-using PulseType       = edm4hep::TimeSeries;
+using PulseType = edm4hep::TimeSeries;
 #endif
 
 using SiliconPulseDiscretizationAlgorithm =

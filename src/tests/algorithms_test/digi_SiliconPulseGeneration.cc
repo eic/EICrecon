@@ -21,9 +21,9 @@
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
 
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
-  using PulseType       = edm4eic::SimPulse;
+using PulseType = edm4eic::SimPulse;
 #else
-  using PulseType       = edm4hep::TimeSeries;
+using PulseType = edm4hep::TimeSeries;
 #endif
 
 TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[SiliconPulseGeneration]") {

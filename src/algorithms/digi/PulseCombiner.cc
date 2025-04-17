@@ -73,15 +73,14 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
         // Sum the pulse array
         float integral = std::accumulate(newPulse.begin(), newPulse.end(), 0.0f);
-        sum_pulse.setIntegral(integral);  
-        sum_pulse.setPosition(edm4hep::Vector3f(cluster[0].getPosition().x,
-                                                cluster[0].getPosition().y,
-                                                cluster[0].getPosition().z));
+        sum_pulse.setIntegral(integral);
+        sum_pulse.setPosition(edm4hep::Vector3f(
+            cluster[0].getPosition().x, cluster[0].getPosition().y, cluster[0].getPosition().z));
         for (auto pulse : cluster) {
           sum_pulse.addToPulses(pulse);
           for (auto particle : pulse.getParticles()) {
             sum_pulse.addToParticles(particle);
-          }         
+          }
           // Not sure if we want/need to keep the hits themselves at this point?
           for (auto hit : pulse.getTrackerHits()) {
             sum_pulse.addToTrackerHits(hit);
@@ -91,7 +90,6 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
           }
         }
 #endif
-
       }
       debug("CellID {} has {} pulses, combined into {} clusters", cellID, pulses.size(),
             clusters.size());

@@ -179,14 +179,11 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
 
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
     time_series.setIntegral(integral);
-    time_series.setPosition(edm4hep::Vector3f(hit.getPosition().x, 
-                                              hit.getPosition().y,
-                                              hit.getPosition().z));
+    time_series.setPosition(
+        edm4hep::Vector3f(hit.getPosition().x, hit.getPosition().y, hit.getPosition().z));
     time_series.addToTrackerHits(hit);
     time_series.addToParticles(hit.getParticle());
-#endif  
-
-
+#endif
   }
 
 } // SiliconPulseGeneration:process

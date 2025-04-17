@@ -24,9 +24,9 @@
 namespace eicrecon {
 
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 1
-  using PulseType       = edm4eic::SimPulse;
+using PulseType = edm4eic::SimPulse;
 #else
-  using PulseType       = edm4hep::TimeSeries;
+using PulseType = edm4hep::TimeSeries;
 #endif
 
 using PulseCombinerAlgorithm =
@@ -42,8 +42,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  std::vector<std::vector<PulseType>>
-  clusterPulses(const std::vector<PulseType> pulses) const;
+  std::vector<std::vector<PulseType>> clusterPulses(const std::vector<PulseType> pulses) const;
   std::vector<float> sumPulses(const std::vector<PulseType> pulses) const;
   uint64_t m_detector_bitmask = 0xFFFFFFFFFFFFFFFF;
 };
