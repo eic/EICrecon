@@ -7,6 +7,7 @@
 
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
+#include <DD4hep/VolumeManager.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
