@@ -59,7 +59,7 @@ void eicrecon::MatrixTransferStatic::process(
                 runningMomentum += p.getMomentum().z;
                 numBeamProtons++;
         }
-	if (p.getGeneratorStatus() == 4 && p.getPDG() == 2112) { //look for "beam" neutron (for deuterons)
+        if (p.getGeneratorStatus() == 4 && p.getPDG() == 2112) { //look for "beam" neutron (for deuterons)
                 runningMomentum += p.getMomentum().z;
                 numBeamProtons++;
         }
