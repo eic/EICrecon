@@ -52,20 +52,15 @@ void InitPlugin(JApplication* app) {
       },
       app)); // Hit reco default config for factories
 
-
-
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-      "TOFBarrelChargeSharing",
-      {"TOFBarrelHits"},
-      {"TOFBarrelSharedHits"},
+      "TOFBarrelChargeSharing", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
       {
           .sigma_sharingx = 0.1 * dd4hep::cm,
           .sigma_sharingy = 0.5 * dd4hep::cm,
-          .min_edep = 0.0,
-          .readout = "TOFBarrelHits",
+          .min_edep       = 0.0,
+          .readout        = "TOFBarrelHits",
       },
-      app
-  ));
+      app));
 
   // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
   // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =

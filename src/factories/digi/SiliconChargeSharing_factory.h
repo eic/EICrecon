@@ -10,7 +10,8 @@
 
 namespace eicrecon {
 
-class SiliconChargeSharing_factory : public JOmniFactory<SiliconChargeSharing_factory, SiliconChargeSharingConfig> {
+class SiliconChargeSharing_factory
+    : public JOmniFactory<SiliconChargeSharing_factory, SiliconChargeSharingConfig> {
 public:
   using AlgoT = eicrecon::SiliconChargeSharing;
 
