@@ -30,7 +30,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     float integral = 0;
     //Add noise to the pulse
     for (int i = 0; i < pulse.getAmplitude().size(); i++) {
-      double noise = m_noise(generator) * m_cfg.scale;
+      double noise     = m_noise(generator) * m_cfg.scale;
       double amplitude = pulse.getAmplitude()[i] + noise;
       out_pulse.addToAmplitude(amplitude);
       integral += amplitude;
@@ -40,7 +40,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     out_pulse.setIntegral(integral);
     out_pulse.setPosition(pulse.getPosition());
     out_pulse.addToPulses(pulse);
-    
+
     for (auto particle : pulse.getParticles()) {
       out_pulse.addToParticles(particle);
     }
