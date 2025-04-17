@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023, Christopher Dilks
 
-
 #include <JANA/JApplication.h>
 #include <string>
 
@@ -11,13 +10,13 @@
 #include "global/pid/MatchToRICHPID_factory.h"
 
 extern "C" {
-  void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
 
-    using namespace eicrecon;
+  using namespace eicrecon;
 
-    // wiring between factories and data ///////////////////////////////////////
-    // clang-format off
+  // wiring between factories and data ///////////////////////////////////////
+  // clang-format off
 
     // link charged particles to PID and to MC truth
     app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(

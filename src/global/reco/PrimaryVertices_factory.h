@@ -16,36 +16,36 @@
 
 namespace eicrecon {
 
-class PrimaryVertices_factory :
-        public JOmniFactory<PrimaryVertices_factory, PrimaryVerticesConfig> {
+class PrimaryVertices_factory
+    : public JOmniFactory<PrimaryVertices_factory, PrimaryVerticesConfig> {
 
 public:
-    using AlgoT = eicrecon::PrimaryVertices;
+  using AlgoT = eicrecon::PrimaryVertices;
+
 private:
-    std::unique_ptr<AlgoT> m_algo;
+  std::unique_ptr<AlgoT> m_algo;
 
-    PodioInput<edm4eic::Vertex> m_rc_vertices_input {this};
+  PodioInput<edm4eic::Vertex> m_rc_vertices_input{this};
 
-    // Declare outputs
-    PodioOutput<edm4eic::Vertex> m_primary_vertices_output {this};
+  // Declare outputs
+  PodioOutput<edm4eic::Vertex> m_primary_vertices_output{this};
 
-    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
-    void Configure() {
-        m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->level((algorithms::LogLevel)logger()->level());
+  void Configure() {
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->level((algorithms::LogLevel)logger()->level());
 
-        m_algo->applyConfig(config());
-        m_algo->init();
-    }
+    m_algo->applyConfig(config());
+    m_algo->init();
+  }
 
-    void ChangeRun(int64_t run_number) {
-    }
+  void ChangeRun(int64_t run_number) {}
 
-    void Process(int64_t run_number, uint64_t event_number) {
-        m_algo->process({m_rc_vertices_input()}, {m_primary_vertices_output().get()});
-    }
+  void Process(int64_t run_number, uint64_t event_number) {
+    m_algo->process({m_rc_vertices_input()}, {m_primary_vertices_output().get()});
+  }
 };
 
-} // eicrecon
+} // namespace eicrecon

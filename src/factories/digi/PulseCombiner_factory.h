@@ -10,8 +10,7 @@
 
 namespace eicrecon {
 
-class PulseCombiner_factory
-    : public JOmniFactory<PulseCombiner_factory, PulseCombinerConfig> {
+class PulseCombiner_factory : public JOmniFactory<PulseCombiner_factory, PulseCombinerConfig> {
 public:
   using AlgoT = eicrecon::PulseCombiner;
 
@@ -22,7 +21,7 @@ private:
 
   PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
 
-  ParameterRef<double>      m_minimum_separation{this, "minimumSeperation", config().minimum_separation};
+  ParameterRef<double> m_minimum_separation{this, "minimumSeperation", config().minimum_separation};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<std::string> m_combine_field{this, "combineField", config().combine_field};
 

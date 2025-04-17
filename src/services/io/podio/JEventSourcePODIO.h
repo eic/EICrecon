@@ -21,34 +21,32 @@
 class JEventSourcePODIO : public JEventSource {
 
 public:
-    JEventSourcePODIO(std::string resource_name, JApplication* app);
+  JEventSourcePODIO(std::string resource_name, JApplication* app);
 
-    virtual ~JEventSourcePODIO();
+  virtual ~JEventSourcePODIO();
 
-    void Open() override;
+  void Open() override;
 
-    void Close() override;
+  void Close() override;
 
 #if JANA_NEW_CALLBACK_STYLE
-    Result Emit(JEvent& event) override;
+  Result Emit(JEvent& event) override;
 #else
-    void GetEvent(std::shared_ptr<JEvent>) override;
+  void GetEvent(std::shared_ptr<JEvent>) override;
 #endif
 
-    static std::string GetDescription();
+  static std::string GetDescription();
 
-    void PrintCollectionTypeTable(void);
+  void PrintCollectionTypeTable(void);
 
 protected:
-    podio::ROOTReader m_reader;
+  podio::ROOTReader m_reader;
 
-    size_t Nevents_in_file = 0;
-    size_t Nevents_read = 0;
+  size_t Nevents_in_file = 0;
+  size_t Nevents_read    = 0;
 
-    bool m_run_forever=false;
-    bool m_use_event_headers=true;
-
+  bool m_run_forever       = false;
+  bool m_use_event_headers = true;
 };
 
-template <>
-double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);
+template <> double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);

@@ -34,10 +34,8 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-
   std::shared_ptr<SignalPulse> m_pulse;
   float m_min_sampling_time = 0 * edm4eic::unit::ns;
-
 };
 
 } // namespace eicrecon
