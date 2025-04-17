@@ -68,6 +68,9 @@ jobs:
       matrix:
         CC: [gcc, clang]
         CMAKE_BUILD_TYPE: [Release, Debug]
+        USE_ASAN: [ON]
+        USE_TSAN: [OFF]
+        USE_UBSAN: [ON]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
         include:
           # all gcc jobs use g++
@@ -86,6 +89,13 @@ jobs:
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: nightly
+          # thread sanitizer build
+          - CC: clang
+            CXX: clang++
+            CMAKE_BUILD_TYPE: Release
+            release: nightly
+            USE_ASAN: OFF
+            USE_TSAN: ON
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
@@ -129,7 +139,7 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
-          CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
+          CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN={{matrix.USE_ASAN}} -DUSE_TSAN={{matrix.USE_TSAN}} -DUSE_UBSAN={{matrix.USE_UBSAN}}
           cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target install
           ccache --show-stats --verbose
     - name: Check dynamic library loader paths
