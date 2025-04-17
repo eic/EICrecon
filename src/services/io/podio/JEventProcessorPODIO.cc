@@ -518,16 +518,9 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   // including by the `event->GetCollectionBase(coll);` above.
   // Note that collections MUST be present in frame. If a collection is null, the writer will segfault.
   const auto* frame = event->GetSingle<podio::Frame>();
-
-  // TODO: NWB: We need to actively stabilize podio collections. Until then, keep this around in case
-  //            the writer starts segfaulting, so we can quickly see whether the problem is unstable collection IDs.
-  /*
-    m_log->info("Event {}: Writing {} collections", event->GetEventNumber(), m_collections_to_write.size());
-    for (const std::string& collname : m_collections_to_write) {
-        m_log->info("Writing collection '{}' with id {}", collname, frame->get(collname)->getID());
-    }
-    */
+  lock.lock();
   m_writer->writeFrame(*frame, "events", m_collections_to_write);
+  lock.unlock();
 }
 
 void JEventProcessorPODIO::Finish() {
