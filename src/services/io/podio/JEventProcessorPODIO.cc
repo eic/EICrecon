@@ -439,23 +439,10 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
 
 void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
 
-  std::lock_guard<std::mutex> lock(m_mutex);
-  if (m_is_first_event) {
-    FindCollectionsToWrite(event);
-  }
+  std::unique_lock lock(m_mutex, std::defer_lock);
 
-  // Trigger all collections once to fix the collection IDs
-  // TODO: WDC: This should not be necessary, but while we await collection IDs
-  //            that are determined by hash, we have to ensure they are reproducible
-  //            even if the collections are filled in unpredictable order (or not at
-  //            all). See also below, at "TODO: NWB:".
-  for (const auto& coll_name : m_collections_to_write) {
-    try {
-      [[maybe_unused]] const auto* coll_ptr = event->GetCollectionBase(coll_name);
-    } catch (std::exception& e) {
-      // chomp
-    }
-  }
+  // Find all collections to write from the first event
+  std::call_once(m_is_first_event, &JEventProcessorPODIO::FindCollectionsToWrite, this, event);
 
   // Print the contents of some collections, just for debugging purposes
   // Do this before writing just in case writing crashes
@@ -545,7 +532,6 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
     }
     */
   m_writer->writeFrame(*frame, "events", m_collections_to_write);
-  m_is_first_event = false;
 }
 
 void JEventProcessorPODIO::Finish() {
