@@ -36,14 +36,7 @@ private:
   ParameterRef<float> partCharge{this, "partCharge", config().partCharge};
   ParameterRef<long long> partPDG{this, "partPDG", config().partPDG};
 
-  ParameterRef<double> local_x_offset{this, "local_x_offset", config().local_x_offset};
-  ParameterRef<double> local_y_offset{this, "local_y_offset", config().local_y_offset};
-  ParameterRef<double> local_x_slope_offset{this, "local_x_slope_offset",
-                                            config().local_x_slope_offset};
-  ParameterRef<double> local_y_slope_offset{this, "local_y_slope_offset",
-                                            config().local_y_slope_offset};
   ParameterRef<double> crossingAngle{this, "crossingAngle", config().crossingAngle};
-  ParameterRef<double> nomMomentum{this, "nomMomentum", config().nomMomentum};
 
   // FIXME JANA2 does not support vector of vector
   //ParameterRef<std::vector<std::vector<double>>> aX {this, "aX", config().aX};
