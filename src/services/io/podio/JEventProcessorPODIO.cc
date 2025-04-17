@@ -485,12 +485,8 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   // it.
 
   // Activate factories.
-  // TODO: NWB: For now we run every factory every time, swallowing exceptions if necessary.
-  //            We do this so that we always have the same collections created in the same order.
-  //            This means that the collection IDs are stable so the writer doesn't segfault.
-  //            The better fix is to maintain a map of collection IDs, or just wait for PODIO to fix the bug.
   std::vector<std::string> successful_collections;
-  static std::set<std::string> failed_collections;
+  std::set<std::string> failed_collections;
   for (const std::string& coll : m_collections_to_write) {
     try {
       m_log->trace("Ensuring factory for collection '{}' has been called.", coll);
