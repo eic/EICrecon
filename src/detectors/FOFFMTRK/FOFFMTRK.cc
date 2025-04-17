@@ -18,8 +18,6 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
   using namespace eicrecon;
 
-  MatrixTransferStaticConfig recon_cfg;
-
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "ForwardOffMTrackerRawHits", {"ForwardOffMTrackerHits"},
@@ -37,26 +35,39 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  //Static transport matrix for Off Momentum detectors
-  recon_cfg.aX = {{1.6248, 12.966293}, {0.1832, -2.8636535}};
-  recon_cfg.aY = {{0.0001674, -28.6003}, {0.0000837, -2.87985}};
-
-  recon_cfg.local_x_offset       = -11.9872;  // in mm --> this is from misalignment of the detector
-  recon_cfg.local_y_offset       = -0.0146;   // in mm --> this is from misalignment of the detector
-  recon_cfg.local_x_slope_offset = -14.75315; // in mrad
-  recon_cfg.local_y_slope_offset = -0.0073;   // in mrad
-  recon_cfg.nomMomentum =
-      137.5; // in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
-
-  recon_cfg.hit1minZ = 22499.0;
-  recon_cfg.hit1maxZ = 22522.0;
-  recon_cfg.hit2minZ = 24499.0;
-  recon_cfg.hit2maxZ = 24522.0;
-
-  recon_cfg.readout = "ForwardOffMTrackerRecHits";
-
   app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
       "ForwardOffMRecParticles", {"MCParticles", "ForwardOffMTrackerRecHits"},
-      {"ForwardOffMRecParticles"}, recon_cfg, app));
+      {"ForwardOffMRecParticles"},
+      {
+          .matrix_configs = {{
+              .nomMomentum = 130.0,
+
+              .aX =
+                  {
+                      {1.61591, 12.6786},
+                      {0.184206, -2.907},
+                  },
+
+              .aY =
+                  {
+                      {-0.789385, -28.5578},
+                      {-0.0721796, -2.8763},
+                  },
+
+              .local_x_offset       = -881.631,
+              .local_y_offset       = -0.00552173,
+              .local_x_slope_offset = -59.7386,
+              .local_y_slope_offset = -0.00360656,
+
+          }},
+
+          .hit1minZ = 22490.0,
+          .hit1maxZ = 22512.0,
+          .hit2minZ = 24512.0,
+          .hit2maxZ = 24535.0,
+
+          .readout = "ForwardOffMTrackerRecHits",
+      },
+      app));
 }
 }
