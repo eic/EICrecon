@@ -69,7 +69,8 @@ void LGADChargeSharing::process(const LGADChargeSharing::Input& input,
   auto [sharedHits]    = output;
 
   for (const auto& hit : *simhits) {
-    auto cellID = hit.getCellID();
+    auto cellID         = hit.getCellID();
+    const auto* context = m_converter->findContext(cellID);
 
     std::unordered_set<dd4hep::rec::CellID> dp;
     std::vector<dd4hep::rec::CellID> neighbors;
@@ -80,6 +81,7 @@ void LGADChargeSharing::process(const LGADChargeSharing::Input& input,
     auto momentum     = hit.getMomentum();
     auto truePos      = hit.getPosition();
     auto localPos_hit = this->_global2Local(
+        context,
         dd4hep::Position(truePos.x * dd4hep::mm, truePos.y * dd4hep::mm, truePos.z * dd4hep::mm));
 
     for (const auto neighbor : neighbors) {
@@ -163,17 +165,18 @@ double LGADChargeSharing::_integralGaus(double mean, double sd, double low_lim,
 }
 
 dd4hep::Position LGADChargeSharing::_cell2LocalPosition(const dd4hep::rec::CellID& cell) const {
-  auto position = m_converter->position(cell); // global position
-  return this->_global2Local(position);
+  auto context  = m_converter->findContext(cell); // volume context
+  auto position = m_converter->position(cell);    // global position
+  return this->_global2Local(context, position);
 }
 
-dd4hep::Position LGADChargeSharing::_global2Local(const dd4hep::Position& pos) const {
-  auto geoManager = m_detector->world().volume()->GetGeoManager();
-  auto currMatrix = geoManager->GetCurrentMatrix();
+dd4hep::Position LGADChargeSharing::_global2Local(const dd4hep::VolumeManagerContext* context,
+                                                  const dd4hep::Position& pos) const {
+  auto nodeMatrix = context->element.nominal().worldTransformation();
 
   double g[3], l[3];
   pos.GetCoordinates(g);
-  currMatrix->MasterToLocal(g, l);
+  nodeMatrix.MasterToLocal(g, l);
   dd4hep::Position position;
   position.SetCoordinates(l);
   return position;
