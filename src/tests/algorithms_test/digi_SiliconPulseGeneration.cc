@@ -3,9 +3,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+#include <edm4eic/SimPulseCollection.h>
+#else
 #include <edm4hep/TimeSeriesCollection.h>
+#endif
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <memory>
@@ -15,6 +20,12 @@
 
 #include "algorithms/digi/SiliconPulseGeneration.h"
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
+
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+using PulseType = edm4eic::SimPulse;
+#else
+using PulseType = edm4hep::TimeSeries;
+#endif
 
 TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[SiliconPulseGeneration]") {
 
@@ -35,7 +46,7 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
       hits_coll.create(12345 + i, 10.0, 5.0); // cellID, charge, time
     }
 
-    auto pulses = std::make_unique<edm4hep::TimeSeriesCollection>();
+    auto pulses = std::make_unique<PulseType::collection_type>();
 
     auto input  = std::make_tuple(&hits_coll);
     auto output = std::make_tuple(pulses.get());
@@ -83,7 +94,7 @@ TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse",
   edm4hep::SimTrackerHitCollection hits_coll;
   hits_coll.create(12345, charge, time); // cellID, charge, time
 
-  auto pulses = std::make_unique<edm4hep::TimeSeriesCollection>();
+  auto pulses = std::make_unique<PulseType::collection_type>();
 
   auto input  = std::make_tuple(&hits_coll);
   auto output = std::make_tuple(pulses.get());
