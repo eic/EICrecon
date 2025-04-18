@@ -19,7 +19,6 @@
 #include <string>
 #include <utility>
 
-#include "JANA/JApplication.h"
 #include "JANA/JEventSource.h"
 #include "JANA/JException.h"
 #include "JANA/Services/JParameterManager.h"

@@ -11,6 +11,7 @@
 #include <Rtypes.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <math.h>

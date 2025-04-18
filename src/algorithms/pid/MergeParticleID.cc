@@ -11,6 +11,7 @@
 #include <podio/RelationRange.h>
 #include <spdlog/common.h>
 #include <stddef.h>
+#include <gsl/pointers>
 #include <stdexcept>
 #include <unordered_map>
 #include <utility>

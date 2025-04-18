@@ -10,6 +10,7 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/TrackStateProxy.hpp>
 #include <Acts/EventData/Types.hpp>
+#include <sys/types.h>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
@@ -59,7 +60,6 @@
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/vector.hpp>
-#include <boost/move/utility_core.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/Measurement2DCollection.h>

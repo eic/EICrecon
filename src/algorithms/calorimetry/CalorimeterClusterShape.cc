@@ -4,14 +4,26 @@
 #include "CalorimeterClusterShape.h"
 
 #include <boost/algorithm/string/join.hpp>
-#include <boost/iterator/iterator_facade.hpp>
 #include <boost/range/adaptor/map.hpp>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
-#include <Eigen/Householder>
+#include <cctype>
 #include <cmath>
+#include <complex>
+#include <cstddef>
+#include <gsl/pointers>
+#include <iterator>
+#include <utility>
+#include <vector>
+
+#include "algorithms/calorimetry/CalorimeterClusterShapeConfig.h"
 
 namespace eicrecon {
 

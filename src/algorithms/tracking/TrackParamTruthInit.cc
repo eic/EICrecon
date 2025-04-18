@@ -8,13 +8,14 @@
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
-
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4eic/Cov6f.h>
+#include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <spdlog/common.h>
+#include <stdlib.h>
 #include <Eigen/Core>
 #include <cmath>
 #include <limits>
