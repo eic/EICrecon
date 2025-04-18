@@ -36,9 +36,11 @@ private:
   RichGeo_service() = default;
   void acquire_services(JServiceLocator*) override;
 
-  std::once_flag m_init_irt;
-  std::once_flag m_init_acts;
-  std::once_flag m_init_readout;
+  std::mutex m_init_lock;
+  std::map<std::string, std::once_flag> m_init_irt;
+  std::map<std::string, std::once_flag> m_init_acts;
+  std::map<std::string, std::once_flag> m_init_readout;
+
   JApplication* m_app                                     = nullptr;
   const dd4hep::Detector* m_dd4hepGeo                     = nullptr;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;

@@ -47,7 +47,8 @@ richgeo::IrtGeo* RichGeo_service::GetIrtGeo(std::string detector_name) {
       else
         throw JException(fmt::format("IrtGeo is not defined for detector '{}'", detector_name));
     };
-    std::call_once(m_init_irt, initialize);
+    std::lock_guard<std::mutex> lock(m_init_lock);
+    std::call_once(m_init_irt[detector_name], initialize);
   } catch (std::exception& ex) {
     throw JException(ex.what());
   }
@@ -65,7 +66,8 @@ richgeo::ActsGeo* RichGeo_service::GetActsGeo(std::string detector_name) {
         throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
       m_actsGeo = new richgeo::ActsGeo(detector_name, m_dd4hepGeo, m_log);
     };
-    std::call_once(m_init_acts, initialize);
+    std::lock_guard<std::mutex> lock(m_init_lock);
+    std::call_once(m_init_acts[detector_name], initialize);
   } catch (std::exception& ex) {
     throw JException(ex.what());
   }
@@ -84,7 +86,8 @@ std::shared_ptr<richgeo::ReadoutGeo> RichGeo_service::GetReadoutGeo(std::string 
       m_readoutGeo = std::make_shared<richgeo::ReadoutGeo>(detector_name, readout_class,
                                                            m_dd4hepGeo, m_converter, m_log);
     };
-    std::call_once(m_init_readout, initialize);
+    std::lock_guard<std::mutex> lock(m_init_lock);
+    std::call_once(m_init_readout[detector_name], initialize);
   } catch (std::exception& ex) {
     throw JException(ex.what());
   }
