@@ -9,6 +9,8 @@
 #include <RtypesCore.h>
 #include <TMath.h>
 #include <algorithms/service.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
 #include <cmath>
 #include <functional>
 #include <gsl/pointers>

@@ -4,8 +4,12 @@
 // Adds noise to a time series pulse
 //
 
+#include <edm4hep/MCParticle.h>
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/SimTrackerHit.h>
 #include <podio/RelationRange.h>
 #include <gsl/pointers>
+#include <vector>
 
 #include "PulseNoise.h"
 

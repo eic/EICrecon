@@ -3,12 +3,27 @@
 //
 // Combine pulses into a larger pulse if they are within a certain time of each other
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Readout.h>
+#include <DDSegmentation/BitFieldCoder.h>
+#include <algorithms/geo.h>
+#include <edm4hep/MCParticle.h>
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/SimTrackerHit.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <algorithm>
+#include <cmath>
+#include <gsl/pointers>
+#include <map>
 #include <numeric>
-#include <unordered_map>
+#include <stdexcept>
+#include <utility>
 #include <vector>
 
 #include "PulseCombiner.h"
-#include <algorithms/geo.h>
 
 namespace eicrecon {
 

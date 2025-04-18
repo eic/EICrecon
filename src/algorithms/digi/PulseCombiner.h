@@ -8,15 +8,15 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <cstdint>
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 #include <edm4eic/SimPulseCollection.h>
 #else
 #include <edm4hep/TimeSeriesCollection.h>
 #endif
-#include <memory>
 #include <string>
 #include <string_view>
-#include <edm4eic/unit_system.h>
+#include <vector>
 
 #include "algorithms/digi/PulseCombinerConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
