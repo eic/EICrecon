@@ -81,7 +81,6 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
           for (auto particle : pulse.getParticles()) {
             sum_pulse.addToParticles(particle);
           }
-          // Not sure if we want/need to keep the hits themselves at this point?
           for (auto hit : pulse.getTrackerHits()) {
             sum_pulse.addToTrackerHits(hit);
           }
