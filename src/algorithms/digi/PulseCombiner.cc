@@ -3,12 +3,13 @@
 //
 // Combine pulses into a larger pulse if they are within a certain time of each other
 
+#include <numeric>
 #include <unordered_map>
 #include <vector>
 
 #include "PulseCombiner.h"
 #include <algorithms/geo.h>
-#include <numeric>
+
 namespace eicrecon {
 
 void PulseCombiner::init() {
