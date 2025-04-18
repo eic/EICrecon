@@ -10,6 +10,7 @@
 #include <JANA/JServiceFwd.h>
 #include <JANA/Services/JServiceLocator.h>
 #include <spdlog/logger.h>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
