@@ -16,10 +16,13 @@ public:
 
 private:
   std::unique_ptr<AlgoT> m_algo;
-
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+  PodioInput<edm4eic::SimPulse> m_in_pulses{this};
+  PodioOutput<edm4eic::SimPulse> m_out_pulses{this};
+#else
   PodioInput<edm4hep::TimeSeries> m_in_pulses{this};
-
   PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
+#endif
 
   ParameterRef<double> m_minimum_separation{this, "minimumSeperation", config().minimum_separation};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
