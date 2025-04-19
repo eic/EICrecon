@@ -10,7 +10,6 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/TrackStateProxy.hpp>
 #include <Acts/EventData/Types.hpp>
-#include <sys/types.h>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
@@ -397,8 +396,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     }
   }
 
-  for (ssize_t track_index = static_cast<ssize_t>(acts_tracks.size()) - 1; track_index >= 0;
-       track_index--) {
+  for (std::size_t track_index = acts_tracks.size(); track_index--;) {
     if (not passed_tracks.count(track_index)) {
       // NOTE This does not remove track states corresponding to the
       // removed tracks. Doing so would require implementing some garbage
