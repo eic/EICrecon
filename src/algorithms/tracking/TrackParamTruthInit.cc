@@ -9,15 +9,13 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4hep/Vector3d.h>
-#include <edm4hep/Vector3f.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <spdlog/common.h>
-#include <stdlib.h>
 #include <Eigen/Core>
 #include <cmath>
+#include <cstdlib>
 #include <limits>
 #include <memory>
 #include <utility>
@@ -49,8 +47,8 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
 
     // require close to interaction vertex
     auto v = mcparticle.getVertex();
-    if (abs(v.x) * dd4hep::mm > m_cfg.maxVertexX || abs(v.y) * dd4hep::mm > m_cfg.maxVertexY ||
-        abs(v.z) * dd4hep::mm > m_cfg.maxVertexZ) {
+    if (std::abs(v.x) * dd4hep::mm > m_cfg.maxVertexX ||
+        std::abs(v.y) * dd4hep::mm > m_cfg.maxVertexY || abs(v.z) * dd4hep::mm > m_cfg.maxVertexZ) {
       m_log->trace("ignoring particle with vs = {} [mm]", v);
       continue;
     }
