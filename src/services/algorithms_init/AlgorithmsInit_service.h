@@ -78,7 +78,7 @@ public:
     [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
     serviceSvc.setInit<algorithms::RandomSvc>([this](auto&& r) {
       this->m_log->debug("Initializing algorithms::RandomSvc");
-      r.setProperty("seed", static_cast<size_t>(1));
+      r.setProperty("seed", static_cast<std::size_t>(1));
       r.init();
     });
 

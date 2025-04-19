@@ -10,7 +10,7 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <spdlog/common.h>
-#include <stddef.h>
+#include <cstddef>
 #include <gsl/pointers>
 #include <stdexcept>
 #include <unordered_map>
@@ -65,17 +65,18 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
 
   // fill `particle_pids`
   // -------------------------------------------------------------------------------
-  std::unordered_map<decltype(podio::ObjectID::index), std::vector<std::pair<size_t, size_t>>>
+  std::unordered_map<decltype(podio::ObjectID::index),
+                     std::vector<std::pair<std::size_t, std::size_t>>>
       particle_pids;
   m_log->trace("{:-<70}", "Build `particle_pids` indexing data structure ");
 
   // loop over list of PID collections
-  for (size_t idx_coll = 0; idx_coll < in_pid_collections_list.size(); idx_coll++) {
+  for (std::size_t idx_coll = 0; idx_coll < in_pid_collections_list.size(); idx_coll++) {
     const auto& in_pid_collection = in_pid_collections_list.at(idx_coll);
     m_log->trace("idx_col={}", idx_coll);
 
     // loop over this PID collection
-    for (size_t idx_pid = 0; idx_pid < in_pid_collection->size(); idx_pid++) {
+    for (std::size_t idx_pid = 0; idx_pid < in_pid_collection->size(); idx_pid++) {
       // make the index pair
       const auto& in_pid                   = in_pid_collection->at(idx_pid);
       auto& charged_particle_track_segment = in_pid.getChargedParticle();

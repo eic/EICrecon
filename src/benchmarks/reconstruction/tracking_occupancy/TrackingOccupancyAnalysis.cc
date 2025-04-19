@@ -6,8 +6,8 @@
 #include <TDirectory.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
-#include <stddef.h>
 #include <cmath>
+#include <cstddef>
 #include <exception>
 #include <map>
 #include <memory>
@@ -42,7 +42,7 @@ void TrackingOccupancyAnalysis::init(JApplication* app, TDirectory* plugin_tdir)
 
 void TrackingOccupancyAnalysis::process(const std::shared_ptr<const JEvent>& event) {
 
-  for (size_t name_index = 0; name_index < m_data_names.size(); name_index++) {
+  for (std::size_t name_index = 0; name_index < m_data_names.size(); name_index++) {
     std::string data_name = m_data_names[name_index];
     auto& count_hist      = m_hits_count_hists[name_index];
     auto& occup_hist      = m_hits_occup_hists[name_index];

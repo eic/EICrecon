@@ -15,7 +15,7 @@
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
-#include <stddef.h>
+#include <cstddef>
 #include <map>
 #include <string>
 #include <utility>
@@ -82,7 +82,7 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
   m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}", "[i]", "[px]", "[py]", "[pz]", "[P]",
                "[P*3]");
 
-  for (size_t i = 0; i < reco_particles->size(); i++) {
+  for (std::size_t i = 0; i < reco_particles->size(); i++) {
     auto particle = (*reco_particles)[i];
 
     double px = particle.getMomentum().x;
@@ -99,7 +99,7 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
   m_log->debug("MC particles N={}: ", mc_particles.size());
   m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}", "[i]", "status", "[PDG]", "[px]",
                "[py]", "[pz]", "[P]");
-  for (size_t i = 0; i < mc_particles.size(); i++) {
+  for (std::size_t i = 0; i < mc_particles.size(); i++) {
 
     const auto* particle = mc_particles[i];
 

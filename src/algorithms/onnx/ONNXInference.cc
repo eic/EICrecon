@@ -31,7 +31,7 @@ static bool check_shape_consistency(const std::vector<std::int64_t>& shape1,
   if (shape2.size() != shape1.size()) {
     return false;
   }
-  for (size_t ix = 0; ix < shape1.size(); ix++) {
+  for (std::size_t ix = 0; ix < shape1.size(); ix++) {
     if ((shape1[ix] != -1) && (shape2[ix] != -1) && (shape1[ix] != shape2[ix])) {
       return false;
     }
@@ -156,7 +156,7 @@ void ONNXInference::process(const ONNXInference::Input& input,
   }
 
   try {
-    for (size_t ix = 0; ix < onnx_values.size(); ix++) {
+    for (std::size_t ix = 0; ix < onnx_values.size(); ix++) {
       Ort::Value& onnx_tensor = onnx_values[ix];
       if (!onnx_tensor.IsTensor()) {
         error("The output \"{}\" is not a tensor. ONNXType {} is not yet supported. Skipping...",
@@ -166,19 +166,19 @@ void ONNXInference::process(const ONNXInference::Input& input,
       auto onnx_tensor_type             = onnx_tensor.GetTensorTypeAndShapeInfo();
       edm4eic::MutableTensor out_tensor = out_tensors[ix]->create();
       out_tensor.setElementType(static_cast<int32_t>(onnx_tensor_type.GetElementType()));
-      size_t num_values = 1;
+      std::size_t num_values = 1;
       for (int64_t dim_size : onnx_tensor_type.GetShape()) {
         out_tensor.addToShape(dim_size);
         num_values *= dim_size;
       }
       if (onnx_tensor_type.GetElementType() == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT) {
         auto* data = onnx_tensor.GetTensorMutableData<float>();
-        for (size_t value_ix = 0; value_ix < num_values; value_ix++) {
+        for (std::size_t value_ix = 0; value_ix < num_values; value_ix++) {
           out_tensor.addToFloatData(data[value_ix]);
         }
       } else if (onnx_tensor_type.GetElementType() == ONNX_TENSOR_ELEMENT_DATA_TYPE_INT64) {
         auto* data = onnx_tensor.GetTensorMutableData<int64_t>();
-        for (size_t value_ix = 0; value_ix < num_values; value_ix++) {
+        for (std::size_t value_ix = 0; value_ix < num_values; value_ix++) {
           out_tensor.addToInt64Data(data[value_ix]);
         }
       } else {

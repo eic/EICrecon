@@ -82,7 +82,7 @@ void CalorimeterHitReco::init() {
       debug("Find layer field {}, index = {}", m_cfg.layerField, sector_idx);
     }
     if (!m_cfg.maskPosFields.empty()) {
-      size_t tmp_mask = 0;
+      std::size_t tmp_mask = 0;
       for (auto& field : m_cfg.maskPosFields) {
         tmp_mask |= id_spec.field(field)->mask();
       }

@@ -9,6 +9,7 @@
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <string.h>
+#include <cstddef>
 #include <exception>
 #include <fstream>
 #include <map>
@@ -60,8 +61,8 @@ void DumpFlags_processor::Finish() {
   auto* pm = GetApplication()->GetJParameterManager();
 
   // Find longest strings in names and values
-  size_t max_name_len        = 0;
-  size_t max_default_val_len = 0;
+  std::size_t max_name_len        = 0;
+  std::size_t max_default_val_len = 0;
   for (auto [name, param] : pm->GetAllParameters()) {
     if (max_name_len < strlen(name.c_str())) {
       max_name_len = strlen(name.c_str());
@@ -81,7 +82,7 @@ void DumpFlags_processor::Finish() {
   std::string json_content = "[\n";
 
   // iterate over parameters
-  size_t line_num = 0;
+  std::size_t line_num = 0;
   for (auto [name, param] : pm->GetAllParameters()) {
     // form python content string
     std::string python_escaped_descr = param->GetDescription();

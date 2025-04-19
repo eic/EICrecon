@@ -224,8 +224,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     double charge = std::copysign(1., track_parameter.getQOverP());
 
     Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
-    for (size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
-      for (size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
+    for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
+      for (std::size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
         cov(a, b) = track_parameter.getCovariance()(i, j) * x * y;
         ++j;
       }

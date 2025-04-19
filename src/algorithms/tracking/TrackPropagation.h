@@ -17,7 +17,7 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <fmt/core.h>
 #include <spdlog/logger.h>
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -50,7 +50,7 @@ public:
     const auto [tracks, acts_trajectories, acts_tracks] = input;
     auto [propagated_tracks]                            = output;
 
-    for (size_t i = 0; auto traj : acts_trajectories) {
+    for (std::size_t i = 0; auto traj : acts_trajectories) {
       auto this_propagated_track = propagated_tracks->create();
       if (tracks.size() == acts_trajectories.size()) {
         m_log->trace("track segment connected to track {}", i);
