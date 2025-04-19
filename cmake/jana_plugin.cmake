@@ -248,7 +248,7 @@ endmacro()
 macro(plugin_add_dd4hep _name)
 
   if(NOT DD4hep_FOUND)
-    find_package(DD4hep REQUIRED)
+    find_package(DD4hep 1.26 REQUIRED)
   endif()
 
   plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
