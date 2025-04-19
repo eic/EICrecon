@@ -2,9 +2,12 @@
 // Copyright (C) 2022 - 2024, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <fmt/core.h>
 #include <algorithm>
@@ -13,10 +16,12 @@
 #include <memory>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include "ActsToTracks.h"
 #include "ActsToTracks_factory.h"
+#include "ActsTrajectoriesMerger_factory.h"
 #include "AmbiguitySolver_factory.h"
 #include "CKFTracking_factory.h"
 #include "IterativeVertexFinder_factory.h"
@@ -27,8 +32,10 @@
 #include "TrackSeeding_factory.h"
 #include "TrackerMeasurementFromHits_factory.h"
 #include "TracksToParticles_factory.h"
+#include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 //
@@ -39,7 +46,19 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "CentralTrackTruthSeeds", {"MCParticles"}, {"CentralTrackTruthSeeds"}, {}, app));
+      "TrackTruthSeeds", {"MCParticles"}, {"TrackTruthSeeds"}, {}, app));
+
+  std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
+                                                     {50 * dd4hep::mrad, 180 * dd4hep::deg}};
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>(
+      "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
+      {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
+      {
+          .function = RangeSplit<&edm4eic::TrackParameters::getTheta>(thetaRanges),
+      },
+      app));
+
+  // CENTRAL TRACKER
 
   // Possible collections from arches, brycecanyon and craterlake configurations
   std::vector<std::tuple<std::string, std::string, std::string, std::string>> possible_collections =
@@ -56,8 +75,7 @@ void InitPlugin(JApplication* app) {
        {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRawHits",
         "BackwardMPGDEndcapRawHitAssociations", "BackwardMPGDEndcapRecHits"},
        {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHitAssociations",
-        "ForwardMPGDEndcapRecHits"},
-       {"B0TrackerHits", "B0TrackerRawHits", "B0TrackerRawHitAssociations", "B0TrackerRecHits"}};
+        "ForwardMPGDEndcapRecHits"}};
 
   // Filter out collections that are not present in the current configuration
   std::vector<std::string> input_rec_collections;
@@ -90,7 +108,8 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralCKFTruthSeededTrajectories", {"CentralTrackTruthSeeds", "CentralTrackerMeasurements"},
+      "CentralCKFTruthSeededTrajectories",
+      {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements"},
       {
           "CentralCKFTruthSeededActsTrajectoriesUnfiltered",
           "CentralCKFTruthSeededActsTracksUnfiltered",
@@ -195,9 +214,27 @@ void InitPlugin(JApplication* app) {
                                                               },
                                                               app));
 
+  app->Add(new JOmniFactoryGeneratorT<ActsTrajectoriesMerger_factory>(
+      "CentralB0CKFActsTrajectories",
+      {
+          "CentralCKFActsTrajectories",
+          "B0TrackerCKFActsTrajectories",
+      },
+      {
+          "CentralAndB0TrackerCKFActsTrajectories",
+      },
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
-      "CentralTrackVertices", {"CentralCKFActsTrajectories", "ReconstructedChargedParticles"},
-      {"CentralTrackVertices"}, {}, app));
+      "CentralTrackVertices",
+      {
+          "CentralAndB0TrackerCKFActsTrajectories",
+          "ReconstructedChargedParticles",
+      },
+      {
+          "CentralTrackVertices",
+      },
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
       "CalorimeterTrackPropagator",
@@ -239,35 +276,165 @@ void InitPlugin(JApplication* app) {
       }},
       app));
 
-  std::vector<std::string> input_track_collections;
-  //Check size of input_rec_collections to determine if CentralCKFTracks should be added to the input_track_collections
+  // B0 TRACKER
+
+  app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
+      "B0TrackerMeasurements", {"B0TrackerRecHits"}, {"B0TrackerMeasurements"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
+      "B0TrackerCKFTruthSeededTrajectories", {"B0TrackerTruthSeeds", "B0TrackerMeasurements"},
+      {
+          "B0TrackerCKFTruthSeededActsTrajectoriesUnfiltered",
+          "B0TrackerCKFTruthSeededActsTracksUnfiltered",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+      "B0TrackerCKFTruthSeededTracksUnfiltered",
+      {
+          "B0TrackerMeasurements",
+          "B0TrackerCKFTruthSeededActsTrajectoriesUnfiltered",
+          "B0TrackerRawHitAssociations",
+      },
+      {
+          "B0TrackerCKFTruthSeededTrajectoriesUnfiltered",
+          "B0TrackerCKFTruthSeededTrackParametersUnfiltered",
+          "B0TrackerCKFTruthSeededTracksUnfiltered",
+          "B0TrackerCKFTruthSeededTrackUnfilteredAssociations",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
+      "B0TrackerTruthSeededAmbiguityResolutionSolver",
+      {"B0TrackerCKFTruthSeededActsTracksUnfiltered", "B0TrackerMeasurements"},
+      {
+          "B0TrackerCKFTruthSeededActsTracks",
+          "B0TrackerCKFTruthSeededActsTrajectories",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+      "B0TrackerCKFTruthSeededTracks",
+      {
+          "B0TrackerMeasurements",
+          "B0TrackerCKFTruthSeededActsTrajectories",
+          "B0TrackerRawHitAssociations",
+      },
+      {
+          "B0TrackerCKFTruthSeededTrajectories",
+          "B0TrackerCKFTruthSeededTrackParameters",
+          "B0TrackerCKFTruthSeededTracks",
+          "B0TrackerCKFTruthSeededTrackAssociations",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
+      "B0TrackerTrackSeedingResults", {"B0TrackerRecHits"}, {"B0TrackerSeedingResults"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
+      "B0TrackerCKFTrajectories", {"B0TrackerSeedingResults", "B0TrackerMeasurements"},
+      {
+          "B0TrackerCKFActsTrajectoriesUnfiltered",
+          "B0TrackerCKFActsTracksUnfiltered",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+      "B0TrackerCKFTracksUnfiltered",
+      {
+          "B0TrackerMeasurements",
+          "B0TrackerCKFActsTrajectoriesUnfiltered",
+          "B0TrackerRawHitAssociations",
+      },
+      {
+          "B0TrackerCKFTrajectoriesUnfiltered",
+          "B0TrackerCKFTrackParametersUnfiltered",
+          "B0TrackerCKFTracksUnfiltered",
+          "B0TrackerCKFTrackUnfilteredAssociations",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
+      "B0TrackerAmbiguityResolutionSolver",
+      {"B0TrackerCKFActsTracksUnfiltered", "B0TrackerMeasurements"},
+      {
+          "B0TrackerCKFActsTracks",
+          "B0TrackerCKFActsTrajectories",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("B0TrackerCKFTracks",
+                                                            {
+                                                                "B0TrackerMeasurements",
+                                                                "B0TrackerCKFActsTrajectories",
+                                                                "B0TrackerRawHitAssociations",
+                                                            },
+                                                            {
+                                                                "B0TrackerCKFTrajectories",
+                                                                "B0TrackerCKFTrackParameters",
+                                                                "B0TrackerCKFTracks",
+                                                                "B0TrackerCKFTrackAssociations",
+                                                            },
+                                                            app));
+
+  // COMBINED TRACKS
+
+  std::vector<std::string> input_track_collections, input_track_assoc_collections;
+  std::vector<std::string> input_truth_track_collections, input_truth_track_assoc_collections;
+
+  // Check size of input_rec_collections to determine if CentralCKFTracks should be added to the input_track_collections
   if (input_rec_collections.size() > 0) {
     input_track_collections.push_back("CentralCKFTracks");
+    input_track_assoc_collections.push_back("CentralCKFTrackAssociations");
+    input_truth_track_collections.push_back("CentralCKFTruthSeededTracks");
+    input_truth_track_assoc_collections.push_back("CentralCKFTruthSeededTrackAssociations");
   }
-  //Check if the TaggerTracker readout is present in the current configuration
-  if (readouts.find("TaggerTrackerHits") != readouts.end()) {
-    input_track_collections.push_back("TaggerTrackerTracks");
+  // Check if the B0Tracker readout is present in the current configuration
+  if (readouts.find("B0TrackerHits") != readouts.end()) {
+    input_track_collections.push_back("B0TrackerCKFTracks");
+    input_track_assoc_collections.push_back("B0TrackerCKFTrackAssociations");
+    input_truth_track_collections.push_back("B0TrackerCKFTruthSeededTracks");
+    input_truth_track_assoc_collections.push_back("B0TrackerCKFTruthSeededTrackAssociations");
   }
 
-  // Add central and other tracks
+  // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
-      "CombinedTracks", input_track_collections, {"CombinedTracks"}, app));
+      "CentralAndB0CKFTruthSeededTracks", input_truth_track_collections,
+      {"CentralAndB0CKFTruthSeededTracks"}, app));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
+      "CentralAndB0CKFTruthSeededTrackAssociations", input_truth_track_assoc_collections,
+      {"CentralAndB0CKFTruthSeededTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedTruthSeededParticlesWithAssociations",
       {
-          "CentralCKFTruthSeededTracks",
-          "CentralCKFTruthSeededTrackAssociations",
+          "CentralAndB0CKFTruthSeededTracks",
+          "CentralAndB0CKFTruthSeededTrackAssociations",
       },
       {"ReconstructedTruthSeededChargedWithoutPIDParticles",
        "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations"},
       {}, app));
 
+  // Check if the TaggerTracker readout is present in the current configuration
+  if (readouts.find("TaggerTrackerHits") != readouts.end()) {
+    input_track_collections.push_back("TaggerTrackerTracks");
+    // TaggerTracker has no corresponding associations
+  }
+
+  // Add central, B0, and tagger tracks
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
+      "CombinedTracks", input_track_collections, {"CombinedTracks"}, app));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
+      "CombinedTrackAssociations", input_track_assoc_collections, {"CombinedTrackAssociations"},
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedParticlesWithAssociations",
       {
           "CombinedTracks",
-          "CentralCKFTrackAssociations",
+          "CombinedTrackAssociations",
       },
       {"ReconstructedChargedWithoutPIDParticles",
        "ReconstructedChargedWithoutPIDParticleAssociations"},
