@@ -5,6 +5,7 @@
 
 #include <JANA/JApplication.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <fmt/core.h>
 #include <map>
 #include <memory>
 #include <string>

@@ -25,7 +25,7 @@ private:
   PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
 #endif
 
-  ParameterRef<size_t> m_poles{this, "poles", config().poles};
+  ParameterRef<std::size_t> m_poles{this, "poles", config().poles};
   ParameterRef<double> m_variance{this, "variance", config().variance};
   ParameterRef<double> m_alpha{this, "alpha", config().alpha};
   ParameterRef<double> m_scale{this, "scale", config().scale};

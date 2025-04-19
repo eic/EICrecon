@@ -25,7 +25,6 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <stddef.h>
 #include <stdint.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -59,7 +58,7 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
   m_geoSvc = geo_svc;
   m_log    = logger;
 
-  std::map<uint32_t, size_t> system_id_layers;
+  std::map<uint32_t, std::size_t> system_id_layers;
 
   multilambda _toDouble = {
       [](const std::string& v) { return dd4hep::_toDouble(v); },
@@ -132,7 +131,7 @@ void TrackPropagation::propagateToSurfaceList(
   m_log->trace("number of acts_tracks: {}", acts_tracks.size());
 
   // loop over input trajectories
-  for (size_t i = 0; const auto& traj : acts_trajectories) {
+  for (std::size_t i = 0; const auto& traj : acts_trajectories) {
 
     // check if this trajectory can be propagated to any filter surface
     bool trajectory_reaches_filter_surface{false};

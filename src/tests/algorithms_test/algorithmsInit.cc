@@ -6,16 +6,16 @@
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
 #include <algorithms/geo.h>
+#include <algorithms/interfaces/ParticleSvc.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
-#include <algorithms/interfaces/ParticleSvc.h>
 #include <catch2/generators/catch_generators_random.hpp>
 #include <catch2/interfaces/catch_interfaces_reporter.hpp>
 #include <catch2/reporters/catch_reporter_event_listener.hpp>
 #include <catch2/reporters/catch_reporter_registrars.hpp>
 #include <services/evaluator/EvaluatorSvc.h>
 #include <services/pid_lut/PIDLookupTableSvc.h>
-#include <stddef.h>
+#include <cstddef>
 #include <cstdint>
 #include <memory>
 #include <string>
@@ -65,7 +65,7 @@ public:
     [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
     auto seed                        = Catch::Generators::Detail::getSeed();
     serviceSvc.setInit<algorithms::RandomSvc>([seed](auto&& r) {
-      r.setProperty("seed", static_cast<size_t>(seed));
+      r.setProperty("seed", static_cast<std::size_t>(seed));
       r.init();
     });
 

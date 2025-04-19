@@ -12,7 +12,7 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4hep/Vector3f.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 #include <cmath>
 #include <gsl/pointers> // for not_null
@@ -104,7 +104,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       double tol = 0.1; // in units of side lengths.
 
       //only look at hits nearby within two layers of the current layer
-      int dz = abs(hit.getLayer() - other_hit.getLayer());
+      int dz = std::abs(hit.getLayer() - other_hit.getLayer());
       if (dz > 2 || dz == 0)
         continue;
       if (other_hit.getEnergy() < Emin || other_hit.getTime() > tmax)
@@ -112,13 +112,14 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       //difference in transverse position (in units of side lengths)
       double dx = (other_hit.getLocal().x - hit.getLocal().x) / sl;
       double dy = (other_hit.getLocal().y - hit.getLocal().y) / sl;
-      if (abs(dx) > 2 || abs(dy) > sqrt(3))
+      if (std::abs(dx) > 2 || std::abs(dy) > sqrt(3))
         continue;
 
       //loop over locations of the neighboring cells
       //and check if the jth hit matches this location
       for (int k = 0; k < NEIGHBORS; k++) {
-        if (abs(dx - neighbor_offsets_x[k]) < tol && abs(dy - neighbor_offsets_y[k]) < tol) {
+        if (std::abs(dx - neighbor_offsets_x[k]) < tol &&
+            std::abs(dy - neighbor_offsets_y[k]) < tol) {
           Eneighbors[k] += other_hit.getEnergy();
           break;
         }

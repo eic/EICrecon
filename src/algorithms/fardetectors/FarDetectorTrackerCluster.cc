@@ -15,7 +15,7 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
-#include <sys/types.h>
+#include <cstddef>
 #include <gsl/pointers>
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
@@ -55,7 +55,7 @@ void FarDetectorTrackerCluster::process(const FarDetectorTrackerCluster::Input& 
 
   // Loop over input and output collections - Any collection should only contain hits from a single
   // surface
-  for (size_t i = 0; i < inputHitsCollections.size(); i++) {
+  for (std::size_t i = 0; i < inputHitsCollections.size(); i++) {
     auto inputHits = inputHitsCollections[i];
     if (inputHits->size() == 0)
       continue;

@@ -21,7 +21,6 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <Eigen/Core>
 #include <cstddef>
-#include <functional>
 #include <utility>
 
 #include "Acts/Utilities/Logger.hpp"

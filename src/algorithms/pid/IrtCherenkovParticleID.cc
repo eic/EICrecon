@@ -146,7 +146,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
     ++in_charged_particle_size_distribution[in_charged_particle->size()];
   }
   if (in_charged_particle_size_distribution.size() != 1) {
-    std::vector<size_t> in_charged_particle_sizes;
+    std::vector<std::size_t> in_charged_particle_sizes;
     std::transform(
         in_charged_particles.begin(), in_charged_particles.end(),
         std::back_inserter(in_charged_particle_sizes),
