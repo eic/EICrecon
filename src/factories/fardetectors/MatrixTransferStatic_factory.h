@@ -49,6 +49,8 @@ private:
 
   ParameterRef<std::string> readout{this, "readout", config().readout};
 
+  ParameterRef<bool> requireBeamProton{this, "requireBeamProton", config().requireBeamProton};
+
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:

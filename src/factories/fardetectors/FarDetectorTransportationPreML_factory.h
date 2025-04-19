@@ -26,6 +26,9 @@ private:
   PodioOutput<edm4eic::Tensor> m_feature_tensor_output{this};
   PodioOutput<edm4eic::Tensor> m_target_tensor_output{this};
 
+  ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron",
+                                           config().requireBeamElectron};
+
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
