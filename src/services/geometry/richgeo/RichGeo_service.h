@@ -10,6 +10,7 @@
 #include <JANA/JServiceFwd.h>
 #include <JANA/Services/JServiceLocator.h>
 #include <spdlog/logger.h>
+#include <map>
 #include <memory>
 #include <mutex>
 #include <string>
@@ -29,15 +30,18 @@ public:
   // return pointers to geometry bindings; initializes the bindings upon the first time called
   virtual richgeo::IrtGeo* GetIrtGeo(std::string detector_name);
   virtual richgeo::ActsGeo* GetActsGeo(std::string detector_name);
-  virtual std::shared_ptr<richgeo::ReadoutGeo> GetReadoutGeo(std::string detector_name);
+  virtual std::shared_ptr<richgeo::ReadoutGeo> GetReadoutGeo(std::string detector_name,
+                                                             std::string readout_class);
 
 private:
   RichGeo_service() = default;
   void acquire_services(JServiceLocator*) override;
 
-  std::once_flag m_init_irt;
-  std::once_flag m_init_acts;
-  std::once_flag m_init_readout;
+  std::mutex m_init_lock;
+  std::map<std::string, std::once_flag> m_init_irt;
+  std::map<std::string, std::once_flag> m_init_acts;
+  std::map<std::string, std::once_flag> m_init_readout;
+
   JApplication* m_app                                     = nullptr;
   const dd4hep::Detector* m_dd4hepGeo                     = nullptr;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
