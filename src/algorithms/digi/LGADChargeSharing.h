@@ -7,6 +7,7 @@
 
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
+#include <DD4hep/VolumeManager.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
@@ -43,7 +44,8 @@ private:
                                  std::unordered_set<dd4hep::rec::CellID>& dp) const;
   double _integralGaus(double mean, double sd, double low_lim, double up_lim) const;
   dd4hep::Position _cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
-  dd4hep::Position _global2Local(const dd4hep::Position& pos) const;
+  dd4hep::Position _global2Local(const dd4hep::VolumeManagerContext* context,
+                                 const dd4hep::Position& pos) const;
 
   const dd4hep::DDSegmentation::BitFieldCoder* m_decoder  = nullptr;
   const dd4hep::Detector* m_detector                      = nullptr;

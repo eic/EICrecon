@@ -40,7 +40,7 @@ env:
   detector-version: ${{ inputs.detector-version || 'main' }}
   clang-tidy-iwyu-CC: clang
   clang-tidy-iwyu-CMAKE_BUILD_TYPE: Debug
-  JANA_OPTIONS: "-Pjana:ticker_interval=60000 -Pjana:extended_report=1 -Pjana:warmup_timeout=0 -Pjana:timeout=0"
+  JANA_OPTIONS: "-Pnthreads=2 -Pjana:ticker_interval=60000 -Pjana:extended_report=1 -Pjana:warmup_timeout=0 -Pjana:timeout=0"
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0:intercept_tls_get_addr=0
   LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
   UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1:silence_unsigned_overflow=1:report_error_type=1
@@ -68,6 +68,9 @@ jobs:
       matrix:
         CC: [gcc, clang]
         CMAKE_BUILD_TYPE: [Release, Debug]
+        USE_ASAN: [ON]
+        USE_TSAN: [OFF]
+        USE_UBSAN: [ON]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
         include:
           # all gcc jobs use g++
@@ -86,6 +89,13 @@ jobs:
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: nightly
+          # thread sanitizer build
+          - CC: clang
+            CXX: clang++
+            CMAKE_BUILD_TYPE: Release
+            release: nightly
+            USE_ASAN: OFF
+            USE_TSAN: ON
           - CC: clang
             CXX: clang++
             CMAKE_BUILD_TYPE: Release
@@ -106,12 +116,13 @@ jobs:
       uses: actions/cache@v4
       with:
         path: .ccache
-        key: ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.head_ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        key: ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.head_ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.ref_name }}-
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.head_ref }}-
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.base_ref }}-
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.event.merge_group.base_ref }}-
+             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.ref_name }}-
+             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.head_ref }}-
+             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.base_ref }}-
+             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.event.merge_group.base_ref }}-
+             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-
              ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-
              ccache-${{ matrix.CC }}-${{ matrix.release }}-
              ccache-${{ matrix.CC }}-
@@ -129,7 +140,7 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
-          CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
+          CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=${{matrix.USE_ASAN}} -DUSE_TSAN=${{matrix.USE_TSAN}} -DUSE_UBSAN=${{matrix.USE_UBSAN}}
           cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target install
           ccache --show-stats --verbose
     - name: Check dynamic library loader paths
@@ -153,10 +164,18 @@ jobs:
           ctest --test-dir build -V
     - name: Compress install directory
       run: tar -caf install.tar.zst install/
-    - name: Upload install directory
+    - name: Upload install directory (ASAN)
+      if: ${{ matrix.USE_ASAN == 'ON' && matrix.USE_TSAN == 'OFF' }}
       uses: actions/upload-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
+        name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-ASAN
+        path: install.tar.zst
+        if-no-files-found: error
+    - name: Upload install directory (TSAN)
+      if: ${{ matrix.USE_ASAN == 'OFF' && matrix.USE_TSAN == 'ON' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-TSAN
         path: install.tar.zst
         if-no-files-found: error
     # Only compress and upload build directory if we are going to use it later
@@ -476,7 +495,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - name: Download simulation input
@@ -536,7 +555,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -579,7 +598,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -628,7 +647,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -669,7 +688,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -779,7 +798,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -837,22 +856,27 @@ jobs:
           beam: 5x41
           minq2: 0
           detector_config: craterlake_5x41
+          sanitizer: ASAN
         - CC: clang
           beam: 10x100
           minq2: 0
           detector_config: craterlake
+          sanitizer: TSAN
         - CC: clang
           beam: 18x275
           minq2: 0
           detector_config: craterlake_18x275
+          sanitizer: TSAN
         - CC: clang
           beam: 10x100
           minq2: 1000
           detector_config: craterlake_tracking_only
+          sanitizer: ASAN
         - CC: clang
           beam: 18x275
           minq2: 1000
           detector_config: craterlake_18x275
+          sanitizer: TSAN
     steps:
     - name: Checkout .github
       uses: actions/checkout@v4
@@ -861,7 +885,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-${{ matrix.sanitizer }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
