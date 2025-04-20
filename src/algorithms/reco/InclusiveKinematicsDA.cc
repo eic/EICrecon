@@ -55,6 +55,10 @@ void InclusiveKinematicsDA::process(const InclusiveKinematicsDA::Input& input,
   auto boost = determine_boost(ei, pi);
 
   // Get electron angle
+  if (escat->size() == 0) {
+    debug("No scattered electron found");
+    return;
+  }
   auto kf = escat->at(0);
   PxPyPzEVector e_lab(kf.getMomentum().x, kf.getMomentum().y, kf.getMomentum().z, kf.getEnergy());
   PxPyPzEVector e_boosted = apply_boost(boost, e_lab);
