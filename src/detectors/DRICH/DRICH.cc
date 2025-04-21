@@ -74,10 +74,10 @@ void InitPlugin(JApplication* app) {
   TrackPropagationConfig gas_track_cfg;
 
   // get RICH geo service
-  auto richGeoSvc = app->GetService<RichGeo_service>();
-  auto dd4hepGeo  = richGeoSvc->GetDD4hepGeo();
+  auto richGeoSvc       = app->GetService<RichGeo_service>();
+  const auto* dd4hepGeo = richGeoSvc->GetDD4hepGeo();
   if (dd4hepGeo->world().children().contains("DRICH")) {
-    auto actsGeo                 = richGeoSvc->GetActsGeo("DRICH");
+    const auto* actsGeo          = richGeoSvc->GetActsGeo("DRICH");
     auto aerogel_tracking_planes = actsGeo->TrackingPlanes(richgeo::kAerogel, 5);
     auto aerogel_track_point_cut = actsGeo->TrackPointCut(richgeo::kAerogel);
     auto gas_tracking_planes     = actsGeo->TrackingPlanes(richgeo::kGas, 10);

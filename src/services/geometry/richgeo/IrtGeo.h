@@ -32,7 +32,7 @@ public:
   virtual ~IrtGeo();
 
   // access the full IRT geometry
-  CherenkovDetectorCollection* GetIrtDetectorCollection() { return m_irtDetectorCollection; }
+  CherenkovDetectorCollection* GetIrtDetectorCollection() const { return m_irtDetectorCollection; }
 
 protected:
   // protected methods
@@ -42,7 +42,7 @@ protected:
   void SetRefractiveIndexTable(); // fill table of refractive indices
   // read `VariantParameters` for a vector
   template <class VecT>
-  VecT GetVectorFromVariantParameters(dd4hep::rec::VariantParameters* pars, std::string key) {
+  VecT GetVectorFromVariantParameters(dd4hep::rec::VariantParameters* pars, std::string key) const {
     return VecT(pars->get<double>(key + "_x"), pars->get<double>(key + "_y"),
                 pars->get<double>(key + "_z"));
   }

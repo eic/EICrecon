@@ -57,7 +57,7 @@ richgeo::IrtGeo* RichGeo_service::GetIrtGeo(std::string detector_name) {
 }
 
 // ActsGeo -----------------------------------------------------------
-richgeo::ActsGeo* RichGeo_service::GetActsGeo(std::string detector_name) {
+const richgeo::ActsGeo* RichGeo_service::GetActsGeo(std::string detector_name) {
   // initialize, if not yet initialized
   try {
     m_log->debug("Call RichGeo_service::GetActsGeo initializer");
