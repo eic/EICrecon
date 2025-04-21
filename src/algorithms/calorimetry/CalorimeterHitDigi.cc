@@ -162,7 +162,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     double max_edep  = 0;
     auto leading_hit = (*simhits)[ixs[0]];
     // sum energy, take time from the most energetic hit
-    for (size_t i = 0; i < ixs.size(); ++i) {
+    for (std::size_t i = 0; i < ixs.size(); ++i) {
       auto hit = (*simhits)[ixs[i]];
 
       double timeC = std::numeric_limits<double>::max();

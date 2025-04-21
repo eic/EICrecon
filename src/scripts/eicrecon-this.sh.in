@@ -43,67 +43,6 @@ pathadd() {
     fi
 }
 
-#----------------- JANA2
-if [[ -f @JANA_DIR@/../../../bin/jana-this.sh ]] ; then
-    unset ROOTSYS  # prevent ROOT from removing /usr/local/bin from PATH
-    export JANA_ROOT=$( readlink -f @JANA_DIR@/../../.. )
-    source @JANA_DIR@/../../../bin/jana-this.sh
-fi
-
-#----------------- ROOT
-if [[ -f @ROOT_BINDIR@/thisroot.sh ]] ; then
-    unset ROOTSYS  # prevent ROOT from removing /usr/local/bin from PATH
-    # workaround for https://github.com/root-project/root/issues/14085
-    # thisroot.sh does not recognize bash when running in qemu (like eic-shell on Silicon)
-    pushd @ROOT_BINDIR@ >/dev/null
-    source thisroot.sh
-    popd >/dev/null
-fi
-
-#----------------- PODIO
-PODIO=$( readlink -f @podio_LIBRARY_DIR@/.. )
-if [[ -d ${PODIO} ]] ; then
-    export podio_ROOT=${PODIO}
-    if [[ -f ${PODIO}/../env.sh ]] ; then
-        source ${PODIO}/../env.sh
-    fi
-fi
-
-#----------------- EDM4hep
-EDM4HEP=$( readlink -f @EDM4HEP_DIR@/../../.. )
-if [[ -d ${EDM4HEP} ]] ; then
-    export EDM4HEP_ROOT=${EDM4HEP}
-    EDM4HEP_LIBDIR=${EDM4HEP_ROOT}/lib64
-    pathadd LD_LIBRARY_PATH ${EDM4HEP_LIBDIR}
-fi
-
-#----------------- EDM4EIC
-EDM4EIC=$( readlink -f @EDM4EIC_DIR@/../.. )
-if [[ -d ${EDM4EIC} ]] ; then
-    export EDM4EIC_ROOT=${EDM4EIC}
-    EDM4EIC_LIBDIR=$( readlink -f @EDM4EIC_DIR@/.. )
-    pathadd LD_LIBRARY_PATH ${EDM4EIC_LIBDIR}
-fi
-
-#----------------- DD4hep
-if [[ -f @DD4hep_DIR@/../bin/thisdd4hep.sh ]] ; then
-    source @DD4hep_DIR@/../bin/thisdd4hep.sh
-    export DD4HEP_ROOT=@DD4hep_DIR@/..
-fi
-
-#----------------- fmt
-if [[ -d @fmt_DIR@/../../.. ]] ; then
-    export fmt_ROOT=@fmt_DIR@/../../..
-    fmt_LIBDIR=$( readlink -f @fmt_DIR@/../.. )
-    pathadd LD_LIBRARY_PATH ${fmt_LIBDIR}
-fi
-
-#----------------- IRT
-if [[ -d $( readlink -f @IRT_LIBRARY_DIR@ ) ]] ; then
-    pathadd LD_LIBRARY_PATH @IRT_LIBRARY_DIR@
-fi
-
-#----------------- EICrecon
 # Add bin to PATH if not already there
 pathadd PATH ${SCRIPT_DIR}
 

@@ -175,7 +175,7 @@ public:
       idx = indices.erase(idx); // takes role of idx++
     }
     debug("found {} potential clusters (groups of hits)", groups.size());
-    for (size_t i = 0; i < groups.size(); ++i) {
+    for (std::size_t i = 0; i < groups.size(); ++i) {
       debug("group {}: {} hits", i, groups[i].size());
     }
 

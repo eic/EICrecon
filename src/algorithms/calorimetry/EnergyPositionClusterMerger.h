@@ -74,7 +74,7 @@ public:
       // check if we find a good match
       int best_match    = -1;
       double best_delta = std::numeric_limits<double>::max();
-      for (size_t ie = 0; ie < energy_clus->size(); ++ie) {
+      for (std::size_t ie = 0; ie < energy_clus->size(); ++ie) {
         if (consumed[ie]) {
           continue;
         }

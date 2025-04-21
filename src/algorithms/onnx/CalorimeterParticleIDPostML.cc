@@ -58,7 +58,7 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                          prediction_tensor.getElementType()));
   }
 
-  for (size_t cluster_ix = 0; cluster_ix < in_clusters->size(); cluster_ix++) {
+  for (std::size_t cluster_ix = 0; cluster_ix < in_clusters->size(); cluster_ix++) {
     edm4eic::Cluster in_cluster         = (*in_clusters)[cluster_ix];
     edm4eic::MutableCluster out_cluster = in_cluster.clone();
     out_clusters->push_back(out_cluster);

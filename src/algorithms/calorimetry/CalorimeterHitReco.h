@@ -17,8 +17,8 @@
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
-#include <stddef.h>
 #include <stdint.h>
+#include <cstddef>
 #include <functional>
 #include <gsl/pointers>
 #include <string>
@@ -59,12 +59,12 @@ private:
   mutable uint32_t NcellIDerrors = 0;
   uint32_t MaxCellIDerrors       = 100;
 
-  size_t sector_idx{0}, layer_idx{0};
+  std::size_t sector_idx{0}, layer_idx{0};
 
   mutable bool warned_unsupported_segmentation = false;
 
   dd4hep::DetElement m_local;
-  size_t local_mask = ~static_cast<size_t>(0), gpos_mask = static_cast<size_t>(0);
+  std::size_t local_mask = ~static_cast<std::size_t>(0), gpos_mask = static_cast<std::size_t>(0);
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};

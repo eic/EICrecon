@@ -11,7 +11,7 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <spdlog/common.h>
-#include <stddef.h>
+#include <cstddef>
 #include <iterator>
 #include <utility>
 #include <vector>
@@ -56,7 +56,7 @@ TrackerHitReconstruction::process(const edm4eic::RawTrackerHitCollection& raw_hi
       m_log->trace("position x={:.2f} y={:.2f} z={:.2f} [mm]: ", pos.x() / mm, pos.y() / mm,
                    pos.z() / mm);
       m_log->trace("dimension size: {}", dim.size());
-      for (size_t j = 0; j < std::size(dim); ++j) {
+      for (std::size_t j = 0; j < std::size(dim); ++j) {
         m_log->trace(" - dimension {:<5} size: {:.2}", j, dim[j]);
       }
     }
