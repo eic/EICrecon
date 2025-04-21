@@ -119,112 +119,86 @@ void InitPlugin(JApplication* app) {
   merge_cfg.mergeMode = MergeParticleIDConfig::kAddWeights;
 
   // wiring between factories and data ///////////////////////////////////////
-  // clang-format off
 
-    // digitization
-    app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-          "DRICHRawHits",
-          {"DRICHHits"},
-          {"DRICHRawHits", "DRICHRawHitsAssociations"},
-          digi_cfg,
-          app
-          ));
+  // digitization
+  app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
+      "DRICHRawHits", {"DRICHHits"}, {"DRICHRawHits", "DRICHRawHitsAssociations"}, digi_cfg, app));
 
-    // charged particle tracks
-    app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
-          "DRICHAerogelTracks",
-          {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
-          {"DRICHAerogelTracks"},
-          aerogel_track_cfg,
-          app
-          ));
-    app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
-          "DRICHGasTracks",
-          {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
-          {"DRICHGasTracks"},
-          gas_track_cfg,
-          app
-          ));
+  // charged particle tracks
+  app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
+      "DRICHAerogelTracks",
+      {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+      {"DRICHAerogelTracks"}, aerogel_track_cfg, app));
+  app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
+      "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+      {"DRICHGasTracks"}, gas_track_cfg, app));
 
-    app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>(
-          "DRICHMergedTracks",
-          {"DRICHAerogelTracks", "DRICHGasTracks"},
-          {"DRICHMergedTracks"},
-          {},
-          app
-          ));
+  app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>("DRICHMergedTracks",
+                                                          {"DRICHAerogelTracks", "DRICHGasTracks"},
+                                                          {"DRICHMergedTracks"}, {}, app));
 
-    // PID algorithm
-    app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
-          "DRICHIrtCherenkovParticleID",
-          {
-            "DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks",
-            "DRICHRawHits",
-            "DRICHRawHitsAssociations"
-          },
-          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
-          irt_cfg,
-          app
-          ));
+  // PID algorithm
+  app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
+      "DRICHIrtCherenkovParticleID",
+      {"DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks", "DRICHRawHits",
+       "DRICHRawHitsAssociations"},
+      {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg, app));
 
-    // merge aerogel and gas PID results
-    app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
-          "DRICHMergedIrtCherenkovParticleID",
-          {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
-          {"DRICHMergedIrtCherenkovParticleID"},
-          merge_cfg,
-          app
-          ));
+  // merge aerogel and gas PID results
+  app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
+      "DRICHMergedIrtCherenkovParticleID",
+      {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+      {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg, app));
 
-    int ForwardRICH_ID = 0;
-    try {
-        auto detector = app->GetService<DD4hep_service>()->detector();
-        ForwardRICH_ID = detector->constant<int>("ForwardRICH_ID");
-    } catch(const std::runtime_error&) {
-        // Nothing
-    }
-    PIDLookupConfig pid_cfg {
-      .filename="calibrations/drich.lut",
-      .system=ForwardRICH_ID,
-      .pdg_values={211, 321, 2212},
-      .charge_values={1},
-      .momentum_edges={0.25, 0.75, 1.25, 1.75, 2.25, 2.75, 3.25, 3.75, 4.25, 4.75, 5.25, 5.75, 6.25, 6.75, 7.25, 7.75, 8.25, 8.75, 9.25, 9.75, 10.25, 10.75, 11.25, 11.75, 12.25, 12.75, 13.25, 13.75, 14.25, 14.75, 15.25, 15.75, 16.25, 16.75, 17.25, 17.75, 18.25, 18.75, 19.25, 19.75, 20.50, 21.50, 22.50, 23.50, 24.50, 25.50, 26.50, 27.50, 28.50, 29.50, 30.50},
-      .polar_edges={0.060, 0.164, 0.269, 0.439},
-      .azimuthal_binning={0., 2 * M_PI, 2 * M_PI}, // lower, upper, step
-      .polar_bin_centers_in_lut=true,
-      .use_radians=true,
-      .missing_electron_prob=true,
-    };
+  int ForwardRICH_ID = 0;
+  try {
+    auto detector  = app->GetService<DD4hep_service>()->detector();
+    ForwardRICH_ID = detector->constant<int>("ForwardRICH_ID");
+  } catch (const std::runtime_error&) {
+    // Nothing
+  }
+  PIDLookupConfig pid_cfg{
+      .filename                 = "calibrations/drich.lut",
+      .system                   = ForwardRICH_ID,
+      .pdg_values               = {211, 321, 2212},
+      .charge_values            = {1},
+      .momentum_edges           = {0.25,  0.75,  1.25,  1.75,  2.25,  2.75,  3.25,  3.75,  4.25,
+                                   4.75,  5.25,  5.75,  6.25,  6.75,  7.25,  7.75,  8.25,  8.75,
+                                   9.25,  9.75,  10.25, 10.75, 11.25, 11.75, 12.25, 12.75, 13.25,
+                                   13.75, 14.25, 14.75, 15.25, 15.75, 16.25, 16.75, 17.25, 17.75,
+                                   18.25, 18.75, 19.25, 19.75, 20.50, 21.50, 22.50, 23.50, 24.50,
+                                   25.50, 26.50, 27.50, 28.50, 29.50, 30.50},
+      .polar_edges              = {0.060, 0.164, 0.269, 0.439},
+      .azimuthal_binning        = {0., 2 * M_PI, 2 * M_PI}, // lower, upper, step
+      .polar_bin_centers_in_lut = true,
+      .use_radians              = true,
+      .missing_electron_prob    = true,
+  };
 
-    app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
-          "DRICHTruthSeededLUTPID",
-          {
+  app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
+      "DRICHTruthSeededLUTPID",
+      {
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
-          },
-          {
+      },
+      {
           "ReconstructedTruthSeededChargedParticles",
           "ReconstructedTruthSeededChargedParticleAssociations",
           "DRICHTruthSeededParticleIDs",
-          },
-          pid_cfg,
-          app
-          ));
+      },
+      pid_cfg, app));
 
-    app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
-          "DRICHLUTPID",
-          {
+  app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
+      "DRICHLUTPID",
+      {
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
-          },
-          {
+      },
+      {
           "ReconstructedChargedParticles",
           "ReconstructedChargedParticleAssociations",
           "DRICHParticleIDs",
-          },
-          pid_cfg,
-          app
-          ));
-  // clang-format on
+      },
+      pid_cfg, app));
 }
 }
