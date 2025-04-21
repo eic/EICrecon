@@ -165,7 +165,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "ForwardRomanPotRecParticles",
     "ForwardOffMRecParticles",
 
+    "ForwardRomanPotRawHits",
     "ForwardRomanPotRawHitAssociations",
+    "ForwardOffMTrackerRawHits",
     "ForwardOffMTrackerRawHitAssociations",
 
     // Reconstructed data
