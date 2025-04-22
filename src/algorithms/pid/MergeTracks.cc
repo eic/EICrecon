@@ -31,7 +31,7 @@ void MergeTracks::process(const MergeTracks::Input& input,
     ++in_track_collection_size_distribution[in_track_collection->size()];
   }
   if (in_track_collection_size_distribution.size() != 1) {
-    std::vector<size_t> in_track_collection_sizes;
+    std::vector<std::size_t> in_track_collection_sizes;
     std::transform(in_track_collections.begin(), in_track_collections.end(),
                    std::back_inserter(in_track_collection_sizes),
                    [](const auto& in_track_collection) { return in_track_collection->size(); });

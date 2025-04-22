@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Chun Yuen Tsang, Simon Gardner
+// Copyright (C) 2025 Chun Yuen Tsang
 //
-// Adds noise to a time series pulse
+// Creates a discrete pulse from a continuous pulse
 //
 
 #include <DDRec/CellIDPositionConverter.h>

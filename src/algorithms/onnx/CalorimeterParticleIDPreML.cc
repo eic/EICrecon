@@ -88,7 +88,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
     }
   }
 
-  size_t expected_num_entries = feature_tensor.getShape(0) * feature_tensor.getShape(1);
+  std::size_t expected_num_entries = feature_tensor.getShape(0) * feature_tensor.getShape(1);
   if (feature_tensor.floatData_size() != expected_num_entries) {
     error("Inconsistent output tensor shape and element count: {} != {}",
           feature_tensor.floatData_size(), expected_num_entries);

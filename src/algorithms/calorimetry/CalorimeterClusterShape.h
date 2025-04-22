@@ -3,17 +3,19 @@
 
 #pragma once
 
-#include "algorithms/interfaces/WithPodConfig.h"
-#include "CalorimeterClusterShapeConfig.h"
-
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <algorithm>
+#include <cmath>
 #include <functional>
 #include <map>
 #include <optional>
 #include <string>
 #include <string_view>
+
+#include "CalorimeterClusterShapeConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

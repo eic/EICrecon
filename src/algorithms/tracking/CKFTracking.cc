@@ -59,7 +59,6 @@
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/vector.hpp>
-#include <boost/move/utility_core.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/Measurement2DCollection.h>
@@ -225,8 +224,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     double charge = std::copysign(1., track_parameter.getQOverP());
 
     Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
-    for (size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
-      for (size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
+    for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
+      for (std::size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
         cov(a, b) = track_parameter.getCovariance()(i, j) * x * y;
         ++j;
       }
@@ -397,8 +396,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     }
   }
 
-  for (ssize_t track_index = static_cast<ssize_t>(acts_tracks.size()) - 1; track_index >= 0;
-       track_index--) {
+  for (std::size_t track_index = acts_tracks.size(); track_index--;) {
     if (not passed_tracks.count(track_index)) {
       // NOTE This does not remove track states corresponding to the
       // removed tracks. Doing so would require implementing some garbage

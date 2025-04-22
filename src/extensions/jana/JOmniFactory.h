@@ -218,7 +218,7 @@ public:
                          this->collection_names.size(), m_data.size());
         // Otherwise this leads to a PODIO segfault
       }
-      size_t i = 0;
+      std::size_t i = 0;
       for (auto& coll_name : this->collection_names) {
         fac.SetCollection<PodioT>(coll_name, std::move(this->m_data[i++]));
       }
@@ -402,10 +402,11 @@ private:
   ConfigT m_config;
 
 public:
-  size_t FindVariadicCollectionCount(size_t total_input_count, size_t variadic_input_count,
-                                     size_t total_collection_count, bool is_input) {
+  std::size_t FindVariadicCollectionCount(std::size_t total_input_count,
+                                          std::size_t variadic_input_count,
+                                          std::size_t total_collection_count, bool is_input) {
 
-    size_t variadic_collection_count =
+    std::size_t variadic_collection_count =
         total_collection_count - (total_input_count - variadic_input_count);
 
     if (variadic_input_count == 0) {
@@ -448,20 +449,20 @@ public:
                                "Output collection names");
 
     // Figure out variadic inputs
-    size_t variadic_input_count = 0;
+    std::size_t variadic_input_count = 0;
     for (auto* input : m_inputs) {
       if (input->is_variadic) {
         variadic_input_count += 1;
       }
     }
-    size_t variadic_input_collection_count = FindVariadicCollectionCount(
+    std::size_t variadic_input_collection_count = FindVariadicCollectionCount(
         m_inputs.size(), variadic_input_count, default_input_collection_names.size(), true);
 
     // Set input collection names
-    for (size_t i = 0; auto* input : m_inputs) {
+    for (std::size_t i = 0; auto* input : m_inputs) {
       input->collection_names.clear();
       if (input->is_variadic) {
-        for (size_t j = 0; j < (variadic_input_collection_count / variadic_input_count); ++j) {
+        for (std::size_t j = 0; j < (variadic_input_collection_count / variadic_input_count); ++j) {
           input->collection_names.push_back(default_input_collection_names[i++]);
         }
       } else {
@@ -470,20 +471,21 @@ public:
     }
 
     // Figure out variadic outputs
-    size_t variadic_output_count = 0;
+    std::size_t variadic_output_count = 0;
     for (auto* output : m_outputs) {
       if (output->is_variadic) {
         variadic_output_count += 1;
       }
     }
-    size_t variadic_output_collection_count = FindVariadicCollectionCount(
+    std::size_t variadic_output_collection_count = FindVariadicCollectionCount(
         m_outputs.size(), variadic_output_count, default_output_collection_names.size(), true);
 
     // Set output collection names and create corresponding helper factories
-    for (size_t i = 0; auto* output : m_outputs) {
+    for (std::size_t i = 0; auto* output : m_outputs) {
       output->collection_names.clear();
       if (output->is_variadic) {
-        for (size_t j = 0; j < (variadic_output_collection_count / variadic_output_count); ++j) {
+        for (std::size_t j = 0; j < (variadic_output_collection_count / variadic_output_count);
+             ++j) {
           output->collection_names.push_back(default_output_collection_names[i++]);
         }
       } else {

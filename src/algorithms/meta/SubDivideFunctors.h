@@ -17,7 +17,7 @@ public:
   template <typename T> std::vector<int> operator()(T& instance) const {
     std::vector<int> ids;
     //Check if requested value is within the ranges
-    for (size_t i = 0; i < m_ranges.size(); i++) {
+    for (std::size_t i = 0; i < m_ranges.size(); i++) {
       if ((instance.*MemberFunctionPtr)() > m_ranges[i].first &&
           (instance.*MemberFunctionPtr)() < m_ranges[i].second) {
         ids.push_back(i);
@@ -42,7 +42,7 @@ public:
       , m_divisions(divisions)
       , is_init(std::make_shared<std::once_flag>())
       , m_id_dec(std::make_shared<dd4hep::DDSegmentation::BitFieldCoder*>())
-      , m_div_ids(std::make_shared<std::vector<size_t>>()){};
+      , m_div_ids(std::make_shared<std::vector<std::size_t>>()){};
 
   template <typename T> std::vector<int> operator()(T& instance) const {
 
@@ -79,7 +79,7 @@ private:
 
   std::shared_ptr<std::once_flag> is_init;
   std::shared_ptr<dd4hep::DDSegmentation::BitFieldCoder*> m_id_dec;
-  std::shared_ptr<std::vector<size_t>> m_div_ids;
+  std::shared_ptr<std::vector<std::size_t>> m_div_ids;
 };
 
 // ----------------------------------------------------------------------------

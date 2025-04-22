@@ -13,8 +13,8 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <spdlog/logger.h>
-#include <stddef.h>
 #include <Eigen/Geometry>
+#include <cstddef>
 #include <exception>
 #include <gsl/pointers>
 #include <map>
@@ -85,7 +85,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
 
   // Iterate over trajectories
   m_log->debug("Propagating through {} trajectories", trajectories.size());
-  for (size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
+  for (std::size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
     auto& trajectory = trajectories[traj_index];
     m_log->trace(" -- trajectory {} --", traj_index);
 

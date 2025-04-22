@@ -281,8 +281,8 @@ void JEventSourcePODIO::PrintCollectionTypeTable(void) {
   auto frame      = std::make_unique<podio::Frame>(std::move(frame_data));
 
   std::map<std::string, std::string> collectionNames;
-  size_t max_name_len = 0;
-  size_t max_type_len = 0;
+  std::size_t max_name_len = 0;
+  std::size_t max_type_len = 0;
 
   // Record all (collection name, value type name) pairs
   // Record the maximum length of both strings so that we can print nicely aligned columns.

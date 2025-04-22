@@ -20,8 +20,11 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4hep::SimTrackerHit> m_in_sim_hits{this};
-
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+  PodioOutput<edm4eic::SimPulse> m_out_pulses{this};
+#else
   PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
+#endif
 
   ParameterRef<std::string> m_pulse_shape_function{this, "pulseShapeFunction",
                                                    config().pulse_shape_function};
