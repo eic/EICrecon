@@ -29,7 +29,8 @@ void InitPlugin(JApplication* app) {
 
   // PIXEL DIGITIZATION?
   // It's encoded in bit pattern "SiFactoryPattern": 0x1=CyMBaL, 0x2=OuterBarrel, ...
-  unsigned int SiFactoryPattern = 0x0; // Default = no SiliconTrackerDigi
+  // unsigned int SiFactoryPattern = 0x0; // no SiliconTrackerDigi
+  unsigned int SiFactoryPattern = 0x3; // using SiliconTrackerDigi
   std::string SiFactoryPattern_str;
   app->SetDefaultParameter("MPGD:SiFactoryPattern", SiFactoryPattern_str,
                            "Hexadecimal Pattern of MPGDs digitized via \"SiliconTrackerDigi\"");
