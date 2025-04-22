@@ -11,6 +11,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <stdexcept>
 
 #include "FarDetectorTransportationPreML.h"
 #include "algorithms/fardetectors/FarDetectorTransportationPreML.h"
@@ -30,7 +31,10 @@ void FarDetectorTransportationPreML::process(const FarDetectorTransportationPreM
     std::call_once(m_initBeamE, [&]() {
       // Check if beam electrons are present
       if (beamElectrons->size() == 0) {
-        error("No beam electrons found keeping default 10GeV beam energy.");
+        if (m_cfg.requireBeamElectron) {
+          critical("No beam electrons found");
+          throw std::runtime_error("No beam electrons found");
+        }
         return;
       }
       m_beamE = beamElectrons->at(0).getEnergy();
