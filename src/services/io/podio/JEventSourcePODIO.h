@@ -9,7 +9,7 @@
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 #include <podio/ROOTReader.h>
-#include <stddef.h>
+#include <cstddef>
 #include <string>
 
 #if ((JANA_VERSION_MAJOR == 2) && (JANA_VERSION_MINOR >= 3)) || (JANA_VERSION_MAJOR > 2)
@@ -42,8 +42,8 @@ public:
 protected:
   podio::ROOTReader m_reader;
 
-  size_t Nevents_in_file = 0;
-  size_t Nevents_read    = 0;
+  std::size_t Nevents_in_file = 0;
+  std::size_t Nevents_read    = 0;
 
   bool m_run_forever       = false;
   bool m_use_event_headers = true;

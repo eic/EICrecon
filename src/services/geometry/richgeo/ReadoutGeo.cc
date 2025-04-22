@@ -15,22 +15,18 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TGeoMatrix.h>
-#include <ctype.h>
 #include <fmt/core.h>
-#include <algorithm>
 #include <cmath>
 #include <map>
 
 #include "services/geometry/richgeo/RichGeo.h"
 
 // constructor
-richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_,
+richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
+                                gsl::not_null<const dd4hep::Detector*> det_,
                                 gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_,
                                 std::shared_ptr<spdlog::logger> log_)
-    : m_detName(detName_), m_det(det_), m_conv(conv_), m_log(log_) {
-  // capitalize m_detName
-  std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
-
+    : m_detName(detName_), m_readoutClass(readoutClass_), m_det(det_), m_conv(conv_), m_log(log_) {
   // random number generators
   m_random.SetSeed(1); // default seed
 
@@ -41,7 +37,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep
   m_rngCellIDs = [](std::function<void(CellIDType)> lambda, float p) { return; };
 
   // common objects
-  m_readoutCoder = m_det->readout(m_detName + "Hits").idSpec().decoder();
+  m_readoutCoder = m_det->readout(m_readoutClass).idSpec().decoder();
   m_detRich      = m_det->detector(m_detName);
   m_systemID     = m_detRich.id();
 
@@ -106,7 +102,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep
   }
 
   // pfRICH readout --------------------------------------------------------------------
-  else if (m_detName == "PFRICH") {
+  else if (m_detName == "RICHEndcapN") {
     m_log->error("TODO: pfRICH readout bindings have not yet been implemented");
   }
 
@@ -117,7 +113,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep
 
 // pixel gap mask
 // FIXME: generalize; this assumes the segmentation is `CartesianGridXY`
-bool richgeo::ReadoutGeo::PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global) {
+bool richgeo::ReadoutGeo::PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global) const {
   auto pos_pixel_global = m_conv->position(cellID);
   auto pos_pixel_local  = GetSensorLocalPosition(cellID, pos_pixel_global);
   auto pos_hit_local    = GetSensorLocalPosition(cellID, pos_hit_global);
@@ -130,7 +126,7 @@ bool richgeo::ReadoutGeo::PixelGapMask(CellIDType cellID, dd4hep::Position pos_h
 // transform global position `pos` to sensor `cellID` frame position
 // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
 dd4hep::Position richgeo::ReadoutGeo::GetSensorLocalPosition(CellIDType cellID,
-                                                             dd4hep::Position pos) {
+                                                             dd4hep::Position pos) const {
 
   // get the VolumeManagerContext for this sensitive detector
   auto context = m_conv->findContext(cellID);

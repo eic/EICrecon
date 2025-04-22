@@ -12,9 +12,9 @@
 #include <spdlog/common.h>    // for level_enum
 #include <spdlog/logger.h>    // for logger
 #include <spdlog/spdlog.h>    // for default_logger
-#include <stddef.h>           // for size_t
 #include <array>              // for array
 #include <cmath>              // for sqrt, abs
+#include <cstddef>
 #include <gsl/pointers>
 #include <memory>  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <utility> // for pair
@@ -59,7 +59,7 @@ TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
                                  0.25 * sqrt(3) * side_length, sqrt(3) / 2 * side_length};
   std::array<double, 5> E = {50 * dd4hep::MeV, 50 * dd4hep::MeV, 50 * dd4hep::MeV, 50 * dd4hep::MeV,
                              50 * dd4hep::MeV};
-  for (size_t i = 0; i < 5; i++) {
+  for (std::size_t i = 0; i < 5; i++) {
     hits_coll.create(
         id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}),   // std::uint64_t cellID,
         E[i],                                                    // float energy,

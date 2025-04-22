@@ -27,7 +27,8 @@ namespace richgeo {
 class ReadoutGeo {
 public:
   // constructor
-  ReadoutGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_,
+  ReadoutGeo(std::string detName_, std::string readoutClass_,
+             gsl::not_null<const dd4hep::Detector*> det_,
              gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_,
              std::shared_ptr<spdlog::logger> log_);
   ~ReadoutGeo() {}
@@ -56,11 +57,11 @@ public:
   }
 
   // pixel gap mask
-  bool PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global);
+  bool PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global) const;
 
   // transform global position `pos` to sensor `id` frame position
   // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
-  dd4hep::Position GetSensorLocalPosition(CellIDType id, dd4hep::Position pos);
+  dd4hep::Position GetSensorLocalPosition(CellIDType id, dd4hep::Position pos) const;
 
   // set RNG seed
   void SetSeed(unsigned long seed) { m_random.SetSeed(seed); }
@@ -69,6 +70,7 @@ protected:
   // common objects
   std::shared_ptr<spdlog::logger> m_log;
   std::string m_detName;
+  std::string m_readoutClass;
   gsl::not_null<const dd4hep::Detector*> m_det;
   gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> m_conv;
   dd4hep::DetElement m_detRich;

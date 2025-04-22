@@ -62,7 +62,7 @@ struct OrthogonalTrackSeedingConfig {
   float impactWeightFactor    = 1.;
   float zOriginWeightFactor   = 1.;
   float compatSeedWeight      = 200.;
-  size_t compatSeedLimit      = 2;
+  std::size_t compatSeedLimit = 2;
   float seedWeightIncrement   = 0;
 
   ///////////////////////////////////////
@@ -70,8 +70,8 @@ struct OrthogonalTrackSeedingConfig {
   float zMinSeedConfCentral            = -250 * Acts::UnitConstants::mm;
   float zMaxSeedConfCentral            = 250 * Acts::UnitConstants::mm;
   float rMaxSeedConfCentral            = 140 * Acts::UnitConstants::mm;
-  size_t nTopForLargeRCentral          = 1;
-  size_t nTopForSmallRCentral          = 2;
+  std::size_t nTopForLargeRCentral     = 1;
+  std::size_t nTopForSmallRCentral     = 2;
   float seedConfMinBottomRadiusCentral = 60.0 * Acts::UnitConstants::mm;
   float seedConfMaxZOriginCentral      = 150.0 * Acts::UnitConstants::mm;
   float minImpactSeedConfCentral       = 1.0 * Acts::UnitConstants::mm;
@@ -81,8 +81,8 @@ struct OrthogonalTrackSeedingConfig {
   float zMinSeedConfForward            = -3000 * Acts::UnitConstants::mm;
   float zMaxSeedConfForward            = 3000 * Acts::UnitConstants::mm;
   float rMaxSeedConfForward            = 140 * Acts::UnitConstants::mm;
-  size_t nTopForLargeRForward          = 1;
-  size_t nTopForSmallRForward          = 2;
+  std::size_t nTopForLargeRForward     = 1;
+  std::size_t nTopForSmallRForward     = 2;
   float seedConfMinBottomRadiusForward = 60.0 * Acts::UnitConstants::mm;
   float seedConfMaxZOriginForward      = 150.0 * Acts::UnitConstants::mm;
   float minImpactSeedConfForward       = 1.0 * Acts::UnitConstants::mm;

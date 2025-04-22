@@ -107,8 +107,8 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       pars.setQOverP(static_cast<float>(parameter[Acts::eBoundQOverP]));
       pars.setTime(static_cast<float>(parameter[Acts::eBoundTime]));
       edm4eic::Cov6f cov;
-      for (size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
-        for (size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
+      for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
+        for (std::size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
           // FIXME why not pars.getCovariance()(i,j) = covariance(a,b) / x / y;
           cov(i, j) = covariance(a, b) / x / y;
           ++j;

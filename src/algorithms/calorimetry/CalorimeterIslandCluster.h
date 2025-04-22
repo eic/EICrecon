@@ -82,7 +82,7 @@ private:
     }
 
     group.insert(idx);
-    size_t prev_size = 0;
+    std::size_t prev_size = 0;
 
     while (prev_size != group.size()) {
       prev_size = group.size();
@@ -186,12 +186,12 @@ private:
     // TODO, here we can implement iterations with profile, or even ML for better splits
     std::vector<double> weights(maxima.size(), 1.);
     std::vector<edm4eic::MutableProtoCluster> pcls;
-    for (size_t k = 0; k < maxima.size(); ++k) {
+    for (std::size_t k = 0; k < maxima.size(); ++k) {
       pcls.push_back(protoClusters->create());
     }
 
     for (std::size_t idx : group) {
-      size_t j = 0;
+      std::size_t j = 0;
       // calculate weights for local maxima
       for (std::size_t cidx : maxima) {
         double energy = hits[cidx].getEnergy();
@@ -215,7 +215,7 @@ private:
       vec_normalize(weights);
 
       // split energy between local maxima
-      for (size_t k = 0; k < maxima.size(); ++k) {
+      for (std::size_t k = 0; k < maxima.size(); ++k) {
         double weight = weights[k];
         if (weight <= 1e-6) {
           continue;

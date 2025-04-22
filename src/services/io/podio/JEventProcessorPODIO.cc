@@ -169,7 +169,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "ForwardRomanPotRecParticles",
     "ForwardOffMRecParticles",
 
+    "ForwardRomanPotRawHits",
     "ForwardRomanPotRawHitAssociations",
+    "ForwardOffMTrackerRawHits",
     "ForwardOffMTrackerRawHitAssociations",
 
     // Reconstructed data
@@ -180,11 +182,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "ReconstructedTruthSeededChargedParticles",
     "ReconstructedTruthSeededChargedParticleAssociations",
     "ReconstructedChargedRealPIDParticles",
+    "ReconstructedChargedRealPIDParticleIDs",
     "ReconstructedChargedParticles",
     "ReconstructedChargedParticleAssociations",
     "MCScatteredElectronAssociations",    // Remove if/when used internally
     "MCNonScatteredElectronAssociations", // Remove if/when used internally
-    "ReconstructedChargedParticleIDs",
     "ReconstructedBreitFrameParticles",
     "CentralTrackSegments",
     "CentralTrackVertices",

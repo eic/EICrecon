@@ -10,6 +10,8 @@
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <vector>
 
 // EICrecon

@@ -13,6 +13,7 @@
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <cmath>
+#include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
 #include <vector>

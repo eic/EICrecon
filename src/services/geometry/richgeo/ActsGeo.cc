@@ -7,7 +7,6 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <ctype.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <algorithm>
@@ -19,13 +18,11 @@
 // constructor
 richgeo::ActsGeo::ActsGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_,
                           std::shared_ptr<spdlog::logger> log_)
-    : m_detName(detName_), m_det(det_), m_log(log_) {
-  // capitalize m_detName
-  std::transform(m_detName.begin(), m_detName.end(), m_detName.begin(), ::toupper);
-}
+    : m_detName(detName_), m_det(det_), m_log(log_) {}
 
 // generate list ACTS disc surfaces, for a given radiator
-std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiator, int numPlanes) {
+std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiator,
+                                                                      int numPlanes) const {
 
   // output list of surfaces
   std::vector<eicrecon::SurfaceConfig> discs;
@@ -117,7 +114,7 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
   }
 
   // pfRICH DD4hep-ACTS bindings --------------------------------------------------------------------
-  else if (m_detName == "PFRICH") {
+  else if (m_detName == "RICHEndcapN") {
     m_log->error("TODO: pfRICH DD4hep-ACTS bindings have not yet been implemented");
   }
 
@@ -128,7 +125,7 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
 }
 
 // generate a cut to remove any track points that should not be used
-std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int radiator) {
+std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int radiator) const {
 
   // reject track points in dRICH gas that are beyond the dRICH mirrors
   // FIXME: assumes the full mirror spheres are much bigger than the dRICH
