@@ -80,7 +80,7 @@ void FarDetectorTransportationPostML::process(
   edm4eic::MutableReconstructedParticle particle;
 
   // Iterate over the prediction_tensor_data in steps of three
-  for (size_t i = 0; i < prediction_tensor_data.size(); i += 3) {
+  for (std::size_t i = 0; i < prediction_tensor_data.size(); i += 3) {
     if (i + 2 >= prediction_tensor_data.size()) {
       error("Incomplete data for a prediction tensor at the end of the vector.");
       throw std::runtime_error("Incomplete data for a prediction tensor at the end of the vector.");

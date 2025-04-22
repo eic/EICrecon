@@ -4,8 +4,12 @@
 // Adds noise to a time series pulse
 //
 
+#include <edm4hep/MCParticle.h>
+#include <edm4hep/SimCalorimeterHit.h>
+#include <edm4hep/SimTrackerHit.h>
 #include <podio/RelationRange.h>
 #include <gsl/pointers>
+#include <vector>
 
 #include "PulseNoise.h"
 
@@ -27,11 +31,32 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     out_pulse.setInterval(pulse.getInterval());
     out_pulse.setTime(pulse.getTime());
 
+    float integral = 0;
     //Add noise to the pulse
     for (int i = 0; i < pulse.getAmplitude().size(); i++) {
-      double noise = m_noise(generator) * m_cfg.scale;
-      out_pulse.addToAmplitude(pulse.getAmplitude()[i] + noise);
+      double noise     = m_noise(generator) * m_cfg.scale;
+      double amplitude = pulse.getAmplitude()[i] + noise;
+      out_pulse.addToAmplitude(amplitude);
+      integral += amplitude;
     }
+
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+    out_pulse.setIntegral(integral);
+    out_pulse.setPosition(pulse.getPosition());
+    out_pulse.addToPulses(pulse);
+
+    for (auto particle : pulse.getParticles()) {
+      out_pulse.addToParticles(particle);
+    }
+    // Not sure if we want/need to keep the hits themselves at this point?
+    for (auto hit : pulse.getTrackerHits()) {
+      out_pulse.addToTrackerHits(hit);
+    }
+    for (auto hit : pulse.getCalorimeterHits()) {
+      out_pulse.addToCalorimeterHits(hit);
+    }
+
+#endif
   }
 
 } // PulseNoise:process

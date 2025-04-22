@@ -37,6 +37,8 @@ private:
   PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output{this};
   PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_raw_assocs_output{this};
 
+  ParameterRef<std::string> m_detectorName{this, "detectorName", config().detectorName, ""};
+  ParameterRef<std::string> m_readoutClass{this, "readoutClass", config().readoutClass, ""};
   ParameterRef<unsigned long> m_seed{this, "seed", config().seed, "random number generator seed"};
   ParameterRef<double> m_hitTimeWindow{this, "hitTimeWindow", config().hitTimeWindow, ""};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().timeResolution, ""};
@@ -63,14 +65,20 @@ public:
 
     // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
     if (GetPluginName() == "DRICH" || GetPluginName() == "PFRICH") {
-      m_RichGeoSvc().GetReadoutGeo(GetPluginName())->SetSeed(config().seed);
+      m_RichGeoSvc()
+          .GetReadoutGeo(config().detectorName, config().readoutClass)
+          ->SetSeed(config().seed);
       m_algo->SetVisitRngCellIDs(
           [this](std::function<void(PhotoMultiplierHitDigi::CellIDType)> lambda, float p) {
-            m_RichGeoSvc().GetReadoutGeo(GetPluginName())->VisitAllRngPixels(lambda, p);
+            m_RichGeoSvc()
+                .GetReadoutGeo(config().detectorName, config().readoutClass)
+                ->VisitAllRngPixels(lambda, p);
           });
       m_algo->SetPixelGapMask(
           [this](PhotoMultiplierHitDigi::CellIDType cellID, dd4hep::Position pos) {
-            return m_RichGeoSvc().GetReadoutGeo(GetPluginName())->PixelGapMask(cellID, pos);
+            return m_RichGeoSvc()
+                .GetReadoutGeo(config().detectorName, config().readoutClass)
+                ->PixelGapMask(cellID, pos);
           });
     }
 

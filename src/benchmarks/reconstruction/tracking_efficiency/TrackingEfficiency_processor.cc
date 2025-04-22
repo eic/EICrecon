@@ -11,12 +11,13 @@
 #include <Rtypes.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <math.h>
 #include <spdlog/logger.h>
-#include <stddef.h>
 #include <Eigen/Core>
+#include <cstddef>
 #include <iterator>
 #include <map>
 #include <optional>
@@ -72,7 +73,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
   m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}", "[i]", "[px]", "[py]", "[pz]", "[P]",
                "[P*3]");
 
-  for (size_t i = 0; i < reco_particles.size(); i++) {
+  for (std::size_t i = 0; i < reco_particles.size(); i++) {
     auto& particle = *(reco_particles[i]);
 
     double px = particle.getMomentum().x;
@@ -129,7 +130,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
   m_log->debug("MC particles N={}: ", mc_particles.size());
   m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}", "[i]", "status", "[PDG]", "[px]",
                "[py]", "[pz]", "[P]");
-  for (size_t i = 0; i < mc_particles.size(); i++) {
+  for (std::size_t i = 0; i < mc_particles.size(); i++) {
     const auto* particle = mc_particles[i];
 
     // GeneratorStatus() == 1 - stable particles from MC generator. 0 - might be added by Geant4

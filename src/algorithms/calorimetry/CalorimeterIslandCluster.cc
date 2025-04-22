@@ -92,7 +92,7 @@ void CalorimeterIslandCluster::init() {
               uprop.second.size());
       return false;
     } else {
-      for (size_t i = 0; i < units.size(); ++i) {
+      for (std::size_t i = 0; i < units.size(); ++i) {
         neighbourDist[i] = uprop.second[i] / units[i];
       }
       hitsDist = method;
@@ -213,7 +213,7 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
   std::vector<std::set<std::size_t>> groups;
 
   std::vector<bool> visits(hits->size(), false);
-  for (size_t i = 0; i < hits->size(); ++i) {
+  for (std::size_t i = 0; i < hits->size(); ++i) {
 
     {
       const auto& hit = (*hits)[i];

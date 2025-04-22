@@ -8,6 +8,10 @@
 namespace eicrecon {
 class PhotoMultiplierHitDigiConfig {
 public:
+  // Detector and readout identifiers
+  std::string detectorName{""};
+  std::string readoutClass{""};
+
   // random number generator seed
   /* FIXME: don't use 0 if `TRandomMixMax` is the RNG, it can get "stuck"
        * FIXME: remove this warning when this issue is resolved:

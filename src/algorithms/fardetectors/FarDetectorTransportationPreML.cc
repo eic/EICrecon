@@ -6,6 +6,7 @@
 #if EDM4EIC_VERSION_MAJOR >= 8
 
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>

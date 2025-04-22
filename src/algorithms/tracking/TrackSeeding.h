@@ -17,7 +17,6 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <spdlog/logger.h>
-#include <cstddef> // IWYU pragma: keep FIXME size_t missing in SeedConfirmationRangeConfig.hpp until Acts 27.2.0 (maybe even later)
 #include <memory>
 #include <tuple>
 #include <utility>

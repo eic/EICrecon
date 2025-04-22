@@ -8,7 +8,7 @@ namespace eicrecon {
 struct PulseNoiseConfig {
 
   // Number of poles in the noise filter
-  size_t poles = 5;
+  std::size_t poles = 5;
 
   // Noise variance
   double variance = 1;

@@ -13,6 +13,7 @@
 #include <Math/Vector4Dfwd.h>
 #include <TMath.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/Vector3d.h>
 #include <gsl/pointers>
 
 #include "algorithms/reco/Beam.h"
