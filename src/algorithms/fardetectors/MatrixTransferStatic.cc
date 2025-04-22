@@ -65,7 +65,7 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
 
   if (numBeamProtons == 0) {
     if (m_cfg.requireBeamProton) {
-      critical("No beam protons to choose matrix!! Skipping!!");
+      critical("No beam protons found");
       throw std::runtime_error("No beam protons found");
     }
     return;

@@ -30,7 +30,7 @@ void FarDetectorTransportationPostML::process(
       // Check if beam electrons are present
       if (beamElectrons->size() == 0) {
         if (m_cfg.requireBeamElectron) {
-          critical("No beam electrons found keeping default 10GeV beam energy.");
+          critical("No beam electrons found");
           throw std::runtime_error("No beam electrons found");
         }
         return;
