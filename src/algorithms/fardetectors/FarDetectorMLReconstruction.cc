@@ -12,6 +12,7 @@
 #include <cstdint>
 #include <exception>
 #include <gsl/pointers>
+#include <stdexcept>
 #include <vector>
 
 #include "FarDetectorMLReconstruction.h"

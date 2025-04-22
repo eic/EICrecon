@@ -10,8 +10,8 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
-#include <exception>
 #include <gsl/pointers>
+#include <stdexcept>
 
 #include "FarDetectorTransportationPreML.h"
 #include "algorithms/fardetectors/FarDetectorTransportationPreML.h"

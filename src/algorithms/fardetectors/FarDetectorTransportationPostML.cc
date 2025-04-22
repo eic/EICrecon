@@ -4,12 +4,11 @@
 #include <edm4eic/EDM4eicVersion.h>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
-#include <exception>
-#include <fmt/core.h>
 #include <gsl/pointers>
-#include <podio/RelationRange.h>
 #include <stdexcept>
 
 #include "FarDetectorTransportationPostML.h"
