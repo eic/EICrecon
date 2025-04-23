@@ -93,12 +93,12 @@ void Plot_eta() {
   tree->Draw(BMM_hits_eta.Data(), "MPGDBarrelHits.position.y>0 ", "goff");  // MPGD Barrel
   tree->Draw(ToF_hits_eta.Data(), "TOFBarrelHits.position.y>0", "goff");    // TOF Hits
   tree->Draw(ETracker_hits_eta.Data(), "TrackerEndcapHits.position.y>0", "goff"); // Tracker Endcap
-  tree->Draw(ETOF_hits_eta.Data(), "TOFEndcapHits.position.y>0", "goff");         // TOF Endcap
+  tree->Draw(ETOF_hits_eta.Data(), "TOFEndcapHits.position.y>0", "goff"); // TOF Endcap
   tree->Draw(OutBMM_hits_eta.Data(), "OuterMPGDBarrelHits.position.y>0",
              "goff"); // Outer Barrel MPGD
-  tree->Draw(FwdMM_hits_eta.Data(), "ForwardMPGDEndcapHits.position.y>0", "goff");  // Forward MPGD
+  tree->Draw(FwdMM_hits_eta.Data(), "ForwardMPGDEndcapHits.position.y>0", "goff"); // Forward MPGD
   tree->Draw(BwdMM_hits_eta.Data(), "BackwardMPGDEndcapHits.position.y>0", "goff"); // Forward MPGD
-  tree->Draw(B0_hits_eta.Data(), "B0TrackerHits.position.y>0", "goff");             // B0 Tracker
+  tree->Draw(B0_hits_eta.Data(), "B0TrackerHits.position.y>0", "goff"); // B0 Tracker
 
   c1->cd();
   c1->SetLogy();
