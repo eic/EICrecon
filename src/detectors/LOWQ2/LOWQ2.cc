@@ -5,6 +5,7 @@
 
 #include <JANA/JApplication.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/TrackSegment.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
@@ -113,10 +114,13 @@ void InitPlugin(JApplication* app) {
   std::vector<std::string> geometryDivisionCollectionNames;
   std::vector<std::string> outputClusterCollectionNames;
   std::vector<std::string> outputTrackTags;
+  std::vector<std::string> outputTrackAssociationTags;
   std::vector<std::vector<std::string>> moduleClusterTags;
 
   for (int mod_id : moduleIDs) {
-    outputTrackTags.push_back(fmt::format("TaggerTrackerM{}Tracks", mod_id));
+    outputTrackTags.push_back(fmt::format("TaggerTrackerM{}LocalTracks", mod_id));
+    outputTrackAssociationTags.push_back(
+        fmt::format("TaggerTrackerM{}LocalTrackAssociations", mod_id));
     moduleClusterTags.push_back({});
     for (int lay_id : layerIDs) {
       geometryDivisions.push_back({mod_id, lay_id});
@@ -148,12 +152,15 @@ void InitPlugin(JApplication* app) {
   // Linear tracking for each module, loop over modules
   for (int i = 0; i < moduleIDs.size(); i++) {
     std::string outputTrackTag                = outputTrackTags[i];
+    std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags = moduleClusterTags[i];
 
+    inputClusterTags.push_back("TaggerTrackerRawHitAssociations");
+
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
-        outputTrackTag, inputClusterTags, {outputTrackTag},
+        outputTrackTag, {inputClusterTags}, {outputTrackTag, outputTrackAssociationTag},
         {
-            .layer_hits_max       = 100,
+            .layer_hits_max       = 200,
             .chi2_max             = 0.001,
             .n_layer              = 4,
             .restrict_direction   = true,
@@ -165,12 +172,18 @@ void InitPlugin(JApplication* app) {
   }
 
   // Combine the tracks from each module into one collection
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackSegment>>(
-      "TaggerTrackerTrackSegments", outputTrackTags, {"TaggerTrackerTrackSegments"}, app));
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
+      "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}, app));
+
+  // Combine the associations from each module into one collection
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
+      "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
+      {"TaggerTrackerLocalTrackAssociations"}, app));
 
   // Project tracks onto a plane
   app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
-      "TaggerTrackerProjectedTracks", {"TaggerTrackerTrackSegments"},
+      "TaggerTrackerProjectedTracks", {"TaggerTrackerLocalTracks"},
       {"TaggerTrackerProjectedTracks"},
       {
           .plane_position = {0.0, 0.0, 0.0},
