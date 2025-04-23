@@ -74,9 +74,9 @@ bool acompareCl(clustersStrct lhs, clustersStrct rhs) { return lhs.cluster_E > r
 //**************************************************************************************************************//
 //**************************************************************************************************************//
 clustersStrct findMACluster(
-    float seed,                                    // minimum seed energy
-    float /* agg */,                               // minimum aggregation energy
-    std::vector<towersStrct>& input_towers_temp,   // temporary full tower array
+    float seed, // minimum seed energy
+    float /* agg */, // minimum aggregation energy
+    std::vector<towersStrct>& input_towers_temp, // temporary full tower array
     std::vector<towersStrct>& cluster_towers_temp, // towers associated to cluster
     //                               std::vector<int> clslabels_temp              // MC labels in cluster
     float aggMargin = 1.0 // aggregation margin
