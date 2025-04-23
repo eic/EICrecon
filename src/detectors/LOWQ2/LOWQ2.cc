@@ -209,8 +209,8 @@ void InitPlugin(JApplication* app) {
   // Vector reconstruction at origin
   app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
       "TaggerTrackerTrajectories",
-      {"TaggerTrackerProjectedTracks", "MCBeamElectrons", "TaggerTrackerTrackSegments",
-       "TaggerTrackerTrackSegmentAssociations"},
+      {"TaggerTrackerProjectedTracks", "MCBeamElectrons", "TaggerTrackerLocalTracks",
+       "TaggerTrackerLocalTrackAssociations"},
       {"TaggerTrackerTrajectories", "TaggerTrackerTrackParameters", "TaggerTrackerTracks",
        "TaggerTrackerTrackAssociations"},
       {
