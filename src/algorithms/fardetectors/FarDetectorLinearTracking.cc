@@ -13,6 +13,7 @@
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHit.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
@@ -253,8 +254,12 @@ void FarDetectorLinearTracking::ConvertClusters(
     // Loop over the hit associations to find the associated MCParticle
     for (const auto& hit_assoc : assoc_hits) {
       if (hit_assoc.getRawHit() == rawHit) {
-        auto mcParticle = hit_assoc.getSimHit().getMCParticle();
-        assocParticles.push_back(mcParticle);
+#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
+        auto particle = hit_assoc.getSimHit().getParticle();
+#else
+        auto particle = hit_assoc.getSimHit().getMCParticle();
+#endif
+        assocParticles.push_back(particle);
         break;
       }
     }
