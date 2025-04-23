@@ -50,8 +50,8 @@ void InitPlugin(JApplication* app) {
   digi_cfg.detectorName = "DRICH";
   digi_cfg.readoutClass = "DRICHHits";
   digi_cfg.seed         = 5;           // FIXME: set to 0 for a 'unique' seed, but
-                                       // that seems to delay the RNG from actually randomizing
-  digi_cfg.hitTimeWindow   = 20.0;     // [ns]
+      // that seems to delay the RNG from actually randomizing
+  digi_cfg.hitTimeWindow   = 20.0; // [ns]
   digi_cfg.timeResolution  = 1 / 16.0; // [ns]
   digi_cfg.speMean         = 80.0;
   digi_cfg.speError        = 16.0;
@@ -60,7 +60,7 @@ void InitPlugin(JApplication* app) {
   digi_cfg.enablePixelGaps = true;
   digi_cfg.safetyFactor    = 0.7;
   digi_cfg.enableNoise     = false;
-  digi_cfg.noiseRate       = 20000;             // [Hz]
+  digi_cfg.noiseRate       = 20000; // [Hz]
   digi_cfg.noiseTimeWindow = 20.0 * dd4hep::ns; // [ns]
   digi_cfg.quantumEfficiency.clear();
   digi_cfg.quantumEfficiency = {// wavelength units are [nm]

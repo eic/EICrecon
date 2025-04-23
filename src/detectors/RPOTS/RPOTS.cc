@@ -61,9 +61,9 @@ void InitPlugin(JApplication* app) {
                            {0.0204108951, -0.139318692},
                        },
 
-                   .local_x_offset = -1209.29,   //-0.339334, these are the local coordinate values
+                   .local_x_offset = -1209.29, //-0.339334, these are the local coordinate values
                    .local_y_offset = 0.00132511, //-0.000299454,
-                   .local_x_slope_offset = -45.4772,    //-0.219603248,
+                   .local_x_slope_offset = -45.4772, //-0.219603248,
                    .local_y_slope_offset = 0.000745498, //-0.000176128,
 
                },
@@ -82,9 +82,9 @@ void InitPlugin(JApplication* app) {
                            {0.0222482, -0.0923779},
                        },
 
-                   .local_x_offset = -1209.29,   //-0.339334, these are the local coordinate values
+                   .local_x_offset = -1209.29, //-0.339334, these are the local coordinate values
                    .local_y_offset = 0.00132511, //-0.000299454,
-                   .local_x_slope_offset = -45.4772,    //-0.219603248,
+                   .local_x_slope_offset = -45.4772, //-0.219603248,
                    .local_y_slope_offset = 0.000745498, //-0.000176128,
 
                },
@@ -103,9 +103,9 @@ void InitPlugin(JApplication* app) {
                            {0.0226283320, -0.082666019},
                        },
 
-                   .local_x_offset       = -1209.27,   //-0.329072,
+                   .local_x_offset       = -1209.27, //-0.329072,
                    .local_y_offset       = 0.00355218, //-0.00028343,
-                   .local_x_slope_offset = -45.4737,   //-0.218525084,
+                   .local_x_slope_offset = -45.4737, //-0.218525084,
                    .local_y_slope_offset = 0.00204394, //-0.00015321,
 
                },
@@ -120,9 +120,9 @@ void InitPlugin(JApplication* app) {
                        },
                    .aY = {{0.4914400000, 4.53857451}, {0.0179664765, 0.004160679}},
 
-                   .local_x_offset       = -1209.22,   //-0.283273,
+                   .local_x_offset       = -1209.22, //-0.283273,
                    .local_y_offset       = 0.00868737, //-0.00552451,
-                   .local_x_slope_offset = -45.4641,   //-0.21174031,
+                   .local_x_slope_offset = -45.4641, //-0.21174031,
                    .local_y_slope_offset = 0.00498786, //-0.003212011,
 
                }},

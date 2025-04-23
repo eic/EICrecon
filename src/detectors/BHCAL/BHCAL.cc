@@ -77,8 +77,8 @@ void InitPlugin(JApplication* app) {
           .pedMeanADC      = HcalBarrel_pedMeanADC,
           .pedSigmaADC     = HcalBarrel_pedSigmaADC, // not used; relying on energy cut
           .resolutionTDC   = HcalBarrel_resolutionTDC,
-          .thresholdFactor = 0.0,     // not used; relying on flat ADC cut
-          .thresholdValue  = 33,      // pedSigmaADC + thresholdValue = half-MIP (333 ADC)
+          .thresholdFactor = 0.0, // not used; relying on flat ADC cut
+          .thresholdValue  = 33, // pedSigmaADC + thresholdValue = half-MIP (333 ADC)
           .sampFrac        = "0.033", // average, from sPHENIX simulations
           .readout         = "HcalBarrelHits",
           .layerField      = "",
@@ -129,7 +129,7 @@ void InitPlugin(JApplication* app) {
             "HcalBarrelHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"HcalBarrelClustersWithoutShapes",             // edm4eic::Cluster
+      {"HcalBarrelClustersWithoutShapes", // edm4eic::Cluster
        "HcalBarrelClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -152,7 +152,7 @@ void InitPlugin(JApplication* app) {
             "HcalBarrelHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"HcalBarrelTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"HcalBarrelTruthClustersWithoutShapes", // edm4eic::Cluster
        "HcalBarrelTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -189,7 +189,7 @@ void InitPlugin(JApplication* app) {
             "HcalBarrelHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"HcalBarrelSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
+      {"HcalBarrelSplitMergeClustersWithoutShapes", // edm4eic::Cluster
        "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed

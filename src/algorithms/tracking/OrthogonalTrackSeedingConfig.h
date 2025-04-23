@@ -27,20 +27,20 @@ struct OrthogonalTrackSeedingConfig {
   float deltaRMaxBottomSP =
       200. * Acts::UnitConstants::mm; // Max distance in r between middle and bottom SP in one seed
   float collisionRegionMin = -250 * Acts::UnitConstants::mm; // Min z for primary vertex
-  float collisionRegionMax = 250 * Acts::UnitConstants::mm;  // Max z for primary vertex
+  float collisionRegionMax = 250 * Acts::UnitConstants::mm; // Max z for primary vertex
 
   unsigned int maxSeedsPerSpM = 0; // max number of seeds a single middle sp can belong to - 1
   float cotThetaMax =
       1.0 / tan(2. * atan(exp(-4.0))); // Cotangent of max theta angle (based on eta)
 
-  float sigmaScattering  = 5;   // How many standard devs of scattering angles to consider
+  float sigmaScattering  = 5; // How many standard devs of scattering angles to consider
   float radLengthPerSeed = 0.1; // Average radiation lengths of material on the length of a seed
   float minPt            = (100. * Acts::UnitConstants::MeV) /
                 cotThetaMax; // MeV (in Acts units of GeV) - minimum transverse momentum
   float bFieldInZ =
       1.7 * Acts::UnitConstants::T; // T (in Acts units of GeV/[e*mm]) - Magnetic field strength
-  float beamPosX  = 0;              // x offset for beam position
-  float beamPosY  = 0;              // y offset for beam position
+  float beamPosX  = 0; // x offset for beam position
+  float beamPosY  = 0; // y offset for beam position
   float impactMax = 3. * Acts::UnitConstants::mm; // Maximum transverse PCA allowed
   float rMinMiddle =
       20. * Acts::UnitConstants::mm; // Middle spacepoint must fall between these two radii
@@ -89,12 +89,12 @@ struct OrthogonalTrackSeedingConfig {
 
   //////////////////////////////////////
   ///Seed Covariance Error Matrix
-  float locaError   = 1.5 * Acts::UnitConstants::mm;    //Error on Loc a
-  float locbError   = 1.5 * Acts::UnitConstants::mm;    //Error on Loc b
-  float phiError    = 0.02 * Acts::UnitConstants::rad;  //Error on phi
+  float locaError   = 1.5 * Acts::UnitConstants::mm; //Error on Loc a
+  float locbError   = 1.5 * Acts::UnitConstants::mm; //Error on Loc b
+  float phiError    = 0.02 * Acts::UnitConstants::rad; //Error on phi
   float thetaError  = 0.002 * Acts::UnitConstants::rad; //Error on theta
   float qOverPError = 0.025 / Acts::UnitConstants::GeV; //Error on q over p
-  float timeError   = 0.1 * Acts::UnitConstants::mm;    //Error on time
+  float timeError   = 0.1 * Acts::UnitConstants::mm; //Error on time
   // Note: Acts native time units are mm: https://acts.readthedocs.io/en/latest/core/definitions/units.html
 };
 } // namespace eicrecon
