@@ -24,30 +24,23 @@ namespace eicrecon {
 enum FarDetectorMLNNIndexIn { PosY, PosZ, DirX, DirY };
 enum FarDetectorMLNNIndexOut { MomX, MomY, MomZ };
 
-  using FarDetectorMLReconstructionAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4eic::TrackParametersCollection,
-      edm4hep::MCParticleCollection,
-      edm4eic::TrackCollection,
-      edm4eic::MCRecoTrackParticleAssociationCollection
-    >,
-    algorithms::Output<
-      edm4eic::TrajectoryCollection,
-      edm4eic::TrackParametersCollection,
-      edm4eic::TrackCollection,
-      edm4eic::MCRecoTrackParticleAssociationCollection
-    >
-  >;
+using FarDetectorMLReconstructionAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::TrackParametersCollection, edm4hep::MCParticleCollection,
+                      edm4eic::TrackCollection, edm4eic::MCRecoTrackParticleAssociationCollection>,
+    algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
+                       edm4eic::TrackCollection,
+                       edm4eic::MCRecoTrackParticleAssociationCollection>>;
 
 class FarDetectorMLReconstruction : public FarDetectorMLReconstructionAlgorithm,
                                     public WithPodConfig<FarDetectorMLReconstructionConfig> {
 
-  public:
-      FarDetectorMLReconstruction(std::string_view name)
-        : FarDetectorMLReconstructionAlgorithm{name,
-                              {"TrackParameters","BeamElectrons","FittedTracks","FittedTrackAssociations"},
-                              {"Trajectory","TrackParameters","Track","PropegatedTrackAssociations"},
-                              "Reconstruct track parameters using ML method."} {}
+public:
+  FarDetectorMLReconstruction(std::string_view name)
+      : FarDetectorMLReconstructionAlgorithm{
+            name,
+            {"TrackParameters", "BeamElectrons", "FittedTracks", "FittedTrackAssociations"},
+            {"Trajectory", "TrackParameters", "Track", "PropegatedTrackAssociations"},
+            "Reconstruct track parameters using ML method."} {}
 
   /** One time initialization **/
   void init();

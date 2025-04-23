@@ -205,13 +205,15 @@ void InitPlugin(JApplication* app) {
       app));
 #endif
 
-    // Vector reconstruction at origin
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
-        "TaggerTrackerTrajectories",
-        {"TaggerTrackerProjectedTracks", "MCBeamElectrons", "TaggerTrackerTrackSegments", "TaggerTrackerTrackSegmentAssociations"},
-        {"TaggerTrackerTrajectories", "TaggerTrackerTrackParameters", "TaggerTrackerTracks", "TaggerTrackerTrackAssociations"},
-        {
-          .modelPath = "calibrations/tmva/LowQ2_DNN_CPU.weights.xml",
+  // Vector reconstruction at origin
+  app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
+      "TaggerTrackerTrajectories",
+      {"TaggerTrackerProjectedTracks", "MCBeamElectrons", "TaggerTrackerTrackSegments",
+       "TaggerTrackerTrackSegmentAssociations"},
+      {"TaggerTrackerTrajectories", "TaggerTrackerTrackParameters", "TaggerTrackerTracks",
+       "TaggerTrackerTrackAssociations"},
+      {
+          .modelPath  = "calibrations/tmva/LowQ2_DNN_CPU.weights.xml",
           .methodName = "DNN_CPU",
       },
       app));
