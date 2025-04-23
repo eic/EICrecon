@@ -135,7 +135,7 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
                                                       timeError, charge, chi2, ndf, pdg);
     outTrack.setTrajectory(trajectory);
 
-    // Propogate the track associations
+    // Propagate the track associations
     // The order of the tracks needs to be the same in both collections with no filtering
     for (auto assoc : *inputFittedAssociations) {
       if (assoc.getRec() == (*inputFittedTracks)[i]) {
