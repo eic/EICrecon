@@ -253,7 +253,7 @@ void FarDetectorLinearTracking::ConvertClusters(
     // Loop over the hit associations to find the associated MCParticle
     for (const auto& hit_assoc : assoc_hits) {
       if (hit_assoc.getRawHit() == rawHit) {
-        auto mcParticle = hit_assoc.getSimHit().getParticle();
+        auto mcParticle = hit_assoc.getSimHit().getMCParticle();
         assocParticles.push_back(mcParticle);
         break;
       }
