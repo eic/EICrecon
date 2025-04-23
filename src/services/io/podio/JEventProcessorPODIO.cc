@@ -145,8 +145,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "TaggerTrackerM2L1ClusterPositions",
     "TaggerTrackerM2L2ClusterPositions",
     "TaggerTrackerM2L3ClusterPositions",
-    "TaggerTrackerM1Tracks",
-    "TaggerTrackerM2Tracks",
+    "TaggerTrackerM1LocalTracks",
+    "TaggerTrackerM2LocalTracks",
+    "TaggerTrackerM1LocalTrackAssociations",
+    "TaggerTrackerM2LocalTrackAssociations",
+    "TaggerTrackerLocalTracks",
+    "TaggerTrackerLocalTrackAssociations",
     "TaggerTrackerProjectedTracks",
     "TaggerTrackerTracks",
     "TaggerTrackerTrajectories",
@@ -165,7 +169,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "ForwardRomanPotRecParticles",
     "ForwardOffMRecParticles",
 
+    "ForwardRomanPotRawHits",
     "ForwardRomanPotRawHitAssociations",
+    "ForwardOffMTrackerRawHits",
     "ForwardOffMTrackerRawHitAssociations",
 
     // Reconstructed data

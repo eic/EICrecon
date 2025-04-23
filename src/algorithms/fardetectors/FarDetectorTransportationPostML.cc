@@ -4,11 +4,11 @@
 #include <edm4eic/EDM4eicVersion.h>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
+#include <fmt/core.h>
+#include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
-#include <fmt/core.h>
 #include <gsl/pointers>
-#include <podio/RelationRange.h>
 #include <stdexcept>
 
 #include "FarDetectorTransportationPostML.h"
@@ -29,7 +29,10 @@ void FarDetectorTransportationPostML::process(
     std::call_once(m_initBeamE, [&]() {
       // Check if beam electrons are present
       if (beamElectrons->size() == 0) {
-        error("No beam electrons found keeping default 10GeV beam energy.");
+        if (m_cfg.requireBeamElectron) {
+          critical("No beam electrons found");
+          throw std::runtime_error("No beam electrons found");
+        }
         return;
       }
       m_beamE = beamElectrons->at(0).getEnergy();

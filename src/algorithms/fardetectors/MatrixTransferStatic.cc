@@ -18,6 +18,7 @@
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <stdexcept>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
@@ -63,7 +64,10 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
   }
 
   if (numBeamProtons == 0) {
-    error("No beam protons to choose matrix!! Skipping!!");
+    if (m_cfg.requireBeamProton) {
+      critical("No beam protons found");
+      throw std::runtime_error("No beam protons found");
+    }
     return;
   }
 

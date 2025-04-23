@@ -57,11 +57,11 @@ public:
   }
 
   // pixel gap mask
-  bool PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global);
+  bool PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global) const;
 
   // transform global position `pos` to sensor `id` frame position
   // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
-  dd4hep::Position GetSensorLocalPosition(CellIDType id, dd4hep::Position pos);
+  dd4hep::Position GetSensorLocalPosition(CellIDType id, dd4hep::Position pos) const;
 
   // set RNG seed
   void SetSeed(unsigned long seed) { m_random.SetSeed(seed); }

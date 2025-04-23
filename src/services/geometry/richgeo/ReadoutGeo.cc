@@ -113,7 +113,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
 
 // pixel gap mask
 // FIXME: generalize; this assumes the segmentation is `CartesianGridXY`
-bool richgeo::ReadoutGeo::PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global) {
+bool richgeo::ReadoutGeo::PixelGapMask(CellIDType cellID, dd4hep::Position pos_hit_global) const {
   auto pos_pixel_global = m_conv->position(cellID);
   auto pos_pixel_local  = GetSensorLocalPosition(cellID, pos_pixel_global);
   auto pos_hit_local    = GetSensorLocalPosition(cellID, pos_hit_global);
@@ -126,7 +126,7 @@ bool richgeo::ReadoutGeo::PixelGapMask(CellIDType cellID, dd4hep::Position pos_h
 // transform global position `pos` to sensor `cellID` frame position
 // IMPORTANT NOTE: this has only been tested for the dRICH; if you use it, test it carefully...
 dd4hep::Position richgeo::ReadoutGeo::GetSensorLocalPosition(CellIDType cellID,
-                                                             dd4hep::Position pos) {
+                                                             dd4hep::Position pos) const {
 
   // get the VolumeManagerContext for this sensitive detector
   auto context = m_conv->findContext(cellID);

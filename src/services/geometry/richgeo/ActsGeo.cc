@@ -21,7 +21,8 @@ richgeo::ActsGeo::ActsGeo(std::string detName_, gsl::not_null<const dd4hep::Dete
     : m_detName(detName_), m_det(det_), m_log(log_) {}
 
 // generate list ACTS disc surfaces, for a given radiator
-std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiator, int numPlanes) {
+std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiator,
+                                                                      int numPlanes) const {
 
   // output list of surfaces
   std::vector<eicrecon::SurfaceConfig> discs;
@@ -124,7 +125,7 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
 }
 
 // generate a cut to remove any track points that should not be used
-std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int radiator) {
+std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int radiator) const {
 
   // reject track points in dRICH gas that are beyond the dRICH mirrors
   // FIXME: assumes the full mirror spheres are much bigger than the dRICH

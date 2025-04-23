@@ -16,22 +16,20 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   // wiring between factories and data ///////////////////////////////////////
-  // clang-format off
 
-    // link charged particles to PID and to MC truth
-    app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(
-          "ChargedParticlesWithAssociations",
-          {
-            "ReconstructedChargedWithoutPIDParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedChargedWithoutPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-            "DRICHMergedIrtCherenkovParticleID",                  // edm4eic::CherenkovParticleID
-          },
-          {
-            "ReconstructedChargedRealPIDParticles",            // edm4eic::ReconstructedParticle
-            "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-            "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID
-          },
-          app
-          ));
-  }
+  // link charged particles to PID and to MC truth
+  app->Add(new JOmniFactoryGeneratorT<MatchToRICHPID_factory>(
+      "ChargedParticlesWithAssociations",
+      {
+          "ReconstructedChargedWithoutPIDParticles",            // edm4eic::ReconstructedParticle
+          "ReconstructedChargedWithoutPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
+          "DRICHMergedIrtCherenkovParticleID",                  // edm4eic::CherenkovParticleID
+      },
+      {
+          "ReconstructedChargedRealPIDParticles",            // edm4eic::ReconstructedParticle
+          "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
+          "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID
+      },
+      app));
+}
 }

@@ -32,6 +32,8 @@ struct MatrixTransferStaticConfig {
   double hit2maxZ{0};
 
   std::string readout{""};
+
+  bool requireBeamProton{true};
 };
 
 } // namespace eicrecon
