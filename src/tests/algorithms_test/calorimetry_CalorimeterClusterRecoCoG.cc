@@ -108,24 +108,24 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d vertex
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
       edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentum
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentumAtEndpoint
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f spin
-      edm4hep::Vector2i()                                   // edm4hep::Vector2i colorFlow
+      edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
+      edm4hep::Vector3f(), // edm4hep::Vector3f spin
+      edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
   );
 
   mcpart12.addToParents(mcpart11);
   mcpart11.addToDaughters(mcpart12);
 
-  auto contrib11 = contribs_coll.create(0,                         // int32_t PDG
+  auto contrib11 = contribs_coll.create(0, // int32_t PDG
                                         0.05 * edm4eic::unit::GeV, // float energy
-                                        0.0,                       // float time
-                                        edm4hep::Vector3f()        // edm4hep::Vector3f stepPosition
+                                        0.0, // float time
+                                        edm4hep::Vector3f() // edm4hep::Vector3f stepPosition
   );
   contrib11.setParticle(mcpart11);
-  auto contrib12 = contribs_coll.create(0,                         // int32_t PDG
+  auto contrib12 = contribs_coll.create(0, // int32_t PDG
                                         0.05 * edm4eic::unit::GeV, // float energy
-                                        0.0,                       // float time
-                                        edm4hep::Vector3f()        // edm4hep::Vector3f stepPosition
+                                        0.0, // float time
+                                        edm4hep::Vector3f() // edm4hep::Vector3f stepPosition
   );
   contrib12.setParticle(mcpart12);
 
@@ -161,24 +161,24 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   pclust.addToWeights(1);
 
   auto mcpart2 = mcparts_coll.create(
-      211,                                                  // std::int32_t PDG
-      0,                                                    // std::int32_t generatorStatus
+      211, // std::int32_t PDG
+      0, // std::int32_t generatorStatus
       (0x1 << edm4hep::MCParticle::BITCreatedInSimulation), // std::int32_t simulatorStatus
-      0.,                                                   // float charge
-      0.,                                                   // float time
-      0.,                                                   // double mass
-      edm4hep::Vector3d(),                                  // edm4hep::Vector3d vertex
-      edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentum
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentumAtEndpoint
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f spin
-      edm4hep::Vector2i()                                   // edm4hep::Vector2i colorFlow
+      0., // float charge
+      0., // float time
+      0., // double mass
+      edm4hep::Vector3d(), // edm4hep::Vector3d vertex
+      edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
+      edm4hep::Vector3f(), // edm4hep::Vector3f momentum
+      edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
+      edm4hep::Vector3f(), // edm4hep::Vector3f spin
+      edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
   );
 
-  auto contrib2 = contribs_coll.create(0,                        // int32_t PDG
+  auto contrib2 = contribs_coll.create(0, // int32_t PDG
                                        0.1 * edm4eic::unit::GeV, // float energy
-                                       0.0,                      // float time
-                                       edm4hep::Vector3f()       // edm4hep::Vector3f stepPosition
+                                       0.0, // float time
+                                       edm4hep::Vector3f() // edm4hep::Vector3f stepPosition
   );
   contrib2.setParticle(mcpart2);
 

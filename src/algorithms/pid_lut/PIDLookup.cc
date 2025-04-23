@@ -91,25 +91,25 @@ void PIDLookup::process(const Input& input, const Output& output) const {
       recopart.addToParticleIDs(
           partids_out->create(m_cfg.system,                            // std::int32_t type
                               std::copysign(11, -charge),              // std::int32_t PDG
-                              0,                                       // std::int32_t algorithmType
+                              0, // std::int32_t algorithmType
                               static_cast<float>(entry->prob_electron) // float likelihood
                               ));
       recopart.addToParticleIDs(
-          partids_out->create(m_cfg.system,                        // std::int32_t type
-                              std::copysign(211, charge),          // std::int32_t PDG
-                              0,                                   // std::int32_t algorithmType
+          partids_out->create(m_cfg.system, // std::int32_t type
+                              std::copysign(211, charge), // std::int32_t PDG
+                              0, // std::int32_t algorithmType
                               static_cast<float>(entry->prob_pion) // float likelihood
                               ));
       recopart.addToParticleIDs(
-          partids_out->create(m_cfg.system,                        // std::int32_t type
-                              std::copysign(321, charge),          // std::int32_t PDG
-                              0,                                   // std::int32_t algorithmType
+          partids_out->create(m_cfg.system, // std::int32_t type
+                              std::copysign(321, charge), // std::int32_t PDG
+                              0, // std::int32_t algorithmType
                               static_cast<float>(entry->prob_kaon) // float likelihood
                               ));
       recopart.addToParticleIDs(
-          partids_out->create(m_cfg.system,                          // std::int32_t type
-                              std::copysign(2212, charge),           // std::int32_t PDG
-                              0,                                     // std::int32_t algorithmType
+          partids_out->create(m_cfg.system, // std::int32_t type
+                              std::copysign(2212, charge), // std::int32_t PDG
+                              0, // std::int32_t algorithmType
                               static_cast<float>(entry->prob_proton) // float likelihood
                               ));
 

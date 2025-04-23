@@ -9,17 +9,17 @@
 #include <catch2/catch_test_macros.hpp> // for AssertionHandler, operator""_catch_sr, StringRef, REQUIRE, operator<, operator==, operator>, TEST_CASE
 #include <edm4eic/CalorimeterHitCollection.h> // for CalorimeterHitCollection, MutableCalorimeterHit, CalorimeterHitMutableCollectionIterator
 #include <edm4hep/Vector3f.h> // for Vector3f
-#include <spdlog/common.h>    // for level_enum
-#include <spdlog/logger.h>    // for logger
-#include <spdlog/spdlog.h>    // for default_logger
-#include <array>              // for array
-#include <cmath>              // for sqrt, abs
+#include <spdlog/common.h> // for level_enum
+#include <spdlog/logger.h> // for logger
+#include <spdlog/spdlog.h> // for default_logger
+#include <array> // for array
+#include <cmath> // for sqrt, abs
 #include <cstddef>
 #include <gsl/pointers>
-#include <memory>  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
+#include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
 #include <utility> // for pair
 
-#include "algorithms/calorimetry/HEXPLIT.h"       // for HEXPLIT
+#include "algorithms/calorimetry/HEXPLIT.h" // for HEXPLIT
 #include "algorithms/calorimetry/HEXPLITConfig.h" // for HEXPLITConfig
 
 using eicrecon::HEXPLIT;
@@ -61,16 +61,16 @@ TEST_CASE("the subcell-splitting algorithm runs", "[HEXPLIT]") {
                              50 * dd4hep::MeV};
   for (std::size_t i = 0; i < 5; i++) {
     hits_coll.create(
-        id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}),   // std::uint64_t cellID,
-        E[i],                                                    // float energy,
-        0.0,                                                     // float energyError,
-        0.0,                                                     // float time,
-        0.0,                                                     // float timeError,
+        id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
+        E[i], // float energy,
+        0.0, // float energyError,
+        0.0, // float time,
+        0.0, // float timeError,
         edm4hep::Vector3f(x[i], y[i], layer[i] * layer_spacing), // edm4hep::Vector3f position,
-        dimension,                                               // edm4hep::Vector3f dimension,
-        0,                                                       // std::int32_t sector,
-        layer[i],                                                // std::int32_t layer,
-        edm4hep::Vector3f(x[i], y[i], layer[i] * layer_spacing)  // edm4hep::Vector3f local
+        dimension, // edm4hep::Vector3f dimension,
+        0, // std::int32_t sector,
+        layer[i], // std::int32_t layer,
+        edm4hep::Vector3f(x[i], y[i], layer[i] * layer_spacing) // edm4hep::Vector3f local
     );
   }
 

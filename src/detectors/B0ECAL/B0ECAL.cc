@@ -97,7 +97,7 @@ void InitPlugin(JApplication* app) {
             "B0ECalHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"B0ECalClustersWithoutShapes",             // edm4eic::Cluster
+      {"B0ECalClustersWithoutShapes", // edm4eic::Cluster
        "B0ECalClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app));
@@ -118,7 +118,7 @@ void InitPlugin(JApplication* app) {
             "B0ECalHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"B0ECalTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"B0ECalTruthClustersWithoutShapes", // edm4eic::Cluster
        "B0ECalTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app));

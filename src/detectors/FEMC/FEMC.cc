@@ -108,7 +108,7 @@ void InitPlugin(JApplication* app) {
             "EcalEndcapPHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"EcalEndcapPTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalEndcapPTruthClustersWithoutShapes", // edm4eic::Cluster
        "EcalEndcapPTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = true},
       app // TODO: Remove me once fixed
@@ -131,7 +131,7 @@ void InitPlugin(JApplication* app) {
             "EcalEndcapPHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"EcalEndcapPClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalEndcapPClustersWithoutShapes", // edm4eic::Cluster
        "EcalEndcapPClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -173,7 +173,7 @@ void InitPlugin(JApplication* app) {
             "EcalEndcapPHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"EcalEndcapPSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalEndcapPSplitMergeClustersWithoutShapes", // edm4eic::Cluster
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -267,7 +267,7 @@ void InitPlugin(JApplication* app) {
             "EcalEndcapPInsertHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"EcalEndcapPInsertTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalEndcapPInsertTruthClustersWithoutShapes", // edm4eic::Cluster
        "EcalEndcapPInsertTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = true},
       app // TODO: Remove me once fixed
@@ -291,7 +291,7 @@ void InitPlugin(JApplication* app) {
             "EcalEndcapPInsertHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"EcalEndcapPInsertClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalEndcapPInsertClustersWithoutShapes", // edm4eic::Cluster
        "EcalEndcapPInsertClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",

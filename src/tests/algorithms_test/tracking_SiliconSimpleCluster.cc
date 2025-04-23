@@ -41,12 +41,12 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
   SECTION("on a single pixel") {
     edm4eic::TrackerHitCollection hits_coll;
     hits_coll.create(id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
-                     edm4hep::Vector3f(0.0, 0.0, 0.0),                      // Vector3f position,
-                     edm4eic::CovDiag3f(),                                  // Cov3f cov,
-                     0.0,                                                   // float time
-                     0.0,                                                   // float timeError,
-                     5.0,                                                   // float edep,
-                     0.0                                                    // float edepError
+                     edm4hep::Vector3f(0.0, 0.0, 0.0), // Vector3f position,
+                     edm4eic::CovDiag3f(), // Cov3f cov,
+                     0.0, // float time
+                     0.0, // float timeError,
+                     5.0, // float edep,
+                     0.0 // float edepError
     );
 
     edm4eic::Measurement2DCollection clusterPositions;
@@ -63,21 +63,21 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
     edm4eic::TrackerHitCollection hits_coll;
     hits_coll.create(
         id_desc.encode({{"system", 255}, {"x", 0}, {"y", 10}}), // std::uint64_t cellID,
-        edm4hep::Vector3f(0.0, 0.0, 0.0),                       // Vector3f position,
-        edm4eic::CovDiag3f(),                                   // Cov3f cov,
-        5.0,                                                    // float time
-        0.0,                                                    // float timeError,
-        5.0,                                                    // float edep,
-        0.0                                                     // float edepError
+        edm4hep::Vector3f(0.0, 0.0, 0.0), // Vector3f position,
+        edm4eic::CovDiag3f(), // Cov3f cov,
+        5.0, // float time
+        0.0, // float timeError,
+        5.0, // float edep,
+        0.0 // float edepError
     );
     hits_coll.create(
         id_desc.encode({{"system", 255}, {"x", 10}, {"y", 0}}), // std::uint64_t cellID,
-        edm4hep::Vector3f(0.0, 0.0, 0.0),                       // Vector3f position,
-        edm4eic::CovDiag3f(),                                   // Cov3f cov,
-        5.0,                                                    // float time
-        0.0,                                                    // float timeError,
-        5.0,                                                    // float edep,
-        0.0                                                     // float edepError
+        edm4hep::Vector3f(0.0, 0.0, 0.0), // Vector3f position,
+        edm4eic::CovDiag3f(), // Cov3f cov,
+        5.0, // float time
+        0.0, // float timeError,
+        5.0, // float edep,
+        0.0 // float edepError
     );
 
     edm4eic::Measurement2DCollection clusterPositions;
@@ -91,20 +91,20 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
   SECTION("on two adjacent pixels") {
     edm4eic::TrackerHitCollection hits_coll;
     hits_coll.create(id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
-                     edm4hep::Vector3f(0.0, 0.0, 0.0),                      // Vector3f position,
-                     edm4eic::CovDiag3f(),                                  // Cov3f cov,
-                     5.0,                                                   // float time
-                     0.0,                                                   // float timeError,
-                     5.0,                                                   // float edep,
-                     0.0                                                    // float edepError
+                     edm4hep::Vector3f(0.0, 0.0, 0.0), // Vector3f position,
+                     edm4eic::CovDiag3f(), // Cov3f cov,
+                     5.0, // float time
+                     0.0, // float timeError,
+                     5.0, // float edep,
+                     0.0 // float edepError
     );
     hits_coll.create(id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}}), // std::uint64_t cellID,
-                     edm4hep::Vector3f(0.0, 0.0, 0.0),                      // Vector3f position,
-                     edm4eic::CovDiag3f(),                                  // Cov3f cov,
-                     5.0,                                                   // float time
-                     0.0,                                                   // float timeError,
-                     5.0,                                                   // float edep,
-                     0.0                                                    // float edepError
+                     edm4hep::Vector3f(0.0, 0.0, 0.0), // Vector3f position,
+                     edm4eic::CovDiag3f(), // Cov3f cov,
+                     5.0, // float time
+                     0.0, // float timeError,
+                     5.0, // float edep,
+                     0.0 // float edepError
     );
 
     edm4eic::Measurement2DCollection clusterPositions;
@@ -118,20 +118,20 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
   SECTION("on two adjacent pixels outwith the time separation") {
     edm4eic::TrackerHitCollection hits_coll;
     hits_coll.create(id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
-                     edm4hep::Vector3f(0.0, 0.0, 0.0),                      // Vector3f position,
-                     edm4eic::CovDiag3f(),                                  // Cov3f cov,
-                     0.0,                                                   // float time
-                     0.0,                                                   // float timeError,
-                     5.0,                                                   // float edep,
-                     0.0                                                    // float edepError
+                     edm4hep::Vector3f(0.0, 0.0, 0.0), // Vector3f position,
+                     edm4eic::CovDiag3f(), // Cov3f cov,
+                     0.0, // float time
+                     0.0, // float timeError,
+                     5.0, // float edep,
+                     0.0 // float edepError
     );
     hits_coll.create(id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}}), // std::uint64_t cellID,
-                     edm4hep::Vector3f(0.0, 0.0, 0.0),                      // Vector3f position,
-                     edm4eic::CovDiag3f(),                                  // Cov3f cov,
-                     1.1 * cfg.hit_time_limit,                              // float time
-                     0.0,                                                   // float timeError,
-                     5.0,                                                   // float edep,
-                     0.0                                                    // float edepError
+                     edm4hep::Vector3f(0.0, 0.0, 0.0), // Vector3f position,
+                     edm4eic::CovDiag3f(), // Cov3f cov,
+                     1.1 * cfg.hit_time_limit, // float time
+                     0.0, // float timeError,
+                     5.0, // float edep,
+                     0.0 // float edepError
     );
 
     edm4eic::Measurement2DCollection clusterPositions;
@@ -151,30 +151,30 @@ TEST_CASE("the clustering algorithm runs", "[FarDetectorTrackerCluster]") {
 
     edm4eic::TrackerHitCollection hits_coll;
     hits_coll.create(id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
-                     edm4hep::Vector3f(0.0, 0.0, 0.0),                      // Vector3f position,
-                     edm4eic::CovDiag3f(),                                  // Cov3f cov,
-                     0.0,                                                   // float time
-                     0.0,                                                   // float timeError,
-                     pixelCharges[0],                                       // float edep,
-                     0.0                                                    // float edepError
+                     edm4hep::Vector3f(0.0, 0.0, 0.0), // Vector3f position,
+                     edm4eic::CovDiag3f(), // Cov3f cov,
+                     0.0, // float time
+                     0.0, // float timeError,
+                     pixelCharges[0], // float edep,
+                     0.0 // float edepError
     );
     hits_coll.create(id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}}), // std::uint64_t cellID,
-                     edm4hep::Vector3f(0.0, 0.0, 0.0),                      // Vector3f position,
-                     edm4eic::CovDiag3f(),                                  // Cov3f cov,
-                     pixel2Time,                                            // float time
-                     0.0,                                                   // float timeError,
-                     pixelCharges[1],                                       // float edep,
-                     0.0                                                    // float edepError
+                     edm4hep::Vector3f(0.0, 0.0, 0.0), // Vector3f position,
+                     edm4eic::CovDiag3f(), // Cov3f cov,
+                     pixel2Time, // float time
+                     0.0, // float timeError,
+                     pixelCharges[1], // float edep,
+                     0.0 // float edepError
     );
     hits_coll.create(
         id_desc.encode(
             {{"system", 255}, {"x", pixel3[0]}, {"y", pixel3[1]}}), // std::uint64_t cellID,
-        edm4hep::Vector3f(0.0, 0.0, 0.0),                           // Vector3f position,
-        edm4eic::CovDiag3f(),                                       // Cov3f cov,
-        0.0,                                                        // float time
-        0.0,                                                        // float timeError,
-        pixelCharges[2],                                            // float edep,
-        0.0                                                         // float edepError
+        edm4hep::Vector3f(0.0, 0.0, 0.0), // Vector3f position,
+        edm4eic::CovDiag3f(), // Cov3f cov,
+        0.0, // float time
+        0.0, // float timeError,
+        pixelCharges[2], // float edep,
+        0.0 // float edepError
     );
 
     edm4eic::Measurement2DCollection clusterPositions;

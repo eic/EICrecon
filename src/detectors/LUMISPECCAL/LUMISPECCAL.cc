@@ -124,7 +124,7 @@ void InitPlugin(JApplication* app) {
             "EcalLumiSpecHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"EcalLumiSpecTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalLumiSpecTruthClustersWithoutShapes", // edm4eic::Cluster
        "EcalLumiSpecTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed

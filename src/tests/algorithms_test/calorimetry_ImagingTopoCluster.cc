@@ -56,10 +56,10 @@ TEST_CASE("the clustering algorithm runs", "[ImagingTopoCluster]") {
           0.0,                                                      // float time,
           0.0,                                                      // float timeError,
           edm4hep::Vector3f(0.0, 0.0, 0.0),                         // edm4hep::Vector3f position,
-          edm4hep::Vector3f(0.0, 0.0, 0.0),                         // edm4hep::Vector3f dimension,
-          0,                                                        // std::int32_t sector,
-          0,                                                        // std::int32_t layer,
-          edm4hep::Vector3f(0.0, 0.0, 0.0)                          // edm4hep::Vector3f local
+          edm4hep::Vector3f(0.0, 0.0, 0.0), // edm4hep::Vector3f dimension,
+          0, // std::int32_t sector,
+          0, // std::int32_t layer,
+          edm4hep::Vector3f(0.0, 0.0, 0.0) // edm4hep::Vector3f local
       );
       auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
       algo.process({&hits_coll}, {protoclust_coll.get()});
@@ -74,28 +74,28 @@ TEST_CASE("the clustering algorithm runs", "[ImagingTopoCluster]") {
       hits_coll.create(
           id_desc.encode(
               {{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
-          5.0,                                                      // float energy,
-          0.0,                                                      // float energyError,
-          0.0,                                                      // float time,
-          0.0,                                                      // float timeError,
-          edm4hep::Vector3f(0.0, 0.0, 0.0),                         // edm4hep::Vector3f position,
-          edm4hep::Vector3f(1.0, 1.0, 0.0),                         // edm4hep::Vector3f dimension,
-          0,                                                        // std::int32_t sector,
-          0,                                                        // std::int32_t layer,
-          edm4hep::Vector3f(0.0, 0.0, 0.0)                          // edm4hep::Vector3f local
+          5.0, // float energy,
+          0.0, // float energyError,
+          0.0, // float time,
+          0.0, // float timeError,
+          edm4hep::Vector3f(0.0, 0.0, 0.0), // edm4hep::Vector3f position,
+          edm4hep::Vector3f(1.0, 1.0, 0.0), // edm4hep::Vector3f dimension,
+          0, // std::int32_t sector,
+          0, // std::int32_t layer,
+          edm4hep::Vector3f(0.0, 0.0, 0.0) // edm4hep::Vector3f local
       );
       hits_coll.create(
           id_desc.encode(
               {{"system", 255}, {"x", 2}, {"y", 2}, {"layer", 0}}), // std::uint64_t cellID,
-          6.0,                                                      // float energy,
-          0.0,                                                      // float energyError,
-          0.0,                                                      // float time,
-          0.0,                                                      // float timeError,
-          edm4hep::Vector3f(1.1, 1.1, 0.0),                         // edm4hep::Vector3f position,
-          edm4hep::Vector3f(1.0, 1.0, 0.0),                         // edm4hep::Vector3f dimension,
-          0,                                                        // std::int32_t sector,
-          0,                                                        // std::int32_t layer,
-          edm4hep::Vector3f(1.1 /* mm */, 1.1 /* mm */, 0.0)        // edm4hep::Vector3f local
+          6.0, // float energy,
+          0.0, // float energyError,
+          0.0, // float time,
+          0.0, // float timeError,
+          edm4hep::Vector3f(1.1, 1.1, 0.0), // edm4hep::Vector3f position,
+          edm4hep::Vector3f(1.0, 1.0, 0.0), // edm4hep::Vector3f dimension,
+          0, // std::int32_t sector,
+          0, // std::int32_t layer,
+          edm4hep::Vector3f(1.1 /* mm */, 1.1 /* mm */, 0.0) // edm4hep::Vector3f local
       );
       auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
       algo.process({&hits_coll}, {protoclust_coll.get()});
@@ -111,27 +111,27 @@ TEST_CASE("the clustering algorithm runs", "[ImagingTopoCluster]") {
       edm4eic::CalorimeterHitCollection hits_coll;
       hits_coll.create(
           id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}), // std::uint64_t cellID,
-          5.0,                                                   // float energy,
-          0.0,                                                   // float energyError,
-          0.0,                                                   // float time,
-          0.0,                                                   // float timeError,
-          edm4hep::Vector3f(0.0, 0.0, 0.0),                      // edm4hep::Vector3f position,
-          edm4hep::Vector3f(1.0, 1.0, 0.0),                      // edm4hep::Vector3f dimension,
-          0,                                                     // std::int32_t sector,
-          0,                                                     // std::int32_t layer,
-          edm4hep::Vector3f(0.0, 0.0, 0.0)                       // edm4hep::Vector3f local
+          5.0, // float energy,
+          0.0, // float energyError,
+          0.0, // float time,
+          0.0, // float timeError,
+          edm4hep::Vector3f(0.0, 0.0, 0.0), // edm4hep::Vector3f position,
+          edm4hep::Vector3f(1.0, 1.0, 0.0), // edm4hep::Vector3f dimension,
+          0, // std::int32_t sector,
+          0, // std::int32_t layer,
+          edm4hep::Vector3f(0.0, 0.0, 0.0) // edm4hep::Vector3f local
       );
       hits_coll.create(
           id_desc.encode({{"system", 255}, {"x", 1}, {"y", 0}}), // std::uint64_t cellID,
-          6.0,                                                   // float energy,
-          0.0,                                                   // float energyError,
-          0.0,                                                   // float time,
-          0.0,                                                   // float timeError,
-          edm4hep::Vector3f(0.9, 0.9, 0.0),                      // edm4hep::Vector3f position,
-          edm4hep::Vector3f(1.0, 1.0, 0.0),                      // edm4hep::Vector3f dimension,
-          0,                                                     // std::int32_t sector,
-          0,                                                     // std::int32_t layer,
-          edm4hep::Vector3f(0.9 /* mm */, 0.9 /* mm */, 0.0)     // edm4hep::Vector3f local
+          6.0, // float energy,
+          0.0, // float energyError,
+          0.0, // float time,
+          0.0, // float timeError,
+          edm4hep::Vector3f(0.9, 0.9, 0.0), // edm4hep::Vector3f position,
+          edm4hep::Vector3f(1.0, 1.0, 0.0), // edm4hep::Vector3f dimension,
+          0, // std::int32_t sector,
+          0, // std::int32_t layer,
+          edm4hep::Vector3f(0.9 /* mm */, 0.9 /* mm */, 0.0) // edm4hep::Vector3f local
       );
       auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
       algo.process({&hits_coll}, {protoclust_coll.get()});
@@ -153,41 +153,41 @@ TEST_CASE("the clustering algorithm runs", "[ImagingTopoCluster]") {
     hits_coll.create(
         id_desc.encode(
             {{"system", 255}, {"x", 0}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
-        5.0,                                                      // float energy,
-        0.0,                                                      // float energyError,
-        0.0,                                                      // float time,
-        0.0,                                                      // float timeError,
-        edm4hep::Vector3f(0.0, 0.0, 0.0),                         // edm4hep::Vector3f position,
-        edm4hep::Vector3f(1.0, 1.0, 0.0),                         // edm4hep::Vector3f dimension,
-        0,                                                        // std::int32_t sector,
-        0,                                                        // std::int32_t layer,
-        edm4hep::Vector3f(0.0, 0.0, 0.0)                          // edm4hep::Vector3f local
+        5.0, // float energy,
+        0.0, // float energyError,
+        0.0, // float time,
+        0.0, // float timeError,
+        edm4hep::Vector3f(0.0, 0.0, 0.0), // edm4hep::Vector3f position,
+        edm4hep::Vector3f(1.0, 1.0, 0.0), // edm4hep::Vector3f dimension,
+        0, // std::int32_t sector,
+        0, // std::int32_t layer,
+        edm4hep::Vector3f(0.0, 0.0, 0.0) // edm4hep::Vector3f local
     );
     hits_coll.create(
         id_desc.encode(
             {{"system", 255}, {"x", 1}, {"y", 0}, {"layer", 1}}), // std::uint64_t cellID,
-        1.0,                                                      // float energy,
-        0.0,                                                      // float energyError,
-        0.0,                                                      // float time,
-        0.0,                                                      // float timeError,
-        edm4hep::Vector3f(0.9, 0.9, 0.0),                         // edm4hep::Vector3f position,
-        edm4hep::Vector3f(1.0, 1.0, 0.0),                         // edm4hep::Vector3f dimension,
-        0,                                                        // std::int32_t sector,
-        1,                                                        // std::int32_t layer,
-        edm4hep::Vector3f(0.9 /* mm */, 0.9 /* mm */, 0.0)        // edm4hep::Vector3f local
+        1.0, // float energy,
+        0.0, // float energyError,
+        0.0, // float time,
+        0.0, // float timeError,
+        edm4hep::Vector3f(0.9, 0.9, 0.0), // edm4hep::Vector3f position,
+        edm4hep::Vector3f(1.0, 1.0, 0.0), // edm4hep::Vector3f dimension,
+        0, // std::int32_t sector,
+        1, // std::int32_t layer,
+        edm4hep::Vector3f(0.9 /* mm */, 0.9 /* mm */, 0.0) // edm4hep::Vector3f local
     );
     hits_coll.create(
         id_desc.encode(
             {{"system", 255}, {"x", 2}, {"y", 0}, {"layer", 0}}), // std::uint64_t cellID,
-        6.0,                                                      // float energy,
-        0.0,                                                      // float energyError,
-        0.0,                                                      // float time,
-        0.0,                                                      // float timeError,
-        edm4hep::Vector3f(1.8, 1.8, 0.0),                         // edm4hep::Vector3f position,
-        edm4hep::Vector3f(1.0, 1.0, 0.0),                         // edm4hep::Vector3f dimension,
-        0,                                                        // std::int32_t sector,
-        0,                                                        // std::int32_t layer,
-        edm4hep::Vector3f(1.8 /* mm */, 1.8 /* mm */, 0.0)        // edm4hep::Vector3f local
+        6.0, // float energy,
+        0.0, // float energyError,
+        0.0, // float time,
+        0.0, // float timeError,
+        edm4hep::Vector3f(1.8, 1.8, 0.0), // edm4hep::Vector3f position,
+        edm4hep::Vector3f(1.0, 1.0, 0.0), // edm4hep::Vector3f dimension,
+        0, // std::int32_t sector,
+        0, // std::int32_t layer,
+        edm4hep::Vector3f(1.8 /* mm */, 1.8 /* mm */, 0.0) // edm4hep::Vector3f local
     );
     auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
     algo.process({&hits_coll}, {protoclust_coll.get()});

@@ -172,12 +172,12 @@ void FarDetectorLinearTracking::checkHitCombination(
   int32_t type{0};                                          // Type of track
   edm4hep::Vector3f position(outPos.x, outPos.y, outPos.z); // Position of the trajectory point [mm]
   edm4hep::Vector3f momentum(outVec.x, outVec.y, outVec.z); // 3-momentum at the point [GeV]
-  edm4eic::Cov6f positionMomentumCovariance;                // Error on the position
-  float time{0};                                            // Time at this point [ns]
-  float timeError{0};                                       // Error on the time at this point
-  float charge{-1};                                         // Charge of the particle
-  int32_t ndf{static_cast<int32_t>(m_cfg.n_layer) - 1};     // Number of degrees of freedom
-  int32_t pdg{11};                                          // PDG code of the particle
+  edm4eic::Cov6f positionMomentumCovariance; // Error on the position
+  float time{0}; // Time at this point [ns]
+  float timeError{0}; // Error on the time at this point
+  float charge{-1}; // Charge of the particle
+  int32_t ndf{static_cast<int32_t>(m_cfg.n_layer) - 1}; // Number of degrees of freedom
+  int32_t pdg{11}; // PDG code of the particle
 
   // Create the track
   auto track = (*outputTracks)

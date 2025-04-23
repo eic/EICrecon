@@ -215,20 +215,20 @@ TEST_CASE("Wiring itself is correctly defaulted") {
                                                                            "BCalLeftHits");
 
   // Overrides won't happen until factory gets Init()ed. However, defaults will be applied immediately
-  REQUIRE(b->bucket_count() == 42);        // Not provided by wiring
+  REQUIRE(b->bucket_count() == 42); // Not provided by wiring
   REQUIRE(b->config().bucket_count == 42); // Not provided by wiring
 
-  REQUIRE(b->threshold() == 6.1);        // Provided by wiring
+  REQUIRE(b->threshold() == 6.1); // Provided by wiring
   REQUIRE(b->config().threshold == 6.1); // Provided by wiring
 
   // Trigger JMF::Execute(), in order to trigger Init(), in order to Configure()s all Parameter fields...
   auto lefthits = event->Get<edm4hep::SimCalorimeterHit>("BCalLeftHits");
 
   // We didn't override the config values via the parameter manager, so all of these should be the same
-  REQUIRE(b->bucket_count() == 42);        // Not provided by wiring
+  REQUIRE(b->bucket_count() == 42); // Not provided by wiring
   REQUIRE(b->config().bucket_count == 42); // Not provided by wiring
 
-  REQUIRE(b->threshold() == 6.1);        // Provided by wiring
+  REQUIRE(b->threshold() == 6.1); // Provided by wiring
   REQUIRE(b->config().threshold == 6.1); // Provided by wiring
 
   b->logger()->info("Showing the full table of config parameters");

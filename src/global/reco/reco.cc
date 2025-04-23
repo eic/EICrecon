@@ -102,7 +102,7 @@ void InitPlugin(JApplication* app) {
           "EcalClusterAssociations",
       },
       {
-          "ReconstructedParticles",           // edm4eic::ReconstructedParticle
+          "ReconstructedParticles", // edm4eic::ReconstructedParticle
           "ReconstructedParticleAssociations" // edm4eic::MCRecoParticleAssociation
       },
       app));
@@ -156,7 +156,7 @@ void InitPlugin(JApplication* app) {
       "ReconstructedElectronsForDIS", {"ReconstructedParticles"}, {"ReconstructedElectronsForDIS"},
       {
           .min_energy_over_momentum = 0.7, // GeV
-          .max_energy_over_momentum = 1.3  // GeV
+          .max_energy_over_momentum = 1.3 // GeV
       },
       app));
 
@@ -186,7 +186,7 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedChargedParticles", "ReconstructedElectronsForDIS"},
       {"ScatteredElectronsEMinusPz"},
       {
-          .minEMinusPz = 0,         // GeV
+          .minEMinusPz = 0, // GeV
           .maxEMinusPz = 10000000.0 // GeV
       },
       app));
@@ -220,7 +220,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
       "ReconstructedFarForwardZDCNeutrons",
-      {"HcalFarForwardZDCClusters"},          // edm4eic::ClusterCollection
+      {"HcalFarForwardZDCClusters"}, // edm4eic::ClusterCollection
       {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
       {.neutronScaleCorrCoeffHcal = {-0.11, -1.5, 0},
        .gammaScaleCorrCoeffHcal   = {0, -.13, 0},

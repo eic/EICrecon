@@ -136,8 +136,8 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       track.setCharge( // Particle charge
           std::copysign(1., parameter[Acts::eBoundQOverP]));
       track.setChi2(trajectoryState.chi2Sum); // Total chi2
-      track.setNdf(trajectoryState.NDF);      // Number of degrees of freedom
-      track.setPdg(                           // PDG particle ID hypothesis
+      track.setNdf(trajectoryState.NDF); // Number of degrees of freedom
+      track.setPdg( // PDG particle ID hypothesis
           boundParam.particleHypothesis().absolutePdg());
       track.setTrajectory(trajectory); // Trajectory of this track
 

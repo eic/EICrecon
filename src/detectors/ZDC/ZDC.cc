@@ -127,7 +127,7 @@ void InitPlugin(JApplication* app) {
             "EcalFarForwardZDCHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"EcalFarForwardZDCClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalFarForwardZDCClustersWithoutShapes", // edm4eic::Cluster
        "EcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -246,7 +246,7 @@ void InitPlugin(JApplication* app) {
             "HcalFarForwardZDCHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"HcalFarForwardZDCClustersWithoutShapes",             // edm4eic::Cluster
+      {"HcalFarForwardZDCClustersWithoutShapes", // edm4eic::Cluster
        "HcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight        = "log",
        .sampFrac            = 0.0203,
@@ -307,7 +307,7 @@ void InitPlugin(JApplication* app) {
             "HcalFarForwardZDCHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"HcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"HcalFarForwardZDCTruthClustersWithoutShapes", // edm4eic::Cluster
        "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
