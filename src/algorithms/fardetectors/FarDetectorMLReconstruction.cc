@@ -146,6 +146,5 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
     }
   }
 }
-}
 
 } // namespace eicrecon
