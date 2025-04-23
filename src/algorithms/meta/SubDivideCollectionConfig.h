@@ -5,9 +5,8 @@
 
 namespace eicrecon {
 
-  template<class T>
-  struct SubDivideCollectionConfig {
-    std::function<std::vector<int>(const T&)> function;
-  };
+template <class T> struct SubDivideCollectionConfig {
+  std::function<std::vector<int>(const T&)> function;
+};
 
-} // eicrecon
+} // namespace eicrecon

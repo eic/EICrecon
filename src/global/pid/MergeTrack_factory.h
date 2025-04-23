@@ -19,32 +19,30 @@ namespace eicrecon {
 
 class MergeTrack_factory : public JOmniFactory<MergeTrack_factory> {
 private:
+  // Underlying algorithm
+  std::unique_ptr<eicrecon::MergeTracks> m_algo;
 
-    // Underlying algorithm
-    std::unique_ptr<eicrecon::MergeTracks> m_algo;
+  // Declare inputs
+  VariadicPodioInput<edm4eic::TrackSegment> m_track_segments_input{this};
 
-    // Declare inputs
-    VariadicPodioInput<edm4eic::TrackSegment> m_track_segments_input {this};
-
-    // Declare outputs
-    PodioOutput<edm4eic::TrackSegment> m_track_segments_output {this};
+  // Declare outputs
+  PodioOutput<edm4eic::TrackSegment> m_track_segments_output{this};
 
 public:
-    void Configure() {
-        m_algo = std::make_unique<MergeTracks>(GetPrefix());
-        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-        m_algo->init();
-    }
+  void Configure() {
+    m_algo = std::make_unique<MergeTracks>(GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->init();
+  }
 
-    void ChangeRun(int64_t run_number) { }
+  void ChangeRun(int64_t run_number) {}
 
-    void Process(int64_t run_number, uint64_t event_number) {
-        auto in1 = m_track_segments_input();
-        std::vector<gsl::not_null<const edm4eic::TrackSegmentCollection*>> in2;
-        std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
+  void Process(int64_t run_number, uint64_t event_number) {
+    auto in1 = m_track_segments_input();
+    std::vector<gsl::not_null<const edm4eic::TrackSegmentCollection*>> in2;
+    std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
 
-        m_algo->process({in2}, {m_track_segments_output().get()});
-    }
-
-  };
-}
+    m_algo->process({in2}, {m_track_segments_output().get()});
+  }
+};
+} // namespace eicrecon

@@ -21,8 +21,8 @@
 
 namespace eicrecon {
 
-  enum FarDetectorMLNNIndexIn{PosY,PosZ,DirX,DirY};
-  enum FarDetectorMLNNIndexOut{MomX,MomY,MomZ};
+enum FarDetectorMLNNIndexIn { PosY, PosZ, DirX, DirY };
+enum FarDetectorMLNNIndexOut { MomX, MomY, MomZ };
 
   using FarDetectorMLReconstructionAlgorithm = algorithms::Algorithm<
     algorithms::Input<
@@ -39,9 +39,8 @@ namespace eicrecon {
     >
   >;
 
-  class FarDetectorMLReconstruction
-  : public FarDetectorMLReconstructionAlgorithm,
-    public WithPodConfig<FarDetectorMLReconstructionConfig> {
+class FarDetectorMLReconstruction : public FarDetectorMLReconstructionAlgorithm,
+                                    public WithPodConfig<FarDetectorMLReconstructionConfig> {
 
   public:
       FarDetectorMLReconstruction(std::string_view name)
@@ -50,22 +49,20 @@ namespace eicrecon {
                               {"Trajectory","TrackParameters","Track","PropegatedTrackAssociations"},
                               "Reconstruct track parameters using ML method."} {}
 
+  /** One time initialization **/
+  void init();
 
-      /** One time initialization **/
-      void init();
+  /** Event by event processing **/
+  void process(const Input&, const Output&);
 
-      /** Event by event processing **/
-      void process(const Input&, const Output&);
+  //----- Define constants here ------
 
-      //----- Define constants here ------
+private:
+  TMVA::Reader* m_reader{nullptr};
+  TMVA::MethodBase* m_method{nullptr};
+  float m_beamE{10.0};
+  std::once_flag m_initBeamE;
+  float nnInput[4] = {0.0, 0.0, 0.0, 0.0};
+};
 
-  private:
-      TMVA::Reader*     m_reader{nullptr};
-      TMVA::MethodBase* m_method{nullptr};
-      float m_beamE{10.0};
-      std::once_flag m_initBeamE;
-      float nnInput[4]  = {0.0,0.0,0.0,0.0};
-
-  };
-
-} // eicrecon
+} // namespace eicrecon
