@@ -39,7 +39,7 @@ public:
       : FarDetectorMLReconstructionAlgorithm{
             name,
             {"TrackParameters", "BeamElectrons", "FittedTracks", "FittedTrackAssociations"},
-            {"Trajectory", "TrackParameters", "Track", "PropegatedTrackAssociations"},
+            {"Trajectory", "TrackParameters", "Track", "PropagatedTrackAssociations"},
             "Reconstruct track parameters using ML method."} {}
 
   /** One time initialization **/
