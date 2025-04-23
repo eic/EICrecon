@@ -140,9 +140,9 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
       Tools::PrintHypothesisTableHead(m_log, 6);
 
       // merge scalar members
-      out_npe += in_pid.getNpe();                                           // sum
+      out_npe += in_pid.getNpe(); // sum
       out_refractiveIndex += in_pid.getNpe() * in_pid.getRefractiveIndex(); // NPE-weighted average
-      out_photonEnergy += in_pid.getNpe() * in_pid.getPhotonEnergy();       // NPE-weighted average
+      out_photonEnergy += in_pid.getNpe() * in_pid.getPhotonEnergy(); // NPE-weighted average
 
       // merge photon Cherenkov angles
       for (auto in_photon_vec : in_pid.getThetaPhiPhotons())

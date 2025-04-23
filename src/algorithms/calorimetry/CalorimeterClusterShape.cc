@@ -213,7 +213,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
         out_assoc.setWeight(in_assoc.getWeight());
       }
     } // end input association loop
-  }   // end input cluster loop
+  } // end input cluster loop
   debug("Completed processing input clusters");
 
 } // end 'process(Input&, Output&)'

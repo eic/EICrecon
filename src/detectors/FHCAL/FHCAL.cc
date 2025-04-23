@@ -140,7 +140,7 @@ void InitPlugin(JApplication* app) {
             "HcalEndcapPInsertHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"HcalEndcapPInsertTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"HcalEndcapPInsertTruthClustersWithoutShapes", // edm4eic::Cluster
        "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 0.0257, .logWeightBase = 3.6, .enableEtaBounds = true},
       app // TODO: Remove me once fixed
@@ -164,7 +164,7 @@ void InitPlugin(JApplication* app) {
             "HcalEndcapPInsertHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"HcalEndcapPInsertClustersWithoutShapes",             // edm4eic::Cluster
+      {"HcalEndcapPInsertClustersWithoutShapes", // edm4eic::Cluster
        "HcalEndcapPInsertClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -281,7 +281,7 @@ void InitPlugin(JApplication* app) {
             "LFHCALHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"LFHCALTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"LFHCALTruthClustersWithoutShapes", // edm4eic::Cluster
        "LFHCALTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -304,7 +304,7 @@ void InitPlugin(JApplication* app) {
             "LFHCALHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"LFHCALClustersWithoutShapes",             // edm4eic::Cluster
+      {"LFHCALClustersWithoutShapes", // edm4eic::Cluster
        "LFHCALClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -344,7 +344,7 @@ void InitPlugin(JApplication* app) {
             "LFHCALHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"LFHCALSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
+      {"LFHCALSplitMergeClustersWithoutShapes", // edm4eic::Cluster
        "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
