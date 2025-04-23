@@ -69,6 +69,7 @@ jobs:
       matrix:
         CXX: [g++, clang++]
         CMAKE_BUILD_TYPE: [Release, Debug]
+        CXXFLAGS: [-Werror -Wall -Wextra]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
         include:
           # all clang debug jobs get extra flags
