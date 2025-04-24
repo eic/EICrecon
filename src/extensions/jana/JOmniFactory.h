@@ -516,6 +516,8 @@ public:
     static_cast<AlgoT*>(this)->ChangeRun(event->GetRunNumber());
   }
 
+  virtual void Process(int32_t /* run_number */, uint64_t /* event_number */){};
+
   void Process(const std::shared_ptr<const JEvent>& event) override {
     try {
       for (auto* input : m_inputs) {
