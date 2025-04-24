@@ -29,6 +29,7 @@
 #include <Eigen/SVD>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <unordered_map>
 #include <utility>
 
