@@ -13,7 +13,6 @@
 #include <spdlog/common.h>
 #include <cstddef>
 #include <iterator>
-#include <utility>
 #include <vector>
 
 namespace eicrecon {

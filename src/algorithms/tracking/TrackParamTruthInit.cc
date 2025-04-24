@@ -18,7 +18,6 @@
 #include <cstdlib>
 #include <limits>
 #include <memory>
-#include <utility>
 
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
