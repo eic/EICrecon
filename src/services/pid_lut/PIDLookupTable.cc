@@ -58,7 +58,6 @@ void PIDLookupTable::load_file(const std::string& filename,
 
   std::string line;
   std::istringstream iss;
-  double step;
 
   const double angle_fudge = binning.use_radians ? 180. / M_PI : 1.;
 

@@ -13,6 +13,7 @@
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHit.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
@@ -29,6 +30,7 @@
 #include <Eigen/SVD>
 #include <algorithm>
 #include <cmath>
+#include <cstddef>
 #include <unordered_map>
 #include <utility>
 
@@ -238,13 +240,17 @@ void FarDetectorLinearTracking::ConvertClusters(
 
     // Determine the MCParticle associated with this measurement based on the weights
     // Get hit in measurement with max weight
-    float maxWeight = 0;
-    int maxIndex    = -1;
-    for (int i = 0; i < cluster.getWeights().size(); ++i) {
+    float maxWeight      = 0;
+    std::size_t maxIndex = cluster.getWeights().size();
+    for (std::size_t i = 0; i < cluster.getWeights().size(); ++i) {
       if (cluster.getWeights()[i] > maxWeight) {
         maxWeight = cluster.getWeights()[i];
         maxIndex  = i;
       }
+    }
+    if (maxIndex == cluster.getWeights().size()) {
+      // no maximum found (e.g. all weights zero, cluster size zero)
+      continue;
     }
     auto maxHit = cluster.getHits()[maxIndex];
     // Get associated raw hit
@@ -253,8 +259,12 @@ void FarDetectorLinearTracking::ConvertClusters(
     // Loop over the hit associations to find the associated MCParticle
     for (const auto& hit_assoc : assoc_hits) {
       if (hit_assoc.getRawHit() == rawHit) {
-        auto mcParticle = hit_assoc.getSimHit().getMCParticle();
-        assocParticles.push_back(mcParticle);
+#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
+        auto particle = hit_assoc.getSimHit().getParticle();
+#else
+        auto particle = hit_assoc.getSimHit().getMCParticle();
+#endif
+        assocParticles.push_back(particle);
         break;
       }
     }

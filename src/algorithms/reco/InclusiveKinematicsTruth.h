@@ -32,7 +32,6 @@ public:
 
 private:
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
-  double m_crossingAngle{-0.025};
 };
 
 } // namespace eicrecon

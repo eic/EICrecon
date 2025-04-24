@@ -26,15 +26,14 @@ void EICROCDigitization::process(const EICROCDigitization::Input& input,
   int adc_range = m_cfg.adc_range;
 
   for (const auto& pulse : *simhits) {
-    double intersectionX = 0.0;
-    int tdc              = std::numeric_limits<int>::max();
-    int V                = 0;
+    int tdc  = std::numeric_limits<int>::max();
+    int adc  = 0;
+    double V = 0.0;
 
-    int time_bin         = 0;
-    double adc_prev      = 0;
-    double time_interval = pulse.getInterval();
-    auto adcs            = pulse.getAdcCounts();
-    int n_EICROC_cycle   = static_cast<int>(std::floor(pulse.getTime() / m_cfg.tMax + 1e-3));
+    int time_bin          = 0;
+    double adc_prev       = 0;
+    auto adcs             = pulse.getAdcCounts();
+    double n_EICROC_cycle = static_cast<int>(std::floor(pulse.getTime() / m_cfg.tMax + 1e-3));
     for (const auto adc : adcs) {
       if (adc_prev >= thres && adc <= thres) {
         tdc = time_bin + n_EICROC_cycle * m_cfg.tdc_range;

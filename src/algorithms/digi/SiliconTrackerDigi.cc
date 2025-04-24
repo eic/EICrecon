@@ -80,7 +80,6 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
             hit.getTimeStamp());
 
       // keep earliest time for hit
-      auto time_stamp = hit.getTimeStamp();
       hit.setTimeStamp(std::min(hit_time_stamp, hit.getTimeStamp()));
 
       // sum deposited energy
