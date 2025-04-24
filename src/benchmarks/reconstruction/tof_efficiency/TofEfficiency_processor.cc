@@ -97,10 +97,10 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
   // Now go through reconstructed tracks points
   logger()->trace("Going over tracks:");
   m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[length]");
-  for (const auto track_segment : trackSegments) {
+  for (const auto& track_segment : trackSegments) {
     logger()->trace(" Track trajectory");
 
-    for (const auto point : track_segment.getPoints()) {
+    for (const auto& point : track_segment.getPoints()) {
       auto& pos = point.position;
       m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", pos.x, pos.y, pos.z,
                    point.pathlength);
