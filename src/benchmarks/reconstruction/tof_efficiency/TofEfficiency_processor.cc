@@ -1,24 +1,18 @@
 #include "TofEfficiency_processor.h"
 
-#include <DD4hep/VolumeManager.h>
-#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/Services/JGlobalRootLock.h>
-#include <Math/GenVector/Cartesian3D.h>
-#include <Math/GenVector/DisplacementVector3D.h>
-#include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <spdlog/logger.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <vector>
 
-#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
 
 //-------------------------------------------
@@ -62,39 +56,23 @@ void TofEfficiency_processor::InitWithGlobalRootLock() {
       "track", "track with tof",
       "det:proj_x:proj_y:proj_z:proj_pathlength:tofhit_x:tofhit_y:tofhit_z:tofhit_t:tofhit_dca");
   m_tntuple_track->SetDirectory(m_dir_main);
-
-  // convert local position to global position for Measurement2D
-  m_detector  = GetApplication()->GetService<DD4hep_service>()->detector();
-  m_converter = GetApplication()->GetService<DD4hep_service>()->converter();
-}
-
-// Convert measurements into global coordinates
-// copied from FarDetectorLinearTracking.cc
-const edm4hep::Vector3f
-TofEfficiency_processor::ConvertCluster(const edm4eic::Measurement2D& cluster) const {
-
-  // Get context of first hit
-  const dd4hep::VolumeManagerContext* context = m_converter->findContext(cluster.getSurface());
-  auto globalPos = context->localToWorld({cluster.getLoc()[0], cluster.getLoc()[1], 0});
-  return edm4hep::Vector3f{static_cast<float>(globalPos.x() / dd4hep::mm),
-                           static_cast<float>(globalPos.y() / dd4hep::mm),
-                           static_cast<float>(globalPos.z() / dd4hep::mm)};
 }
 
 //-------------------------------------------
 // ProcessSequential
 //-------------------------------------------
 void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
+  const auto& mcParticles = *(event->GetCollection<edm4hep::MCParticle>("MCParticles"));
   const auto& trackSegments =
       *(event->GetCollection<edm4eic::TrackSegment>("CentralTrackSegments"));
-  const auto& barrelHits = *(event->GetCollection<edm4eic::Measurement2D>("TOFBarrelRecHits"));
+  const auto& barrelHits = *(event->GetCollection<edm4eic::TrackerHit>("TOFBarrelRecHits"));
   const auto& endcapHits = *(event->GetCollection<edm4eic::TrackerHit>("TOFEndcapRecHits"));
 
   // List TOF Barrel hits from barrel
   logger()->trace("TOF barrel hits:");
   m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[time]");
   for (const auto hit : barrelHits) {
-    const auto& pos = ConvertCluster(hit);
+    const auto& pos = hit.getPosition();
     float r         = sqrt(pos.x * pos.x + pos.y * pos.y);
     float phi       = acos(pos.x / r);
     if (pos.y < 0)
@@ -119,10 +97,10 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
   // Now go through reconstructed tracks points
   logger()->trace("Going over tracks:");
   m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[length]");
-  for (const auto& track_segment : trackSegments) {
+  for (const auto track_segment : trackSegments) {
     logger()->trace(" Track trajectory");
 
-    for (const auto& point : track_segment.getPoints()) {
+    for (const auto point : track_segment.getPoints()) {
       auto& pos = point.position;
       m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", pos.x, pos.y, pos.z,
                    point.pathlength);
@@ -130,9 +108,10 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
       int det                = IsTOFHit(pos.x, pos.y, pos.z);
       float distance_closest = 1e6;
       float hit_x = -1000, hit_y = -1000, hit_z = -1000, hit_t = -1000;
+      float hit_px = -1000, hit_py = -1000, hit_pz = -1000, hit_e = -1000;
       if (det == 1) {
         for (const auto hit : barrelHits) {
-          const auto& hitpos = ConvertCluster(hit);
+          const auto& hitpos = hit.getPosition();
           float distance     = sqrt((hitpos.x - pos.x) * (hitpos.x - pos.x) +
                                     (hitpos.y - pos.y) * (hitpos.y - pos.y) +
                                     (hitpos.z - pos.z) * (hitpos.z - pos.z));
