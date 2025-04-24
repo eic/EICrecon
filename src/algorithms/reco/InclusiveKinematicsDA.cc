@@ -66,7 +66,6 @@ void InclusiveKinematicsDA::process(const InclusiveKinematicsDA::Input& input,
     return;
   }
   auto sigma_h = hfs->at(0).getSigma();
-  auto ptsum   = hfs->at(0).getPT();
   auto gamma_h = hfs->at(0).getGamma();
 
   // Sigma zero or negative

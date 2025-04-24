@@ -221,8 +221,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
     params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
 
-    double charge = std::copysign(1., track_parameter.getQOverP());
-
     Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
     for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
       for (std::size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {

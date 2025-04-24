@@ -62,7 +62,6 @@ void TofEfficiency_processor::InitWithGlobalRootLock() {
 // ProcessSequential
 //-------------------------------------------
 void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-  const auto& mcParticles = *(event->GetCollection<edm4hep::MCParticle>("MCParticles"));
   const auto& trackSegments =
       *(event->GetCollection<edm4eic::TrackSegment>("CentralTrackSegments"));
   const auto& barrelHits = *(event->GetCollection<edm4eic::TrackerHit>("TOFBarrelRecHits"));
@@ -108,7 +107,6 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
       int det                = IsTOFHit(pos.x, pos.y, pos.z);
       float distance_closest = 1e6;
       float hit_x = -1000, hit_y = -1000, hit_z = -1000, hit_t = -1000;
-      float hit_px = -1000, hit_py = -1000, hit_pz = -1000, hit_e = -1000;
       if (det == 1) {
         for (const auto hit : barrelHits) {
           const auto& hitpos = hit.getPosition();

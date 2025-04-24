@@ -376,7 +376,6 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     // calc cell IDs
     int cellIDx = detector_layer_x;
     int cellIDy = detector_layer_y;
-    int cellIDz = 0;
 
     hPosCaloHitsXY->Fill(x, y);
     nCaloHitsRec++;
