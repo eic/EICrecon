@@ -35,9 +35,9 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_prediction_tensor_input(), m_beamelectrons_input()},
                     {m_particle_output().get()});
   }

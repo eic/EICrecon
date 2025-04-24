@@ -48,13 +48,13 @@ struct BasicTestAlg : public JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
     logger()->info("Calling BasicTestAlg::Configure");
   }
 
-  void ChangeRun(int64_t run_number) {
+  void ChangeRun(int32_t /* run_number */) {
     m_changerun_call_count++;
     logger()->info("Calling BasicTestAlg::ChangeRun");
   }
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_process_call_count++;
     logger()->info("Calling BasicTestAlg::Process with bucket_count={}, threshold={}",
                    config().bucket_count, config().threshold);
@@ -256,13 +256,13 @@ struct VariadicTestAlg : public JOmniFactory<VariadicTestAlg, BasicTestAlgConfig
     logger()->info("Calling VariadicTestAlg::Configure");
   }
 
-  void ChangeRun(int64_t run_number) {
+  void ChangeRun(int32_t /* run_number */) {
     m_changerun_call_count++;
     logger()->info("Calling VariadicTestAlg::ChangeRun");
   }
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_process_call_count++;
     logger()->info("Calling VariadicTestAlg::Process with bucket_count={}, threshold={}",
                    config().bucket_count, config().threshold);
@@ -324,10 +324,10 @@ struct SubsetTestAlg : public JOmniFactory<SubsetTestAlg, BasicTestAlgConfig> {
 
   void Configure() {}
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
 
     // Variadic collection count constrained to be same size
     REQUIRE(m_left_hits_in().size() == 1);
@@ -390,10 +390,10 @@ struct VariadicOutputTestAlg : public JOmniFactory<VariadicOutputTestAlg, BasicT
   VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_hits_out{this};
 
   void Configure() {}
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
 
     REQUIRE(m_hits_out().size() == 2);
     m_hits_out()[0]->setSubsetCollection();

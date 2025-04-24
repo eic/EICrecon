@@ -33,9 +33,9 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
 
     std::vector<gsl::not_null<typename T::collection_type*>> split_collections;
     for (const auto& split : m_split_output()) {
