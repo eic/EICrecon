@@ -226,7 +226,7 @@ public:
 
     void Reset() override {
       m_data.clear();
-      for (auto& coll_name : this->collection_names) {
+      for (auto& coll_name [[maybe_unused]] : this->collection_names) {
         m_data.push_back(std::make_unique<typename PodioTypeMap<PodioT>::collection_t>());
       }
     }
@@ -296,7 +296,7 @@ public:
   private:
     friend class JOmniFactory;
 
-    void Configure(JParameterManager& parman, const std::string& prefix) override {
+    void Configure(JParameterManager& parman, const std::string& /* prefix */) override {
       parman.SetDefaultParameter(m_prefix + ":" + this->m_name, m_data, this->m_description);
     }
     void Configure(std::map<std::string, std::string> fields) override {

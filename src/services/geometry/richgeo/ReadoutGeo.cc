@@ -31,10 +31,10 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
   m_random.SetSeed(1); // default seed
 
   // default (empty) cellID looper
-  m_loopCellIDs = [](std::function<void(CellIDType)> lambda) { return; };
+  m_loopCellIDs = [](std::function<void(CellIDType)> /* lambda */) { return; };
 
   // default (empty) cellID rng generator
-  m_rngCellIDs = [](std::function<void(CellIDType)> lambda, float p) { return; };
+  m_rngCellIDs = [](std::function<void(CellIDType)> /" lambda */, float /* p */) { return; };
 
   // common objects
   m_readoutCoder = m_det->readout(m_readoutClass).idSpec().decoder();

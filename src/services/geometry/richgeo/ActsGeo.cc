@@ -153,5 +153,5 @@ std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int rad
   }
 
   // otherwise return a cut which always passes
-  return [](edm4eic::TrackPoint p) { return true; };
+  return [](edm4eic::TrackPoint /* p */) { return true; };
 }

@@ -69,14 +69,11 @@ private:
   };
 
 public:
-  JEventProcessorJANATOP() : JEventProcessor() {
-    SetTypeName("JEventProcessorJANATOP");
-    auto app = japp;
-  };
+  JEventProcessorJANATOP() : JEventProcessor() { SetTypeName("JEventProcessorJANATOP"); };
 
   void Init() override{};
 
-  void BeginRun(const std::shared_ptr<const JEvent>& event) override{};
+  void BeginRun(const std::shared_ptr<const JEvent>& /* event */) override{};
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
     // Get the call stack for ths event and add the results to our stats

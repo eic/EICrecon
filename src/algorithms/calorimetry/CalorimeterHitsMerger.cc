@@ -62,7 +62,7 @@ void CalorimeterHitsMerger::init() {
     id_desc    = m_detector->readout(m_cfg.readout).idSpec();
     id_decoder = id_desc.decoder();
     for (const std::string& field : fields) {
-      const short index = id_decoder->index(field);
+      const short index [[maybe_unused]] = id_decoder->index(field);
     }
   } catch (...) {
     auto mess = fmt::format("Failed to load ID decoder for {}", m_cfg.readout);
