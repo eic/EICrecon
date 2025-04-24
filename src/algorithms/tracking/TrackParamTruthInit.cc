@@ -18,7 +18,6 @@
 #include <cstdlib>
 #include <limits>
 #include <memory>
-#include <utility>
 
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
@@ -139,5 +138,5 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     }
   }
 
-  return std::move(track_parameters);
+  return track_parameters;
 }

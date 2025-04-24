@@ -144,6 +144,6 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
   m_log->debug("All hits processed. Hits size: {}  measurements->size: {}", trk_hits.size(),
                meas2Ds->size());
 
-  return std::move(meas2Ds);
+  return meas2Ds;
 }
 } // namespace eicrecon
