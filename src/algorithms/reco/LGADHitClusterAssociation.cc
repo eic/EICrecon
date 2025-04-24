@@ -3,17 +3,20 @@
 
 #include "LGADHitClusterAssociation.h"
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/Segmentations.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <Math/GenVector/Cartesian3D.h>
-#include <Math/GenVector/DisplacementVector3D.h>
+#include <ROOT/RVec.hxx>
 #include <algorithms/geo.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector3f.h>
-#include <ROOT/RVec.hxx>
-#include <cmath>
+#include <podio/RelationRange.h>
+#include <algorithm>
 #include <gsl/pointers>
-#include <iostream>
 #include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "algorithms/reco/LGADHitClusterAssociationConfig.h"
 
