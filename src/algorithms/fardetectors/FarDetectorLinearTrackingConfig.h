@@ -6,9 +6,9 @@
 namespace eicrecon {
 struct FarDetectorLinearTrackingConfig {
 
-  int layer_hits_max{10};
+  std::size_t layer_hits_max{10};
   float chi2_max{0.001};
-  int n_layer{4};
+  std::size_t n_layer{4};
 
   // Restrict hit direction
   bool restrict_direction{true};

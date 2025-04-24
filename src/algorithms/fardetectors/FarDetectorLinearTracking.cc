@@ -61,7 +61,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
   auto [outputTracks, assocTracks]  = output;
 
   // Check the number of input collections is correct
-  int nCollections = inputhits.size();
+  std::size_t nCollections = inputhits.size();
   if (nCollections != m_cfg.n_layer) {
     error("Wrong number of input collections passed to algorithm");
     return;
@@ -89,7 +89,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
   Eigen::MatrixXd hitMatrix(3, m_cfg.n_layer);
 
   // Create vector to store indexes of hits in the track
-  std::vector<int> layerHitIndex(m_cfg.n_layer, 0);
+  std::vector<std::size_t> layerHitIndex(m_cfg.n_layer, 0);
 
   int layer = 0;
 
@@ -105,7 +105,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
 
     // If valid hit combination, move to the next layer or check the combination
     if (isValid) {
-      if (layer == m_cfg.n_layer - 1) {
+      if (layer == static_cast<long>(m_cfg.n_layer) - 1) {
         // Check the combination, if chi2 limit is passed, add the track to the output
         checkHitCombination(&hitMatrix, outputTracks, assocTracks, inputhits, assocParts,
                             layerHitIndex);
@@ -140,7 +140,7 @@ void FarDetectorLinearTracking::checkHitCombination(
     edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
     const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
     const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
-    const std::vector<int>& layerHitIndex) const {
+    const std::vector<std::size_t>& layerHitIndex) const {
 
   Eigen::Vector3d weightedAnchor = (*hitMatrix) * m_layerWeights / (m_layerWeights.sum());
 
@@ -173,7 +173,7 @@ void FarDetectorLinearTracking::checkHitCombination(
   float time{0};                                            // Time at this point [ns]
   float timeError{0};                                       // Error on the time at this point
   float charge{-1};                                         // Charge of the particle
-  int32_t ndf{m_cfg.n_layer - 1};                           // Number of degrees of freedom
+  int32_t ndf{static_cast<int32_t>(m_cfg.n_layer) - 1};     // Number of degrees of freedom
   int32_t pdg{11};                                          // PDG code of the particle
 
   // Create the track
@@ -183,7 +183,7 @@ void FarDetectorLinearTracking::checkHitCombination(
 
   // Add Measurement2D relations and count occurrence of particles contributing to the track
   std::unordered_map<const edm4hep::MCParticle*, int> particleCount;
-  for (int layer = 0; layer < layerHitIndex.size(); layer++) {
+  for (std::size_t layer = 0; layer < layerHitIndex.size(); layer++) {
     track.addToMeasurements((*inputHits[layer])[layerHitIndex[layer]]);
     const auto& assocParticle = assocParts[layer][layerHitIndex[layer]];
     particleCount[&assocParticle]++;
