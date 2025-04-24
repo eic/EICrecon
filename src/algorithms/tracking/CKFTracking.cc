@@ -158,7 +158,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 #endif
     // ---
     // Create ACTS measurements
-    std::array<Acts::BoundIndices, 2> indices{Acts::eBoundLoc0, Acts::eBoundLoc1};
 
     Acts::ActsVector<2> loc = Acts::Vector2::Zero();
     loc[Acts::eBoundLoc0]   = meas2D.getLoc().a;
@@ -171,6 +170,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     cov(1, 0)                     = meas2D.getCovariance().xy;
 
 #if Acts_VERSION_MAJOR > 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR >= 1)
+    std::array<Acts::BoundIndices, 2> indices{Acts::eBoundLoc0, Acts::eBoundLoc1};
     Acts::visit_measurement(
         indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
           if constexpr (dim == indices.size()) {
@@ -181,6 +181,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
           }
         });
 #elif Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR == 0
+    std::array<Acts::BoundIndices, 2> indices{Acts::eBoundLoc0, Acts::eBoundLoc1};
     Acts::visit_measurement(
         indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
           if constexpr (dim == indices.size()) {

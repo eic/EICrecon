@@ -47,9 +47,6 @@ public:
 };
 
 inline bool operator==(SpacePoint a, SpacePoint b) { return (a.getObjectID() == b.getObjectID()); }
-static bool spCompare(SpacePoint r, SpacePoint s) {
-  return std::hypot(r.x(), r.y(), r.z()) < std::hypot(s.x(), s.y(), s.z());
-}
 
 using SpacePointPtr = std::unique_ptr<SpacePoint>;
 /// Container of sim seed

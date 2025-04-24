@@ -329,7 +329,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     //loop over input_tower_sim and find if there is already a tower with the same cellID
     bool found = false;
     for (auto& tower : input_tower_sim) {
-      if (tower.cellID == cellID) {
+      if (tower.cellID == static_cast<decltype(tower.cellID)>(cellID)) {
         tower.energy += energy;
         found = true;
         break;
@@ -384,7 +384,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     //loop over input_tower_rec and find if there is already a tower with the same cellID
     bool found = false;
     for (auto& tower : input_tower_rec) {
-      if (tower.cellID == cellID) {
+      if (tower.cellID == static_cast<decltype(tower.cellID)>(cellID)) {
         tower.energy += energy;
         found = true;
         break;
