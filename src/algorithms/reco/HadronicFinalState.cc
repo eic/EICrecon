@@ -89,7 +89,6 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
   auto hfs = hadronicfinalstate->create(0., 0., 0.);
 
   for (const auto& p : *rcparts) {
-    bool isHadron = true;
     // Check if it's the scattered electron
     if (p.getObjectID().index != ef_rc_id) {
       // Lorentz vector in lab frame

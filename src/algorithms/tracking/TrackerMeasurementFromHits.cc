@@ -37,7 +37,7 @@ void TrackerMeasurementFromHits::init(const dd4hep::Detector* detector,
   m_converter       = converter;
   m_log             = logger;
   m_acts_context    = std::move(acts_context);
-  m_detid_b0tracker = m_dd4hepGeo->constant<int>("B0Tracker_Station_1_ID");
+  m_detid_b0tracker = m_dd4hepGeo->constant<unsigned long>("B0Tracker_Station_1_ID");
 }
 
 std::unique_ptr<edm4eic::Measurement2DCollection>
@@ -144,6 +144,6 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
   m_log->debug("All hits processed. Hits size: {}  measurements->size: {}", trk_hits.size(),
                meas2Ds->size());
 
-  return std::move(meas2Ds);
+  return meas2Ds;
 }
 } // namespace eicrecon

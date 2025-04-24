@@ -5,7 +5,6 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
@@ -62,7 +61,6 @@ void TofEfficiency_processor::InitWithGlobalRootLock() {
 // ProcessSequential
 //-------------------------------------------
 void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-  const auto& mcParticles = *(event->GetCollection<edm4hep::MCParticle>("MCParticles"));
   const auto& trackSegments =
       *(event->GetCollection<edm4eic::TrackSegment>("CentralTrackSegments"));
   const auto& barrelHits = *(event->GetCollection<edm4eic::TrackerHit>("TOFBarrelRecHits"));
@@ -97,10 +95,10 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
   // Now go through reconstructed tracks points
   logger()->trace("Going over tracks:");
   m_log->trace("   {:>10} {:>10} {:>10} {:>10}", "[x]", "[y]", "[z]", "[length]");
-  for (const auto track_segment : trackSegments) {
+  for (const auto& track_segment : trackSegments) {
     logger()->trace(" Track trajectory");
 
-    for (const auto point : track_segment.getPoints()) {
+    for (const auto& point : track_segment.getPoints()) {
       auto& pos = point.position;
       m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", pos.x, pos.y, pos.z,
                    point.pathlength);
@@ -108,7 +106,6 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
       int det                = IsTOFHit(pos.x, pos.y, pos.z);
       float distance_closest = 1e6;
       float hit_x = -1000, hit_y = -1000, hit_z = -1000, hit_t = -1000;
-      float hit_px = -1000, hit_py = -1000, hit_pz = -1000, hit_e = -1000;
       if (det == 1) {
         for (const auto hit : barrelHits) {
           const auto& hitpos = hit.getPosition();

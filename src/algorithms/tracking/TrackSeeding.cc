@@ -175,7 +175,7 @@ eicrecon::TrackSeeding::produce(const edm4eic::TrackerHitCollection& trk_hits) {
     delete sp;
   }
 
-  return std::move(trackparams);
+  return trackparams;
 }
 
 std::vector<const eicrecon::SpacePoint*>
@@ -276,7 +276,7 @@ eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds) {
     trackparam.setCovariance(cov);
   }
 
-  return std::move(trackparams);
+  return trackparams;
 }
 std::pair<float, float>
 eicrecon::TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) const {

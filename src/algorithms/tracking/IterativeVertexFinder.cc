@@ -162,10 +162,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 
       for (const auto& part : *reconParticles) {
         const auto& tracks = part.getTracks();
-        for (const auto trk : tracks) {
+        for (const auto& trk : tracks) {
           const auto& traj    = trk.getTrajectory();
           const auto& trkPars = traj.getTrackParameters();
-          for (const auto par : trkPars) {
+          for (const auto& par : trkPars) {
             const double EPSILON = 1.0e-4; // mm
             if (fabs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
                     EPSILON &&
@@ -187,5 +187,5 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 
   } // end for vtx
 
-  return std::move(outputVertices);
+  return outputVertices;
 }

@@ -201,7 +201,6 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
         debug("  Hit already exists in cell ID={}, prev. hit time: {}", cID, hit.getTimeStamp());
 
         // keep earliest time for hit
-        auto time_stamp = hit.getTimeStamp();
         hit.setTimeStamp(std::min(hit_time_stamp, hit.getTimeStamp()));
 
         // sum deposited energy
