@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Derek Anderson
 
+#include <DD4hep/Detector.h>
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -21,10 +22,10 @@ namespace eicrecon {
 // --------------------------------------------------------------------------
 //! Initialize algorithm
 // --------------------------------------------------------------------------
-void TrackClusterMergeSplitter::init(const dd4hep::Detector* detector) {
+void TrackClusterMergeSplitter::init() {
 
   // grab detector id
-  m_idCalo = detector->constant<int>(m_cfg.idCalo);
+  m_idCalo = m_geo.detector()->constant<int>(m_cfg.idCalo);
   debug("Collecting projections to detector with system id {}", m_idCalo);
 
 } // end 'init(dd4hep::Detector*)'

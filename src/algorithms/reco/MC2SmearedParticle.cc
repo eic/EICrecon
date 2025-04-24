@@ -7,7 +7,6 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <utility>
 
 void eicrecon::MC2SmearedParticle::init(std::shared_ptr<spdlog::logger> logger) { m_log = logger; }
 
@@ -43,5 +42,5 @@ eicrecon::MC2SmearedParticle::produce(const edm4hep::MCParticleCollection* mc_pa
     rec_part.setCovMatrix({0, 0, 0, 0});
     rec_part.setPDG(mc_particle.getPDG());
   }
-  return std::move(rec_particles);
+  return rec_particles;
 }

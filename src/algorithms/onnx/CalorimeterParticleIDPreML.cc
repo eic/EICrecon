@@ -65,7 +65,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
     auto pos = cluster.getPosition();
     feature_tensor.addToFloatData(edm4hep::utils::anglePolar(pos));
     feature_tensor.addToFloatData(edm4hep::utils::angleAzimuthal(pos));
-    for (int par_ix = 0; par_ix < cluster.shapeParameters_size(); par_ix++) {
+    for (std::size_t par_ix = 0; par_ix < cluster.shapeParameters_size(); par_ix++) {
       feature_tensor.addToFloatData(cluster.getShapeParameters(par_ix));
     }
 

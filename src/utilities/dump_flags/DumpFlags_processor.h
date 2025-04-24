@@ -58,9 +58,6 @@ private:
   /// Print parameter summary to screen at end of job
   bool m_print_to_screen = true;
 
-  /// Print only reconstruction flags
-  bool m_only_reco = true;
-
   /// Prefixes of flags that belongs to reconstruction parameters
   std::vector<std::string> m_reco_prefixes = {
       "B0TRK", "BEMC",  "DRICH", "BTRK", "BVTX",     "ECTRK", "EEMC", "FOFFMTRK",   "HCAL",

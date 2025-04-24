@@ -37,7 +37,7 @@ private:
   std::shared_ptr<const ActsGeometryProvider> m_acts_context;
 
   /// Detector-specific information
-  int m_detid_b0tracker;
+  unsigned long m_detid_b0tracker;
 };
 
 } // namespace eicrecon

@@ -34,7 +34,6 @@ void FarDetectorMLReconstruction::init() {
 
   // Locate and load the weight file
   // TODO - Add functionality to select passed by configuration
-  bool methodFound = false;
   if (!m_cfg.modelPath.empty()) {
     try {
       m_method =

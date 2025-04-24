@@ -97,9 +97,7 @@ void FarDetectorTrackerCluster::ClusterHits(
     dd4hep::Position localPos = {0, 0, 0};
     float weightSum           = 0;
 
-    float esum    = 0;
     float t0      = 0;
-    float tError  = 0;
     auto maxIndex = ROOT::VecOps::ArgMax(e * available);
 
     available[maxIndex] = 0;

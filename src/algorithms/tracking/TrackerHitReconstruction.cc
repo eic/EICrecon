@@ -13,7 +13,6 @@
 #include <spdlog/common.h>
 #include <cstddef>
 #include <iterator>
-#include <utility>
 #include <vector>
 
 namespace eicrecon {
@@ -89,7 +88,7 @@ TrackerHitReconstruction::process(const edm4eic::RawTrackerHitCollection& raw_hi
 #endif
   }
 
-  return std::move(rec_hits);
+  return rec_hits;
 }
 
 } // namespace eicrecon
