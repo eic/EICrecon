@@ -8,6 +8,7 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <podio/RelationRange.h>
+#include <cstddef>
 #include <gsl/pointers>
 #include <vector>
 
@@ -33,7 +34,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
 
     float integral = 0;
     //Add noise to the pulse
-    for (int i = 0; i < pulse.getAmplitude().size(); i++) {
+    for (std::size_t i = 0; i < pulse.getAmplitude().size(); i++) {
       double noise     = m_noise(generator) * m_cfg.scale;
       double amplitude = pulse.getAmplitude()[i] + noise;
       out_pulse.addToAmplitude(amplitude);
