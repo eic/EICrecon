@@ -51,12 +51,11 @@ public:
                                         {"outputAerogelParticleIDs", "outputGasParticleIDs"},
                                         "Effectively 'zip' the input particle IDs"} {}
 
-  void init(CherenkovDetectorCollection* irt_det_coll, std::shared_ptr<spdlog::logger>& logger);
+  void init(CherenkovDetectorCollection* irt_det_coll);
 
   void process(const Input&, const Output&) const;
 
 private:
-  std::shared_ptr<spdlog::logger> m_log;
   CherenkovDetectorCollection* m_irt_det_coll;
   CherenkovDetector* m_irt_det;
 
