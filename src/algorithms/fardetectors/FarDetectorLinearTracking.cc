@@ -238,13 +238,17 @@ void FarDetectorLinearTracking::ConvertClusters(
 
     // Determine the MCParticle associated with this measurement based on the weights
     // Get hit in measurement with max weight
-    float maxWeight = 0;
-    int maxIndex    = -1;
-    for (int i = 0; i < cluster.getWeights().size(); ++i) {
+    float maxWeight      = 0;
+    std::size_t maxIndex = cluster.getWeights().size();
+    for (std::size_t i = 0; i < cluster.getWeights().size(); ++i) {
       if (cluster.getWeights()[i] > maxWeight) {
         maxWeight = cluster.getWeights()[i];
         maxIndex  = i;
       }
+    }
+    if (maxIndex == cluster.getWeights().size()) {
+      // no maximum found (e.g. all weights zero, cluster size zero)
+      continue;
     }
     auto maxHit = cluster.getHits()[maxIndex];
     // Get associated raw hit
