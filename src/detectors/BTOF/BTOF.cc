@@ -58,16 +58,16 @@ void InitPlugin(JApplication* app) {
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFBarrelClusterRecHits", {"TOFBarrelCalHits"}, // Input data collection tags
-      {"TOFBarrelClusterHits"},                     // Output data tag
+      {"TOFBarrelClusterHits"},                        // Output data tag
       {},
       app)); // Hit reco default config for factories
 
   app->Add(new JOmniFactoryGeneratorT<LGADHitClusterAssociation_factory>(
-      "TOFBarrelAssoRecHits", {"TOFBarrelClusterHits", "TOFBarrelRawHits"}, // Input data collection tags
-      {"TOFBarrelRecHits"},                     // Output data tag
+      "TOFBarrelAssoRecHits",
+      {"TOFBarrelClusterHits", "TOFBarrelRawHits"}, // Input data collection tags
+      {"TOFBarrelRecHits"},                         // Output data tag
       {},
       app)); // Hit reco default config for factories
-
 
   app->Add(new JOmniFactoryGeneratorT<LGADChargeSharing_factory>(
       "LGADChargeSharing", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},

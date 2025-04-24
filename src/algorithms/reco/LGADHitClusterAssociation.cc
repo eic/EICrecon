@@ -20,10 +20,9 @@
 namespace eicrecon {
 
 void LGADHitClusterAssociation::init() {
-  auto detector  = algorithms::GeoSvc::instance().detector();
-  auto seg       = detector->readout(m_cfg.readout).segmentation();
-  m_decoder      = seg.decoder();
-
+  auto detector = algorithms::GeoSvc::instance().detector();
+  auto seg      = detector->readout(m_cfg.readout).segmentation();
+  m_decoder     = seg.decoder();
 }
 
 dd4hep::rec::CellID LGADHitClusterAssociation::getSensorInfos(const dd4hep::rec::CellID& id) const {
@@ -37,18 +36,17 @@ dd4hep::rec::CellID LGADHitClusterAssociation::getSensorInfos(const dd4hep::rec:
 }
 
 void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& input,
-                      const LGADHitClusterAssociation::Output& output) const {
+                                        const LGADHitClusterAssociation::Output& output) const {
   using dd4hep::mm;
-  const auto [meas2D_hits, raw_hits]   = input;
-  auto [asso_hits] = output;
+  const auto [meas2D_hits, raw_hits] = input;
+  auto [asso_hits]                   = output;
 
   // group raw hit by cell ID
   std::unordered_map<dd4hep::rec::CellID, std::vector<edm4eic::MutableTrackerHit>> cellHitMap;
 
-
-  for(const auto& meas2D_hit : *meas2D_hits) {
+  for (const auto& meas2D_hit : *meas2D_hits) {
     auto cellID = meas2D_hit.getSurface();
-    auto time = meas2D_hit.getTime();
+    auto time   = meas2D_hit.getTime();
 
     // sum ADC info
     double tot_charge = 0;
@@ -56,7 +54,7 @@ void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& 
     ROOT::VecOps::RVec<float> pos_x, pos_y, pos_z;
 
     const auto hits = meas2D_hit.getHits();
-    for(const auto& hit : hits) {
+    for (const auto& hit : hits) {
       auto charge = hit.getEdep();
       tot_charge += charge;
       const auto pos = hit.getPosition();
@@ -69,40 +67,37 @@ void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& 
     pos_y /= tot_charge;
     pos_z /= tot_charge;
 
-
     auto ave_pos = edm4hep::Vector3f{static_cast<float>(ROOT::VecOps::Mean(pos_x)),
                                      static_cast<float>(ROOT::VecOps::Mean(pos_y)),
                                      static_cast<float>(ROOT::VecOps::Mean(pos_z))};
 
-      auto asso_hit = asso_hits -> create(cellID,
-                  ave_pos,
-                  edm4eic::CovDiag3f{0., 0., 0.},
-                  time,
-                  0.,
-                  tot_charge,
-                  0.);
-      cellHitMap[getSensorInfos(asso_hit.getCellID())].push_back(asso_hit);
+    auto asso_hit = asso_hits->create(cellID, ave_pos, edm4eic::CovDiag3f{0., 0., 0.}, time, 0.,
+                                      tot_charge, 0.);
+    cellHitMap[getSensorInfos(asso_hit.getCellID())].push_back(asso_hit);
   }
 
   // sort the tracker hits by time
-  for(auto& [cellID, hits] : cellHitMap) 
-      std::sort(hits.begin(), hits.end(), [](const edm4eic::MutableTrackerHit& a, const edm4eic::MutableTrackerHit& b) {
-          return a.getTime() < b.getTime(); });
+  for (auto& [cellID, hits] : cellHitMap)
+    std::sort(hits.begin(), hits.end(),
+              [](const edm4eic::MutableTrackerHit& a, const edm4eic::MutableTrackerHit& b) {
+                return a.getTime() < b.getTime();
+              });
 
   // get the associated raw_hits by the closest time
-  for(const auto& raw_hit : *raw_hits) {
-      auto time = raw_hit.getTimeStamp()/1e3; // ps->ns
-      auto sensorID = getSensorInfos(raw_hit.getCellID());
-      auto it = cellHitMap.find(sensorID);
-      if(it != cellHitMap.end()) {
-        auto& hits = it -> second;
-	// if t_raw - assoDeltaT < t_hit < t_raw + assoDeltaT, we make the association
-        auto itVec = std::lower_bound(hits.begin(), hits.end(), time - m_cfg.assoDeltaT,
-            [](const edm4eic::MutableTrackerHit& a, double t) { return a.getTime() < t; });
-        for(;itVec != hits.end() && itVec -> getTime() <= time + m_cfg.assoDeltaT; ++itVec) {
-          itVec -> setRawHit(raw_hit);
-        }
+  for (const auto& raw_hit : *raw_hits) {
+    auto time     = raw_hit.getTimeStamp() / 1e3; // ps->ns
+    auto sensorID = getSensorInfos(raw_hit.getCellID());
+    auto it       = cellHitMap.find(sensorID);
+    if (it != cellHitMap.end()) {
+      auto& hits = it->second;
+      // if t_raw - assoDeltaT < t_hit < t_raw + assoDeltaT, we make the association
+      auto itVec = std::lower_bound(
+          hits.begin(), hits.end(), time - m_cfg.assoDeltaT,
+          [](const edm4eic::MutableTrackerHit& a, double t) { return a.getTime() < t; });
+      for (; itVec != hits.end() && itVec->getTime() <= time + m_cfg.assoDeltaT; ++itVec) {
+        itVec->setRawHit(raw_hit);
       }
+    }
   }
 }
 
