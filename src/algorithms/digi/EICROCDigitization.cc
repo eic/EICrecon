@@ -27,8 +27,7 @@ void EICROCDigitization::process(const EICROCDigitization::Input& input,
 
   for (const auto& pulse : *simhits) {
     int tdc  = std::numeric_limits<int>::max();
-    int adc  = 0;
-    double V = 0.0;
+    int V = 0;
 
     int time_bin          = 0;
     double adc_prev       = 0;
