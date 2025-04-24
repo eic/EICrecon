@@ -19,7 +19,7 @@ void PulseNoise::init() {
   m_noise = dd4hep::detail::FalphaNoise(m_cfg.poles, m_cfg.variance, m_cfg.alpha);
 }
 
-void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Output& output) {
+void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Output& output) const {
   const auto [inPulses] = input;
   auto [outPulses]      = output;
 
@@ -34,7 +34,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     float integral = 0;
     //Add noise to the pulse
     for (int i = 0; i < pulse.getAmplitude().size(); i++) {
-      double noise     = m_noise(generator) * m_cfg.scale;
+      double noise     = m_noise(m_generator) * m_cfg.scale;
       double amplitude = pulse.getAmplitude()[i] + noise;
       out_pulse.addToAmplitude(amplitude);
       integral += amplitude;
