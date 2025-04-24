@@ -19,6 +19,8 @@ private:
   PodioOutput<edm4eic::TrackerHit> m_asso_hits_output{this};
 
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
+  ParameterRef<double>      m_assoDeltaT{this, "assoDeltaT", config().assoDeltaT};
+
 
 public:
   void Configure() {
