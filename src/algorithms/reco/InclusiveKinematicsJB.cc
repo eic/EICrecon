@@ -70,7 +70,11 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
   const auto nu_jb           = Q2_jb / (2. * m_proton * x_jb);
   const auto W_jb            = sqrt(m_proton * m_proton + 2 * m_proton * nu_jb - Q2_jb);
   auto kin                   = kinematics->create(x_jb, Q2_jb, W_jb, y_jb, nu_jb);
-  kin.setScat(escat->at(0));
+  if (escat->size() == 0) {
+    debug("No scattered electron found");
+  } else {
+    kin.setScat(escat->at(0));
+  }
 
   debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(), kin.getQ2(), kin.getW(), kin.getY(),
         kin.getNu());
