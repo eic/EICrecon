@@ -43,7 +43,6 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
 
   // dRICH readout --------------------------------------------------------------------
   if (m_detName == "DRICH") {
-
     // get constants from geometry
     m_num_sec           = m_det->constant<int>("DRICH_num_sectors");
     m_num_pdus          = m_det->constant<int>("DRICH_num_pdus");
