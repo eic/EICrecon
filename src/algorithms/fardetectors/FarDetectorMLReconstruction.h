@@ -53,7 +53,7 @@ private:
   mutable float m_beamE{10.0};
   mutable std::once_flag m_initBeamE;
 
-  float nnInput[4] = {0.0, 0.0, 0.0, 0.0};
+  mutable float nnInput[4] = {0.0, 0.0, 0.0, 0.0};
 };
 
 } // namespace eicrecon
