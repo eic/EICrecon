@@ -38,8 +38,8 @@ public:
   GeometrySplit(std::vector<std::vector<long int>> ids, std::string readout,
                 std::vector<std::string> divisions)
       : m_ids(ids)
-      , m_readout(readout)
       , m_divisions(divisions)
+      , m_readout(readout)
       , is_init(std::make_shared<std::once_flag>())
       , m_id_dec(std::make_shared<dd4hep::DDSegmentation::BitFieldCoder*>())
       , m_div_ids(std::make_shared<std::vector<std::size_t>>()){};
