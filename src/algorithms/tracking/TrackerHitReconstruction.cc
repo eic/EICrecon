@@ -89,7 +89,7 @@ TrackerHitReconstruction::process(const edm4eic::RawTrackerHitCollection& raw_hi
 #endif
   }
 
-  return std::move(rec_hits);
+  return rec_hits;
 }
 
 } // namespace eicrecon

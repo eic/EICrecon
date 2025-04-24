@@ -139,5 +139,5 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     }
   }
 
-  return std::move(track_parameters);
+  return track_parameters;
 }

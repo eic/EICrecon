@@ -43,5 +43,5 @@ eicrecon::MC2SmearedParticle::produce(const edm4hep::MCParticleCollection* mc_pa
     rec_part.setCovMatrix({0, 0, 0, 0});
     rec_part.setPDG(mc_particle.getPDG());
   }
-  return std::move(rec_particles);
+  return rec_particles;
 }

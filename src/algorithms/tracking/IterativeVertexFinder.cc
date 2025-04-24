@@ -187,5 +187,5 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 
   } // end for vtx
 
-  return std::move(outputVertices);
+  return outputVertices;
 }
