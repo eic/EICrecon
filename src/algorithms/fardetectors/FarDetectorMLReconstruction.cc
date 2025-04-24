@@ -49,7 +49,7 @@ void FarDetectorMLReconstruction::init() {
 }
 
 void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Input& input,
-                                          const FarDetectorMLReconstruction::Output& output) {
+                                          const FarDetectorMLReconstruction::Output& output) const {
 
   const auto [inputTracks, beamElectrons] = input;
   auto [outputFarDetectorMLTrajectories, outputFarDetectorMLTrackParameters,

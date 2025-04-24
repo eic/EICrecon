@@ -35,7 +35,7 @@ public:
             "Create tensor for input to far-detector magnetic transportation ML."} {}
 
   void init() final;
-  void process(const Input&, const Output&);
+  void process(const Input&, const Output&) const final;
 
 private:
   mutable float m_beamE = 10.0;

@@ -42,16 +42,18 @@ public:
   void init();
 
   /** Event by event processing **/
-  void process(const Input&, const Output&);
+  void process(const Input&, const Output&) const final;
 
   //----- Define constants here ------
 
 private:
   TMVA::Reader* m_reader{nullptr};
   TMVA::MethodBase* m_method{nullptr};
-  float m_beamE{10.0};
-  std::once_flag m_initBeamE;
-  float nnInput[4] = {0.0, 0.0, 0.0, 0.0};
+
+  mutable float m_beamE{10.0};
+  mutable std::once_flag m_initBeamE;
+
+  mutable float nnInput[4] = {0.0, 0.0, 0.0, 0.0};
 };
 
 } // namespace eicrecon

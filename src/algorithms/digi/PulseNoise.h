@@ -38,11 +38,11 @@ public:
   PulseNoise(std::string_view name)
       : PulseNoiseAlgorithm{name, {"RawHits"}, {"OutputPulses"}, {}} {}
   virtual void init() final;
-  void process(const Input&, const Output&);
+  void process(const Input&, const Output&) const;
 
 private:
-  std::default_random_engine generator; // TODO: need something more appropriate here
-  dd4hep::detail::FalphaNoise m_noise;
+  mutable std::default_random_engine m_generator; // TODO: need something more appropriate here
+  mutable dd4hep::detail::FalphaNoise m_noise;    // FalphaNoise::operator() is not const
 };
 
 } // namespace eicrecon
