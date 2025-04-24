@@ -611,7 +611,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     m_log->info("-----> found {} clusters", clusters_calo.size());
     hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);
     int iCl = 0;
-    for (const auto cluster : clusters_calo) {
+    for (const auto& cluster : clusters_calo) {
       if (iCl < maxNCluster && enableTreeCluster) {
         t_lFHCal_cluster_E[iCl]      = (float)cluster.cluster_E;
         t_lFHCal_cluster_NCells[iCl] = (int)cluster.cluster_NTowers;
