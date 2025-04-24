@@ -104,7 +104,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       // the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
       edm4hep::Vector3f axis;
       if (out_clust.getNhits() > 1) {
-        for (std::size_t iHit = 0; const auto& hit : out_clust.getHits()) {
+        for (const auto& hit : out_clust.getHits()) {
 
           // get weight of hit
           const double eTotal = out_clust.getEnergy() * m_cfg.sampFrac;
@@ -129,7 +129,6 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
           sum1_3D += w * pos3D;
 
           w_sum += w;
-          ++iHit;
         } // end hit loop
 
         radius = sqrt((1. / (out_clust.getNhits() - 1.)) * radius);

@@ -66,8 +66,6 @@ void InclusiveKinematicsSigma::process(const InclusiveKinematicsSigma::Input& in
     return;
   }
   auto sigma_h = hfs->at(0).getSigma();
-  auto ptsum   = hfs->at(0).getPT();
-  auto gamma_h = hfs->at(0).getGamma();
 
   if (sigma_h <= 0) {
     debug("No scattered electron found or sigma zero or negative");

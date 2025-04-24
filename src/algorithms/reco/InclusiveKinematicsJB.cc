@@ -55,7 +55,6 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
   }
   auto sigma_h = hfs->at(0).getSigma();
   auto ptsum   = hfs->at(0).getPT();
-  auto gamma_h = hfs->at(0).getGamma();
 
   // Sigma zero or negative
   if (sigma_h <= 0) {

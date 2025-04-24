@@ -86,7 +86,6 @@ void CalorimeterHitsMerger::init() {
 
     // grab provided transformation and field
     const std::string field_transform = transforms.at(iField);
-    auto name_field                   = id_desc.field(field);
 
     // set transformation for each field
     ref_maps[field] =
@@ -166,7 +165,7 @@ void CalorimeterHitsMerger::build_merge_map(const edm4eic::CalorimeterHitCollect
   for (std::size_t iHit = 0; const auto& hit : *in_hits) {
 
     ref_fields.clear();
-    for (std::size_t iField = 0; const auto& name_field : id_desc.fields()) {
+    for (const auto& name_field : id_desc.fields()) {
 
       // apply mapping to field if provided,
       // otherwise copy value of field
@@ -176,7 +175,6 @@ void CalorimeterHitsMerger::build_merge_map(const edm4eic::CalorimeterHitCollect
         ref_fields.push_back(
             {name_field.first, id_decoder->get(hit.getCellID(), name_field.first)});
       }
-      ++iField;
     }
 
     // encode new cell ID and add hit to map

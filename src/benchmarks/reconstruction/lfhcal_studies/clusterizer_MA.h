@@ -102,7 +102,6 @@ clustersStrct findMACluster(
       int iEtaTwr = cluster_towers_temp.at(tit).cellIDx;
       int iPhiTwr = cluster_towers_temp.at(tit).cellIDy;
       int iLTwr   = cluster_towers_temp.at(tit).cellIDz;
-      int refC    = 0;
       for (int ait = 0; ait < (int)input_towers_temp.size(); ait++) {
         int iEtaTwrAgg = input_towers_temp.at(ait).cellIDx;
         int iPhiTwrAgg = input_towers_temp.at(ait).cellIDy;
@@ -133,7 +132,6 @@ clustersStrct findMACluster(
 
           input_towers_temp.erase(input_towers_temp.begin() + ait);
           ait--;
-          refC++;
         }
       }
     }
@@ -149,18 +147,15 @@ float* CalculateM02andWeightedPosition(std::vector<towersStrct> cluster_towers,
   std::vector<float> w_i;
   TVector3 vecTwr;
   TVector3 vecTwrTmp;
-  float zHC = 1;
   float w_0 = weight0;
 
   vecTwr = {0., 0., 0.};
   //calculation of weights and weighted position vector
-  int Nweighted = 0;
   for (int cellI = 0; cellI < (int)cluster_towers.size(); cellI++) {
     w_i.push_back(TMath::Max(
         (float)0, (float)(w_0 + TMath::Log(cluster_towers.at(cellI).energy / cluster_E_calc))));
     w_tot += w_i.at(cellI);
     if (w_i.at(cellI) > 0) {
-      Nweighted++;
       vecTwrTmp = TVector3(cluster_towers.at(cellI).posx, cluster_towers.at(cellI).posy,
                            cluster_towers.at(cellI).posz);
       vecTwr += w_i.at(cellI) * vecTwrTmp;

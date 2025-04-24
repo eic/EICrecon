@@ -29,7 +29,6 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
 
   bool pidAssumePionMass = m_cfg.m_pid_assume_pion_mass;
   double crossingAngle   = m_cfg.m_crossing_angle;
-  double pidPurity       = m_cfg.m_pid_purity;
   bool correctBeamFX     = m_cfg.m_correct_beam_FX;
   bool pidUseMCTruth     = m_cfg.m_pid_use_MC_truth;
 
