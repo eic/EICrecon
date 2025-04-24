@@ -37,7 +37,7 @@ void TrackerMeasurementFromHits::init(const dd4hep::Detector* detector,
   m_converter       = converter;
   m_log             = logger;
   m_acts_context    = std::move(acts_context);
-  m_detid_b0tracker = m_dd4hepGeo->constant<int>("B0Tracker_Station_1_ID");
+  m_detid_b0tracker = m_dd4hepGeo->constant<unsigned long>("B0Tracker_Station_1_ID");
 }
 
 std::unique_ptr<edm4eic::Measurement2DCollection>
