@@ -57,6 +57,15 @@ public:
   void process(const Input&, const Output&) const;
 
 private:
+  template <algorithms::LogLevel lvl, typename... T>
+  constexpr void log(fmt::format_string<T...> fmt, T&&... args) const {
+    log<lvl>(fmt, std::forward<decltype(args)>(args)...);
+  }
+
+  friend class IrtCherenkovParticleIDConfig;
+  friend class Tools;
+
+private:
   CherenkovDetectorCollection* m_irt_det_coll;
   CherenkovDetector* m_irt_det;
 

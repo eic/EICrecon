@@ -45,5 +45,12 @@ public:
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
+  template <algorithms::LogLevel lvl, typename... T>
+  constexpr void log(fmt::format_string<T...> fmt, T&&... args) const {
+    log<lvl>(fmt, std::forward<decltype(args)>(args)...);
+  }
+
+  friend class MergeParticleIDConfig;
+  friend class Tools;
 };
 } // namespace eicrecon
