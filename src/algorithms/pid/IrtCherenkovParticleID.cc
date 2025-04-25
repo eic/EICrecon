@@ -68,7 +68,7 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
   for (auto [rad_name, irt_rad] : m_irt_det->Radiators()) {
     auto ri_lookup_table_orig = irt_rad->m_ri_lookup_table;
     irt_rad->m_ri_lookup_table.clear();
-    irt_rad->m_ri_lookup_table = Tools::ApplyFineBinning(ri_lookup_table_orig, m_cfg.numRIndexBins);
+    irt_rad->m_ri_lookup_table = ApplyFineBinning(ri_lookup_table_orig, m_cfg.numRIndexBins);
     // trace("- {}", rad_name);
     // for(auto [energy,rindex] : irt_rad->m_ri_lookup_table) trace("  {:>5} eV   {:<}", energy, rindex);
   }
@@ -89,7 +89,7 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
     if (cfg_rad_it != m_cfg.radiators.end()) {
       auto cfg_rad = cfg_rad_it->second;
       // pass `cfg_rad` params to `irt_rad`, the IRT radiator
-      irt_rad->m_ID                     = Tools::GetRadiatorID(std::string(rad_name));
+      irt_rad->m_ID                     = GetRadiatorID(std::string(rad_name));
       irt_rad->m_AverageRefractiveIndex = cfg_rad.referenceRIndex;
       irt_rad->SetReferenceRefractiveIndex(cfg_rad.referenceRIndex);
       if (cfg_rad.attenuation > 0)
@@ -191,11 +191,11 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
       irt_rad->ResetLocations();
       trace("TrackPoints in '{}' radiator:", rad_name);
       for (const auto& point : charged_particle.getPoints()) {
-        TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
-        TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
+        TVector3 position = PodioVector3_to_TVector3(point.position);
+        TVector3 momentum = PodioVector3_to_TVector3(point.momentum);
         irt_rad->AddLocation(position, momentum);
-        Tools::PrintTVector3(m_log, " point: x", position);
-        Tools::PrintTVector3(m_log, "        p", momentum);
+        PrintTVector3(" point: x", position);
+        PrintTVector3("        p", momentum);
       }
 
       // loop over raw hits ***************************************************
@@ -238,13 +238,12 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
 
         // cheat mode, for testing only: use MC photon to get the actual radiator
         if (m_cfg.cheatTrueRadiator && mc_photon_found) {
-          auto vtx    = Tools::PodioVector3_to_TVector3(mc_photon.getVertex());
+          auto vtx    = PodioVector3_to_TVector3(mc_photon.getVertex());
           auto mc_rad = m_irt_det->GuessRadiator(vtx, vtx); // assume IP is at (0,0,0)
           if (mc_rad != irt_rad)
             continue; // skip this photon, if not from radiator `irt_rad`
-          Tools::PrintTVector3(
-              m_log, fmt::format("cheat: radiator '{}' determined from photon vertex", rad_name),
-              vtx);
+          PrintTVector3(fmt::format("cheat: radiator '{}' determined from photon vertex", rad_name),
+                        vtx);
         }
 
         // get sensor and pixel info
@@ -254,12 +253,12 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         TVector3 pixel_pos = m_irt_det->m_ReadoutIDToPosition(cell_id);
 
         // trace logging
-        if (level() <= spdlog::level::trace) {
+        if (level() <= algorithms::LogLevel::kTrace) {
           trace("cell_id={:#X}  sensor_id={:#X}", cell_id, sensor_id);
-          Tools::PrintTVector3(m_log, "pixel position", pixel_pos);
+          PrintTVector3("pixel position", pixel_pos);
           if (mc_photon_found) {
-            TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
-            Tools::PrintTVector3(m_log, "photon endpoint", mc_endpoint);
+            TVector3 mc_endpoint = PodioVector3_to_TVector3(mc_photon.getEndpoint());
+            PrintTVector3("photon endpoint", mc_endpoint);
             trace("{:>30} = {}", "dist( pixel,  photon )", (pixel_pos - mc_endpoint).Mag());
           } else
             trace("  no MC photon found; probably a noise hit");
@@ -276,8 +275,8 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
 
         // cheat mode: get photon vertex info from MC truth
         if ((m_cfg.cheatPhotonVertex || m_cfg.cheatTrueRadiator) && mc_photon_found) {
-          irt_photon->SetVertexPosition(Tools::PodioVector3_to_TVector3(mc_photon.getVertex()));
-          irt_photon->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mc_photon.getMomentum()));
+          irt_photon->SetVertexPosition(PodioVector3_to_TVector3(mc_photon.getVertex()));
+          irt_photon->SetVertexMomentum(PodioVector3_to_TVector3(mc_photon.getMomentum()));
         }
 
         // cheat mode: retrieve a refractive index estimate; it is not exactly the one, which
@@ -285,7 +284,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         if (m_cfg.cheatPhotonVertex) {
           double ri;
           auto mom    = 1e9 * irt_photon->GetVertexMomentum().Mag();
-          auto ri_set = Tools::GetFinelyBinnedTableEntry(irt_rad->m_ri_lookup_table, mom, &ri);
+          auto ri_set = GetFinelyBinnedTableEntry(irt_rad->m_ri_lookup_table, mom, &ri);
           if (ri_set) {
             irt_photon->SetVertexRefractiveIndex(ri);
             trace("{:>30} = {}", "refractive index", ri);
@@ -355,10 +354,9 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
           continue;
 
         // trace logging
-        Tools::PrintTVector3(m_log,
-                             fmt::format("- sensor_id={:#X}: hit", irt_photon->GetVolumeCopy()),
-                             irt_photon->GetDetectionPosition());
-        Tools::PrintTVector3(m_log, "photon vertex", irt_photon->GetVertexPosition());
+        PrintTVector3(fmt::format("- sensor_id={:#X}: hit", irt_photon->GetVolumeCopy()),
+                      irt_photon->GetDetectionPosition());
+        PrintTVector3("photon vertex", irt_photon->GetVertexPosition());
 
         // get this photon's theta and phi estimates
         auto phot_theta = irt_photon->_m_PDF[irt_rad].GetAverage();
@@ -414,7 +412,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
       } // end hypothesis loop
 
       // logging
-      Tools::PrintCherenkovEstimate(logger(), out_cherenkov_pid);
+      PrintCherenkovEstimate(out_cherenkov_pid);
 
       // relate charged particle projection
       auto charged_particle_list_it = in_charged_particles.find("Merged");

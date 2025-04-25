@@ -40,11 +40,11 @@ public:
   // -------------------------------------------------------------------------------------
   // Radiator IDs
 
-  static std::unordered_map<int, std::string> GetRadiatorIDs() {
+  std::unordered_map<int, std::string> GetRadiatorIDs() const {
     return std::unordered_map<int, std::string>{{0, "Aerogel"}, {1, "Gas"}};
   }
 
-  static std::string GetRadiatorName(int id) {
+  std::string GetRadiatorName(int id) const {
     std::string name;
     try {
       name = GetRadiatorIDs().at(id);
@@ -55,7 +55,7 @@ public:
     return name;
   }
 
-  static int GetRadiatorID(std::string name) {
+  int GetRadiatorID(std::string name) const {
     for (auto& [id, name_tmp] : GetRadiatorIDs())
       if (name == name_tmp)
         return id;
@@ -68,8 +68,8 @@ public:
   // Table rebinning and lookup
 
   // Rebin input table `input` to have `nbins+1` equidistant bins; returns the rebinned table
-  static std::vector<std::pair<double, double>>
-  ApplyFineBinning(const std::vector<std::pair<double, double>>& input, unsigned nbins) {
+  std::vector<std::pair<double, double>>
+  ApplyFineBinning(const std::vector<std::pair<double, double>>& input, unsigned nbins) const {
     std::vector<std::pair<double, double>> ret;
 
     // Well, could have probably just reordered the initial vector;
@@ -112,8 +112,8 @@ public:
 
   // Find the bin in table `table` that contains entry `argument` in the first column and
   // sets `entry` to the corresponding element of the second column; returns true if successful
-  static bool GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>>& table,
-                                        double argument, double* entry) {
+  bool GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>>& table,
+                                 double argument, double* entry) const {
     // Get the tabulated table reference; perform sanity checks;
     //const std::vector<std::pair<double, double>> &qe = u_quantumEfficiency.value();
     unsigned dim = table.size();
@@ -140,65 +140,63 @@ public:
 
   // -------------------------------------------------------------------------------------
   // convert PODIO vector datatype to ROOT TVector3
-  template <class PodioVector3> static TVector3 PodioVector3_to_TVector3(const PodioVector3 v) {
+  template <class PodioVector3> TVector3 PodioVector3_to_TVector3(const PodioVector3 v) const {
     return TVector3(v.x, v.y, v.z);
   }
   // convert ROOT::Math::Vector to ROOT TVector3
-  template <class MathVector3> static TVector3 MathVector3_to_TVector3(MathVector3 v) {
+  template <class MathVector3> TVector3 MathVector3_to_TVector3(MathVector3 v) const {
     return TVector3(v.x(), v.y(), v.z());
   }
 
   // -------------------------------------------------------------------------------------
 
   // printing: vectors
-  static void PrintTVector3(std::shared_ptr<spdlog::logger> m_log, std::string name, TVector3 vec,
-                            int nameBuffer                = 30,
-                            spdlog::level::level_enum lvl = spdlog::level::trace) {
-    m_log->log(lvl, "{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(),
-               vec.y(), vec.z());
+  template <algorithms::LogLevel lvl = algorithms::LogLevel::kTrace>
+  void PrintTVector3(std::string name, TVector3 vec, int nameBuffer = 30) const {
+    m_logger->template log<lvl>("{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer,
+                                vec.x(), vec.y(), vec.z());
   }
 
   // printing: hypothesis tables
-  static void PrintHypothesisTableHead(std::shared_ptr<spdlog::logger> m_log, int indent = 4,
-                                       spdlog::level::level_enum lvl = spdlog::level::trace) {
-    m_log->log(lvl, "{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
+  template <algorithms::LogLevel lvl = algorithms::LogLevel::kTrace>
+  void PrintHypothesisTableHead(int indent = 4) const {
+    m_logger->template log<lvl>("{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
   }
-  static void PrintHypothesisTableLine(std::shared_ptr<spdlog::logger> m_log,
-                                       edm4eic::CherenkovParticleIDHypothesis hyp, int indent = 4,
-                                       spdlog::level::level_enum lvl = spdlog::level::trace) {
-    m_log->log(lvl, "{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight, hyp.npe);
+  template <algorithms::LogLevel lvl = algorithms::LogLevel::kTrace>
+  void PrintHypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp, int indent = 4) const {
+    m_logger->template log<lvl>("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight,
+                                hyp.npe);
   }
-  static void PrintHypothesisTableLine(std::shared_ptr<spdlog::logger> m_log,
-                                       edm4hep::ParticleID hyp, int indent = 4,
-                                       spdlog::level::level_enum lvl = spdlog::level::trace) {
+  template <algorithms::LogLevel lvl = algorithms::LogLevel::kTrace>
+  void PrintHypothesisTableLine(edm4hep::ParticleID hyp, int indent = 4) const {
     float npe =
         hyp.parameters_size() > 0 ? hyp.getParameters(0) : -1; // assume NPE is the first parameter
-    m_log->log(lvl, "{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(), hyp.getLikelihood(),
-               npe);
+    m_logger->template log<lvl>("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(),
+                                hyp.getLikelihood(), npe);
   }
 
   // printing: Cherenkov angle estimate
-  static void PrintCherenkovEstimate(std::shared_ptr<spdlog::logger> m_log,
-                                     edm4eic::CherenkovParticleID pid, bool printHypotheses = true,
-                                     int indent                    = 2,
-                                     spdlog::level::level_enum lvl = spdlog::level::trace) {
-    if (m_log->level() <= lvl) {
+  template <algorithms::LogLevel lvl = algorithms::LogLevel::kTrace>
+  void PrintCherenkovEstimate(edm4eic::CherenkovParticleID pid, bool printHypotheses = true,
+                              int indent = 2) const {
+    if (m_logger->level() <= lvl) {
       double thetaAve = 0;
       if (pid.getNpe() > 0)
         for (const auto& [theta, phi] : pid.getThetaPhiPhotons())
           thetaAve += theta / pid.getNpe();
-      m_log->log(lvl, "{:{}}Cherenkov Angle Estimate:", "", indent);
-      m_log->log(lvl, "{:{}}  {:>16}:  {:>10}", "", indent, "NPE", pid.getNpe());
-      m_log->log(lvl, "{:{}}  {:>16}:  {:>10.8} mrad", "", indent, "<theta>",
-                 thetaAve * 1e3); // [rad] -> [mrad]
-      m_log->log(lvl, "{:{}}  {:>16}:  {:>10.8}", "", indent, "<rindex>", pid.getRefractiveIndex());
-      m_log->log(lvl, "{:{}}  {:>16}:  {:>10.8} eV", "", indent, "<energy>",
-                 pid.getPhotonEnergy() * 1e9); // [GeV] -> [eV]
+      m_logger->template log<lvl>("{:{}}Cherenkov Angle Estimate:", "", indent);
+      m_logger->template log<lvl>("{:{}}  {:>16}:  {:>10}", "", indent, "NPE", pid.getNpe());
+      m_logger->template log<lvl>("{:{}}  {:>16}:  {:>10.8} mrad", "", indent, "<theta>",
+                                  thetaAve * 1e3); // [rad] -> [mrad]
+      m_logger->template log<lvl>("{:{}}  {:>16}:  {:>10.8}", "", indent, "<rindex>",
+                                  pid.getRefractiveIndex());
+      m_logger->template log<lvl>("{:{}}  {:>16}:  {:>10.8} eV", "", indent, "<energy>",
+                                  pid.getPhotonEnergy() * 1e9); // [GeV] -> [eV]
       if (printHypotheses) {
-        m_log->log(lvl, "{:{}}Mass Hypotheses:", "", indent);
-        Tools::PrintHypothesisTableHead(m_log, indent + 2);
+        m_logger->template log<lvl>("{:{}}Mass Hypotheses:", "", indent);
+        PrintHypothesisTableHead(indent + 2);
         for (const auto& hyp : pid.getHypotheses())
-          Tools::PrintHypothesisTableLine(m_log, hyp, indent + 2);
+          PrintHypothesisTableLine(hyp, indent + 2);
       }
     }
   }
