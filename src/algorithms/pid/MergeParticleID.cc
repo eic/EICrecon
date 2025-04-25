@@ -66,12 +66,12 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
   std::unordered_map<decltype(podio::ObjectID::index),
                      std::vector<std::pair<std::size_t, std::size_t>>>
       particle_pids;
-  m_log->trace("{:-<70}", "Build `particle_pids` indexing data structure ");
+  trace("{:-<70}", "Build `particle_pids` indexing data structure ");
 
   // loop over list of PID collections
   for (std::size_t idx_coll = 0; idx_coll < in_pid_collections_list.size(); idx_coll++) {
     const auto& in_pid_collection = in_pid_collections_list.at(idx_coll);
-    m_log->trace("idx_col={}", idx_coll);
+    trace("idx_col={}", idx_coll);
 
     // loop over this PID collection
     for (std::size_t idx_pid = 0; idx_pid < in_pid_collection->size(); idx_pid++) {
@@ -79,12 +79,12 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
       const auto& in_pid                   = in_pid_collection->at(idx_pid);
       auto& charged_particle_track_segment = in_pid.getChargedParticle();
       if (!charged_particle_track_segment.isAvailable()) {
-        m_log->error("PID object found with no charged particle");
+        error("PID object found with no charged particle");
         continue;
       }
       auto id_particle = charged_particle_track_segment.getObjectID().index;
       auto idx_paired  = std::make_pair(idx_coll, idx_pid);
-      m_log->trace("  idx_pid={}  id_particle={}", idx_pid, id_particle);
+      trace("  idx_pid={}  id_particle={}", idx_pid, id_particle);
 
       // insert in `particle_pids`
       auto it = particle_pids.find(id_particle);
@@ -96,12 +96,12 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
   }
 
   // trace logging
-  if (m_log->level() <= spdlog::level::trace) {
-    m_log->trace("{:-<70}", "Resulting `particle_pids` ");
+  if (level() <= algorithms::LogLevel::kTrace) {
+    trace("{:-<70}", "Resulting `particle_pids` ");
     for (auto& [id_particle, idx_paired_list] : particle_pids) {
-      m_log->trace("id_particle={}", id_particle);
+      trace("id_particle={}", id_particle);
       for (auto& [idx_coll, idx_pid] : idx_paired_list)
-        m_log->trace("  (idx_coll, idx_pid) = ({}, {})", idx_coll, idx_pid);
+        trace("  (idx_coll, idx_pid) = ({}, {})", idx_coll, idx_pid);
     }
   }
 
@@ -109,13 +109,13 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
 
   // loop over charged particles, combine weights from the associated `CherenkovParticleID` objects
   // and create a merged output `CherenkovParticleID` object
-  m_log->trace("{:-<70}", "Begin Merging PID Objects ");
+  trace("{:-<70}", "Begin Merging PID Objects ");
   for (auto& [id_particle, idx_paired_list] : particle_pids) {
 
     // trace logging
-    m_log->trace("Charged Particle:");
-    m_log->trace("  id = {}", id_particle);
-    m_log->trace("  PID Hypotheses:");
+    trace("Charged Particle:");
+    trace("  id = {}", id_particle);
+    trace("  PID Hypotheses:");
 
     // create mutable output `CherenkovParticleID` object `out_pid`
     auto out_pid                                            = out_pids->create();
@@ -133,9 +133,8 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
       const auto& in_pid = in_pid_collections_list.at(idx_coll)->at(idx_pid);
 
       // logging
-      m_log->trace("    Hypotheses for PID result (idx_coll, idx_pid) = ({}, {}):", idx_coll,
-                   idx_pid);
       Tools::PrintHypothesisTableHead(m_log, 6);
+      trace("    Hypotheses for PID result (idx_coll, idx_pid) = ({}, {}):", idx_coll, idx_pid);
 
       // merge scalar members
       out_npe += in_pid.getNpe();                                           // sum
@@ -192,8 +191,8 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
       out_pid.addToHypotheses(out_hyp);
 
     // logging: print merged hypothesis table
-    m_log->trace("    => merged hypothesis weights:");
     Tools::PrintHypothesisTableHead(m_log, 6);
+    trace("    => merged hypothesis weights:");
     for (auto out_hyp : out_pid.getHypotheses())
       Tools::PrintHypothesisTableLine(m_log, out_hyp, 6);
 
