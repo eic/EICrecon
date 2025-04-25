@@ -2,17 +2,19 @@
 // Copyright (C) 2022, 2023 Whitney Armstrong, Wouter Deconinck, David Lawrence
 //
 
+#include <DD4hep/DetElement.h>
 #include <JANA/JException.h>
+#include <Parsers/Primitives.h>
 #include <Parsers/Printout.h>
 #include <TGeoManager.h>
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
-#include <algorithm>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
 #include <iostream>
+#include <set>
 #include <stdexcept>
 #include <utility>
 #include <vector>
