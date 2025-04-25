@@ -69,9 +69,9 @@ public:
     m_algo->init(m_RichGeoSvc().GetIrtGeo("DRICH")->GetIrtDetectorCollection(), logger());
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_aerogel_tracks_input(), m_gas_tracks_input(), m_merged_tracks_input(),
                      m_raw_hits_input(), m_raw_hit_assoc_input()},
                     {m_aerogel_particleIDs_output().get(), m_gas_particleIDs_output().get()});
