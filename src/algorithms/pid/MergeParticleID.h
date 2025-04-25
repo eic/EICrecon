@@ -35,7 +35,7 @@ public:
                                  {"outputTrackSegments"},
                                  "Effectively 'zip' the input particle IDs"} {}
 
-  void init(std::shared_ptr<spdlog::logger>& logger);
+  void init();
 
   // - input: a list of particle ID collections, which we want to merge together
   // - output: the merged particle ID collection
@@ -44,7 +44,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  std::shared_ptr<spdlog::logger> m_log;
   template <algorithms::LogLevel lvl, typename... T>
   constexpr void log(fmt::format_string<T...> fmt, T&&... args) const {
     log<lvl>(fmt, std::forward<decltype(args)>(args)...);
@@ -53,4 +52,18 @@ private:
   friend class MergeParticleIDConfig;
   friend class Tools;
 };
+
+// Definition of MergeParticleIDConfig::Print requires class MergeParticleID, but
+// circular dependency prevents it from being in MergeParticleIDConfig.h
+template <algorithms::LogLevel lvl>
+constexpr void MergeParticleIDConfig::Print(const MergeParticleID* logger) const {
+  // print all parameters
+  logger->log<lvl>("{:=^60}", " MergeParticleIDConfig Settings ");
+  auto print_param = [&logger](auto name, auto val) {
+    logger->log<lvl>("  {:>20} = {:<}", name, val);
+  };
+  print_param("mergeMode", mergeMode);
+  logger->log<lvl>("{:=^60}", "");
+}
+
 } // namespace eicrecon

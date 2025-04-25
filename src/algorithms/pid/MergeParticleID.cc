@@ -3,6 +3,7 @@
 
 #include "MergeParticleID.h"
 
+#include <algorithms/logger.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector2f.h>
@@ -21,10 +22,7 @@
 
 namespace eicrecon {
 
-void MergeParticleID::init(std::shared_ptr<spdlog::logger>& logger) {
-  m_log = logger;
-  m_cfg.Print(m_log, spdlog::level::debug);
-}
+void MergeParticleID::init() { m_cfg.Print<algorithms::LogLevel::kDebug>(this); }
 
 void MergeParticleID::process(const MergeParticleID::Input& input,
                               const MergeParticleID::Output& output) const {

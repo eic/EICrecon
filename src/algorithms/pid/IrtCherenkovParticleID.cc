@@ -42,10 +42,10 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
   m_irt_det_coll = irt_det_coll;
 
   // print the configuration parameters
-  m_cfg.Print(m_log, spdlog::level::debug);
+  m_cfg.Print<algorithms::LogLevel::kDebug>(this);
 
   // inform the user if a cheat mode is enabled
-  m_cfg.PrintCheats(m_log);
+  m_cfg.PrintCheats(this);
 
   // extract the the relevant `CherenkovDetector`, set to `m_irt_det`
   auto& detectors = m_irt_det_coll->GetDetectors();

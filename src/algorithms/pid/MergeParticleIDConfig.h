@@ -3,9 +3,12 @@
 
 #pragma once
 
+#include <algorithms/logger.h>
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {
+
+class MergeParticleID;
 
 class MergeParticleIDConfig {
 public:
@@ -21,14 +24,7 @@ public:
   /////////////////////////////////////////////////////
 
   // print all parameters
-  void Print(std::shared_ptr<spdlog::logger> m_log,
-             spdlog::level::level_enum lvl = spdlog::level::debug) {
-    m_log->log(lvl, "{:=^60}", " MergeParticleIDConfig Settings ");
-    auto print_param = [&m_log, &lvl](auto name, auto val) {
-      m_log->log(lvl, "  {:>20} = {:<}", name, val);
-    };
-    print_param("mergeMode", mergeMode);
-    m_log->log(lvl, "{:=^60}", "");
-  }
+  template <algorithms::LogLevel lvl = algorithms::LogLevel::kDebug>
+  constexpr void Print(const MergeParticleID* logger) const;
 };
 } // namespace eicrecon
