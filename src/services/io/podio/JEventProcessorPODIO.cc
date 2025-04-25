@@ -155,6 +155,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "TaggerTrackerTracks",
     "TaggerTrackerTrajectories",
     "TaggerTrackerTrackParameters",
+    "TaggerTrackerTrackAssociations",
     "TaggerTrackerReconstructedParticles",
 
     // Forward & Far forward hits

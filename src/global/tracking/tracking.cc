@@ -3,6 +3,7 @@
 
 #include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
@@ -239,25 +240,43 @@ void InitPlugin(JApplication* app) {
       }},
       app));
 
-  std::vector<std::string> input_track_collections;
+  std::vector<std::string> input_track_collections, input_track_assoc_collections;
+  std::vector<std::string> input_truth_track_collections, input_truth_track_assoc_collections;
   //Check size of input_rec_collections to determine if CentralCKFTracks should be added to the input_track_collections
   if (input_rec_collections.size() > 0) {
     input_track_collections.push_back("CentralCKFTracks");
+    input_track_assoc_collections.push_back("CentralCKFTrackAssociations");
+    input_truth_track_collections.push_back("CentralCKFTruthSeededTracks");
+    input_truth_track_assoc_collections.push_back("CentralCKFTruthSeededTrackAssociations");
   }
   //Check if the TaggerTracker readout is present in the current configuration
   if (readouts.find("TaggerTrackerHits") != readouts.end()) {
     input_track_collections.push_back("TaggerTrackerTracks");
+    input_track_assoc_collections.push_back("TaggerTrackerTrackAssociations");
+    input_truth_track_collections.push_back("TaggerTrackerTracks");
+    input_truth_track_assoc_collections.push_back("TaggerTrackerTrackAssociations");
   }
 
   // Add central and other tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
       "CombinedTracks", input_track_collections, {"CombinedTracks"}, app));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
+      "CombinedTrackAssociations", input_track_assoc_collections, {"CombinedTrackAssociations"},
+      app));
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
+      "CombinedTruthSeededTracks", input_truth_track_collections, {"CombinedTruthSeededTracks"},
+      app));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
+      "CombinedTruthSeededTrackAssociations", input_truth_track_assoc_collections,
+      {"CombinedTruthSeededTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedTruthSeededParticlesWithAssociations",
       {
-          "CentralCKFTruthSeededTracks",
-          "CentralCKFTruthSeededTrackAssociations",
+          "CombinedTruthSeededTracks",
+          "CombinedTruthSeededTrackAssociations",
       },
       {"ReconstructedTruthSeededChargedWithoutPIDParticles",
        "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations"},
@@ -267,7 +286,7 @@ void InitPlugin(JApplication* app) {
       "ChargedParticlesWithAssociations",
       {
           "CombinedTracks",
-          "CentralCKFTrackAssociations",
+          "CombinedTrackAssociations",
       },
       {"ReconstructedChargedWithoutPIDParticles",
        "ReconstructedChargedWithoutPIDParticleAssociations"},

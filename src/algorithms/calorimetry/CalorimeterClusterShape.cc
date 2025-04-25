@@ -78,7 +78,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     // set up base for weights
     double logWeightBase = m_cfg.logWeightBase;
     if (m_cfg.logWeightBaseCoeffs.size() != 0) {
-      double l      = log(out_clust.getEnergy() / m_cfg.logWeightBase_Eref);
+      double l      = std::log(out_clust.getEnergy() / m_cfg.logWeightBase_Eref);
       logWeightBase = 0;
       for (std::size_t i = 0; i < m_cfg.logWeightBaseCoeffs.size(); i++) {
         logWeightBase += m_cfg.logWeightBaseCoeffs[i] * pow(l, i);
