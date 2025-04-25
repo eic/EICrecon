@@ -15,7 +15,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   typename JOmniFactory<CollectionCollector_factory<T>>::template VariadicPodioInput<T> m_inputs{
-      this, std::vector<std::string>{""},true};
+      this, std::vector<std::string>{""}, true};
   typename JOmniFactory<CollectionCollector_factory<T>>::template PodioOutput<T> m_output{this};
 
 public:

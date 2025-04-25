@@ -79,12 +79,15 @@ void InitPlugin(JApplication* app) {
       "GeneratedParticles", {"MCParticles"}, {"GeneratedParticles"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster>>(
-      "EcalClusters", {"EcalEndcapNClusters", "EcalBarrelScFiClusters", "EcalEndcapPClusters"}, {"EcalClusters"}, app));
+      "EcalClusters", {"EcalEndcapNClusters", "EcalBarrelScFiClusters", "EcalEndcapPClusters"},
+      {"EcalClusters"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation>>(
-      "EcalClusterAssociations", {"EcalEndcapNClusterAssociations","EcalBarrelScFiClusterAssociations","EcalEndcapPClusterAssociations"}, {"EcalClusterAssociations"},
-      app));
+      "EcalClusterAssociations",
+      {"EcalEndcapNClusterAssociations", "EcalBarrelScFiClusterAssociations",
+       "EcalEndcapPClusterAssociations"},
+      {"EcalClusterAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
       "ReconstructedParticlesWithAssoc",
