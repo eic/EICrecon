@@ -15,8 +15,9 @@
 #include <vector>
 
 // EICrecon
-#include "MergeParticleIDConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/pid/MergeParticleIDConfig.h"
+#include "algorithms/pid/Tools.h"
 
 namespace eicrecon {
 
