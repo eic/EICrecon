@@ -5,6 +5,8 @@
 #include <JANA/JApplication.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JServiceLocator.h>
+#include <DD4hep/DetElement.h>
+#include <Parsers/Primitives.h>
 #include <Parsers/Printout.h>
 #include <TGeoManager.h>
 #include <fmt/color.h>
@@ -14,6 +16,7 @@
 #include <exception>
 #include <filesystem>
 #include <iostream>
+#include <set>
 #include <stdexcept>
 #include <utility>
 #include <vector>
