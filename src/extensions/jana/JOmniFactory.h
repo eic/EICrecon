@@ -38,6 +38,7 @@ public:
     std::string type_name;
     std::vector<std::string> collection_names;
     bool is_variadic = false;
+    bool is_optional = false;
 
     virtual void GetCollection(const JEvent& event) = 0;
   };
@@ -47,9 +48,10 @@ public:
     std::vector<const T*> m_data;
 
   public:
-    Input(JOmniFactory* owner, std::string default_tag = "") {
+    Input(JOmniFactory* owner, std::string default_tag = "", bool is_optional = false) {
       owner->RegisterInput(this);
       this->collection_names.push_back(default_tag);
+      this->is_optional = is_optional;
       this->type_name = JTypeInfo::demangle<T>();
     }
 
@@ -58,7 +60,7 @@ public:
   private:
     friend class JOmniFactory;
 
-    void GetCollection(const JEvent& event) { m_data = event.Get<T>(this->collection_names[0]); }
+    void GetCollection(const JEvent& event) { m_data = event.Get<T>(this->collection_names[0], !this->is_optional); }
   };
 
   template <typename PodioT> class PodioInput : public InputBase {
@@ -66,10 +68,11 @@ public:
     const typename PodioTypeMap<PodioT>::collection_t* m_data;
 
   public:
-    PodioInput(JOmniFactory* owner, std::string default_collection_name = "") {
+    PodioInput(JOmniFactory* owner, std::string default_collection_name = "", bool is_optional = false) {
       owner->RegisterInput(this);
       this->collection_names.push_back(default_collection_name);
-      this->type_name = JTypeInfo::demangle<PodioT>();
+      this->is_optional = is_optional;
+      this->type_name   = JTypeInfo::demangle<PodioT>();
     }
 
     const typename PodioTypeMap<PodioT>::collection_t* operator()() { return m_data; }
@@ -78,7 +81,7 @@ public:
     friend class JOmniFactory;
 
     void GetCollection(const JEvent& event) {
-      m_data = event.GetCollection<PodioT>(this->collection_names[0]);
+      m_data = event.GetCollection<PodioT>(this->collection_names[0], !this->is_optional);
     }
   };
 
@@ -87,10 +90,11 @@ public:
     std::vector<const typename PodioTypeMap<PodioT>::collection_t*> m_data;
 
   public:
-    VariadicPodioInput(JOmniFactory* owner, std::vector<std::string> default_names = {}) {
+    VariadicPodioInput(JOmniFactory* owner, std::vector<std::string> default_names = {}, bool is_optional = false) {
       owner->RegisterInput(this);
       this->collection_names = default_names;
       this->type_name        = JTypeInfo::demangle<PodioT>();
+      this->is_optional      = is_optional;
       this->is_variadic      = true;
     }
 
@@ -104,7 +108,7 @@ public:
     void GetCollection(const JEvent& event) {
       m_data.clear();
       for (auto& coll_name : this->collection_names) {
-        m_data.push_back(event.GetCollection<PodioT>(coll_name));
+        m_data.push_back(event.GetCollection<PodioT>(coll_name, !this->is_optional));
       }
     }
   };
