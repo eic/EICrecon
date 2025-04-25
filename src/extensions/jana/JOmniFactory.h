@@ -38,20 +38,18 @@ public:
     std::string type_name;
     std::vector<std::string> collection_names;
     bool is_variadic = false;
-    bool is_optional = false;
 
     virtual void GetCollection(const JEvent& event) = 0;
   };
 
-  template <typename T> class Input : public InputBase {
+  template <typename T, bool IsOptional=false> class Input : public InputBase {
 
     std::vector<const T*> m_data;
 
   public:
-    Input(JOmniFactory* owner, std::string default_tag = "", bool is_optional = false) {
+    Input(JOmniFactory* owner, std::string default_tag = "") {
       owner->RegisterInput(this);
       this->collection_names.push_back(default_tag);
-      this->is_optional = is_optional;
       this->type_name   = JTypeInfo::demangle<T>();
     }
 
@@ -61,20 +59,25 @@ public:
     friend class JOmniFactory;
 
     void GetCollection(const JEvent& event) {
-      m_data = event.Get<T>(this->collection_names[0], !this->is_optional);
+      try{
+        m_data = event.Get<T>(this->collection_names[0], !IsOptional);
+      } catch (const std::exception& e) {
+        if constexpr (!IsOptional) {
+          throw JException("JOmniFactory: Failed to get collection %s: %s", this->collection_names[0].c_str(),
+                           e.what());
+        }
+      }
     }
   };
 
-  template <typename PodioT> class PodioInput : public InputBase {
+  template <typename PodioT, bool IsOptional = false> class PodioInput : public InputBase {
 
     const typename PodioTypeMap<PodioT>::collection_t* m_data;
 
   public:
-    PodioInput(JOmniFactory* owner, std::string default_collection_name = "",
-               bool is_optional = false) {
+    PodioInput(JOmniFactory* owner, std::string default_collection_name = "") {
       owner->RegisterInput(this);
       this->collection_names.push_back(default_collection_name);
-      this->is_optional = is_optional;
       this->type_name   = JTypeInfo::demangle<PodioT>();
     }
 
@@ -84,21 +87,26 @@ public:
     friend class JOmniFactory;
 
     void GetCollection(const JEvent& event) {
-      m_data = event.GetCollection<PodioT>(this->collection_names[0], !this->is_optional);
+      try {
+        m_data = event.GetCollection<PodioT>(this->collection_names[0], !IsOptional);
+      } catch (const std::exception& e) {
+        if constexpr (!IsOptional) {
+          throw JException("JOmniFactory: Failed to get collection %s: %s", this->collection_names[0].c_str(),
+                           e.what());
+        }
+      }
     }
   };
 
-  template <typename PodioT> class VariadicPodioInput : public InputBase {
+  template <typename PodioT, bool IsOptional = false> class VariadicPodioInput : public InputBase {
 
     std::vector<const typename PodioTypeMap<PodioT>::collection_t*> m_data;
 
   public:
-    VariadicPodioInput(JOmniFactory* owner, std::vector<std::string> default_names = {},
-                       bool is_optional = false) {
+    VariadicPodioInput(JOmniFactory* owner, std::vector<std::string> default_names = {}) {
       owner->RegisterInput(this);
       this->collection_names = default_names;
       this->type_name        = JTypeInfo::demangle<PodioT>();
-      this->is_optional      = is_optional;
       this->is_variadic      = true;
     }
 
@@ -112,7 +120,14 @@ public:
     void GetCollection(const JEvent& event) {
       m_data.clear();
       for (auto& coll_name : this->collection_names) {
-        m_data.push_back(event.GetCollection<PodioT>(coll_name, !this->is_optional));
+        try {
+          m_data.push_back(event.GetCollection<PodioT>(coll_name, !IsOptional));
+        } catch (const std::exception& e) {
+          if constexpr (!IsOptional) {
+            throw JException("JOmniFactory: Failed to get collection %s: %s", coll_name.c_str(),
+                             e.what());
+          }
+        }
       }
     }
   };
