@@ -42,7 +42,7 @@ public:
     virtual void GetCollection(const JEvent& event) = 0;
   };
 
-  template <typename T, bool IsOptional=false> class Input : public InputBase {
+  template <typename T, bool IsOptional = false> class Input : public InputBase {
 
     std::vector<const T*> m_data;
 
@@ -50,7 +50,7 @@ public:
     Input(JOmniFactory* owner, std::string default_tag = "") {
       owner->RegisterInput(this);
       this->collection_names.push_back(default_tag);
-      this->type_name   = JTypeInfo::demangle<T>();
+      this->type_name = JTypeInfo::demangle<T>();
     }
 
     const std::vector<const T*>& operator()() { return m_data; }
@@ -59,12 +59,12 @@ public:
     friend class JOmniFactory;
 
     void GetCollection(const JEvent& event) {
-      try{
+      try {
         m_data = event.Get<T>(this->collection_names[0], !IsOptional);
       } catch (const std::exception& e) {
         if constexpr (!IsOptional) {
-          throw JException("JOmniFactory: Failed to get collection %s: %s", this->collection_names[0].c_str(),
-                           e.what());
+          throw JException("JOmniFactory: Failed to get collection %s: %s",
+                           this->collection_names[0].c_str(), e.what());
         }
       }
     }
@@ -78,7 +78,7 @@ public:
     PodioInput(JOmniFactory* owner, std::string default_collection_name = "") {
       owner->RegisterInput(this);
       this->collection_names.push_back(default_collection_name);
-      this->type_name   = JTypeInfo::demangle<PodioT>();
+      this->type_name = JTypeInfo::demangle<PodioT>();
     }
 
     const typename PodioTypeMap<PodioT>::collection_t* operator()() { return m_data; }
@@ -91,8 +91,8 @@ public:
         m_data = event.GetCollection<PodioT>(this->collection_names[0], !IsOptional);
       } catch (const std::exception& e) {
         if constexpr (!IsOptional) {
-          throw JException("JOmniFactory: Failed to get collection %s: %s", this->collection_names[0].c_str(),
-                           e.what());
+          throw JException("JOmniFactory: Failed to get collection %s: %s",
+                           this->collection_names[0].c_str(), e.what());
         }
       }
     }

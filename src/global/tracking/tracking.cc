@@ -40,23 +40,25 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
       "CentralTrackTruthSeeds", {"MCParticles"}, {"CentralTrackTruthSeeds"}, {}, app));
-       
+
   // Tracker hits collector
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
-      "CentralTrackingRecHits", {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
-        "TOFBarrelRecHits", "TOFEndcapRecHits", "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
-        "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits", "B0TrackerRecHits"},
+      "CentralTrackingRecHits",
+      {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
+       "TOFBarrelRecHits", "TOFEndcapRecHits", "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
+       "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits", "B0TrackerRecHits"},
       {"CentralTrackingRecHits"}, // Output collection name
       app));
 
   // Tracker hit associations collector
   app->Add(
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation>>(
-          "CentralTrackingRawHitAssociations", {"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
-            "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
-            "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
-            "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
-            "ForwardMPGDEndcapRawHitAssociations", "B0TrackerRawHitAssociations"},
+          "CentralTrackingRawHitAssociations",
+          {"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
+           "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
+           "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
+           "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
+           "ForwardMPGDEndcapRawHitAssociations", "B0TrackerRawHitAssociations"},
           {"CentralTrackingRawHitAssociations"}, // Output collection name
           app));
 
@@ -220,16 +222,19 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
-      "CombinedTrackAssociations", {"CentralCKFTrackAssociations","TaggerTrackerTrackAssociations"}, {"CombinedTrackAssociations"},
-      app));
+      "CombinedTrackAssociations",
+      {"CentralCKFTrackAssociations", "TaggerTrackerTrackAssociations"},
+      {"CombinedTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
-      "CombinedTruthSeededTracks", {"CentralCKFTruthSeededTrackAssociations","TaggerTrackerTrackAssociations"}, {"CombinedTruthSeededTracks"},
-      app));
+      "CombinedTruthSeededTracks",
+      {"CentralCKFTruthSeededTrackAssociations", "TaggerTrackerTrackAssociations"},
+      {"CombinedTruthSeededTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
-      "CombinedTruthSeededTrackAssociations", {"CentralCKFTruthSeededTrackAssociations","TaggerTrackerTrackAssociations"},
+      "CombinedTruthSeededTrackAssociations",
+      {"CentralCKFTruthSeededTrackAssociations", "TaggerTrackerTrackAssociations"},
       {"CombinedTruthSeededTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
