@@ -26,14 +26,16 @@ using MergeParticleIDAlgorithm = algorithms::Algorithm<
     algorithms::Output<edm4eic::CherenkovParticleIDCollection>>;
 
 class MergeParticleID : public MergeParticleIDAlgorithm,
-                        public WithPodConfig<MergeParticleIDConfig> {
+                        public WithPodConfig<MergeParticleIDConfig>,
+                        private Tools<MergeParticleID> {
 
 public:
   MergeParticleID(std::string_view name)
       : MergeParticleIDAlgorithm{name,
                                  {"inputTrackSegments"},
                                  {"outputTrackSegments"},
-                                 "Effectively 'zip' the input particle IDs"} {}
+                                 "Effectively 'zip' the input particle IDs"}
+      , Tools(this) {}
 
   void init();
 

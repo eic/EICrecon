@@ -41,7 +41,8 @@ using IrtCherenkovParticleIDAlgorithm = algorithms::Algorithm<
                        edm4eic::CherenkovParticleIDCollection>>;
 
 class IrtCherenkovParticleID : public IrtCherenkovParticleIDAlgorithm,
-                               public WithPodConfig<IrtCherenkovParticleIDConfig> {
+                               public WithPodConfig<IrtCherenkovParticleIDConfig>,
+                               private Tools<IrtCherenkovParticleID> {
 
 public:
   IrtCherenkovParticleID(std::string_view name)
@@ -50,7 +51,8 @@ public:
                                          "inputMergedTrackSegments", "inputRawHits",
                                          "inputRawHitAssociations"},
                                         {"outputAerogelParticleIDs", "outputGasParticleIDs"},
-                                        "Effectively 'zip' the input particle IDs"} {}
+                                        "Effectively 'zip' the input particle IDs"}
+      , Tools(this) {}
 
   void init(CherenkovDetectorCollection* irt_det_coll);
 

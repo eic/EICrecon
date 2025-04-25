@@ -10,7 +10,7 @@
 // general
 #include <map>
 #include <math.h>
-#include <spdlog/spdlog.h>
+#include <algorithms/logger.h>
 
 // ROOT
 #include <TVector3.h>
@@ -25,8 +25,13 @@
 namespace eicrecon {
 
 // Tools class, filled with miscellaneous helper functions
-class Tools {
+template <class T> class Tools {
+private:
+  T* m_logger{nullptr};
+
 public:
+  Tools(T* logger) : m_logger(logger){};
+
   // -------------------------------------------------------------------------------------
 
   // h*c constant, for wavelength <=> energy conversion [GeV*nm]
