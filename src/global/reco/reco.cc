@@ -78,23 +78,34 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<MC2SmearedParticle_factory>(
       "GeneratedParticles", {"MCParticles"}, {"GeneratedParticles"}, app));
 
+   // Possible calorimeter collections
+   std::vector<std::tuple<std::string, std::string, std::string>> possible_collections =
+   {{"EcalEndcapNHits", "EcalEndcapNClusters", "EcalEndcapNClusterAssociations"},
+    {"EcalBarrelScFiHits", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations"},
+    {"EcalEndcapPHits", "EcalEndcapPClusters", "EcalEndcapPClusterAssociations"}};
+
+  // Filter out calorimeter collections that are not present in the current configuration
+  std::vector<std::string> input_cluster_collections;
+  std::vector<std::string> input_cluster_assoc_collections;
+  auto readouts = app->GetService<DD4hep_service>()->detector()->readouts();
+  for (const auto& [hit_collection, cluster_collection, cluster_assoc_collection] :
+       possible_collections) {
+    if (readouts.find(hit_collection) != readouts.end()) {
+      // Add the collection to the list of input collections
+      input_cluster_collections.push_back(cluster_collection);
+      input_cluster_assoc_collections.push_back(cluster_assoc_collection);
+    }
+  }
+
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster>>(
       "EcalClusters",
-      {
-          "EcalEndcapNClusters",
-          "EcalBarrelScFiClusters",
-          "EcalEndcapPClusters",
-      },
+      input_cluster_collections,
       {"EcalClusters"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation>>(
       "EcalClusterAssociations",
-      {
-          "EcalEndcapNClusterAssociations",
-          "EcalBarrelScFiClusterAssociations",
-          "EcalEndcapPClusterAssociations",
-      },
+      input_cluster_assoc_collections,
       {"EcalClusterAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
