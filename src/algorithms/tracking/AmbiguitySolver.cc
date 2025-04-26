@@ -61,7 +61,7 @@ void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
 std::tuple<std::vector<ActsExamples::ConstTrackContainer*>,
            std::vector<ActsExamples::Trajectories*>>
 AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,
-                         const edm4eic::Measurement2DCollection& meas2Ds) {
+                         const edm4eic::Measurement2DCollection& /* meas2Ds */) {
 
   // Assuming ActsExamples::ConstTrackContainer is compatible with Acts::ConstVectorTrackContainer
   // Create track container

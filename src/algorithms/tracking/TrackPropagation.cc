@@ -208,7 +208,7 @@ void TrackPropagation::propagateToSurfaceList(
 }
 
 std::unique_ptr<edm4eic::TrackPoint>
-TrackPropagation::propagate(const edm4eic::Track& track,
+TrackPropagation::propagate(const edm4eic::Track& /* track */,
                             const ActsExamples::Trajectories* acts_trajectory,
                             const std::shared_ptr<const Acts::Surface>& targetSurf) const {
 

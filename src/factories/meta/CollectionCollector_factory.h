@@ -28,9 +28,9 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     std::vector<gsl::not_null<const typename T::collection_type*>> in_collections;
     for (const auto& in_collection : m_inputs()) {
       in_collections.push_back(gsl::not_null<const typename T::collection_type*>{in_collection});

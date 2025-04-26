@@ -14,7 +14,7 @@
 
 #include "TrackingOccupancyAnalysis.h"
 
-void TrackingOccupancyAnalysis::init(JApplication* app, TDirectory* plugin_tdir) {
+void TrackingOccupancyAnalysis::init(JApplication* /* app */, TDirectory* plugin_tdir) {
   auto* dir = plugin_tdir->mkdir("SimOccupancies"); // TODO create directory for this analysis
 
   auto z_limit_min = -2000;

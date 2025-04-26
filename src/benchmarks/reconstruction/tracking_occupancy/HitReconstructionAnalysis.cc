@@ -14,7 +14,7 @@
 
 #include "HitReconstructionAnalysis.h"
 
-void HitReconstructionAnalysis::init(JApplication* app, TDirectory* plugin_tdir) {
+void HitReconstructionAnalysis::init(JApplication* /* app */, TDirectory* plugin_tdir) {
 
   auto* dir = plugin_tdir->mkdir("RecOccupancies"); // TODO create directory for this analysis
 
