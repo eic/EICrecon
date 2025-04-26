@@ -228,7 +228,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
       "CombinedTruthSeededTracks",
-      {"CentralCKFTruthSeededTrackAssociations", "TaggerTrackerTrackAssociations"},
+      {"CentralCKFTruthSeededTracks", "TaggerTrackerTracks"},
       {"CombinedTruthSeededTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
