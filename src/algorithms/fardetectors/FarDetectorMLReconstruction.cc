@@ -75,7 +75,7 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
   std::int32_t type = 0; // Check?
   float charge      = -1;
 
-  for (int i = 0; i < inputProjectedTracks->size(); i++) {
+  for (std::size_t i = 0; i < inputProjectedTracks->size(); i++) {
     // Get the track parameters
     auto track = (*inputProjectedTracks)[i];
 

@@ -139,7 +139,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   // Linear tracking for each module, loop over modules
-  for (int i = 0; i < moduleIDs.size(); i++) {
+  for (std::size_t i = 0; i < moduleIDs.size(); i++) {
     std::string outputTrackTag                = outputTrackTags[i];
     std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags = moduleClusterTags[i];

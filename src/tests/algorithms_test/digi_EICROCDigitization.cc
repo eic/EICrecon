@@ -23,8 +23,6 @@
 #include "algorithms/digi/EICROCDigitizationConfig.h"
 
 TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
-  const float EPSILON = 1e-5;
-
   eicrecon::EICROCDigitization algo("EICROCDigitization");
 
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("EICROCDigitization");

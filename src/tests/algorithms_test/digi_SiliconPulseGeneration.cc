@@ -38,11 +38,11 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
   algo.init();
 
   SECTION("from different hits") {
-    auto nHits = GENERATE(1, 2, 3);
+    std::size_t nHits = GENERATE(1, 2, 3);
 
     edm4hep::SimTrackerHitCollection hits_coll;
 
-    for (int i = 0; i < nHits; i++) {
+    for (std::size_t i = 0; i < nHits; i++) {
       hits_coll.create(12345 + i, 10.0, 5.0); // cellID, charge, time
     }
 
@@ -73,10 +73,10 @@ TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse",
   // Square wave expression
   std::string expression = "(time >= param0 && time < param1) ? charge : 0";
 
-  double startTime = 0.0 * edm4eic::unit::ns;
-  double endTime   = 1.0 * edm4eic::unit::ns;
-  int nTimeBins    = 10;
-  double timeStep  = (endTime - startTime) / nTimeBins;
+  double startTime      = 0.0 * edm4eic::unit::ns;
+  double endTime        = 1.0 * edm4eic::unit::ns;
+  std::size_t nTimeBins = 10;
+  double timeStep       = (endTime - startTime) / nTimeBins;
 
   cfg.pulse_shape_function = expression;
   cfg.pulse_shape_params   = {startTime, endTime}; // Example parameters for the square pulse
