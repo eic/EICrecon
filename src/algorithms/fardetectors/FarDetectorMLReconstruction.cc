@@ -9,6 +9,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <gsl/pointers>

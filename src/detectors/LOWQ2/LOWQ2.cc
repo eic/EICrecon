@@ -11,6 +11,7 @@
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
 #include <math.h>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>

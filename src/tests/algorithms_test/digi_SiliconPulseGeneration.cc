@@ -13,6 +13,7 @@
 #endif
 #include <podio/RelationRange.h>
 #include <cmath>
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <tuple>
