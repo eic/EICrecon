@@ -68,7 +68,7 @@ public:
 private:
   template <algorithms::LogLevel lvl, typename... T>
   constexpr void log(fmt::format_string<T...> fmt, T&&... args) const {
-    log<lvl>(fmt, std::forward<decltype(args)>(args)...);
+    algorithms::LoggerMixin::log<lvl>(fmt, std::forward<decltype(args)>(args)...);
   }
 
   friend class IrtCherenkovParticleIDConfig;
