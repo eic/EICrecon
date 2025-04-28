@@ -96,7 +96,7 @@ private:
   edm4hep::Vector3f get_cluster_position(const edm4eic::ProtoCluster& clust) const;
 
   // calorimeter id
-  int m_idCalo{0};
+  unsigned int m_idCalo{0};
 
 }; // end TrackClusterMergeSplitter
 
