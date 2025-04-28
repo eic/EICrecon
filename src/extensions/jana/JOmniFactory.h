@@ -60,7 +60,7 @@ public:
 
     void GetCollection(const JEvent& event) {
       try {
-        m_data = event.Get<T>(this->collection_names[0],!IsOptional);
+        m_data = event.Get<T>(this->collection_names[0], !IsOptional);
       } catch (const std::exception& e) {
         if constexpr (!IsOptional) {
           throw JException("JOmniFactory: Failed to get collection %s: %s",
@@ -88,7 +88,7 @@ public:
 
     void GetCollection(const JEvent& event) {
       try {
-        m_data = event.GetCollection<PodioT>(this->collection_names[0],!IsOptional);
+        m_data = event.GetCollection<PodioT>(this->collection_names[0], !IsOptional);
       } catch (const std::exception& e) {
         if constexpr (!IsOptional) {
           throw JException("JOmniFactory: Failed to get collection %s: %s",
@@ -121,7 +121,7 @@ public:
       m_data.clear();
       for (auto& coll_name : this->collection_names) {
         try {
-          m_data.push_back(event.GetCollection<PodioT>(coll_name,!IsOptional));
+          m_data.push_back(event.GetCollection<PodioT>(coll_name, !IsOptional));
         } catch (const std::exception& e) {
           if constexpr (!IsOptional) {
             throw JException("JOmniFactory: Failed to get collection %s: %s", coll_name.c_str(),

@@ -433,9 +433,8 @@ TEST_CASE("VariadicPodioOutputTests") {
   REQUIRE(right_hits->size() == 1);
 }
 
-
-
-struct OptionalPodioInputTestAlg : public JOmniFactory<OptionalPodioInputTestAlg, BasicTestAlgConfig> {
+struct OptionalPodioInputTestAlg
+    : public JOmniFactory<OptionalPodioInputTestAlg, BasicTestAlgConfig> {
 
   PodioInput<edm4hep::SimCalorimeterHit, true> m_left_hits_in{this};
   PodioInput<edm4hep::SimCalorimeterHit, true> m_right_hits_in{this};
@@ -468,7 +467,6 @@ struct OptionalPodioInputTestAlg : public JOmniFactory<OptionalPodioInputTestAlg
         m_right_hits_out()->push_back(hit);
       }
     }
-
   }
 };
 
@@ -477,7 +475,8 @@ TEST_CASE("Optional PodioInput") {
   app.AddPlugin("log");
 
   auto facgen = new JOmniFactoryGeneratorT<OptionalPodioInputTestAlg>(
-      "OptionalPodioInputTest", {"left_hits", "right_hits"}, {"left_hits_out","right_hits_out"}, &app);
+      "OptionalPodioInputTest", {"left_hits", "right_hits"}, {"left_hits_out", "right_hits_out"},
+      &app);
 
   app.Add(facgen);
   app.Initialize();
@@ -485,8 +484,6 @@ TEST_CASE("Optional PodioInput") {
   auto event = std::make_shared<JEvent>();
   app.GetService<JComponentManager>()->configure_event(*event);
 
-  
-  
   SECTION("Both collections are set") {
     edm4hep::SimCalorimeterHitCollection left_hits;
     edm4hep::SimCalorimeterHitCollection right_hits;
@@ -495,7 +492,7 @@ TEST_CASE("Optional PodioInput") {
     right_hits.create();
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(left_hits), "left_hits");
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(right_hits), "right_hits");
-    
+
     auto left_hits_out  = event->GetCollection<edm4hep::SimCalorimeterHit>("left_hits_out");
     auto right_hits_out = event->GetCollection<edm4hep::SimCalorimeterHit>("right_hits_out");
     REQUIRE(left_hits_out->size() == 2);
@@ -505,24 +502,23 @@ TEST_CASE("Optional PodioInput") {
     edm4hep::SimCalorimeterHitCollection right_hits;
     right_hits.create();
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(right_hits), "right_hits");
-    
+
     auto left_hits_out  = event->GetCollection<edm4hep::SimCalorimeterHit>("left_hits_out");
     auto right_hits_out = event->GetCollection<edm4hep::SimCalorimeterHit>("right_hits_out");
     REQUIRE(left_hits_out->size() == 0);
     REQUIRE(right_hits_out->size() == 1);
-  }    
+  }
   SECTION("Right hits are not set") {
     edm4hep::SimCalorimeterHitCollection left_hits;
     left_hits.create();
     left_hits.create();
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(left_hits), "left_hits");
-    
+
     auto left_hits_out  = event->GetCollection<edm4hep::SimCalorimeterHit>("left_hits_out");
     auto right_hits_out = event->GetCollection<edm4hep::SimCalorimeterHit>("right_hits_out");
     REQUIRE(left_hits_out->size() == 2);
     REQUIRE(right_hits_out->size() == 0);
   }
-
 }
 
 struct OptionalVariadicPodioInputTestAlg
@@ -544,14 +540,13 @@ struct OptionalVariadicPodioInputTestAlg
     //Set the subset flag
     m_hits_out()->setSubsetCollection();
     //Copy hits to output collections
-    for(const auto& coll : m_hits_in()) {
+    for (const auto& coll : m_hits_in()) {
       if (coll) {
         for (const auto& hit : *coll) {
           m_hits_out()->push_back(hit);
         }
       }
     }
-
   }
 };
 
@@ -560,7 +555,8 @@ TEST_CASE("Optional Variadic Podio Input") {
   app.AddPlugin("log");
 
   auto facgen = new JOmniFactoryGeneratorT<OptionalVariadicPodioInputTestAlg>(
-      "OptionalVariadicPodioInputTest", {"left_hits","center_hits","right_hits"}, {"hits_out"}, &app);
+      "OptionalVariadicPodioInputTest", {"left_hits", "center_hits", "right_hits"}, {"hits_out"},
+      &app);
 
   app.Add(facgen);
   app.Initialize();
@@ -581,23 +577,23 @@ TEST_CASE("Optional Variadic Podio Input") {
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(left_hits), "left_hits");
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(center_hits), "center_hits");
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(right_hits), "right_hits");
-    
-    auto hits_out  = event->GetCollection<edm4hep::SimCalorimeterHit>("hits_out");
-    
+
+    auto hits_out = event->GetCollection<edm4hep::SimCalorimeterHit>("hits_out");
+
     REQUIRE(hits_out->size() == 6);
   }
 
   SECTION("No collections are set") {
-    auto hits_out  = event->GetCollection<edm4hep::SimCalorimeterHit>("hits_out");
-    
+    auto hits_out = event->GetCollection<edm4hep::SimCalorimeterHit>("hits_out");
+
     REQUIRE(hits_out->size() == 0);
   }
   SECTION("Only right collection is set") {
     edm4hep::SimCalorimeterHitCollection right_hits;
     right_hits.create();
     event->InsertCollection<edm4hep::SimCalorimeterHit>(std::move(right_hits), "right_hits");
-    
-    auto hits_out  = event->GetCollection<edm4hep::SimCalorimeterHit>("hits_out");
+
+    auto hits_out = event->GetCollection<edm4hep::SimCalorimeterHit>("hits_out");
     REQUIRE(hits_out->size() == 1);
   }
 }
