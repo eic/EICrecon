@@ -436,7 +436,7 @@ TEST_CASE("VariadicPodioOutputTests") {
 struct OptionalPodioInputTestAlg
     : public JOmniFactory<OptionalPodioInputTestAlg, BasicTestAlgConfig> {
 
-  PodioInput<edm4hep::SimCalorimeterHit, true>  m_left_hits_in{this};
+  PodioInput<edm4hep::SimCalorimeterHit, true> m_left_hits_in{this};
   PodioInput<edm4hep::SimCalorimeterHit, false> m_right_hits_in{this};
 
   PodioOutput<edm4hep::SimCalorimeterHit> m_left_hits_out{this};
@@ -507,7 +507,6 @@ TEST_CASE("Optional PodioInput") {
     auto right_hits_out = event->GetCollection<edm4hep::SimCalorimeterHit>("right_hits_out");
     REQUIRE(left_hits_out->size() == 0);
     REQUIRE(right_hits_out->size() == 1);
-    
   }
   SECTION("Right hits are not set") {
     edm4hep::SimCalorimeterHitCollection left_hits;
@@ -517,7 +516,6 @@ TEST_CASE("Optional PodioInput") {
 
     REQUIRE_THROWS(event->GetCollection<edm4hep::SimCalorimeterHit>("left_hits_out"));
     REQUIRE_THROWS(event->GetCollection<edm4hep::SimCalorimeterHit>("right_hits_out"));
- 
   }
 }
 
