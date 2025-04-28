@@ -6,7 +6,7 @@
 
 namespace eicrecon {
 
-template <class T, bool IsOptional = true>
+template <class T, bool IsOptional = false>
 class CollectionCollector_factory
     : public JOmniFactory<CollectionCollector_factory<T, IsOptional>> {
 public:
