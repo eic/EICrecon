@@ -168,8 +168,8 @@ void InitPlugin(JApplication* app) {
             "HcalEndcapNRawHitAssociations"
       },
 #else
-              "HcalEndcapNHits"
-        },
+                  "HcalEndcapNHits"
+            },
 #endif
       {"HcalEndcapNSplitMergeClustersWithoutShapes",
        "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},

@@ -191,8 +191,8 @@ void InitPlugin(JApplication* app) {
             "HcalBarrelRawHitAssociations"
       },
 #else
-              "HcalBarrelHits"
-        },
+                  "HcalBarrelHits"
+            },
 #endif
       {"HcalBarrelSplitMergeClustersWithoutShapes",
        "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"},

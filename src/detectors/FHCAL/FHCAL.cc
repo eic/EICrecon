@@ -346,8 +346,8 @@ void InitPlugin(JApplication* app) {
             "LFHCALRawHitAssociations"
       },
 #else
-              "LFHCALHits"
-        },
+                  "LFHCALHits"
+            },
 #endif
       {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
       {

@@ -231,8 +231,8 @@ void InitPlugin(JApplication* app) {
         "EcalEndcapNRawHitAssociations"
       },
 #else
-          "EcalEndcapNHits"
-        },
+              "EcalEndcapNHits"
+            },
 #endif
       {"EcalEndcapNSplitMergeClustersWithoutShapes",
        "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
