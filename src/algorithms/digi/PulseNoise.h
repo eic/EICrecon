@@ -8,7 +8,12 @@
 
 #include <DDDigi/noise/FalphaNoise.h>
 #include <algorithms/algorithm.h>
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+#include <edm4eic/SimPulseCollection.h>
+#else
 #include <edm4hep/TimeSeriesCollection.h>
+#endif
 #include <random>
 #include <string>
 #include <string_view>
@@ -18,24 +23,26 @@
 
 namespace eicrecon {
 
-using PulseNoiseAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4hep::TimeSeriesCollection>,
-                          algorithms::Output<edm4hep::TimeSeriesCollection>>;
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+using PulseType = edm4eic::SimPulse;
+#else
+using PulseType = edm4hep::TimeSeries;
+#endif
 
-class PulseNoise : public PulseNoiseAlgorithm,
-                               public WithPodConfig<PulseNoiseConfig> {
+using PulseNoiseAlgorithm = algorithms::Algorithm<algorithms::Input<PulseType::collection_type>,
+                                                  algorithms::Output<PulseType::collection_type>>;
+
+class PulseNoise : public PulseNoiseAlgorithm, public WithPodConfig<PulseNoiseConfig> {
 
 public:
   PulseNoise(std::string_view name)
       : PulseNoiseAlgorithm{name, {"RawHits"}, {"OutputPulses"}, {}} {}
   virtual void init() final;
-  void process(const Input&, const Output&);
+  void process(const Input&, const Output&) const;
 
 private:
-
-  std::default_random_engine generator; // TODO: need something more appropriate here
-  dd4hep::detail::FalphaNoise m_noise;
-
+  mutable std::default_random_engine m_generator; // TODO: need something more appropriate here
+  mutable dd4hep::detail::FalphaNoise m_noise;    // FalphaNoise::operator() is not const
 };
 
 } // namespace eicrecon

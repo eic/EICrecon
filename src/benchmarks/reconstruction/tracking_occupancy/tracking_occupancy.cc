@@ -8,8 +8,8 @@
 #include "TrackingOccupancy_processor.h"
 
 extern "C" {
-    void InitPlugin(JApplication *app) {
-        InitJANAPlugin(app);
-        app->Add(new TrackingOccupancy_processor(app));
-    }
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->Add(new TrackingOccupancy_processor(app));
+}
 }

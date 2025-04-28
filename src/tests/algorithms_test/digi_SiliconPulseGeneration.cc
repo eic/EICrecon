@@ -3,9 +3,14 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <catch2/generators/catch_generators.hpp>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+#include <edm4eic/SimPulseCollection.h>
+#else
 #include <edm4hep/TimeSeriesCollection.h>
+#endif
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <memory>
@@ -16,12 +21,18 @@
 #include "algorithms/digi/SiliconPulseGeneration.h"
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
 
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+using PulseType = edm4eic::SimPulse;
+#else
+using PulseType = edm4hep::TimeSeries;
+#endif
+
 TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[SiliconPulseGeneration]") {
 
   eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
   eicrecon::SiliconPulseGenerationConfig cfg;
   cfg.pulse_shape_function = "LandauPulse"; // Example pulse shape
-  cfg.pulse_shape_params = {1.0,1.0}; // Example parameters for the pulse shape
+  cfg.pulse_shape_params   = {1.0, 1.0};    // Example parameters for the pulse shape
 
   algo.applyConfig(cfg);
   algo.init();
@@ -31,11 +42,11 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
 
     edm4hep::SimTrackerHitCollection hits_coll;
 
-    for(int i=0; i<nHits; i++) {
+    for (int i = 0; i < nHits; i++) {
       hits_coll.create(12345 + i, 10.0, 5.0); // cellID, charge, time
     }
 
-    auto pulses = std::make_unique<edm4hep::TimeSeriesCollection>();
+    auto pulses = std::make_unique<PulseType::collection_type>();
 
     auto input  = std::make_tuple(&hits_coll);
     auto output = std::make_tuple(pulses.get());
@@ -44,17 +55,17 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
 
     REQUIRE(pulses->size() == nHits);
     REQUIRE((*pulses)[0].getCellID() == 12345);
-    if(nHits > 1) {
+    if (nHits > 1) {
       REQUIRE((*pulses)[1].getCellID() == 12346);
     }
-    if(nHits > 2) {
+    if (nHits > 2) {
       REQUIRE((*pulses)[2].getCellID() == 12347);
     }
   }
-
 }
 
-TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[SiliconPulseGeneration]") {
+TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse",
+          "[SiliconPulseGeneration]") {
 
   eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
   eicrecon::SiliconPulseGenerationConfig cfg;
@@ -64,38 +75,38 @@ TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[Silico
 
   double startTime = 0.0 * edm4eic::unit::ns;
   double endTime   = 1.0 * edm4eic::unit::ns;
-  int    nTimeBins = 10;
-  double timeStep  = (endTime-startTime)/nTimeBins;
+  int nTimeBins    = 10;
+  double timeStep  = (endTime - startTime) / nTimeBins;
 
   cfg.pulse_shape_function = expression;
-  cfg.pulse_shape_params = {startTime, endTime}; // Example parameters for the square pulse
-  cfg.ignore_thres = 1;
-  cfg.timestep = timeStep;
-  cfg.min_sampling_time = startTime+timeStep;
+  cfg.pulse_shape_params   = {startTime, endTime}; // Example parameters for the square pulse
+  cfg.ignore_thres         = 1;
+  cfg.timestep             = timeStep;
+  cfg.min_sampling_time    = startTime + timeStep;
 
   algo.applyConfig(cfg);
   algo.init();
 
-  double charge = 10.0*cfg.ignore_thres;
-  double time   = GENERATE_COPY(0.0, 0.5*timeStep, timeStep);
-  float  rounded_time = std::floor(time / timeStep) * timeStep;
+  double charge      = 10.0 * cfg.ignore_thres;
+  double time        = GENERATE_COPY(0.0, 0.5 * timeStep, timeStep);
+  float rounded_time = std::floor(time / timeStep) * timeStep;
 
   edm4hep::SimTrackerHitCollection hits_coll;
   hits_coll.create(12345, charge, time); // cellID, charge, time
 
-  auto pulses = std::make_unique<edm4hep::TimeSeriesCollection>();
+  auto pulses = std::make_unique<PulseType::collection_type>();
 
   auto input  = std::make_tuple(&hits_coll);
   auto output = std::make_tuple(pulses.get());
 
-  algo.process(input,output);
+  algo.process(input, output);
 
   REQUIRE(pulses->size() == 1);
   REQUIRE((*pulses)[0].getCellID() == 12345);
   REQUIRE((*pulses)[0].getTime() == rounded_time);
   auto amplitudes = (*pulses)[0].getAmplitude();
   REQUIRE(amplitudes.size() == nTimeBins); // Two time bins for the square pulse
-  for(auto amplitude:amplitudes){
+  for (auto amplitude : amplitudes) {
     REQUIRE(amplitude == charge); // All time bins should be zero
   }
 }

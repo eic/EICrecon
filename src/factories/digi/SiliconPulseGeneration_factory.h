@@ -20,11 +20,16 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4hep::SimTrackerHit> m_in_sim_hits{this};
-
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+  PodioOutput<edm4eic::SimPulse> m_out_pulses{this};
+#else
   PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
+#endif
 
-  ParameterRef<std::string> m_pulse_shape_function{this, "pulseShapeFunction", config().pulse_shape_function};
-  ParameterRef<std::vector<double>> m_pulse_shape_params{this, "pulseShapeParams", config().pulse_shape_params};
+  ParameterRef<std::string> m_pulse_shape_function{this, "pulseShapeFunction",
+                                                   config().pulse_shape_function};
+  ParameterRef<std::vector<double>> m_pulse_shape_params{this, "pulseShapeParams",
+                                                         config().pulse_shape_params};
   ParameterRef<double> m_timestep{this, "timestep", config().timestep};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};
   ParameterRef<double> m_min_sampling_time{this, "minSamplingTime", config().min_sampling_time};
@@ -40,9 +45,9 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_in_sim_hits()}, {m_out_pulses().get()});
   }
 };
