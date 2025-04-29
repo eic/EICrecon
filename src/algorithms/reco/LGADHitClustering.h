@@ -36,6 +36,9 @@ public:
 
 private:
   dd4hep::rec::CellID getSensorInfos(const dd4hep::rec::CellID& id) const;
+  dd4hep::Position _local2Global(const dd4hep::VolumeManagerContext* context, 
+                                 const edm4hep::Vector2f& locPos) const;
+
   /** algorithm logger */
   std::shared_ptr<spdlog::logger> m_log;
 

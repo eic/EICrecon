@@ -25,6 +25,7 @@ namespace eicrecon {
 void LGADHitClusterAssociation::init() {
   auto detector = algorithms::GeoSvc::instance().detector();
   auto seg      = detector->readout(m_cfg.readout).segmentation();
+  m_converter  = algorithms::GeoSvc::instance().cellIDPositionConverter();
   m_decoder     = seg.decoder();
 }
 
@@ -37,6 +38,20 @@ dd4hep::rec::CellID LGADHitClusterAssociation::getSensorInfos(const dd4hep::rec:
   m_decoder->set(id_return, "y", 0);
   return id_return;
 }
+
+edm4hep::Vector3f LGADHitClusterAssociation::_local2Global(const dd4hep::VolumeManagerContext* context, 
+                       	                                  const edm4hep::Vector2f& locPos) const {
+    auto nodeMatrix = context -> element.nominal().worldTransformation();
+
+    double g[3], l[3];
+    l[0] = locPos.a * dd4hep::mm;
+    l[1] = locPos.b * dd4hep::mm;
+    l[2] = 0;
+    nodeMatrix.LocalToMaster(l, g);
+    return edm4hep::Vector3f{static_cast<float>(g[0] / dd4hep::mm),
+                             static_cast<float>(g[1] / dd4hep::mm),
+                             static_cast<float>(g[2] / dd4hep::mm)};
+}	
 
 void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& input,
                                         const LGADHitClusterAssociation::Output& output) const {
@@ -54,26 +69,9 @@ void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& 
     // sum ADC info
     double tot_charge = 0;
     // position info
-    ROOT::VecOps::RVec<float> pos_x, pos_y, pos_z;
-
-    const auto hits = meas2D_hit.getHits();
-    for (const auto& hit : hits) {
-      auto charge = hit.getEdep();
-      tot_charge += charge;
-      const auto pos = hit.getPosition();
-      pos_x.push_back(charge * pos.x);
-      pos_y.push_back(charge * pos.y);
-      pos_z.push_back(charge * pos.z);
-    }
-
-    pos_x /= tot_charge;
-    pos_y /= tot_charge;
-    pos_z /= tot_charge;
-
-    auto ave_pos = edm4hep::Vector3f{static_cast<float>(ROOT::VecOps::Mean(pos_x)),
-                                     static_cast<float>(ROOT::VecOps::Mean(pos_y)),
-                                     static_cast<float>(ROOT::VecOps::Mean(pos_z))};
-
+    auto locPos = meas2D_hit.getLoc();
+    const auto* context = m_converter -> findContext(cellID);
+    auto ave_pos = this -> _local2Global(context, locPos);
     auto asso_hit = asso_hits->create(cellID, ave_pos, edm4eic::CovDiag3f{0., 0., 0.}, time, 0.,
                                       tot_charge, 0.);
     cellHitMap[getSensorInfos(asso_hit.getCellID())].push_back(asso_hit);
