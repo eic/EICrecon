@@ -38,14 +38,14 @@ namespace eicrecon{
 			void process (const Input&, const Output&) const final;
 
 		private:
-			uint64_t id_mask{0};
+			uint64_t m_id_mask{0};
 
-			dd4hep::IDDescriptor id_spec;
+			dd4hep::IDDescriptor m_id_spec;
 
 			const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 
 			// to get the detector edge position for attenuation	
-			double z_edge;
+			double m_z_edge;
 
 		private:
 			edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
