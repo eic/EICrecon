@@ -35,11 +35,11 @@ extern "C" {
 	decltype(CalorimeterHitAttenuationConfig::attPars) EcalBarrelScFi_attPars = {0.416212, 747.39875, 7521.88383};
 
         // Make sure digi and reco use the same value
-        decltype(CalorimeterHitDigiConfig::capADC)         EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
-        decltype(CalorimeterHitDigiConfig::dyRangeADC)     EcalBarrelScFi_dyRangeADC = 1500 * dd4hep::MeV;
-        decltype(CalorimeterHitDigiConfig::pedMeanADC)     EcalBarrelScFi_pedMeanADC = 100;
-        decltype(CalorimeterHitDigiConfig::pedSigmaADC)    EcalBarrelScFi_pedSigmaADC = 1;
-        decltype(CalorimeterHitDigiConfig::resolutionTDC)  EcalBarrelScFi_resolutionTDC = 10 * dd4hep::picosecond;
+        decltype(CalorimeterHitDigiConfig::capADC)        EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
+        decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalBarrelScFi_dyRangeADC = 1500 * dd4hep::MeV;
+        decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalBarrelScFi_pedMeanADC = 100;
+        decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalBarrelScFi_pedSigmaADC = 1;
+        decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelScFi_resolutionTDC = 10 * dd4hep::picosecond;
 	app->Add(new JOmniFactoryGeneratorT<CalorimeterHitAttenuation_factory>(
           "EcalBarrelScFiPAttenuatedHits", 
 	  {"EcalBarrelScFiHits"}, 
