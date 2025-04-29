@@ -41,7 +41,7 @@ namespace eicrecon{
 
                 // get decoders
                 try {
-                        id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
+                        m_id_spec = m_geo.detector()->readout(m_cfg.readout).idSpec();
                 } catch (...) {
                         debug("Failed to load ID decoder for {}", m_cfg.readout);
                         throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
