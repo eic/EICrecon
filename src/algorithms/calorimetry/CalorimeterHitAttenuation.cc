@@ -55,7 +55,7 @@ namespace eicrecon{
                 }
                 id_mask = ~id_inverse_mask;
 
-		z_edge = m_geo.detector()->constant<double>(m_cfg.lengthField) / dd4hep::mm;
+		m_z_edge = m_geo.detector()->constant<double>(m_cfg.lengthField) / dd4hep::mm;
 	}
 
 	void CalorimeterHitAttenuation::process(const CalorimeterHitAttenuation::Input& input,
