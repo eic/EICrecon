@@ -47,7 +47,7 @@ namespace eicrecon{
                         throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
                 }
 
-		 decltype(id_mask) id_inverse_mask = 0;
+		 uint64_t id_inverse_mask = 0;
                 // get id_mask for adding up hits that have the same z-segmentation
 		if (!m_cfg.zField.empty()) {
 			id_inverse_mask |= id_spec.field(m_cfg.zField)->mask();
