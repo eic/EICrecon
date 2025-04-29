@@ -25,7 +25,7 @@ namespace eicrecon {
 void LGADHitClusterAssociation::init() {
   auto detector = algorithms::GeoSvc::instance().detector();
   auto seg      = detector->readout(m_cfg.readout).segmentation();
-  m_converter  = algorithms::GeoSvc::instance().cellIDPositionConverter();
+  m_converter   = algorithms::GeoSvc::instance().cellIDPositionConverter();
   m_decoder     = seg.decoder();
 }
 
@@ -39,19 +39,20 @@ dd4hep::rec::CellID LGADHitClusterAssociation::getSensorInfos(const dd4hep::rec:
   return id_return;
 }
 
-edm4hep::Vector3f LGADHitClusterAssociation::_local2Global(const dd4hep::VolumeManagerContext* context, 
-                       	                                  const edm4hep::Vector2f& locPos) const {
-    auto nodeMatrix = context -> element.nominal().worldTransformation();
+edm4hep::Vector3f
+LGADHitClusterAssociation::_local2Global(const dd4hep::VolumeManagerContext* context,
+                                         const edm4hep::Vector2f& locPos) const {
+  auto nodeMatrix = context->element.nominal().worldTransformation();
 
-    double g[3], l[3];
-    l[0] = locPos.a * dd4hep::mm;
-    l[1] = locPos.b * dd4hep::mm;
-    l[2] = 0;
-    nodeMatrix.LocalToMaster(l, g);
-    return edm4hep::Vector3f{static_cast<float>(g[0] / dd4hep::mm),
-                             static_cast<float>(g[1] / dd4hep::mm),
-                             static_cast<float>(g[2] / dd4hep::mm)};
-}	
+  double g[3], l[3];
+  l[0] = locPos.a * dd4hep::mm;
+  l[1] = locPos.b * dd4hep::mm;
+  l[2] = 0;
+  nodeMatrix.LocalToMaster(l, g);
+  return edm4hep::Vector3f{static_cast<float>(g[0] / dd4hep::mm),
+                           static_cast<float>(g[1] / dd4hep::mm),
+                           static_cast<float>(g[2] / dd4hep::mm)};
+}
 
 void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& input,
                                         const LGADHitClusterAssociation::Output& output) const {
@@ -69,9 +70,9 @@ void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& 
     // sum ADC info
     double tot_charge = 0;
     // position info
-    auto locPos = meas2D_hit.getLoc();
-    const auto* context = m_converter -> findContext(cellID);
-    auto ave_pos = this -> _local2Global(context, locPos);
+    auto locPos         = meas2D_hit.getLoc();
+    const auto* context = m_converter->findContext(cellID);
+    auto ave_pos        = this->_local2Global(context, locPos);
     auto asso_hit = asso_hits->create(cellID, ave_pos, edm4eic::CovDiag3f{0., 0., 0.}, time, 0.,
                                       tot_charge, 0.);
     cellHitMap[getSensorInfos(asso_hit.getCellID())].push_back(asso_hit);

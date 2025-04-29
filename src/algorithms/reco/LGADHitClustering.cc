@@ -42,20 +42,19 @@ dd4hep::rec::CellID LGADHitClustering::getSensorInfos(const dd4hep::rec::CellID&
   return id_return;
 }
 
-dd4hep::Position LGADHitClustering::_local2Global(const dd4hep::VolumeManagerContext* context, 
+dd4hep::Position LGADHitClustering::_local2Global(const dd4hep::VolumeManagerContext* context,
                                                   const edm4hep::Vector2f& locPos) const {
-    auto nodeMatrix = context -> element.nominal().worldTransformation();
+  auto nodeMatrix = context->element.nominal().worldTransformation();
 
-    double g[3], l[3];
-    l[0] = locPos.a * dd4hep::mm;
-    l[1] = locPos.b * dd4hep::mm;
-    l[2] = 0;
-    nodeMatrix.LocalToMaster(l, g);
-    dd4hep::Position position;
-    position.SetCoordinates(g);
-    return position;
-}	
-
+  double g[3], l[3];
+  l[0] = locPos.a * dd4hep::mm;
+  l[1] = locPos.b * dd4hep::mm;
+  l[2] = 0;
+  nodeMatrix.LocalToMaster(l, g);
+  dd4hep::Position position;
+  position.SetCoordinates(g);
+  return position;
+}
 
 void LGADHitClustering::process(const LGADHitClustering::Input& input,
                                 const LGADHitClustering::Output& output) const {
@@ -122,9 +121,9 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
 
     // CAUTION: surface has to be the cell where the cluster center belongs to
     // NOT the cell with MAX ADC value
-    const auto* context = m_converter -> findContext(id);
-    auto gPos = this -> _local2Global(context, locPos);
-    id = m_converter -> cellID(gPos);
+    const auto* context = m_converter->findContext(id);
+    auto gPos           = this->_local2Global(context, locPos);
+    id                  = m_converter->cellID(gPos);
 
     cluster.setSurface(id);
     cluster.setLoc(locPos);

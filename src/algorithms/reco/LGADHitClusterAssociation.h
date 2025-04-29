@@ -36,13 +36,12 @@ public:
 
 private:
   dd4hep::rec::CellID getSensorInfos(const dd4hep::rec::CellID& id) const;
-  edm4hep::Vector3f _local2Global(const dd4hep::VolumeManagerContext* context, 
-                       	          const edm4hep::Vector2f& locPos) const;
-
+  edm4hep::Vector3f _local2Global(const dd4hep::VolumeManagerContext* context,
+                                  const edm4hep::Vector2f& locPos) const;
 
   std::shared_ptr<spdlog::logger> m_log;
   /// fetch sensor information from cellID
-  const dd4hep::DDSegmentation::BitFieldCoder* m_decoder = nullptr;
+  const dd4hep::DDSegmentation::BitFieldCoder* m_decoder  = nullptr;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
 };
 } // namespace eicrecon
