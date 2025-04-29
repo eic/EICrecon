@@ -309,7 +309,7 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(
 
   // otherwise split merged cluster for each matched track
   std::vector<edm4eic::MutableProtoCluster> new_clusters;
-  for (const auto& proj : to_split) {
+  for (const auto& proj [[maybe_unused]] : to_split) {
     new_clusters.push_back(out_protoclusters->create());
   }
   trace("Splitting merged cluster across {} tracks", to_split.size());

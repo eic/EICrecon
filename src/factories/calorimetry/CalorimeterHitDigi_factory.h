@@ -47,9 +47,9 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_nr, uint64_t event_nr) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
 #if EDM4EIC_VERSION_MAJOR >= 7
     m_algo->process({m_hits_input()}, {m_hits_output().get(), m_hit_assocs_output().get()});
 #else

@@ -21,7 +21,7 @@
 
 class RichGeo_service : public JService {
 public:
-  RichGeo_service(JApplication* app) : m_app(app) {}
+  RichGeo_service(JApplication* /* app */) {}
   virtual ~RichGeo_service();
 
   // return pointer to the main DD4hep Detector
@@ -42,7 +42,6 @@ private:
   std::map<std::string, std::once_flag> m_init_acts;
   std::map<std::string, std::once_flag> m_init_readout;
 
-  JApplication* m_app                                     = nullptr;
   const dd4hep::Detector* m_dd4hepGeo                     = nullptr;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
   richgeo::IrtGeo* m_irtGeo                               = nullptr;
