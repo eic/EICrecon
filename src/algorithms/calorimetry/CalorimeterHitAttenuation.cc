@@ -157,7 +157,7 @@ namespace eicrecon{
 	}
 
 	double CalorimeterHitAttenuation::get_attenuation(double zpos) const{
-		double length = std::abs(z_edge-zpos);
+		double length = std::abs(m_z_edge-zpos);
 		double factor = m_cfg.attPars[0]*std::exp(-length/m_cfg.attPars[1]) + (1-m_cfg.attPars[0])*std::exp(-length/m_cfg.attPars[2]);
 		return factor;
 	}
