@@ -4,12 +4,15 @@
 #pragma once
 
 #include <DD4hep/Detector.h>
+#include <DD4hep/Objects.h>
 #include <DD4hep/Segmentations.h>
+#include <DD4hep/VolumeManager.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <edm4hep/Vector2f.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <string>

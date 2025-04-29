@@ -3,6 +3,8 @@
 
 #include "LGADHitClustering.h"
 
+#include <DD4hep/Alignments.h>
+#include <DD4hep/DetElement.h>
 #include <DD4hep/Handle.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
@@ -10,6 +12,7 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <ROOT/RVec.hxx>
+#include <TGeoMatrix.h>
 #include <algorithms/geo.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector2f.h>
