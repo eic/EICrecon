@@ -58,7 +58,7 @@ void LGADHitCalibration::process(const LGADHitCalibration::Input& input,
         edm4eic::CovDiag3f{varX, varY, varZ}, // should be the covariance of position
         time,                                 // ns
         0.0F,                                 // covariance of time
-        charge,                               // total ADC sum
+        std::max(0., charge),                 // total ADC sum
         0.0F);                                // Error on the energy
   }
 }

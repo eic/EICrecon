@@ -97,6 +97,7 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
     for (const auto& hit : hits) {
       // weigh all hits by ADC value
       auto pos = m_seg->position(hit.getCellID());
+      if(hit.getEdep() < 0) error("Edep for hit at cellID{} is negative. Abort!.", hit.getCellID());
       ave_x += hit.getEdep() * pos.x();
       ave_y += hit.getEdep() * pos.y();
       ave_z += hit.getEdep() * pos.z();
@@ -127,6 +128,8 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
     const auto* context = m_converter->findContext(id);
     auto gPos           = this->_local2Global(context, locPos);
     id                  = m_converter->cellID(gPos);
+    
+    if(!id) error("Failed to find cellID for cluster center! Does your detector have hole in the middle or somehow concave in shape? This class doesn't work with concave detector.");
 
     cluster.setSurface(id);
     cluster.setLoc(locPos);
