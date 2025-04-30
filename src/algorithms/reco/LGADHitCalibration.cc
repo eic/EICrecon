@@ -9,6 +9,7 @@
 #include <algorithms/geo.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector3f.h>
+#include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
 #include <vector>
