@@ -61,7 +61,7 @@ public:
     void GetCollection(const JEvent& event) {
       try {
         m_data = event.Get<T>(this->collection_names[0], !IsOptional);
-      } catch (const JExceptionn& e) {
+      } catch (const JException& e) {
         if constexpr (!IsOptional) {
           throw JException("JOmniFactory: Failed to get collection %s: %s",
                            this->collection_names[0].c_str(), e.what());
