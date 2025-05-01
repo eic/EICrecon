@@ -29,6 +29,9 @@ namespace eicrecon {
     std::string              readout{""};
     std::vector<std::string> fields{};
 
+    //SiPM Saturation
+    double                   totalPixel{0};
+    double                   nPhotonPerGeV{0};        
   };
 
 } // eicrecon
