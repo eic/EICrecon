@@ -9,6 +9,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <gsl/pointers>
@@ -75,7 +76,7 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
   std::int32_t type = 0; // Check?
   float charge      = -1;
 
-  for (int i = 0; i < inputProjectedTracks->size(); i++) {
+  for (std::size_t i = 0; i < inputProjectedTracks->size(); i++) {
     // Get the track parameters
     auto track = (*inputProjectedTracks)[i];
 
