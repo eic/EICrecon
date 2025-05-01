@@ -240,6 +240,17 @@ macro(plugin_add_algorithms _name)
     find_package(algorithms REQUIRED)
   endif()
 
+  if(${_name}_WITH_LIBRARY)
+    target_compile_definitions(
+      ${PLUGIN_NAME}_library PRIVATE "algorithms_VERSION_MAJOR=${algorithms_VERSION_MAJOR}"
+                                     "algorithms_VERSION_MINOR=${algorithms_VERSION_MINOR}")
+  endif()
+  if(${_name}_WITH_PLUGIN)
+    target_compile_definitions(
+      ${PLUGIN_NAME}_plugin PRIVATE "algorithms_VERSION_MAJOR=${algorithms_VERSION_MAJOR}"
+                                    "algorithms_VERSION_MINOR=${algorithms_VERSION_MINOR}")
+  endif()
+
   plugin_link_libraries(${_name} algorithms::algocore)
 
 endmacro()
