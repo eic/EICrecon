@@ -11,6 +11,7 @@
 #include <podio/ROOTReader.h>
 #include <spdlog/logger.h>
 #include <cstddef>
+#include <memory>
 #include <string>
 
 #if ((JANA_VERSION_MAJOR == 2) && (JANA_VERSION_MINOR >= 3)) || (JANA_VERSION_MAJOR > 2)

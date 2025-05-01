@@ -10,15 +10,14 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
-#include <JANA/JLogger.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <TObject.h>
 #include <fmt/core.h>
+#include <fmt/ostream.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/podioVersion.h>
-#include <spdlog/fmt/ostr.h>
 #include <algorithm>
 #include <exception>
 #include <iostream>
