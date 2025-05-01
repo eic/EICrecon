@@ -9,6 +9,7 @@
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 #include <podio/ROOTReader.h>
+#include <spdlog/logger.h>
 #include <cstddef>
 #include <string>
 
@@ -47,6 +48,9 @@ protected:
 
   bool m_run_forever       = false;
   bool m_use_event_headers = true;
+
+private:
+  std::shared_ptr<spdlog::logger> m_log;
 };
 
 template <> double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);
