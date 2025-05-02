@@ -4,14 +4,19 @@
 
 #pragma once
 
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/EventData/SpacePointContainer.hpp>
+#endif
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
+#if Acts_VERSION_MAJOR >= 37
+#include <ActsExamples/EventData/SpacePointContainer.hpp>
+#endif
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <spdlog/logger.h>
-#include <cstddef> // IWYU pragma: keep FIXME size_t missing in SeedConfirmationRangeConfig.hpp until Acts 27.2.0 (maybe even later)
 #include <memory>
 #include <tuple>
 #include <utility>
@@ -23,33 +28,46 @@
 #include "SpacePoint.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-
 namespace eicrecon {
-    class TrackSeeding:
-            public eicrecon::WithPodConfig<eicrecon::OrthogonalTrackSeedingConfig> {
-    public:
-        void init(std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log);
-        std::unique_ptr<edm4eic::TrackParametersCollection> produce(const edm4eic::TrackerHitCollection& trk_hits);
+class TrackSeeding : public eicrecon::WithPodConfig<eicrecon::OrthogonalTrackSeedingConfig> {
+public:
+#if Acts_VERSION_MAJOR >= 37
+  using proxy_type = typename Acts::SpacePointContainer<
+      ActsExamples::SpacePointContainer<std::vector<const SpacePoint*>>,
+      Acts::detail::RefHolder>::SpacePointProxyType;
+#endif
 
-    private:
-        void configure();
+  void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
+            std::shared_ptr<spdlog::logger> log);
+  std::unique_ptr<edm4eic::TrackParametersCollection>
+  produce(const edm4eic::TrackerHitCollection& trk_hits);
 
-        std::shared_ptr<spdlog::logger> m_log;
-        std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
+private:
+  void configure();
 
-        std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
-        Acts::MagneticFieldContext m_fieldctx;
+  std::shared_ptr<spdlog::logger> m_log;
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-        Acts::SeedFilterConfig m_seedFilterConfig;
-        Acts::SeedFinderOptions m_seedFinderOptions;
-        Acts::SeedFinderOrthogonalConfig<SpacePoint> m_seedFinderConfig;
+  std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
+  Acts::MagneticFieldContext m_fieldctx;
 
-        int determineCharge(std::vector<std::pair<float,float>>& positions, const std::pair<float,float>& PCA, std::tuple<float,float,float>& RX0Y0) const;
-        std::pair<float,float> findPCA(std::tuple<float,float,float>& circleParams) const;
-        std::vector<const eicrecon::SpacePoint*> getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits);
-        std::unique_ptr<edm4eic::TrackParametersCollection> makeTrackParams(SeedContainer& seeds);
+  Acts::SeedFilterConfig m_seedFilterConfig;
+  Acts::SeedFinderOptions m_seedFinderOptions;
+#if Acts_VERSION_MAJOR >= 37
+  Acts::SeedFinderOrthogonalConfig<proxy_type> m_seedFinderConfig;
+#else
+  Acts::SeedFinderOrthogonalConfig<SpacePoint> m_seedFinderConfig;
+#endif
 
-        std::tuple<float,float,float> circleFit(std::vector<std::pair<float,float>>& positions) const;
-        std::tuple<float,float> lineFit(std::vector<std::pair<float,float>>& positions) const;
-    };
-}
+  int determineCharge(std::vector<std::pair<float, float>>& positions,
+                      const std::pair<float, float>& PCA,
+                      std::tuple<float, float, float>& RX0Y0) const;
+  std::pair<float, float> findPCA(std::tuple<float, float, float>& circleParams) const;
+  std::vector<const eicrecon::SpacePoint*>
+  getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits);
+  std::unique_ptr<edm4eic::TrackParametersCollection> makeTrackParams(SeedContainer& seeds);
+
+  std::tuple<float, float, float> circleFit(std::vector<std::pair<float, float>>& positions) const;
+  std::tuple<float, float> lineFit(std::vector<std::pair<float, float>>& positions) const;
+};
+} // namespace eicrecon

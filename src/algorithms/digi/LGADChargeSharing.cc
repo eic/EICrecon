@@ -34,32 +34,33 @@
 namespace eicrecon {
 
 void LGADChargeSharing::init() {
-  m_detector = algorithms::GeoSvc::instance().detector();
+  m_detector  = algorithms::GeoSvc::instance().detector();
   m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
 
   auto seg  = m_detector->readout(m_cfg.readout).segmentation();
   auto type = seg.type();
   // retrieve meaning of cellID bits
   m_decoder = seg.decoder();
-  m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
+  m_idSpec  = m_detector->readout(m_cfg.readout).idSpec();
 
   // convert cellID to name value pairs for EvaluatorSvc to determine of different cells are neighbors
-  std::function hit_pair_to_map = [this](const dd4hep::rec::CellID& id1, const dd4hep::rec::CellID& id2) {
-      std::unordered_map<std::string, double> params;
-      for(const auto &p : m_idSpec.fields()) {
-        const std::string &name = p.first;
-        const dd4hep::IDDescriptor::Field* field = p.second;
-        params.emplace(name + "_1", field->value(id1));
-        params.emplace(name + "_2", field->value(id2));
-        trace("{}_1 = {}", name, field->value(id1));
-        trace("{}_2 = {}", name, field->value(id2));
-      }
-      return params;
-    };
+  std::function hit_pair_to_map = [this](const dd4hep::rec::CellID& id1,
+                                         const dd4hep::rec::CellID& id2) {
+    std::unordered_map<std::string, double> params;
+    for (const auto& p : m_idSpec.fields()) {
+      const std::string& name                  = p.first;
+      const dd4hep::IDDescriptor::Field* field = p.second;
+      params.emplace(name + "_1", field->value(id1));
+      params.emplace(name + "_2", field->value(id2));
+      trace("{}_1 = {}", name, field->value(id1));
+      trace("{}_2 = {}", name, field->value(id2));
+    }
+    return params;
+  };
 
   auto& serviceSvc = algorithms::ServiceSvc::instance();
-  _is_same_sensor = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.same_sensor_condition, hit_pair_to_map);
-
+  _is_same_sensor  = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")
+                        ->compile(m_cfg.same_sensor_condition, hit_pair_to_map);
 }
 
 void LGADChargeSharing::process(const LGADChargeSharing::Input& input,
@@ -114,10 +115,10 @@ void LGADChargeSharing::_findAllNeighborsInSensor(
   answer.push_back(hitCell);
   dp.insert(hitCell);
 
-  for(const auto& field : m_cfg.neighbor_fields) {
+  for (const auto& field : m_cfg.neighbor_fields) {
     // searchDir should either be +1 or -1
-    for(int searchDir = -1; searchDir <= 1; searchDir += 2) {
-      auto fieldID = m_decoder->get(hitCell, field);
+    for (int searchDir = -1; searchDir <= 1; searchDir += 2) {
+      auto fieldID  = m_decoder->get(hitCell, field);
       auto testCell = hitCell;
       try {
         m_decoder->set(testCell, field, fieldID + searchDir);
@@ -168,7 +169,6 @@ dd4hep::Position LGADChargeSharing::_cell2LocalPosition(const dd4hep::rec::CellI
 
 dd4hep::Position LGADChargeSharing::_global2Local(const dd4hep::Position& pos) const {
   auto geoManager = m_detector->world().volume()->GetGeoManager();
-  auto node       = geoManager->FindNode(pos.x(), pos.y(), pos.z());
   auto currMatrix = geoManager->GetCurrentMatrix();
 
   double g[3], l[3];
