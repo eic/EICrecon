@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2024, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
+// Copyright (C) 2022 - 2025, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
 
 #include <JANA/JApplication.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
