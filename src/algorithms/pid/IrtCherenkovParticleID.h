@@ -7,18 +7,15 @@
 #include <IRT/CherenkovDetectorCollection.h>
 #include <IRT/CherenkovRadiator.h>
 #include <algorithms/algorithm.h>
-#include <algorithms/logger.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <fmt/core.h>
 #include <stdint.h>
 #include <map>
 #include <string>
 #include <string_view>
 #include <unordered_map>
-#include <utility>
 
 // EICrecon
 #include "algorithms/interfaces/ParticleSvc.h"

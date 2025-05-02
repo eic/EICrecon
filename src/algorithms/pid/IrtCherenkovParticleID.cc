@@ -10,6 +10,7 @@
 #include <IRT/SinglePDF.h>
 #include <TString.h>
 #include <TVector3.h>
+#include <algorithms/logger.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
