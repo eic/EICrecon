@@ -41,7 +41,7 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
   m_irt_det_coll = irt_det_coll;
 
   // print the configuration parameters
-  m_cfg.Print<algorithms::LogLevel::kDebug>(this);
+  debug() << m_cfg << endmsg;
 
   // inform the user if a cheat mode is enabled
   m_cfg.PrintCheats(this);

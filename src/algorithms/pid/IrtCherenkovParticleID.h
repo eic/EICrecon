@@ -111,26 +111,4 @@ void IrtCherenkovParticleIDConfig::PrintCheats(const eicrecon::IrtCherenkovParti
   print_param("cheatTrueRadiator", cheatTrueRadiator, "use MC truth to obtain true radiator");
 }
 
-// print all parameters
-template <algorithms::LogLevel lvl>
-void IrtCherenkovParticleIDConfig::Print(const eicrecon::IrtCherenkovParticleID* logger) {
-  logger->log<lvl>("{:=^60}", " IrtCherenkovParticleIDConfig Settings ");
-  auto print_param = [&logger](auto name, auto val) {
-    logger->log<lvl>("  {:>20} = {:<}", name, val);
-  };
-  print_param("numRIndexBins", numRIndexBins);
-  PrintCheats<lvl>(logger, true);
-  logger->log<lvl>("pdgList:");
-  for (const auto& pdg : pdgList)
-    logger->log<lvl>("  {}", pdg);
-  for (const auto& [name, rad] : radiators) {
-    logger->log<lvl>("{:-<60}", fmt::format("--- {} config ", name));
-    print_param("smearingMode", rad.smearingMode);
-    print_param("smearing", rad.smearing);
-    print_param("referenceRIndex", rad.referenceRIndex);
-    print_param("attenuation", rad.attenuation);
-  }
-  logger->log<lvl>("{:=^60}", "");
-}
-
 } // namespace eicrecon

@@ -55,8 +55,27 @@ public:
   // boolean: true if any cheat mode is enabled
   bool CheatModeEnabled() const { return cheatPhotonVertex || cheatTrueRadiator; }
 
-  // print all parameters
-  template <algorithms::LogLevel lvl = algorithms::LogLevel::kDebug>
-  void Print(const eicrecon::IrtCherenkovParticleID* logger);
+  // stream all parameters
+  friend std::ostream& operator<<(std::ostream& os, const IrtCherenkovParticleIDConfig& cfg) {
+    os << fmt::format("{:=^60}", " IrtCherenkovParticleIDConfig Settings ") << std::endl;
+    auto print_param = [&os](auto name, auto val) {
+      os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
+    };
+    print_param("numRIndexBins", cfg.numRIndexBins);
+    //PrintCheats<lvl>(logger, true);
+    os << "pdgList:" << std::endl;
+    for (const auto& pdg : cfg.pdgList)
+      os << fmt::format("  {}", pdg) << std::endl;
+    for (const auto& [name, rad] : cfg.radiators) {
+      os << fmt::format("{:-<60}", fmt::format("--- {} config ", name)) << std::endl;
+      print_param("smearingMode", rad.smearingMode);
+      print_param("smearing", rad.smearing);
+      print_param("referenceRIndex", rad.referenceRIndex);
+      print_param("attenuation", rad.attenuation);
+    }
+    os << fmt::format("{:=^60}", "") << std::endl;
+    return os;
+  };
 };
+
 } // namespace eicrecon
