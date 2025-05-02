@@ -23,100 +23,107 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
-	
+
   InitJANAPlugin(app);
 
   auto log_service = app->GetService<Log_service>();
-  auto mLog = log_service->logger("FEMC");
-	
-	int SiPMSaturation=1;
-	std::string opt("ON");
-	app->SetDefaultParameter("FEMC:SiPMSaturation",opt,"Turn ON(default) or OFF SiPM Saturation");
-        if(opt.find("OFF") != std::string::npos ||
-	   opt.find("off") != std::string::npos ||
-	   opt.find("Off") != std::string::npos ){
-	  mLog->info("SiPM Saturation OFF");
-	  SiPMSaturation=0;
-	}else{
-	  mLog->info("SiPM Saturation ON");
-	}
+  auto mLog        = log_service->logger("FEMC");
+
+  int SiPMSaturation = 1;
+  std::string opt("ON");
+  app->SetDefaultParameter("FEMC:SiPMSaturation", opt, "Turn ON(default) or OFF SiPM Saturation");
+  if (opt.find("OFF") != std::string::npos || opt.find("off") != std::string::npos ||
+      opt.find("Off") != std::string::npos) {
+    mLog->info("SiPM Saturation OFF");
+    SiPMSaturation = 0;
+  } else {
+    mLog->info("SiPM Saturation ON");
+  }
 
   // Make sure digi and reco use the same value
-  decltype(CalorimeterHitDigiConfig::capADC)        EcalEndcapP_capADC = 16384; //16384, assuming 14 bits. For approximate HGCROC resolution use 65536
-  decltype(CalorimeterHitDigiConfig::dyRangeADC)    EcalEndcapP_dyRangeADC = 100 * dd4hep::GeV;
-  decltype(CalorimeterHitDigiConfig::pedMeanADC)    EcalEndcapP_pedMeanADC = 200;
-  decltype(CalorimeterHitDigiConfig::pedSigmaADC)   EcalEndcapP_pedSigmaADC = 2.4576;
-  decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC = 10 * dd4hep::picosecond;
-  const double sampFrac=0.03;
-  decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale = Form("%f",1.0/sampFrac);
-  decltype(CalorimeterHitRecoConfig::sampFrac)      EcalEndcapP_sampFrac = Form("%f",sampFrac);
+  decltype(CalorimeterHitDigiConfig::capADC) EcalEndcapP_capADC =
+      16384; //16384, assuming 14 bits. For approximate HGCROC resolution use 65536
+  decltype(CalorimeterHitDigiConfig::dyRangeADC) EcalEndcapP_dyRangeADC   = 100 * dd4hep::GeV;
+  decltype(CalorimeterHitDigiConfig::pedMeanADC) EcalEndcapP_pedMeanADC   = 200;
+  decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalEndcapP_pedSigmaADC = 2.4576;
+  decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
+      10 * dd4hep::picosecond;
+  const double sampFrac = 0.03;
+  decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
+      Form("%f", 1.0 / sampFrac);
+  decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = Form("%f", sampFrac);
   decltype(CalorimeterHitDigiConfig::nPhotonPerGeV) EcalEndcapP_nPhotonPerGeV = 1500;
-   decltype(CalorimeterHitDigiConfig::totalPixel)    EcalEndcapP_totalPixel = 4*159565;
-	if(SiPMSaturation==0) EcalEndcapP_totalPixel=0;
-  
-	int fEcalHomoScfi = 0;
+  decltype(CalorimeterHitDigiConfig::totalPixel) EcalEndcapP_totalPixel       = 4 * 159565;
+  if (SiPMSaturation == 0)
+    EcalEndcapP_totalPixel = 0;
+
+  int fEcalHomoScfi = 0;
   try {
     auto detector = app->GetService<DD4hep_service>()->detector();
-	  fEcalHomoScfi = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
-	  if(fEcalHomoScfi<=1) mLog->info("Homogeneous geometry loaded");
-	  else                 mLog->info("ScFi geometry loaded");
-  } catch(...){};
+    fEcalHomoScfi = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
+    if (fEcalHomoScfi <= 1)
+      mLog->info("Homogeneous geometry loaded");
+    else
+      mLog->info("ScFi geometry loaded");
+  } catch (...) {
+  };
 
-	if(fEcalHomoScfi<=1){
-	  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-           "EcalEndcapPRawHits",
-           {"EcalEndcapPHits"},
+  if (fEcalHomoScfi <= 1) {
+    app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
+        "EcalEndcapPRawHits", {"EcalEndcapPHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
-           {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
+        {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
 #else
-           {"EcalEndcapPRawHits"},
+        {"EcalEndcapPRawHits"},
 #endif
-           {
-	     .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03, 0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
-	     .tRes = 0.0,
-	     .threshold = 0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
-	     .capADC = EcalEndcapP_capADC,
-	     .capTime =  100, // given in ns, 4 samples in HGCROC
-	     .dyRangeADC = EcalEndcapP_dyRangeADC,
-	     .pedMeanADC = EcalEndcapP_pedMeanADC,
-	     .pedSigmaADC = EcalEndcapP_pedSigmaADC,
-	     .resolutionTDC = EcalEndcapP_resolutionTDC,
-	     .corrMeanScale = "1.0",
-	     .readout = "EcalEndcapPHits",
-	     .totalPixel = EcalEndcapP_totalPixel,
-	     .nPhotonPerGeV = EcalEndcapP_nPhotonPerGeV,
-	   },
-	   app   // TODO: Remove me once fixed
-    ));
-	}else if(fEcalHomoScfi==2){
-	  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-           "EcalEndcapPRawHits",
-           {"EcalEndcapPHits"},
+        {
+            .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03,
+                     0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
+            .tRes = 0.0,
+            .threshold =
+                0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
+            .capADC        = EcalEndcapP_capADC,
+            .capTime       = 100, // given in ns, 4 samples in HGCROC
+            .dyRangeADC    = EcalEndcapP_dyRangeADC,
+            .pedMeanADC    = EcalEndcapP_pedMeanADC,
+            .pedSigmaADC   = EcalEndcapP_pedSigmaADC,
+            .resolutionTDC = EcalEndcapP_resolutionTDC,
+            .corrMeanScale = "1.0",
+            .readout       = "EcalEndcapPHits",
+            .totalPixel    = EcalEndcapP_totalPixel,
+            .nPhotonPerGeV = EcalEndcapP_nPhotonPerGeV,
+        },
+        app // TODO: Remove me once fixed
+        ));
+  } else if (fEcalHomoScfi == 2) {
+    app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
+        "EcalEndcapPRawHits", {"EcalEndcapPHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
-           {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
+        {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
 #else
-           {"EcalEndcapPRawHits"},
+        {"EcalEndcapPRawHits"},
 #endif
-           {
-	     .eRes = {0.0,0.0,0.0},
-	     .tRes = 0.0,
-	     .threshold = 0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
-	     .capADC = EcalEndcapP_capADC,
-	     .capTime =  100, // given in ns, 4 samples in HGCROC
-	     .dyRangeADC = EcalEndcapP_dyRangeADC,
-	     .pedMeanADC = EcalEndcapP_pedMeanADC,
-	     .pedSigmaADC = EcalEndcapP_pedSigmaADC,
-	     .resolutionTDC = EcalEndcapP_resolutionTDC,
-	     .corrMeanScale = EcalEndcapP_corrMeanScale,
-	     .readout = "EcalEndcapPHits",
-	     .fields  = {"fiberx","fibery","x","y"},
-	     .totalPixel = EcalEndcapP_totalPixel,
-	     .nPhotonPerGeV = EcalEndcapP_nPhotonPerGeV,
-	   },
-	   app   // TODO: Remove me once fixed
-    ));
-	}
-  
+        {
+            .eRes = {0.0, 0.0, 0.0},
+            .tRes = 0.0,
+            .threshold =
+                0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
+            .capADC        = EcalEndcapP_capADC,
+            .capTime       = 100, // given in ns, 4 samples in HGCROC
+            .dyRangeADC    = EcalEndcapP_dyRangeADC,
+            .pedMeanADC    = EcalEndcapP_pedMeanADC,
+            .pedSigmaADC   = EcalEndcapP_pedSigmaADC,
+            .resolutionTDC = EcalEndcapP_resolutionTDC,
+            .corrMeanScale = EcalEndcapP_corrMeanScale,
+            .readout       = "EcalEndcapPHits",
+            .fields        = {"fiberx", "fibery", "x", "y"},
+            .totalPixel    = EcalEndcapP_totalPixel,
+            .nPhotonPerGeV = EcalEndcapP_nPhotonPerGeV,
+        },
+        app // TODO: Remove me once fixed
+        ));
+  }
+
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalEndcapPRecHits", {"EcalEndcapPRawHits"}, {"EcalEndcapPRecHits"},
       {
@@ -126,8 +133,9 @@ void InitPlugin(JApplication* app) {
           .pedSigmaADC     = EcalEndcapP_pedSigmaADC,
           .resolutionTDC   = EcalEndcapP_resolutionTDC,
           .thresholdFactor = 0.0,
-          .thresholdValue = 2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
-          .sampFrac = "1.00", // alerady taken care in DIGI code above     
+          .thresholdValue =
+              2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
+          .sampFrac = "1.00", // alerady taken care in DIGI code above
           .readout  = "EcalEndcapPHits",
       },
       app // TODO: Remove me once fixed
@@ -239,5 +247,4 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
       {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
-
 }
