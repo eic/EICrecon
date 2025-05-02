@@ -7,11 +7,12 @@
 
 // data model
 #include <algorithms/algorithm.h>
+#include <algorithms/logger.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
+#include <fmt/core.h>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 
 // EICrecon

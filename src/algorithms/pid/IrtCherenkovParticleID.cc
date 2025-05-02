@@ -21,19 +21,18 @@
 #include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <spdlog/common.h>
 #include <algorithm>
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
 #include <iterator>
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <utility>
 #include <vector>
 
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
-#include "algorithms/pid/Tools.h"
 
 namespace eicrecon {
 

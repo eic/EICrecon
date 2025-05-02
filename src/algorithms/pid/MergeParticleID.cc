@@ -10,7 +10,6 @@
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <spdlog/common.h>
 #include <cstddef>
 #include <gsl/pointers>
 #include <stdexcept>
