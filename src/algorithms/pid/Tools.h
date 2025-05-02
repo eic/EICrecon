@@ -33,11 +33,6 @@ public:
   Tools(T* logger) : m_logger(logger){};
 
   // -------------------------------------------------------------------------------------
-
-  // h*c constant, for wavelength <=> energy conversion [GeV*nm]
-  static constexpr double HC = dd4hep::h_Planck * dd4hep::c_light / (dd4hep::GeV * dd4hep::nm);
-
-  // -------------------------------------------------------------------------------------
   // Radiator IDs
 
   std::unordered_map<int, std::string> GetRadiatorIDs() const {
