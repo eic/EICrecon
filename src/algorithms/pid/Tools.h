@@ -24,22 +24,17 @@
 
 namespace eicrecon {
 
-// Tools class, filled with miscellaneous helper functions
-template <class T> class Tools {
-private:
-  T* m_logger{nullptr};
-
-public:
-  Tools(T* logger) : m_logger(logger){};
+// Tools namespace, filled with miscellaneous helper functions
+namespace Tools {
 
   // -------------------------------------------------------------------------------------
   // Radiator IDs
 
-  std::unordered_map<int, std::string> GetRadiatorIDs() const {
+  static std::unordered_map<int, std::string> GetRadiatorIDs() {
     return std::unordered_map<int, std::string>{{0, "Aerogel"}, {1, "Gas"}};
   }
 
-  std::string GetRadiatorName(int id) const {
+  static std::string GetRadiatorName(int id) {
     std::string name;
     try {
       name = GetRadiatorIDs().at(id);
@@ -50,7 +45,7 @@ public:
     return name;
   }
 
-  int GetRadiatorID(std::string name) const {
+  static int GetRadiatorID(std::string name) {
     for (auto& [id, name_tmp] : GetRadiatorIDs())
       if (name == name_tmp)
         return id;
@@ -63,8 +58,8 @@ public:
   // Table rebinning and lookup
 
   // Rebin input table `input` to have `nbins+1` equidistant bins; returns the rebinned table
-  std::vector<std::pair<double, double>>
-  ApplyFineBinning(const std::vector<std::pair<double, double>>& input, unsigned nbins) const {
+  static std::vector<std::pair<double, double>>
+  ApplyFineBinning(const std::vector<std::pair<double, double>>& input, unsigned nbins) {
     std::vector<std::pair<double, double>> ret;
 
     // Well, could have probably just reordered the initial vector;
@@ -107,8 +102,8 @@ public:
 
   // Find the bin in table `table` that contains entry `argument` in the first column and
   // sets `entry` to the corresponding element of the second column; returns true if successful
-  bool GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>>& table,
-                                 double argument, double* entry) const {
+  static bool GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>>& table,
+                                        double argument, double* entry) {
     // Get the tabulated table reference; perform sanity checks;
     //const std::vector<std::pair<double, double>> &qe = u_quantumEfficiency.value();
     unsigned dim = table.size();
@@ -135,37 +130,37 @@ public:
 
   // -------------------------------------------------------------------------------------
   // convert PODIO vector datatype to ROOT TVector3
-  template <class PodioVector3> TVector3 PodioVector3_to_TVector3(const PodioVector3 v) const {
+  template <class PodioVector3> TVector3 PodioVector3_to_TVector3(const PodioVector3 v) {
     return TVector3(v.x, v.y, v.z);
   }
   // convert ROOT::Math::Vector to ROOT TVector3
-  template <class MathVector3> TVector3 MathVector3_to_TVector3(MathVector3 v) const {
+  template <class MathVector3> TVector3 MathVector3_to_TVector3(MathVector3 v) {
     return TVector3(v.x(), v.y(), v.z());
   }
 
   // -------------------------------------------------------------------------------------
 
   // printing: vectors
-  std::string PrintTVector3(std::string name, TVector3 vec, int nameBuffer = 30) const {
+  static std::string PrintTVector3(std::string name, TVector3 vec, int nameBuffer = 30) {
     return fmt::format("{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(),
                        vec.y(), vec.z());
   }
 
   // printing: hypothesis tables
-  std::string HypothesisTableHead(int indent = 4) const {
+  static std::string HypothesisTableHead(int indent = 4) {
     return fmt::format("{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
   }
-  std::string HypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp,
-                                  int indent = 4) const {
+  static std::string HypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp,
+                                         int indent = 4) {
     return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight, hyp.npe);
   }
-  std::string HypothesisTableLine(edm4hep::ParticleID hyp, int indent = 4) const {
+  static std::string HypothesisTableLine(edm4hep::ParticleID hyp, int indent = 4) {
     float npe =
         hyp.parameters_size() > 0 ? hyp.getParameters(0) : -1; // assume NPE is the first parameter
     return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(),
                        hyp.getLikelihood(), npe);
   }
 
-}; // class Tools
+}; // namespace Tools
 
 } // namespace eicrecon

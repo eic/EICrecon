@@ -18,7 +18,6 @@
 // EICrecon
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
-#include "algorithms/pid/Tools.h"
 
 namespace eicrecon {
 
@@ -27,16 +26,14 @@ using MergeParticleIDAlgorithm = algorithms::Algorithm<
     algorithms::Output<edm4eic::CherenkovParticleIDCollection>>;
 
 class MergeParticleID : public MergeParticleIDAlgorithm,
-                        public WithPodConfig<MergeParticleIDConfig>,
-                        private Tools<MergeParticleID> {
+                        public WithPodConfig<MergeParticleIDConfig> {
 
 public:
   MergeParticleID(std::string_view name)
       : MergeParticleIDAlgorithm{name,
                                  {"inputTrackSegments"},
                                  {"outputTrackSegments"},
-                                 "Effectively 'zip' the input particle IDs"}
-      , Tools(this) {}
+                                 "Effectively 'zip' the input particle IDs"} {}
 
   void init();
 
@@ -56,8 +53,6 @@ private:
     info(fmt::format(fmt, std::forward<decltype(args)>(args)...));
 #endif
   }
-
-  friend class Tools;
 };
 
 } // namespace eicrecon

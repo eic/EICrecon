@@ -24,7 +24,6 @@
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
-#include "algorithms/pid/Tools.h"
 
 namespace eicrecon {
 
@@ -42,8 +41,7 @@ using IrtCherenkovParticleIDAlgorithm = algorithms::Algorithm<
                        edm4eic::CherenkovParticleIDCollection>>;
 
 class IrtCherenkovParticleID : public IrtCherenkovParticleIDAlgorithm,
-                               public WithPodConfig<IrtCherenkovParticleIDConfig>,
-                               private Tools<IrtCherenkovParticleID> {
+                               public WithPodConfig<IrtCherenkovParticleIDConfig> {
 
 public:
   IrtCherenkovParticleID(std::string_view name)
@@ -52,8 +50,7 @@ public:
                                          "inputMergedTrackSegments", "inputRawHits",
                                          "inputRawHitAssociations"},
                                         {"outputAerogelParticleIDs", "outputGasParticleIDs"},
-                                        "Effectively 'zip' the input particle IDs"}
-      , Tools(this) {}
+                                        "Effectively 'zip' the input particle IDs"} {}
 
   // FIXME: init() must not take arguments
 #pragma GCC diagnostic push
@@ -76,8 +73,6 @@ private:
     info(fmt::format(fmt, std::forward<decltype(args)>(args)...));
 #endif
   }
-
-  friend class Tools;
 
 private:
   CherenkovDetectorCollection* m_irt_det_coll;

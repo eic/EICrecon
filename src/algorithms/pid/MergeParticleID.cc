@@ -17,6 +17,7 @@
 #include <utility>
 
 #include "algorithms/pid/MergeParticleIDConfig.h"
+#include "algorithms/pid/Tools.h"
 
 namespace eicrecon {
 
@@ -132,7 +133,7 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
 
       // logging
       trace("    Hypotheses for PID result (idx_coll, idx_pid) = ({}, {}):", idx_coll, idx_pid);
-      trace(HypothesisTableHead(6));
+      trace(Tools::HypothesisTableHead(6));
 
       // merge scalar members
       out_npe += in_pid.getNpe();                                           // sum
@@ -149,7 +150,7 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
 
       // merge PDG hypotheses, combining their weights and other members
       for (auto in_hyp : in_pid.getHypotheses()) {
-        trace(HypothesisTableLine(in_hyp, 6));
+        trace(Tools::HypothesisTableLine(in_hyp, 6));
         auto out_hyp_it = pdg_2_out_hyp.find(in_hyp.PDG);
         if (out_hyp_it == pdg_2_out_hyp.end()) {
           edm4eic::CherenkovParticleIDHypothesis out_hyp;
@@ -190,9 +191,9 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
 
     // logging: print merged hypothesis table
     trace("    => merged hypothesis weights:");
-    trace(HypothesisTableHead(6));
+    trace(Tools::HypothesisTableHead(6));
     for (auto out_hyp : out_pid.getHypotheses())
-      trace(HypothesisTableLine(out_hyp, 6));
+      trace(Tools::HypothesisTableLine(out_hyp, 6));
 
   } // end `particle_pids` loop over charged particles
 }
