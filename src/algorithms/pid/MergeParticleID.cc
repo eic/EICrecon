@@ -20,7 +20,7 @@
 
 namespace eicrecon {
 
-void MergeParticleID::init() { m_cfg.Print<algorithms::LogLevel::kDebug>(this); }
+void MergeParticleID::init() { debug() << m_cfg << endmsg; }
 
 void MergeParticleID::process(const MergeParticleID::Input& input,
                               const MergeParticleID::Output& output) const {

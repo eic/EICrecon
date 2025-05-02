@@ -57,21 +57,7 @@ private:
 #endif
   }
 
-  friend class MergeParticleIDConfig;
   friend class Tools;
 };
-
-// Definition of MergeParticleIDConfig::Print requires class MergeParticleID, but
-// circular dependency prevents it from being in MergeParticleIDConfig.h
-template <algorithms::LogLevel lvl>
-constexpr void MergeParticleIDConfig::Print(const MergeParticleID* logger) const {
-  // print all parameters
-  logger->log<lvl>("{:=^60}", " MergeParticleIDConfig Settings ");
-  auto print_param = [&logger](auto name, auto val) {
-    logger->log<lvl>("  {:>20} = {:<}", name, val);
-  };
-  print_param("mergeMode", mergeMode);
-  logger->log<lvl>("{:=^60}", "");
-}
 
 } // namespace eicrecon
