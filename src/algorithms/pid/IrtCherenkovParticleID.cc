@@ -199,8 +199,8 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         TVector3 position = PodioVector3_to_TVector3(point.position);
         TVector3 momentum = PodioVector3_to_TVector3(point.momentum);
         irt_rad->AddLocation(position, momentum);
-        PrintTVector3(" point: x", position);
-        PrintTVector3("        p", momentum);
+        trace(PrintTVector3(" point: x", position));
+        trace(PrintTVector3("        p", momentum));
       }
 
       // loop over raw hits ***************************************************
@@ -247,8 +247,8 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
           auto mc_rad = m_irt_det->GuessRadiator(vtx, vtx); // assume IP is at (0,0,0)
           if (mc_rad != irt_rad)
             continue; // skip this photon, if not from radiator `irt_rad`
-          PrintTVector3(fmt::format("cheat: radiator '{}' determined from photon vertex", rad_name),
-                        vtx);
+          trace(PrintTVector3(
+              fmt::format("cheat: radiator '{}' determined from photon vertex", rad_name), vtx));
         }
 
         // get sensor and pixel info
@@ -260,10 +260,10 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         // trace logging
         if (level() <= algorithms::LogLevel::kTrace) {
           trace("cell_id={:#X}  sensor_id={:#X}", cell_id, sensor_id);
-          PrintTVector3("pixel position", pixel_pos);
+          trace(PrintTVector3("pixel position", pixel_pos));
           if (mc_photon_found) {
             TVector3 mc_endpoint = PodioVector3_to_TVector3(mc_photon.getEndpoint());
-            PrintTVector3("photon endpoint", mc_endpoint);
+            trace(PrintTVector3("photon endpoint", mc_endpoint));
             trace("{:>30} = {}", "dist( pixel,  photon )", (pixel_pos - mc_endpoint).Mag());
           } else
             trace("  no MC photon found; probably a noise hit");
@@ -359,9 +359,9 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
           continue;
 
         // trace logging
-        PrintTVector3(fmt::format("- sensor_id={:#X}: hit", irt_photon->GetVolumeCopy()),
-                      irt_photon->GetDetectionPosition());
-        PrintTVector3("photon vertex", irt_photon->GetVertexPosition());
+        trace(PrintTVector3(fmt::format("- sensor_id={:#X}: hit", irt_photon->GetVolumeCopy()),
+                            irt_photon->GetDetectionPosition()));
+        trace(PrintTVector3("photon vertex", irt_photon->GetVertexPosition()));
 
         // get this photon's theta and phi estimates
         auto phot_theta = irt_photon->_m_PDF[irt_rad].GetAverage();
@@ -416,7 +416,27 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
 
       } // end hypothesis loop
 
-      // logging
+      // logging: Cherenkov angle estimate
+      auto PrintCherenkovEstimate = [this](edm4eic::CherenkovParticleID pid,
+                                           bool printHypotheses = true, int indent = 2) {
+        double thetaAve = 0;
+        if (pid.getNpe() > 0)
+          for (const auto& [theta, phi] : pid.getThetaPhiPhotons())
+            thetaAve += theta / pid.getNpe();
+        trace("{:{}}Cherenkov Angle Estimate:", "", indent);
+        trace("{:{}}  {:>16}:  {:>10}", "", indent, "NPE", pid.getNpe());
+        trace("{:{}}  {:>16}:  {:>10.8} mrad", "", indent, "<theta>",
+              thetaAve * 1e3); // [rad] -> [mrad]
+        trace("{:{}}  {:>16}:  {:>10.8}", "", indent, "<rindex>", pid.getRefractiveIndex());
+        trace("{:{}}  {:>16}:  {:>10.8} eV", "", indent, "<energy>",
+              pid.getPhotonEnergy() * 1e9); // [GeV] -> [eV]
+        if (printHypotheses) {
+          trace("{:{}}Mass Hypotheses:", "", indent);
+          trace("{}", HypothesisTableHead(indent + 2));
+          for (const auto& hyp : pid.getHypotheses())
+            trace("{}", HypothesisTableLine(hyp, indent + 2));
+        }
+      };
       PrintCherenkovEstimate(out_cherenkov_pid);
 
       // relate charged particle projection

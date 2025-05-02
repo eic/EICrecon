@@ -132,7 +132,7 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
 
       // logging
       trace("    Hypotheses for PID result (idx_coll, idx_pid) = ({}, {}):", idx_coll, idx_pid);
-      PrintHypothesisTableHead(6);
+      trace(HypothesisTableHead(6));
 
       // merge scalar members
       out_npe += in_pid.getNpe();                                           // sum
@@ -149,7 +149,7 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
 
       // merge PDG hypotheses, combining their weights and other members
       for (auto in_hyp : in_pid.getHypotheses()) {
-        PrintHypothesisTableLine(in_hyp, 6);
+        trace(HypothesisTableLine(in_hyp, 6));
         auto out_hyp_it = pdg_2_out_hyp.find(in_hyp.PDG);
         if (out_hyp_it == pdg_2_out_hyp.end()) {
           edm4eic::CherenkovParticleIDHypothesis out_hyp;
@@ -190,9 +190,9 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
 
     // logging: print merged hypothesis table
     trace("    => merged hypothesis weights:");
-    PrintHypothesisTableHead(6);
+    trace(HypothesisTableHead(6));
     for (auto out_hyp : out_pid.getHypotheses())
-      PrintHypothesisTableLine(out_hyp, 6);
+      trace(HypothesisTableLine(out_hyp, 6));
 
   } // end `particle_pids` loop over charged particles
 }

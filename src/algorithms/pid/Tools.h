@@ -146,55 +146,26 @@ public:
   // -------------------------------------------------------------------------------------
 
   // printing: vectors
-  template <algorithms::LogLevel lvl = algorithms::LogLevel::kTrace>
-  void PrintTVector3(std::string name, TVector3 vec, int nameBuffer = 30) const {
-    m_logger->template log<lvl>("{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer,
-                                vec.x(), vec.y(), vec.z());
+  std::string PrintTVector3(std::string name, TVector3 vec, int nameBuffer = 30) const {
+    return fmt::format("{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(),
+                       vec.y(), vec.z());
   }
 
   // printing: hypothesis tables
-  template <algorithms::LogLevel lvl = algorithms::LogLevel::kTrace>
-  void PrintHypothesisTableHead(int indent = 4) const {
-    m_logger->template log<lvl>("{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
+  std::string HypothesisTableHead(int indent = 4) const {
+    return fmt::format("{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
   }
-  template <algorithms::LogLevel lvl = algorithms::LogLevel::kTrace>
-  void PrintHypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp, int indent = 4) const {
-    m_logger->template log<lvl>("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight,
-                                hyp.npe);
+  std::string HypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp,
+                                  int indent = 4) const {
+    return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight, hyp.npe);
   }
-  template <algorithms::LogLevel lvl = algorithms::LogLevel::kTrace>
-  void PrintHypothesisTableLine(edm4hep::ParticleID hyp, int indent = 4) const {
+  std::string HypothesisTableLine(edm4hep::ParticleID hyp, int indent = 4) const {
     float npe =
         hyp.parameters_size() > 0 ? hyp.getParameters(0) : -1; // assume NPE is the first parameter
-    m_logger->template log<lvl>("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(),
-                                hyp.getLikelihood(), npe);
-  }
-
-  // printing: Cherenkov angle estimate
-  template <algorithms::LogLevel lvl = algorithms::LogLevel::kTrace>
-  void PrintCherenkovEstimate(edm4eic::CherenkovParticleID pid, bool printHypotheses = true,
-                              int indent = 2) const {
-    if (m_logger->level() <= lvl) {
-      double thetaAve = 0;
-      if (pid.getNpe() > 0)
-        for (const auto& [theta, phi] : pid.getThetaPhiPhotons())
-          thetaAve += theta / pid.getNpe();
-      m_logger->template log<lvl>("{:{}}Cherenkov Angle Estimate:", "", indent);
-      m_logger->template log<lvl>("{:{}}  {:>16}:  {:>10}", "", indent, "NPE", pid.getNpe());
-      m_logger->template log<lvl>("{:{}}  {:>16}:  {:>10.8} mrad", "", indent, "<theta>",
-                                  thetaAve * 1e3); // [rad] -> [mrad]
-      m_logger->template log<lvl>("{:{}}  {:>16}:  {:>10.8}", "", indent, "<rindex>",
-                                  pid.getRefractiveIndex());
-      m_logger->template log<lvl>("{:{}}  {:>16}:  {:>10.8} eV", "", indent, "<energy>",
-                                  pid.getPhotonEnergy() * 1e9); // [GeV] -> [eV]
-      if (printHypotheses) {
-        m_logger->template log<lvl>("{:{}}Mass Hypotheses:", "", indent);
-        PrintHypothesisTableHead(indent + 2);
-        for (const auto& hyp : pid.getHypotheses())
-          PrintHypothesisTableLine(hyp, indent + 2);
-      }
-    }
+    return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(),
+                       hyp.getLikelihood(), npe);
   }
 
 }; // class Tools
+
 } // namespace eicrecon
