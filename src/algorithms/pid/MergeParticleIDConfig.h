@@ -8,8 +8,6 @@
 
 namespace eicrecon {
 
-class MergeParticleID;
-
 class MergeParticleIDConfig {
 public:
   /////////////////////////////////////////////////////

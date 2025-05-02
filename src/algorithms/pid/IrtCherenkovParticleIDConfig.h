@@ -9,8 +9,6 @@
 
 namespace eicrecon {
 
-class IrtCherenkovParticleID;
-
 // radiator config parameters
 struct RadiatorConfig {
   double referenceRIndex;   // reference radiator refractive index
