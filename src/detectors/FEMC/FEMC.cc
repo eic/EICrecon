@@ -135,7 +135,7 @@ void InitPlugin(JApplication* app) {
           .thresholdFactor = 0.0,
           .thresholdValue =
               2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
-          .sampFrac = "1.00", // alerady taken care in DIGI code above
+          .sampFrac = "1.00", // already taken care in DIGI code above
           .readout  = "EcalEndcapPHits",
       },
       app // TODO: Remove me once fixed
@@ -247,4 +247,5 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
       {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
+}
 }
