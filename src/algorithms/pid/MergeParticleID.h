@@ -42,17 +42,6 @@ public:
   // - overload this function to support different collections from other PID subsystems, or to support
   //   merging PID results from overlapping subsystems
   void process(const Input&, const Output&) const final;
-
-private:
-  template <algorithms::LogLevel lvl, typename... T>
-  constexpr void log(fmt::format_string<T...> fmt, T&&... args) const {
-#if algorithms_VERSION_MAJOR > 1 || (algorithms_VERSION_MAJOR == 1 && algorithms_VERSION_MINOR > 1)
-    algorithms::LoggerMixin::report_fmt<lvl>(fmt, std::forward<decltype(args)>(args)...);
-#else
-    // all logging to info
-    info(fmt::format(fmt, std::forward<decltype(args)>(args)...));
-#endif
-  }
 };
 
 } // namespace eicrecon
