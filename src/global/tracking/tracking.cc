@@ -1,20 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
 
-#include <DD4hep/Detector.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <fmt/core.h>
-#include <algorithm>
-#include <gsl/pointers>
 #include <map>
 #include <memory>
-#include <string>
-#include <tuple>
-#include <vector>
 
 #include "ActsToTracks.h"
 #include "ActsToTracks_factory.h"
