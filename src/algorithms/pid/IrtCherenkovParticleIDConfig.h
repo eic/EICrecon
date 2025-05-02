@@ -48,10 +48,6 @@ public:
   //
   /////////////////////////////////////////////////////
 
-  // print warnings about cheat modes
-  template <algorithms::LogLevel lvl = algorithms::LogLevel::kDebug>
-  void PrintCheats(const eicrecon::IrtCherenkovParticleID* logger, bool printAll = false);
-
   // boolean: true if any cheat mode is enabled
   bool CheatModeEnabled() const { return cheatPhotonVertex || cheatTrueRadiator; }
 
@@ -62,7 +58,8 @@ public:
       os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
     };
     print_param("numRIndexBins", cfg.numRIndexBins);
-    //PrintCheats<lvl>(logger, true);
+    print_param("cheatPhotonVertex", cfg.cheatPhotonVertex);
+    print_param("cheatTrueRadiator", cfg.cheatTrueRadiator);
     os << "pdgList:" << std::endl;
     for (const auto& pdg : cfg.pdgList)
       os << fmt::format("  {}", pdg) << std::endl;

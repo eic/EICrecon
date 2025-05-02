@@ -44,7 +44,13 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
   debug() << m_cfg << endmsg;
 
   // inform the user if a cheat mode is enabled
-  m_cfg.PrintCheats(this);
+  auto print_cheat = [this](auto name, bool val, auto desc) {
+    if (val)
+      warning("CHEAT MODE '{}' ENABLED: {}", name, desc);
+  };
+  print_cheat("cheatPhotonVertex", m_cfg.cheatPhotonVertex,
+              "use MC photon vertex, wavelength, refractive index");
+  print_cheat("cheatTrueRadiator", m_cfg.cheatTrueRadiator, "use MC truth to obtain true radiator");
 
   // extract the the relevant `CherenkovDetector`, set to `m_irt_det`
   auto& detectors = m_irt_det_coll->GetDetectors();
