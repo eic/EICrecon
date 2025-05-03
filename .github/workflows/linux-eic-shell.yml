@@ -1152,9 +1152,7 @@ jobs:
       - get-docs-from-open-prs
     steps:
       - name: Merge GitHub Pages staging artifact
-        # FIXME pinned per https://github.com/actions/upload-artifact/issues/485#issuecomment-2271527517
-        # to avoid https://github.com/eic/EICrecon/actions/runs/10486195490/job/29045183375#step:2:111
-        uses: actions/upload-artifact/merge@v4.3.5
+        uses: actions/upload-artifact/merge@v4
         with:
           name: github-pages-staging
           pattern: |
