@@ -102,8 +102,9 @@ namespace Tools {
 
   // Find the bin in table `table` that contains entry `argument` in the first column and
   // sets `entry` to the corresponding element of the second column; returns true if successful
-  [[maybe_unused]] static bool GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>>& table,
-                                        double argument, double* entry) {
+  [[maybe_unused]] static bool
+  GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>>& table, double argument,
+                            double* entry) {
     // Get the tabulated table reference; perform sanity checks;
     //const std::vector<std::pair<double, double>> &qe = u_quantumEfficiency.value();
     unsigned dim = table.size();
@@ -141,7 +142,8 @@ namespace Tools {
   // -------------------------------------------------------------------------------------
 
   // printing: vectors
-  [[maybe_unused]] static std::string PrintTVector3(std::string name, TVector3 vec, int nameBuffer = 30) {
+  [[maybe_unused]] static std::string PrintTVector3(std::string name, TVector3 vec,
+                                                    int nameBuffer = 30) {
     return fmt::format("{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(),
                        vec.y(), vec.z());
   }
@@ -150,8 +152,8 @@ namespace Tools {
   [[maybe_unused]] static std::string HypothesisTableHead(int indent = 4) {
     return fmt::format("{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
   }
-  [[maybe_unused]] static std::string HypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp,
-                                         int indent = 4) {
+  [[maybe_unused]] static std::string
+  HypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp, int indent = 4) {
     return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight, hyp.npe);
   }
   [[maybe_unused]] static std::string HypothesisTableLine(edm4hep::ParticleID hyp, int indent = 4) {
