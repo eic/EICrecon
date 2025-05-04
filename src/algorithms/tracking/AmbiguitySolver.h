@@ -2,6 +2,12 @@
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #pragma once
 
+// FIXME: gcc-12 affected by https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105562
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#include <functional>
+#pragma GCC diagnostic pop
+
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
