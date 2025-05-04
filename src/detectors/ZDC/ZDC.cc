@@ -20,6 +20,10 @@
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 
+// Configurations in plugins may omit config field initializers
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+
 extern "C" {
 void InitPlugin(JApplication* app) {
 
@@ -329,3 +333,5 @@ void InitPlugin(JApplication* app) {
       app));
 }
 }
+
+#pragma GCC diagnostic pop

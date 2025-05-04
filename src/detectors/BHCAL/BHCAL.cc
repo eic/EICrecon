@@ -18,8 +18,11 @@
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
-extern "C" {
+// Configurations in plugins may omit config field initializers
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
 
+extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
@@ -202,3 +205,5 @@ void InitPlugin(JApplication* app) {
       {"HcalBarrelSplitMergeClusters", "HcalBarrelSplitMergeClusterAssociations"}, {}, app));
 }
 }
+
+#pragma GCC diagnostic pop

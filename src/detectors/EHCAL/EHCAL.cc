@@ -19,6 +19,10 @@
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
+// Configurations in plugins may omit config field initializers
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
+
 extern "C" {
 void InitPlugin(JApplication* app) {
 
@@ -180,3 +184,5 @@ void InitPlugin(JApplication* app) {
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
 }
 }
+
+#pragma GCC diagnostic pop
