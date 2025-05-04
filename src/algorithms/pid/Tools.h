@@ -30,11 +30,11 @@ namespace Tools {
   // -------------------------------------------------------------------------------------
   // Radiator IDs
 
-  [[maybe_unused]] static std::unordered_map<int, std::string> GetRadiatorIDs() {
+  std::unordered_map<int, std::string> GetRadiatorIDs() {
     return std::unordered_map<int, std::string>{{0, "Aerogel"}, {1, "Gas"}};
   }
 
-  [[maybe_unused]] static std::string GetRadiatorName(int id) {
+  std::string GetRadiatorName(int id) {
     std::string name;
     try {
       name = GetRadiatorIDs().at(id);
@@ -45,7 +45,7 @@ namespace Tools {
     return name;
   }
 
-  [[maybe_unused]] static int GetRadiatorID(std::string name) {
+  int GetRadiatorID(std::string name) {
     for (auto& [id, name_tmp] : GetRadiatorIDs())
       if (name == name_tmp)
         return id;
@@ -58,7 +58,7 @@ namespace Tools {
   // Table rebinning and lookup
 
   // Rebin input table `input` to have `nbins+1` equidistant bins; returns the rebinned table
-  [[maybe_unused]] static std::vector<std::pair<double, double>>
+  std::vector<std::pair<double, double>>
   ApplyFineBinning(const std::vector<std::pair<double, double>>& input, unsigned nbins) {
     std::vector<std::pair<double, double>> ret;
 
@@ -102,7 +102,7 @@ namespace Tools {
 
   // Find the bin in table `table` that contains entry `argument` in the first column and
   // sets `entry` to the corresponding element of the second column; returns true if successful
-  [[maybe_unused]] static bool
+  bool
   GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>>& table, double argument,
                             double* entry) {
     // Get the tabulated table reference; perform sanity checks;
@@ -142,21 +142,20 @@ namespace Tools {
   // -------------------------------------------------------------------------------------
 
   // printing: vectors
-  [[maybe_unused]] static std::string PrintTVector3(std::string name, TVector3 vec,
+  std::string PrintTVector3(std::string name, TVector3 vec,
                                                     int nameBuffer = 30) {
     return fmt::format("{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(),
                        vec.y(), vec.z());
   }
 
   // printing: hypothesis tables
-  [[maybe_unused]] static std::string HypothesisTableHead(int indent = 4) {
+  std::string HypothesisTableHead(int indent = 4) {
     return fmt::format("{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
   }
-  [[maybe_unused]] static std::string
-  HypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp, int indent = 4) {
+  std::string HypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp, int indent = 4) {
     return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight, hyp.npe);
   }
-  [[maybe_unused]] static std::string HypothesisTableLine(edm4hep::ParticleID hyp, int indent = 4) {
+  std::string HypothesisTableLine(edm4hep::ParticleID hyp, int indent = 4) {
     float npe =
         hyp.parameters_size() > 0 ? hyp.getParameters(0) : -1; // assume NPE is the first parameter
     return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(),
