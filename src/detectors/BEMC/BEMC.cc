@@ -59,7 +59,7 @@ extern "C" {
           {
             .attPars     = EcalBarrelScFi_attPars,
             .readout     = "EcalBarrelScFiHits",
-	    .attenuationField = "EcalBarrel_Readout_zmax",
+	    .attenuationField = "EcalBarrel_Readout_zmin",
 	    .mergeField      = "z",
           },
           app   // TODO: Remove me once fixed
