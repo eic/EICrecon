@@ -38,7 +38,6 @@
 #include <Eigen/Geometry>
 #include <algorithm>
 #include <cmath>
-#include <functional>
 #include <iterator>
 #include <map>
 #include <optional>

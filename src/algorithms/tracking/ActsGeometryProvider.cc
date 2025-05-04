@@ -6,7 +6,7 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #pragma clang diagnostic ignored "-Wunknown-warning-option"
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#include <functional>
+#include <functional> // IWYU pragma: keep
 #pragma GCC diagnostic pop
 
 #include <Acts/Geometry/DetectorElementBase.hpp>
