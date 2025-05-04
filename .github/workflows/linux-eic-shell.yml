@@ -69,7 +69,9 @@ jobs:
       matrix:
         CXX: [g++, clang++]
         CMAKE_BUILD_TYPE: [Release, Debug]
-        CXXFLAGS: [-Werror -Wall -Wextra]
+        # FIXME: gcc-12 does not allow ignoring unknown-pragmas with a pragma
+        # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
+        CXXFLAGS: [-Werror -Wall -Wextra -Wno-unknown-pragmas]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
         include:
           # note that entries that overwrite matrix values require a full specific action
