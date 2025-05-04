@@ -72,7 +72,7 @@ jobs:
         CXXFLAGS: [-Werror -Wall -Wextra]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
         include:
-          # note that entries that overwrite matrix values require a full specific action 
+          # note that entries that overwrite matrix values require a full specific action
           # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#expanding-or-adding-matrix-configurations
           # all clang debug jobs get extra flags
           - CXX: clang++
