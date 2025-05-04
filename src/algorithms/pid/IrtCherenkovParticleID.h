@@ -51,7 +51,8 @@ public:
 
   // FIXME: init() must not take arguments
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat"
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Woverloaded-virtual"
   void init(CherenkovDetectorCollection* irt_det_coll);
