@@ -102,9 +102,8 @@ namespace Tools {
 
   // Find the bin in table `table` that contains entry `argument` in the first column and
   // sets `entry` to the corresponding element of the second column; returns true if successful
-  bool
-  GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>>& table, double argument,
-                            double* entry) {
+  bool GetFinelyBinnedTableEntry(const std::vector<std::pair<double, double>>& table,
+                                 double argument, double* entry) {
     // Get the tabulated table reference; perform sanity checks;
     //const std::vector<std::pair<double, double>> &qe = u_quantumEfficiency.value();
     unsigned dim = table.size();
@@ -142,8 +141,7 @@ namespace Tools {
   // -------------------------------------------------------------------------------------
 
   // printing: vectors
-  std::string PrintTVector3(std::string name, TVector3 vec,
-                                                    int nameBuffer = 30) {
+  std::string PrintTVector3(std::string name, TVector3 vec, int nameBuffer = 30) {
     return fmt::format("{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(),
                        vec.y(), vec.z());
   }
