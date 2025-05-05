@@ -82,7 +82,7 @@ Log_service::Log_service(JApplication* app) {
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
 // translation unit
-Log_service::~Log_service(){};
+Log_service::~Log_service() {};
 
 std::shared_ptr<spdlog::logger> Log_service::logger(const std::string& name,
                                                     const std::optional<level> default_level) {
