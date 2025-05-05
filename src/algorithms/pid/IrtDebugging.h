@@ -40,10 +40,14 @@ class CherenkovDetector;
 // bunch whatever is needed to pass in a single structure; do not want to repeat parsing
 // of either th eoptics file or a JSON configuration file twice;
 struct IrtDebuggingConfig {
-  IrtDebuggingConfig(): m_irt_geometry(0) {};
+  IrtDebuggingConfig(): m_irt_geometry(0), m_eta_min(0.0), m_eta_max(0.0) {};
   
   CherenkovDetectorCollection *m_irt_geometry;
   nlohmann::json m_json_config;
+  
+  // FIXME: do it better later; but in general see no reason to parse the same fields
+  // in a JSON file twice;
+  double m_eta_min, m_eta_max;
 };
 
 namespace eicrecon {
@@ -113,6 +117,6 @@ namespace eicrecon {
     IrtDebuggingConfig m_config;
 
     // FIXME: do it better later;
-    double m_sign;
+    double m_sign;//, m_eta_min, m_eta_max;
   };
 }

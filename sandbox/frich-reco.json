@@ -5,8 +5,8 @@
 	
     "Acceptance": {
 	"comment": "Nominal values, used to calculate ACTS DiscSurfaceConfig parameters",
-	"eta-min": -3.5,
-	"eta-max": -1.5
+	"eta-min":  1.5,
+	"eta-max":  3.5
     },
     
     "Radiators": {

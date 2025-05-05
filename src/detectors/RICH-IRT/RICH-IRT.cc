@@ -200,8 +200,10 @@ extern "C" {
 	      
 	      unsigned numPlanes = rrconfig["acts-planes"].template get<int>();
 	      //printf("@R@ %d\n", numPlanes);
-	      double theta_min = 2*std::atan(exp(-fabs(aconfig["eta-min"].template get<double>())));
-	      double theta_max = 2*std::atan(exp(-fabs(aconfig["eta-max"].template get<double>())));
+	      config.m_eta_min = aconfig["eta-min"].template get<double>();
+	      config.m_eta_max = aconfig["eta-max"].template get<double>();
+	      double theta_min = 2*std::atan(exp(-fabs(config.m_eta_min)));//aconfig["eta-min"].template get<double>())));
+	      double theta_max = 2*std::atan(exp(-fabs(config.m_eta_max)));//aconfig["eta-max"].template get<double>())));
 	      if (theta_max < theta_min) std::swap(theta_min, theta_max);
 	      
 	      // "+1": avoid a "coordinate at the boundary condition"; essentially make numPlanes bins and use bin centers;

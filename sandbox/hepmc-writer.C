@@ -34,16 +34,17 @@ void hepmc_writer(const char* out_fname, int n_events)
     GenVertexPtr v1 = std::make_shared<GenVertex>();//FourVector(0,0,30,0));
 
     // type 1 is final state; 
-    for(int iq=0; iq</*2*/1; iq++){
+    for(int iq=0; iq</*2*/2; iq++){
       auto particle = pion;//iq ? pion : kaon;
       //Double_t eta   = 2.40;//rdmn_gen->Uniform(1.30, 3.70);
       //Double_t eta   = -2.0;//rdmn_gen->Uniform(1.30, 3.70);
-      Double_t eta   = events_parsed%2 ? 2.0 : -2.0;//rdmn_gen->Uniform(1.30, 3.70);
+      //Double_t eta   = events_parsed%2 ? 2.0 : -2.0;//rdmn_gen->Uniform(1.30, 3.70);
+      Double_t eta   = iq%2 ? 3.0 : -2.0;//rdmn_gen->Uniform(1.30, 3.70);
       //Double_t eta   = rdmn_gen->Uniform(1.5, 1.6);//2.9, 3.0);//2.0, 2.1);
       Double_t th    = 2*std::atan(exp(-eta));
       Double_t p     = rdmn_gen->Uniform(6.999, 7.001);// + (iq ? 1.0 : 0.0);//30.0, 30.0001);
       //Double_t phi   = 0;//M_PI/2;//rdmn_gen->Uniform(0.0, 2*M_PI);
-      Double_t phi   = 0;//rdmn_gen->Uniform(0.0, 2*M_PI);
+      Double_t phi   = M_PI/2;//rdmn_gen->Uniform(0.0, 2*M_PI);
       //Double_t phi   = rdmn_gen->Uniform(-5.0+120, 5.0+120)*M_PI/180;
 
       Double_t px    = p * std::cos(phi) * std::sin(th);

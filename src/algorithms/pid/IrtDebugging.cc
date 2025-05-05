@@ -323,7 +323,7 @@ namespace eicrecon {
     printf("aerogel track group(s): %ld\n", (*in_aerogel_tracks).size());
     for(auto segment: *in_aerogel_tracks) {
       auto track = segment.getTrack();
-      printf("(3)   --> %d\n", track.id().index);
+      //printf("(3)   --> %d\n", track.id().index);
       Track_to_TrackSegment_lut[track.id().index] = segment;
     } //for particle
     
@@ -350,6 +350,13 @@ namespace eicrecon {
       if (rctracks.size() > 1) continue;
       auto &rctrack = rctracks[0];
 
+      // FIXME: do it better later;
+      {
+	double eta = Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()).Eta();
+	printf("%s: %f %f %f\n", m_OutputFileName.c_str(), eta, m_config.m_eta_min, m_config.m_eta_max);
+	if (eta < m_config.m_eta_min || eta > m_config.m_eta_max) continue; 
+      }
+      
       // Now add a charged particle to the event structure; 'true': primary;
       auto particle = new ChargedParticle(mcparticle.getPDG(), true);
       // FIXME: check units;
