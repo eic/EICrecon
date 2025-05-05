@@ -47,7 +47,8 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
     // FIXME: to be fixed so proper object tracking can be done without
     // FIXME: requiring Collection classes be used to manage all objects.
     std::size_t mcIndex;
-    if ((hit.getObjectID().index >= 0) && (hit.getObjectID().index < mc->size())) {
+    if ((hit.getObjectID().index >= 0) &&
+        (hit.getObjectID().index < static_cast<long>(mc->size()))) {
       mcIndex = hit.getObjectID().index;
     } else {
       mcIndex      = 0;

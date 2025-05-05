@@ -129,10 +129,6 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
 
   edm4hep::Vector3f goodHit[2] = {{0.0, 0.0, 0.0}, {0.0, 0.0, 0.0}};
 
-  double goodHitX[2] = {0.0, 0.0};
-  double goodHitY[2] = {0.0, 0.0};
-  double goodHitZ[2] = {0.0, 0.0};
-
   bool goodHit1 = false;
   bool goodHit2 = false;
 

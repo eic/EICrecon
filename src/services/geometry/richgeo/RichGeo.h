@@ -34,7 +34,8 @@ public:
 enum radiator_enum { kAerogel, kGas, nRadiators };
 
 // return radiator name associated with index
-static std::string RadiatorName(int num, std::shared_ptr<spdlog::logger> m_log = nullptr) {
+[[maybe_unused]] static std::string RadiatorName(int num,
+                                                 std::shared_ptr<spdlog::logger> m_log = nullptr) {
   if (num == kAerogel)
     return "Aerogel";
   else if (num == kGas)
@@ -49,7 +50,8 @@ static std::string RadiatorName(int num, std::shared_ptr<spdlog::logger> m_log =
 }
 
 // return radiator index associated with name
-static int RadiatorNum(std::string name, std::shared_ptr<spdlog::logger> m_log = nullptr) {
+[[maybe_unused]] static int RadiatorNum(std::string name,
+                                        std::shared_ptr<spdlog::logger> m_log = nullptr) {
   if (name == "Aerogel")
     return kAerogel;
   else if (name == "Gas")
@@ -63,12 +65,14 @@ static int RadiatorNum(std::string name, std::shared_ptr<spdlog::logger> m_log =
   }
 }
 
-static int RadiatorNum(const char* name, std::shared_ptr<spdlog::logger> m_log = nullptr) {
+[[maybe_unused]] static int RadiatorNum(const char* name,
+                                        std::shared_ptr<spdlog::logger> m_log = nullptr) {
   return RadiatorNum(std::string(name), m_log);
 }
 
 // search string `input` for a radiator name; return corresponding index
-static int ParseRadiatorName(std::string input, std::shared_ptr<spdlog::logger> m_log = nullptr) {
+[[maybe_unused]] static int ParseRadiatorName(std::string input,
+                                              std::shared_ptr<spdlog::logger> m_log = nullptr) {
   if (input.find("aerogel") != std::string::npos)
     return kAerogel;
   else if (input.find("Aerogel") != std::string::npos)

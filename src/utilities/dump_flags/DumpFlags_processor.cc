@@ -44,7 +44,7 @@ void DumpFlags_processor::Init() {
 //------------------
 // Process
 //------------------
-void DumpFlags_processor::Process(const std::shared_ptr<const JEvent>& event) {}
+void DumpFlags_processor::Process(const std::shared_ptr<const JEvent>& /* event */) {}
 
 static std::string json_escape(const std::string& str) {
   std::string res = str;

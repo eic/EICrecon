@@ -10,7 +10,7 @@
 // general
 #include <map>
 #include <math.h>
-#include <spdlog/spdlog.h>
+#include <algorithms/logger.h>
 
 // ROOT
 #include <TVector3.h>
@@ -24,13 +24,8 @@
 
 namespace eicrecon {
 
-// Tools class, filled with miscellaneous helper functions
-class Tools {
-public:
-  // -------------------------------------------------------------------------------------
-
-  // h*c constant, for wavelength <=> energy conversion [GeV*nm]
-  static constexpr double HC = dd4hep::h_Planck * dd4hep::c_light / (dd4hep::GeV * dd4hep::nm);
+// Tools namespace, filled with miscellaneous helper functions
+namespace Tools {
 
   // -------------------------------------------------------------------------------------
   // Radiator IDs
@@ -135,68 +130,37 @@ public:
 
   // -------------------------------------------------------------------------------------
   // convert PODIO vector datatype to ROOT TVector3
-  template <class PodioVector3> static TVector3 PodioVector3_to_TVector3(const PodioVector3 v) {
+  template <class PodioVector3> TVector3 PodioVector3_to_TVector3(const PodioVector3 v) {
     return TVector3(v.x, v.y, v.z);
   }
   // convert ROOT::Math::Vector to ROOT TVector3
-  template <class MathVector3> static TVector3 MathVector3_to_TVector3(MathVector3 v) {
+  template <class MathVector3> TVector3 MathVector3_to_TVector3(MathVector3 v) {
     return TVector3(v.x(), v.y(), v.z());
   }
 
   // -------------------------------------------------------------------------------------
 
   // printing: vectors
-  static void PrintTVector3(std::shared_ptr<spdlog::logger> m_log, std::string name, TVector3 vec,
-                            int nameBuffer                = 30,
-                            spdlog::level::level_enum lvl = spdlog::level::trace) {
-    m_log->log(lvl, "{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(),
-               vec.y(), vec.z());
+  static std::string PrintTVector3(std::string name, TVector3 vec, int nameBuffer = 30) {
+    return fmt::format("{:>{}} = ( {:>10.2f} {:>10.2f} {:>10.2f} )", name, nameBuffer, vec.x(),
+                       vec.y(), vec.z());
   }
 
   // printing: hypothesis tables
-  static void PrintHypothesisTableHead(std::shared_ptr<spdlog::logger> m_log, int indent = 4,
-                                       spdlog::level::level_enum lvl = spdlog::level::trace) {
-    m_log->log(lvl, "{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
+  static std::string HypothesisTableHead(int indent = 4) {
+    return fmt::format("{:{}}{:>6}  {:>10}  {:>10}", "", indent, "PDG", "Weight", "NPE");
   }
-  static void PrintHypothesisTableLine(std::shared_ptr<spdlog::logger> m_log,
-                                       edm4eic::CherenkovParticleIDHypothesis hyp, int indent = 4,
-                                       spdlog::level::level_enum lvl = spdlog::level::trace) {
-    m_log->log(lvl, "{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight, hyp.npe);
+  static std::string HypothesisTableLine(edm4eic::CherenkovParticleIDHypothesis hyp,
+                                         int indent = 4) {
+    return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.PDG, hyp.weight, hyp.npe);
   }
-  static void PrintHypothesisTableLine(std::shared_ptr<spdlog::logger> m_log,
-                                       edm4hep::ParticleID hyp, int indent = 4,
-                                       spdlog::level::level_enum lvl = spdlog::level::trace) {
+  static std::string HypothesisTableLine(edm4hep::ParticleID hyp, int indent = 4) {
     float npe =
         hyp.parameters_size() > 0 ? hyp.getParameters(0) : -1; // assume NPE is the first parameter
-    m_log->log(lvl, "{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(), hyp.getLikelihood(),
-               npe);
+    return fmt::format("{:{}}{:>6}  {:>10.8}  {:>10.8}", "", indent, hyp.getPDG(),
+                       hyp.getLikelihood(), npe);
   }
 
-  // printing: Cherenkov angle estimate
-  static void PrintCherenkovEstimate(std::shared_ptr<spdlog::logger> m_log,
-                                     edm4eic::CherenkovParticleID pid, bool printHypotheses = true,
-                                     int indent                    = 2,
-                                     spdlog::level::level_enum lvl = spdlog::level::trace) {
-    if (m_log->level() <= lvl) {
-      double thetaAve = 0;
-      if (pid.getNpe() > 0)
-        for (const auto& [theta, phi] : pid.getThetaPhiPhotons())
-          thetaAve += theta / pid.getNpe();
-      m_log->log(lvl, "{:{}}Cherenkov Angle Estimate:", "", indent);
-      m_log->log(lvl, "{:{}}  {:>16}:  {:>10}", "", indent, "NPE", pid.getNpe());
-      m_log->log(lvl, "{:{}}  {:>16}:  {:>10.8} mrad", "", indent, "<theta>",
-                 thetaAve * 1e3); // [rad] -> [mrad]
-      m_log->log(lvl, "{:{}}  {:>16}:  {:>10.8}", "", indent, "<rindex>", pid.getRefractiveIndex());
-      m_log->log(lvl, "{:{}}  {:>16}:  {:>10.8} eV", "", indent, "<energy>",
-                 pid.getPhotonEnergy() * 1e9); // [GeV] -> [eV]
-      if (printHypotheses) {
-        m_log->log(lvl, "{:{}}Mass Hypotheses:", "", indent);
-        Tools::PrintHypothesisTableHead(m_log, indent + 2);
-        for (const auto& hyp : pid.getHypotheses())
-          Tools::PrintHypothesisTableLine(m_log, hyp, indent + 2);
-      }
-    }
-  }
+}; // namespace Tools
 
-}; // class Tools
 } // namespace eicrecon

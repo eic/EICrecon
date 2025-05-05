@@ -95,11 +95,12 @@ public:
 protected:
   // visitor of all possible CellIDs (set with SetVisitRngCellIDs)
   std::function<void(std::function<void(CellIDType)>, float)> m_VisitRngCellIDs =
-      [](std::function<void(CellIDType)> visitor_action, float p) { /* default no-op */ };
+      [](std::function<void(CellIDType)> /* visitor_action */,
+         float /* p */) { /* default no-op */ };
 
   // pixel gap mask
   std::function<bool(CellIDType, dd4hep::Position)> m_PixelGapMask =
-      [](CellIDType cellID, dd4hep::Position pos_hit_global) {
+      [](CellIDType /* cellID */, dd4hep::Position /* pos_hit_global */) {
         throw std::runtime_error("pixel gap cuts enabled, but none defined");
         return false;
       };

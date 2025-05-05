@@ -26,15 +26,15 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
                                 gsl::not_null<const dd4hep::Detector*> det_,
                                 gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_,
                                 std::shared_ptr<spdlog::logger> log_)
-    : m_detName(detName_), m_readoutClass(readoutClass_), m_det(det_), m_conv(conv_), m_log(log_) {
+    : m_log(log_), m_detName(detName_), m_readoutClass(readoutClass_), m_det(det_), m_conv(conv_) {
   // random number generators
   m_random.SetSeed(1); // default seed
 
   // default (empty) cellID looper
-  m_loopCellIDs = [](std::function<void(CellIDType)> lambda) { return; };
+  m_loopCellIDs = [](std::function<void(CellIDType)> /* lambda */) { return; };
 
   // default (empty) cellID rng generator
-  m_rngCellIDs = [](std::function<void(CellIDType)> lambda, float p) { return; };
+  m_rngCellIDs = [](std::function<void(CellIDType)> /* lambda */, float /* p */) { return; };
 
   // common objects
   m_readoutCoder = m_det->readout(m_readoutClass).idSpec().decoder();
@@ -43,7 +43,6 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
 
   // dRICH readout --------------------------------------------------------------------
   if (m_detName == "DRICH") {
-
     // get constants from geometry
     m_num_sec           = m_det->constant<int>("DRICH_num_sectors");
     m_num_pdus          = m_det->constant<int>("DRICH_num_pdus");

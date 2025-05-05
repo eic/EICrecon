@@ -49,7 +49,7 @@ public:
       if (pos < expr.size()) {
         throw std::invalid_argument("unparsed trailing characters");
       }
-      return [expr_value](Args... args) { return expr_value; };
+      return [expr_value](Args... /* args */) { return expr_value; };
     } catch (std::exception& e) {
       // more complicated function otherwise
       std::vector<std::string> params;

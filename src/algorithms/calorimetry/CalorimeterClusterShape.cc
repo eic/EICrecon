@@ -78,7 +78,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     // set up base for weights
     double logWeightBase = m_cfg.logWeightBase;
     if (m_cfg.logWeightBaseCoeffs.size() != 0) {
-      double l      = log(out_clust.getEnergy() / m_cfg.logWeightBase_Eref);
+      double l      = std::log(out_clust.getEnergy() / m_cfg.logWeightBase_Eref);
       logWeightBase = 0;
       for (std::size_t i = 0; i < m_cfg.logWeightBaseCoeffs.size(); i++) {
         logWeightBase += m_cfg.logWeightBaseCoeffs[i] * pow(l, i);
@@ -104,7 +104,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       // the axis is the direction of the eigenvalue corresponding to the largest eigenvalue.
       edm4hep::Vector3f axis;
       if (out_clust.getNhits() > 1) {
-        for (std::size_t iHit = 0; const auto& hit : out_clust.getHits()) {
+        for (const auto& hit : out_clust.getHits()) {
 
           // get weight of hit
           const double eTotal = out_clust.getEnergy() * m_cfg.sampFrac;
@@ -129,7 +129,6 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
           sum1_3D += w * pos3D;
 
           w_sum += w;
-          ++iHit;
         } // end hit loop
 
         radius = sqrt((1. / (out_clust.getNhits() - 1.)) * radius);

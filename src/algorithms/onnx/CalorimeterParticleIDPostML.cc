@@ -35,7 +35,7 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
         fmt::format("Expected tensor rank to be 2, but it is {}", prediction_tensor.shape_size()));
   }
 
-  if (prediction_tensor.getShape(0) != in_clusters->size()) {
+  if (prediction_tensor.getShape(0) != static_cast<long>(in_clusters->size())) {
     error("Length mismatch between tensor's 0th axis and number of clusters: {} != {}",
           prediction_tensor.getShape(0), in_clusters->size());
     throw std::runtime_error(

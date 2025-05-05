@@ -38,7 +38,7 @@ env:
   platform: ${{ inputs.platform || 'eic_xl' }}
   release: ${{ inputs.release || 'nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
-  clang-tidy-iwyu-CC: clang
+  clang-tidy-iwyu-CXX: clang++
   clang-tidy-iwyu-CMAKE_BUILD_TYPE: Debug
   JANA_OPTIONS: -Pjana:ticker_interval=60000 -Pjana:warmup_timeout=0 -Pjana:timeout=0
   JANA_OPTIONS_GUN: -PFOFFMTRK:ForwardOffMRecParticles:requireBeamProton=false -PRPOTS:ForwardRomanPotRecParticles:requireBeamProton=false -PLOWQ2:TaggerTrackerTrajectories:requireBeamElectron=false -PLOWQ2:TaggerTrackerTransportationPreML:requireBeamElectron=false -PLOWQ2:TaggerTrackerTransportationPostML:requireBeamElectron=false
@@ -67,32 +67,22 @@ jobs:
       # include multiple compilers for one release version,
       # and one compiler for a range of release versions
       matrix:
-        CC: [gcc, clang]
+        CXX: [g++, clang++]
         CMAKE_BUILD_TYPE: [Release, Debug]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
         include:
-          # all gcc jobs use g++
-          - CC: gcc
-            CXX: g++
-          # all clang jobs use clang++
-          - CC: clang
-            CXX: clang++
           # all clang debug jobs get extra flags
-          - CC: clang
-            CXX: clang++
+          - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
           # include some configs explicitly (if not yet included)
-          - CC: clang
-            CXX: clang++
+          - CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: nightly
-          - CC: clang
-            CXX: clang++
+          - CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 24.09.0-stable
-          - CC: clang
-            CXX: clang++
+          - CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 25.01.1-stable
     steps:
@@ -107,15 +97,15 @@ jobs:
       uses: actions/cache@v4
       with:
         path: .ccache
-        key: ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.head_ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        key: ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.head_ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.ref_name }}-
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.head_ref }}-
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.base_ref }}-
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.event.merge_group.base_ref }}-
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-
-             ccache-${{ matrix.CC }}-${{ matrix.release }}-
-             ccache-${{ matrix.CC }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.ref_name }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.head_ref }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.base_ref }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.event.merge_group.base_ref }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-
+             ccache-${{ matrix.CXX }}-
              ccache-
     - name: Configure ccache
       run: |
@@ -130,7 +120,7 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
-          CC="${{ matrix.CC }}" CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
+          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
           cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target install
           ccache --show-stats --verbose
     - name: Check dynamic library loader paths
@@ -157,18 +147,18 @@ jobs:
     - name: Upload install directory
       uses: actions/upload-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
         path: install.tar.zst
         if-no-files-found: error
     # Only compress and upload build directory if we are going to use it later
     - name: Compress build directory
-      if: matrix.CC == env.clang-tidy-iwyu-CC && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
+      if: matrix.CXX == env.clang-tidy-iwyu-CXX && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
       run: tar -caf build.tar.zst build/
     - name: Upload build directory
-      if: matrix.CC == env.clang-tidy-iwyu-CC && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
+      if: matrix.CXX == env.clang-tidy-iwyu-CXX && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
       uses: actions/upload-artifact@v4
       with:
-        name: build-${{ matrix.CC }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
+        name: build-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
         path: build.tar.zst
         if-no-files-found: error
 
@@ -183,7 +173,7 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@v4
       with:
-        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
+        name: build-${{ env.clang-tidy-iwyu-CXX }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
@@ -261,7 +251,7 @@ jobs:
     - name: Download build artifact
       uses: actions/download-artifact@v4
       with:
-        name: build-${{ env.clang-tidy-iwyu-CC }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
+        name: build-${{ env.clang-tidy-iwyu-CXX }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
@@ -466,7 +456,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CC: [gcc]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
     steps:
@@ -477,7 +467,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - name: Download simulation input
@@ -526,7 +516,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CC: [gcc]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
     steps:
@@ -537,7 +527,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -565,7 +555,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CC: [gcc]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
         test_plugins:
@@ -580,7 +570,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -610,7 +600,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CC: [gcc]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
         benchmark_plugins:
@@ -629,7 +619,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -659,7 +649,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CC: [clang]
+        CXX: [clang++]
         particle: [pi, e]
         detector_config: [craterlake]
     steps:
@@ -670,7 +660,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -769,7 +759,7 @@ jobs:
     - npsim-gun-EcalLumiSpec
     strategy:
       matrix:
-        CC: [clang]
+        CXX: [clang++]
         particle: [e]
         detector_config: [ip6_extended]
     steps:
@@ -780,7 +770,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -834,23 +824,23 @@ jobs:
     strategy:
       matrix:
         include:
-        - CC: clang
+        - CXX: clang++
           beam: 5x41
           minq2: 0
           detector_config: craterlake_5x41
-        - CC: clang
+        - CXX: clang++
           beam: 10x100
           minq2: 0
           detector_config: craterlake
-        - CC: clang
+        - CXX: clang++
           beam: 18x275
           minq2: 0
           detector_config: craterlake_18x275
-        - CC: clang
+        - CXX: clang++
           beam: 10x100
           minq2: 1000
           detector_config: craterlake_tracking_only
-        - CC: clang
+        - CXX: clang++
           beam: 18x275
           minq2: 1000
           detector_config: craterlake_18x275
@@ -862,7 +852,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -1029,23 +1019,7 @@ jobs:
           if-no-files-found: error
 
   list-open-prs:
-    runs-on: ubuntu-24.04
-    outputs:
-      json: ${{ steps.remap.outputs.json }}
-    steps:
-      - uses: octokit/request-action@v2.x
-        id: query
-        with:
-          route: GET /repos/${{ github.repository }}/pulls?state=open&per_page=100
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Remap open PRs
-        id: remap
-        uses: nickofthyme/object-remap@v3
-        with:
-          __case: snake
-          include.*.pr: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
-          include.*.head_sha: ${{ toJSON(fromJSON(steps.query.outputs.data).*.head.sha) }}
+    uses: eic/actions/.github/workflows/list-open-prs.yml@main
 
   get-docs-from-open-prs:
     runs-on: ubuntu-24.04
@@ -1162,9 +1136,7 @@ jobs:
       - get-docs-from-open-prs
     steps:
       - name: Merge GitHub Pages staging artifact
-        # FIXME pinned per https://github.com/actions/upload-artifact/issues/485#issuecomment-2271527517
-        # to avoid https://github.com/eic/EICrecon/actions/runs/10486195490/job/29045183375#step:2:111
-        uses: actions/upload-artifact/merge@v4.3.5
+        uses: actions/upload-artifact/merge@v4
         with:
           name: github-pages-staging
           pattern: |

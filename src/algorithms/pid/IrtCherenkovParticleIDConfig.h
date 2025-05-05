@@ -4,6 +4,7 @@
 #pragma once
 
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/logger.h>
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {
@@ -45,43 +46,31 @@ public:
   //
   /////////////////////////////////////////////////////
 
-  // print warnings about cheat modes
-  void PrintCheats(std::shared_ptr<spdlog::logger> m_log,
-                   spdlog::level::level_enum lvl = spdlog::level::debug, bool printAll = false) {
-    auto print_param = [&m_log, &lvl, &printAll](auto name, bool val, auto desc) {
-      if (printAll)
-        m_log->log(lvl, "  {:>20} = {:<}", name, val);
-      else if (val)
-        m_log->warn("CHEAT MODE '{}' ENABLED: {}", name, desc);
-    };
-    print_param("cheatPhotonVertex", cheatPhotonVertex,
-                "use MC photon vertex, wavelength, refractive index");
-    print_param("cheatTrueRadiator", cheatTrueRadiator, "use MC truth to obtain true radiator");
-  }
-
   // boolean: true if any cheat mode is enabled
   bool CheatModeEnabled() const { return cheatPhotonVertex || cheatTrueRadiator; }
 
-  // print all parameters
-  void Print(std::shared_ptr<spdlog::logger> m_log,
-             spdlog::level::level_enum lvl = spdlog::level::debug) {
-    m_log->log(lvl, "{:=^60}", " IrtCherenkovParticleIDConfig Settings ");
-    auto print_param = [&m_log, &lvl](auto name, auto val) {
-      m_log->log(lvl, "  {:>20} = {:<}", name, val);
+  // stream all parameters
+  friend std::ostream& operator<<(std::ostream& os, const IrtCherenkovParticleIDConfig& cfg) {
+    os << fmt::format("{:=^60}", " IrtCherenkovParticleIDConfig Settings ") << std::endl;
+    auto print_param = [&os](auto name, auto val) {
+      os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
     };
-    print_param("numRIndexBins", numRIndexBins);
-    PrintCheats(m_log, lvl, true);
-    m_log->log(lvl, "pdgList:");
-    for (const auto& pdg : pdgList)
-      m_log->log(lvl, "  {}", pdg);
-    for (const auto& [name, rad] : radiators) {
-      m_log->log(lvl, "{:-<60}", fmt::format("--- {} config ", name));
+    print_param("numRIndexBins", cfg.numRIndexBins);
+    print_param("cheatPhotonVertex", cfg.cheatPhotonVertex);
+    print_param("cheatTrueRadiator", cfg.cheatTrueRadiator);
+    os << "pdgList:" << std::endl;
+    for (const auto& pdg : cfg.pdgList)
+      os << fmt::format("  {}", pdg) << std::endl;
+    for (const auto& [name, rad] : cfg.radiators) {
+      os << fmt::format("{:-<60}", fmt::format("--- {} config ", name)) << std::endl;
       print_param("smearingMode", rad.smearingMode);
       print_param("smearing", rad.smearing);
       print_param("referenceRIndex", rad.referenceRIndex);
       print_param("attenuation", rad.attenuation);
     }
-    m_log->log(lvl, "{:=^60}", "");
-  }
+    os << fmt::format("{:=^60}", "") << std::endl;
+    return os;
+  };
 };
+
 } // namespace eicrecon

@@ -12,6 +12,7 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4hep/MCParticle.h>
 #include <Eigen/Core>
+#include <cstddef>
 #include <gsl/pointers>
 #include <optional>
 #include <string>
@@ -56,7 +57,7 @@ private:
       edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
       const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
       const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
-      const std::vector<int>& layerHitIndex) const;
+      const std::vector<std::size_t>& layerHitIndex) const;
 
   /** Check if the last two hits are within a certain angle of the optimum direction **/
   bool checkHitPair(const Eigen::Vector3d& hit1, const Eigen::Vector3d& hit2) const;

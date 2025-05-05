@@ -169,7 +169,6 @@ dd4hep::Position LGADChargeSharing::_cell2LocalPosition(const dd4hep::rec::CellI
 
 dd4hep::Position LGADChargeSharing::_global2Local(const dd4hep::Position& pos) const {
   auto geoManager = m_detector->world().volume()->GetGeoManager();
-  auto node       = geoManager->FindNode(pos.x(), pos.y(), pos.z());
   auto currMatrix = geoManager->GetCurrentMatrix();
 
   double g[3], l[3];

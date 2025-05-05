@@ -34,7 +34,7 @@ public:
       }
     }
 
-    return std::move(outputs);
+    return outputs;
   }
 };
 

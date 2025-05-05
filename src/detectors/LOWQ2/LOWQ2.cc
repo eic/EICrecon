@@ -6,11 +6,12 @@
 #include <JANA/JApplication.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
-#include <edm4eic/TrackSegment.h>
+#include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
 #include <math.h>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
@@ -139,7 +140,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   // Linear tracking for each module, loop over modules
-  for (int i = 0; i < moduleIDs.size(); i++) {
+  for (std::size_t i = 0; i < moduleIDs.size(); i++) {
     std::string outputTrackTag                = outputTrackTags[i];
     std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags = moduleClusterTags[i];
@@ -208,8 +209,11 @@ void InitPlugin(JApplication* app) {
 
   // Vector reconstruction at origin
   app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
-      "TaggerTrackerTrajectories", {"TaggerTrackerProjectedTracks", "MCBeamElectrons"},
-      {"TaggerTrackerTrajectories", "TaggerTrackerTrackParameters", "TaggerTrackerTracks"},
+      "TaggerTrackerTrajectories",
+      {"TaggerTrackerProjectedTracks", "MCBeamElectrons", "TaggerTrackerLocalTracks",
+       "TaggerTrackerLocalTrackAssociations"},
+      {"TaggerTrackerTrajectories", "TaggerTrackerTrackParameters", "TaggerTrackerTracks",
+       "TaggerTrackerTrackAssociations"},
       {
           .modelPath  = "calibrations/tmva/LowQ2_DNN_CPU.weights.xml",
           .methodName = "DNN_CPU",

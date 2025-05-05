@@ -27,9 +27,9 @@ public:
     m_algo.init(m_geoSvc().converter(), logger());
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_rec_hits_output() = m_algo.process(*m_raw_hits_input());
   }
 };

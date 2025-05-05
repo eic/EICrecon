@@ -35,6 +35,6 @@ void GeometryNavigationSteps_processor::Init() {
   auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
 }
 
-void GeometryNavigationSteps_processor::Process(const std::shared_ptr<const JEvent>& event) {}
+void GeometryNavigationSteps_processor::Process(const std::shared_ptr<const JEvent>& /* event */) {}
 
 void GeometryNavigationSteps_processor::Finish() {}
