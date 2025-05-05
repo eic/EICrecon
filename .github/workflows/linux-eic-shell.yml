@@ -1019,23 +1019,7 @@ jobs:
           if-no-files-found: error
 
   list-open-prs:
-    runs-on: ubuntu-24.04
-    outputs:
-      json: ${{ steps.remap.outputs.json }}
-    steps:
-      - uses: octokit/request-action@v2.x
-        id: query
-        with:
-          route: GET /repos/${{ github.repository }}/pulls?state=open&per_page=100
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Remap open PRs
-        id: remap
-        uses: nickofthyme/object-remap@v3
-        with:
-          __case: snake
-          include.*.pr: ${{ toJSON(fromJSON(steps.query.outputs.data).*.number) }}
-          include.*.head_sha: ${{ toJSON(fromJSON(steps.query.outputs.data).*.head.sha) }}
+    uses: eic/actions/.github/workflows/list-open-prs.yml@main
 
   get-docs-from-open-prs:
     runs-on: ubuntu-24.04
@@ -1152,9 +1136,7 @@ jobs:
       - get-docs-from-open-prs
     steps:
       - name: Merge GitHub Pages staging artifact
-        # FIXME pinned per https://github.com/actions/upload-artifact/issues/485#issuecomment-2271527517
-        # to avoid https://github.com/eic/EICrecon/actions/runs/10486195490/job/29045183375#step:2:111
-        uses: actions/upload-artifact/merge@v4.3.5
+        uses: actions/upload-artifact/merge@v4
         with:
           name: github-pages-staging
           pattern: |
