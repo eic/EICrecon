@@ -3,7 +3,7 @@
 // FIXME: gcc-12 affected by https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105562
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#include <functional> // IWYU pragma: keep
+#include <functional>
 #pragma GCC diagnostic pop
 
 #include <JANA/JApplication.h>
