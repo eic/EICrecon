@@ -431,8 +431,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedTruthSeededParticlesWithAssociations",
       {
-          "CentralAndB0CKFTruthSeededTracks",
-          "CentralAndB0CKFTruthSeededTrackAssociations",
+          "CombinedCKFTruthSeededTracks",
+          "CombinedCKFTruthSeededTrackAssociations",
       },
       {"ReconstructedTruthSeededChargedWithoutPIDParticles",
        "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations"},
