@@ -1,12 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks, Wouter Deconinck
 
-// FIXME: gcc-12 affected by https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105562
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#include <functional>
-#pragma GCC diagnostic pop
-
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>

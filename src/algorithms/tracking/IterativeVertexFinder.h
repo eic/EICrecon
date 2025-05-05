@@ -4,12 +4,6 @@
 
 #pragma once
 
-// FIXME: gcc-12 affected by https://gcc.gnu.org/bugzilla/show_bug.cgi?id=105562
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
-#include <functional>
-#pragma GCC diagnostic pop
-
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <edm4eic/VertexCollection.h>
