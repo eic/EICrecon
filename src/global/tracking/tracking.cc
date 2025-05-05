@@ -438,12 +438,6 @@ void InitPlugin(JApplication* app) {
        "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations"},
       {}, app));
 
-  // Check if the TaggerTracker readout is present in the current configuration
-  if (readouts.find("TaggerTrackerHits") != readouts.end()) {
-    input_track_collections.push_back("TaggerTrackerTracks");
-    // TaggerTracker has no corresponding associations
-  }
-
   // Add central, B0, and tagger tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
       "CombinedTracks", input_track_collections, {"CombinedTracks"}, app));
