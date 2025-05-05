@@ -60,9 +60,9 @@ void InitPlugin(JApplication* app) {
        {"B0TrackerHits", "B0TrackerRawHits", "B0TrackerRawHitAssociations", "B0TrackerRecHits"}};
 
   // Possible collections that returns Measurement2DCollection by themselves
-  std::vector<std::tuple<std::string, std::string, std::string, std::string>> possible_collections_meas2D =
-      {{"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelClusterHits"}};
-
+  std::vector<std::tuple<std::string, std::string, std::string, std::string>>
+      possible_collections_meas2D = {{"TOFBarrelHits", "TOFBarrelRawHits",
+                                      "TOFBarrelRawHitAssociations", "TOFBarrelClusterHits"}};
 
   // Filter out collections that are not present in the current configuration
   std::vector<std::string> input_rec_collections;
@@ -87,9 +87,6 @@ void InitPlugin(JApplication* app) {
     }
   }
 
-
-
-
   // Tracker hits collector
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
       "CentralTrackingRecHits", input_rec_collections,
@@ -108,14 +105,12 @@ void InitPlugin(JApplication* app) {
       app));
 
   // include the collection from previous collector
-  input_meas2D_collections.insert(input_meas2D_collections.begin(), "CentralTrackerRecMeasurements");
-  app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Measurement2D>>(
-          "CentralTrackingMeas2D", input_meas2D_collections,
-          {"CentralTrackerMeasurements"}, // Output collection name
-          app));
-
-
+  input_meas2D_collections.insert(input_meas2D_collections.begin(),
+                                  "CentralTrackerRecMeasurements");
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Measurement2D>>(
+      "CentralTrackingMeas2D", input_meas2D_collections,
+      {"CentralTrackerMeasurements"}, // Output collection name
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "CentralCKFTruthSeededTrajectories", {"CentralTrackTruthSeeds", "CentralTrackerMeasurements"},
