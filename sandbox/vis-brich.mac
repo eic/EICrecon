@@ -7,7 +7,7 @@
 #
 # Draw geometry
 #/vis/drawVolume
-/vis/drawVolume PFRICH_0
+/vis/drawVolume BRICH_11
 #
 # Specify view angle
 #/vis/viewer/set/viewpointThetaPhi 90. 179.

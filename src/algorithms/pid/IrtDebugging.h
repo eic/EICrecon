@@ -92,15 +92,18 @@ namespace eicrecon {
     //CherenkovDetectorCollection*    m_irt_det_coll;
     CherenkovDetector*              m_irt_det;
 
-    static TFile *m_OutputFile;
     // m_EventPtr: need this because process() is const;
     /*static thread_local*/ CherenkovEvent *m_Event, **m_EventPtr;
+#if _LATER_
+    static TFile *m_OutputFile;
     static TTree *m_EventTree;
     static unsigned m_InstanceCounter;
     static TBranch *m_EventBranch;
+#endif
     unsigned m_Instance;
 
-    static TH1D *m_Debug;
+    std::string m_OutputFileName;
+    //+static TH1D *m_Debug;
     
     TRandomMixMax m_random;
     std::function<double()> m_rngUni;

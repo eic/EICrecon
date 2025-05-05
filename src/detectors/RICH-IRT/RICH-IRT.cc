@@ -34,8 +34,15 @@
 using json = nlohmann::json;
 
 // Have to start hardcoding known RICH detectors in some way, before trying to pull their
-// configuration data out;
-static const char *RICHes[] = {"QRICH", "XRICH"};
+// configuration data out; for the time being the list is:
+//
+//  BRICH: backward RICH testbed
+//  FRICH: forward RICH testbed
+// PFRICH: ePIC backward RICH
+//
+static const char *RICHes[] = {"PFRICH", "BRICH", "FRICH"};
+//static const char *RICHes[] = {"PFRICH", "FRICH", "BRICH"};
+//static const char *RICHes[] = {"BRICH"};
 
 #include "IRT/CherenkovDetectorCollection.h"
 
@@ -45,7 +52,7 @@ extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
 
-    printf("@@@ RICH InitPlugin()\n");
+    printf("@@@ RICH-IRT InitPlugin()\n");
 
     auto dd4hep_service = app->GetService<DD4hep_service>();
     auto det = dd4hep_service->detector();
@@ -58,14 +65,27 @@ extern "C" {
 	
 	//FIXME: is there a way to poll a detector existence without a segfault?;
 	//auto rptr = det->detector(RICH);
-
+#if 0
+	{
+	  auto dtypes = det->detectorTypes();
+      
+	  printf("@R@: %ld\n", dtypes.size());
+	  for(unsigned iq=0; iq<dtypes.size(); iq++) {
+	    printf("@R@ %s\n", dtypes[iq].c_str());
+	    
+	    auto dets = det->detectors(dtypes[iq].c_str());
+	    for(const auto &detElem: dets) 
+	      printf("@R@   -> %s\n", detElem.volume()->GetName());
+	  } 
+	}
+#endif	
 	// Resort to using a loop; assume RICH detector category is "tracker" (it presently is);
 	{
 	  // May want to loop through all types?; 
 	  //+auto dtypes = det->detectorTypes();
 	  
 	  auto dets = det->detectors("tracker");
-	  for(const auto &detElem: dets)
+	  for(const auto &detElem: dets) 
 	    if (!strcmp(RICH, detElem.volume()->GetName())) {
 	      exists = true;
 	      break;
@@ -185,13 +205,15 @@ extern "C" {
 	      if (theta_max < theta_min) std::swap(theta_min, theta_max);
 	      
 	      // "+1": avoid a "coordinate at the boundary condition"; essentially make numPlanes bins and use bin centers;
-	      double zmid = (zf+zr)/2 * dd4hep::mm, step = fabs(zf-zr)/(numPlanes+1) * dd4hep::mm;
+	      //double zmid = (zf+zr)/2 * dd4hep::mm, step = fabs(zf-zr)/(numPlanes+1) * dd4hep::mm;
+	      // NB: 'step' is a signed variable here, whether ACTS reorders the planes in Z internally or not;
+	      double zmid = (zf+zr)/2 * dd4hep::mm, step = (zr-zf)/(numPlanes+1) * dd4hep::mm;
 		
 	      const char *tag = zmid > 0.0 ? "ForwardRICH_ID" : "BackwardRICH_ID";
 	      for(int i=0; i<numPlanes; i++) {
 		auto zCoord = zmid + step*(i - (numPlanes-1)/2.);
 		double rmin = fabs(zCoord)*tan(theta_min), rmax = fabs(zCoord)*tan(theta_max);
-		//printf("@R@ %f %f %f %f\n", rmin, rmax, zmid, step);
+		//printf("@R@ %f %f %f (%f %f) %f\n", rmin, rmax, zCoord, zf, zr, step);
 		
 		track_cfg.target_surfaces.push_back(eicrecon::DiscSurfaceConfig{tag, zCoord, rmin, rmax});
 		//m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
@@ -218,21 +240,24 @@ extern "C" {
 			track_cfg,
 			app
 			));
-	      
+
+#if 1
 	      // A unified IRT 2.0 debugging algorithm; FIXME: split digitization step off later;
 	      app->Add(new JOmniFactoryGeneratorT<IrtDebugging_factory>
 		       (
-			"IrtDebugging",
+			//"IrtDebugging",
+			(RICHstr + "IrtDebugging").Data(),
 			{
 			  "MCParticles",
 			  "ReconstructedChargedWithoutPIDParticles",
 			  "ReconstructedChargedWithoutPIDParticleAssociations",
 			  RICHtracks.Data(), (RICHstr + "Hits").Data()
 			},
-			{"IrtDebugInfoTables"},
+			{(RICHstr + "IrtDebugInfoTables").Data()},
 			config,
 			app
 			));
+#endif
 	    }
 	  }
 	}

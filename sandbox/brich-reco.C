@@ -1,16 +1,16 @@
 //
 //   export ROOT_LIBRARY_PATH=/DATA00/ayk/ePIC/prefix/lib:${ROOT_LIBRARY_PATH}
 //
-//   root -l './qrich-reco.C("qrich-events.root", "qrich-optics.root")'
+//   root -l './brich-reco.C("brich-events.root", "brich-optics.root")'
 //
 //      or
 //
-//   root -l './qrich-reco.C("qrich-events.root")'
+//   root -l './brich-reco.C("brich-events.root")'
 //
 
-void qrich_reco(const char *dfname, const char *cfname = 0)
+void brich_reco(const char *dfname, const char *cfname = 0)
 {
-  auto *reco = new ReconstructionFactory(dfname, cfname, "QRICH");
+  auto *reco = new ReconstructionFactory(dfname, cfname, "BRICH");
 
   //
   // Factory configuration part;
@@ -93,4 +93,4 @@ void qrich_reco(const char *dfname, const char *cfname = 0)
   cv->cd(10); reco->hwl()->Draw();
   cv->cd(11); reco->hvtx()->Draw();
   cv->cd(12); reco->hri()->Draw();
-} // qrich_reco()
+} // brich_reco()

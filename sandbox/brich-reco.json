@@ -1,7 +1,7 @@
 {
-    "Optics": "qrich-optics.root",
+    "Optics": "brich-optics.root",
     
-    "OutputTree": "qrich-events.root",
+    "OutputTree": "brich-events.root",
 	
     "Acceptance": {
 	"comment": "Nominal values, used to calculate ACTS DiscSurfaceConfig parameters",

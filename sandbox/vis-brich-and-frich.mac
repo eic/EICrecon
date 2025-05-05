@@ -6,11 +6,11 @@
 /vis/viewer/set/autoRefresh false
 #
 # Draw geometry
-#/vis/drawVolume
-/vis/drawVolume PFRICH_0
+/vis/drawVolume
+#/vis/drawVolume BRICH_11
 #
 # Specify view angle
-#/vis/viewer/set/viewpointThetaPhi 90. 179.
+/vis/viewer/set/viewpointThetaPhi 90. 179.
 #
 # Specify zoom value
 #/vis/viewer/zoom 8.0

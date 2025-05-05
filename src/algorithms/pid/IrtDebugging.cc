@@ -36,11 +36,30 @@
 // IrtDebugging::process() is const -> move this mutex out for the time being;
 static std::mutex m_OutputTreeMutex;
 
+#if 1
+//static std::map<const char *, TFile *> _m_OutputFile;
+//static TTree *m_EventTree;
+//static unsigned m_InstanceCounter;
+//static TBranch *m_EventBranch;
+//static std::map<const char *, TFile *>   m_OutputFiles;
+//static std::map<const char *, TTree *>   m_EventTrees;
+//static std::map<const char *, unsigned>  m_InstanceCounters;
+//static std::map<const char *, TBranch *> m_EventBranches;
+static std::map<std::string, TFile */*, std::less<>*/>   m_OutputFiles;
+static std::map<std::string, TTree */*, std::less<>*/>   m_EventTrees;
+static std::map<std::string, unsigned/*, std::less<>*/>  m_InstanceCounters;
+static std::map<std::string, TBranch */*, std::less<>*/> m_EventBranches;
+//static TFile *m_OutputFiles;
+//static TTree *   m_EventTrees;
+//static unsigned  m_InstanceCounters;
+//static TBranch * m_EventBranches;
+#else
 TFile *eicrecon::IrtDebugging::m_OutputFile = 0;
 TTree *eicrecon::IrtDebugging::m_EventTree = 0;
 TBranch *eicrecon::IrtDebugging::m_EventBranch = 0;
 unsigned eicrecon::IrtDebugging::m_InstanceCounter = 0;
-TH1D *eicrecon::IrtDebugging::m_Debug = 0;
+//+TH1D *eicrecon::IrtDebugging::m_Debug = 0;
+#endif
 
 // FIXME: move to a different place;
 #define _MAGIC_CFF_                              (1239.8)
@@ -54,23 +73,26 @@ using json = nlohmann::json;
 namespace eicrecon {
   IrtDebugging::~IrtDebugging()
   {
+#if 1//_NOW_
     std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
       
-    //printf("@@@ IrtDebugging::~IrtDebugging() ... %2d\n", m_InstanceCounter);
-    m_InstanceCounter--;
+    printf("@@@ IrtDebugging::~IrtDebugging() ... %s %2d %2d\n", m_OutputFileName.c_str(), m_Instance,
+	   m_InstanceCounters[m_OutputFileName]);
+    m_InstanceCounters[m_OutputFileName]--;
     
-    if (!m_InstanceCounter) {
-      m_OutputFile->cd();
-      m_EventTree->Write();
+    if (!m_InstanceCounters[m_OutputFileName]) {
+      m_OutputFiles[m_OutputFileName]->cd();
+      m_EventTrees[m_OutputFileName]->Write();
 
       // Write an optics configuration copy into the output event tree; this modified version
       // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
       m_config.m_irt_geometry->Write();
       
-      m_Debug->Write();
+      //+m_Debug->Write();
       
-      m_OutputFile->Close();
+      m_OutputFiles[m_OutputFileName]->Close();
     } //if
+#endif
   } // IrtDebugging::~IrtDebugging()
   
   // -------------------------------------------------------------------------------------
@@ -78,7 +100,7 @@ namespace eicrecon {
   void IrtDebugging::init(DD4hep_service &dd4hep_service, IrtDebuggingConfig &config,
 			  std::shared_ptr<spdlog::logger>& logger)
   {
-    printf("IrtDebugging::init() ...\n");
+    printf("@R@ IrtDebugging::init() ...\n");
     
     // FIXME: is this all thread safe?;
     m_config = config;
@@ -92,35 +114,48 @@ namespace eicrecon {
     {
       std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
     
-      printf("@@@ IrtDebugging::init() ... %2d\n", m_InstanceCounter);
 
       m_Event = new CherenkovEvent();
       m_EventPtr = &m_Event;
       
-      if (!m_InstanceCounter) {
-#if 1
-	{
-	  /*const*/ json *jptr = &config.m_json_config;
+      /*const*/ json *jptr = &config.m_json_config;
+      // FIXME: do it better;
+      assert(jptr->find("OutputTree") != jptr->end());
+      //if (m_OutputFileName.IsNull())
+	//m_OutputFileName = "qq.root";//(*jptr)["OutputTree"].template get<std::string>().c_str();
+	m_OutputFileName = (*jptr)["OutputTree"].template get<std::string>().c_str();
 
-	  // FIXME: sanity check;
-	  if (jptr->find("OutputTree") != jptr->end()) //{
-	    ///*const*/ auto &jpref = (*jptr)["Photosensor"];
-	    m_OutputFile = new TFile((*jptr)["OutputTree"].template get<std::string>().c_str(), "RECREATE");
-	    //if (!foptics) continue;
-	}
-#else
+      //+printf("@@@ IrtDebugging::init() ... %2d\n", m_InstanceCounters[m_OutputFileName.Data()]);
+            
+      if (!m_InstanceCounters[m_OutputFileName]) {
+	printf("@R@ Here %d!\n", m_InstanceCounters[m_OutputFileName]);
+	//if (m_InstanceCounters.find(m_OutputFileName) == m_InstanceCounters.end()) {
+	//m_InstanceCounters = 0;
+	//#if 1
+	//{
+
+	// FIXME: sanity check;
+	//if (jptr->find("OutputTree") != jptr->end()) //{
+	///*const*/ auto &jpref = (*jptr)["Photosensor"];
+	//m_OutputFile = new TFile((*jptr)["OutputTree"].template get<std::string>().c_str(), "RECREATE");
+	m_OutputFiles[m_OutputFileName] = new TFile(m_OutputFileName.c_str(), "RECREATE");
+	//if (!foptics) continue;
+	//}
+	//#else
 	// FIXME: hardcoded;
-	m_OutputFile = new TFile("qrich-events.root", "RECREATE");
+	//m_OutputFile = new TFile("qrich-events.root", "RECREATE");
 	//m_OutputFile = new TFile("pfrich-events.root", "RECREATE");
-#endif
+	//#endif
 	
-	m_EventTree = new TTree("t", "My tree");
-	m_EventBranch = m_EventTree->Branch("e", "CherenkovEvent", 0/*&m_Event*/, 16000, 2);
+	m_EventTrees[m_OutputFileName] = new TTree("t", "My tree");
+	m_EventBranches[m_OutputFileName] =
+	  m_EventTrees[m_OutputFileName]->Branch("e", "CherenkovEvent", 0/*&m_Event*/, 16000, 2);
 	
-	m_Debug = new TH1D("debug", "", 1000, 0, 1000);
+	//+m_Debug = new TH1D("debug", "", 1000, 0, 1000);
       } //if
 
-      m_Instance = m_InstanceCounter++;
+      //m_InstanceCounters = m_InstanceCounters + 1;//+;
+      m_Instance = m_InstanceCounters[m_OutputFileName]++;
     }
     
     m_log = logger;
@@ -245,6 +280,8 @@ namespace eicrecon {
       }
 #endif
     }
+    
+    printf("@R@ IrtDebugging::init() finished ...\n");
   } // IrtDebugging::init()
 
   // -------------------------------------------------------------------------------------
@@ -254,7 +291,7 @@ namespace eicrecon {
 			     const IrtDebugging::Output& output
 			     ) const
   {
-    printf("@@@ IrtDebugging::process() ...\n");
+    printf("@R@ IrtDebugging::process() ...\n");
 
     // Reset output event structure;
     m_Event->Reset();
@@ -384,7 +421,8 @@ namespace eicrecon {
       unsigned parent_id = mcparticle.parents_begin()->id().index;
       if (MCParticle_to_ChargedParticle.find(parent_id) == MCParticle_to_ChargedParticle.end()) continue;
       auto parent = MCParticle_to_ChargedParticle[parent_id];
-	
+
+      //printf("radiator: %p\n", radiator);
       if (radiator) {
 	//printf("%s -> p: %f\n", m_irt_det->GetRadiatorName(radiator), photon->GetVertexMomentum().Mag());
 	
@@ -445,10 +483,10 @@ namespace eicrecon {
     {
       std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
       
-      m_EventBranch->SetAddress(m_EventPtr);
-      m_EventTree->Fill();
+      m_EventBranches[m_OutputFileName]->SetAddress(m_EventPtr);
+      m_EventTrees[m_OutputFileName]->Fill();
       
-      m_Debug->Fill(counter);
+      //+m_Debug->Fill(counter);
     }
   } // IrtDebugging::process()
 } // namespace eicrecon

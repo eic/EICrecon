@@ -1,14 +1,14 @@
 //
 //   export ROOT_LIBRARY_PATH=/DATA00/ayk/ePIC/prefix/lib:${ROOT_LIBRARY_PATH}
 //
-//   root -l './qrich-hit-map.C("qrich-events.root", "qrich-optics.root")'
+//   root -l './brich-hit-map.C("brich-events.root", "brich-optics.root")'
 //
 //    or
 //
-//   root -l './qrich-hit-map.C("qrich-events.root")'
+//   root -l './brich-hit-map.C("brich-events.root")'
 //
 
-void qrich_hit_map(const char *dfname, const char *cfname = 0)
+void brich_hit_map(const char *dfname, const char *cfname = 0)
 {
   auto fcfg  = new TFile(cfname ? cfname : dfname);
   auto geometry = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
@@ -47,4 +47,4 @@ void qrich_hit_map(const char *dfname, const char *cfname = 0)
   hxy->GetXaxis()->SetTitleOffset(1.20);
   hxy->GetYaxis()->SetTitleOffset(1.40);
   hxy->Draw("COL");
-} // qrich_hit_map()
+} // brich_hit_map()
