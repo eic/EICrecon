@@ -49,7 +49,6 @@ void InitPlugin(JApplication* app) {
         "SiBarrelVertexRecHits"},
        {"TrackerEndcapHits", "SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitAssociations",
         "SiEndcapTrackerRecHits"},
-       {"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelRecHits"},
        {"TOFEndcapHits", "TOFEndcapRawHits", "TOFEndcapRawHitAssociations", "TOFEndcapRecHits"},
        {"MPGDBarrelHits", "MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations", "MPGDBarrelRecHits"},
        {"OuterMPGDBarrelHits", "OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations",
@@ -59,6 +58,11 @@ void InitPlugin(JApplication* app) {
        {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHitAssociations",
         "ForwardMPGDEndcapRecHits"},
        {"B0TrackerHits", "B0TrackerRawHits", "B0TrackerRawHitAssociations", "B0TrackerRecHits"}};
+
+  // Possible collections that returns Measurement2DCollection by themselves
+  std::vector<std::tuple<std::string, std::string, std::string, std::string>> possible_collections_meas2D =
+      {{"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelClusterHits"}};
+
 
   // Filter out collections that are not present in the current configuration
   std::vector<std::string> input_rec_collections;
@@ -72,6 +76,19 @@ void InitPlugin(JApplication* app) {
       input_raw_assoc_collections.push_back(raw_assoc_collection);
     }
   }
+
+  std::vector<std::string> input_meas2D_collections;
+  for (const auto& [hit_collection, raw_collection, raw_assoc_collection, meas2D_collection] :
+       possible_collections_meas2D) {
+    if (readouts.find(hit_collection) != readouts.end()) {
+      // Add the collection to the list of input collections
+      input_meas2D_collections.push_back(meas2D_collection);
+      input_raw_assoc_collections.push_back(raw_assoc_collection);
+    }
+  }
+
+
+
 
   // Tracker hits collector
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
@@ -87,8 +104,18 @@ void InitPlugin(JApplication* app) {
           app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
+      "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerRecMeasurements"},
       app));
+
+  // include the collection from previous collector
+  input_meas2D_collections.insert(input_meas2D_collections.begin(), "CentralTrackerRecMeasurements");
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Measurement2D>>(
+          "CentralTrackingMeas2D", input_meas2D_collections,
+          {"CentralTrackerMeasurements"}, // Output collection name
+          app));
+
+
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "CentralCKFTruthSeededTrajectories", {"CentralTrackTruthSeeds", "CentralTrackerMeasurements"},
