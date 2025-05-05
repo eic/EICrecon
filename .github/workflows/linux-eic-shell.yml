@@ -71,7 +71,6 @@ jobs:
         CMAKE_BUILD_TYPE: [Release, Debug]
         # FIXME: gcc-12 does not allow ignoring unknown-pragmas with a pragma
         # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
-        CXXFLAGS: [-Werror -Wall -Wextra -Wno-unknown-pragmas -Wno-error=maybe-uninitialized]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
         # note that entries that overwrite matrix values require a full specification
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#expanding-or-adding-matrix-configurations
@@ -80,6 +79,10 @@ jobs:
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
         include:
+          - CXX: g++
+            CXXFLAGS: -Werror -Wall -Wextra -Wno-unknown-pragmas -Wno-error=maybe-uninitialized
+          - CXX: clang++
+            CXXFLAGS: -Werror -Wall -Wextra -Wno-unknown-pragmas
           # include clang++ Debug with profile CXXFLAGS
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
