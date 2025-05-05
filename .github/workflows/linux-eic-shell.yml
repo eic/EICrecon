@@ -76,6 +76,7 @@ jobs:
           # exclude clang++ Debug with default CXXFLAGS
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
+            release: nightly
         include:
           - CXX: g++
             # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
