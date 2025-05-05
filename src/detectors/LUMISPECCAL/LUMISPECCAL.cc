@@ -72,13 +72,21 @@ void InitPlugin(JApplication* app) {
           .adjacencyMatrix =
               "(sector_1 == sector_2) && ((abs(floor(module_1 / 10) - floor(module_2 / 10)) + "
               "abs(fmod(module_1, 10) - fmod(module_2, 10))) == 1)",
-          .readout                       = "EcalLumiSpecHits",
-          .sectorDist                    = 0.0 * dd4hep::cm,
+          .peakNeighbourhoodMatrix{},
+          .readout    = "EcalLumiSpecHits",
+          .sectorDist = 0.0 * dd4hep::cm,
+          .localDistXY{},
+          .localDistXZ{},
+          .localDistYZ{},
+          .globalDistRPhi{},
+          .globalDistEtaPhi{},
+          .dimScaledLocalDistXY{},
           .splitCluster                  = true,
           .minClusterHitEdep             = 1.0 * dd4hep::MeV,
           .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
           .transverseEnergyProfileMetric = "localDistXY",
           .transverseEnergyProfileScale  = 10. * dd4hep::mm,
+          .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
       ));

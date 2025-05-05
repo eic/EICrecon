@@ -105,16 +105,22 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
-      {
-          .adjacencyMatrix               = HcalBarrel_adjacencyMatrix,
-          .readout                       = "HcalBarrelHits",
-          .sectorDist                    = 5.0 * dd4hep::cm,
-          .splitCluster                  = false,
-          .minClusterHitEdep             = 5.0 * dd4hep::MeV,
-          .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
-          .transverseEnergyProfileMetric = "globalDistEtaPhi",
-          .transverseEnergyProfileScale  = 1.,
-      },
+      {.adjacencyMatrix = HcalBarrel_adjacencyMatrix,
+       .peakNeighbourhoodMatrix{},
+       .readout    = "HcalBarrelHits",
+       .sectorDist = 5.0 * dd4hep::cm,
+       .localDistXY{},
+       .localDistXZ{},
+       .localDistYZ{},
+       .globalDistRPhi{},
+       .globalDistEtaPhi{},
+       .dimScaledLocalDistXY{},
+       .splitCluster                  = false,
+       .minClusterHitEdep             = 5.0 * dd4hep::MeV,
+       .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
+       .transverseEnergyProfileMetric = "globalDistEtaPhi",
+       .transverseEnergyProfileScale  = 1.,
+       .transverseEnergyProfileScaleUnits{}},
       app // TODO: Remove me once fixed
       ));
 

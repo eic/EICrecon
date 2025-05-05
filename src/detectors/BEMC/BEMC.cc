@@ -82,11 +82,22 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
       {
-          .sectorDist           = 50. * dd4hep::mm,
-          .localDistXZ          = {80 * dd4hep::mm, 80 * dd4hep::mm},
+          .adjacencyMatrix{},
+          .peakNeighbourhoodMatrix{},
+          .readout{},
+          .sectorDist = 50. * dd4hep::mm,
+          .localDistXY{},
+          .localDistXZ = {80 * dd4hep::mm, 80 * dd4hep::mm},
+          .localDistYZ{},
+          .globalDistRPhi{},
+          .globalDistEtaPhi{},
+          .dimScaledLocalDistXY{},
           .splitCluster         = false,
           .minClusterHitEdep    = 5.0 * dd4hep::MeV,
           .minClusterCenterEdep = 100.0 * dd4hep::MeV,
+          .transverseEnergyProfileMetric{},
+          .transverseEnergyProfileScale{},
+          .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
       ));
