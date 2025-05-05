@@ -37,10 +37,6 @@
 #include "services/geometry/richgeo/RichGeo.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
 
-// Configurations in plugins may omit config field initializers
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
@@ -206,5 +202,3 @@ void InitPlugin(JApplication* app) {
       pid_cfg, app));
 }
 }
-
-#pragma GCC diagnostic pop

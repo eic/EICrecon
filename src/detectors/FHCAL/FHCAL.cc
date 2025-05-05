@@ -28,10 +28,6 @@
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
-// Configurations in plugins may omit config field initializers
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-
 extern "C" {
 void InitPlugin(JApplication* app) {
 
@@ -361,5 +357,3 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = true}, app));
 }
 }
-
-#pragma GCC diagnostic pop

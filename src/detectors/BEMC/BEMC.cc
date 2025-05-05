@@ -21,10 +21,6 @@
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 
-// Configurations in plugins may omit config field initializers
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wmissing-field-initializers"
-
 extern "C" {
 void InitPlugin(JApplication* app) {
 
@@ -217,5 +213,3 @@ void InitPlugin(JApplication* app) {
       ));
 }
 }
-
-#pragma GCC diagnostic pop
