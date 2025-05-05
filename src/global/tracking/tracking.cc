@@ -368,7 +368,8 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("B0TrackerCKFTracks",
+  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+    "B0TrackerCKFTracks",
                                                             {
                                                                 "B0TrackerMeasurements",
                                                                 "B0TrackerCKFActsTrajectories",
