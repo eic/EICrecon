@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithms/logger.h>
 #include <spdlog/spdlog.h>
 
 namespace eicrecon {
@@ -20,15 +21,17 @@ public:
   //
   /////////////////////////////////////////////////////
 
-  // print all parameters
-  void Print(std::shared_ptr<spdlog::logger> m_log,
-             spdlog::level::level_enum lvl = spdlog::level::debug) {
-    m_log->log(lvl, "{:=^60}", " MergeParticleIDConfig Settings ");
-    auto print_param = [&m_log, &lvl](auto name, auto val) {
-      m_log->log(lvl, "  {:>20} = {:<}", name, val);
+  // stream all parameters
+  friend std::ostream& operator<<(std::ostream& os, const MergeParticleIDConfig& cfg) {
+    // print all parameters
+    os << fmt::format("{:=^60}", " MergeParticleIDConfig Settings ") << std::endl;
+    auto print_param = [&os](auto name, auto val) {
+      os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
     };
-    print_param("mergeMode", mergeMode);
-    m_log->log(lvl, "{:=^60}", "");
+    print_param("mergeMode", cfg.mergeMode);
+    os << fmt::format("{:=^60}", "") << std::endl;
+    return os;
   }
 };
+
 } // namespace eicrecon
