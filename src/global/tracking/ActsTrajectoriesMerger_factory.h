@@ -23,9 +23,9 @@ private:
 public:
   void Configure() {}
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     for (auto traj : m_acts_trajectories1_input()) {
       ActsExamples::Trajectories::IndexedParameters trackParameters;
       for (auto tip : traj->tips()) {
