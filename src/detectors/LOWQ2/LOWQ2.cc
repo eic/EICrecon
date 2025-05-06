@@ -162,12 +162,12 @@ void InitPlugin(JApplication* app) {
   }
 
   // Combine the tracks from each module into one collection
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
       "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}, app));
 
   // Combine the associations from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
       "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
       {"TaggerTrackerLocalTrackAssociations"}, app));
 
