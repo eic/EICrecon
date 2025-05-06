@@ -73,8 +73,6 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
   for (const auto& calibrated_hit : *calibrated_hits) {
 
     auto id = calibrated_hit.getCellID();
-    // Get position and dimension
-    auto pos = m_converter->position(id);
     // Get sensors info
     auto sensorID = this->getSensorInfos(id);
     hitsBySensors[sensorID].emplace_back(calibrated_hit);
@@ -84,7 +82,7 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
     auto cluster = clusters->create();
     // Right now the clustering algorithm a simple average over all hits in a sensors
     // Will be problematic near the edges, but it's just an illustration
-    float ave_x = 0, ave_y = 0, ave_z = 0;
+    float ave_x = 0, ave_y = 0;
     double tot_charge = 0;
     const auto& hits  = sensor.second;
     if (hits.size() == 0)
