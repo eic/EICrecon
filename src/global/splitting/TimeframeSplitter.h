@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <JANA/Utils/JEventLevel.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include "services/io/podio/datamodel_glue.h"
 #include <JANA/JEventUnfolder.h>
 
 struct TimeframeSplitter : public JEventUnfolder {
@@ -12,10 +15,34 @@ struct TimeframeSplitter : public JEventUnfolder {
     // PodioOutput<ExampleCluster> m_event_clusters_out {this, "evt_protoclusters"};
     // PodioOutput<EventInfo> m_event_info_out {this, "evt_info"};
 
+    VariadicPodioInput<edm4hep::SimTrackerHit> m_simtrackerhits_in {this, {.names={
+                "MPGDBarrelHits",
+                "SiBarrelHits",
+                "TOFEndcapHits"
+            },
+            .is_optional=true}};
+
+    VariadicPodioOutput<edm4hep::SimTrackerHit> m_simtrackerhits_out {this, {
+                "MPGDBarrelHits",
+                "SiBarrelHits",
+                "TOFEndcapHits"
+            }};
+
+
     TimeframeSplitter() {
         SetTypeName(NAME_OF_THIS);
         SetParentLevel(JEventLevel::Timeslice);
         SetChildLevel(JEventLevel::PhysicsEvent);
+
+        for (size_t coll_index=0; coll_index < m_simtrackerhits_in().size(); ++ coll_index) {
+
+            const auto* coll_in = m_simtrackerhits_in().at(coll_index);
+            auto& coll_out = m_simtrackerhits_out().at(coll_index);
+            coll_out->setSubsetCollection(true);
+            for (const auto& hit : *coll_in) {
+                coll_out->push_back(hit);
+            }
+        }
     }
 
 
