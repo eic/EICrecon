@@ -185,6 +185,5 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
       {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
-
 }
 }
