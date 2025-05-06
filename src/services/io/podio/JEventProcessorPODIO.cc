@@ -151,8 +151,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "TaggerTrackerM2LocalTrackAssociations",
     "TaggerTrackerLocalTracks",
     "TaggerTrackerLocalTrackAssociations",
-    "TaggerTrackerM1Tracks",
-    "TaggerTrackerM2Tracks",
     "TaggerTrackerProjectedTracks",
     "TaggerTrackerTracks",
     "TaggerTrackerTrajectories",
