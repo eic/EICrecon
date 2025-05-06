@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2024, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
+// Copyright (C) 2022 - 2025, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -11,8 +11,6 @@
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <fmt/core.h>
-#include <algorithm>
-#include <gsl/pointers>
 #include <map>
 #include <memory>
 #include <string>
@@ -61,52 +59,26 @@ void InitPlugin(JApplication* app) {
 
   // CENTRAL TRACKER
 
-  // Possible collections from arches, brycecanyon and craterlake configurations
-  std::vector<std::tuple<std::string, std::string, std::string, std::string>> possible_collections =
-      {
-          {"SiBarrelHits", "SiBarrelRawHits", "SiBarrelRawHitAssociations",
-           "SiBarrelTrackerRecHits"},
-          {"VertexBarrelHits", "SiBarrelVertexRawHits", "SiBarrelVertexRawHitAssociations",
-           "SiBarrelVertexRecHits"},
-          {"TrackerEndcapHits", "SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitAssociations",
-           "SiEndcapTrackerRecHits"},
-          {"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelRecHits"},
-          {"TOFEndcapHits", "TOFEndcapRawHits", "TOFEndcapRawHitAssociations", "TOFEndcapRecHits"},
-          {"MPGDBarrelHits", "MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations",
-           "MPGDBarrelRecHits"},
-          {"OuterMPGDBarrelHits", "OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations",
-           "OuterMPGDBarrelRecHits"},
-          {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRawHits",
-           "BackwardMPGDEndcapRawHitAssociations", "BackwardMPGDEndcapRecHits"},
-          {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRawHits",
-           "ForwardMPGDEndcapRawHitAssociations", "ForwardMPGDEndcapRecHits"},
-      };
-
-  // Filter out collections that are not present in the current configuration
-  std::vector<std::string> input_rec_collections;
-  std::vector<std::string> input_raw_assoc_collections;
-  auto readouts = app->GetService<DD4hep_service>()->detector()->readouts();
-  for (const auto& [hit_collection, raw_collection, raw_assoc_collection, rec_collection] :
-       possible_collections) {
-    if (readouts.find(hit_collection) != readouts.end()) {
-      // Add the collection to the list of input collections
-      input_rec_collections.push_back(rec_collection);
-      input_raw_assoc_collections.push_back(raw_assoc_collection);
-    }
-  }
-
   // Tracker hits collector
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
-      "CentralTrackingRecHits", input_rec_collections,
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
+      "CentralTrackingRecHits",
+      {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
+       "TOFBarrelRecHits", "TOFEndcapRecHits", "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
+       "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"},
       {"CentralTrackingRecHits"}, // Output collection name
       app));
 
   // Tracker hit associations collector
-  app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation>>(
-          "CentralTrackingRawHitAssociations", input_raw_assoc_collections,
-          {"CentralTrackingRawHitAssociations"}, // Output collection name
-          app));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation, true>>(
+      "CentralTrackingRawHitAssociations",
+      {"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
+       "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
+       "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
+       "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
+       "ForwardMPGDEndcapRawHitAssociations", "B0TrackerRawHitAssociations"},
+      {"CentralTrackingRawHitAssociations"}, // Output collection name
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
       "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
@@ -384,48 +356,24 @@ void InitPlugin(JApplication* app) {
 
   // COMBINED TRACKS
 
-  std::vector<std::string> input_track_collections, input_track_assoc_collections;
-  std::vector<std::string> input_truth_track_collections, input_truth_track_assoc_collections;
-
-  // Check size of input_rec_collections to determine if CentralCKFTracks should be added to the
-  // input_track_collections
-
-  if (input_rec_collections.size() > 0) {
-    input_track_collections.push_back("CentralCKFTracks");
-    input_track_assoc_collections.push_back("CentralCKFTrackAssociations");
-    input_truth_track_collections.push_back("CentralCKFTruthSeededTracks");
-    input_truth_track_assoc_collections.push_back("CentralCKFTruthSeededTrackAssociations");
-  }
-
-  // Check if the B0Tracker readout is present in the current configuration
-  if (readouts.find("B0TrackerHits") != readouts.end()) {
-    input_track_collections.push_back("B0TrackerCKFTracks");
-    input_track_assoc_collections.push_back("B0TrackerCKFTrackAssociations");
-    input_truth_track_collections.push_back("B0TrackerCKFTruthSeededTracks");
-    input_truth_track_assoc_collections.push_back("B0TrackerCKFTruthSeededTrackAssociations");
-  }
-
-  // Check if the TaggerTracker readout is present in the current configuration
-  if (readouts.find("TaggerTrackerHits") != readouts.end()) {
-    input_track_collections.push_back("TaggerTrackerTracks");
-    input_track_assoc_collections.push_back("TaggerTrackerTrackAssociations");
-    input_truth_track_collections.push_back("TaggerTrackerTracks");
-    input_truth_track_assoc_collections.push_back("TaggerTrackerTrackAssociations");
-  }
-
   // Add Low-Q2, central and B0 tracks
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
-      "CombinedTracks", input_track_collections, {"CombinedTracks"}, app));
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
+      "CombinedTracks", {"CentralCKFTracks", "B0TrackerRecHits", "TaggerTrackerTracks"}, {"CombinedTracks"}, app));
+
   app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
-      "CombinedTrackAssociations", input_track_assoc_collections, {"CombinedTrackAssociations"},
-      app));
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
-      "CombinedTruthSeededTracks", input_truth_track_collections, {"CombinedTruthSeededTracks"},
-      app));
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
+      "CombinedTrackAssociations",
+      {"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations", "TaggerTrackerTrackAssociations"},
+      {"CombinedTrackAssociations"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
+      "CombinedTruthSeededTracks", {"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks", "TaggerTrackerTracks"},
+      {"CombinedTruthSeededTracks"}, app));
+
   app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
-      "CombinedTruthSeededTrackAssociations", input_truth_track_assoc_collections,
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
+      "CombinedTruthSeededTrackAssociations",
+      {"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations", "TaggerTrackerTrackAssociations"},
       {"CombinedTruthSeededTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
@@ -438,13 +386,6 @@ void InitPlugin(JApplication* app) {
        "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations"},
       {}, app));
 
-  // Add central, B0, and tagger tracks
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track>>(
-      "CombinedTracks", input_track_collections, {"CombinedTracks"}, app));
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation>>(
-      "CombinedTrackAssociations", input_track_assoc_collections, {"CombinedTrackAssociations"},
-      app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedParticlesWithAssociations",

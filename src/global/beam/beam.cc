@@ -40,7 +40,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   // Combine beam protons and neutrons into beam hadrons
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle>>(
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>(
       "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}, app));
 }
 }
