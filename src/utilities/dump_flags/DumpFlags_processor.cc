@@ -112,7 +112,7 @@ void DumpFlags_processor::Finish() {
       std::ofstream ofs(m_python_file_name);
       ofs << python_content;
       m_log->info("Created python file with flags: '{}'", m_python_file_name);
-    } catch (std::exception ex) {
+    } catch (std::exception& ex) {
       m_log->error("Can't open file '{}' for write", m_python_file_name); // TODO personal logger
       throw JException(ex.what());
     }
@@ -126,7 +126,7 @@ void DumpFlags_processor::Finish() {
       m_log->info("Created json file with flags: '{}'", m_json_file_name);
       m_log->info("Json records format is: [name, value, default-value, comment]",
                   m_json_file_name);
-    } catch (std::exception ex) {
+    } catch (std::exception& ex) {
       m_log->error("Can't open file '{}' for write", m_json_file_name); // TODO personal logger
       throw JException(ex.what());
     }
@@ -136,7 +136,7 @@ void DumpFlags_processor::Finish() {
   if (!m_janaconfig_file_name.empty()) {
     try {
       pm->WriteConfigFile(m_janaconfig_file_name);
-    } catch (std::exception ex) {
+    } catch (std::exception& ex) {
       m_log->error("Can't open file '{}' for write",
                    m_janaconfig_file_name); // TODO personal logger
       throw JException(ex.what());

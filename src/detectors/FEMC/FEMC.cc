@@ -78,15 +78,22 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalEndcapPIslandProtoClusters", {"EcalEndcapPRecHits"}, {"EcalEndcapPIslandProtoClusters"},
-      {
-          .sectorDist                    = 5.0 * dd4hep::cm,
-          .dimScaledLocalDistXY          = {1.5, 1.5},
-          .splitCluster                  = false,
-          .minClusterHitEdep             = 0.0 * dd4hep::MeV,
-          .minClusterCenterEdep          = 60.0 * dd4hep::MeV,
-          .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
-          .transverseEnergyProfileScale  = 1.,
-      },
+      {.adjacencyMatrix{},
+       .peakNeighbourhoodMatrix{},
+       .readout{},
+       .sectorDist = 5.0 * dd4hep::cm,
+       .localDistXY{},
+       .localDistXZ{},
+       .localDistYZ{},
+       .globalDistRPhi{},
+       .globalDistEtaPhi{},
+       .dimScaledLocalDistXY          = {1.5, 1.5},
+       .splitCluster                  = false,
+       .minClusterHitEdep             = 0.0 * dd4hep::MeV,
+       .minClusterCenterEdep          = 60.0 * dd4hep::MeV,
+       .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
+       .transverseEnergyProfileScale  = 1.,
+       .transverseEnergyProfileScaleUnits{}},
       app // TODO: Remove me once fixed
       ));
 
@@ -229,13 +236,22 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPInsertIslandProtoClusters", {"EcalEndcapPInsertRecHits"},
       {"EcalEndcapPInsertIslandProtoClusters"},
       {
-          .sectorDist                    = 5.0 * dd4hep::cm,
+          .adjacencyMatrix{},
+          .peakNeighbourhoodMatrix{},
+          .readout{},
+          .sectorDist = 5.0 * dd4hep::cm,
+          .localDistXY{},
+          .localDistXZ{},
+          .localDistYZ{},
+          .globalDistRPhi{},
+          .globalDistEtaPhi{},
           .dimScaledLocalDistXY          = {1.5, 1.5},
           .splitCluster                  = false,
           .minClusterHitEdep             = 0.0 * dd4hep::MeV,
           .minClusterCenterEdep          = 60.0 * dd4hep::MeV,
           .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
           .transverseEnergyProfileScale  = 1.,
+          .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
       ));

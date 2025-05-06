@@ -70,11 +70,24 @@ jobs:
         CXX: [g++, clang++]
         CMAKE_BUILD_TYPE: [Release, Debug]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
+        # note that entries that overwrite matrix values require a full specification
+        # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#expanding-or-adding-matrix-configurations
+        exclude:
+          # exclude clang++ Debug with default CXXFLAGS
+          - CXX: clang++
+            CMAKE_BUILD_TYPE: Debug
+            release: nightly
         include:
-          # all clang debug jobs get extra flags
+          - CXX: g++
+            # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
+            CXXFLAGS: -Werror -Wall -Wextra -Wno-error=maybe-uninitialized
+          - CXX: clang++
+            CXXFLAGS: -Werror -Wall -Wextra
+          # include clang++ Debug with profile CXXFLAGS
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
+            release: nightly
           # include some configs explicitly (if not yet included)
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
