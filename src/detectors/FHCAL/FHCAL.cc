@@ -258,14 +258,22 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "LFHCALIslandProtoClusters", {"LFHCALRecHits"}, {"LFHCALIslandProtoClusters"},
       {
-          .adjacencyMatrix               = Form("%s||%s", neighbor.data(), corner2D.data()),
-          .readout                       = "LFHCALHits",
-          .sectorDist                    = 0 * dd4hep::cm,
+          .adjacencyMatrix = Form("%s||%s", neighbor.data(), corner2D.data()),
+          .peakNeighbourhoodMatrix{},
+          .readout    = "LFHCALHits",
+          .sectorDist = 0 * dd4hep::cm,
+          .localDistXY{},
+          .localDistXZ{},
+          .localDistYZ{},
+          .globalDistRPhi{},
+          .globalDistEtaPhi{},
+          .dimScaledLocalDistXY{},
           .splitCluster                  = false,
           .minClusterHitEdep             = 1 * dd4hep::MeV,
           .minClusterCenterEdep          = 100.0 * dd4hep::MeV,
           .transverseEnergyProfileMetric = "globalDistEtaPhi",
           .transverseEnergyProfileScale  = 1.,
+          .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
       ));

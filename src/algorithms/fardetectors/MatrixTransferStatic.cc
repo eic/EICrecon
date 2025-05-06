@@ -39,10 +39,10 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
   double aYinv[2][2] = {{0.0, 0.0}, {0.0, 0.0}};
 
   double nomMomentum;
-  double local_x_offset;
-  double local_y_offset;
-  double local_x_slope_offset;
-  double local_y_slope_offset;
+  double local_x_offset{0.0};
+  double local_y_offset{0.0};
+  double local_x_slope_offset{0.0};
+  double local_y_slope_offset{0.0};
 
   double numBeamProtons  = 0;
   double runningMomentum = 0.0;

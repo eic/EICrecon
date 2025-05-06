@@ -43,6 +43,7 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapNRawHits"},
 #endif
       {
+          .eRes{},
           .tRes          = 0.0 * dd4hep::ns,
           .capADC        = HcalEndcapN_capADC,
           .capTime       = 100, // given in ns, 4 samples in HGCROC
@@ -86,13 +87,22 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapNIslandProtoClusters", {"HcalEndcapNMergedHits"},
       {"HcalEndcapNIslandProtoClusters"},
       {
-          .sectorDist                    = 5.0 * dd4hep::cm,
-          .localDistXY                   = {15 * dd4hep::cm, 15 * dd4hep::cm},
+          .adjacencyMatrix{},
+          .peakNeighbourhoodMatrix{},
+          .readout{},
+          .sectorDist  = 5.0 * dd4hep::cm,
+          .localDistXY = {15 * dd4hep::cm, 15 * dd4hep::cm},
+          .localDistXZ{},
+          .localDistYZ{},
+          .globalDistRPhi{},
+          .globalDistEtaPhi{},
+          .dimScaledLocalDistXY{},
           .splitCluster                  = true,
           .minClusterHitEdep             = 0.0 * dd4hep::MeV,
           .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
           .transverseEnergyProfileMetric = "globalDistEtaPhi",
           .transverseEnergyProfileScale  = 1.,
+          .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
       ));

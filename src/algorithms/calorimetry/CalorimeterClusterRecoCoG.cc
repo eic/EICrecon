@@ -178,7 +178,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
             (overflow ? "overflow" : "underflow"));
     }
   }
-  return std::move(cl);
+  return cl;
 }
 
 void CalorimeterClusterRecoCoG::associate(

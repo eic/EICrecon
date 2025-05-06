@@ -124,9 +124,8 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
     float p            = m_cfg.noiseRate * m_cfg.noiseTimeWindow;
     auto cellID_action = [this, &hit_groups](auto id) {
       // cell time, signal amplitude
-      double amp                      = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
-      TimeType time                   = m_cfg.noiseTimeWindow * m_rngUni() / dd4hep::ns;
-      dd4hep::Position pos_hit_global = m_converter->position(id);
+      double amp    = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
+      TimeType time = m_cfg.noiseTimeWindow * m_rngUni() / dd4hep::ns;
 
       // insert in `hit_groups`, or if the pixel already has a hit, update `npe` and `signal`
       this->InsertHit(hit_groups, id, amp, time,
