@@ -150,14 +150,12 @@ public:
 
   template <typename T> class Output : public OutputBase {
     std::vector<T*> m_data;
-    bool m_owns_data;
 
   public:
-    Output(JOmniFactory* owner, std::string default_tag_name = "", bool owns_data = true) {
+    Output(JOmniFactory* owner, std::string default_tag_name = "") {
       owner->RegisterOutput(this);
       this->collection_names.push_back(default_tag_name);
-      this->type_name   = JTypeInfo::demangle<T>();
-      this->m_owns_data = owns_data;
+      this->type_name = JTypeInfo::demangle<T>();
     }
 
     std::vector<T*>& operator()() { return m_data; }
@@ -166,7 +164,7 @@ public:
     friend class JOmniFactory;
 
     void CreateHelperFactory(JOmniFactory& fac) override {
-      fac.DeclareOutput<T>(this->collection_names[0], this->m_owns_data);
+      fac.DeclareOutput<T>(this->collection_names[0]);
     }
 
     void SetCollection(JOmniFactory& fac) override {
