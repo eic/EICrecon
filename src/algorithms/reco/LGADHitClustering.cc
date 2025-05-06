@@ -100,7 +100,6 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
         error("Edep for hit at cellID{} is negative. Abort!.", hit.getCellID());
       ave_x += hit.getEdep() * pos.x();
       ave_y += hit.getEdep() * pos.y();
-      ave_z += hit.getEdep() * pos.z();
 
       tot_charge += hit.getEdep();
       if (hit.getEdep() > max_charge) {
@@ -115,7 +114,6 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
     weights /= tot_charge;
     ave_x /= tot_charge;
     ave_y /= tot_charge;
-    ave_z /= tot_charge;
 
     for (const auto& w : weights)
       cluster.addToWeights(w);
