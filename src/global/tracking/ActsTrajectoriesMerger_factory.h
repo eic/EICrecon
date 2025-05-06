@@ -18,7 +18,7 @@ class ActsTrajectoriesMerger_factory : public JOmniFactory<ActsTrajectoriesMerge
 private:
   Input<ActsExamples::Trajectories> m_acts_trajectories1_input{this};
   Input<ActsExamples::Trajectories> m_acts_trajectories2_input{this};
-  Output<ActsExamples::Trajectories> m_acts_trajectories_output{this, "", /* owns_data = */ false};
+  Output<ActsExamples::Trajectories> m_acts_trajectories_output{this};
 
 public:
   void Configure() {}
