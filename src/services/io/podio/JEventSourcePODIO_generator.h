@@ -8,7 +8,7 @@ class JEventSourcePODIO_generator : public JEventSourceGenerator {
 
     JEventSource* MakeJEventSource(std::string resource_name) override {
 
-        auto* source = new JEventSourcePODIO(resource_name, nullptr);
+        auto* source = new JEventSourcePODIO();
         source->SetResourceName(resource_name);
 
         // Check if the string "timeslices" appears anywhere in our filename.
