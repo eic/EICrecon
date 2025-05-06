@@ -76,7 +76,7 @@ void InitPlugin(JApplication* app) {
        "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
        "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
        "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
-       "ForwardMPGDEndcapRawHitAssociations", "B0TrackerRawHitAssociations"},
+       "ForwardMPGDEndcapRawHitAssociations"},
       {"CentralTrackingRawHitAssociations"}, // Output collection name
       app));
 
@@ -358,7 +358,7 @@ void InitPlugin(JApplication* app) {
 
   // Add Low-Q2, central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "CombinedTracks", {"CentralCKFTracks", "B0TrackerRecHits", "TaggerTrackerTracks"},
+      "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks", "TaggerTrackerTracks"},
       {"CombinedTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
