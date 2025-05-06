@@ -26,7 +26,7 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    for (auto traj : m_acts_trajectories1_input()) {
+    for (const auto& traj : m_acts_trajectories1_input()) {
       ActsExamples::Trajectories::IndexedParameters trackParameters;
       for (auto tip : traj->tips()) {
         trackParameters.insert({tip, traj->trackParameters(tip)});
@@ -34,7 +34,7 @@ public:
       m_acts_trajectories_output().push_back(
           new ActsExamples::Trajectories(traj->multiTrajectory(), traj->tips(), trackParameters));
     }
-    for (auto traj : m_acts_trajectories2_input()) {
+    for (const auto& traj : m_acts_trajectories2_input()) {
       ActsExamples::Trajectories::IndexedParameters trackParameters;
       for (auto tip : traj->tips()) {
         trackParameters.insert({tip, traj->trackParameters(tip)});
