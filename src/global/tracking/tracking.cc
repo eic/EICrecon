@@ -358,22 +358,26 @@ void InitPlugin(JApplication* app) {
 
   // Add Low-Q2, central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "CombinedTracks", {"CentralCKFTracks", "B0TrackerRecHits", "TaggerTrackerTracks"}, {"CombinedTracks"}, app));
+      "CombinedTracks", {"CentralCKFTracks", "B0TrackerRecHits", "TaggerTrackerTracks"},
+      {"CombinedTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
       "CombinedTrackAssociations",
-      {"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations", "TaggerTrackerTrackAssociations"},
+      {"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations",
+       "TaggerTrackerTrackAssociations"},
       {"CombinedTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "CombinedTruthSeededTracks", {"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks", "TaggerTrackerTracks"},
+      "CombinedTruthSeededTracks",
+      {"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks", "TaggerTrackerTracks"},
       {"CombinedTruthSeededTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
       "CombinedTruthSeededTrackAssociations",
-      {"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations", "TaggerTrackerTrackAssociations"},
+      {"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations",
+       "TaggerTrackerTrackAssociations"},
       {"CombinedTruthSeededTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
@@ -385,7 +389,6 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedTruthSeededChargedWithoutPIDParticles",
        "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations"},
       {}, app));
-
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedParticlesWithAssociations",
