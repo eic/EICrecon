@@ -3,7 +3,16 @@
 
 #include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
 
-#include "algorithms/interfaces/WithPodConfig.h"
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <math.h>
+#include <podio/ObjectID.h>
+#include <cstddef>
+#include <gsl/pointers>
+#include <limits>
+#include <vector>
+
 #include "algorithms/calorimetry/EnergyPositionClusterMergerConfig.h"
 
 namespace eicrecon {
