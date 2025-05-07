@@ -3,19 +3,13 @@
 
 #pragma once
 
-#include <limits>
-
-#include <spdlog/spdlog.h>
-
-// Event Model related classes
-#include <DD4hep/DD4hepUnits.h>
+#include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4hep/utils/vector_utils.h>
-#include <algorithms/algorithm.h>
-
-#include "algorithms/interfaces/WithPodConfig.h"
+#include <map>
+#include <string>
+#include <string_view>
 
 namespace eicrecon {
 

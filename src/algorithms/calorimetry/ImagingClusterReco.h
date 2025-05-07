@@ -10,16 +10,8 @@
 
 #pragma once
 
-#include <Eigen/Dense>
-#include <algorithm>
-
 #include <algorithms/algorithm.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/Surface.h>
-#include <DDRec/SurfaceManager.h>
-
-#include "algorithms/calorimetry/ClusterTypes.h"
-
+#include <edm4hep/CaloHitContribution.h>
 // Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -28,14 +20,17 @@
 #else
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #endif
-#include <edm4hep/utils/vector_utils.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
+#include <string>
+#include <string_view>
+#include <utility>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "ImagingClusterRecoConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

@@ -21,7 +21,16 @@
 
 #include "algorithms/calorimetry/ImagingTopoCluster.h"
 
-#include "algorithms/interfaces/WithPodConfig.h"
+#include <Evaluator/DD4hepUnits.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <algorithm>
+#include <cmath>
+#include <cstdlib>
+#include <gsl/pointers>
+#include <vector>
+
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 
 namespace eicrecon {

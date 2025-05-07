@@ -10,8 +10,24 @@
 
 #include "algorithms/calorimetry/ImagingClusterReco.h"
 
+#include <Evaluator/DD4hepUnits.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <Eigen/Core>
+#include <Eigen/Householder>
+#include <Eigen/Jacobi>
+#include <Eigen/QR>
+#include <Eigen/SVD>
+#include <algorithm>
+#include <cmath>
+#include <gsl/pointers>
+#include <map>
+
+#include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingClusterRecoConfig.h"
-#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

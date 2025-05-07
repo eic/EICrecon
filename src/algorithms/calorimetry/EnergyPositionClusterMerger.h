@@ -3,17 +3,14 @@
 
 #pragma once
 
-#include <limits>
-
 #include <algorithms/algorithm.h>
-#include <fmt/format.h>
-#include <spdlog/spdlog.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4hep/utils/vector_utils.h>
+#include <string>
+#include <string_view>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "EnergyPositionClusterMergerConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

@@ -20,24 +20,19 @@
  */
 #pragma once
 
-#include <algorithm>
-#include <numeric>
-
 #include <algorithms/algorithm.h>
-#include <DD4hep/BitFieldCoder.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDRec/Surface.h>
-#include <DDRec/SurfaceManager.h>
-
-#include <spdlog/spdlog.h>
-
 // Event Model related classes
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/utils/vector_utils.h>
+#include <array>
+#include <cstddef>
+#include <list>
+#include <set>
+#include <string>
+#include <string_view>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "ImagingTopoClusterConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
