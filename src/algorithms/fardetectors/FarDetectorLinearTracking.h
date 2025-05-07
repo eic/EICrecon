@@ -3,23 +3,38 @@
 
 #pragma once
 
-#include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/interfaces/WithPodConfig.h>
-#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/Measurement2DCollection.h>
-#include <edm4eic/TrackCollection.h>
-#include <edm4hep/MCParticle.h>
 #include <Eigen/Core>
 #include <cstddef>
-#include <gsl/pointers>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include "FarDetectorLinearTrackingConfig.h"
+
+namespace dd4hep::rec {
+class CellIDPositionConverter;
+}
+namespace edm4eic {
+class MCRecoTrackParticleAssociationCollection;
+}
+namespace edm4eic {
+class MCRecoTrackerHitAssociationCollection;
+}
+namespace edm4eic {
+class Measurement2DCollection;
+}
+namespace edm4eic {
+class TrackCollection;
+}
+namespace edm4hep {
+class MCParticle;
+}
+namespace gsl {
+template <class T> class not_null;
+}
 
 namespace eicrecon {
 

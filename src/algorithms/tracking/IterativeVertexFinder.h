@@ -6,17 +6,28 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <edm4eic/VertexCollection.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <vector>
 
-#include "ActsExamples/EventData/Trajectories.hpp"
-#include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "IterativeVertexFinderConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+class ActsGeometryProvider;
+namespace ActsExamples {
+struct Trajectories;
+}
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
+namespace edm4eic {
+class VertexCollection;
+}
+namespace eicrecon::BField {
+class DD4hepBField;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace eicrecon {
 class IterativeVertexFinder

@@ -8,6 +8,7 @@
 #include "CalorimeterHitReco.h"
 
 #include <DD4hep/Alignments.h>
+#include <DD4hep/Detector.h>
 #include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
@@ -18,6 +19,7 @@
 #include <DD4hep/Volumes.h>
 #include <DD4hep/config.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
+#include <DDRec/CellIDPositionConverter.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
@@ -25,7 +27,9 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
+#include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>

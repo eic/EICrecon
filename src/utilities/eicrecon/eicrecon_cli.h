@@ -4,10 +4,11 @@
 
 #pragma once
 
-#include <JANA/JApplication.h>
 #include <map>
 #include <string>
 #include <vector>
+
+class JApplication;
 
 #ifdef alignas
 // FIXME may be removed when minimum version in CMakeLists.txt includes the PR below

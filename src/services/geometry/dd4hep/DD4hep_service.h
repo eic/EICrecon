@@ -6,15 +6,18 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <JANA/JApplication.h>
 #include <JANA/JServiceFwd.h>
-#include <JANA/Services/JServiceLocator.h>
-#include <spdlog/logger.h>
 #include <gsl/pointers>
 #include <memory>
 #include <mutex>
 #include <string>
 #include <vector>
+
+class JApplication;
+class JServiceLocator;
+namespace spdlog {
+class logger;
+}
 
 class DD4hep_service : public JService {
 public:

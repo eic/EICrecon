@@ -6,6 +6,7 @@
 
 // for error handling
 #include <JANA/JException.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h> // IWYU pragma: keep
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>

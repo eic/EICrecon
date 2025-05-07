@@ -3,32 +3,47 @@
 
 #pragma once
 
-#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/TrackFinding/MeasurementSelector.hpp>
 #include <Acts/Utilities/CalibrationContext.hpp>
-#include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
-#include <edm4eic/Measurement2DCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <tuple>
 #include <vector>
 
 #include "CKFTrackingConfig.h"
-#include "DD4hepBField.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 class ActsGeometryProvider;
+namespace ActsExamples {
+struct Trajectories;
+}
+namespace Acts {
+class Logger;
+}
+namespace Acts {
+class MagneticFieldProvider;
+}
+namespace Acts {
+class TrackingGeometry;
+}
+namespace edm4eic {
+class Measurement2DCollection;
+}
+namespace edm4eic {
+class TrackParametersCollection;
+}
+namespace eicrecon::BField {
+class DD4hepBField;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace eicrecon {
 

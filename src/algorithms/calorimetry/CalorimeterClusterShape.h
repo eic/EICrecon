@@ -4,8 +4,6 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -16,6 +14,13 @@
 
 #include "CalorimeterClusterShapeConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class ClusterCollection;
+}
+namespace edm4eic {
+class MCRecoClusterParticleAssociationCollection;
+}
 
 namespace eicrecon {
 

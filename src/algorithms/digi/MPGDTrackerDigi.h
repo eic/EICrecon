@@ -3,19 +3,28 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <DD4hep/Segmentations.h>
 #include <TRandomGen.h>
 #include <algorithms/algorithm.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
 #include <functional>
 #include <string>
 #include <string_view>
 
 #include "MPGDTrackerDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep {
+class Detector;
+}
+namespace edm4eic {
+class MCRecoTrackerHitAssociationCollection;
+}
+namespace edm4eic {
+class RawTrackerHitCollection;
+}
+namespace edm4hep {
+class SimTrackerHitCollection;
+}
 
 namespace eicrecon {
 

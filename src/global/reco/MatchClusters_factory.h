@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <algorithms/logger.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
@@ -16,7 +15,11 @@
 
 #include "algorithms/reco/MatchClusters.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/algorithms_init/AlgorithmsInit_service.h"
+
+class AlgorithmsInit_service;
+namespace algorithms {
+enum class LogLevel : unsigned int;
+}
 
 namespace eicrecon {
 

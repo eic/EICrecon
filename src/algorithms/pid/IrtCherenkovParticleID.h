@@ -3,14 +3,7 @@
 
 #pragma once
 
-#include <IRT/CherenkovDetector.h>
-#include <IRT/CherenkovDetectorCollection.h>
-#include <IRT/CherenkovRadiator.h>
 #include <algorithms/algorithm.h>
-#include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/TrackSegmentCollection.h>
 #include <stdint.h>
 #include <map>
 #include <string>
@@ -21,6 +14,22 @@
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
+
+class CherenkovDetector;
+class CherenkovDetectorCollection;
+class CherenkovRadiator;
+namespace edm4eic {
+class CherenkovParticleIDCollection;
+}
+namespace edm4eic {
+class MCRecoTrackerHitAssociationCollection;
+}
+namespace edm4eic {
+class RawTrackerHitCollection;
+}
+namespace edm4eic {
+class TrackSegmentCollection;
+}
 
 namespace eicrecon {
 

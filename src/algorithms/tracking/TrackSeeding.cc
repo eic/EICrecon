@@ -6,6 +6,8 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/Seed.hpp>
 #else
@@ -32,6 +34,13 @@
 #include <optional>
 #include <tuple>
 #include <type_traits>
+
+#include "ActsGeometryProvider.h"
+#include "DD4hepBField.h"
+
+namespace spdlog {
+class logger;
+}
 
 namespace {
 //! convenience square method

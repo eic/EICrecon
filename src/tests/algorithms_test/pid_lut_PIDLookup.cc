@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023, Dmitry Kalinkin
 
-#include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
@@ -17,6 +16,10 @@
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
+
+namespace algorithms {
+enum class LogLevel : unsigned int;
+}
 
 using eicrecon::PIDLookup;
 using eicrecon::PIDLookupConfig;

@@ -3,12 +3,17 @@
 
 #pragma once
 
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <spdlog/logger.h>
 #include <memory>
 
 #include "ElectronReconstructionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace eicrecon {
 

@@ -9,18 +9,25 @@
 #include <DD4hep/Objects.h>
 #include <DD4hep/VolumeManager.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
-#include <edm4hep/SimTrackerHitCollection.h>
 #include <functional>
 #include <string>
 #include <string_view>
 #include <unordered_set>
 #include <vector>
 
-#include "DD4hep/Detector.h"
 #include "algorithms/digi/LGADChargeSharingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep::DDSegmentation {
+class BitFieldCoder;
+}
+namespace dd4hep {
+class Detector;
+}
+namespace edm4hep {
+class SimTrackerHitCollection;
+}
 
 namespace eicrecon {
 

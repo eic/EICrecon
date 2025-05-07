@@ -4,7 +4,6 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/JetDefinition.hh>
 #include <map>
@@ -15,6 +14,13 @@
 #include "JetReconstructionConfig.h"
 // for algorithm configuration
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class ReconstructedParticle;
+}
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
 
 namespace eicrecon {
 

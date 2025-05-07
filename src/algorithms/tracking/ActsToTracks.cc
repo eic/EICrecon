@@ -6,11 +6,17 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
-#include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/RawTrackerHit.h>
+#include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackerHit.h>
+#include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHit.h>
@@ -30,6 +36,10 @@
 #include <utility>
 
 #include "ActsToTracks.h"
+
+namespace ActsExamples {
+class IndexSourceLink;
+}
 
 namespace eicrecon {
 

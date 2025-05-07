@@ -7,12 +7,15 @@
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
+#include <DD4hep/Volumes.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TGeoMatrix.h>
 #include <algorithms/geo.h>
 #include <algorithms/service.h>
+#include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>

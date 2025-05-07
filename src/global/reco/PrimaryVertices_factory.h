@@ -9,6 +9,8 @@
 #include <utility>
 #include <vector>
 
+#include <edm4eic/VertexCollection.h>
+
 #include "algorithms/reco/PrimaryVertices.h"
 #include "algorithms/reco/PrimaryVerticesConfig.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

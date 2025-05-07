@@ -3,6 +3,7 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <edm4eic/TrackCollection.h>
 #if Acts_VERSION_MAJOR >= 34
 #include <Acts/EventData/TransformationHelpers.hpp>
 #endif
@@ -25,6 +26,7 @@
 #include <gsl/pointers>
 #include <iterator>
 
+#include "ActsGeometryProvider.h"
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep

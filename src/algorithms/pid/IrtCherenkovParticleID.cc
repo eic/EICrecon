@@ -4,16 +4,23 @@
 #include "IrtCherenkovParticleID.h"
 
 #include <IRT/ChargedParticle.h>
+#include <IRT/CherenkovDetector.h>
+#include <IRT/CherenkovDetectorCollection.h>
 #include <IRT/CherenkovPID.h>
+#include <IRT/CherenkovRadiator.h>
 #include <IRT/OpticalPhoton.h>
 #include <IRT/RadiatorHistory.h>
 #include <IRT/SinglePDF.h>
 #include <TString.h>
 #include <TVector3.h>
 #include <algorithms/logger.h>
+#include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>

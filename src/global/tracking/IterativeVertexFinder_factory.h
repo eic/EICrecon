@@ -4,10 +4,11 @@
 
 #pragma once
 
+#include <edm4eic/VertexCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JEvent.h>
-#include <edm4eic/VertexCollection.h>
-#include <edm4eic/ReconstructedParticle.h>
 #include <memory>
 #include <string>
 #include <utility>

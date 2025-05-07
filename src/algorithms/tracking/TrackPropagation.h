@@ -10,8 +10,6 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
-#include <DD4hep/Detector.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -23,8 +21,15 @@
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
+
+class ActsGeometryProvider;
+namespace ActsExamples {
+struct Trajectories;
+}
+namespace dd4hep {
+class Detector;
+}
 
 namespace eicrecon {
 

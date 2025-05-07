@@ -14,19 +14,28 @@
 #if Acts_VERSION_MAJOR >= 37
 #include <ActsExamples/EventData/SpacePointContainer.hpp>
 #endif
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <tuple>
 #include <utility>
 #include <vector>
 
-#include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "OrthogonalTrackSeedingConfig.h"
 #include "SpacePoint.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+class ActsGeometryProvider;
+namespace edm4eic {
+class TrackParametersCollection;
+}
+namespace edm4eic {
+class TrackerHitCollection;
+}
+namespace eicrecon::BField {
+class DD4hepBField;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace eicrecon {
 class TrackSeeding : public eicrecon::WithPodConfig<eicrecon::OrthogonalTrackSeedingConfig> {

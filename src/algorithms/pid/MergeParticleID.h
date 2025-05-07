@@ -7,7 +7,6 @@
 
 // data model
 #include <algorithms/algorithm.h>
-#include <edm4eic/CherenkovParticleIDCollection.h>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -15,6 +14,10 @@
 // EICrecon
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
+
+namespace edm4eic {
+class CherenkovParticleIDCollection;
+}
 
 namespace eicrecon {
 

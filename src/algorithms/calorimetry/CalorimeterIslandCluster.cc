@@ -5,6 +5,7 @@
 //   https://cds.cern.ch/record/687345/files/note01_034.pdf
 //   https://www.jlab.org/primex/weekly_meetings/primexII/slides_2012_01_20/island_algorithm.pdf
 
+#include <DD4hep/Detector.h>
 #include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/service.h>

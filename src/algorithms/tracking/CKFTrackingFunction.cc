@@ -11,8 +11,6 @@
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #endif
 #include <Acts/Geometry/Layer.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
@@ -27,6 +25,13 @@
 
 #include "ActsExamples/EventData/Track.hpp"
 #include "CKFTracking.h"
+
+namespace Acts {
+class MagneticFieldProvider;
+}
+namespace Acts {
+class TrackingGeometry;
+}
 
 namespace eicrecon {
 

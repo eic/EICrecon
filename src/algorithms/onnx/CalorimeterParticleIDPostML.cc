@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Dmitry Kalinkin
 
+#include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/TensorCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
-#include <cstddef>
 #include <fmt/core.h>
+#include <cstddef>
 #include <gsl/pointers>
 #include <stdexcept>
 

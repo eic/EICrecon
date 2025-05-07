@@ -5,6 +5,7 @@
 //
 
 #include <DDRec/CellIDPositionConverter.h>
+#include <edm4hep/RawTimeSeriesCollection.h>
 #include <limits.h>
 #include <podio/RelationRange.h>
 #include <cmath>

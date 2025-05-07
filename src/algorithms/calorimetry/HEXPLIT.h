@@ -9,10 +9,8 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <edm4eic/CalorimeterHitCollection.h>
 #include <gsl/pointers>
 #include <string>      // for basic_string
 #include <string_view> // for string_view
@@ -20,6 +18,13 @@
 
 #include "HEXPLITConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep {
+class Detector;
+}
+namespace edm4eic {
+class CalorimeterHitCollection;
+}
 
 namespace eicrecon {
 

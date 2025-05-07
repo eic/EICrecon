@@ -5,9 +5,6 @@
 
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/TrackClusterMatchCollection.h>
-#include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <cmath>
 #include <string>
@@ -15,6 +12,16 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/TrackClusterMatchConfig.h"
+
+namespace edm4eic {
+class ClusterCollection;
+}
+namespace edm4eic {
+class TrackClusterMatchCollection;
+}
+namespace edm4eic {
+class TrackSegmentCollection;
+}
 
 namespace eicrecon {
 using TrackClusterMatchAlgorithm = algorithms::Algorithm<
