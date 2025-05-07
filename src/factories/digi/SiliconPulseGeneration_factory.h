@@ -4,6 +4,14 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+#include <edm4eic/SimPulseCollection.h>
+#else
+#include <edm4hep/TimeSeriesCollection.h>
+#endif
+#include <edm4hep/SimTrackerHitCollection.h>
+
 #include "extensions/jana/JOmniFactory.h"
 
 #include "algorithms/digi/SiliconPulseGeneration.h"
