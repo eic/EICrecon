@@ -52,11 +52,11 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 
   for (const auto& hit : *simhits) {
 
-    auto cellID     = hit.getCellID();
-    auto edep       = hit.getEDep();
-    auto time       = hit.getTime();
-    auto momentum   = hit.getMomentum();
-    auto hitPos     = global2Local(hit);
+    auto cellID   = hit.getCellID();
+    auto edep     = hit.getEDep();
+    auto time     = hit.getTime();
+    auto momentum = hit.getMomentum();
+    auto hitPos   = global2Local(hit);
 #if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
     auto particle = hit.getParticle();
 #else
