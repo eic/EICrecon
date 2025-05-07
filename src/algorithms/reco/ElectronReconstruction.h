@@ -23,6 +23,5 @@ public:
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
-  double m_electron{0.000510998928};
 };
 } // namespace eicrecon

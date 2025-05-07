@@ -145,7 +145,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
     eicrecon::MergeParticleIDConfig cfg;
     cfg.mergeMode = eicrecon::MergeParticleIDConfig::kAddWeights;
     algo.applyConfig(cfg);
-    algo.init(logger);
+    algo.init();
 
     auto result = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
     algo.process({coll_cherenkov_list}, {result.get()});
@@ -213,7 +213,7 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
     eicrecon::MergeParticleIDConfig cfg;
     cfg.mergeMode = eicrecon::MergeParticleIDConfig::kMultiplyWeights;
     algo.applyConfig(cfg);
-    algo.init(logger);
+    algo.init();
 
     auto result = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
     algo.process({coll_cherenkov_list}, {result.get()});

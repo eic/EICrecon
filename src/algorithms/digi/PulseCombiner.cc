@@ -34,7 +34,6 @@ void PulseCombiner::init() {
     try {
       auto detector      = algorithms::GeoSvc::instance().detector();
       auto id_spec       = detector->readout(m_cfg.readout).idSpec();
-      auto id_dec        = id_spec.decoder();
       m_detector_bitmask = 0;
 
       for (auto& field : id_spec.fields()) {

@@ -20,7 +20,7 @@ public:
   explicit RootFile_service(JApplication* app) : m_app(app) {}
   ~RootFile_service() override { CloseHistFile(); }
 
-  void acquire_services(JServiceLocator* locater) override {
+  void acquire_services(JServiceLocator* /* locayor */) override {
     auto log_service = m_app->GetService<Log_service>();
     m_log            = log_service->logger("RootFile");
   }

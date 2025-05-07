@@ -42,7 +42,7 @@ public:
     virtual void GetCollection(const JEvent& event) = 0;
   };
 
-  template <typename T> class Input : public InputBase {
+  template <typename T, bool IsOptional = false> class Input : public InputBase {
 
     std::vector<const T*> m_data;
 
@@ -58,10 +58,19 @@ public:
   private:
     friend class JOmniFactory;
 
-    void GetCollection(const JEvent& event) { m_data = event.Get<T>(this->collection_names[0]); }
+    void GetCollection(const JEvent& event) {
+      try {
+        m_data = event.Get<T>(this->collection_names[0], !IsOptional);
+      } catch (const JException& e) {
+        if constexpr (!IsOptional) {
+          throw JException("JOmniFactory: Failed to get collection %s: %s",
+                           this->collection_names[0].c_str(), e.what());
+        }
+      }
+    }
   };
 
-  template <typename PodioT> class PodioInput : public InputBase {
+  template <typename PodioT, bool IsOptional = false> class PodioInput : public InputBase {
 
     const typename PodioTypeMap<PodioT>::collection_t* m_data;
 
@@ -78,11 +87,18 @@ public:
     friend class JOmniFactory;
 
     void GetCollection(const JEvent& event) {
-      m_data = event.GetCollection<PodioT>(this->collection_names[0]);
+      try {
+        m_data = event.GetCollection<PodioT>(this->collection_names[0], !IsOptional);
+      } catch (const JException& e) {
+        if constexpr (!IsOptional) {
+          throw JException("JOmniFactory: Failed to get collection %s: %s",
+                           this->collection_names[0].c_str(), e.what());
+        }
+      }
     }
   };
 
-  template <typename PodioT> class VariadicPodioInput : public InputBase {
+  template <typename PodioT, bool IsOptional = false> class VariadicPodioInput : public InputBase {
 
     std::vector<const typename PodioTypeMap<PodioT>::collection_t*> m_data;
 
@@ -104,7 +120,14 @@ public:
     void GetCollection(const JEvent& event) {
       m_data.clear();
       for (auto& coll_name : this->collection_names) {
-        m_data.push_back(event.GetCollection<PodioT>(coll_name));
+        try {
+          m_data.push_back(event.GetCollection<PodioT>(coll_name, !IsOptional));
+        } catch (const JException& e) {
+          if constexpr (!IsOptional) {
+            throw JException("JOmniFactory: Failed to get collection %s: %s", coll_name.c_str(),
+                             e.what());
+          }
+        }
       }
     }
   };
@@ -226,7 +249,7 @@ public:
 
     void Reset() override {
       m_data.clear();
-      for (auto& coll_name : this->collection_names) {
+      for (auto& coll_name [[maybe_unused]] : this->collection_names) {
         m_data.push_back(std::make_unique<typename PodioTypeMap<PodioT>::collection_t>());
       }
     }
@@ -296,7 +319,7 @@ public:
   private:
     friend class JOmniFactory;
 
-    void Configure(JParameterManager& parman, const std::string& prefix) override {
+    void Configure(JParameterManager& parman, const std::string& /* prefix */) override {
       parman.SetDefaultParameter(m_prefix + ":" + this->m_name, m_data, this->m_description);
     }
     void Configure(std::map<std::string, std::string> fields) override {
@@ -515,6 +538,8 @@ public:
     }
     static_cast<AlgoT*>(this)->ChangeRun(event->GetRunNumber());
   }
+
+  virtual void Process(int32_t /* run_number */, uint64_t /* event_number */){};
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
     try {

@@ -121,7 +121,7 @@ void ONNXInference::process(const ONNXInference::Input& input,
   std::vector<float> input_tensor_values;
   std::vector<Ort::Value> input_tensors;
 
-  for (int ix = 0; ix < m_input_names.size(); ix++) {
+  for (std::size_t ix = 0; ix < m_input_names.size(); ix++) {
     edm4eic::Tensor in_tensor = in_tensors[ix]->at(0);
     if (in_tensor.getElementType() == ONNX_TENSOR_ELEMENT_DATA_TYPE_FLOAT) {
       input_tensors.emplace_back(

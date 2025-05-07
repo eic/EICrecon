@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -79,10 +79,12 @@ public:
             "Merges or splits clusters based on tracks projected to them."} {}
 
   // public methods
-  void init(const dd4hep::Detector* detector);
+  void init();
   void process(const Input&, const Output&) const final;
 
 private:
+  const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+
   // private methods
   void get_projections(const edm4eic::TrackSegmentCollection* projections,
                        VecProj& relevant_projects) const;
@@ -94,7 +96,7 @@ private:
   edm4hep::Vector3f get_cluster_position(const edm4eic::ProtoCluster& clust) const;
 
   // calorimeter id
-  int m_idCalo{0};
+  unsigned int m_idCalo{0};
 
 }; // end TrackClusterMergeSplitter
 

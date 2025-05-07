@@ -29,8 +29,8 @@ private:
   PodioOutput<edm4eic::Track> m_tracks_output{this};
   PodioOutput<edm4eic::MCRecoTrackParticleAssociation> m_tracks_association_output{this};
 
-  ParameterRef<int> n_layer{this, "numLayers", config().n_layer};
-  ParameterRef<int> layer_hits_max{this, "layerHitsMax", config().layer_hits_max};
+  ParameterRef<std::size_t> n_layer{this, "numLayers", config().n_layer};
+  ParameterRef<std::size_t> layer_hits_max{this, "layerHitsMax", config().layer_hits_max};
   ParameterRef<float> chi2_max{this, "chi2Max", config().chi2_max};
 
 public:
@@ -41,9 +41,9 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
 
     try {
       std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>> hits;

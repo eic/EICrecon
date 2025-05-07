@@ -9,6 +9,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <gsl/pointers>
@@ -34,7 +35,6 @@ void FarDetectorMLReconstruction::init() {
 
   // Locate and load the weight file
   // TODO - Add functionality to select passed by configuration
-  bool methodFound = false;
   if (!m_cfg.modelPath.empty()) {
     try {
       m_method =
@@ -50,11 +50,12 @@ void FarDetectorMLReconstruction::init() {
 }
 
 void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Input& input,
-                                          const FarDetectorMLReconstruction::Output& output) {
+                                          const FarDetectorMLReconstruction::Output& output) const {
 
-  const auto [inputTracks, beamElectrons] = input;
+  const auto [inputProjectedTracks, beamElectrons, inputFittedTracks, inputFittedAssociations] =
+      input;
   auto [outputFarDetectorMLTrajectories, outputFarDetectorMLTrackParameters,
-        outputFarDetectorMLTracks]        = output;
+        outputFarDetectorMLTracks, outputAssociations] = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
   std::call_once(m_initBeamE, [&]() {
@@ -75,7 +76,9 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
   std::int32_t type = 0; // Check?
   float charge      = -1;
 
-  for (const auto& track : *inputTracks) {
+  for (std::size_t i = 0; i < inputProjectedTracks->size(); i++) {
+    // Get the track parameters
+    auto track = (*inputProjectedTracks)[i];
 
     auto pos        = track.getLoc();
     auto trackphi   = track.getPhi();
@@ -131,6 +134,16 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
     auto outTrack = outputFarDetectorMLTracks->create(trackType, position, momentum, error, time,
                                                       timeError, charge, chi2, ndf, pdg);
     outTrack.setTrajectory(trajectory);
+
+    // Propagate the track associations
+    // The order of the tracks needs to be the same in both collections with no filtering
+    for (auto assoc : *inputFittedAssociations) {
+      if (assoc.getRec() == (*inputFittedTracks)[i]) {
+        auto outAssoc = assoc.clone();
+        outAssoc.setRec(outTrack);
+        outputAssociations->push_back(outAssoc);
+      }
+    }
   }
 }
 

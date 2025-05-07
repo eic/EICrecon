@@ -182,7 +182,7 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
       continue;
     }
 
-    if (rh.getAmplitude() > m_cfg.capADC) {
+    if (rh.getAmplitude() > static_cast<int>(m_cfg.capADC)) {
       error("Encountered hit with amplitude {} outside of ADC capacity {}", rh.getAmplitude(),
             m_cfg.capADC);
       continue;

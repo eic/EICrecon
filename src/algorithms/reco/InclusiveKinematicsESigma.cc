@@ -56,6 +56,10 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
 
   // Get electron variables
   auto kf = escat->at(0);
+  if (escat->size() == 0) {
+    debug("No scattered electron found");
+    return;
+  }
   PxPyPzEVector e_lab(kf.getMomentum().x, kf.getMomentum().y, kf.getMomentum().z, kf.getEnergy());
   PxPyPzEVector e_boosted = apply_boost(boost, e_lab);
   auto pt_e               = e_boosted.Pt();
@@ -67,8 +71,6 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
     return;
   }
   auto sigma_h = hfs->at(0).getSigma();
-  auto ptsum   = hfs->at(0).getPT();
-  auto gamma_h = hfs->at(0).getGamma();
 
   if (sigma_h <= 0) {
     debug("No scattered electron found or sigma zero or negative");

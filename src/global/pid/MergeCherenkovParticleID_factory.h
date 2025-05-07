@@ -41,12 +41,12 @@ public:
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
-    m_algo->init(logger());
+    m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     auto in1 = m_particleID_input();
     std::vector<gsl::not_null<const edm4eic::CherenkovParticleIDCollection*>> in2;
     std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));

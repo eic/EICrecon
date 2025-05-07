@@ -329,7 +329,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     //loop over input_tower_sim and find if there is already a tower with the same cellID
     bool found = false;
     for (auto& tower : input_tower_sim) {
-      if (tower.cellID == cellID) {
+      if (tower.cellID == static_cast<decltype(tower.cellID)>(cellID)) {
         tower.energy += energy;
         found = true;
         break;
@@ -376,7 +376,6 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     // calc cell IDs
     int cellIDx = detector_layer_x;
     int cellIDy = detector_layer_y;
-    int cellIDz = 0;
 
     hPosCaloHitsXY->Fill(x, y);
     nCaloHitsRec++;
@@ -384,7 +383,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     //loop over input_tower_rec and find if there is already a tower with the same cellID
     bool found = false;
     for (auto& tower : input_tower_rec) {
-      if (tower.cellID == cellID) {
+      if (tower.cellID == static_cast<decltype(tower.cellID)>(cellID)) {
         tower.energy += energy;
         found = true;
         break;
@@ -516,7 +515,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     m_log->info("-----> found {} clusters", clusters_calo.size());
     hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);
     int iCl = 0;
-    for (const auto cluster : clusters_calo) {
+    for (const auto& cluster : clusters_calo) {
       if (iCl < maxNCluster && enableTreeCluster) {
         t_fEMC_cluster_E[iCl]      = (float)cluster.cluster_E;
         t_fEMC_cluster_NCells[iCl] = (int)cluster.cluster_NTowers;

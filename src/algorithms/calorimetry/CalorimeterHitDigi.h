@@ -63,7 +63,7 @@ public:
 
 private:
   // unitless counterparts of inputs
-  double dyRangeADC{0}, stepTDC{0}, tRes{0};
+  double stepTDC{0}, tRes{0};
 
   uint64_t id_mask{0};
 

@@ -20,8 +20,9 @@ namespace eicrecon {
 
 void FarDetectorTransportationPreML::init() { m_beamE = m_cfg.beamE; }
 
-void FarDetectorTransportationPreML::process(const FarDetectorTransportationPreML::Input& input,
-                                             const FarDetectorTransportationPreML::Output& output) {
+void FarDetectorTransportationPreML::process(
+    const FarDetectorTransportationPreML::Input& input,
+    const FarDetectorTransportationPreML::Output& output) const {
 
   const auto [inputTracks, MCElectrons, beamElectrons] = input;
   auto [feature_tensors, target_tensors]               = output;

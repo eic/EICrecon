@@ -12,6 +12,7 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <cmath>
+#include <cstddef>
 #include <functional>
 #include <gsl/pointers>
 #include <stdexcept>
@@ -74,7 +75,7 @@ public:
   EvaluatorPulse(const std::string& expression, const std::vector<double>& params) {
 
     std::vector<std::string> keys = {"time", "charge"};
-    for (int i = 0; i < params.size(); i++) {
+    for (std::size_t i = 0; i < params.size(); i++) {
       std::string p = "param" + std::to_string(i);
       //Check the expression contains the parameter
       if (expression.find(p) == std::string::npos) {
