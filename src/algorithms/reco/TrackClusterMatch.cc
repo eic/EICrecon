@@ -2,8 +2,15 @@
 // Copyright (C) 2025 Tristan Protzman
 
 #include <edm4eic/EDM4eicVersion.h> // Needs edm4eic::TrackClusterMatch
+
+#if EDM4EIC_VERSION_MAJOR >= 8
+#include <DD4hep/Detector.h>
+#include <edm4eic/ClusterCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
+#include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <stdint.h>
@@ -11,13 +18,6 @@
 #include <optional>
 #include <set>
 #include <vector>
-#if EDM4EIC_VERSION_MAJOR >= 8
-
-#include <DD4hep/Detector.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/TrackPoint.h>
-#include <edm4hep/Vector3f.h>
-#include <edm4hep/utils/vector_utils.h>
 
 #include "algorithms/reco/TrackClusterMatch.h"
 #include "algorithms/reco/TrackClusterMatchConfig.h"
