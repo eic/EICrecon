@@ -38,17 +38,18 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  void findAllNeighborsInSensor(dd4hep::rec::CellID test_CellID,
+  void findAllNeighborsInSensor(const dd4hep::rec::CellID test_CellID,
                                 std::unordered_set<dd4hep::rec::CellID>& tested_cells,
                                 std::vector<std::pair<dd4hep::rec::CellID, float>>& cell_charge,
-                                float edep, dd4hep::Position hitPos) const;
+                                const float edep, const dd4hep::Position hitPos, const dd4hep::VolumeManagerContext*) const;
   float energyAtCell(const dd4hep::rec::CellID& cell, dd4hep::Position hitPos, float edep) const;
   float integralGaus(float mean, float sd, float low_lim, float up_lim) const;
   dd4hep::Position cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
-  dd4hep::Position global2Local(const edm4hep::SimTrackerHit& hit) const;
-  dd4hep::Segmentation getLocalSegmentation(const dd4hep::rec::CellID& cellID) const;
+  dd4hep::Position global2Local(const dd4hep::Position& globalPosition, const TGeoHMatrix* transform) const;
+  const dd4hep::DDSegmentation::Segmentation* getLocalSegmentation(const dd4hep::rec::CellID& cellID) const;
 
-  const dd4hep::Detector* m_detector                      = nullptr;
+  mutable std::unordered_map<const dd4hep::VolumeManagerContext*,const TGeoHMatrix*> m_transform_map;
+  mutable std::unordered_map<const dd4hep::VolumeManagerContext*, const dd4hep::DDSegmentation::Segmentation *> m_segmentation_map;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
   dd4hep::Segmentation m_seg;
 };

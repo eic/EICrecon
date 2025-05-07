@@ -28,7 +28,6 @@
 #include <cmath>
 #include <gsl/pointers>
 #include <stdexcept>
-#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -40,9 +39,8 @@
 namespace eicrecon {
 
 void SiliconChargeSharing::init() {
-  m_detector  = algorithms::GeoSvc::instance().detector();
   m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
-  m_seg       = m_detector->readout(m_cfg.readout).segmentation();
+  m_seg       = algorithms::GeoSvc::instance().detector()->readout(m_cfg.readout).segmentation();
 }
 
 void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
@@ -53,31 +51,45 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
   for (const auto& hit : *simhits) {
 
     auto cellID     = hit.getCellID();
-    auto edep       = hit.getEDep();
-    auto time       = hit.getTime();
-    auto momentum   = hit.getMomentum();
-    auto hitPos     = global2Local(hit);
+
+    auto context  = m_converter->findContext(cellID); // volume context
+    // Set transformation map if it hasn't already been set 
+    m_transform_map.try_emplace(context, &context->element.nominal().worldTransformation());
+    m_segmentation_map.try_emplace(context,  getLocalSegmentation(cellID));
+
+    auto transform    = m_transform_map[context];
+    auto segmentation = m_segmentation_map[context];
+    
+    auto edep         = hit.getEDep();
+    auto time         = hit.getTime();
+    auto momentum     = hit.getMomentum();
+    auto globalHitPos = hit.getPosition();
+    ;
+    auto hitPos     = global2Local(
+      dd4hep::Position(globalHitPos.x * dd4hep::mm, globalHitPos.y * dd4hep::mm, globalHitPos.z * dd4hep::mm),
+      transform );
 #if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
     auto particle = hit.getParticle();
 #else
     auto particle = hit.getMCParticle();
 #endif
 
+
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::vector<std::pair<dd4hep::rec::CellID, float>> cell_charge;
-    findAllNeighborsInSensor(cellID, tested_cells, cell_charge, edep, hitPos);
+    findAllNeighborsInSensor(cellID, tested_cells, cell_charge, edep, hitPos, context);
 
     //cout number of neighbors found
     error("Found {} neighbors for cellID {}", cell_charge.size(), cellID);
 
     // Create a new simhit for each cell with deposited energy
     for (const auto& [testCellID, edep_cell] : cell_charge) {
-      auto globalPos = m_converter->position(testCellID);
-      auto hit       = sharedHits->create();
+      auto globalCellPos = m_converter->position(testCellID);
+      auto hit           = sharedHits->create();
       hit.setCellID(testCellID);
       hit.setEDep(edep_cell);
       hit.setTime(time);
-      hit.setPosition({globalPos.x(), globalPos.y(), globalPos.z()});
+      hit.setPosition({globalCellPos.x(), globalCellPos.y(), globalCellPos.z()});
       hit.setMomentum({momentum.x, momentum.y, momentum.z});
 #if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
       hit.setParticle(particle);
@@ -91,16 +103,16 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 
 // Recursively find neighbors where a charge is deposited
 void SiliconChargeSharing::findAllNeighborsInSensor(
-    dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells,
-    std::vector<std::pair<dd4hep::rec::CellID, float>>& cell_charge, float edep,
-    dd4hep::Position hitPos) const {
+    const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells,
+    std::vector<std::pair<dd4hep::rec::CellID, float>>& cell_charge, const float edep,
+    const dd4hep::Position hitPos, const dd4hep::VolumeManagerContext* context ) const {
 
   // Tag cell as tested
   tested_cells.insert(testCellID);
 
   // Calculate deposited energy in cell
   float edepCell = energyAtCell(testCellID, hitPos, edep);
-  error("energy {} at cellID {}", edepCell, testCellID);
+  // error("energy {} at cellID {}", edepCell, testCellID);
   if (edepCell <= m_cfg.min_edep) {
     return;
   }
@@ -108,21 +120,18 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   // Store cellID and deposited energy
   cell_charge.push_back(std::make_pair(testCellID, edepCell));
 
-  // Get local segmentation if multiSegmentation is used
-  auto segmentation = getLocalSegmentation(testCellID);
-
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
-  segmentation.neighbours(testCellID, testCellNeighbours);
+  m_segmentation_map[context]->neighbours(testCellID, testCellNeighbours);
   std::string segType = segmentation->type();
-  error("Segmentation type: {}", segType);
+  // error("Segmentation type: {}", segType);
 
-  error("sEGMENTATION {} neighbours for cellID {}", testCellNeighbours.size(), testCellID);
+  // error("Segmentation {} neighbours for cellID {}", testCellNeighbours.size(), testCellID);
 
   for (const auto& neighbourCell : testCellNeighbours) {
-    error("Testing neighbour cellID {}", neighbourCell);
+    // error("Testing neighbour cellID {}", neighbourCell);
     if (tested_cells.find(neighbourCell) == tested_cells.end()) {
-      findAllNeighborsInSensor(neighbourCell, tested_cells, cell_charge, edep, hitPos);
+      findAllNeighborsInSensor(neighbourCell, tested_cells, cell_charge, edep, hitPos, context);
     }
   }
 }
@@ -147,19 +156,16 @@ dd4hep::Position SiliconChargeSharing::cell2LocalPosition(const dd4hep::rec::Cel
 }
 
 // Convert global position to local position
-dd4hep::Position SiliconChargeSharing::global2Local(const edm4hep::SimTrackerHit& hit) const {
-  auto volumeManager          = m_detector->volumeManager();
-  auto detelement             = volumeManager.lookupDetElement(hit.getCellID());
-  const TGeoMatrix& transform = detelement.nominal().worldTransformation();
+dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& globalPosition, const TGeoHMatrix* transform) const {
 
-  // Units given by transformation do not match with the units of the hit position
-  double g[3] = {hit.getPosition().x / 10, hit.getPosition().y / 10, hit.getPosition().z / 10};
+  double g[3];
   double l[3];
 
-  transform.MasterToLocal(g, l);
-  dd4hep::Position position;
-  position.SetCoordinates(l);
-  return position;
+  globalPosition.GetCoordinates(g);
+  transform->MasterToLocal(g, l);
+  dd4hep::Position localPosition;
+  localPosition.SetCoordinates(l);
+  return localPosition;
 }
 
 // Calculate energy deposition in a cell relative to the hit position
@@ -178,7 +184,7 @@ float SiliconChargeSharing::energyAtCell(const dd4hep::rec::CellID& cell, dd4hep
   return energy;
 }
 
-dd4hep::Segmentation
+const dd4hep::DDSegmentation::Segmentation *
 SiliconChargeSharing::getLocalSegmentation(const dd4hep::rec::CellID& cellID) const {
   // Get the segmentation type
   auto segmentation_type                                   = m_seg.type();
@@ -190,7 +196,7 @@ SiliconChargeSharing::getLocalSegmentation(const dd4hep::rec::CellID& cellID) co
     segmentation      = &multi_segmentation->subsegmentation(cellID);
     segmentation_type = segmentation->type();
   }
-  return dd4hep::Segmentation(dd4hep::Handle<dd4hep::SegmentationObject>(segmentation));
+  return segmentation;
 }
 
 } // namespace eicrecon
