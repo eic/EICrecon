@@ -17,7 +17,7 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
-#include <Eigen/Householder>
+#include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
 #include <Eigen/QR>
 #include <Eigen/SVD>
