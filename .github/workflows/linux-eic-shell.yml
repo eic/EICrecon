@@ -145,7 +145,8 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           for lib in install/lib/*.so install/lib/EICrecon/plugins/*.so ; do
             readelf -d $lib
-            ldd -r $lib
+            # Hide intentionally undefined symbols for asan and ubsan
+            ldd -r $lib | grep -v __asan | grep -v __ubsan
           done
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
