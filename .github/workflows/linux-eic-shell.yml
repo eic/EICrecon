@@ -142,7 +142,7 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           for lib in install/lib/*.so install/lib/EICrecon/plugins/*.so ; do
             readelf -d $lib
             ldd -r $lib
