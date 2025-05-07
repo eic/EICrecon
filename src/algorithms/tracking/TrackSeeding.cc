@@ -6,8 +6,6 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackerHitCollection.h>
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/Seed.hpp>
 #else
@@ -26,6 +24,8 @@
 #include <boost/container/small_vector.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <cmath>
