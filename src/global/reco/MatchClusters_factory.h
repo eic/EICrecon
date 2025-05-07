@@ -15,8 +15,8 @@
 
 #include "algorithms/reco/MatchClusters.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
-class AlgorithmsInit_service;
 namespace algorithms {
 enum class LogLevel : unsigned int;
 }
