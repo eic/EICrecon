@@ -11,6 +11,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
