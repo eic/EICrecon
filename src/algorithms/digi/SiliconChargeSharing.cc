@@ -123,11 +123,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
   m_segmentation_map[context]->neighbours(testCellID, testCellNeighbours);
-  std::string segType = segmentation->type();
-  // error("Segmentation type: {}", segType);
-
-  // error("Segmentation {} neighbours for cellID {}", testCellNeighbours.size(), testCellID);
-
+  
   for (const auto& neighbourCell : testCellNeighbours) {
     // error("Testing neighbour cellID {}", neighbourCell);
     if (tested_cells.find(neighbourCell) == tested_cells.end()) {
