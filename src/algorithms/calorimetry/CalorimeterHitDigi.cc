@@ -20,6 +20,8 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/service.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/RawCalorimeterHitCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #endif

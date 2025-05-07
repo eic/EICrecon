@@ -4,24 +4,30 @@
 #include "IrtGeoDRICH.h"
 
 #include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
 #include <DD4hep/Fields.h>
 #include <DD4hep/Objects.h>
 #include <DDRec/DetectorData.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <IRT/CherenkovDetector.h>
 #include <IRT/CherenkovDetectorCollection.h>
+#include <IRT/CherenkovPhotonDetector.h>
 #include <IRT/CherenkovRadiator.h>
-#include <IRT/G4Object.h>
+#include <IRT/OpticalBoundary.h>
+#include <IRT/ParametricSurface.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TRef.h>
 #include <fmt/core.h>
+#include <spdlog/logger.h>
 #include <stdint.h>
 #include <map>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>
+
+class G4LogicalVolume;
 
 void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
 

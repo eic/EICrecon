@@ -6,15 +6,17 @@
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/VolumeManager.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <cstdlib>
 #include <algorithm>
 #include <cmath>
+#include <cstdlib>
 #include <gsl/pointers> // for not_null
 #include <vector>
 

@@ -3,15 +3,19 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
-#include <JANA/JApplication.h>
 #include <JANA/JServiceFwd.h>
-#include <JANA/Services/JServiceLocator.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <mutex>
 
 class ActsGeometryProvider;
+class JApplication;
+class JServiceLocator;
+namespace dd4hep {
+class Detector;
+}
+namespace spdlog {
+class logger;
+}
 
 class ACTSGeo_service : public JService {
 public:

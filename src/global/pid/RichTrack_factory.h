@@ -4,8 +4,9 @@
 #pragma once
 
 #include <Acts/Surfaces/Surface.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JEvent.h>
-#include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <functional>
 #include <map>

@@ -4,9 +4,7 @@
 #include <Acts/Geometry/DetectorElementBase.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
@@ -24,6 +22,7 @@
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 #include <spdlog/common.h>
+#include <spdlog/logger.h>
 #include <exception>
 #include <initializer_list>
 #include <type_traits>
@@ -31,6 +30,16 @@
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "extensions/spdlog/SpdlogToActs.h"
+
+namespace Acts {
+class IMaterialDecorator;
+}
+namespace Acts {
+class MagneticFieldProvider;
+}
+namespace Acts {
+class TrackingVolume;
+}
 
 // Formatter for Eigen matrices
 #if FMT_VERSION >= 90000

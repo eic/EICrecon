@@ -12,7 +12,6 @@
 #include <JANA/JException.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
-#include <TObject.h>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
 #include <podio/CollectionBase.h>
@@ -33,6 +32,8 @@
 
 // Formatter for podio::version::Version
 template <> struct fmt::formatter<podio::version::Version> : ostream_formatter {};
+
+class TObject;
 
 //------------------------------------------------------------------------------
 // InsertingVisitor

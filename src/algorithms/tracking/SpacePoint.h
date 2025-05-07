@@ -7,7 +7,10 @@
 #endif
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <edm4eic/TrackerHit.h>
+
 #include "ActsGeometryProvider.h"
+
 namespace eicrecon {
 
 class SpacePoint : public edm4eic::TrackerHit {

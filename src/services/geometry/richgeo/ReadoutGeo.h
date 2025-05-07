@@ -7,14 +7,11 @@
 #pragma once
 
 #include <DD4hep/DetElement.h>
-// DD4Hep
-#include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Parsers/Primitives.h>
 #include <TRandomGen.h>
-#include <spdlog/logger.h>
 #include <functional>
 #include <gsl/pointers>
 #include <memory>
@@ -22,6 +19,13 @@
 
 // local
 #include "RichGeo.h"
+
+namespace dd4hep {
+class Detector;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace richgeo {
 class ReadoutGeo {

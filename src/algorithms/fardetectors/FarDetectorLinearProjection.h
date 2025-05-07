@@ -3,9 +3,6 @@
 
 #pragma once
 
-// Event Model related classes
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackCollection.h>
 #include <Eigen/Core>
 #include <string>
 #include <string_view>
@@ -13,6 +10,13 @@
 #include "algorithms/algorithm.h"
 #include "algorithms/fardetectors/FarDetectorLinearProjectionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class TrackCollection;
+}
+namespace edm4eic {
+class TrackParametersCollection;
+}
 
 namespace eicrecon {
 

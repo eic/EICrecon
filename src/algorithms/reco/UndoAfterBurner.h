@@ -3,12 +3,15 @@
 //
 
 #include <algorithms/algorithm.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <string>
 #include <string_view>
 
 #include "UndoAfterBurnerConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4hep {
+class MCParticleCollection;
+}
 
 namespace eicrecon {
 

@@ -4,14 +4,15 @@
 
 #pragma once
 
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
-#include <TDirectory.h>
-#include <TH1.h>
-#include <TH2.h>
 #include <memory>
 #include <string>
 #include <vector>
+
+class JApplication;
+class JEvent;
+class TDirectory;
+class TH1F;
+class TH2F;
 
 class HitReconstructionAnalysis {
 public:

@@ -12,11 +12,14 @@
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Utilities/Result.hpp>
-#include <DD4hep/Detector.h>
 #include <gsl/pointers>
 #include <memory>
 #include <utility>
 #include <variant>
+
+namespace dd4hep {
+class Detector;
+}
 
 namespace eicrecon::BField {
 

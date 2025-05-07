@@ -2,6 +2,7 @@
 // Copyright (C) 2022 Wouter Deconinck, Barak Schmookler
 
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/HadronicFinalStateCollection.h>
 #if EDM4EIC_VERSION_MAJOR >= 6
 
 #include <Math/GenVector/LorentzVector.h>

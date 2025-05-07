@@ -1,7 +1,6 @@
 #include "TrackingOccupancy_processor.h"
 
 #include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <TDirectory.h>
 #include <string>
@@ -10,6 +9,8 @@
 #include "benchmarks/reconstruction/tracking_occupancy/TrackingOccupancyAnalysis.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
+
+class JEvent;
 
 //------------------
 // OccupancyAnalysis (Constructor)

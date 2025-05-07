@@ -4,13 +4,16 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
 #include <string>
 #include <string_view>
 
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
+
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
 
 namespace eicrecon {
 

@@ -3,18 +3,20 @@
 // Template for this file generated with eicmkplugin.py
 //
 
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessorSequentialRoot.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <TDirectory.h>
-#include <TH1.h>
-#include <TH2.h>
-#include <TNtuple.h>
 #include <map>
 #include <memory>
 #include <string>
 
 #include "extensions/spdlog/SpdlogMixin.h"
+
+class JEvent;
+class TDirectory;
+class TH1;
+class TH2;
+class TH2F;
+class TNtuple;
 
 class TofEfficiency_processor : public JEventProcessorSequentialRoot, public eicrecon::SpdlogMixin {
 private:

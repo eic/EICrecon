@@ -3,8 +3,11 @@
 
 #pragma once
 
+#include <edm4hep/SimTrackerHitCollection.h>
+
 #include "algorithms/digi/SiliconChargeSharing.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
+
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {

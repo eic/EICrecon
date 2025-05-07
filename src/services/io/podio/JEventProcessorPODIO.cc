@@ -2,6 +2,8 @@
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
+#include <JANA/JLogger.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -9,6 +11,7 @@
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/ROOTWriter.h>
+#include <spdlog/logger.h>
 #include <exception>
 #include <ostream>
 #include <stdexcept>

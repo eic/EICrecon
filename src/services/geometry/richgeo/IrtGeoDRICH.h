@@ -4,18 +4,26 @@
 // bind IRT and DD4hep geometries for the dRICH
 #pragma once
 
-#include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <IRT/CherenkovPhotonDetector.h>
-#include <IRT/OpticalBoundary.h>
-#include <IRT/ParametricSurface.h>
 #include <TVector3.h>
-#include <spdlog/logger.h>
 #include <gsl/pointers>
 #include <memory>
 
 #include "IrtGeo.h"
 #include "services/geometry/richgeo/RichGeo.h"
+
+class CherenkovPhotonDetector;
+class FlatSurface;
+class OpticalBoundary;
+class SphericalSurface;
+namespace dd4hep::rec {
+class CellIDPositionConverter;
+}
+namespace dd4hep {
+class Detector;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace richgeo {
 class IrtGeoDRICH : public IrtGeo {

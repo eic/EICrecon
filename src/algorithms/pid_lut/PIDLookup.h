@@ -2,9 +2,6 @@
 // Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/ParticleIDCollection.h>
 #include <random>
 #include <string>
 #include <string_view>
@@ -12,9 +9,19 @@
 #include "PIDLookupConfig.h"
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "services/pid_lut/PIDLookupTable.h"
+
+namespace edm4eic {
+class MCRecoParticleAssociationCollection;
+}
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
+namespace edm4hep {
+class ParticleIDCollection;
+}
 
 namespace eicrecon {
+class PIDLookupTable;
 
 using PIDLookupAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,

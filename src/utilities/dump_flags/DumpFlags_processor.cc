@@ -1,7 +1,6 @@
 #include "DumpFlags_processor.h"
 
 #include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
 #include <fmt/core.h>
@@ -14,6 +13,8 @@
 #include <fstream>
 #include <map>
 #include <regex>
+
+class JEvent;
 
 using namespace fmt;
 

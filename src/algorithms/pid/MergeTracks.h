@@ -11,10 +11,13 @@
 
 // data model
 #include <algorithms/algorithm.h>
-#include <edm4eic/TrackSegmentCollection.h>
 #include <string>
 #include <string_view>
 #include <vector>
+
+namespace edm4eic {
+class TrackSegmentCollection;
+}
 
 namespace eicrecon {
 

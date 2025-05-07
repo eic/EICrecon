@@ -4,7 +4,11 @@
 
 #pragma once
 
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/ProtoClusterCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <edm4eic/TensorCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+
 #include "algorithms/fardetectors/FarDetectorTransportationPostML.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"

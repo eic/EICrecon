@@ -4,15 +4,24 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TrackCollection.h>
 #include <optional>
 #include <string>
 #include <string_view>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class MCRecoParticleAssociationCollection;
+}
+namespace edm4eic {
+class MCRecoTrackParticleAssociationCollection;
+}
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
+namespace edm4eic {
+class TrackCollection;
+}
 
 namespace eicrecon {
 

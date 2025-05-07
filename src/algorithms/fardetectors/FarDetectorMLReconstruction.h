@@ -3,21 +3,35 @@
 
 #pragma once
 
-#include <TMVA/MethodBase.h>
-#include <TMVA/Reader.h>
 #include <algorithms/algorithm.h>
-// Event Model related classes
-#include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
-#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <mutex>
 #include <string>
 #include <string_view>
 
 #include "FarDetectorMLReconstructionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace TMVA {
+class MethodBase;
+}
+namespace TMVA {
+class Reader;
+}
+namespace edm4eic {
+class MCRecoTrackParticleAssociationCollection;
+}
+namespace edm4eic {
+class TrackCollection;
+}
+namespace edm4eic {
+class TrackParametersCollection;
+}
+namespace edm4eic {
+class TrajectoryCollection;
+}
+namespace edm4hep {
+class MCParticleCollection;
+}
 
 namespace eicrecon {
 

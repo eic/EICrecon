@@ -3,8 +3,6 @@
 
 #pragma once
 #include <algorithms/algorithm.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <string>      // for basic_string
 #include <string_view> // for string_view
@@ -12,6 +10,13 @@
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/FarForwardLambdaReconstructionConfig.h"
+
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace eicrecon {
 

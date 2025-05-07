@@ -1,7 +1,5 @@
 #pragma once
 
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <algorithm>
 #include <cctype>
@@ -10,6 +8,9 @@
 #include <vector>
 
 #include "extensions/spdlog/SpdlogMixin.h"
+
+class JApplication;
+class JEvent;
 
 class DumpFlags_processor : public JEventProcessor, public eicrecon::SpdlogMixin {
 public:

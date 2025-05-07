@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
@@ -12,6 +11,7 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
@@ -24,6 +24,10 @@
 
 #include "CalorimeterIslandClusterConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep {
+class Detector;
+}
 
 namespace eicrecon {
 

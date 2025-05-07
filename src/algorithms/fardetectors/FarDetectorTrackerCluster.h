@@ -3,18 +3,28 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <DD4hep/Segmentations.h>
 #include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
-#include <edm4eic/Measurement2DCollection.h>
-#include <edm4eic/TrackerHitCollection.h>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include "FarDetectorTrackerClusterConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep::DDSegmentation {
+class BitFieldCoder;
+}
+namespace dd4hep {
+class Detector;
+}
+namespace edm4eic {
+class Measurement2DCollection;
+}
+namespace edm4eic {
+class TrackerHitCollection;
+}
 
 namespace eicrecon {
 

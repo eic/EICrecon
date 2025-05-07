@@ -3,6 +3,10 @@
 
 #pragma once
 
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+
 #include "algorithms/calorimetry/ImagingClusterReco.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

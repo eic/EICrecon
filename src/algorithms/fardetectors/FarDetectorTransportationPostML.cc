@@ -2,6 +2,9 @@
 // Copyright (C) 2024 - 2025 Simon Gardner
 
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TensorCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include <fmt/core.h>

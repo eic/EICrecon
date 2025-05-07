@@ -6,6 +6,7 @@
 #include "ReadoutGeo.h"
 
 #include <DD4hep/Alignments.h>
+#include <DD4hep/Detector.h>
 #include <DD4hep/Fields.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
@@ -16,6 +17,7 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TGeoMatrix.h>
 #include <fmt/core.h>
+#include <spdlog/logger.h>
 #include <cmath>
 #include <map>
 

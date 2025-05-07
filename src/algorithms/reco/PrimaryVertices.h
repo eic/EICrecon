@@ -4,12 +4,15 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/VertexCollection.h>
 #include <string>      // for basic_string
 #include <string_view> // for string_view
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/PrimaryVerticesConfig.h"
+
+namespace edm4eic {
+class VertexCollection;
+}
 
 namespace eicrecon {
 

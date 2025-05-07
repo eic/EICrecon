@@ -1,14 +1,17 @@
 #pragma once
 
-#include <Acts/Surfaces/DiscSurface.hpp>
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
-#include <TDirectory.h>
 #include <memory>
 
 #include "algorithms/tracking/TrackPropagation.h"
 #include "extensions/spdlog/SpdlogMixin.h"
+
+class JApplication;
+class JEvent;
+class TDirectory;
+namespace Acts {
+class DiscSurface;
+}
 
 class TrackPropagationTest_processor
     : public JEventProcessor,

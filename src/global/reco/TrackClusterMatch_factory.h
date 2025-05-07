@@ -4,10 +4,14 @@
 #pragma once
 
 #include <spdlog/logger.h>
-#include "extensions/jana/JOmniFactory.h"
+
+#include <edm4eic/TrackClusterMatchCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/ClusterCollection.h>
 
 #include "algorithms/reco/TrackClusterMatch.h"
 #include "algorithms/reco/TrackClusterMatchConfig.h"
+#include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 namespace eicrecon {

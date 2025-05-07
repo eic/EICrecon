@@ -14,16 +14,12 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
-#include <DDRec/CellIDPositionConverter.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TRandomGen.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <stdint.h>
 #include <cstddef>
@@ -38,6 +34,19 @@
 
 #include "PhotoMultiplierHitDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep::rec {
+class CellIDPositionConverter;
+}
+namespace dd4hep {
+class Detector;
+}
+namespace edm4eic {
+class MCRecoTrackerHitAssociationCollection;
+}
+namespace edm4eic {
+class RawTrackerHitCollection;
+}
 
 namespace eicrecon {
 

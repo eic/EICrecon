@@ -3,13 +3,14 @@
 
 #pragma once
 
+#include <edm4eic/CherenkovParticleIDCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
+#include <memory>
+
 #include "algorithms/pid/MatchToRICHPID.h"
 #include "extensions/jana/JOmniFactory.h"
-#include <edm4eic/CherenkovParticleID.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/MCRecoParticleAssociation.h>
-#include <edm4hep/ParticleID.h>
-#include <memory>
 
 namespace eicrecon {
 

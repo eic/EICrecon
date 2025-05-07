@@ -4,6 +4,8 @@
 //
 // Convert ADC pulses into ADC and TDC values
 
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/RawTimeSeriesCollection.h>
 #include <podio/RelationRange.h>
 #include <stdlib.h>
 #include <algorithm>

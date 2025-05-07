@@ -1,13 +1,18 @@
 #pragma once
 
-#include <JANA/JApplication.h>
 #include <JANA/JServiceFwd.h>
-#include <spdlog/common.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <mutex>
 #include <optional>
 #include <string>
+
+class JApplication;
+namespace spdlog::level {
+enum level_enum : int;
+}
+namespace spdlog {
+class logger;
+}
 
 /**
  * The Service centralizes use of spdlog

@@ -1,12 +1,14 @@
 #include "GeometryNavigationSteps_processor.h"
 
 #include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
+#include <TDirectory.h>
 #include <string>
 
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/rootfile/RootFile_service.h"
+
+class JEvent;
 
 GeometryNavigationSteps_processor::GeometryNavigationSteps_processor(JApplication* app)
     : JEventProcessor(app) {}

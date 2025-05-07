@@ -5,15 +5,22 @@
 
 #include <TRandomGen.h>
 #include <algorithms/algorithm.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4hep/SimTrackerHitCollection.h>
 #include <functional>
 #include <string>
 #include <string_view>
 
 #include "SiliconTrackerDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class MCRecoTrackerHitAssociationCollection;
+}
+namespace edm4eic {
+class RawTrackerHitCollection;
+}
+namespace edm4hep {
+class SimTrackerHitCollection;
+}
 
 namespace eicrecon {
 

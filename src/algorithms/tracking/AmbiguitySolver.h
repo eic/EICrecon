@@ -2,11 +2,7 @@
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #pragma once
 
-#include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
-#include <edm4eic/Measurement2D.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -14,6 +10,19 @@
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"
 #include "AmbiguitySolverConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace ActsExamples {
+struct Trajectories;
+}
+namespace Acts {
+class Logger;
+}
+namespace edm4eic {
+class Measurement2DCollection;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace eicrecon {
 

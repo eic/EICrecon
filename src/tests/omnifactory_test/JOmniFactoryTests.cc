@@ -2,7 +2,6 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JFactorySet.h>
-#include <JANA/JMultifactory.h>
 #include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
@@ -20,6 +19,8 @@
 
 #include "extensions/jana/JOmniFactory.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+
+template <typename T> class JMultifactoryHelperPodio;
 
 struct BasicTestAlgConfig {
   int bucket_count = 42;

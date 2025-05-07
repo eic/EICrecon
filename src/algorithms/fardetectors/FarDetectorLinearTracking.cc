@@ -2,6 +2,7 @@
 // Copyright (C) 2023 - 2025, Simon Gardner
 
 #include <DD4hep/VolumeManager.h>
+#include <DDRec/CellIDPositionConverter.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
@@ -31,6 +32,7 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <gsl/pointers>
 #include <unordered_map>
 #include <utility>
 

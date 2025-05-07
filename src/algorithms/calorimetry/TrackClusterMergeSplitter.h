@@ -7,7 +7,6 @@
 #include <algorithms/geo.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/TrackPoint.h>
-#include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
 #include <algorithm>
@@ -20,6 +19,10 @@
 #include "TrackClusterMergeSplitterConfig.h"
 // for algorithm configuration
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class TrackSegmentCollection;
+}
 
 namespace eicrecon {
 

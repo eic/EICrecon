@@ -7,7 +7,10 @@
 #include <string>
 // dd4hep utilities
 #include <DD4hep/Detector.h>
-// eicrecon components
+
+#include <edm4eic/ProtoClusterCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
+
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"

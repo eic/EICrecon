@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 - 2025, Simon Gardner
 
+#include <DD4hep/Detector.h>
 #include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
@@ -13,6 +14,8 @@
 #include <ROOT/RVec.hxx>
 #include <algorithms/geo.h>
 #include <edm4eic/Cov3f.h>
+#include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
 #include <cstddef>

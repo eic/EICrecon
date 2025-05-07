@@ -6,23 +6,31 @@
 // ACTS
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/MagneticField/MagneticFieldProvider.hpp>
-#include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Utilities/Logger.hpp>
 #include <Acts/Visualization/ViewConfig.hpp>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Fields.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <spdlog/logger.h>
 #include <array>
 #include <cstdint>
 #include <map>
 #include <memory>
 #include <string>
 #include <unordered_map>
+
+namespace Acts {
+class MagneticFieldProvider;
+}
+namespace Acts {
+class Surface;
+}
+namespace Acts {
+class TrackingGeometry;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace dd4hep::rec {
 class Surface;

@@ -3,21 +3,32 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-// JANA
-#include <JANA/JApplication.h>
 #include <JANA/JServiceFwd.h>
-#include <JANA/Services/JServiceLocator.h>
-#include <spdlog/logger.h>
 #include <map>
 #include <memory>
 #include <mutex>
 #include <string>
 
-#include "ActsGeo.h"
-#include "IrtGeo.h"
-#include "ReadoutGeo.h"
+class JApplication;
+class JServiceLocator;
+namespace dd4hep::rec {
+class CellIDPositionConverter;
+}
+namespace dd4hep {
+class Detector;
+}
+namespace richgeo {
+class ActsGeo;
+}
+namespace richgeo {
+class IrtGeo;
+}
+namespace richgeo {
+class ReadoutGeo;
+}
+namespace spdlog {
+class logger;
+}
 
 class RichGeo_service : public JService {
 public:

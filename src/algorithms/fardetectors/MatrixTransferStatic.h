@@ -3,19 +3,30 @@
 //
 // This converted from: https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/FarForwardParticles.cpp
 
-#include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <gsl/pointers>
 #include <string>
 #include <string_view>
 
 #include "MatrixTransferStaticConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep::rec {
+class CellIDPositionConverter;
+}
+namespace dd4hep {
+class Detector;
+}
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
+namespace edm4eic {
+class TrackerHitCollection;
+}
+namespace edm4hep {
+class MCParticleCollection;
+}
 
 namespace eicrecon {
 

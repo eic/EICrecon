@@ -9,14 +9,10 @@
 #pragma once
 
 #include <DD4hep/DetElement.h>
-#include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
-#include <DDRec/CellIDPositionConverter.h>
 #include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4hep/RawCalorimeterHitCollection.h>
 #include <stdint.h>
 #include <cstddef>
 #include <functional>
@@ -26,6 +22,25 @@
 
 #include "CalorimeterHitRecoConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace dd4hep::DDSegmentation {
+class BitFieldCoder;
+}
+namespace dd4hep::rec {
+class CellIDPositionConverter;
+}
+namespace dd4hep {
+class Detector;
+}
+namespace edm4eic {
+class CalorimeterHitCollection;
+}
+namespace edm4hep {
+class RawCalorimeterHit;
+}
+namespace edm4hep {
+class RawCalorimeterHitCollection;
+}
 
 namespace eicrecon {
 

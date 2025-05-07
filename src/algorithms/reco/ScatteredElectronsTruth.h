@@ -4,13 +4,20 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <string>
 #include <string_view>
 
 #include "algorithms/interfaces/ParticleSvc.h"
+
+namespace edm4eic {
+class MCRecoParticleAssociationCollection;
+}
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
+namespace edm4hep {
+class MCParticleCollection;
+}
 
 namespace eicrecon {
 

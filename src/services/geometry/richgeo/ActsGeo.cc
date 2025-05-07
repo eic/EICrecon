@@ -3,13 +3,15 @@
 
 #include "ActsGeo.h"
 
+#include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <algorithm>
+#include <spdlog/logger.h>
 #include <cmath>
 
 #include "algorithms/tracking/TrackPropagationConfig.h"

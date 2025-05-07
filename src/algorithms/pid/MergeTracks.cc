@@ -3,14 +3,15 @@
 
 #include "MergeTracks.h"
 
-#include <algorithm>
-#include <cstddef>
 #include <edm4eic/TrackPoint.h>
+#include <edm4eic/TrackSegmentCollection.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
+#include <podio/RelationRange.h>
+#include <algorithm>
+#include <cstddef>
 #include <gsl/pointers>
 #include <iterator>
-#include <podio/RelationRange.h>
 #include <unordered_map>
 #include <utility>
 

@@ -4,9 +4,6 @@
 // bind IRT and DD4hep geometries for the RICHes
 #pragma once
 
-#include <DD4hep/Detector.h>
-#include <edm4eic/TrackPoint.h>
-#include <spdlog/logger.h>
 #include <functional>
 #include <gsl/pointers>
 #include <memory>
@@ -14,6 +11,16 @@
 #include <vector>
 
 #include "algorithms/tracking/TrackPropagationConfig.h"
+
+namespace dd4hep {
+class Detector;
+}
+namespace edm4eic {
+class TrackPoint;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace richgeo {
 class ActsGeo {

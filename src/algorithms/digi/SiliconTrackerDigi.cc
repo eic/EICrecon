@@ -5,8 +5,11 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>

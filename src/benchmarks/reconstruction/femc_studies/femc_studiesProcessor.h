@@ -4,17 +4,22 @@
 //  Sections Copyright (C) 2023 Friederike Bock
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
-#include <DDSegmentation/BitFieldCoder.h>
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <TDirectory.h>
-#include <TH2.h>
-#include <TH3.h>
-#include <TTree.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <string>
+
+class JEvent;
+class TDirectory;
+class TH2D;
+class TH3D;
+class TTree;
+namespace dd4hep::DDSegmentation {
+class BitFieldCoder;
+}
+namespace spdlog {
+class logger;
+}
 
 class femc_studiesProcessor : public JEventProcessor {
 public:

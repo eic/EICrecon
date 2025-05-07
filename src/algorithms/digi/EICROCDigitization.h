@@ -7,13 +7,18 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4hep/RawTimeSeriesCollection.h>
 #include <string>
 #include <string_view>
 
 #include "algorithms/digi/EICROCDigitizationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class RawTrackerHitCollection;
+}
+namespace edm4hep {
+class RawTimeSeriesCollection;
+}
 
 namespace eicrecon {
 

@@ -4,6 +4,8 @@
 
 #include <JANA/JEvent.h>
 #include <TDirectory.h>
+#include <TH1.h>
+#include <TH2.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <cmath>
@@ -13,6 +15,8 @@
 #include <memory>
 
 #include "TrackingOccupancyAnalysis.h"
+
+class JApplication;
 
 void TrackingOccupancyAnalysis::init(JApplication* /* app */, TDirectory* plugin_tdir) {
   auto* dir = plugin_tdir->mkdir("SimOccupancies"); // TODO create directory for this analysis

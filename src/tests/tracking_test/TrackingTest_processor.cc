@@ -7,6 +7,7 @@
 #include <JANA/Services/JParameterManager.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/PxPyPzM4D.h>
+#include <TDirectory.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>

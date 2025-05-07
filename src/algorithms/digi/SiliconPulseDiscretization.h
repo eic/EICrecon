@@ -8,7 +8,6 @@
 
 #include <TGraph.h>
 #include <algorithms/algorithm.h>
-#include <edm4hep/RawTimeSeriesCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 #include <edm4eic/SimPulseCollection.h>
@@ -20,6 +19,10 @@
 
 #include "algorithms/digi/SiliconPulseDiscretizationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4hep {
+class RawTimeSeriesCollection;
+}
 
 namespace eicrecon {
 

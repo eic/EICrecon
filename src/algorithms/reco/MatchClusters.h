@@ -8,15 +8,27 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <stdint.h>
 #include <map>
 #include <string>
 #include <string_view>
+
+namespace edm4eic {
+class Cluster;
+}
+namespace edm4eic {
+class ClusterCollection;
+}
+namespace edm4eic {
+class MCRecoClusterParticleAssociationCollection;
+}
+namespace edm4eic {
+class MCRecoParticleAssociationCollection;
+}
+namespace edm4hep {
+class MCParticleCollection;
+}
 
 namespace eicrecon {
 

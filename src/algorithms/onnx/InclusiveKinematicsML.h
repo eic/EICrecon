@@ -4,15 +4,18 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <cstdint>
-#include <edm4eic/InclusiveKinematicsCollection.h>
 #include <onnxruntime_cxx_api.h>
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/onnx/InclusiveKinematicsMLConfig.h"
+
+namespace edm4eic {
+class InclusiveKinematicsCollection;
+}
 
 namespace eicrecon {
 

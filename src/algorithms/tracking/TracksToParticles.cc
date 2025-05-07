@@ -1,6 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov, Christopher Dilks, Dmitry Kalinkin
 
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <edm4hep/MCParticleCollection.h>

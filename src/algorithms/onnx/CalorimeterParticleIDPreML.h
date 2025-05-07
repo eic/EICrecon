@@ -4,14 +4,21 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/TensorCollection.h>
 #include <optional>
 #include <string>
 #include <string_view>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class ClusterCollection;
+}
+namespace edm4eic {
+class MCRecoClusterParticleAssociationCollection;
+}
+namespace edm4eic {
+class TensorCollection;
+}
 
 namespace eicrecon {
 

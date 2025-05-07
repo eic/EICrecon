@@ -3,18 +3,33 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/algorithm.h>
-#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/Measurement2DCollection.h>
-#include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrajectoryCollection.h>
 #include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
+
+namespace ActsExamples {
+struct Trajectories;
+}
+namespace edm4eic {
+class MCRecoTrackParticleAssociationCollection;
+}
+namespace edm4eic {
+class MCRecoTrackerHitAssociationCollection;
+}
+namespace edm4eic {
+class Measurement2DCollection;
+}
+namespace edm4eic {
+class TrackCollection;
+}
+namespace edm4eic {
+class TrackParametersCollection;
+}
+namespace edm4eic {
+class TrajectoryCollection;
+}
 
 namespace eicrecon {
 

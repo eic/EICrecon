@@ -14,18 +14,24 @@
 #include <Acts/Utilities/Result.hpp>
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
 #include <DD4hep/VolumeManager.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4eic/CovDiag3f.h>
+#include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <spdlog/common.h>
+#include <spdlog/logger.h>
 #include <Eigen/Core>
 #include <exception>
 #include <unordered_map>
 #include <utility>
+
+#include "ActsGeometryProvider.h"
 
 namespace eicrecon {
 

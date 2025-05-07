@@ -3,6 +3,7 @@
 
 #include <DD4hep/Detector.h>
 #include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>

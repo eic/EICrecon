@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
+
 #include "algorithms/tracking/TrackerHitReconstruction.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "extensions/jana/JOmniFactory.h"

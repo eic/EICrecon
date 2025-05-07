@@ -7,7 +7,6 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
@@ -31,15 +30,23 @@
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Trajectory.h>
+#include <edm4eic/VertexCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
+#include <spdlog/logger.h>
 #include <Eigen/Core>
 #include <cmath>
 #include <utility>
 
+#include "ActsGeometryProvider.h"
+#include "DD4hepBField.h"
 #include "extensions/spdlog/SpdlogToActs.h"
+
+namespace Acts {
+class MagneticFieldProvider;
+}
 
 void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
                                            std::shared_ptr<spdlog::logger> log) {

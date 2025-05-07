@@ -3,6 +3,13 @@
 
 #pragma once
 
+#include <edm4eic/Measurement2DCollection.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <ActsExamples/EventData/Trajectories.hpp>
+#include <edm4eic/TrajectoryCollection.h>
+#include <edm4eic/TrackCollection.h>
+
 #include <memory>
 
 #include "algorithms/tracking/ActsToTracks.h"

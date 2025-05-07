@@ -1,15 +1,18 @@
 
 #pragma once
 
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <podio/ROOTWriter.h>
-#include <spdlog/logger.h>
 #include <memory>
 #include <mutex>
 #include <set>
 #include <string>
 #include <vector>
+
+class JEvent;
+namespace spdlog {
+class logger;
+}
 
 class JEventProcessorPODIO : public JEventProcessor {
 

@@ -4,9 +4,6 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TensorCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <mutex>
 #include <optional>
 #include <string>
@@ -14,6 +11,16 @@
 
 #include "algorithms/fardetectors/FarDetectorTransportationPostMLConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
+namespace edm4eic {
+class TensorCollection;
+}
+namespace edm4hep {
+class MCParticleCollection;
+}
 
 namespace eicrecon {
 

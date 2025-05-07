@@ -4,9 +4,11 @@
 #include "MC2SmearedParticle.h"
 
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <spdlog/logger.h>
 
 void eicrecon::MC2SmearedParticle::init(std::shared_ptr<spdlog::logger> logger) { m_log = logger; }
 

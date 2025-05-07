@@ -4,15 +4,18 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <cstdint>
 #include <onnxruntime_cxx_api.h>
+#include <cstdint>
 #include <string>
 #include <string_view>
 #include <vector>
-#include <edm4eic/TensorCollection.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/onnx/ONNXInferenceConfig.h"
+
+namespace edm4eic {
+class TensorCollection;
+}
 
 namespace eicrecon {
 
