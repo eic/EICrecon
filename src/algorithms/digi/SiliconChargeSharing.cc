@@ -15,6 +15,7 @@
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
 #include <DD4hep/Volumes.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
@@ -56,7 +57,11 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     auto time       = hit.getTime();
     auto momentum   = hit.getMomentum();
     auto hitPos     = global2Local(hit);
-    auto mcParticle = hit.getMCParticle();
+#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
+    auto particle = hit.getParticle();
+#else
+    auto particle = hit.getMCParticle();
+#endif
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::vector<std::pair<dd4hep::rec::CellID, float>> cell_charge;
@@ -74,7 +79,11 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
       hit.setTime(time);
       hit.setPosition({globalPos.x(), globalPos.y(), globalPos.z()});
       hit.setMomentum({momentum.x, momentum.y, momentum.z});
-      hit.setMCParticle(mcParticle);
+#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
+      hit.setParticle(particle);
+#else
+      hit.setMCParticle(particle);
+#endif
     }
 
   } // for simhits
