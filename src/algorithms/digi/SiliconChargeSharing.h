@@ -42,7 +42,7 @@ private:
                                 std::unordered_set<dd4hep::rec::CellID>& tested_cells,
                                 std::vector<std::pair<dd4hep::rec::CellID, float>>& cell_charge,
                                 const float edep, const dd4hep::Position hitPos, const dd4hep::VolumeManagerContext*) const;
-  float energyAtCell(const dd4hep::rec::CellID& cell, dd4hep::Position hitPos, float edep) const;
+  float energyAtCell(const dd4hep::rec::CellID& cell, const dd4hep::Position hitPos, float edep) const;
   float integralGaus(float mean, float sd, float low_lim, float up_lim) const;
   dd4hep::Position cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
   dd4hep::Position global2Local(const dd4hep::Position& globalPosition, const TGeoHMatrix* transform) const;

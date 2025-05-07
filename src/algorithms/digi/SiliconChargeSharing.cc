@@ -169,7 +169,7 @@ dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& glob
 }
 
 // Calculate energy deposition in a cell relative to the hit position
-float SiliconChargeSharing::energyAtCell(const dd4hep::rec::CellID& cell, dd4hep::Position hitPos,
+float SiliconChargeSharing::energyAtCell(const dd4hep::rec::CellID& cell, const dd4hep::Position hitPos,
                                          float edep) const {
   auto localPos = cell2LocalPosition(cell);
 
