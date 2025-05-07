@@ -25,7 +25,6 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <gsl/pointers>
