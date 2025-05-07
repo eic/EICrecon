@@ -13,7 +13,6 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <stdint.h>
 #include <map>
-#include <memory>
 #include <mutex>
 #include <string>
 #include <string_view>
