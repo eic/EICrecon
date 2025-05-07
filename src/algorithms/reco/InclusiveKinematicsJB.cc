@@ -2,15 +2,15 @@
 // Copyright (C) 2022 Wouter Deconinck
 
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/MCParticleCollection.h>
-#if EDM4EIC_VERSION_MAJOR >= 6
 
+#if EDM4EIC_VERSION_MAJOR >= 6
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/HadronicFinalStateCollection.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>

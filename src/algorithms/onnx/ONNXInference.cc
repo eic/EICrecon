@@ -2,9 +2,9 @@
 // Copyright (C) 2022 - 2024 Wouter Deconinck, Tooba Ali, Dmitry Kalinkin
 
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/TensorCollection.h>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
+#include <edm4eic/TensorCollection.h>
 #include <fmt/core.h>
 #include <onnxruntime_c_api.h>
 #include <onnxruntime_cxx_api.h>
