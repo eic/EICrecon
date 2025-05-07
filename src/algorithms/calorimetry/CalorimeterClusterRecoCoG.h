@@ -13,8 +13,9 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4hep/CaloHitContribution.h>
 #include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <algorithm>
 #include <cmath>
 #include <functional>
@@ -28,9 +29,6 @@
 #include "CalorimeterClusterRecoCoGConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-namespace edm4hep {
-class SimCalorimeterHitCollection;
-}
 namespace edm4eic {
 class MCRecoCalorimeterHitAssociationCollection;
 }

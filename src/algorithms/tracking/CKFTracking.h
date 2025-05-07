@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
@@ -20,6 +21,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 class ActsGeometryProvider;
+
 namespace ActsExamples {
 struct Trajectories;
 }
