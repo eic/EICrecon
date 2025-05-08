@@ -49,21 +49,21 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 
   for (const auto& hit : *simhits) {
 
-    auto cellID     = hit.getCellID();
+    auto cellID = hit.getCellID();
 
-    auto element  = &m_converter->findContext(cellID)->element; // volume context
-    // ToDo: Move this to init() and set it once for every detelement associated with the readout    
-    // Set transformation map if it hasn't already been set 
+    auto element = &m_converter->findContext(cellID)->element; // volume context
+    // ToDo: Move this to init() and set it once for every detelement associated with the readout
+    // Set transformation map if it hasn't already been set
     m_transform_map.try_emplace(element, &element->nominal().worldTransformation());
-    m_segmentation_map.try_emplace(element,  getLocalSegmentation(cellID));
+    m_segmentation_map.try_emplace(element, getLocalSegmentation(cellID));
 
     // Try and get a box of the detectorElement solid
-    try{
+    try {
       dd4hep::Box box = element->solid();
-      
+
       if (box) {
-        m_x_range_map.try_emplace(element,box->GetDX());
-        m_y_range_map.try_emplace(element,box->GetDY());
+        m_x_range_map.try_emplace(element, box->GetDX());
+        m_y_range_map.try_emplace(element, box->GetDY());
       }
     } catch (const std::bad_cast& e) {
       error("Failed to cast solid to Box: {}", e.what());
@@ -72,16 +72,15 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     // error("CellID {} with x and y range {} and {}", cellID,
     //       m_x_range_map[element], m_y_range_map[element]);
 
-
     auto transform    = m_transform_map[element];
     auto segmentation = m_segmentation_map[element];
-    
+
     auto edep         = hit.getEDep();
     auto globalHitPos = hit.getPosition();
-    auto hitPos       = global2Local(
-      dd4hep::Position(globalHitPos.x * dd4hep::mm, globalHitPos.y * dd4hep::mm, globalHitPos.z * dd4hep::mm),
-      transform );
-
+    auto hitPos =
+        global2Local(dd4hep::Position(globalHitPos.x * dd4hep::mm, globalHitPos.y * dd4hep::mm,
+                                      globalHitPos.z * dd4hep::mm),
+                     transform);
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::vector<std::pair<dd4hep::rec::CellID, float>> cell_charge;
@@ -99,7 +98,6 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
       newHit.setEDep(edep_cell);
       newHit.setPosition({globalCellPos.x(), globalCellPos.y(), globalCellPos.z()});
       sharedHits->push_back(newHit);
-
     }
 
   } // for simhits
@@ -109,7 +107,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 void SiliconChargeSharing::findAllNeighborsInSensor(
     const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells,
     std::vector<std::pair<dd4hep::rec::CellID, float>>& cell_charge, const float edep,
-    const dd4hep::Position hitPos, const dd4hep::DetElement* element ) const {
+    const dd4hep::Position hitPos, const dd4hep::DetElement* element) const {
 
   // Tag cell as tested
   tested_cells.insert(testCellID);
@@ -117,10 +115,10 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   auto localPos = cell2LocalPosition(testCellID);
 
   // Check if the cell is within the sensor boundaries
-  if (std::abs(localPos.x()) > m_x_range_map[element] || std::abs(localPos.y()) > m_y_range_map[element]) {
+  if (std::abs(localPos.x()) > m_x_range_map[element] ||
+      std::abs(localPos.y()) > m_y_range_map[element]) {
     return;
   }
-
 
   // cout the local position and hit position
   auto xDimension = m_segmentation_map[element]->gridSizeX();
@@ -138,7 +136,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
   m_segmentation_map[element]->neighbours(testCellID, testCellNeighbours);
-  
+
   for (const auto& neighbourCell : testCellNeighbours) {
     // error("Testing neighbour cellID {}", neighbourCell);
     if (tested_cells.find(neighbourCell) == tested_cells.end()) {
@@ -167,7 +165,8 @@ dd4hep::Position SiliconChargeSharing::cell2LocalPosition(const dd4hep::rec::Cel
 }
 
 // Convert global position to local position
-dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& globalPosition, const TGeoHMatrix* transform) const {
+dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& globalPosition,
+                                                    const TGeoHMatrix* transform) const {
 
   double g[3];
   double l[3];
@@ -180,19 +179,19 @@ dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& glob
 }
 
 // Calculate energy deposition in a cell relative to the hit position
-float SiliconChargeSharing::energyAtCell(const double xDimension, const double yDimension, const dd4hep::Position localPos, const dd4hep::Position hitPos,
-                                         const float edep) const {
-  float energy =
-      edep *
-      integralGaus(hitPos.x(), m_cfg.sigma_sharingx, localPos.x() - 0.5 * xDimension,
-                   localPos.x() + 0.5 * xDimension) *
-      integralGaus(hitPos.y(), m_cfg.sigma_sharingy, localPos.y() - 0.5 * yDimension,
-                   localPos.y() + 0.5 * yDimension);
+float SiliconChargeSharing::energyAtCell(const double xDimension, const double yDimension,
+                                         const dd4hep::Position localPos,
+                                         const dd4hep::Position hitPos, const float edep) const {
+  float energy = edep *
+                 integralGaus(hitPos.x(), m_cfg.sigma_sharingx, localPos.x() - 0.5 * xDimension,
+                              localPos.x() + 0.5 * xDimension) *
+                 integralGaus(hitPos.y(), m_cfg.sigma_sharingy, localPos.y() - 0.5 * yDimension,
+                              localPos.y() + 0.5 * yDimension);
   return energy;
 }
 
 //Get the segmentation relevent to a cellID
-const dd4hep::DDSegmentation::CartesianGridXY *
+const dd4hep::DDSegmentation::CartesianGridXY*
 SiliconChargeSharing::getLocalSegmentation(const dd4hep::rec::CellID& cellID) const {
   // Get the segmentation type
   auto segmentation_type                                   = m_seg.type();
@@ -206,9 +205,10 @@ SiliconChargeSharing::getLocalSegmentation(const dd4hep::rec::CellID& cellID) co
   }
 
   // Try to cast the segmentation to CartesianGridXY
-  const auto* cartesianGrid = dynamic_cast<const dd4hep::DDSegmentation::CartesianGridXY*>(segmentation);
+  const auto* cartesianGrid =
+      dynamic_cast<const dd4hep::DDSegmentation::CartesianGridXY*>(segmentation);
   if (!cartesianGrid) {
-      throw std::runtime_error("Segmentation is not of type CartesianGridXY");
+    throw std::runtime_error("Segmentation is not of type CartesianGridXY");
   }
 
   return cartesianGrid;
