@@ -43,7 +43,8 @@ public:
     m_app = app;
     m_wirings.push_back({.m_tag                 = tag,
                          .m_default_input_tags  = default_input_tags,
-                         .m_default_output_tags = default_output_tags});
+                         .m_default_output_tags = default_output_tags,
+                         .m_default_cfg         = {}});
   }
 
   explicit JOmniFactoryGeneratorT(JApplication* app) : m_app(app) {}
