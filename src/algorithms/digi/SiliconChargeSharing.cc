@@ -74,7 +74,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     auto hitPos =
         global2Local(dd4hep::Position(globalHitPos.x * dd4hep::mm, globalHitPos.y * dd4hep::mm,
                                       globalHitPos.z * dd4hep::mm),
-                                      m_transform_map[element]);
+                     m_transform_map[element]);
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::vector<std::pair<dd4hep::rec::CellID, float>> cell_charge;
