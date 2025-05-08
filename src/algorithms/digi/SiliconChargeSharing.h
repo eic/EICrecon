@@ -9,6 +9,7 @@
 #include <DD4hep/Objects.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include <DDSegmentation/CartesianGridXY.h>
 #include <algorithms/algorithm.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <functional>
@@ -41,15 +42,17 @@ private:
   void findAllNeighborsInSensor(const dd4hep::rec::CellID test_CellID,
                                 std::unordered_set<dd4hep::rec::CellID>& tested_cells,
                                 std::vector<std::pair<dd4hep::rec::CellID, float>>& cell_charge,
-                                const float edep, const dd4hep::Position hitPos, const dd4hep::VolumeManagerContext*) const;
-  float energyAtCell(const dd4hep::rec::CellID& cell, const dd4hep::Position hitPos, float edep) const;
+                                const float edep, const dd4hep::Position hitPos, const dd4hep::DetElement* element) const;
+  float energyAtCell(const double xDimension, const double yDimension, const dd4hep::Position localPos, const dd4hep::Position hitPos, const float edep) const;
   float integralGaus(float mean, float sd, float low_lim, float up_lim) const;
   dd4hep::Position cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
   dd4hep::Position global2Local(const dd4hep::Position& globalPosition, const TGeoHMatrix* transform) const;
-  const dd4hep::DDSegmentation::Segmentation* getLocalSegmentation(const dd4hep::rec::CellID& cellID) const;
+  const dd4hep::DDSegmentation::CartesianGridXY* getLocalSegmentation(const dd4hep::rec::CellID& cellID) const;
 
-  mutable std::unordered_map<const dd4hep::VolumeManagerContext*,const TGeoHMatrix*> m_transform_map;
-  mutable std::unordered_map<const dd4hep::VolumeManagerContext*, const dd4hep::DDSegmentation::Segmentation *> m_segmentation_map;
+  mutable std::unordered_map<const dd4hep::DetElement*, const TGeoHMatrix*> m_transform_map;
+  mutable std::unordered_map<const dd4hep::DetElement*, const dd4hep::DDSegmentation::CartesianGridXY *> m_segmentation_map;
+  mutable std::unordered_map<const dd4hep::DetElement*, const double> m_x_range_map;
+  mutable std::unordered_map<const dd4hep::DetElement*, const double> m_y_range_map;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
   dd4hep::Segmentation m_seg;
 };
