@@ -1,0 +1,2 @@
+06934917acc0fc01b364b53cd25f23764dc2dfe4 # run clang-format in CI
+1fa8ab81db54c7892edd49e0e026e1da65093437 # fix: use clang-format rev: v16.0.6

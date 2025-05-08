@@ -106,7 +106,7 @@ You may specify both an include list and an exclude list.
 
 
 Similar to the input, you may also specify which collections to write out using the
-_podio:output_include_collections_ and _podio:output_exclude_collections_ configuration
+_podio:output_collections_ and _podio:output_exclude_collections_ configuration
 parameters.
 
 ### Testing

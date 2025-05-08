@@ -14,44 +14,43 @@
 
 #include "algorithms/reco/TransformBreitFrame.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
-    class TransformBreitFrame_factory : public JOmniFactory<TransformBreitFrame_factory> {
+class TransformBreitFrame_factory : public JOmniFactory<TransformBreitFrame_factory> {
 
-    public:
-      // algorithm to run
-      using Algo = eicrecon::TransformBreitFrame;
-    private:
-      std::unique_ptr<Algo> m_algo;
+public:
+  // algorithm to run
+  using Algo = eicrecon::TransformBreitFrame;
 
-      // input collection
-      PodioInput<edm4hep::MCParticle> m_in_mcpart {this};
-      PodioInput<edm4eic::InclusiveKinematics> m_in_kine {this};
-      PodioInput<edm4eic::ReconstructedParticle> m_in_part {this};
+private:
+  std::unique_ptr<Algo> m_algo;
 
-      // output collection
-      PodioOutput<edm4eic::ReconstructedParticle> m_out_part {this};
+  // input collection
+  PodioInput<edm4hep::MCParticle> m_in_mcpart{this};
+  PodioInput<edm4eic::InclusiveKinematics> m_in_kine{this};
+  PodioInput<edm4eic::ReconstructedParticle> m_in_part{this};
 
-    public:
+  // output collection
+  PodioOutput<edm4eic::ReconstructedParticle> m_out_part{this};
 
-      void Configure() {
-        m_algo = std::make_unique<Algo>(GetPrefix());
-        m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-        m_algo->init();
-      }
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
-      void ChangeRun(int64_t run_number) {
-        /* nothing to do */
-      }
+public:
+  void Configure() {
+    m_algo = std::make_unique<Algo>(GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->init();
+  }
 
-      void Process(int64_t run_number, int64_t event_number) {
-        m_algo->process(
-          {m_in_mcpart(),m_in_kine(),m_in_part()},
-          {m_out_part().get()}
-        );
-      }
+  void ChangeRun(int32_t /* run_number */) { /* nothing to do */
+  }
 
-    };  // end TransfromBreitFrame_factory definition
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+    m_algo->process({m_in_mcpart(), m_in_kine(), m_in_part()}, {m_out_part().get()});
+  }
 
-}  // end eicrecon namespace
+}; // end TransfromBreitFrame_factory definition
+
+} // namespace eicrecon

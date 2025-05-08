@@ -12,6 +12,7 @@ plugin_add(${PLUGIN_NAME} WITH_SHARED_LIBRARY WITHOUT_PLUGIN)
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
+plugin_add_algorithms(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_cern_root(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
@@ -22,3 +23,6 @@ plugin_add_event_model(${PLUGIN_NAME})
 
 # Add libraries (same as target_include_directories but for both plugin and
 # library) plugin_link_libraries(${PLUGIN_NAME} ... )
+
+# Link DD4hep library
+plugin_link_libraries(${PLUGIN_NAME} DD4hep::DDDigi)

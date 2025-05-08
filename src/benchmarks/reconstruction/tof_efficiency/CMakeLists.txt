@@ -9,8 +9,8 @@ plugin_add(${PLUGIN_NAME})
 
 # Find dependencies
 plugin_add_dd4hep(${PLUGIN_NAME})
-find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 plugin_add_acts(${PLUGIN_NAME})
+plugin_add_cern_root(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp Then
@@ -20,12 +20,4 @@ plugin_glob_all(${PLUGIN_NAME})
 
 # Add libraries (same as target_include_directories but for both plugin and
 # library)
-plugin_link_libraries(
-  ${PLUGIN_NAME}
-  ROOT::Core
-  ROOT::Tree
-  ROOT::Hist
-  ROOT::RIO
-  ROOT::EG
-  ActsCore
-  EDM4EIC::edm4eic)
+plugin_link_libraries(${PLUGIN_NAME})

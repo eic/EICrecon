@@ -13,36 +13,23 @@
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
 
-    using namespace eicrecon;
+  using namespace eicrecon;
 
-    // Digitization
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "SiBarrelRawHits",
-        {
-          "SiBarrelHits"
-        },
-        {
-          "SiBarrelRawHits",
-          "SiBarrelHitAssociations"
-        },
-        {
-            .threshold = 0.54 * dd4hep::keV,
-        },
-        app
-    ));
+  // Digitization
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+      "SiBarrelRawHits", {"SiBarrelHits"}, {"SiBarrelRawHits", "SiBarrelRawHitAssociations"},
+      {
+          .threshold = 0.54 * dd4hep::keV,
+      },
+      app));
 
-
-    // Convert raw digitized hits into hits with geometry info (ready for tracking)
-    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-        "SiBarrelTrackerRecHits",
-        {"SiBarrelRawHits"},
-        {"SiBarrelTrackerRecHits"},
-        {}, // default config
-        app
-    ));
-
+  // Convert raw digitized hits into hits with geometry info (ready for tracking)
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "SiBarrelTrackerRecHits", {"SiBarrelRawHits"}, {"SiBarrelTrackerRecHits"},
+      {}, // default config
+      app));
 }
 } // extern "C"

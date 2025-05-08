@@ -8,41 +8,45 @@
 #include <JANA/JEvent.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
-#include <podio/ROOTFrameReader.h>
-#include <stddef.h>
-#include <memory>
-#include <set>
+#include <podio/ROOTReader.h>
+#include <cstddef>
 #include <string>
+
+#if ((JANA_VERSION_MAJOR == 2) && (JANA_VERSION_MINOR >= 3)) || (JANA_VERSION_MAJOR > 2)
+#define JANA_NEW_CALLBACK_STYLE 1
+#else
+#define JANA_NEW_CALLBACK_STYLE 0
+#endif
 
 class JEventSourcePODIO : public JEventSource {
 
 public:
-    JEventSourcePODIO(std::string resource_name, JApplication* app);
+  JEventSourcePODIO(std::string resource_name, JApplication* app);
 
-    virtual ~JEventSourcePODIO();
+  virtual ~JEventSourcePODIO();
 
-    void Open() override;
+  void Open() override;
 
-    void Close() override;
+  void Close() override;
 
-    void GetEvent(std::shared_ptr<JEvent>) override;
+#if JANA_NEW_CALLBACK_STYLE
+  Result Emit(JEvent& event) override;
+#else
+  void GetEvent(std::shared_ptr<JEvent>) override;
+#endif
 
-    static std::string GetDescription();
+  static std::string GetDescription();
 
-    void PrintCollectionTypeTable(void);
+  void PrintCollectionTypeTable(void);
 
 protected:
-    podio::ROOTFrameReader m_reader;
-    size_t Nevents_in_file = 0;
-    size_t Nevents_read = 0;
+  podio::ROOTReader m_reader;
 
-    std::string m_include_collections_str;
-    std::string m_exclude_collections_str;
-    std::set<std::string> m_INPUT_INCLUDE_COLLECTIONS;
-    std::set<std::string> m_INPUT_EXCLUDE_COLLECTIONS;
-    bool m_run_forever=false;
+  std::size_t Nevents_in_file = 0;
+  std::size_t Nevents_read    = 0;
 
+  bool m_run_forever       = false;
+  bool m_use_event_headers = true;
 };
 
-template <>
-double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);
+template <> double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);

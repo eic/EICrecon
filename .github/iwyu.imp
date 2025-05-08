@@ -2,14 +2,14 @@
   # https://github.com/include-what-you-use/include-what-you-use/blob/master/docs/IWYUMappings.md
 
   # Boost
-  { ref: '/usr/local/share/include-what-you-use/boost-all.imp' },
+  { ref: '/opt/local/share/include-what-you-use/boost-all.imp' },
   { include: ['@<boost/histogram/.*\.hpp>', private, '<boost/histogram.hpp>', public] },
 
   # libc++
-  { ref: '/usr/local/share/include-what-you-use/libcxx.imp' },
+  { ref: '/opt/local/share/include-what-you-use/libcxx.imp' },
 
   # STL
-  { ref: '/usr/local/share/include-what-you-use/gcc.stl.headers.imp' },
+  { ref: '/opt/local/share/include-what-you-use/gcc.stl.headers.imp' },
 
   # Acts
   { include: ['@<Acts/(.*)\.ipp>', private, '<Acts/$1.hpp>', public] },

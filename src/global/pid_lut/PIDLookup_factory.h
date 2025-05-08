@@ -10,6 +10,7 @@
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -30,6 +31,8 @@ private:
                                        "Relative to current working directory"};
   ParameterRef<int> m_system{this, "system", config().system, "For the ParticleID record"};
 
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
+
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
@@ -38,11 +41,12 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_recoparticles_input(), m_recoparticle_assocs_input()},
-                    {m_recoparticles_output().get(), m_recoparticle_assocs_output().get(), m_particleids_output().get()});
+                    {m_recoparticles_output().get(), m_recoparticle_assocs_output().get(),
+                     m_particleids_output().get()});
   }
 };
 
