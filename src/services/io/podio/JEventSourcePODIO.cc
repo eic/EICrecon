@@ -67,7 +67,6 @@ JEventSourcePODIO::JEventSourcePODIO() {
 #if JANA_NEW_CALLBACK_STYLE
   SetCallbackStyle(CallbackStyle::ExpertMode); // Use new, exception-free Emit() callback
 #endif
-
 }
 
 //------------------------------------------------------------------------------
@@ -107,7 +106,6 @@ void JEventSourcePODIO::Init() {
             "Number of background events to add to every primary event."
     );
     */
-
 }
 //------------------------------------------------------------------------------
 // Open
