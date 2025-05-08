@@ -20,7 +20,7 @@ void frich_hit_map(const char *dfname, const char *cfname = 0)
   int nEvents = t->GetEntries();
   printf("%d event(s) total\n", nEvents);
 
-  auto hxy = new TH2D("hxy", "", 650, -650., 650., 650, -650.0, 650.);
+  auto hxy = new TH2D("hxy", "", 1200, -1200., 1200., 1200, -1200.0, 1200.);
 
   for(unsigned ev=0; ev<nEvents; ev++) {
     t->GetEntry(ev);

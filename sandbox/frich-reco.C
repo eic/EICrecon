@@ -27,7 +27,11 @@ void frich_reco(const char *dfname, const char *cfname = 0)
   auto *a1 = reco->UseRadiator("Aerogel");
   
   reco->GetMyRICH()->GetRadiator("GasVolume")->IgnoreInRingImaging();
-  reco->GetMyRICH()->GetRadiator("Acrylic")->IgnoreInRingImaging();
+  
+  auto acrylic = reco->GetMyRICH()->GetRadiator("Acrylic");
+  if (acrylic) acrylic->IgnoreInRingImaging();
+  //+reco->GetMyRICH()->GetRadiator("Acrylic")->IgnoreInRingImaging();
+  
   reco->GetMyRICH()->GetRadiator("QuartzWindow")->IgnoreInRingImaging();
 
   //reco->SetSinglePhotonTimingResolution(0.030);
@@ -47,7 +51,7 @@ void frich_reco(const char *dfname, const char *cfname = 0)
 
   auto hmatch = new TH1D("hmatch", "PID evaluation correctness",       3,    0,      3);
   //auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        200,  220,    320);
-  auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",        40,  270, 290);
+  auto hthtr1 = new TH1D("thtr1",  "Cherenkov angle (track)",       100,  165, 215);
   // For a dual aerogel configuration;
   //auto hthtr2  = new TH1D("thtr2",   "Cherenkov angle (track)",        200,  220,    320);
 

@@ -353,7 +353,7 @@ namespace eicrecon {
       // FIXME: do it better later;
       {
 	double eta = Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()).Eta();
-	printf("%s: %f %f %f\n", m_OutputFileName.c_str(), eta, m_config.m_eta_min, m_config.m_eta_max);
+	//printf("%s: %f %f %f\n", m_OutputFileName.c_str(), eta, m_config.m_eta_min, m_config.m_eta_max);
 	if (eta < m_config.m_eta_min || eta > m_config.m_eta_max) continue; 
       }
       

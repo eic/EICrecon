@@ -52,10 +52,9 @@ export ROOT_LIBRARY_PATH=${SANDBOX}/prefix/lib:${ROOT_LIBRARY_PATH}
 
 ```
 #
-# The rest is for a backward dummy RICH (BRICH) detector. Replace "BRICH" by either "FRICH" (forward dummy RICH) or "PFRICH" if needed.  
+# The rest is for a forward dummy RICH (FRICH) detector. Replace "FRICH" by either "BRICH" (backward dummy RICH) or "PFRICH" if needed.  
 #
 ```
-
 
 ```
 cd ${SANDBOX}/EICrecon/sandbox
@@ -64,38 +63,38 @@ cd ${SANDBOX}/EICrecon/sandbox
 # Create a HEPMC3 file with 1000 events; NB: check the actual script that it is up to date
 # (eta range in particular)!;
 #
-root -l 'hepmc-writer.C("electron-endcap.hepmc", 1000)'
+root -l 'hepmc-writer.C("hadron-endcap.hepmc", 1000)'
 
 #
-# Vizualize BRICH detector only; geometry check: /geometry/test/run BRICH_0; green button: new event
+# Vizualize FRICH detector only; geometry check: /geometry/test/run FRICH_0; green button: new event
 #
-npsim --runType qt --macroFile vis-brich.mac --compactFile ../../prefix/share/epic/epic_brich_only.xml --outputFile ./sim.edm4hep.brich.root --part.userParticleHandler= --inputFiles ./electron-endcap.hepmc -N 10
+npsim --runType qt --macroFile vis-frich.mac --compactFile ../../prefix/share/epic/epic_frich_only.xml --outputFile ./sim.edm4hep.dummy.root --part.userParticleHandler= --inputFiles ./hadron-endcap.hepmc -N 10
 
 #
 # Perform GEANT4 pass; 
 #
-npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_brich.xml --outputFile ./sim.edm4hep.brich.root --part.userParticleHandler= --inputFiles ./electron-endcap.hepmc -N 1000
+npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_frich.xml --outputFile ./sim.edm4hep.frich.root --part.userParticleHandler= --inputFiles ./hadron-endcap.hepmc -N 1000
 
 #
 # See simulated hits
 #
-root -l sim.edm4hep.brich.root
-root [1] events->Draw("BRICHHits.position.y:BRICHHits.position.x")
+root -l sim.edm4hep.frich.root
+root [1] events->Draw("FRICHHits.position.y:FRICHHits.position.x")
 ```
 
 ```
 #
 # Run EICrecon
 #
-$SANDBOX/prefix/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files="../../prefix/share/epic/epic_tracking_and_brich.xml" -Ppodio:output_collections="BRICHHits,MCParticles,BRICHTracks,IrtDebugInfoTables" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.brich.root" sim.edm4hep.brich.root -PBRICH:config=brich-reco.json
+$SANDBOX/prefix/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files="../../prefix/share/epic/epic_tracking_and_frich.xml" -Ppodio:output_collections="FRICHHits,MCParticles,FRICHTracks,FRICHIrtDebugInfoTables" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.frich.root" sim.edm4hep.frich.root -PFRICH:config=frich-reco.json
 
 #
 # See digitized hit map
 #
-root -l './brich-hit-map.C("brich-events.root")'
+root -l './frich-hit-map.C("frich-events.root")'
 
 #
 # Run standalone IRT 2.0 reconstruction script
 #
-root -l './brich-reco.C("brich-events.root")'
+root -l './frich-reco.C("frich-events.root")'
 ```
