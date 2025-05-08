@@ -5,15 +5,14 @@
 
 #include <JANA/Utils/JEventLevel.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include "services/io/podio/datamodel_glue.h"
 #include <JANA/JEventUnfolder.h>
 
 struct TimeframeSplitter : public JEventUnfolder {
 
-    // PodioInput<ExampleCluster> m_timeslice_clusters_in {this, {.name = "ts_protoclusters", .level = JEventLevel::Timeslice}};
-
-    // PodioOutput<ExampleCluster> m_event_clusters_out {this, "evt_protoclusters"};
-    // PodioOutput<EventInfo> m_event_info_out {this, "evt_info"};
+    PodioInput<edm4hep::EventHeader> m_event_header_in {this, {.name="EventHeader", .is_optional=true}};
+    PodioOutput<edm4hep::EventHeader> m_event_header_out {this, "EventHeader"};
 
     VariadicPodioInput<edm4hep::SimTrackerHit> m_simtrackerhits_in {this, {.names={
                 "MPGDBarrelHits",
@@ -33,39 +32,40 @@ struct TimeframeSplitter : public JEventUnfolder {
         SetTypeName(NAME_OF_THIS);
         SetParentLevel(JEventLevel::Timeslice);
         SetChildLevel(JEventLevel::PhysicsEvent);
-
-        for (size_t coll_index=0; coll_index < m_simtrackerhits_in().size(); ++ coll_index) {
-
-            const auto* coll_in = m_simtrackerhits_in().at(coll_index);
-            auto& coll_out = m_simtrackerhits_out().at(coll_index);
-            coll_out->setSubsetCollection(true);
-            for (const auto& hit : *coll_in) {
-                coll_out->push_back(hit);
-            }
-        }
     }
 
 
     Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
 
-        auto timeslice_nr = parent.GetEventNumber();
-        size_t event_nr = 100*timeslice_nr + child_idx;
-        child.SetEventNumber(event_nr);
+        LOG_INFO(GetLogger()) << "Running TimeframeSplitter::Unfold() on timeslice #" << parent.GetEventNumber() << LOG_END;
 
         // For now, a one-to-one relationship between timeslices and events
+        child.SetEventNumber(parent.GetEventNumber());
+        child.SetRunNumber(parent.GetRunNumber());
 
-        /*
-        auto event_clusters_out = std::make_unique<ExampleClusterCollection>();
-        event_clusters_out->setSubsetCollection(true);
-        event_clusters_out->push_back(m_timeslice_clusters_in()->at(child_idx));
+        // Insert an EventHeader object into the child event
+        // For now this is just a ref to the timeslice header
+        if (m_event_header_in() != nullptr) {
+            m_event_header_out()->setSubsetCollection(true);
+            m_event_header_out()->push_back(m_event_header_in()->at(0));
+        }
 
-        auto event_info_out = std::make_unique<EventInfoCollection>();
-        event_info_out->push_back(MutableEventInfo(event_nr, timeslice_nr, 0));
+        // Insert all SimTrackerHits into the child event
 
-        m_event_clusters_out() = std::move(event_clusters_out);
-        m_event_info_out() = std::move(event_info_out);
-        */
+        for (size_t coll_index=0; coll_index < m_simtrackerhits_in().size(); ++ coll_index) {
 
-        return (child_idx == 2) ? Result::NextChildNextParent : Result::NextChildKeepParent;
+            const auto* coll_in = m_simtrackerhits_in().at(coll_index);
+            auto& coll_out = m_simtrackerhits_out().at(coll_index);
+            if (coll_in != nullptr) {
+                coll_out->setSubsetCollection(true);
+                for (const auto& hit : *coll_in) {
+                    coll_out->push_back(hit);
+                }
+            }
+        }
+
+        // Produce exactly one physics event per timeframe for now
+        return JEventUnfolder::Result::NextChildNextParent;
+
     }
 };
