@@ -69,18 +69,12 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
       error("Failed to cast solid to Box: {}", e.what());
     }
 
-    // error("CellID {} with x and y range {} and {}", cellID,
-    //       m_x_range_map[element], m_y_range_map[element]);
-
-    auto transform    = m_transform_map[element];
-    auto segmentation = m_segmentation_map[element];
-
     auto edep         = hit.getEDep();
     auto globalHitPos = hit.getPosition();
     auto hitPos =
         global2Local(dd4hep::Position(globalHitPos.x * dd4hep::mm, globalHitPos.y * dd4hep::mm,
                                       globalHitPos.z * dd4hep::mm),
-                     transform);
+                                      m_transform_map[element]);
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::vector<std::pair<dd4hep::rec::CellID, float>> cell_charge;
@@ -120,9 +114,11 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
     return;
   }
 
+  auto segmentation = m_segmentation_map[element];
+
   // cout the local position and hit position
-  auto xDimension = m_segmentation_map[element]->gridSizeX();
-  auto yDimension = m_segmentation_map[element]->gridSizeY();
+  auto xDimension = segmentation->gridSizeX();
+  auto yDimension = segmentation->gridSizeY();
   // Calculate deposited energy in cell
   float edepCell = energyAtCell(xDimension, yDimension, localPos, hitPos, edep);
   // error("energy {} at cellID {}", edepCell, testCellID);
@@ -135,7 +131,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
 
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
-  m_segmentation_map[element]->neighbours(testCellID, testCellNeighbours);
+  segmentation->neighbours(testCellID, testCellNeighbours);
 
   for (const auto& neighbourCell : testCellNeighbours) {
     // error("Testing neighbour cellID {}", neighbourCell);
