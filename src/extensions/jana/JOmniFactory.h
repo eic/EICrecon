@@ -171,7 +171,7 @@ public:
       fac.SetData<T>(this->collection_names[0], this->m_data);
     }
 
-    void Reset() override {}
+    void Reset() override { m_data.clear(); }
   };
 
   template <typename PodioT> class PodioOutput : public OutputBase {
