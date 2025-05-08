@@ -121,7 +121,7 @@ void InitPlugin(JApplication* app) {
       .polar_edges    = {2.50, 10.95, 19.40, 27.85, 36.30, 44.75, 53.20, 61.65, 70.10, 78.55, 87.00,
                          95.45, 103.90, 112.35, 120.80, 129.25, 137.70, 146.15, 154.60},
       .azimuthal_binning           = {0., 360., 360.}, // lower, upper, step
-      .momentum_cut_max            = 2.5*edm4eic::unit::GeV,
+      .momentum_cut_max            = 2.5 * edm4eic::unit::GeV,
       .momentum_bin_centers_in_lut = true,
       .polar_bin_centers_in_lut    = true,
   };

@@ -82,8 +82,10 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     int identified_pdg = 0; // unknown
 
     bool entry_found = entry != nullptr;
-    bool entry_valid = (entry->prob_electron != 0.) || (entry->prob_pion != 0.) || (entry->prob_kaon != 0.) || (entry->prob_proton != 0.);
-    bool momentum_cut_pass = (momentum >= m_cfg.momentum_cut_min) && (momentum < m_cfg.momentum_cut_max);
+    bool entry_valid = (entry->prob_electron != 0.) || (entry->prob_pion != 0.) ||
+                       (entry->prob_kaon != 0.) || (entry->prob_proton != 0.);
+    bool momentum_cut_pass =
+        (momentum >= m_cfg.momentum_cut_min) && (momentum < m_cfg.momentum_cut_max);
 
     if (entry_found && entry_valid && momentum_cut_pass) {
       double random_unit_interval = m_dist(m_gen);
