@@ -7,7 +7,6 @@
 
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
-#include <DD4hep/VolumeManager.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
 #include <functional>
@@ -24,7 +23,8 @@ class BitFieldCoder;
 }
 namespace dd4hep {
 class Detector;
-}
+class VolumeManagerContext;
+} // namespace dd4hep
 namespace edm4hep {
 class SimTrackerHitCollection;
 }
