@@ -3,6 +3,7 @@
 //
 //
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
@@ -20,9 +21,9 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"

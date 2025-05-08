@@ -5,20 +5,21 @@
 
 #pragma once
 
-#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/DetElement.h>
 #include <DD4hep/Objects.h>
+#include <DD4hep/Segmentations.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <DDSegmentation/BitFieldCoder.h>
 #include <DDSegmentation/CartesianGridXY.h>
+#include <TGeoMatrix.h>
 #include <algorithms/algorithm.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <functional>
 #include <string>
 #include <string_view>
+#include <unordered_map>
 #include <unordered_set>
+#include <utility>
 #include <vector>
 
-#include "DD4hep/Detector.h"
 #include "algorithms/digi/SiliconChargeSharingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 

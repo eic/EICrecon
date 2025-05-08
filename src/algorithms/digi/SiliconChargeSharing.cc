@@ -3,37 +3,37 @@
 //
 // Spread energy deposition from one strip to neighboring strips within sensor boundaries
 
+#include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
-#include <DD4hep/detail/SegmentationsInterna.h>
-#include <DD4hep/detail/Handle.inl>
 #include <DD4hep/Handle.h>
-#include <DD4hep/Readout.h>
 #include <DD4hep/Objects.h>
+#include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
-#include <DD4hep/MultiSegmentation.h>
-#include <DDSegmentation/BitFieldCoder.h>
+#include <DD4hep/Shapes.h>
+#include <DD4hep/VolumeManager.h>
+#include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
-#include <DD4hep/Volumes.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <TGeoManager.h>
+#include <TGeoBBox.h>
 #include <TGeoMatrix.h>
-#include <TGeoVolume.h>
 #include <algorithms/geo.h>
-#include <algorithms/service.h>
+#include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
+#include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
+#include <set>
 #include <stdexcept>
+#include <typeinfo>
 #include <utility>
 #include <vector>
 
 #include "DD4hep/Detector.h"
 #include "SiliconChargeSharing.h"
 #include "algorithms/digi/SiliconChargeSharingConfig.h"
-#include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
 
@@ -121,7 +121,6 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   auto yDimension = segmentation->gridSizeY();
   // Calculate deposited energy in cell
   float edepCell = energyAtCell(xDimension, yDimension, localPos, hitPos, edep);
-  // error("energy {} at cellID {}", edepCell, testCellID);
   if (edepCell < m_cfg.min_edep) {
     return;
   }
@@ -186,7 +185,7 @@ float SiliconChargeSharing::energyAtCell(const double xDimension, const double y
   return energy;
 }
 
-//Get the segmentation relevent to a cellID
+// Get the segmentation relevant to a cellID
 const dd4hep::DDSegmentation::CartesianGridXY*
 SiliconChargeSharing::getLocalSegmentation(const dd4hep::rec::CellID& cellID) const {
   // Get the segmentation type
