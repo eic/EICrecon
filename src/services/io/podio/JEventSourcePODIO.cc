@@ -114,7 +114,6 @@ void JEventSourcePODIO::Init() {
 //------------------------------------------------------------------------------
 void JEventSourcePODIO::Open() {
 
-  bool print_type_table = GetApplication()->GetParameterValue<bool>("podio:print_type_table");
   // std::string background_filename = GetApplication()->GetParameterValue<std::string>("podio:background_filename");;
   // int num_background_events = GetApplication()->GetParameterValue<int>("podio:num_background_events");;
 
