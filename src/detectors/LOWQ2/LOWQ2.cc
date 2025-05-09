@@ -54,7 +54,7 @@ void InitPlugin(JApplication* app) {
       {
           .sigma_sharingx = 15 * dd4hep::um,
           .sigma_sharingy = 15 * dd4hep::um,
-          .min_edep       = 1.0e-7,
+          .min_edep       = 0.1 * edm4eic::unit::keV,
           .readout        = readout,
       },
       app));

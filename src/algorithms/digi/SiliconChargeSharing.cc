@@ -80,9 +80,6 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     std::vector<std::pair<dd4hep::rec::CellID, float>> cell_charge;
     findAllNeighborsInSensor(cellID, tested_cells, cell_charge, edep, hitPos, element);
 
-    //cout number of neighbors found
-    // error("Found {} neighbors for cellID {}", cell_charge.size(), cellID);
-
     // Create a new simhit for each cell with deposited energy
     for (const auto& [testCellID, edep_cell] : cell_charge) {
       auto globalCellPos = m_converter->position(testCellID);
@@ -133,7 +130,6 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   segmentation->neighbours(testCellID, testCellNeighbours);
 
   for (const auto& neighbourCell : testCellNeighbours) {
-    // error("Testing neighbour cellID {}", neighbourCell);
     if (tested_cells.find(neighbourCell) == tested_cells.end()) {
       findAllNeighborsInSensor(neighbourCell, tested_cells, cell_charge, edep, hitPos, element);
     }
