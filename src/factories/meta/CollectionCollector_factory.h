@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Simon Gardner
+// Copyright (C) 2024-2025 Simon Gardner
 
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/meta/CollectionCollector.h"
@@ -8,23 +8,26 @@ namespace eicrecon {
 
 template <class T, bool IsOptional = false>
 class CollectionCollector_factory
-    : public JOmniFactory<CollectionCollector_factory<T, IsOptional>> {
+    : public JOmniFactory<CollectionCollector_factory<T, IsOptional>, CollectionCollectorConfig> {
 public:
   using AlgoT = eicrecon::CollectionCollector<typename T::collection_type>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>>::template VariadicPodioInput<
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>, CollectionCollectorConfig>::template VariadicPodioInput<
       T, IsOptional>
       m_inputs{this};
-  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>>::template PodioOutput<T>
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>, CollectionCollectorConfig>::template PodioOutput<T>
       m_output{this};
+
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>, CollectionCollectorConfig>::template ParameterRef<bool> output_copies{this, "outputCopies", this->config().output_copies};
 
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(this->logger()->level()));
+    m_algo->applyConfig(this->config());
     m_algo->init();
   }
 

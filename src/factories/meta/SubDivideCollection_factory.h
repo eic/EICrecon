@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Simon Gardner
+// Copyright (C) 2024-2025 Simon Gardner
 
 #pragma once
 
@@ -24,6 +24,8 @@ private:
   typename FactoryT::template VariadicPodioOutput<T> m_split_output{this};
 
   typename FactoryT::template Service<AlgorithmsInit_service> m_algorithmsInit{this};
+
+  typename FactoryT::template ParameterRef<bool> output_copies{this, "outputCopies", this->config().output_copies};
 
 public:
   void Configure() {
