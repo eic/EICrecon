@@ -8,23 +8,25 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <TMath.h>
 #include <edm4eic/unit_system.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
-#include <TMath.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/LGADChargeSharing_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
-#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/reco/LGADHitCalibration_factory.h"
+#include "factories/reco/LGADHitClustering_factory.h"
+#include "factories/reco/LGADHitClusterAssociation_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -43,13 +45,28 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "TOFBarrelRecHits", {"TOFBarrelRawHits"}, // Input data collection tags
-      {"TOFBarrelRecHits"},                     // Output data tag
-      {
-          .timeResolution = 10,
-      },
+  // Convert raw digitized hits into calibrated hits
+  // time walk correction is still TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
+      "TOFBarrelCalHits", {"TOFBarrelADCTDC"}, // Input data collection tags
+      {"TOFBarrelCalHits"},                    // Output data tag
+      {},
+      app)); // Hit reco default config for factories
+
+  // cluster all hits in a sensor into one hit location
+  // Currently it's just a simple weighted average
+  // More sophisticated algorithm TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
+      "TOFBarrelClusterRecHits", {"TOFBarrelCalHits"}, // Input data collection tags
+      {"TOFBarrelClusterHits"},                        // Output data tag
+      {},
+      app)); // Hit reco default config for factories
+
+  app->Add(new JOmniFactoryGeneratorT<LGADHitClusterAssociation_factory>(
+      "TOFBarrelAssoRecHits",
+      {"TOFBarrelClusterHits", "TOFBarrelRawHits"}, // Input data collection tags
+      {"TOFBarrelRecHits"},                         // Output data tag
+      {},
       app)); // Hit reco default config for factories
 
   app->Add(new JOmniFactoryGeneratorT<LGADChargeSharing_factory>(
@@ -74,10 +91,10 @@ void InitPlugin(JApplication* app) {
   const double gain = -adc_range / Vm / landau_min;
   const int offset  = 3;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
-      "LGADPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
+      "TOFBarrelPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
       {
           .pulse_shape_function = "LandauPulse",
-          .pulse_shape_params   = {gain, sigma_analog, offset * sigma_analog},
+          .pulse_shape_params   = {gain, sigma_analog, offset},
           .ignore_thres         = 0.05 * adc_range,
           .timestep             = 0.01 * edm4eic::unit::ns,
       },
@@ -92,11 +109,11 @@ void InitPlugin(JApplication* app) {
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
-      "SiliconPulseDiscretization", {"TOFBarrelCombinedPulses"}, {"TOFBarrelPulses"},
+      "TOFBarrelPulseDiscretization", {"TOFBarrelCombinedPulses"}, {"TOFBarrelPulses"},
       {
           .EICROC_period = 25 * edm4eic::unit::ns,
           .local_period  = 25 * edm4eic::unit::ns / 1024,
-          .global_offset = -offset * sigma_analog + risetime,
+          .global_offset = -(offset + x_when_landau_min) * sigma_analog + risetime,
       },
       app));
 
