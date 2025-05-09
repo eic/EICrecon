@@ -10,15 +10,19 @@
 #include <Acts/Utilities/Result.hpp>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <spdlog/common.h>
+#include <spdlog/logger.h>
 #include <Eigen/Core>
 #include <cmath>
 #include <cstdlib>
 #include <limits>
 #include <memory>
 
+#include "ActsGeometryProvider.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 void eicrecon::TrackParamTruthInit::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,

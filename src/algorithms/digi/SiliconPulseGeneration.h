@@ -8,7 +8,6 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/SimTrackerHitCollection.h>
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 #include <edm4eic/SimPulseCollection.h>
 #else
@@ -20,6 +19,10 @@
 
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4hep {
+class SimTrackerHitCollection;
+}
 
 namespace eicrecon {
 

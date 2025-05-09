@@ -4,9 +4,11 @@
 //
 #include "Log_service.h"
 
+#include <JANA/JApplication.h>
 #include <JANA/JException.h>
-#include <spdlog/details/log_msg.h>
+#include <spdlog/common.h>
 #include <spdlog/formatter.h>
+#include <spdlog/logger.h>
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
@@ -20,6 +22,11 @@
 #include <utility>
 
 #include "extensions/spdlog/SpdlogExtensions.h"
+
+namespace spdlog::details {
+struct log_msg;
+}
+struct tm;
 
 #if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
 

@@ -4,13 +4,15 @@
 #include "IrtGeoPFRICH.h"
 
 #include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
 #include <DD4hep/Fields.h>
 #include <DD4hep/Volumes.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <IRT/CherenkovDetector.h>
 #include <IRT/CherenkovDetectorCollection.h>
+#include <IRT/CherenkovPhotonDetector.h>
 #include <IRT/CherenkovRadiator.h>
-#include <IRT/G4Object.h>
+#include <IRT/ParametricSurface.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TGeoNode.h>
@@ -18,6 +20,7 @@
 #include <TVector3.h>
 #include <fmt/core.h>
 #include <math.h>
+#include <spdlog/logger.h>
 #include <stdint.h>
 #include <map>
 #include <string>
@@ -25,6 +28,8 @@
 #include <utility>
 
 #include "services/geometry/richgeo/RichGeo.h"
+
+class G4LogicalVolume;
 
 void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
 

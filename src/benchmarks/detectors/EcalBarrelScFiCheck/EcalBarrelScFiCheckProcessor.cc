@@ -7,7 +7,10 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
 #include <TDirectory.h>
+#include <TH1.h>
+#include <TH2.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>

@@ -2,14 +2,17 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
-#include <TDirectory.h>
-#include <spdlog/logger.h>
 #include <memory>
 
 #include "extensions/spdlog/SpdlogMixin.h"
+
+class JApplication;
+class JEvent;
+class TDirectory;
+namespace spdlog {
+class logger;
+}
 
 class GeometryNavigationSteps_processor
     : public JEventProcessor,

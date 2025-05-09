@@ -9,11 +9,16 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <RtypesCore.h>
+#include <TDirectory.h>
+#include <TH2.h>
+#include <TH3.h>
 #include <TMath.h>
+#include <TTree.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
@@ -23,6 +28,7 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
+#include <spdlog/logger.h>
 #include <stdint.h>
 #include <algorithm>
 #include <cmath>

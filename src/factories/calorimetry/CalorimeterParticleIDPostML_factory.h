@@ -3,6 +3,11 @@
 
 #pragma once
 
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/TensorCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
+
 #include "algorithms/onnx/CalorimeterParticleIDPostML.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"

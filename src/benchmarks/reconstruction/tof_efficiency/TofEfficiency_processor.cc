@@ -1,7 +1,11 @@
 #include "TofEfficiency_processor.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
+#include <TDirectory.h>
+#include <TH2.h>
+#include <TNtuple.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>

@@ -4,14 +4,17 @@
 #include <edm4eic/EDM4eicVersion.h>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
-#include <cstddef>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/TensorCollection.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <cstdint>
-#include <stdexcept>
 #include <fmt/core.h>
+#include <cstddef>
+#include <cstdint>
 #include <gsl/pointers>
+#include <stdexcept>
 
 #include "CalorimeterParticleIDPreML.h"
 

@@ -5,24 +5,30 @@
 #pragma once
 
 #include <DD4hep/DetElement.h>
-#include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
-#include <DDRec/CellIDPositionConverter.h>
 #include <DDRec/DetectorData.h>
-#include <IRT/CherenkovDetector.h>
-#include <IRT/CherenkovDetectorCollection.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <spdlog/logger.h>
 #include <gsl/pointers>
 #include <memory>
 #include <string>
 #include <unordered_map>
 
-// local
-#include "RichGeo.h"
+class CherenkovDetector;
+class CherenkovDetectorCollection;
+namespace dd4hep::rec {
+class CellIDPositionConverter;
+}
+namespace dd4hep {
+class Detector;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace richgeo {
+class Sensor;
+
 class IrtGeo {
 public:
   // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`

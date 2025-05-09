@@ -4,6 +4,8 @@
 
 #include <JANA/JEvent.h>
 #include <TDirectory.h>
+#include <TH1.h>
+#include <TH2.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <cmath>
@@ -13,6 +15,8 @@
 #include <memory>
 
 #include "HitReconstructionAnalysis.h"
+
+class JApplication;
 
 void HitReconstructionAnalysis::init(JApplication* /* app */, TDirectory* plugin_tdir) {
 

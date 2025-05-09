@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <edm4hep/SimTrackerHitCollection.h>
+
 #include "extensions/jana/JOmniFactory.h"
 
 #include "algorithms/digi/LGADChargeSharing.h"

@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <edm4eic/TensorCollection.h>
+
 #include "algorithms/onnx/ONNXInference.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"

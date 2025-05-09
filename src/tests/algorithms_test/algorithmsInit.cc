@@ -21,6 +21,10 @@
 #include <string>
 #include <utility>
 
+namespace Catch {
+class IConfig;
+}
+
 class algorithmsInitListener : public Catch::EventListenerBase {
 public:
   using Catch::EventListenerBase::EventListenerBase;

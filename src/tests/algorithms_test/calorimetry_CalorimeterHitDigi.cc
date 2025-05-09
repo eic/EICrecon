@@ -6,7 +6,6 @@
 #include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/geo.h>
-#include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #if EDM4EIC_VERSION_MAJOR >= 7
@@ -27,6 +26,10 @@
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+
+namespace algorithms {
+enum class LogLevel : unsigned int;
+}
 
 using eicrecon::CalorimeterHitDigi;
 using eicrecon::CalorimeterHitDigiConfig;

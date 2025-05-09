@@ -4,13 +4,14 @@
 #include <edm4eic/EDM4eicVersion.h>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
-#include <algorithm>
-#include <cstddef>
+#include <edm4eic/TensorCollection.h>
 #include <fmt/core.h>
-#include <gsl/pointers>
-#include <iterator>
 #include <onnxruntime_c_api.h>
 #include <onnxruntime_cxx_api.h>
+#include <algorithm>
+#include <cstddef>
+#include <gsl/pointers>
+#include <iterator>
 #include <ostream>
 #include <stdexcept>
 

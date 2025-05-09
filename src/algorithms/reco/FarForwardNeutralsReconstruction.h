@@ -2,12 +2,9 @@
 // Copyright (C) 2025 Sebouh Paul
 
 #pragma once
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <spdlog/logger.h>
 #include <gsl/pointers>
 #include <memory>
 #include <string>      // for basic_string
@@ -17,6 +14,16 @@
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/FarForwardNeutralsReconstructionConfig.h"
+
+namespace dd4hep {
+class Detector;
+}
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace eicrecon {
 

@@ -4,11 +4,11 @@
 #pragma once
 
 #include "algorithms/tracking/TracksToParticles.h"
-#include <edm4eic/MCRecoParticleAssociation.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4eic/Track.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4hep/ParticleID.h>
+#include <edm4hep/ParticleIDCollection.h>
 #include <memory>
 
 namespace eicrecon {

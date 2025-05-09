@@ -5,11 +5,18 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/ProtoClusterCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <string>
 #include <string_view>
+
+namespace edm4eic {
+class CalorimeterHitCollection;
+}
+namespace edm4eic {
+class ProtoClusterCollection;
+}
+namespace edm4hep {
+class SimCalorimeterHitCollection;
+}
 
 namespace eicrecon {
 

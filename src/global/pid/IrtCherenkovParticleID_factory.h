@@ -17,6 +17,7 @@
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "services/geometry/richgeo/RichGeo_service.h"
+#include "services/geometry/richgeo/IrtGeo.h"
 
 namespace eicrecon {
 

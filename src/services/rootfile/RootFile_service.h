@@ -6,11 +6,13 @@
 #include <mutex>
 
 #include <JANA/JApplication.h>
-#include "services/log/Log_service.h"
 #include <JANA/Services/JGlobalRootLock.h>
 #include <JANA/Services/JServiceLocator.h>
+#include <spdlog/logger.h>
 
 #include <TFile.h>
+
+#include "services/log/Log_service.h"
 
 /**
  * This Service centralizes creation of a root file for histograms

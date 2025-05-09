@@ -3,14 +3,19 @@
 
 #include "IrtGeo.h"
 
+#include <DD4hep/Detector.h>
 #include <DD4hep/Volumes.h>
+#include <DDRec/CellIDPositionConverter.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <IRT/CherenkovDetector.h>
+#include <IRT/CherenkovDetectorCollection.h>
 #include <IRT/CherenkovRadiator.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TGDMLMatrix.h>
 #include <TString.h>
 #include <TVector3.h>
 #include <fmt/core.h>
+#include <spdlog/logger.h>
 #include <stdint.h>
 #include <cmath>
 #include <functional>

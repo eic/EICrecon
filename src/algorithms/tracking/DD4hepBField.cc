@@ -5,6 +5,7 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <DD4hep/Detector.h>
 #include <DD4hep/Fields.h>
 #include <DD4hep/Objects.h>
 #include <Evaluator/DD4hepUnits.h>

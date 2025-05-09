@@ -12,23 +12,31 @@
 
 #pragma once
 
+#include <DD4hep/IDDescriptor.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <DD4hep/IDDescriptor.h>
 #include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 7
-#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#endif
-#include <edm4hep/RawCalorimeterHitCollection.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#include <random>
 #include <stdint.h>
+#include <functional>
+#include <random>
 #include <string>
 #include <string_view>
-#include <functional>
 
 #include "CalorimeterHitDigiConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class MCRecoCalorimeterHitAssociationCollection;
+}
+namespace edm4hep {
+class RawCalorimeterHitCollection;
+}
+namespace edm4hep {
+class SimCalorimeterHit;
+}
+namespace edm4hep {
+class SimCalorimeterHitCollection;
+}
 
 namespace eicrecon {
 

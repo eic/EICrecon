@@ -4,10 +4,11 @@
 #include <edm4eic/EDM4eicVersion.h>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
-
+#include <edm4eic/TensorCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
-#include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
 #include <gsl/pointers>

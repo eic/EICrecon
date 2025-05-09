@@ -4,15 +4,27 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/CherenkovParticleIDCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/ParticleIDCollection.h>
 #include <string>
 #include <string_view>
 
 #include "MatchToRICHPIDConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+namespace edm4eic {
+class CherenkovParticleIDCollection;
+}
+namespace edm4eic {
+class MCRecoParticleAssociationCollection;
+}
+namespace edm4eic {
+class MutableReconstructedParticle;
+}
+namespace edm4eic {
+class ReconstructedParticleCollection;
+}
+namespace edm4hep {
+class ParticleIDCollection;
+}
 
 namespace eicrecon {
 

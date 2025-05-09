@@ -13,7 +13,6 @@
 #include <JANA/JLogger.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
-#include <TObject.h>
 #include <fmt/core.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
@@ -29,6 +28,8 @@
 // These files are generated automatically by make_datamodel_glue.py
 #include "services/io/podio/datamodel_glue.h"
 #include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
+
+class TObject;
 
 //------------------------------------------------------------------------------
 // InsertingVisitor

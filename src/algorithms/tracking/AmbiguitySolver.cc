@@ -18,7 +18,6 @@
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
-#include <edm4eic/Measurement2DCollection.h>
 #include <Eigen/Core>
 #include <cstddef>
 #include <utility>
@@ -27,6 +26,13 @@
 #include "AmbiguitySolverConfig.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
+
+namespace edm4eic {
+class Measurement2DCollection;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace eicrecon {
 

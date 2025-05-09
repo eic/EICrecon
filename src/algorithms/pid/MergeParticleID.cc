@@ -4,6 +4,7 @@
 #include "MergeParticleID.h"
 
 #include <algorithms/logger.h>
+#include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector2f.h>

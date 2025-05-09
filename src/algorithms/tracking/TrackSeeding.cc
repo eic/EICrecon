@@ -24,6 +24,8 @@
 #include <boost/container/small_vector.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <cmath>
@@ -32,6 +34,13 @@
 #include <optional>
 #include <tuple>
 #include <type_traits>
+
+#include "ActsGeometryProvider.h"
+#include "DD4hepBField.h"
+
+namespace spdlog {
+class logger;
+}
 
 namespace {
 //! convenience square method

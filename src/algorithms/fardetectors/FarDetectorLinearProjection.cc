@@ -3,6 +3,7 @@
 
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>

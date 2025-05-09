@@ -4,13 +4,14 @@
 
 #pragma once
 
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 #include <podio/ROOTReader.h>
 #include <cstddef>
 #include <string>
+
+class JApplication;
+class JEvent;
 
 #if ((JANA_VERSION_MAJOR == 2) && (JANA_VERSION_MINOR >= 3)) || (JANA_VERSION_MAJOR > 2)
 #define JANA_NEW_CALLBACK_STYLE 1

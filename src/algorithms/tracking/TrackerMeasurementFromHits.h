@@ -7,14 +7,24 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <edm4eic/Measurement2DCollection.h>
-#include <edm4eic/TrackerHitCollection.h>
-#include <spdlog/logger.h>
 #include <memory>
 
-#include "ActsGeometryProvider.h"
+class ActsGeometryProvider;
+namespace dd4hep::rec {
+class CellIDPositionConverter;
+}
+namespace dd4hep {
+class Detector;
+}
+namespace edm4eic {
+class Measurement2DCollection;
+}
+namespace edm4eic {
+class TrackerHitCollection;
+}
+namespace spdlog {
+class logger;
+}
 
 namespace eicrecon {
 

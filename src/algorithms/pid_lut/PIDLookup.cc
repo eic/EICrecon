@@ -5,6 +5,7 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
@@ -14,6 +15,7 @@
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
+#include "services/pid_lut/PIDLookupTable.h"
 #include "services/pid_lut/PIDLookupTableSvc.h"
 
 namespace eicrecon {

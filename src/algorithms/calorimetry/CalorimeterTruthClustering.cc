@@ -4,8 +4,11 @@
 #include "CalorimeterTruthClustering.h"
 
 #include <DD4hep/config.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <podio/ObjectID.h>
 #include <cstddef>
 #include <cstdint>

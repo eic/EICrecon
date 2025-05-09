@@ -3,16 +3,22 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/algorithm.h>
-#include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrackSegmentCollection.h>
 #include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "ActsGeometryProvider.h"
+class ActsGeometryProvider;
+namespace ActsExamples {
+struct Trajectories;
+}
+namespace edm4eic {
+class TrackCollection;
+}
+namespace edm4eic {
+class TrackSegmentCollection;
+}
 
 namespace eicrecon {
 

@@ -17,6 +17,8 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/logger.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <math.h>
