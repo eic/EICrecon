@@ -116,7 +116,8 @@ void PIDLookup::process(const Input& input, const Output& output) const {
                               static_cast<float>(entry->prob_proton) // float likelihood
                               ));
 
-      bool momentum_cut_pass = (momentum >= m_cfg.momentum_cut_min) && (momentum < m_cfg.momentum_cut_max);
+      bool momentum_cut_pass =
+          (momentum >= m_cfg.momentum_cut_min) && (momentum < m_cfg.momentum_cut_max);
       if (momentum_cut_pass) {
         if (random_unit_interval < entry->prob_electron) {
           identified_pdg = 11; // electron
