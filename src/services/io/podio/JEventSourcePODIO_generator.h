@@ -16,11 +16,19 @@ class JEventSourcePODIO_generator : public JEventSourceGenerator {
     // Check if the string "timeslices" appears anywhere in our filename.
     // If so, we assume the file contains timeslices, otherwise it contains physics events.
     // Another approach might be to peek at the file's contents
-    if (resource_name.find("timeslices") != std::string::npos) {
+    /*
+    if (resource_name.find("timeframe") != std::string::npos) {
       source->SetLevel(JEventLevel::Timeslice);
     } else {
       source->SetLevel(JEventLevel::PhysicsEvent);
     }
+    */
+
+    // TODO: NWB: Right now we are ALWAYS running the splitter, even when not necessary
+    //            This is so we can run CI tests against the entire reco pipeline
+    //            under the assumption timeframe = physicsevent
+
+    source->SetLevel(JEventLevel::Timeslice);
     return source;
   }
 
