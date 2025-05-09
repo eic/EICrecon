@@ -2,7 +2,6 @@
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
-#include <JANA/JLogger.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -461,21 +460,24 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   // Print the contents of some collections, just for debugging purposes
   // Do this before writing just in case writing crashes
   if (!m_collections_to_print.empty()) {
-    LOG << "========================================" << LOG_END;
-    LOG << "JEventProcessorPODIO: Event " << event->GetEventNumber() << LOG_END;
+    m_log->info("========================================");
+    m_log->info("JEventProcessorPODIO: Event {}", event->GetEventNumber());
+    ;
   }
   for (const auto& coll_name : m_collections_to_print) {
-    LOG << "------------------------------" << LOG_END;
-    LOG << coll_name << LOG_END;
+    m_log->info("------------------------------");
+    m_log->info("{}", coll_name);
     try {
       const auto* coll_ptr = event->GetCollectionBase(coll_name);
       if (coll_ptr == nullptr) {
-        LOG << "missing" << LOG_END;
+        m_log->info("missing");
       } else {
-        coll_ptr->print();
+        std::stringstream ss;
+        coll_ptr->print(ss);
+        m_log->info(ss.str());
       }
     } catch (std::exception& e) {
-      LOG << "missing" << LOG_END;
+      m_log->info("missing");
     }
   }
 

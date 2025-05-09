@@ -10,11 +10,11 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
-#include <JANA/JLogger.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <TObject.h>
 #include <fmt/core.h>
+#include <fmt/ostream.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/podioVersion.h>
@@ -29,6 +29,10 @@
 // These files are generated automatically by make_datamodel_glue.py
 #include "services/io/podio/datamodel_glue.h"
 #include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
+#include "services/log/Log_service.h"
+
+// Formatter for podio::version::Version
+template <> struct fmt::formatter<podio::version::Version> : ostream_formatter {};
 
 //------------------------------------------------------------------------------
 // InsertingVisitor
@@ -69,6 +73,9 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
   SetCallbackStyle(CallbackStyle::ExpertMode); // Use new, exception-free Emit() callback
 #endif
 
+  // Get Logger
+  m_log = GetApplication()->GetService<Log_service>()->logger("JEventSourcePODIO");
+
   // Tell JANA that we want it to call the FinishEvent() method.
   // EnableFinishEvent();
 
@@ -104,7 +111,7 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
 // Destructor
 //------------------------------------------------------------------------------
 JEventSourcePODIO::~JEventSourcePODIO() {
-  LOG << "Closing Event Source for " << GetResourceName() << LOG_END;
+  m_log->info("Closing Event Source for {}", GetResourceName());
 }
 
 //------------------------------------------------------------------------------
@@ -134,18 +141,17 @@ void JEventSourcePODIO::Open() {
       //            throw JException(ss.str());
     }
 
-    LOG << "PODIO version: file=" << version << " (executable=" << podio::version::build_version
-        << ")" << LOG_END;
+    m_log->info("PODIO version: file={} (executable={})", version, podio::version::build_version);
 
     Nevents_in_file = m_reader.getEntries("events");
-    LOG << "Opened PODIO Frame file \"" << GetResourceName() << "\" with " << Nevents_in_file
-        << " events" << LOG_END;
+    m_log->info("Opened PODIO Frame file \"{}\" with {} events", GetResourceName(),
+                Nevents_in_file);
 
     if (print_type_table)
       PrintCollectionTypeTable();
 
   } catch (std::exception& e) {
-    LOG_ERROR(default_cerr_logger) << e.what() << LOG_END;
+    m_log->error(e.what());
     throw JException(fmt::format("Problem opening file \"{}\"", GetResourceName()));
   }
 }
@@ -198,10 +204,9 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
   if (m_use_event_headers) {
     const auto& event_headers = frame->get<edm4hep::EventHeaderCollection>("EventHeader");
     if (event_headers.size() != 1) {
-      LOG_WARN(default_cerr_logger)
-          << "Missing or bad event headers: Entry " << Nevents_read << " contains "
-          << event_headers.size()
-          << " items, but 1 expected. Will not use event and run numbers from header" << LOG_END;
+      m_log->warn("Missing or bad event headers: Entry {} contains {} items, but 1 expected. Will "
+                  "not use event and run numbers from header",
+                  Nevents_read, event_headers.size());
       m_use_event_headers = false;
     } else {
       event.SetEventNumber(event_headers[0].getEventNumber());
