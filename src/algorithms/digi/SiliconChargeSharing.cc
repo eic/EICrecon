@@ -14,7 +14,6 @@
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
@@ -71,18 +70,11 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     }
 
     auto edep         = hit.getEDep();
-    auto time         = hit.getTime();
-    auto momentum     = hit.getMomentum();
     auto globalHitPos = hit.getPosition();
     auto hitPos =
         global2Local(dd4hep::Position(globalHitPos.x * dd4hep::mm, globalHitPos.y * dd4hep::mm,
                                       globalHitPos.z * dd4hep::mm),
                      m_transform_map[element]);
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
-    auto particle = hit.getParticle();
-#else
-    auto particle = hit.getMCParticle();
-#endif
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::vector<std::pair<dd4hep::rec::CellID, float>> cell_charge;
@@ -92,17 +84,11 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     for (const auto& [testCellID, edep_cell] : cell_charge) {
       auto globalCellPos = m_converter->position(testCellID);
 
-      auto hit = sharedHits->create();
-      hit.setCellID(testCellID);
-      hit.setEDep(edep_cell);
-      hit.setTime(time);
-      hit.setPosition({globalCellPos.x(), globalCellPos.y(), globalCellPos.z()});
-      hit.setMomentum({momentum.x, momentum.y, momentum.z});
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
-      hit.setParticle(particle);
-#else
-      hit.setMCParticle(particle);
-#endif
+      edm4hep::MutableSimTrackerHit shared_hit = hit.clone();
+      shared_hit.setCellID(testCellID);
+      shared_hit.setEDep(edep_cell);
+      shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm, globalCellPos.z() / dd4hep::mm});
+      sharedHits->push_back(shared_hit);
     }
 
   } // for simhits
