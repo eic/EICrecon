@@ -6,18 +6,22 @@
 
 #include <JANA/JException.h>
 #include <spdlog/details/log_msg.h>
+#include <spdlog/details/null_mutex.h>
 #include <spdlog/formatter.h>
 #include <spdlog/pattern_formatter.h>
+#include <spdlog/sinks/dup_filter_sink.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
 #if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
 #include <spdlog/mdc.h>
 #endif
+#include <chrono>
 #include <ctime>
 #include <exception>
 #include <map>
 #include <string_view>
 #include <utility>
+#include <vector>
 
 #include "extensions/spdlog/SpdlogExtensions.h"
 
@@ -78,6 +82,10 @@ Log_service::Log_service(JApplication* app) {
   m_application->SetDefaultParameter("eicrecon:LogFormat", m_log_level_str,
                                      "spdlog pattern string");
   spdlog::set_formatter(std::move(formatter));
+
+  m_log_dup_filter = 30; // seconds
+  m_application->SetDefaultParameter("eicrecon:DupFilter", m_log_dup_filter,
+                                     "spdlog duplicate filter timeout [s]");
 }
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
@@ -95,6 +103,17 @@ std::shared_ptr<spdlog::logger> Log_service::logger(const std::string& name,
     if (!logger) {
       // or create a new one with current configuration
       logger = spdlog::default_logger()->clone(name);
+
+      // insert duplicate filter
+#if SPDLOG_VERSION >= 11200 // FIXME: SPDLOG_TO_VERSION(1, 12, 0) only after 1.13.0
+      auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_st>(
+          std::chrono::seconds(m_log_dup_filter), spdlog::level::info);
+#else
+      auto dup_filter = std::make_shared<spdlog::sinks::dup_filter_sink_st>(
+          std::chrono::seconds(m_log_dup_filter));
+#endif
+      dup_filter->add_sink(logger->sinks().back());
+      logger->sinks()[0] = dup_filter;
 
       // Set log level for this named logger allowing user to specify as config. parameter
       // e.g. EcalEndcapPRecHits:LogLevel
