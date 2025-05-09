@@ -81,8 +81,11 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
     int identified_pdg = 0; // unknown
 
-    if ((entry != nullptr) && ((entry->prob_electron != 0.) || (entry->prob_pion != 0.) ||
-                               (entry->prob_kaon != 0.) || (entry->prob_proton != 0.))) {
+    bool entry_found = entry != nullptr;
+    bool entry_valid = (entry->prob_electron != 0.) || (entry->prob_pion != 0.) ||
+                       (entry->prob_kaon != 0.) || (entry->prob_proton != 0.);
+
+    if (entry_found && entry_valid) {
       double random_unit_interval = m_dist(m_gen);
 
       trace("entry with e:pi:K:P={}:{}:{}:{}", entry->prob_electron, entry->prob_pion,
@@ -113,20 +116,24 @@ void PIDLookup::process(const Input& input, const Output& output) const {
                               static_cast<float>(entry->prob_proton) // float likelihood
                               ));
 
-      if (random_unit_interval < entry->prob_electron) {
-        identified_pdg = 11; // electron
-        recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 4]);
-      } else if (random_unit_interval < (entry->prob_electron + entry->prob_pion)) {
-        identified_pdg = 211; // pion
-        recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 3]);
-      } else if (random_unit_interval <
-                 (entry->prob_electron + entry->prob_pion + entry->prob_kaon)) {
-        identified_pdg = 321; // kaon
-        recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 2]);
-      } else if (random_unit_interval < (entry->prob_electron + entry->prob_pion +
-                                         entry->prob_kaon + entry->prob_proton)) {
-        identified_pdg = 2212; // proton
-        recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 1]);
+      bool momentum_cut_pass =
+          (momentum >= m_cfg.momentum_cut_min) && (momentum < m_cfg.momentum_cut_max);
+      if (momentum_cut_pass) {
+        if (random_unit_interval < entry->prob_electron) {
+          identified_pdg = 11; // electron
+          recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 4]);
+        } else if (random_unit_interval < (entry->prob_electron + entry->prob_pion)) {
+          identified_pdg = 211; // pion
+          recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 3]);
+        } else if (random_unit_interval <
+                   (entry->prob_electron + entry->prob_pion + entry->prob_kaon)) {
+          identified_pdg = 321; // kaon
+          recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 2]);
+        } else if (random_unit_interval < (entry->prob_electron + entry->prob_pion +
+                                           entry->prob_kaon + entry->prob_proton)) {
+          identified_pdg = 2212; // proton
+          recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 1]);
+        }
       }
     }
 

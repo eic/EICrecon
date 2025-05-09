@@ -2,6 +2,7 @@
 // Copyright (C) 2022 - 2025 Christopher Dilks, Nilanga Wickramaarachchi, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
+#include <edm4eic/unit_system.h>
 #include <JANA/JApplication.h>
 #include <algorithm>
 #include <gsl/pointers>
@@ -77,6 +78,7 @@ void InitPlugin(JApplication* app) {
                          146.0, 147.0, 148.0, 149.0, 150.0, 151.0, 152.0, 153.0, 154.0, 155.0, 156.0,
                          157.0, 158.0, 159.0, 160.0},
       .azimuthal_binning = {0.0, 30.5, 0.5}, // lower, upper, step
+      .momentum_cut_min  = 2.5 * edm4eic::unit::GeV,
   };
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
