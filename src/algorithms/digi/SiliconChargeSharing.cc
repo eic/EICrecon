@@ -87,7 +87,8 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
       edm4hep::MutableSimTrackerHit shared_hit = hit.clone();
       shared_hit.setCellID(testCellID);
       shared_hit.setEDep(edep_cell);
-      shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm, globalCellPos.z() / dd4hep::mm});
+      shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
+                              globalCellPos.z() / dd4hep::mm});
       sharedHits->push_back(shared_hit);
     }
 
