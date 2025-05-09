@@ -92,7 +92,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     for (const auto& [testCellID, edep_cell] : cell_charge) {
       auto globalCellPos = m_converter->position(testCellID);
 
-      auto hit           = sharedHits->create();
+      auto hit = sharedHits->create();
       hit.setCellID(testCellID);
       hit.setEDep(edep_cell);
       hit.setTime(time);
@@ -103,7 +103,6 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 #else
       hit.setMCParticle(particle);
 #endif
-
     }
 
   } // for simhits
