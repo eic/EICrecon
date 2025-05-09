@@ -6,7 +6,7 @@
 namespace eicrecon {
 
 struct CollectionCollectorConfig {
-  bool output_copies = true;
+  bool output_copies = false;
 };
 
 } // namespace eicrecon
