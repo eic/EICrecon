@@ -25,7 +25,8 @@ private:
 
   typename FactoryT::template Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
-  typename FactoryT::template ParameterRef<bool> output_copies{this, "outputCopies", this->config().output_copies};
+  typename FactoryT::template ParameterRef<bool> output_copies{this, "outputCopies",
+                                                               this->config().output_copies};
 
 public:
   void Configure() {

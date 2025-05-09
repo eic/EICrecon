@@ -17,16 +17,17 @@ using CollectionCollectorAlgorithm =
     algorithms::Algorithm<typename algorithms::Input<std::vector<const T>>,
                           typename algorithms::Output<T>>;
 
-template <class T> class CollectionCollector : public CollectionCollectorAlgorithm<T>,
-                                               public WithPodConfig<CollectionCollectorConfig> {
+template <class T>
+class CollectionCollector : public CollectionCollectorAlgorithm<T>,
+                            public WithPodConfig<CollectionCollectorConfig> {
 
 public:
   CollectionCollector(std::string_view name)
       : CollectionCollectorAlgorithm<T>{name,
                                         {"inputCollections"},
                                         {"outputCollection"},
-                                        "Merge content of collections into one subset collection"} 
-                                      , WithPodConfig<CollectionCollectorConfig>() {};
+                                        "Merge content of collections into one subset collection"}
+      , WithPodConfig<CollectionCollectorConfig>(){};
 
   void init() final{};
 

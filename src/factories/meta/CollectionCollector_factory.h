@@ -15,13 +15,16 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>, CollectionCollectorConfig>::template VariadicPodioInput<
-      T, IsOptional>
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>,
+                        CollectionCollectorConfig>::template VariadicPodioInput<T, IsOptional>
       m_inputs{this};
-  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>, CollectionCollectorConfig>::template PodioOutput<T>
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>,
+                        CollectionCollectorConfig>::template PodioOutput<T>
       m_output{this};
 
-  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>, CollectionCollectorConfig>::template ParameterRef<bool> output_copies{this, "outputCopies", this->config().output_copies};
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>,
+                        CollectionCollectorConfig>::template ParameterRef<bool>
+      output_copies{this, "outputCopies", this->config().output_copies};
 
 public:
   void Configure() {
