@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Simon Gardner
+// Copyright (C) 2024-2025 Simon Gardner
 
 #pragma once
 
@@ -40,8 +40,11 @@ public:
     const auto [entries]      = input;
     auto [subdivided_entries] = output;
 
-    for (auto out : subdivided_entries) {
-      out->setSubsetCollection();
+    if (!this->m_cfg.output_copies) {
+      // Output subcollections
+      for (auto out : subdivided_entries) {
+        out->setSubsetCollection();
+      }
     }
 
     for (const auto& entry : *entries) {
@@ -49,7 +52,13 @@ public:
       auto div_indices = this->m_cfg.function(entry);
 
       for (auto index : div_indices) {
-        subdivided_entries[index]->push_back(entry);
+        if (this->m_cfg.output_copies) {
+          // Create a copy of the entry and add it to the output collection
+          subdivided_entries[index]->push_back(entry.clone());
+        } else {
+          // Add the entry to the subcollection
+          subdivided_entries[index]->push_back(entry);
+        }
       }
     }
 
