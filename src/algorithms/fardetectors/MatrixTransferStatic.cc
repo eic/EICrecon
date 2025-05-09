@@ -97,7 +97,10 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
     }
   }
   if (not matrix_found) {
-    error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
+    if (m_cfg.requireMatchingMatrix) {
+      critical("No matrix found with matching beam momentum");
+      throw std::runtime_error("No matrix found with matching beam momentum");
+    }
     return;
   }
 
