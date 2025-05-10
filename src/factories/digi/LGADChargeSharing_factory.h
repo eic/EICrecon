@@ -10,7 +10,8 @@
 
 namespace eicrecon {
 
-class LGADChargeSharing_factory : public JOmniFactory<LGADChargeSharing_factory, LGADChargeSharingConfig> {
+class LGADChargeSharing_factory
+    : public JOmniFactory<LGADChargeSharing_factory, LGADChargeSharingConfig> {
 public:
   using AlgoT = eicrecon::LGADChargeSharing;
 
@@ -34,9 +35,9 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_in_sim_track()}, {m_out_reco_particles().get()});
   }
 };

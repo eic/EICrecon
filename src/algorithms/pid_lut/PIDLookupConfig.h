@@ -15,11 +15,11 @@ struct PIDLookupConfig {
   std::vector<double> momentum_edges;
   std::vector<double> polar_edges;
   std::vector<double> azimuthal_binning;
-  bool azimuthal_bin_centers_in_lut {false};
-  bool momentum_bin_centers_in_lut {false};
-  bool polar_bin_centers_in_lut {false};
-  bool use_radians {false};
-  bool missing_electron_prob {false};
+  bool azimuthal_bin_centers_in_lut{false};
+  bool momentum_bin_centers_in_lut{false};
+  bool polar_bin_centers_in_lut{false};
+  bool use_radians{false};
+  bool missing_electron_prob{false};
 };
 
 } // namespace eicrecon

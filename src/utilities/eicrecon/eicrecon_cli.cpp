@@ -19,7 +19,6 @@
 #include <string>
 #include <utility>
 
-#include "JANA/JApplication.h"
 #include "JANA/JEventSource.h"
 #include "JANA/JException.h"
 #include "JANA/Services/JParameterManager.h"
@@ -202,7 +201,7 @@ bool HasExcludeDefaultPluginsInCliParams(UserOptions& options, const std::string
     return false;
 
   // Has cli option "-Pplugins_to_ignore". Look for @param erase_str
-  size_t pos = has_ignore_plugins->second.find(erase_str);
+  std::size_t pos = has_ignore_plugins->second.find(erase_str);
   if (pos == std::string::npos) // does not contain @param erase_str
     return false;
 
@@ -336,10 +335,10 @@ void PrintConfigParameters(JApplication* app) {
   /// printed due to the very long podio:output_include_collections param.
 
   // Determine column widths
-  auto params               = app->GetJParameterManager()->GetAllParameters();
-  size_t max_key_length     = 0;
-  size_t max_val_length     = 0;
-  size_t max_max_val_length = 32; // maximum width allowed for column.
+  auto params                    = app->GetJParameterManager()->GetAllParameters();
+  std::size_t max_key_length     = 0;
+  std::size_t max_val_length     = 0;
+  std::size_t max_max_val_length = 32; // maximum width allowed for column.
   for (auto& [key, p] : params) {
     if (key.length() > max_key_length)
       max_key_length = key.length();
@@ -350,8 +349,8 @@ void PrintConfigParameters(JApplication* app) {
   }
 
   std::cout << "\nConfiguration Parameters:" << std::endl;
-  std::cout << "Name" + std::string(std::max(max_key_length, size_t(4)) - 4, ' ') << " : ";
-  std::cout << "Value" + std::string(std::max(max_val_length, size_t(5)) - 5, ' ') << " : ";
+  std::cout << "Name" + std::string(std::max(max_key_length, std::size_t(4)) - 4, ' ') << " : ";
+  std::cout << "Value" + std::string(std::max(max_val_length, std::size_t(5)) - 5, ' ') << " : ";
   std::cout << "Description" << std::endl;
   std::cout << std::string(max_key_length + max_val_length + 20, '-') << std::endl;
   for (auto& [key, p] : params) {
@@ -405,7 +404,8 @@ int Execute(JApplication* app, UserOptions& options) {
     // TODO: more elegant processing here
     PrintPodioCollections(app);
   } else {
-    if ((JVersion::GetMajorNumber() == 2) && (JVersion::GetMinorNumber() == 3) && (JVersion::GetPatchNumber() <= 1)) {
+    if ((JVersion::GetMajorNumber() == 2) && (JVersion::GetMinorNumber() == 3) &&
+        (JVersion::GetPatchNumber() <= 1)) {
       // JANA2 2.3.x has a bug with not filtering default-state parameters, which causes enormous printouts
       if (not app->GetJParameterManager()->Exists("jana:parameter_verbosity")) {
         app->GetJParameterManager()->SetParameter("jana:parameter_verbosity", 0);
@@ -528,7 +528,7 @@ UserOptions GetCliOptions(int nargs, char* argv[], bool expect_extra) {
     case Unknown:
       if (argv[i][0] == '-' && argv[i][1] == 'P') {
 
-        size_t pos = arg.find("=");
+        std::size_t pos = arg.find("=");
         if ((pos != std::string::npos) && (pos > 2)) {
           std::string key = arg.substr(2, pos - 2);
           std::string val = arg.substr(pos + 1);
