@@ -80,9 +80,9 @@ jobs:
         include:
           - CXX: g++
             # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
-            CXXFLAGS: -Werror -Wall -Wextra -Wno-error=maybe-uninitialized
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=maybe-uninitialized
           - CXX: clang++
-            CXXFLAGS: -Werror -Wall -Wextra
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef
           # include clang++ Debug with profile CXXFLAGS
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
