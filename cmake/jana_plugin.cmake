@@ -345,7 +345,10 @@ endmacro()
 macro(plugin_add_event_model _name)
 
   if(NOT podio_FOUND)
-    find_package(podio ${podio_VERSION_MIN} REQUIRED)
+    find_package(podio ${podio_VERSION_MIN})
+    if(NOT podio_FOUND)
+      find_package(podio 1.0 REQUIRED)
+    endif()
   endif()
 
   if(NOT EDM4HEP_FOUND)
