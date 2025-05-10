@@ -222,7 +222,7 @@ macro(plugin_glob_all _name)
 
     # Debug output if needed
     message(VERBOSE
-          "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
+            "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
   endif(${_name}_WITH_LIBRARY)
 
   # Debug output if needed
