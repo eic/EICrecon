@@ -152,13 +152,12 @@ private:
   }
   // helper function
   inline static void vec_normalize(std::vector<double>& vals) {
-    double total = 0.;
-    for (auto& val : vals) {
-      total += val;
-    }
-    for (auto& val : vals) {
-      val /= total;
-    }
+    auto policy = std::execution::unseq;
+    // reduce to sum
+    auto total = std::reduce(policy, vals.begin(), vals.end());
+    // normalize
+    std::for_each(policy, vals.begin(), vals.end(),
+      [&total](auto &val) { val /= total; });
   }
 
   // split a group of hits according to the local maxima
