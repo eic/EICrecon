@@ -10,7 +10,7 @@
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
-#if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
+#if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
 #include <spdlog/mdc.h>
 #endif
 #include <ctime>
@@ -21,7 +21,7 @@
 
 #include "extensions/spdlog/SpdlogExtensions.h"
 
-#if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
+#if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
 
 // Define our own MDC formatter since the one in libspdlog.so does not
 // function correctly under some compilers
@@ -70,7 +70,7 @@ Log_service::Log_service(JApplication* app) {
   spdlog::default_logger()->set_level(eicrecon::ParseLogLevel(m_log_level_str));
 
   auto formatter = std::make_unique<spdlog::pattern_formatter>();
-#if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
+#if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
   formatter->add_flag<mdc_formatter_flag>('&').set_pattern("[%&] [%n] [%^%l%$] %v");
 #else
   formatter->set_pattern("[%n] [%^%l%$] %v");
