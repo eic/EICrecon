@@ -3,9 +3,8 @@
 
 #pragma once
 
-#include <iostream>
-
 #include "algorithms/digi/PulseNoise.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
