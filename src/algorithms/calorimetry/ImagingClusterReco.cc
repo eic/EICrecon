@@ -91,7 +91,7 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
 }
 
 std::vector<edm4eic::MutableCluster>
-ImagingClusterReco::reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl) {
+ImagingClusterReco::reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl) const {
   const auto& hits    = pcl.getHits();
   const auto& weights = pcl.getWeights();
   // using map to have hits sorted by layer
@@ -116,7 +116,7 @@ ImagingClusterReco::reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl)
 }
 
 edm4eic::MutableCluster ImagingClusterReco::reconstruct_layer(
-    const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) {
+    const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) const {
   edm4eic::MutableCluster layer;
   layer.setType(Jug::Reco::ClusterType::kClusterSlice);
   // Calculate averages
@@ -155,7 +155,8 @@ edm4eic::MutableCluster ImagingClusterReco::reconstruct_layer(
   return layer;
 }
 
-edm4eic::MutableCluster ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) {
+edm4eic::MutableCluster
+ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const {
   edm4eic::MutableCluster cluster;
 
   const auto& hits    = pcl.getHits();
