@@ -177,7 +177,7 @@ find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
 
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 ${Eigen3_VERSION_MIN} REQUIRED)
-find_package(podio ${podio_VERSION_MIN}REQUIRED)
+find_package(podio ${podio_VERSION_MIN} REQUIRED)
 find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
 find_package(EDM4EIC ${EDM4EICVERSION_MIN} REQUIRED)
 
