@@ -156,8 +156,7 @@ private:
     // reduce to sum
     auto total = std::reduce(policy, vals.begin(), vals.end());
     // normalize
-    std::for_each(policy, vals.begin(), vals.end(),
-      [&total](auto &val) { val /= total; });
+    std::for_each(policy, vals.begin(), vals.end(), [&total](auto& val) { val /= total; });
   }
 
   // split a group of hits according to the local maxima
