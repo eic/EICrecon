@@ -12,9 +12,11 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include <algorithm>
 #include <array>
 #include <cmath>
 #include <cstddef>
+#include <execution>
 #include <functional>
 #include <gsl/pointers>
 #include <set>
