@@ -182,7 +182,7 @@ if(NOT podio_FOUND)
   find_package(podio 1.0 REQUIRED)
 endif()
 find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
-find_package(EDM4EIC ${EDM4EICVERSION_MIN} REQUIRED)
+find_package(EDM4EIC ${EDM4EIC_VERSION_MIN} REQUIRED)
 
 # fmt
 find_package(fmt ${fmt_VERSION_MIN} REQUIRED)
