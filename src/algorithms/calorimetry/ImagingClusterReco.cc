@@ -11,6 +11,8 @@
 #include "algorithms/calorimetry/ImagingClusterReco.h"
 
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
