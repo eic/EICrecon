@@ -75,12 +75,13 @@ public:
   void process(const Input& input, const Output& output) const final;
 
 private:
-  std::vector<edm4eic::MutableCluster> reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl);
+  std::vector<edm4eic::MutableCluster>
+  reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl) const;
 
   edm4eic::MutableCluster
-  reconstruct_layer(const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits);
+  reconstruct_layer(const std::vector<std::pair<const edm4eic::CalorimeterHit, float>>& hits) const;
 
-  edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl);
+  edm4eic::MutableCluster reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const;
 
   std::pair<double /* polar */, double /* azimuthal */>
   fit_track(const std::vector<edm4eic::MutableCluster>& layers) const;
