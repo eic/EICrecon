@@ -180,11 +180,11 @@ find_package(podio ${podio_VERSION_MIN}REQUIRED)
 find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
 find_package(EDM4EIC ${EDM4EICVERSION_MIN} REQUIRED)
 
-# spdlog
-find_package(spdlog ${spdlog_VERSION_MIN} REQUIRED)
-
 # fmt
 find_package(fmt ${fmt_VERSION_MIN} REQUIRED)
+
+# spdlog
+find_package(spdlog ${spdlog_VERSION_MIN} REQUIRED)
 
 # Guidelines Support Library
 find_package(Microsoft.GSL CONFIG)
