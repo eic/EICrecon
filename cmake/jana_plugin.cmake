@@ -219,11 +219,13 @@ macro(plugin_glob_all _name)
 
     # Finally add sources to library
     target_sources(${_name}_library PRIVATE ${LIB_SRC_FILES})
+
+    # Debug output if needed
+    message(VERBOSE
+          "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
   endif(${_name}_WITH_LIBRARY)
 
   # Debug output if needed
-  message(VERBOSE
-          "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
   message(VERBOSE "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
   message(VERBOSE
           "plugin_glob_all:${_name}: PLUGIN_SRC_FILES ${PLUGIN_SRC_FILES}")
