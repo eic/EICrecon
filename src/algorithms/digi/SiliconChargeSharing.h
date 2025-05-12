@@ -42,9 +42,11 @@ public:
 private:
   void findAllNeighborsInSensor(const dd4hep::rec::CellID test_CellID,
                                 std::unordered_set<dd4hep::rec::CellID>& tested_cells,
-                                std::unordered_map<dd4hep::rec::CellID, float>& cell_charge,
                                 const float edep, const dd4hep::Position hitPos,
-                                const dd4hep::DetElement* element) const;
+                                const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
+                                const std::pair<double, double>& xy_range,
+                                const edm4hep::SimTrackerHit& hit,
+                                edm4hep::SimTrackerHitCollection* sharedHits) const;
   float energyAtCell(const double xDimension, const double yDimension,
                      const dd4hep::Position localPos, const dd4hep::Position hitPos,
                      const float edep) const;
@@ -59,8 +61,7 @@ private:
   mutable std::unordered_map<const dd4hep::DetElement*,
                              const dd4hep::DDSegmentation::CartesianGridXY*>
       m_segmentation_map;
-  mutable std::unordered_map<const dd4hep::DetElement*, const double> m_x_range_map;
-  mutable std::unordered_map<const dd4hep::DetElement*, const double> m_y_range_map;
+  mutable std::unordered_map<const dd4hep::DetElement*, const std::pair<double,double>> m_xy_range_map;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
   dd4hep::Segmentation m_seg;
 };

@@ -54,17 +54,14 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     auto element = &m_converter->findContext(cellID)->element; // volume context
     // ToDo: Move this to init() and set it once for every detelement associated with the readout
     // Set transformation map if it hasn't already been set
-    m_transform_map.try_emplace(element, &element->nominal().worldTransformation());
-    m_segmentation_map.try_emplace(element, getLocalSegmentation(cellID));
+    auto [transformIt, transformInserted]       = m_transform_map.try_emplace(element, &element->nominal().worldTransformation());
+    auto [segmentationIt, segmentationInserted] = m_segmentation_map.try_emplace(element, getLocalSegmentation(cellID));
 
-    // Try and get a box of the detectorElement solid
+    // Try and get a box of the detectorElement solid requiring segmentation
+    // to be a CartesianGridXY
     try {
       dd4hep::Box box = element->solid();
-
-      if (box) {
-        m_x_range_map.try_emplace(element, box->GetDX());
-        m_y_range_map.try_emplace(element, box->GetDY());
-      }
+      m_xy_range_map.try_emplace(element, box->GetDX(), box->GetDY());
     } catch (const std::bad_cast& e) {
       error("Failed to cast solid to Box: {}", e.what());
     }
@@ -74,32 +71,25 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     auto hitPos =
         global2Local(dd4hep::Position(globalHitPos.x * dd4hep::mm, globalHitPos.y * dd4hep::mm,
                                       globalHitPos.z * dd4hep::mm),
-                     m_transform_map[element]);
+                     transformIt->second);
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::unordered_map<dd4hep::rec::CellID, float> cell_charge;
-    findAllNeighborsInSensor(cellID, tested_cells, cell_charge, edep, hitPos, element);
 
-    // Create a new simhit for each cell with deposited energy
-    for (const auto& [testCellID, edep_cell] : cell_charge) {
-      auto globalCellPos = m_converter->position(testCellID);
-
-      edm4hep::MutableSimTrackerHit shared_hit = hit.clone();
-      shared_hit.setCellID(testCellID);
-      shared_hit.setEDep(edep_cell);
-      shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
-                              globalCellPos.z() / dd4hep::mm});
-      sharedHits->push_back(shared_hit);
-    }
+    // Warning: This function is recursive, it stops shen it finds the edge of a detector element
+    // or when the energy deposited in a cell is below the configured threshold
+    findAllNeighborsInSensor(cellID, tested_cells, edep, hitPos, segmentationIt->second, m_xy_range_map[element], hit, sharedHits);
 
   } // for simhits
 } // SiliconChargeSharing:process
 
 // Recursively find neighbors where a charge is deposited
 void SiliconChargeSharing::findAllNeighborsInSensor(
-    const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells,
-    std::unordered_map<dd4hep::rec::CellID, float>& cell_charge, const float edep,
-    const dd4hep::Position hitPos, const dd4hep::DetElement* element) const {
+    const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells, 
+    const float edep, const dd4hep::Position hitPos, 
+    const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
+    const std::pair<double, double>& xy_range, const edm4hep::SimTrackerHit& hit, 
+    edm4hep::SimTrackerHitCollection* sharedHits) const {
 
   // Tag cell as tested
   tested_cells.insert(testCellID);
@@ -107,12 +97,10 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   auto localPos = cell2LocalPosition(testCellID);
 
   // Check if the cell is within the sensor boundaries
-  if (std::abs(localPos.x()) > m_x_range_map[element] ||
-      std::abs(localPos.y()) > m_y_range_map[element]) {
+  if (std::abs(localPos.x()) > xy_range.first ||
+      std::abs(localPos.y()) > xy_range.second) {
     return;
   }
-
-  auto segmentation = m_segmentation_map[element];
 
   // cout the local position and hit position
   auto xDimension = segmentation->gridSizeX();
@@ -123,8 +111,15 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
     return;
   }
 
-  // Store cellID and deposited energy
-  cell_charge.emplace(testCellID, edepCell);
+  // Create a new simhit for cell with deposited energy
+  auto globalCellPos = m_converter->position(testCellID);
+
+  edm4hep::MutableSimTrackerHit shared_hit = hit.clone();
+  shared_hit.setCellID(testCellID);
+  shared_hit.setEDep(edepCell);
+  shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
+                          globalCellPos.z() / dd4hep::mm});
+  sharedHits->push_back(shared_hit);
 
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
@@ -132,7 +127,8 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
 
   for (const auto& neighbourCell : testCellNeighbours) {
     if (tested_cells.find(neighbourCell) == tested_cells.end()) {
-      findAllNeighborsInSensor(neighbourCell, tested_cells, cell_charge, edep, hitPos, element);
+      findAllNeighborsInSensor(neighbourCell, tested_cells, edep, hitPos, 
+                               segmentation, xy_range, hit, sharedHits);
     }
   }
 }
