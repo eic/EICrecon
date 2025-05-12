@@ -175,62 +175,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "ForwardOffMTrackerRawHits",
     "ForwardOffMTrackerRawHitAssociations",
 
-<<<<<<< HEAD
-            // Reconstructed data
-            "GeneratedParticles",
-            "GeneratedBreitFrameParticles",
-            "ReconstructedParticles",
-            "ReconstructedParticleAssociations",
-            "ReconstructedTruthSeededChargedParticles",
-            "ReconstructedTruthSeededChargedParticleAssociations",
-            "ReconstructedChargedRealPIDParticles",
-            "ReconstructedChargedParticles",
-            "ReconstructedChargedParticleAssociations",
-            "MCScatteredElectronAssociations", // Remove if/when used internally
-            "MCNonScatteredElectronAssociations", // Remove if/when used internally
-            "ReconstructedChargedParticleIDs",
-            "ReconstructedBreitFrameParticles",
-            "CentralTrackSegments",
-            "CentralTrackVertices",
-            "CentralCKFTruthSeededTrajectories",
-            "CentralCKFTruthSeededTracks",
-            "CentralCKFTruthSeededTrackAssociations",
-            "CentralCKFTruthSeededTrackParameters",
-            "CentralCKFTrajectories",
-            "CentralCKFTracks",
-            "CentralCKFTrackAssociations",
-            "CentralCKFTrackParameters",
-            "AMVSecondaryTrackVertices",
-            //tracking properties - true seeding
-            "CentralCKFTruthSeededTrajectoriesUnfiltered",
-            "CentralCKFTruthSeededTracksUnfiltered",
-            "CentralCKFTruthSeededTrackUnfilteredAssociations",
-            "CentralCKFTruthSeededTrackParametersUnfiltered",
-             //tracking properties - realistic seeding
-            "CentralCKFTrajectoriesUnfiltered",
-            "CentralCKFTracksUnfiltered",
-            "CentralCKFTrackUnfilteredAssociations",
-            "CentralCKFTrackParametersUnfiltered",
-            "InclusiveKinematicsDA",
-            "InclusiveKinematicsJB",
-            "InclusiveKinematicsML",
-            "InclusiveKinematicsSigma",
-            "InclusiveKinematicseSigma", // Deprecated, use ESigma
-            "InclusiveKinematicsESigma",
-            "InclusiveKinematicsElectron",
-            "InclusiveKinematicsTruth",
-            "GeneratedJets",
-            "GeneratedChargedJets",
-            "GeneratedCentauroJets",
-            "ReconstructedJets",
-            "ReconstructedChargedJets",
-            "ReconstructedCentauroJets",
-            "ReconstructedElectrons",
-            "ScatteredElectronsTruth",
-            "ScatteredElectronsEMinusPz",
-            "PrimaryVertices",
-            "BarrelClusters",
-=======
     // Reconstructed data
     "GeneratedParticles",
     "GeneratedBreitFrameParticles",
@@ -255,6 +199,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "CentralCKFTracks",
     "CentralCKFTrackAssociations",
     "CentralCKFTrackParameters",
+    "AMVSecondaryTrackVertices",
     //tracking properties - true seeding
     "CentralCKFTruthSeededTrajectoriesUnfiltered",
     "CentralCKFTruthSeededTracksUnfiltered",
@@ -284,7 +229,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "ScatteredElectronsEMinusPz",
     "PrimaryVertices",
     "BarrelClusters",
->>>>>>> 0df79a0deeac60236db5b44007ec468cf8841282
 #if EDM4EIC_VERSION_MAJOR >= 6
     "HadronicFinalState",
 #endif
