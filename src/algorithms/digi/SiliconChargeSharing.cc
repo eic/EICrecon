@@ -54,8 +54,10 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     auto element = &m_converter->findContext(cellID)->element; // volume context
     // ToDo: Move this to init() and set it once for every detelement associated with the readout
     // Set transformation map if it hasn't already been set
-    auto [transformIt, transformInserted]       = m_transform_map.try_emplace(element, &element->nominal().worldTransformation());
-    auto [segmentationIt, segmentationInserted] = m_segmentation_map.try_emplace(element, getLocalSegmentation(cellID));
+    auto [transformIt, transformInserted] =
+        m_transform_map.try_emplace(element, &element->nominal().worldTransformation());
+    auto [segmentationIt, segmentationInserted] =
+        m_segmentation_map.try_emplace(element, getLocalSegmentation(cellID));
 
     // Try and get a box of the detectorElement solid requiring segmentation
     // to be a CartesianGridXY, throwing exception in getLocalSegmentation
@@ -78,17 +80,18 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 
     // Warning: This function is recursive, it stops shen it finds the edge of a detector element
     // or when the energy deposited in a cell is below the configured threshold
-    findAllNeighborsInSensor(cellID, tested_cells, edep, hitPos, segmentationIt->second, m_xy_range_map[element], hit, sharedHits);
+    findAllNeighborsInSensor(cellID, tested_cells, edep, hitPos, segmentationIt->second,
+                             m_xy_range_map[element], hit, sharedHits);
 
   } // for simhits
 } // SiliconChargeSharing:process
 
 // Recursively find neighbors where a charge is deposited
 void SiliconChargeSharing::findAllNeighborsInSensor(
-    const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells, 
-    const float edep, const dd4hep::Position hitPos, 
+    const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells,
+    const float edep, const dd4hep::Position hitPos,
     const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
-    const std::pair<double, double>& xy_range, const edm4hep::SimTrackerHit& hit, 
+    const std::pair<double, double>& xy_range, const edm4hep::SimTrackerHit& hit,
     edm4hep::SimTrackerHitCollection* sharedHits) const {
 
   // Tag cell as tested
@@ -97,8 +100,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   auto localPos = cell2LocalPosition(testCellID);
 
   // Check if the cell is within the sensor boundaries
-  if (std::abs(localPos.x()) > xy_range.first ||
-      std::abs(localPos.y()) > xy_range.second) {
+  if (std::abs(localPos.x()) > xy_range.first || std::abs(localPos.y()) > xy_range.second) {
     return;
   }
 
@@ -127,8 +129,8 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
 
   for (const auto& neighbourCell : testCellNeighbours) {
     if (tested_cells.find(neighbourCell) == tested_cells.end()) {
-      findAllNeighborsInSensor(neighbourCell, tested_cells, edep, hitPos, 
-                               segmentation, xy_range, hit, sharedHits);
+      findAllNeighborsInSensor(neighbourCell, tested_cells, edep, hitPos, segmentation, xy_range,
+                               hit, sharedHits);
     }
   }
 }

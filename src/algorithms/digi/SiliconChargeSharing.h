@@ -61,7 +61,8 @@ private:
   mutable std::unordered_map<const dd4hep::DetElement*,
                              const dd4hep::DDSegmentation::CartesianGridXY*>
       m_segmentation_map;
-  mutable std::unordered_map<const dd4hep::DetElement*, const std::pair<double,double>> m_xy_range_map;
+  mutable std::unordered_map<const dd4hep::DetElement*, const std::pair<double, double>>
+      m_xy_range_map;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
   dd4hep::Segmentation m_seg;
 };
