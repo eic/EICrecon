@@ -42,7 +42,7 @@ public:
 private:
   void findAllNeighborsInSensor(const dd4hep::rec::CellID test_CellID,
                                 std::unordered_set<dd4hep::rec::CellID>& tested_cells,
-                                std::vector<std::pair<dd4hep::rec::CellID, float>>& cell_charge,
+                                std::unordered_map<dd4hep::rec::CellID, float>& cell_charge,
                                 const float edep, const dd4hep::Position hitPos,
                                 const dd4hep::DetElement* element) const;
   float energyAtCell(const double xDimension, const double yDimension,

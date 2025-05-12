@@ -77,7 +77,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
                      m_transform_map[element]);
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
-    std::vector<std::pair<dd4hep::rec::CellID, float>> cell_charge;
+    std::unordered_map<dd4hep::rec::CellID, float> cell_charge;
     findAllNeighborsInSensor(cellID, tested_cells, cell_charge, edep, hitPos, element);
 
     // Create a new simhit for each cell with deposited energy
@@ -98,7 +98,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 // Recursively find neighbors where a charge is deposited
 void SiliconChargeSharing::findAllNeighborsInSensor(
     const dd4hep::rec::CellID testCellID, std::unordered_set<dd4hep::rec::CellID>& tested_cells,
-    std::vector<std::pair<dd4hep::rec::CellID, float>>& cell_charge, const float edep,
+    std::unordered_map<dd4hep::rec::CellID, float>& cell_charge, const float edep,
     const dd4hep::Position hitPos, const dd4hep::DetElement* element) const {
 
   // Tag cell as tested
@@ -119,12 +119,12 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   auto yDimension = segmentation->gridSizeY();
   // Calculate deposited energy in cell
   float edepCell = energyAtCell(xDimension, yDimension, localPos, hitPos, edep);
-  if (edepCell < m_cfg.min_edep) {
+  if (edepCell <= m_cfg.min_edep) {
     return;
   }
 
   // Store cellID and deposited energy
-  cell_charge.push_back(std::make_pair(testCellID, edepCell));
+  cell_charge.emplace(testCellID, edepCell);
 
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
