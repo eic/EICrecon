@@ -51,7 +51,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 
     auto cellID = hit.getCellID();
 
-    auto element = &m_converter->findContext(cellID)->element; // volume context
+    const auto* element = &m_converter->findContext(cellID)->element; // volume context
     // ToDo: Move this to init() and set it once for every detelement associated with the readout
     // Set transformation map if it hasn't already been set
     auto [transformIt, transformInserted] =
