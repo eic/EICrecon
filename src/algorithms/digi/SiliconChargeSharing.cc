@@ -58,7 +58,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     auto [segmentationIt, segmentationInserted] = m_segmentation_map.try_emplace(element, getLocalSegmentation(cellID));
 
     // Try and get a box of the detectorElement solid requiring segmentation
-    // to be a CartesianGridXY
+    // to be a CartesianGridXY, throwing exception in getLocalSegmentation
     try {
       dd4hep::Box box = element->solid();
       m_xy_range_map.try_emplace(element, box->GetDX(), box->GetDY());
