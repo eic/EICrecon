@@ -34,7 +34,7 @@ class SiliconChargeSharing : public SiliconChargeSharingAlgorithm,
 
 public:
   SiliconChargeSharing(std::string_view name)
-      : SiliconChargeSharingAlgorithm{name, {"TOFBarrelHits"}, {"TOFBarrelSharedHits"}, ""} {};
+      : SiliconChargeSharingAlgorithm{name, {"inputHits"}, {"outputSharedHits"}, ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;

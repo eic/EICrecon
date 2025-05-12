@@ -53,7 +53,7 @@ void InitPlugin(JApplication* app) {
       app)); // Hit reco default config for factories
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-      "TOFBarrelChargeSharing", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
+      "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
       {
           .sigma_sharingx = 0.1 * dd4hep::cm,
           .sigma_sharingy = 0.5 * dd4hep::cm,
