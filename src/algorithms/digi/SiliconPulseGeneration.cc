@@ -178,7 +178,7 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
       integral += signal;
     }
 
-    if(!passed_threshold) {      
+    if (!passed_threshold) {
       continue;
     }
 
