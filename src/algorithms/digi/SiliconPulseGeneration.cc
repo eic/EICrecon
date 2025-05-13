@@ -153,7 +153,6 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
     double signal_time = m_cfg.timestep * std::floor(time / m_cfg.timestep);
 
-
     bool passed_threshold = false;
     int skip_bins         = 0;
     float integral        = 0;
