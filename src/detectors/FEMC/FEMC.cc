@@ -48,8 +48,8 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalEndcapP_pedSigmaADC = 2.4576;
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
       10 * dd4hep::picosecond;
-  //const double sampFrac =  0.03; 
-  const double sampFrac =  0.029043; //updated with ratio to ScFi model 
+  //const double sampFrac =  0.03;
+  const double sampFrac = 0.029043; //updated with ratio to ScFi model
   decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
       Form("%f", 1.0 / sampFrac);
   decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = Form("%f", sampFrac);
@@ -61,7 +61,7 @@ void InitPlugin(JApplication* app) {
   int FEMCHomoScfi = 0;
   try {
     auto detector = app->GetService<DD4hep_service>()->detector();
-    FEMCHomoScfi = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
+    FEMCHomoScfi  = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
     if (FEMCHomoScfi <= 1)
       mLog->info("Homogeneous geometry loaded");
     else
@@ -105,8 +105,8 @@ void InitPlugin(JApplication* app) {
         {"EcalEndcapPRawHits"},
 #endif
         {
-	    //.eRes = {0.0, 0.0, 0.0}, // No smearing for ScFi
-  	    .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
+            //.eRes = {0.0, 0.0, 0.0}, // No smearing for ScFi
+            .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
             .tRes = 0.0,
             .threshold =
                 0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
@@ -136,8 +136,8 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC   = EcalEndcapP_resolutionTDC,
           .thresholdFactor = 0.0,
           .thresholdValue =
-          //    2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
-   	        3, // 15 MeV = 2.4576, but adc=llround(dE) and cut off is "<". So 3 here = 15.25MeV
+              //    2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
+          3, // 15 MeV = 2.4576, but adc=llround(dE) and cut off is "<". So 3 here = 15.25MeV
           .sampFrac = "1.00", // already taken care in DIGI code above
           .readout  = "EcalEndcapPHits",
       },
