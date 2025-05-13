@@ -162,10 +162,10 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     Acts::ActsVector<2> loc = Acts::Vector2::Zero();
     loc[Acts::eBoundLoc0]   = meas2D.getLoc().a;
     loc[Acts::eBoundLoc1]   = meas2D.getLoc().b;
-   // add time info from TOF or MPGD. ACTS can handle a mix of space points, AND space points with time info
-   // if tof or mpgd: 
-   //     loc[2]   = time;
-    //    cov(2,2) = time_resol*time_resol; // 
+    // add time info from TOF or MPGD. ACTS can handle a mix of space points, AND space points with time info
+    // if tof or mpgd:
+    //     loc[2]   = time;
+    //    cov(2,2) = time_resol*time_resol; //
 
     Acts::ActsSquareMatrix<2> cov = Acts::ActsSquareMatrix<2>::Zero();
     cov(0, 0)                     = meas2D.getCovariance().xx;
