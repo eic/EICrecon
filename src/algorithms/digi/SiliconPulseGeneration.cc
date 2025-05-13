@@ -178,6 +178,10 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
       integral += signal;
     }
 
+    if(!passed_threshold) {      
+      continue;
+    }
+
     time_series.setTime(signal_time + skip_bins * m_cfg.timestep);
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
