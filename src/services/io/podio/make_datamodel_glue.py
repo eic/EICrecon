@@ -90,12 +90,12 @@ def AddCollections(datamodelName, collectionfiles):
 
 
 collectionfiles_edm4hep = glob.glob(EDM4HEP_INCLUDE_DIR+'/edm4hep/*Collection.h')
-collectionfiles_edm4eic    = glob.glob(EDM4EIC_INCLUDE_DIR+'/edm4eic/*Collection.h')
-header_lines      = []
+collectionfiles_edm4eic = glob.glob(EDM4EIC_INCLUDE_DIR+'/edm4eic/*Collection.h')
+header_lines = []
 type_map = []
 visitor = []
 AddCollections('edm4hep', collectionfiles_edm4hep)
-AddCollections('edm4eic'   , collectionfiles_edm4eic   )
+AddCollections('edm4eic', collectionfiles_edm4eic)
 
 
 if WORKING_DIR:
@@ -116,12 +116,6 @@ with open('datamodel_glue.h', 'w') as f:
     f.write('\n')
     f.write('#include <stdexcept>\n')
     f.write('#include <podio/CollectionBase.h>\n')
-    f.write('\n')
-
-    f.write('\ntemplate <typename T> struct PodioTypeMap {')
-    f.write('\n    using collection_t = typename T::collection_type;')
-    f.write('\n    using mutable_t = typename T::mutable_type;')
-    f.write('\n};')
     f.write('\n\n')
     f.write('\n'.join(type_map))
     f.write('\n')
