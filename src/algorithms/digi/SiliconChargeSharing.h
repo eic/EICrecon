@@ -18,7 +18,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <utility>
-#include <vector>
 
 #include "algorithms/digi/SiliconChargeSharingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
