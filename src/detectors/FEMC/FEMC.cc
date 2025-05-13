@@ -48,7 +48,8 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalEndcapP_pedSigmaADC = 2.4576;
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
       10 * dd4hep::picosecond;
-  const double sampFrac = 0.03;
+  //const double sampFrac =  0.03; 
+  const double sampFrac =  0.029043; //updated with ratio to ScFi model 
   decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
       Form("%f", 1.0 / sampFrac);
   decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = Form("%f", sampFrac);
@@ -57,18 +58,18 @@ void InitPlugin(JApplication* app) {
   if (SiPMSaturation == 0)
     EcalEndcapP_totalPixel = 0;
 
-  int fEcalHomoScfi = 0;
+  int FEMCHomoScfi = 0;
   try {
     auto detector = app->GetService<DD4hep_service>()->detector();
-    fEcalHomoScfi = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
-    if (fEcalHomoScfi <= 1)
+    FEMCHomoScfi = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
+    if (FEMCHomoScfi <= 1)
       mLog->info("Homogeneous geometry loaded");
     else
       mLog->info("ScFi geometry loaded");
   } catch (...) {
   };
 
-  if (fEcalHomoScfi <= 1) {
+  if (FEMCHomoScfi <= 1) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
@@ -95,7 +96,7 @@ void InitPlugin(JApplication* app) {
         },
         app // TODO: Remove me once fixed
         ));
-  } else if (fEcalHomoScfi == 2) {
+  } else if (FEMCHomoScfi == 2) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
@@ -104,7 +105,8 @@ void InitPlugin(JApplication* app) {
         {"EcalEndcapPRawHits"},
 #endif
         {
-            .eRes = {0.0, 0.0, 0.0},
+	    //.eRes = {0.0, 0.0, 0.0}, // No smearing for ScFi
+  	    .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
             .tRes = 0.0,
             .threshold =
                 0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
@@ -134,7 +136,8 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC   = EcalEndcapP_resolutionTDC,
           .thresholdFactor = 0.0,
           .thresholdValue =
-              2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
+          //    2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
+   	        3, // 15 MeV = 2.4576, but adc=llround(dE) and cut off is "<". So 3 here = 15.25MeV
           .sampFrac = "1.00", // already taken care in DIGI code above
           .readout  = "EcalEndcapPHits",
       },
