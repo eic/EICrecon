@@ -60,7 +60,7 @@ void LGADHitCalibration::process(const LGADHitCalibration::Input& input,
         time,                                 // ns
         0.0F,                                 // covariance of time
         std::max(0., charge),                 // total ADC sum
-        0.0F);                                // Error on the energy
+        m_cfg.t_slope/std::sqrt(12.));                                // Error on the energy
   }
 }
 
