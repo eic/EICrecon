@@ -234,11 +234,14 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   m_log->trace("  Num measurement in trajectory: {}", m_nMeasurements);
   m_log->trace("  Num states in trajectory     : {}", m_nStates);
 
-  //=================================================
-  //Track projection
-  //Reference sPHENIX code: https://github.com/sPHENIX-Collaboration/coresoftware/blob/335e6da4ccacc8374cada993485fe81d82e74a4f/offline/packages/trackreco/PHActsTrackProjection.h
-  //=================================================
-  const auto& initial_bound_parameters = acts_trajectory->trackParameters(trackTip);
+  // Get track state at last measurement surface
+  // For last measurement surface, filtered and smoothed results are equivalent
+  auto trackState = mj.getTrackState(trackTip);
+  auto initSurface = trackState.referenceSurface().getSharedPtr();
+  const auto& initParams  = trackState.filtered();
+  const auto& initCov     = trackState.filteredCovariance();
+
+  Acts::BoundTrackParameters initBoundParams(initSurface,initParams,initCov,Acts::ParticleHypothesis::pion());
 
   m_log->trace("    TrackPropagation. Propagating to surface # {}",
                typeid(targetSurf->type()).name());
@@ -258,7 +261,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext);
 #endif
 
-  auto result = propagator.propagate(initial_bound_parameters, *targetSurf, options);
+  auto result = propagator.propagate(initBoundParams, *targetSurf, options);
 
   // check propagation result
   if (!result.ok()) {
