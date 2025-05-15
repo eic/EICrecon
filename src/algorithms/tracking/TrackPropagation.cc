@@ -236,12 +236,13 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   // Get track state at last measurement surface
   // For last measurement surface, filtered and smoothed results are equivalent
-  auto trackState = mj.getTrackState(trackTip);
-  auto initSurface = trackState.referenceSurface().getSharedPtr();
-  const auto& initParams  = trackState.filtered();
-  const auto& initCov     = trackState.filteredCovariance();
+  auto trackState        = mj.getTrackState(trackTip);
+  auto initSurface       = trackState.referenceSurface().getSharedPtr();
+  const auto& initParams = trackState.filtered();
+  const auto& initCov    = trackState.filteredCovariance();
 
-  Acts::BoundTrackParameters initBoundParams(initSurface,initParams,initCov,Acts::ParticleHypothesis::pion());
+  Acts::BoundTrackParameters initBoundParams(initSurface, initParams, initCov,
+                                             Acts::ParticleHypothesis::pion());
 
   m_log->trace("    TrackPropagation. Propagating to surface # {}",
                typeid(targetSurf->type()).name());
