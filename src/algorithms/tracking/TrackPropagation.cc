@@ -244,6 +244,9 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   Acts::BoundTrackParameters initBoundParams(initSurface, initParams, initCov,
                                              Acts::ParticleHypothesis::pion());
 
+  // Get pathlength of last track state with respect to perigee surface 
+  const auto initPathLength = trackState.pathLength();
+
   m_log->trace("    TrackPropagation. Propagating to surface # {}",
                typeid(targetSurf->type()).name());
 
@@ -277,7 +280,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   const auto& covariance = *trackStateParams.covariance();
 
   // Path length
-  const float pathLength      = (*result).pathLength;
+  const float pathLength      = initPathLength + (*result).pathLength;
   const float pathLengthError = 0;
   m_log->trace("    path len = {}", pathLength);
 
@@ -337,19 +340,6 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   uint64_t surface = targetSurf->geometryId().value();
   uint32_t system  = 0; // default value...will be set in TrackPropagation factory
 
-  /*
-         ::edm4hep::Vector3f position{}; ///< Position of the trajectory point [mm]
-          ::edm4eic::Cov3f positionError{}; ///< Error on the position
-          ::edm4hep::Vector3f momentum{}; ///< 3-momentum at the point [GeV]
-          ::edm4eic::Cov3f momentumError{}; ///< Error on the 3-momentum
-          float time{}; ///< Time at this point [ns]
-          float timeError{}; ///< Error on the time at this point
-          float theta{}; ///< polar direction of the track at the surface [rad]
-          float phi{}; ///< azimuthal direction of the track at the surface [rad]
-          ::edm4eic::Cov2f directionError{}; ///< Error on the polar and azimuthal angles
-          float pathlength{}; ///< Pathlength from the origin to this point
-          float pathlengthError{}; ///< Error on the pathlenght
-         */
   return std::make_unique<edm4eic::TrackPoint>(
       edm4eic::TrackPoint{surface, system, position, positionError, momentum, momentumError, time,
                           timeError, theta, phi, directionError, pathLength, pathLengthError});
