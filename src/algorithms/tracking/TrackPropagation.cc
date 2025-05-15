@@ -244,7 +244,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   Acts::BoundTrackParameters initBoundParams(initSurface, initParams, initCov,
                                              Acts::ParticleHypothesis::pion());
 
-  // Get pathlength of last track state with respect to perigee surface 
+  // Get pathlength of last track state with respect to perigee surface
   const auto initPathLength = trackState.pathLength();
 
   m_log->trace("    TrackPropagation. Propagating to surface # {}",
