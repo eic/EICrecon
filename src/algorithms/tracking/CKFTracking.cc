@@ -144,7 +144,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 
   for (const auto& meas2D : meas2Ds) {
 
-    Acts::GeometryIdentifier geoId = meas2D.getSurface();
+    Acts::GeometryIdentifier geoId {meas2D.getSurface()};
 
     // --follow example from ACTS to create source links
     sourceLinkStorage.emplace_back(geoId, hit_index);
