@@ -153,9 +153,9 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
     double signal_time = m_cfg.timestep * std::floor(time / m_cfg.timestep);
 
-    bool     passed_threshold = false;
-    uint32_t skip_bins        = 0;
-    float    integral         = 0;
+    bool passed_threshold = false;
+    uint32_t skip_bins    = 0;
+    float integral        = 0;
     std::vector<float> pulse;
 
     for (uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
