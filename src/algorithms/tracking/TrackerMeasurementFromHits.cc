@@ -50,7 +50,7 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
 
   // To do: add clustering to allow forming one measurement from several hits.
   // For now, one hit = one measurement.
-  for (const auto hit : trk_hits) {
+  for (const auto& hit : trk_hits) {
 
     Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
     cov(0, 0)               = hit.getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
