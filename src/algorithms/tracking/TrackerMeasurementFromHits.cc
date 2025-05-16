@@ -48,6 +48,8 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
   // output collections
   auto meas2Ds = std::make_unique<edm4eic::Measurement2DCollection>();
 
+  auto surfaceMap = m_acts_context->surfaceMap();
+
   // To do: add clustering to allow forming one measurement from several hits.
   // For now, one hit = one measurement.
   for (const auto hit : trk_hits) {
@@ -60,7 +62,6 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
     const auto* vol_ctx = m_converter->findContext(hit.getCellID());
     auto vol_id         = vol_ctx->identifier;
 
-    auto surfaceMap = m_acts_context->surfaceMap();
 
     // m_log->trace("Hit preparation information: {}", hit_index);
     m_log->trace("   System id: {}, Cell id: {}", hit.getCellID() & 0xFF, hit.getCellID());
@@ -78,7 +79,6 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
 
     const auto& hit_pos = hit.getPosition(); // 3d position
 
-    Acts::Vector2 loc = Acts::Vector2::Zero();
     Acts::Vector2 pos;
     auto hit_det = hit.getCellID() & 0xFF;
     auto onSurfaceTolerance =
@@ -99,8 +99,6 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
                                 {0, 0, 0}, onSurfaceTolerance)
                 .value();
 
-      loc[Acts::eBoundLoc0] = pos[0];
-      loc[Acts::eBoundLoc1] = pos[1];
     } catch (std::exception& ex) {
       m_log->warn(
           "Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
@@ -109,6 +107,11 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
     }
 
     if (m_log->level() <= spdlog::level::trace) {
+      
+      Acts::Vector2 loc = Acts::Vector2::Zero();
+      loc[Acts::eBoundLoc0] = pos[0];
+      loc[Acts::eBoundLoc1] = pos[1];
+      
       auto volman         = m_acts_context->dd4hepDetector()->volumeManager();
       auto alignment      = volman.lookupDetElement(vol_id).nominal();
       auto local_position = (alignment.worldToLocal(
