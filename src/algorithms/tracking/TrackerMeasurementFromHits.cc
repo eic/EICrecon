@@ -47,6 +47,7 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
 
   // output collections
   auto meas2Ds = std::make_unique<edm4eic::Measurement2DCollection>();
+  auto const& surfaceMap = m_acts_context->surfaceMap();
 
   // To do: add clustering to allow forming one measurement from several hits.
   // For now, one hit = one measurement.
@@ -64,10 +65,10 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
     m_log->trace("   System id: {}, Cell id: {}", hit.getCellID() & 0xFF, hit.getCellID());
     m_log->trace("   cov matrix:      {:>12.2e} {:>12.2e}", cov(0, 0), cov(0, 1));
     m_log->trace("                    {:>12.2e} {:>12.2e}", cov(1, 0), cov(1, 1));
-    m_log->trace("   surfaceMap size: {}", m_acts_context->surfaceMap().size());
+    m_log->trace("   surfaceMap size: {}", surfaceMap.size());
 
-    const auto is = m_acts_context->surfaceMap().find(vol_id);
-    if (is == m_acts_context->surfaceMap().end()) {
+    const auto is = surfaceMap.find(vol_id);
+    if (is == surfaceMap.end()) {
       m_log->warn(" WARNING: vol_id ({})  not found in m_surfaces.", vol_id);
       continue;
     }
