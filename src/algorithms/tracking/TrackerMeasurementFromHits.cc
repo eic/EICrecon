@@ -105,11 +105,11 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
     }
 
     if (m_log->level() <= spdlog::level::trace) {
-      
-      Acts::Vector2 loc = Acts::Vector2::Zero();
+
+      Acts::Vector2 loc     = Acts::Vector2::Zero();
       loc[Acts::eBoundLoc0] = pos[0];
       loc[Acts::eBoundLoc1] = pos[1];
-      
+
       auto volman         = m_acts_context->dd4hepDetector()->volumeManager();
       auto alignment      = volman.lookupDetElement(vol_id).nominal();
       auto local_position = (alignment.worldToLocal(
