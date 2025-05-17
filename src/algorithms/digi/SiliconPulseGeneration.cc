@@ -153,15 +153,12 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
     double signal_time = m_cfg.timestep * std::floor(time / m_cfg.timestep);
 
-    auto time_series = rawPulses->create();
-    time_series.setCellID(cellID);
-    time_series.setInterval(m_cfg.timestep);
-
     bool passed_threshold = false;
-    int skip_bins         = 0;
+    uint32_t skip_bins    = 0;
     float integral        = 0;
+    std::vector<float> pulse;
 
-    for (int i = 0; i < m_cfg.max_time_bins; i++) {
+    for (uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
       double t    = signal_time + i * m_cfg.timestep - time;
       auto signal = (*m_pulse)(t, charge);
       if (std::abs(signal) < m_cfg.ignore_thres) {
@@ -174,11 +171,22 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
         }
       }
       passed_threshold = true;
-      time_series.addToAmplitude(signal);
+      pulse.push_back(signal);
       integral += signal;
     }
 
+    if (!passed_threshold) {
+      continue;
+    }
+
+    auto time_series = rawPulses->create();
+    time_series.setCellID(cellID);
+    time_series.setInterval(m_cfg.timestep);
     time_series.setTime(signal_time + skip_bins * m_cfg.timestep);
+
+    for (const auto& value : pulse) {
+      time_series.addToAmplitude(value);
+    }
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
     time_series.setIntegral(integral);
