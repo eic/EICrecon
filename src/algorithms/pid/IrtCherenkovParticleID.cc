@@ -170,6 +170,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
     auto irt_particle = std::make_unique<ChargedParticle>();
 
     // loop over radiators
+    std::lock_guard<std::mutex> lock(m_pid_radiators_mutex);
     for (auto [rad_name, irt_rad] : m_pid_radiators) {
 
       // get the `charged_particle` for this radiator
