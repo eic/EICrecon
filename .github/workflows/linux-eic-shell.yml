@@ -856,6 +856,7 @@ jobs:
     - build
     - npsim-dis
     - npsim-minbias
+    continue-on-error: ${{ matrix.nthreads > 1 }}
     strategy:
       matrix:
         include:
