@@ -19,7 +19,7 @@
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
-#include "factories/digi/LGADChargeSharing_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
@@ -69,13 +69,14 @@ void InitPlugin(JApplication* app) {
       {},
       app)); // Hit reco default config for factories
 
-  app->Add(new JOmniFactoryGeneratorT<LGADChargeSharing_factory>(
-      "LGADChargeSharing", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
-      {.sigma_sharingx        = 0.1 * dd4hep::cm,
-       .sigma_sharingy        = 0.5 * dd4hep::cm,
-       .readout               = "TOFBarrelHits",
-       .same_sensor_condition = "sensor_1 == sensor_2",
-       .neighbor_fields       = {"x", "y"}},
+  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
+      "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
+      {
+          .sigma_sharingx = 0.1 * dd4hep::cm,
+          .sigma_sharingy = 0.5 * dd4hep::cm,
+          .min_edep       = 0.0 * edm4eic::unit::GeV,
+          .readout        = "TOFBarrelHits",
+      },
       app));
 
   // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
