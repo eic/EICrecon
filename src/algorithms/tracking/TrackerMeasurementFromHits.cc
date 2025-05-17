@@ -46,7 +46,7 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
   constexpr double mm_conv = mm_acts / dd4hep::mm; // = 1/0.1
 
   // output collections
-  auto meas2Ds = std::make_unique<edm4eic::Measurement2DCollection>();
+  auto meas2Ds           = std::make_unique<edm4eic::Measurement2DCollection>();
   auto const& surfaceMap = m_acts_context->surfaceMap();
 
   // To do: add clustering to allow forming one measurement from several hits.
