@@ -19,28 +19,26 @@
 #include <tuple>
 #include <utility>
 
-#include "algorithms/digi/LGADPulseDigitization.h"
-#include "algorithms/digi/LGADPulseDigitizationConfig.h"
+#include "algorithms/digi/EICROCDigitization.h"
+#include "algorithms/digi/EICROCDigitizationConfig.h"
 
-TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
-  const float EPSILON = 1e-5;
+TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
+  eicrecon::EICROCDigitization algo("EICROCDigitization");
 
-  eicrecon::LGADPulseDigitization algo("LGADPulseDigitization");
-
-  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("LGADPulseDigitization");
+  std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("EICROCDigitization");
   logger->set_level(spdlog::level::trace);
 
-  eicrecon::LGADPulseDigitizationConfig cfg;
+  eicrecon::EICROCDigitizationConfig cfg;
 
   auto detector = algorithms::GeoSvc::instance().detector();
-  auto id_desc  = detector->readout("MockLGADHits").idSpec();
+  auto id_desc  = detector->readout("MockSiliconHits").idSpec();
 
-  cfg.tdc_bit      = 8;
-  cfg.adc_bit      = 7;
-  cfg.tMax         = 10 * dd4hep::ns;
-  cfg.tdc_range    = pow(2, cfg.tdc_bit);
-  cfg.adc_range    = pow(2, cfg.adc_bit);
-  cfg.t_thres      = -cfg.adc_range * 0.1;
+  cfg.tdc_bit   = 8;
+  cfg.adc_bit   = 7;
+  cfg.tMax      = 10 * dd4hep::ns;
+  cfg.tdc_range = pow(2, cfg.tdc_bit);
+  cfg.adc_range = pow(2, cfg.adc_bit);
+  cfg.t_thres   = -cfg.adc_range * 0.1;
 
   // check if max pulse height is linearly proportional to the initial Edep
   algo.applyConfig(cfg);
@@ -49,10 +47,13 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
   SECTION("TDC vs analytic solution scan") {
     logger->info("Begin TDC vs analytic solution scan");
 
-    for(double time = -cfg.tMax; time <= cfg.tMax; time += cfg.tMax) {
-      if(time < 0) logger->info("Generation pulse at the negative time");
-      else if(time == 0) logger->info("Generation pulse at the first EICROC cycle");
-      else logger->info("Generation pulse at the second EICROC cycle");
+    for (double time = -cfg.tMax; time <= cfg.tMax; time += cfg.tMax) {
+      if (time < 0)
+        logger->info("Generation pulse at the negative time");
+      else if (time == 0)
+        logger->info("Generation pulse at the first EICROC cycle");
+      else
+        logger->info("Generation pulse at the second EICROC cycle");
 
       // test pulse with gaussian shape
       for (double tdc_frac = 0.4; tdc_frac < 1; tdc_frac += 0.1) {
@@ -65,7 +66,7 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
 
         pulse.setCellID(cellID);
         pulse.setCharge(1.); // placeholder
-        pulse.setTime(time);   // placeholder
+        pulse.setTime(time); // placeholder
         pulse.setInterval(1);
 
         int test_peak_TDC   = static_cast<int>(tdc_frac * cfg.tdc_range);
@@ -95,9 +96,12 @@ TEST_CASE("the LGAD charge sharing algorithm runs", "[LGADPulseDigitization]") {
         auto hit = (*rawhits_coll)[0];
         REQUIRE(hit.getCellID() == cellID);
         REQUIRE(hit.getCharge() == test_peak);
-        if(time < 0) REQUIRE(hit.getTimeStamp() == analytic_TDC - cfg.tdc_range);
-        else if(time == 0) REQUIRE(hit.getTimeStamp() == analytic_TDC);
-        else REQUIRE(hit.getTimeStamp() == analytic_TDC + cfg.tdc_range);
+        if (time < 0)
+          REQUIRE(hit.getTimeStamp() == analytic_TDC - cfg.tdc_range);
+        else if (time == 0)
+          REQUIRE(hit.getTimeStamp() == analytic_TDC);
+        else
+          REQUIRE(hit.getTimeStamp() == analytic_TDC + cfg.tdc_range);
       }
     }
   }
