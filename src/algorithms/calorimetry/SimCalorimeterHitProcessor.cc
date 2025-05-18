@@ -118,7 +118,7 @@ namespace eicrecon{
 					auto leading_hit = hits[ixs[0]];
 					auto leading_contrib = hits[ixs[0]].getContributions(0);
 
-					for(size_t i=0; i<ixs.size(); ++i){
+					for (size_t i=0; i<ixs.size(); ++i) {
 						auto hit = hits[ixs[i]];
 						edepSum += hit.getEnergy();
 
