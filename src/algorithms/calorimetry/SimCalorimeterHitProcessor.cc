@@ -73,8 +73,8 @@ namespace eicrecon{
 		std::map<edm4hep::MCParticle, std::vector<edm4hep::SimCalorimeterHit>> mapMCParToSimCalHit;
 
 		// regroup the sim hits by mc particle
-		for(const auto &ih : *in_hits){
-			for(const auto &contrib : ih.getContributions()){
+		for (const auto &ih : *in_hits) {
+			for (const auto &contrib : ih.getContributions()) {
 				edm4hep::MCParticle primary = get_primary(contrib);
 
 				edm4hep::MutableSimCalorimeterHit simhit;
