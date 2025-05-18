@@ -148,8 +148,7 @@ namespace eicrecon{
 					out_hit.setPosition(leading_hit.getPosition());
 					out_hit.addToContributions(out_hit_contrib);
 				}
-			}
-			else{
+			} else {
 				for(const auto &hit : hits){
 					auto contrib = hit.getContributions(0);
 
