@@ -57,7 +57,7 @@ namespace eicrecon{
                 m_id_mask = ~id_inverse_mask;
 
 		// get attenuationMode for attenuating hits
-		if(!m_cfg.attenuationField.empty()) {
+		if (!m_cfg.attenuationField.empty()) {
 			is_attenuation = true;
 			m_attenuationMode = m_geo.detector()->constant<double>(m_cfg.attenuationField) / dd4hep::mm;
 		}
