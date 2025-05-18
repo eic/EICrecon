@@ -6,17 +6,17 @@
 #include <string>
 #include <vector>
 
-namespace eicrecon{
+namespace eicrecon {
 
-	struct SimCalorimeterHitProcessorConfig{
+struct SimCalorimeterHitProcessorConfig {
 
-		// parameters for attenuation function
-		std::vector<double>      attPars;
+  // parameters for attenuation function
+  std::vector<double> attPars;
 
-		// fields for adding up energies and attenuate them
-		std::string              readout{""};
-		std::string              attenuationField{""};
-		std::string              mergeField{""};
-	};
+  // fields for adding up energies and attenuate them
+  std::string readout{""};
+  std::string attenuationField{""};
+  std::string mergeField{""};
+};
 
 } // namespace eicrecon
