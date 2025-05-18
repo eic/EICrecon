@@ -122,7 +122,7 @@ namespace eicrecon{
 						auto hit = hits[ixs[i]];
 						edepSum += hit.getEnergy();
 
-						for (const auto& c : hit.getContributions()){
+						for (const auto& c : hit.getContributions()) {
 							if (c.getTime() <= timeEar) {
 								timeEar = c.getTime();
 							}
