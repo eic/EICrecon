@@ -112,7 +112,7 @@ namespace eicrecon{
 					ix++;
 				}
 
-				for(const auto &[id, ixs] : merge_map){
+				for (const auto &[id, ixs] : merge_map) {
 					float edepSum = 0;
 					float timeEar = std::numeric_limits<double>::max();
 					auto leading_hit = hits[ixs[0]];
