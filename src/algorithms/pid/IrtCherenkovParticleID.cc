@@ -170,6 +170,8 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
     auto irt_particle = std::make_unique<ChargedParticle>();
 
     // loop over radiators
+    // note: this must run exclusively since irt_rad points to shared IRT objects that are
+    // owned by the RichGeo_service; it holds state (e.g. irt_rad->ResetLocation())
     std::lock_guard<std::mutex> lock(m_pid_radiators_mutex);
     for (auto [rad_name, irt_rad] : m_pid_radiators) {
 
