@@ -213,7 +213,7 @@ jobs:
         path: clang_tidy_fixes.yml
         if-no-files-found: ignore
     - name: Suggest clang-tidy fixes as PR comments
-      uses: platisd/clang-tidy-pr-comments@v1.6.1
+      uses: platisd/clang-tidy-pr-comments@v1.7.0
       if: ${{ github.event_name == 'pull_request' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
