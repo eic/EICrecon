@@ -12,6 +12,7 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
+#include <stdint.h>
 #include <cmath>
 #include <cstddef>
 #include <functional>

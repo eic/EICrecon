@@ -17,6 +17,7 @@
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/podioVersion.h>
+#include <spdlog/logger.h>
 #include <algorithm>
 #include <exception>
 #include <iostream>
