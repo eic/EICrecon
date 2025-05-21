@@ -15,7 +15,6 @@
 #include <spdlog/common.h>
 #include <Eigen/Core>
 #include <cmath>
-#include <cstdlib>
 #include <limits>
 #include <memory>
 
