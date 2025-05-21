@@ -48,7 +48,7 @@ void SimCalorimeterHitProcessor::init() {
   }
 
   uint64_t id_inverse_mask = 0;
-  // get id_mask for adding up hits that have the same z-segmentation
+  // get id_mask for adding up hits with the same dimensions that are merged over
   if (!m_cfg.mergeField.empty()) {
     is_merge = true;
     id_inverse_mask |= m_id_spec.field(m_cfg.mergeField)->mask();
