@@ -116,8 +116,8 @@ void FarDetectorTrackerCluster::ClusterHits(
       auto index = clusterList[0];
 
       // Finds neighbours of cluster within time limit
-      auto filter = available * (abs(x - x[index]) <= 1) * (abs(y - y[index]) <= 1) *
-                    (abs(t - t[index]) < m_cfg.hit_time_limit);
+      auto filter = available * (std::abs(x - x[index]) <= 1) * (std::abs(y - y[index]) <= 1) *
+                    (std::abs(t - t[index]) < m_cfg.hit_time_limit);
 
       // Adds the found hits to the cluster
       clusterList = Concatenate(clusterList, indices[filter]);

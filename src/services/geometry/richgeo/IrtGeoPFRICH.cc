@@ -17,7 +17,7 @@
 #include <TRef.h>
 #include <TVector3.h>
 #include <fmt/core.h>
-#include <math.h>
+#include <cmath>
 #include <stdint.h>
 #include <map>
 #include <string>
@@ -141,7 +141,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       auto testOrtho  = normXdir.Dot(normYdir); // should be zero, if normX and normY are orthogonal
       auto testRadial = sensorNorm.Cross(normZdir)
                             .Mag2(); // should be zero, if sensor surface normal is as expected
-      if (abs(testOrtho) > 1e-6 || abs(testRadial) > 1e-6) {
+      if (std::abs(testOrtho) > 1e-6 || std::abs(testRadial) > 1e-6) {
         m_log->error(
             "sensor normal is wrong: normX.normY = {:f}   |sensorNorm x normZdir|^2 = {:f}",
             testOrtho, testRadial);

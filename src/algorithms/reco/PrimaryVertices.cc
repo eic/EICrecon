@@ -50,7 +50,7 @@ void PrimaryVertices::process(const PrimaryVertices::Input& input,
 
     // some basic vertex selection
     if (sqrt(v.x * v.x + v.y * v.y) / edm4eic::unit::mm > m_cfg.maxVr ||
-        fabs(v.z) / edm4eic::unit::mm > m_cfg.maxVz)
+        std::fabs(v.z) / edm4eic::unit::mm > m_cfg.maxVz)
       continue;
 
     if (vtx.getChi2() > m_cfg.maxChi2)
