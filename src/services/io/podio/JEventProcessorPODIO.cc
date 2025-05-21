@@ -200,6 +200,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "CentralCKFTrackAssociations",
     "CentralCKFTrackParameters",
     "AMVSecondaryTrackVertices",
+    "AMVPrimaryVertices",
     //tracking properties - true seeding
     "CentralCKFTruthSeededTrajectoriesUnfiltered",
     "CentralCKFTruthSeededTracksUnfiltered",
