@@ -25,10 +25,10 @@ void FarDetectorTransportationPostML::process(
   auto [out_particles]                           = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
-  if (beamElectrons) {
+  if (beamElectrons != nullptr) {
     std::call_once(m_initBeamE, [&]() {
       // Check if beam electrons are present
-      if (beamElectrons->size() == 0) {
+      if (beamElectrons->empty()) {
         if (m_cfg.requireBeamElectron) {
           critical("No beam electrons found");
           throw std::runtime_error("No beam electrons found");

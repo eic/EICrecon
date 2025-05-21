@@ -47,7 +47,7 @@ private:
   TrackingOccupancyAnalysis m_occupancy_analysis;
   HitReconstructionAnalysis m_hit_reco_analysis;
 
-  TDirectory* m_dir_main; /// Main TDirectory for this plugin 'occupancy_ana'
+  TDirectory* m_dir_main{}; /// Main TDirectory for this plugin 'occupancy_ana'
 
   std::shared_ptr<spdlog::logger> m_log;
 };

@@ -29,7 +29,7 @@ public:
   void ProcessSequential(const std::shared_ptr<const JEvent>& event) override;
   void FinishWithGlobalRootLock() override;
 
-  int IsTOFHit(float x, float y, float z);
+  static int IsTOFHit(float x, float y, float z);
 
   TDirectory* m_dir_main;
 

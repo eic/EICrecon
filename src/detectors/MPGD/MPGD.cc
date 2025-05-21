@@ -39,14 +39,15 @@ void InitPlugin(JApplication* app) {
       SiFactoryPattern = std::stoul(SiFactoryPattern_str, nullptr, 16);
     } catch (const std::invalid_argument& e) {
       throw JException(
-          "Option \"MPGD:SiFactoryPattern\": Error (\"%s\") parsing input string: '%s'", e.what(),
-          SiFactoryPattern_str.c_str());
+          R"(Option "MPGD:SiFactoryPattern": Error ("%s") parsing input
+        string: '%s')",
+          e.what(), SiFactoryPattern_str.c_str());
     }
   }
 
   // ***** "MPGDBarrel" (=CyMBaL)
   // Digitization
-  if (SiFactoryPattern & 0x1) {
+  if ((SiFactoryPattern & 0x1) != 0u) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "MPGDBarrelRawHits", {"MPGDBarrelHits"},
         {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"},
@@ -78,7 +79,7 @@ void InitPlugin(JApplication* app) {
 
   // ***** OuterMPGDBarrel
   // Digitization
-  if (SiFactoryPattern & 0x2) {
+  if ((SiFactoryPattern & 0x2) != 0u) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits", {"OuterMPGDBarrelHits"},
         {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"},

@@ -4,6 +4,7 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <algorithm>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/InclusiveKinematics.h>
@@ -11,9 +12,10 @@
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
-#include <algorithm>
-#include <gsl/pointers>
 #include <fmt/core.h>
+#include <gsl/pointers>
+#include <math.h>
+
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -208,7 +210,7 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedBreitFrameParticles"}, {}, app));
 
   auto detector = app->GetService<DD4hep_service>()->detector();
-  double z_zdc;
+  double z_zdc  = NAN;
   try {
     z_zdc = detector->constant<double>("HcalFarForwardZDC_SiPMonTile_r_pos") / dd4hep::mm;
   } catch (std::runtime_error&) {

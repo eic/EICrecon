@@ -48,12 +48,13 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
     logger->info("Begin TDC vs analytic solution scan");
 
     for (double time = -cfg.tMax; time <= cfg.tMax; time += cfg.tMax) {
-      if (time < 0)
+      if (time < 0) {
         logger->info("Generation pulse at the negative time");
-      else if (time == 0)
+      } else if (time == 0) {
         logger->info("Generation pulse at the first EICROC cycle");
-      else
+      } else {
         logger->info("Generation pulse at the second EICROC cycle");
+      }
 
       // test pulse with gaussian shape
       for (double tdc_frac = 0.4; tdc_frac < 1; tdc_frac += 0.1) {
@@ -96,12 +97,13 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
         auto hit = (*rawhits_coll)[0];
         REQUIRE(hit.getCellID() == cellID);
         REQUIRE(hit.getCharge() == test_peak);
-        if (time < 0)
+        if (time < 0) {
           REQUIRE(hit.getTimeStamp() == analytic_TDC - cfg.tdc_range);
-        else if (time == 0)
+        } else if (time == 0) {
           REQUIRE(hit.getTimeStamp() == analytic_TDC);
-        else
+        } else {
           REQUIRE(hit.getTimeStamp() == analytic_TDC + cfg.tdc_range);
+        }
       }
     }
   }

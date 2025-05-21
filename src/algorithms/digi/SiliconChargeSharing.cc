@@ -134,7 +134,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
 }
 
 // Calculate integral of Gaussian distribution
-float SiliconChargeSharing::integralGaus(float mean, float sd, float low_lim, float up_lim) const {
+float SiliconChargeSharing::integralGaus(float mean, float sd, float low_lim, float up_lim) {
   // return integral Gauss(mean, sd) dx from x = low_lim to x = up_lim
   // default value is set when sd = 0
   float up  = mean > up_lim ? -0.5 : 0.5;
@@ -154,7 +154,7 @@ dd4hep::Position SiliconChargeSharing::cell2LocalPosition(const dd4hep::rec::Cel
 
 // Convert global position to local position
 dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& globalPosition,
-                                                    const TGeoHMatrix* transform) const {
+                                                    const TGeoHMatrix* transform) {
 
   double g[3];
   double l[3];
@@ -195,7 +195,7 @@ SiliconChargeSharing::getLocalSegmentation(const dd4hep::rec::CellID& cellID) co
   // Try to cast the segmentation to CartesianGridXY
   const auto* cartesianGrid =
       dynamic_cast<const dd4hep::DDSegmentation::CartesianGridXY*>(segmentation);
-  if (!cartesianGrid) {
+  if (cartesianGrid == nullptr) {
     throw std::runtime_error("Segmentation is not of type CartesianGridXY");
   }
 

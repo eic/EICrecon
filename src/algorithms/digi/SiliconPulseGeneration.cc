@@ -33,7 +33,7 @@ public:
   virtual double getMaximumTime() const = 0;
 
 protected:
-  double m_charge;
+  double m_charge{};
 };
 
 // ----------------------------------------------------------------------------
@@ -56,12 +56,12 @@ public:
     }
   };
 
-  double operator()(double time, double charge) {
+  double operator()(double time, double charge) override {
     return charge * m_gain *
            TMath::Landau(time, m_hit_sigma_offset * m_sigma_analog, m_sigma_analog, kTRUE);
   }
 
-  double getMaximumTime() const { return m_hit_sigma_offset * m_sigma_analog; }
+  double getMaximumTime() const override { return m_hit_sigma_offset * m_sigma_analog; }
 
 private:
   double m_gain             = 1.0;
@@ -97,13 +97,13 @@ public:
     m_evaluator      = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->_compile(expression, keys);
   };
 
-  double operator()(double time, double charge) {
+  double operator()(double time, double charge) override {
     param_map["time"]   = time;
     param_map["charge"] = charge;
     return m_evaluator(param_map);
   }
 
-  double getMaximumTime() const { return 0; }
+  double getMaximumTime() const override { return 0; }
 
 private:
   std::unordered_map<std::string, double> param_map;
@@ -162,7 +162,7 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
       double t    = signal_time + i * m_cfg.timestep - time;
       auto signal = (*m_pulse)(t, charge);
       if (std::abs(signal) < m_cfg.ignore_thres) {
-        if (passed_threshold == false) {
+        if (!passed_threshold) {
           skip_bins = i;
           continue;
         }

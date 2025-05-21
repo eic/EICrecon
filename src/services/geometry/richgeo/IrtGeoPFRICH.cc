@@ -16,9 +16,9 @@
 #include <TGeoNode.h>
 #include <TRef.h>
 #include <TVector3.h>
-#include <fmt/core.h>
 #include <cmath>
-#include <stdint.h>
+#include <cstdint>
+#include <fmt/core.h>
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -40,11 +40,11 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
   TVector3 normX(1, 0, 0); // normal vectors
   TVector3 normY(0, 1, 0);
   m_surfEntrance = new FlatSurface(TVector3(0, 0, vesselZmin), normX, normY);
-  auto cv        = m_irtDetectorCollection->SetContainerVolume(
+  auto* cv       = m_irtDetectorCollection->SetContainerVolume(
       m_irtDetector,              // Cherenkov detector
       RadiatorName(kGas).c_str(), // name
       0,                          // path
-      (G4LogicalVolume*)(0x0),    // G4LogicalVolume (inaccessible? use an integer instead)
+      (G4LogicalVolume*)nullptr,  // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                    // G4RadiatorMaterial (inaccessible?)
       m_surfEntrance              // surface
   );
@@ -125,7 +125,8 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       // - get surface normal and in-plane vectors
       double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
       double sensorLocalNormY[3] = {0.0, 1.0, 0.0};
-      double sensorGlobalNormX[3], sensorGlobalNormY[3];
+      double sensorGlobalNormX[3];
+      double sensorGlobalNormY[3];
       pvSensor.ptr()->LocalToMasterVect(
           sensorLocalNormX,
           sensorGlobalNormX); // ignore vessel transformation, since it is a pure translation
@@ -133,7 +134,8 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
 
       // validate sensor position and normal
       // - test normal vectors
-      dd4hep::Direction normXdir, normYdir;
+      dd4hep::Direction normXdir;
+      dd4hep::Direction normYdir;
       normXdir.SetCoordinates(sensorGlobalNormX);
       normYdir.SetCoordinates(sensorGlobalNormY);
       auto normZdir =
@@ -181,9 +183,10 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
   rIndices.insert({RadiatorName(kAerogel).c_str(), 1.0190});
   rIndices.insert({"Filter", 1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
-    auto rad = m_irtDetector->GetRadiator(rName);
-    if (rad)
+    auto* rad = m_irtDetector->GetRadiator(rName);
+    if (rad != nullptr) {
       rad->SetReferenceRefractiveIndex(rIndex);
+    }
   }
 
   // set refractive index table

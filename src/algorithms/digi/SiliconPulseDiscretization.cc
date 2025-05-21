@@ -5,10 +5,10 @@
 //
 
 #include <DDRec/CellIDPositionConverter.h>
-#include <limits.h>
-#include <podio/RelationRange.h>
+#include <climits>
 #include <cmath>
 #include <gsl/pointers>
+#include <podio/RelationRange.h>
 #include <unordered_map>
 
 #include "SiliconPulseDiscretization.h"
@@ -23,15 +23,15 @@ double SiliconPulseDiscretization::_interpolateOrZero(const TGraph& graph, doubl
                                                       double tMax) const {
   // return 0 if t is outside of tMin - tMax range
   // otherwise, return graph interpolation value
-  if (t < tMin || t > tMax)
+  if (t < tMin || t > tMax) {
     return 0;
-  else {
-    double height = graph.Eval(t, nullptr, "S"); // spline interpolation
-    if (!std::isfinite(height))
-      error("Pulse interpolation returns nan. This happen mostly because there are multiple pulse "
-            "height values at the same time. Did you call PulseCombiner?");
-    return height;
   }
+  double height = graph.Eval(t, nullptr, "S"); // spline         interpolation
+  if (!std::isfinite(height))
+    error("Pulse interpolation         returns nan. This happen mostly because there are multiple "
+          "pulse "
+          "height values at the same time. Did you call PulseCombiner?");
+  return height;
 }
 
 void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input& input,
@@ -57,13 +57,15 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
   }
 
   // sort all pulses data points to avoid TGraph::Eval giving nan due to non-monotonic data
-  for (auto& [cellID, graph] : Graph4Cells)
+  for (auto& [cellID, graph] : Graph4Cells) {
     graph.Sort();
+  }
 
   // sum all digitized pulses
   for (const auto& [cellID, graph] : Graph4Cells) {
-    double tMin, tMax;
-    double temp; // do not use
+    double tMin;
+    double tMax;
+    double temp = NAN; // do not use
     graph.ComputeRange(tMin, temp, tMax, temp);
 
     // time beings at an EICROC cycle

@@ -15,9 +15,10 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TGeoMatrix.h>
-#include <fmt/core.h>
 #include <cmath>
+#include <fmt/core.h>
 #include <map>
+#include <utility>
 
 #include "services/geometry/richgeo/RichGeo.h"
 
@@ -26,7 +27,12 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
                                 gsl::not_null<const dd4hep::Detector*> det_,
                                 gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_,
                                 std::shared_ptr<spdlog::logger> log_)
-    : m_log(log_), m_detName(detName_), m_readoutClass(readoutClass_), m_det(det_), m_conv(conv_) {
+    : m_log(std::move(log_))
+    , m_detName(std::move(detName_))
+    , m_readoutClass(std::move(readoutClass_))
+    , m_det(det_)
+    , m_conv(conv_)
+    , m_systemID(m_detRich.id()) {
   // random number generators
   m_random.SetSeed(1); // default seed
 
@@ -39,7 +45,6 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
   // common objects
   m_readoutCoder = m_det->readout(m_readoutClass).idSpec().decoder();
   m_detRich      = m_det->detector(m_detName);
-  m_systemID     = m_detRich.id();
 
   // dRICH readout --------------------------------------------------------------------
   if (m_detName == "DRICH") {
@@ -106,8 +111,9 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
   }
 
   // ------------------------------------------------------------------------------------------------
-  else
+  else {
     m_log->error("ReadoutGeo is not defined for detector '{}'", m_detName);
+  }
 }
 
 // pixel gap mask
@@ -116,10 +122,10 @@ bool richgeo::ReadoutGeo::PixelGapMask(CellIDType cellID, dd4hep::Position pos_h
   auto pos_pixel_global = m_conv->position(cellID);
   auto pos_pixel_local  = GetSensorLocalPosition(cellID, pos_pixel_global);
   auto pos_hit_local    = GetSensorLocalPosition(cellID, pos_hit_global);
-  return !(std::abs(pos_hit_local.x() / dd4hep::mm - pos_pixel_local.x() / dd4hep::mm) >
-               m_pixel_size / 2 ||
-           std::abs(pos_hit_local.y() / dd4hep::mm - pos_pixel_local.y() / dd4hep::mm) >
-               m_pixel_size / 2);
+  return std::abs(pos_hit_local.x() / dd4hep::mm - pos_pixel_local.x() / dd4hep::mm) <=
+             m_pixel_size / 2 &&
+         std::abs(pos_hit_local.y() / dd4hep::mm - pos_pixel_local.y() / dd4hep::mm) <=
+             m_pixel_size / 2;
 }
 
 // transform global position `pos` to sensor `cellID` frame position
@@ -128,11 +134,14 @@ dd4hep::Position richgeo::ReadoutGeo::GetSensorLocalPosition(CellIDType cellID,
                                                              dd4hep::Position pos) const {
 
   // get the VolumeManagerContext for this sensitive detector
-  auto context = m_conv->findContext(cellID);
+  const auto* context = m_conv->findContext(cellID);
 
   // transformation vector buffers
-  double xyz_l[3], xyz_e[3], xyz_g[3];
-  double pv_g[3], pv_l[3];
+  double xyz_l[3];
+  double xyz_e[3];
+  double xyz_g[3];
+  double pv_g[3];
+  double pv_l[3];
 
   // get sensor position w.r.t. its parent
   auto sensor_elem = context->element;

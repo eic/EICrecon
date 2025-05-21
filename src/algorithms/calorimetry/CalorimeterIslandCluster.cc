@@ -84,7 +84,7 @@ void CalorimeterIslandCluster::init() {
 
   // set coordinate system
   auto set_dist_method = [this](std::pair<std::string, std::vector<double>> uprop) {
-    if (uprop.second.size() == 0) {
+    if (uprop.second.empty()) {
       return false;
     }
     auto& [method, units] = distMethods[uprop.first];
@@ -92,13 +92,13 @@ void CalorimeterIslandCluster::init() {
       warning("Expect {} values from {}, received {}. ignored it.", units.size(), uprop.first,
               uprop.second.size());
       return false;
-    } else {
-      for (std::size_t i = 0; i < units.size(); ++i) {
-        neighbourDist[i] = uprop.second[i] / units[i];
-      }
-      hitsDist = method;
-      info("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ","));
     }
+    for (std::size_t i = 0; i < units.size(); ++i) {
+      neighbourDist[i] = uprop.second[i] / units[i];
+    }
+    hitsDist = method;
+    info("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ","));
+
     return true;
   };
 
@@ -157,12 +157,10 @@ void CalorimeterIslandCluster::init() {
             auto dist = hitsDist(h1, h2);
             return (std::abs(dist.a) <= neighbourDist[0]) && (std::abs(dist.b) <= neighbourDist[1]);
             // different sector, local coordinates do not work, using global coordinates
-          } else {
-            // sector may have rotation (barrel), so z is included
-            // (EDM4hep units are mm, so convert sectorDist to mm)
-            return (edm4hep::utils::magnitude(h1.getPosition() - h2.getPosition()) <=
-                    m_cfg.sectorDist / dd4hep::mm);
-          }
+          } // sector may have rotation (barrel), so z is         included
+          // (EDM4hep units are mm, so convert sectorDist to         mm)
+          return (edm4hep::utils::magnitude(h1.getPosition() - h2.getPosition()) <=
+                  m_cfg.sectorDist / dd4hep::mm);
         };
 
         break;
@@ -187,7 +185,7 @@ void CalorimeterIslandCluster::init() {
                      [&](auto& p) { return m_cfg.transverseEnergyProfileMetric == p.first; });
     if (transverseEnergyProfileMetric_it == distMethods.end()) {
       throw std::runtime_error(
-          fmt::format("Unsupported value \"{}\" for \"transverseEnergyProfileMetric\"",
+          fmt::format(R"(Unsupported value "{}" for "transverseEnergyProfileMetric")",
                       m_cfg.transverseEnergyProfileMetric));
     }
     transverseEnergyProfileMetric = std::get<0>(transverseEnergyProfileMetric_it->second);
@@ -200,8 +198,6 @@ void CalorimeterIslandCluster::init() {
     }
     transverseEnergyProfileScaleUnits = units[0];
   }
-
-  return;
 }
 
 void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& input,
