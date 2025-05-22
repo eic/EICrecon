@@ -27,9 +27,10 @@ double SiliconPulseDiscretization::_interpolateOrZero(const TGraph& graph, doubl
     return 0;
   }
   double height = graph.Eval(t, nullptr, "S"); // spline interpolation
-  if (!std::isfinite(height))
+  if (!std::isfinite(height)) {
     error("Pulse interpolation returns nan. This happen mostly because there are multiple "
           "pulse height values at the same time. Did you call PulseCombiner?");
+}
   return height;
 }
 
