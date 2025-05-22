@@ -31,8 +31,8 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   // Make sure left and right use the same value
-  decltype(SimCalorimeterHitProcessorConfig::attPars) EcalBarrelScFi_attPars = {0.416212, 74.739875 / dd4hep::mm,
-                                                                                752.188383 / dd4hep::mm};
+  decltype(SimCalorimeterHitProcessorConfig::attPars) EcalBarrelScFi_attPars = {
+      0.416212, 74.739875 / dd4hep::mm, 752.188383 / dd4hep::mm};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
