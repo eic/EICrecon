@@ -135,7 +135,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     for (auto in_cluster : *in_protoclusters) {
 
       // ignore used clusters
-      if (setUsedClust.contains(in_cluster) != 0u) {
+      if (setUsedClust.contains(in_cluster) != 0U) {
         continue;
       }
 
