@@ -32,6 +32,8 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
     , m_readoutClass(std::move(readoutClass_))
     , m_det(det_)
     , m_conv(conv_)
+    , m_detRich(m_det->detector(m_detName))
+    , m_readoutCoder(m_det->readout(m_readoutClass).idSpec().decoder())
     , m_systemID(m_detRich.id()) {
   // random number generators
   m_random.SetSeed(1); // default seed
@@ -41,10 +43,6 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
 
   // default (empty) cellID rng generator
   m_rngCellIDs = [](std::function<void(CellIDType)> /* lambda */, float /* p */) { return; };
-
-  // common objects
-  m_readoutCoder = m_det->readout(m_readoutClass).idSpec().decoder();
-  m_detRich      = m_det->detector(m_detName);
 
   // dRICH readout --------------------------------------------------------------------
   if (m_detName == "DRICH") {
