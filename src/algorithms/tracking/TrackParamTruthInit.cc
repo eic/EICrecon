@@ -15,7 +15,6 @@
 #include <spdlog/common.h>
 #include <Eigen/Core>
 #include <cmath>
-#include <cstdlib>
 #include <limits>
 #include <memory>
 
@@ -47,7 +46,8 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     // require close to interaction vertex
     auto v = mcparticle.getVertex();
     if (std::abs(v.x) * dd4hep::mm > m_cfg.maxVertexX ||
-        std::abs(v.y) * dd4hep::mm > m_cfg.maxVertexY || abs(v.z) * dd4hep::mm > m_cfg.maxVertexZ) {
+        std::abs(v.y) * dd4hep::mm > m_cfg.maxVertexY ||
+        std::abs(v.z) * dd4hep::mm > m_cfg.maxVertexZ) {
       m_log->trace("ignoring particle with vs = {} [mm]", v);
       continue;
     }
@@ -75,7 +75,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     const auto pdg      = mcparticle.getPDG();
     const auto particle = m_particleSvc.particle(pdg);
     double charge       = std::copysign(1.0, particle.charge);
-    if (abs(charge) < std::numeric_limits<double>::epsilon()) {
+    if (std::abs(charge) < std::numeric_limits<double>::epsilon()) {
       m_log->trace("ignoring neutral particle");
       continue;
     }

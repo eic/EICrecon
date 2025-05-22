@@ -7,7 +7,7 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <math.h>
+#include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
 #include <vector>
@@ -94,7 +94,7 @@ void FarForwardLambdaReconstruction::process(
         }
 
         double mass_rec = lambda.M();
-        if (abs(mass_rec - m_lambda) > m_cfg.lambdaMaxMassDev)
+        if (std::abs(mass_rec - m_lambda) > m_cfg.lambdaMaxMassDev)
           continue;
 
         // rotate everything back to the lab coordinates.
