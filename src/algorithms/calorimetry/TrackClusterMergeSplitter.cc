@@ -2,16 +2,15 @@
 // Copyright (C) 2024 Derek Anderson
 
 #include <DD4hep/Detector.h>
-#include <cmath>
-#include <cstddef>
-#include <cstdint>
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <gsl/pointers>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <cmath>
+#include <cstddef>
+#include <gsl/pointers>
 
 // algorithm definition
 #include "TrackClusterMergeSplitter.h"

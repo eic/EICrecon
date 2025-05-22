@@ -13,12 +13,13 @@
 #include <IRT/G4Object.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <RtypesCore.h>
 #include <TGeoNode.h>
 #include <TRef.h>
 #include <TVector3.h>
+#include <fmt/core.h>
 #include <cmath>
 #include <cstdint>
-#include <fmt/core.h>
 #include <map>
 #include <string>
 #include <unordered_map>
