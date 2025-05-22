@@ -585,13 +585,15 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
         // determine remaining cluster properties from its towers
         float* showershape_eta_phi =
             CalculateM02andWeightedPosition(cluster_towers, tempstructC.cluster_E, 4.5);
-        tempstructC.cluster_M02    = showershape_eta_phi[0];
-        tempstructC.cluster_M20    = showershape_eta_phi[1];
-        tempstructC.cluster_Eta    = showershape_eta_phi[2];
-        tempstructC.cluster_Phi    = showershape_eta_phi[3];
-        tempstructC.cluster_X      = showershape_eta_phi[4];
-        tempstructC.cluster_Y      = showershape_eta_phi[5];
-        tempstructC.cluster_Z      = showershape_eta_phi[6];
+        // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        tempstructC.cluster_M02 = showershape_eta_phi[0];
+        tempstructC.cluster_M20 = showershape_eta_phi[1];
+        tempstructC.cluster_Eta = showershape_eta_phi[2];
+        tempstructC.cluster_Phi = showershape_eta_phi[3];
+        tempstructC.cluster_X   = showershape_eta_phi[4];
+        tempstructC.cluster_Y   = showershape_eta_phi[5];
+        tempstructC.cluster_Z   = showershape_eta_phi[6];
+        // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         tempstructC.cluster_towers = cluster_towers;
         m_log->trace("---------> \t {} \tcluster with E = {} \tEta: {} \tPhi: {} \tX: {} \tY: {} "
                      "\tZ: {} \tntowers: {} \ttrueID: {}",

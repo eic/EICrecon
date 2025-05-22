@@ -94,6 +94,7 @@ void CalorimeterIslandCluster::init() {
       return false;
     }
     for (std::size_t i = 0; i < units.size(); ++i) {
+      // NOLINTNEXTLINE(cppcoreguidelines-pro-bounds-constant-array-index)
       neighbourDist[i] = uprop.second[i] / units[i];
     }
     hitsDist = method;

@@ -133,8 +133,8 @@ void InclusiveKinematicsML::process(const InclusiveKinematicsML::Input& input,
 
     // Convert output tensor
     auto* output_tensor_data = output_tensors[0].GetTensorMutableData<float>();
-    auto x                   = output_tensor_data[0];
-    auto kin                 = ml->create();
+    auto x   = output_tensor_data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    auto kin = ml->create();
     kin.setX(x);
 
   } catch (const Ort::Exception& exception) {
