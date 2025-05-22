@@ -18,7 +18,6 @@
 #include <fmt/core.h>
 #include <cmath>
 
-#include <cmath>
 #include <gsl/pointers>
 #include <stdexcept>
 #include <vector>
