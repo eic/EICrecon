@@ -13,6 +13,7 @@
 #include <edm4hep/Vector3f.h>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <gsl/pointers>
 #include <stdexcept>
