@@ -103,7 +103,7 @@ public:
         //     where we have multiple matches. In this case take the one with the closest
         //     energies.
         // 2. best match?
-        const double delta = std::fabs(pc.getEnergy() - ec.getEnergy());
+        const double delta = std::abs(pc.getEnergy() - ec.getEnergy());
         if (delta < best_delta) {
           best_delta = delta;
           best_match = ie;

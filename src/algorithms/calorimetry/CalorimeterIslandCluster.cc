@@ -155,8 +155,7 @@ void CalorimeterIslandCluster::init() {
           // in the same sector
           if (h1.getSector() == h2.getSector()) {
             auto dist = hitsDist(h1, h2);
-            return (std::fabs(dist.a) <= neighbourDist[0]) &&
-                   (std::fabs(dist.b) <= neighbourDist[1]);
+            return (std::abs(dist.a) <= neighbourDist[0]) && (std::abs(dist.b) <= neighbourDist[1]);
             // different sector, local coordinates do not work, using global coordinates
           } else {
             // sector may have rotation (barrel), so z is included
