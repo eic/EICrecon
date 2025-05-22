@@ -63,8 +63,8 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
 
   // sum all digitized pulses
   for (const auto& [cellID, graph] : Graph4Cells) {
-    double tMin;
-    double tMax;
+    double tMin = NAN;
+    double tMax = NAN;
     double temp = NAN; // do not use
     graph.ComputeRange(tMin, temp, tMax, temp);
 

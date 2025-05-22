@@ -53,8 +53,8 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
     auto snoutSlope = (rmax1 - rmax0) / snoutLength;
 
     // get z and radial limits where we will expect charged particles in the RICH
-    double trackZmin;
-    double trackZmax;
+    double trackZmin = NAN;
+    double trackZmax = NAN;
     std::function<double(double)> trackRmin;
     std::function<double(double)> trackRmax;
     switch (radiator) {

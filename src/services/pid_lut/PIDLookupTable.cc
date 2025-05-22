@@ -88,9 +88,9 @@ void PIDLookupTable::load_file(const std::string& filename,
 
     iss.str(line);
     iss.clear();
-    double pdg;
-    double charge;
-    double momentum;
+    double pdg = NAN;
+    double charge = NAN;
+    double momentum = NAN;
     double eta;
     double phi;
     double prob_electron;
