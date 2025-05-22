@@ -47,7 +47,7 @@ void InitPlugin(JApplication* app) {
 
   // ***** "MPGDBarrel" (=CyMBaL)
   // Digitization
-  if ((SiFactoryPattern & 0x1) != 0u) {
+  if ((SiFactoryPattern & 0x1) != 0U) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "MPGDBarrelRawHits", {"MPGDBarrelHits"},
         {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"},
@@ -79,7 +79,7 @@ void InitPlugin(JApplication* app) {
 
   // ***** OuterMPGDBarrel
   // Digitization
-  if ((SiFactoryPattern & 0x2) != 0u) {
+  if ((SiFactoryPattern & 0x2) != 0U) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits", {"OuterMPGDBarrelHits"},
         {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"},

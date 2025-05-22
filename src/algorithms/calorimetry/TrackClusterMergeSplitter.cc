@@ -97,7 +97,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     auto projSeed = vecMatchProj.front();
 
     // skip if cluster is already used
-    if (setUsedClust.contains(clustSeed) != 0u) {
+    if (setUsedClust.contains(clustSeed) != 0U) {
       continue;
     }
 
@@ -160,7 +160,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
       // --------------------------------------------------------------------
       // if picked up cluster w/ matched track, add projection to list
       // --------------------------------------------------------------------
-      if (mapProjToSplit.contains(in_cluster) != 0u) {
+      if (mapProjToSplit.contains(in_cluster) != 0U) {
         vecMatchProj.insert(vecMatchProj.end(), mapProjToSplit[in_cluster].begin(),
                             mapProjToSplit[in_cluster].end());
       }
@@ -188,7 +188,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   for (auto in_cluster : *in_protoclusters) {
 
     // ignore used clusters
-    if (setUsedClust.contains(in_cluster) != 0u) {
+    if (setUsedClust.contains(in_cluster) != 0U) {
       continue;
     }
 

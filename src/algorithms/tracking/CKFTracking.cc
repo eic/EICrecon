@@ -395,8 +395,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     }
   }
 
-  for (std::size_t track_index = acts_tracks.size(); (track_index--) != 0u;) {
-    if (passed_tracks.contains(track_index) == 0u) {
+  for (std::size_t track_index = acts_tracks.size(); (track_index--) != 0U;) {
+    if (passed_tracks.contains(track_index) == 0U) {
       // NOTE This does not remove track states corresponding to the
       // removed tracks. Doing so would require implementing some garbage
       // collection. We'll just assume no algorithm will access them

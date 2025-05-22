@@ -111,7 +111,7 @@ void FarDetectorTrackerCluster::ClusterHits(
     auto cluster = outputClusters->create();
 
     // Loop over hits, adding neighbouring hits as relevant
-    while (!clusterList.empty() != 0u) {
+    while (!clusterList.empty() != 0U) {
 
       // Takes first remaining hit in cluster list
       auto index = clusterList[0];

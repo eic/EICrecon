@@ -64,7 +64,7 @@ void MatchClusters::process(const MatchClusters::Input& input,
       continue;
     }
 
-    if (clusterMap.contains(mcID) != 0u) {
+    if (clusterMap.contains(mcID) != 0U) {
       const auto& clus = clusterMap[mcID];
       debug("    --> found matching cluster with energy: {}", clus.getEnergy());
       debug("    --> adding cluster to reconstructed particle");
@@ -89,10 +89,10 @@ void MatchClusters::process(const MatchClusters::Input& input,
 
     // get mass/PDG from mcparticles, 0 (unidentified) in case the matched particle is charged.
     const auto mc     = (*mcparticles)[mcID];
-    const double mass = (mc.getCharge() == 0.0f) ? mc.getMass() : 0;
+    const double mass = (mc.getCharge() == 0.0F) ? mc.getMass() : 0;
     const int32_t pdg = (mc.getCharge() == 0.0f) ? mc.getPDG() : 0;
     if (level() <= algorithms::LogLevel::kDebug) {
-      if (mc.getCharge() != 0.0f) {
+      if (mc.getCharge() != 0.0F) {
         debug("   --> associated mcparticle is not a neutral (PDG: {}), "
               "setting the reconstructed particle ID to 0 (unidentified)",
               mc.getPDG());
@@ -146,7 +146,7 @@ std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
       continue;
     }
 
-    const bool duplicate = matched.contains(mcID) != 0u;
+    const bool duplicate = matched.contains(mcID) != 0U;
     if (duplicate) {
       trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
 
