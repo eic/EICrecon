@@ -159,10 +159,10 @@ dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& glob
   double g[3];
   double l[3];
 
-  globalPosition.GetCoordinates(g);
-  transform->MasterToLocal(g, l);
+  globalPosition.GetCoordinates(static_cast<Double_t*>(g));
+  transform->MasterToLocal(static_cast<const Double_t*>(g), static_cast<Double_t*>(l));
   dd4hep::Position localPosition;
-  localPosition.SetCoordinates(l);
+  localPosition.SetCoordinates(static_cast<const Double_t*>(l));
   return localPosition;
 }
 

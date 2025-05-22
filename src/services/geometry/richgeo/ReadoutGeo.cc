@@ -143,24 +143,24 @@ dd4hep::Position richgeo::ReadoutGeo::GetSensorLocalPosition(CellIDType cellID,
 
   // get sensor position w.r.t. its parent
   auto sensor_elem = context->element;
-  sensor_elem.placement().position().GetCoordinates(xyz_l);
+  sensor_elem.placement().position().GetCoordinates(static_cast<Double_t*>(xyz_l));
 
   // convert sensor position to global position (cf. `CellIDPositionConverter::positionNominal()`)
   const auto& volToElement = context->toElement();
-  volToElement.LocalToMaster(xyz_l, xyz_e);
+  volToElement.LocalToMaster(static_cast<const Double_t*>(xyz_l), static_cast<Double_t*>(xyz_e));
   const auto& elementToGlobal = sensor_elem.nominal().worldTransformation();
-  elementToGlobal.LocalToMaster(xyz_e, xyz_g);
+  elementToGlobal.LocalToMaster(static_cast<const Double_t*>(xyz_e), static_cast<Double_t*>(xyz_g));
   dd4hep::Position pos_sensor;
-  pos_sensor.SetCoordinates(xyz_g);
+  pos_sensor.SetCoordinates(static_cast<const Double_t*>(xyz_g));
 
   // get the position vector of `pos` w.r.t. the sensor position `pos_sensor`
   dd4hep::Direction pos_pv = pos - pos_sensor;
 
   // then transform it to the sensor's local frame
-  pos_pv.GetCoordinates(pv_g);
-  volToElement.MasterToLocalVect(pv_g, pv_l);
+  pos_pv.GetCoordinates(static_cast<Double_t*>(pv_g));
+  volToElement.MasterToLocalVect(static_cast<const Double_t*>(pv_g), static_cast<Double_t*>(pv_l));
   dd4hep::Position pos_transformed;
-  pos_transformed.SetCoordinates(pv_l);
+  pos_transformed.SetCoordinates(static_cast<const Double_t*>(pv_l));
 
   // trace log
   /*

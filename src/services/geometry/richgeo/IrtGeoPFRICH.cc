@@ -128,16 +128,18 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       double sensorGlobalNormX[3];
       double sensorGlobalNormY[3];
       pvSensor.ptr()->LocalToMasterVect(
-          sensorLocalNormX,
-          sensorGlobalNormX); // ignore vessel transformation, since it is a pure translation
-      pvSensor.ptr()->LocalToMasterVect(sensorLocalNormY, sensorGlobalNormY);
+          static_cast<const Double_t*>(sensorLocalNormX),
+          static_cast<Double_t*>(
+              sensorGlobalNormX)); // ignore vessel transformation, since it is a pure translation
+      pvSensor.ptr()->LocalToMasterVect(static_cast<const Double_t*>(sensorLocalNormY),
+                                        static_cast<Double_t*>(sensorGlobalNormY));
 
       // validate sensor position and normal
       // - test normal vectors
       dd4hep::Direction normXdir;
       dd4hep::Direction normYdir;
-      normXdir.SetCoordinates(sensorGlobalNormX);
-      normYdir.SetCoordinates(sensorGlobalNormY);
+      normXdir.SetCoordinates(static_cast<const Double_t*>(sensorGlobalNormX));
+      normYdir.SetCoordinates(static_cast<const Double_t*>(sensorGlobalNormY));
       auto normZdir =
           normXdir.Cross(normYdir); // sensor surface normal, given derived GlobalNormX,Y
       auto testOrtho  = normXdir.Dot(normYdir); // should be zero, if normX and normY are orthogonal
