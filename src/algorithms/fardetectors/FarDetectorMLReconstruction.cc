@@ -60,7 +60,7 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
   //Set beam energy from first MCBeamElectron, using std::call_once
   std::call_once(m_initBeamE, [&]() {
     // Check if beam electrons are present
-    if (beamElectrons->empty()) {
+    if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.CallAndMessage)
       if (m_cfg.requireBeamElectron) {
         critical("No beam electrons found");
         throw std::runtime_error("No beam electrons found");
