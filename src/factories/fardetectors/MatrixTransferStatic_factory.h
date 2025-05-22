@@ -50,6 +50,8 @@ private:
   ParameterRef<std::string> readout{this, "readout", config().readout};
 
   ParameterRef<bool> requireBeamProton{this, "requireBeamProton", config().requireBeamProton};
+  ParameterRef<bool> requireMatchingMatrix{this, "requireMatchingMatrix",
+                                           config().requireMatchingMatrix};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
