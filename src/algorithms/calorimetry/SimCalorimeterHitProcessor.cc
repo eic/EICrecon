@@ -133,7 +133,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
           attFactor = get_attenuation(leading_hit.getPosition().z);
 
           trace("z = {}, attFactor = {}", leading_hit.getPosition().z, attFactor);
-	}
+        }
 
         auto out_hit_contrib = out_hit_contribs->create();
         out_hit_contrib.setPDG(leading_contrib.getPDG());
