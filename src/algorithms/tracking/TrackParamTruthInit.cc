@@ -75,7 +75,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     const auto pdg      = mcparticle.getPDG();
     const auto particle = m_particleSvc.particle(pdg);
     double charge       = std::copysign(1.0, particle.charge);
-    if (std::abs(charge) < std::numeric_limits<double>::epsilon()) {
+    if (std::abs(particle.charge) < std::numeric_limits<double>::epsilon()) {
       m_log->trace("ignoring neutral particle");
       continue;
     }
