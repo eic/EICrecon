@@ -137,7 +137,7 @@ void GetPluginNamesFromEnvPath(std::set<std::string>& plugin_names, const char* 
   std::string dir_path;
   std::string paths;
 
-  const char* env_p = getenv(env_var);
+  const char* env_p = getenv(env_var); // NOLINT(concurrency-mt-unsafe)
   if (env_p != nullptr) {
     if (strcmp(env_var, "EICrecon_MY") == 0) {
       paths = std::string(env_p) + "/plugins";
