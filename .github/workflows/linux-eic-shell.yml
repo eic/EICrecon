@@ -73,7 +73,11 @@ jobs:
         # note that entries that overwrite matrix values require a full specification
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#expanding-or-adding-matrix-configurations
         exclude:
-          # exclude clang++ Debug with default CXXFLAGS
+          # exclude g++ Debug with default CXXFLAGS since unused
+          - CXX: g++
+            CMAKE_BUILD_TYPE: Debug
+            release: nightly
+          # exclude clang++ Debug with default CXXFLAGS since overridden
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
             release: nightly
