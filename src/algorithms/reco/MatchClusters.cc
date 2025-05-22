@@ -64,7 +64,7 @@ void MatchClusters::process(const MatchClusters::Input& input,
       continue;
     }
 
-    if (clusterMap.contains(mcID) != 0U) {
+    if (clusterMap.contains(mcID)) {
       const auto& clus = clusterMap[mcID];
       debug("    --> found matching cluster with energy: {}", clus.getEnergy());
       debug("    --> adding cluster to reconstructed particle");
@@ -146,7 +146,7 @@ std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
       continue;
     }
 
-    const bool duplicate = matched.contains(mcID) != 0U;
+    const bool duplicate = matched.contains(mcID);
     if (duplicate) {
       trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
 
