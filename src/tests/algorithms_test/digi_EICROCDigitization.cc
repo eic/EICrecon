@@ -47,6 +47,7 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
   SECTION("TDC vs analytic solution scan") {
     logger->info("Begin TDC vs analytic solution scan");
 
+    // NOLINTNEXTLINE(clang-analyzer-security.FloatLoopCounter)
     for (double time = -cfg.tMax; time <= cfg.tMax; time += cfg.tMax) {
       if (time < 0) {
         logger->info("Generation pulse at the negative time");
