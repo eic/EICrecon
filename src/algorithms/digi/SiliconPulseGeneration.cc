@@ -32,7 +32,7 @@ public:
 
   virtual double getMaximumTime() const = 0;
 
-protected:
+private:
   double m_charge{};
 };
 
