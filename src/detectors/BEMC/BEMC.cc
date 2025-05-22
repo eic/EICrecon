@@ -45,10 +45,10 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiPAttenuatedHits", {"EcalBarrelScFiHits"},
       {"EcalBarrelScFiPAttenuatedHits", "EcalBarrelScFiPAttenuatedHitContributions"},
       {
-          .attPars          = EcalBarrelScFi_attPars,
-          .readout          = "EcalBarrelScFiHits",
+          .attPars                          = EcalBarrelScFi_attPars,
+          .readout                          = "EcalBarrelScFiHits",
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmax",
-          .mergeField       = "fiber",
+          .mergeField                       = "fiber",
       },
       app // TODO: Remove me once fixed
       ));
@@ -56,10 +56,10 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiNAttenuatedHits", {"EcalBarrelScFiHits"},
       {"EcalBarrelScFiNAttenuatedHits", "EcalBarrelScFiNAttenuatedHitContributions"},
       {
-          .attPars          = EcalBarrelScFi_attPars,
-          .readout          = "EcalBarrelScFiHits",
+          .attPars                          = EcalBarrelScFi_attPars,
+          .readout                          = "EcalBarrelScFiHits",
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
-          .mergeField       = "fiber",
+          .mergeField                       = "fiber",
       },
       app // TODO: Remove me once fixed
       ));
