@@ -20,7 +20,7 @@
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
-#include <math.h>
+#include <cmath>
 
 #include <algorithm>
 #include <cstddef>

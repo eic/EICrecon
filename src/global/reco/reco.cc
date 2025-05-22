@@ -14,7 +14,7 @@
 #include <edm4hep/MCParticle.h>
 #include <fmt/core.h>
 #include <gsl/pointers>
-#include <math.h>
+#include <cmath>
 
 #include <map>
 #include <memory>
