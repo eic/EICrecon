@@ -157,8 +157,8 @@ void CalorimeterIslandCluster::init() {
             auto dist = hitsDist(h1, h2);
             return (std::abs(dist.a) <= neighbourDist[0]) && (std::abs(dist.b) <= neighbourDist[1]);
             // different sector, local coordinates do not work, using global coordinates
-          } // sector may have rotation (barrel), so z is         included
-          // (EDM4hep units are mm, so convert sectorDist to         mm)
+          } // sector may have rotation (barrel), so z is included
+          // (EDM4hep units are mm, so convert sectorDist to mm)
           return (edm4hep::utils::magnitude(h1.getPosition() - h2.getPosition()) <=
                   m_cfg.sectorDist / dd4hep::mm);
         };
