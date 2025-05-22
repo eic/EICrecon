@@ -62,7 +62,6 @@ Log_service::Log_service(JApplication* app) : m_application(app), m_log_level_st
   // Here one could add centralized documentation for spdlog::default_logger()
   // All subsequent loggers are cloned from the spdlog::default_logger()
 
-  
   m_application->SetDefaultParameter("eicrecon:LogLevel", m_log_level_str,
                                      "log_level: trace, debug, info, warn, error, critical, off");
   spdlog::default_logger()->set_level(eicrecon::ParseLogLevel(m_log_level_str));
