@@ -31,9 +31,6 @@ public:
   virtual double operator()(double time, double charge) = 0;
 
   virtual double getMaximumTime() const = 0;
-
-private:
-  double m_charge{};
 };
 
 // ----------------------------------------------------------------------------
