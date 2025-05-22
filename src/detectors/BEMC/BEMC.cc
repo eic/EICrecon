@@ -47,7 +47,7 @@ void InitPlugin(JApplication* app) {
       {
           .attPars          = EcalBarrelScFi_attPars,
           .readout          = "EcalBarrelScFiHits",
-          .attenuationField = "EcalBarrel_Readout_zmax",
+          .attenuationReferencePositionName = "EcalBarrel_Readout_zmax",
           .mergeField       = "fiber",
       },
       app // TODO: Remove me once fixed
@@ -58,7 +58,7 @@ void InitPlugin(JApplication* app) {
       {
           .attPars          = EcalBarrelScFi_attPars,
           .readout          = "EcalBarrelScFiHits",
-          .attenuationField = "EcalBarrel_Readout_zmin",
+          .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
           .mergeField       = "fiber",
       },
       app // TODO: Remove me once fixed

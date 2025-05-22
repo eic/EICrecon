@@ -24,7 +24,7 @@ private:
 
   ParameterRef<std::vector<double>> m_attenuationParameters{this, "attenuationParameters",
                                                             config().attPars};
-  ParameterRef<std::string> m_attenuationField{this, "attenuationField", config().attenuationField};
+  ParameterRef<std::string> m_attenuationReferencePositionName{this, "attenuationReferencePositionName", config().attenuationReferencePositionName};
   ParameterRef<std::string> m_mergeField{this, "mergeField", config().mergeField};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
 

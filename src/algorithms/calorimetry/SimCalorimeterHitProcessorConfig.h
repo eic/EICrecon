@@ -15,7 +15,7 @@ struct SimCalorimeterHitProcessorConfig {
 
   // fields for adding up energies and attenuate them
   std::string readout{""};
-  std::string attenuationField{""};
+  std::string attenuationReferencePositionName{""};
   std::string mergeField{""};
 };
 

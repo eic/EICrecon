@@ -47,7 +47,7 @@ private:
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 
   // a reference value for attenuation
-  double m_attenuationMode;
+  double m_attenuationReferencePosition;
 
   // flags for merge and attenuation
   bool is_merge       = false;
