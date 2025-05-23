@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Wouter Deconinck
 
-#include <JANA/JApplicationFwd.h>
+#include <JANA/JApplication.h>
 #include <memory>
 
 #include "AlgorithmsInit_service.h"

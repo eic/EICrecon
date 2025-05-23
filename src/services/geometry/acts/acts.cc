@@ -3,7 +3,7 @@
 //
 //
 
-#include <JANA/JApplicationFwd.h>
+#include <JANA/JApplication.h>
 #include <memory>
 
 #include "ACTSGeo_service.h"
