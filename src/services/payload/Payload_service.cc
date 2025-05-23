@@ -7,7 +7,4 @@
 #include <nlohmann/json.hpp>
 #include <nopayloadclient/nopayloadclient.hpp>
 
-Payload_service::Payload_service(JApplication *app)
-: m_client("EICrecon") {
-    m_application = app;
-}
+Payload_service::Payload_service(JApplication* app) : m_client("EICrecon") { m_application = app; }

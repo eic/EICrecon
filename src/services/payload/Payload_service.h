@@ -9,17 +9,15 @@
 #include <nopayloadclient/nopayloadclient.hpp>
 #include <string>
 
-class Payload_service : public JService
-{
+class Payload_service : public JService {
 public:
-    explicit Payload_service(JApplication *app);
-    ~Payload_service() { };
+  explicit Payload_service(JApplication* app);
+  ~Payload_service(){};
 
 private:
+  Payload_service() = default;
 
-    Payload_service() = default;
+  nopayloadclient::NoPayloadClient m_client;
 
-    nopayloadclient::NoPayloadClient m_client;
-
-    JApplication* m_application;
+  JApplication* m_application;
 };
