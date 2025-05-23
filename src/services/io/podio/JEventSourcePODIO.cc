@@ -7,7 +7,7 @@
 
 #include "JEventSourcePODIO.h"
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Utils/JTypeInfo.h>

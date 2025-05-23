@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JServiceLocator.h>
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>

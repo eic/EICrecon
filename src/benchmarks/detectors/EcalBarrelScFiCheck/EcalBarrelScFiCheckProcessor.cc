@@ -6,7 +6,7 @@
 #include "EcalBarrelScFiCheckProcessor.h"
 
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <TDirectory.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>

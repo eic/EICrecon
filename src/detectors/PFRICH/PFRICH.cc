@@ -6,7 +6,7 @@
 
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <math.h>
 #include <algorithm>
 #include <gsl/pointers>

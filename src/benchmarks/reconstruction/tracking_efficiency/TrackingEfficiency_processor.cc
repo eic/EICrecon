@@ -3,7 +3,7 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <Math/GenVector/Cartesian3D.h>

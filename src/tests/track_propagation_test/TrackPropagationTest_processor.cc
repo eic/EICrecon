@@ -4,7 +4,7 @@
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JGlobalRootLock.h>

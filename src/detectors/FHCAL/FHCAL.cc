@@ -4,7 +4,7 @@
 #include <DD4hep/Detector.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <TString.h>
 #include <math.h>
 #include <algorithm>

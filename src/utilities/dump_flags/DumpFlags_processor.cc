@@ -1,6 +1,6 @@
 #include "DumpFlags_processor.h"
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
