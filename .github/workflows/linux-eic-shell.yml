@@ -662,13 +662,13 @@ jobs:
         if-no-files-found: error
 
   eicrecon-nopayloadclient:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs:
     - build
     - npsim-gun
     strategy:
       matrix:
-        CC: [clang]
+        CXX: [clang++]
         particle: [e]
         detector_config: [craterlake]
     services:
@@ -705,7 +705,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CC }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
