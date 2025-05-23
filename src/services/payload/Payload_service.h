@@ -4,10 +4,8 @@
 #pragma once
 
 #include <JANA/JApplication.h>
-#include <JANA/Services/JServiceLocator.h>
-#include <nlohmann/json.hpp>
+#include <JANA/JServiceFwd.h>
 #include <nopayloadclient/nopayloadclient.hpp>
-#include <string>
 
 class Payload_service : public JService {
 public:
