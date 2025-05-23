@@ -112,7 +112,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
       }
 
       for (const auto& [id, ixs] : merge_map) {
-	auto leading_hit     = hits[ixs[0]];
+        auto leading_hit     = hits[ixs[0]];
         auto leading_contrib = hits[ixs[0]].getContributions(0);
 
         // accumulate the energy deposit
