@@ -78,13 +78,9 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
     for (const auto& contrib : ih.getContributions()) {
       edm4hep::MCParticle primary = get_primary(contrib);
 
-      edm4hep::MutableSimCalorimeterHit simhit;
-      simhit.setCellID(ih.getCellID());
-      simhit.setEnergy(contrib.getEnergy());
-      simhit.setPosition(ih.getPosition());
+      auto& simhit = mapMCParToSimCalHit[primary].emplace_back(ih.getCellID(), contrib.getEnergy(),
+                                                               ih.getPosition());
       simhit.addToContributions(contrib);
-
-      mapMCParToSimCalHit[primary].push_back(simhit);
 
       trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
             primary.getObjectID().index, primary.getPDG(), primary.getEnergy(),
