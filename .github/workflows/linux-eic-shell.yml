@@ -724,7 +724,7 @@ jobs:
             "base_url": "localhost:8000",
             "api_res": "/api/cdb_rest/",
             "write_dir": "/tmp/remote_pl_store/",
-            "read_dir_list": ["/tmp/remote_pl_store/", "/cvmfs/place/holder/"],
+            "read_dir_list": ["/tmp/remote_pl_store/"],
             "n_retries": 5,
             "retry_sleep_mean": 30,
             "cache_life_time": 10,
