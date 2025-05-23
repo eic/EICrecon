@@ -112,19 +112,28 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
       }
 
       for (const auto& [id, ixs] : merge_map) {
-        float edepSum        = 0;
-        float timeEar        = std::numeric_limits<double>::max();
-        auto leading_hit     = hits[ixs[0]];
+	auto leading_hit     = hits[ixs[0]];
         auto leading_contrib = hits[ixs[0]].getContributions(0);
 
-        for (size_t i = 0; i < ixs.size(); ++i) {
-          auto hit = hits[ixs[i]];
-          edepSum += hit.getEnergy();
+        // accumulate the energy deposit
+        float edepSum = std::accumulate(ixs.begin(), ixs.end(), 0.0f, [&](float sum, size_t idx) {
+          return sum + hits[idx].getEnergy();
+        });
 
-          for (const auto& c : hit.getContributions()) {
-            if (c.getTime() <= timeEar) {
-              timeEar = c.getTime();
-            }
+        // find the earliest time
+        float timeEar = std::numeric_limits<double>::max();
+
+        for (const auto& idx : ixs) {
+          const auto& contribs = hits[idx].getContributions();
+
+          auto contribEar =
+              std::min_element(contribs.begin(), contribs.end(), [](const auto& a, const auto& b) {
+                return a.getTime() < b.getTime();
+              });
+          float localEar = contribEar->getTime();
+
+          if (localEar < timeEar) {
+            timeEar = localEar;
           }
         }
 
