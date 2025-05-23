@@ -13,6 +13,7 @@
 #include <string>
 #include <string_view>
 #include <functional>
+#include <optional>
 
 #include "SimCalorimeterHitProcessorConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -40,7 +41,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  uint64_t m_id_mask{0};
+  std::optional<uint64_t> m_id_mask;
 
   dd4hep::IDDescriptor m_id_spec;
 
@@ -50,7 +51,6 @@ private:
   double m_attenuationReferencePosition;
 
   // flags for merge and attenuation
-  bool is_merge       = false;
   bool is_attenuation = false;
 
 private:

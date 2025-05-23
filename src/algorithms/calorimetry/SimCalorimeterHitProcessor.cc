@@ -23,6 +23,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <numeric>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "services/evaluator/EvaluatorSvc.h"
@@ -47,14 +48,12 @@ void SimCalorimeterHitProcessor::init() {
     throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
   }
 
-  uint64_t id_inverse_mask = 0;
   // get id_mask for adding up hits with the same dimensions that are merged over
   if (!m_cfg.mergeField.empty()) {
-    is_merge = true;
-    id_inverse_mask |= m_id_spec.field(m_cfg.mergeField)->mask();
-    debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_id_mask);
+	  uint64_t id_inverse_mask = m_id_spec.field(m_cfg.mergeField)->mask();
+	  m_id_mask = ~id_inverse_mask;
+	  if(m_id_mask) debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_id_mask.value());
   }
-  m_id_mask = ~id_inverse_mask;
 
   // get reference position for attenuating hits
   if (!m_cfg.attenuationReferencePositionName.empty()) {
@@ -71,7 +70,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   auto [out_hits, out_hit_contribs] = output;
 
   // map for regrouping
-  std::map<edm4hep::MCParticle, std::vector<edm4hep::SimCalorimeterHit>> mapMCParToSimCalHit;
+  std::map<edm4hep::MCParticle, std::vector<edm4hep::MutableSimCalorimeterHit>> mapMCParToSimCalHit;
 
   // regroup the sim hits by mc particle
   for (const auto& ih : *in_hits) {
@@ -92,13 +91,13 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   // 1. sum the hits if they have the same z-segmentation
   // 2. attenuate the summed hits
   for (const auto& [par, hits] : mapMCParToSimCalHit) {
-    if (is_merge) {
+    if (m_id_mask) {
       std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
 
       // map for adding up the hits that have the same z-segmentation
       std::size_t ix = 0;
       for (const auto& ahit : hits) {
-        uint64_t hid = ahit.getCellID() & m_id_mask;
+        uint64_t hid = ahit.getCellID() & m_id_mask.value();
 
         trace("org cell ID in {:s}: {:#064b}", m_cfg.readout, ahit.getCellID());
         trace("new cell ID in {:s}: {:#064b}", m_cfg.readout, hid);
