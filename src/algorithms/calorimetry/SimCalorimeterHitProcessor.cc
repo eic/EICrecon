@@ -50,9 +50,10 @@ void SimCalorimeterHitProcessor::init() {
 
   // get id_mask for adding up hits with the same dimensions that are merged over
   if (!m_cfg.mergeField.empty()) {
-	  uint64_t id_inverse_mask = m_id_spec.field(m_cfg.mergeField)->mask();
-	  m_id_mask = ~id_inverse_mask;
-	  if(m_id_mask) debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_id_mask.value());
+    uint64_t id_inverse_mask = m_id_spec.field(m_cfg.mergeField)->mask();
+    m_id_mask                = ~id_inverse_mask;
+    if (m_id_mask)
+      debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_id_mask.value());
   }
 
   // get reference position for attenuating hits
