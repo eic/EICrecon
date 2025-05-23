@@ -1,6 +1,34 @@
 # Ensure GNU filesystem layout
 include(GNUInstallDirs)
 
+# Sets up properties common for plugin "library" library or "plugin" library
+macro(_plugin_common_target_properties _target)
+  target_include_directories(
+    ${_target}
+    PUBLIC $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
+           $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
+  target_include_directories(${_target} SYSTEM PUBLIC ${JANA_INCLUDE_DIR})
+  target_link_libraries(
+    ${_target}
+    ${JANA_LIB}
+    podio::podio
+    podio::podioRootIO
+    spdlog::spdlog
+    fmt::fmt
+    Microsoft.GSL::GSL)
+
+  target_compile_definitions(
+    ${_target}
+    PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
+            "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
+            "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
+
+  # Ensure datamodel headers are available
+  if(TARGET podio_datamodel_glue)
+    add_dependencies(${_target} podio_datamodel_glue)
+  endif()
+endmacro()
+
 # Common macro to add plugins
 macro(plugin_add _name)
 
@@ -23,43 +51,17 @@ macro(plugin_add _name)
     endif()
   endforeach()
 
-  # Include JANA by default
-  find_package(JANA REQUIRED)
-
-  # TODO: NWB: This really needs to be a dependency of JANA itself. If we don't
-  # do this here, CMake will later refuse to accept that podio is indeed a
-  # dependency of JANA and aggressively reorders my target_link_list to reflect
-  # this misapprehension.
-  # https://gitlab.kitware.com/cmake/cmake/blob/v3.13.2/Source/cmComputeLinkDepends.cxx
-  find_package(podio REQUIRED)
-
-  # include logging by default
-  find_package(spdlog REQUIRED)
-
-  # include fmt by default
-  find_package(fmt 9.0.0 REQUIRED)
-
-  # include gsl by default
-  find_package(Microsoft.GSL CONFIG)
-
   # Define plugin
   if(${_name}_WITH_PLUGIN)
-    add_library(${_name}_plugin SHARED ${PLUGIN_SOURCES})
+    add_library(${_name}_plugin SHARED)
 
-    target_include_directories(
-      ${_name}_plugin
-      PUBLIC $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
-             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
-    target_include_directories(${_name}_plugin SYSTEM
-                               PUBLIC ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS})
+    _plugin_common_target_properties(${_name}_plugin)
+
     set_target_properties(
       ${_name}_plugin
       PROPERTIES PREFIX ""
                  OUTPUT_NAME "${_name}"
                  SUFFIX ".so")
-    target_link_libraries(${_name}_plugin ${JANA_LIB} podio::podio
-                          podio::podioRootIO spdlog::spdlog fmt::fmt)
-    target_link_libraries(${_name}_plugin Microsoft.GSL::GSL)
 
     # Install plugin
     install(
@@ -71,6 +73,9 @@ macro(plugin_add _name)
   # Define library
   if(${_name}_WITH_LIBRARY)
     add_library(${_name}_library ${${_name}_LIBRARY_TYPE} "")
+
+    _plugin_common_target_properties(${_name}_library)
+
     if(${_name}_LIBRARY_TYPE STREQUAL "STATIC")
       set(suffix ".a")
     endif()
@@ -82,21 +87,6 @@ macro(plugin_add _name)
       PROPERTIES PREFIX "lib"
                  OUTPUT_NAME "${_name}"
                  SUFFIX ${suffix})
-
-    target_include_directories(
-      ${_name}_library
-      PUBLIC $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
-             $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
-    target_include_directories(${_name}_library SYSTEM
-                               PUBLIC ${JANA_INCLUDE_DIR})
-    target_link_libraries(
-      ${_name}_library
-      ${JANA_LIB}
-      podio::podio
-      podio::podioRootIO
-      spdlog::spdlog
-      fmt::fmt
-      Microsoft.GSL::GSL)
 
     # Install library
     install(
@@ -114,6 +104,17 @@ macro(plugin_add _name)
       target_link_libraries(${_name}_plugin ${_name}_library)
     endif()
   endif()
+endmacro()
+
+# add_dependencies for both a plugin and a library
+macro(plugin_add_dependencies _name)
+  if(${_name}_WITH_PLUGIN)
+    add_dependencies(${_name}_plugin ${ARGN})
+  endif(${_name}_WITH_PLUGIN)
+
+  if(${_name}_WITH_LIBRARY)
+    add_dependencies(${_name}_library ${ARGN})
+  endif(${_name}_WITH_LIBRARY)
 endmacro()
 
 # target_link_libraries for both a plugin and a library
@@ -218,11 +219,13 @@ macro(plugin_glob_all _name)
 
     # Finally add sources to library
     target_sources(${_name}_library PRIVATE ${LIB_SRC_FILES})
+
+    # Debug output if needed
+    message(VERBOSE
+            "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
   endif(${_name}_WITH_LIBRARY)
 
   # Debug output if needed
-  message(VERBOSE
-          "plugin_glob_all:${_name}: PLUGIN_CC_FILE   ${PLUGIN_CC_FILE}")
   message(VERBOSE "plugin_glob_all:${_name}: LIB_SRC_FILES    ${LIB_SRC_FILES}")
   message(VERBOSE
           "plugin_glob_all:${_name}: PLUGIN_SRC_FILES ${PLUGIN_SRC_FILES}")
@@ -236,7 +239,20 @@ endmacro()
 macro(plugin_add_algorithms _name)
 
   if(NOT algorithms_FOUND)
-    find_package(algorithms REQUIRED)
+    find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED)
+  endif()
+
+  if(${_name}_WITH_LIBRARY)
+    target_compile_definitions(
+      ${PLUGIN_NAME}_library
+      PRIVATE "algorithms_VERSION_MAJOR=${algorithms_VERSION_MAJOR}"
+              "algorithms_VERSION_MINOR=${algorithms_VERSION_MINOR}")
+  endif()
+  if(${_name}_WITH_PLUGIN)
+    target_compile_definitions(
+      ${PLUGIN_NAME}_plugin
+      PRIVATE "algorithms_VERSION_MAJOR=${algorithms_VERSION_MAJOR}"
+              "algorithms_VERSION_MINOR=${algorithms_VERSION_MINOR}")
   endif()
 
   plugin_link_libraries(${_name} algorithms::algocore)
@@ -247,7 +263,7 @@ endmacro()
 macro(plugin_add_dd4hep _name)
 
   if(NOT DD4hep_FOUND)
-    find_package(DD4hep REQUIRED)
+    find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED)
   endif()
 
   plugin_link_libraries(${_name} DD4hep::DDCore DD4hep::DDRec)
@@ -258,7 +274,7 @@ endmacro()
 macro(plugin_add_eigen3 _name)
 
   if(NOT Eigen3_FOUND)
-    find_package(Eigen3 REQUIRED)
+    find_package(Eigen3 ${Eigen3_VERSION_MIN} REQUIRED)
   endif()
 
   plugin_link_libraries(${_name} Eigen3::Eigen)
@@ -269,9 +285,7 @@ endmacro()
 macro(plugin_add_acts _name)
 
   if(NOT Acts_FOUND)
-    find_package(Acts REQUIRED COMPONENTS Core PluginIdentification PluginTGeo
-                                          PluginJson PluginDD4hep)
-    set(Acts_VERSION_MIN "20.2.0")
+    find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
     set(Acts_VERSION
         "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
     if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
@@ -291,19 +305,19 @@ macro(plugin_add_acts _name)
   plugin_link_libraries(
     ${PLUGIN_NAME}
     ActsCore
-    ActsPluginIdentification
-    ActsPluginTGeo
-    ActsPluginJson
     ActsPluginDD4hep
+    ActsPluginJson
     ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
   if(${_name}_WITH_LIBRARY)
     target_compile_definitions(
-      ${PLUGIN_NAME}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}")
+      ${PLUGIN_NAME}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
+                                     "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
   endif()
   if(${_name}_WITH_PLUGIN)
     target_compile_definitions(
-      ${PLUGIN_NAME}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}")
+      ${PLUGIN_NAME}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
+                                    "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
   endif()
 
 endmacro()
@@ -312,7 +326,7 @@ endmacro()
 macro(plugin_add_irt _name)
 
   if(NOT IRT_FOUND)
-    find_package(IRT REQUIRED)
+    find_package(IRT ${IRT_VERSION_MIN} REQUIRED)
   endif()
 
   # FIXME: IRTConfig.cmake sets INTERFACE_INCLUDE_DIRECTORIES to
@@ -351,15 +365,18 @@ endmacro()
 macro(plugin_add_event_model _name)
 
   if(NOT podio_FOUND)
-    find_package(podio REQUIRED)
+    find_package(podio ${podio_VERSION_MIN} QUIET)
+    if(NOT podio_FOUND)
+      find_package(podio 1.0 REQUIRED)
+    endif()
   endif()
 
   if(NOT EDM4HEP_FOUND)
-    find_package(EDM4HEP REQUIRED)
+    find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
   endif()
 
   if(NOT EDM4EIC_FOUND)
-    find_package(EDM4EIC REQUIRED)
+    find_package(EDM4EIC ${EDM4EIC_VERSION_MIN} REQUIRED)
   endif()
 
   # Add include directories
@@ -378,7 +395,7 @@ endmacro()
 macro(plugin_add_cern_root _name)
 
   if(NOT ROOT_FOUND)
-    find_package(ROOT REQUIRED)
+    find_package(ROOT ${ROOT_VERSION_MIN} REQUIRED)
   endif()
 
   # Add libraries
@@ -390,7 +407,7 @@ endmacro()
 macro(plugin_add_fastjet _name)
 
   if(NOT FASTJET_FOUND)
-    find_package(FastJet REQUIRED)
+    find_package(FastJet ${FastJet_VERSION_MIN} REQUIRED)
   endif()
 
   # Add include directories
@@ -406,7 +423,7 @@ endmacro()
 macro(plugin_add_fastjettools _name)
 
   if(NOT FJTOOLS_FOUND)
-    find_package(FastJetTools REQUIRED)
+    find_package(FastJetTools ${FastJet_VERSION_MIN} REQUIRED)
   endif()
 
   # Add include directories
@@ -422,7 +439,7 @@ endmacro()
 macro(plugin_add_fastjetcontrib _name)
 
   if(NOT FJCONTRIB_FOUND)
-    find_package(FastJetContrib REQUIRED)
+    find_package(FastJetContrib ${FastJetContrib_VERSION_MIN} REQUIRED)
   endif()
 
   # Add include directories
@@ -438,7 +455,7 @@ endmacro()
 macro(plugin_add_onnxruntime _name)
 
   if(NOT onnxruntime_FOUND)
-    find_package(onnxruntime CONFIG)
+    find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
   endif()
 
   # Add libraries

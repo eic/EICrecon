@@ -7,28 +7,28 @@
 
 namespace eicrecon {
 
-    struct CalorimeterIslandClusterConfig {
+struct CalorimeterIslandClusterConfig {
 
-        std::string adjacencyMatrix;
-        std::string readout;
+  std::string adjacencyMatrix;
+  std::string peakNeighbourhoodMatrix;
+  std::string readout;
 
-        // neighbour checking distances
-        double sectorDist;
-        std::vector<double> localDistXY;
-        std::vector<double> localDistXZ;
-        std::vector<double> localDistYZ;
-        std::vector<double> globalDistRPhi;
-        std::vector<double> globalDistEtaPhi;
-        std::vector<double> dimScaledLocalDistXY;
+  // neighbour checking distances
+  double sectorDist;
+  std::vector<double> localDistXY;
+  std::vector<double> localDistXZ;
+  std::vector<double> localDistYZ;
+  std::vector<double> globalDistRPhi;
+  std::vector<double> globalDistEtaPhi;
+  std::vector<double> dimScaledLocalDistXY;
 
-        bool splitCluster{false};
-        double minClusterHitEdep;
-        double minClusterCenterEdep;
+  bool splitCluster{false};
+  double minClusterHitEdep;
+  double minClusterCenterEdep;
 
-        std::string transverseEnergyProfileMetric;
-        double transverseEnergyProfileScale;
-        double transverseEnergyProfileScaleUnits;
+  std::string transverseEnergyProfileMetric;
+  double transverseEnergyProfileScale;
+  double transverseEnergyProfileScaleUnits;
+};
 
-    };
-
-} // eicrecon
+} // namespace eicrecon
