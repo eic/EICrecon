@@ -3,17 +3,16 @@
 
 #pragma once
 
+#include <DD4hep/IDDescriptor.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <DD4hep/IDDescriptor.h>
-#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
 #include <stdint.h>
+#include <optional>
 #include <string>
 #include <string_view>
-#include <functional>
-#include <optional>
 
 #include "SimCalorimeterHitProcessorConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

@@ -9,21 +9,21 @@
 #include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <algorithms/service.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
 #include <limits>
+#include <map>
+#include <numeric>
 #include <stdexcept>
 #include <string>
-#include <map>
 #include <unordered_map>
-#include <utility>
 #include <vector>
-#include <numeric>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "services/evaluator/EvaluatorSvc.h"
