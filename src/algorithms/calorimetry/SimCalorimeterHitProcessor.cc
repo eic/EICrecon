@@ -57,8 +57,8 @@ void SimCalorimeterHitProcessor::init() {
   }
 
   // get reference position for attenuating hits
+  // convert its unit from cm to mm
   if (!m_cfg.attenuationReferencePositionName.empty()) {
-    is_attenuation = true;
     m_attenuationReferencePosition =
         m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) / dd4hep::mm;
   }
@@ -135,7 +135,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
 
         // attenuation
         double attFactor = 1.;
-        if (is_attenuation) {
+        if (m_attenuationReferencePosition) {
           attFactor = get_attenuation(leading_hit.getPosition().z);
 
           trace("z = {}, attFactor = {}", leading_hit.getPosition().z, attFactor);
@@ -189,7 +189,7 @@ SimCalorimeterHitProcessor::get_primary(const edm4hep::CaloHitContribution& cont
 }
 
 double SimCalorimeterHitProcessor::get_attenuation(double zpos) const {
-  double length = std::abs(m_attenuationReferencePosition - zpos);
+  double length = std::abs(m_attenuationReferencePosition.value() - zpos);
   double factor = m_cfg.attPars[0] * std::exp(-length / m_cfg.attPars[1]) +
                   (1 - m_cfg.attPars[0]) * std::exp(-length / m_cfg.attPars[2]);
   return factor;
