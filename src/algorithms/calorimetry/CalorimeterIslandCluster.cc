@@ -16,7 +16,6 @@
 #include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
-#include <cmath>
 #include <map>
 #include <set>
 #include <stdexcept>
