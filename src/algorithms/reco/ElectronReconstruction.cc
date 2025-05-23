@@ -29,7 +29,7 @@ ElectronReconstruction::execute(const edm4eic::ReconstructedParticleCollection* 
 
   for (const auto particle : *rcparts) {
     // if we found a reco particle then test for electron compatibility
-    if (particle.getClusters().size() == 0) {
+    if (particle.getClusters().empty()) {
       continue;
     }
     if (particle.getCharge() == 0) { // Skip over photons/other particles without a track

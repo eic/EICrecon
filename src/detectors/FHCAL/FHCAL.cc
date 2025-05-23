@@ -2,12 +2,12 @@
 // Copyright (C) 2023 Friederike Bock, Wouter Deconinck
 
 #include <DD4hep/Detector.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <TString.h>
-#include <math.h>
 #include <algorithm>
+#include <cmath>
+#include <edm4eic/EDM4eicVersion.h>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
@@ -104,8 +104,8 @@ void InitPlugin(JApplication* app) {
       ));
 
   // define the distance between neighbors in terms of the largest possible distance between subcell hits
-  auto detector = app->GetService<DD4hep_service>()->detector();
-  double side_length;
+  auto detector      = app->GetService<DD4hep_service>()->detector();
+  double side_length = NAN;
   try {
     side_length = std::max({detector->constant<double>("HcalEndcapPInsertCellSizeLGRight"),
                             detector->constant<double>("HcalEndcapPInsertCellSizeLGLeft")});

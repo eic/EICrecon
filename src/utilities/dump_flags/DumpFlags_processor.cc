@@ -4,16 +4,16 @@
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
-#include <fmt/core.h>
-#include <spdlog/common.h>
-#include <spdlog/logger.h>
-#include <spdlog/spdlog.h>
-#include <string.h>
 #include <cstddef>
+#include <cstring>
 #include <exception>
+#include <fmt/core.h>
 #include <fstream>
 #include <map>
 #include <regex>
+#include <spdlog/common.h>
+#include <spdlog/logger.h>
+#include <spdlog/spdlog.h>
 
 using namespace fmt;
 
@@ -98,8 +98,9 @@ void DumpFlags_processor::Finish() {
                     json_escape(param->GetDefault()), json_escape(param->GetDescription()));
 
     // Print on screen
-    if (m_print_to_screen)
+    if (m_print_to_screen) {
       fmt::print("    {:{}} : {}\n", param->GetKey(), max_name_len + 3, param->GetValue());
+    }
   }
 
   // Finalizing

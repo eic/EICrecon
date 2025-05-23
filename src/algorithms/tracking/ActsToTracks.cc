@@ -175,7 +175,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 // FIXME: not able to check whether optional inputs were provided
 //if (raw_hit_assocs->has_value()) {
 #if EDM4EIC_VERSION_MAJOR >= 7
-              for (auto& hit : meas2D.getHits()) {
+              for (const auto& hit : meas2D.getHits()) {
                 auto raw_hit = hit.getRawHit();
                 for (const auto raw_hit_assoc : *raw_hit_assocs) {
                   if (raw_hit_assoc.getRawHit() == raw_hit) {

@@ -9,7 +9,6 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Utilities/Logger.hpp>
 #include <Acts/Visualization/ViewConfig.hpp>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Fields.h>

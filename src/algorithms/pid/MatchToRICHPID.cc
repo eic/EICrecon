@@ -34,9 +34,10 @@ void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
 
     // link Cherenkov PID objects
     auto success = linkCherenkovPID(part_out, *drich_cherenkov_pid, *pids);
-    if (success)
+    if (success) {
       trace("Previous PDG vs. CherenkovPID PDG: {:>10} vs. {:<10}", part_in.getPDG(),
             part_out.getParticleIDUsed().isAvailable() ? part_out.getParticleIDUsed().getPDG() : 0);
+    }
 
     for (auto assoc_in : *assocs_in) {
       if (assoc_in.getRec() == part_in) {
@@ -62,8 +63,9 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
                                       edm4hep::ParticleIDCollection& out_pids) const {
 
   // skip this particle, if neutral
-  if (std::abs(in_part.getCharge()) < 0.001)
+  if (std::abs(in_part.getCharge()) < 0.001) {
     return false;
+  }
 
   // structure to store list of candidate matches
   struct ProxMatch {
@@ -96,8 +98,9 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
 
     // get average momentum direction of the track's TrackPoints
     decltype(edm4eic::TrackPoint::momentum) in_track_p{0.0, 0.0, 0.0};
-    for (const auto& in_track_point : in_track.getPoints())
+    for (const auto& in_track_point : in_track.getPoints()) {
       in_track_p = in_track_p + (in_track_point.momentum / in_track.points_size());
+    }
     auto in_track_eta = edm4hep::utils::eta(in_track_p);
     auto in_track_phi = edm4hep::utils::angleAzimuthal(in_track_p);
 
@@ -107,8 +110,9 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
     // check if the match is close enough: within user-specified tolerances
     auto match_is_close = std::abs(in_part_eta - in_track_eta) < m_cfg.etaTolerance &&
                           std::abs(in_part_phi - in_track_phi) < m_cfg.phiTolerance;
-    if (match_is_close)
+    if (match_is_close) {
       prox_match_list.push_back(ProxMatch{match_dist, in_pid_idx});
+    }
 
     // logging
     trace("  - (eta,phi) = ( {:>5.4}, {:>5.4} deg ),  match_dist = {:<5.4}{}", in_track_eta,
@@ -117,7 +121,7 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
   } // end loop over input CherenkovParticleID objects
 
   // check if at least one match was found
-  if (prox_match_list.size() == 0) {
+  if (prox_match_list.empty()) {
     trace("  => no matching CherenkovParticleID found for this particle");
     return false;
   }
@@ -132,7 +136,7 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
 
   // convert `CherenkovParticleID` object's hypotheses => set of `ParticleID` objects
   auto out_pid_index_map = ConvertParticleID::ConvertToParticleIDs(in_pid_matched, out_pids, true);
-  if (out_pid_index_map.size() == 0) {
+  if (out_pid_index_map.empty()) {
     error("found CherenkovParticleID object with no hypotheses");
     return false;
   }

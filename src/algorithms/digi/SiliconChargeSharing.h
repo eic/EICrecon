@@ -39,7 +39,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  void findAllNeighborsInSensor(const dd4hep::rec::CellID test_CellID,
+  void findAllNeighborsInSensor(const dd4hep::rec::CellID testCellID,
                                 std::unordered_set<dd4hep::rec::CellID>& tested_cells,
                                 const float edep, const dd4hep::Position hitPos,
                                 const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
@@ -49,10 +49,10 @@ private:
   float energyAtCell(const double xDimension, const double yDimension,
                      const dd4hep::Position localPos, const dd4hep::Position hitPos,
                      const float edep) const;
-  float integralGaus(float mean, float sd, float low_lim, float up_lim) const;
+  static float integralGaus(float mean, float sd, float low_lim, float up_lim);
   dd4hep::Position cell2LocalPosition(const dd4hep::rec::CellID& cell) const;
-  dd4hep::Position global2Local(const dd4hep::Position& globalPosition,
-                                const TGeoHMatrix* transform) const;
+  static dd4hep::Position global2Local(const dd4hep::Position& globalPosition,
+                                       const TGeoHMatrix* transform);
   const dd4hep::DDSegmentation::CartesianGridXY*
   getLocalSegmentation(const dd4hep::rec::CellID& cellID) const;
 

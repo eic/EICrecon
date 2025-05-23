@@ -6,7 +6,6 @@
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4hep/Vector3f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
@@ -36,7 +35,7 @@ void InclusiveKinematicsTruth::process(const InclusiveKinematicsTruth::Input& in
 
   // Get incoming electron beam
   const auto ei_coll = find_first_beam_electron(mcparts);
-  if (ei_coll.size() == 0) {
+  if (ei_coll.empty()) {
     debug("No beam electron found");
     return;
   }
@@ -47,7 +46,7 @@ void InclusiveKinematicsTruth::process(const InclusiveKinematicsTruth::Input& in
 
   // Get incoming hadron beam
   const auto pi_coll = find_first_beam_hadron(mcparts);
-  if (pi_coll.size() == 0) {
+  if (pi_coll.empty()) {
     debug("No beam hadron found");
     return;
   }
@@ -62,7 +61,7 @@ void InclusiveKinematicsTruth::process(const InclusiveKinematicsTruth::Input& in
   // it may be better to trace back each final-state electron and see which one originates from
   // the beam.
   const auto ef_coll = find_first_scattered_electron(mcparts);
-  if (ef_coll.size() == 0) {
+  if (ef_coll.empty()) {
     debug("No truth scattered electron found");
     return;
   }

@@ -33,7 +33,7 @@ void InclusiveKinematicsDA::process(const InclusiveKinematicsDA::Input& input,
 
   // Get incoming electron beam
   const auto ei_coll = find_first_beam_electron(mcparts);
-  if (ei_coll.size() == 0) {
+  if (ei_coll.empty()) {
     debug("No beam electron found");
     return;
   }
@@ -43,7 +43,7 @@ void InclusiveKinematicsDA::process(const InclusiveKinematicsDA::Input& input,
 
   // Get incoming hadron beam
   const auto pi_coll = find_first_beam_hadron(mcparts);
-  if (pi_coll.size() == 0) {
+  if (pi_coll.empty()) {
     debug("No beam hadron found");
     return;
   }
@@ -55,7 +55,7 @@ void InclusiveKinematicsDA::process(const InclusiveKinematicsDA::Input& input,
   auto boost = determine_boost(ei, pi);
 
   // Get electron angle
-  if (escat->size() == 0) {
+  if (escat->empty()) {
     debug("No scattered electron found");
     return;
   }
@@ -65,7 +65,7 @@ void InclusiveKinematicsDA::process(const InclusiveKinematicsDA::Input& input,
   auto theta_e            = e_boosted.Theta();
 
   // Get hadronic final state variables
-  if (hfs->size() == 0) {
+  if (hfs->empty()) {
     debug("No hadronic final state found");
     return;
   }

@@ -51,8 +51,9 @@ void MergeTracks::process(const MergeTracks::Input& input,
     // loop over collections for this track, and add each track's points to `out_track_points`
     for (const auto& in_track_collection : in_track_collections) {
       const auto& in_track = in_track_collection->at(i_track);
-      for (const auto& point : in_track.getPoints())
+      for (const auto& point : in_track.getPoints()) {
         out_track_points.push_back(point);
+      }
     }
 
     // sort all `out_track_points` by time
@@ -60,8 +61,9 @@ void MergeTracks::process(const MergeTracks::Input& input,
               [](edm4eic::TrackPoint& a, edm4eic::TrackPoint& b) { return a.time < b.time; });
 
     // add these sorted points to `out_track`
-    for (const auto& point : out_track_points)
+    for (const auto& point : out_track_points) {
       out_track.addToPoints(point);
+    }
 
     /* FIXME: merge other members, such as `length` and `lengthError`;
      * currently not needed for RICH tracks, so such members are left as default

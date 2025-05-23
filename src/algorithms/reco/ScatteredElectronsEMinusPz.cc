@@ -44,7 +44,7 @@ void ScatteredElectronsEMinusPz::process(const ScatteredElectronsEMinusPz::Input
   // this map will store intermediate results
   // so that we can sort them before filling output
   // collection
-  std::map<double, edm4eic::ReconstructedParticle, std::greater<double>> scatteredElectronsMap;
+  std::map<double, edm4eic::ReconstructedParticle, std::greater<>> scatteredElectronsMap;
 
   out_electrons->setSubsetCollection();
 

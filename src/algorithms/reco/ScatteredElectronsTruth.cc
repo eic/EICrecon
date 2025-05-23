@@ -48,7 +48,7 @@ void ScatteredElectronsTruth::process(const ScatteredElectronsTruth::Input& inpu
 
   // Get first scattered electron
   const auto ef_coll = find_first_scattered_electron(mcparts);
-  if (ef_coll.size() == 0) {
+  if (ef_coll.empty()) {
     trace("No truth scattered electron found");
     return;
   }
@@ -105,7 +105,7 @@ void ScatteredElectronsTruth::process(const ScatteredElectronsTruth::Input& inpu
   }
 
   // If no scattered electron was found, too bad
-  if (electrons.size() == 0) {
+  if (electrons.empty()) {
     trace("No Truth scattered electron found");
     return;
   }

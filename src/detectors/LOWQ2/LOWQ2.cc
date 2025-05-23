@@ -5,14 +5,14 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <cmath>
+#include <cstddef>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
-#include <math.h>
-#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
@@ -123,7 +123,7 @@ void InitPlugin(JApplication* app) {
     outputTrackTags.push_back(fmt::format("TaggerTrackerM{}LocalTracks", mod_id));
     outputTrackAssociationTags.push_back(
         fmt::format("TaggerTrackerM{}LocalTrackAssociations", mod_id));
-    moduleClusterTags.push_back({});
+    moduleClusterTags.emplace_back();
     for (int lay_id : layerIDs) {
       geometryDivisions.push_back({mod_id, lay_id});
       geometryDivisionCollectionNames.push_back(
@@ -157,7 +157,7 @@ void InitPlugin(JApplication* app) {
     std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags = moduleClusterTags[i];
 
-    inputClusterTags.push_back("TaggerTrackerRawHitAssociations");
+    inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
 
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
         outputTrackTag, {inputClusterTags}, {outputTrackTag, outputTrackAssociationTag},

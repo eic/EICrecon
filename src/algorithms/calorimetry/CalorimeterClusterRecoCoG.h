@@ -101,7 +101,7 @@ private:
   void associate(const edm4eic::Cluster& cl, const edm4hep::SimCalorimeterHitCollection* mchits,
                  edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
 #endif
-  edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
+  static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
 };
 
 } // namespace eicrecon

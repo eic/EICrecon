@@ -20,7 +20,7 @@ namespace eicrecon {
 
 void PIDLookup::init() {
   auto& serviceSvc = algorithms::ServiceSvc::instance();
-  auto lut_svc     = serviceSvc.service<PIDLookupTableSvc>("PIDLookupTableSvc");
+  auto* lut_svc    = serviceSvc.service<PIDLookupTableSvc>("PIDLookupTableSvc");
 
   m_lut = lut_svc->load(m_cfg.filename,
                         {
@@ -77,7 +77,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     trace("lookup for true_pdg={}, true_charge={}, momentum={:.2f} GeV, polar={:.2f}, "
           "aziumthal={:.2f}",
           true_pdg, true_charge, momentum, theta, phi);
-    auto entry = m_lut->Lookup(true_pdg, true_charge, momentum, theta, phi);
+    const auto* entry = m_lut->Lookup(true_pdg, true_charge, momentum, theta, phi);
 
     int identified_pdg = 0; // unknown
 

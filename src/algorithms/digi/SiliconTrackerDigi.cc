@@ -67,7 +67,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
       continue;
     }
 
-    if (cell_hit_map.count(sim_hit.getCellID()) == 0) {
+    if (!cell_hit_map.contains(sim_hit.getCellID())) {
       // This cell doesn't have hits
       cell_hit_map[sim_hit.getCellID()] = {
           sim_hit.getCellID(), (std::int32_t)std::llround(sim_hit.getEDep() * 1e6),

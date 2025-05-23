@@ -20,8 +20,9 @@ namespace eicrecon {
 
 static std::string print_shape(const std::vector<std::int64_t>& v) {
   std::stringstream ss("");
-  for (std::size_t i = 0; i < v.size() - 1; i++)
+  for (std::size_t i = 0; i < v.size() - 1; i++) {
     ss << v[i] << " x ";
+  }
   ss << v[v.size() - 1];
   return ss.str();
 }

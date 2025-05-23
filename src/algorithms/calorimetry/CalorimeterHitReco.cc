@@ -90,11 +90,12 @@ void CalorimeterHitReco::init() {
       gpos_mask = tmp_mask;
     }
   } catch (...) {
-    if (!id_dec) {
+    if (id_dec == nullptr) {
       warning("Failed to load ID decoder for {}", m_cfg.readout);
       std::stringstream readouts;
-      for (auto r : m_detector->readouts())
+      for (auto r : m_detector->readouts()) {
         readouts << "\"" << r.first << "\", ";
+      }
       warning("Available readouts: {}", readouts.str());
     } else {
       warning("Failed to find field index for {}.", m_cfg.readout);
@@ -108,8 +109,9 @@ void CalorimeterHitReco::init() {
         warning(" -- looking for masking fields  \"{}\".", fmt::join(m_cfg.maskPosFields, ", "));
       }
       std::stringstream fields;
-      for (auto field : id_spec.decoder()->fields())
+      for (auto field : id_spec.decoder()->fields()) {
         fields << "\"" << field.name() << "\", ";
+      }
       warning("Available fields: {}", fields.str());
       warning("n.b. The local position, sector id and layer id will not be correct for this.");
       warning("Position masking may not be applied.");
@@ -171,8 +173,9 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
   // number is encountered disable this algorithm. A useful message
   // indicating what is going on is printed below where the
   // error is detector.
-  if (NcellIDerrors >= MaxCellIDerrors)
+  if (NcellIDerrors >= MaxCellIDerrors) {
     return;
+  }
 
   for (const auto& rh : *rawhits) {
 
@@ -290,8 +293,9 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
       // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
       cdim =
           m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
-      std::transform(cdim.begin(), cdim.end(), cdim.begin(),
-                     std::bind(std::multiplies<double>(), std::placeholders::_1, 2));
+      std::transform(cdim.begin(), cdim.end(), cdim.begin(), [](auto&& PH1) {
+        return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 2);
+      });
       debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
     }
 

@@ -73,8 +73,9 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
     const auto& pos = hit.getPosition();
     float r         = sqrt(pos.x * pos.x + pos.y * pos.y);
     float phi       = acos(pos.x / r);
-    if (pos.y < 0)
+    if (pos.y < 0) {
       phi += 3.1415927;
+    }
     m_th2_btof_phiz->Fill(phi, pos.z);
     m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.4f}", pos.x, pos.y, pos.z, hit.getTime());
   }
@@ -86,8 +87,9 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
     const auto& pos = hit.getPosition();
     float r         = sqrt(pos.x * pos.x + pos.y * pos.y);
     float phi       = acos(pos.x / r);
-    if (pos.y < 0)
+    if (pos.y < 0) {
       phi += 3.1415927;
+    }
     m_th2_ftof_rphi->Fill(r, phi);
     m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.4f}", pos.x, pos.y, pos.z, hit.getTime());
   }
@@ -99,13 +101,16 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
     logger()->trace(" Track trajectory");
 
     for (const auto& point : track_segment.getPoints()) {
-      auto& pos = point.position;
+      const auto& pos = point.position;
       m_log->trace("   {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", pos.x, pos.y, pos.z,
                    point.pathlength);
 
       int det                = IsTOFHit(pos.x, pos.y, pos.z);
       float distance_closest = 1e6;
-      float hit_x = -1000, hit_y = -1000, hit_z = -1000, hit_t = -1000;
+      float hit_x            = -1000;
+      float hit_y            = -1000;
+      float hit_z            = -1000;
+      float hit_t            = -1000;
       if (det == 1) {
         for (const auto hit : barrelHits) {
           const auto& hitpos = hit.getPosition();
@@ -136,9 +141,10 @@ void TofEfficiency_processor::ProcessSequential(const std::shared_ptr<const JEve
           }
         }
       }
-      if (det != 0)
+      if (det != 0) {
         m_tntuple_track->Fill(det, pos.x, pos.y, pos.z, point.pathlength, hit_x, hit_y, hit_z,
                               hit_t, distance_closest);
+      }
     }
   }
 }
@@ -164,9 +170,10 @@ int TofEfficiency_processor::IsTOFHit(float x, float y, float z) {
 
   float r = sqrt(x * x + y * y);
 
-  if (r > btof_rmin && r < btof_rmax && z > btof_zmin && z < btof_zmax)
+  if (r > btof_rmin && r < btof_rmax && z > btof_zmin && z < btof_zmax) {
     return 1;
-  else if (r > ftof_rmin && r < ftof_rmax && z > ftof_zmin && z < ftof_zmax)
+  }
+  if (r > ftof_rmin && r < ftof_rmax && z > ftof_zmin && z < ftof_zmax)
     return 2;
   else
     return 0;

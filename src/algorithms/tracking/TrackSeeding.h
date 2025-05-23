@@ -59,15 +59,15 @@ private:
   Acts::SeedFinderOrthogonalConfig<SpacePoint> m_seedFinderConfig;
 #endif
 
-  int determineCharge(std::vector<std::pair<float, float>>& positions,
-                      const std::pair<float, float>& PCA,
-                      std::tuple<float, float, float>& RX0Y0) const;
-  std::pair<float, float> findPCA(std::tuple<float, float, float>& circleParams) const;
-  std::vector<const eicrecon::SpacePoint*>
+  static int determineCharge(std::vector<std::pair<float, float>>& positions,
+                             const std::pair<float, float>& PCA,
+                             std::tuple<float, float, float>& RX0Y0);
+  static std::pair<float, float> findPCA(std::tuple<float, float, float>& circleParams);
+  static std::vector<const eicrecon::SpacePoint*>
   getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits);
   std::unique_ptr<edm4eic::TrackParametersCollection> makeTrackParams(SeedContainer& seeds);
 
-  std::tuple<float, float, float> circleFit(std::vector<std::pair<float, float>>& positions) const;
-  std::tuple<float, float> lineFit(std::vector<std::pair<float, float>>& positions) const;
+  static std::tuple<float, float, float> circleFit(std::vector<std::pair<float, float>>& positions);
+  static std::tuple<float, float> lineFit(std::vector<std::pair<float, float>>& positions);
 };
 } // namespace eicrecon

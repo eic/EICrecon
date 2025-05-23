@@ -48,7 +48,7 @@ static bool sourceLinkEquality(const Acts::SourceLink& a, const Acts::SourceLink
          b.get<ActsExamples::IndexSourceLink>().index();
 }
 
-AmbiguitySolver::AmbiguitySolver() {}
+AmbiguitySolver::AmbiguitySolver() = default;
 
 void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
 

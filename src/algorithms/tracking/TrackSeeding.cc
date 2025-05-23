@@ -279,7 +279,7 @@ eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds) {
   return trackparams;
 }
 std::pair<float, float>
-eicrecon::TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) const {
+eicrecon::TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) {
   const float R  = std::get<0>(circleParams);
   const float X0 = std::get<1>(circleParams);
   const float Y0 = std::get<2>(circleParams);
@@ -295,7 +295,7 @@ eicrecon::TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) c
 
 int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float, float>>& positions,
                                             const std::pair<float, float>& PCA,
-                                            std::tuple<float, float, float>& RX0Y0) const {
+                                            std::tuple<float, float, float>& RX0Y0) {
 
   const auto& firstpos = positions.at(0);
   auto hit_x           = firstpos.first;
@@ -331,7 +331,7 @@ int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float, float>>
    * Nikolai Chernov  (September 2012)
    */
 std::tuple<float, float, float>
-eicrecon::TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) const {
+eicrecon::TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
   // Compute x- and y- sample means
   double meanX  = 0;
   double meanY  = 0;
@@ -396,12 +396,14 @@ eicrecon::TrackSeeding::circleFit(std::vector<std::pair<float, float>>& position
   for (int iter = 0; iter < iter_max; ++iter) {
     const double Dy   = A1 + x * (A22 + A33 * x);
     const double xnew = x - y / Dy;
-    if ((xnew == x) || (!std::isfinite(xnew)))
+    if ((xnew == x) || (!std::isfinite(xnew))) {
       break;
+    }
 
     const double ynew = A0 + xnew * (A1 + xnew * (A2 + xnew * A3));
-    if (std::abs(ynew) >= std::abs(y))
+    if (std::abs(ynew) >= std::abs(y)) {
       break;
+    }
 
     x = xnew;
     y = ynew;
@@ -420,7 +422,7 @@ eicrecon::TrackSeeding::circleFit(std::vector<std::pair<float, float>>& position
 }
 
 std::tuple<float, float>
-eicrecon::TrackSeeding::lineFit(std::vector<std::pair<float, float>>& positions) const {
+eicrecon::TrackSeeding::lineFit(std::vector<std::pair<float, float>>& positions) {
   double xsum  = 0;
   double x2sum = 0;
   double ysum  = 0;

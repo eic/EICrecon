@@ -43,8 +43,9 @@ void DD4hep_service::acquire_services(JServiceLocator* srv_locator) {
 //----------------------------------------------------------------
 DD4hep_service::~DD4hep_service() {
   try {
-    if (m_dd4hepGeo)
+    if (m_dd4hepGeo) {
       m_dd4hepGeo->destroyInstance();
+    }
     m_dd4hepGeo = nullptr;
   } catch (...) {
   }
@@ -101,8 +102,8 @@ void DD4hep_service::Initialize() {
 
   // do we have default file name
   if (!detector_config.empty()) {
-    m_xml_files.push_back(std::string(detector_path_env ? detector_path_env : ".") + "/" +
-                          detector_config + ".xml");
+    m_xml_files.push_back(std::string(detector_path_env != nullptr ? detector_path_env : ".") +
+                          "/" + detector_config + ".xml");
   }
 
   // User may specify multiple geometry files via the config. parameter. Normally, this
@@ -164,7 +165,7 @@ std::string DD4hep_service::resolveFileName(const std::string& filename, char* d
   if (!std::filesystem::exists(result)) {
 
     // filename does not exist, maybe DETECTOR_PATH/filename is meant?
-    if (detector_path_env) {
+    if (detector_path_env != nullptr) {
 
       // Try looking filename in DETECTOR_PATH
       result = std::string(detector_path_env) + "/" + filename;
