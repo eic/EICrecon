@@ -5,7 +5,7 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
-#include <JANA/JApplicationFwd.h>
+#include <JANA/JApplication.h>
 #include <TDirectory.h>
 #include <vector>
 

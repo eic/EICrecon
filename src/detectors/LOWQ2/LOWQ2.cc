@@ -4,7 +4,7 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
+#include <JANA/JApplication.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/Track.h>

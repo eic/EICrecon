@@ -1,6 +1,6 @@
 #include "TofEfficiency_processor.h"
 
-#include <JANA/JApplicationFwd.h>
+#include <JANA/JApplication.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>

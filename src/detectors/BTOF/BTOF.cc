@@ -7,24 +7,24 @@
 
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplicationFwd.h>
+#include <JANA/JApplication.h>
+#include <TMath.h>
 #include <edm4eic/unit_system.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
-#include <TMath.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
-#include "factories/digi/SiliconChargeSharing_factory.h"
-#include "factories/digi/PulseCombiner_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 

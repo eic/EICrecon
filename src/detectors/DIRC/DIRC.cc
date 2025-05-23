@@ -2,7 +2,7 @@
 // Copyright (C) 2022 - 2025 Christopher Dilks, Nilanga Wickramaarachchi, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
-#include <JANA/JApplicationFwd.h>
+#include <JANA/JApplication.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>

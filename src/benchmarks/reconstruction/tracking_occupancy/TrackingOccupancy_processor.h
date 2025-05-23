@@ -4,8 +4,6 @@
 #include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <TDirectory.h>
-#include <TH1.h>
-#include <TH2.h>
 #include <spdlog/fwd.h>
 #include <memory>
 
