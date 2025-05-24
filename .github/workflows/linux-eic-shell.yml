@@ -104,7 +104,7 @@ jobs:
           - CXX: clang++
           # thread sanitizer build
           - CXX: clang++
-            CMAKE_BUILD_TYPE: Release
+            CMAKE_BUILD_TYPE: Debug
             release: nightly
             USE_ASAN: OFF
             USE_TSAN: ON
