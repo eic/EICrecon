@@ -1,6 +1,6 @@
 #pragma once
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <algorithm>

@@ -3,7 +3,7 @@
 //
 //
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 
 #include "TrackingTest_processor.h"
 //#include "JFactory_EcalBarrelRawCalorimeterHit.h.bck"

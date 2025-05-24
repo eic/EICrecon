@@ -4,6 +4,7 @@
 //
 #include "Log_service.h"
 
+#include <JANA/JApplication.h>
 #include <JANA/JException.h>
 #include <spdlog/details/log_msg.h>
 #include <spdlog/formatter.h>
