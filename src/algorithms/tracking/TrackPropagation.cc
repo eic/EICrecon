@@ -82,8 +82,13 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       auto t                   = Acts::Translation3(Acts::Vector3(0, 0, (zmax + zmin) / 2));
       auto tf                  = Acts::Transform3(t);
       auto acts_surface        = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, bounds);
+#if Acts_VERSION_MAJOR >= 40
+      acts_surface->assignGeometryId(
+          Acts::GeometryIdentifier().withExtra(system_id).withLayer(++system_id_layers[system_id]));
+#else
       acts_surface->assignGeometryId(
           Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+#endif
       return acts_surface;
     }
     if (std::holds_alternative<DiscSurfaceConfig>(surface_variant)) {
@@ -99,8 +104,13 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       auto t                   = Acts::Translation3(Acts::Vector3(0, 0, zmin));
       auto tf                  = Acts::Transform3(t);
       auto acts_surface        = Acts::Surface::makeShared<Acts::DiscSurface>(tf, bounds);
+#if Acts_VERSION_MAJOR >= 40
+      acts_surface->assignGeometryId(
+          Acts::GeometryIdentifier().withExtra(system_id).withLayer(++system_id_layers[system_id]));
+#else
       acts_surface->assignGeometryId(
           Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+#endif
       return acts_surface;
     }
     throw std::domain_error("Unknown surface type");

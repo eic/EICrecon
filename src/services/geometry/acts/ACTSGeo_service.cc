@@ -6,6 +6,7 @@
 #include "ACTSGeo_service.h"
 
 #include <Acts/Visualization/ViewConfig.hpp>
+#include <JANA/JApplication.h>
 #include <JANA/JException.h>
 #include <array>
 #include <exception>
