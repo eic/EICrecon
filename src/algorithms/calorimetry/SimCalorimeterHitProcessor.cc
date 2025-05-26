@@ -26,7 +26,6 @@
 #include <vector>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
-#include "services/evaluator/EvaluatorSvc.h"
 
 using namespace dd4hep;
 
