@@ -8,6 +8,7 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
 #include <algorithm>

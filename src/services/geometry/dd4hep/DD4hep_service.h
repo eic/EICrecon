@@ -6,7 +6,7 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JServiceFwd.h>
 #include <JANA/Services/JServiceLocator.h>
 #include <spdlog/logger.h>
@@ -38,7 +38,7 @@ private:
   std::vector<std::string> m_xml_files;
 
   /// Ensures there is a geometry file that should be opened
-  std::string resolveFileName(const std::string& filename, char* detector_path_env);
+  static std::string resolveFileName(const std::string& filename, char* detector_path_env);
 
   std::shared_ptr<spdlog::logger> m_log;
 };

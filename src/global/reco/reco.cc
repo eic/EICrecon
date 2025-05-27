@@ -1,9 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 - 2024, Dmitry Romanov, Nathan Brei, Tooba Ali, Wouter Deconinck, Dmitry Kalinkin, John Lajoie, Simon Gardner, Tristan Protzman, Daniel Brandenburg, Derek M Anderson, Sebouh Paul, Tyler Kutz, Alex Jentsch, Jihee Kim, Brian Page
+// Copyright (C) 2022 - 2025, Dmitry Romanov, Nathan Brei, Tooba Ali, Wouter Deconinck, Dmitry Kalinkin, John Lajoie, Simon Gardner, Tristan Protzman, Daniel Brandenburg, Derek M Anderson, Sebouh Paul, Tyler Kutz, Alex Jentsch, Jihee Kim, Brian Page
 
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <algorithm>
+#include <JANA/JApplicationFwd.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/InclusiveKinematics.h>
@@ -11,9 +13,10 @@
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
-#include <algorithm>
-#include <gsl/pointers>
 #include <fmt/core.h>
+#include <gsl/pointers>
+
+#include <cmath>
 #include <map>
 #include <memory>
 #include <stdexcept>
@@ -208,7 +211,7 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedBreitFrameParticles"}, {}, app));
 
   auto detector = app->GetService<DD4hep_service>()->detector();
-  double z_zdc;
+  double z_zdc  = NAN;
   try {
     z_zdc = detector->constant<double>("HcalFarForwardZDC_SiPMonTile_r_pos") / dd4hep::mm;
   } catch (std::runtime_error&) {

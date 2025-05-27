@@ -4,6 +4,7 @@
 //
 #include "Log_service.h"
 
+#include <JANA/JApplication.h>
 #include <JANA/JException.h>
 #include <spdlog/details/log_msg.h>
 #include <spdlog/formatter.h>
@@ -27,20 +28,19 @@
 // function correctly under some compilers
 class mdc_formatter_flag : public spdlog::custom_flag_formatter {
 public:
-  void format(const spdlog::details::log_msg&, const std::tm&,
+  void format(const spdlog::details::log_msg& /*msg*/, const std::tm& /*tm_time*/,
               spdlog::memory_buf_t& dest) override {
     auto& mdc_map = spdlog::mdc::get_context();
     if (mdc_map.empty()) {
       return;
-    } else {
-      format_mdc(mdc_map, dest);
     }
+    format_mdc(mdc_map, dest);
   }
 
-  void format_mdc(const spdlog::mdc::mdc_map_t& mdc_map, spdlog::memory_buf_t& dest) {
+  static void format_mdc(const spdlog::mdc::mdc_map_t& mdc_map, spdlog::memory_buf_t& dest) {
     auto last_element = --mdc_map.end();
     for (auto it = mdc_map.begin(); it != mdc_map.end(); ++it) {
-      auto& pair        = *it;
+      const auto& pair  = *it;
       const auto& key   = pair.first;
       const auto& value = pair.second;
       dest.append(std::string_view{key});
@@ -59,12 +59,10 @@ public:
 
 #endif
 
-Log_service::Log_service(JApplication* app) {
+Log_service::Log_service(JApplication* app) : m_application(app), m_log_level_str("info") {
   // Here one could add centralized documentation for spdlog::default_logger()
   // All subsequent loggers are cloned from the spdlog::default_logger()
-  m_application = app;
 
-  m_log_level_str = "info";
   m_application->SetDefaultParameter("eicrecon:LogLevel", m_log_level_str,
                                      "log_level: trace, debug, info, warn, error, critical, off");
   spdlog::default_logger()->set_level(eicrecon::ParseLogLevel(m_log_level_str));
@@ -82,7 +80,7 @@ Log_service::Log_service(JApplication* app) {
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
 // translation unit
-Log_service::~Log_service(){};
+Log_service::~Log_service() = default;
 
 std::shared_ptr<spdlog::logger> Log_service::logger(const std::string& name,
                                                     const std::optional<level> default_level) {

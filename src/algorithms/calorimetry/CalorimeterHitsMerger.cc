@@ -169,11 +169,11 @@ void CalorimeterHitsMerger::build_merge_map(const edm4eic::CalorimeterHitCollect
 
       // apply mapping to field if provided,
       // otherwise copy value of field
-      if (ref_maps.count(name_field.first) > 0) {
-        ref_fields.push_back({name_field.first, ref_maps[name_field.first](hit)});
+      if (ref_maps.contains(name_field.first)) {
+        ref_fields.emplace_back(name_field.first, ref_maps[name_field.first](hit));
       } else {
-        ref_fields.push_back(
-            {name_field.first, id_decoder->get(hit.getCellID(), name_field.first)});
+        ref_fields.emplace_back(name_field.first,
+                                id_decoder->get(hit.getCellID(), name_field.first));
       }
     }
 

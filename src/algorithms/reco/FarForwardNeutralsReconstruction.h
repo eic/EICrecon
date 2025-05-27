@@ -38,7 +38,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  double calc_corr(double Etot, const std::vector<double>&) const;
+  static double calc_corr(double Etot, const std::vector<double>&);
   bool isGamma(const edm4eic::Cluster& cluster) const;
 
   std::shared_ptr<spdlog::logger> m_log;

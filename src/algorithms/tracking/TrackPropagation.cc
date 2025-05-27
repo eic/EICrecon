@@ -20,16 +20,16 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithm>
 #include <boost/container/vector.hpp>
+#include <cmath>
+#include <cstdint>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <stdint.h>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-#include <algorithm>
-#include <cmath>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -82,8 +82,13 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       auto t                   = Acts::Translation3(Acts::Vector3(0, 0, (zmax + zmin) / 2));
       auto tf                  = Acts::Transform3(t);
       auto acts_surface        = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, bounds);
+#if Acts_VERSION_MAJOR >= 40
+      acts_surface->assignGeometryId(
+          Acts::GeometryIdentifier().withExtra(system_id).withLayer(++system_id_layers[system_id]));
+#else
       acts_surface->assignGeometryId(
           Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+#endif
       return acts_surface;
     }
     if (std::holds_alternative<DiscSurfaceConfig>(surface_variant)) {
@@ -99,8 +104,13 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       auto t                   = Acts::Translation3(Acts::Vector3(0, 0, zmin));
       auto tf                  = Acts::Transform3(t);
       auto acts_surface        = Acts::Surface::makeShared<Acts::DiscSurface>(tf, bounds);
+#if Acts_VERSION_MAJOR >= 40
+      acts_surface->assignGeometryId(
+          Acts::GeometryIdentifier().withExtra(system_id).withLayer(++system_id_layers[system_id]));
+#else
       acts_surface->assignGeometryId(
           Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+#endif
       return acts_surface;
     }
     throw std::domain_error("Unknown surface type");
@@ -142,7 +152,7 @@ void TrackPropagation::propagateToSurfaceList(
         break;
       }
     }
-    if (trajectory_reaches_filter_surface == false) {
+    if (!trajectory_reaches_filter_surface) {
       ++i;
       continue;
     }
@@ -180,8 +190,9 @@ void TrackPropagation::propagateToSurfaceList(
       // track point cut
       if (!m_cfg.track_point_cut(*point)) {
         m_log->trace("                 => REJECTED by trackPointCut");
-        if (m_cfg.skip_track_on_track_point_cut_failure)
+        if (m_cfg.skip_track_on_track_point_cut_failure) {
           break;
+        }
         continue;
       }
 
