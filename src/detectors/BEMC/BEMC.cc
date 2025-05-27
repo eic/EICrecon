@@ -10,8 +10,10 @@
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
@@ -28,6 +30,10 @@ void InitPlugin(JApplication* app) {
 
   InitJANAPlugin(app);
 
+  // Make sure left and right use the same value
+  decltype(SimCalorimeterHitProcessorConfig::attPars) EcalBarrelScFi_attPars = {
+      0.416212, 74.739875 / dd4hep::mm, 752.188383 / dd4hep::mm};
+
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
   decltype(CalorimeterHitDigiConfig::dyRangeADC) EcalBarrelScFi_dyRangeADC   = 1500 * dd4hep::MeV;
@@ -35,6 +41,28 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalBarrelScFi_pedSigmaADC = 1;
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelScFi_resolutionTDC =
       10 * dd4hep::picosecond;
+  app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
+      "EcalBarrelScFiPAttenuatedHits", {"EcalBarrelScFiHits"},
+      {"EcalBarrelScFiPAttenuatedHits", "EcalBarrelScFiPAttenuatedHitContributions"},
+      {
+          .attPars                          = EcalBarrelScFi_attPars,
+          .readout                          = "EcalBarrelScFiHits",
+          .attenuationReferencePositionName = "EcalBarrel_Readout_zmax",
+          .mergeField                       = "fiber",
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
+      "EcalBarrelScFiNAttenuatedHits", {"EcalBarrelScFiHits"},
+      {"EcalBarrelScFiNAttenuatedHits", "EcalBarrelScFiNAttenuatedHitContributions"},
+      {
+          .attPars                          = EcalBarrelScFi_attPars,
+          .readout                          = "EcalBarrelScFiHits",
+          .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
+          .mergeField                       = "fiber",
+      },
+      app // TODO: Remove me once fixed
+      ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelScFiRawHits", {"EcalBarrelScFiHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
