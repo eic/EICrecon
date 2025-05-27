@@ -74,7 +74,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
 
   // regroup the sim hits by mc particle
   // keep an eye on whether these for-loops grow large enough to affect memory limits
-  // on the running of reconstruction
+  // on the running of reconstruction, especially forward and backward calorimeters
   for (const auto& ih : *in_hits) {
     for (const auto& contrib : ih.getContributions()) {
       edm4hep::MCParticle primary = get_primary(contrib);
