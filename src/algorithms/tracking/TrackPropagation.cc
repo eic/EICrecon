@@ -20,16 +20,16 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithm>
 #include <boost/container/vector.hpp>
+#include <cmath>
+#include <cstdint>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <stdint.h>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
-#include <algorithm>
-#include <cmath>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -152,7 +152,7 @@ void TrackPropagation::propagateToSurfaceList(
         break;
       }
     }
-    if (trajectory_reaches_filter_surface == false) {
+    if (!trajectory_reaches_filter_surface) {
       ++i;
       continue;
     }
@@ -190,8 +190,9 @@ void TrackPropagation::propagateToSurfaceList(
       // track point cut
       if (!m_cfg.track_point_cut(*point)) {
         m_log->trace("                 => REJECTED by trackPointCut");
-        if (m_cfg.skip_track_on_track_point_cut_failure)
+        if (m_cfg.skip_track_on_track_point_cut_failure) {
           break;
+        }
         continue;
       }
 

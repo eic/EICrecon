@@ -15,8 +15,8 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TRef.h>
+#include <cstdint>
 #include <fmt/core.h>
-#include <stdint.h>
 #include <map>
 #include <stdexcept>
 #include <string>
@@ -45,7 +45,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         m_irtDetector,              // Cherenkov detector
         RadiatorName(kGas).c_str(), // name
         isec,                       // path
-        (G4LogicalVolume*)(0x0),    // G4LogicalVolume (inaccessible? use an integer instead)
+        (G4LogicalVolume*)nullptr,  // G4LogicalVolume (inaccessible? use an integer instead)
         nullptr,                    // G4RadiatorMaterial (inaccessible?)
         m_surfEntrance              // surface
     );
@@ -129,11 +129,12 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
     m_log->debug("    mirror R = {:f} mm", mirrorRadius);
 
     // complete the radiator volume description; this is the rear side of the container gas volume
-    auto rad = m_irtDetector->GetRadiator(RadiatorName(kGas).c_str());
-    if (rad)
+    auto* rad = m_irtDetector->GetRadiator(RadiatorName(kGas).c_str());
+    if (rad != nullptr) {
       rad->m_Borders[isec].second = m_mirrorSphericalSurface;
-    else
+    } else {
       throw std::runtime_error("Gas radiator not built in IrtGeo");
+    }
 
     // sensor modules: search the detector tree for sensors for this sector
     m_log->trace("  SENSORS:");
@@ -149,11 +150,12 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
       if (de_name.find("sensor_de_" + secName) != std::string::npos) {
 
         // get sensor info
-        const auto sensorID      = detSensor.id();
-        const auto detSensorPars = detSensor.extension<dd4hep::rec::VariantParameters>(true);
-        if (detSensorPars == nullptr)
+        const auto sensorID       = detSensor.id();
+        auto* const detSensorPars = detSensor.extension<dd4hep::rec::VariantParameters>(true);
+        if (detSensorPars == nullptr) {
           throw std::runtime_error(
               fmt::format("sensor '{}' does not have VariantParameters", de_name));
+        }
         // - sensor surface position
         auto posSensor =
             GetVectorFromVariantParameters<dd4hep::Position>(detSensorPars, "pos") / dd4hep::mm;
@@ -195,9 +197,10 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   rIndices.insert({RadiatorName(kAerogel), 1.0190});
   rIndices.insert({"Filter", 1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
-    auto rad = m_irtDetector->GetRadiator(rName.c_str());
-    if (rad)
+    auto* rad = m_irtDetector->GetRadiator(rName.c_str());
+    if (rad != nullptr) {
       rad->SetReferenceRefractiveIndex(rIndex);
+    }
   }
 
   // set refractive index table

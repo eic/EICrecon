@@ -24,8 +24,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
   // Allow user to set PODIO:OUTPUT_FILE to "1" to specify using the default name.
   if (m_output_file == "1") {
-    auto param = japp->GetJParameterManager()->FindParameter("podio:output_file");
-    if (param) {
+    auto* param = japp->GetJParameterManager()->FindParameter("podio:output_file");
+    if (param != nullptr) {
       param->SetValue(param->GetDefault());
       m_output_file = param->GetDefault();
     }
@@ -514,7 +514,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
         // To avoid this, we treat this as a failing collection and omit from this point onwards.
         // However, this code path is expected to be unreachable because any missing collection will be
         // replaced with an empty collection in JFactoryPodioTFixed::Create.
-        if (failed_collections.count(coll) == 0) {
+        if (!failed_collections.contains(coll)) {
           m_log->error("Omitting PODIO collection '{}' because it is null", coll);
           failed_collections.insert(coll);
         }
@@ -524,7 +524,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
       }
     } catch (std::exception& e) {
       // Limit printing warning to just once per factory
-      if (failed_collections.count(coll) == 0) {
+      if (!failed_collections.contains(coll)) {
         m_log->error("Omitting PODIO collection '{}' due to exception: {}.", coll, e.what());
         failed_collections.insert(coll);
       }
