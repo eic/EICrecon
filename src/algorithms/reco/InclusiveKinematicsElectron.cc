@@ -81,7 +81,7 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
 
   // Get incoming electron beam
   const auto ei_coll = find_first_beam_electron(mcparts);
-  if (ei_coll.size() == 0) {
+  if (ei_coll.empty()) {
     debug("No beam electron found");
     return;
   }
@@ -91,7 +91,7 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
 
   // Get incoming hadron beam
   const auto pi_coll = find_first_beam_hadron(mcparts);
-  if (pi_coll.size() == 0) {
+  if (pi_coll.empty()) {
     debug("No beam hadron found");
     return;
   }
@@ -107,7 +107,7 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
   }
 
   // If no scattered electron was found
-  if (electrons.size() == 0) {
+  if (electrons.empty()) {
     debug("No scattered electron found");
     return;
   }

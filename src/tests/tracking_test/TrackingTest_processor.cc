@@ -103,16 +103,18 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
 
     const auto* particle = mc_particles[i];
 
-    if (particle->getGeneratorStatus() != 1)
+    if (particle->getGeneratorStatus() != 1) {
       continue;
+    }
     //
     double px = particle->getMomentum().x;
     double py = particle->getMomentum().y;
     double pz = particle->getMomentum().z;
     ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
     ROOT::Math::Cartesian3D p(px, py, pz);
-    if (p.R() < 1)
+    if (p.R() < 1) {
       continue;
+    }
 
     m_log->debug("   {:<5} {:<6} {:<7} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i,
                  particle->getGeneratorStatus(), particle->getPDG(), px, py, pz, p.R());

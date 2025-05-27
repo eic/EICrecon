@@ -5,12 +5,14 @@
 
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include <cstddef>
+#include <cstdint>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <cstdint>
-#include <stdexcept>
 #include <fmt/core.h>
+#include <cmath>
+#include <stdexcept>
+
 #include <gsl/pointers>
 
 #include "CalorimeterParticleIDPreML.h"
@@ -33,7 +35,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   feature_tensor.setElementType(1); // 1 - float
 
   edm4eic::MutableTensor target_tensor;
-  if (cluster_assocs) {
+  if (cluster_assocs != nullptr) {
     target_tensor = target_tensors->create();
     target_tensor.addToShape(clusters->size());
     target_tensor.addToShape(2);     // is electron, is hadron
@@ -41,7 +43,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   }
 
   for (edm4eic::Cluster cluster : *clusters) {
-    double momentum;
+    double momentum = NAN;
     {
       // FIXME: use track momentum once matching to tracks becomes available
       edm4eic::MCRecoClusterParticleAssociation best_assoc;
@@ -69,7 +71,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
       feature_tensor.addToFloatData(cluster.getShapeParameters(par_ix));
     }
 
-    if (cluster_assocs) {
+    if (cluster_assocs != nullptr) {
       edm4eic::MCRecoClusterParticleAssociation best_assoc;
       for (auto assoc : *cluster_assocs) {
         if (assoc.getRec() == cluster) {
@@ -78,10 +80,11 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
           }
         }
       }
-      int64_t is_electron = 0, is_pion = 0;
+      int64_t is_electron = 0;
+      int64_t is_pion     = 0;
       if (best_assoc.isAvailable()) {
-        is_electron = best_assoc.getSim().getPDG() == 11;
-        is_pion     = best_assoc.getSim().getPDG() != 11;
+        is_electron = static_cast<int64_t>(best_assoc.getSim().getPDG() == 11);
+        is_pion     = static_cast<int64_t>(best_assoc.getSim().getPDG() != 11);
       }
       target_tensor.addToInt64Data(is_pion);
       target_tensor.addToInt64Data(is_electron);

@@ -3,7 +3,7 @@
 //
 //
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 
 #include "TrackingEfficiency_processor.h"
 

@@ -49,8 +49,9 @@ void TRACKINGcheckProcessor::ProcessSequential(const std::shared_ptr<const JEven
 
   for (const auto* traj : Trajectories) {
     for (auto entryIndex : traj->tips()) {
-      if (!traj->hasTrackParameters(entryIndex))
+      if (!traj->hasTrackParameters(entryIndex)) {
         continue;
+      }
       auto trackparams = traj->trackParameters(entryIndex);
 
       auto pos = trackparams.position(Acts::GeometryContext());

@@ -37,7 +37,7 @@ void PrimaryVertices::process(const PrimaryVertices::Input& input,
   // this multimap will store intermediate results
   // so that we can sort them before filling output
   // collection
-  std::multimap<int, edm4eic::Vertex, std::greater<int>> primaryVertexMap;
+  std::multimap<int, edm4eic::Vertex, std::greater<>> primaryVertexMap;
 
   // our output collection of primary vertex
   // ordered by N_trk = associatedParticle array size
@@ -50,11 +50,13 @@ void PrimaryVertices::process(const PrimaryVertices::Input& input,
 
     // some basic vertex selection
     if (sqrt(v.x * v.x + v.y * v.y) / edm4eic::unit::mm > m_cfg.maxVr ||
-        fabs(v.z) / edm4eic::unit::mm > m_cfg.maxVz)
+        std::abs(v.z) / edm4eic::unit::mm > m_cfg.maxVz) {
       continue;
+    }
 
-    if (vtx.getChi2() > m_cfg.maxChi2)
+    if (vtx.getChi2() > m_cfg.maxChi2) {
       continue;
+    }
 
     int N_trk = vtx.getAssociatedParticles().size();
     trace("\t N_trk = {}", N_trk);
