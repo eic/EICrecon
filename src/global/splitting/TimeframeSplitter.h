@@ -13,6 +13,7 @@
 #include <JANA/JEventUnfolder.h>
 
 struct TimeframeSplitter : public JEventUnfolder {
+  std::vector<Int_t> m_start_pointer_simtrackerhit;
   float m_timeframe_width = 20.0; // us
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {
@@ -23,7 +24,9 @@ struct TimeframeSplitter : public JEventUnfolder {
   //     "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
   //     "TrackerEndcapHits",   "VertexBarrelHits"};
 
-  std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits"};
+  // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits"};
+  std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits_aligned"};
+  std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits"};
 
   std::vector<std::string> m_simcalorimeterhit_collection_names = {
       "B0ECalHits",      "EcalBarrelImagingHits", "EcalBarrelScFiHits",    "EcalEndcapNHits",
@@ -56,7 +59,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   VariadicPodioInput<edm4hep::SimTrackerHit> m_simtrackerhits_in{
       this, {.names = m_simtrackerhit_collection_names, .is_optional = true}};
   VariadicPodioOutput<edm4hep::SimTrackerHit> m_simtrackerhits_out{
-      this, m_simtrackerhit_collection_names};
+      this, m_simtrackerhit_collection_names_out};
 
   VariadicPodioInput<edm4hep::SimCalorimeterHit> m_simcalorimeterhits_in{
       this, {.names = m_simcalorimeterhit_collection_names, .is_optional = true}};

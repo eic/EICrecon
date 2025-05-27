@@ -4,6 +4,7 @@
 
 #include "HitChecker.h"
 
+#include "timeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
 
 #include <JANA/Components/JOmniFactoryGeneratorT.h>
@@ -13,6 +14,13 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   InitJANAPlugin(app);
+
+  app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
+    { .tag = "timeAlignment",
+      .level = JEventLevel::Timeslice,
+      .input_names = {"SiBarrelHits"},
+      .output_names = {"SiBarrelHits_aligned"}
+    }));
 
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
