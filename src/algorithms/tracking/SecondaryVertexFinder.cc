@@ -67,9 +67,7 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryPro
                                            std::shared_ptr<spdlog::logger> log) {
 
   m_log = log;
-
   m_geoSvc = geo_svc;
-
   m_BField =
       std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
@@ -83,16 +81,9 @@ std::tuple<
 > eicrecon::SecondaryVertexFinder::produce(
     const edm4eic::ReconstructedParticleCollection* recotracks,
     std::vector<const ActsExamples::Trajectories*> trajectories) {
-/*
-std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::produce(
-    const edm4eic::ReconstructedParticleCollection* recotracks,
-    std::vector<const ActsExamples::Trajectories*> trajectories) {
-*/
 
-  //auto primaryVertices = std::make_unique<edm4eic::TrackCollection>();
   auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
   auto outputVertices  = std::make_unique<edm4eic::VertexCollection>();
-  //std::vector<edm4eic::VertexCollection*> outVertices;
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
 
@@ -133,10 +124,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
    // Set up track density used during vertex seeding
   Acts::AdaptiveGridTrackDensity::Config trkDensityCfg;
   // Bin extent in z-direction
-  trkDensityCfg.spatialBinExtent = 5. * Acts::UnitConstants::um;
+  trkDensityCfg.spatialBinExtent = 50.*Acts::UnitConstants::um;
   // Bin extent in t-direction
-  trkDensityCfg.temporalBinExtent = 19. * Acts::UnitConstants::mm;
-  trkDensityCfg.useTime = m_cfg.useTime;
+  //trkDensityCfg.temporalBinExtent = 19. * Acts::UnitConstants::mm;
+  trkDensityCfg.useTime = false; //m_cfg.useTime;
   Acts::AdaptiveGridTrackDensity trkDensity(trkDensityCfg);
 
   // using LinearizerSec = Acts::HelicalTrackLinearizer<PropagatorSec>;
@@ -147,7 +138,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
   //Trying multivertex fitter here...
   // Set up deterministic annealing with user-defined temperatures
   Acts::AnnealingUtility::Config annealingCfg;
-  annealingCfg.setOfTemperatures = {0.95,1.0,1.05};
+  annealingCfg.setOfTemperatures = {9.,1.0};
   Acts::AnnealingUtility annealingUtility(annealingCfg);
   // Setup the vertex fitter
   ImpactPointEstimator::Config ipEstCfg(m_BField, propagatorSec);
@@ -155,9 +146,9 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
   VertexFitterSec::Config vertexFitterCfgSec(ipEst);
 
   vertexFitterCfgSec.annealingTool = annealingUtility;
-  vertexFitterCfgSec.minWeight = 0.001;
+  vertexFitterCfgSec.minWeight = 0.0001;
   vertexFitterCfgSec.doSmoothing = true;
-  vertexFitterCfgSec.useTime = m_cfg.useTime;
+  vertexFitterCfgSec.useTime = false; //m_cfg.useTime;
 #if Acts_VERSION_MAJOR >= 33
   vertexFitterCfgSec.extractParameters
     .connect<&Acts::InputTrack::extractParameters>();
@@ -195,10 +186,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
   // dimension.
   vertexfinderCfgSec.initialVariances<<1e+2, 1e+2, 1e+2, 1e+8;
   //Use time for Sec. Vertex
-  vertexfinderCfgSec.useTime = true;
-  vertexfinderCfgSec.tracksMaxZinterval=15 * Acts::UnitConstants::mm;
+  vertexfinderCfgSec.useTime = false;
+  vertexfinderCfgSec.tracksMaxZinterval=.5 * Acts::UnitConstants::mm;
   vertexfinderCfgSec.maxIterations=200;
-  vertexfinderCfgSec.doFullSplitting = true;
+  vertexfinderCfgSec.doFullSplitting = false;
   // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
   vertexfinderCfgSec.tracksMaxSignificance = 5;
   vertexfinderCfgSec.maxMergeVertexSignificance = 3;
