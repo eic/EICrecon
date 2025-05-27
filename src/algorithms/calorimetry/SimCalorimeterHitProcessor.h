@@ -47,7 +47,7 @@ private:
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 
   // a reference value for attenuation
-  std::optional<double> m_attenuationReferencePosition;
+  std::optional<double> m_attenuationReferencePosition_mm;
 
 private:
   edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
