@@ -73,6 +73,8 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   std::map<edm4hep::MCParticle, std::vector<edm4hep::MutableSimCalorimeterHit>> mapMCParToSimCalHit;
 
   // regroup the sim hits by mc particle
+  // keep an eye on whether these for-loops grow large enough to affect memory limits 
+  // on the running of reconstruction
   for (const auto& ih : *in_hits) {
     for (const auto& contrib : ih.getContributions()) {
       edm4hep::MCParticle primary = get_primary(contrib);
