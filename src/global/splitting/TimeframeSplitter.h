@@ -13,7 +13,10 @@
 #include <JANA/JEventUnfolder.h>
 
 struct TimeframeSplitter : public JEventUnfolder {
-  std::vector<Int_t> m_start_pointer_simtrackerhit;
+  
+  // std::vector<edm4hep::SimTrackerHitCollection::const_iterator> m_startIter_simTrackerHit;
+  // std::vector<std::pair<const edm4hep::SimTrackerHitCollection*, size_t>> m_hitStartIndices;
+  std::vector<std::tuple<size_t, const edm4hep::SimTrackerHitCollection*, size_t>> m_hitStartIndices;
   float m_timeframe_width = 20.0; // us
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {
@@ -71,8 +74,6 @@ struct TimeframeSplitter : public JEventUnfolder {
   VariadicPodioOutput<edm4hep::CaloHitContribution> m_calohitcontributions_out{
       this, m_calohitcontribution_collection_names};
 
-    // Kuma Hit checker
-    // PodioInput<edm4hep::SimTrackerHit> m_check_hits_in{this, {.name = "ts_checked_hits", .is_optional = true}};
 
   TimeframeSplitter() {
     SetTypeName(NAME_OF_THIS);
@@ -81,6 +82,26 @@ struct TimeframeSplitter : public JEventUnfolder {
   }
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
+    if (child_idx == 0) {
+      // for (size_t coll_index = 0; coll_index < m_simtrackerhits_in().size(); ++coll_index) {
+      //   const auto* coll_in = m_simtrackerhits_in().at(coll_index);
+      //   if (coll_in != nullptr) {
+      //     m_startIter_simTrackerHit.push_back(coll_in->begin());
+      //   } else {
+      //     m_startIter_simTrackerHit.push_back(nullptr);
+      //   }
+      // }
+
+      m_hitStartIndices.clear();
+      m_hitStartIndices.resize(m_simtrackerhits_in().size(), std::make_tuple(0, nullptr, 0));
+      for (size_t det_idx = 0; det_idx < m_simtrackerhits_in().size(); ++det_idx) {
+        const auto* coll_in = m_simtrackerhits_in().at(det_idx);
+        if (coll_in == nullptr) continue;
+        m_hitStartIndices.emplace_back(det_idx, coll_in, 0);
+      }
+
+    }
+
     // float timeStamp = parent.GetEventTimeStamp();
     // LOG_INFO(GetLogger()) << "TimeframeSplitter: timeslice " << parent.GetEventNumber() << " timeStamp " << timeStamp << LOG_END;
     float iTimeSlice = 4.0 * child_idx; // 4.0 us per timeslice ( = 20 us / 5)
@@ -108,22 +129,49 @@ struct TimeframeSplitter : public JEventUnfolder {
     }
 
     // Insert SimTrackerHits into the physics event
-    for (size_t coll_index = 0; coll_index < m_simtrackerhits_in().size(); ++coll_index) {
-      const auto* coll_in = m_simtrackerhits_in().at(coll_index);
-      auto& coll_out      = m_simtrackerhits_out().at(coll_index);
+    // for (size_t coll_index = 0; coll_index < m_simtrackerhits_in().size(); ++coll_index) {
+    //   const auto* coll_in = m_simtrackerhits_in().at(coll_index);
+    //   auto& coll_out      = m_simtrackerhits_out().at(coll_index);
 
-      if (coll_in != nullptr) {
+    //   if (coll_in == nullptr) continue;
 
+    //   coll_out->setSubsetCollection(true);
+    //   // auto hit_iter = m_startIter_simTrackerHit.at(coll_index);
+    //   auto hit_iter = m_hitStartIndices.at(coll_index);
+    //   // for (const auto& hit : *coll_in) {
+    //   for (; hit_iter != coll_in->end(); ++hit_iter) {
+    //     const auto& hit = *hit_iter;
+    //     // Get hit time
+    //     auto hitTime = hit.getTime();
+    //     // Separate a time frame into 5 time slices (one time frame = 20 us)
+    //     // if (hitTime < iTimeSlice || hitTime >= eTimeSlice) continue;
+    //     std::cout << "CheeeeeeeeeeeeeecKuma new split Hit time: " << hitTime << std::endl;
+    //     if (hitTime >= eTimeSlice){
+    //       m_hitStartIndices.at(coll_index) = hit_iter - coll_in->begin();
+    //       break;
+    //     }
+    //     coll_out->push_back(hit);
+      
+    //   }
+    // }
+
+
+    // Loop through SimTrackerHit collections and split them into time slice
+    for (auto& [coll_index, coll_in, start_index] : m_hitStartIndices) {
+        auto& coll_out = m_simtrackerhits_out().at(coll_index);
         coll_out->setSubsetCollection(true);
-        for (const auto& hit : *coll_in) {
-          // Get hit time
-          auto hitTime = hit.getTime();
-          // Separate a time frame into 5 time slices (one time frame = 20 us)
-          if (hitTime < iTimeSlice || hitTime >= eTimeSlice) continue;
-          
-          coll_out->push_back(hit);
+        if (coll_in == nullptr) continue;
+        for (size_t i = start_index; i < coll_in->size(); ++i) {
+            const auto& hit = coll_in->at(i);
+            auto hitTime = hit.getTime();            
+            if (hitTime >= eTimeSlice) {
+                m_hitStartIndices.clear();
+                m_hitStartIndices.emplace_back(coll_index, coll_in, i);
+                break;
+            }
+
+            coll_out->push_back(hit);
         }
-      }
     }
 
     // Insert SimCalorimeterHits into the physics event

@@ -18,7 +18,7 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
     PodioInput<edm4hep::SimTrackerHit> check_hits_in {this};
     PodioOutput<edm4hep::SimTrackerHit> check_hits_out {this};
 
-    Double_t m_time_offset = 1.0; // Time offset to apply to hits
+    Double_t m_time_offset = 0.0; // Time offset to apply to hits
 
     void Configure(){
     }
