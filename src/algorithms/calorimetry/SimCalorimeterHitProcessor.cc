@@ -93,6 +93,9 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   // 1. sum the hits if they have the same z-segmentation
   // 2. attenuate the summed hits
   for (const auto& [par, hits] : mapMCParToSimCalHit) {
+    double attFactor = 1.;
+
+    // when merging hits is necessary
     if (m_id_mask) {
       std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
 
@@ -135,7 +138,6 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
         }
 
         // attenuation
-        double attFactor = 1.;
         if (m_attenuationReferencePosition_mm) {
           attFactor = get_attenuation(leading_hit.getPosition().z);
 
@@ -155,9 +157,17 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
         out_hit.setPosition(leading_hit.getPosition());
         out_hit.addToContributions(out_hit_contrib);
       }
+    // when merging hits are not necessary
     } else {
       for (const auto& hit : hits) {
         auto contrib = hit.getContributions(0);
+
+	// attenuation
+        if (m_attenuationReferencePosition_mm) {
+          attFactor = get_attenuation(hit.getPosition().z);
+
+          trace("z = {}, attFactor = {}", hit.getPosition().z, attFactor);
+        }
 
         auto out_hit_contrib = out_hit_contribs->create();
         out_hit_contrib.setPDG(contrib.getPDG());
