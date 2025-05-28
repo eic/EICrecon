@@ -150,15 +150,15 @@ void CalorimeterHitsMerger::process(const CalorimeterHitsMerger::Input& input,
     const decltype(edm4eic::CalorimeterHitData::local) local(
         pos.x() / dd4hep::mm, pos.y() / dd4hep::mm, pos.z() / dd4hep::mm);
 
-    auto out_hit = out_hits->create(href.getCellID(), energy, energyError, time, timeError, position,
-                                    href.getDimension(), href.getSector(), href.getLayer(),
-                                    local); // Can do better here? Right now position is mapped on the central hit
+    auto out_hit = out_hits->create(
+        href.getCellID(), energy, energyError, time, timeError, position, href.getDimension(),
+        href.getSector(), href.getLayer(),
+        local); // Can do better here? Right now position is mapped on the central hit
 
     // FIXME likely can do better, but for now
     // set related raw hit relation to be raw hit
     // of reference
     out_hit.setRawHit(href.getRawHit());
-
   }
 
   debug("Size before = {}, after = {}", in_hits->size(), out_hits->size());
