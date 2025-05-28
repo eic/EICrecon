@@ -91,7 +91,7 @@ std::tuple<
 
   // Set-up the propagator
   using PropagatorSec        = Acts::Propagator<Acts::EigenStepper<>>;
-  using PropagatorOptionsSec = Acts::PropagatorOptions<>;
+  //using PropagatorOptionsSec = Acts::PropagatorOptions<>;
 
   // Set up propagator with void navigator
 #if Acts_VERSION_MAJOR >= 32
@@ -208,7 +208,7 @@ std::tuple<
   vertexFitterCfgSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(&linearizerSec);
 
   #if Acts_VERSION_MAJOR >= 36
-  vertexfinderCfgSec.field = m_BField;
+  vertexfinderCfgSec.bField = m_BField;
   #else
   vertexfinderCfgSec.bField = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
     std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
