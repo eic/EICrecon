@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Wouter Deconinck
+// Copyright (C) 2024 Wouter Deconinck
 
 #pragma once
 
