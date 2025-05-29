@@ -1,10 +1,5 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng, Sylvester Joosten, Wouter Deconinck, Chao, Whitney Armstrong
-
-// Reconstruct digitized outputs, paired with Jug::Digi::CalorimeterHitDigi
-// Author: Chao Peng
-// Date: 06/14/2021
+// Copyright (C) 2024 Wouter Deconinck
 
 #pragma once
 
