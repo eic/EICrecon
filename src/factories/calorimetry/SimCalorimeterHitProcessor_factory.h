@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Minho Kim, Sylvester Joosten, Derek Anderson
+// Copyright (C) 2025 Minho Kim, Sylvester Joosten, Derek Anderson, Wouter Deconinck
 
 #pragma once
 
@@ -26,7 +26,8 @@ private:
                                                             config().attPars};
   ParameterRef<std::string> m_attenuationReferencePositionName{
       this, "attenuationReferencePositionName", config().attenuationReferencePositionName};
-  ParameterRef<std::string> m_mergeField{this, "mergeField", config().mergeField};
+  ParameterRef<std::vector<std::string>> m_hitMergeFields{this, "hitMergeFields", config().hitMergeFields};
+  ParameterRef<std::vector<std::string>> m_contributionMergeFields{this, "contributionMergeFields", config().contributionMergeFields};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};

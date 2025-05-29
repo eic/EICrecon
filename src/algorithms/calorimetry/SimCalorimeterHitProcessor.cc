@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Minho Kim, Sylvester Joosten, Derek Anderson
+// Copyright (C) 2025 Minho Kim, Sylvester Joosten, Derek Anderson, Wouter Deconinck
 
 #include "SimCalorimeterHitProcessor.h"
 
@@ -25,6 +25,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <ranges>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 
@@ -48,18 +49,33 @@ void SimCalorimeterHitProcessor::init() {
     throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
   }
 
-  // get id_mask for adding up hits with the same dimensions that are merged over
-  if (!m_cfg.mergeField.empty()) {
-    uint64_t id_inverse_mask = m_id_spec.field(m_cfg.mergeField)->mask();
-    m_id_mask                = ~id_inverse_mask;
-    if (m_id_mask)
-      debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_id_mask.value());
+  // get m_hit_id_mask for adding up hits with the same dimensions that are merged over
+  if (!m_cfg.hitMergeFields.empty()) {
+    uint64_t id_inverse_mask = 0;
+    for (auto& field : m_cfg.hitMergeFields) {
+      id_inverse_mask |= m_id_spec.field(field)->mask();
+    }
+    m_hit_id_mask = ~id_inverse_mask;
+    if (m_hit_id_mask)
+      debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_hit_id_mask.value());
   }
 
-  // get reference position for attenuating hits
+  // get m_contribution_id_mask for adding up contributions with the same dimensions that are merged over
+  if (!m_cfg.contributionMergeFields.empty()) {
+    uint64_t id_inverse_mask = 0;
+    for (auto& field : m_cfg.contributionMergeFields) {
+      id_inverse_mask |= m_id_spec.field(field)->mask();
+    }
+    m_contribution_id_mask = ~id_inverse_mask;
+    if (m_contribution_id_mask)
+      debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_contribution_id_mask.value());
+  }
+
+  // get reference position for attenuating hits and contributions
   if (!m_cfg.attenuationReferencePositionName.empty()) {
     m_attenuationReferencePosition_mm =
-        m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) * edm4eic::unit::mm / dd4hep::mm;
+        m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) *
+        edm4eic::unit::mm / dd4hep::mm;
   }
 }
 
@@ -90,95 +106,94 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   }
 
   // Attenuate energies of the sim hits
-  // 1. sum the hits if they have the same z-segmentation
+  // 1. sum the hits if they have the same dimension
   // 2. attenuate the summed hits
   for (const auto& [par, hits] : mapMCParToSimCalHit) {
     double attFactor = 1.;
 
     // when merging hits is necessary
-    if (m_id_mask) {
-      std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
+    if (m_hit_id_mask) {
+      // map
+      std::unordered_map<uint64_t, std::vector<std::size_t>> hit_merge_map;
 
-      // map for adding up the hits that have the same z-segmentation
+      // map for merging hits
       std::size_t ix = 0;
       for (const auto& ahit : hits) {
-        uint64_t hid = ahit.getCellID() & m_id_mask.value();
-
-        trace("org cell ID in {:s}: {:#064b}", m_cfg.readout, ahit.getCellID());
-        trace("new cell ID in {:s}: {:#064b}", m_cfg.readout, hid);
-
-        merge_map[hid].push_back(ix);
+        uint64_t hid = ahit.getCellID() & m_hit_id_mask.value();
+        hit_merge_map[hid].push_back(ix);
         ix++;
       }
 
-      for (const auto& [id, ixs] : merge_map) {
-        auto leading_hit     = hits[ixs[0]];
-        auto leading_contrib = hits[ixs[0]].getContributions(0);
+      for (const auto& [id_hit, ixs_hit] : hit_merge_map) {
+        std::unordered_map<uint64_t, std::vector<std::size_t>> contribution_merge_map;
 
-        // accumulate the energy deposit
-        float edepSum = std::accumulate(ixs.begin(), ixs.end(), 0.0f, [&](float sum, size_t idx) {
-          return sum + hits[idx].getEnergy();
-        });
+        // map for merging contributions
+        for (const auto& ix : ixs_hit) {
+          uint64_t hid = hits[ix].getCellID() & m_contribution_id_mask.value();
+          contribution_merge_map[hid].push_back(ix);
+        }
 
-        // find the earliest time
-        float timeEar = std::numeric_limits<double>::max();
+        auto out_hit   = out_hits->create();
+        double edepSum = 0;
 
-        for (const auto& idx : ixs) {
-          const auto& contribs = hits[idx].getContributions();
+        for (const auto& [id_contrib, ixs_contrib] : contribution_merge_map) {
+          auto leading_hit     = hits[ixs_contrib[0]];
+          auto leading_contrib = hits[ixs_contrib[0]].getContributions(0);
 
-          auto contribEar =
-              std::min_element(contribs.begin(), contribs.end(), [](const auto& a, const auto& b) {
-                return a.getTime() < b.getTime();
-              });
-          float localEar = contribEar->getTime();
+          // add up the energy deposits considering the attenuation
+          double edepSumLocal = std::accumulate(
+              ixs_contrib.begin(), ixs_contrib.end(), 0.0,
+              [&hits](double sum, size_t ix) { return sum + hits[ix].getEnergy(); });
 
-          if (localEar < timeEar) {
-            timeEar = localEar;
+          // attenuation
+          if (m_attenuationReferencePosition_mm) {
+            attFactor = get_attenuation(leading_hit.getPosition().z);
+            edepSumLocal *= attFactor;
           }
+
+          edepSum += edepSumLocal;
+
+          // find the earliest time
+          float timeEarLocal =
+              std::ranges::min(ixs_contrib | std::views::transform([&hits](size_t ix) {
+                                 return hits[ix].getContributions(0).getTime();
+                               }));
+
+          auto out_hit_contrib = out_hit_contribs->create();
+          out_hit_contrib.setPDG(leading_contrib.getPDG());
+          out_hit_contrib.setEnergy(static_cast<float>(edepSumLocal));
+          out_hit_contrib.setTime(timeEarLocal);
+          out_hit_contrib.setStepPosition(leading_contrib.getStepPosition());
+          out_hit_contrib.setParticle(par);
+          out_hit.addToContributions(out_hit_contrib);
         }
 
-        // attenuation
-        if (m_attenuationReferencePosition_mm) {
-          attFactor = get_attenuation(leading_hit.getPosition().z);
+        auto leading_hit = hits[ixs_hit[0]];
 
-          trace("z = {}, attFactor = {}", leading_hit.getPosition().z, attFactor);
-        }
-
-        auto out_hit_contrib = out_hit_contribs->create();
-        out_hit_contrib.setPDG(leading_contrib.getPDG());
-        out_hit_contrib.setEnergy(static_cast<float>(edepSum));
-        out_hit_contrib.setTime(timeEar);
-        out_hit_contrib.setStepPosition(leading_contrib.getStepPosition());
-        out_hit_contrib.setParticle(par);
-
-        auto out_hit = out_hits->create();
         out_hit.setCellID(leading_hit.getCellID());
-        out_hit.setEnergy(static_cast<float>(edepSum * attFactor));
+        out_hit.setEnergy(static_cast<float>(edepSum));
         out_hit.setPosition(leading_hit.getPosition());
-        out_hit.addToContributions(out_hit_contrib);
       }
-    // when merging hits are not necessary
+      // when merging hits are not necessary
     } else {
       for (const auto& hit : hits) {
         auto contrib = hit.getContributions(0);
 
-	// attenuation
+        // attenuation
         if (m_attenuationReferencePosition_mm) {
           attFactor = get_attenuation(hit.getPosition().z);
-
-          trace("z = {}, attFactor = {}", hit.getPosition().z, attFactor);
         }
 
         auto out_hit_contrib = out_hit_contribs->create();
         out_hit_contrib.setPDG(contrib.getPDG());
-        out_hit_contrib.setEnergy(contrib.getEnergy());
+        out_hit_contrib.setEnergy(attFactor * contrib.getEnergy());
         out_hit_contrib.setTime(contrib.getTime());
         out_hit_contrib.setStepPosition(contrib.getStepPosition());
         out_hit_contrib.setParticle(par);
 
         auto out_hit = out_hits->create();
         out_hit.setCellID(hit.getCellID());
-        out_hit.setEnergy(hit.getEnergy());
+        out_hit.setEnergy(attFactor * hit.getEnergy());
         out_hit.setPosition(hit.getPosition());
         out_hit.addToContributions(out_hit_contrib);
       }

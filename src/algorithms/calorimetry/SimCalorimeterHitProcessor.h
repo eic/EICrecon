@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Minho Kim, Sylvester Joosten, Derek Anderson
+// Copyright (C) 2025 Minho Kim, Sylvester Joosten, Derek Anderson, Wouter Deconinck
 
 #pragma once
 
@@ -40,7 +40,8 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  std::optional<uint64_t> m_id_mask;
+  std::optional<uint64_t> m_hit_id_mask;
+  std::optional<uint64_t> m_contribution_id_mask;
 
   dd4hep::IDDescriptor m_id_spec;
 

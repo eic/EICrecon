@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Minho Kim, Sylvester Joosten, Derek Anderson
+// Copyright (C) 2025 Minho Kim, Sylvester Joosten, Derek Anderson, Wouter Deconinck
 
 #pragma once
 
@@ -13,10 +13,12 @@ struct SimCalorimeterHitProcessorConfig {
   // parameters for attenuation function
   std::vector<double> attPars;
 
-  // fields for adding up energies and attenuate them
   std::string readout{""};
   std::string attenuationReferencePositionName{""};
-  std::string mergeField{""};
+  // fields for merging hits
+  std::vector < std::string > hitMergeFields{};
+  // fildes for merging contributions
+  std::vector < std::string > contributionMergeFields{};
 };
 
 } // namespace eicrecon
