@@ -11,6 +11,6 @@ struct FarDetectorMLReconstructionConfig {
   std::string modelPath;
   std::string methodName;
 
-  bool requireBeamElectron{true};
+  bool requireBeamElectron{false};
 };
 } // namespace eicrecon
