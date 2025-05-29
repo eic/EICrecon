@@ -142,8 +142,9 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
 
           // add up the energy deposits considering the attenuation
           double edepSumLocal = std::accumulate(
-              ixs_contrib.begin(), ixs_contrib.end(), 0.0,
-              [&hits](double sum, size_t ix) { return sum + hits[ix].getEnergy(); });
+              ixs_contrib.begin(), ixs_contrib.end(), 0.0, [&hits](double sum, size_t ix) {
+                return sum + hits[ix].getContributions(0).getEnergy();
+              });
 
           // attenuation
           if (m_attenuationReferencePosition_mm) {
