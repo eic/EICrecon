@@ -56,24 +56,13 @@ void InitPlugin(JApplication* app) {
       {"CentralTrackingRawHitAssociations"}, // Output collection name
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
-      app));
-
-  app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralCKFTruthSeededTrajectories", {"CentralTrackTruthSeeds", "CentralTrackerMeasurements"},
-      {
-          "CentralCKFTruthSeededActsTrajectoriesUnfiltered",
-          "CentralCKFTruthSeededActsTracksUnfiltered",
-      },
-      app));
-
   // Calorimeter hits collector
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
       "CentralCalorimeterRecHits", {"EcalBarrelImagingTrackerRecHits"},
       {"CentralCalorimeterRecHits"}, // Output collection name
       app));
 
+  // Tracker and calorimeter hits
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
       "CentralTrackingCalorimeterRecHits", {"CentralTrackingRecHits", "CentralCalorimeterRecHits"},
       {"CentralTrackingCalorimeterRecHits"}, // Output collection name
@@ -82,6 +71,14 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
       "CentralTrackerMeasurements", {"CentralTrackingCalorimeterRecHits"},
       {"CentralTrackerMeasurements"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
+      "CentralCKFTruthSeededTrajectories", {"CentralTrackTruthSeeds", "CentralTrackerMeasurements"},
+      {
+          "CentralCKFTruthSeededActsTrajectoriesUnfiltered",
+          "CentralCKFTruthSeededActsTracksUnfiltered",
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
       "CentralCKFTruthSeededTracksUnfiltered",
