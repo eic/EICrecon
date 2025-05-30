@@ -26,9 +26,6 @@
   { include: ['@<(edm4(eic|hep))/(Mutable)?([^/]*?)(Collection|Data|Obj)?\.h>', public, '<$1/$4Collection.h>', public] },
   { include: ['<edm4hep/utils/vector_utils_legacy.h>', private, '<edm4hep/utils/vector_utils.h>', public] },
 
-  # JANA2: for now, preserve compatibility with older versions
-  { include: ['<JANA/JApplicationFwd.h>', private, '<JANA/JApplication.h>', public] },
-
   # the rest
   { include: ['<bits/chrono.h>', private, '<chrono>', public] },
   { include: ['<bits/std_abs.h>', private, '<math.h>', public] },

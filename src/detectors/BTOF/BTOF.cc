@@ -8,23 +8,24 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <TMath.h>
 #include <edm4eic/unit_system.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
-#include <TMath.h>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
-#include "factories/digi/LGADChargeSharing_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
-#include "factories/digi/PulseCombiner_factory.h"
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
@@ -52,13 +53,14 @@ void InitPlugin(JApplication* app) {
       },
       app)); // Hit reco default config for factories
 
-  app->Add(new JOmniFactoryGeneratorT<LGADChargeSharing_factory>(
-      "LGADChargeSharing", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
-      {.sigma_sharingx        = 0.1 * dd4hep::cm,
-       .sigma_sharingy        = 0.5 * dd4hep::cm,
-       .readout               = "TOFBarrelHits",
-       .same_sensor_condition = "sensor_1 == sensor_2",
-       .neighbor_fields       = {"x", "y"}},
+  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
+      "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
+      {
+          .sigma_sharingx = 0.1 * dd4hep::cm,
+          .sigma_sharingy = 0.5 * dd4hep::cm,
+          .min_edep       = 0.0 * edm4eic::unit::GeV,
+          .readout        = "TOFBarrelHits",
+      },
       app));
 
   // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
@@ -74,7 +76,7 @@ void InitPlugin(JApplication* app) {
   const double gain = -adc_range / Vm / landau_min;
   const int offset  = 3;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
-      "LGADPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulse"},
+      "LGADPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
       {
           .pulse_shape_function = "LandauPulse",
           .pulse_shape_params   = {gain, sigma_analog, offset * sigma_analog},
@@ -92,7 +94,7 @@ void InitPlugin(JApplication* app) {
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
-      "SiliconPulseDiscretization", {"TOFBarrelCombinedPulse"}, {"TOFBarrelPulse"},
+      "SiliconPulseDiscretization", {"TOFBarrelCombinedPulses"}, {"TOFBarrelPulses"},
       {
           .EICROC_period = 25 * edm4eic::unit::ns,
           .local_period  = 25 * edm4eic::unit::ns / 1024,
@@ -101,7 +103,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-      "EICROCDigitization", {"TOFBarrelPulse"}, {"TOFBarrelADCTDC"}, {}, app));
+      "EICROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {}, app));
 
   int BarrelTOF_ID = 0;
   try {

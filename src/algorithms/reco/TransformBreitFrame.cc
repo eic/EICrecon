@@ -31,7 +31,7 @@ void TransformBreitFrame::process(const TransformBreitFrame::Input& input,
 
   // Get incoming electron beam
   const auto ei_coll = find_first_beam_electron(mcpart);
-  if (ei_coll.size() == 0) {
+  if (ei_coll.empty()) {
     debug("No beam electron found");
     return;
   }
@@ -41,7 +41,7 @@ void TransformBreitFrame::process(const TransformBreitFrame::Input& input,
 
   // Get incoming hadron beam
   const auto pi_coll = find_first_beam_hadron(mcpart);
-  if (pi_coll.size() == 0) {
+  if (pi_coll.empty()) {
     debug("No beam hadron found");
     return;
   }
@@ -52,7 +52,7 @@ void TransformBreitFrame::process(const TransformBreitFrame::Input& input,
   debug("electron energy, proton energy = {},{}", e_initial.E(), p_initial.E());
 
   // Get the event kinematics, set up transform
-  if (kine->size() == 0) {
+  if (kine->empty()) {
     debug("No kinematics found");
     return;
   }
@@ -133,8 +133,6 @@ void TransformBreitFrame::process(const TransformBreitFrame::Input& input,
     // set up a relation between the lab and Breit frame representations
     breit_out.addToParticles(lab);
   }
-
-  return;
 
 } // end 'process'
 

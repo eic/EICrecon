@@ -4,7 +4,7 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <string>
 
 #include "algorithms/interfaces/WithPodConfig.h"

@@ -2,7 +2,6 @@
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
-#include <JANA/JLogger.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -25,8 +24,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
   // Allow user to set PODIO:OUTPUT_FILE to "1" to specify using the default name.
   if (m_output_file == "1") {
-    auto param = japp->GetJParameterManager()->FindParameter("podio:output_file");
-    if (param) {
+    auto* param = japp->GetJParameterManager()->FindParameter("podio:output_file");
+    if (param != nullptr) {
       param->SetValue(param->GetDefault());
       m_output_file = param->GetDefault();
     }
@@ -132,6 +131,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
     // LOWQ2 hits
     "TaggerTrackerHits",
+    "TaggerTrackerSharedHits",
     "TaggerTrackerHitPulses",
     "TaggerTrackerCombinedPulses",
     "TaggerTrackerCombinedPulsesWithNoise",
@@ -488,21 +488,24 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   // Print the contents of some collections, just for debugging purposes
   // Do this before writing just in case writing crashes
   if (!m_collections_to_print.empty()) {
-    LOG << "========================================" << LOG_END;
-    LOG << "JEventProcessorPODIO: Event " << event->GetEventNumber() << LOG_END;
+    m_log->info("========================================");
+    m_log->info("JEventProcessorPODIO: Event {}", event->GetEventNumber());
+    ;
   }
   for (const auto& coll_name : m_collections_to_print) {
-    LOG << "------------------------------" << LOG_END;
-    LOG << coll_name << LOG_END;
+    m_log->info("------------------------------");
+    m_log->info("{}", coll_name);
     try {
       const auto* coll_ptr = event->GetCollectionBase(coll_name);
       if (coll_ptr == nullptr) {
-        LOG << "missing" << LOG_END;
+        m_log->info("missing");
       } else {
-        coll_ptr->print();
+        std::stringstream ss;
+        coll_ptr->print(ss);
+        m_log->info(ss.str());
       }
     } catch (std::exception& e) {
-      LOG << "missing" << LOG_END;
+      m_log->info("missing");
     }
   }
 
@@ -538,7 +541,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
         // To avoid this, we treat this as a failing collection and omit from this point onwards.
         // However, this code path is expected to be unreachable because any missing collection will be
         // replaced with an empty collection in JFactoryPodioTFixed::Create.
-        if (failed_collections.count(coll) == 0) {
+        if (!failed_collections.contains(coll)) {
           m_log->error("Omitting PODIO collection '{}' because it is null", coll);
           failed_collections.insert(coll);
         }
@@ -548,7 +551,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
       }
     } catch (std::exception& e) {
       // Limit printing warning to just once per factory
-      if (failed_collections.count(coll) == 0) {
+      if (!failed_collections.contains(coll)) {
         m_log->error("Omitting PODIO collection '{}' due to exception: {}.", coll, e.what());
         failed_collections.insert(coll);
       }

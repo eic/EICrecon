@@ -73,16 +73,20 @@ jobs:
         # note that entries that overwrite matrix values require a full specification
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#expanding-or-adding-matrix-configurations
         exclude:
-          # exclude clang++ Debug with default CXXFLAGS
+          # exclude g++ Debug with default CXXFLAGS since unused
+          - CXX: g++
+            CMAKE_BUILD_TYPE: Debug
+            release: nightly
+          # exclude clang++ Debug with default CXXFLAGS since overridden
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
             release: nightly
         include:
           - CXX: g++
             # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
-            CXXFLAGS: -Werror -Wall -Wextra -Wno-error=maybe-uninitialized
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=maybe-uninitialized
           - CXX: clang++
-            CXXFLAGS: -Werror -Wall -Wextra
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef
           # include clang++ Debug with profile CXXFLAGS
           - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
@@ -133,19 +137,21 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
-          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
+          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
           cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target install
           ccache --show-stats --verbose
+          ccache --evict-older-than 7d
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          export LD_LIBRARY_PATH=$PWD/lib:$LD_LIBRARY_PATH
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           for lib in install/lib/*.so install/lib/EICrecon/plugins/*.so ; do
             readelf -d $lib
-            ldd -r $lib
+            # Hide intentionally undefined symbols for asan and ubsan
+            ldd -r $lib | grep -v __asan | grep -v __ubsan
           done
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
@@ -196,22 +202,22 @@ jobs:
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
-          git diff ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++20' -checks='-*,bugprone-*,-bugprone-narrowing-conversions,-bugprone-macro-parentheses' -clang-tidy-binary run-clang-tidy
+          git diff ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20' -clang-tidy-binary run-clang-tidy
     - name: Run clang-tidy on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
-      if: ${{ github.event_name == 'push' }}
+      if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
-          run-clang-tidy -p build -export-fixes clang_tidy_fixes.yml -extra-arg='-std=c++20'
+          run-clang-tidy -p build -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20'
     - name: Upload clang-tidy fixes as artifact
       uses: actions/upload-artifact@v4
       with:
-        name: clang-tidy-fixes.yml
-        path: clang_tidy_fixes.yml
+        name: clang-tidy-fixes.yaml
+        path: clang_tidy_fixes.yaml
         if-no-files-found: ignore
     - name: Suggest clang-tidy fixes as PR comments
-      uses: platisd/clang-tidy-pr-comments@v1.6.1
+      uses: platisd/clang-tidy-pr-comments@v1.7.0
       if: ${{ github.event_name == 'pull_request' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}

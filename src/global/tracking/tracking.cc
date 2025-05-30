@@ -2,7 +2,7 @@
 // Copyright (C) 2022 - 2025, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
 
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>

@@ -13,6 +13,7 @@
 #include <edm4hep/Vector3f.h>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <gsl/pointers>
 #include <stdexcept>
@@ -31,9 +32,6 @@ public:
   virtual double operator()(double time, double charge) = 0;
 
   virtual double getMaximumTime() const = 0;
-
-protected:
-  double m_charge;
 };
 
 // ----------------------------------------------------------------------------
@@ -56,12 +54,12 @@ public:
     }
   };
 
-  double operator()(double time, double charge) {
+  double operator()(double time, double charge) override {
     return charge * m_gain *
            TMath::Landau(time, m_hit_sigma_offset * m_sigma_analog, m_sigma_analog, kTRUE);
   }
 
-  double getMaximumTime() const { return m_hit_sigma_offset * m_sigma_analog; }
+  double getMaximumTime() const override { return m_hit_sigma_offset * m_sigma_analog; }
 
 private:
   double m_gain             = 1.0;
@@ -97,13 +95,13 @@ public:
     m_evaluator      = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->_compile(expression, keys);
   };
 
-  double operator()(double time, double charge) {
+  double operator()(double time, double charge) override {
     param_map["time"]   = time;
     param_map["charge"] = charge;
     return m_evaluator(param_map);
   }
 
-  double getMaximumTime() const { return 0; }
+  double getMaximumTime() const override { return 0; }
 
 private:
   std::unordered_map<std::string, double> param_map;
@@ -153,19 +151,16 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
     double signal_time = m_cfg.timestep * std::floor(time / m_cfg.timestep);
 
-    auto time_series = rawPulses->create();
-    time_series.setCellID(cellID);
-    time_series.setInterval(m_cfg.timestep);
+    bool passed_threshold   = false;
+    std::uint32_t skip_bins = 0;
+    float integral          = 0;
+    std::vector<float> pulse;
 
-    bool passed_threshold = false;
-    int skip_bins         = 0;
-    float integral        = 0;
-
-    for (int i = 0; i < m_cfg.max_time_bins; i++) {
+    for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
       double t    = signal_time + i * m_cfg.timestep - time;
       auto signal = (*m_pulse)(t, charge);
       if (std::abs(signal) < m_cfg.ignore_thres) {
-        if (passed_threshold == false) {
+        if (!passed_threshold) {
           skip_bins = i;
           continue;
         }
@@ -174,11 +169,22 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
         }
       }
       passed_threshold = true;
-      time_series.addToAmplitude(signal);
+      pulse.push_back(signal);
       integral += signal;
     }
 
+    if (!passed_threshold) {
+      continue;
+    }
+
+    auto time_series = rawPulses->create();
+    time_series.setCellID(cellID);
+    time_series.setInterval(m_cfg.timestep);
     time_series.setTime(signal_time + skip_bins * m_cfg.timestep);
+
+    for (const auto& value : pulse) {
+      time_series.addToAmplitude(value);
+    }
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
     time_series.setIntegral(integral);
