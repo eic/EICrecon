@@ -20,13 +20,34 @@
 
 using namespace dd4hep;
 
-// Necessary to make MCParticle hashable
 namespace std {
-template <> struct hash<edm4hep::MCParticle> {
-  size_t operator()(const edm4hep::MCParticle& p) const noexcept {
-    return std::hash<podio::ObjectID>{}(p.getObjectID()); // or p.getObjectID() if needed
+// Hash for podio::ObjectID
+// remove when we update to newer Podio version
+template <> struct hash<podio::ObjectID> {
+  size_t operator()(const podio::ObjectID& id) const noexcept {
+    size_t h1 = std::hash<uint32_t>{}(id.collectionID);
+    size_t h2 = std::hash<int>{}(id.index);
+    return h1 ^ (h2 << 1);
   }
 };
+// Necessary to make MCParticle hashable
+template <> struct hash<edm4hep::MCParticle> {
+  size_t operator()(const edm4hep::MCParticle& p) const noexcept {
+    const auto& id = p.getObjectID();
+    return std::hash<podio::ObjectID>()(id);
+  }
+};
+// Hash for tuple<edm4hep::MCParticle, uint64_t> --> remove when we go to newer compiler
+template <>
+struct hash<std::tuple<edm4hep::MCParticle, uint64_t>> {
+  size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t>& key) const noexcept {
+    const auto& [particle, cellID] = key;
+    size_t h1 = hash<edm4hep::MCParticle>{}(particle);
+    size_t h2 = hash<uint64_t>{}(cellID);
+    return h1 ^ (h2 << 1);
+  }
+};
+
 } // namespace std
 
 // unnamed namespace for interal utility
@@ -91,24 +112,28 @@ void SimCalorimeterHitProcessor::init() {
   }
 
   // get m_hit_id_mask for adding up hits with the same dimensions that are merged over
-  uint64_t id_inverse_mask = 0;
-  if (!m_cfg.hitMergeFields.empty()) {
-    for (auto& field : m_cfg.hitMergeFields) {
-      id_inverse_mask |= m_id_spec.field(field)->mask();
+  {
+    uint64_t id_inverse_mask = 0;
+    if (!m_cfg.hitMergeFields.empty()) {
+      for (auto& field : m_cfg.hitMergeFields) {
+        id_inverse_mask |= m_id_spec.field(field)->mask();
+      }
     }
+    m_hit_id_mask = ~id_inverse_mask;
+    debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_hit_id_mask.value());
   }
-  m_hit_id_mask = ~id_inverse_mask;
-  debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_hit_id_mask.value());
 
   // get m_contribution_id_mask for adding up contributions with the same dimensions that are merged over
-  uint64_t id_inverse_mask = 0;
-  if (!m_cfg.contributionMergeFields.empty()) {
-    for (auto& field : m_cfg.contributionMergeFields) {
-      id_inverse_mask |= m_id_spec.field(field)->mask();
+  {
+    uint64_t id_inverse_mask = 0;
+    if (!m_cfg.contributionMergeFields.empty()) {
+      for (auto& field : m_cfg.contributionMergeFields) {
+        id_inverse_mask |= m_id_spec.field(field)->mask();
+      }
+      m_contribution_id_mask = ~id_inverse_mask;
     }
-    m_contribution_id_mask = ~id_inverse_mask;
+    debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_contribution_id_mask.value());
   }
-  debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_contribution_id_mask.value());
 
   // get reference position for attenuating hits and contributions
   if (!m_cfg.attenuationReferencePositionName.empty()) {
@@ -141,24 +166,25 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
 
   for (const auto& ih : *in_hits) {
     // the cell ID of the new superhit we are making
-    const uint64_t newhit_cellID = (ih.getCellID() & m_hit_id_mask & m_contribution_id_mask);
+    const uint64_t newhit_cellID =
+        (ih.getCellID() & m_hit_id_mask.value() & m_contribution_id_mask.value());
     // the cell ID of this particular contribution (we are using contributions to store
     // the hits making up this "superhit" with more segmentation)
-    const uint64_t newcontrib_cellID = (ih.getCellID() & m_hit_id_mask);
+    const uint64_t newcontrib_cellID = (ih.getCellID() & m_hit_id_mask.value());
     // Optional attenuation
     const double attFactor =
         m_attenuationReferencePosition_mm ? get_attenuation(ih.getPosition().z) : 1.;
     // Use primary particle (traced back through parents) to group contributions
     for (const auto& contrib : ih.getContributions()) {
-      MCParticle primary = lookup_primary(contrib);
-      auto& hit_accum    = hit_map[{primary, newhit_cellID}][newcontrib_cellID];
-      hit_accum.add(contrib.getEnergy() * attFactor, ih.getTime(), ih.getPosition());
+      edm4hep::MCParticle primary = lookup_primary(contrib);
+      auto& hit_accum             = hit_map[{primary, newhit_cellID}][newcontrib_cellID];
+      hit_accum.add(contrib.getEnergy() * attFactor, contrib.getTime(), ih.getPosition());
     }
   }
 
   // We now have our data structured as we want it, next we need to visit all hits again
   // and create our output structures
-  for (const auto& [hit_idx, contribs]) {
+  for (const auto& [hit_idx, contribs] : hit_map) {
 
     auto out_hit = out_hits->create();
 
@@ -166,7 +192,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
     HitContributionAccumulator new_hit;
     for (const auto& [contrib_idx, contrib] : contribs) {
       // Aggregate contributions to for the global hit
-      new_hit.add(contrib.getEnergy(), contrib.getMinTime(), contrib.getPosition());
+      new_hit.add(contrib.getEnergy(), contrib.getMinTime(), contrib.getAvgPosition());
       // Now store the contribution itself
       auto out_hit_contrib = out_hit_contribs->create();
       out_hit_contrib.setPDG(particle.getPDG());
