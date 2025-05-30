@@ -75,7 +75,7 @@ void InitPlugin(JApplication* app) {
       {
           .sigma_sharingx = 0.1 * dd4hep::cm,
           .sigma_sharingy = 0.5 * dd4hep::cm,
-          .min_edep       = 5e-5 * edm4eic::unit::GeV,
+          .min_edep       = 1e-5 * edm4eic::unit::GeV,
           .readout        = "TOFBarrelHits",
       },
       app));
@@ -86,7 +86,7 @@ void InitPlugin(JApplication* app) {
   const double x_when_landau_min = -0.22278;
   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
   const double sigma_analog      = 0.293951 * edm4eic::unit::ns;
-  const double Vm                = 1e-4 * dd4hep::GeV;
+  const double Vm                = 5e-4 * dd4hep::GeV;
   const double adc_range         = 256;
   // gain is set such that pulse reaches a height of adc_range when EDep = Vm
   // gain is negative as LGAD voltage is always negative
@@ -97,7 +97,7 @@ void InitPlugin(JApplication* app) {
       {
           .pulse_shape_function = "LandauPulse",
           .pulse_shape_params   = {gain, sigma_analog, offset},
-          .ignore_thres         = 0.05 * adc_range,
+          .ignore_thres         = 0.03 * adc_range,
           .timestep             = 0.01 * edm4eic::unit::ns,
       },
       app));
@@ -120,7 +120,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-      "EICROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {}, app));
+      "EICROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {.t_thres=-0.01*adc_range}, app));
 
   int BarrelTOF_ID = 0;
   try {
