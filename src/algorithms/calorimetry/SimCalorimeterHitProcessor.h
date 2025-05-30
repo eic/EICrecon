@@ -9,9 +9,8 @@
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include <stdint.h>
+#include <cstdint>
 #include <optional>
-#include <string>
 #include <string_view>
 
 #include "SimCalorimeterHitProcessorConfig.h"
@@ -34,7 +33,7 @@ public:
             {"inputHitCollection"},
             {"outputHitCollection", "outputHitContributionCollection"},
             "Regroup the hits by particle, add up the hits if"
-            "they have the same z-segmentation, and attenuate."} {}
+            "they have e z-segmentation, and attenuate."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -51,8 +50,6 @@ private:
   std::optional<double> m_attenuationReferencePosition_mm;
 
 private:
-  edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;
-
   // attenuation function
   double get_attenuation(double zpos) const;
 };
