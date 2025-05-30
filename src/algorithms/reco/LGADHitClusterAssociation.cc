@@ -70,6 +70,8 @@ void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& 
 
     // sum ADC info
     double tot_charge = 0;
+    for(const auto& hit : meas2D_hit.getHits())
+	    tot_charge += hit.getEdep();
     // position info
     auto locPos         = meas2D_hit.getLoc();
     const auto* context = m_converter->findContext(cellID);
