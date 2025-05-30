@@ -4,13 +4,14 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
+#include <fmt/core.h>
 #include <cmath>
 #include <map>
-#include <string>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
@@ -18,7 +19,7 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
-#include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterHitToTrackerHit_factory.h"
@@ -26,8 +27,8 @@
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 
 extern "C" {
