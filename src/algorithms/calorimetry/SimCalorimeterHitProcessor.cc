@@ -38,12 +38,11 @@ template <> struct hash<edm4hep::MCParticle> {
   }
 };
 // Hash for tuple<edm4hep::MCParticle, uint64_t> --> remove when we go to newer compiler
-template <>
-struct hash<std::tuple<edm4hep::MCParticle, uint64_t>> {
+template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t>> {
   size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t>& key) const noexcept {
     const auto& [particle, cellID] = key;
-    size_t h1 = hash<edm4hep::MCParticle>{}(particle);
-    size_t h2 = hash<uint64_t>{}(cellID);
+    size_t h1                      = hash<edm4hep::MCParticle>{}(particle);
+    size_t h2                      = hash<uint64_t>{}(cellID);
     return h1 ^ (h2 << 1);
   }
 };
@@ -67,7 +66,6 @@ edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) 
 }
 class HitContributionAccumulator {
 private:
-  size_t m_n{0};
   float m_energy{0};
   float m_avg_time{0};
   float m_min_time{std::numeric_limits<float>::max()};
@@ -76,19 +74,22 @@ private:
 public:
   void add(const float energy, const float time, const edm4hep::Vector3f& pos) {
     m_energy += energy;
-    m_avg_time       = (m_avg_time * m_n + time) / (m_n + 1);
-    m_avg_position.x = (m_avg_position.x * m_n + pos.x) / (m_n + 1);
-    m_avg_position.y = (m_avg_position.y * m_n + pos.y) / (m_n + 1);
-    m_avg_position.z = (m_avg_position.z * m_n + pos.z) / (m_n + 1);
-    if (time < m_min_time) {
-      m_min_time = time;
-    }
-    ++m_n;
+    m_avg_time += energy * time;
+    m_avg_position.x += energy * pos.x;
+    m_avg_position.y += energy * pos.y;
+    m_avg_position.z += energy * pos.z;
+    m_min_time = (time < m_min_time) ? time : m_min_time;
   }
   float getEnergy() const { return m_energy; }
-  float getAvgTime() const { return m_avg_time; }
+  float getAvgTime() const { return m_energy > 0 ? m_avg_time / m_energy : 0; }
   float getMinTime() const { return m_min_time; }
-  edm4hep::Vector3f getAvgPosition() const { return m_avg_position; }
+  edm4hep::Vector3f getAvgPosition() const {
+    if (m_energy > 0) {
+      return {m_avg_position.x / m_energy, m_avg_position.y / m_energy,
+              m_avg_position.z / m_energy};
+    }
+    return {0, 0, 0};
+  }
 };
 
 } // namespace
