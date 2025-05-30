@@ -120,7 +120,8 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-      "EICROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {.t_thres=-0.01*adc_range}, app));
+      "EICROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"},
+      {.t_thres = -0.01 * adc_range}, app));
 
   int BarrelTOF_ID = 0;
   try {
