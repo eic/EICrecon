@@ -10,50 +10,43 @@
 
 namespace eicrecon {
 
-  class SiPMWaveformGenerator_factory
-    : public JOmniFactory<SiPMWaveformGenerator_factory, SiPMWaveformGeneratorConfig>
-  {
+class SiPMWaveformGenerator_factory
+    : public JOmniFactory<SiPMWaveformGenerator_factory, SiPMWaveformGeneratorConfig> {
 
-    public:
+public:
+  using AlgoT = eicrecon::SiPMWaveformGenerator;
 
-      using AlgoT = eicrecon::SiPMWaveformGenerator;
+private:
+  // algorithm to run
+  std::unique_ptr<AlgoT> m_algo;
 
-    private:
+  // input collections
+  PodioInput<edm4hep::SimCalorimeterHit> m_simcalohit_input{this};
 
-      // algorithm to run
-      std::unique_ptr<AlgoT> m_algo;
+  // output collections
+  PodioOutput<edm4hep::RawTimeSeries> m_rawtimeseries_output{this};
 
-      // input collections
-      PodioInput<edm4hep::SimCalorimeterHit> m_simcalohit_input {this};
+  // parameters
+  ParameterRef<size_t> m_nSamples{this, "nSamples", config().nSamples};
 
-      // output collections
-      PodioOutput<edm4hep::RawTimeSeries> m_rawtimeseries_output {this};
+  // services
+  Service<AlgorithmsInit_service> m_algoInitSvc{this};
 
-      // parameters
-      ParameterRef<size_t> m_nSamples {this, "nSamples", config().nSamples};
+public:
+  void Configure() {
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->applyConfig(config());
+    m_algo->init();
+  }
 
-      // services
-      Service<AlgorithmsInit_service> m_algoInitSvc {this};
+  void ChangeRun(int64_t run_number) {
+    //... nothing to do here ...//
+  }
 
-    public:
+  void Process(int64_t run_number, uint64_t event_number) {
+    m_algo->process({m_simcalohit_input()}, {m_rawtimeseries_output().get()});
+  }
 
-      void Configure() {
-        m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo -> applyConfig( config() );
-        m_algo -> init();
-      }
+}; // end SiPMWaveformGenerator_factory
 
-      void ChangeRun(int64_t run_number) {
-        //... nothing to do here ...//
-      }
-
-      void Process(int64_t run_number, uint64_t event_number) {
-        m_algo -> process(
-          {m_simcalohit_input()},
-          {m_rawtimeseries_output().get()}
-        );
-      }
-
-  };  // end SiPMWaveformGenerator_factory
-
-}  // end eicrecon namespace
+} // namespace eicrecon

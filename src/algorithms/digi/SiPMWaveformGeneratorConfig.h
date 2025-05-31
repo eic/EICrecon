@@ -7,10 +7,10 @@
 
 namespace eicrecon {
 
-  struct SiPMWaveformGeneratorConfig {
+struct SiPMWaveformGeneratorConfig {
 
-    size_t nSamples = 112;  ///< number of samples in waveform (FIXME: PLACEHOLDER NUMBER)
+  size_t nSamples = 112; ///< number of samples in waveform (FIXME: PLACEHOLDER NUMBER)
 
-  };  // end SiPMWaveformGeneratorConfig
+}; // end SiPMWaveformGeneratorConfig
 
-}  // end eicrecon namespace
+} // namespace eicrecon
