@@ -69,7 +69,7 @@ TrackerMeasurementFromHits::produce(const edm4eic::TrackerHitCollection& trk_hit
 
     const auto is = surfaceMap.find(vol_id);
     if (is == surfaceMap.end()) {
-      m_log->warn(" WARNING: vol_id ({})  not found in m_surfaces.", vol_id);
+      m_log->warn("vol_id ({:#x})  not found in m_surfaces.", vol_id);
       continue;
     }
     const Acts::Surface* surface = is->second;
