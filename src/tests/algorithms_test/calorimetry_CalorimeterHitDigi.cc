@@ -67,15 +67,15 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
         edm4hep::Vector3f({0. /* mm */, 0. /* mm */, 0. /* mm */}) // edm4hep::Vector3f position
     );
     mhit.addToContributions(calohits->create(
-        0,                                                         // std::int32_t PDG
-        0.5 /* GeV */,                                             // float energy
-        7.0 /* ns */,                                              // float time
+        0, // std::int32_t PDG
+        0.5 /* GeV */, // float energy
+        7.0 /* ns */, // float time
         edm4hep::Vector3f({0. /* mm */, 0. /* mm */, 0. /* mm */}) // edm4hep::Vector3f stepPosition
         ));
     mhit.addToContributions(calohits->create(
-        0,                                                         // std::int32_t PDG
-        0.5 /* GeV */,                                             // float energy
-        9.0 /* ns */,                                              // float time
+        0, // std::int32_t PDG
+        0.5 /* GeV */, // float energy
+        9.0 /* ns */, // float time
         edm4hep::Vector3f({0. /* mm */, 0. /* mm */, 0. /* mm */}) // edm4hep::Vector3f stepPosition
         ));
 

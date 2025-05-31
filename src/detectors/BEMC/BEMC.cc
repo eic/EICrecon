@@ -112,7 +112,7 @@ void InitPlugin(JApplication* app) {
             "EcalBarrelScFiHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"EcalBarrelScFiClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
        "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -161,7 +161,7 @@ void InitPlugin(JApplication* app) {
           .pedSigmaADC     = EcalBarrelImaging_pedSigmaADC, // not needed; use only thresholdValue
           .resolutionTDC   = EcalBarrelImaging_resolutionTDC,
           .thresholdFactor = 0.0, // use only thresholdValue
-          .thresholdValue  = 41,  // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
+          .thresholdValue  = 41, // 8192 ADC counts/3 MeV * 0.015 MeV (desired threshold) = 41
           .sampFrac        = "0.00429453",
           .readout         = "EcalBarrelImagingHits",
           .layerField      = "layer",
@@ -174,7 +174,7 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelImagingProtoClusters"},
       {
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
-          .localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
+          .localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm}, //  # same layer
           .layerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
           .sectorDist           = 3.0 * dd4hep::cm,
           .minClusterHitEdep    = 0,

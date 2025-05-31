@@ -14,4 +14,7 @@ NamespaceIndentation: Inner
 AlignConsecutiveAssignments: true
 SortIncludes: Never
 ReflowComments: false
+AlignTrailingComments:
+  Kind:            Leave
+  OverEmptyLines:  0
 ...

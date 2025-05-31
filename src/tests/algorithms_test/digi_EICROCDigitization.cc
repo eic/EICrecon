@@ -123,7 +123,7 @@ TEST_CASE("the Silicon charge sharing algorithm runs", "[EICROCDigitization]") {
 
       pulse.setCellID(cellID);
       pulse.setCharge(1.); // placeholder
-      pulse.setTime(0.);   // placeholder
+      pulse.setTime(0.); // placeholder
       pulse.setInterval(1);
 
       int test_peak_TDC   = static_cast<int>(0.5 * cfg.tdc_range);

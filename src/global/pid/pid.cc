@@ -23,12 +23,12 @@ void InitPlugin(JApplication* app) {
       {
           "ReconstructedChargedWithoutPIDParticles",            // edm4eic::ReconstructedParticle
           "ReconstructedChargedWithoutPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-          "DRICHMergedIrtCherenkovParticleID",                  // edm4eic::CherenkovParticleID
+          "DRICHMergedIrtCherenkovParticleID", // edm4eic::CherenkovParticleID
       },
       {
-          "ReconstructedChargedRealPIDParticles",            // edm4eic::ReconstructedParticle
+          "ReconstructedChargedRealPIDParticles", // edm4eic::ReconstructedParticle
           "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
-          "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID
+          "ReconstructedChargedRealPIDParticleIDs", // edm4hep::ParticleID
       },
       app));
 }

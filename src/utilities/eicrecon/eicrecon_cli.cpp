@@ -289,7 +289,7 @@ JApplication* CreateJApplication(UserOptions& options) {
   // If the user hasn't specified a timeout (on cmd line or in config file), set the timeout to
   // something reasonably high
   if (para_mgr->FindParameter("jana:timeout") == nullptr) {
-    para_mgr->SetParameter("jana:timeout", 180);        // seconds
+    para_mgr->SetParameter("jana:timeout", 180); // seconds
     para_mgr->SetParameter("jana:warmup_timeout", 180); // seconds
   }
 
@@ -409,7 +409,7 @@ int Execute(JApplication* app, UserOptions& options) {
   } else if (options.flags[Benchmark]) {
     JSignalHandler::register_handlers(app);
     // Run JANA in benchmark mode
-    JBenchmarker benchmarker(app);  // Benchmarking params override default params
+    JBenchmarker benchmarker(app); // Benchmarking params override default params
     benchmarker.RunUntilFinished(); // Benchmarker will control JApp Run/Stop
   } else if (options.flags[ListFactories]) {
     app->Initialize();

@@ -58,7 +58,7 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   m_irtPhotonDetector = new CherenkovPhotonDetector(nullptr, nullptr);
   m_irtDetector->SetReadoutCellMask(cellMask);
   m_irtDetectorCollection->AddPhotonDetector(m_irtDetector,      // Cherenkov detector
-                                             nullptr,            // G4LogicalVolume (inaccessible?)
+                                             nullptr, // G4LogicalVolume (inaccessible?)
                                              m_irtPhotonDetector // photon detector
   );
   m_log->debug("cellMask = {:#X}", cellMask);
@@ -79,22 +79,22 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
   m_filterFlatSurface   = new FlatSurface(TVector3(0, 0, filterZpos), normX, normY);
   for (int isec = 0; isec < nSectors; isec++) {
     auto* aerogelFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
-        m_irtDetector,                  // Cherenkov detector
+        m_irtDetector, // Cherenkov detector
         RadiatorName(kAerogel).c_str(), // name
-        isec,                           // path
-        (G4LogicalVolume*)(0x1),        // G4LogicalVolume (inaccessible? use an integer instead)
-        nullptr,                        // G4RadiatorMaterial
-        m_aerogelFlatSurface,           // surface
-        aerogelThickness                // surface thickness
+        isec, // path
+        (G4LogicalVolume*)(0x1), // G4LogicalVolume (inaccessible? use an integer instead)
+        nullptr, // G4RadiatorMaterial
+        m_aerogelFlatSurface, // surface
+        aerogelThickness // surface thickness
     );
     auto* filterFlatRadiator = m_irtDetectorCollection->AddFlatRadiator(
-        m_irtDetector,           // Cherenkov detector
-        "Filter",                // name
-        isec,                    // path
+        m_irtDetector, // Cherenkov detector
+        "Filter", // name
+        isec, // path
         (G4LogicalVolume*)(0x2), // G4LogicalVolume (inaccessible? use an integer instead)
-        nullptr,                 // G4RadiatorMaterial
-        m_filterFlatSurface,     // surface
-        filterThickness          // surface thickness
+        nullptr, // G4RadiatorMaterial
+        m_filterFlatSurface, // surface
+        filterThickness // surface thickness
     );
     aerogelFlatRadiator->SetAlternativeMaterialName(aerogelMaterial.c_str());
     filterFlatRadiator->SetAlternativeMaterialName(filterMaterial.c_str());
@@ -117,8 +117,8 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         TVector3(mirrorCenter.x(), mirrorCenter.y(), mirrorCenter.z()), mirrorRadius);
     m_mirrorOpticalBoundary =
         new OpticalBoundary(m_irtDetector->GetContainerVolume(), // CherenkovRadiator radiator
-                            m_mirrorSphericalSurface,            // surface
-                            false                                // bool refractive
+                            m_mirrorSphericalSurface, // surface
+                            false // bool refractive
         );
     m_irtDetector->AddOpticalBoundary(isec, m_mirrorOpticalBoundary);
     m_log->debug("");
@@ -176,10 +176,10 @@ void richgeo::IrtGeoDRICH::DD4hep_to_IRT() {
         m_sensorFlatSurface = new FlatSurface(TVector3(posSensor.x(), posSensor.y(), posSensor.z()),
                                               TVector3(normXdir.x(), normXdir.y(), normXdir.z()),
                                               TVector3(normYdir.x(), normYdir.y(), normYdir.z()));
-        m_irtDetector->CreatePhotonDetectorInstance(isec,                // sector
+        m_irtDetector->CreatePhotonDetectorInstance(isec, // sector
                                                     m_irtPhotonDetector, // CherenkovPhotonDetector
-                                                    sensorID,            // copy number
-                                                    m_sensorFlatSurface  // surface
+                                                    sensorID, // copy number
+                                                    m_sensorFlatSurface // surface
         );
         m_log->trace("{} {:#X} {}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} {:5.2f} {:5.2f}   {:5.2f} "
                      "{:5.2f} {:5.2f}",

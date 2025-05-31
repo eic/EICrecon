@@ -80,9 +80,9 @@ TrackerHitReconstruction::process(const edm4eic::RawTrackerHitCollection& raw_hi
                                             get_variance(dim[1] / mm), // variance (see note above)
                                             std::size(dim) > 2 ? get_variance(dim[2] / mm) : 0.},
                          static_cast<float>((double)(raw_hit.getTimeStamp()) / 1000.0), // ns
-                         m_cfg.timeResolution,                                          // in ns
+                         m_cfg.timeResolution, // in ns
                          static_cast<float>(raw_hit.getCharge() / 1.0e6), // Collected energy (GeV)
-                         0.0F);                                           // Error on the energy
+                         0.0F); // Error on the energy
 #if EDM4EIC_VERSION_MAJOR >= 7
     rec_hit.setRawHit(raw_hit);
 #endif

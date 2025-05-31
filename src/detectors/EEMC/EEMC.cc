@@ -115,7 +115,7 @@ void InitPlugin(JApplication* app) {
             "EcalEndcapNHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"EcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalEndcapNTruthClustersWithoutShapes", // edm4eic::Cluster
        "EcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -143,7 +143,7 @@ void InitPlugin(JApplication* app) {
       },                                               // edm4hep::SimCalorimeterHitCollection
 #endif
 #if EDM4EIC_VERSION_MAJOR >= 8
-      {"EcalEndcapNClustersWithoutPIDAndShapes",             // edm4eic::Cluster
+      {"EcalEndcapNClustersWithoutPIDAndShapes", // edm4eic::Cluster
        "EcalEndcapNClusterAssociationsWithoutPIDAndShapes"}, // edm4eic::MCRecoClusterParticleAssociation
 #else
       {"EcalEndcapNClustersWithoutShapes",             // edm4eic::Cluster
@@ -236,7 +236,7 @@ void InitPlugin(JApplication* app) {
             "EcalEndcapNHits"
       }, // edm4hep::SimCalorimeterHitCollection
 #endif
-      {"EcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalEndcapNSplitMergeClustersWithoutShapes", // edm4eic::Cluster
        "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed

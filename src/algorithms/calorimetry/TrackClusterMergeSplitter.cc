@@ -351,7 +351,7 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(
       }
 
     } // end hits to merge loop
-  }   // end clusters to merge loop
+  } // end clusters to merge loop
 
 } // end 'merge_and_split_clusters(VecClust&, VecProj&, edm4eic::MutableCluster&)'
 

@@ -108,7 +108,7 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
     // TODO: Add time and momentum errors
     // Plane Point
     edm4hep::Vector2f loc(0, 0); // Vertex estimate
-    uint64_t surface = 0;        //Not used in this context
+    uint64_t surface = 0; //Not used in this context
     float theta      = edm4eic::anglePolar(momentum);
     float phi        = edm4eic::angleAzimuthal(momentum);
     float qOverP     = charge / edm4eic::magnitude(momentum);

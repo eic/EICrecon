@@ -262,17 +262,17 @@ eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds) {
     trackparam.setType(-1); // type --> seed(-1)
     trackparam.setLoc({static_cast<float>(localpos(0)),
                        static_cast<float>(localpos(1))}); // 2d location on surface
-    trackparam.setPhi(static_cast<float>(phi));           // phi [rad]
-    trackparam.setTheta(theta);                           //theta [rad]
-    trackparam.setQOverP(qOverP);                         // Q/p [e/GeV]
-    trackparam.setTime(10);                               // time in ns
+    trackparam.setPhi(static_cast<float>(phi)); // phi [rad]
+    trackparam.setTheta(theta); //theta [rad]
+    trackparam.setQOverP(qOverP); // Q/p [e/GeV]
+    trackparam.setTime(10); // time in ns
     edm4eic::Cov6f cov;
-    cov(0, 0) = m_cfg.locaError / Acts::UnitConstants::mm;    // loc0
-    cov(1, 1) = m_cfg.locbError / Acts::UnitConstants::mm;    // loc1
-    cov(2, 2) = m_cfg.phiError / Acts::UnitConstants::rad;    // phi
-    cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad;  // theta
+    cov(0, 0) = m_cfg.locaError / Acts::UnitConstants::mm; // loc0
+    cov(1, 1) = m_cfg.locbError / Acts::UnitConstants::mm; // loc1
+    cov(2, 2) = m_cfg.phiError / Acts::UnitConstants::rad; // phi
+    cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad; // theta
     cov(4, 4) = m_cfg.qOverPError * Acts::UnitConstants::GeV; // qOverP
-    cov(5, 5) = m_cfg.timeError / Acts::UnitConstants::ns;    // time
+    cov(5, 5) = m_cfg.timeError / Acts::UnitConstants::ns; // time
     trackparam.setCovariance(cov);
   }
 
@@ -428,15 +428,15 @@ eicrecon::TrackSeeding::lineFit(std::vector<std::pair<float, float>>& positions)
   double ysum  = 0;
   double xysum = 0;
   for (const auto& [r, z] : positions) {
-    xsum  = xsum + r;               //calculate sigma(xi)
-    ysum  = ysum + z;               //calculate sigma(yi)
+    xsum  = xsum + r; //calculate sigma(xi)
+    ysum  = ysum + z; //calculate sigma(yi)
     x2sum = x2sum + std::pow(r, 2); //calculate sigma(x^2i)
-    xysum = xysum + r * z;          //calculate sigma(xi*yi)
+    xysum = xysum + r * z; //calculate sigma(xi*yi)
   }
 
   const auto npts          = positions.size();
   const double denominator = (x2sum * npts - std::pow(xsum, 2));
-  const float a            = (xysum * npts - xsum * ysum) / denominator;  //calculate slope
+  const float a            = (xysum * npts - xsum * ysum) / denominator; //calculate slope
   const float b            = (x2sum * ysum - xsum * xysum) / denominator; //calculate intercept
   return std::make_tuple(a, b);
 }
