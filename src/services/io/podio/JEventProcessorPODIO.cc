@@ -2,6 +2,7 @@
 #include "JEventProcessorPODIO.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -53,8 +54,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
     // All tracking hits combined
     "CentralTrackTruthSeeds",
+    "CentralCalorimeterRecHits",
     "CentralTrackingRecHits",
     "CentralTrackingRawHitAssociations",
+    "CentralTrackingCalorimeterRecHits",
     "CentralTrackSeedingResults",
     "CentralTrackerMeasurements",
 
@@ -264,6 +267,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "EcalBarrelTruthClusterAssociations",
     "EcalBarrelImagingRawHits",
     "EcalBarrelImagingRecHits",
+    "EcalBarrelImaging1stLayerRecHits",
+    "EcalBarrelImagingTrackerRecHits",
     "EcalBarrelImagingClusters",
     "EcalBarrelImagingClusterAssociations",
     "EcalBarrelScFiRawHits",
