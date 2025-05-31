@@ -231,7 +231,7 @@ void InitPlugin(JApplication* app) {
        .minClusterHitEdep    = 100.0 * dd4hep::keV,
        .minClusterCenterEdep = 1.0 * dd4hep::MeV,
        .transverseEnergyProfileMetric{}, // = "globalDistEtaPhi",
-       .transverseEnergyProfileScale{},  // = 1.,
+       .transverseEnergyProfileScale{}, // = 1.,
        .transverseEnergyProfileScaleUnits{}},
       app));
 
