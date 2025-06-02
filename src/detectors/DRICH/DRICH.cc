@@ -8,7 +8,7 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <math.h>
+#include <cmath>
 #include <functional>
 #include <gsl/pointers>
 #include <map>

@@ -3,11 +3,11 @@
 //
 //
 
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplicationFwd.h>
+#include <cmath>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
-#include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <math.h>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
