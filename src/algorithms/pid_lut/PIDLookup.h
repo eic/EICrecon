@@ -39,6 +39,7 @@ public:
 private:
   mutable std::mt19937 m_gen{};
   mutable std::uniform_real_distribution<double> m_dist{0, 1};
+  int32_t m_system;
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const PIDLookupTable* m_lut;
 };
