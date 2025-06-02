@@ -34,6 +34,7 @@ struct MatrixTransferStaticConfig {
   std::string readout{""};
 
   bool requireBeamProton{true};
+  bool requireMatchingMatrix{true};
 };
 
 } // namespace eicrecon
