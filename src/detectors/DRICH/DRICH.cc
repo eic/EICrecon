@@ -26,7 +26,7 @@
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
-#include "global/digi/PhotoMultiplierHitDigi_factory.h"
+#include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 #include "global/pid/IrtCherenkovParticleID_factory.h"
 #include "global/pid/MergeCherenkovParticleID_factory.h"
 #include "global/pid/MergeTrack_factory.h"
