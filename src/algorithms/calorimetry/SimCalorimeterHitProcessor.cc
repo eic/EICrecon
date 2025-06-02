@@ -45,7 +45,7 @@ template <> struct hash<edm4hep::MCParticle> {
     return std::hash<podio::ObjectID>()(id);
   }
 };
-// Hash for tuple<edm4hep::MCParticle, uint64_t>  
+// Hash for tuple<edm4hep::MCParticle, uint64_t>
 // --> not yet supported by any compiler at the moment
 template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t>> {
   size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t>& key) const noexcept {

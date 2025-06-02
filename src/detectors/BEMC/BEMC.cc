@@ -34,8 +34,10 @@ void InitPlugin(JApplication* app) {
   // Make sure left and right use the same value
   decltype(SimCalorimeterHitProcessorConfig::attPars) EcalBarrelScFi_attPars = {
       0.416212, 747.39875 * edm4eic::unit::mm, 7521.88383 * edm4eic::unit::mm};
-  decltype(SimCalorimeterHitProcessorConfig::hitMergeFields) EcalBarrelScFi_hitMergeFields = {"fiber", "z"};
-  decltype(SimCalorimeterHitProcessorConfig::contributionMergeFields) EcalBarrelScFi_contributionMergeFields = {"fiber"};
+  decltype(SimCalorimeterHitProcessorConfig::hitMergeFields) EcalBarrelScFi_hitMergeFields = {
+      "fiber", "z"};
+  decltype(SimCalorimeterHitProcessorConfig::contributionMergeFields)
+      EcalBarrelScFi_contributionMergeFields = {"fiber"};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -52,7 +54,7 @@ void InitPlugin(JApplication* app) {
           .readout                          = "EcalBarrelScFiHits",
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmax",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
-	  .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
+          .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
       },
       app // TODO: Remove me once fixed
       ));
@@ -63,7 +65,7 @@ void InitPlugin(JApplication* app) {
           .attPars                          = EcalBarrelScFi_attPars,
           .readout                          = "EcalBarrelScFiHits",
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
-	  .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
+          .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
       },
       app // TODO: Remove me once fixed

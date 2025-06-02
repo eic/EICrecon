@@ -16,9 +16,9 @@ struct SimCalorimeterHitProcessorConfig {
   std::string readout{""};
   std::string attenuationReferencePositionName{""};
   // fields for merging hits
-  std::vector < std::string > hitMergeFields{};
+  std::vector<std::string> hitMergeFields{};
   // fildes for merging contributions
-  std::vector < std::string > contributionMergeFields{};
+  std::vector<std::string> contributionMergeFields{};
 };
 
 } // namespace eicrecon
