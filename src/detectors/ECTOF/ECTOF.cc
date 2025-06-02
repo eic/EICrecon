@@ -36,7 +36,6 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFEndcapSharedHits", {"TOFEndcapHits"}, {"TOFEndcapSharedHits"},
       {
