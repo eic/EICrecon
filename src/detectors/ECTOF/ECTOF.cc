@@ -35,5 +35,16 @@ void InitPlugin(JApplication* app) {
           .timeResolution = 0.025,
       },
       app));
+
+
+  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
+      "TOFEndcapSharedHits", {"TOFEndcapHits"}, {"TOFEndcapSharedHits"},
+      {
+          .sigma_sharingx = 0.1 * dd4hep::cm,
+          .sigma_sharingy = 0.5 * dd4hep::cm,
+          .min_edep       = 0.0 * edm4eic::unit::GeV,
+          .readout        = "TOFEndcapHits",
+      },
+      app));
 }
 } // extern "C"
