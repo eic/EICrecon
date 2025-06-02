@@ -57,7 +57,5 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "RICHEndcapNRawHits", {"RICHEndcapNHits"},
       {"RICHEndcapNRawHits", "RICHEndcapNRawHitsAssociations"}, digi_cfg, app));
-
-
-  }
+}
 }
