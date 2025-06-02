@@ -10,6 +10,7 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
+#include <podio/podioVersion.h>
 #include <edm4eic/unit_system.h>
 #include <cmath>
 #include <limits>
@@ -20,9 +21,12 @@
 
 using namespace dd4hep;
 
+// Define necessary hash functions
 namespace std {
+
+#if defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
+#if podio_VERSION_MAJOR <= 1 && podio_VERSION_MINOR <= 2
 // Hash for podio::ObjectID
-// remove when we update to newer Podio version
 template <> struct hash<podio::ObjectID> {
   size_t operator()(const podio::ObjectID& id) const noexcept {
     size_t h1 = std::hash<uint32_t>{}(id.collectionID);
@@ -30,14 +34,19 @@ template <> struct hash<podio::ObjectID> {
     return h1 ^ (h2 << 1);
   }
 };
+#endif // podio version check
+#endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
+
 // Necessary to make MCParticle hashable
+// @TODO maybe this could be added to podio?
 template <> struct hash<edm4hep::MCParticle> {
   size_t operator()(const edm4hep::MCParticle& p) const noexcept {
     const auto& id = p.getObjectID();
     return std::hash<podio::ObjectID>()(id);
   }
 };
-// Hash for tuple<edm4hep::MCParticle, uint64_t> --> remove when we go to newer compiler
+// Hash for tuple<edm4hep::MCParticle, uint64_t>  
+// --> not yet supported by any compiler at the moment
 template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t>> {
   size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t>& key) const noexcept {
     const auto& [particle, cellID] = key;
