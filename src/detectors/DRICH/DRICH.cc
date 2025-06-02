@@ -8,12 +8,9 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <cmath>
 #include <functional>
-#include <gsl/pointers>
 #include <map>
 #include <memory>
-#include <stdexcept>
 #include <string>
 #include <utility>
 #include <vector>
@@ -30,7 +27,6 @@
 #include "factories/pid/MergeCherenkovParticleID_factory.h"
 #include "factories/pid/MergeTrack_factory.h"
 #include "factories/pid/RichTrack_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/ActsGeo.h"
 #include "services/geometry/richgeo/RichGeo.h"
 #include "services/geometry/richgeo/RichGeo_service.h"

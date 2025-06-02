@@ -4,14 +4,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Dmitry Kalinkin
 
-#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <algorithm>
-#include <cmath>
-#include <gsl/pointers>
-#include <memory>
-#include <stdexcept>
 #include <utility>
 #include <vector>
 
