@@ -31,7 +31,7 @@
 #include "factories/pid/MergeCherenkovParticleID_factory.h"
 #include "factories/pid/MergeTrack_factory.h"
 #include "factories/pid/RichTrack_factory.h"
-#include "global/pid_lut/PIDLookup_factory.h"
+#include "factories/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/ActsGeo.h"
 #include "services/geometry/richgeo/RichGeo.h"
