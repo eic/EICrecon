@@ -7,7 +7,7 @@
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <cmath>
 #include <functional>
 #include <gsl/pointers>
@@ -26,12 +26,12 @@
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
-#include "global/digi/PhotoMultiplierHitDigi_factory.h"
-#include "global/pid/IrtCherenkovParticleID_factory.h"
-#include "global/pid/MergeCherenkovParticleID_factory.h"
-#include "global/pid/MergeTrack_factory.h"
-#include "global/pid/RichTrack_factory.h"
-#include "global/pid_lut/PIDLookup_factory.h"
+#include "factories/digi/PhotoMultiplierHitDigi_factory.h"
+#include "factories/pid/IrtCherenkovParticleID_factory.h"
+#include "factories/pid/MergeCherenkovParticleID_factory.h"
+#include "factories/pid/MergeTrack_factory.h"
+#include "factories/pid/RichTrack_factory.h"
+#include "factories/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/ActsGeo.h"
 #include "services/geometry/richgeo/RichGeo.h"

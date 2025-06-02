@@ -26,7 +26,7 @@
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
-#include "global/pid_lut/PIDLookup_factory.h"
+#include "factories/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {

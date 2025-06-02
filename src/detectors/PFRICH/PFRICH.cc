@@ -6,7 +6,7 @@
 
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
@@ -20,8 +20,8 @@
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
-#include "global/digi/PhotoMultiplierHitDigi_factory.h"
-#include "global/pid_lut/PIDLookup_factory.h"
+#include "factories/digi/PhotoMultiplierHitDigi_factory.h"
+#include "factories/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {

@@ -2,7 +2,7 @@
 // Copyright (C) 2022 - 2025 Christopher Dilks, Nilanga Wickramaarachchi, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <algorithm>
 #include <gsl/pointers>
 #include <memory>
@@ -15,8 +15,8 @@
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
-#include "global/digi/PhotoMultiplierHitDigi_factory.h"
-#include "global/pid_lut/PIDLookup_factory.h"
+#include "factories/digi/PhotoMultiplierHitDigi_factory.h"
+#include "factories/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
