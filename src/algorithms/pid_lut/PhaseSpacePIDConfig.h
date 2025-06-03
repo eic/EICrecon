@@ -10,9 +10,9 @@ namespace eicrecon {
 
 struct PhaseSpacePIDConfig {
   std::string system;
-  std::vector<float> direction   = { 0.0, 0.0, -1.0 };      // default direction is along z-axis
-  double opening_angle            = 12 * dd4hep::mrad;
-  int    pdg_value                = 11; // default as electron
+  std::vector<float> direction = {0.0, 0.0, -1.0}; // default direction is along z-axis
+  double opening_angle         = 12 * dd4hep::mrad;
+  int pdg_value                = 11; // default as electron
 };
 
 } // namespace eicrecon

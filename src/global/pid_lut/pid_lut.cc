@@ -22,24 +22,24 @@ void InitPlugin(JApplication* app) {
   // FarBackward PID Through Phase Space
   //-------------------------------------------------------------------------
   PhaseSpacePIDConfig phase_space_pid_cfg{
-    .system         = "TaggerTracker_ID",
-    .direction      = {0.0, 0.0, -1.0}, // Direction is along z-axis
-    .opening_angle  = 12 * dd4hep::mrad, // Beampipe opening angle
-    .pdg_value      = 11, // Set PID to electron
+      .system        = "TaggerTracker_ID",
+      .direction     = {0.0, 0.0, -1.0},  // Direction is along z-axis
+      .opening_angle = 12 * dd4hep::mrad, // Beampipe opening angle
+      .pdg_value     = 11,                // Set PID to electron
   };
 
-    app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
-        "FarBackwardTruthSeededPhaseSpacePID",
-        {
-            "ReconstructedTruthSeededChargedWithoutPIDParticles",
-            "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
-        },
-        {
-            "ReconstructedTruthSeededChargedWithFBPIDParticles",
-            "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
-            "FarBackwardPhaseSpaceParticleIDs",
-        },
-        phase_space_pid_cfg, app));
+  app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
+      "FarBackwardTruthSeededPhaseSpacePID",
+      {
+          "ReconstructedTruthSeededChargedWithoutPIDParticles",
+          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
+      },
+      {
+          "ReconstructedTruthSeededChargedWithFBPIDParticles",
+          "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
+          "FarBackwardPhaseSpaceParticleIDs",
+      },
+      phase_space_pid_cfg, app));
 
   app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
       "LowQ2PhaseSpacePID",
@@ -246,7 +246,5 @@ void InitPlugin(JApplication* app) {
           "DRICHParticleIDs",
       },
       drich_pid_cfg, app));
-
-
 }
 }

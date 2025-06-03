@@ -19,8 +19,8 @@
 
 namespace eicrecon {
 
-void PhaseSpacePID::init() {  
-  
+void PhaseSpacePID::init() {
+
   auto detector = algorithms::GeoSvc::instance().detector();
 
   try {
@@ -31,12 +31,10 @@ void PhaseSpacePID::init() {
   }
 
   m_direction = edm4hep::Vector3f{m_cfg.direction[0], m_cfg.direction[1], m_cfg.direction[2]};
-  
-  
-  auto& particleSvc = algorithms::ParticleSvc::instance();
-  m_mass   = particleSvc.particle(m_cfg.pdg_value).mass;
-  m_charge = particleSvc.particle(m_cfg.pdg_value).charge;
 
+  auto& particleSvc = algorithms::ParticleSvc::instance();
+  m_mass            = particleSvc.particle(m_cfg.pdg_value).mass;
+  m_charge          = particleSvc.particle(m_cfg.pdg_value).charge;
 }
 
 void PhaseSpacePID::process(const Input& input, const Output& output) const {
@@ -63,29 +61,26 @@ void PhaseSpacePID::process(const Input& input, const Output& output) const {
       continue;
     }
 
-
     edm4hep::MCParticle mcpart = best_assoc.getSim();
 
     // Check if particle is within the phase space
     edm4hep::Vector3f momentum = recopart.getMomentum();
-    double angle = edm4hep::utils::angleBetween(momentum, m_direction);
+    double angle               = edm4hep::utils::angleBetween(momentum, m_direction);
     if (angle < m_cfg.opening_angle) {
 
       auto partID = partids_out->create(m_system,        // std::int32_t type
-                                m_cfg.pdg_value, // std::int32_t PDG
-                                1,               // std::int32_t algorithmType
-                                1.0              // float likelihood
-                                );
+                                        m_cfg.pdg_value, // std::int32_t PDG
+                                        1,               // std::int32_t algorithmType
+                                        1.0              // float likelihood
+      );
 
       recopart.addToParticleIDs(partID);
       recopart.setParticleIDUsed(partID);
       recopart.setPDG(m_cfg.pdg_value);
       recopart.setMass(m_mass);
-
     }
 
     recoparts_out->push_back(recopart);
-
   }
 }
 
