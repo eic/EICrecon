@@ -14,6 +14,8 @@ struct ImagingTopoClusterConfig {
 
   // maximum difference in layer numbers that can be considered as neighbours
   int neighbourLayersRange = 1;
+  // scale constants for the length of the local (x, y) coordinates
+  std::vector<std::string> lengthConstants = {};
   // maximum distance of local (x, y) to be considered as neighbors at the same layer
   std::vector<double> localDistXY = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
   // maximum distance of global (eta, phi) to be considered as neighbors at different layers (if layerMode==etaphi)

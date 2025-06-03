@@ -12,6 +12,7 @@ struct CalorimeterIslandClusterConfig {
   std::string adjacencyMatrix;
   std::string peakNeighbourhoodMatrix;
   std::string readout;
+  std::vector<std::string> lengthConstants;
 
   // neighbour checking distances
   double sectorDist;

@@ -196,14 +196,14 @@ void InitPlugin(JApplication* app) {
                                                        app // TODO: Remove me once fixed
                                                        ));
 
-  double side_length = 31.3 * dd4hep::mm;
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
       "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"},
       {"HcalFarForwardZDCImagingProtoClusters"},
       {
           .neighbourLayersRange = 1,
-          .localDistXY          = {0.5 * side_length, 0.5 * side_length * sin(M_PI / 3)},
-          .layerDistXY          = {0.5 * side_length, 0.5 * side_length * sin(M_PI / 3)},
+          .lengthConstants      = {"HcalFarForwardZDC_SiPMonTile_HexSideLength"},
+          .localDistXY          = {0.5, 0.5 * sin(M_PI / 3)},
+          .layerDistXY          = {0.5, 0.5 * sin(M_PI / 3)},
           .layerMode            = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .sectorDist           = 10.0 * dd4hep::cm,
           .minClusterHitEdep    = 50.0 * dd4hep::keV,
@@ -220,8 +220,9 @@ void InitPlugin(JApplication* app) {
       {.adjacencyMatrix{},
        .peakNeighbourhoodMatrix{},
        .readout{},
+       .lengthConstants = {"HcalFarForwardZDC_SiPMonTile_HexSideLength"},
        .sectorDist  = 1.5 * dd4hep::cm,
-       .localDistXY = {0.9 * side_length, 0.76 * side_length * sin(M_PI / 3)},
+       .localDistXY = {0.9, 0.76 * sin(M_PI / 3)},
        .localDistXZ{},
        .localDistYZ{},
        .globalDistRPhi{},
