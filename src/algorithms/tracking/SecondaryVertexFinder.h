@@ -193,8 +193,40 @@ SecondaryVertexFinder::calcPrimaryVtx(
          (float)vtx.position().z(),
          (float)vtx.time(),
     }); // vtxposition
-    eicvertex.setPositionError(cov);                          // covariance
+    eicvertex.setPositionError(cov); // covariance
 
+    for (const auto& t : vtx.tracks()) {
+      const auto& par = finderCfg.extractParameters(t.originalParams);
+      m_log->trace("Track local position from vertex = {} mm, {} mm",
+                   par.localPosition().x() / Acts::UnitConstants::mm,
+                   par.localPosition().y() / Acts::UnitConstants::mm);
+      float loc_a = par.localPosition().x();
+      float loc_b = par.localPosition().y();
+
+      for (const auto& part : *reconParticles) {
+        const auto& tracks = part.getTracks();
+        for (const auto& trk : tracks) {
+          const auto& traj    = trk.getTrajectory();
+          const auto& trkPars = traj.getTrackParameters();
+          for (const auto& par : trkPars) {
+            const double EPSILON = 1.0e-4; // mm
+            if (std::abs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
+                    EPSILON &&
+                std::abs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
+                    EPSILON) {
+              m_log->trace(
+                  "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
+                  par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
+              eicvertex.addToAssociatedParticles(part);
+            } // endif
+          }   // end for par
+        }     // end for trk
+      }       // end for part
+    }         // end for t
+    m_log->debug("One AMVF vertex found at (x,y,z) = ({}, {}, {}) mm.",
+                 vtx.position().x() / Acts::UnitConstants::mm,
+                 vtx.position().y() / Acts::UnitConstants::mm,
+                 vtx.position().z() / Acts::UnitConstants::mm);
   } // end for vtx
   return std::move(prmVertices);
 }
