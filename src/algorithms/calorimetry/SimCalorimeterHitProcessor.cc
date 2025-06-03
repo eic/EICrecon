@@ -25,7 +25,7 @@ using namespace dd4hep;
 namespace std {
 
 #if defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
-#if podio_VERSION_MAJOR <= 1 && podio_VERSION_MINOR <= 2
+#if podio_VERSION <= PODIO_VERSION(1, 2, 0)
 // Hash for podio::ObjectID
 template <> struct hash<podio::ObjectID> {
   size_t operator()(const podio::ObjectID& id) const noexcept {
