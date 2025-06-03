@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022, 2023, Christopher Dilks
+// Copyright (C) 2022-2025 Christopher Dilks, Simon Gardner
 
 #include <DD4hep/Detector.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <math.h>
@@ -12,6 +13,7 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
+#include "algorithms/pid_lut/PhaseSpacePIDConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/pid_lut/PIDLookup_factory.h"
