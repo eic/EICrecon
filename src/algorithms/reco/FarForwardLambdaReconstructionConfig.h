@@ -7,8 +7,8 @@
 namespace eicrecon {
 
 struct FarForwardLambdaReconstructionConfig {
-  
-  /** detector constand describing distance to the ZDC */
+
+  /** detector constant describing distance to the ZDC */
   std::string rPosString = "HcalFarForwardZDC_SiPMonTile_r_pos";
   /** transformation from global coordinates to proton-frame coordinates*/
   double globalToProtonRotation = -0.025;
