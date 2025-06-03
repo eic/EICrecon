@@ -7,7 +7,7 @@
 namespace eicrecon {
 
 struct FarForwardNeutralsReconstructionConfig {
-  /** detector constand describing distance to the ZDC */
+  /** detector constant describing distance to the ZDC */
   std::string rPosString = "HcalFarForwardZDC_SiPMonTile_r_pos";
   /** Correction factors for neutrons in the Hcal */
   std::vector<double> neutronScaleCorrCoeffHcal = {-0.11, -1.5, 0};
