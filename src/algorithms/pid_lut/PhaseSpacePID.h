@@ -26,10 +26,10 @@ class PhaseSpacePID : public PhaseSpacePIDAlgorithm, public WithPodConfig<PhaseS
 public:
   PhaseSpacePID(std::string_view name)
       : PhaseSpacePIDAlgorithm{name,
-                           {"inputParticlesCollection", "inputParticleAssociationsCollection"},
-                           {"outputParticlesCollection", "outputParticleAssociationsCollection",
-                            "outputParticleIDCollection"},
-                           ""} {}
+                               {"inputParticlesCollection", "inputParticleAssociationsCollection"},
+                               {"outputParticlesCollection", "outputParticleAssociationsCollection",
+                                "outputParticleIDCollection"},
+                               ""} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
