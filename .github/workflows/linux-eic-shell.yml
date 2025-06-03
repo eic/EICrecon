@@ -443,7 +443,7 @@ jobs:
           - beam: 5x41
             detector_config: craterlake_5x41
           - beam: 10x100
-            detector_config: craterlake
+            detector_config: craterlake_10x100
           - beam: 18x275
             detector_config: craterlake_18x275
     steps:
@@ -851,7 +851,7 @@ jobs:
         - CXX: clang++
           beam: 10x100
           minq2: 0
-          detector_config: craterlake
+          detector_config: craterlake_10x100
         - CXX: clang++
           beam: 18x275
           minq2: 0
