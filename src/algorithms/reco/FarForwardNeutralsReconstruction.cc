@@ -5,6 +5,7 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <algorithms/geo.h>
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
@@ -26,6 +27,16 @@
 namespace eicrecon {
 
 void FarForwardNeutralsReconstruction::init() {
+
+  auto detector = algorithms::GeoSvc::instance().detector();
+  try {
+    m_gammaZMax = m_cfg.gammaZMaxScale * detector->constant<double>(m_cfg.rPosString) / dd4hep::mm;
+  } catch (std::runtime_error&) {
+    m_gammaZMax = m_cfg.gammaZMaxScale * 35800;
+    trace("Failed to get {} from the detector, using default value of {}", m_cfg.rPosString,
+          m_gammaZMax);
+  }
+
   if (m_cfg.neutronScaleCorrCoeffHcal.size() < 3) {
     error("Invalid configuration.  m_cfg.neutronScaleCorrCoeffHcal should have at least 3 "
           "parameters");
@@ -39,7 +50,7 @@ void FarForwardNeutralsReconstruction::init() {
                              "have at least 3 parameters");
   }
   trace("gamma detection params:   max length={},   max width={},   max z={}", m_cfg.gammaMaxLength,
-        m_cfg.gammaMaxWidth, m_cfg.gammaZMax);
+        m_cfg.gammaMaxWidth, m_gammaZMax);
 }
 /** calculates the correction for a given uncorrected total energy and a set of coefficients*/
 double FarForwardNeutralsReconstruction::calc_corr(double Etot, const std::vector<double>& coeffs) {
@@ -62,7 +73,7 @@ bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) 
              dd4hep::mm;
   trace("z recon = {}", z);
   trace("l1 = {}, l2 = {}, l3 = {}", l1, l2, l3);
-  bool isZMoreThanMax = (z > m_cfg.gammaZMax);
+  bool isZMoreThanMax = (z > m_gammaZMax);
   bool isLengthMoreThanMax =
       (l1 > m_cfg.gammaMaxLength || l2 > m_cfg.gammaMaxLength || l3 > m_cfg.gammaMaxLength);
   bool areWidthsMoreThanMax = static_cast<int>(l1 > m_cfg.gammaMaxWidth) +

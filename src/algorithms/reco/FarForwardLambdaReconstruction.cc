@@ -8,6 +8,7 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <algorithms/geo.h>
 #include <fmt/core.h>
 #include <gsl/pointers>
 #include <vector>
@@ -20,7 +21,17 @@ Creates Lambda candidates from a neutron and two photons from a pi0 decay
 
 namespace eicrecon {
 
-void FarForwardLambdaReconstruction::init() {}
+void FarForwardLambdaReconstruction::init() {
+
+  auto detector = algorithms::GeoSvc::instance().detector();
+  try {
+    m_zMax = detector->constant<double>(m_cfg.rPosString);
+  } catch (std::runtime_error&) {
+    m_zMax = 35800; // default value
+    trace("Failed to get {} from the detector, using default value of {}", m_cfg.rPosString, m_zMax);
+  }
+
+}
 
 /* converts one type of vector format to another */
 void toTVector3(TVector3& v1, const edm4hep::Vector3f& v2) { v1.SetXYZ(v2.x, v2.y, v2.z); }
@@ -71,7 +82,7 @@ void FarForwardLambdaReconstruction::process(
 
         debug("nx recon = {}, g1x recon = {}, g2x recon = {}", xn.X(), x1.X(), x2.X());
         debug("nz recon = {}, g1z recon = {}, g2z recon = {}, z face = {}", xn.Z(), x1.Z(), x2.Z(),
-              m_cfg.zMax);
+              m_zMax);
 
         TVector3 vtx(0, 0, 0);
         double f                   = 0;
@@ -93,7 +104,7 @@ void FarForwardLambdaReconstruction::process(
             f += df;
           }
 
-          vtx = lambda.Vect() * (f * m_cfg.zMax / lambda.Z());
+          vtx = lambda.Vect() * (f * m_zMax / lambda.Z());
           df /= 2;
         }
 

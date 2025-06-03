@@ -37,5 +37,6 @@ public:
 private:
   std::shared_ptr<spdlog::logger> m_log;
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  double m_zMax{0};
 };
 } // namespace eicrecon
