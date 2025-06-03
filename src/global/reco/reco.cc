@@ -49,16 +49,16 @@
 #include "factories/reco/HadronicFinalState_factory.h"
 #endif
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
-#include "global/reco/ChargedReconstructedParticleSelector_factory.h"
-#include "global/reco/MC2SmearedParticle_factory.h"
-#include "global/reco/MatchClusters_factory.h"
-#include "global/reco/PrimaryVertices_factory.h"
-#include "global/reco/ReconstructedElectrons_factory.h"
-#include "global/reco/ScatteredElectronsEMinusPz_factory.h"
-#include "global/reco/ScatteredElectronsTruth_factory.h"
+#include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
+#include "factories/reco/MC2SmearedParticle_factory.h"
+#include "factories/reco/MatchClusters_factory.h"
+#include "factories/reco/PrimaryVertices_factory.h"
+#include "factories/reco/ReconstructedElectrons_factory.h"
+#include "factories/reco/ScatteredElectronsEMinusPz_factory.h"
+#include "factories/reco/ScatteredElectronsTruth_factory.h"
 
 #if EDM4EIC_VERSION_MAJOR >= 8
-#include "global/reco/TrackClusterMatch_factory.h"
+#include "factories/reco/TrackClusterMatch_factory.h"
 #endif
 
 #include "services/geometry/dd4hep/DD4hep_service.h"
