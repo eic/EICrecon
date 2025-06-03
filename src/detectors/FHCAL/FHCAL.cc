@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Friederike Bock, Wouter Deconinck
+// Copyright (C) 2023 - 2025 Friederike Bock, Wouter Deconinck
 
 #include <DD4hep/Detector.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <TString.h>
-#include <math.h>
 #include <algorithm>
+#include <cmath>
+#include <edm4eic/EDM4eicVersion.h>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
@@ -17,12 +18,12 @@
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
@@ -104,8 +105,8 @@ void InitPlugin(JApplication* app) {
       ));
 
   // define the distance between neighbors in terms of the largest possible distance between subcell hits
-  auto detector = app->GetService<DD4hep_service>()->detector();
-  double side_length;
+  auto detector      = app->GetService<DD4hep_service>()->detector();
+  double side_length = NAN;
   try {
     side_length = std::max({detector->constant<double>("HcalEndcapPInsertCellSizeLGRight"),
                             detector->constant<double>("HcalEndcapPInsertCellSizeLGLeft")});

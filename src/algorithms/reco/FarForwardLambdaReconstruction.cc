@@ -3,12 +3,12 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <TVector3.h>
+#include <cmath>
+#include <cstddef>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <math.h>
-#include <cstddef>
 #include <gsl/pointers>
 #include <vector>
 
@@ -41,8 +41,9 @@ void FarForwardLambdaReconstruction::process(
     }
   }
 
-  if (neutrons.size() < 1 || gammas.size() < 2)
+  if (neutrons.empty() || gammas.size() < 2) {
     return;
+  }
 
   static const double m_neutron = m_particleSvc.particle(2112).mass;
   static const double m_pi0     = m_particleSvc.particle(111).mass;
@@ -76,7 +77,10 @@ void FarForwardLambdaReconstruction::process(
         double f                   = 0;
         double df                  = 0.5;
         double theta_open_expected = 2 * asin(m_pi0 / (2 * sqrt(E1 * E2)));
-        TLorentzVector n, g1, g2, lambda;
+        TLorentzVector n;
+        TLorentzVector g1;
+        TLorentzVector g2;
+        TLorentzVector lambda;
         for (int i = 0; i < m_cfg.iterations; i++) {
           n                 = {pn * (xn - vtx).Unit(), En};
           g1                = {E1 * (x1 - vtx).Unit(), E1};
@@ -94,8 +98,9 @@ void FarForwardLambdaReconstruction::process(
         }
 
         double mass_rec = lambda.M();
-        if (abs(mass_rec - m_lambda) > m_cfg.lambdaMaxMassDev)
+        if (std::abs(mass_rec - m_lambda) > m_cfg.lambdaMaxMassDev) {
           continue;
+        }
 
         // rotate everything back to the lab coordinates.
         vtx.RotateY(m_cfg.globalToProtonRotation);
@@ -160,7 +165,6 @@ void FarForwardLambdaReconstruction::process(
         gamma2_cm.setMass(0);
         rec_lambda.addToParticles(gammas[i_2]);
         gamma2_cm.addToParticles(gammas[i_2]);
-        continue;
       }
     }
   }

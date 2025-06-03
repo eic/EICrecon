@@ -1,6 +1,6 @@
 #pragma once
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <TDirectory.h>
@@ -48,5 +48,5 @@ private:
   void ProcessGloablMatching(const std::shared_ptr<const JEvent>& event);
 
   std::shared_ptr<spdlog::logger> m_log;
-  TDirectory* m_dir_main;
+  TDirectory* m_dir_main{};
 };

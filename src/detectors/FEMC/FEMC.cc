@@ -1,11 +1,11 @@
 
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2021 - 2024, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul
+// Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <math.h>
+#include <JANA/JApplicationFwd.h>
+#include <cmath>
+#include <edm4eic/EDM4eicVersion.h>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"

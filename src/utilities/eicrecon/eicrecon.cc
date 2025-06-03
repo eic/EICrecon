@@ -3,7 +3,7 @@
 //
 //
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <string>
 #include <vector>
 
@@ -25,6 +25,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "reco",
     "tracking",
     "pid",
+    "global_pid_lut",
     "EEMC",
     "BEMC",
     "FEMC",
@@ -57,8 +58,9 @@ int main(int narg, char** argv) {
 
   auto options = jana::GetCliOptions(narg, argv, false);
 
-  if (jana::HasPrintOnlyCliOptions(options, default_plugins))
+  if (jana::HasPrintOnlyCliOptions(options, default_plugins)) {
     return -1;
+  }
 
   AddAvailablePluginsToOptionParams(options, default_plugins);
 

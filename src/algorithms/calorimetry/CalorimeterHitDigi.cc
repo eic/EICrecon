@@ -162,8 +162,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     double max_edep  = 0;
     auto leading_hit = (*simhits)[ixs[0]];
     // sum energy, take time from the most energetic hit
-    for (std::size_t i = 0; i < ixs.size(); ++i) {
-      auto hit = (*simhits)[ixs[i]];
+    for (unsigned long i : ixs) {
+      auto hit = (*simhits)[i];
 
       double timeC = std::numeric_limits<double>::max();
       for (const auto& c : hit.getContributions()) {
@@ -171,8 +171,9 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
           timeC = c.getTime();
         }
       }
-      if (timeC > m_cfg.capTime)
+      if (timeC > m_cfg.capTime) {
         continue;
+      }
       edep += hit.getEnergy();
       trace("adding {} \t total: {}", hit.getEnergy(), edep);
 
@@ -193,8 +194,9 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       rawassocs_staging.push_back(assoc);
 #endif
     }
-    if (time > m_cfg.capTime)
+    if (time > m_cfg.capTime) {
       continue;
+    }
 
     // safety check
     const double eResRel =
@@ -222,9 +224,10 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                  0LL);
     unsigned long long tdc = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
 
-    if (edep > 1.e-3)
+    if (edep > 1.e-3) {
       trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t corrMeanScale: {}", edep,
             adc, time, m_cfg.capTime, tdc, corrMeanScale_value);
+    }
 
     rawhit.setCellID(leading_hit.getCellID());
     rawhit.setAmplitude(adc > m_cfg.capADC ? m_cfg.capADC : adc);

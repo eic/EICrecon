@@ -3,15 +3,16 @@
 //
 //
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <cmath>
+#include <cstddef>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
-#include <math.h>
-#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
@@ -22,6 +23,7 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
@@ -45,9 +47,20 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
+  std::string readout = "TaggerTrackerHits";
+
+  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
+      "TaggerTrackerChargeSharing", {"TaggerTrackerHits"}, {"TaggerTrackerSharedHits"},
+      {
+          .sigma_sharingx = 15 * dd4hep::um,
+          .sigma_sharingy = 15 * dd4hep::um,
+          .min_edep       = 0.1 * edm4eic::unit::keV,
+          .readout        = readout,
+      },
+      app));
   //  Generate signal pulse from hits
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
-      "TaggerTrackerPulseGeneration", {"TaggerTrackerHits"}, {"TaggerTrackerHitPulses"},
+      "TaggerTrackerPulseGeneration", {"TaggerTrackerSharedHits"}, {"TaggerTrackerHitPulses"},
       {
           .pulse_shape_function = "LandauPulse",
           .pulse_shape_params   = {1.0, 2 * edm4eic::unit::ns},
@@ -96,7 +109,6 @@ void InitPlugin(JApplication* app) {
 
   // Divide collection based on geometry segmentation labels
   // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
-  std::string readout = "TaggerTrackerHits";
   std::vector<std::string> geometryLabels{"module", "layer"};
   std::vector<int> moduleIDs{1, 2};
   std::vector<int> layerIDs{0, 1, 2, 3};
@@ -111,7 +123,7 @@ void InitPlugin(JApplication* app) {
     outputTrackTags.push_back(fmt::format("TaggerTrackerM{}LocalTracks", mod_id));
     outputTrackAssociationTags.push_back(
         fmt::format("TaggerTrackerM{}LocalTrackAssociations", mod_id));
-    moduleClusterTags.push_back({});
+    moduleClusterTags.emplace_back();
     for (int lay_id : layerIDs) {
       geometryDivisions.push_back({mod_id, lay_id});
       geometryDivisionCollectionNames.push_back(
@@ -145,7 +157,7 @@ void InitPlugin(JApplication* app) {
     std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags = moduleClusterTags[i];
 
-    inputClusterTags.push_back("TaggerTrackerRawHitAssociations");
+    inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
 
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
         outputTrackTag, {inputClusterTags}, {outputTrackTag, outputTrackAssociationTag},
