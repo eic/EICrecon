@@ -17,19 +17,18 @@
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "services/pid_lut/PIDLookupTableSvc.h"
 
-
 namespace eicrecon {
 
 void PIDLookup::init() {
 
   auto detector = algorithms::GeoSvc::instance().detector();
-  try{
-    m_system         = detector->constant<int32_t>(m_cfg.system);
+  try {
+    m_system = detector->constant<int32_t>(m_cfg.system);
   } catch (const std::exception& e) {
     error("Failed to get {} from the detector: {}", m_cfg.system, e.what());
     throw std::runtime_error("Failed to get requested ID from the detector");
   }
-  
+
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   auto* lut_svc    = serviceSvc.service<PIDLookupTableSvc>("PIDLookupTableSvc");
 

@@ -30,7 +30,7 @@ public:
 
   void testRunStarting(Catch::TestRunInfo const& /*testRunInfo*/) override {
     auto detector = dd4hep::Detector::make_unique("");
-    detector->addConstant(dd4hep::Constant("MockCalorimeter_ID", "1")); 
+    detector->addConstant(dd4hep::Constant("MockCalorimeter_ID", "1"));
     dd4hep::Readout readout(std::string("MockCalorimeterHits"));
     dd4hep::IDDescriptor id_desc("MockCalorimeterHits", "system:8,layer:8,x:8,y:8");
     readout.setIDDescriptor(id_desc);
