@@ -71,27 +71,21 @@ void PhaseSpacePID::process(const Input& input, const Output& output) const {
     double angle = edm4hep::utils::angleBetween(momentum, m_direction);
     if (angle < m_cfg.opening_angle) {
 
-      for( auto& test_pdg: m_pdg_potential_values){
-        bool match = (test_pdg==m_cfg.pdg_value);
+      auto partID = partids_out->create(m_system,        // std::int32_t type
+                                m_cfg.pdg_value, // std::int32_t PDG
+                                1,               // std::int32_t algorithmType
+                                1.0              // float likelihood
+                                );
 
-
-        recopart.addToParticleIDs(
-            partids_out->create(m_system,                 // std::int32_t type
-                                test_pdg,                 // std::int32_t PDG
-                                0,                        // std::int32_t algorithmType
-                                static_cast<float>(match) // float likelihood
-                                ));
-
-        if(match) {
-          recopart.setParticleIDUsed((*partids_out)[partids_out->size() - 1]);
-        }
-      }
-
+      recopart.addToParticleIDs(partID);
+      recopart.setParticleIDUsed(partID);
       recopart.setPDG(m_cfg.pdg_value);
       recopart.setMass(m_mass);
 
     }
+
     recoparts_out->push_back(recopart);
+
   }
 }
 

@@ -37,7 +37,6 @@ public:
 private:
   int32_t m_system;
   edm4hep::Vector3f m_direction; // Direction vector for the phase space
-  const std::vector<int> m_pdg_potential_values = {11, 211, 321, 2212}; // Electron, pion, kaon, proton
   double m_mass;
   double m_charge;
 };
