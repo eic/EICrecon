@@ -14,23 +14,23 @@
 #include <utility>
 #include <vector>
 
-#include "ActsToTracks.h"
-#include "ActsToTracks_factory.h"
-#include "ActsTrajectoriesMerger_factory.h"
-#include "AmbiguitySolver_factory.h"
-#include "CKFTracking_factory.h"
-#include "IterativeVertexFinder_factory.h"
-#include "TrackParamTruthInit_factory.h"
-#include "TrackProjector_factory.h"
-#include "TrackPropagationConfig.h"
-#include "TrackPropagation_factory.h"
-#include "TrackSeeding_factory.h"
-#include "TrackerMeasurementFromHits_factory.h"
-#include "TracksToParticles_factory.h"
 #include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "algorithms/tracking/ActsToTracks.h"
+#include "algorithms/tracking/TrackPropagationConfig.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/tracking/ActsToTracks_factory.h"
+#include "factories/tracking/ActsTrajectoriesMerger_factory.h"
+#include "factories/tracking/AmbiguitySolver_factory.h"
+#include "factories/tracking/CKFTracking_factory.h"
+#include "factories/tracking/IterativeVertexFinder_factory.h"
+#include "factories/tracking/TrackParamTruthInit_factory.h"
+#include "factories/tracking/TrackProjector_factory.h"
+#include "factories/tracking/TrackPropagation_factory.h"
+#include "factories/tracking/TrackSeeding_factory.h"
+#include "factories/tracking/TrackerMeasurementFromHits_factory.h"
+#include "factories/tracking/TracksToParticles_factory.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 
 //
 extern "C" {
