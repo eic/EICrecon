@@ -21,9 +21,16 @@
 namespace eicrecon {
 
 void PIDLookup::init() {
+
+  auto detector = algorithms::GeoSvc::instance().detector();
+  try{
+    m_system         = detector->constant<int32_t>(m_cfg.system);
+  } catch (const std::exception& e) {
+    error("Failed to get {} from the detector: {}", m_cfg.system, e.what());
+    throw std::runtime_error("Failed to get requested ID from the detector");
+  }
+  
   auto& serviceSvc = algorithms::ServiceSvc::instance();
-  auto detector    = algorithms::GeoSvc::instance().detector();
-  m_system         = detector->constant<int32_t>("BarrelTOF_ID");
   auto* lut_svc    = serviceSvc.service<PIDLookupTableSvc>("PIDLookupTableSvc");
 
   m_lut = lut_svc->load(m_cfg.filename,
