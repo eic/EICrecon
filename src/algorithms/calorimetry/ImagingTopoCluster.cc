@@ -24,6 +24,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <algorithms/geo.h>
 #include <fmt/core.h>
 #include <cmath>
 #include <cstdlib>
@@ -50,11 +51,35 @@ void ImagingTopoCluster::init() {
     return;
   }
 
+  double side_length{NAN}; // default value, will be overwritten if lengthScaleConstants is set
+  // define the distance between neighbors in terms of the largest possible distance between subcell hits
+  auto detector = algorithms::GeoSvc::instance().detector();
+
+  for (const auto& scale_constant : m_cfg.lengthConstants) {
+    // get the constant from the detector
+    try {
+      double constant = detector->constant<double>(scale_constant);
+      if (std::isnan(side_length)) {
+        side_length = constant;
+      } else {
+        side_length = std::max(side_length, constant);
+      }
+    } catch (std::runtime_error&) {
+      error("Failed to get {} from the detector", scale_constant);
+      // if the constant is not found, we will use the default value
+    }
+  }
+
+  if (std::isnan(side_length)) {
+    // if no length constants were provided, use a default value
+    side_length = 1.0 * dd4hep::mm;
+  }
+
   // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
-  localDistXY[0]       = m_cfg.localDistXY[0] / dd4hep::mm;
-  localDistXY[1]       = m_cfg.localDistXY[1] / dd4hep::mm;
-  layerDistXY[0]       = m_cfg.layerDistXY[0] / dd4hep::mm;
-  layerDistXY[1]       = m_cfg.layerDistXY[1] / dd4hep::mm;
+  localDistXY[0]       = side_length * m_cfg.localDistXY[0] / dd4hep::mm;
+  localDistXY[1]       = side_length * m_cfg.localDistXY[1] / dd4hep::mm;
+  layerDistXY[0]       = side_length * m_cfg.layerDistXY[0] / dd4hep::mm;
+  layerDistXY[1]       = side_length * m_cfg.layerDistXY[1] / dd4hep::mm;
   layerDistEtaPhi[0]   = m_cfg.layerDistEtaPhi[0];
   layerDistEtaPhi[1]   = m_cfg.layerDistEtaPhi[1] / dd4hep::rad;
   sectorDist           = m_cfg.sectorDist / dd4hep::mm;
