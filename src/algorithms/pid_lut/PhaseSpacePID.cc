@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin, Simon Gardner
+// Copyright (C) 2025, Nathan Brei, Dmitry Kalinkin, Simon Gardner
 
-#include <algorithms/service.h>
+#include <DD4hep/Detector.h>
+#include <algorithms/geo.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <algorithms/geo.h>
 #include <fmt/core.h>
-#include <cmath>
+#include <exception>
 #include <gsl/pointers>
 #include <stdexcept>
+#include <vector>
 
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/pid_lut/PhaseSpacePID.h"

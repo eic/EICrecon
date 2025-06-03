@@ -5,7 +5,8 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
-#include <random>
+#include <edm4hep/Vector3f.h>
+#include <stdint.h>
 #include <string>
 #include <string_view>
 
