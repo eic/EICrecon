@@ -42,8 +42,7 @@ void FarForwardNeutralsReconstruction::init() {
         m_cfg.gammaMaxWidth, m_cfg.gammaZMax);
 }
 /** calculates the correction for a given uncorrected total energy and a set of coefficients*/
-double FarForwardNeutralsReconstruction::calc_corr(double Etot,
-                                                   const std::vector<double>& coeffs) const {
+double FarForwardNeutralsReconstruction::calc_corr(double Etot, const std::vector<double>& coeffs) {
   return coeffs[0] + coeffs[1] / sqrt(Etot) + coeffs[2] / Etot;
 }
 
@@ -66,8 +65,10 @@ bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) 
   bool isZMoreThanMax = (z > m_cfg.gammaZMax);
   bool isLengthMoreThanMax =
       (l1 > m_cfg.gammaMaxLength || l2 > m_cfg.gammaMaxLength || l3 > m_cfg.gammaMaxLength);
-  bool areWidthsMoreThanMax =
-      (l1 > m_cfg.gammaMaxWidth) + (l2 > m_cfg.gammaMaxWidth) + (l3 > m_cfg.gammaMaxWidth) >= 2;
+  bool areWidthsMoreThanMax = static_cast<int>(l1 > m_cfg.gammaMaxWidth) +
+                                  static_cast<int>(l2 > m_cfg.gammaMaxWidth) +
+                                  static_cast<int>(l3 > m_cfg.gammaMaxWidth) >=
+                              2;
   return !(isZMoreThanMax || isLengthMoreThanMax || areWidthsMoreThanMax);
 }
 
@@ -110,7 +111,7 @@ void FarForwardNeutralsReconstruction::process(
 
   double Etot                   = Etot_hcal;
   static const double m_neutron = m_particleSvc.particle(2112).mass;
-  int n_neutrons;
+  int n_neutrons                = 0;
   if (Etot > 0 && Emax > 0) {
     auto rec_part = out_neutrals->create();
     double corr   = calc_corr(Etot, m_cfg.neutronScaleCorrCoeffHcal);

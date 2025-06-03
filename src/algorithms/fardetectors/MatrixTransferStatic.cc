@@ -17,6 +17,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+
 #include <gsl/pointers>
 #include <stdexcept>
 #include <vector>
@@ -38,7 +39,7 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
   double aXinv[2][2] = {{0.0, 0.0}, {0.0, 0.0}};
   double aYinv[2][2] = {{0.0, 0.0}, {0.0, 0.0}};
 
-  double nomMomentum;
+  double nomMomentum = NAN;
   double local_x_offset{0.0};
   double local_y_offset{0.0};
   double local_x_slope_offset{0.0};
@@ -97,7 +98,10 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
     }
   }
   if (not matrix_found) {
-    error("MatrixTransferStatic:: No valid matrix found to match beam momentum!! Skipping!!");
+    if (m_cfg.requireMatchingMatrix) {
+      critical("No matrix found with matching beam momentum");
+      throw std::runtime_error("No matrix found with matching beam momentum");
+    }
     return;
   }
 
@@ -164,10 +168,7 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
       goodHit[1].y =
           gpos.y(); //pos0.y() - temporarily changing to global to solve the local coordinate issue
       goodHit[1].z = gpos.z(); //         - which is unique to the Roman pots situation
-      if (numGoodHits2 == 1) {
-        goodHit2 = true;
-      } else
-        goodHit2 = false;
+      goodHit2     = numGoodHits2 == 1;
     }
     if (gpos.z() > m_cfg.hit1minZ && gpos.z() < m_cfg.hit1maxZ) {
 
@@ -177,10 +178,7 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
       goodHit[0].x = gpos.x(); //pos0.x()
       goodHit[0].y = gpos.y(); //pos0.y()
       goodHit[0].z = gpos.z();
-      if (numGoodHits1 == 1) {
-        goodHit1 = true;
-      } else
-        goodHit1 = false;
+      goodHit1     = numGoodHits1 == 1;
     }
   }
 

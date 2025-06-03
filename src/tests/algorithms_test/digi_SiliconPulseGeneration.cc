@@ -34,6 +34,7 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
   eicrecon::SiliconPulseGenerationConfig cfg;
   cfg.pulse_shape_function = "LandauPulse"; // Example pulse shape
   cfg.pulse_shape_params   = {1.0, 1.0};    // Example parameters for the pulse shape
+  cfg.ignore_thres         = 1;
 
   algo.applyConfig(cfg);
   algo.init();
