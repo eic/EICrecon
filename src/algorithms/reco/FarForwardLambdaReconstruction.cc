@@ -23,12 +23,11 @@ namespace eicrecon {
 
 void FarForwardLambdaReconstruction::init() {
 
-  auto detector = algorithms::GeoSvc::instance().detector();
   try {
-    m_zMax = detector->constant<double>(m_cfg.rPosString);
+    m_zMax = m_detector->constant<double>(m_cfg.offsetPositionName);
   } catch (std::runtime_error&) {
     m_zMax = 35800; // default value
-    trace("Failed to get {} from the detector, using default value of {}", m_cfg.rPosString, m_zMax);
+    trace("Failed to get {} from the detector, using default value of {}", m_cfg.offsetPositionName, m_zMax);
   }
 
 }

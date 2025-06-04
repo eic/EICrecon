@@ -214,21 +214,22 @@ void InitPlugin(JApplication* app) {
       "ReconstructedFarForwardZDCNeutrons",
       {"HcalFarForwardZDCClusters"},          // edm4eic::ClusterCollection
       {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
-      {.rPosString                = "HcalFarForwardZDC_SiPMonTile_r_pos",
+      {.offsetPositionName        = "HcalFarForwardZDC_SiPMonTile_r_pos",
        .neutronScaleCorrCoeffHcal = {-0.11, -1.5, 0},
        .gammaScaleCorrCoeffHcal   = {0, -.13, 0},
        .globalToProtonRotation    = -0.025,
-       .gammaZMaxScale            = 300 * dd4hep::mm,
+       .gammaZMaxOffset           = 300 * dd4hep::mm,
        .gammaMaxLength            = 100 * dd4hep::mm,
        .gammaMaxWidth             = 12 * dd4hep::mm},
       app // TODO: Remove me once fixed
       ));
+      
   app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
       "ReconstructedFarForwardZDCLambdas",
       {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
       {"ReconstructedFarForwardZDCLambdas", "ReconstructedFarForwardZDCLambdaDecayProductsC"
                                             "M"}, // edm4eic::ReconstrutedParticleCollection,
-      {.rPosString             = "HcalFarForwardZDC_SiPMonTile_r_pos",
+      {.offsetPositionName     = "HcalFarForwardZDC_SiPMonTile_r_pos",
        .globalToProtonRotation = -0.025,
        .lambdaMaxMassDev       = 0.030 * dd4hep::GeV,
        .iterations             = 10},
