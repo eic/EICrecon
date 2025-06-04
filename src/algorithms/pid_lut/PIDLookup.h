@@ -1,10 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
+#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
+#include <stdint.h>
+#include <gsl/pointers>
 #include <random>
 #include <string>
 #include <string_view>
@@ -41,6 +45,7 @@ private:
   mutable std::uniform_real_distribution<double> m_dist{0, 1};
   int32_t m_system;
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const PIDLookupTable* m_lut;
 };
 
