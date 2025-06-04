@@ -3,14 +3,14 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <TVector3.h>
-#include <cmath>
-#include <cstddef>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <algorithms/geo.h>
 #include <fmt/core.h>
+#include <cmath>
+#include <cstddef>
 #include <gsl/pointers>
+#include <stdexcept>
 #include <vector>
 
 #include "FarForwardLambdaReconstruction.h"
