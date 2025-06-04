@@ -11,7 +11,9 @@ namespace eicrecon {
 struct SimCalorimeterHitProcessorConfig {
 
   // parameters for attenuation function
-  std::vector<double> attPars;
+  // [0] * exp(-|z_ref - z| / [1]) + (1 - [0]) * exp(-|z_ref - z| / [2])
+  // specified in edm4eic::units where dimensionfull
+  std::vector<double> attenuationParameters;
 
   std::string readout{""};
   std::string attenuationReferencePositionName{""};
