@@ -10,6 +10,7 @@
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
@@ -93,20 +94,14 @@ public:
   void add(const float energy, const float time, const edm4hep::Vector3f& pos) {
     m_energy += energy;
     m_avg_time += energy * time;
-    m_avg_position.x += energy * pos.x;
-    m_avg_position.y += energy * pos.y;
-    m_avg_position.z += energy * pos.z;
-    m_min_time = (time < m_min_time) ? time : m_min_time;
+    m_avg_position = m_avg_position + energy * pos;
+    m_min_time     = (time < m_min_time) ? time : m_min_time;
   }
   float getEnergy() const { return m_energy; }
   float getAvgTime() const { return m_energy > 0 ? m_avg_time / m_energy : 0; }
   float getMinTime() const { return m_min_time; }
   edm4hep::Vector3f getAvgPosition() const {
-    if (m_energy > 0) {
-      return {m_avg_position.x / m_energy, m_avg_position.y / m_energy,
-              m_avg_position.z / m_energy};
-    }
-    return {0, 0, 0};
+    return m_energy > 0 ? m_avg_position / m_energy : edm4hep::Vector3f{0, 0, 0};
   }
 };
 
