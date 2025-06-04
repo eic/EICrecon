@@ -6,16 +6,25 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
+#include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
 #include <podio/podioVersion.h>
-#include <edm4eic/unit_system.h>
 #include <cmath>
+#include <cstddef>
+#include <gsl/pointers>
 #include <limits>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
+#include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 

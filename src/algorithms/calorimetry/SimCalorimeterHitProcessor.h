@@ -7,10 +7,10 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <cstdint>
 #include <optional>
+#include <string>
 #include <string_view>
 
 #include "SimCalorimeterHitProcessorConfig.h"
