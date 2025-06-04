@@ -1,7 +1,6 @@
 
 #include "JEventProcessorPODIO.h"
 
-#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
