@@ -209,7 +209,6 @@ void InitPlugin(JApplication* app) {
       {"MCParticles", "InclusiveKinematicsElectron", "ReconstructedParticles"},
       {"ReconstructedBreitFrameParticles"}, {}, app));
 
-
   app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
       "ReconstructedFarForwardZDCNeutrons",
       {"HcalFarForwardZDCClusters"},          // edm4eic::ClusterCollection
@@ -223,7 +222,7 @@ void InitPlugin(JApplication* app) {
        .gammaMaxWidth             = 12 * dd4hep::mm},
       app // TODO: Remove me once fixed
       ));
-      
+
   app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
       "ReconstructedFarForwardZDCLambdas",
       {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,

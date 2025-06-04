@@ -27,9 +27,9 @@ void FarForwardLambdaReconstruction::init() {
     m_zMax = m_detector->constant<double>(m_cfg.offsetPositionName);
   } catch (std::runtime_error&) {
     m_zMax = 35800; // default value
-    trace("Failed to get {} from the detector, using default value of {}", m_cfg.offsetPositionName, m_zMax);
+    trace("Failed to get {} from the detector, using default value of {}", m_cfg.offsetPositionName,
+          m_zMax);
   }
-
 }
 
 /* converts one type of vector format to another */

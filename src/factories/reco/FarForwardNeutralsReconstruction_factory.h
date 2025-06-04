@@ -22,7 +22,8 @@ private:
   PodioInput<edm4eic::Cluster> m_clusters_hcal_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_neutrals_output{this};
 
-  ParameterRef<std::string> m_offset_position_name{this, "offsetPositionName", config().offsetPositionName};
+  ParameterRef<std::string> m_offset_position_name{this, "offsetPositionName",
+                                                   config().offsetPositionName};
   ParameterRef<std::vector<double>> m_n_scale_corr_coeff_hcal{this, "neutronScaleCorrCoeffHcal",
                                                               config().neutronScaleCorrCoeffHcal};
   ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_hcal{this, "gammaScaleCorrCoeffHcal",

@@ -29,7 +29,8 @@ namespace eicrecon {
 void FarForwardNeutralsReconstruction::init() {
 
   try {
-    m_gammaZMax = m_cfg.gammaZMaxOffset + m_detector->constant<double>(m_cfg.offsetPositionName) / dd4hep::mm;
+    m_gammaZMax =
+        m_cfg.gammaZMaxOffset + m_detector->constant<double>(m_cfg.offsetPositionName) / dd4hep::mm;
   } catch (std::runtime_error&) {
     m_gammaZMax = m_cfg.gammaZMaxOffset + 35800;
     trace("Failed to get {} from the detector, using default value of {}", m_cfg.offsetPositionName,
