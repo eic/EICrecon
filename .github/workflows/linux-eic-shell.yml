@@ -969,6 +969,8 @@ jobs:
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' }}
     needs:
     - eicrecon-gun
+    outputs:
+      json: ${{ steps.trigger.outputs.json }}
     steps:
     - uses: eic/trigger-gitlab-ci@v3
       id: trigger
@@ -1235,11 +1237,14 @@ jobs:
           edit-mode: replace
 
   cancel-container:
-    if: cancelled() || failed()
+    if: cancelled() || failure()
     needs:
     - trigger-container
     runs-on: ubuntu-24.04
     steps:
       - name: Cancel container
         run:
-          curl -h
+          echo \
+          curl -X POST \
+             -F "token=${{ secrets.EICWEB_CONTAINER_TRIGGER }}" \
+             https://eicweb.phy.anl.gov/api/v4/projects/290/pipelines/${{ needs.trigger-container.outputs.json.id }}/cancel
