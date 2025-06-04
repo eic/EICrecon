@@ -60,7 +60,7 @@ void CalorimeterHitsMerger::init() {
   // initialize descriptor + decoders
   // First, try and get the IDDescriptor. This will throw an exception if it fails.
   try {
-    id_spec = m_detector->readout(m_cfg.readout).idSpec();
+    id_desc = m_detector->readout(m_cfg.readout).idSpec();
   } catch (...) {
     warning("Failed to get idSpec for {}", m_cfg.readout);
     return;
