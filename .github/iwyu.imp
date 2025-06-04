@@ -11,6 +11,9 @@
   # STL
   { ref: '/opt/local/share/include-what-you-use/gcc.stl.headers.imp' },
 
+  # JANA2
+  { symbol: ['JApplication::GetService', private, '<JANA/JApplicationFwd.h>', public] },
+
   # Acts
   { include: ['@<Acts/(.*)\.ipp>', private, '<Acts/$1.hpp>', public] },
   { include: ['@<Acts/(.*)/detail/(.*)\.ipp>', private, '<Acts/$1/$2.hpp>', public] },
