@@ -67,7 +67,7 @@ template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t>> {
 
 } // namespace std
 
-// unnamed namespace for interal utility
+// unnamed namespace for internal utility
 namespace {
 // Lookup primary MCParticle @TODO this should be a shared utiliy function in the edm4xxx
 // libraries
