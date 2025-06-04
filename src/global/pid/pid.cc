@@ -7,7 +7,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
-#include "global/pid/MatchToRICHPID_factory.h"
+#include "factories/pid/MatchToRICHPID_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {

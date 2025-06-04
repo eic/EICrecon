@@ -339,7 +339,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
     // DIRC
     "DIRCRawHits",
-    "DIRCPID",
     "DIRCTruthSeededParticleIDs",
     "DIRCParticleIDs",
 
