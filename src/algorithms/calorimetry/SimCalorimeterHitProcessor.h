@@ -47,7 +47,7 @@ private:
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 
   // a reference value for attenuation
-  std::optional<double> m_attenuationReferencePosition_mm;
+  std::optional<double> m_attenuationReferencePosition;
 
 private:
   // attenuation function

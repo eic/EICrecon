@@ -23,7 +23,7 @@ private:
   PodioOutput<edm4hep::CaloHitContribution> m_hits_contribs_output{this};
 
   ParameterRef<std::vector<double>> m_attenuationParameters{this, "attenuationParameters",
-                                                            config().attPars};
+                                                            config().attenuationParameters};
   ParameterRef<std::string> m_attenuationReferencePositionName{
       this, "attenuationReferencePositionName", config().attenuationReferencePositionName};
   ParameterRef<std::vector<std::string>> m_hitMergeFields{this, "hitMergeFields",

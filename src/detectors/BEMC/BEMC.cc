@@ -32,7 +32,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   // Make sure left and right use the same value
-  decltype(SimCalorimeterHitProcessorConfig::attPars) EcalBarrelScFi_attPars = {
+  decltype(SimCalorimeterHitProcessorConfig::attenuationParameters) EcalBarrelScFi_attPars = {
       0.416212, 747.39875 * edm4eic::unit::mm, 7521.88383 * edm4eic::unit::mm};
   decltype(SimCalorimeterHitProcessorConfig::hitMergeFields) EcalBarrelScFi_hitMergeFields = {
       "fiber", "z"};
@@ -50,7 +50,7 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiPAttenuatedHits", {"EcalBarrelScFiHits"},
       {"EcalBarrelScFiPAttenuatedHits", "EcalBarrelScFiPAttenuatedHitContributions"},
       {
-          .attPars                          = EcalBarrelScFi_attPars,
+          .attenuationParameters            = EcalBarrelScFi_attPars,
           .readout                          = "EcalBarrelScFiHits",
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmax",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
@@ -62,7 +62,7 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiNAttenuatedHits", {"EcalBarrelScFiHits"},
       {"EcalBarrelScFiNAttenuatedHits", "EcalBarrelScFiNAttenuatedHitContributions"},
       {
-          .attPars                          = EcalBarrelScFi_attPars,
+          .attenuationParameters            = EcalBarrelScFi_attPars,
           .readout                          = "EcalBarrelScFiHits",
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,

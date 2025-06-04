@@ -192,7 +192,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
     const uint64_t newcontrib_cellID = (ih.getCellID() & m_hit_id_mask.value());
     // Optional attenuation
     const double attFactor =
-        m_attenuationReferencePosition_mm ? get_attenuation(ih.getPosition().z) : 1.;
+        m_attenuationReferencePosition ? get_attenuation(ih.getPosition().z) : 1.;
     // Use primary particle (traced back through parents) to group contributions
     for (const auto& contrib : ih.getContributions()) {
       edm4hep::MCParticle primary = lookup_primary(contrib);
@@ -228,9 +228,10 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
 }
 
 double SimCalorimeterHitProcessor::get_attenuation(double zpos) const {
-  double length = std::abs(m_attenuationReferencePosition_mm.value() - zpos);
-  double factor = m_cfg.attPars[0] * std::exp(-length / m_cfg.attPars[1]) +
-                  (1 - m_cfg.attPars[0]) * std::exp(-length / m_cfg.attPars[2]);
+  double length = std::abs(m_attenuationReferencePosition.value() - zpos);
+  double factor =
+      m_cfg.attenuationParameters[0] * std::exp(-length / m_cfg.attenuationParameters[1]) +
+      (1 - m_cfg.attenuationParameters[0]) * std::exp(-length / m_cfg.attenuationParameters[2]);
   return factor;
 }
 } // namespace eicrecon
