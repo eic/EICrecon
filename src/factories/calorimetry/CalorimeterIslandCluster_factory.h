@@ -22,7 +22,7 @@ private:
 
   ParameterRef<double> m_sectorDist{this, "sectorDist", config().sectorDist};
   ParameterRef<std::vector<std::string>> m_lengthConstants{this, "lengthConstants",
-                                                            config().lengthConstants};
+                                                           config().lengthConstants};
   ParameterRef<std::vector<double>> m_localDistXY{this, "localDistXY", config().localDistXY};
   ParameterRef<std::vector<double>> m_localDistXZ{this, "localDistXZ", config().localDistXZ};
   ParameterRef<std::vector<double>> m_localDistYZ{this, "localDistYZ", config().localDistYZ};
