@@ -1233,3 +1233,13 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body-file: capybara_${{ github.event.pull_request.number }}.md
           edit-mode: replace
+
+  cancel-container:
+    if: cancelled() || failed()
+    needs:
+    - trigger-container
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Cancel container
+        run:
+          curl -h
