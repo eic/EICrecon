@@ -89,8 +89,19 @@ void MatchClusters::process(const MatchClusters::Input& input,
 
     // get mass/PDG from mcparticles, 0 (unidentified) in case the matched particle is charged.
     const auto mc     = (*mcparticles)[mcID];
-    const double mass = (mc.getCharge() == 0.0F) ? mc.getMass() : 0;
-    const int32_t pdg = (mc.getCharge() == 0.0F) ? mc.getPDG() : 0;
+    edm4hep::ParticleID likely_pid;
+    for (auto it = clus.particleIDs_begin(); it != clus.particleIDs_end(); it++) {
+      edm4hep::ParticleID pid = *it;
+      if ((!likely_pid.isAvailable()) || (pid.getLikelihood() > likely_pid.getLikelihood())) {
+        likely_pid = pid;
+      }
+    }
+    double mass = 0.;
+    int32_t pdg = 0;
+    if (likely_pid.isAvailable()) {
+      pdg = likely_pid.getPDG();
+      mass = m_particleSvc.particle(pdg).mass;
+    }
     if (level() <= algorithms::LogLevel::kDebug) {
       if (mc.getCharge() != 0.0F) {
         debug("   --> associated mcparticle is not a neutral (PDG: {}), "
