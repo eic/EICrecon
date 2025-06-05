@@ -146,7 +146,7 @@ std::tuple<
   VertexFitterSec::Config vertexFitterCfgSec(ipEst);
 
   vertexFitterCfgSec.annealingTool = annealingUtility;
-  vertexFitterCfgSec.minWeight = 0.0001;
+  vertexFitterCfgSec.minWeight = 0.001;
   vertexFitterCfgSec.doSmoothing = true;
   vertexFitterCfgSec.useTime = false; //m_cfg.useTime;
 #if Acts_VERSION_MAJOR >= 33
@@ -187,12 +187,12 @@ std::tuple<
   vertexfinderCfgSec.initialVariances<<1e+2, 1e+2, 1e+2, 1e+8;
   //Use time for Sec. Vertex
   vertexfinderCfgSec.useTime = false;
-  vertexfinderCfgSec.tracksMaxZinterval=.5 * Acts::UnitConstants::mm;
+  vertexfinderCfgSec.tracksMaxZinterval=20*Acts::UnitConstants::mm;
   vertexfinderCfgSec.maxIterations=200;
   vertexfinderCfgSec.doFullSplitting = false;
   // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
-  vertexfinderCfgSec.tracksMaxSignificance = 5;
-  vertexfinderCfgSec.maxMergeVertexSignificance = 3;
+  vertexfinderCfgSec.tracksMaxSignificance = 7.7;
+  vertexfinderCfgSec.maxMergeVertexSignificance = 6.7;
 
   if(m_cfg.useTime){
     // When using time, we have an extra contribution to the chi2 by the time
