@@ -1248,4 +1248,4 @@ jobs:
           echo \
           curl -X POST \
              -F "token=${{ secrets.EICWEB_CONTAINER_TRIGGER }}" \
-             https://eicweb.phy.anl.gov/api/v4/projects/290/pipelines/${{ needs.trigger-container.outputs.json.id }}/cancel
+             https://eicweb.phy.anl.gov/api/v4/projects/290/pipelines/${{ fromJson(needs.trigger-container.outputs.json.id) }}/cancel
