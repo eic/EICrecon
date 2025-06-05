@@ -1,0 +1,54 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2025 Minho Kim
+
+#pragma once
+
+#include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
+#include <DD4hep/IDDescriptor.h>
+#include <edm4hep/SimCalorimeterHitCollection.h>
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+#include <edm4eic/SimPulseCollection.h>
+#else
+#include <edm4hep/TimeSeriesCollection.h>
+#endif
+#include <random>
+#include <stdint.h>
+#include <string>
+#include <string_view>
+#include <functional>
+
+#include "CalorimeterPulseGenerationConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/digi/SiliconPulseGeneration.h"
+
+namespace eicrecon{
+
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+	using PulseType = edm4eic::SimPulse;
+#else
+	using PulseType = edm4hep::TimeSeries;
+#endif
+
+	using CalorimeterPulseGenerationAlgorithm = algorithms::Algorithm<
+						    algorithms::Input<edm4hep::SimCalorimeterHitCollection>,
+						    algorithms::Output<PulseType::collection_type>>;
+
+	class CalorimeterPulseGeneration : public CalorimeterPulseGenerationAlgorithm,
+					   public WithPodConfig<CalorimeterPulseGenerationConfig>{
+
+		public:
+			CalorimeterPulseGeneration(std::string_view name) 
+			  : CalorimeterPulseGenerationAlgorithm {name, {"inputHitCollection"},
+								 {"outputPulseCollection"},
+								 "Add hits for each readout and generate corresponding pulse"} {}
+
+			void init() final;
+			void process(const Input&, const Output&) const final;
+
+		private:
+			std::shared_ptr<SignalPulse> m_pulse;
+			float m_min_sampling_time = 0 * edm4eic::unit::ns;
+	};
+
+} // namespace eicrecon
