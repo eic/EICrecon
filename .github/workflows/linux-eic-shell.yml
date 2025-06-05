@@ -1247,4 +1247,4 @@ jobs:
         run:
           curl -X POST \
              -F "token=${{ secrets.EICWEB_CONTAINER_CANCEL }}" \
-             https://eicweb.phy.anl.gov/api/v4/projects/290/pipelines/$(cat '${{ needs.trigger-container.outputs.json) }}' | jq -r .id)/cancel
+             https://eicweb.phy.anl.gov/api/v4/projects/290/pipelines/$(cat '${{ needs.trigger-container.outputs.json }}' | jq -r .id)/cancel
