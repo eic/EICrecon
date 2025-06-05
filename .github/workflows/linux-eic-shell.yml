@@ -1237,9 +1237,10 @@ jobs:
           edit-mode: replace
 
   cancel-container:
-    if: cancelled() || failure()
+    #if: cancelled() || failure()
     needs:
     - trigger-container
+    - deploy-docs
     runs-on: ubuntu-24.04
     steps:
       - name: Cancel container
