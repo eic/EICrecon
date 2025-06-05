@@ -18,8 +18,6 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/interfaces/ParticleSvc.h"
-
 namespace eicrecon {
 
 using MatchClustersAlgorithm = algorithms::Algorithm<
@@ -53,8 +51,6 @@ private:
   // (for now assuming the vertex is at (0,0,0))
   static edm4eic::MutableReconstructedParticle
   reconstruct_neutral(const edm4eic::Cluster* cluster, const double mass, const int32_t pdg);
-
-  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
 };
 
 } // namespace eicrecon
