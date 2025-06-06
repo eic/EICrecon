@@ -82,12 +82,11 @@ void InitPlugin(JApplication* app) {
   //     .input_names = {"RICHEndcapNHits"},
   //     .output_names = {"RICHEndcapNHits_aligned"}
   //   }));
-  app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-    { .tag = "timeAlignment",
-      .level = JEventLevel::Timeslice,
-      .input_names = {"SiBarrelHits"},
-      .output_names = {"SiBarrelHits_aligned"}
-    }));
+  app->Add(
+      new JOmniFactoryGeneratorT<timeAlignmentFactory>({.tag          = "timeAlignment",
+                                                        .level        = JEventLevel::Timeslice,
+                                                        .input_names  = {"SiBarrelHits"},
+                                                        .output_names = {"SiBarrelHits_aligned"}}));
   // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
   //   { .tag = "timeAlignment",
   //     .level = JEventLevel::Timeslice,
@@ -119,23 +118,18 @@ void InitPlugin(JApplication* app) {
   //     .output_names = {"VertexBarrelHits_aligned"}
   //   }));
 
-
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
 
-  app->Add(new JOmniFactoryGeneratorT<HitChecker>(
-    { .tag = "timeslice_hit_checker",
-      .level = JEventLevel::Timeslice,
-      .input_names = {"SiBarrelHits"},
-      .output_names = {"ts_checked_hits"}
-    }));
+  app->Add(new JOmniFactoryGeneratorT<HitChecker>({.tag          = "timeslice_hit_checker",
+                                                   .level        = JEventLevel::Timeslice,
+                                                   .input_names  = {"SiBarrelHits"},
+                                                   .output_names = {"ts_checked_hits"}}));
 
-  app->Add(new JOmniFactoryGeneratorT<HitChecker>(
-    { .tag = "physics_hit_checker",
-      .level = JEventLevel::PhysicsEvent,
-      .input_names = {"SiBarrelHits"},
-      .output_names = {"phys_checked_hits"}
-    }));
+  app->Add(new JOmniFactoryGeneratorT<HitChecker>({.tag          = "physics_hit_checker",
+                                                   .level        = JEventLevel::PhysicsEvent,
+                                                   .input_names  = {"SiBarrelHits"},
+                                                   .output_names = {"phys_checked_hits"}}));
 
   // Factory that produces timeslice-level protoclusters from timeslice-level hits
   /*
@@ -146,6 +140,5 @@ void InitPlugin(JApplication* app) {
                   .output_names = {"ts_protoclusters"}
                 }));
     */
-
-  }
+}
 } // "C"

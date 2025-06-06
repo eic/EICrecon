@@ -13,13 +13,14 @@
 #include <JANA/JEventUnfolder.h>
 
 struct TimeframeSplitter : public JEventUnfolder {
-  
+
   // std::vector<edm4hep::SimTrackerHitCollection::const_iterator> m_startIter_simTrackerHit;
   // std::vector<std::pair<const edm4hep::SimTrackerHitCollection*, size_t>> m_hitStartIndices;
-  std::vector<std::tuple<size_t, const edm4hep::SimTrackerHitCollection*, size_t>> m_hitStartIndices;
+  std::vector<std::tuple<size_t, const edm4hep::SimTrackerHitCollection*, size_t>>
+      m_hitStartIndices;
   float m_timeframe_width = 2000.0; // ns
   float m_timesplit_width = 2000.0; // ns
-  bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
+  bool m_use_timeframe    = false;  // Use timeframes to split events, or use timeslices
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {
   //     "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
@@ -38,7 +39,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   //     "TrackerEndcapHits",   "VertexBarrelHits"};
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits"};
-  std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits_aligned"};
+  std::vector<std::string> m_simtrackerhit_collection_names     = {"SiBarrelHits_aligned"};
   std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits"};
 
   std::vector<std::string> m_simcalorimeterhit_collection_names = {
@@ -63,7 +64,8 @@ struct TimeframeSplitter : public JEventUnfolder {
       "LFHCALHitsContributions",
       "LumiDirectPCALHitsContributions"};
 
-  PodioInput<edm4hep::EventHeader> m_event_header_in{this, {.name = "EventHeader", .is_optional = true}};
+  PodioInput<edm4hep::EventHeader> m_event_header_in{this,
+                                                     {.name = "EventHeader", .is_optional = true}};
   PodioOutput<edm4hep::EventHeader> m_event_header_out{this, "EventHeader"};
 
   PodioInput<edm4hep::MCParticle> m_mcparticles_in{this, {.name = "MCParticles"}};
@@ -84,7 +86,6 @@ struct TimeframeSplitter : public JEventUnfolder {
   VariadicPodioOutput<edm4hep::CaloHitContribution> m_calohitcontributions_out{
       this, m_calohitcontribution_collection_names};
 
-
   TimeframeSplitter() {
     SetTypeName(NAME_OF_THIS);
     SetParentLevel(JEventLevel::Timeslice);
@@ -97,22 +98,23 @@ struct TimeframeSplitter : public JEventUnfolder {
       m_hitStartIndices.resize(m_simtrackerhits_in().size(), std::make_tuple(0, nullptr, 0));
       for (size_t det_idx = 0; det_idx < m_simtrackerhits_in().size(); ++det_idx) {
         const auto* coll_in = m_simtrackerhits_in().at(det_idx);
-        if (coll_in == nullptr) continue;
+        if (coll_in == nullptr)
+          continue;
         m_hitStartIndices.emplace_back(det_idx, coll_in, 0);
       }
-
     }
 
     // float timeStamp = parent.GetEventTimeStamp();
     // LOG_INFO(GetLogger()) << "TimeframeSplitter: timeslice " << parent.GetEventNumber() << " timeStamp " << timeStamp << LOG_END;
     float iTimeSlice = m_timesplit_width * child_idx;
     float eTimeSlice = m_timesplit_width * (child_idx + 1.0);
-    std::cout << "child_idx = " << child_idx << ":: TimeframeSplitter: timeslice " << parent.GetEventNumber()
-              << " iTimeSlice " << iTimeSlice << " eTimeSlice " << eTimeSlice << std::endl;
+    std::cout << "child_idx = " << child_idx << ":: TimeframeSplitter: timeslice "
+              << parent.GetEventNumber() << " iTimeSlice " << iTimeSlice << " eTimeSlice "
+              << eTimeSlice << std::endl;
 
     LOG_INFO(GetLogger()) << "Running TimeframeSplitter::Unfold() on timeslice #"
                           << parent.GetEventNumber() << LOG_END;
-    
+
     // For now, a one-to-one relationship between timeslices and events
     child.SetEventNumber(parent.GetEventNumber());
     child.SetRunNumber(parent.GetRunNumber());
@@ -131,23 +133,25 @@ struct TimeframeSplitter : public JEventUnfolder {
 
     // Loop through SimTrackerHit collections and split them into time slice
     for (auto& [coll_index, coll_in, start_index] : m_hitStartIndices) {
-        auto& coll_out = m_simtrackerhits_out().at(coll_index);
-        coll_out->setSubsetCollection(true);
-        if (coll_in == nullptr) continue;
-        for (size_t i = start_index; i < coll_in->size(); ++i) {
-            const auto& hit = coll_in->at(i);
-            auto hitTime = hit.getTime();            
-            if (hitTime >= eTimeSlice) {
-                m_hitStartIndices.clear();
-                m_hitStartIndices.emplace_back(coll_index, coll_in, i);
-                break;
-            }
-
-            coll_out->push_back(hit);
+      auto& coll_out = m_simtrackerhits_out().at(coll_index);
+      coll_out->setSubsetCollection(true);
+      if (coll_in == nullptr)
+        continue;
+      for (size_t i = start_index; i < coll_in->size(); ++i) {
+        const auto& hit = coll_in->at(i);
+        auto hitTime    = hit.getTime();
+        if (hitTime >= eTimeSlice) {
+          m_hitStartIndices.clear();
+          m_hitStartIndices.emplace_back(coll_index, coll_in, i);
+          break;
         }
-        m_use_timeframe = true;
+
+        coll_out->push_back(hit);
+      }
+      m_use_timeframe = true;
     }
-    if(!m_use_timeframe) return;
+    if (!m_use_timeframe)
+      return;
 
     // Insert SimCalorimeterHits into the physics event
     for (size_t coll_index = 0; coll_index < m_simcalorimeterhits_in().size(); ++coll_index) {
@@ -177,6 +181,7 @@ struct TimeframeSplitter : public JEventUnfolder {
 
     // Produce exactly one physics event per timeframe for now
     // return JEventUnfolder::Result::NextChildNextParent;
-    return (eTimeSlice+1 > m_timeframe_width) ? Result::NextChildNextParent : Result::NextChildKeepParent;
+    return (eTimeSlice + 1 > m_timeframe_width) ? Result::NextChildNextParent
+                                                : Result::NextChildKeepParent;
   }
 };
