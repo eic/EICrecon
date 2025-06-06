@@ -126,8 +126,9 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
     REQUIRE_THAT(track_length(trks->at(2)), Catch::Matchers::WithinAbs(1, EPSILON));
     REQUIRE_THAT(track_length(trks->at(3)), Catch::Matchers::WithinAbs(1, EPSILON));
     // track length: from algorithm // FIXME when implemented in `MergeTracks`
-    for (const auto& trk : *trks)
+    for (const auto& trk : *trks) {
       REQUIRE_THAT(trk.getLength(), Catch::Matchers::WithinAbs(0, EPSILON));
+    }
   }
 
   SECTION("merge tracks from 2 collections") {
@@ -144,8 +145,9 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
     REQUIRE_THAT(track_length(trks->at(2)), Catch::Matchers::WithinAbs(std::hypot(1, 1), EPSILON));
     REQUIRE_THAT(track_length(trks->at(3)), Catch::Matchers::WithinAbs(4, EPSILON));
     // track length: from algorithm // FIXME when implemented in `MergeTracks`
-    for (const auto& trk : *trks)
+    for (const auto& trk : *trks) {
       REQUIRE_THAT(trk.getLength(), Catch::Matchers::WithinAbs(0, EPSILON));
+    }
   }
 
   SECTION("merge tracks from 3 collections") {
@@ -162,7 +164,8 @@ TEST_CASE("the PID MergeTracks algorithm runs", "[MergeTracks]") {
     REQUIRE_THAT(track_length(trks->at(2)), Catch::Matchers::WithinAbs(std::hypot(1, 2), EPSILON));
     REQUIRE_THAT(track_length(trks->at(3)), Catch::Matchers::WithinAbs(5, EPSILON));
     // track length: from algorithm // FIXME when implemented in `MergeTracks`
-    for (const auto& trk : *trks)
+    for (const auto& trk : *trks) {
       REQUIRE_THAT(trk.getLength(), Catch::Matchers::WithinAbs(0, EPSILON));
+    }
   }
 }

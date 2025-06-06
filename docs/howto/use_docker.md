@@ -8,7 +8,7 @@ The containers are released both for docker and singularity. Singularity images 
 - [Docker Hub](https://hub.docker.com/u/eicweb)
 - CVMFS path (available at BNL and JLab):
   ```
-  singularity run /cvmfs/singularity.opensciencegrid.org/eicweb/jug_xl:nightly
+  singularity run /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly
   ```
 
 ### Images structure:
@@ -19,7 +19,7 @@ The containers are released both for docker and singularity. Singularity images 
 
 - **debian_base** - is a container generic base container based on amd64/debian:testing
 - **jug_dev** - have all major HENP packages such as ROOT, Geant4 and DD4HEP but without detector and reconstruction. The image is used for testing purposes and automation.
-- **jug_xl** - intended to be used to run simulation and work on detectors for users. jug_dev + full simulation packages
+- **eic_xl** - intended to be used to run simulation and work on detectors for users. jug_dev + full simulation packages
 
 
 
@@ -39,7 +39,7 @@ So testing is the precursor to the next release version.
 
 **TL;DR;**
 
-Now it is recommended to use: ```eicweb/jug_xl:nightly```
+Now it is recommended to use: ```eicweb/eic_xl:nightly```
 
 
 ## Run in docker
@@ -50,13 +50,13 @@ Containers are available at eicweb namespace at
 To download or update the container:
 
 ```bash
-docker pull eicweb/jug_xl:nightly
+docker pull eicweb/eic_xl:nightly
 ```
 
 Running docker (minimal and probably useless):
 
 ```bash
-docker run -it --rm eicweb/jug_xl:nightly
+docker run -it --rm eicweb/eic_xl:nightly
 ```
 
 
@@ -113,7 +113,7 @@ You can bind any directory on your system to docker image by using **-v** flag:
 Convenient place inside docker image is `/mnt/` directory. Full example:
 
 ```bash
-docker run -it -v /home/user/eic/data:/mnt/data --rm eicweb/jug_xl:nightly
+docker run -it -v /home/user/eic/data:/mnt/data --rm eicweb/eic_xl:nightly
 ls /mnt/data
 ```
 
@@ -133,7 +133,7 @@ ls /mnt/data
 With debugging enabled and all ports open:
 
 ```
-docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined eicweb/jug_xl:nightly
+docker run -it --rm --cap-add=SYS_PTRACE --security-opt seccomp=unconfined eicweb/eic_xl:nightly
 ```
 
 
@@ -146,7 +146,7 @@ The setup depends on particular tool:
 - [Visual Studio Code docker remote debugging](https://code.visualstudio.com/docs/remote/remote-overview)
 - [CLion docker toolchain](https://www.jetbrains.com/help/clion/clion-toolchains-in-docker.html)
 
-> Use `\usr\local\bin\cmake` as cmake path, when configuring IDEs with jug_xl image
+> Use `\usr\local\bin\cmake` as cmake path, when configuring IDEs with eic_xl image
 
 ![vscode-docker](vscode_docker.png ':size=800')
 
@@ -166,7 +166,7 @@ You can use X11 natively (as natively as possible) with this docker image in you
 To use graphics, make sure you are in an X11 session and run the following command:
 
 ```bash
-docker run -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix --rm -it --user $(id -u) eicweb/jug_xl:nightly
+docker run -e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix --rm -it --user $(id -u) eicweb/eic_xl:nightly
 ```
 
 There might be issues with user id on systems like JLab farms.
@@ -179,7 +179,7 @@ Make sure VcXsrv is whitelisted in the Windows firewall when prompted.
 Start VcXsrv with 'allow from any origin' flag
 
 ```bash
-docker run --rm -it -e LIBGL_ALWAIS_INDIRECT=1 -e DISPLAY=10.0.75.1:0 eicweb/jug_xl:nightly
+docker run --rm -it -e LIBGL_ALWAIS_INDIRECT=1 -e DISPLAY=10.0.75.1:0 eicweb/eic_xl:nightly
 ```
 
 > 10.0.75.1 address corresponds to the network configuration in docker settings
@@ -208,7 +208,7 @@ This will start XQuartz and whitelist your local IP address.
 Finally, you can start up docker with the following command:
 
 ```
-docker run --rm -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$ip:0 eicweb/jug_xl:nightly
+docker run --rm -it -v /tmp/.X11-unix:/tmp/.X11-unix -e DISPLAY=$ip:0 eicweb/eic_xl:nightly
 ```
 
 
@@ -221,7 +221,7 @@ action needed. For the most optimal experience, you can install your software to
 ``/usr/local`` is a symlink to ``/opt/view``).
 
 ```
-FROM eicweb/jug_xl:nightly
+FROM eicweb/eic_xl:nightly
 RUN apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
     && apt-get -y install git gdb

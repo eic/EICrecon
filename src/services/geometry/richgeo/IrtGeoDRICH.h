@@ -18,25 +18,29 @@
 #include "services/geometry/richgeo/RichGeo.h"
 
 namespace richgeo {
-  class IrtGeoDRICH : public IrtGeo {
+class IrtGeoDRICH : public IrtGeo {
 
-    public:
-      IrtGeoDRICH(gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_) :
-        IrtGeo("DRICH",det_,conv_,log_) { DD4hep_to_IRT(); }
-      ~IrtGeoDRICH();
-    TVector3 GetSensorSurfaceNorm(CellIDType);
-    protected:
-      void DD4hep_to_IRT() override;
+public:
+  IrtGeoDRICH(gsl::not_null<const dd4hep::Detector*> det_,
+              gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_,
+              std::shared_ptr<spdlog::logger> log_)
+      : IrtGeo("DRICH", det_, conv_, log_) {
+    DD4hep_to_IRT();
+  }
+  ~IrtGeoDRICH();
+  TVector3 GetSensorSurfaceNorm(CellIDType);
 
-    private:
-      // FIXME: should be smart pointers, but IRT methods sometimes assume ownership of such raw pointers
-      FlatSurface*             m_surfEntrance;
-      CherenkovPhotonDetector* m_irtPhotonDetector;
-      FlatSurface*             m_aerogelFlatSurface;
-      FlatSurface*             m_filterFlatSurface;
-      SphericalSurface*        m_mirrorSphericalSurface;
-      OpticalBoundary*         m_mirrorOpticalBoundary;
-      FlatSurface*             m_sensorFlatSurface;
+protected:
+  void DD4hep_to_IRT() override;
 
-  };
-}
+private:
+  // FIXME: should be smart pointers, but IRT methods sometimes assume ownership of such raw pointers
+  FlatSurface* m_surfEntrance;
+  CherenkovPhotonDetector* m_irtPhotonDetector;
+  FlatSurface* m_aerogelFlatSurface;
+  FlatSurface* m_filterFlatSurface;
+  SphericalSurface* m_mirrorSphericalSurface;
+  OpticalBoundary* m_mirrorOpticalBoundary;
+  FlatSurface* m_sensorFlatSurface;
+};
+} // namespace richgeo

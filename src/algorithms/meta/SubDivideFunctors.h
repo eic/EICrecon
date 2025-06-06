@@ -13,8 +13,7 @@ namespace eicrecon {
 // ----------------------------------------------------------------------------
 // Functor to split collection based on a range of values
 // ----------------------------------------------------------------------------
-template <auto MemberFunctionPtr>
-class RangeSplit {
+template <auto MemberFunctionPtr> class RangeSplit {
 public:
     RangeSplit(std::vector<std::pair<double, double>> ranges, bool inside = true)
         : m_ranges(ranges), m_inside(ranges.size(), inside) {}
@@ -44,6 +43,8 @@ public:
         }
         return ids;
     }
+    return ids;
+  }
 
 private:
     std::vector<std::pair<double,double>> m_ranges;
@@ -56,73 +57,77 @@ private:
 // ----------------------------------------------------------------------------
 class GeometrySplit {
 public:
+  GeometrySplit(std::vector<std::vector<long int>> ids, std::string readout,
+                std::vector<std::string> divisions)
+      : m_ids(ids)
+      , m_divisions(divisions)
+      , m_readout(readout)
+      , is_init(std::make_shared<std::once_flag>())
+      , m_id_dec(std::make_shared<dd4hep::DDSegmentation::BitFieldCoder*>())
+      , m_div_ids(std::make_shared<std::vector<std::size_t>>()){};
 
-    GeometrySplit(std::vector<std::vector<long int>> ids, const std::string& readout, const std::vector<std::string>& divisions)
-    : m_ids(ids), m_readout(readout), m_divisions(divisions){};
+  template <typename T> std::vector<int> operator()(T& instance) const {
 
-    template <typename T>
-    std::vector<int> operator()(T& instance) const {
+    // Initialize the decoder and division ids on the first function call
+    std::call_once(*is_init, &GeometrySplit::init, this);
 
-        // Initialize the decoder and division ids on the first function call
-        std::call_once(*is_init, &GeometrySplit::init, this);
-
-        //Check which detector division to put the hit into
-        auto cellID = instance.getCellID();
-        std::vector<long int> det_ids;
-        for(auto d : m_div_ids){
-            det_ids.push_back(m_id_dec->get(cellID, d));
-        }
-        auto index = std::find(m_ids.begin(),m_ids.end(),det_ids);
-
-        std::vector<int> ids;
-        if(index != m_ids.end()){
-            ids.push_back(std::distance(m_ids.begin(),index));
-        }
-        return ids;
+    //Check which detector division to put the hit into
+    auto cellID = instance.getCellID();
+    std::vector<long int> det_ids;
+    for (auto d : *m_div_ids) {
+      det_ids.push_back((*m_id_dec)->get(cellID, d));
     }
+
+    auto index = std::find(m_ids.begin(), m_ids.end(), det_ids);
+
+    std::vector<int> ids;
+    if (index != m_ids.end()) {
+      ids.push_back(std::distance(m_ids.begin(), index));
+    }
+    return ids;
+  }
 
 private:
-
-    void init() const {
-        m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
-        for (auto d : m_divisions){
-            m_div_ids.push_back(m_id_dec->index(d));
-        }
+  void init() const {
+    *m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
+    for (auto d : m_divisions) {
+      m_div_ids->push_back((*m_id_dec)->index(d));
     }
+  }
 
-    std::vector<std::vector<long int>> m_ids;
-    std::vector<std::string> m_divisions;
-    std::string m_readout;
+  std::vector<std::vector<long int>> m_ids;
+  std::vector<std::string> m_divisions;
+  std::string m_readout;
 
-    mutable std::shared_ptr<std::once_flag> is_init = std::make_shared<std::once_flag>();
-    mutable dd4hep::DDSegmentation::BitFieldCoder* m_id_dec;
-    mutable std::vector<size_t> m_div_ids;
-
+  std::shared_ptr<std::once_flag> is_init;
+  std::shared_ptr<dd4hep::DDSegmentation::BitFieldCoder*> m_id_dec;
+  std::shared_ptr<std::vector<std::size_t>> m_div_ids;
 };
-
 
 // ----------------------------------------------------------------------------
 // Functor to split collection based on any number of collection values
 // ----------------------------------------------------------------------------
-template <auto... MemberFunctionPtrs>
-class ValueSplit {
+template <auto... MemberFunctionPtrs> class ValueSplit {
 public:
+  ValueSplit(std::vector<std::vector<int>> ids) : m_ids(ids){};
 
-    ValueSplit( std::vector<std::vector<int>> ids, bool matching = true)
-        : m_ids(ids), m_matching(matching) {};
+  ValueSplit( std::vector<std::vector<int>> ids, bool matching = true)
+      : m_ids(ids), m_matching(matching) {};
 
-    template <typename T>
-    std::vector<int> operator()(T& instance) const {
-        std::vector<int> ids;
-        // Check if requested value matches any configuration combinations
-        std::vector<int> values;
-        (values.push_back((instance.*MemberFunctionPtrs)()), ...);
-        auto index = std::find(m_ids.begin(),m_ids.end(),values);
-        if(index != m_ids.end()){
-            ids.push_back(std::distance(m_ids.begin(),index));
-        }
-        return ids;
-    }
+  template <typename T>
+  std::vector<int> operator()(T& instance) const {
+      std::vector<int> ids;
+      // Check if requested value matches any configuration combinations
+      std::vector<int> values;
+      (values.push_back((instance.*MemberFunctionPtrs)()), ...);
+      auto index = std::find(m_ids.begin(),m_ids.end(),values);
+      if(index != m_ids.end()){
+          ids.push_back(std::distance(m_ids.begin(),index));
+      }
+      return ids;
+  }
+
+  
 
 private:
     std::vector<std::vector<int>> m_ids;
@@ -183,4 +188,4 @@ private:
 
 };
 
-} // eicrecon
+} // namespace eicrecon

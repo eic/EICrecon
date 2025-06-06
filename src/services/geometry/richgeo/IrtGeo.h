@@ -23,50 +23,51 @@
 #include "RichGeo.h"
 
 namespace richgeo {
-  class IrtGeo {
-    public:
+class IrtGeo {
+public:
+  // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`
+  IrtGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_,
+         gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_,
+         std::shared_ptr<spdlog::logger> log_);
+  virtual ~IrtGeo();
 
-      // constructor: creates IRT-DD4hep bindings using main `Detector` handle `*det_`
-      IrtGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_);
-      virtual ~IrtGeo();
+  // access the full IRT geometry
+  CherenkovDetectorCollection* GetIrtDetectorCollection() const { return m_irtDetectorCollection; }
 
-      // access the full IRT geometry
-      CherenkovDetectorCollection *GetIrtDetectorCollection() { return m_irtDetectorCollection; }
+protected:
+  // protected methods
+  virtual void DD4hep_to_IRT() = 0; // given DD4hep geometry, produce IRT geometry
+  void
+  SetReadoutIDToPositionLambda(); // define the `cell ID -> pixel position` converter, correcting to sensor surface
+  void SetRefractiveIndexTable(); // fill table of refractive indices
+  // read `VariantParameters` for a vector
+  template <class VecT>
+  VecT GetVectorFromVariantParameters(dd4hep::rec::VariantParameters* pars, std::string key) const {
+    return VecT(pars->get<double>(key + "_x"), pars->get<double>(key + "_y"),
+                pars->get<double>(key + "_z"));
+  }
 
-    protected:
+  // inputs
+  std::string m_detName;
 
-      // protected methods
-      virtual void DD4hep_to_IRT() = 0;    // given DD4hep geometry, produce IRT geometry
-      void SetReadoutIDToPositionLambda(); // define the `cell ID -> pixel position` converter, correcting to sensor surface
-      void SetRefractiveIndexTable();      // fill table of refractive indices
-      // read `VariantParameters` for a vector
-      template<class VecT>
-        VecT GetVectorFromVariantParameters(dd4hep::rec::VariantParameters *pars, std::string key) {
-          return VecT(pars->get<double>(key+"_x"), pars->get<double>(key+"_y"), pars->get<double>(key+"_z"));
-        }
+  // DD4hep geometry handles
+  gsl::not_null<const dd4hep::Detector*> m_det;
+  dd4hep::DetElement m_detRich;
+  dd4hep::Position m_posRich;
 
-      // inputs
-      std::string m_detName;
+  // cell ID conversion
+  gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> m_converter;
+  std::unordered_map<int, richgeo::Sensor> m_sensor_info; // sensor ID -> sensor info
 
-      // DD4hep geometry handles
-      gsl::not_null<const dd4hep::Detector*> m_det;
-      dd4hep::DetElement m_detRich;
-      dd4hep::Position   m_posRich;
+  // IRT geometry handles
+  CherenkovDetectorCollection* m_irtDetectorCollection{};
+  CherenkovDetector* m_irtDetector{};
 
-      // cell ID conversion
-      gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> m_converter;
-      std::unordered_map<int,richgeo::Sensor> m_sensor_info; // sensor ID -> sensor info
+  // logger
+  std::shared_ptr<spdlog::logger> m_log;
 
-      // IRT geometry handles
-      CherenkovDetectorCollection *m_irtDetectorCollection;
-      CherenkovDetector           *m_irtDetector;
-
-      // logger
-      std::shared_ptr<spdlog::logger> m_log;
-
-    private:
-
-      // set all geometry handles
-      void Bind();
-  };
-}
+private:
+  // set all geometry handles
+  void Bind();
+};
+} // namespace richgeo
