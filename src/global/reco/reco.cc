@@ -14,6 +14,7 @@
 #include <fmt/core.h>
 #include <map>
 #include <memory>
+#include <functional>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -28,6 +29,8 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
+#include "algorithms/meta/SubDivideFunctors.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #ifdef USE_ONNX
@@ -42,7 +45,6 @@
 #if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/HadronicFinalState_factory.h"
 #endif
-#include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/MC2SmearedParticle_factory.h"
 #include "factories/reco/MatchClusters_factory.h"
 #include "factories/reco/PrimaryVertices_factory.h"
@@ -158,8 +160,12 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "ReconstructedJets", {"ReconstructedParticles"}, {"ReconstructedJets"}, {}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<ChargedReconstructedParticleSelector_factory>(
-      "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"}, app));
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::ReconstructedParticle>>(
+      "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"},
+      {.function =
+           BooleanSplit<&edm4eic::ReconstructedParticle::getCharge>{std::vector<float>{0.0},
+                                                                    std::not_equal_to<float>{}}},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedChargedJets", {"GeneratedChargedParticles"}, {"GeneratedChargedJets"}, {}, app));
