@@ -45,7 +45,6 @@
 #if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/HadronicFinalState_factory.h"
 #endif
-#include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/MC2SmearedParticle_factory.h"
 #include "factories/reco/MatchClusters_factory.h"
 #include "factories/reco/PrimaryVertices_factory.h"

@@ -43,8 +43,6 @@ public:
         }
         return ids;
     }
-    return ids;
-  }
 
 private:
     std::vector<std::pair<double,double>> m_ranges;
@@ -109,7 +107,6 @@ private:
 // ----------------------------------------------------------------------------
 template <auto... MemberFunctionPtrs> class ValueSplit {
 public:
-  ValueSplit(std::vector<std::vector<int>> ids) : m_ids(ids){};
 
   ValueSplit( std::vector<std::vector<int>> ids, bool matching = true)
       : m_ids(ids), m_matching(matching) {};
