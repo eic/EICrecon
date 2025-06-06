@@ -1244,7 +1244,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - name: Cancel container
-        run:
+        run: |
           echo '${{ needs.trigger-container.outputs.json }}'
           curl -X POST \
              -F "token=${{ secrets.EICWEB_CONTAINER_CANCEL }}" \
