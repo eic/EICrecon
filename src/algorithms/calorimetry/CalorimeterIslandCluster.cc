@@ -5,6 +5,7 @@
 //   https://cds.cern.ch/record/687345/files/note01_034.pdf
 //   https://www.jlab.org/primex/weekly_meetings/primexII/slides_2012_01_20/island_algorithm.pdf
 
+#include <DD4hep/Handle.h>
 #include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/service.h>
@@ -23,8 +24,8 @@
 #include <tuple>
 #include <unordered_map>
 #include <utility>
-#include <vector>
 #include <variant>
+#include <vector>
 
 #include "CalorimeterIslandCluster.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
