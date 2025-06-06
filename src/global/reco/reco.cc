@@ -57,7 +57,6 @@
 #include "factories/reco/TrackClusterMatch_factory.h"
 #endif
 
-
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
@@ -161,13 +160,12 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "ReconstructedJets", {"ReconstructedParticles"}, {"ReconstructedJets"}, {}, app));
 
-    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::ReconstructedParticle>>(
-        "GeneratedChargedParticles",
-        {"GeneratedParticles"},
-        {"GeneratedChargedParticles"},
-        {.function = BooleanSplit<&edm4eic::ReconstructedParticle::getCharge>{std::vector<float>{0.0},std::not_equal_to<float>{}}},
-        app
-    ));
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::ReconstructedParticle>>(
+      "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"},
+      {.function =
+           BooleanSplit<&edm4eic::ReconstructedParticle::getCharge>{std::vector<float>{0.0},
+                                                                    std::not_equal_to<float>{}}},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedChargedJets", {"GeneratedChargedParticles"}, {"GeneratedChargedJets"}, {}, app));

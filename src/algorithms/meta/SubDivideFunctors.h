@@ -15,39 +15,39 @@ namespace eicrecon {
 // ----------------------------------------------------------------------------
 template <auto MemberFunctionPtr> class RangeSplit {
 public:
-    RangeSplit(std::vector<std::pair<double, double>> ranges, bool inside = true)
-        : m_ranges(ranges), m_inside(ranges.size(), inside) {}
+  RangeSplit(std::vector<std::pair<double, double>> ranges, bool inside = true)
+      : m_ranges(ranges), m_inside(ranges.size(), inside) {}
 
-    RangeSplit(const std::vector<std::pair<double, double>>& ranges, const std::vector<bool>& inside)
-        : m_ranges(ranges) {
-        if (inside.size() != ranges.size()) {
-            throw std::invalid_argument("Size of inside must match the size of ranges");
-        }
-        m_inside = inside;
+  RangeSplit(const std::vector<std::pair<double, double>>& ranges, const std::vector<bool>& inside)
+      : m_ranges(ranges) {
+    if (inside.size() != ranges.size()) {
+      throw std::invalid_argument("Size of inside must match the size of ranges");
     }
+    m_inside = inside;
+  }
 
-    template <typename T>
-    std::vector<int> operator()(T& instance) const {
-        std::vector<int> ids;
-        //Check if requested value is within the ranges
-        for(size_t i = 0; i < m_ranges.size(); i++){
-            if(m_inside[i]){
-                if((instance.*MemberFunctionPtr)() >= m_ranges[i].first && (instance.*MemberFunctionPtr)() <= m_ranges[i].second){
-                    ids.push_back(i);
-                }
-            } else {
-                if((instance.*MemberFunctionPtr)() < m_ranges[i].first || (instance.*MemberFunctionPtr)() > m_ranges[i].second){
-                    ids.push_back(i);
-                }
-            }
+  template <typename T> std::vector<int> operator()(T& instance) const {
+    std::vector<int> ids;
+    //Check if requested value is within the ranges
+    for (size_t i = 0; i < m_ranges.size(); i++) {
+      if (m_inside[i]) {
+        if ((instance.*MemberFunctionPtr)() >= m_ranges[i].first &&
+            (instance.*MemberFunctionPtr)() <= m_ranges[i].second) {
+          ids.push_back(i);
         }
-        return ids;
+      } else {
+        if ((instance.*MemberFunctionPtr)() < m_ranges[i].first ||
+            (instance.*MemberFunctionPtr)() > m_ranges[i].second) {
+          ids.push_back(i);
+        }
+      }
     }
+    return ids;
+  }
 
 private:
-    std::vector<std::pair<double,double>> m_ranges;
-    std::vector<bool> m_inside;
-
+  std::vector<std::pair<double, double>> m_ranges;
+  std::vector<bool> m_inside;
 };
 
 // ----------------------------------------------------------------------------
@@ -107,82 +107,74 @@ private:
 // ----------------------------------------------------------------------------
 template <auto... MemberFunctionPtrs> class ValueSplit {
 public:
+  ValueSplit(std::vector<std::vector<int>> ids, bool matching = true)
+      : m_ids(ids), m_matching(matching){};
 
-  ValueSplit( std::vector<std::vector<int>> ids, bool matching = true)
-      : m_ids(ids), m_matching(matching) {};
-
-  template <typename T>
-  std::vector<int> operator()(T& instance) const {
-      std::vector<int> ids;
-      // Check if requested value matches any configuration combinations
-      std::vector<int> values;
-      (values.push_back((instance.*MemberFunctionPtrs)()), ...);
-      auto index = std::find(m_ids.begin(),m_ids.end(),values);
-      if(index != m_ids.end()){
-          ids.push_back(std::distance(m_ids.begin(),index));
-      }
-      return ids;
+  template <typename T> std::vector<int> operator()(T& instance) const {
+    std::vector<int> ids;
+    // Check if requested value matches any configuration combinations
+    std::vector<int> values;
+    (values.push_back((instance.*MemberFunctionPtrs)()), ...);
+    auto index = std::find(m_ids.begin(), m_ids.end(), values);
+    if (index != m_ids.end()) {
+      ids.push_back(std::distance(m_ids.begin(), index));
+    }
+    return ids;
   }
 
-  
-
 private:
-    std::vector<std::vector<int>> m_ids;
-    bool m_matching = true;
-
+  std::vector<std::vector<int>> m_ids;
+  bool m_matching = true;
 };
 
 // ----------------------------------------------------------------------------
 // Functor to split collection based on any number of collection values
 // ----------------------------------------------------------------------------
-template <auto... MemberFunctionPtrs>
-class BooleanSplit {
+template <auto... MemberFunctionPtrs> class BooleanSplit {
 public:
-    using ComparisonFunction = std::function<bool(float, float)>;
+  using ComparisonFunction = std::function<bool(float, float)>;
 
-    BooleanSplit( std::vector<std::vector<float>> ids, ComparisonFunction comparison)
-        : m_ids(ids), m_comparisons(ids.size(), comparison) {};
+  BooleanSplit(std::vector<std::vector<float>> ids, ComparisonFunction comparison)
+      : m_ids(ids), m_comparisons(ids.size(), comparison){};
 
-    BooleanSplit( std::vector<float> ids, ComparisonFunction comparison)
-        : m_ids(1,ids), m_comparisons(ids.size(), comparison) {};
+  BooleanSplit(std::vector<float> ids, ComparisonFunction comparison)
+      : m_ids(1, ids), m_comparisons(ids.size(), comparison){};
 
-
-    BooleanSplit( std::vector<std::vector<float>> ids, std::vector<ComparisonFunction> comparisons)
-        : m_ids(ids) {
-        if (ids.size() != comparisons.size()) {
-            throw std::invalid_argument("Size of values to compare must match the size of boolean functions");
-        }
-        m_comparisons = comparisons;
+  BooleanSplit(std::vector<std::vector<float>> ids, std::vector<ComparisonFunction> comparisons)
+      : m_ids(ids) {
+    if (ids.size() != comparisons.size()) {
+      throw std::invalid_argument(
+          "Size of values to compare must match the size of boolean functions");
     }
+    m_comparisons = comparisons;
+  }
 
-    template <typename T>
-    std::vector<int> operator()(T& instance) const {
-        std::vector<int> ids;
-        // Check if requested value matches any configuration combinations
-        std::vector<float> values;
-        (values.push_back((instance.*MemberFunctionPtrs)()), ...);
-        for (size_t i = 0; i < m_ids.size(); ++i){
-            if(compareVectors(m_ids[i], values, m_comparisons)){
-                ids.push_back(i);
-            }
-        }
-        return ids;
+  template <typename T> std::vector<int> operator()(T& instance) const {
+    std::vector<int> ids;
+    // Check if requested value matches any configuration combinations
+    std::vector<float> values;
+    (values.push_back((instance.*MemberFunctionPtrs)()), ...);
+    for (size_t i = 0; i < m_ids.size(); ++i) {
+      if (compareVectors(m_ids[i], values, m_comparisons)) {
+        ids.push_back(i);
+      }
     }
+    return ids;
+  }
 
 private:
-    std::vector<std::vector<float>> m_ids;
-    std::vector<ComparisonFunction> m_comparisons;
+  std::vector<std::vector<float>> m_ids;
+  std::vector<ComparisonFunction> m_comparisons;
 
-    static bool compareVectors(const std::vector<float>& vec1, const std::vector<float>& vec2, const std::vector<ComparisonFunction>& comparisons) {
-        for (size_t i = 0; i < vec1.size(); ++i) {
-            if (!comparisons[i](vec1[i], vec2[i])) {
-                return false;
-            }
-        }
-        return true;
+  static bool compareVectors(const std::vector<float>& vec1, const std::vector<float>& vec2,
+                             const std::vector<ComparisonFunction>& comparisons) {
+    for (size_t i = 0; i < vec1.size(); ++i) {
+      if (!comparisons[i](vec1[i], vec2[i])) {
+        return false;
+      }
     }
-
-
+    return true;
+  }
 };
 
 } // namespace eicrecon
