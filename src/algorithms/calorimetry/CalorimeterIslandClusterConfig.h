@@ -4,6 +4,7 @@
 #pragma once
 
 #include <string>
+#include <variant>
 
 namespace eicrecon {
 
@@ -12,11 +13,10 @@ struct CalorimeterIslandClusterConfig {
   std::string adjacencyMatrix;
   std::string peakNeighbourhoodMatrix;
   std::string readout;
-  std::vector<std::string> lengthConstants;
 
   // neighbour checking distances
   double sectorDist;
-  std::vector<double> localDistXY;
+  std::vector<std::variant<std::string,double>> localDistXY;
   std::vector<double> localDistXZ;
   std::vector<double> localDistYZ;
   std::vector<double> globalDistRPhi;
