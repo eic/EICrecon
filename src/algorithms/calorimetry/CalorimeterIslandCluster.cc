@@ -24,6 +24,7 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#include <variant>
 
 #include "CalorimeterIslandCluster.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
@@ -32,6 +33,10 @@
 using namespace edm4eic;
 
 namespace eicrecon {
+template <typename... L> struct multilambda : L... {
+  using L::operator()...;
+  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
+};
 
 static double Phi_mpi_pi(double phi) { return std::remainder(phi, 2 * M_PI); }
 
@@ -73,34 +78,15 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit& h1, const CaloHit& h2) 
 // AlgorithmInit
 //------------------------
 void CalorimeterIslandCluster::init() {
+  
+  multilambda _toDouble = {
+      [](const std::string& v) { return dd4hep::_toDouble(v); },
+      [](const double& v) { return v; },
+  };
 
-  // Set m_localDistXY by scaling config values with the length constants
-  if (m_cfg.localDistXY.size() == 2) {
-    double side_length{NAN}; // default value, will be overwritten if lengthScaleConstants is set
-    // define the distance between neighbors in terms of the largest possible distance between subcell hits
-    auto detector = algorithms::GeoSvc::instance().detector();
-
-    for (const auto& scale_constant : m_cfg.lengthConstants) {
-      // get the constant from the detector
-      try {
-        double constant = detector->constant<double>(scale_constant);
-        if (std::isnan(side_length)) {
-          side_length = constant;
-        } else {
-          side_length = std::max(side_length, constant);
-        }
-      } catch (std::runtime_error&) {
-        error("Failed to get {} from the detector", scale_constant);
-        // if the constant is not found, we will use the default value
-      }
-    }
-
-    if (std::isnan(side_length)) {
-      // if no length constants were provided, use a default value
-      side_length = 1.0 * dd4hep::mm;
-    }
-    m_localDistXY.push_back(side_length * m_cfg.localDistXY[0]);
-    m_localDistXY.push_back(side_length * m_cfg.localDistXY[1]);
+  if(m_cfg.localDistXY.size() == 2) {
+    m_localDistXY.push_back(std::visit(_toDouble, m_cfg.localDistXY[0]));
+    m_localDistXY.push_back(std::visit(_toDouble, m_cfg.localDistXY[1]));    
   }
 
   static std::map<std::string,
