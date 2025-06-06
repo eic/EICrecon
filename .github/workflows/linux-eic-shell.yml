@@ -967,8 +967,8 @@ jobs:
   trigger-container:
     runs-on: ubuntu-24.04
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' }}
-    needs:
-    - eicrecon-gun
+    #needs:
+    #- eicrecon-gun
     outputs:
       json: ${{ steps.trigger.outputs.json }}
     steps:
@@ -1240,7 +1240,7 @@ jobs:
     #if: cancelled() || failure()
     needs:
     - trigger-container
-    - deploy-docs
+    #- deploy-docs
     runs-on: ubuntu-24.04
     steps:
       - name: Cancel container
