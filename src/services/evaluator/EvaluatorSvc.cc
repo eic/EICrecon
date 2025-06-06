@@ -3,8 +3,9 @@
 
 #include <TInterpreter.h>
 #include <TInterpreterValue.h>
-#include <algorithm>
+#include <TVirtualRWMutex.h>
 #include <fmt/core.h>
+#include <algorithm>
 #include <memory>
 #include <sstream>
 
@@ -35,7 +36,12 @@ EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params)
   debug("Compiling {}", sstr.str());
   interp->ProcessLine(sstr.str().c_str());
   std::unique_ptr<TInterpreterValue> func_val{gInterpreter->MakeInterpreterValue()};
-  interp->Evaluate(func_name.c_str(), *func_val);
+  {
+    // FIXME: workaround for https://github.com/root-project/root/issues/18863
+    // Can be removed after https://github.com/root-project/root/pull/18938
+    R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
+    interp->Evaluate(func_name.c_str(), *func_val);
+  }
   typedef double (*func_t)(double params[]);
   func_t func = ((func_t)(func_val->GetAsPointer()));
 
