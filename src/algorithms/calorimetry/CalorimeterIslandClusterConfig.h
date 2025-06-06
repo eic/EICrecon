@@ -16,7 +16,7 @@ struct CalorimeterIslandClusterConfig {
 
   // neighbour checking distances
   double sectorDist;
-  std::vector<std::variant<std::string,double>> localDistXY;
+  std::vector<std::variant<std::string, double>> localDistXY;
   std::vector<double> localDistXZ;
   std::vector<double> localDistYZ;
   std::vector<double> globalDistRPhi;

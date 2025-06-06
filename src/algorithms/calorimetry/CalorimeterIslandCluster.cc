@@ -78,15 +78,15 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit& h1, const CaloHit& h2) 
 // AlgorithmInit
 //------------------------
 void CalorimeterIslandCluster::init() {
-  
+
   multilambda _toDouble = {
       [](const std::string& v) { return dd4hep::_toDouble(v); },
       [](const double& v) { return v; },
   };
 
-  if(m_cfg.localDistXY.size() == 2) {
+  if (m_cfg.localDistXY.size() == 2) {
     m_localDistXY.push_back(std::visit(_toDouble, m_cfg.localDistXY[0]));
-    m_localDistXY.push_back(std::visit(_toDouble, m_cfg.localDistXY[1]));    
+    m_localDistXY.push_back(std::visit(_toDouble, m_cfg.localDistXY[1]));
   }
 
   static std::map<std::string,
