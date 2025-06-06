@@ -109,8 +109,10 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapPInsertImagingProtoClusters"},
       {
           .neighbourLayersRange = 1,
-          .localDistXY          = {"0.5 * HcalEndcapPInsertCellSizeLGRight", "0.5 * HcalEndcapPInsertCellSizeLGRight * sin(pi / 3)"},
-          .layerDistXY          = {"0.25 * HcalEndcapPInsertCellSizeLGRight", "0.25 * HcalEndcapPInsertCellSizeLGRight * sin(pi / 3)"},
+          .localDistXY          = {"0.5 * HcalEndcapPInsertCellSizeLGRight",
+                                   "0.5 * HcalEndcapPInsertCellSizeLGRight * sin(pi / 3)"},
+          .layerDistXY          = {"0.25 * HcalEndcapPInsertCellSizeLGRight",
+                                   "0.25 * HcalEndcapPInsertCellSizeLGRight * sin(pi / 3)"},
           .layerMode            = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .sectorDist           = 10.0 * dd4hep::cm,
           .minClusterHitEdep    = 5.0 * dd4hep::keV,
