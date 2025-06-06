@@ -1,17 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2023 - 2025 Friederike Bock, Wouter Deconinck
 
-#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <TString.h>
-#include <algorithm>
-#include <cmath>
 #include <edm4eic/EDM4eicVersion.h>
-#include <gsl/pointers>
-#include <memory>
-#include <stdexcept>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
@@ -27,7 +20,6 @@
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
