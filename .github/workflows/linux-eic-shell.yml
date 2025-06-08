@@ -968,7 +968,7 @@ jobs:
     runs-on: ubuntu-24.04
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' }}
     needs:
-    - eicrecon-gun
+    - build
     outputs:
       json: ${{ steps.trigger.outputs.json }}
     steps:
