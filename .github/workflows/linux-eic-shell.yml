@@ -46,6 +46,7 @@ env:
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0:intercept_tls_get_addr=0
   LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
   UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1:silence_unsigned_overflow=1:report_error_type=1
+  TSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/tsan.supp
 
 jobs:
   env:
@@ -70,6 +71,9 @@ jobs:
       matrix:
         CXX: [g++, clang++]
         CMAKE_BUILD_TYPE: [Release, Debug]
+        USE_ASAN: [ON]
+        USE_TSAN: [OFF]
+        USE_UBSAN: [ON]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
         # note that entries that overwrite matrix values require a full specification
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#expanding-or-adding-matrix-configurations
@@ -98,6 +102,13 @@ jobs:
             CMAKE_BUILD_TYPE: Release
             release: nightly
           - CXX: clang++
+          # thread sanitizer build
+          - CXX: clang++
+            CMAKE_BUILD_TYPE: Release
+            release: nightly
+            USE_ASAN: OFF
+            USE_TSAN: ON
+          - CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 24.09.0-stable
           - CXX: clang++
@@ -115,12 +126,13 @@ jobs:
       uses: actions/cache@v4
       with:
         path: .ccache
-        key: ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.head_ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
+        key: ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.head_ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
         restore-keys: |
-             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.ref_name }}-
-             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.head_ref }}-
-             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.base_ref }}-
-             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{ github.event.merge_group.base_ref }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.ref_name }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.head_ref }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.base_ref }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.event.merge_group.base_ref }}-
+             ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-
              ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-
              ccache-${{ matrix.CXX }}-${{ matrix.release }}-
              ccache-${{ matrix.CXX }}-
@@ -138,7 +150,7 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
-          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=ON -DUSE_TSAN=OFF -DUSE_UBSAN=ON
+          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=${{matrix.USE_ASAN}} -DUSE_TSAN=${{matrix.USE_TSAN}} -DUSE_UBSAN=${{matrix.USE_UBSAN}}
           cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target install
           ccache --show-stats --verbose
           ccache --evict-older-than 7d
@@ -164,10 +176,18 @@ jobs:
           ctest --test-dir build -V
     - name: Compress install directory
       run: tar -caf install.tar.zst install/
-    - name: Upload install directory
+    - name: Upload install directory (ASAN)
+      if: ${{ matrix.USE_ASAN == 'ON' && matrix.USE_TSAN == 'OFF' }}
       uses: actions/upload-artifact@v4
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-ASAN
+        path: install.tar.zst
+        if-no-files-found: error
+    - name: Upload install directory (TSAN)
+      if: ${{ matrix.USE_ASAN == 'OFF' && matrix.USE_TSAN == 'ON' }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-TSAN
         path: install.tar.zst
         if-no-files-found: error
     # Only compress and upload build directory if we are going to use it later
@@ -443,7 +463,7 @@ jobs:
           - beam: 5x41
             detector_config: craterlake_5x41
           - beam: 10x100
-            detector_config: craterlake
+            detector_config: craterlake_10x100
           - beam: 18x275
             detector_config: craterlake_18x275
     steps:
@@ -487,7 +507,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - name: Download simulation input
@@ -547,7 +567,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -590,7 +610,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -639,7 +659,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -680,7 +700,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -790,7 +810,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -841,6 +861,7 @@ jobs:
     - build
     - npsim-dis
     - npsim-minbias
+    continue-on-error: ${{ matrix.nthreads > 1 }}
     strategy:
       matrix:
         include:
@@ -848,22 +869,39 @@ jobs:
           beam: 5x41
           minq2: 0
           detector_config: craterlake_5x41
+          sanitizer: ASAN
         - CXX: clang++
           beam: 10x100
           minq2: 0
-          detector_config: craterlake
+          detector_config: craterlake_10x100
+          sanitizer: TSAN
         - CXX: clang++
           beam: 18x275
           minq2: 0
           detector_config: craterlake_18x275
+          sanitizer: ASAN
+        - CXX: clang++
+          beam: 18x275
+          minq2: 0
+          detector_config: craterlake_18x275
+          sanitizer: TSAN
+          nthreads: 4
         - CXX: clang++
           beam: 10x100
           minq2: 1000
           detector_config: craterlake_tracking_only
+          sanitizer: ASAN
         - CXX: clang++
           beam: 18x275
           minq2: 1000
           detector_config: craterlake_18x275
+          sanitizer: ASAN
+        - CXX: clang++
+          beam: 18x275
+          minq2: 1000
+          detector_config: craterlake_18x275
+          sanitizer: TSAN
+          nthreads: 4
     steps:
     - name: Checkout .github
       uses: actions/checkout@v4
@@ -872,7 +910,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v4
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-${{ matrix.sanitizer }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v4
@@ -891,15 +929,15 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           prmon --json-summary rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.prmon.json -- \
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups)
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{matrix.nthreads > 1 && format('-Pnthreads={0}', matrix.nthreads) || ''}} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups)
     - uses: actions/upload-artifact@v4
       with:
-        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
         path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
     - uses: actions/upload-artifact@v4
       with:
-        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.prmon.json
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json
         path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.prmon.json
         if-no-files-found: error
     - name: Convert execution graphs
@@ -914,21 +952,21 @@ jobs:
       continue-on-error: true
     - uses: actions/upload-artifact@v4
       with:
-        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.dot
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
         path: |
           *.dot
           *.svg
         if-no-files-found: error
     - uses: actions/upload-artifact@v4
       with:
-        name: obj_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}
+        name: obj_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
         path: |
           *.mtl
           *.obj
         if-no-files-found: error
     - uses: actions/upload-artifact@v4
       with:
-        name: ply_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}
+        name: ply_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
         path: |
           *.ply
         if-no-files-found: error
@@ -938,6 +976,9 @@ jobs:
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
+        # FIXME: compare multi-threaded here with single-threaded reference
+        # since multi-threaded has issues with randomness reproducibility
+        #name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         workflow: ".github/workflows/linux-eic-shell.yml"
         workflow_conclusion: "completed"
@@ -953,22 +994,26 @@ jobs:
           ln -sf ../rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root new/
           # using nullglob to ensure ref/* does not fail
           shopt -s nullglob
+          # FIXME: compare multi-threaded here with single-threaded reference
+          #capybara bara ref/*rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root new/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
           capybara bara ref/*rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root new/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
-          mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}
-          touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}
+          mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
+          touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
     - uses: actions/upload-artifact@v4
       with:
-        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.capy
+        name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.capy
         path: |
-          .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}
-          rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}/
+          .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
+          rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}/
         if-no-files-found: error
 
   trigger-container:
     runs-on: ubuntu-24.04
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' }}
     needs:
-    - eicrecon-gun
+    - build
+    outputs:
+      json: ${{ steps.trigger.outputs.json }}
     steps:
     - uses: eic/trigger-gitlab-ci@v3
       id: trigger
@@ -1233,3 +1278,16 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body-file: capybara_${{ github.event.pull_request.number }}.md
           edit-mode: replace
+
+  cancel-container:
+    if: cancelled() || failure()
+    needs:
+    - trigger-container
+    - deploy-docs
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Cancel container
+        run: |
+          curl --request POST \
+             --header "PRIVATE-TOKEN: ${{ secrets.EICWEB_CONTAINER_CANCEL }}" \
+             https://eicweb.phy.anl.gov/api/v4/projects/290/pipelines/$(echo '${{ needs.trigger-container.outputs.json }}' | jq --raw-output .id)/cancel
