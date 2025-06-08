@@ -32,15 +32,11 @@ EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params)
   sstr << "}";
 
   TInterpreter* interp = TInterpreter::Instance();
-  debug("Compiling {}", sstr.str());
+  debug("Compiling {}", sstr.str();
+  R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
   interp->ProcessLine(sstr.str().c_str());
   std::unique_ptr<TInterpreterValue> func_val{gInterpreter->MakeInterpreterValue()};
-  {
-    // FIXME: workaround for https://github.com/root-project/root/issues/18863
-    // Can be removed after https://github.com/root-project/root/pull/18938
-    R__WRITE_LOCKGUARD(ROOT::gCoreMutex);
-    interp->Evaluate(func_name.c_str(), *func_val);
-  }
+  interp->Evaluate(func_name.c_str(), *func_val);
   typedef double (*func_t)(double params[]);
   func_t func = ((func_t)(func_val->GetAsPointer()));
 
