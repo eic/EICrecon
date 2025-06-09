@@ -21,7 +21,7 @@ private:
   PodioOutput<edm4eic::ProtoCluster> m_proto_cluster_output{this};
 
   ParameterRef<double> m_sectorDist{this, "sectorDist", config().sectorDist};
-  ParameterRef<std::vector<double>> m_localDistXY{this, "localDistXY", config().localDistXY};
+  // ParameterRef<std::vector<double>> m_localDistXY{this, "localDistXY", config().localDistXY};
   ParameterRef<std::vector<double>> m_localDistXZ{this, "localDistXZ", config().localDistXZ};
   ParameterRef<std::vector<double>> m_localDistYZ{this, "localDistYZ", config().localDistYZ};
   ParameterRef<std::vector<double>> m_globallDistRPhi{this, "globalDistRPhi",
