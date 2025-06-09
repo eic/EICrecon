@@ -50,26 +50,24 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
 
   void Execute(int64_t run_number, uint64_t event_number) {
     for (size_t coll_index = 0; coll_index < m_simtrackerhits_in().size(); ++coll_index) {
-        const auto* coll_in = m_simtrackerhits_in().at(coll_index);
-        auto& coll_out      = m_simtrackerhits_out().at(coll_index);
-        if (coll_in != nullptr) {
-            std::vector<edm4hep::MutableSimTrackerHit> sorted_hits;
-            for (const auto& hit : *coll_in) {
-                edm4hep::MutableSimTrackerHit copiedHit = hit.clone();
-                copiedHit.setTime(hit.getTime() - m_time_offset);
-                sorted_hits.push_back(copiedHit);
-            }
-
-            std::sort(sorted_hits.begin(), sorted_hits.end(), [](const auto& a, const auto& b) {
-                return a.getTime() < b.getTime();
-            });
-
-            for (auto hit : sorted_hits) {
-                auto hitTime = hit.getTime();
-                coll_out->push_back(hit);
-            }
+      const auto* coll_in = m_simtrackerhits_in().at(coll_index);
+      auto& coll_out      = m_simtrackerhits_out().at(coll_index);
+      if (coll_in != nullptr) {
+        std::vector<edm4hep::MutableSimTrackerHit> sorted_hits;
+        for (const auto& hit : *coll_in) {
+          edm4hep::MutableSimTrackerHit copiedHit = hit.clone();
+          copiedHit.setTime(hit.getTime() - m_time_offset);
+          sorted_hits.push_back(copiedHit);
         }
-    }    
 
+        std::sort(sorted_hits.begin(), sorted_hits.end(),
+                  [](const auto& a, const auto& b) { return a.getTime() < b.getTime(); });
+
+        for (auto hit : sorted_hits) {
+          auto hitTime = hit.getTime();
+          coll_out->push_back(hit);
+        }
+      }
+    }
   }
 };
