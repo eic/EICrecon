@@ -36,6 +36,24 @@ struct MemberFunctionReturnTypes {
     using type = std::tuple<typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>;
 };
 
+template <auto First, auto... Rest>
+struct FirstMemberFunctionPtr {
+    static constexpr auto value = First;
+};
+
+template <typename BooleanFunction, typename... Types, std::size_t... Is>
+constexpr auto make_comparison_tuple_impl(const BooleanFunction& func, std::index_sequence<Is...>) {
+    return std::make_tuple(
+        std::function<bool(Types, Types)>{func}... // Expand for each type
+    );
+}
+
+template <typename BooleanFunction, typename... Types>
+constexpr auto make_comparison_tuple(const BooleanFunction& func) {
+    return make_comparison_tuple_impl<BooleanFunction, Types...>(
+        func, std::index_sequence_for<Types...>{});
+}
+
 // ----------------------------------------------------------------------------
 // Functor to split collection based on a range of values
 // ----------------------------------------------------------------------------
@@ -166,17 +184,25 @@ public:
   using ReturnTypes = typename MemberFunctionReturnTypes<MemberFunctionPtrs...>::type;
   using ComparisonFunctions = std::tuple<std::function<bool(typename MemberFunctionReturnType<MemberFunctionPtrs>::type,
                                                             typename MemberFunctionReturnType<MemberFunctionPtrs>::type)>...>;
+                                                            
+  // Get the first member function pointer from the parameter pack so that single function constructors can be used
+  static constexpr auto FirstMemberFunction = FirstMemberFunctionPtr<MemberFunctionPtrs...>::value;
+  using FirstReturnType = typename MemberFunctionReturnType<FirstMemberFunction>::type;
+  using ComparisonFunction = std::function<bool(FirstReturnType, FirstReturnType)>;
 
+  // Declare the tuple size as a static constexpr member
+  static constexpr std::size_t TupleSize = std::tuple_size<ReturnTypes>::value;
 
-  using ComparisonFunction = std::function<bool(float, float)>;
+   // Ensure that TupleSize is at least 1
+   static_assert(TupleSize > 0, "BooleanSplit requires at least one member function pointer.");
 
-  BooleanSplit(const std::vector<std::vector<float>>& ids, const ComparisonFunction& comparison=std::equal_to{})
-      : m_ids(ids), m_comparisons(ids.size(), comparison){};
+  BooleanSplit(const std::vector<std::tuple<typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>>& ids, const ComparisonFunction& comparison=std::equal_to{})
+      : m_ids(ids), m_comparisons(make_comparison_tuple<ComparisonFunction, typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>(comparison)) {};
 
-  BooleanSplit(const std::vector<float>& ids, const ComparisonFunction& comparison=std::equal_to{})
-      : m_ids(1, ids), m_comparisons(ids.size(), comparison){};
+  BooleanSplit(const std::tuple<typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>& ids, const ComparisonFunction& comparison=std::equal_to{})
+      : m_ids(1, ids), m_comparisons(make_comparison_tuple<ComparisonFunction, typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>(comparison)) {};
 
-  BooleanSplit(const std::vector<std::vector<float>>& ids, const std::vector<ComparisonFunction>& comparisons)
+  BooleanSplit(const std::vector<std::tuple<typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>>& ids, const std::vector<ComparisonFunction>& comparisons)
       : m_ids(ids), m_comparisons(comparisons) {
     if (ids.size() != comparisons.size()) {
       throw std::invalid_argument(
@@ -184,13 +210,13 @@ public:
     }
   }
 
-  template <typename T> std::vector<size_t> operator()(T& instance) const {
+  template <typename T>
+  std::vector<size_t> operator()(const T& instance) const {
     std::vector<size_t> ids;
     // Check if requested value matches any configuration combinations
-    std::vector<float> values;
-    (values.push_back((instance.*MemberFunctionPtrs)()), ...);
+    ReturnTypes values{(instance.*MemberFunctionPtrs)()...};
     for (size_t i = 0; i < m_ids.size(); ++i) {
-      if (compareVectors(m_ids[i], values, m_comparisons)) {
+      if (compareTuples(m_ids[i], values, m_comparisons)) {
         ids.push_back(i);
       }
     }
@@ -198,17 +224,18 @@ public:
   }
 
 private:
-  const std::vector<std::vector<float>> m_ids;
-  const std::vector<ComparisonFunction> m_comparisons;
+  std::vector<std::tuple<typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>> m_ids;
+  ComparisonFunctions m_comparisons;
 
-  static bool compareVectors(const std::vector<float>& vec1, const std::vector<float>& vec2,
-                             const std::vector<ComparisonFunction>& comparisons) {
-    for (size_t i = 0; i < vec1.size(); ++i) {
-      if (!comparisons[i](vec1[i], vec2[i])) {
-        return false;
-      }
-    }
-    return true;
+  template <typename Tuple1, typename Tuple2, typename Tuple3, std::size_t... Is>
+  static bool compareTuplesImpl(const Tuple1& tuple1, const Tuple2& tuple2, const Tuple3& comparisons,
+                                std::index_sequence<Is...>) {
+      return (... && (std::get<Is>(comparisons)(std::get<Is>(tuple1), std::get<Is>(tuple2))));
+  }
+
+  template <typename Tuple1, typename Tuple2, typename Tuple3>
+  static bool compareTuples(const Tuple1& tuple1, const Tuple2& tuple2, const Tuple3& comparisons) {
+      return compareTuplesImpl(tuple1, tuple2, comparisons, std::make_index_sequence<TupleSize>{});
   }
 };
 

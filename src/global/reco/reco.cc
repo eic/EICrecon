@@ -163,8 +163,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"},
       {.function =
-           BooleanSplit<&edm4eic::ReconstructedParticle::getCharge>{std::vector<float>{0.0},
-                                                                    std::not_equal_to<float>{}}},
+           BooleanSplit<&edm4eic::ReconstructedParticle::getCharge>{std::tuple{0.0},
+                                                                    std::not_equal_to{}}},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
