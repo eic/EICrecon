@@ -15,8 +15,30 @@
 struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
     JEventLevel m_factory_level;
 
-    PodioInput<edm4hep::SimTrackerHit> check_hits_in {this};
-    PodioOutput<edm4hep::SimTrackerHit> check_hits_out {this};
+    // PodioInput<edm4hep::SimTrackerHit> check_hits_in {this};
+    // PodioOutput<edm4hep::SimTrackerHit> check_hits_out {this};
+
+  std::vector<std::string> m_simtrackerhit_collection_names_aligned = {
+      "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
+      "DRICHHits_aligned",           "ForwardMPGDEndcapHits_aligned",  "ForwardOffMTrackerHits_aligned",
+      "ForwardRomanPotHits_aligned", "LumiSpecTrackerHits_aligned",    "MPGDBarrelHits_aligned",
+      "OuterMPGDBarrelHits_aligned", "RICHEndcapNHits_aligned",        "SiBarrelHits_aligned",
+      "TOFBarrelHits_aligned",       "TOFEndcapHits_aligned",          "TaggerTrackerHits_aligned",
+      "TrackerEndcapHits_aligned",   "VertexBarrelHits_aligned"};
+
+  std::vector<std::string> m_simtrackerhit_collection_names = {
+      "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
+      "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
+      "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
+      "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
+      "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
+      "TrackerEndcapHits",   "VertexBarrelHits"};
+    
+    VariadicPodioInput<edm4hep::SimTrackerHit> m_simtrackerhits_in{
+        this, {.names = m_simtrackerhit_collection_names, .is_optional = true}};
+    VariadicPodioOutput<edm4hep::SimTrackerHit> m_simtrackerhits_out{
+        this, m_simtrackerhit_collection_names_aligned};
+
 
     Double_t m_time_offset = 0.0; // Time offset to apply to hits
 
@@ -29,20 +51,43 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
     void Execute(int64_t run_number, uint64_t event_number) {
 
         // Sort hits by time
-        std::vector<edm4hep::MutableSimTrackerHit> sorted_hits;
-        for (const auto& hit : *check_hits_in) {
-            edm4hep::MutableSimTrackerHit copiedHit = hit.clone();
-            copiedHit.setTime(hit.getTime() - m_time_offset);
-            sorted_hits.push_back(copiedHit);
-        }
+        // std::vector<edm4hep::MutableSimTrackerHit> sorted_hits;
+        // for (const auto& hit : *check_hits_in) {
+        //     edm4hep::MutableSimTrackerHit copiedHit = hit.clone();
+        //     copiedHit.setTime(hit.getTime() - m_time_offset);
+        //     sorted_hits.push_back(copiedHit);
+        // }
 
-        std::sort(sorted_hits.begin(), sorted_hits.end(), [](const auto& a, const auto& b) {
-            return a.getTime() < b.getTime();
-        });
+        // std::sort(sorted_hits.begin(), sorted_hits.end(), [](const auto& a, const auto& b) {
+        //     return a.getTime() < b.getTime();
+        // });
 
-        for (auto hit : sorted_hits) {
-            auto hitTime = hit.getTime();
-            check_hits_out()->push_back(hit);
+        // for (auto hit : sorted_hits) {
+        //     auto hitTime = hit.getTime();
+        //     check_hits_out()->push_back(hit);
+        // }
+
+
+        for (size_t coll_index = 0; coll_index < m_simtrackerhits_in().size(); ++coll_index) {
+            const auto* coll_in = m_simtrackerhits_in().at(coll_index);
+            auto& coll_out      = m_simtrackerhits_out().at(coll_index);
+            if (coll_in != nullptr) {
+                std::vector<edm4hep::MutableSimTrackerHit> sorted_hits;
+                for (const auto& hit : *coll_in) {
+                    edm4hep::MutableSimTrackerHit copiedHit = hit.clone();
+                    copiedHit.setTime(hit.getTime() - m_time_offset);
+                    sorted_hits.push_back(copiedHit);
+                }
+
+                std::sort(sorted_hits.begin(), sorted_hits.end(), [](const auto& a, const auto& b) {
+                    return a.getTime() < b.getTime();
+                });
+
+                for (auto hit : sorted_hits) {
+                    auto hitTime = hit.getTime();
+                    coll_out->push_back(hit);
+                }
+            }
         }
 
     }

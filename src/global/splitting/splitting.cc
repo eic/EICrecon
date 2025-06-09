@@ -2,7 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 // kuma edit
 
-#include "HitChecker.h"
+// #include "HitChecker.h"
 
 #include "timeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
@@ -13,105 +13,31 @@
 extern "C" {
 void InitPlugin(JApplication* app) {
 
+  std::vector<std::string> m_simtrackerhit_collection_names_aligned = {
+      "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
+      "DRICHHits_aligned",           "ForwardMPGDEndcapHits_aligned",  "ForwardOffMTrackerHits_aligned",
+      "ForwardRomanPotHits_aligned", "LumiSpecTrackerHits_aligned",    "MPGDBarrelHits_aligned",
+      "OuterMPGDBarrelHits_aligned", "RICHEndcapNHits_aligned",        "SiBarrelHits_aligned",
+      "TOFBarrelHits_aligned",       "TOFEndcapHits_aligned",          "TaggerTrackerHits_aligned",
+      "TrackerEndcapHits_aligned",   "VertexBarrelHits_aligned"};
+
+  std::vector<std::string> m_simtrackerhit_collection_names = {
+      "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
+      "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
+      "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
+      "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
+      "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
+      "TrackerEndcapHits",   "VertexBarrelHits"};
+
   InitJANAPlugin(app);
 
   // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
   //   { .tag = "timeAlignment",
   //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"B0TrackerHits"},
-  //     .output_names = {"B0TrackerHits_aligned"}
+  //     .input_names = {"SiBarrelHits"},
+  //     .output_names = {"SiBarrelHits_aligned"}
   //   }));
-
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"BackwardMPGDEndcapHits"},
-  //     .output_names = {"BackwardMPGDEndcapHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"DIRCBarHits"},
-  //     .output_names = {"DIRCBarHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"DRICHHits"},
-  //     .output_names = {"DRICHHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"ForwardMPGDEndcapHits"},
-  //     .output_names = {"ForwardMPGDEndcapHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"ForwardOffMTrackerHits"},
-  //     .output_names = {"ForwardOffMTrackerHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"ForwardRomanPotHits"},
-  //     .output_names = {"ForwardRomanPotHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"LumiSpecTrackerHits"},
-  //     .output_names = {"LumiSpecTrackerHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"MPGDBarrelHits"},
-  //     .output_names = {"MPGDBarrelHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"OuterMPGDBarrelHits"},
-  //     .output_names = {"OuterMPGDBarrelHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"RICHEndcapNHits"},
-  //     .output_names = {"RICHEndcapNHits_aligned"}
-  //   }));
-  app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-    { .tag = "timeAlignment",
-      .level = JEventLevel::Timeslice,
-      .input_names = {"SiBarrelHits"},
-      .output_names = {"SiBarrelHits_aligned"}
-    }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"TOFBarrelHits"},
-  //     .output_names = {"TOFBarrelHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"TOFEndcapHits"},
-  //     .output_names = {"TOFEndcapHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"TaggerTrackerHits"},
-  //     .output_names = {"TaggerTrackerHits_aligned"}
-  //   }));
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"TrackerEndcapHits"},
-  //     .output_names = {"TrackerEndcapHits_aligned"}
-  //   }));
+ 
   // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
   //   { .tag = "timeAlignment",
   //     .level = JEventLevel::Timeslice,
@@ -119,6 +45,13 @@ void InitPlugin(JApplication* app) {
   //     .output_names = {"VertexBarrelHits_aligned"}
   //   }));
 
+
+    app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
+    { .tag = "timeAlignment",
+      .level = JEventLevel::Timeslice,
+      .input_names = m_simtrackerhit_collection_names,
+      .output_names = m_simtrackerhit_collection_names_aligned
+    }));
 
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
