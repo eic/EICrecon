@@ -12,9 +12,11 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
 #include <fmt/core.h>
+#include <functional>
 #include <map>
 #include <memory>
-#include <functional>
+#include <tuple>
+#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -26,11 +28,11 @@
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
 #endif
+#include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
-#include "algorithms/meta/SubDivideFunctors.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #ifdef USE_ONNX
