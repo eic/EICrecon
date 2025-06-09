@@ -27,6 +27,14 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   auto [matched_particles] = output;
   trace("We have {} tracks and {} clusters", tracks->size(), clusters->size());
 
+  // Validate the configuration
+  if (m_cfg.matching_distance <= 0) {
+    throw std::runtime_error(fmt::format("Invalid matching distance: {}", m_cfg.matching_distance));
+  }
+  if (m_cfg.calo_id.empty()) {
+    throw std::runtime_error("Calorimeter ID must be set in the configuration");
+  }
+
   std::set<int> used_tracks;
   // Loop across each cluster, and find the cloeset projected track
   for (auto cluster : *clusters) {
@@ -47,13 +55,11 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
       for (auto point : track.getPoints()) {
         // Check if the point is at the calorimeter
         // int id = m_detector->volumeManager().lookupDetector(cluster.getHits()[0].getCellID()).id(); // TODO: Find programmatic way to get detector cluster is from
-        uint32_t ecal_barrel_id = m_geo.detector()->constant<int>("EcalBarrel_ID");
-        uint32_t hcal_barrel_id = m_geo.detector()->constant<int>("HcalBarrel_ID");
-        bool is_ecal            = point.system == ecal_barrel_id;
-        bool is_hcal            = point.system == hcal_barrel_id;
-        bool is_surface         = point.surface == 1;
+        uint32_t calo_id = m_geo.detector()->constant<int>(m_cfg.calo_id);
+        bool is_calo     = point.system == calo_id;
+        bool is_surface  = point.surface == 1;
 
-        if (!(is_ecal || is_hcal) || !is_surface) {
+        if (!is_calo || !is_surface) {
           trace("Skipping track point not at the calorimeter");
           continue;
         }
