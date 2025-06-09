@@ -2,7 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 // kuma edit
 
-// #include "HitChecker.h"
+#include "HitChecker.h"
 
 #include "timeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
@@ -47,12 +47,13 @@ void InitPlugin(JApplication* app) {
   //   }));
 
 
-    app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-    { .tag = "timeAlignment",
-      .level = JEventLevel::Timeslice,
-      .input_names = m_simtrackerhit_collection_names,
-      .output_names = m_simtrackerhit_collection_names_aligned
-    }));
+  app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
+  { .tag = "timeAlignment",
+    .level = JEventLevel::Timeslice,
+    .input_names = m_simtrackerhit_collection_names,
+    .output_names = m_simtrackerhit_collection_names_aligned
+  }));
+
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
 
