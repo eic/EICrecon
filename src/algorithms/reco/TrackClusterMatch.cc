@@ -48,8 +48,8 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
         // Check if the point is at the calorimeter
         // int id = m_detector->volumeManager().lookupDetector(cluster.getHits()[0].getCellID()).id(); // TODO: Find programmatic way to get detector cluster is from
         uint32_t calo_id = m_geo.detector()->constant<int>(m_cfg.calo_id);
-        bool is_calo            = point.system == calo_id;
-        bool is_surface         = point.surface == 1;
+        bool is_calo     = point.system == calo_id;
+        bool is_surface  = point.surface == 1;
 
         if (!is_calo || !is_surface) {
           trace("Skipping track point not at the calorimeter");

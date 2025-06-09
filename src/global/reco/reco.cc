@@ -183,68 +183,45 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-
 #if EDM4EIC_VERSION_MAJOR >= 8
   // Forward
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "EcalEndcapPTrackClusterMatcher",
-      {"CalorimeterTrackProjections", "EcalEndcapPClusters"},
-      {"EcalEndcapPTrackClusterMatches"},
-      {.calo_id = "EcalEndcapP_ID"},
-      app));
+      "EcalEndcapPTrackClusterMatcher", {"CalorimeterTrackProjections", "EcalEndcapPClusters"},
+      {"EcalEndcapPTrackClusterMatches"}, {.calo_id = "EcalEndcapP_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
       "EcalEndcapPInsertTrackClusterMatcher",
       {"CalorimeterTrackProjections", "EcalEndcapPInsertClusters"},
-      {"EcalEndcapPInsertTrackClusterMatches"},
-      {.calo_id = "EcalEndcapPInsert_ID"},
-      app));
+      {"EcalEndcapPInsertTrackClusterMatches"}, {.calo_id = "EcalEndcapPInsert_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "LFHCALTrackClusterMatcher",
-      {"CalorimeterTrackProjections", "LFHCALClusters"},
-      {"LFHCALTrackClusterMatches"},
-      {.calo_id = "LFHCAL_ID"},
-      app));
+      "LFHCALTrackClusterMatcher", {"CalorimeterTrackProjections", "LFHCALClusters"},
+      {"LFHCALTrackClusterMatches"}, {.calo_id = "LFHCAL_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
       "HcalEndcapPInsertClusterMatcher",
       {"CalorimeterTrackProjections", "HcalEndcapPInsertClusters"},
-      {"HcalEndcapPInsertClusterMatches"},
-      {.calo_id = "HcalEndcapPInsert_ID"},
-      app));
-
+      {"HcalEndcapPInsertClusterMatches"}, {.calo_id = "HcalEndcapPInsert_ID"}, app));
 
   // Barrel
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "EcalBarrelTrackClusterMatcher",
-      {"CalorimeterTrackProjections", "EcalBarrelClusters"},
-      {"EcalBarrelTrackClusterMatches"},
-      {.calo_id = "EcalBarrel_ID"},
-      app));
+      "EcalBarrelTrackClusterMatcher", {"CalorimeterTrackProjections", "EcalBarrelClusters"},
+      {"EcalBarrelTrackClusterMatches"}, {.calo_id = "EcalBarrel_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "HcalBarrelTrackClusterMatcher",
-      {"CalorimeterTrackProjections", "HcalBarrelClusters"},
-      {"HcalBarrelTrackClusterMatches"},
-      {.calo_id = "HcalBarrel_ID"},
-      app));
+      "HcalBarrelTrackClusterMatcher", {"CalorimeterTrackProjections", "HcalBarrelClusters"},
+      {"HcalBarrelTrackClusterMatches"}, {.calo_id = "HcalBarrel_ID"}, app));
 
   // Backward
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
       "EcalEndcapNBarrelTrackClusterMatcher",
-      {"CalorimeterTrackProjections", "EcalEndcapNClusters"},
-      {"EcalEndcapNTrackClusterMatches"},
-      {.calo_id = "EcalEndcapN_ID"},
-      app));
+      {"CalorimeterTrackProjections", "EcalEndcapNClusters"}, {"EcalEndcapNTrackClusterMatches"},
+      {.calo_id = "EcalEndcapN_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
       "HcalEndcapNBarrelTrackClusterMatcher",
-      {"CalorimeterTrackProjections", "HcalEndcapNClusters"},
-      {"HcalEndcapNTrackClusterMatches"},
-      {.calo_id = "HcalEndcapN_ID"},
-      app));
-
+      {"CalorimeterTrackProjections", "HcalEndcapNClusters"}, {"HcalEndcapNTrackClusterMatches"},
+      {.calo_id = "HcalEndcapN_ID"}, app));
 
 #endif // EDM4EIC_VERSION_MAJOR >= 8
 
