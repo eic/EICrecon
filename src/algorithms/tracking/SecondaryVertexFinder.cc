@@ -124,7 +124,7 @@ std::tuple<
    // Set up track density used during vertex seeding
   Acts::AdaptiveGridTrackDensity::Config trkDensityCfg;
   // Bin extent in z-direction
-  trkDensityCfg.spatialBinExtent = 50.*Acts::UnitConstants::um;
+  trkDensityCfg.spatialBinExtent = 25*Acts::UnitConstants::um;
   // Bin extent in t-direction
   //trkDensityCfg.temporalBinExtent = 19. * Acts::UnitConstants::mm;
   trkDensityCfg.useTime = false; //m_cfg.useTime;
@@ -146,7 +146,8 @@ std::tuple<
   VertexFitterSec::Config vertexFitterCfgSec(ipEst);
 
   vertexFitterCfgSec.annealingTool = annealingUtility;
-  vertexFitterCfgSec.minWeight = 0.001;
+  vertexFitterCfgSec.minWeight = 1e-04;
+  vertexFitterCfgSec.maxDistToLinPoint=5.5*Acts::UnitConstants::mm;
   vertexFitterCfgSec.doSmoothing = true;
   vertexFitterCfgSec.useTime = false; //m_cfg.useTime;
 #if Acts_VERSION_MAJOR >= 33
@@ -187,12 +188,12 @@ std::tuple<
   vertexfinderCfgSec.initialVariances<<1e+2, 1e+2, 1e+2, 1e+8;
   //Use time for Sec. Vertex
   vertexfinderCfgSec.useTime = false;
-  vertexfinderCfgSec.tracksMaxZinterval=20*Acts::UnitConstants::mm;
-  vertexfinderCfgSec.maxIterations=200;
+  vertexfinderCfgSec.tracksMaxZinterval=35*Acts::UnitConstants::mm;
+  vertexfinderCfgSec.maxIterations=1000;
   vertexfinderCfgSec.doFullSplitting = false;
   // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
-  vertexfinderCfgSec.tracksMaxSignificance = 7.7;
-  vertexfinderCfgSec.maxMergeVertexSignificance = 6.7;
+  vertexfinderCfgSec.tracksMaxSignificance = 6.7;
+  vertexfinderCfgSec.maxMergeVertexSignificance = 5;
 
   if(m_cfg.useTime){
     // When using time, we have an extra contribution to the chi2 by the time

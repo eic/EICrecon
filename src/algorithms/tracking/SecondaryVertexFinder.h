@@ -228,7 +228,6 @@ SecondaryVertexFinder::calcPrimaryVtx(
                  vtx.position().y() / Acts::UnitConstants::mm,
                  vtx.position().z() / Acts::UnitConstants::mm);
   } // end for vtx
-  //return std::move(prmVertices);
   return prmVertices;
 }
 
