@@ -27,6 +27,15 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   auto [matched_particles] = output;
   trace("We have {} tracks and {} clusters", tracks->size(), clusters->size());
 
+  // Validate the configuration
+  if (m_cfg.matching_distance <= 0) {
+    throw std::runtime_error(
+        fmt::format("Invalid matching distance: {}", m_cfg.matching_distance));
+  }
+  if (m_cfg.calo_id.empty()) {
+    throw std::runtime_error("Calorimeter ID must be set in the configuration");
+  }
+
   std::set<int> used_tracks;
   // Loop across each cluster, and find the cloeset projected track
   for (auto cluster : *clusters) {
