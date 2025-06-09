@@ -15,16 +15,19 @@
 struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
   JEventLevel m_factory_level;
 
-    // PodioInput<edm4hep::SimTrackerHit> check_hits_in {this};
-    // PodioOutput<edm4hep::SimTrackerHit> check_hits_out {this};
+  // PodioInput<edm4hep::SimTrackerHit> check_hits_in {this};
+  // PodioOutput<edm4hep::SimTrackerHit> check_hits_out {this};
 
   std::vector<std::string> m_simtrackerhit_collection_names_aligned = {
-      "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
-      "DRICHHits_aligned",           "ForwardMPGDEndcapHits_aligned",  "ForwardOffMTrackerHits_aligned",
-      "ForwardRomanPotHits_aligned", "LumiSpecTrackerHits_aligned",    "MPGDBarrelHits_aligned",
-      "OuterMPGDBarrelHits_aligned", "RICHEndcapNHits_aligned",        "SiBarrelHits_aligned",
-      "TOFBarrelHits_aligned",       "TOFEndcapHits_aligned",          "TaggerTrackerHits_aligned",
-      "TrackerEndcapHits_aligned",   "VertexBarrelHits_aligned"};
+      "B0TrackerHits_aligned",         "BackwardMPGDEndcapHits_aligned",
+      "DIRCBarHits_aligned",           "DRICHHits_aligned",
+      "ForwardMPGDEndcapHits_aligned", "ForwardOffMTrackerHits_aligned",
+      "ForwardRomanPotHits_aligned",   "LumiSpecTrackerHits_aligned",
+      "MPGDBarrelHits_aligned",        "OuterMPGDBarrelHits_aligned",
+      "RICHEndcapNHits_aligned",       "SiBarrelHits_aligned",
+      "TOFBarrelHits_aligned",         "TOFEndcapHits_aligned",
+      "TaggerTrackerHits_aligned",     "TrackerEndcapHits_aligned",
+      "VertexBarrelHits_aligned"};
 
   std::vector<std::string> m_simtrackerhit_collection_names = {
       "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
@@ -33,12 +36,11 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
       "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
       "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
       "TrackerEndcapHits",   "VertexBarrelHits"};
-    
-    VariadicPodioInput<edm4hep::SimTrackerHit> m_simtrackerhits_in{
-        this, {.names = m_simtrackerhit_collection_names, .is_optional = true}};
-    VariadicPodioOutput<edm4hep::SimTrackerHit> m_simtrackerhits_out{
-        this, m_simtrackerhit_collection_names_aligned};
 
+  VariadicPodioInput<edm4hep::SimTrackerHit> m_simtrackerhits_in{
+      this, {.names = m_simtrackerhit_collection_names, .is_optional = true}};
+  VariadicPodioOutput<edm4hep::SimTrackerHit> m_simtrackerhits_out{
+      this, m_simtrackerhit_collection_names_aligned};
 
   Double_t m_time_offset = 0.0; // Time offset to apply to hits
 
@@ -67,7 +69,7 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
                 coll_out->push_back(hit);
             }
         }
-    }
+    }    
 
   }
 };

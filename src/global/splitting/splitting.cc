@@ -14,12 +14,15 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   std::vector<std::string> m_simtrackerhit_collection_names_aligned = {
-      "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
-      "DRICHHits_aligned",           "ForwardMPGDEndcapHits_aligned",  "ForwardOffMTrackerHits_aligned",
-      "ForwardRomanPotHits_aligned", "LumiSpecTrackerHits_aligned",    "MPGDBarrelHits_aligned",
-      "OuterMPGDBarrelHits_aligned", "RICHEndcapNHits_aligned",        "SiBarrelHits_aligned",
-      "TOFBarrelHits_aligned",       "TOFEndcapHits_aligned",          "TaggerTrackerHits_aligned",
-      "TrackerEndcapHits_aligned",   "VertexBarrelHits_aligned"};
+      "B0TrackerHits_aligned",         "BackwardMPGDEndcapHits_aligned",
+      "DIRCBarHits_aligned",           "DRICHHits_aligned",
+      "ForwardMPGDEndcapHits_aligned", "ForwardOffMTrackerHits_aligned",
+      "ForwardRomanPotHits_aligned",   "LumiSpecTrackerHits_aligned",
+      "MPGDBarrelHits_aligned",        "OuterMPGDBarrelHits_aligned",
+      "RICHEndcapNHits_aligned",       "SiBarrelHits_aligned",
+      "TOFBarrelHits_aligned",         "TOFEndcapHits_aligned",
+      "TaggerTrackerHits_aligned",     "TrackerEndcapHits_aligned",
+      "VertexBarrelHits_aligned"};
 
   std::vector<std::string> m_simtrackerhit_collection_names = {
       "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
@@ -38,7 +41,7 @@ void InitPlugin(JApplication* app) {
   //     .output_names = {"SiBarrelHits_aligned"}
 
   //   }));
- 
+
   // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
   //   { .tag = "timeAlignment",
   //     .level = JEventLevel::Timeslice,
@@ -53,7 +56,6 @@ void InitPlugin(JApplication* app) {
     .input_names = m_simtrackerhit_collection_names,
     .output_names = m_simtrackerhit_collection_names_aligned
   }));
-
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
 

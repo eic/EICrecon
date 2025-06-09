@@ -13,9 +13,11 @@
 #include <JANA/JEventUnfolder.h>
 
 struct TimeframeSplitter : public JEventUnfolder {
+
   float m_timeframe_width = 20.0; // ns
   float m_timesplit_width = 4.0; // ns
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
+
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {
   //     "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
@@ -39,6 +41,7 @@ struct TimeframeSplitter : public JEventUnfolder {
   // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits"};
   std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits_aligned", "VertexBarrelHits_aligned"};
   std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits", "VertexBarrelHits"};
+
 
   std::vector<std::string> m_simcalorimeterhit_collection_names = {
       "B0ECalHits",      "EcalBarrelImagingHits", "EcalBarrelScFiHits",    "EcalEndcapNHits",
@@ -90,24 +93,30 @@ struct TimeframeSplitter : public JEventUnfolder {
     SetChildLevel(JEventLevel::PhysicsEvent);
   }
 
-  std::vector<std::tuple<size_t, const edm4hep::SimTrackerHitCollection*, size_t>> m_hitStartIndices_simTracker;
-  std::vector<std::tuple<size_t, const edm4hep::SimCalorimeterHitCollection*, size_t>> m_hitStartIndices_simCalorimeter;
+  std::vector<std::tuple<size_t, const edm4hep::SimTrackerHitCollection*, size_t>>
+      m_hitStartIndices_simTracker;
+  std::vector<std::tuple<size_t, const edm4hep::SimCalorimeterHitCollection*, size_t>>
+      m_hitStartIndices_simCalorimeter;
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
     if (child_idx == 0) {
       m_hitStartIndices_simTracker.clear();
-      m_hitStartIndices_simTracker.resize(m_simtrackerhits_in().size(), std::make_tuple(0, nullptr, 0));
+      m_hitStartIndices_simTracker.resize(m_simtrackerhits_in().size(),
+                                          std::make_tuple(0, nullptr, 0));
       for (size_t detID = 0; detID < m_simtrackerhits_in().size(); ++detID) {
         const auto* detHitPtr = m_simtrackerhits_in().at(detID);
-        if (detHitPtr == nullptr) continue;
+        if (detHitPtr == nullptr)
+          continue;
         m_hitStartIndices_simTracker.emplace_back(detID, detHitPtr, 0);
       }
 
       m_hitStartIndices_simCalorimeter.clear();
-      m_hitStartIndices_simCalorimeter.resize(m_simcalorimeterhits_in().size(), std::make_tuple(0, nullptr, 0));
+      m_hitStartIndices_simCalorimeter.resize(m_simcalorimeterhits_in().size(),
+                                              std::make_tuple(0, nullptr, 0));
       for (size_t detID = 0; detID < m_simcalorimeterhits_in().size(); ++detID) {
         const auto* detHitPtr = m_simcalorimeterhits_in().at(detID);
-        if (detHitPtr == nullptr) continue;
+        if (detHitPtr == nullptr)
+          continue;
         m_hitStartIndices_simCalorimeter.emplace_back(detID, detHitPtr, 0);
       }
     }
@@ -132,6 +141,13 @@ struct TimeframeSplitter : public JEventUnfolder {
     m_event_header_out()->setSubsetCollection(true);
     m_event_header_out()->push_back(m_event_header_in()->at(0));
 
+      // Insert MCParticles into the physics event
+    m_mcparticles_out()->setSubsetCollection(true);
+    for (const auto& mcparticle : *m_mcparticles_in) {
+      // TODO: Decide which of these belong to this physics event
+      m_mcparticles_out()->push_back(mcparticle);
+    }
+
     // Insert MCParticles into the physics event
     m_mcparticles_out()->setSubsetCollection(true);
     for (const auto& mcparticle : *m_mcparticles_in) {
@@ -141,63 +157,63 @@ struct TimeframeSplitter : public JEventUnfolder {
 
     // Loop through SimTrackerHit collections and split them into time slice
     for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simTracker) {
-          auto& coll_out = m_simtrackerhits_out().at(detID);
-          coll_out->setSubsetCollection(true);
-          if (detHitPtr == nullptr) continue;
-          bool bAllScan = true;
-          for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
-              const auto& hit = detHitPtr->at(hitID);
-              auto hitTime = hit.getTime();
-              // std::cout << "ChecKuma Hit Time!! : " << hitTime << " Threshold time: " << eTimeSlice << std::endl;
-              if (hitTime >= eTimeSlice) {
-                  start_index = hitID;
-                  bAllScan = false;
-                  // std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
-                  break;
-              }
-              coll_out->push_back(hit);
-          }
-          if(bAllScan) start_index = detHitPtr->size();      
-          
-          m_use_timeframe = true;
-      }    
+        auto& coll_out = m_simtrackerhits_out().at(detID);
+        coll_out->setSubsetCollection(true);
+        if (detHitPtr == nullptr) continue;
+        bool bAllScan = true;
+        for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
+            const auto& hit = detHitPtr->at(hitID);
+            auto hitTime = hit.getTime();
+            // std::cout << "ChecKuma Hit Time!! : " << hitTime << " Threshold time: " << eTimeSlice << std::endl;
+            if (hitTime >= eTimeSlice) {
+                start_index = hitID;
+                bAllScan = false;
+                // std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
+                break;
+            }
+            coll_out->push_back(hit);
+        }
+        if(bAllScan) start_index = detHitPtr->size();      
+        
+        m_use_timeframe = true;
+    }
 
 
 
     // Loop through SimTrackerHit collections and split them into time slice
     for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simCalorimeter) {
-          auto& coll_out = m_simcalorimeterhits_out().at(detID);
-          coll_out->setSubsetCollection(true);
-          if (detHitPtr == nullptr) continue;
-          bool bAllScan = true;
-          for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
-              const auto& hit = detHitPtr->at(hitID);
+        auto& coll_out = m_simcalorimeterhits_out().at(detID);
+        coll_out->setSubsetCollection(true);
+        if (detHitPtr == nullptr) continue;
+        bool bAllScan = true;
+        for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
+            const auto& hit = detHitPtr->at(hitID);
 
-              auto hitContributions = hit.getContributions();
-              bool contributeFlag = false;
-              for(const auto& contribution : hitContributions){
-                auto hitTime = contribution.getTime();
-                if (hitTime >= eTimeSlice) {
-                  start_index = hitID;
-                  bAllScan = false;
-                  contributeFlag = true;
-                  // std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
-                  break;
-                }
-
-                auto& coll_out_contribution = m_calohitcontributions_out().at(detID);
-                coll_out_contribution->setSubsetCollection(true);
-
-                coll_out_contribution->push_back(contribution);
+            auto hitContributions = hit.getContributions();
+            bool contributeFlag = false;
+            for(const auto& contribution : hitContributions){
+              auto hitTime = contribution.getTime();
+              if (hitTime >= eTimeSlice) {
+                start_index = hitID;
+                bAllScan = false;
+                contributeFlag = true;
+                // std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
+                break;
               }
-              if(contributeFlag) break;
-              // std::cout << "ChecKuma Hit Time!! : " << hitTime << " Threshold time: " << eTimeSlice << std::endl;
 
-              coll_out->push_back(hit);
-          }
-          if(bAllScan) start_index = detHitPtr->size();      
+              auto& coll_out_contribution = m_calohitcontributions_out().at(detID);
+              coll_out_contribution->setSubsetCollection(true);
+
+              coll_out_contribution->push_back(contribution);
+            }
+            if(contributeFlag) break;
+            // std::cout << "ChecKuma Hit Time!! : " << hitTime << " Threshold time: " << eTimeSlice << std::endl;
+
+            coll_out->push_back(hit);
+        }
+        if(bAllScan) start_index = detHitPtr->size();
           
-          m_use_timeframe = true;
+        m_use_timeframe = true;
       }    
 
     // Produce exactly one physics event per timeframe for now
