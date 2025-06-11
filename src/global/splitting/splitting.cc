@@ -49,13 +49,11 @@ void InitPlugin(JApplication* app) {
   //     .output_names = {"VertexBarrelHits_aligned"}
   //   }));
 
-
   app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  { .tag = "timeAlignment",
-    .level = JEventLevel::Timeslice,
-    .input_names = m_simtrackerhit_collection_names,
-    .output_names = m_simtrackerhit_collection_names_aligned
-  }));
+      {.tag          = "timeAlignment",
+       .level        = JEventLevel::Timeslice,
+       .input_names  = m_simtrackerhit_collection_names,
+       .output_names = m_simtrackerhit_collection_names_aligned}));
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
 
