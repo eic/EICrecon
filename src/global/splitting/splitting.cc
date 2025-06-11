@@ -61,12 +61,12 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<HitChecker>({.tag          = "timeslice_hit_checker",
                                                    .level        = JEventLevel::Timeslice,
-                                                   .input_names  = {"SiBarrelHits"},
+                                                   .input_names  = {"VertexBarrelHits"},
                                                    .output_names = {"ts_checked_hits"}}));
 
   app->Add(new JOmniFactoryGeneratorT<HitChecker>({.tag          = "physics_hit_checker",
                                                    .level        = JEventLevel::PhysicsEvent,
-                                                   .input_names  = {"SiBarrelHits"},
+                                                   .input_names  = {"VertexBarrelHits"},
                                                    .output_names = {"phys_checked_hits"}}));
 
   // Factory that produces timeslice-level protoclusters from timeslice-level hits

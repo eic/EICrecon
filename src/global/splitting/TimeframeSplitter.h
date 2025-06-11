@@ -14,8 +14,8 @@
 
 struct TimeframeSplitter : public JEventUnfolder {
 
-  float m_timeframe_width = 20.0; // ns
-  float m_timesplit_width = 4.0; // ns
+  float m_timeframe_width = 2000.0; // ns
+  float m_timesplit_width = 2000.0; // ns
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
 
 
@@ -155,10 +155,11 @@ struct TimeframeSplitter : public JEventUnfolder {
       m_mcparticles_out()->push_back(mcparticle);
     }
 
+    std::vector<std::unique_ptr<edm4hep::MutableSimTrackerHit>> tempAllDetectorSimTrackerHits; // ??? Kuma test
     // Loop through SimTrackerHit collections and split them into time slice
     for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simTracker) {
-        auto& coll_out = m_simtrackerhits_out().at(detID);
-        coll_out->setSubsetCollection(true);
+        auto& coll_out = m_simtrackerhits_out().at(detID);// ??? Kuma 1
+        coll_out->setSubsetCollection(true);// ??? Kuma 1
         if (detHitPtr == nullptr) continue;
         bool bAllScan = true;
         for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
@@ -171,7 +172,7 @@ struct TimeframeSplitter : public JEventUnfolder {
                 // std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
                 break;
             }
-            coll_out->push_back(hit);
+            coll_out->push_back(hit);// ??? Kuma 1
         }
         if(bAllScan) start_index = detHitPtr->size();      
         
@@ -225,3 +226,5 @@ struct TimeframeSplitter : public JEventUnfolder {
   }
 
 };
+
+
