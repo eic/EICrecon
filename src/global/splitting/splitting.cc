@@ -2,7 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 // kuma edit
 
-#include "HitChecker.h"
+// #include "HitChecker.h"
 
 #include "timeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
@@ -57,15 +57,15 @@ void InitPlugin(JApplication* app) {
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
 
-  app->Add(new JOmniFactoryGeneratorT<HitChecker>({.tag          = "timeslice_hit_checker",
-                                                   .level        = JEventLevel::Timeslice,
-                                                   .input_names  = {"VertexBarrelHits"},
-                                                   .output_names = {"ts_checked_hits"}}));
+  // app->Add(new JOmniFactoryGeneratorT<HitChecker>({.tag          = "timeslice_hit_checker",
+  //                                                  .level        = JEventLevel::Timeslice,
+  //                                                  .input_names  = {"VertexBarrelHits"},
+  //                                                  .output_names = {"ts_checked_hits"}}));
 
-  app->Add(new JOmniFactoryGeneratorT<HitChecker>({.tag          = "physics_hit_checker",
-                                                   .level        = JEventLevel::PhysicsEvent,
-                                                   .input_names  = {"VertexBarrelHits"},
-                                                   .output_names = {"phys_checked_hits"}}));
+  // app->Add(new JOmniFactoryGeneratorT<HitChecker>({.tag          = "physics_hit_checker",
+  //                                                  .level        = JEventLevel::PhysicsEvent,
+  //                                                  .input_names  = {"VertexBarrelHits"},
+  //                                                  .output_names = {"phys_checked_hits"}}));
 
   // Factory that produces timeslice-level protoclusters from timeslice-level hits
   /*
