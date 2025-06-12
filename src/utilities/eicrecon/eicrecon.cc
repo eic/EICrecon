@@ -51,6 +51,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "LUMISPECCAL",
     "podio",
     "janatop",
+    "splitting"
     // clang-format on
 };
 
