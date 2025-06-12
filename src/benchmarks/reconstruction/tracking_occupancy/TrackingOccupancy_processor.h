@@ -12,8 +12,6 @@
 
 class TrackingOccupancy_processor : public JEventProcessor {
 public:
-  explicit TrackingOccupancy_processor(JApplication*);
-  ~TrackingOccupancy_processor() override = default;
 
   //----------------------------
   // Init

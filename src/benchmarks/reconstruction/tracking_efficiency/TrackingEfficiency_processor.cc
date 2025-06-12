@@ -27,12 +27,6 @@
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 
-//--------------------------------
-// OccupancyAnalysis (Constructor)
-//--------------------------------
-TrackingEfficiency_processor::TrackingEfficiency_processor(JApplication* app)
-    : JEventProcessor(app) {}
-
 //------------------
 // Init
 //------------------

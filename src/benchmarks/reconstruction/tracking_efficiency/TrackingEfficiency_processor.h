@@ -11,8 +11,6 @@
 
 class TrackingEfficiency_processor : public JEventProcessor {
 public:
-  explicit TrackingEfficiency_processor(JApplication*);
-  ~TrackingEfficiency_processor() override = default;
 
   //----------------------------
   // Init

@@ -28,11 +28,6 @@
 using namespace fmt;
 
 //------------------
-// OccupancyAnalysis (Constructor)
-//------------------
-TrackingTest_processor::TrackingTest_processor(JApplication* app) : JEventProcessor(app) {}
-
-//------------------
 // Init
 //------------------
 void TrackingTest_processor::Init() {

@@ -18,11 +18,6 @@
 using namespace fmt;
 
 //------------------
-// DefaultFlags_processor (Constructor)
-//------------------
-DumpFlags_processor::DumpFlags_processor(JApplication* app) : JEventProcessor(app) {}
-
-//------------------
 // Init
 //------------------
 void DumpFlags_processor::Init() {

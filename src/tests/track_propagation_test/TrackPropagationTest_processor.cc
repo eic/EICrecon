@@ -27,12 +27,6 @@
 #include "services/rootfile/RootFile_service.h"
 
 //------------------
-// OccupancyAnalysis (Constructor)
-//------------------
-TrackPropagationTest_processor::TrackPropagationTest_processor(JApplication* app)
-    : JEventProcessor(app) {}
-
-//------------------
 // Init
 //------------------
 void TrackPropagationTest_processor::Init() {

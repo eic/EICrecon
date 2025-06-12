@@ -16,8 +16,6 @@ class GeometryNavigationSteps_processor
       public eicrecon::SpdlogMixin // this automates proper log initialization
 {
 public:
-  explicit GeometryNavigationSteps_processor(JApplication*);
-  ~GeometryNavigationSteps_processor() override = default;
 
   //----------------------------
   // Init

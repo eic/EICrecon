@@ -9,8 +9,6 @@
 
 class TrackingTest_processor : public JEventProcessor {
 public:
-  explicit TrackingTest_processor(JApplication*);
-  ~TrackingTest_processor() override = default;
 
   //----------------------------
   // Init

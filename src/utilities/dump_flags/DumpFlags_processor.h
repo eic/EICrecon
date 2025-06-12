@@ -13,8 +13,6 @@
 
 class DumpFlags_processor : public JEventProcessor, public eicrecon::SpdlogMixin {
 public:
-  explicit DumpFlags_processor(JApplication*);
-  ~DumpFlags_processor() override = default;
 
   //----------------------------
   // Init

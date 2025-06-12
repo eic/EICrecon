@@ -12,12 +12,6 @@
 #include "services/rootfile/RootFile_service.h"
 
 //------------------
-// OccupancyAnalysis (Constructor)
-//------------------
-TrackingOccupancy_processor::TrackingOccupancy_processor(JApplication* app)
-    : JEventProcessor(app) {}
-
-//------------------
 // Init
 //------------------
 void TrackingOccupancy_processor::Init() {

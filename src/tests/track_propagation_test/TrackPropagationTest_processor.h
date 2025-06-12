@@ -15,8 +15,6 @@ class TrackPropagationTest_processor
       public eicrecon::SpdlogMixin // this automates proper log initialization
 {
 public:
-  explicit TrackPropagationTest_processor(JApplication*);
-  ~TrackPropagationTest_processor() override = default;
 
   //----------------------------
   // Init
