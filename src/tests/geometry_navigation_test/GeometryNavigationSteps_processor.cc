@@ -1,6 +1,7 @@
 #include "GeometryNavigationSteps_processor.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <string>

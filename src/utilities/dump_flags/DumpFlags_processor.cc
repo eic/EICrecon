@@ -1,19 +1,20 @@
 #include "DumpFlags_processor.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
-#include <cstddef>
-#include <cstring>
-#include <exception>
 #include <fmt/core.h>
-#include <fstream>
-#include <map>
-#include <regex>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <cstddef>
+#include <cstring>
+#include <exception>
+#include <fstream>
+#include <map>
+#include <regex>
 
 using namespace fmt;
 
