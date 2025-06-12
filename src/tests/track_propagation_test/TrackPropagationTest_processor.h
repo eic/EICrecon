@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Acts/Surfaces/DiscSurface.hpp>
-#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <TDirectory.h>
@@ -15,9 +14,6 @@ class TrackPropagationTest_processor
       public eicrecon::SpdlogMixin // this automates proper log initialization
 {
 public:
-  explicit TrackPropagationTest_processor(JApplication*);
-  ~TrackPropagationTest_processor() override = default;
-
   //----------------------------
   // Init
   //

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <TDirectory.h>
@@ -11,9 +10,6 @@
 
 class TrackingEfficiency_processor : public JEventProcessor {
 public:
-  explicit TrackingEfficiency_processor(JApplication*);
-  ~TrackingEfficiency_processor() override = default;
-
   //----------------------------
   // Init
   //
