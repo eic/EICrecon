@@ -16,7 +16,6 @@ class GeometryNavigationSteps_processor
       public eicrecon::SpdlogMixin // this automates proper log initialization
 {
 public:
-
   //----------------------------
   // Init
   //

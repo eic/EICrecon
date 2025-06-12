@@ -13,7 +13,6 @@
 
 class DumpFlags_processor : public JEventProcessor, public eicrecon::SpdlogMixin {
 public:
-
   //----------------------------
   // Init
   //

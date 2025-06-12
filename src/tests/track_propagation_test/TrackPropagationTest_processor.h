@@ -15,7 +15,6 @@ class TrackPropagationTest_processor
       public eicrecon::SpdlogMixin // this automates proper log initialization
 {
 public:
-
   //----------------------------
   // Init
   //

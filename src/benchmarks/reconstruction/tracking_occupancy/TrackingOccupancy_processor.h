@@ -12,7 +12,6 @@
 
 class TrackingOccupancy_processor : public JEventProcessor {
 public:
-
   //----------------------------
   // Init
   //

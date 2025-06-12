@@ -11,7 +11,6 @@
 
 class TrackingEfficiency_processor : public JEventProcessor {
 public:
-
   //----------------------------
   // Init
   //

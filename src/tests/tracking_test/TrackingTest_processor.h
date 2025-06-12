@@ -9,7 +9,6 @@
 
 class TrackingTest_processor : public JEventProcessor {
 public:
-
   //----------------------------
   // Init
   //
