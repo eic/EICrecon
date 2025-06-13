@@ -18,30 +18,38 @@ struct TimeframeSplitter : public JEventUnfolder {
   float m_timesplit_width = 2000.0; // ns
   bool m_use_timeframe    = false;  // Use timeframes to split events, or use timeslices
 
-  // std::vector<std::string> m_simtrackerhit_collection_names = {
-  //     "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
-  //     "DRICHHits_aligned",           "ForwardMPGDEndcapHits_aligned",  "ForwardOffMTrackerHits_aligned",
-  //     "ForwardRomanPotHits_aligned", "LumiSpecTrackerHits_aligned",    "MPGDBarrelHits_aligned",
-  //     "OuterMPGDBarrelHits_aligned", "RICHEndcapNHits_aligned",        "SiBarrelHits_aligned",
-  //     "TOFBarrelHits_aligned",       "TOFEndcapHits_aligned",          "TaggerTrackerHits_aligned",
-  //     "TrackerEndcapHits_aligned",   "VertexBarrelHits_aligned"};
+  std::vector<std::string> m_simtrackerhit_collection_names = {
+      "B0TrackerHits_aligned",         "BackwardMPGDEndcapHits_aligned",
+      "DIRCBarHits_aligned",           "DRICHHits_aligned",
+      "ForwardMPGDEndcapHits_aligned", "ForwardOffMTrackerHits_aligned",
+      "ForwardRomanPotHits_aligned",   "LumiSpecTrackerHits_aligned",
+      "MPGDBarrelHits_aligned",        "OuterMPGDBarrelHits_aligned",
+      "RICHEndcapNHits_aligned",       "SiBarrelHits_aligned",
+      "TOFBarrelHits_aligned",         "TOFEndcapHits_aligned",
+      "TaggerTrackerHits_aligned",     "TrackerEndcapHits_aligned",
+      "VertexBarrelHits_aligned"};
 
-  // std::vector<std::string> m_simtrackerhit_collection_names_out = {
-  //     "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
-  //     "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
-  //     "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
-  //     "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
-  //     "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
-  //     "TrackerEndcapHits",   "VertexBarrelHits"};
+  std::vector<std::string> m_simtrackerhit_collection_names_out = {
+      "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
+      "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
+      "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
+      "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
+      "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
+      "TrackerEndcapHits",   "VertexBarrelHits"};
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {"VertexBarrelHits_aligned"};
   // std::vector<std::string> m_simtrackerhit_collection_names_out = {"VertexBarrelHits"};
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits"};
-  std::vector<std::string> m_simtrackerhit_collection_names     = {"SiBarrelHits_aligned",
-                                                                   "VertexBarrelHits_aligned"};
-  std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits",
-                                                                   "VertexBarrelHits"};
+  // std::vector<std::string> m_simtrackerhit_collection_names     = {"SiBarrelHits_aligned",
+  //                                                                  "VertexBarrelHits_aligned"};
+  // std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits",
+  //                                                                  "VertexBarrelHits"};
+
+  // std::vector<std::string> m_simtrackerhit_collection_names     = {"SiBarrelHits",
+  //                                                                  "VertexBarrelHits"};
+  // std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits",
+  //                                                                  "VertexBarrelHits"};
 
   std::vector<std::string> m_simcalorimeterhit_collection_names = {
       "B0ECalHits",      "EcalBarrelImagingHits", "EcalBarrelScFiHits",    "EcalEndcapNHits",
