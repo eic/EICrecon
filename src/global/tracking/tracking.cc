@@ -215,9 +215,13 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
       "CombinedTracks", {"CentralCKFTracks", "TaggerTrackerTracks"}, {"CombinedTracks"}, app));
 
-    app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
-            "AMVSecondaryTrackVertices",{"ReconstructedParticles","CentralCKFActsTrajectories"},
-            {"AMVPrimaryVertices","AMVSecondaryTrackVertices",},{},app));
+  app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
+      "AMVSecondaryTrackVertices", {"ReconstructedParticles", "CentralCKFActsTrajectories"},
+      {
+          "AMVPrimaryVertices",
+          "AMVSecondaryTrackVertices",
+      },
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(

@@ -3,9 +3,9 @@
 namespace eicrecon {
 
 struct SecondaryVertexFinderConfig {
-  int  maxVertices                 = 10;
+  int maxVertices                  = 10;
   bool reassignTracksAfterFirstFit = true;
-  bool useTime=false;
+  bool useTime                     = false;
 };
 
 } // namespace eicrecon
