@@ -19,12 +19,15 @@ struct TimeframeSplitter : public JEventUnfolder {
   bool m_use_timeframe    = false;  // Use timeframes to split events, or use timeslices
 
   std::vector<std::string> m_simtrackerhit_collection_names = {
-      "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
-      "DRICHHits_aligned",           "ForwardMPGDEndcapHits_aligned",  "ForwardOffMTrackerHits_aligned",
-      "ForwardRomanPotHits_aligned", "LumiSpecTrackerHits_aligned",    "MPGDBarrelHits_aligned",
-      "OuterMPGDBarrelHits_aligned", "RICHEndcapNHits_aligned",        "SiBarrelHits_aligned",
-      "TOFBarrelHits_aligned",       "TOFEndcapHits_aligned",          "TaggerTrackerHits_aligned",
-      "TrackerEndcapHits_aligned",   "VertexBarrelHits_aligned"};
+      "B0TrackerHits_aligned",         "BackwardMPGDEndcapHits_aligned",
+      "DIRCBarHits_aligned",           "DRICHHits_aligned",
+      "ForwardMPGDEndcapHits_aligned", "ForwardOffMTrackerHits_aligned",
+      "ForwardRomanPotHits_aligned",   "LumiSpecTrackerHits_aligned",
+      "MPGDBarrelHits_aligned",        "OuterMPGDBarrelHits_aligned",
+      "RICHEndcapNHits_aligned",       "SiBarrelHits_aligned",
+      "TOFBarrelHits_aligned",         "TOFEndcapHits_aligned",
+      "TaggerTrackerHits_aligned",     "TrackerEndcapHits_aligned",
+      "VertexBarrelHits_aligned"};
 
   std::vector<std::string> m_simtrackerhit_collection_names_out = {
       "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
