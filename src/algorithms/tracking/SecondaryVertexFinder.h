@@ -80,7 +80,7 @@ public:
              std::vector<const ActsExamples::Trajectories*> trajectories,
              Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
              Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
-             //std::vector<Acts::Vertex>);
+  //std::vector<Acts::Vertex>);
 
   // Functions to be used to check efficacy of sec. vertex
   std::unique_ptr<edm4eic::VertexCollection>
@@ -226,12 +226,13 @@ std::unique_ptr<edm4eic::VertexCollection> SecondaryVertexFinder::calcPrimaryVtx
   return prmVertices;
 }
 
-std::unique_ptr<edm4eic::VertexCollection> SecondaryVertexFinder::calcSecVtx(
-    const edm4eic::ReconstructedParticleCollection* reconParticles,
-    std::vector<const ActsExamples::Trajectories*> trajectories,
-    Acts::AdaptiveMultiVertexFinder& vertexfinderSec, Acts::VertexingOptions vfOptions,
-    Acts::AdaptiveMultiVertexFinder::Config& vertexfinderCfgSec,
-    Acts::IVertexFinder::State& stateSec){
+std::unique_ptr<edm4eic::VertexCollection>
+SecondaryVertexFinder::calcSecVtx(const edm4eic::ReconstructedParticleCollection* reconParticles,
+                                  std::vector<const ActsExamples::Trajectories*> trajectories,
+                                  Acts::AdaptiveMultiVertexFinder& vertexfinderSec,
+                                  Acts::VertexingOptions vfOptions,
+                                  Acts::AdaptiveMultiVertexFinder::Config& vertexfinderCfgSec,
+                                  Acts::IVertexFinder::State& stateSec) {
 
   auto secVertices = std::make_unique<edm4eic::VertexCollection>();
   //--->Add Prm Vertex container here
