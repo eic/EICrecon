@@ -32,15 +32,15 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     }
   }
 
-    // Get the output directory path for creating a second copy of the output file at the end of processing.
-    // (this is duplicating similar functionality in Juggler/Gaudi so assume it is useful).
-    japp->SetDefaultParameter("podio:output_file_copy_dir", m_output_file_copy_dir,
-                              "Directory name to make an additional copy of the output file to. Copy "
-                              "will be done at end of processing. Default is empty string which "
-                              "means do not make a copy. No check is made on path existing.");
+  // Get the output directory path for creating a second copy of the output file at the end of processing.
+  // (this is duplicating similar functionality in Juggler/Gaudi so assume it is useful).
+  japp->SetDefaultParameter("podio:output_file_copy_dir", m_output_file_copy_dir,
+                            "Directory name to make an additional copy of the output file to. Copy "
+                            "will be done at end of processing. Default is empty string which "
+                            "means do not make a copy. No check is made on path existing.");
 
-    // Get the list of output collections to include/exclude
-    std::vector<std::string> output_collections = {
+  // Get the list of output collections to include/exclude
+  std::vector<std::string> output_collections = {
     // Header and other metadata
     "EventHeader",
 
@@ -200,13 +200,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "CentralCKFTracks",
     "CentralCKFTrackAssociations",
     "CentralCKFTrackParameters",
-    
+
     //tracking properties - true seeding
     "CentralCKFTruthSeededTrajectoriesUnfiltered",
     "CentralCKFTruthSeededTracksUnfiltered",
     "CentralCKFTruthSeededTrackUnfilteredAssociations",
     "CentralCKFTruthSeededTrackParametersUnfiltered",
-    
+
     //tracking properties - realistic seeding
     "CentralCKFTrajectoriesUnfiltered",
     "CentralCKFTracksUnfiltered",
@@ -343,7 +343,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "DIRCPID",
     "DIRCTruthSeededParticleIDs",
     "DIRCParticleIDs",
-    
+
     // Track projections
     "CalorimeterTrackProjections",
 
