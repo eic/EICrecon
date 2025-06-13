@@ -62,14 +62,7 @@ class SecondaryVertexFinder
 public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
-/*
-  void produce(const Input&,const Output&) const;
-  produce(std::vector<const edm4eic::Vertex*>,
-          const edm4eic::ReconstructedParticleCollection*,
-          std::vector<const ActsExamples::Trajectories*> trajectories);
-*/
-  //std::unique_ptr<edm4eic::VertexCollection>
-  //std::tuple<std::unique_ptr<edm4eic::TrackCollection>,std::unique_ptr<edm4eic::VertexCollection>>
+
   std::tuple<std::unique_ptr<edm4eic::VertexCollection>,std::unique_ptr<edm4eic::VertexCollection>>
   produce(const edm4eic::ReconstructedParticleCollection*,
           std::vector<const ActsExamples::Trajectories*> trajectories);
@@ -249,7 +242,7 @@ SecondaryVertexFinder::calcSecVtx(
     if (tips.empty()) {
       continue;
     }
-    std::cout << "Trajectory i: " << i << " has " << tips.size() << " tips" << std::endl;
+    //std::cout << "Trajectory i: " << i << " has " << tips.size() << " tips" << std::endl;
     for(unsigned int j=i+1; j < trajectories.size(); j++){
       auto tips2 = trajectories[j]->tips();
       if (tips2.empty()) {
@@ -286,13 +279,11 @@ SecondaryVertexFinder::calcSecVtx(
       std::vector<Acts::Vertex<Acts::BoundTrackParameters>> verticesSec;
 #endif
       if (resultSecondary.ok()) {
-        std::cout << "Secondary vertex fit succeeded" << std::endl;
+        //std::cout << "Secondary vertex fit succeeded" << std::endl;
         verticesSec = std::move(resultSecondary.value());
-      }else {
-        std::cout << "Secondary vertex fit failed" << std::endl;
       }
+
       for (const auto& secvertex : verticesSec) {
-        //std::cout<<"This is really from the secondary vertex tracking...\n"; std::abort();
         edm4eic::Cov4f cov(secvertex.fullCovariance()(0, 0), secvertex.fullCovariance()(1, 1),
                            secvertex.fullCovariance()(2, 2), secvertex.fullCovariance()(3, 3),
                            secvertex.fullCovariance()(0, 1), secvertex.fullCovariance()(0, 2),
