@@ -172,7 +172,7 @@ private:
   const double m_massD0  = 1864.84;
   const double m_massB   = 5279.400;
 
-  // gives correct mass assigment in case of nonequal masses
+  // gives correct mass assignment in case of nonequal masses
   static double massV0(std::vector<std::vector<double>>& trkAtVrt, double massP, double massPi);
   TLorentzVector totalMom(const std::vector<const ActsExamples::Trajectories*>& intrk) const;
   TLorentzVector momAtVrt(const std::vector<double>& inpTrk) const;
@@ -184,7 +184,7 @@ private:
   Acts::MagneticFieldContext m_fieldctx;
   SecondaryVertexFinderConfig m_cfg;
 
-  //Track paramters to calculate DCA and PCA
+  //Track parameters to calculate DCA and PCA
   TVector3 distanceR;
   bool secvtxGood = false;
   double trackA_a, trackA_b;
