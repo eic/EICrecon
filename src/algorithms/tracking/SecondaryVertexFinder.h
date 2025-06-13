@@ -234,6 +234,7 @@ std::unique_ptr<edm4eic::VertexCollection> SecondaryVertexFinder::calcSecVtx(
     Acts::IVertexFinder::State& stateSec, std::vector<Acts::Vertex> prmvtx) {
 
   auto secVertices = std::make_unique<edm4eic::VertexCollection>();
+  int NPrmVert=prmvtx.size();
 #if Acts_VERSION_MAJOR >= 33
   std::vector<Acts::InputTrack> inputTracks;
 #else
@@ -250,7 +251,7 @@ std::unique_ptr<edm4eic::VertexCollection> SecondaryVertexFinder::calcSecVtx(
       if (tips2.empty()) {
         continue;
       }
-      std::cout << "Trajectory j: " << j << " has " << tips2.size() << " tips" << std::endl;
+      //std::cout << "Trajectory j: " << j << " has " << tips2.size() << " tips" << std::endl;
       // Checking for default DCA cut-condition
       //secvtxGood=computeVtxcandidate(primvertex,tracks[i],tracks[j]);
       //if(!secvtxGood) continue;
