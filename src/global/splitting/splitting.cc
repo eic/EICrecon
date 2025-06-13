@@ -13,7 +13,6 @@
 extern "C" {
 void InitPlugin(JApplication* app) {
 
-
   // This is the plugin initialization function that JANA will call.
   std::vector<std::string> m_simtrackerhit_collection_names_aligned = {
       "B0TrackerHits_aligned",         "BackwardMPGDEndcapHits_aligned",
@@ -26,14 +25,12 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerHits_aligned",     "TrackerEndcapHits_aligned",
       "VertexBarrelHits_aligned"};
 
-  std::vector<std::vector<std::string> > m_simtrackerhit_collection_names = {{
-      "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
-      "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
-      "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
-      "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
-      "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
-      "TrackerEndcapHits",   "VertexBarrelHits"
-  }};
+  std::vector<std::vector<std::string>> m_simtrackerhit_collection_names = {
+      {"B0TrackerHits", "BackwardMPGDEndcapHits", "DIRCBarHits", "DRICHHits",
+       "ForwardMPGDEndcapHits", "ForwardOffMTrackerHits", "ForwardRomanPotHits",
+       "LumiSpecTrackerHits", "MPGDBarrelHits", "OuterMPGDBarrelHits", "RICHEndcapNHits",
+       "SiBarrelHits", "TOFBarrelHits", "TOFEndcapHits", "TaggerTrackerHits", "TrackerEndcapHits",
+       "VertexBarrelHits"}};
 
   InitJANAPlugin(app);
 
@@ -44,12 +41,12 @@ void InitPlugin(JApplication* app) {
   //     .output_names = {"VertexBarrelHits_aligned"}
   //   }));
 
-  app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(jana::components::JOmniFactoryGeneratorT<timeAlignmentFactory>::TypedWiring
-      {.tag          = "timeAlignment",
-       .level        = JEventLevel::Timeslice,
-       .variadic_input_names  = m_simtrackerhit_collection_names,
-       .output_names = m_simtrackerhit_collection_names_aligned}));
-
+  app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
+      jana::components::JOmniFactoryGeneratorT<timeAlignmentFactory>::TypedWiring{
+          .tag                  = "timeAlignment",
+          .level                = JEventLevel::Timeslice,
+          .variadic_input_names = m_simtrackerhit_collection_names,
+          .output_names         = m_simtrackerhit_collection_names_aligned}));
 
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
@@ -65,6 +62,5 @@ void InitPlugin(JApplication* app) {
   //    .level        = JEventLevel::PhysicsEvent,
   //    .input_names  = {"SiBarrelHits"},
   //    .output_names = {"phys_checked_hits"}}));
-
-  }
+}
 } // "C"
