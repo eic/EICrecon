@@ -79,8 +79,8 @@ public:
   calcSecVtx(const edm4eic::ReconstructedParticleCollection*,
              std::vector<const ActsExamples::Trajectories*> trajectories,
              Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
-             Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&,
-             std::vector<Acts::Vertex>);
+             Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
+             //std::vector<Acts::Vertex>);
 
   // Functions to be used to check efficacy of sec. vertex
   std::unique_ptr<edm4eic::VertexCollection>
@@ -231,10 +231,11 @@ std::unique_ptr<edm4eic::VertexCollection> SecondaryVertexFinder::calcSecVtx(
     std::vector<const ActsExamples::Trajectories*> trajectories,
     Acts::AdaptiveMultiVertexFinder& vertexfinderSec, Acts::VertexingOptions vfOptions,
     Acts::AdaptiveMultiVertexFinder::Config& vertexfinderCfgSec,
-    Acts::IVertexFinder::State& stateSec, std::vector<Acts::Vertex> prmvtx) {
+    Acts::IVertexFinder::State& stateSec){
 
   auto secVertices = std::make_unique<edm4eic::VertexCollection>();
-  int NPrmVert=prmvtx.size();
+  //--->Add Prm Vertex container here
+  //int NPrmVert=prmvtx.size();
 #if Acts_VERSION_MAJOR >= 33
   std::vector<Acts::InputTrack> inputTracks;
 #else
@@ -317,10 +318,10 @@ std::unique_ptr<edm4eic::VertexCollection> SecondaryVertexFinder::calcSecVtx(
 
           for (const auto& part : *reconParticles) {
             const auto& tracks = part.getTracks();
-            for (const auto trk : tracks) {
+            for (const auto& trk : tracks) {
               const auto& traj    = trk.getTrajectory();
               const auto& trkPars = traj.getTrackParameters();
-              for (const auto par : trkPars) {
+              for (const auto& par : trkPars) {
                 const double EPSILON = 1.0e-4; // mm
                 if (fabs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
                         EPSILON &&

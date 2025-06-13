@@ -232,10 +232,10 @@ eicrecon::SecondaryVertexFinder::produce(
   primaryVertices = calcPrimaryVtx(recotracks, trajectories, vertexfinderSec, vfOptions,
                                    vertexfinderCfgSec, stateSec);
   // Primary vertex collection container to be used in Sec. Vertex fitting
-  std::vector<Acts::Vertex> primvtx = getprmvtx();
+  //std::vector<Acts::Vertex> primvtx = getprmvtx();
   //Evaluate Two Track Vertex fitting
   outputVertices = calcSecVtx(recotracks, trajectories, vertexfinderSec, vfOptions,
-                              vertexfinderCfgSec, stateSec, primvtx);
+                              vertexfinderCfgSec, stateSec); // Will fix this later, primvtx);
 
   //return std::move(outputVertices);
   return std::make_tuple(std::move(primaryVertices), std::move(outputVertices));
