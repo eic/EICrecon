@@ -13,33 +13,29 @@
 
 namespace eicrecon {
 
-  class ChargedMCParticleSelector : public WithPodConfig<NoConfig> {
+class ChargedMCParticleSelector : public WithPodConfig<NoConfig> {
 
-  private:
+private:
+  std::shared_ptr<spdlog::logger> m_log;
 
-    std::shared_ptr<spdlog::logger> m_log;
+public:
+  // algorithm initialization
+  void init(std::shared_ptr<spdlog::logger>& logger) { m_log = logger; }
 
-  public:
+  // primary algorithm call
+  std::unique_ptr<edm4hep::MCParticleCollection>
+  process(const edm4hep::MCParticleCollection* inputs) {
+    auto outputs = std::make_unique<edm4hep::MCParticleCollection>();
+    outputs->setSubsetCollection();
 
-    // algorithm initialization
-    void init(std::shared_ptr<spdlog::logger>& logger) {
-      m_log = logger;
-    }
-
-    // primary algorithm call
-    std::unique_ptr<edm4hep::MCParticleCollection> process(const edm4hep::MCParticleCollection* inputs) {
-      auto outputs = std::make_unique<edm4hep::MCParticleCollection>();
-      outputs->setSubsetCollection();
-
-      for (const auto &particle : *inputs) {
-        if (particle.getCharge() != 0.) {
-          outputs->push_back(particle);
-        }
+    for (const auto& particle : *inputs) {
+      if (particle.getCharge() != 0.) {
+        outputs->push_back(particle);
       }
-
-      return std::move(outputs);
     }
 
-  };
+    return std::move(outputs);
+  }
+};
 
-}
+} // namespace eicrecon

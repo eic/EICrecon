@@ -10,7 +10,6 @@
 #include <TMath.h>
 #include <TProfile.h>
 
-
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <edm4eic/VertexCollection.h>
@@ -49,8 +48,8 @@
 #include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 
-namespace eicrecon{
-class TrackingSecUtilityTool{
+namespace eicrecon {
+class TrackingSecUtilityTool {
 public:
   // Constructor
   TrackingSecUtilityTool();
@@ -60,30 +59,29 @@ public:
   // Calculate an initial Primary Vertex
   std::unique_ptr<edm4eic::VertexCollection>
   calcPrimaryVtx(const edm4eic::ReconstructedParticleCollection*,
-          std::vector<const ActsExamples::Trajectories*>,Acts::AdaptiveMultiVertexFinder&,Acts::VertexingOptions,
-          Acts::AdaptiveMultiVertexFinder::Config&,Acts::IVertexFinder::State&);
+                 std::vector<const ActsExamples::Trajectories*>, Acts::AdaptiveMultiVertexFinder&,
+                 Acts::VertexingOptions, Acts::AdaptiveMultiVertexFinder::Config&,
+                 Acts::IVertexFinder::State&);
 
   //Calculate secondary vertex and store secVtx container
   std::unique_ptr<edm4eic::VertexCollection>
   calcSecVtx(const edm4eic::ReconstructedParticleCollection*,
-          std::vector<const ActsExamples::Trajectories*> trajectories);
+             std::vector<const ActsExamples::Trajectories*> trajectories);
 
   // Functions to be used to check efficacy of sec. vertex
-  bool computeVtxcandidate(const edm4eic::Vertex*,
-                           const edm4eic::TrackParameters*,
-                           const edm4eic::TrackParameters*,bool);
+  bool computeVtxcandidate(const edm4eic::Vertex*, const edm4eic::TrackParameters*,
+                           const edm4eic::TrackParameters*, bool);
   //Calculate multi-secvertex and store secVtx container
   std::unique_ptr<edm4eic::VertexCollection>
-  getSecVtx(const edm4eic::Vertex*,const TLorentzVector&,
-            const edm4eic::TrackParameters,
-            const edm4eic::TrackParameters,std::vector<double>&);
+  getSecVtx(const edm4eic::Vertex*, const TLorentzVector&, const edm4eic::TrackParameters,
+            const edm4eic::TrackParameters, std::vector<double>&);
 
   //This is just a test
   void write2screen();
 
 private:
   //Histos
-  struct histos{
+  struct histos {
     TH1D* m_hb_massKPi{};
     TH1D* m_hb_massPiPi1{};
     TH1D* m_hb_massEE{};
@@ -122,7 +120,7 @@ private:
     TH1D* m_hb_lifetime{};
     TH1D* m_hb_trkPErr{};
     TH1D* m_hb_deltaRSVPV{};
-//--
+    //--
     TProfile* m_pr_NSelTrkMean{};
     TProfile* m_pr_effVrt2tr{};
     TProfile* m_pr_effVrt2trEta{};
@@ -133,50 +131,50 @@ private:
 
   // two-track vertex container (D0 and B0)
   // two-body decay modes
-  struct vrt2Tr{
-    int i=0, j=0;
-    int badVrt=0;
+  struct vrt2Tr {
+    int i = 0, j = 0;
+    int badVrt = 0;
     Acts::Vector3 fitVertex;
     TLorentzVector momentum;
     long int vertexCharge;
     std::vector<double> errorMatrix;
     std::vector<double> chi2PerTrk;
-    std::vector< std::vector<double> > trkAtVrt;
-    double signif3D=0.;
-    double signif3DProj=0.;
-    double signif2D=0.;
-    double chi2=0.;
-    double dRSVPV=-1.;
+    std::vector<std::vector<double>> trkAtVrt;
+    double signif3D     = 0.;
+    double signif3DProj = 0.;
+    double signif2D     = 0.;
+    double chi2         = 0.;
+    double dRSVPV       = -1.;
   };
 
   //For multivertex' container
-  struct multiVrt{
-    bool Good=true;
+  struct multiVrt {
+    bool Good = true;
     std::deque<long int> selTrk;
     Acts::Vector3 vertex;
     TLorentzVector vertexMom;
     long int vertexCharge{};
     std::vector<double> vertexCov;
     std::vector<double> chi2PerTrk;
-    std::vector< std::vector<double> > trkAtVrt;
+    std::vector<std::vector<double>> trkAtVrt;
     double chi2{};
-    int nCloseVrt=0;
-    double dCloseVrt=1000000.;
-    double projectedVrt=0.;
-    int detachedTrack=-1;
+    int nCloseVrt       = 0;
+    double dCloseVrt    = 1000000.;
+    double projectedVrt = 0.;
+    int detachedTrack   = -1;
   };
 
-  const double m_massPi =139.5702;
-  const double m_massP  =938.272;
-  const double m_massE  =  0.511;
-  const double m_massK0 =497.648;
-  const double m_massLam=1115.683;
-  const double m_massD0 =1864.84;
-  const double m_massB  =5279.400;
+  const double m_massPi  = 139.5702;
+  const double m_massP   = 938.272;
+  const double m_massE   = 0.511;
+  const double m_massK0  = 497.648;
+  const double m_massLam = 1115.683;
+  const double m_massD0  = 1864.84;
+  const double m_massB   = 5279.400;
 
   // gives correct mass assigment in case of nonequal masses
   static double massV0(std::vector<std::vector<double>>& trkAtVrt, double massP, double massPi);
-  TLorentzVector totalMom(const std::vector<const ActsExamples::Trajectories*> &intrk) const;
+  TLorentzVector totalMom(const std::vector<const ActsExamples::Trajectories*>& intrk) const;
   TLorentzVector momAtVrt(const std::vector<double>& inpTrk) const;
   std::shared_ptr<spdlog::logger> m_log;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
@@ -188,14 +186,14 @@ private:
 
   //Track paramters to calculate DCA and PCA
   TVector3 distanceR;
-  bool secvtxGood=false;
-  double trackA_a,trackA_b;
-  double trackB_a,trackB_b;
-  double vtxA_x,vtxA_y;
-  double vtxB_x,vtxB_y;
-  double deltaxy_A,deltaA_x,deltaA_y;
-  double deltaxy_B,deltaB_x,deltaB_y;
-  double minR=0.05;
+  bool secvtxGood = false;
+  double trackA_a, trackA_b;
+  double trackB_a, trackB_b;
+  double vtxA_x, vtxA_y;
+  double vtxB_x, vtxB_y;
+  double deltaxy_A, deltaA_x, deltaA_y;
+  double deltaxy_B, deltaB_x, deltaB_y;
+  double minR = 0.05;
 };
 
 /*
@@ -210,5 +208,5 @@ template <class Trk>
   }
 
 */
-} // End namespace
+} // namespace eicrecon
 #endif

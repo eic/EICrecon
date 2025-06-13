@@ -66,77 +66,68 @@
 void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
                                            std::shared_ptr<spdlog::logger> log) {
 
-  m_log = log;
-
+  m_log    = log;
   m_geoSvc = geo_svc;
-
   m_BField =
       std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
-
 }
 
-std::tuple<
-  std::unique_ptr<edm4eic::VertexCollection>,
-  //std::unique_ptr<edm4eic::TrackCollection>,
-  std::unique_ptr<edm4eic::VertexCollection>
-> eicrecon::SecondaryVertexFinder::produce(
+std::tuple<std::unique_ptr<edm4eic::VertexCollection>,
+           //std::unique_ptr<edm4eic::TrackCollection>,
+           std::unique_ptr<edm4eic::VertexCollection>>
+eicrecon::SecondaryVertexFinder::produce(
     const edm4eic::ReconstructedParticleCollection* recotracks,
     std::vector<const ActsExamples::Trajectories*> trajectories) {
-/*
-std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::produce(
-    const edm4eic::ReconstructedParticleCollection* recotracks,
-    std::vector<const ActsExamples::Trajectories*> trajectories) {
-*/
 
-  //auto primaryVertices = std::make_unique<edm4eic::TrackCollection>();
   auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
   auto outputVertices  = std::make_unique<edm4eic::VertexCollection>();
-  //std::vector<edm4eic::VertexCollection*> outVertices;
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
 
   Acts::EigenStepper<> stepperSec(m_BField);
 
   // Set-up the propagator
-  using PropagatorSec        = Acts::Propagator<Acts::EigenStepper<>>;
-  using PropagatorOptionsSec = Acts::PropagatorOptions<>;
+  using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
+  //using PropagatorOptionsSec = Acts::PropagatorOptions<>;
 
   // Set up propagator with void navigator
 #if Acts_VERSION_MAJOR >= 32
   auto propagatorSec = std::make_shared<PropagatorSec>(stepperSec, Acts::VoidNavigator{},
-                                                 logger().cloneWithSuffix("PropSec"));
+                                                       logger().cloneWithSuffix("PropSec"));
 #else
   auto propagatorSec = std::make_shared<PropagatorSec>(stepperSec, Acts::detail::VoidNavigator{},
-                                                 logger().cloneWithSuffix("PropSec"));
+                                                       logger().cloneWithSuffix("PropSec"));
 #endif
 
   //set up Impact estimator
 #if Acts_VERSION_MAJOR >= 33
   using ImpactPointEstimator = Acts::ImpactPointEstimator;
-  using LinearizerSec = Acts::HelicalTrackLinearizer;
-  using VertexFitterSec = Acts::AdaptiveMultiVertexFitter;
-  using VertexSeederSec = Acts::TrackDensityVertexFinder;
+  using LinearizerSec        = Acts::HelicalTrackLinearizer;
+  using VertexFitterSec      = Acts::AdaptiveMultiVertexFitter;
+  using VertexSeederSec      = Acts::TrackDensityVertexFinder;
   // The vertex finder type
-  using VertexFinderSec = Acts::AdaptiveMultiVertexFinder;
+  using VertexFinderSec        = Acts::AdaptiveMultiVertexFinder;
   using VertexFinderOptionsSec = Acts::VertexingOptions;
 #else
-  using ImpactPointEstimator = Acts::ImpactPointEstimator<Acts::BoundTrackParameters, PropagatorSec>;
+  using ImpactPointEstimator =
+      Acts::ImpactPointEstimator<Acts::BoundTrackParameters, PropagatorSec>;
   using LinearizerSec = Acts::HelicalTrackLinearizer<PropagatorSec>;
-  using VertexFitterSec = Acts::AdaptiveMultiVertexFitter<Acts::BoundTrackParameters, LinearizerSec>;
+  using VertexFitterSec =
+      Acts::AdaptiveMultiVertexFitter<Acts::BoundTrackParameters, LinearizerSec>;
   using VertexSeederSec = Acts::Acts::ZScanVertexFinder<VertexFitterSec>;
   // The vertex finder type
-  using VertexFinderSec = Acts::AdaptiveMultiVertexFinder<VertexFitterSec, VertexSeederSec>;
+  using VertexFinderSec        = Acts::AdaptiveMultiVertexFinder<VertexFitterSec, VertexSeederSec>;
   using VertexFinderOptionsSec = Acts::VertexingOptions<Acts::BoundTrackParameters>;
 #endif
 
-   // Set up track density used during vertex seeding
+  // Set up track density used during vertex seeding
   Acts::AdaptiveGridTrackDensity::Config trkDensityCfg;
   // Bin extent in z-direction
-  trkDensityCfg.spatialBinExtent = 5. * Acts::UnitConstants::um;
+  trkDensityCfg.spatialBinExtent = 25 * Acts::UnitConstants::um;
   // Bin extent in t-direction
-  trkDensityCfg.temporalBinExtent = 19. * Acts::UnitConstants::mm;
-  trkDensityCfg.useTime = m_cfg.useTime;
+  //trkDensityCfg.temporalBinExtent = 19. * Acts::UnitConstants::mm;
+  trkDensityCfg.useTime = false; //m_cfg.useTime;
   Acts::AdaptiveGridTrackDensity trkDensity(trkDensityCfg);
 
   // using LinearizerSec = Acts::HelicalTrackLinearizer<PropagatorSec>;
@@ -147,22 +138,21 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
   //Trying multivertex fitter here...
   // Set up deterministic annealing with user-defined temperatures
   Acts::AnnealingUtility::Config annealingCfg;
-  annealingCfg.setOfTemperatures = {0.95,1.0,1.05};
+  annealingCfg.setOfTemperatures = {9., 1.0};
   Acts::AnnealingUtility annealingUtility(annealingCfg);
   // Setup the vertex fitter
   ImpactPointEstimator::Config ipEstCfg(m_BField, propagatorSec);
   ImpactPointEstimator ipEst(ipEstCfg);
   VertexFitterSec::Config vertexFitterCfgSec(ipEst);
 
-  vertexFitterCfgSec.annealingTool = annealingUtility;
-  vertexFitterCfgSec.minWeight = 0.001;
-  vertexFitterCfgSec.doSmoothing = true;
-  vertexFitterCfgSec.useTime = m_cfg.useTime;
+  vertexFitterCfgSec.annealingTool     = annealingUtility;
+  vertexFitterCfgSec.minWeight         = 1e-04;
+  vertexFitterCfgSec.maxDistToLinPoint = 5.5 * Acts::UnitConstants::mm;
+  vertexFitterCfgSec.doSmoothing       = true;
+  vertexFitterCfgSec.useTime           = false; //m_cfg.useTime;
 #if Acts_VERSION_MAJOR >= 33
-  vertexFitterCfgSec.extractParameters
-    .connect<&Acts::InputTrack::extractParameters>();
-  vertexFitterCfgSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(
-    &linearizerSec);
+  vertexFitterCfgSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
+  vertexFitterCfgSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(&linearizerSec);
 #endif
   VertexFitterSec vertexFitterSec(std::move(vertexFitterCfgSec));
 
@@ -172,38 +162,34 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
   using seedFinder = Acts::AdaptiveGridDensityVertexFinder;
   std::shared_ptr<const Acts::IVertexFinder> seeder;
   seedFinder::Config seederCfg(trkDensity);
-  seederCfg.extractParameters
-      .connect<&Acts::InputTrack::extractParameters>();
-  seeder = std::make_shared<seedFinder>(seedFinder::Config{seederCfg}); 
+  seederCfg.extractParameters.connect<&Acts::InputTrack::extractParameters>();
+  seeder = std::make_shared<seedFinder>(seedFinder::Config{seederCfg});
 #else
   // Set up the vertex seed finder
   VertexSeederSec::Config seedercfg(ipEst);
   VertexSeederSec seeder(seederCfg);
 #endif
 
-
-  VertexFinderSec::Config vertexfinderCfgSec(std::move(vertexFitterSec),
-                              std::move(seeder), 
-                              std::move(ipEst),
-                              m_BField);
+  VertexFinderSec::Config vertexfinderCfgSec(std::move(vertexFitterSec), std::move(seeder),
+                                             std::move(ipEst), m_BField);
 
   // The vertex finder state
 #if Acts_VERSION_MAJOR >= 31
-  #if Acts_VERSION_MAJOR >= 33
+#if Acts_VERSION_MAJOR >= 33
   // Set the initial variance of the 4D vertex position. Since time is on a
   // numerical scale, we have to provide a greater value in the corresponding
   // dimension.
-  vertexfinderCfgSec.initialVariances<<1e+2, 1e+2, 1e+2, 1e+8;
+  vertexfinderCfgSec.initialVariances << 1e+2, 1e+2, 1e+2, 1e+8;
   //Use time for Sec. Vertex
-  vertexfinderCfgSec.useTime = true;
-  vertexfinderCfgSec.tracksMaxZinterval=15 * Acts::UnitConstants::mm;
-  vertexfinderCfgSec.maxIterations=200;
-  vertexfinderCfgSec.doFullSplitting = true;
+  vertexfinderCfgSec.useTime            = false;
+  vertexfinderCfgSec.tracksMaxZinterval = 35 * Acts::UnitConstants::mm;
+  vertexfinderCfgSec.maxIterations      = 1000;
+  vertexfinderCfgSec.doFullSplitting    = false;
   // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
-  vertexfinderCfgSec.tracksMaxSignificance = 5;
-  vertexfinderCfgSec.maxMergeVertexSignificance = 3;
+  vertexfinderCfgSec.tracksMaxSignificance      = 6.7;
+  vertexfinderCfgSec.maxMergeVertexSignificance = 5;
 
-  if(m_cfg.useTime){
+  if (m_cfg.useTime) {
     // When using time, we have an extra contribution to the chi2 by the time
     // coordinate. We thus need to increase tracksMaxSignificance (i.e., the
     // maximum chi2 that a track can have to be associated with a vertex).
@@ -216,13 +202,13 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
   vertexfinderCfgSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
   vertexFitterCfgSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(&linearizerSec);
 
-  #if Acts_VERSION_MAJOR >= 36
-  vertexfinderCfgSec.field = m_BField;
-  #else
+#if Acts_VERSION_MAJOR >= 36
+  vertexfinderCfgSec.bField = m_BField;
+#else
   vertexfinderCfgSec.bField = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
-    std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
-  #endif
-  #endif
+      std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
+#endif
+#endif
   VertexFinderSec vertexfinderSec(std::move(vertexfinderCfgSec)); //,logger().clone());
 #else
   VertexFinder finder(std::move(vertexfinderCfgSec));
@@ -243,14 +229,14 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::prod
   std::vector<const Acts::BoundTrackParameters*> inputTrackPointersSecondary;
 #endif
   // Calculate primary vertex using AMVF
-  primaryVertices=
-    calcPrimaryVtx(recotracks,trajectories,vertexfinderSec,vfOptions,vertexfinderCfgSec,stateSec);
+  primaryVertices = calcPrimaryVtx(recotracks, trajectories, vertexfinderSec, vfOptions,
+                                   vertexfinderCfgSec, stateSec);
   // Primary vertex collection container to be used in Sec. Vertex fitting
-  std::vector<Acts::Vertex> primvtx=getprmvtx();
+  std::vector<Acts::Vertex> primvtx = getprmvtx();
   //Evaluate Two Track Vertex fitting
-  outputVertices=
-    calcSecVtx(recotracks,trajectories,vertexfinderSec,vfOptions,vertexfinderCfgSec,stateSec,primvtx);
+  outputVertices = calcSecVtx(recotracks, trajectories, vertexfinderSec, vfOptions,
+                              vertexfinderCfgSec, stateSec, primvtx);
 
   //return std::move(outputVertices);
-  return std::make_tuple(std::move(primaryVertices),std::move(outputVertices));
+  return std::make_tuple(std::move(primaryVertices), std::move(outputVertices));
 }
