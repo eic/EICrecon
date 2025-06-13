@@ -2,7 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 // kuma edit
 
-// #include "HitChecker.h"
+#include "HitChecker.h"
 
 #include "timeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
@@ -13,6 +13,8 @@
 extern "C" {
 void InitPlugin(JApplication* app) {
 
+
+  // This is the plugin initialization function that JANA will call.
   std::vector<std::string> m_simtrackerhit_collection_names_aligned = {
       "B0TrackerHits_aligned",         "BackwardMPGDEndcapHits_aligned",
       "DIRCBarHits_aligned",           "DRICHHits_aligned",
@@ -24,23 +26,16 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerHits_aligned",     "TrackerEndcapHits_aligned",
       "VertexBarrelHits_aligned"};
 
-  std::vector<std::string> m_simtrackerhit_collection_names = {
+  std::vector<std::vector<std::string> > m_simtrackerhit_collection_names = {{
       "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
       "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
       "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
       "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
       "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
-      "TrackerEndcapHits",   "VertexBarrelHits"};
+      "TrackerEndcapHits",   "VertexBarrelHits"
+  }};
 
   InitJANAPlugin(app);
-
-  // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-  //   { .tag = "timeAlignment",
-  //     .level = JEventLevel::Timeslice,
-  //     .input_names = {"SiBarrelHits"},
-  //     .output_names = {"SiBarrelHits_aligned"}
-
-  //   }));
 
   // app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
   //   { .tag = "timeAlignment",
@@ -49,32 +44,27 @@ void InitPlugin(JApplication* app) {
   //     .output_names = {"VertexBarrelHits_aligned"}
   //   }));
 
-  app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
+  app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(jana::components::JOmniFactoryGeneratorT<timeAlignmentFactory>::TypedWiring
       {.tag          = "timeAlignment",
        .level        = JEventLevel::Timeslice,
-       .input_names  = m_simtrackerhit_collection_names,
+       .variadic_input_names  = m_simtrackerhit_collection_names,
        .output_names = m_simtrackerhit_collection_names_aligned}));
+
+
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
 
-  // app->Add(new JOmniFactoryGeneratorT<HitChecker>({.tag          = "timeslice_hit_checker",
-  //                                                  .level        = JEventLevel::Timeslice,
-  //                                                  .input_names  = {"VertexBarrelHits"},
-  //                                                  .output_names = {"ts_checked_hits"}}));
+  app->Add(new JOmniFactoryGeneratorT<HitChecker>(jana::components::JOmniFactoryGeneratorT<HitChecker>::TypedWiring
+    {.tag          = "timeslice_hit_checker",
+     .level        = JEventLevel::Timeslice,
+     .input_names  = {"SiBarrelHits"},
+     .output_names = {"ts_checked_hits"}}));
 
-  // app->Add(new JOmniFactoryGeneratorT<HitChecker>({.tag          = "physics_hit_checker",
-  //                                                  .level        = JEventLevel::PhysicsEvent,
-  //                                                  .input_names  = {"VertexBarrelHits"},
-  //                                                  .output_names = {"phys_checked_hits"}}));
+  app->Add(new JOmniFactoryGeneratorT<HitChecker>(jana::components::JOmniFactoryGeneratorT<HitChecker>::TypedWiring
+    {.tag          = "physics_hit_checker",
+     .level        = JEventLevel::PhysicsEvent,
+     .input_names  = {"SiBarrelHits"},
+     .output_names = {"phys_checked_hits"}}));
 
-  // Factory that produces timeslice-level protoclusters from timeslice-level hits
-  /*
-    app->Add(new JOmniFactoryGeneratorT<MyProtoclusterFactory>(
-                { .tag = "timeslice_protoclusterizer",
-                  .level = JEventLevel::Timeslice,
-                  .input_names = {"hits"},
-                  .output_names = {"ts_protoclusters"}
-                }));
-    */
-}
+  }
 } // "C"
