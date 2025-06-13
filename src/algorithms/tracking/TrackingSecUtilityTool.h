@@ -4,11 +4,8 @@
 #include <vector>
 #include <algorithm>
 //ROOT headers
-#include <TH1D.h>
-#include <TH2D.h>
 #include <TLorentzVector.h>
 #include <TMath.h>
-#include <TProfile.h>
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
@@ -81,54 +78,6 @@ public:
 
 private:
   //Histos
-  struct histos {
-    TH1D* m_hb_massKPi{};
-    TH1D* m_hb_massPiPi1{};
-    TH1D* m_hb_massEE{};
-    TH1D* m_hb_totmassEE{};
-    TH1D* m_hb_totmass2T0{};
-    TH1D* m_hb_totmass2T1{};
-    TH1D* m_hb_totmass2T2{};
-    TH1D* m_hb_nvrt2{};
-    TH1D* m_hb_ratio{};
-    TH1D* m_hb_totmass{};
-    TH1D* m_hb_impact{};
-    TH1D* m_hb_impactR{};
-    TH2D* m_hb_impactRZ{};
-    TH1D* m_hb_trkD0{};
-    TH1D* m_hb_ntrk{};
-    TH1D* m_hb_impactZ{};
-    TH1D* m_hb_r2d{};
-    TH1D* m_hb_r1dc{};
-    TH1D* m_hb_r2dc{};
-    TH1D* m_hb_r3dc{};
-    TH1D* m_hb_rNdc{};
-    TH1D* m_hb_dstToMat{};
-    TH1D* m_hb_jmom{};
-    TH1D* m_hb_mom{};
-    TH1D* m_hb_signif3D{};
-    TH1D* m_hb_impV0{};
-    TH1D* m_hb_sig3DTot{};
-    TH1D* m_hb_goodvrtN{};
-    TH1D* m_hb_distVV{};
-    TH1D* m_hb_diffPS{};
-    TH1D* m_hb_sig3D1tr{};
-    TH1D* m_hb_sig3D2tr{};
-    TH1D* m_hb_sig3DNtr{};
-    TH1D* m_hb_trkPtMax{};
-    TH1D* m_hb_rawVrtN{};
-    TH1D* m_hb_lifetime{};
-    TH1D* m_hb_trkPErr{};
-    TH1D* m_hb_deltaRSVPV{};
-    //--
-    TProfile* m_pr_NSelTrkMean{};
-    TProfile* m_pr_effVrt2tr{};
-    TProfile* m_pr_effVrt2trEta{};
-    TProfile* m_pr_effVrt{};
-    TProfile* m_pr_effVrtEta{};
-  };
-  std::unique_ptr<histos> m_h;
-
   // two-track vertex container (D0 and B0)
   // two-body decay modes
   struct vrt2Tr {
