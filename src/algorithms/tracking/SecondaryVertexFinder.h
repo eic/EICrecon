@@ -236,6 +236,7 @@ std::unique_ptr<edm4eic::VertexCollection> SecondaryVertexFinder::calcSecVtx(
   auto secVertices = std::make_unique<edm4eic::VertexCollection>();
   //--->Add Prm Vertex container here
   //int NPrmVert=prmvtx.size();
+  //int NPrmVert     = prmvtx.size();
 #if Acts_VERSION_MAJOR >= 33
   std::vector<Acts::InputTrack> inputTracks;
 #else
