@@ -14,34 +14,28 @@
 
 struct TimeframeSplitter : public JEventUnfolder {
 
-  float m_timeframe_width = 2000.0; // ns
-  float m_timesplit_width = 2000.0; // ns
+  float m_timeframe_width = 20.0; // ns
+  float m_timesplit_width = 4.0; // ns
   bool m_use_timeframe    = false;  // Use timeframes to split events, or use timeslices
 
-  std::vector<std::string> m_simtrackerhit_collection_names = {
-      "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
-      "DRICHHits_aligned",           "ForwardMPGDEndcapHits_aligned",  "ForwardOffMTrackerHits_aligned",
-      "ForwardRomanPotHits_aligned", "LumiSpecTrackerHits_aligned",    "MPGDBarrelHits_aligned",
-      "OuterMPGDBarrelHits_aligned", "RICHEndcapNHits_aligned",        "SiBarrelHits_aligned",
-      "TOFBarrelHits_aligned",       "TOFEndcapHits_aligned",          "TaggerTrackerHits_aligned",
-      "TrackerEndcapHits_aligned",   "VertexBarrelHits_aligned"};
+  // std::vector<std::string> m_simtrackerhit_collection_names = {
+  //     "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
+  //     "DRICHHits_aligned",           "ForwardMPGDEndcapHits_aligned",  "ForwardOffMTrackerHits_aligned",
+  //     "ForwardRomanPotHits_aligned", "LumiSpecTrackerHits_aligned",    "MPGDBarrelHits_aligned",
+  //     "OuterMPGDBarrelHits_aligned", "RICHEndcapNHits_aligned",        "SiBarrelHits_aligned",
+  //     "TOFBarrelHits_aligned",       "TOFEndcapHits_aligned",          "TaggerTrackerHits_aligned",
+  //     "TrackerEndcapHits_aligned",   "VertexBarrelHits_aligned"};
 
-  std::vector<std::string> m_simtrackerhit_collection_names_out = {
-      "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
-      "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
-      "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
-      "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
-      "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
-      "TrackerEndcapHits",   "VertexBarrelHits"};
+  // std::vector<std::string> m_simtrackerhit_collection_names_out = {
+  //     "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
+  //     "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
+  //     "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
+  //     "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
+  //     "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
+  //     "TrackerEndcapHits",   "VertexBarrelHits"};
 
-  // std::vector<std::string> m_simtrackerhit_collection_names = {"VertexBarrelHits_aligned"};
-  // std::vector<std::string> m_simtrackerhit_collection_names_out = {"VertexBarrelHits"};
-
-  // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits"};
-  // std::vector<std::string> m_simtrackerhit_collection_names     = {"SiBarrelHits_aligned",
-  //                                                                  "VertexBarrelHits_aligned"};
-  // std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits",
-  //                                                                  "VertexBarrelHits"};
+  std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits_aligned"};
+  std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits"};
 
   // std::vector<std::string> m_simtrackerhit_collection_names     = {"SiBarrelHits",
   //                                                                  "VertexBarrelHits"};
@@ -104,7 +98,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       m_hitStartIndices_simCalorimeter;
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
-    if (child_idx == 0) {
+ if (child_idx == 0) {
       m_hitStartIndices_simTracker.clear();
       m_hitStartIndices_simTracker.resize(m_simtrackerhits_in().size(),
                                           std::make_tuple(0, nullptr, 0));
@@ -126,14 +120,6 @@ struct TimeframeSplitter : public JEventUnfolder {
       }
     }
 
-    // float timeStamp = parent.GetEventTimeStamp();
-    // LOG_INFO(GetLogger()) << "TimeframeSplitter: timeslice " << parent.GetEventNumber() << " timeStamp " << timeStamp << LOG_END;
-    float iTimeSlice = m_timesplit_width * child_idx;
-    float eTimeSlice = m_timesplit_width * (child_idx + 1.0);
-    std::cout << "child_idx = " << child_idx << ":: TimeframeSplitter: timeslice "
-              << parent.GetEventNumber() << " iTimeSlice " << iTimeSlice << " eTimeSlice "
-              << eTimeSlice << std::endl;
-
     LOG_INFO(GetLogger()) << "Running TimeframeSplitter::Unfold() on timeslice #"
                           << parent.GetEventNumber() << LOG_END;
 
@@ -152,83 +138,133 @@ struct TimeframeSplitter : public JEventUnfolder {
       // TODO: Decide which of these belong to this physics event
       m_mcparticles_out()->push_back(mcparticle);
     }
+    
+    
+    // == s == Internal Interval loop  ========================================================-
+    bool bAdmitedInterval = false;
+    float iTimeSlice = m_timesplit_width * child_idx;
+    float eTimeSlice = m_timesplit_width * (child_idx + 1.0);
+    while (eTimeSlice <= m_timeframe_width){// ??? Kuma test
+      std::cout << "CHeeeeeeeeeeeeeeeeeeeeeCKUma child_idx: " << child_idx << std::endl;
+      // LOG_INFO(GetLogger()) << "TimeframeSplitter: timeslice " << parent.GetEventNumber() << " timeStamp " << timeStamp << LOG_END;
+      iTimeSlice = m_timesplit_width * child_idx;
+      eTimeSlice = m_timesplit_width * (child_idx + 1.0);
+      std::cout << "child_idx = " << child_idx << ":: TimeframeSplitter: timeslice "
+                << parent.GetEventNumber() << " iTimeSlice " << iTimeSlice << " eTimeSlice "
+                << eTimeSlice << std::endl;
 
-    // Insert MCParticles into the physics event
-    m_mcparticles_out()->setSubsetCollection(true);
-    for (const auto& mcparticle : *m_mcparticles_in) {
-      // TODO: Decide which of these belong to this physics event
-      m_mcparticles_out()->push_back(mcparticle);
-    }
+      // std::vector<std::unique_ptr<edm4hep::MutableSimTrackerHit>> tempAllDetectorSimTrackerHits; // ??? Kuma test
+      std::vector<std::unique_ptr<edm4hep::SimTrackerHitCollection>> tempAllDetectorSimTrackerHits; // ??? Kuma test
+      // Loop through SimTrackerHit collections and split them into time slice      
+      for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simTracker) {          
+          if (detHitPtr == nullptr) continue;
+          bool bAllScan = true;
 
-    std::vector<std::unique_ptr<edm4hep::MutableSimTrackerHit>>
-        tempAllDetectorSimTrackerHits; // ??? Kuma test
-    // Loop through SimTrackerHit collections and split them into time slice
-    for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simTracker) {
-      auto& coll_out = m_simtrackerhits_out().at(detID); // ??? Kuma 1
-      coll_out->setSubsetCollection(true);               // ??? Kuma 1
-      if (detHitPtr == nullptr)
-        continue;
-      bool bAllScan = true;
-      for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
-        const auto& hit = detHitPtr->at(hitID);
-        auto hitTime    = hit.getTime();
-        // std::cout << "ChecKuma Hit Time!! : " << hitTime << " Threshold time: " << eTimeSlice << std::endl;
-        if (hitTime >= eTimeSlice) {
-          start_index = hitID;
-          bAllScan    = false;
-          // std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
-          break;
-        }
-        coll_out->push_back(hit); // ??? Kuma 1
+          // auto& coll_out = m_simtrackerhits_out().at(detID);// ??? Kuma 1
+          // coll_out->setSubsetCollection(true);// ??? Kuma 1
+          auto tempSimTrackerHits = std::make_unique<edm4hep::SimTrackerHitCollection>(); // ??? Kuma test
+          tempSimTrackerHits->setSubsetCollection(true);
+
+          for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
+              const auto& hit = detHitPtr->at(hitID);
+              auto hitTime = hit.getTime();
+              // std::cout << "ChecKuma Hit Time!! : " << hitTime << " Threshold time: " << eTimeSlice << std::endl;
+              if (hitTime >= eTimeSlice) {
+                  start_index = hitID;
+                  bAllScan = false;
+                  std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
+                  break;
+              }
+              // coll_out->push_back(hit);// ??? Kuma 1
+              tempSimTrackerHits->push_back(hit); // ??? Kuma test
+          }
+          tempAllDetectorSimTrackerHits.push_back(std::move(tempSimTrackerHits)); // ??? Kuma test
+          if(bAllScan) start_index = detHitPtr->size();
+          
       }
-      if (bAllScan)
-        start_index = detHitPtr->size();
+      // Loop through SimTrackerHit collections and split them into time slice
+      for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simCalorimeter) {
+          auto& coll_out = m_simcalorimeterhits_out().at(detID);
+          coll_out->setSubsetCollection(true);
+          if (detHitPtr == nullptr) continue;
+          bool bAllScan = true;
+          for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
+              const auto& hit = detHitPtr->at(hitID);
 
-      m_use_timeframe = true;
-    }
+              auto hitContributions = hit.getContributions();
+              bool contributeFlag = false;
+              for(const auto& contribution : hitContributions){
+                auto hitTime = contribution.getTime();
+                if (hitTime >= eTimeSlice) {
+                  start_index = hitID;
+                  bAllScan = false;
+                  contributeFlag = true;
+                  // std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
+                  break;
+                }
 
-    // Loop through SimTrackerHit collections and split them into time slice
-    for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simCalorimeter) {
-      auto& coll_out = m_simcalorimeterhits_out().at(detID);
-      coll_out->setSubsetCollection(true);
-      if (detHitPtr == nullptr)
-        continue;
-      bool bAllScan = true;
-      for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
-        const auto& hit = detHitPtr->at(hitID);
+                auto& coll_out_contribution = m_calohitcontributions_out().at(detID);
+                coll_out_contribution->setSubsetCollection(true);
 
-        auto hitContributions = hit.getContributions();
-        bool contributeFlag   = false;
-        for (const auto& contribution : hitContributions) {
-          auto hitTime = contribution.getTime();
-          if (hitTime >= eTimeSlice) {
-            start_index    = hitID;
-            bAllScan       = false;
-            contributeFlag = true;
-            // std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
+                coll_out_contribution->push_back(contribution);
+              }
+              if(contributeFlag) break;
+              // std::cout << "ChecKuma Hit Time!! : " << hitTime << " Threshold time: " << eTimeSlice << std::endl;
+
+              coll_out->push_back(hit);
+          }
+          if(bAllScan) start_index = detHitPtr->size();
+            
+        }        
+      
+      std::cout << "CHeeeeeeeeeeeeeeeeeeeeeecKUma0000" << std::endl;
+      for(const auto& tempSimTrackerHits : tempAllDetectorSimTrackerHits) {
+          if(!tempSimTrackerHits->empty()){
+            bAdmitedInterval = true;
+            std::cout << "CHeeeeeeeeeeeeeeeeeeeeeecKUma0001" << std::endl;
             break;
           }
-
-          auto& coll_out_contribution = m_calohitcontributions_out().at(detID);
-          coll_out_contribution->setSubsetCollection(true);
-
-          coll_out_contribution->push_back(contribution);
-        }
-        if (contributeFlag)
-          break;
-        // std::cout << "ChecKuma Hit Time!! : " << hitTime << " Threshold time: " << eTimeSlice << std::endl;
-
-        coll_out->push_back(hit);
       }
-      if (bAllScan)
-        start_index = detHitPtr->size();
 
-      m_use_timeframe = true;
+      if(bAdmitedInterval){
+          Int_t detID = 0;
+          for(auto& tempSimTrackerHits : tempAllDetectorSimTrackerHits) {
+            
+            if(!tempSimTrackerHits->empty()){
+              std::cout << "ChecKuma: TimeframeSplitter: timeslice "
+                        << parent.GetEventNumber() << " child_idx " << child_idx
+                        << " detID " << detID << " has hits in time slice: "
+                        << tempSimTrackerHits->size() << std::endl;
+              auto& coll_out = m_simtrackerhits_out().at(detID);              
+              coll_out->setSubsetCollection(true);
+
+              coll_out = std::move(tempSimTrackerHits);
+              detID++;
+            }
+          }
+
+          break; // Break out of the interval loop if we have already admitted this interval
+      }
+
+      child_idx++;
     }
+    // == s == Internal Interval loop  ========================================================-
+
+
+
 
     // Produce exactly one physics event per timeframe for now
     // return JEventUnfolder::Result::NextChildNextParent;
+    if(eTimeSlice + 1 > m_timeframe_width && !bAdmitedInterval){
+      std::cout << "CheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecKuma child_idx: " << child_idx
+              << ", eTimeSlice: " << eTimeSlice << ", m_timeframe_width: " << m_timeframe_width
+              << std::endl;
+      child_idx = 0;
+      return Result::KeepChildNextParent;
+    }
     return (eTimeSlice + 1 > m_timeframe_width) ? Result::NextChildNextParent
                                                 : Result::NextChildKeepParent;
+
+  
   }
 };

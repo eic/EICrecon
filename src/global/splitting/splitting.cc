@@ -57,7 +57,7 @@ void InitPlugin(JApplication* app) {
   // app->Add(new JOmniFactoryGeneratorT<HitChecker>(jana::components::JOmniFactoryGeneratorT<HitChecker>::TypedWiring
   //   {.tag          = "timeslice_hit_checker",
   //    .level        = JEventLevel::Timeslice,
-  //    .input_names  = {"SiBarrelHits"},
+  //    .input_names  = {"SiBarrelHits_aligned"},
   //    .output_names = {"ts_checked_hits"}}));
 
   // app->Add(new JOmniFactoryGeneratorT<HitChecker>(jana::components::JOmniFactoryGeneratorT<HitChecker>::TypedWiring
