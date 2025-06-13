@@ -105,7 +105,7 @@ eicrecon::SecondaryVertexFinder::produce(
   using ImpactPointEstimator = Acts::ImpactPointEstimator;
   using LinearizerSec        = Acts::HelicalTrackLinearizer;
   using VertexFitterSec      = Acts::AdaptiveMultiVertexFitter;
-  using VertexSeederSec      = Acts::TrackDensityVertexFinder;
+  //using VertexSeederSec      = Acts::TrackDensityVertexFinder;
   // The vertex finder type
   using VertexFinderSec        = Acts::AdaptiveMultiVertexFinder;
   using VertexFinderOptionsSec = Acts::VertexingOptions;
