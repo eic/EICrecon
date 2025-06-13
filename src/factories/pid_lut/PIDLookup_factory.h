@@ -29,7 +29,7 @@ private:
 
   ParameterRef<std::string> m_filename{this, "filename", config().filename,
                                        "Relative to current working directory"};
-  ParameterRef<int> m_system{this, "system", config().system, "For the ParticleID record"};
+  ParameterRef<std::string> m_system{this, "system", config().system, "For the ParticleID record"};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

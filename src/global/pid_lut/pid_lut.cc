@@ -1,21 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023, Christopher Dilks
 
-#include <DD4hep/Detector.h>
-#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <math.h>
-#include <algorithm>
-#include <gsl/pointers>
 #include <memory>
-#include <stdexcept>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/pid_lut/PIDLookup_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -26,17 +20,9 @@ void InitPlugin(JApplication* app) {
   //-------------------------------------------------------------------------
   // PFRICH PID
   //-------------------------------------------------------------------------
-
-  int BackwardRICH_ID = 0;
-  try {
-    auto detector   = app->GetService<DD4hep_service>()->detector();
-    BackwardRICH_ID = detector->constant<int>("BackwardRICH_ID");
-  } catch (const std::runtime_error&) {
-    // Nothing
-  }
   PIDLookupConfig pfrich_pid_cfg{
       .filename       = "calibrations/pfrich.lut",
-      .system         = BackwardRICH_ID,
+      .system         = "BackwardRICH_ID",
       .pdg_values     = {11, 211, 321, 2212},
       .charge_values  = {1},
       .momentum_edges = {0.4,  0.8,  1.2,  1.6, 2,    2.4,  2.8,  3.2,  3.6, 4,    4.4,  4.8, 5.2,
@@ -81,16 +67,9 @@ void InitPlugin(JApplication* app) {
   // TOF PID
   //-------------------------------------------------------------------------
 
-  int BarrelTOF_ID = 0;
-  try {
-    auto detector = app->GetService<DD4hep_service>()->detector();
-    BarrelTOF_ID  = detector->constant<int>("BarrelTOF_ID");
-  } catch (const std::runtime_error&) {
-    // Nothing
-  }
   PIDLookupConfig tof_pid_cfg{
       .filename       = "calibrations/tof.lut",
-      .system         = BarrelTOF_ID,
+      .system         = "BarrelTOF_ID",
       .pdg_values     = {11, 211, 321, 2212},
       .charge_values  = {1},
       .momentum_edges = {0.0, 0.3, 0.6, 0.9, 1.2, 1.5, 1.8, 2.1, 2.4, 2.7, 3.0,
@@ -132,16 +111,9 @@ void InitPlugin(JApplication* app) {
   // DIRC PID
   //-------------------------------------------------------------------------
 
-  int BarrelDIRC_ID = 0;
-  try {
-    auto detector = app->GetService<DD4hep_service>()->detector();
-    BarrelDIRC_ID = detector->constant<int>("BarrelDIRC_ID");
-  } catch (const std::runtime_error&) {
-    // Nothing
-  }
   PIDLookupConfig dirc_pid_cfg{
       .filename       = "calibrations/hpdirc.lut.gz",
-      .system         = BarrelDIRC_ID,
+      .system         = "BarrelDIRC_ID",
       .pdg_values     = {11, 211, 321, 2212},
       .charge_values  = {-1, 1},
       .momentum_edges = {0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.4, 1.6, 1.8, 2.0, 2.2,  2.4, 2.6,
@@ -194,16 +166,9 @@ void InitPlugin(JApplication* app) {
   // DRICH PID
   //-------------------------------------------------------------------------
 
-  int ForwardRICH_ID = 0;
-  try {
-    auto detector  = app->GetService<DD4hep_service>()->detector();
-    ForwardRICH_ID = detector->constant<int>("ForwardRICH_ID");
-  } catch (const std::runtime_error&) {
-    // Nothing
-  }
   PIDLookupConfig drich_pid_cfg{
       .filename                 = "calibrations/drich.lut",
-      .system                   = ForwardRICH_ID,
+      .system                   = "ForwardRICH_ID",
       .pdg_values               = {211, 321, 2212},
       .charge_values            = {1},
       .momentum_edges           = {0.25,  0.75,  1.25,  1.75,  2.25,  2.75,  3.25,  3.75,  4.25,

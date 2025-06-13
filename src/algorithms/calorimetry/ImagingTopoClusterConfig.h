@@ -6,6 +6,8 @@
 #include <string>
 #include <iostream>
 
+#include <DD4hep/DD4hepUnits.h>
+
 namespace eicrecon {
 
 struct ImagingTopoClusterConfig {
