@@ -5,10 +5,9 @@
 
 namespace eicrecon {
 
-  struct ImagingClusterRecoConfig {
+struct ImagingClusterRecoConfig {
 
-    int trackStopLayer = 9;
+  int trackStopLayer = 9;
+};
 
-  };
-
-} // eicrecon
+} // namespace eicrecon

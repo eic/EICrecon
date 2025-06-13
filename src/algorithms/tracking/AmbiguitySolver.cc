@@ -21,7 +21,6 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <Eigen/Core>
 #include <cstddef>
-#include <functional>
 #include <utility>
 
 #include "Acts/Utilities/Logger.hpp"
@@ -49,9 +48,7 @@ static bool sourceLinkEquality(const Acts::SourceLink& a, const Acts::SourceLink
          b.get<ActsExamples::IndexSourceLink>().index();
 }
 
-
-AmbiguitySolver::AmbiguitySolver() {}
-
+AmbiguitySolver::AmbiguitySolver() = default;
 
 void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
 
@@ -61,10 +58,10 @@ void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
   m_core        = std::make_unique<Acts::GreedyAmbiguityResolution>(m_acts_cfg, logger().clone());
 }
 
-
-std::tuple<std::vector<ActsExamples::ConstTrackContainer*>, std::vector<ActsExamples::Trajectories*>>
+std::tuple<std::vector<ActsExamples::ConstTrackContainer*>,
+           std::vector<ActsExamples::Trajectories*>>
 AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,
-                         const edm4eic::Measurement2DCollection& meas2Ds) {
+                         const edm4eic::Measurement2DCollection& /* meas2Ds */) {
 
   // Assuming ActsExamples::ConstTrackContainer is compatible with Acts::ConstVectorTrackContainer
   // Create track container
@@ -82,38 +79,34 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
 
   for (auto iTrack : state.selectedTracks) {
 
-        auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
-        auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
-        destProxy.copyFrom(srcProxy, false);
-        destProxy.tipIndex() = srcProxy.tipIndex();
+    auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
+    auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
+    destProxy.copyFrom(srcProxy, false);
+    destProxy.tipIndex() = srcProxy.tipIndex();
+  }
 
-   }
+  output_tracks.push_back(new ActsExamples::ConstTrackContainer(
+      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
+      input_trks->trackStateContainerHolder()));
 
-   output_tracks.push_back(new ActsExamples::ConstTrackContainer(
-        std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
-        input_trks->trackStateContainerHolder()));
+  //Make output trajectories
+  ActsExamples::Trajectories::IndexedParameters parameters;
+  std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
 
-   //Make output trajectories
-   ActsExamples::Trajectories::IndexedParameters parameters;
-   std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
+  for (const auto& track : *(output_tracks.front())) {
 
-   for (const auto& track : *(output_tracks.front())) {
+    tips.clear();
+    parameters.clear();
 
-        tips.clear();
-        parameters.clear();
+    tips.push_back(track.tipIndex());
+    parameters.emplace(std::pair{
+        track.tipIndex(),
+        ActsExamples::TrackParameters{track.referenceSurface().getSharedPtr(), track.parameters(),
+                                      track.covariance(), track.particleHypothesis()}});
 
-        tips.push_back(track.tipIndex());
-        parameters.emplace(
-           std::pair{track.tipIndex(),
-                    ActsExamples::TrackParameters{track.referenceSurface().getSharedPtr(),
-                                                  track.parameters(), track.covariance(),
-                                                  track.particleHypothesis()}});
-
-        output_trajectories.push_back(new ActsExamples::Trajectories(
-             ((*output_tracks.front())).trackStateContainer(),
-             tips, parameters));
-
-   }
+    output_trajectories.push_back(new ActsExamples::Trajectories(
+        ((*output_tracks.front())).trackStateContainer(), tips, parameters));
+  }
 
   return std::make_tuple(std::move(output_tracks), std::move(output_trajectories));
 }

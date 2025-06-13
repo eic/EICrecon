@@ -7,23 +7,33 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <cstdint>
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+#include <edm4eic/SimPulseCollection.h>
+#else
 #include <edm4hep/TimeSeriesCollection.h>
-#include <memory>
+#endif
 #include <string>
 #include <string_view>
-#include <edm4eic/unit_system.h>
+#include <vector>
 
 #include "algorithms/digi/PulseCombinerConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using PulseCombinerAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4hep::TimeSeriesCollection>,
-                          algorithms::Output<edm4hep::TimeSeriesCollection>>;
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+using PulseType = edm4eic::SimPulse;
+#else
+using PulseType = edm4hep::TimeSeries;
+#endif
 
-class PulseCombiner : public PulseCombinerAlgorithm,
-                               public WithPodConfig<PulseCombinerConfig> {
+using PulseCombinerAlgorithm =
+    algorithms::Algorithm<algorithms::Input<PulseType::collection_type>,
+                          algorithms::Output<PulseType::collection_type>>;
+
+class PulseCombiner : public PulseCombinerAlgorithm, public WithPodConfig<PulseCombinerConfig> {
 
 public:
   PulseCombiner(std::string_view name)
@@ -32,11 +42,9 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-
-  std::vector<std::vector<edm4hep::TimeSeries>> clusterPulses(const std::vector<edm4hep::TimeSeries> pulses) const;
-  std::vector<float> sumPulses(const std::vector<edm4hep::TimeSeries> pulses) const;
+  std::vector<std::vector<PulseType>> clusterPulses(const std::vector<PulseType> pulses) const;
+  static std::vector<float> sumPulses(const std::vector<PulseType> pulses);
   uint64_t m_detector_bitmask = 0xFFFFFFFFFFFFFFFF;
-
 };
 
 } // namespace eicrecon

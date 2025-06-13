@@ -10,7 +10,6 @@
 // Author: Chao Peng
 // Date: 06/02/2021
 
-
 #pragma once
 
 #include <algorithms/algorithm.h>
@@ -33,56 +32,50 @@
 
 namespace eicrecon {
 
-  using CalorimeterHitDigiAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4hep::SimCalorimeterHitCollection
-    >,
+using CalorimeterHitDigiAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::SimCalorimeterHitCollection>,
     algorithms::Output<
 #if EDM4EIC_VERSION_MAJOR >= 7
-      edm4hep::RawCalorimeterHitCollection,
-      edm4eic::MCRecoCalorimeterHitAssociationCollection
+        edm4hep::RawCalorimeterHitCollection, edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-      edm4hep::RawCalorimeterHitCollection
+        edm4hep::RawCalorimeterHitCollection
 #endif
-    >
-  >;
+        >>;
 
-  class CalorimeterHitDigi
-  : public CalorimeterHitDigiAlgorithm,
-    public WithPodConfig<CalorimeterHitDigiConfig> {
+class CalorimeterHitDigi : public CalorimeterHitDigiAlgorithm,
+                           public WithPodConfig<CalorimeterHitDigiConfig> {
 
-  public:
-    CalorimeterHitDigi(std::string_view name)
-      : CalorimeterHitDigiAlgorithm{name,
-                            {"inputHitCollection"},
+public:
+  CalorimeterHitDigi(std::string_view name) : CalorimeterHitDigiAlgorithm {
+    name, {"inputHitCollection"},
 #if EDM4EIC_VERSION_MAJOR >= 7
-                            {"outputRawHitCollection", "outputRawHitAssociationCollection"},
+        {"outputRawHitCollection", "outputRawHitAssociationCollection"},
 #else
-                            {"outputRawHitCollection"},
+        {"outputRawHitCollection"},
 #endif
-                            "Smear energy deposit, digitize within ADC range, add pedestal, "
-                            "convert time with smearing resolution, and sum signals."} {}
+        "Smear energy deposit, digitize within ADC range, add pedestal, "
+        "convert time with smearing resolution, and sum signals."
+  }
+  {}
 
-    void init() final;
-    void process(const Input&, const Output&) const final;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
+private:
+  // unitless counterparts of inputs
+  double stepTDC{0}, tRes{0};
 
-    // unitless counterparts of inputs
-    double           dyRangeADC{0}, stepTDC{0}, tRes{0};
+  uint64_t id_mask{0};
 
-    uint64_t         id_mask{0};
+  std::function<double(const edm4hep::SimCalorimeterHit& h)> corrMeanScale;
 
-    std::function<double(const edm4hep::SimCalorimeterHit &h)> corrMeanScale;
+  dd4hep::IDDescriptor id_spec;
 
-    dd4hep::IDDescriptor id_spec;
+private:
+  const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 
-  private:
-    const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
-
-    mutable std::default_random_engine m_generator;
-    mutable std::normal_distribution<double> m_gaussian;
-
-  };
+  mutable std::default_random_engine m_generator;
+  mutable std::normal_distribution<double> m_gaussian;
+};
 
 } // namespace eicrecon

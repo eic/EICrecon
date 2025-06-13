@@ -3,27 +3,28 @@
 
 #pragma once
 
-#include <iostream>
-
 #include "algorithms/digi/PulseNoise.h"
-#include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-class PulseNoise_factory
-    : public JOmniFactory<PulseNoise_factory, PulseNoiseConfig> {
+class PulseNoise_factory : public JOmniFactory<PulseNoise_factory, PulseNoiseConfig> {
 public:
   using AlgoT = eicrecon::PulseNoise;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+  PodioInput<edm4eic::SimPulse> m_in_pulses{this};
+  PodioOutput<edm4eic::SimPulse> m_out_pulses{this};
+#else
   PodioInput<edm4hep::TimeSeries> m_in_pulses{this};
-
   PodioOutput<edm4hep::TimeSeries> m_out_pulses{this};
+#endif
 
-  ParameterRef<size_t> m_poles{this, "poles", config().poles};
+  ParameterRef<std::size_t> m_poles{this, "poles", config().poles};
   ParameterRef<double> m_variance{this, "variance", config().variance};
   ParameterRef<double> m_alpha{this, "alpha", config().alpha};
   ParameterRef<double> m_scale{this, "scale", config().scale};
@@ -38,9 +39,9 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) {}
+  void ChangeRun(int32_t /* run_number */) {}
 
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_in_pulses()}, {m_out_pulses().get()});
   }
 };
