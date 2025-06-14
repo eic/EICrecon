@@ -45,6 +45,7 @@
 #include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 
+/*
 namespace eicrecon {
 class TrackingSecUtilityTool {
 public:
@@ -53,6 +54,7 @@ public:
   // Destructor
   ~TrackingSecUtilityTool(){};
 
+/ *
   // Calculate an initial Primary Vertex
   std::unique_ptr<edm4eic::VertexCollection>
   calcPrimaryVtx(const edm4eic::ReconstructedParticleCollection*,
@@ -75,7 +77,7 @@ public:
 
   //This is just a test
   void write2screen();
-
+* /
 private:
   //Histos
   // two-track vertex container (D0 and B0)
@@ -145,7 +147,6 @@ private:
   double minR = 0.05;
 };
 
-/*
 //Create template to remove double counted tracks
 template <class Trk>
   void InDetVKalVxInJetTool::removeDoubleEntries(std::vector<const Trk*>& ListTracks) const
@@ -156,6 +157,6 @@ template <class Trk>
     ListTracks.erase( TransfEnd, ListTracks.end());
   }
 
-*/
 } // namespace eicrecon
+*/
 #endif
