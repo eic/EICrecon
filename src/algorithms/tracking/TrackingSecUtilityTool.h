@@ -49,9 +49,9 @@ namespace eicrecon {
 class TrackingSecUtilityTool {
 public:
   // Constructor
-  TrackingSecUtilityTool();
+  TrackingSecUtilityTool(){};
   // Destructor
-  ~TrackingSecUtilityTool();
+  ~TrackingSecUtilityTool(){};
 
   // Calculate an initial Primary Vertex
   std::unique_ptr<edm4eic::VertexCollection>

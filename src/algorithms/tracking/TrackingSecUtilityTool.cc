@@ -61,9 +61,5 @@
 #include "edm4eic/ReconstructedParticle.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
-eicrecon::TrackingSecUtilityTool::TrackingSecUtilityTool() {}
-eicrecon::TrackingSecUtilityTool::~TrackingSecUtilityTool() {}
-
-void eicrecon::TrackingSecUtilityTool::write2screen() {
-  std::cout << "!!!This is just an absolute test mate!!!\n";
-}
+//eicrecon::TrackingSecUtilityTool::TrackingSecUtilityTool() {}
+//eicrecon::TrackingSecUtilityTool::~TrackingSecUtilityTool() {}
