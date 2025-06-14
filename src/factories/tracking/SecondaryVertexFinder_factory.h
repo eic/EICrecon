@@ -46,9 +46,9 @@ public:
     m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
   }
 
-  void ChangeRun(int64_t /*run_number*/){}
+  void ChangeRun(int64_t /*run_number*/) {}
 
-  void Process(int64_t /*run_number*/, uint64_t /*event_number*/){
+  void Process(int64_t /*run_number*/, uint64_t /*event_number*/) {
     std::tie(prm_vertices_output(), sec_vertices_output()) =
         m_algo->produce(m_reco_input(), m_acts_trajectories_input());
     /*
