@@ -117,11 +117,22 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
       {
-          .sectorDist           = 50. * dd4hep::mm,
-          .localDistXZ          = {80 * dd4hep::mm, 80 * dd4hep::mm},
+          .adjacencyMatrix{},
+          .peakNeighbourhoodMatrix{},
+          .readout{},
+          .sectorDist = 50. * dd4hep::mm,
+          .localDistXY{},
+          .localDistXZ = {80 * dd4hep::mm, 80 * dd4hep::mm},
+          .localDistYZ{},
+          .globalDistRPhi{},
+          .globalDistEtaPhi{},
+          .dimScaledLocalDistXY{},
           .splitCluster         = false,
           .minClusterHitEdep    = 5.0 * dd4hep::MeV,
           .minClusterCenterEdep = 100.0 * dd4hep::MeV,
+          .transverseEnergyProfileMetric{},
+          .transverseEnergyProfileScale{},
+          .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
       ));
@@ -144,111 +155,46 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
-
-  //======================================================================
-  app->Add(
-  new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-  "EcalBarrelScFiClustersWithoutShapes",
-  {"EcalBarrelScFiProtoClusters", // edm4eic::ProtoClusterCollection
-  {
-  .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
-  .tRes          = 0.0 * dd4hep::ns,
-  .threshold     = 0.0 * dd4hep::keV, // threshold is set in ADC in reco
-  .capADC        = EcalBarrelScFi_capADC,
-  .dyRangeADC    = EcalBarrelScFi_dyRangeADC,
-  .pedMeanADC    = EcalBarrelScFi_pedMeanADC,
-  .pedSigmaADC   = EcalBarrelScFi_pedSigmaADC,
-  .resolutionTDC = EcalBarrelScFi_resolutionTDC,
-  .corrMeanScale = "1.0",
-  .readout       = "EcalBarrelScFiHits",
-  .fields        = {"fiber", "z"},
-  },
-  app // TODO: Remove me once fixed
-  ));
-    app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
-        "EcalBarrelScFiRecHits", {"EcalBarrelScFiRawHits"}, {"EcalBarrelScFiRecHits"},
-        {
-            .capADC          = EcalBarrelScFi_capADC,
-            .dyRangeADC      = EcalBarrelScFi_dyRangeADC,
-            .pedMeanADC      = EcalBarrelScFi_pedMeanADC,
-            .pedSigmaADC     = EcalBarrelScFi_pedSigmaADC, // not needed; use only thresholdValue
-            .resolutionTDC   = EcalBarrelScFi_resolutionTDC,
-            .thresholdFactor = 0.0, // use only thresholdValue
-            .thresholdValue = 5.0, // 16384 ADC counts/1500 MeV * 0.5 MeV (desired threshold) = 5.46
-            .sampFrac       = "0.09285755",
-            .readout        = "EcalBarrelScFiHits",
-            .layerField     = "layer",
-            .sectorField    = "sector",
-            .localDetFields = {"system"},
-            // here we want to use grid center position (XY) but keeps the z information from fiber-segment
-            // TODO: a more realistic way to get z is to reconstruct it from timing
-            .maskPos       = "xy",
-            .maskPosFields = {"fiber", "z"},
-        },
-        app // TODO: Remove me once fixed
-        ));
-    app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
-        "EcalBarrelScFiProtoClusters", {"EcalBarrelScFiRecHits"}, {"EcalBarrelScFiProtoClusters"},
-        {
-            .adjacencyMatrix{},
-            .peakNeighbourhoodMatrix{},
-            .readout{},
-            .sectorDist = 50. * dd4hep::mm,
-            .localDistXY{},
-            .localDistXZ = {80 * dd4hep::mm, 80 * dd4hep::mm},
-            .localDistYZ{},
-            .globalDistRPhi{},
-            .globalDistEtaPhi{},
-            .dimScaledLocalDistXY{},
-            .splitCluster         = false,
-            .minClusterHitEdep    = 5.0 * dd4hep::MeV,
-            .minClusterCenterEdep = 100.0 * dd4hep::MeV,
-            .transverseEnergyProfileMetric{},
-            .transverseEnergyProfileScale{},
-            .transverseEnergyProfileScaleUnits{},
-        },
-        app // TODO: Remove me once fixed
-        ));
     app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-        "EcalBarrelScFiClustersWithoutShapes",
-        {
-          "EcalBarrelScFiProtoClusters", // edm4eic::ProtoClusterCollection
-              >>>>>>> main
+      "EcalBarrelScFiTopoClustersWithoutShapes",
+      {
+        "EcalBarrelScFiProtoClusters_Topo", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-                  "EcalBarrelScFiRawHitAssociations"
-        }, // edm4eic::MCRecoCalorimeterHitAssociation
+            "EcalBarrelScFiRawHitAssociations"
+      }, // edm4eic::MCRecoCalorimeterHitAssociation
 #else
-                  "EcalBarrelScFiHits"
-        }, // edm4hep::SimCalorimeterHitCollection
+            "EcalBarrelScFiHits"
+      }, // edm4hep::SimCalorimeterHitCollection
 #endif
-        < < < < < < <
-            Topoclustering_on_ScFi{
-                "EcalBarrelScFiClustersWithoutShapes",             // edm4eic::Cluster
-                "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-        {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-        app // TODO: Remove me once fixed
-        ));
-    app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-        "EcalBarrelScFiClusters",
-        {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
-        {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations"},
-        {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2},
-        app));
-    //======================================================================
+      {"EcalBarrelScFiTopoClustersWithoutShapes",             // edm4eic::Cluster
+       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelScFiTopoClusters",
+      {"EcalBarrelScFiTopoClustersWithoutShapes", "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
+      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
+  
+  //======================================================================
 
-    app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-        "EcalBarrelScFiTopoClusters",
-        {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
-        {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterAssociations"},
-        {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2},
-        app));
-
-    //======================================================================
-  {"EcalBarrelScFiClustersWithoutShapes",             // edm4eic::Cluster
-  "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-  {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-  app // TODO: Remove me once fixed
-  ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "EcalBarrelScFiClustersWithoutShapes",
+      {
+        "EcalBarrelScFiProtoClusters", // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+            "EcalBarrelScFiRawHitAssociations"
+      }, // edm4eic::MCRecoCalorimeterHitAssociation
+#else
+            "EcalBarrelScFiHits"
+      }, // edm4hep::SimCalorimeterHitCollection
+#endif
+      {"EcalBarrelScFiClustersWithoutShapes",             // edm4eic::Cluster
+       "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      app // TODO: Remove me once fixed
+      ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelScFiClusters",
       {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
