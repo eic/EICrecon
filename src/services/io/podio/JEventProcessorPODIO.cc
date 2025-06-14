@@ -234,7 +234,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #if EDM4EIC_VERSION_MAJOR >= 6
     "HadronicFinalState",
 #endif
-    <<<<<<< Topoclustering_on_ScFi
+    
     // Track projections
     "CalorimeterTrackProjections",
 
@@ -452,7 +452,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "DIRCRawHits",
     "DIRCTruthSeededParticleIDs",
     "DIRCParticleIDs",
-    >>>>>>> main
+    
 
 #if EDM4EIC_VERSION_MAJOR >= 7
     "B0ECalRawHitAssociations",
