@@ -234,7 +234,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #if EDM4EIC_VERSION_MAJOR >= 6
     "HadronicFinalState",
 #endif
-    
+
     // Track projections
     "CalorimeterTrackProjections",
 
@@ -272,7 +272,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "EcalBarrelScFiRawHits",
     "EcalBarrelScFiRecHits",
     "EcalBarrelScFiClusters",
-    "EcalBarrelScFiTopoClusters",    // added for Imaging Topo clustering on SCFI
+    "EcalBarrelScFiTopoClusters",       // added for Imaging Topo clustering on SCFI
     "EcalBarrelScFiProtoClusters_Topo", // added for Imaging Topo clustering on SCFI
     "EcalBarrelScFiClusterAssociations",
     "EcalBarrelScFiTopoClusterAssociations", // added for Imaging Topo clustering on SCFI
@@ -452,7 +452,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "DIRCRawHits",
     "DIRCTruthSeededParticleIDs",
     "DIRCParticleIDs",
-    
 
 #if EDM4EIC_VERSION_MAJOR >= 7
     "B0ECalRawHitAssociations",
