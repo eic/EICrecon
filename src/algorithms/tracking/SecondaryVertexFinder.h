@@ -38,6 +38,9 @@
 #include <edm4eic/Vertex.h>
 #include <edm4eic/unit_system.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackParameters.h>
+#include <edm4eic/Trajectory.h>
 #include <spdlog/logger.h>
 
 #include "ActsExamples/EventData/Trajectories.hpp"
@@ -54,7 +57,12 @@
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
-#include "TrackingSecUtilityTool.h"
+
+#include <Acts/Vertexing/Vertex.hpp>
+#include <Acts/Vertexing/IterativeVertexFinder.hpp>
+#include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
+#include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
+#include <Acts/Vertexing/VertexingOptions.hpp>
 
 namespace eicrecon {
 class SecondaryVertexFinder
