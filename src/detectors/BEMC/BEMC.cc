@@ -155,7 +155,7 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
-    app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiTopoClustersWithoutShapes",
       {
         "EcalBarrelScFiProtoClusters_Topo", // edm4eic::ProtoClusterCollection
@@ -173,10 +173,11 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelScFiTopoClusters",
-      {"EcalBarrelScFiTopoClustersWithoutShapes", "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
+      {"EcalBarrelScFiTopoClustersWithoutShapes",
+       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
       {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
-  
+
   //======================================================================
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
