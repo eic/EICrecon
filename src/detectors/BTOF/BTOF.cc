@@ -14,15 +14,14 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
-#include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/reco/LGADHitCalibration_factory.h"
-#include "factories/reco/LGADHitClustering_factory.h"
 #include "factories/reco/LGADHitClusterAssociation_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "factories/reco/LGADHitClustering_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
