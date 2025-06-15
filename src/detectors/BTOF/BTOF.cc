@@ -22,7 +22,6 @@
 #include "factories/reco/LGADHitCalibration_factory.h"
 #include "factories/reco/LGADHitClustering_factory.h"
 #include "factories/reco/LGADHitClusterAssociation_factory.h"
-#include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
