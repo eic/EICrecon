@@ -1,70 +1,48 @@
-// Created by Joe Osborn
+// Created by Dongwi H. Dongwi (Bishoy)
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <algorithm>
-#include <algorithms/algorithm.h>
-//ROOT headers
-#include <TH1D.h>
-#include <TH2D.h>
-#include <TLorentzVector.h>
-#include <TDirectory.h>
-#include <TVector3.h>
-#include <TMath.h>
-#include <TProfile.h>
-
-#include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
-#include "Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp"
-#include "Acts/Geometry/TrackingGeometry.hpp"
-#include "Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp"
-#include "Acts/Utilities/Logger.hpp"
-#include "Acts/Utilities/BinningType.hpp"
-#include "Acts/Definitions/Units.hpp"
-#include "Acts/Surfaces/PerigeeSurface.hpp"
-#include "Acts/EventData/TrackParameters.hpp"
-#include "Acts/MagneticField/MagneticFieldProvider.hpp"
-#include "Acts/Propagator/EigenStepper.hpp"
-#include "Acts/Propagator/Propagator.hpp"
-#include "Acts/Vertexing/ImpactPointEstimator.hpp"
-
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <edm4eic/VertexCollection.h>
-#include <edm4eic/TrackCollection.h>
-#include <edm4eic/Vertex.h>
-#include <edm4eic/unit_system.h>
-#include <edm4eic/TrackParametersCollection.h>
+#include <Acts/Utilities/Delegate.hpp>
+#include <Acts/Utilities/Result.hpp>
+#include <Acts/Vertexing/IVertexFinder.hpp>
+#include <Acts/Vertexing/TrackAtVertex.hpp>
+#include <Acts/Vertexing/Vertex.hpp>
+#include <Acts/Vertexing/VertexingOptions.hpp>
+#include <ActsExamples/EventData/Track.hpp>
+#include <TLorentzVector.h>
+#include <TVector3.h>
+#include <edm4eic/Cov4f.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Trajectory.h>
+#include <edm4eic/VertexCollection.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/Vector2f.h>
+#include <fmt/core.h>
+#include <math.h>
+#include <podio/RelationRange.h>
 #include <spdlog/logger.h>
+#include <Eigen/Core>
+#include <memory>
+#include <tuple>
+#include <utility>
+#include <vector>
 
+#include "Acts/Definitions/Units.hpp"
+#include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
 #include "ActsExamples/EventData/Trajectories.hpp"
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "SecondaryVertexFinderConfig.h"
-#include "IterativeVertexFinder.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
-#include <JANA/JEventProcessor.h>
-#include <JANA/Services/JGlobalRootLock.h>
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/log/Log_service.h"
-#include "services/rootfile/RootFile_service.h"
-
-#include <Acts/Vertexing/Vertex.hpp>
-#include <Acts/Vertexing/IterativeVertexFinder.hpp>
-#include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
-#include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
-#include <Acts/Vertexing/VertexingOptions.hpp>
-
-namespace eicrecon {
+namespace eicrecon{
 class SecondaryVertexFinder
     : public eicrecon::WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
 public:

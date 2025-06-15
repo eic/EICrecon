@@ -1,25 +1,16 @@
-// Created by Joe Osborn
+// Created by Dongwi H. Dongwi (Bishoy)
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
 #include "SecondaryVertexFinder.h"
-#include <DD4hep/Detector.h>
-#include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Readout.h>
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
-#include <JANA/JEventProcessor.h>
-#include <JANA/Utils/JTypeInfo.h>
-#include <JANA/Services/JGlobalRootLock.h>
-#include <Acts/Definitions/Common.hpp>
-#include <Acts/Definitions/Direction.hpp>
+
 #include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/EventData/GenericParticleHypothesis.hpp>
-#include <Acts/EventData/ParticleHypothesis.hpp>
-#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Utilities/AnnealingUtility.hpp>
+#include <Acts/Utilities/detail/ContextType.hpp>
+#include <Acts/Vertexing/LinearizedTrack.hpp>
 #if Acts_VERSION_MAJOR >= 32
 #include <Acts/Propagator/VoidNavigator.hpp>
 #else
@@ -27,40 +18,19 @@
 #endif
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
-#include <Acts/Utilities/VectorHelpers.hpp>
-#include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
-#include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
-#include "Acts/Vertexing/TrackDensityVertexFinder.hpp"
-#include <Acts/Vertexing/ImpactPointEstimator.hpp>
-#include <Acts/Vertexing/IterativeVertexFinder.hpp>
-#include "Acts/Vertexing/AdaptiveGridTrackDensity.hpp"
-#include "Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp"
-#include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
 #include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
-#include <Acts/Vertexing/Vertex.hpp>
+#include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
+#include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
-#include <Acts/Vertexing/ZScanVertexFinder.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/Trajectory.h>
-#include <edm4eic/unit_system.h>
-#include <edm4hep/Vector2f.h>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <Eigen/Core>
-#include <Eigen/Geometry>
-#include <Eigen/LU>
-#include <algorithm>
-#include <boost/container/vector.hpp>
-#include <edm4eic/Cov4f.h>
-#include <math.h>
-#include <optional>
 #include <tuple>
 #include <utility>
 
-#include "edm4eic/ReconstructedParticle.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/log/Log_service.h"
-#include "services/rootfile/RootFile_service.h"
+#include "Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp"
+#include "Acts/Vertexing/AdaptiveGridTrackDensity.hpp"
+#include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
