@@ -25,7 +25,6 @@
 #include "global/pid_lut/PIDLookup_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
-
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
@@ -117,6 +116,5 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
       "EICROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"},
       {.t_thres = -0.01 * adc_range}, app));
-
 }
 } // extern "C"
