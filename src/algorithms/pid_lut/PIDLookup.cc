@@ -9,6 +9,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+#include <exception>
 #include <gsl/pointers>
 #include <stdexcept>
 
@@ -19,6 +20,14 @@
 namespace eicrecon {
 
 void PIDLookup::init() {
+
+  try {
+    m_system = m_detector->constant<int32_t>(m_cfg.system);
+  } catch (const std::exception& e) {
+    error("Failed to get {} from the detector: {}", m_cfg.system, e.what());
+    throw std::runtime_error("Failed to get requested ID from the detector");
+  }
+
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   auto* lut_svc    = serviceSvc.service<PIDLookupTableSvc>("PIDLookupTableSvc");
 
@@ -89,25 +98,25 @@ void PIDLookup::process(const Input& input, const Output& output) const {
             entry->prob_kaon, entry->prob_proton);
 
       recopart.addToParticleIDs(
-          partids_out->create(m_cfg.system,                            // std::int32_t type
+          partids_out->create(m_system,                                // std::int32_t type
                               std::copysign(11, -charge),              // std::int32_t PDG
                               0,                                       // std::int32_t algorithmType
                               static_cast<float>(entry->prob_electron) // float likelihood
                               ));
       recopart.addToParticleIDs(
-          partids_out->create(m_cfg.system,                        // std::int32_t type
+          partids_out->create(m_system,                            // std::int32_t type
                               std::copysign(211, charge),          // std::int32_t PDG
                               0,                                   // std::int32_t algorithmType
                               static_cast<float>(entry->prob_pion) // float likelihood
                               ));
       recopart.addToParticleIDs(
-          partids_out->create(m_cfg.system,                        // std::int32_t type
+          partids_out->create(m_system,                            // std::int32_t type
                               std::copysign(321, charge),          // std::int32_t PDG
                               0,                                   // std::int32_t algorithmType
                               static_cast<float>(entry->prob_kaon) // float likelihood
                               ));
       recopart.addToParticleIDs(
-          partids_out->create(m_cfg.system,                          // std::int32_t type
+          partids_out->create(m_system,                              // std::int32_t type
                               std::copysign(2212, charge),           // std::int32_t PDG
                               0,                                     // std::int32_t algorithmType
                               static_cast<float>(entry->prob_proton) // float likelihood

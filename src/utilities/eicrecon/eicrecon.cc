@@ -4,6 +4,7 @@
 //
 
 #include <JANA/JApplicationFwd.h>
+#include <TROOT.h>
 #include <string>
 #include <vector>
 
@@ -25,6 +26,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "reco",
     "tracking",
     "pid",
+    "global_pid_lut",
     "EEMC",
     "BEMC",
     "FEMC",
@@ -53,6 +55,8 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
 };
 
 int main(int narg, char** argv) {
+  ROOT::EnableThreadSafety();
+
   std::vector<std::string> default_plugins = EICRECON_DEFAULT_PLUGINS;
 
   auto options = jana::GetCliOptions(narg, argv, false);

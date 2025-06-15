@@ -26,7 +26,7 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
 
   PIDLookupConfig cfg{
       .filename                    = "/dev/null",
-      .system                      = 0xFF,
+      .system                      = "MockTracker_ID",
       .pdg_values                  = {11},
       .charge_values               = {1},
       .momentum_edges              = {0., 1., 2.},
