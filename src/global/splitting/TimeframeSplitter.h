@@ -259,7 +259,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       std::cout << "CheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecKuma child_idx: " << child_idx
               << ", eTimeSlice: " << eTimeSlice << ", m_timeframe_width: " << m_timeframe_width
               << std::endl;
-      child_idx = 0;
+      // child_idx = 0;
       return Result::KeepChildNextParent;
     }
     return (eTimeSlice + 1 > m_timeframe_width) ? Result::NextChildNextParent
