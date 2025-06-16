@@ -58,7 +58,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerRecMeasurements"},
+      "CentralTrackerNoTOFBarrelMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerNoTOFBarrelMeasurements"},
       app));
 
   // include the collection from previous collector
