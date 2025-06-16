@@ -69,19 +69,19 @@ class CalorimeterClusterRecoCoG : public CalorimeterClusterRecoCoGAlgorithm,
                                   public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
 
 public:
-  CalorimeterClusterRecoCoG(std::string_view name) : CalorimeterClusterRecoCoGAlgorithm {
-    name,
+  CalorimeterClusterRecoCoG(std::string_view name)
+      : CalorimeterClusterRecoCoGAlgorithm{
+            name,
 #if EDM4EIC_VERSION_MAJOR >= 7
-        {"inputProtoClusterCollection", "mcRawHitAssocations"},
+            {"inputProtoClusterCollection", "mcRawHitAssocations"},
 #else
-        {"inputProtoClusterCollection", "mcHits"},
+            {"inputProtoClusterCollection", "mcHits"},
 #endif
-        {"outputClusterCollection", "outputAssociations"},
-        "Reconstruct a cluster with the Center of Gravity method. For "
-        "simulation results it optionally creates a Cluster <-> MCParticle "
-        "association provided both optional arguments are provided."
+            {"outputClusterCollection", "outputAssociations"},
+            "Reconstruct a cluster with the Center of Gravity method. For "
+            "simulation results it optionally creates a Cluster <-> MCParticle "
+            "association provided both optional arguments are provided."} {
   }
-  {}
 
 public:
   void init() final;

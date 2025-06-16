@@ -126,14 +126,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelClustersWithoutShapes",
-      {
-        "HcalBarrelIslandProtoClusters", // edm4eic::ProtoClusterCollection
+      {"HcalBarrelIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalBarrelRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+       "HcalBarrelRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-            "HcalBarrelHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "HcalBarrelHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"HcalBarrelClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -149,14 +146,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelTruthClustersWithoutShapes",
-      {
-        "HcalBarrelTruthProtoClusters", // edm4eic::ProtoClusterCollection
+      {"HcalBarrelTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalBarrelRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+       "HcalBarrelRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-            "HcalBarrelHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "HcalBarrelHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"HcalBarrelTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -186,14 +180,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelSplitMergeClustersWithoutShapes",
-      {
-        "HcalBarrelSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+      {"HcalBarrelSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalBarrelRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+       "HcalBarrelRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-            "HcalBarrelHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "HcalBarrelHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"HcalBarrelSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
