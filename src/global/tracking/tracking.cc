@@ -63,7 +63,8 @@ void InitPlugin(JApplication* app) {
 
   // include the collection from previous collector
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Measurement2D>>(
-      "CentralTrackerMeasurements", {"CentralTrackerNoTOFBarrelMeasurements", "TOFBarrelClusterHits"},
+      "CentralTrackerMeasurements",
+      {"CentralTrackerNoTOFBarrelMeasurements", "TOFBarrelClusterHits"},
       {"CentralTrackerMeasurements"}, // Output collection name
       app));
 
