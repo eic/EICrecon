@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <TDirectory.h>
 #include <TH1.h>
@@ -16,33 +16,32 @@
 class TrackingOccupancyAnalysis {
 
 public:
-    void init(JApplication *app, TDirectory *plugin_tdir);
+  void init(JApplication* app, TDirectory* plugin_tdir);
 
-    void process(const std::shared_ptr<const JEvent> &event);
+  void process(const std::shared_ptr<const JEvent>& event);
 
 private:
+  /// This is edm4hep::SimTrackerHits names of different detector readouts
+  std::vector<std::string> m_data_names = {
+      "SiBarrelHits",      // Barrel Tracker
+      "VertexBarrelHits",  // Vertex
+      "TrackerEndcapHits", // End Cap tracker
+                           // MPGD
+      "MPGDBarrelHits",
+      "OuterMPGDBarrelHits",
+      "ForwardMPGDEndcapHits",
+      "BackwardMPGDEndcapHits",
+      // TOF
+      "TOFEndcapHits",
+      "TOFBarrelHits",
+  };
 
-    /// This is edm4hep::SimTrackerHits names of different detector readouts
-    std::vector<std::string> m_data_names = {
-            "SiBarrelHits",         // Barrel Tracker
-            "VertexBarrelHits",     // Vertex
-            "TrackerEndcapHits",    // End Cap tracker
-          // MPGD
-            "MPGDBarrelHits",
-            "OuterMPGDBarrelHits",
-            "ForwardMPGDEndcapHits",
-            "BackwardMPGDEndcapHits",
-          // TOF
-            "TOFEndcapHits",
-            "TOFBarrelHits",
-    };
+  /// Hits count histogram for each hits readout name
+  std::vector<std::shared_ptr<TH1F>> m_hits_count_hists;
 
-    /// Hits count histogram for each hits readout name
-    std::vector<std::shared_ptr<TH1F>> m_hits_count_hists;
+  /// Hits occupancy histogram for each hits readout name
+  std::vector<std::shared_ptr<TH2F>> m_hits_occup_hists;
 
-    /// Hits occupancy histogram for each hits readout name
-    std::vector<std::shared_ptr<TH2F>> m_hits_occup_hists;
-
-    /// Total occupancy of all m_data_names
-    TH2F * m_total_occup_th2;                 /// MC Particles px,py
+  /// Total occupancy of all m_data_names
+  TH2F* m_total_occup_th2; /// MC Particles px,py
 };

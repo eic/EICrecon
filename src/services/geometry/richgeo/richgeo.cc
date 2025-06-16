@@ -9,8 +9,8 @@
 #include "RichGeo_service.h"
 
 extern "C" {
-  void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
-    app->ProvideService(std::make_shared<RichGeo_service>(app) );
-  }
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->ProvideService(std::make_shared<RichGeo_service>(app));
+}
 }

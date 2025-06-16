@@ -8,7 +8,6 @@ get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 plugin_add(${PLUGIN_NAME})
 
 # Find dependencies
-find_package(ROOT REQUIRED COMPONENTS Core Tree Hist RIO EG)
 plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
