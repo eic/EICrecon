@@ -14,8 +14,8 @@
 
 struct TimeframeSplitter : public JEventUnfolder {
 
-  float m_timeframe_width = 20.0; // ns
-  float m_timesplit_width = 4.0; // ns
+  float m_timeframe_width = 2000.0; // ns
+  float m_timesplit_width = 20.0; // ns
   bool m_use_timeframe    = false;  // Use timeframes to split events, or use timeslices
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {
@@ -99,6 +99,7 @@ struct TimeframeSplitter : public JEventUnfolder {
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
  if (child_idx == 0) {
+
       m_hitStartIndices_simTracker.clear();
       m_hitStartIndices_simTracker.resize(m_simtrackerhits_in().size(),
                                           std::make_tuple(0, nullptr, 0));
@@ -123,62 +124,41 @@ struct TimeframeSplitter : public JEventUnfolder {
     LOG_INFO(GetLogger()) << "Running TimeframeSplitter::Unfold() on timeslice #"
                           << parent.GetEventNumber() << LOG_END;
 
-    // For now, a one-to-one relationship between timeslices and events
-    child.SetEventNumber(parent.GetEventNumber());
-    child.SetRunNumber(parent.GetRunNumber());
-
-    // Insert an EventHeader object into the physics event
-    // For now this is just a ref to the timeslice header
-    m_event_header_out()->setSubsetCollection(true);
-    m_event_header_out()->push_back(m_event_header_in()->at(0));
-
-    // Insert MCParticles into the physics event
-    m_mcparticles_out()->setSubsetCollection(true);
-    for (const auto& mcparticle : *m_mcparticles_in) {
-      // TODO: Decide which of these belong to this physics event
-      m_mcparticles_out()->push_back(mcparticle);
-    }
-    
     
     // == s == Internal Interval loop  ========================================================-
     bool bAdmitedInterval = false;
     float iTimeSlice = m_timesplit_width * child_idx;
     float eTimeSlice = m_timesplit_width * (child_idx + 1.0);
-    while (eTimeSlice <= m_timeframe_width){// ??? Kuma test
-      std::cout << "CHeeeeeeeeeeeeeeeeeeeeeCKUma child_idx: " << child_idx << std::endl;
+    while (eTimeSlice <= m_timeframe_width){      
       // LOG_INFO(GetLogger()) << "TimeframeSplitter: timeslice " << parent.GetEventNumber() << " timeStamp " << timeStamp << LOG_END;
       iTimeSlice = m_timesplit_width * child_idx;
       eTimeSlice = m_timesplit_width * (child_idx + 1.0);
-      std::cout << "child_idx = " << child_idx << ":: TimeframeSplitter: timeslice "
-                << parent.GetEventNumber() << " iTimeSlice " << iTimeSlice << " eTimeSlice "
-                << eTimeSlice << std::endl;
-
-      // std::vector<std::unique_ptr<edm4hep::MutableSimTrackerHit>> tempAllDetectorSimTrackerHits; // ??? Kuma test
-      std::vector<std::unique_ptr<edm4hep::SimTrackerHitCollection>> tempAllDetectorSimTrackerHits; // ??? Kuma test
+      // std::cout << "child_idx = " << child_idx << ":: TimeframeSplitter: timeslice "
+      //           << parent.GetEventNumber() << " iTimeSlice " << iTimeSlice << " eTimeSlice "
+      //           << eTimeSlice << std::endl;
+      
+      std::vector<std::unique_ptr<edm4hep::SimTrackerHitCollection>> tempAllDetectorSimTrackerHits;
       // Loop through SimTrackerHit collections and split them into time slice      
       for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simTracker) {          
           if (detHitPtr == nullptr) continue;
-          bool bAllScan = true;
 
-          // auto& coll_out = m_simtrackerhits_out().at(detID);// ??? Kuma 1
-          // coll_out->setSubsetCollection(true);// ??? Kuma 1
+          bool bAllScan = true; // Scan all hits in the collection until we find a hit that is later than the end of the time slice
           auto tempSimTrackerHits = std::make_unique<edm4hep::SimTrackerHitCollection>(); // ??? Kuma test
           tempSimTrackerHits->setSubsetCollection(true);
 
           for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
               const auto& hit = detHitPtr->at(hitID);
               auto hitTime = hit.getTime();
-              // std::cout << "ChecKuma Hit Time!! : " << hitTime << " Threshold time: " << eTimeSlice << std::endl;
+                            
               if (hitTime >= eTimeSlice) {
                   start_index = hitID;
                   bAllScan = false;
-                  std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
+                  // std::cout << "ChecKuma BreaKumaaaaaa!! : " << hitTime << " hitId: " << hitID << ", start_index: " << start_index << std::endl;
                   break;
               }
-              // coll_out->push_back(hit);// ??? Kuma 1
-              tempSimTrackerHits->push_back(hit); // ??? Kuma test
+              tempSimTrackerHits->push_back(hit);
           }
-          tempAllDetectorSimTrackerHits.push_back(std::move(tempSimTrackerHits)); // ??? Kuma test
+          tempAllDetectorSimTrackerHits.push_back(std::move(tempSimTrackerHits));
           if(bAllScan) start_index = detHitPtr->size();
           
       }
@@ -208,20 +188,17 @@ struct TimeframeSplitter : public JEventUnfolder {
 
                 coll_out_contribution->push_back(contribution);
               }
-              if(contributeFlag) break;
-              // std::cout << "ChecKuma Hit Time!! : " << hitTime << " Threshold time: " << eTimeSlice << std::endl;
+              if(contributeFlag) break;              
 
               coll_out->push_back(hit);
           }
           if(bAllScan) start_index = detHitPtr->size();
             
-        }        
+        }      
       
-      std::cout << "CHeeeeeeeeeeeeeeeeeeeeeecKUma0000" << std::endl;
       for(const auto& tempSimTrackerHits : tempAllDetectorSimTrackerHits) {
           if(!tempSimTrackerHits->empty()){
-            bAdmitedInterval = true;
-            std::cout << "CHeeeeeeeeeeeeeeeeeeeeeecKUma0001" << std::endl;
+            bAdmitedInterval = true;            
             break;
           }
       }
@@ -231,10 +208,10 @@ struct TimeframeSplitter : public JEventUnfolder {
           for(auto& tempSimTrackerHits : tempAllDetectorSimTrackerHits) {
             
             if(!tempSimTrackerHits->empty()){
-              std::cout << "ChecKuma: TimeframeSplitter: timeslice "
-                        << parent.GetEventNumber() << " child_idx " << child_idx
-                        << " detID " << detID << " has hits in time slice: "
-                        << tempSimTrackerHits->size() << std::endl;
+              // std::cout << "ChecKuma: TimeframeSplitter: timeslice "
+              //           << parent.GetEventNumber() << " child_idx " << child_idx
+              //           << " detID " << detID << " has hits in time slice: "
+              //           << tempSimTrackerHits->size() << std::endl;
               auto& coll_out = m_simtrackerhits_out().at(detID);              
               coll_out->setSubsetCollection(true);
 
@@ -242,6 +219,26 @@ struct TimeframeSplitter : public JEventUnfolder {
               detID++;
             }
           }
+          
+          // For now, a one-to-one relationship between timeslices and events
+          child.SetEventNumber(parent.GetEventNumber());
+          child.SetRunNumber(parent.GetRunNumber());
+          
+          // Insert an EventHeader object into the physics event
+          // For now this is just a ref to the timeslice header
+          m_event_header_out()->setSubsetCollection(true);
+          m_event_header_out()->push_back(m_event_header_in()->at(0));
+
+
+          // == s == Basic container for simulatin data (but not related to data)  =========
+          // Insert MCParticles into the physics event
+          m_mcparticles_out()->setSubsetCollection(true);
+          for (const auto& mcparticle : *m_mcparticles_in) {
+            // TODO: Decide which of these belong to this physics event
+            m_mcparticles_out()->push_back(mcparticle);
+          }
+          // == e == Basic container for simulatin data (but not related to data)  =========
+    
 
           break; // Break out of the interval loop if we have already admitted this interval
       }
@@ -256,10 +253,9 @@ struct TimeframeSplitter : public JEventUnfolder {
     // Produce exactly one physics event per timeframe for now
     // return JEventUnfolder::Result::NextChildNextParent;
     if(eTimeSlice + 1 > m_timeframe_width && !bAdmitedInterval){
-      std::cout << "CheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecKuma child_idx: " << child_idx
-              << ", eTimeSlice: " << eTimeSlice << ", m_timeframe_width: " << m_timeframe_width
-              << std::endl;
-      // child_idx = 0;
+      // std::cout << "CheeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeecKuma child_idx: " << child_idx
+      //         << ", eTimeSlice: " << eTimeSlice << ", m_timeframe_width: " << m_timeframe_width
+      //         << std::endl;
       return Result::KeepChildNextParent;
     }
     return (eTimeSlice + 1 > m_timeframe_width) ? Result::NextChildNextParent

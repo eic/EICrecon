@@ -2,7 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 // kuma edit
 
-// #include "HitChecker.h"
+#include "HitChecker.h"
 
 #include "timeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
@@ -55,12 +55,14 @@ void InitPlugin(JApplication* app) {
   //   {.tag          = "timeslice_hit_checker",
   //    .level        = JEventLevel::Timeslice,
   //    .input_names  = {"SiBarrelHits_aligned"},
-  //    .output_names = {"ts_checked_hits"}}));
+  //    .output_names = {"ts_checked_hits"}
+  //   }));
 
   // app->Add(new JOmniFactoryGeneratorT<HitChecker>(jana::components::JOmniFactoryGeneratorT<HitChecker>::TypedWiring
   //   {.tag          = "physics_hit_checker",
   //    .level        = JEventLevel::PhysicsEvent,
   //    .input_names  = {"SiBarrelHits"},
-  //    .output_names = {"phys_checked_hits"}}));
+  //    .output_names = {"phys_checked_hits"}
+  //   }));
 }
 } // "C"
