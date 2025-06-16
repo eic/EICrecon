@@ -6,6 +6,7 @@
 #include <TString.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <string>
+#include <variant>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"

@@ -7,6 +7,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <string>
+#include <variant>
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
