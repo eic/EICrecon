@@ -93,11 +93,14 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalLumiSpecClustersWithoutShapes",
-      {"EcalLumiSpecIslandProtoClusters", // edm4eic::ProtoClusterCollection
+      {
+        "EcalLumiSpecIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-       "EcalLumiSpecRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+            "EcalLumiSpecRawHitAssociations"
+      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-       "EcalLumiSpecHits"}, // edm4hep::SimCalorimeterHitCollection
+            "EcalLumiSpecHits"
+      }, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"EcalLumiSpecClustersWithoutShapes",             // edm4eic::Cluster
        "EcalLumiSpecClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -112,11 +115,14 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalLumiSpecTruthClustersWithoutShapes",
-      {"EcalLumiSpecTruthProtoClusters", // edm4eic::ProtoClusterCollection
+      {
+        "EcalLumiSpecTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-       "EcalLumiSpecRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+            "EcalLumiSpecRawHitAssociations"
+      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-       "EcalLumiSpecHits"}, // edm4hep::SimCalorimeterHitCollection
+            "EcalLumiSpecHits"
+      }, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"EcalLumiSpecTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalLumiSpecTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation

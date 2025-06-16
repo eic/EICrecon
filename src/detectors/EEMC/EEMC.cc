@@ -99,11 +99,14 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNTruthClusters",
-      {"EcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
+      {
+        "EcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-       "EcalEndcapNRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+            "EcalEndcapNRawHitAssociations"
+      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-       "EcalEndcapNHits"}, // edm4hep::SimCalorimeterHitCollection
+            "EcalEndcapNHits"
+      }, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"EcalEndcapNTruthClusters",             // edm4eic::Cluster
        "EcalEndcapNTruthClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -113,11 +116,14 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNClusters",
-      {"EcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
+      {
+        "EcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-       "EcalEndcapNRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+            "EcalEndcapNRawHitAssociations"
+      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
 #else
-       "EcalEndcapNHits"}, // edm4hep::SimCalorimeterHitCollection
+            "EcalEndcapNHits"
+      }, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"EcalEndcapNClusters",             // edm4eic::Cluster
        "EcalEndcapNClusterAssociations"}, // edm4eic::MCRecoClusterParticleAssociation
