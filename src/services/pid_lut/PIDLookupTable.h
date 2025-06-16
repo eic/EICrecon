@@ -43,7 +43,7 @@ private:
   bool m_symmetrizing_charges;
 
 public:
-  PIDLookupTable() : algorithms::LoggerMixin("PIDLookupTable"){};
+  PIDLookupTable() : algorithms::LoggerMixin("PIDLookupTable") {};
 
   const Entry* Lookup(int pdg, int charge, double momentum, double theta_deg, double phi_deg) const;
 
