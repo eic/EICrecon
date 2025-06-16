@@ -13,6 +13,7 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <stdint.h>
 #include <map>
+#include <mutex>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -66,6 +67,8 @@ private:
   uint64_t m_cell_mask;
   std::string m_det_name;
   std::unordered_map<int, double> m_pdg_mass;
+
+  inline static std::mutex m_pid_radiators_mutex;
   std::map<std::string, CherenkovRadiator*> m_pid_radiators;
 };
 
