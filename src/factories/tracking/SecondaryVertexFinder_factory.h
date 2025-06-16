@@ -1,6 +1,5 @@
-// Created by Joe Osborn
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2025 Dongwi H. Dongwi (Bishoy)
 
 #pragma once
 
