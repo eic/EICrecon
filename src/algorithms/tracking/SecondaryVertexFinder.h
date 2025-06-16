@@ -42,7 +42,7 @@
 #include "SecondaryVertexFinderConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-namespace eicrecon{
+namespace eicrecon {
 class SecondaryVertexFinder
     : public eicrecon::WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
 public:
