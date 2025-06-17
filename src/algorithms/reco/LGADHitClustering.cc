@@ -32,12 +32,12 @@ namespace eicrecon {
 
 void LGADHitClustering::init() {
 
-  m_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
-  m_detector  = algorithms::GeoSvc::instance().detector();
-  m_seg       = m_detector->readout(m_cfg.readout).segmentation();
-  auto type   = m_seg.type();
-  m_decoder   = m_seg.decoder();
-  m_acts_context    = algorithms::ActsSvc::instance().acts_geometry_provider();
+  m_converter    = algorithms::GeoSvc::instance().cellIDPositionConverter();
+  m_detector     = algorithms::GeoSvc::instance().detector();
+  m_seg          = m_detector->readout(m_cfg.readout).segmentation();
+  auto type      = m_seg.type();
+  m_decoder      = m_seg.decoder();
+  m_acts_context = algorithms::ActsSvc::instance().acts_geometry_provider();
 }
 
 dd4hep::rec::CellID LGADHitClustering::getSensorInfos(const dd4hep::rec::CellID& id) const {
@@ -64,41 +64,41 @@ dd4hep::Position LGADHitClustering::_local2Global(const dd4hep::VolumeManagerCon
   return position;
 }
 
-void LGADHitClustering::_calcCluster(const Output& output, 
-		const std::vector<edm4eic::TrackerHit>& hits, 
-		size_t id,
-		double timeWindow) const {
+void LGADHitClustering::_calcCluster(const Output& output,
+                                     const std::vector<edm4eic::TrackerHit>& hits, size_t id,
+                                     double timeWindow) const {
   using dd4hep::mm;
 
   if (hits.size() == 0 || id >= hits.size())
     return;
 
-  auto [clusters]              = output;
-  auto cluster = clusters->create();
+  auto [clusters] = output;
+  auto cluster    = clusters->create();
   // Right now the clustering algorithm a simple average over all hits in a sensors
   // Will be problematic near the edges, but it's just an illustration
   float ave_x = 0, ave_y = 0;
   double tot_charge = 0;
   // find cellID for the cell with maximum ADC value within a sensor
-  auto cellID        = hits[id].getCellID();
-  auto max_charge    = hits[id].getEdep();
+  auto cellID     = hits[id].getCellID();
+  auto max_charge = hits[id].getEdep();
   // hits vector is sorted by time. Therefore, the first entry is the earliest time
-  auto earliest_time = hits[id].getTime(); 
-  auto time_err      = hits[id].getTimeError(); 
+  auto earliest_time = hits[id].getTime();
+  auto time_err      = hits[id].getTimeError();
   auto curr_time     = earliest_time; // check if hits are sorted by time
 
   ROOT::VecOps::RVec<double> weights;
   for (; id < hits.size(); ++id) {
     const auto& hit = hits[id];
-    auto time = hit.getTime();
-    if(!(time >= curr_time))
-            error("Hit time is moving backwards! Have you sorted sensors by time? Please do so if not.");
-    else curr_time = time;
+    auto time       = hit.getTime();
+    if (!(time >= curr_time))
+      error("Hit time is moving backwards! Have you sorted sensors by time? Please do so if not.");
+    else
+      curr_time = time;
 
-    if(curr_time - earliest_time > timeWindow) {
-        // hits that are too far away in time from the earliest hit are considered a second cluster
-        this -> _calcCluster(clusters, hits, id, timeWindow);
-	break;
+    if (curr_time - earliest_time > timeWindow) {
+      // hits that are too far away in time from the earliest hit are considered a second cluster
+      this->_calcCluster(clusters, hits, id, timeWindow);
+      break;
     }
     // weigh all hits by ADC value
     auto pos = m_seg->position(hit.getCellID());
@@ -126,13 +126,12 @@ void LGADHitClustering::_calcCluster(const Output& output,
   edm4eic::Cov3f covariance;
   edm4hep::Vector2f locPos{static_cast<float>(ave_x / mm), static_cast<float>(ave_y / mm)};
 
-
-  const auto* context = m_converter->findContext(cellID);
-  auto volID = context -> identifier;
-  const auto& surfaceMap = m_acts_context -> surfaceMap();
-  const auto is = surfaceMap.find(volID);
-  if (is == surfaceMap.end()) 
-      error(" WARNING: vol_id ({})  not found in m_surfaces.", volID);
+  const auto* context    = m_converter->findContext(cellID);
+  auto volID             = context->identifier;
+  const auto& surfaceMap = m_acts_context->surfaceMap();
+  const auto is          = surfaceMap.find(volID);
+  if (is == surfaceMap.end())
+    error(" WARNING: vol_id ({})  not found in m_surfaces.", volID);
 
   const Acts::Surface* surface = is->second;
 
@@ -141,15 +140,14 @@ void LGADHitClustering::_calcCluster(const Output& output,
   cluster.setTime(earliest_time);
   // covariance copied from TrackerMeasurementFromHits.vv
   Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
-  cluster.setCovariance({cov(0, 0), cov(1, 1), time_err * time_err,
-                          cov(0, 1)}); // Covariance on location and time
+  cluster.setCovariance(
+      {cov(0, 0), cov(1, 1), time_err * time_err, cov(0, 1)}); // Covariance on location and time
 }
-
 
 void LGADHitClustering::process(const LGADHitClustering::Input& input,
                                 const LGADHitClustering::Output& output) const {
   constexpr double mm_acts = Acts::UnitConstants::mm;
-  constexpr double mm_conv = mm_acts / dd4hep::mm; 
+  constexpr double mm_conv = mm_acts / dd4hep::mm;
 
   const auto [calibrated_hits] = input;
 
@@ -166,10 +164,11 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
 
   for (auto& [_, sensor] : hitsBySensors) {
     // sort content by time order for hit separation by time
-    std::sort(sensor.begin(), sensor.end(), 
-		    [](const edm4eic::TrackerHit& a, const edm4eic::TrackerHit& b) { 
-		    return a.getTime() < b.getTime(); });
-    this -> _calcCluster(output, sensor, 0, m_cfg.timeWindow);
+    std::sort(sensor.begin(), sensor.end(),
+              [](const edm4eic::TrackerHit& a, const edm4eic::TrackerHit& b) {
+                return a.getTime() < b.getTime();
+              });
+    this->_calcCluster(output, sensor, 0, m_cfg.timeWindow);
   }
 }
 

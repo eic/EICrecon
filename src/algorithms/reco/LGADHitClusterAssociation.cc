@@ -66,17 +66,17 @@ void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& 
   std::unordered_map<dd4hep::rec::CellID, std::vector<edm4eic::MutableTrackerHit>> cellHitMap;
 
   for (const auto& meas2D_hit : *meas2D_hits) {
-    auto time   = meas2D_hit.getTime();
+    auto time = meas2D_hit.getTime();
 
     // sum ADC info
-    double tot_charge = 0;
+    double tot_charge          = 0;
     dd4hep::rec::CellID cellID = 0;
-    double maxCharge = 0;
+    double maxCharge           = 0;
 
     for (const auto& hit : meas2D_hit.getHits()) {
-      if(hit.getEdep() > maxCharge) {
-	      cellID = hit.getCellID();
-	      maxCharge = hit.getEdep();
+      if (hit.getEdep() > maxCharge) {
+        cellID    = hit.getCellID();
+        maxCharge = hit.getEdep();
       }
       tot_charge += hit.getEdep();
     }

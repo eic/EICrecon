@@ -39,10 +39,8 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  void _calcCluster(const Output& output, 
-		  const std::vector<edm4eic::TrackerHit>& hits,
-		  size_t id,
-		  double timeWindow) const;
+  void _calcCluster(const Output& output, const std::vector<edm4eic::TrackerHit>& hits, size_t id,
+                    double timeWindow) const;
 
   dd4hep::rec::CellID getSensorInfos(const dd4hep::rec::CellID& id) const;
   dd4hep::Position _local2Global(const dd4hep::VolumeManagerContext* context,
