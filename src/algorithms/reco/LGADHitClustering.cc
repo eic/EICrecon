@@ -64,10 +64,9 @@ dd4hep::Position LGADHitClustering::_local2Global(const dd4hep::VolumeManagerCon
   return position;
 }
 
-void LGADHitClustering::_calcCluster(const Output& output, 
-		const std::vector<edm4eic::TrackerHit>& hits, 
-		size_t id,
-		double timeWindow) const {
+void LGADHitClustering::_calcCluster(const Output& output,
+                                     const std::vector<edm4eic::TrackerHit>& hits, size_t id,
+                                     double timeWindow) const {
   constexpr double mm_acts = Acts::UnitConstants::mm;
   constexpr double mm_conv = mm_acts / dd4hep::mm;
   using dd4hep::mm;
@@ -132,8 +131,8 @@ void LGADHitClustering::_calcCluster(const Output& output,
 
   // covariance copied from TrackerMeasurementFromHits.vv
   Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
-  cov(0, 0) = sigma2_x;
-  cov(1, 1) = sigma2_y;
+  cov(0, 0)               = sigma2_x;
+  cov(1, 1)               = sigma2_y;
   cov(0, 1) = cov(1, 0) = 0.0;
 
   for (const auto& w : weights)
@@ -154,8 +153,8 @@ void LGADHitClustering::_calcCluster(const Output& output,
   cluster.setSurface(surface->geometryId().value());
   cluster.setLoc(locPos);
   cluster.setTime(earliest_time);
-  cluster.setCovariance({cov(0, 0), cov(1, 1), time_err * time_err,
-                          cov(0, 1)}); // Covariance on location and time
+  cluster.setCovariance(
+      {cov(0, 0), cov(1, 1), time_err * time_err, cov(0, 1)}); // Covariance on location and time
 }
 
 void LGADHitClustering::process(const LGADHitClustering::Input& input,
