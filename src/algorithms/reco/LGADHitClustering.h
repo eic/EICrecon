@@ -20,6 +20,7 @@
 
 #include "LGADHitClusteringConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
 
 namespace eicrecon {
 
@@ -38,6 +39,11 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+  void _calcCluster(const Output& output, 
+		  const std::vector<edm4eic::TrackerHit>& hits,
+		  size_t id,
+		  double timeWindow) const;
+
   dd4hep::rec::CellID getSensorInfos(const dd4hep::rec::CellID& id) const;
   dd4hep::Position _local2Global(const dd4hep::VolumeManagerContext* context,
                                  const edm4hep::Vector2f& locPos) const;
@@ -54,5 +60,7 @@ private:
   const dd4hep::Detector* m_detector = nullptr;
 
   dd4hep::Segmentation m_seg;
+
+  std::shared_ptr<const ActsGeometryProvider> m_acts_context;
 };
 } // namespace eicrecon

@@ -2,9 +2,11 @@
 // Copyright (C) 2024 Chun Yuen Tsang
 
 #pragma once
+#include <edm4eic/unit_system.h>
 
 namespace eicrecon {
 struct LGADHitClusteringConfig {
   std::string readout = "TOFBarrelHits";
+  double timeWindow = 1 * edm4eic::unit::ns;
 };
 } // namespace eicrecon
