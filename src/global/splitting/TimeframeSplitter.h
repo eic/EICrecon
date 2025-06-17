@@ -14,8 +14,8 @@
 
 struct TimeframeSplitter : public JEventUnfolder {
 
-  float m_timeframe_width = 2000.0; // ns
-  float m_timesplit_width = 20.0; // ns
+  float m_timeframe_width = 20.0; // ns
+  float m_timesplit_width = 4.0; // ns
   bool m_use_timeframe    = false;  // Use timeframes to split events, or use timeslices
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {
