@@ -2,10 +2,11 @@
 // Copyright (C) 2024 Chun Yuen Tsang
 
 #include "LGADHitClustering.h"
-#include <Acts/Geometry/GeometryContext.hpp>
+
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include "algorithms/interfaces/ActsSvc.h"
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Handle.h>
@@ -18,14 +19,18 @@
 #include <TGeoMatrix.h>
 #include <algorithms/geo.h>
 #include <edm4eic/Cov3f.h>
+#include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
+#include <Eigen/Core>
 #include <algorithm>
 #include <gsl/pointers>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
+#include "ActsGeometryProvider.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/tracking/LGADHitClusteringConfig.h"
 
 namespace eicrecon {

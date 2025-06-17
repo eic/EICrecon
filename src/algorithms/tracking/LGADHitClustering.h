@@ -13,9 +13,11 @@
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <spdlog/logger.h>
+#include <stddef.h>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "LGADHitClusteringConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
