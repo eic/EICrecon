@@ -68,6 +68,8 @@ void LGADHitClustering::_calcCluster(const Output& output,
 		const std::vector<edm4eic::TrackerHit>& hits, 
 		size_t id,
 		double timeWindow) const {
+  constexpr double mm_acts = Acts::UnitConstants::mm;
+  constexpr double mm_conv = mm_acts / dd4hep::mm;
   using dd4hep::mm;
 
   if (hits.size() == 0 || id >= hits.size())
@@ -78,6 +80,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
   // Right now the clustering algorithm a simple average over all hits in a sensors
   // Will be problematic near the edges, but it's just an illustration
   float ave_x = 0, ave_y = 0;
+  float sigma2_x = 0, sigma2_y = 0;
   double tot_charge = 0;
   // find cellID for the cell with maximum ADC value within a sensor
   auto cellID        = hits[id].getCellID();
@@ -88,6 +91,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
   auto curr_time     = earliest_time; // check if hits are sorted by time
 
   ROOT::VecOps::RVec<double> weights;
+
   for (; id < hits.size(); ++id) {
     const auto& hit = hits[id];
     auto time = hit.getTime();
@@ -104,21 +108,32 @@ void LGADHitClustering::_calcCluster(const Output& output,
     auto pos = m_seg->position(hit.getCellID());
     if (hit.getEdep() < 0)
       error("Edep for hit at cellID{} is negative. Abort!.", hit.getCellID());
-    ave_x += hit.getEdep() * pos.x();
-    ave_y += hit.getEdep() * pos.y();
+    const auto Edep = hit.getEdep();
+    ave_x += Edep * pos.x();
+    ave_y += Edep * pos.y();
+    sigma2_x += Edep * Edep * hit.getPositionError().xx * mm_acts * mm_acts;
+    sigma2_y += Edep * Edep * hit.getPositionError().yy * mm_acts * mm_acts;
 
-    tot_charge += hit.getEdep();
-    if (hit.getEdep() > max_charge) {
-      max_charge = hit.getEdep();
+    tot_charge += Edep;
+    if (Edep > max_charge) {
+      max_charge = Edep;
       cellID     = hit.getCellID();
     }
     cluster.addToHits(hit);
-    weights.push_back(hit.getEdep());
+    weights.push_back(Edep);
   }
 
   weights /= tot_charge;
   ave_x /= tot_charge;
   ave_y /= tot_charge;
+  sigma2_x /= tot_charge * tot_charge;
+  sigma2_y /= tot_charge * tot_charge;
+
+  // covariance copied from TrackerMeasurementFromHits.vv
+  Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
+  cov(0, 0) = sigma2_x;
+  cov(1, 1) = sigma2_y;
+  cov(0, 1) = cov(1, 0) = 0.0;
 
   for (const auto& w : weights)
     cluster.addToWeights(w);
@@ -139,8 +154,6 @@ void LGADHitClustering::_calcCluster(const Output& output,
   cluster.setSurface(surface->geometryId().value());
   cluster.setLoc(locPos);
   cluster.setTime(earliest_time);
-  // covariance copied from TrackerMeasurementFromHits.vv
-  Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
   cluster.setCovariance({cov(0, 0), cov(1, 1), time_err * time_err,
                           cov(0, 1)}); // Covariance on location and time
 }
