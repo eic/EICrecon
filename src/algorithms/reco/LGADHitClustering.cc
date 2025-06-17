@@ -69,7 +69,6 @@ void LGADHitClustering::_calcCluster(const Output& output,
 		size_t id,
 		double timeWindow) const {
   constexpr double mm_acts = Acts::UnitConstants::mm;
-  constexpr double mm_conv = mm_acts / dd4hep::mm;
   using dd4hep::mm;
 
   if (hits.size() == 0 || id >= hits.size())
@@ -160,9 +159,6 @@ void LGADHitClustering::_calcCluster(const Output& output,
 
 void LGADHitClustering::process(const LGADHitClustering::Input& input,
                                 const LGADHitClustering::Output& output) const {
-  constexpr double mm_acts = Acts::UnitConstants::mm;
-  constexpr double mm_conv = mm_acts / dd4hep::mm;
-
   const auto [calibrated_hits] = input;
 
   // collection of ADC values from all sensors and group them by sensor
