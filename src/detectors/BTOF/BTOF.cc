@@ -21,7 +21,7 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/reco/LGADHitCalibration_factory.h"
 #include "factories/reco/LGADHitClusterAssociation_factory.h"
-#include "factories/reco/LGADHitClustering_factory.h"
+#include "factories/tracking/LGADHitClustering_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {

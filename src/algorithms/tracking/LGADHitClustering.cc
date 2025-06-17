@@ -26,7 +26,7 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/reco/LGADHitClusteringConfig.h"
+#include "algorithms/tracking/LGADHitClusteringConfig.h"
 
 namespace eicrecon {
 

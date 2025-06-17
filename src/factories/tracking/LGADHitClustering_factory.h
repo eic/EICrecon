@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "algorithms/reco/LGADHitClustering.h"
+#include "algorithms/tracking/LGADHitClustering.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
