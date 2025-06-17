@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2025, Dmitry Romanov, Nathan Brei, Tooba Ali, Wouter Deconinck, Dmitry Kalinkin, John Lajoie, Simon Gardner, Tristan Protzman, Daniel Brandenburg, Derek M Anderson, Sebouh Paul, Tyler Kutz, Alex Jentsch, Jihee Kim, Brian Page
 
-#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <algorithm>
 #include <JANA/JApplicationFwd.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -14,12 +12,8 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
 #include <fmt/core.h>
-#include <gsl/pointers>
-
-#include <cmath>
 #include <map>
 #include <memory>
-#include <stdexcept>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -48,7 +42,6 @@
 #if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/HadronicFinalState_factory.h"
 #endif
-#include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/MC2SmearedParticle_factory.h"
 #include "factories/reco/MatchClusters_factory.h"
@@ -56,12 +49,11 @@
 #include "factories/reco/ReconstructedElectrons_factory.h"
 #include "factories/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "factories/reco/ScatteredElectronsTruth_factory.h"
+#include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/reco/TrackClusterMatch_factory.h"
 #endif
-
-#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -210,33 +202,27 @@ void InitPlugin(JApplication* app) {
       {"MCParticles", "InclusiveKinematicsElectron", "ReconstructedParticles"},
       {"ReconstructedBreitFrameParticles"}, {}, app));
 
-  auto detector = app->GetService<DD4hep_service>()->detector();
-  double z_zdc  = NAN;
-  try {
-    z_zdc = detector->constant<double>("HcalFarForwardZDC_SiPMonTile_r_pos") / dd4hep::mm;
-  } catch (std::runtime_error&) {
-    z_zdc = 35800;
-  }
-
   app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
       "ReconstructedFarForwardZDCNeutrons",
       {"HcalFarForwardZDCClusters"},          // edm4eic::ClusterCollection
       {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
-      {.neutronScaleCorrCoeffHcal = {-0.11, -1.5, 0},
+      {.offsetPositionName        = "HcalFarForwardZDC_SiPMonTile_r_pos",
+       .neutronScaleCorrCoeffHcal = {-0.11, -1.5, 0},
        .gammaScaleCorrCoeffHcal   = {0, -.13, 0},
        .globalToProtonRotation    = -0.025,
-       .gammaZMax                 = (300 + z_zdc) * dd4hep::mm,
+       .gammaZMaxOffset           = 300 * dd4hep::mm,
        .gammaMaxLength            = 100 * dd4hep::mm,
        .gammaMaxWidth             = 12 * dd4hep::mm},
       app // TODO: Remove me once fixed
       ));
+
   app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
       "ReconstructedFarForwardZDCLambdas",
       {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
       {"ReconstructedFarForwardZDCLambdas", "ReconstructedFarForwardZDCLambdaDecayProductsC"
                                             "M"}, // edm4eic::ReconstrutedParticleCollection,
-      {.globalToProtonRotation = -0.025,
-       .zMax                   = z_zdc * dd4hep::mm,
+      {.offsetPositionName     = "HcalFarForwardZDC_SiPMonTile_r_pos",
+       .globalToProtonRotation = -0.025,
        .lambdaMaxMassDev       = 0.030 * dd4hep::GeV,
        .iterations             = 10},
       app // TODO: Remove me once fixed
