@@ -72,21 +72,33 @@ void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& 
     double tot_charge          = 0;
     dd4hep::rec::CellID cellID = 0;
     double maxCharge           = 0;
+    double time_err            = 0;
+    double tot_charge_err2     = 0;
 
     for (const auto& hit : meas2D_hit.getHits()) {
       if (hit.getEdep() > maxCharge) {
         cellID    = hit.getCellID();
         maxCharge = hit.getEdep();
       }
+      tot_charge_err2 += hit.getEdepError() * hit.getEdepError();
       tot_charge += hit.getEdep();
     }
-    // position info
-    auto locPos         = meas2D_hit.getLoc();
-    const auto* context = m_converter->findContext(cellID);
-    auto ave_pos        = this->_local2Global(context, locPos);
-    auto asso_hit = asso_hits->create(cellID, ave_pos, edm4eic::CovDiag3f{0., 0., 0.}, time, 0.,
-                                      tot_charge, 0.);
-    cellHitMap[getSensorInfos(asso_hit.getCellID())].push_back(asso_hit);
+
+    if(cellID) {
+      // position info
+      auto locPos         = meas2D_hit.getLoc();
+      auto locPosErr      = meas2D_hit.getCovariance();
+      const auto* context = m_converter->findContext(cellID);
+      auto ave_pos        = this->_local2Global(context, locPos);
+      auto asso_hit = asso_hits->create(cellID, 
+		                        ave_pos, 
+		                        edm4eic::CovDiag3f{locPosErr.xx, locPosErr.yy, 0}, 
+					time, 
+					locPosErr.zz,
+                                        tot_charge, 
+					std::sqrt(tot_charge_err2));
+      cellHitMap[getSensorInfos(asso_hit.getCellID())].push_back(asso_hit);
+    }
   }
 
   // sort the tracker hits by time
