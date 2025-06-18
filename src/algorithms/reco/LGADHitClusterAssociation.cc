@@ -84,19 +84,15 @@ void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& 
       tot_charge += hit.getEdep();
     }
 
-    if(cellID) {
+    if (cellID) {
       // position info
       auto locPos         = meas2D_hit.getLoc();
       auto locPosErr      = meas2D_hit.getCovariance();
       const auto* context = m_converter->findContext(cellID);
       auto ave_pos        = this->_local2Global(context, locPos);
-      auto asso_hit = asso_hits->create(cellID, 
-		                        ave_pos, 
-		                        edm4eic::CovDiag3f{locPosErr.xx, locPosErr.yy, 0}, 
-					time, 
-					locPosErr.zz,
-                                        tot_charge, 
-					std::sqrt(tot_charge_err2));
+      auto asso_hit =
+          asso_hits->create(cellID, ave_pos, edm4eic::CovDiag3f{locPosErr.xx, locPosErr.yy, 0},
+                            time, locPosErr.zz, tot_charge, std::sqrt(tot_charge_err2));
       cellHitMap[getSensorInfos(asso_hit.getCellID())].push_back(asso_hit);
     }
   }
