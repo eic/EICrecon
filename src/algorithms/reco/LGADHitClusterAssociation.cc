@@ -11,10 +11,12 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <TGeoMatrix.h>
 #include <algorithms/geo.h>
+#include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
+#include <cmath>
 #include <gsl/pointers>
 #include <unordered_map>
 #include <utility>
