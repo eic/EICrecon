@@ -72,7 +72,6 @@ void LGADHitClusterAssociation::process(const LGADHitClusterAssociation::Input& 
     double tot_charge          = 0;
     dd4hep::rec::CellID cellID = 0;
     double maxCharge           = 0;
-    double time_err            = 0;
     double tot_charge_err2     = 0;
 
     for (const auto& hit : meas2D_hit.getHits()) {
