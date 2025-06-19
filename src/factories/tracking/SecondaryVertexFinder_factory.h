@@ -41,7 +41,7 @@ private:
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>();
-    m_algo->applyConfig(config());
+    m_algo->level((algorithms::LogLevel)logger()->level());
     m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
   }
 
@@ -50,9 +50,6 @@ public:
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
     std::tie(prm_vertices_output(), sec_vertices_output()) =
         m_algo->produce(m_reco_input(), m_acts_trajectories_input());
-    /*
-    sec_vertices_output() = m_algo->produce(m_reco_input(),m_acts_trajectories_input());
-    */
   }
 };
 
