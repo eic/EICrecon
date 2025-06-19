@@ -41,7 +41,7 @@ private:
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>();
-    m_algo->level((algorithms::LogLevel)logger()->level());
+    m_algo->applyConfig(config());
     m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
   }
 

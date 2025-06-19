@@ -44,17 +44,9 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
-using SecondaryVertexFinderAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                                            std::vector<ActsExamples::Trajectories>>,
-                          algorithms::Output<edm4eic::VertexCollection, edm4eic::VertexCollection>>;
-class SecondaryVertexFinder : public SecondaryVertexFinderAlgorithm {
+class SecondaryVertexFinder 
+    : public eicrecon::WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
 public:
-  SecondaryVertexFinder()
-      : SecondaryVertexFinderAlgorithm{{"inputActsReconstructedParticles"},
-                                       {"inputActsTrajectories"},
-                                       {"outputPrimaryVertexAMVF"},
-                                       {"outputSecondaryVertexAMVF"}} {}
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
 
