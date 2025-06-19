@@ -31,6 +31,7 @@ private:
   ParameterRef<std::vector<std::string>> m_contributionMergeFields{
       this, "contributionMergeFields", config().contributionMergeFields};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
+  ParameterRef<double> m_propagationSpeed{this, "propagationSpeed", config().propagationSpeed};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

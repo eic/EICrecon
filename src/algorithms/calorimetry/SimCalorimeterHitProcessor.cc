@@ -192,7 +192,13 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
     for (const auto& contrib : ih.getContributions()) {
       edm4hep::MCParticle primary = lookup_primary(contrib);
       auto& hit_accum             = hit_map[{primary, newhit_cellID}][newcontrib_cellID];
-      hit_accum.add(contrib.getEnergy() * attFactor, contrib.getTime(), ih.getPosition());
+      const double propaTime =
+          m_attenuationReferencePosition
+              ? std::abs(m_attenuationReferencePosition.value() - ih.getPosition().z) /
+                    m_cfg.propagationSpeed
+              : 0.;
+      hit_accum.add(contrib.getEnergy() * attFactor, contrib.getTime() + propaTime,
+                    ih.getPosition());
     }
   }
 
