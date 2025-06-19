@@ -14,7 +14,6 @@
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <TLorentzVector.h>
-#include <TVector3.h>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/TrackCollection.h>
@@ -24,11 +23,11 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
+#include <math.h>
 #include <podio/RelationRange.h>
 #include <spdlog/logger.h>
 #include <Eigen/Core>
 #include <limits>
-#include <math.h>
 #include <memory>
 #include <tuple>
 #include <utility>
@@ -40,7 +39,6 @@
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "SecondaryVertexFinderConfig.h"
-#include <algorithms/algorithm.h>
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
