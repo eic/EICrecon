@@ -38,8 +38,7 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryPro
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
-std::tuple<std::unique_ptr<edm4eic::VertexCollection>,
-           std::unique_ptr<edm4eic::VertexCollection>>
+std::tuple<std::unique_ptr<edm4eic::VertexCollection>, std::unique_ptr<edm4eic::VertexCollection>>
 eicrecon::SecondaryVertexFinder::produce(
     const edm4eic::ReconstructedParticleCollection* recotracks,
     std::vector<const ActsExamples::Trajectories*> trajectories) {
@@ -59,9 +58,9 @@ eicrecon::SecondaryVertexFinder::produce(
                                                        logger().cloneWithSuffix("PropSec"));
 
   //set up Impact estimator
-  using ImpactPointEstimator = Acts::ImpactPointEstimator;
-  using LinearizerSec        = Acts::HelicalTrackLinearizer;
-  using VertexFitterSec      = Acts::AdaptiveMultiVertexFitter;
+  using ImpactPointEstimator   = Acts::ImpactPointEstimator;
+  using LinearizerSec          = Acts::HelicalTrackLinearizer;
+  using VertexFitterSec        = Acts::AdaptiveMultiVertexFitter;
   using VertexFinderSec        = Acts::AdaptiveMultiVertexFinder;
   using VertexFinderOptionsSec = Acts::VertexingOptions;
 
@@ -71,7 +70,7 @@ eicrecon::SecondaryVertexFinder::produce(
   trkDensityConfig.spatialBinExtent = 25 * Acts::UnitConstants::um;
   // Bin extent in t-direction
   trkDensityConfig.temporalBinExtent = 19. * Acts::UnitConstants::mm;
-  trkDensityConfig.useTime = false;
+  trkDensityConfig.useTime           = false;
   Acts::AdaptiveGridTrackDensity trkDensity(trkDensityConfig);
 
   // Setup the track linearizer
@@ -105,13 +104,13 @@ eicrecon::SecondaryVertexFinder::produce(
   seeder = std::make_shared<seedFinder>(seedFinder::Config{seederConfig});
 
   VertexFinderSec::Config vertexfinderConfigSec(std::move(vertexFitterSec), std::move(seeder),
-                                             std::move(ipEst), m_BField);
+                                                std::move(ipEst), m_BField);
 
   // The vertex finder state
   // Set the initial variance of the 4D vertex position. Since time is on a
   // numerical scale, we have to provide a greater value in the corresponding
   // dimension.
-  vertexfinderConfigSec.initialVariances={1e+2, 1e+2, 1e+2, 1e+8};
+  vertexfinderConfigSec.initialVariances = {1e+2, 1e+2, 1e+2, 1e+8};
   //Use time for Sec. Vertex
   vertexfinderConfigSec.useTime            = false;
   vertexfinderConfigSec.tracksMaxZinterval = 35 * Acts::UnitConstants::mm;
@@ -124,7 +123,7 @@ eicrecon::SecondaryVertexFinder::produce(
   if (m_cfg.useTime) {
     // When using time, we have an extra contribution to the chi2 by the time
     // coordinate.
-    vertexfinderConfigSec.tracksMaxSignificance = 6.7;
+    vertexfinderConfigSec.tracksMaxSignificance      = 6.7;
     vertexfinderConfigSec.maxMergeVertexSignificance = 5;
   }
 
@@ -146,10 +145,10 @@ eicrecon::SecondaryVertexFinder::produce(
   std::vector<Acts::InputTrack> inputTracks;
   // Calculate primary vertex using AMVF
   primaryVertices = calculatePrimaryVertex(recotracks, trajectories, vertexfinderSec, vfOptions,
-                                   vertexfinderConfigSec, stateSec);
+                                           vertexfinderConfigSec, stateSec);
   // Primary vertex collection container to be used in Sec. Vertex fitting
   outputVertices = calculateSecondaryVertex(recotracks, trajectories, vertexfinderSec, vfOptions,
-                              vertexfinderConfigSec, stateSec);
+                                            vertexfinderConfigSec, stateSec);
 
   return std::make_tuple(std::move(primaryVertices), std::move(outputVertices));
 }
