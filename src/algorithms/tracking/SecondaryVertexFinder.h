@@ -42,18 +42,18 @@
 #include "SecondaryVertexFinderConfig.h"
 #include <algorithms/algorithm.h>
 
-namespace eicrecon{
-using SecondaryVertexFinderAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ReconstructedParticleCollection,std::vector<ActsExamples::Trajectories>>,
-    algorithms::Output<edm4eic::VertexCollection,edm4eic::VertexCollection>>;
-class SecondaryVertexFinder
-    : public SecondaryVertexFinderAlgorithm{
+namespace eicrecon {
+using SecondaryVertexFinderAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
+                                            std::vector<ActsExamples::Trajectories>>,
+                          algorithms::Output<edm4eic::VertexCollection, edm4eic::VertexCollection>>;
+class SecondaryVertexFinder : public SecondaryVertexFinderAlgorithm {
 public:
   SecondaryVertexFinder()
-    : SecondaryVertexFinderAlgorithm{{"inputActsReconstructedParticles"},
-                                     {"inputActsTrajectories"},
-                                     {"outputPrimaryVertexAMVF"},
-                                     {"outputSecondaryVertexAMVF"}} {}
+      : SecondaryVertexFinderAlgorithm{{"inputActsReconstructedParticles"},
+                                       {"inputActsTrajectories"},
+                                       {"outputPrimaryVertexAMVF"},
+                                       {"outputSecondaryVertexAMVF"}} {}
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
 
@@ -64,21 +64,21 @@ public:
   // Calculate an initial Primary Vertex
   std::unique_ptr<edm4eic::VertexCollection>
   calculatePrimaryVertex(const edm4eic::ReconstructedParticleCollection*,
-                 std::vector<const ActsExamples::Trajectories*> trajectories,
-                 Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
-                 Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
+                         std::vector<const ActsExamples::Trajectories*> trajectories,
+                         Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
+                         Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
 
   //Calculate secondary vertex and store secVertex container
   std::unique_ptr<edm4eic::VertexCollection>
   calculateSecondaryVertex(const edm4eic::ReconstructedParticleCollection*,
-             std::vector<const ActsExamples::Trajectories*> trajectories,
-             Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
-             Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
+                           std::vector<const ActsExamples::Trajectories*> trajectories,
+                           Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
+                           Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
 
   // Functions to be used to check efficacy of sec. vertex
   std::unique_ptr<edm4eic::VertexCollection>
   getSecondaryVertex(const edm4eic::Vertex*, const TLorentzVector&, const edm4eic::TrackParameters,
-            const edm4eic::TrackParameters, std::vector<double>&);
+                     const edm4eic::TrackParameters, std::vector<double>&);
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
@@ -153,7 +153,7 @@ std::unique_ptr<edm4eic::VertexCollection> SecondaryVertexFinder::calculatePrima
           const auto& traj    = trk.getTrajectory();
           const auto& trkPars = traj.getTrackParameters();
           for (const auto& par : trkPars) {
-            double EPSILON = std::numeric_limits<double>::epsilon()*1.0e-4; // mm
+            double EPSILON = std::numeric_limits<double>::epsilon() * 1.0e-4; // mm
             if (std::abs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
                     EPSILON &&
                 std::abs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
@@ -175,13 +175,12 @@ std::unique_ptr<edm4eic::VertexCollection> SecondaryVertexFinder::calculatePrima
   return prmVertices;
 }
 
-std::unique_ptr<edm4eic::VertexCollection>
-SecondaryVertexFinder::calculateSecondaryVertex(const edm4eic::ReconstructedParticleCollection* reconParticles,
-                                  std::vector<const ActsExamples::Trajectories*> trajectories,
-                                  Acts::AdaptiveMultiVertexFinder& vertexfinderSec,
-                                  Acts::VertexingOptions vfOptions,
-                                  Acts::AdaptiveMultiVertexFinder::Config& vertexfinderCfgSec,
-                                  Acts::IVertexFinder::State& stateSec) {
+std::unique_ptr<edm4eic::VertexCollection> SecondaryVertexFinder::calculateSecondaryVertex(
+    const edm4eic::ReconstructedParticleCollection* reconParticles,
+    std::vector<const ActsExamples::Trajectories*> trajectories,
+    Acts::AdaptiveMultiVertexFinder& vertexfinderSec, Acts::VertexingOptions vfOptions,
+    Acts::AdaptiveMultiVertexFinder::Config& vertexfinderCfgSec,
+    Acts::IVertexFinder::State& stateSec) {
 
   auto secVertices = std::make_unique<edm4eic::VertexCollection>();
   //--->Add Prm Vertex container here
@@ -243,11 +242,11 @@ SecondaryVertexFinder::calculateSecondaryVertex(const edm4eic::ReconstructedPart
               const auto& traj    = trk.getTrajectory();
               const auto& trkPars = traj.getTrackParameters();
               for (const auto& par : trkPars) {
-                double EPSILON = std::numeric_limits<double>::epsilon()*1.0e-4; // mm
-                if (std::abs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
-                        EPSILON &&
-                    std::abs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
-                        EPSILON) {
+                double EPSILON = std::numeric_limits<double>::epsilon() * 1.0e-4; // mm
+                if (std::abs((par.getLoc().a / edm4eic::unit::mm) -
+                             (loc_a / Acts::UnitConstants::mm)) < EPSILON &&
+                    std::abs((par.getLoc().b / edm4eic::unit::mm) -
+                             (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
                   m_log->trace(
                       "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
                       par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
@@ -257,7 +256,7 @@ SecondaryVertexFinder::calculateSecondaryVertex(const edm4eic::ReconstructedPart
             }     // end for trk
           }       // end for part
         }         // end for t
-      } // end for secvertex
+      }           // end for secvertex
 
       // empty the vector for the next set of tracks
       inputTracks.clear();
