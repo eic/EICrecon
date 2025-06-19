@@ -41,6 +41,7 @@
 #include "DD4hepBField.h"
 #include "SecondaryVertexFinderConfig.h"
 #include <algorithms/algorithm.h>
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon{
 using SecondaryVertexFinderAlgorithm = algorithms::Algorithm<
