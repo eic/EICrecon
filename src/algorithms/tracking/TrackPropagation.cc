@@ -288,13 +288,13 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   // Some target surfaces (e.g. DIRC) may be inside the last measurement surface (e.g. BIC),
   // so we use a straight line intersection from the last measurement surface to the target
   // surface to determine if we have to propagate backwards.
-  auto initPosition = initBoundParams.position(m_geoContext);
+  auto initPosition  = initBoundParams.position(m_geoContext);
   auto initDirection = initBoundParams.direction();
   auto intersections = targetSurf->intersect(m_geoContext, initPosition, initDirection);
   // Determine closest forward intersection (positive pathlength from perigee)
   auto intersection = intersections.closestForward();
-  auto difference = intersection.position() - initPosition;
-  auto dot = difference.dot(initBoundParams.direction());
+  auto difference   = intersection.position() - initPosition;
+  auto dot          = difference.dot(initBoundParams.direction());
 
   // Propagate forwards by default
 #if Acts_VERSION_MAJOR >= 39
@@ -305,9 +305,10 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   // but invert if the position difference is opposite to direction
   if (intersection.isValid() && dot < 0) {
     // The extra fields of the surface geometry ID contain the DD4hep system
-    auto initSurfaceExtra = initSurface->geometryId().extra();
+    auto initSurfaceExtra   = initSurface->geometryId().extra();
     auto targetSurfaceExtra = targetSurf->geometryId().extra();
-    m_log->debug("    inverting direction for propagator from surface {} to {}", initSurfaceExtra, targetSurfaceExtra);
+    m_log->debug("    inverting direction for propagator from surface {} to {}", initSurfaceExtra,
+                 targetSurfaceExtra);
     auto p1 = initBoundParams.position(m_geoContext);
     m_log->debug("      initial position {} {} {}", p1.x(), p1.y(), p1.z());
     auto p2 = intersection.position();
