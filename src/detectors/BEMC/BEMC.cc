@@ -38,8 +38,8 @@ void InitPlugin(JApplication* app) {
       "fiber", "z"};
   decltype(SimCalorimeterHitProcessorConfig::contributionMergeFields)
       EcalBarrelScFi_contributionMergeFields = {"fiber"};
-  decltype(SimCalorimeterHitProcessorConfig::propagationSpeed)
-      EcalBarrelScFi_propagationSpeed = {160 * edm4eic::unit::mm / edm4eic::unit::ns};
+  decltype(SimCalorimeterHitProcessorConfig::propagationSpeed) EcalBarrelScFi_propagationSpeed = {
+      160 * edm4eic::unit::mm / edm4eic::unit::ns};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -57,7 +57,7 @@ void InitPlugin(JApplication* app) {
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmax",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
-	  .propagationSpeed                 = EcalBarrelScFi_propagationSpeed,
+          .propagationSpeed                 = EcalBarrelScFi_propagationSpeed,
       },
       app // TODO: Remove me once fixed
       ));
@@ -70,7 +70,7 @@ void InitPlugin(JApplication* app) {
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
-	  .propagationSpeed                 = EcalBarrelScFi_propagationSpeed,
+          .propagationSpeed                 = EcalBarrelScFi_propagationSpeed,
       },
       app // TODO: Remove me once fixed
       ));
