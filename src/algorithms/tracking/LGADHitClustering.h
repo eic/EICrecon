@@ -67,17 +67,15 @@ private:
                              const dd4hep::DDSegmentation::CartesianGridXY*>
       m_segmentation_map;
 
-
   // union-find algorithm to group contiguous clusters
   class UnionFind {
   private:
     std::vector<int> mParent, mRank;
+
   public:
     UnionFind(int n);
     int find(int id);
     void merge(int id1, int id2);
   };
-
-
 };
 } // namespace eicrecon

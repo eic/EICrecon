@@ -48,7 +48,8 @@ void LGADHitClustering::init() {
 
 void LGADHitClustering::_calcCluster(const Output& output,
                                      const std::vector<edm4eic::TrackerHit>& hits) const {
-  if(hits.size() == 0) return;
+  if (hits.size() == 0)
+    return;
   constexpr double mm_acts = Acts::UnitConstants::mm;
   using dd4hep::mm;
 
@@ -60,18 +61,18 @@ void LGADHitClustering::_calcCluster(const Output& output,
   float sigma2_x = 0, sigma2_y = 0;
   double tot_charge = 0;
   // find cellID for the cell with maximum ADC value within a sensor
-  auto cellID     = hits[0].getCellID();
-  auto max_charge = hits[0].getEdep();
+  auto cellID        = hits[0].getCellID();
+  auto max_charge    = hits[0].getEdep();
   auto earliest_time = hits[0].getTime();
-  auto time_err   = hits[0].getTimeError();
+  auto time_err      = hits[0].getTimeError();
 
   ROOT::VecOps::RVec<double> weights;
 
   for (size_t id = 0; id < hits.size(); ++id) {
     const auto& hit = hits[id];
-    if(hit.getTime() < earliest_time) {
+    if (hit.getTime() < earliest_time) {
       earliest_time = hit.getTime();
-      time_err = hit.getTimeError();
+      time_err      = hit.getTimeError();
     }
     // weigh all hits by ADC value
     auto pos = m_seg->position(hit.getCellID());
@@ -125,7 +126,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
   cluster.setCovariance(
       {cov(0, 0), cov(1, 1), time_err * time_err, cov(0, 1)}); // Covariance on location and time
 }
-  
+
 void LGADHitClustering::process(const LGADHitClustering::Input& input,
                                 const LGADHitClustering::Output& output) const {
   const auto [calibrated_hits] = input;
@@ -135,41 +136,40 @@ void LGADHitClustering::process(const LGADHitClustering::Input& input,
   // UnionFind can only group integer objects, not edm4eic::TrackerHit
   std::unordered_map<dd4hep::rec::CellID, std::vector<int>> hitIDsByCells;
 
-  for (size_t hitID = 0; hitID < calibrated_hits -> size(); ++hitID) { 
-    hitIDsByCells[calibrated_hits -> at(hitID).getCellID()].push_back(hitID);
+  for (size_t hitID = 0; hitID < calibrated_hits->size(); ++hitID) {
+    hitIDsByCells[calibrated_hits->at(hitID).getCellID()].push_back(hitID);
   }
 
   // merge neighbors by union find
   UnionFind uf(static_cast<int>(calibrated_hits->size()));
   for (auto [cellID, hitIDs] : hitIDsByCells) {
     // code copied from SiliconChargeSharing for neighbor finding
-    const auto* element = &m_converter->findContext(cellID) -> element; // volume context
+    const auto* element = &m_converter->findContext(cellID)->element; // volume context
     auto [segmentationIt, segmentationInserted] =
         m_segmentation_map.try_emplace(element, getLocalSegmentation(cellID));
 
-
     std::set<dd4hep::rec::CellID> cellNeighbors;
-    segmentationIt -> second -> neighbours(cellID, cellNeighbors);
+    segmentationIt->second->neighbours(cellID, cellNeighbors);
     // find if there are hits in neighboring cells
     for (const auto& neighborCandidates : cellNeighbors) {
       auto it = hitIDsByCells.find(neighborCandidates);
-      if(it != hitIDsByCells.end()) {
-          for(const auto& hitID1 : hitIDs)
-            for(const auto& hitID2 : it -> second) {
-              const auto& hit1 = calibrated_hits -> at(hitID1);
-              const auto& hit2 = calibrated_hits -> at(hitID2);
-	      // only consider hits with time difference < deltaT as the same cluster
-              if(std::fabs(hit1.getTime() - hit2.getTime()) < m_cfg.deltaT)
-                uf.merge(hitID1, hitID2);
-	    }
+      if (it != hitIDsByCells.end()) {
+        for (const auto& hitID1 : hitIDs)
+          for (const auto& hitID2 : it->second) {
+            const auto& hit1 = calibrated_hits->at(hitID1);
+            const auto& hit2 = calibrated_hits->at(hitID2);
+            // only consider hits with time difference < deltaT as the same cluster
+            if (std::fabs(hit1.getTime() - hit2.getTime()) < m_cfg.deltaT)
+              uf.merge(hitID1, hitID2);
+          }
       }
     }
   }
 
   // group hits by cluster parent index according to union find algorithm
   std::unordered_map<int, std::vector<edm4eic::TrackerHit>> clusters;
-  for (size_t hitID = 0; hitID < calibrated_hits -> size(); ++hitID) 
-    clusters[uf.find(hitID)].push_back(calibrated_hits -> at(hitID));
+  for (size_t hitID = 0; hitID < calibrated_hits->size(); ++hitID)
+    clusters[uf.find(hitID)].push_back(calibrated_hits->at(hitID));
 
   // calculated weighted averages
   for (auto& [_, cluster] : clusters) {
@@ -202,14 +202,14 @@ LGADHitClustering::getLocalSegmentation(const dd4hep::rec::CellID& cellID) const
   return cartesianGrid;
 }
 
-
-
 LGADHitClustering::UnionFind::UnionFind(int n) : mParent(n, 0), mRank(n, 0) {
-  for(int i = 0; i < n; ++i) mParent[i] = i;
+  for (int i = 0; i < n; ++i)
+    mParent[i] = i;
 }
 
 int LGADHitClustering::UnionFind::find(int id) {
-  if(mParent[id] == id) return id;
+  if (mParent[id] == id)
+    return id;
   return mParent[id] = find(mParent[id]); // path compression
 }
 
@@ -217,17 +217,16 @@ void LGADHitClustering::UnionFind::merge(int id1, int id2) {
   auto root1 = find(id1);
   auto root2 = find(id2);
 
-  if(root1 != root2) {
-    if(mRank[root1] > mRank[root2]) 
-          mParent[root2] = root1;
-    else if(mRank[root1] < mRank[root2])
-            mParent[root1] = root2;
+  if (root1 != root2) {
+    if (mRank[root1] > mRank[root2])
+      mParent[root2] = root1;
+    else if (mRank[root1] < mRank[root2])
+      mParent[root1] = root2;
     else {
-            mParent[root1] = root2;
-            mRank[root2]++;
+      mParent[root1] = root2;
+      mRank[root2]++;
     }
   }
 }
-
 
 } // namespace eicrecon
