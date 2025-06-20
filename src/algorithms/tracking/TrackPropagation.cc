@@ -303,7 +303,11 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   propagationOptions.direction = Acts::Direction::Forward;
 #endif
   // but invert if the position difference is opposite to direction
+#if Acts_VERSION_MAJOR > 36 || (Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR >= 1)
   if (intersection.isValid() && dot < 0) {
+#else
+  if (intersection && dot < 0) {
+#endif
     // The extra fields of the surface geometry ID contain the DD4hep system
     auto initSurfaceExtra   = initSurface->geometryId().extra();
     auto targetSurfaceExtra = targetSurf->geometryId().extra();
