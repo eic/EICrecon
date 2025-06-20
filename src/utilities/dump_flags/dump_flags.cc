@@ -10,6 +10,6 @@
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
-  app->Add(new DumpFlags_processor(app));
+  app->Add(new DumpFlags_processor());
 }
 }
