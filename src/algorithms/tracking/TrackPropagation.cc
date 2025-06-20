@@ -34,6 +34,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
+#include <boost/container/vector.hpp>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <Eigen/Core>
