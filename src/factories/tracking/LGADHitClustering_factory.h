@@ -18,7 +18,7 @@ private:
   PodioOutput<edm4eic::Measurement2D> m_clusters_output{this};
 
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
-  ParameterRef<double> m_timeWindow{this, "timeWindow", config().timeWindow};
+  ParameterRef<double> m_deltaT{this, "deltaT", config().deltaT};
 
 public:
   void Configure() {

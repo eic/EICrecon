@@ -2,6 +2,8 @@
 // Copyright (C) 2024 Chun Yuen Tsang
 
 #pragma once
+#include <DD4hep/DetElement.h>
+#include <DDSegmentation/CartesianGridXY.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Segmentations.h>
@@ -40,12 +42,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  void _calcCluster(const Output& output, const std::vector<edm4eic::TrackerHit>& hits, size_t id,
-                    double timeWindow) const;
-
-  dd4hep::rec::CellID getSensorInfos(const dd4hep::rec::CellID& id) const;
-  dd4hep::Position _local2Global(const dd4hep::VolumeManagerContext* context,
-                                 const edm4hep::Vector2f& locPos) const;
+  void _calcCluster(const Output& output, const std::vector<edm4eic::TrackerHit>& hits) const;
 
   /** algorithm logger */
   std::shared_ptr<spdlog::logger> m_log;
@@ -61,5 +58,26 @@ private:
   dd4hep::Segmentation m_seg;
 
   std::shared_ptr<const ActsGeometryProvider> m_acts_context;
+
+  // neighbor finding algorithm copied from SiliconChargeSharing
+  const dd4hep::DDSegmentation::CartesianGridXY*
+  getLocalSegmentation(const dd4hep::rec::CellID& cellID) const;
+
+  mutable std::unordered_map<const dd4hep::DetElement*,
+                             const dd4hep::DDSegmentation::CartesianGridXY*>
+      m_segmentation_map;
+
+
+  // union-find algorithm to group contiguous clusters
+  class UnionFind {
+  private:
+    std::vector<int> mParent, mRank;
+  public:
+    UnionFind(int n);
+    int find(int id);
+    void merge(int id1, int id2);
+  };
+
+
 };
 } // namespace eicrecon
