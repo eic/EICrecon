@@ -221,6 +221,11 @@ void InitPlugin(JApplication* app) {
       {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {"CalorimeterTrackProjections"},
       {.target_surfaces{
+          // DIRC
+          eicrecon::CylinderSurfaceConfig{
+              "BarrelDIRC_ID", "DIRC_rmin",
+              "DIRC_offset - DIRC_length / 2.0",
+              "DIRC_offset + DIRC_length / 2.0"},
           // Ecal
           eicrecon::DiscSurfaceConfig{.id   = "EcalEndcapN_ID",
                                       .zmin = "- EcalEndcapN_zmin",
