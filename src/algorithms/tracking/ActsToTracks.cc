@@ -195,7 +195,6 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
               }
 #endif
               //}
-
             }
           }
         }
