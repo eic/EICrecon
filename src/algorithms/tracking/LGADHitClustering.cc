@@ -99,7 +99,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
   sigma2_x /= tot_charge * tot_charge;
   sigma2_y /= tot_charge * tot_charge;
 
-  // covariance copied from TrackerMeasurementFromHits.vv
+  // covariance copied from TrackerMeasurementFromHits.cc
   Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
   cov(0, 0)               = sigma2_x;
   cov(1, 1)               = sigma2_y;
