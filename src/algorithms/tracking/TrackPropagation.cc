@@ -11,25 +11,33 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/Propagator/ActorList.hpp>
+#else
+#include <Acts/Propagator/AbortList.hpp>
+#include <Acts/Propagator/ActionList.hpp>
+#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#include <Acts/Propagator/PropagatorResult.hpp>
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
+#include <Acts/Utilities/Intersection.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
 #include <Evaluator/DD4hepUnits.h>
-#include <algorithm>
 #include <boost/container/vector.hpp>
-#include <cmath>
-#include <cstdint>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -275,6 +283,32 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 #else
   Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext);
 #endif
+
+  // The extra fields of the surface geometry ID contain the DD4hep system
+  auto initSurfaceExtra   = initSurface->geometryId().extra();
+  auto targetSurfaceExtra = targetSurf->geometryId().extra();
+
+  options.direction = Acts::Direction::Forward;
+  if (initSurfaceExtra > 0) {
+    // Some target surfaces (e.g. DIRC) may be inside the last measurement surface (e.g. BIC),
+    // so we use a straight line intersection from the last measurement surface to the target
+    // surface to determine if we have to propagate backwards.
+    auto intersections = targetSurf->intersect(m_geoContext, initBoundParams.position(m_geoContext),
+                                               initBoundParams.direction());
+    // Closest forward (positive pathlength) intersection
+    auto intersection = intersections.closestForward();
+    auto difference   = intersection.position() - initBoundParams.position(m_geoContext);
+    auto dot          = difference.dot(initBoundParams.direction());
+    if (intersection.isValid() && dot < 0) {
+      m_log->debug("      inverting direction for propagator from surface {} to {}",
+                   initSurfaceExtra, targetSurfaceExtra);
+      auto p1 = initBoundParams.position(m_geoContext);
+      m_log->debug("      initial position {} {} {}", p1.x(), p1.y(), p1.z());
+      auto p2 = intersection.position();
+      m_log->debug("      straight line intersection {} {} {}", p2.x(), p2.y(), p2.z());
+      options.direction = Acts::Direction::Backward;
+    }
+  }
 
   auto result = propagator.propagate(initBoundParams, *targetSurf, options);
 
