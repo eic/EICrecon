@@ -11,11 +11,17 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/Propagator/ActorList.hpp>
+#else
 #include <Acts/Propagator/AbortList.hpp>
 #include <Acts/Propagator/ActionList.hpp>
+#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#if Acts_VERSION_MAJOR >= 36
 #include <Acts/Propagator/PropagatorResult.hpp>
+#endif
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
