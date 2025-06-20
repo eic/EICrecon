@@ -236,6 +236,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "B0TrackerCKFTracksUnfiltered",
     "B0TrackerCKFTrackUnfilteredAssociations",
 
+    "CentralAndB0TrackerVertices",
+
     // Inclusive kinematics
     "InclusiveKinematicsDA",
     "InclusiveKinematicsJB",

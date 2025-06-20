@@ -186,21 +186,10 @@ void InitPlugin(JApplication* app) {
                                                               },
                                                               app));
 
-  app->Add(new JOmniFactoryGeneratorT<ActsTrajectoriesMerger_factory>(
-      "CentralB0CKFActsTrajectories",
-      {
-          "CentralCKFActsTrajectories",
-          "B0TrackerCKFActsTrajectories",
-      },
-      {
-          "CentralAndB0TrackerCKFActsTrajectories",
-      },
-      app));
-
   app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
       "CentralTrackVertices",
       {
-          "CentralAndB0TrackerCKFActsTrajectories",
+          "CentralCKFActsTrajectories",
           "ReconstructedChargedParticles",
       },
       {
@@ -349,7 +338,30 @@ void InitPlugin(JApplication* app) {
                                                             },
                                                             app));
 
-  // COMBINED TRACKS
+  // COMBINED TRACKING
+
+  // Use both central and B0 tracks for vertexing
+  app->Add(new JOmniFactoryGeneratorT<ActsTrajectoriesMerger_factory>(
+      "CentralB0CKFActsTrajectories",
+      {
+          "CentralCKFActsTrajectories",
+          "B0TrackerCKFActsTrajectories",
+      },
+      {
+          "CentralAndB0TrackerCKFActsTrajectories",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
+      "CentralTrackVertices",
+      {
+          "CentralAndB0TrackerCKFActsTrajectories",
+          "ReconstructedChargedParticles",
+      },
+      {
+          "CentralAndB0TrackerVertices",
+      },
+      {}, app));
 
   // Add Low-Q2, central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
