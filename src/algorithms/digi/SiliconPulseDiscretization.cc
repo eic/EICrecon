@@ -5,10 +5,9 @@
 //
 
 #include <DDRec/CellIDPositionConverter.h>
-#include <climits>
+#include <podio/RelationRange.h>
 #include <cmath>
 #include <gsl/pointers>
-#include <podio/RelationRange.h>
 #include <unordered_map>
 #include <unordered_set>
 
