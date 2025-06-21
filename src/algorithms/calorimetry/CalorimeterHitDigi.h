@@ -63,13 +63,16 @@ public:
 
 private:
   // unitless counterparts of inputs
-  double stepTDC{0}, tRes{0};
+  double dyRangeADC{0}, stepTDC{0}, tRes{0};
 
   uint64_t id_mask{0};
 
   std::function<double(const edm4hep::SimCalorimeterHit& h)> corrMeanScale;
 
   dd4hep::IDDescriptor id_spec;
+
+  enum readout_enum { kSimpleReadout, kPoissonPhotonReadout, kSipmReadout };
+  enum readout_enum readoutType { kSimpleReadout };
 
 private:
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();

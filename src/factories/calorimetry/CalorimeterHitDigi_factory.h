@@ -36,6 +36,12 @@ private:
   ParameterRef<std::string> m_corrMeanScale{this, "scaleResponse", config().corrMeanScale};
   ParameterRef<std::vector<std::string>> m_fields{this, "signalSumFields", config().fields};
   ParameterRef<std::string> m_readout{this, "readoutClass", config().readout};
+  ParameterRef<std::string> m_readoutType{this, "readoutType", config().readoutType};
+  ParameterRef<double> m_lightYield{this, "lightYield", config().lightYield};
+  ParameterRef<double> m_photonDetectionEfficiency{this, "photonDetectionEfficiency",
+                                                   config().photonDetectionEfficiency};
+  ParameterRef<unsigned long long> m_numEffectiveSipmPixels{this, "numEffectiveSipmPixels",
+                                                            config().numEffectiveSipmPixels};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -47,9 +53,9 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
+  void ChangeRun(int64_t run_number) {}
 
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+  void Process(int64_t run_nr, uint64_t event_nr) {
 #if EDM4EIC_VERSION_MAJOR >= 7
     m_algo->process({m_hits_input()}, {m_hits_output().get(), m_hit_assocs_output().get()});
 #else

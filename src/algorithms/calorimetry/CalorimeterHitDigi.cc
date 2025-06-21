@@ -31,6 +31,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <limits>
+#include <map>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -121,6 +122,15 @@ void CalorimeterHitDigi::init() {
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   corrMeanScale =
       serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.corrMeanScale, hit_to_map);
+
+  std::map<std::string, readout_enum> readoutTypes{{"simple", kSimpleReadout},
+                                                   {"poisson_photon", kPoissonPhotonReadout},
+                                                   {"sipm", kSipmReadout}};
+  if (not readoutTypes.count(m_cfg.readoutType)) {
+    error("Invalid readoutType \"{}\"", m_cfg.readoutType);
+    throw std::runtime_error(fmt::format("Invalid readoutType \"{}\"", m_cfg.readoutType));
+  }
+  readoutType = readoutTypes.at(m_cfg.readoutType);
 }
 
 void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
@@ -162,8 +172,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     double max_edep  = 0;
     auto leading_hit = (*simhits)[ixs[0]];
     // sum energy, take time from the most energetic hit
-    for (unsigned long i : ixs) {
-      auto hit = (*simhits)[i];
+    for (size_t i = 0; i < ixs.size(); ++i) {
+      auto hit = (*simhits)[ixs[i]];
 
       double timeC = std::numeric_limits<double>::max();
       for (const auto& c : hit.getContributions()) {
@@ -171,9 +181,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
           timeC = c.getTime();
         }
       }
-      if (timeC > m_cfg.capTime) {
+      if (timeC > m_cfg.capTime)
         continue;
-      }
       edep += hit.getEnergy();
       trace("adding {} \t total: {}", hit.getEnergy(), edep);
 
@@ -194,9 +203,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       rawassocs_staging.push_back(assoc);
 #endif
     }
-    if (time > m_cfg.capTime) {
+    if (time > m_cfg.capTime)
       continue;
-    }
 
     // safety check
     const double eResRel =
@@ -205,21 +213,50 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                   std::sqrt(std::pow(m_cfg.eRes[0] / std::sqrt(edep), 2) +
                             std::pow(m_cfg.eRes[1], 2) + std::pow(m_cfg.eRes[2] / (edep), 2))
             : 0;
+
     double corrMeanScale_value = corrMeanScale(leading_hit);
 
     double ped = m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC;
 
     // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
-    unsigned long long adc =
-        std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) /
-                                        m_cfg.dyRangeADC * m_cfg.capADC),
-                 0LL);
+    unsigned long long adc;
     unsigned long long tdc = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
 
-    if (edep > 1.e-3) {
+    if (readoutType == kSimpleReadout) {
+      adc = std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) /
+                                            m_cfg.dyRangeADC * m_cfg.capADC),
+                     0LL);
+    } else if (readoutType == kPoissonPhotonReadout) {
+      const long long int n_photons_mean =
+          edep * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
+      std::poisson_distribution<> n_photons_detected_dist(n_photons_mean);
+      const long long int n_photons_detected = n_photons_detected_dist(m_generator);
+      const long long int n_max_photons =
+          m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
+      trace("n_photons_detected {}", n_photons_detected);
+      adc = std::max(std::llround(ped + n_photons_detected * corrMeanScale_value * (1.0 + eResRel) /
+                                            n_max_photons * m_cfg.capADC),
+                     0LL);
+    } else if (readoutType == kSipmReadout) {
+      const long long int n_photons = edep * m_cfg.lightYield;
+      std::binomial_distribution<> n_photons_detected_dist(n_photons,
+                                                           m_cfg.photonDetectionEfficiency);
+      const long long int n_photons_detected = n_photons_detected_dist(m_generator);
+      const long long int n_pixels_fired =
+          m_cfg.numEffectiveSipmPixels *
+          (1 - exp(-n_photons_detected / (double)m_cfg.numEffectiveSipmPixels));
+      const long long int n_max_photons =
+          m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
+      trace("n_photons_detected {}, n_pixels_fired {}, n_max_photons {}", n_photons_detected,
+            n_pixels_fired, n_max_photons);
+      adc = std::max(std::llround(ped + n_pixels_fired * corrMeanScale_value * (1.0 + eResRel) /
+                                            n_max_photons * m_cfg.capADC),
+                     0LL);
+    }
+
+    if (edep > 1.e-3)
       trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t corrMeanScale: {}", edep,
             adc, time, m_cfg.capTime, tdc, corrMeanScale_value);
-    }
 
     rawhit.setCellID(leading_hit.getCellID());
     rawhit.setAmplitude(adc > m_cfg.capADC ? m_cfg.capADC : adc);
