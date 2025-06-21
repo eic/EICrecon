@@ -21,6 +21,9 @@ struct SimCalorimeterHitProcessorConfig {
   std::vector<std::string> hitMergeFields{};
   // fields for merging contributions
   std::vector<std::string> contributionMergeFields{};
+
+  // propagation speed of hits in the detector material
+  double propagationSpeed{};
 };
 
 } // namespace eicrecon
