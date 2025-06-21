@@ -56,11 +56,11 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
 
     // one TGraph per pulse
     // Interpolate the pulse with TGraph
-    auto& graph = Graph4Cells[cellID];
+    auto& graph        = Graph4Cells[cellID];
     auto& activeCycles = ActiveCycles4Cells[cellID];
     for (unsigned int i = 0; i < pulse.getAmplitude().size(); i++) {
       auto currTime = time + i * interval;
-      // current EICROC cycle 
+      // current EICROC cycle
       int EICROCCycle = std::floor(currTime / m_cfg.EICROC_period);
       activeCycles.insert(EICROCCycle);
       graph.SetPoint(graph.GetN(), currTime + m_cfg.global_offset, pulse.getAmplitude()[i]);
@@ -68,30 +68,29 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
   }
 
   // sort all pulses data points to avoid TGraph::Eval giving nan due to non-monotonic data
-  for (auto& [cellID, graph] : Graph4Cells) 
+  for (auto& [cellID, graph] : Graph4Cells)
     graph.Sort();
 
   // sum all digitized pulses
   for (const auto& [cellID, graph] : Graph4Cells) {
     const auto& activeCycle = ActiveCycles4Cells[cellID];
-    double tMin = NAN;
-    double tMax = NAN;
-    double temp = NAN; // do not use
+    double tMin             = NAN;
+    double tMax             = NAN;
+    double temp             = NAN; // do not use
     graph.ComputeRange(tMin, temp, tMax, temp);
 
     for (int curriEICRocCycle : activeCycle) {
       // time beings at an EICROC cycle
       double startTime = curriEICRocCycle * m_cfg.EICROC_period;
 
-      auto outPulse     = outPulses->create();
+      auto outPulse = outPulses->create();
       outPulse.setCellID(cellID);
       outPulse.setInterval(m_cfg.local_period);
       outPulse.setTime(startTime);
 
       // stop at the next cycle
-      for (double currTime = startTime; 
-           currTime < startTime + m_cfg.EICROC_period; 
-	   currTime += m_cfg.local_period) 
+      for (double currTime = startTime; currTime < startTime + m_cfg.EICROC_period;
+           currTime += m_cfg.local_period)
         outPulse.addToAdcCounts(this->_interpolateOrZero(graph, currTime, tMin, tMax));
     }
   }
