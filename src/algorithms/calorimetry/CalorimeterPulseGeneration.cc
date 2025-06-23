@@ -88,8 +88,8 @@ void CalorimeterPulseGeneration::process(const CalorimeterPulseGeneration::Input
         std::round((earliest_time - latest_time) / m_cfg.timestep) + m_cfg.max_time_bin;
     std::vector<double> amplitudes(max_time_index, 0.);
 
-    int min_time_index_store   = std::numeric_limits<int>::max();
-    int max_time_index_store   = 0.;
+    int min_time_index_store = std::numeric_limits<int>::max();
+    int max_time_index_store = 0.;
 
     // build pulses for each contribution and combine them
     for (const auto& contrib : sh.getContributions()) {
