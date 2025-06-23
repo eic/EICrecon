@@ -5,6 +5,7 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JGlobalRootLock.h>
@@ -25,12 +26,6 @@
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
-
-//------------------
-// OccupancyAnalysis (Constructor)
-//------------------
-TrackPropagationTest_processor::TrackPropagationTest_processor(JApplication* app)
-    : JEventProcessor(app) {}
 
 //------------------
 // Init

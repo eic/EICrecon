@@ -10,6 +10,6 @@
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
-  app->Add(new TrackingOccupancy_processor(app));
+  app->Add(new TrackingOccupancy_processor());
 }
 }
