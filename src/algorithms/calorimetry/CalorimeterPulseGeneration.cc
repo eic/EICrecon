@@ -90,7 +90,6 @@ void CalorimeterPulseGeneration::process(const CalorimeterPulseGeneration::Input
 
     int min_time_index_store   = std::numeric_limits<int>::max();
     int max_time_index_store   = 0.;
-    double combined_pulse_time = std::numeric_limits<double>::max();
 
     // build pulses for each contribution and combine them
     for (const auto& contrib : sh.getContributions()) {
