@@ -40,8 +40,8 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 
 std::tuple<std::unique_ptr<edm4eic::VertexCollection>, std::unique_ptr<edm4eic::VertexCollection>>
 eicrecon::SecondaryVertexFinder::produce(
-      const edm4eic::ReconstructedParticleCollection* recotracks,
-      std::vector<const ActsExamples::Trajectories*> trajectories) {
+    const edm4eic::ReconstructedParticleCollection* recotracks,
+    std::vector<const ActsExamples::Trajectories*> trajectories) {
   auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
   auto outputVertices  = std::make_unique<edm4eic::VertexCollection>();
 

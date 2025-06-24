@@ -43,20 +43,20 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
-  using SecondaryVertexFinderAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                      std::vector<const ActsExamples::Trajectories*>>,
-    algorithms::Output<edm4eic::VertexCollection,
-                       edm4eic::VertexCollection>>;
+using SecondaryVertexFinderAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
+                                            std::vector<const ActsExamples::Trajectories*>>,
+                          algorithms::Output<edm4eic::VertexCollection, edm4eic::VertexCollection>>;
 
-class SecondaryVertexFinder
-    : public SecondaryVertexFinderAlgorithm, public WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
+class SecondaryVertexFinder : public SecondaryVertexFinderAlgorithm,
+                              public WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
 public:
-  SecondaryVertexFinder(std::string_view name) : SecondaryVertexFinderAlgorithm{
-                              name,
-                              {"inputReconstructedParticle", "inputTrajectories"},
-                              {"outputVertexPrimaryCollection", "outputSecondaryVertexCollection"},
-                              "Output Adaptive Multivertex Vertices Primary and Secondary"}{};
+  SecondaryVertexFinder(std::string_view name)
+      : SecondaryVertexFinderAlgorithm{
+            name,
+            {"inputReconstructedParticle", "inputTrajectories"},
+            {"outputVertexPrimaryCollection", "outputSecondaryVertexCollection"},
+            "Output Adaptive Multivertex Vertices Primary and Secondary"} {};
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
 
@@ -66,17 +66,17 @@ public:
 
   // Calculate an initial Primary Vertex
   std::unique_ptr<edm4eic::VertexCollection>
-    calculatePrimaryVertex(const edm4eic::ReconstructedParticleCollection*,
-                           std::vector<const ActsExamples::Trajectories*> trajectories,
-                           Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
-                           Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
+  calculatePrimaryVertex(const edm4eic::ReconstructedParticleCollection*,
+                         std::vector<const ActsExamples::Trajectories*> trajectories,
+                         Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
+                         Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
 
   //Calculate secondary vertex and store secVertex container
   std::unique_ptr<edm4eic::VertexCollection>
-    calculateSecondaryVertex(const edm4eic::ReconstructedParticleCollection*,
-                             std::vector<const ActsExamples::Trajectories*> trajectories,
-                             Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
-                             Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
+  calculateSecondaryVertex(const edm4eic::ReconstructedParticleCollection*,
+                           std::vector<const ActsExamples::Trajectories*> trajectories,
+                           Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
+                           Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
 
   // Functions to be used to check efficacy of sec. vertex
   std::unique_ptr<edm4eic::VertexCollection>
