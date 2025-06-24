@@ -158,7 +158,7 @@ void InitPlugin(JApplication* app) {
       {
         "HcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8
-            "HcalEndcapNTrackSplitMergeClusterMatches"
+            "HcalEndcapNTrackSplitMergeProtoClusterMatches"
       },
 #endif
       {.idCalo                       = "HcalEndcapN_ID",

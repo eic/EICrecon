@@ -324,7 +324,7 @@ void InitPlugin(JApplication* app) {
       {
         "LFHCALSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8
-            "LFHCALTrackSplitMergeClusterMatches"
+            "LFHCALTrackSplitMergeProtoClusterMatches"
       },
 #endif
       {.idCalo                       = "LFHCAL_ID",

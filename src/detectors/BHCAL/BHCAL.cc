@@ -176,7 +176,7 @@ void InitPlugin(JApplication* app) {
       {
         "HcalBarrelSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8
-            "HcalBarrelTrackSplitMergeClusterMatches"
+            "HcalBarrelTrackSplitMergeProtoClusterMatches"
       },
 #endif
       {.idCalo                       = "HcalBarrel_ID",

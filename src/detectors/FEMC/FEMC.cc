@@ -153,7 +153,7 @@ void InitPlugin(JApplication* app) {
       {
         "EcalEndcapPSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8
-            "EcalEndcapPTrackSplitMergeClusterMatches"
+            "EcalEndcapPTrackSplitMergeProtoClusterMatches"
       },
 #endif
       {.idCalo                       = "EcalEndcapP_ID",

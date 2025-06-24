@@ -11,7 +11,7 @@
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #if EDM4EIC_VERSION_MAJOR >= 8
-#include <edm4eic/TrackClusterMatchCollection.h>
+#include <edm4eic/TrackProtoClusterLinkCollection.h>
 #endif
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
@@ -77,7 +77,7 @@ using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Output<
         edm4eic::ProtoClusterCollection,
 #if EDM4EIC_VERSION_MAJOR >= 8
-        edm4eic::TrackClusterMatchCollection // FIXME this should be a protocluster-track match
+        edm4eic::TrackProtoClusterLinkCollection
 #endif
         >>;
 
@@ -98,7 +98,7 @@ public:
   TrackClusterMergeSplitter(std::string_view name) : TrackClusterMergeSplitterAlgorithm {
     name, {"InputClusterCollection", "InputTrackProjections"},
 #if EDM4EIC_VERSION_MAJOR >= 8
-        {"OutputProtoClusterCollection", "OutputTrackClusterMatches"},
+        {"OutputProtoClusterCollection", "OutputTrackProtoClusterMatches"},
 #else
         {"OutputProtoClusterCollection"},
 #endif
