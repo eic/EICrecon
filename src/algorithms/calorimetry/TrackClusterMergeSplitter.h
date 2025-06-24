@@ -90,8 +90,8 @@ using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
  *
  *  Heavily inspired by Eur. Phys. J. C (2017) 77:466
  */
-class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm
-                                , public WithPodConfig<TrackClusterMergeSplitterConfig> {
+class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm,
+                                  public WithPodConfig<TrackClusterMergeSplitterConfig> {
 
 public:
   // ctor
