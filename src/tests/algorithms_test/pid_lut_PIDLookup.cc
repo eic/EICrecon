@@ -3,6 +3,7 @@
 
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
+#include <cmath>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -11,9 +12,8 @@
 #include <edm4hep/Vector2i.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <math.h>
-#include <spdlog/common.h>
 #include <memory>
+#include <spdlog/common.h>
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
@@ -26,7 +26,7 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
 
   PIDLookupConfig cfg{
       .filename                    = "/dev/null",
-      .system                      = 0xFF,
+      .system                      = "MockTracker_ID",
       .pdg_values                  = {11},
       .charge_values               = {1},
       .momentum_edges              = {0., 1., 2.},

@@ -3,10 +3,10 @@
 //
 //
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <math.h>
+#include <JANA/JApplicationFwd.h>
+#include <cmath>
+#include <edm4eic/EDM4eicVersion.h>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
@@ -84,15 +84,22 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalEndcapNIslandProtoClusters", {"EcalEndcapNRecHits"}, {"EcalEndcapNIslandProtoClusters"},
       {
-          .adjacencyMatrix               = "(abs(row_1 - row_2) + abs(column_1 - column_2)) == 1",
-          .peakNeighbourhoodMatrix       = "max(abs(row_1 - row_2), abs(column_1 - column_2)) == 1",
-          .readout                       = "EcalEndcapNHits",
-          .sectorDist                    = 5.0 * dd4hep::cm,
+          .adjacencyMatrix         = "(abs(row_1 - row_2) + abs(column_1 - column_2)) == 1",
+          .peakNeighbourhoodMatrix = "max(abs(row_1 - row_2), abs(column_1 - column_2)) == 1",
+          .readout                 = "EcalEndcapNHits",
+          .sectorDist              = 5.0 * dd4hep::cm,
+          .localDistXY{},
+          .localDistXZ{},
+          .localDistYZ{},
+          .globalDistRPhi{},
+          .globalDistEtaPhi{},
+          .dimScaledLocalDistXY{},
           .splitCluster                  = true,
           .minClusterHitEdep             = 1.0 * dd4hep::MeV,
           .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
           .transverseEnergyProfileMetric = "globalDistEtaPhi",
           .transverseEnergyProfileScale  = 0.08,
+          .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
       ));

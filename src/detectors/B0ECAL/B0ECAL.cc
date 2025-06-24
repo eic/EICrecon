@@ -3,10 +3,10 @@
 //
 //
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <math.h>
+#include <JANA/JApplicationFwd.h>
+#include <cmath>
+#include <edm4eic/EDM4eicVersion.h>
 #include <string>
 
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
@@ -67,13 +67,22 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "B0ECalIslandProtoClusters", {"B0ECalRecHits"}, {"B0ECalIslandProtoClusters"},
       {
-          .sectorDist                    = 5.0 * dd4hep::cm,
+          .adjacencyMatrix{},
+          .peakNeighbourhoodMatrix{},
+          .readout{},
+          .sectorDist = 5.0 * dd4hep::cm,
+          .localDistXY{},
+          .localDistXZ{},
+          .localDistYZ{},
+          .globalDistRPhi{},
+          .globalDistEtaPhi{},
           .dimScaledLocalDistXY          = {1.8, 1.8},
           .splitCluster                  = false,
           .minClusterHitEdep             = 1.0 * dd4hep::MeV,
           .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
           .transverseEnergyProfileMetric = "globalDistEtaPhi",
           .transverseEnergyProfileScale  = 1.,
+          .transverseEnergyProfileScaleUnits{},
       },
       app));
 

@@ -9,6 +9,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+#include <cstddef>
 #include <cstdint>
 #include <exception>
 #include <gsl/pointers>
@@ -59,7 +60,7 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
   //Set beam energy from first MCBeamElectron, using std::call_once
   std::call_once(m_initBeamE, [&]() {
     // Check if beam electrons are present
-    if (beamElectrons->size() == 0) {
+    if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.CallAndMessage)
       if (m_cfg.requireBeamElectron) {
         critical("No beam electrons found");
         throw std::runtime_error("No beam electrons found");
@@ -75,7 +76,7 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
   std::int32_t type = 0; // Check?
   float charge      = -1;
 
-  for (int i = 0; i < inputProjectedTracks->size(); i++) {
+  for (std::size_t i = 0; i < inputProjectedTracks->size(); i++) {
     // Get the track parameters
     auto track = (*inputProjectedTracks)[i];
 

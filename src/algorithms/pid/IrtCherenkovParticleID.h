@@ -11,18 +11,17 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <spdlog/logger.h>
 #include <stdint.h>
 #include <map>
-#include <memory>
+#include <mutex>
 #include <string>
 #include <string_view>
 #include <unordered_map>
 
 // EICrecon
-#include "IrtCherenkovParticleIDConfig.h"
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 
 namespace eicrecon {
 
@@ -51,12 +50,15 @@ public:
                                         {"outputAerogelParticleIDs", "outputGasParticleIDs"},
                                         "Effectively 'zip' the input particle IDs"} {}
 
-  void init(CherenkovDetectorCollection* irt_det_coll, std::shared_ptr<spdlog::logger>& logger);
+  // FIXME: init() must not take arguments
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Woverloaded-virtual"
+  void init(CherenkovDetectorCollection* irt_det_coll);
+#pragma GCC diagnostic pop
 
   void process(const Input&, const Output&) const;
 
 private:
-  std::shared_ptr<spdlog::logger> m_log;
   CherenkovDetectorCollection* m_irt_det_coll;
   CherenkovDetector* m_irt_det;
 
@@ -65,6 +67,9 @@ private:
   uint64_t m_cell_mask;
   std::string m_det_name;
   std::unordered_map<int, double> m_pdg_mass;
+
+  inline static std::mutex m_pid_radiators_mutex;
   std::map<std::string, CherenkovRadiator*> m_pid_radiators;
 };
+
 } // namespace eicrecon

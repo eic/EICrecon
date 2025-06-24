@@ -4,6 +4,7 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <Math/GenVector/Cartesian3D.h>
@@ -14,9 +15,9 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <math.h>
 #include <spdlog/logger.h>
 #include <Eigen/Core>
+#include <cmath>
 #include <cstddef>
 #include <iterator>
 #include <map>
@@ -26,12 +27,6 @@
 
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
-
-//--------------------------------
-// OccupancyAnalysis (Constructor)
-//--------------------------------
-TrackingEfficiency_processor::TrackingEfficiency_processor(JApplication* app)
-    : JEventProcessor(app) {}
 
 //------------------
 // Init
@@ -74,7 +69,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
                "[P*3]");
 
   for (std::size_t i = 0; i < reco_particles.size(); i++) {
-    auto& particle = *(reco_particles[i]);
+    const auto& particle = *(reco_particles[i]);
 
     double px = particle.getMomentum().x;
     double py = particle.getMomentum().y;
@@ -134,16 +129,18 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
     const auto* particle = mc_particles[i];
 
     // GeneratorStatus() == 1 - stable particles from MC generator. 0 - might be added by Geant4
-    if (particle->getGeneratorStatus() != 1)
+    if (particle->getGeneratorStatus() != 1) {
       continue;
+    }
 
     double px = particle->getMomentum().x;
     double py = particle->getMomentum().y;
     double pz = particle->getMomentum().z;
     ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
     ROOT::Math::Cartesian3D p(px, py, pz);
-    if (p.R() < 1)
+    if (p.R() < 1) {
       continue;
+    }
 
     m_log->debug("   {:<5} {:<6} {:<7} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i,
                  particle->getGeneratorStatus(), particle->getPDG(), px, py, pz, p.R());

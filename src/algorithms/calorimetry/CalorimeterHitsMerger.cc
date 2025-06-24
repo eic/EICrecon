@@ -58,8 +58,14 @@ void CalorimeterHitsMerger::init() {
   }
 
   // initialize descriptor + decoders
+  // First, try and get the IDDescriptor. This will throw an exception if it fails.
   try {
-    id_desc    = m_detector->readout(m_cfg.readout).idSpec();
+    id_desc = m_detector->readout(m_cfg.readout).idSpec();
+  } catch (...) {
+    warning("Failed to get idSpec for {}", m_cfg.readout);
+    return;
+  }
+  try {
     id_decoder = id_desc.decoder();
     for (const std::string& field : fields) {
       const short index [[maybe_unused]] = id_decoder->index(field);
@@ -67,7 +73,7 @@ void CalorimeterHitsMerger::init() {
   } catch (...) {
     auto mess = fmt::format("Failed to load ID decoder for {}", m_cfg.readout);
     warning(mess);
-    //        throw std::runtime_error(mess);
+    return;
   }
 
   // lambda to translate IDDescriptor fields into function parameters
@@ -150,9 +156,15 @@ void CalorimeterHitsMerger::process(const CalorimeterHitsMerger::Input& input,
     const decltype(edm4eic::CalorimeterHitData::local) local(
         pos.x() / dd4hep::mm, pos.y() / dd4hep::mm, pos.z() / dd4hep::mm);
 
-    out_hits->create(href.getCellID(), energy, energyError, time, timeError, position,
-                     href.getDimension(), href.getSector(), href.getLayer(),
-                     local); // Can do better here? Right now position is mapped on the central hit
+    auto out_hit = out_hits->create(
+        href.getCellID(), energy, energyError, time, timeError, position, href.getDimension(),
+        href.getSector(), href.getLayer(),
+        local); // Can do better here? Right now position is mapped on the central hit
+
+    // FIXME likely can do better, but for now
+    // set related raw hit relation to be raw hit
+    // of reference
+    out_hit.setRawHit(href.getRawHit());
   }
 
   debug("Size before = {}, after = {}", in_hits->size(), out_hits->size());
@@ -169,11 +181,11 @@ void CalorimeterHitsMerger::build_merge_map(const edm4eic::CalorimeterHitCollect
 
       // apply mapping to field if provided,
       // otherwise copy value of field
-      if (ref_maps.count(name_field.first) > 0) {
-        ref_fields.push_back({name_field.first, ref_maps[name_field.first](hit)});
+      if (ref_maps.contains(name_field.first)) {
+        ref_fields.emplace_back(name_field.first, ref_maps[name_field.first](hit));
       } else {
-        ref_fields.push_back(
-            {name_field.first, id_decoder->get(hit.getCellID(), name_field.first)});
+        ref_fields.emplace_back(name_field.first,
+                                id_decoder->get(hit.getCellID(), name_field.first));
       }
     }
 

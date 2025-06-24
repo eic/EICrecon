@@ -1,32 +1,26 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Friederike Bock, Wouter Deconinck
+// Copyright (C) 2023 - 2025 Friederike Bock, Wouter Deconinck
 
-#include <DD4hep/Detector.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <TString.h>
-#include <math.h>
-#include <algorithm>
-#include <gsl/pointers>
-#include <memory>
-#include <stdexcept>
+#include <edm4eic/EDM4eicVersion.h>
 #include <string>
+#include <variant>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -103,22 +97,19 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
 
-  // define the distance between neighbors in terms of the largest possible distance between subcell hits
-  auto detector = app->GetService<DD4hep_service>()->detector();
-  double side_length;
-  try {
-    side_length = std::max({detector->constant<double>("HcalEndcapPInsertCellSizeLGRight"),
-                            detector->constant<double>("HcalEndcapPInsertCellSizeLGLeft")});
-  } catch (std::runtime_error&) {
-    side_length = 31. * dd4hep::mm;
-  }
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
       "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"},
       {"HcalEndcapPInsertImagingProtoClusters"},
       {
           .neighbourLayersRange = 1,
-          .localDistXY          = {0.5 * side_length, 0.5 * side_length * sin(M_PI / 3)},
-          .layerDistXY          = {0.25 * side_length, 0.25 * side_length * sin(M_PI / 3)},
+          .localDistXY =
+              {"0.5 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
+               "0.5 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
+               "sin(pi / 3)"},
+          .layerDistXY =
+              {"0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
+               "0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
+               "sin(pi / 3)"},
           .layerMode            = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .sectorDist           = 10.0 * dd4hep::cm,
           .minClusterHitEdep    = 5.0 * dd4hep::keV,
@@ -258,14 +249,22 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "LFHCALIslandProtoClusters", {"LFHCALRecHits"}, {"LFHCALIslandProtoClusters"},
       {
-          .adjacencyMatrix               = Form("%s||%s", neighbor.data(), corner2D.data()),
-          .readout                       = "LFHCALHits",
-          .sectorDist                    = 0 * dd4hep::cm,
+          .adjacencyMatrix = Form("%s||%s", neighbor.data(), corner2D.data()),
+          .peakNeighbourhoodMatrix{},
+          .readout    = "LFHCALHits",
+          .sectorDist = 0 * dd4hep::cm,
+          .localDistXY{},
+          .localDistXZ{},
+          .localDistYZ{},
+          .globalDistRPhi{},
+          .globalDistEtaPhi{},
+          .dimScaledLocalDistXY{},
           .splitCluster                  = false,
           .minClusterHitEdep             = 1 * dd4hep::MeV,
           .minClusterCenterEdep          = 100.0 * dd4hep::MeV,
           .transverseEnergyProfileMetric = "globalDistEtaPhi",
           .transverseEnergyProfileScale  = 1.,
+          .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
       ));

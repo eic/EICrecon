@@ -3,7 +3,7 @@
 //
 //
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 
 #include "GeometryNavigationSteps_processor.h"
 
@@ -14,6 +14,6 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   // Adds our processor to JANA2 to execute
-  app->Add(new GeometryNavigationSteps_processor(app));
+  app->Add(new GeometryNavigationSteps_processor());
 }
 }

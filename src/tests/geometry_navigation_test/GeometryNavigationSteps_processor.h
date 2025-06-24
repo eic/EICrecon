@@ -2,7 +2,6 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <TDirectory.h>
@@ -16,9 +15,6 @@ class GeometryNavigationSteps_processor
       public eicrecon::SpdlogMixin // this automates proper log initialization
 {
 public:
-  explicit GeometryNavigationSteps_processor(JApplication*);
-  ~GeometryNavigationSteps_processor() override = default;
-
   //----------------------------
   // Init
   //

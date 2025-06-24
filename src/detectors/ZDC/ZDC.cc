@@ -3,20 +3,20 @@
 //
 //
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <math.h>
+#include <JANA/JApplicationFwd.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <string>
+#include <variant>
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/HEXPLIT_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 
@@ -36,6 +36,7 @@ void InitPlugin(JApplication* app) {
       {"EcalFarForwardZDCRawHits"},
 #endif
       {
+          .eRes{},
           .tRes          = 0.0 * dd4hep::ns,
           .capADC        = 32768,
           .dyRangeADC    = 2000 * dd4hep::MeV,
@@ -71,13 +72,22 @@ void InitPlugin(JApplication* app) {
       "EcalFarForwardZDCIslandProtoClusters", {"EcalFarForwardZDCRecHits"},
       {"EcalFarForwardZDCIslandProtoClusters"},
       {
-          .sectorDist                    = 5.0 * dd4hep::cm,
-          .localDistXY                   = {50 * dd4hep::cm, 50 * dd4hep::cm},
+          .adjacencyMatrix{},
+          .peakNeighbourhoodMatrix{},
+          .readout{},
+          .sectorDist  = 5.0 * dd4hep::cm,
+          .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
+          .localDistXZ{},
+          .localDistYZ{},
+          .globalDistRPhi{},
+          .globalDistEtaPhi{},
+          .dimScaledLocalDistXY{},
           .splitCluster                  = true,
           .minClusterHitEdep             = 0.1 * dd4hep::MeV,
           .minClusterCenterEdep          = 3.0 * dd4hep::MeV,
           .transverseEnergyProfileMetric = "globalDistEtaPhi",
           .transverseEnergyProfileScale  = 1.,
+          .transverseEnergyProfileScaleUnits{},
       },
       app // TODO: Remove me once fixed
       ));
@@ -143,6 +153,7 @@ void InitPlugin(JApplication* app) {
       {"HcalFarForwardZDCRawHits"},
 #endif
       {
+          .eRes{},
           .tRes          = 0.0 * dd4hep::ns,
           .capADC        = 65536,
           .dyRangeADC    = 1000. * dd4hep::MeV,
@@ -185,14 +196,15 @@ void InitPlugin(JApplication* app) {
                                                        app // TODO: Remove me once fixed
                                                        ));
 
-  double side_length = 31.3 * dd4hep::mm;
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
       "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"},
       {"HcalFarForwardZDCImagingProtoClusters"},
       {
           .neighbourLayersRange = 1,
-          .localDistXY          = {0.5 * side_length, 0.5 * side_length * sin(M_PI / 3)},
-          .layerDistXY          = {0.5 * side_length, 0.5 * side_length * sin(M_PI / 3)},
+          .localDistXY          = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
+                                   "0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
+          .layerDistXY          = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
+                                   "0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
           .layerMode            = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .sectorDist           = 10.0 * dd4hep::cm,
           .minClusterHitEdep    = 50.0 * dd4hep::keV,
@@ -206,15 +218,23 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "HcalFarForwardZDCIslandProtoClusters", {"HcalFarForwardZDCSubcellHits"},
       {"HcalFarForwardZDCIslandProtoClusters"},
-      {
-          .sectorDist           = 1.5 * dd4hep::cm,
-          .localDistXY          = {0.9 * side_length, 0.76 * side_length * sin(M_PI / 3)},
-          .splitCluster         = false,
-          .minClusterHitEdep    = 100.0 * dd4hep::keV,
-          .minClusterCenterEdep = 1.0 * dd4hep::MeV,
-          // .transverseEnergyProfileMetric = "globalDistEtaPhi",
-          // .transverseEnergyProfileScale = 1.,
-      },
+      {.adjacencyMatrix{},
+       .peakNeighbourhoodMatrix{},
+       .readout{},
+       .sectorDist  = 1.5 * dd4hep::cm,
+       .localDistXY = {"0.9 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
+                       "0.76 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
+       .localDistXZ{},
+       .localDistYZ{},
+       .globalDistRPhi{},
+       .globalDistEtaPhi{},
+       .dimScaledLocalDistXY{},
+       .splitCluster         = false,
+       .minClusterHitEdep    = 100.0 * dd4hep::keV,
+       .minClusterCenterEdep = 1.0 * dd4hep::MeV,
+       .transverseEnergyProfileMetric{}, // = "globalDistEtaPhi",
+       .transverseEnergyProfileScale{},  // = 1.,
+       .transverseEnergyProfileScaleUnits{}},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
@@ -259,15 +279,22 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "HcalFarForwardZDCIslandProtoClustersBaseline", {"HcalFarForwardZDCRecHits"},
       {"HcalFarForwardZDCIslandProtoClustersBaseline"},
-      {
-          .sectorDist                    = 5.0 * dd4hep::cm,
-          .localDistXY                   = {50 * dd4hep::cm, 50 * dd4hep::cm},
-          .splitCluster                  = true,
-          .minClusterHitEdep             = 0.1 * dd4hep::MeV,
-          .minClusterCenterEdep          = 3.0 * dd4hep::MeV,
-          .transverseEnergyProfileMetric = "globalDistEtaPhi",
-          .transverseEnergyProfileScale  = 1.,
-      },
+      {.adjacencyMatrix{},
+       .peakNeighbourhoodMatrix{},
+       .readout{},
+       .sectorDist  = 5.0 * dd4hep::cm,
+       .localDistXY = {50 * dd4hep::cm, 50 * dd4hep::cm},
+       .localDistXZ{},
+       .localDistYZ{},
+       .globalDistRPhi{},
+       .globalDistEtaPhi{},
+       .dimScaledLocalDistXY{},
+       .splitCluster                  = true,
+       .minClusterHitEdep             = 0.1 * dd4hep::MeV,
+       .minClusterCenterEdep          = 3.0 * dd4hep::MeV,
+       .transverseEnergyProfileMetric = "globalDistEtaPhi",
+       .transverseEnergyProfileScale  = 1.,
+       .transverseEnergyProfileScaleUnits{}},
       app // TODO: Remove me once fixed
       ));
 

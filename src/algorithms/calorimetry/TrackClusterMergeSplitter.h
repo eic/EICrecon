@@ -38,8 +38,8 @@ namespace eicrecon {
 //! Comparator struct for object IDs
 // --------------------------------------------------------------------------
 /*! Organizes objects by their ObjectID's in decreasing collection
-   *  ID first, and second by decreasing index second.
-   */
+ *  ID first, and second by decreasing index second.
+ */
 template <typename T> struct CompareObjectID {
 
   bool operator()(const T& lhs, const T& rhs) const {
@@ -85,13 +85,13 @@ using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
 //! Track-Based Cluster Merger/Splitter
 // --------------------------------------------------------------------------
 /*! An algorithm which takes a collection of clusters, matches
-   *  track projections, and then decides to merge or split those
-   *  clusters based on average E/p from simulations.
-   *
-   *  Heavily inspired by Eur. Phys. J. C (2017) 77:466
-   */
-class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm,
-                                  public WithPodConfig<TrackClusterMergeSplitterConfig> {
+ *  track projections, and then decides to merge or split those
+ *  clusters based on average E/p from simulations.
+ *
+ *  Heavily inspired by Eur. Phys. J. C (2017) 77:466
+ */
+class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm
+                                , public WithPodConfig<TrackClusterMergeSplitterConfig> {
 
 public:
   // ctor
@@ -123,7 +123,7 @@ private:
                             std::optional<MapToWeight> split_weights = std::nullopt) const;
 
   // calorimeter id
-  int m_idCalo{0};
+  unsigned int m_idCalo{0};
 
 }; // end TrackClusterMergeSplitter
 

@@ -7,9 +7,10 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <math.h>
+#include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
+#include <stdexcept>
 #include <vector>
 
 #include "FarForwardLambdaReconstruction.h"
@@ -20,7 +21,16 @@ Creates Lambda candidates from a neutron and two photons from a pi0 decay
 
 namespace eicrecon {
 
-void FarForwardLambdaReconstruction::init() {}
+void FarForwardLambdaReconstruction::init() {
+
+  try {
+    m_zMax = m_detector->constant<double>(m_cfg.offsetPositionName);
+  } catch (std::runtime_error&) {
+    m_zMax = 35800; // default value
+    trace("Failed to get {} from the detector, using default value of {}", m_cfg.offsetPositionName,
+          m_zMax);
+  }
+}
 
 /* converts one type of vector format to another */
 void toTVector3(TVector3& v1, const edm4hep::Vector3f& v2) { v1.SetXYZ(v2.x, v2.y, v2.z); }
@@ -41,8 +51,9 @@ void FarForwardLambdaReconstruction::process(
     }
   }
 
-  if (neutrons.size() < 1 || gammas.size() < 2)
+  if (neutrons.empty() || gammas.size() < 2) {
     return;
+  }
 
   static const double m_neutron = m_particleSvc.particle(2112).mass;
   static const double m_pi0     = m_particleSvc.particle(111).mass;
@@ -70,13 +81,16 @@ void FarForwardLambdaReconstruction::process(
 
         debug("nx recon = {}, g1x recon = {}, g2x recon = {}", xn.X(), x1.X(), x2.X());
         debug("nz recon = {}, g1z recon = {}, g2z recon = {}, z face = {}", xn.Z(), x1.Z(), x2.Z(),
-              m_cfg.zMax);
+              m_zMax);
 
         TVector3 vtx(0, 0, 0);
         double f                   = 0;
         double df                  = 0.5;
         double theta_open_expected = 2 * asin(m_pi0 / (2 * sqrt(E1 * E2)));
-        TLorentzVector n, g1, g2, lambda;
+        TLorentzVector n;
+        TLorentzVector g1;
+        TLorentzVector g2;
+        TLorentzVector lambda;
         for (int i = 0; i < m_cfg.iterations; i++) {
           n                 = {pn * (xn - vtx).Unit(), En};
           g1                = {E1 * (x1 - vtx).Unit(), E1};
@@ -89,13 +103,14 @@ void FarForwardLambdaReconstruction::process(
             f += df;
           }
 
-          vtx = lambda.Vect() * (f * m_cfg.zMax / lambda.Z());
+          vtx = lambda.Vect() * (f * m_zMax / lambda.Z());
           df /= 2;
         }
 
         double mass_rec = lambda.M();
-        if (abs(mass_rec - m_lambda) > m_cfg.lambdaMaxMassDev)
+        if (std::abs(mass_rec - m_lambda) > m_cfg.lambdaMaxMassDev) {
           continue;
+        }
 
         // rotate everything back to the lab coordinates.
         vtx.RotateY(m_cfg.globalToProtonRotation);
@@ -160,7 +175,6 @@ void FarForwardLambdaReconstruction::process(
         gamma2_cm.setMass(0);
         rec_lambda.addToParticles(gammas[i_2]);
         gamma2_cm.addToParticles(gammas[i_2]);
-        continue;
       }
     }
   }

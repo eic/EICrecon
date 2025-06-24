@@ -26,6 +26,16 @@
 namespace eicrecon {
 
 void FarForwardNeutralsReconstruction::init() {
+
+  try {
+    m_gammaZMax =
+        m_cfg.gammaZMaxOffset + m_detector->constant<double>(m_cfg.offsetPositionName) / dd4hep::mm;
+  } catch (std::runtime_error&) {
+    m_gammaZMax = m_cfg.gammaZMaxOffset + 35800;
+    trace("Failed to get {} from the detector, using default value of {}", m_cfg.offsetPositionName,
+          m_gammaZMax);
+  }
+
   if (m_cfg.neutronScaleCorrCoeffHcal.size() < 3) {
     error("Invalid configuration.  m_cfg.neutronScaleCorrCoeffHcal should have at least 3 "
           "parameters");
@@ -39,11 +49,10 @@ void FarForwardNeutralsReconstruction::init() {
                              "have at least 3 parameters");
   }
   trace("gamma detection params:   max length={},   max width={},   max z={}", m_cfg.gammaMaxLength,
-        m_cfg.gammaMaxWidth, m_cfg.gammaZMax);
+        m_cfg.gammaMaxWidth, m_gammaZMax);
 }
 /** calculates the correction for a given uncorrected total energy and a set of coefficients*/
-double FarForwardNeutralsReconstruction::calc_corr(double Etot,
-                                                   const std::vector<double>& coeffs) const {
+double FarForwardNeutralsReconstruction::calc_corr(double Etot, const std::vector<double>& coeffs) {
   return coeffs[0] + coeffs[1] / sqrt(Etot) + coeffs[2] / Etot;
 }
 
@@ -63,11 +72,13 @@ bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) 
              dd4hep::mm;
   trace("z recon = {}", z);
   trace("l1 = {}, l2 = {}, l3 = {}", l1, l2, l3);
-  bool isZMoreThanMax = (z > m_cfg.gammaZMax);
+  bool isZMoreThanMax = (z > m_gammaZMax);
   bool isLengthMoreThanMax =
       (l1 > m_cfg.gammaMaxLength || l2 > m_cfg.gammaMaxLength || l3 > m_cfg.gammaMaxLength);
-  bool areWidthsMoreThanMax =
-      (l1 > m_cfg.gammaMaxWidth) + (l2 > m_cfg.gammaMaxWidth) + (l3 > m_cfg.gammaMaxWidth) >= 2;
+  bool areWidthsMoreThanMax = static_cast<int>(l1 > m_cfg.gammaMaxWidth) +
+                                  static_cast<int>(l2 > m_cfg.gammaMaxWidth) +
+                                  static_cast<int>(l3 > m_cfg.gammaMaxWidth) >=
+                              2;
   return !(isZMoreThanMax || isLengthMoreThanMax || areWidthsMoreThanMax);
 }
 
@@ -110,7 +121,7 @@ void FarForwardNeutralsReconstruction::process(
 
   double Etot                   = Etot_hcal;
   static const double m_neutron = m_particleSvc.particle(2112).mass;
-  int n_neutrons;
+  int n_neutrons                = 0;
   if (Etot > 0 && Emax > 0) {
     auto rec_part = out_neutrals->create();
     double corr   = calc_corr(Etot, m_cfg.neutronScaleCorrCoeffHcal);

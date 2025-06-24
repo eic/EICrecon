@@ -1,6 +1,7 @@
 #include "DumpFlags_processor.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
@@ -8,19 +9,14 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
-#include <string.h>
 #include <cstddef>
+#include <cstring>
 #include <exception>
 #include <fstream>
 #include <map>
 #include <regex>
 
 using namespace fmt;
-
-//------------------
-// DefaultFlags_processor (Constructor)
-//------------------
-DumpFlags_processor::DumpFlags_processor(JApplication* app) : JEventProcessor(app) {}
 
 //------------------
 // Init
@@ -98,8 +94,9 @@ void DumpFlags_processor::Finish() {
                     json_escape(param->GetDefault()), json_escape(param->GetDescription()));
 
     // Print on screen
-    if (m_print_to_screen)
+    if (m_print_to_screen) {
       fmt::print("    {:{}} : {}\n", param->GetKey(), max_name_len + 3, param->GetValue());
+    }
   }
 
   // Finalizing
@@ -112,7 +109,7 @@ void DumpFlags_processor::Finish() {
       std::ofstream ofs(m_python_file_name);
       ofs << python_content;
       m_log->info("Created python file with flags: '{}'", m_python_file_name);
-    } catch (std::exception ex) {
+    } catch (std::exception& ex) {
       m_log->error("Can't open file '{}' for write", m_python_file_name); // TODO personal logger
       throw JException(ex.what());
     }
@@ -126,7 +123,7 @@ void DumpFlags_processor::Finish() {
       m_log->info("Created json file with flags: '{}'", m_json_file_name);
       m_log->info("Json records format is: [name, value, default-value, comment]",
                   m_json_file_name);
-    } catch (std::exception ex) {
+    } catch (std::exception& ex) {
       m_log->error("Can't open file '{}' for write", m_json_file_name); // TODO personal logger
       throw JException(ex.what());
     }
@@ -136,7 +133,7 @@ void DumpFlags_processor::Finish() {
   if (!m_janaconfig_file_name.empty()) {
     try {
       pm->WriteConfigFile(m_janaconfig_file_name);
-    } catch (std::exception ex) {
+    } catch (std::exception& ex) {
       m_log->error("Can't open file '{}' for write",
                    m_janaconfig_file_name); // TODO personal logger
       throw JException(ex.what());

@@ -15,7 +15,7 @@
 #include <JANA/JEvent.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
-#if SPDLOG_VERSION >= 11400
+#if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
 #include <spdlog/mdc.h>
 #endif
 
@@ -42,7 +42,7 @@ public:
     virtual void GetCollection(const JEvent& event) = 0;
   };
 
-  template <typename T> class Input : public InputBase {
+  template <typename T, bool IsOptional = false> class Input : public InputBase {
 
     std::vector<const T*> m_data;
 
@@ -58,10 +58,19 @@ public:
   private:
     friend class JOmniFactory;
 
-    void GetCollection(const JEvent& event) { m_data = event.Get<T>(this->collection_names[0]); }
+    void GetCollection(const JEvent& event) {
+      try {
+        m_data = event.Get<T>(this->collection_names[0], !IsOptional);
+      } catch (const JException& e) {
+        if constexpr (!IsOptional) {
+          throw JException("JOmniFactory: Failed to get collection %s: %s",
+                           this->collection_names[0].c_str(), e.what());
+        }
+      }
+    }
   };
 
-  template <typename PodioT> class PodioInput : public InputBase {
+  template <typename PodioT, bool IsOptional = false> class PodioInput : public InputBase {
 
     const typename PodioTypeMap<PodioT>::collection_t* m_data;
 
@@ -78,11 +87,18 @@ public:
     friend class JOmniFactory;
 
     void GetCollection(const JEvent& event) {
-      m_data = event.GetCollection<PodioT>(this->collection_names[0]);
+      try {
+        m_data = event.GetCollection<PodioT>(this->collection_names[0], !IsOptional);
+      } catch (const JException& e) {
+        if constexpr (!IsOptional) {
+          throw JException("JOmniFactory: Failed to get collection %s: %s",
+                           this->collection_names[0].c_str(), e.what());
+        }
+      }
     }
   };
 
-  template <typename PodioT> class VariadicPodioInput : public InputBase {
+  template <typename PodioT, bool IsOptional = false> class VariadicPodioInput : public InputBase {
 
     std::vector<const typename PodioTypeMap<PodioT>::collection_t*> m_data;
 
@@ -104,7 +120,14 @@ public:
     void GetCollection(const JEvent& event) {
       m_data.clear();
       for (auto& coll_name : this->collection_names) {
-        m_data.push_back(event.GetCollection<PodioT>(coll_name));
+        try {
+          m_data.push_back(event.GetCollection<PodioT>(coll_name, !IsOptional));
+        } catch (const JException& e) {
+          if constexpr (!IsOptional) {
+            throw JException("JOmniFactory: Failed to get collection %s: %s", coll_name.c_str(),
+                             e.what());
+          }
+        }
       }
     }
   };
@@ -148,7 +171,7 @@ public:
       fac.SetData<T>(this->collection_names[0], this->m_data);
     }
 
-    void Reset() override {}
+    void Reset() override { m_data.clear(); }
   };
 
   template <typename PodioT> class PodioOutput : public OutputBase {
@@ -526,7 +549,7 @@ public:
       for (auto* output : m_outputs) {
         output->Reset();
       }
-#if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
+#if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
       spdlog::mdc::put("e", std::to_string(event->GetEventNumber()));
 #endif
       static_cast<AlgoT*>(this)->Process(event->GetRunNumber(), event->GetEventNumber());

@@ -36,7 +36,7 @@ void PulseCombiner::init() {
       auto id_spec       = detector->readout(m_cfg.readout).idSpec();
       m_detector_bitmask = 0;
 
-      for (auto& field : id_spec.fields()) {
+      for (const auto& field : id_spec.fields()) {
         // Get the field name
         std::string field_name = field.first;
         // Check if the field is the one we want to combine
@@ -87,7 +87,7 @@ void PulseCombiner::process(const PulseCombiner::Input& input,
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
         // Sum the pulse array
-        float integral = std::accumulate(newPulse.begin(), newPulse.end(), 0.0f);
+        float integral = std::accumulate(newPulse.begin(), newPulse.end(), 0.0F);
         sum_pulse.setIntegral(integral);
         sum_pulse.setPosition(edm4hep::Vector3f(
             cluster[0].getPosition().x, cluster[0].getPosition().y, cluster[0].getPosition().z));
@@ -149,7 +149,7 @@ PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
 
 } // PulseCombiner::clusterPulses
 
-std::vector<float> PulseCombiner::sumPulses(const std::vector<PulseType> pulses) const {
+std::vector<float> PulseCombiner::sumPulses(const std::vector<PulseType> pulses) {
 
   // Find maximum time of pulses in cluster
   float maxTime = 0;

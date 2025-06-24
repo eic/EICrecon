@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Tristan Protzman
 
+#include <cstdint>
 #include <edm4eic/EDM4eicVersion.h> // Needs edm4eic::TrackClusterMatch
 #include <fmt/core.h>
-#include <podio/RelationRange.h>
-#include <stdint.h>
 #include <gsl/pointers>
 #include <optional>
+#include <podio/RelationRange.h>
 #include <set>
 #include <vector>
 #if EDM4EIC_VERSION_MAJOR >= 8
@@ -40,7 +40,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
     double closest_distance = m_cfg.matching_distance;
     // Loop through each track segment, and its points
     for (int closest_id = 0; auto track : *tracks) {
-      if (used_tracks.count(closest_id) > 0) {
+      if (used_tracks.contains(closest_id)) {
         trace("Skipping track segment already used");
         continue;
       }
@@ -83,7 +83,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   trace("Matched {} particles", matched_particles->size());
 }
 
-double TrackClusterMatch::distance(const edm4hep::Vector3f& v1, const edm4hep::Vector3f& v2) const {
+double TrackClusterMatch::distance(const edm4hep::Vector3f& v1, const edm4hep::Vector3f& v2) {
   double cluster_eta = edm4hep::utils::eta(v1);
   double cluster_phi = edm4hep::utils::angleAzimuthal(v1);
   double track_eta   = edm4hep::utils::eta(v2);

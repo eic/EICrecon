@@ -60,7 +60,7 @@ PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
                                        const float crossing_angle = 0.0) {
   PxPyPzEVector p_out;
   for (const auto& pz : pz_set) {
-    if (fabs(p_in.z / pz - 1) < 0.1) {
+    if (std::abs(p_in.z / pz - 1) < 0.1) {
       p_out.SetPz(pz);
       break;
     }

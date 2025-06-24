@@ -15,15 +15,15 @@
 #include "PhotoMultiplierHitDigi.h"
 
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithm>
 #include <algorithms/logger.h>
+#include <cmath>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
-#include <math.h>
-#include <podio/ObjectID.h>
-#include <algorithm>
 #include <gsl/pointers>
 #include <iterator>
+#include <podio/ObjectID.h>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 
@@ -40,8 +40,9 @@ void PhotoMultiplierHitDigi::init() {
      * FIXME: remove this warning when this issue is resolved:
      *        https://github.com/eic/EICrecon/issues/539
      */
-  if (m_cfg.seed == 0)
+  if (m_cfg.seed == 0) {
     warning("using seed=0 may cause thread-unsafe behavior of TRandom (EICrecon issue 539)");
+  }
 
   // random number generators
   m_random.SetSeed(m_cfg.seed);
@@ -80,19 +81,22 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
     trace("hit: pixel id={:#018X}  edep = {} eV", id, edep_eV);
 
     // overall safety factor
-    if (m_rngUni() > m_cfg.safetyFactor)
+    if (m_rngUni() > m_cfg.safetyFactor) {
       continue;
+    }
 
     // quantum efficiency
-    if (m_cfg.enableQuantumEfficiency and !qe_pass(edep_eV, m_rngUni()))
+    if (m_cfg.enableQuantumEfficiency and !qe_pass(edep_eV, m_rngUni())) {
       continue;
+    }
 
     // pixel gap cuts
     if (m_cfg.enablePixelGaps) {
       auto pos = sim_hit.getPosition();
       if (!m_PixelGapMask(
-              id, dd4hep::Position(pos.x * dd4hep::mm, pos.y * dd4hep::mm, pos.z * dd4hep::mm)))
+              id, dd4hep::Position(pos.x * dd4hep::mm, pos.y * dd4hep::mm, pos.z * dd4hep::mm))) {
         continue;
+      }
     }
 
     // cell time, signal amplitude, truth photon
@@ -108,14 +112,16 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
   // print `hit_groups`
   if (level() <= algorithms::LogLevel::kTrace) {
     trace("{:-<70}", "Accepted hit groups ");
-    for (auto& [id, hitVec] : hit_groups)
+    for (auto& [id, hitVec] : hit_groups) {
       for (auto& hit : hitVec) {
         trace("hit_group: pixel id={:#018X} -> npe={} signal={} time={}", id, hit.npe, hit.signal,
               hit.time);
-        for (auto i : hit.sim_hit_indices)
+        for (auto i : hit.sim_hit_indices) {
           trace(" - MC hit: EDep={}, id={}", sim_hits->at(i).getEDep(),
                 sim_hits->at(i).getObjectID().index);
+        }
       }
+    }
   }
 
   //build noise raw hits
@@ -124,9 +130,8 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
     float p            = m_cfg.noiseRate * m_cfg.noiseTimeWindow;
     auto cellID_action = [this, &hit_groups](auto id) {
       // cell time, signal amplitude
-      double amp                      = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
-      TimeType time                   = m_cfg.noiseTimeWindow * m_rngUni() / dd4hep::ns;
-      dd4hep::Position pos_hit_global = m_converter->position(id);
+      double amp    = m_cfg.speMean + m_rngNorm() * m_cfg.speError;
+      TimeType time = m_cfg.noiseTimeWindow * m_rngUni() / dd4hep::ns;
 
       // insert in `hit_groups`, or if the pixel already has a hit, update `npe` and `signal`
       this->InsertHit(hit_groups, id, amp, time,
@@ -183,8 +188,9 @@ void PhotoMultiplierHitDigi::qe_init() {
 
   // print the table
   debug("{:-^60}", " Quantum Efficiency vs. Energy ");
-  for (auto& [en, qe] : qeff)
+  for (auto& [en, qe] : qeff) {
     debug("  {:>10.4} {:<}", en, qe);
+  }
   trace("{:=^60}", "");
 
   if (m_cfg.enableQuantumEfficiency) {
@@ -220,7 +226,8 @@ RndmIter PhotoMultiplierHitDigi::interval_search(RndmIter beg, RndmIter end, con
   while (mid != end) {
     if (comp(*mid, val) == 0) {
       return mid;
-    } else if (comp(*mid, val) > 0) {
+    }
+    if (comp(*mid, val) > 0) {
       end = mid;
     } else {
       beg = std::next(mid);
@@ -270,8 +277,9 @@ void PhotoMultiplierHitDigi::InsertHit(
         // hit group found, update npe, signal, and list of MC hits
         ghit->npe += 1;
         ghit->signal += amp;
-        if (!is_noise_hit)
+        if (!is_noise_hit) {
           ghit->sim_hit_indices.push_back(sim_hit_index);
+        }
         trace(" -> add to group @ {:#018X}: signal={}", id, ghit->signal);
         break;
       }
@@ -280,8 +288,9 @@ void PhotoMultiplierHitDigi::InsertHit(
     if (i >= it->second.size()) {
       auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
       decltype(HitData::sim_hit_indices) indices;
-      if (!is_noise_hit)
+      if (!is_noise_hit) {
         indices.push_back(sim_hit_index);
+      }
       hit_groups.insert({id, {HitData{1, sig, time, indices}}});
       trace(" -> no group found,");
       trace("    so new group @ {:#018X}: signal={}", id, sig);
@@ -289,8 +298,9 @@ void PhotoMultiplierHitDigi::InsertHit(
   } else {
     auto sig = amp + m_cfg.pedMean + m_cfg.pedError * m_rngNorm();
     decltype(HitData::sim_hit_indices) indices;
-    if (!is_noise_hit)
+    if (!is_noise_hit) {
       indices.push_back(sim_hit_index);
+    }
     hit_groups.insert({id, {HitData{1, sig, time, indices}}});
     trace(" -> new group @ {:#018X}: signal={}", id, sig);
   }

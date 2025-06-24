@@ -158,7 +158,7 @@ void TrackProjector::process(const Input& input, const Output& output) const {
           static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundTheta)),
           static_cast<float>(boundCov(Acts::eBoundPhi, Acts::eBoundPhi)),
           static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundPhi))};
-      const float pathLength      = static_cast<float>(trackstate.pathLength());
+      const auto pathLength       = static_cast<float>(trackstate.pathLength());
       const float pathLengthError = 0;
 
       uint64_t surface = trackstate.referenceSurface().geometryId().value();
