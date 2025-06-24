@@ -235,10 +235,10 @@ void InitPlugin(JApplication* app) {
       {
         "EcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 7
-        "EcalEndcapNRawHitAssociations"
+            "EcalEndcapNRawHitAssociations"
       },
 #else
-              "EcalEndcapNHits"
+                  "EcalEndcapNHits"
             },
 #endif
       {"EcalEndcapNSplitMergeClustersWithoutShapes",
