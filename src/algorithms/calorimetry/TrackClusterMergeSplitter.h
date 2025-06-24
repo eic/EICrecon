@@ -74,12 +74,11 @@ using VecWeights    = std::vector<MapToWeight>;
 // --------------------------------------------------------------------------
 using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackSegmentCollection>,
-    algorithms::Output<
-        edm4eic::ProtoClusterCollection,
+    algorithms::Output<edm4eic::ProtoClusterCollection,
 #if EDM4EIC_VERSION_MAJOR >= 8
-        edm4eic::TrackProtoClusterLinkCollection
+                       edm4eic::TrackProtoClusterLinkCollection
 #endif
-        >>;
+                       >>;
 
 // --------------------------------------------------------------------------
 //! Track-Based Cluster Merger/Splitter

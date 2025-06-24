@@ -193,15 +193,16 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     merge_and_split_clusters(vecClustToMerge, mapProjToSplit[clustSeed], new_protos);
 
 #if EDM4EIC_VERSION_MAJOR >= 8
-      // and finally create a track-cluster match for each pair
-      for (std::size_t iTrk = 0; const auto& trk : mapTrkToMatch[clustSeed]) {
-        auto match = out_matches->create();
-        match.set<edm4eic::ProtoCluster>( new_protos[iTrk] );
-        match.set<edm4eic::Track>( trk );
-        match.setWeight( 1.0 );  // FIXME placeholder, should encode goodness of match
-        trace("Matched output cluster {} to track {}", new_protos[iTrk].getObjectID().index, trk.getObjectID().index);
-        ++iTrk;
-      }
+    // and finally create a track-cluster match for each pair
+    for (std::size_t iTrk = 0; const auto& trk : mapTrkToMatch[clustSeed]) {
+      auto match = out_matches->create();
+      match.set<edm4eic::ProtoCluster>(new_protos[iTrk]);
+      match.set<edm4eic::Track>(trk);
+      match.setWeight(1.0); // FIXME placeholder, should encode goodness of match
+      trace("Matched output cluster {} to track {}", new_protos[iTrk].getObjectID().index,
+            trk.getObjectID().index);
+      ++iTrk;
+    }
 #endif
   } // end clusters to merge loop
 
@@ -218,7 +219,8 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     // copy cluster and add to output collection
     edm4eic::MutableProtoCluster out_proto = out_protos->create();
     /* TODO fill in hits here */
-    trace("Copied input cluster {} onto output cluster {}", in_cluster.getObjectID().index, out_proto.getObjectID().index);
+    trace("Copied input cluster {} onto output cluster {}", in_cluster.getObjectID().index,
+          out_proto.getObjectID().index);
 
   } // end cluster loop
 

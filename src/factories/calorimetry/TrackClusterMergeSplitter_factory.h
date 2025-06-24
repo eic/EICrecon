@@ -44,7 +44,8 @@ private:
   ParameterRef<double> m_sigEP{this, "sigEP", config().sigEP};
   ParameterRef<double> m_drAdd{this, "drAdd", config().drAdd};
   ParameterRef<double> m_sampFrac{this, "sampFrac", config().sampFrac};
-  ParameterRef<double> m_transverseEnergyProfileScale{this, "transverseEnergyProfileScale", config().transverseEnergyProfileScale};
+  ParameterRef<double> m_transverseEnergyProfileScale{this, "transverseEnergyProfileScale",
+                                                      config().transverseEnergyProfileScale};
 
   // services
   Service<DD4hep_service> m_geoSvc{this};
@@ -57,7 +58,8 @@ public:
     m_algo->init(m_geoSvc().detector());
   }
 
-  void ChangeRun(int64_t run_number) { /* nothing to do here */ }
+  void ChangeRun(int64_t run_number) { /* nothing to do here */
+  }
 
   void Process(int64_t run_number, uint64_t event_number) {
     m_algo->process({m_clusters_input(), m_track_projections_input()},
