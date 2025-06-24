@@ -280,7 +280,7 @@ void TrackClusterMergeSplitter::match_clusters_to_tracks(const edm4eic::ClusterC
 
     // find closest cluster
     bool foundMatch = false;
-    float dMatch = m_cfg.drAdd;
+    float dMatch    = m_cfg.drAdd;
     for (auto cluster : *clusters) {
 
       // get eta, phi of cluster
@@ -294,8 +294,8 @@ void TrackClusterMergeSplitter::match_clusters_to_tracks(const edm4eic::ClusterC
       // if closer, set match to current projection
       if (dist <= dMatch) {
         foundMatch = true;
-        dMatch = dist;
-        match= cluster;
+        dMatch     = dist;
+        match      = cluster;
       }
     } // end cluster loop
 
@@ -319,9 +319,9 @@ void TrackClusterMergeSplitter::match_clusters_to_tracks(const edm4eic::ClusterC
  *  protocluster is created for each track w/ hits weighted by
  *  its distance to the track and the track's momentum.
  */
-void TrackClusterMergeSplitter::merge_and_split_clusters(const VecClust& to_merge,
-                                                         const VecProj& to_split,
-                                                         std::vector<edm4eic::MutableProtoCluster>& new_protos) const {
+void TrackClusterMergeSplitter::merge_and_split_clusters(
+    const VecClust& to_merge, const VecProj& to_split,
+    std::vector<edm4eic::MutableProtoCluster>& new_protos) const {
 
   // if only 1 matched track, no need to split
   // otherwise split merged cluster for each
@@ -383,9 +383,9 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const VecClust& to_merg
 // --------------------------------------------------------------------------
 //! Add a cluster's hits to a protocluster
 // --------------------------------------------------------------------------
-void TrackClusterMergeSplitter::add_cluster_to_proto(const edm4eic::Cluster& clust,
-                                                     edm4eic::MutableProtoCluster& proto,
-                                                     std::optional<MapToWeight> split_weights) const {
+void TrackClusterMergeSplitter::add_cluster_to_proto(
+    const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
+    std::optional<MapToWeight> split_weights) const {
   // loop over hits to add
   for (const auto& hit : clust.getHits()) {
 

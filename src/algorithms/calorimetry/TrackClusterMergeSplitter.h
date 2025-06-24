@@ -79,7 +79,7 @@ using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
 #if EDM4EIC_VERSION_MAJOR >= 8
         edm4eic::TrackClusterMatchCollection // FIXME this should be a protocluster-track match
 #endif
-    >>;
+        >>;
 
 // --------------------------------------------------------------------------
 //! Track-Based Cluster Merger/Splitter
@@ -90,22 +90,21 @@ using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
  *
  *  Heavily inspired by Eur. Phys. J. C (2017) 77:466
  */
-class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm
-                                , public WithPodConfig<TrackClusterMergeSplitterConfig> {
+class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm,
+                                  public WithPodConfig<TrackClusterMergeSplitterConfig> {
 
 public:
   // ctor
-  TrackClusterMergeSplitter(std::string_view name) : TrackClusterMergeSplitterAlgorithm
-  {
-    name,
-    {"InputClusterCollection", "InputTrackProjections"},
+  TrackClusterMergeSplitter(std::string_view name) : TrackClusterMergeSplitterAlgorithm {
+    name, {"InputClusterCollection", "InputTrackProjections"},
 #if EDM4EIC_VERSION_MAJOR >= 8
-    {"OutputProtoClusterCollection", "OutputTrackClusterMatches"},
+        {"OutputProtoClusterCollection", "OutputTrackClusterMatches"},
 #else
-    {"OutputProtoClusterCollection"},
+        {"OutputProtoClusterCollection"},
 #endif
-    "Merges or splits clusters based on tracks projected to them."
-  } {}
+        "Merges or splits clusters based on tracks projected to them."
+  }
+  {}
 
   // public methods
   void init(const dd4hep::Detector* detector);
@@ -114,18 +113,13 @@ public:
 private:
   // private methods
   void get_projections(const edm4eic::TrackSegmentCollection* projections,
-                       VecProj& relevant_projects,
-                       VecTrk& relevant_trks) const;
+                       VecProj& relevant_projects, VecTrk& relevant_trks) const;
   void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters,
-                                const VecProj& projections,
-                                const VecTrk& tracks,
-                                MapToVecProj& matched_projects,
-                                MapToVecTrk& matched_tracks) const;
-  void merge_and_split_clusters(const VecClust& to_merge,
-                                const VecProj& to_split,
+                                const VecProj& projections, const VecTrk& tracks,
+                                MapToVecProj& matched_projects, MapToVecTrk& matched_tracks) const;
+  void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split,
                                 std::vector<edm4eic::MutableProtoCluster>& new_protos) const;
-  void add_cluster_to_proto(const edm4eic::Cluster& clust,
-                            edm4eic::MutableProtoCluster& proto,
+  void add_cluster_to_proto(const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
                             std::optional<MapToWeight> split_weights = std::nullopt) const;
 
   // calorimeter id
