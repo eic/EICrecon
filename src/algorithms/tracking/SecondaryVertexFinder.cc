@@ -40,9 +40,8 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 
 std::tuple<std::unique_ptr<edm4eic::VertexCollection>, std::unique_ptr<edm4eic::VertexCollection>>
 eicrecon::SecondaryVertexFinder::produce(
-    const edm4eic::ReconstructedParticleCollection* recotracks,
-    std::vector<const ActsExamples::Trajectories*> trajectories) {
-
+      const edm4eic::ReconstructedParticleCollection* recotracks,
+      std::vector<const ActsExamples::Trajectories*> trajectories) {
   auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
   auto outputVertices  = std::make_unique<edm4eic::VertexCollection>();
 
@@ -67,10 +66,10 @@ eicrecon::SecondaryVertexFinder::produce(
   // Set up track density used during vertex seeding
   Acts::AdaptiveGridTrackDensity::Config trkDensityConfig;
   // Bin extent in z-direction
-  trkDensityConfig.spatialBinExtent = 25 * Acts::UnitConstants::um;
+  trkDensityConfig.spatialBinExtent = m_cfg.spatialBinExtent;
   // Bin extent in t-direction
-  trkDensityConfig.temporalBinExtent = 19. * Acts::UnitConstants::mm;
-  trkDensityConfig.useTime           = false;
+  trkDensityConfig.temporalBinExtent = m_cfg.temporalBinExtent;
+  trkDensityConfig.useTime           = m_cfg.useTime;
   Acts::AdaptiveGridTrackDensity trkDensity(trkDensityConfig);
 
   // Setup the track linearizer
@@ -88,10 +87,10 @@ eicrecon::SecondaryVertexFinder::produce(
   VertexFitterSec::Config vertexFitterConfigSec(ipEst);
 
   vertexFitterConfigSec.annealingTool     = annealingUtility;
-  vertexFitterConfigSec.minWeight         = 1e-04;
-  vertexFitterConfigSec.maxDistToLinPoint = 5.5 * Acts::UnitConstants::mm;
-  vertexFitterConfigSec.doSmoothing       = true;
-  vertexFitterConfigSec.useTime           = false;
+  vertexFitterConfigSec.minWeight         = m_cfg.minWeight;
+  vertexFitterConfigSec.maxDistToLinPoint = m_cfg.maxDistToLinPoint;
+  vertexFitterConfigSec.doSmoothing       = m_cfg.doSmoothing;
+  vertexFitterConfigSec.useTime           = m_cfg.useTime;
   vertexFitterConfigSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
   vertexFitterConfigSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(&linearizerSec);
   VertexFitterSec vertexFitterSec(std::move(vertexFitterConfigSec));
@@ -112,19 +111,19 @@ eicrecon::SecondaryVertexFinder::produce(
   // dimension.
   vertexfinderConfigSec.initialVariances = {1e+2, 1e+2, 1e+2, 1e+8};
   //Use time for Sec. Vertex
-  vertexfinderConfigSec.useTime            = false;
-  vertexfinderConfigSec.tracksMaxZinterval = 35 * Acts::UnitConstants::mm;
-  vertexfinderConfigSec.maxIterations      = 500;
-  vertexfinderConfigSec.doFullSplitting    = false;
+  vertexfinderConfigSec.useTime            = m_cfg.useTime;
+  vertexfinderConfigSec.tracksMaxZinterval = m_cfg.tracksMaxZinterval;
+  vertexfinderConfigSec.maxIterations      = m_cfg.maxIterations;
+  vertexfinderConfigSec.doFullSplitting    = m_cfg.doFullSplitting;
   // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
-  vertexfinderConfigSec.tracksMaxSignificance      = 6.7;
-  vertexfinderConfigSec.maxMergeVertexSignificance = 5;
+  vertexfinderConfigSec.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
+  vertexfinderConfigSec.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
 
   if (m_cfg.useTime) {
     // When using time, we have an extra contribution to the chi2 by the time
     // coordinate.
-    vertexfinderConfigSec.tracksMaxSignificance      = 6.7;
-    vertexfinderConfigSec.maxMergeVertexSignificance = 5;
+    vertexfinderConfigSec.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
+    vertexfinderConfigSec.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
   }
 
   vertexfinderConfigSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
