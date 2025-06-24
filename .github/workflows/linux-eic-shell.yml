@@ -647,7 +647,6 @@ jobs:
         - EcalBarrelScFiCheck
         - femc_studies
         - lfhcal_studies
-        - tof_efficiency
         - TRACKINGcheck
         - tracking_efficiency
         - tracking_occupancy
