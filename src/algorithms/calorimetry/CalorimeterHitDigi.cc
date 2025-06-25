@@ -172,8 +172,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     double max_edep  = 0;
     auto leading_hit = (*simhits)[ixs[0]];
     // sum energy, take time from the most energetic hit
-    for (size_t i = 0; i < ixs.size(); ++i) {
-      auto hit = (*simhits)[ixs[i]];
+    for (unsigned long i : ixs) {
+      auto hit = (*simhits)[i];
 
       double timeC = std::numeric_limits<double>::max();
       for (const auto& c : hit.getContributions()) {
@@ -181,8 +181,9 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
           timeC = c.getTime();
         }
       }
-      if (timeC > m_cfg.capTime)
+      if (timeC > m_cfg.capTime) {
         continue;
+      }
       edep += hit.getEnergy();
       trace("adding {} \t total: {}", hit.getEnergy(), edep);
 
@@ -203,8 +204,9 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       rawassocs_staging.push_back(assoc);
 #endif
     }
-    if (time > m_cfg.capTime)
+    if (time > m_cfg.capTime) {
       continue;
+    }
 
     // safety check
     const double eResRel =
