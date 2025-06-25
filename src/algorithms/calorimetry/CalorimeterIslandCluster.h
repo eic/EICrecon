@@ -45,6 +45,7 @@ public:
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+  std::vector<double> m_localDistXY;
 
 public:
   // neighbor checking function
