@@ -42,8 +42,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
-class SecondaryVertexFinder
-    : public WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
+class SecondaryVertexFinder : public WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
 public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
