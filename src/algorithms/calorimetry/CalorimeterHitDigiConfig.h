@@ -22,8 +22,8 @@ struct CalorimeterHitDigiConfig {
   // readout settings
   std::string readoutType{"simple"};
   double lightYield{0. / edm4eic::unit::GeV};
-  double photonDetectionEfficiency; // (light collection efficiency) x (quantum efficiency)
-  unsigned long long numEffectiveSipmPixels;
+  double photonDetectionEfficiency{0.0}; // (light collection efficiency) x (quantum efficiency)
+  unsigned long long numEffectiveSipmPixels{0};
 
   // digitization settings
   unsigned int capADC{1};
