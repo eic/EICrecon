@@ -33,7 +33,6 @@
 #include <utility>
 #include <vector>
 
-#include <algorithms/algorithm.h>
 #include "Acts/Definitions/Units.hpp"
 #include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
 #include "ActsExamples/EventData/Trajectories.hpp"
@@ -43,20 +42,9 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
-  using SecondaryVertexFinderAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                      std::vector<const ActsExamples::Trajectories*>>,
-    algorithms::Output<edm4eic::VertexCollection,
-                       edm4eic::VertexCollection>>;
-
 class SecondaryVertexFinder
-    : public SecondaryVertexFinderAlgorithm, public WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
+    : public WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
 public:
-  SecondaryVertexFinder(std::string_view name) : SecondaryVertexFinderAlgorithm{
-                              name,
-                              {"inputReconstructedParticle", "inputTrajectories"},
-                              {"outputVertexPrimaryCollection", "outputSecondaryVertexCollection"},
-                              "Output Adaptive Multivertex Vertices Primary and Secondary"}{};
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
 
