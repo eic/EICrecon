@@ -4,18 +4,18 @@
 #include "SecondaryVertexFinder.h"
 
 #include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/Definitions/Units.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
-#include <Acts/Utilities/AnnealingUtility.hpp>
-#include <Acts/Utilities/detail/ContextType.hpp>
-#include <Acts/Vertexing/LinearizedTrack.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
+#include <Acts/Vertexing/VertexingOptions.hpp>
+#include <Acts/Utilities/AnnealingUtility.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <Acts/Utilities/detail/ContextType.hpp>
 #include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
+#include <Acts/Vertexing/LinearizedTrack.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
