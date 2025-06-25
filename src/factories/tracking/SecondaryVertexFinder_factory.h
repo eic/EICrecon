@@ -36,13 +36,13 @@ private:
   ParameterRef<bool> m_reassignTracksAfterFirstFit{
       this, "reassignTracksAfterFirstFit", config().reassignTracksAfterFirstFit,
       "Whether or not to reassign tracks after first fit"};
-  ParameterRef<float> m_tracksMaxZinterval{
-       this, "tracksMaxZinterval", config().tracksMaxZinterval,
-       "Max z interval for Acts::AdaptiveMultiVertexFinder."};
+  ParameterRef<float> m_tracksMaxZinterval{this, "tracksMaxZinterval", config().tracksMaxZinterval,
+                                           "Max z interval for Acts::AdaptiveMultiVertexFinder."};
   ParameterRef<float> m_maxIterations{this, "maxIterations", config().maxIterations,
                                       "Max iterations for Acts::AdaptiveMultivertexFinder"};
-  ParameterRef<float> m_maxDistToLinPoint{this, "maxDistToLinPoint", config().maxDistToLinPoint,
-                                      "Max disttance to line point (pca) for Acts::AdaptiveMultivertexFinder"};
+  ParameterRef<float> m_maxDistToLinPoint{
+      this, "maxDistToLinPoint", config().maxDistToLinPoint,
+      "Max disttance to line point (pca) for Acts::AdaptiveMultivertexFinder"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 

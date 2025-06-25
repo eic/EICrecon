@@ -54,17 +54,17 @@ public:
 
   // Calculate an initial Primary Vertex
   std::unique_ptr<edm4eic::VertexCollection>
-    calculatePrimaryVertex(const edm4eic::ReconstructedParticleCollection*,
-                           std::vector<const ActsExamples::Trajectories*> trajectories,
-                           Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
-                           Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
+  calculatePrimaryVertex(const edm4eic::ReconstructedParticleCollection*,
+                         std::vector<const ActsExamples::Trajectories*> trajectories,
+                         Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
+                         Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
 
   //Calculate secondary vertex and store secVertex container
   std::unique_ptr<edm4eic::VertexCollection>
-    calculateSecondaryVertex(const edm4eic::ReconstructedParticleCollection*,
-                             std::vector<const ActsExamples::Trajectories*> trajectories,
-                             Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
-                             Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
+  calculateSecondaryVertex(const edm4eic::ReconstructedParticleCollection*,
+                           std::vector<const ActsExamples::Trajectories*> trajectories,
+                           Acts::AdaptiveMultiVertexFinder&, Acts::VertexingOptions,
+                           Acts::AdaptiveMultiVertexFinder::Config&, Acts::IVertexFinder::State&);
 
   // Functions to be used to check efficacy of sec. vertex
   std::unique_ptr<edm4eic::VertexCollection>
