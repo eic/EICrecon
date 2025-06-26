@@ -20,8 +20,8 @@ private:
 
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<double> m_assoDeltaT{this, "assoDeltaT", config().assoDeltaT};
-  ParameterRef<std::vector<std::string>> m_subsensor_keys{this, "subsensor_keys", config().subsensor_keys};
-
+  ParameterRef<std::vector<std::string>> m_subsensor_keys{this, "subsensor_keys",
+                                                          config().subsensor_keys};
 
 public:
   void Configure() {
