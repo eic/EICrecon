@@ -253,12 +253,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "EcalEndcapPClusterAssociations",
     "EcalEndcapPSplitMergeClusters",
     "EcalEndcapPSplitMergeClusterAssociations",
-    "EcalEndcapPInsertRawHits",
-    "EcalEndcapPInsertRecHits",
-    "EcalEndcapPInsertTruthClusters",
-    "EcalEndcapPInsertTruthClusterAssociations",
-    "EcalEndcapPInsertClusters",
-    "EcalEndcapPInsertClusterAssociations",
     "EcalBarrelClusters",
     "EcalBarrelClusterAssociations",
     "EcalBarrelTruthClusters",
@@ -350,7 +344,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "EcalEndcapNRawHitAssociations",
     "HcalEndcapNRawHitAssociations",
     "EcalEndcapPRawHitAssociations",
-    "EcalEndcapPInsertRawHitAssociations",
     "HcalEndcapPInsertRawHitAssociations",
     "LFHCALRawHitAssociations",
     "EcalLumiSpecRawHitAssociations",
@@ -419,7 +412,6 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     }
   } else {
     m_log->debug("Persisting podio types from includes list");
-    m_user_included_collections = true;
 
     // We match up the include list with what is actually present in the event
     std::set<std::string> all_collections_set =
@@ -444,23 +436,8 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
 
 void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
 
-  std::lock_guard<std::mutex> lock(m_mutex);
-  if (m_is_first_event) {
-    FindCollectionsToWrite(event);
-  }
-
-  // Trigger all collections once to fix the collection IDs
-  // TODO: WDC: This should not be necessary, but while we await collection IDs
-  //            that are determined by hash, we have to ensure they are reproducible
-  //            even if the collections are filled in unpredictable order (or not at
-  //            all). See also below, at "TODO: NWB:".
-  for (const auto& coll_name : m_collections_to_write) {
-    try {
-      [[maybe_unused]] const auto* coll_ptr = event->GetCollectionBase(coll_name);
-    } catch (std::exception& e) {
-      // chomp
-    }
-  }
+  // Find all collections to write from the first event
+  std::call_once(m_is_first_event, &JEventProcessorPODIO::FindCollectionsToWrite, this, event);
 
   // Print the contents of some collections, just for debugging purposes
   // Do this before writing just in case writing crashes
@@ -503,12 +480,8 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   // it.
 
   // Activate factories.
-  // TODO: NWB: For now we run every factory every time, swallowing exceptions if necessary.
-  //            We do this so that we always have the same collections created in the same order.
-  //            This means that the collection IDs are stable so the writer doesn't segfault.
-  //            The better fix is to maintain a map of collection IDs, or just wait for PODIO to fix the bug.
   std::vector<std::string> successful_collections;
-  static std::set<std::string> failed_collections;
+  std::set<std::string> failed_collections;
   for (const std::string& coll : m_collections_to_write) {
     try {
       m_log->trace("Ensuring factory for collection '{}' has been called.", coll);
@@ -534,23 +507,15 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
       }
     }
   }
-  m_collections_to_write = successful_collections;
 
   // Frame will contain data from all Podio factories that have been triggered,
   // including by the `event->GetCollectionBase(coll);` above.
   // Note that collections MUST be present in frame. If a collection is null, the writer will segfault.
   const auto* frame = event->GetSingle<podio::Frame>();
-
-  // TODO: NWB: We need to actively stabilize podio collections. Until then, keep this around in case
-  //            the writer starts segfaulting, so we can quickly see whether the problem is unstable collection IDs.
-  /*
-    m_log->info("Event {}: Writing {} collections", event->GetEventNumber(), m_collections_to_write.size());
-    for (const std::string& collname : m_collections_to_write) {
-        m_log->info("Writing collection '{}' with id {}", collname, frame->get(collname)->getID());
-    }
-    */
-  m_writer->writeFrame(*frame, "events", m_collections_to_write);
-  m_is_first_event = false;
+  {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    m_writer->writeFrame(*frame, "events", m_collections_to_write);
+  }
 }
 
 void JEventProcessorPODIO::Finish() {
