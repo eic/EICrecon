@@ -19,6 +19,7 @@
 #if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #endif
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <random>
@@ -33,7 +34,7 @@
 namespace eicrecon {
 
 using CalorimeterHitDigiAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::SimCalorimeterHitCollection>,
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimCalorimeterHitCollection>,
     algorithms::Output<
 #if EDM4EIC_VERSION_MAJOR >= 7
         edm4hep::RawCalorimeterHitCollection, edm4eic::MCRecoCalorimeterHitAssociationCollection
@@ -47,7 +48,7 @@ class CalorimeterHitDigi : public CalorimeterHitDigiAlgorithm,
 
 public:
   CalorimeterHitDigi(std::string_view name) : CalorimeterHitDigiAlgorithm {
-    name, {"inputHitCollection"},
+    name, {"eventHeader", "inputHitCollection"},
 #if EDM4EIC_VERSION_MAJOR >= 7
         {"outputRawHitCollection", "outputRawHitAssociationCollection"},
 #else

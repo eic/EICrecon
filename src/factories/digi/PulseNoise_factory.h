@@ -16,6 +16,7 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
+  PodioInput<edm4hep::EventHeader> m_in_headers{this};
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
   PodioInput<edm4eic::SimPulse> m_in_pulses{this};
   PodioOutput<edm4eic::SimPulse> m_out_pulses{this};
@@ -42,7 +43,7 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_in_pulses()}, {m_out_pulses().get()});
+    m_algo->process({m_in_headers(), m_in_pulses()}, {m_out_pulses().get()});
   }
 };
 

@@ -7,6 +7,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <functional>
 #include <string>
@@ -17,10 +18,10 @@
 
 namespace eicrecon {
 
-using SiliconTrackerDigiAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-                          algorithms::Output<edm4eic::RawTrackerHitCollection,
-                                             edm4eic::MCRecoTrackerHitAssociationCollection>>;
+using SiliconTrackerDigiAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
+    algorithms::Output<edm4eic::RawTrackerHitCollection,
+                       edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class SiliconTrackerDigi : public SiliconTrackerDigiAlgorithm,
                            public WithPodConfig<SiliconTrackerDigiConfig> {
@@ -28,7 +29,7 @@ class SiliconTrackerDigi : public SiliconTrackerDigiAlgorithm,
 public:
   SiliconTrackerDigi(std::string_view name)
       : SiliconTrackerDigiAlgorithm{name,
-                                    {"inputHitCollection"},
+                                    {"eventHeaderCollection", "inputHitCollection"},
                                     {"outputRawHitCollection", "outputHitAssociations"},
                                     "Apply threshold, digitize within ADC range, "
                                     "convert time with smearing resolution."} {}

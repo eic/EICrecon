@@ -21,8 +21,8 @@ void PulseNoise::init() {
 }
 
 void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Output& output) const {
-  const auto [inPulses] = input;
-  auto [outPulses]      = output;
+  const auto [headers, inPulses] = input;
+  auto [outPulses]               = output;
 
   for (const auto& pulse : *inPulses) {
 

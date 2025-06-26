@@ -71,7 +71,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalBarrelScFiRawHits", {"EcalBarrelScFiHits"},
+      "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
       {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitAssociations"},
 #else
@@ -168,7 +168,7 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelImaging_resolutionTDC =
       3.25 * dd4hep::nanosecond;
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalBarrelImagingRawHits", {"EcalBarrelImagingHits"},
+      "EcalBarrelImagingRawHits", {"EventHeader", "EcalBarrelImagingHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
       {"EcalBarrelImagingRawHits", "EcalBarrelImagingRawHitAssociations"},
 #else

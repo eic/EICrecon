@@ -136,7 +136,7 @@ void CalorimeterHitDigi::init() {
 void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                                  const CalorimeterHitDigi::Output& output) const {
 
-  const auto [simhits] = input;
+  const auto [headers, simhits] = input;
 #if EDM4EIC_VERSION_MAJOR >= 7
   auto [rawhits, rawassocs] = output;
 #else

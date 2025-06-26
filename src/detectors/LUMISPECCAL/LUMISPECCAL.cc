@@ -26,7 +26,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalLumiSpecRawHits", {"EcalLumiSpecHits"},
+      "EcalLumiSpecRawHits", {"EventHeader", "EcalLumiSpecHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
       {"EcalLumiSpecRawHits", "EcalLumiSpecRawHitAssociations"},
 #else

@@ -32,7 +32,7 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
       10 * dd4hep::picosecond;
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalEndcapPRawHits", {"EcalEndcapPHits"},
+      "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
       {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
 #else

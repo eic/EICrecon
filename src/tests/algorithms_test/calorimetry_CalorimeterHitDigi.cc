@@ -59,6 +59,9 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
     algo.applyConfig(cfg);
     algo.init();
 
+    auto headers = std::make_unique<edm4hep::EventHeaderCollection>();
+    auto header  = headers->create(1, 1, 12345678, 1.0);
+
     auto calohits = std::make_unique<edm4hep::CaloHitContributionCollection>();
     auto simhits  = std::make_unique<edm4hep::SimCalorimeterHitCollection>();
     auto mhit     = simhits->create(
@@ -82,9 +85,9 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
     auto rawhits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
 #if EDM4EIC_VERSION_MAJOR >= 7
     auto rawassocs = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
-    algo.process({simhits.get()}, {rawhits.get(), rawassocs.get()});
+    algo.process({headers.get(), simhits.get()}, {rawhits.get(), rawassocs.get()});
 #else
-    algo.process({simhits.get()}, {rawhits.get()});
+    algo.process({headers.get(), simhits.get()}, {rawhits.get()});
 #endif
 
     REQUIRE((*rawhits).size() == 1);
