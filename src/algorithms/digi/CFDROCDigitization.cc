@@ -28,7 +28,6 @@ void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
   // more sophisticaed algorithm TBD
   //
   for (const auto& pulse : *simhits) {
-    int tdc   = std::numeric_limits<int>::max();
     auto adcs = pulse.getAdcCounts();
     if (adcs.size() == 0)
       continue;
@@ -37,7 +36,7 @@ void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
     // first we find all the peaks and store their location
     // Then we find the time corresponding to fraction of the peak height
     // use stack to store peak height and time
-    std::stack<std::pair<int, int>> peakTimeAndHeight;
+    std::stack<std::pair<size_t, int>> peakTimeAndHeight;
 
     for (size_t time_bin = 1; time_bin < adcs.size() - 1; ++time_bin) {
       auto V      = adcs[time_bin];
