@@ -66,14 +66,14 @@ void LGADHitClustering::_calcCluster(const Output& output,
   float sigma2_x = 0, sigma2_y = 0;
   double tot_charge = 0;
   // find cellID for the cell with maximum ADC value within a sensor
-  dd4hep::rec::CellID cellID = NAN;
+  dd4hep::rec::CellID cellID;
   auto max_charge            = std::numeric_limits<float>::min();
   auto earliest_time         = std::numeric_limits<float>::max();
-  float time_err             = NAN;
-  float max_charge_x         = NAN;
-  float max_charge_y         = NAN;
-  float max_charge_sigma2_x  = NAN;
-  float max_charge_sigma2_y  = NAN;
+  float time_err;
+  float max_charge_x;
+  float max_charge_y;
+  float max_charge_sigma2_x;
+  float max_charge_sigma2_y;
 
   ROOT::VecOps::RVec<double> weights;
 
