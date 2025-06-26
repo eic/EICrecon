@@ -55,21 +55,20 @@ void InitPlugin(JApplication* app) {
       {"TOFBarrelCalHits"},                    // Output data tag
       {},
       app)); // Hit reco default config for factories
-	     //
+             //
   app->Add(new JOmniFactoryGeneratorT<LGADHitAssociation_factory>(
-      "TOFBarrelAssoCalHits", {"TOFBarrelCalHits", "TOFBarrelRawHits"}, // Input data collection tags
-      {"TOFBarrelAssoCalHits"},                    // Output data tag
+      "TOFBarrelAssoCalHits",
+      {"TOFBarrelCalHits", "TOFBarrelRawHits"}, // Input data collection tags
+      {"TOFBarrelAssoCalHits"},                 // Output data tag
       {},
       app)); // Hit reco default config for factories
-
-
 
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFBarrelClusterHits", {"TOFBarrelAssoCalHits"}, // Input data collection tags
-      {"TOFBarrelClusterHits"},                        // Output data tag
+      {"TOFBarrelClusterHits"},                         // Output data tag
       {},
       app)); // Hit reco default config for factories
 
@@ -123,9 +122,6 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CFDROCDigitization_factory>(
-      "CFDROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"},
-      {
-          .fraction = 0.5
-      }, app));
+      "CFDROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {.fraction = 0.5}, app));
 }
 } // extern "C"

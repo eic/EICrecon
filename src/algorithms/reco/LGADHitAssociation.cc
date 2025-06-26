@@ -42,7 +42,7 @@ dd4hep::rec::CellID LGADHitAssociation::getSensorInfos(const dd4hep::rec::CellID
 }
 
 void LGADHitAssociation::process(const LGADHitAssociation::Input& input,
-                                        const LGADHitAssociation::Output& output) const {
+                                 const LGADHitAssociation::Output& output) const {
   using dd4hep::mm;
   const auto [cal_hits, raw_hits] = input;
   auto [asso_hits]                = output;
@@ -51,14 +51,10 @@ void LGADHitAssociation::process(const LGADHitAssociation::Input& input,
   std::unordered_map<dd4hep::rec::CellID, std::vector<edm4eic::MutableTrackerHit>> cellHitMap;
 
   for (const auto& hit : *cal_hits) {
-      auto asso_hit = asso_hits->create(hit.getCellID(),
-		                        hit.getPosition(),
-					hit.getPositionError(),
-					hit.getTime(),
-					hit.getTimeError(),
-					hit.getEdep(),
-					hit.getEdepError());
-      cellHitMap[getSensorInfos(asso_hit.getCellID())].push_back(asso_hit);
+    auto asso_hit =
+        asso_hits->create(hit.getCellID(), hit.getPosition(), hit.getPositionError(), hit.getTime(),
+                          hit.getTimeError(), hit.getEdep(), hit.getEdepError());
+    cellHitMap[getSensorInfos(asso_hit.getCellID())].push_back(asso_hit);
   }
 
   // sort the tracker hits by time

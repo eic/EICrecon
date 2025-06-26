@@ -9,8 +9,8 @@
 
 namespace eicrecon {
 struct LGADHitAssociationConfig {
-  std::string readout = "TOFBarrelHits";
-  double assoDeltaT   = 1 * edm4eic::unit::ns;
+  std::string readout                     = "TOFBarrelHits";
+  double assoDeltaT                       = 1 * edm4eic::unit::ns;
   std::vector<std::string> subsensor_keys = {"x", "y"};
 };
 } // namespace eicrecon

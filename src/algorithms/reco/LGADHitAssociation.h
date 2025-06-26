@@ -27,7 +27,7 @@ using LGADHitAssociationAlgorithm = algorithms::Algorithm<
     algorithms::Output<edm4eic::TrackerHitCollection>>;
 
 class LGADHitAssociation : public LGADHitAssociationAlgorithm,
-                                  public WithPodConfig<LGADHitAssociationConfig> {
+                           public WithPodConfig<LGADHitAssociationConfig> {
 
 public:
   LGADHitAssociation(std::string_view name)

@@ -66,12 +66,12 @@ void LGADHitClustering::_calcCluster(const Output& output,
   float sigma2_x = 0, sigma2_y = 0;
   double tot_charge = 0;
   // find cellID for the cell with maximum ADC value within a sensor
-  dd4hep::rec::CellID cellID        = NAN;
-  auto max_charge    = std::numeric_limits<float>::min();
-  auto earliest_time = std::numeric_limits<float>::max();
-  float time_err      = NAN;
-  float max_charge_x  = NAN;
-  float max_charge_y  = NAN;
+  dd4hep::rec::CellID cellID = NAN;
+  auto max_charge            = std::numeric_limits<float>::min();
+  auto earliest_time         = std::numeric_limits<float>::max();
+  float time_err             = NAN;
+  float max_charge_x         = NAN;
+  float max_charge_y         = NAN;
   float max_charge_sigma2_x  = NAN;
   float max_charge_sigma2_y  = NAN;
 
@@ -95,10 +95,10 @@ void LGADHitClustering::_calcCluster(const Output& output,
 
     tot_charge += Edep;
     if (Edep > max_charge) {
-      max_charge = Edep;
-      cellID     = hit.getCellID();
-      max_charge_x = pos.x();
-      max_charge_y = pos.y();
+      max_charge          = Edep;
+      cellID              = hit.getCellID();
+      max_charge_x        = pos.x();
+      max_charge_y        = pos.y();
       max_charge_sigma2_x = hit.getPositionError().xx * mm_acts * mm_acts;
       max_charge_sigma2_y = hit.getPositionError().yy * mm_acts * mm_acts;
     }
@@ -106,15 +106,15 @@ void LGADHitClustering::_calcCluster(const Output& output,
     weights.push_back(Edep);
   }
 
-  if(m_cfg.useAve) {
+  if (m_cfg.useAve) {
     weights /= tot_charge;
     ave_x /= tot_charge;
     ave_y /= tot_charge;
     sigma2_x /= tot_charge * tot_charge;
     sigma2_y /= tot_charge * tot_charge;
   } else {
-    ave_x = max_charge_x;
-    ave_y = max_charge_y;
+    ave_x    = max_charge_x;
+    ave_y    = max_charge_y;
     sigma2_x = max_charge_sigma2_x;
     sigma2_y = max_charge_sigma2_y;
   }
