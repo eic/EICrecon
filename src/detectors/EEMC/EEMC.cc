@@ -1,13 +1,12 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Thomas Britton, David Lawrence, Dhevan Gangadharan, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <cmath>
 #include <edm4eic/EDM4eicVersion.h>
+#include <cmath>
 #include <string>
+#include <variant>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
@@ -19,8 +18,8 @@
 #include "factories/calorimetry/CalorimeterParticleIDPostML_factory.h"
 #include "factories/calorimetry/CalorimeterParticleIDPreML_factory.h"
 #endif
-#include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/meta/ONNXInference_factory.h"
