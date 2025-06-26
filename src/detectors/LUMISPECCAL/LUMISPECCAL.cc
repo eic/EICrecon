@@ -24,7 +24,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalLumiSpecRawHits", {"EcalLumiSpecHits"},
+      "EcalLumiSpecRawHits", {"EventHeader", "EcalLumiSpecHits"},
       {"EcalLumiSpecRawHits", "EcalLumiSpecRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}, // flat 2%

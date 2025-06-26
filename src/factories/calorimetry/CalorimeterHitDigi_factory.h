@@ -18,6 +18,7 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
+  PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
   PodioInput<edm4hep::SimCalorimeterHit> m_hits_input{this};
   PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output{this};
   PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
@@ -52,7 +53,8 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_hits_input()}, {m_hits_output().get(), m_hit_assocs_output().get()});
+    m_algo->process({m_event_headers_input(), m_hits_input()},
+                    {m_hits_output().get(), m_hit_assocs_output().get()});
   }
 };
 

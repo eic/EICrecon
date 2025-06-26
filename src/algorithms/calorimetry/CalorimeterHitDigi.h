@@ -16,6 +16,7 @@
 #include <algorithms/geo.h>
 #include <DD4hep/IDDescriptor.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <random>
@@ -29,22 +30,23 @@
 
 namespace eicrecon {
 
-using CalorimeterHitDigiAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4hep::SimCalorimeterHitCollection>,
-                          algorithms::Output<edm4hep::RawCalorimeterHitCollection,
-                                             edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
+using CalorimeterHitDigiAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimCalorimeterHitCollection>,
+    algorithms::Output<
+        edm4hep::RawCalorimeterHitCollection, edm4eic::MCRecoCalorimeterHitAssociationCollection
+        >>;
 
 class CalorimeterHitDigi : public CalorimeterHitDigiAlgorithm,
                            public WithPodConfig<CalorimeterHitDigiConfig> {
 
 public:
-  CalorimeterHitDigi(std::string_view name)
-      : CalorimeterHitDigiAlgorithm{
-            name,
-            {"inputHitCollection"},
-            {"outputRawHitCollection", "outputRawHitAssociationCollection"},
-            "Smear energy deposit, digitize within ADC range, add pedestal, "
-            "convert time with smearing resolution, and sum signals."} {}
+  CalorimeterHitDigi(std::string_view name) : CalorimeterHitDigiAlgorithm {
+    name, {"eventHeader", "inputHitCollection"},
+        {"outputRawHitCollection", "outputRawHitAssociationCollection"},
+        "Smear energy deposit, digitize within ADC range, add pedestal, "
+        "convert time with smearing resolution, and sum signals."
+  }
+  {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
