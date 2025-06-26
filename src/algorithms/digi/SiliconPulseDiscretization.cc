@@ -45,7 +45,8 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
   // If we loop through those time interval with nothing in it, the creation of outPulses will take forever
   // Speeds things up by denoting which EICROCcycle contains pulse information
   // And only focus on those cycles
-  std::unordered_map<dd4hep::rec::CellID, std::pair<TGraph, std::unordered_set<int>>> graphAndCycle4Cells;
+  std::unordered_map<dd4hep::rec::CellID, std::pair<TGraph, std::unordered_set<int>>>
+      graphAndCycle4Cells;
 
   for (const auto& pulse : *inPulses) {
 
