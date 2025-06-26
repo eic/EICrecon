@@ -9,6 +9,7 @@
 #include <DDDigi/noise/FalphaNoise.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/EventHeaderCollection.h>
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 #include <edm4eic/SimPulseCollection.h>
 #else
@@ -29,8 +30,9 @@ using PulseType = edm4eic::SimPulse;
 using PulseType = edm4hep::TimeSeries;
 #endif
 
-using PulseNoiseAlgorithm = algorithms::Algorithm<algorithms::Input<PulseType::collection_type>,
-                                                  algorithms::Output<PulseType::collection_type>>;
+using PulseNoiseAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::EventHeaderCollection, PulseType::collection_type>,
+    algorithms::Output<PulseType::collection_type>>;
 
 class PulseNoise : public PulseNoiseAlgorithm, public WithPodConfig<PulseNoiseConfig> {
 
