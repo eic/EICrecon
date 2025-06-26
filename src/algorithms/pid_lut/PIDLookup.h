@@ -6,6 +6,7 @@
 #include <algorithms/geo.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <stdint.h>
 #include <gsl/pointers>
@@ -20,12 +21,12 @@
 
 namespace eicrecon {
 
-using PIDLookupAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                                            edm4eic::MCRecoParticleAssociationCollection>,
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection,
-                                             edm4eic::MCRecoParticleAssociationCollection,
-                                             edm4hep::ParticleIDCollection>>;
+using PIDLookupAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4eic::ReconstructedParticleCollection,
+                      edm4eic::MCRecoParticleAssociationCollection>,
+    algorithms::Output<edm4eic::ReconstructedParticleCollection,
+                       edm4eic::MCRecoParticleAssociationCollection,
+                       edm4hep::ParticleIDCollection>>;
 
 class PIDLookup : public PIDLookupAlgorithm, public WithPodConfig<PIDLookupConfig> {
 

@@ -50,7 +50,7 @@ void PIDLookup::init() {
 }
 
 void PIDLookup::process(const Input& input, const Output& output) const {
-  const auto [recoparts_in, partassocs_in]          = input;
+  const auto [headers, recoparts_in, partassocs_in] = input;
   auto [recoparts_out, partassocs_out, partids_out] = output;
 
   for (const auto& recopart_without_pid : *recoparts_in) {

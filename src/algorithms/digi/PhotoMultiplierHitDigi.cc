@@ -64,8 +64,8 @@ void PhotoMultiplierHitDigi::init() {
 //------------------------
 void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
                                      const PhotoMultiplierHitDigi::Output& output) const {
-  const auto [sim_hits]       = input;
-  auto [raw_hits, hit_assocs] = output;
+  const auto [headers, sim_hits] = input;
+  auto [raw_hits, hit_assocs]    = output;
 
   trace("{:=^70}", " call PhotoMultiplierHitDigi::process ");
   std::unordered_map<CellIDType, std::vector<HitData>> hit_groups;

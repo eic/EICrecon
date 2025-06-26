@@ -31,8 +31,8 @@ void SiliconTrackerDigi::init() {
 void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
                                  const SiliconTrackerDigi::Output& output) const {
 
-  const auto [sim_hits]         = input;
-  auto [raw_hits, associations] = output;
+  const auto [headers, sim_hits] = input;
+  auto [raw_hits, associations]  = output;
 
   // A map of unique cellIDs with temporary structure RawHit
   std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;

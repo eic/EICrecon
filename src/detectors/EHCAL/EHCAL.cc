@@ -34,7 +34,7 @@ void InitPlugin(JApplication* app) {
       10 * dd4hep::picosecond;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalEndcapNRawHits", {"HcalEndcapNHits"},
+      "HcalEndcapNRawHits", {"EventHeader", "HcalEndcapNHits"},
       {"HcalEndcapNRawHits", "HcalEndcapNRawHitAssociations"},
       {
           .eRes{},

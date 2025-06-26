@@ -47,7 +47,7 @@ void InitPlugin(JApplication* app) {
       ") == 1";
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalBarrelRawHits", {"HcalBarrelHits"},
+      "HcalBarrelRawHits", {"EventHeader", "HcalBarrelHits"},
       {"HcalBarrelRawHits", "HcalBarrelRawHitAssociations"},
       {
           .eRes          = {},
