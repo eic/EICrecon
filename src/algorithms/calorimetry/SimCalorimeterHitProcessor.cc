@@ -44,17 +44,17 @@ template <> struct hash<podio::ObjectID> {
     return h1 ^ (h2 << 1);
   }
 };
-#endif // podio version check
-#endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
 
 // Necessary to make MCParticle hashable
-// @TODO maybe this could be added to podio?
 template <> struct hash<edm4hep::MCParticle> {
   size_t operator()(const edm4hep::MCParticle& p) const noexcept {
     const auto& id = p.getObjectID();
     return std::hash<podio::ObjectID>()(id);
   }
 };
+#endif // podio version check
+#endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
+
 // Hash for tuple<edm4hep::MCParticle, uint64_t>
 // --> not yet supported by any compiler at the moment
 template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t>> {

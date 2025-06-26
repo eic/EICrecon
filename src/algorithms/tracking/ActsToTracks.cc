@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
+// Copyright (C) 2024 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
@@ -165,7 +165,11 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 
           } else {
             auto meas2D = (*meas2Ds)[srclink_index];
-            if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+            if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
+              trajectory.addToOutliers_deprecated(meas2D);
+              debug("Outlier on geo id={}, index={}, loc={},{}", geoID, srclink_index,
+                    meas2D.getLoc().a, meas2D.getLoc().b);
+            } else if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
               track.addToMeasurements(meas2D);
               trajectory.addToMeasurements_deprecated(meas2D);
               debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
@@ -191,11 +195,6 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
               }
 #endif
               //}
-
-            } else if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
-              trajectory.addToOutliers_deprecated(meas2D);
-              debug("Outlier on geo id={}, index={}, loc={},{}", geoID, srclink_index,
-                    meas2D.getLoc().a, meas2D.getLoc().b);
             }
           }
         }
