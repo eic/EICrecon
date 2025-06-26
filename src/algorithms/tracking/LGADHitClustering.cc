@@ -57,16 +57,23 @@ void LGADHitClustering::_calcCluster(const Output& output,
 
   auto [clusters] = output;
   auto cluster    = clusters->create();
-  // Right now the clustering algorithm a simple average over all hits in a sensors
+  // Right now the clustering algorithm is either:
+  // 1. simple average over all hits in a sensors
+  // 2. Cell position with max ADC value in a cluster
+  // Switch between option 1 and 2 with m_cfg.useAve
   // Will be problematic near the edges, but it's just an illustration
   float ave_x = 0, ave_y = 0;
   float sigma2_x = 0, sigma2_y = 0;
   double tot_charge = 0;
   // find cellID for the cell with maximum ADC value within a sensor
-  auto cellID        = hits[0].getCellID();
-  auto max_charge    = hits[0].getEdep();
-  auto earliest_time = hits[0].getTime();
-  auto time_err      = hits[0].getTimeError();
+  dd4hep::rec::CellID cellID        = NAN;
+  auto max_charge    = std::numeric_limits<float>::min();
+  auto earliest_time = std::numeric_limits<float>::max();
+  float time_err      = NAN;
+  float max_charge_x  = NAN;
+  float max_charge_y  = NAN;
+  float max_charge_sigma2_x  = NAN;
+  float max_charge_sigma2_y  = NAN;
 
   ROOT::VecOps::RVec<double> weights;
 
@@ -90,16 +97,27 @@ void LGADHitClustering::_calcCluster(const Output& output,
     if (Edep > max_charge) {
       max_charge = Edep;
       cellID     = hit.getCellID();
+      max_charge_x = pos.x();
+      max_charge_y = pos.y();
+      max_charge_sigma2_x = hit.getPositionError().xx * mm_acts * mm_acts;
+      max_charge_sigma2_y = hit.getPositionError().yy * mm_acts * mm_acts;
     }
     cluster.addToHits(hit);
     weights.push_back(Edep);
   }
 
-  weights /= tot_charge;
-  ave_x /= tot_charge;
-  ave_y /= tot_charge;
-  sigma2_x /= tot_charge * tot_charge;
-  sigma2_y /= tot_charge * tot_charge;
+  if(m_cfg.useAve) {
+    weights /= tot_charge;
+    ave_x /= tot_charge;
+    ave_y /= tot_charge;
+    sigma2_x /= tot_charge * tot_charge;
+    sigma2_y /= tot_charge * tot_charge;
+  } else {
+    ave_x = max_charge_x;
+    ave_y = max_charge_y;
+    sigma2_x = max_charge_sigma2_x;
+    sigma2_y = max_charge_sigma2_y;
+  }
 
   // covariance copied from TrackerMeasurementFromHits.cc
   Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();

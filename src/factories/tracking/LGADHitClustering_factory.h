@@ -19,6 +19,8 @@ private:
 
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<double> m_deltaT{this, "deltaT", config().deltaT};
+  ParameterRef<bool> m_useAve{this, "useAve", config().useAve};
+
 
 public:
   void Configure() {

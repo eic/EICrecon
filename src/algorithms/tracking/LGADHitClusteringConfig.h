@@ -8,5 +8,6 @@ namespace eicrecon {
 struct LGADHitClusteringConfig {
   std::string readout = "TOFBarrelHits";
   double deltaT       = 1 * edm4eic::unit::ns;
+  bool useAve         = false;
 };
 } // namespace eicrecon

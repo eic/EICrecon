@@ -17,22 +17,22 @@
 #include <string>
 #include <string_view>
 
-#include "LGADHitClusterAssociationConfig.h"
+#include "LGADHitAssociationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using LGADHitClusterAssociationAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::Measurement2DCollection, edm4eic::RawTrackerHitCollection>,
+using LGADHitAssociationAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::TrackerHitCollection, edm4eic::RawTrackerHitCollection>,
     algorithms::Output<edm4eic::TrackerHitCollection>>;
 
-class LGADHitClusterAssociation : public LGADHitClusterAssociationAlgorithm,
-                                  public WithPodConfig<LGADHitClusterAssociationConfig> {
+class LGADHitAssociation : public LGADHitAssociationAlgorithm,
+                                  public WithPodConfig<LGADHitAssociationConfig> {
 
 public:
-  LGADHitClusterAssociation(std::string_view name)
-      : LGADHitClusterAssociationAlgorithm{
-            name, {"TOFBarrelClusterHits", "TOFBarrelRawHits"}, {"TOFBarrelRecHits"}, ""} {};
+  LGADHitAssociation(std::string_view name)
+      : LGADHitAssociationAlgorithm{
+            name, {"TOFBarrelCalHits", "TOFBarrelRawHits"}, {"TOFBarrelAssoHits"}, ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;
