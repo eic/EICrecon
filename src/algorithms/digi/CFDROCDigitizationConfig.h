@@ -12,11 +12,11 @@ struct CFDROCDigitizationConfig {
   // total number of TDC/ADC values
   // Since digitizer starts at zero, max ADC value = adc_range - 1
   // Similar for TDC
-  int adc_range = std::pow(2, adc_bit)*10;
+  int adc_range = std::pow(2, adc_bit) * 10;
   int tdc_range = std::pow(2, tdc_bit);
 
   double fraction = 0.1;
-  double tMax = 25 * edm4eic::unit::ns; // 25 ns is the period of 40MHz EIC clock
+  double tMax     = 25 * edm4eic::unit::ns; // 25 ns is the period of 40MHz EIC clock
 };
 
 } // namespace eicrecon
