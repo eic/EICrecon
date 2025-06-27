@@ -4,6 +4,7 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <algorithms/geo.h>
 #include <DD4hep/IDDescriptor.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>

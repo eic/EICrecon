@@ -111,7 +111,7 @@ void CalorimeterPulseGeneration::process(const CalorimeterPulseGeneration::Input
       bool passed_threshold = false;
       int last_skip_bin     = 0;
 
-      for (int i = 0; i < m_cfg.max_time_bin_contrib; i++) {
+      for (std::uint32_t i = 0; i < m_cfg.max_time_bin_contrib; i++) {
         double rel_time  = i * m_cfg.timestep;
         double amplitude = (*m_pulse)(rel_time, pulse_height);
 
