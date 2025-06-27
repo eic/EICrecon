@@ -21,11 +21,10 @@ public:
   using seed_t = uint64_t;
 
 private:
-  static constexpr size_t event_num_digits =
-      std::numeric_limits<event_num_t>::digits;
-  static constexpr size_t run_num_digits = std::numeric_limits<run_num_t>::digits;
-  static constexpr size_t seed_digits    = std::numeric_limits<seed_t>::digits;
-  static constexpr size_t name_digits    = std::numeric_limits<size_t>::digits;
+  static constexpr size_t event_num_digits = std::numeric_limits<event_num_t>::digits;
+  static constexpr size_t run_num_digits   = std::numeric_limits<run_num_t>::digits;
+  static constexpr size_t seed_digits      = std::numeric_limits<seed_t>::digits;
+  static constexpr size_t name_digits      = std::numeric_limits<size_t>::digits;
 
 public:
   virtual void init() {}
