@@ -14,6 +14,7 @@
 #include <string_view>
 
 #include "SiliconTrackerDigiConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -38,8 +39,10 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
+
   /** Random number generation*/
-  TRandomMixMax m_random;
+  mutable TRandomMixMax m_random;
   std::function<double()> m_gauss;
 
   // FIXME replace with standard random engine

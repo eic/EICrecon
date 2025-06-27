@@ -67,6 +67,10 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
   const auto [headers, sim_hits] = input;
   auto [raw_hits, hit_assocs]    = output;
 
+  // reseed random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  m_random.SetSeed(seed);
+
   trace("{:=^70}", " call PhotoMultiplierHitDigi::process ");
   std::unordered_map<CellIDType, std::vector<HitData>> hit_groups;
   // collect the photon hit in the same cell

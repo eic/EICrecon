@@ -53,6 +53,10 @@ void PIDLookup::process(const Input& input, const Output& output) const {
   const auto [headers, recoparts_in, partassocs_in] = input;
   auto [recoparts_out, partassocs_out, partids_out] = output;
 
+  // reseed random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  m_gen.seed(seed);
+
   for (const auto& recopart_without_pid : *recoparts_in) {
     auto recopart = recopart_without_pid.clone();
 

@@ -20,6 +20,7 @@
 #include <string_view>
 
 #include "algorithms/digi/PulseNoiseConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -43,6 +44,7 @@ public:
   void process(const Input&, const Output&) const;
 
 private:
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
   mutable std::default_random_engine m_generator; // TODO: need something more appropriate here
   mutable dd4hep::detail::FalphaNoise m_noise;    // FalphaNoise::operator() is not const
 };
