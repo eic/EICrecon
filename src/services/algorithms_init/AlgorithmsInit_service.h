@@ -14,6 +14,7 @@
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/ParticleSvc.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "services/log/Log_service.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
@@ -84,6 +85,9 @@ public:
 
     // Register a particle service
     [[maybe_unused]] auto& particleSvc = algorithms::ParticleSvc::instance();
+
+    // Register a unique ID service
+    [[maybe_unused]] auto& uniqueIDGenSvc = algorithms::UniqueIDGenSvc::instance();
 
     // Finally, initialize the ServiceSvc
     serviceSvc.init();
