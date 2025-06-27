@@ -175,6 +175,10 @@ void InitPlugin(JApplication* app) {
       {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
       {"CalorimeterTrackProjections"},
       {.target_surfaces{
+          // DIRC
+          eicrecon::CylinderSurfaceConfig{"BarrelDIRC_ID", "DIRC_rmin",
+                                          "DIRC_offset - DIRC_length / 2.0",
+                                          "DIRC_offset + DIRC_length / 2.0"},
           // Ecal
           eicrecon::DiscSurfaceConfig{"EcalEndcapN_ID", "- EcalEndcapN_zmin", 0.,
                                       "1.1*EcalEndcapN_rmax"},
