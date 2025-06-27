@@ -78,16 +78,16 @@ void InitPlugin(JApplication* app) {
       app));
 
   // Add noise to pulses
-  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>("TaggerTrackerPulseNoise",
-                                                          {"TaggerTrackerCombinedPulses"},
-                                                          {"TaggerTrackerCombinedPulsesWithNoise"},
-                                                          {
-                                                              .poles    = 5,
-                                                              .variance = 1.0,
-                                                              .alpha    = 0.5,
-                                                              .scale    = 0.000002,
-                                                          },
-                                                          app));
+  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "TaggerTrackerPulseNoise", {"EventHeader", "TaggerTrackerCombinedPulses"},
+      {"TaggerTrackerCombinedPulsesWithNoise"},
+      {
+          .poles    = 5,
+          .variance = 1.0,
+          .alpha    = 0.5,
+          .scale    = 0.000002,
+      },
+      app));
 
   // Digitization of silicon hits
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
