@@ -38,6 +38,7 @@
 #include <vector>
 
 #include "PhotoMultiplierHitDigiConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -74,7 +75,7 @@ public:
   };
 
   // random number generators
-  TRandomMixMax m_random;
+  mutable TRandomMixMax m_random;
   std::function<double()> m_rngNorm;
   std::function<double()> m_rngUni;
   //Rndm::Numbers m_rngUni, m_rngNorm;
@@ -115,6 +116,8 @@ private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const dd4hep::rec::CellIDPositionConverter* m_converter{
       algorithms::GeoSvc::instance().cellIDPositionConverter()};
+
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
   // std::default_random_engine generator; // TODO: need something more appropriate here
   // std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1

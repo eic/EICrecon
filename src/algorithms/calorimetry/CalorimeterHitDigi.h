@@ -26,6 +26,7 @@
 #include <functional>
 
 #include "CalorimeterHitDigiConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -65,7 +66,8 @@ private:
   enum readout_enum readoutType { kSimpleReadout };
 
 private:
-  const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+  const algorithms::GeoSvc& m_geo         = algorithms::GeoSvc::instance();
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
   mutable std::default_random_engine m_generator;
   mutable std::normal_distribution<double> m_gaussian;

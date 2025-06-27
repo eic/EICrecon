@@ -24,6 +24,10 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
   const auto [headers, inPulses] = input;
   auto [outPulses]               = output;
 
+  // reseed random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  m_generator.seed(seed);
+
   for (const auto& pulse : *inPulses) {
 
     //Clone input pulse to a mutable output pulse
