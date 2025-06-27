@@ -20,7 +20,7 @@ void InitPlugin(JApplication* app) {
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "SiBarrelVertexRawHits", {"VertexBarrelHits"},
+      "SiBarrelVertexRawHits", {"EventHeader", "VertexBarrelHits"},
       {"SiBarrelVertexRawHits", "SiBarrelVertexRawHitAssociations"},
       {
           .threshold = 0.54 * dd4hep::keV,
