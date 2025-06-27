@@ -50,7 +50,12 @@ public:
 
 private:
   std::shared_ptr<SignalPulse> m_pulse;
-  float m_min_sampling_time = 0 * edm4eic::unit::ns;
+  double m_min_sampling_time;
+  double m_ignore_thres;
+
+  std::optional<double> m_edep_to_npe;
+
+  mutable std::mt19937 m_gen{};
 };
 
 } // namespace eicrecon

@@ -12,9 +12,11 @@
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
+#include "algorithms/calorimetry/CalorimeterPulseGenerationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
+#include "factories/calorimetry/CalorimeterPulseGeneration_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
@@ -38,6 +40,16 @@ void InitPlugin(JApplication* app) {
       "fiber", "z"};
   decltype(SimCalorimeterHitProcessorConfig::contributionMergeFields)
       EcalBarrelScFi_contributionMergeFields = {"fiber"};
+
+  decltype(CalorimeterPulseGenerationConfig::pulse_shape) EcalBarrelScFi_pulse_shape =
+      "LandauPulse";
+  decltype(CalorimeterPulseGenerationConfig::pulse_shape_params) EcalBarrelScFi_pulse_shape_params =
+      {1.0, 2 * edm4eic::unit::ns};
+  decltype(CalorimeterPulseGenerationConfig::edep_to_npe) EcalBarrelScFi_edep_to_npe =
+      1690.75267 / edm4eic::unit::GeV;
+  decltype(CalorimeterPulseGenerationConfig::timestep) EcalBarrelScFi_timestep =
+      0.2 * edm4eic::unit::ns;
+  decltype(CalorimeterPulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = 1.0e-5;
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -67,6 +79,28 @@ void InitPlugin(JApplication* app) {
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterPulseGeneration_factory>(
+      "EcalBarrelScFiPPulses", {"EcalBarrelScFiPAttenuatedHits"}, {"EcalBarrelScFiPPulses"},
+      {
+          .pulse_shape        = EcalBarrelScFi_pulse_shape,
+          .pulse_shape_params = EcalBarrelScFi_pulse_shape_params,
+          .edep_to_npe        = EcalBarrelScFi_edep_to_npe,
+          .timestep           = EcalBarrelScFi_timestep,
+          .ignore_thres       = EcalBarrelScFi_ignore_thres,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterPulseGeneration_factory>(
+      "EcalBarrelScFiNPulses", {"EcalBarrelScFiNAttenuatedHits"}, {"EcalBarrelScFiNPulses"},
+      {
+          .pulse_shape        = EcalBarrelScFi_pulse_shape,
+          .pulse_shape_params = EcalBarrelScFi_pulse_shape_params,
+          .edep_to_npe        = EcalBarrelScFi_edep_to_npe,
+          .timestep           = EcalBarrelScFi_timestep,
+          .ignore_thres       = EcalBarrelScFi_ignore_thres,
       },
       app // TODO: Remove me once fixed
       ));
