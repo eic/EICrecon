@@ -372,6 +372,10 @@ std::cout<<"===============HIT COLLECTION SIZE AFTER : "<<cell_hit_map.size()<<"
         hitassoc.setWeight(1.0);
         hitassoc.setRawHit(hit);
 #if EDM4EIC_VERSION_MAJOR >= 6
+<<<<<<< HEAD
+=======
+>>>>>>> 6b688420 (New functionality in Digitization for SiliconTrackekNosieHitStudy)
+>>>>>>> b81e0309 (New functionality in Digitization for SiliconTrackekNosieHitStudy)
         hitassoc.setSimHit(sim_hit);
 #else
         hitassoc.addToSimHits(sim_hit);
