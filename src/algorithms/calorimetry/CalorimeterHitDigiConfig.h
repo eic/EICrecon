@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+#include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/unit_system.h>
+
 namespace eicrecon {
 
 struct CalorimeterHitDigiConfig {
@@ -15,6 +18,12 @@ struct CalorimeterHitDigiConfig {
 
   // single hit energy deposition threshold
   double threshold{1.0 * dd4hep::keV};
+
+  // readout settings
+  std::string readoutType{"simple"};
+  double lightYield{0. / edm4eic::unit::GeV};
+  double photonDetectionEfficiency{0.0}; // (light collection efficiency) x (quantum efficiency)
+  unsigned long long numEffectiveSipmPixels{0};
 
   // digitization settings
   unsigned int capADC{1};
