@@ -5,6 +5,7 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
 #include <stdexcept>
 #include <string>

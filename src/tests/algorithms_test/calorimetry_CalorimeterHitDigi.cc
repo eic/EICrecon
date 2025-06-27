@@ -9,16 +9,17 @@
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#include <cmath>
 #include <edm4hep/CaloHitContributionCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <gsl/pointers>
-#include <memory>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <cmath>
+#include <gsl/pointers>
+#include <memory>
 #include <utility>
 #include <vector>
 
