@@ -14,9 +14,12 @@
 #else
 #include <edm4hep/TimeSeriesCollection.h>
 #endif
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <vector>
 
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"

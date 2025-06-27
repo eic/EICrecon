@@ -5,23 +5,21 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/EDM4eicVersion.h>
-#include <algorithms/geo.h>
-#include <DD4hep/IDDescriptor.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 #include <edm4eic/SimPulseCollection.h>
 #else
 #include <edm4hep/TimeSeriesCollection.h>
 #endif
+#include <memory>
+#include <optional>
 #include <random>
-#include <stdint.h>
 #include <string>
 #include <string_view>
-#include <functional>
 
 #include "CalorimeterPulseGenerationConfig.h"
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/digi/SiliconPulseGeneration.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 

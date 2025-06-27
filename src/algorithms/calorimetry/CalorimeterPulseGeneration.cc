@@ -3,37 +3,19 @@
 
 #include "CalorimeterPulseGeneration.h"
 
-#include <DD4hep/Detector.h>
-#include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Readout.h>
-#include <DD4hep/config.h>
-#include <DDSegmentation/BitFieldCoder.h>
-#include <Evaluator/DD4hepUnits.h>
-#include <algorithms/service.h>
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/unit_system.h>
-#include <fmt/core.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
-#include <cstddef>
+#include <cstdint>
 #include <gsl/pointers>
 #include <limits>
-#include <stdexcept>
-#include <string>
-#include <unordered_map>
-#include <utility>
 #include <vector>
-#include <RtypesCore.h>
-#include <TMath.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4hep/Vector3d.h>
-#include <edm4hep/Vector3f.h>
-#include <functional>
 
 #include "algorithms/calorimetry/CalorimeterPulseGenerationConfig.h"
 #include "algorithms/digi/SiliconPulseGeneration.h"
-#include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
 
