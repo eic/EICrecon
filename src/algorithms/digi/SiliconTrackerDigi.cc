@@ -95,7 +95,12 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
         // set association
         auto hitassoc = associations->create();
         hitassoc.setWeight(1.0);
+<<<<<<< HEAD
         hitassoc.setRawHit(item.second);
+=======
+        hitassoc.setRawHit(hit);
+#if EDM4EIC_VERSION_MAJOR >= 6
+>>>>>>> 6b688420 (New functionality in Digitization for SiliconTrackekNosieHitStudy)
         hitassoc.setSimHit(sim_hit);
       }
     }
