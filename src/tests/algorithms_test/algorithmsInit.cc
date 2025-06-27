@@ -8,6 +8,7 @@
 #include <DD4hep/Objects.h>
 #include <algorithms/geo.h>
 #include <algorithms/interfaces/ParticleSvc.h>
+#include <algorithms/interfaces/UniqueIDGenSvc.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
 #include <catch2/generators/catch_generators_random.hpp>
@@ -80,6 +81,9 @@ public:
 
     auto& particleSvc = algorithms::ParticleSvc::instance();
     serviceSvc.add<algorithms::ParticleSvc>(&particleSvc);
+
+    auto& uniqueIDSvc = algorithms::UniqueIDGenSvc::instance();
+    serviceSvc.add<algorithms::UniqueIDGenSvc>(&uniqueIDSvc);
 
     serviceSvc.init();
   }
