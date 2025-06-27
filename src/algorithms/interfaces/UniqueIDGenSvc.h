@@ -87,9 +87,9 @@ protected:
   ALGORITHMS_DEFINE_SERVICE(UniqueIDGenSvc)
 
 private:
-  Property<size_t> m_seed{this, "seed", "Random seed for the internal random engine"};
+  Property<size_t> m_seed{this, "seed", 1, "Random seed for the internal random engine"};
   Property<bool> m_checkDuplicates{
-      this, "checkDuplicates",
+      this, "checkDuplicates", false,
       "Caches obtained ID and throws an exception if a duplicate would be returned"};
 
   mutable std::unordered_map<size_t, std::tuple<event_num_t, run_num_t, std::string>, std::identity>
