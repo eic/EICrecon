@@ -369,7 +369,12 @@ std::cout<<"===============HIT COLLECTION SIZE AFTER : "<<cell_hit_map.size()<<"
       if (cellID == sim_hit.getCellID()) {
         auto hitassoc = associations->create();
         hitassoc.setWeight(1.0);
+<<<<<<< HEAD
         hitassoc.setRawHit(item.second);
+=======
+        hitassoc.setRawHit(hit);
+#if EDM4EIC_VERSION_MAJOR >= 6
+>>>>>>> 6b688420 (New functionality in Digitization for SiliconTrackekNosieHitStudy)
         hitassoc.setSimHit(sim_hit);
       }
     }
