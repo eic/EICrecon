@@ -5,14 +5,15 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <cmath>
-#include <cstddef>
+#include <JANA/JApplicationFwd.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
+#include <cmath>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
