@@ -85,9 +85,11 @@ public:
 
     // Register a particle service
     [[maybe_unused]] auto& particleSvc = algorithms::ParticleSvc::instance();
+    serviceSvc.add<algorithms::ParticleSvc>(&particleSvc);
 
     // Register a unique ID service
     [[maybe_unused]] auto& uniqueIDGenSvc = algorithms::UniqueIDGenSvc::instance();
+    serviceSvc.add<algorithms::UniqueIDGenSvc>(&uniqueIDGenSvc);
 
     // Finally, initialize the ServiceSvc
     serviceSvc.init();
