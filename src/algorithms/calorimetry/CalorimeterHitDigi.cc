@@ -143,6 +143,10 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
   auto [rawhits] = output;
 #endif
 
+  // reseed random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  m_generator.seed(seed);
+
   // find the hits that belong to the same group (for merging)
   std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
   std::size_t ix = 0;
