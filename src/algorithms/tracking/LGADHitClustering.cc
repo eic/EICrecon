@@ -26,6 +26,7 @@
 #include <Eigen/Core>
 #include <cmath>
 #include <gsl/pointers>
+#include <limits>
 #include <set>
 #include <stdexcept>
 #include <unordered_map>

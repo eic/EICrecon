@@ -4,14 +4,13 @@
 //
 // Convert ADC pulses into ADC and TDC values
 
+#include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <gsl/pointers>
-#include <limits>
-#include <podio/RelationRange.h>
-#include <vector>
 #include <stack>
+#include <utility>
 
 #include "CFDROCDigitization.h"
 #include "algorithms/digi/CFDROCDigitizationConfig.h"

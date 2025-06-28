@@ -7,7 +7,6 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
-#include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
