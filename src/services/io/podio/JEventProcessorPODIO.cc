@@ -10,7 +10,9 @@
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/ROOTWriter.h>
+#include <algorithm>
 #include <exception>
+#include <iterator>
 #include <ostream>
 #include <regex>
 #include <stdexcept>
