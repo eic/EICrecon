@@ -10,6 +10,7 @@
 #include <gsl/pointers>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
 
 #include "SiliconPulseDiscretization.h"
 // use TGraph for interpolation
@@ -39,13 +40,13 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
   const auto [inPulses] = input;
   auto [outPulses]      = output;
 
-  std::unordered_map<dd4hep::rec::CellID, TGraph> Graph4Cells;
   // sometimes the first hit arrives early, but the last hit arrive very late
   // there is a lot of nothing in between
   // If we loop through those time interval with nothing in it, the creation of outPulses will take forever
   // Speeds things up by denoting which EICROCcycle contains pulse information
   // And only focus on those cycles
-  std::unordered_map<dd4hep::rec::CellID, std::unordered_set<int>> ActiveCycles4Cells;
+  std::unordered_map<dd4hep::rec::CellID, std::pair<TGraph, std::unordered_set<int>>>
+      graphAndCycle4Cells;
 
   for (const auto& pulse : *inPulses) {
 
@@ -55,8 +56,8 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
 
     // one TGraph per pulse
     // Interpolate the pulse with TGraph
-    auto& graph        = Graph4Cells[cellID];
-    auto& activeCycles = ActiveCycles4Cells[cellID];
+    auto& graph        = graphAndCycle4Cells[cellID].first;
+    auto& activeCycles = graphAndCycle4Cells[cellID].second;
     for (unsigned int i = 0; i < pulse.getAmplitude().size(); i++) {
       auto currTime = time + i * interval;
       // current EICROC cycle
@@ -67,12 +68,15 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
   }
 
   // sort all pulses data points to avoid TGraph::Eval giving nan due to non-monotonic data
-  for (auto& [cellID, graph] : Graph4Cells)
-    graph.Sort();
+  for (auto& [_, graphAndCycle] : graphAndCycle4Cells) {
+    graphAndCycle.first.Sort();
+    graphAndCycle.first.SetBit(TGraph::kIsSortedX);
+  }
 
   // sum all digitized pulses
-  for (const auto& [cellID, graph] : Graph4Cells) {
-    const auto& activeCycle = ActiveCycles4Cells[cellID];
+  for (const auto& [cellID, graphAndCycle] : graphAndCycle4Cells) {
+    const auto& graph       = graphAndCycle.first;
+    const auto& activeCycle = graphAndCycle.second;
     double tMin             = NAN;
     double tMax             = NAN;
     double temp             = NAN; // do not use
