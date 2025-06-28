@@ -1096,7 +1096,7 @@ jobs:
     needs:
       - list-open-prs
     strategy:
-      matrix: 
+      matrix:
         json: ${{ fromJSON(needs.list-open-prs.outputs.json) }}
         exclude:
           pr: ${{ github.event.pull_request.number }}
