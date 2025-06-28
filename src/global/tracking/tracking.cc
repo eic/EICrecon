@@ -6,6 +6,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/Measurement2D.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackerHitCollection.h>
@@ -76,7 +77,14 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
+      "CentralTrackerNoTOFBarrelMeasurements", {"CentralTrackingRecHits"},
+      {"CentralTrackerNoTOFBarrelMeasurements"}, app));
+
+  // include the collection from previous collector
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Measurement2D>>(
+      "CentralTrackerMeasurements",
+      {"CentralTrackerNoTOFBarrelMeasurements", "TOFBarrelClusterHits"},
+      {"CentralTrackerMeasurements"}, // Output collection name
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
