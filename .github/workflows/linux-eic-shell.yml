@@ -242,7 +242,7 @@ jobs:
       if: ${{ github.event_name == 'pull_request' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        clang_tidy_fixes: clang_tidy_fixes.yml
+        clang_tidy_fixes: clang_tidy_fixes.yaml
         request_changes: true
         suggestions_per_comment: 10
     - name: Run include-what-you-use (iwyu) on changed files
