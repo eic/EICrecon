@@ -1085,119 +1085,36 @@ jobs:
   list-open-prs:
     uses: eic/actions/.github/workflows/list-open-prs.yml@main
 
-  get-docs-from-open-prs:
-    runs-on: ubuntu-24.04
+  get-docs-from-this-pr:
     needs:
       - build-docs
+    uses: .github/workflows/get-docs-from-this-pr.yml
+    with:
+      target: publishing_docs/
+
+  get-docs-from-other-prs:
+    needs:
       - list-open-prs
     strategy:
-      matrix: ${{ fromJSON(needs.list-open-prs.outputs.json) }}
+      matrix: 
+        json: ${{ fromJSON(needs.list-open-prs.outputs.json) }}
+        exclude:
+          pr: ${{ github.event.pull_request.number }}
       fail-fast: false
       max-parallel: 4
-    steps:
-      - name: Download docs artifact (other PRs)
-        uses: dawidd6/action-download-artifact@v11
-        if: github.event.pull_request.number != matrix.pr
-        with:
-          commit: ${{ matrix.head_sha }}
-          path: publishing_docs/pr/${{ matrix.pr }}/
-          name: docs
-          workflow: ".github/workflows/linux-eic-shell.yml"
-          workflow_conclusion: "completed"
-          if_no_artifact_found: ignore
-      - name: Download docs artifact (this PR)
-        uses: actions/download-artifact@v4
-        if: github.event.pull_request.number == matrix.pr
-        with:
-          name: docs
-          path: publishing_docs/pr/${{ matrix.pr }}/
-      - name: Download capybara artifact (other PRs)
-        id: download_capybara
-        uses: dawidd6/action-download-artifact@v11
-        if: github.event.pull_request.number != matrix.pr
-        with:
-          commit: ${{ matrix.head_sha }}
-          path: publishing_docs/pr/${{ matrix.pr }}/capybara/
-          name: capybara
-          workflow: ".github/workflows/linux-eic-shell.yml"
-          workflow_conclusion: "completed"
-          if_no_artifact_found: ignore
-      - name: Download capybara artifact (this PR)
-        uses: actions/download-artifact@v4
-        if: github.event.pull_request.number == matrix.pr
-        with:
-          name: capybara
-          path: publishing_docs/pr/${{ matrix.pr }}/capybara/
-      - name: Remove doxygen in PR
-        run: rm -rf publishing_docs/pr/*/doxygen
-      - uses: actions/upload-artifact@v4
-        with:
-          name: github-pages-staging-pr-${{ matrix.pr }}
-          path: publishing_docs/
-          if-no-files-found: ignore
+    uses: .github/workflows/get-docs-from-other-prs.yml
 
   get-docs-from-main:
-    runs-on: ubuntu-24.04
     needs:
       - build-docs
-    steps:
-      # Note:
-      # - If we run this on a non-main branch, we download from main with action-download-artifact.
-      # - If we run this on the main branch, we have to download from this pipeline with download-artifact.
-      - name: Download docs artifact (in PR)
-        uses: dawidd6/action-download-artifact@v11
-        if: github.ref_name != 'main'
-        with:
-          branch: main
-          path: publishing_docs/
-          name: docs
-          workflow: ".github/workflows/linux-eic-shell.yml"
-          workflow_conclusion: "completed"
-          if_no_artifact_found: fail
-      - name: Download docs artifact (on main)
-        uses: actions/download-artifact@v4
-        if: github.ref_name == 'main'
-        with:
-          name: docs
-          path: publishing_docs/
-      - name: Download capybara artifact (in PR)
-        id: download_capybara
-        uses: dawidd6/action-download-artifact@v11
-        if: github.ref_name != 'main'
-        with:
-          commit: ${{ matrix.head_sha }}
-          path: publishing_docs/capybara/
-          name: capybara
-          workflow: ".github/workflows/linux-eic-shell.yml"
-          workflow_conclusion: "completed"
-          if_no_artifact_found: ignore
-      - name: Download capybara artifact (on main)
-        uses: actions/download-artifact@v4
-        if: github.ref_name == 'main'
-        with:
-          name: capybara
-          path: publishing_docs/capybara/
-      - name: Populate capybara summary (on main)
-        if: github.ref_name == 'main' || steps.download_capybara.outputs.found_artifact == 'true'
-        run: |
-         echo "### Capybara summary for main" >> publishing_docs/capybara/index.md
-         find publishing_docs/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
-           "- [%f](https://eicrecon.epic-eic.org/capybara/%f/index.html)\n" | sort >> publishing_docs/capybara/index.md
-      - name: Create capybara step summary (this PR)
-        if: github.ref_name == 'main'
-        run: |
-          cat publishing_docs/capybara/index.md >> $GITHUB_STEP_SUMMARY
-      - uses: actions/upload-artifact@v4
-        with:
-          name: github-pages-staging-main
-          path: publishing_docs/
-          if-no-files-found: error
+    uses: .github/workflows/get-docs-from-main.yml
 
   collect-docs:
     runs-on: ubuntu-24.04
     needs:
       - get-docs-from-main
-      - get-docs-from-open-prs
+      - get-docs-from-this-pr
+      - get-docs-from-other-prs
     steps:
       - name: Merge GitHub Pages staging artifact
         uses: actions/upload-artifact/merge@v4
