@@ -57,7 +57,7 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
               "use MC photon vertex, wavelength, refractive index");
   print_cheat("cheatTrueRadiator", m_cfg.cheatTrueRadiator, "use MC truth to obtain true radiator");
 
-  // extract the the relevant `CherenkovDetector`, set to `m_irt_det`
+  // extract the relevant `CherenkovDetector`, set to `m_irt_det`
   const auto& detectors = m_irt_det_coll->GetDetectors();
   if (detectors.empty()) {
     throw std::runtime_error("No CherenkovDetectors found in input collection `irt_det_coll`");
