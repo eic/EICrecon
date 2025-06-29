@@ -359,7 +359,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedParticles",
       },
       {
-          "CentralAndB0TrackerVertices",
+          "CentralAndB0TrackVertices",
       },
       {}, app));
 
