@@ -83,7 +83,8 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
     auto ri_lookup_table_orig = irt_rad->m_ri_lookup_table;
     if (ri_lookup_table_orig.size() != m_cfg.numRIndexBins) {
       irt_rad->m_ri_lookup_table.clear();
-      irt_rad->m_ri_lookup_table = Tools::ApplyFineBinning(ri_lookup_table_orig, m_cfg.numRIndexBins);
+      irt_rad->m_ri_lookup_table =
+          Tools::ApplyFineBinning(ri_lookup_table_orig, m_cfg.numRIndexBins);
     }
   }
 
