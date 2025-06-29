@@ -2,10 +2,16 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JService.h>
+#include <algorithms/property.h>
 
 UniqueIDGen_service::UniqueIDGen_service(JApplication* app)
     : m_app(app), m_uniqueGenIDSvc(algorithms::UniqueIDGenSvc::instance()) {
-  size_t seed = 1;
-  m_app->SetDefaultParameter("seed", seed, "Random seed for the internal random engine");
-  m_uniqueGenIDSvc.setProperty("seed", seed);
+  for (const auto& [key, prop] : m_uniqueGenIDSvc.getProperties()) {
+    std::visit(
+        [this, key = key](auto&& val) {
+          m_app->SetDefaultParameter(std::string(key), val); // FIXME add description
+          this->m_uniqueGenIDSvc.setProperty(key, val);
+        },
+        prop.get());
+  }
 }
