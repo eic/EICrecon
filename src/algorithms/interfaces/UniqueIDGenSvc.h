@@ -4,6 +4,7 @@
 #pragma once
 
 #include <edm4hep/EventHeaderCollection.h>
+#include <algorithms/logger.h>
 #include <algorithms/service.h>
 #include <bitset>
 #include <map>
@@ -13,7 +14,7 @@
 
 namespace algorithms {
 
-class UniqueIDGenSvc : public Service<UniqueIDGenSvc> {
+class UniqueIDGenSvc : public LoggedService<UniqueIDGenSvc> {
 public:
   using event_num_t = decltype(std::declval<edm4hep::EventHeader>().getEventNumber());
   using run_num_t   = decltype(std::declval<edm4hep::EventHeader>().getRunNumber());
@@ -84,7 +85,7 @@ public:
   };
 
 protected:
-  ALGORITHMS_DEFINE_SERVICE(UniqueIDGenSvc)
+  ALGORITHMS_DEFINE_LOGGED_SERVICE(UniqueIDGenSvc)
 
 private:
   Property<size_t> m_seed{this, "seed", 1, "Random seed for the internal random engine"};
