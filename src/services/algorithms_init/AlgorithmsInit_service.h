@@ -18,6 +18,7 @@
 #include "services/log/Log_service.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/unique_id/UniqueIDGen_service.h"
 
 /**
  * The AlgorithmsInit_service centralizes use of ServiceSvc
@@ -31,9 +32,10 @@ public:
     auto& serviceSvc = algorithms::ServiceSvc::instance();
 
     // Get services
-    m_log_service     = srv_locator->get<Log_service>();
-    m_dd4hep_service  = srv_locator->get<DD4hep_service>();
-    m_actsgeo_service = srv_locator->get<ACTSGeo_service>();
+    m_log_service         = srv_locator->get<Log_service>();
+    m_dd4hep_service      = srv_locator->get<DD4hep_service>();
+    m_actsgeo_service     = srv_locator->get<ACTSGeo_service>();
+    m_uniqueIDGen_service = srv_locator->get<UniqueIDGen_service>();
 
     // Logger for ServiceSvc
     m_log = m_log_service->logger("AlgorithmsInit");
@@ -88,7 +90,7 @@ public:
     serviceSvc.add<algorithms::ParticleSvc>(&particleSvc);
 
     // Register a unique ID service
-    [[maybe_unused]] auto& uniqueIDGenSvc = algorithms::UniqueIDGenSvc::instance();
+    [[maybe_unused]] auto& uniqueIDGenSvc = m_uniqueIDGen_service->getSvc();
     serviceSvc.add<algorithms::UniqueIDGenSvc>(&uniqueIDGenSvc);
 
     // Finally, initialize the ServiceSvc
@@ -100,5 +102,6 @@ private:
   std::shared_ptr<Log_service> m_log_service;
   std::shared_ptr<DD4hep_service> m_dd4hep_service;
   std::shared_ptr<ACTSGeo_service> m_actsgeo_service;
+  std::shared_ptr<UniqueIDGen_service> m_uniqueIDGen_service;
   std::shared_ptr<spdlog::logger> m_log;
 };
