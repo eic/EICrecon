@@ -98,6 +98,7 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
 
   // check radiators' configuration, and pass it to `m_irt_det`'s radiators
   for (auto [rad_name, irt_rad] : m_pid_radiators) {
+    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
     // find `cfg_rad`, the associated `IrtCherenkovParticleIDConfig` radiator
     auto cfg_rad_it = m_cfg.radiators.find(rad_name);
     if (cfg_rad_it != m_cfg.radiators.end()) {
