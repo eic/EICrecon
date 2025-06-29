@@ -59,8 +59,10 @@ public:
   void process(const Input&, const Output&) const;
 
 private:
+  // any access (R or W) to m_irt_det_coll, m_irt_det, m_pid_radiators must be locked
   CherenkovDetectorCollection* m_irt_det_coll;
   CherenkovDetector* m_irt_det;
+  std::map<std::string, CherenkovRadiator*> m_pid_radiators;
 
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
 
@@ -69,7 +71,6 @@ private:
   std::unordered_map<int, double> m_pdg_mass;
 
   inline static std::mutex m_pid_radiators_mutex;
-  std::map<std::string, CherenkovRadiator*> m_pid_radiators;
 };
 
 } // namespace eicrecon
