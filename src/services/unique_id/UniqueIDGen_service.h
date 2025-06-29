@@ -22,6 +22,4 @@ private:
   JApplication* m_app{nullptr};
   algorithms::UniqueIDGenSvc& m_uniqueGenIDSvc;
   std::shared_ptr<spdlog::logger> m_log;
-  size_t m_seed{1};
-  bool m_checkDuplicates{false};
 };
