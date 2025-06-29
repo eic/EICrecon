@@ -78,11 +78,13 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
   // rebin refractive index tables to have `m_cfg.numRIndexBins` bins
   trace("Rebinning refractive index tables to have {} bins", m_cfg.numRIndexBins);
   for (auto [rad_name, irt_rad] : m_irt_det->Radiators()) {
+    // FIXME: m_cfg.numRIndexBins should be a service configurable
+    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
     auto ri_lookup_table_orig = irt_rad->m_ri_lookup_table;
-    irt_rad->m_ri_lookup_table.clear();
-    irt_rad->m_ri_lookup_table = Tools::ApplyFineBinning(ri_lookup_table_orig, m_cfg.numRIndexBins);
-    // trace("- {}", rad_name);
-    // for(auto [energy,rindex] : irt_rad->m_ri_lookup_table) trace("  {:>5} eV   {:<}", energy, rindex);
+    if (ri_lookup_table_orig.size() != m_cfg.numRIndexBins) {
+      irt_rad->m_ri_lookup_table.clear();
+      irt_rad->m_ri_lookup_table = Tools::ApplyFineBinning(ri_lookup_table_orig, m_cfg.numRIndexBins);
+    }
   }
 
   // build `m_pid_radiators`, the list of radiators to use for PID
