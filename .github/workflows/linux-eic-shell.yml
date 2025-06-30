@@ -929,6 +929,7 @@ jobs:
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           prmon --json-summary rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.prmon.json -- \
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{matrix.nthreads > 1 && format('-Pnthreads={0}', matrix.nthreads) || ''}} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups)
+      continue-on-error: ${{matrix.nthreads > 1}}
     - uses: actions/upload-artifact@v4
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
@@ -1031,7 +1032,7 @@ jobs:
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_MT.edm4eic.root
         path: multi/
-    - name: Compare to previous artifacts
+    - name: Compare single- and multi-threaded artifacts
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
         platform-release: "${{ env.platform }}:${{ env.release }}"
@@ -1091,6 +1092,7 @@ jobs:
     needs:
       - eicrecon-gun
       - eicrecon-dis
+      - compare-single-multi-threaded
     steps:
       - uses: actions/checkout@v4
       - name: Copy docs
