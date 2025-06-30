@@ -13,7 +13,7 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/CFDROCDigitization_factory.h"
+#include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
@@ -75,9 +75,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
       {
-          .sigma_sharingx = 0.1 * dd4hep::mm,
+          .sigma_sharingx = 0.2 * dd4hep::mm,
           .sigma_sharingy = 0.5 * dd4hep::cm,
-          .min_edep       = 1e-8 * edm4eic::unit::GeV,
+          .min_edep       = 0.0 * edm4eic::unit::GeV,
           .readout        = "TOFBarrelHits",
       },
       app));
@@ -87,9 +87,9 @@ void InitPlugin(JApplication* app) {
   // 0 and sigma = 1 at x = -0.22278
   const double x_when_landau_min = -0.22278;
   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
-  const double sigma_analog      = 0.1 * edm4eic::unit::ns;
-  const double Vm                = 2.5e-3 * dd4hep::GeV;
-  const double adc_range         = 2560;
+  const double sigma_analog      = 0.293951 * edm4eic::unit::ns;
+  const double Vm                = 1e-3 * dd4hep::GeV;
+  const double adc_range         = 256;
   // gain is set such that pulse reaches a height of adc_range when EDep = Vm
   // gain is negative as LGAD voltage is always negative
   const double gain = -adc_range / Vm / landau_min;
@@ -98,9 +98,9 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
       {
           .pulse_shape_function = "LandauPulse",
-          .pulse_shape_params   = {gain, sigma_analog, offset},
-          .ignore_thres         = 0.01 * adc_range,
-          .timestep             = 0.02 * edm4eic::unit::ns,
+          .pulse_shape_params   = {gain, sigma_analog, offset * sigma_analog},
+          .ignore_thres         = 0.05 * adc_range,
+          .timestep             = 0.01 * edm4eic::unit::ns,
       },
       app));
 
@@ -117,11 +117,11 @@ void InitPlugin(JApplication* app) {
       {
           .EICROC_period = 25 * edm4eic::unit::ns,
           .local_period  = 25 * edm4eic::unit::ns / 1024,
-          .global_offset = -(offset + x_when_landau_min) * sigma_analog + risetime,
+          .global_offset = -offset * sigma_analog + risetime,
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<CFDROCDigitization_factory>(
-      "CFDROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {.fraction = 0.5}, app));
+  app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
+      "EICROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {}, app));
 }
 } // extern "C"
