@@ -201,7 +201,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
       "HcalEndcapPInsertClusterMatcher",
       {"CalorimeterTrackProjections", "HcalEndcapPInsertClusters"},
-      {"HcalEndcapPInsertClusterMatches"}, {.calo_id = "HcalEndcapPInsert_ID"}, app));
+      {"HcalEndcapPInsertTrackClusterMatches"}, {.calo_id = "HcalEndcapPInsert_ID"}, app));
 
   // Barrel
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
