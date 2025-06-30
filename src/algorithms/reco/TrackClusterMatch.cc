@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Tristan Protzman
 
-#include <cstdint>
 #include <edm4eic/EDM4eicVersion.h> // Needs edm4eic::TrackClusterMatch
 #include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <cstdint>
 #include <gsl/pointers>
 #include <optional>
-#include <podio/RelationRange.h>
 #include <set>
+#include <stdexcept>
 #include <vector>
 #if EDM4EIC_VERSION_MAJOR >= 8
 
