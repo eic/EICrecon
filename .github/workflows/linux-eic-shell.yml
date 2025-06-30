@@ -1020,10 +1020,7 @@ jobs:
           minq2: 1000
           detector_config: craterlake_18x275
     steps:
-    - name: Checkout .github
-      uses: actions/checkout@v4
-      with:
-        sparse-checkout: .github
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Download single-threaded artifact
       uses: actions/download-artifact@v4
       with:
