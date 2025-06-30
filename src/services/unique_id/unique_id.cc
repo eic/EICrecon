@@ -2,7 +2,8 @@
 // Copyright (C) 2025 Wouter Deconinck
 
 #include <JANA/JApplication.h>
-#include <algorithms/service.h>
+#include <JANA/JApplicationFwd.h>
+#include <memory>
 
 #include "services/unique_id/UniqueIDGen_service.h"
 
