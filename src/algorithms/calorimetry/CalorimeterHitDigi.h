@@ -46,17 +46,18 @@ class CalorimeterHitDigi : public CalorimeterHitDigiAlgorithm,
                            public WithPodConfig<CalorimeterHitDigiConfig> {
 
 public:
-  CalorimeterHitDigi(std::string_view name) : CalorimeterHitDigiAlgorithm {
-    name, {"inputHitCollection"},
+  CalorimeterHitDigi(std::string_view name)
+      : CalorimeterHitDigiAlgorithm{
+            name,
+            {"inputHitCollection"},
 #if EDM4EIC_VERSION_MAJOR >= 7
-        {"outputRawHitCollection", "outputRawHitAssociationCollection"},
+            {"outputRawHitCollection", "outputRawHitAssociationCollection"},
 #else
-        {"outputRawHitCollection"},
+            {"outputRawHitCollection"},
 #endif
-        "Smear energy deposit, digitize within ADC range, add pedestal, "
-        "convert time with smearing resolution, and sum signals."
+            "Smear energy deposit, digitize within ADC range, add pedestal, "
+            "convert time with smearing resolution, and sum signals."} {
   }
-  {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
