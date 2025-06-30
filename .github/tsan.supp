@@ -1,1 +1,5 @@
 # https://github.com/google/sanitizers/wiki/ThreadSanitizerSuppressions
+
+# std::lgamma is not thread-safe but used in thread-safe way by std::binomial_distribution
+race:std::binomial_distribution<int>::param_type::_M_initialize
+race:std::binomial_distribution<int>::operator()

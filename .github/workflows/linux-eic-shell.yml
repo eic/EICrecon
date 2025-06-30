@@ -238,11 +238,11 @@ jobs:
         path: clang_tidy_fixes.yaml
         if-no-files-found: ignore
     - name: Suggest clang-tidy fixes as PR comments
-      uses: platisd/clang-tidy-pr-comments@v1.7.0
+      uses: platisd/clang-tidy-pr-comments@v1.8.0
       if: ${{ github.event_name == 'pull_request' }}
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
-        clang_tidy_fixes: clang_tidy_fixes.yml
+        clang_tidy_fixes: clang_tidy_fixes.yaml
         request_changes: true
         suggestions_per_comment: 10
     - name: Run include-what-you-use (iwyu) on changed files
@@ -647,7 +647,6 @@ jobs:
         - EcalBarrelScFiCheck
         - femc_studies
         - lfhcal_studies
-        - tof_efficiency
         - TRACKINGcheck
         - tracking_efficiency
         - tracking_occupancy
@@ -1009,7 +1008,7 @@ jobs:
 
   trigger-container:
     runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' }}
+    if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}
     needs:
     - build
     outputs:
