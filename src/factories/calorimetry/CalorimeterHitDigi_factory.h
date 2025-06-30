@@ -20,6 +20,7 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
+  PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
   PodioInput<edm4hep::SimCalorimeterHit> m_hits_input{this};
   PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output{this};
 #if EDM4EIC_VERSION_MAJOR >= 7
@@ -57,9 +58,10 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
 #if EDM4EIC_VERSION_MAJOR >= 7
-    m_algo->process({m_hits_input()}, {m_hits_output().get(), m_hit_assocs_output().get()});
+    m_algo->process({m_event_headers_input(), m_hits_input()},
+                    {m_hits_output().get(), m_hit_assocs_output().get()});
 #else
-    m_algo->process({m_hits_input()}, {m_hits_output().get()});
+    m_algo->process({m_event_headers_input(), m_hits_input()}, {m_hits_output().get()});
 #endif
   }
 };

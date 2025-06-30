@@ -19,6 +19,7 @@
 #if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #endif
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <random>
@@ -28,12 +29,13 @@
 #include <functional>
 
 #include "CalorimeterHitDigiConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
 using CalorimeterHitDigiAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::SimCalorimeterHitCollection>,
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimCalorimeterHitCollection>,
     algorithms::Output<
 #if EDM4EIC_VERSION_MAJOR >= 7
         edm4hep::RawCalorimeterHitCollection, edm4eic::MCRecoCalorimeterHitAssociationCollection
@@ -47,7 +49,7 @@ class CalorimeterHitDigi : public CalorimeterHitDigiAlgorithm,
 
 public:
   CalorimeterHitDigi(std::string_view name) : CalorimeterHitDigiAlgorithm {
-    name, {"inputHitCollection"},
+    name, {"eventHeader", "inputHitCollection"},
 #if EDM4EIC_VERSION_MAJOR >= 7
         {"outputRawHitCollection", "outputRawHitAssociationCollection"},
 #else
@@ -75,7 +77,8 @@ private:
   enum readout_enum readoutType { kSimpleReadout };
 
 private:
-  const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+  const algorithms::GeoSvc& m_geo         = algorithms::GeoSvc::instance();
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
   mutable std::default_random_engine m_generator;
   mutable std::normal_distribution<double> m_gaussian;

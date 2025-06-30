@@ -107,8 +107,12 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   //  is fixed = cellID>>32&0x3.
   // - The simulation is simplistic: single-hit cluster per coordinate.
 
-  const auto [sim_hits]         = input;
-  auto [raw_hits, associations] = output;
+  const auto [headers, sim_hits] = input;
+  auto [raw_hits, associations]  = output;
+
+  // reseed random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  m_random.SetSeed(seed);
 
   // A map of unique cellIDs with temporary structure RawHit
   std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;

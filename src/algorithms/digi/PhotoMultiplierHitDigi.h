@@ -24,6 +24,7 @@
 #include <algorithms/geo.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <stdint.h>
 #include <cstddef>
@@ -37,14 +38,15 @@
 #include <vector>
 
 #include "PhotoMultiplierHitDigiConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using PhotoMultiplierHitDigiAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-                          algorithms::Output<edm4eic::RawTrackerHitCollection,
-                                             edm4eic::MCRecoTrackerHitAssociationCollection>>;
+using PhotoMultiplierHitDigiAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
+    algorithms::Output<edm4eic::RawTrackerHitCollection,
+                       edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class PhotoMultiplierHitDigi : public PhotoMultiplierHitDigiAlgorithm,
                                public WithPodConfig<PhotoMultiplierHitDigiConfig> {
@@ -52,7 +54,7 @@ class PhotoMultiplierHitDigi : public PhotoMultiplierHitDigiAlgorithm,
 public:
   PhotoMultiplierHitDigi(std::string_view name)
       : PhotoMultiplierHitDigiAlgorithm{name,
-                                        {"inputHitCollection"},
+                                        {"eventHeaderCollection", "inputHitCollection"},
                                         {"outputRawHitCollection", "outputRawHitAssociations"},
                                         "Digitize within ADC range, add pedestal, convert time "
                                         "with smearing resolution."} {}
@@ -73,7 +75,7 @@ public:
   };
 
   // random number generators
-  TRandomMixMax m_random;
+  mutable TRandomMixMax m_random;
   std::function<double()> m_rngNorm;
   std::function<double()> m_rngUni;
   //Rndm::Numbers m_rngUni, m_rngNorm;
@@ -114,6 +116,8 @@ private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const dd4hep::rec::CellIDPositionConverter* m_converter{
       algorithms::GeoSvc::instance().cellIDPositionConverter()};
+
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
   // std::default_random_engine generator; // TODO: need something more appropriate here
   // std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1

@@ -136,12 +136,16 @@ void CalorimeterHitDigi::init() {
 void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                                  const CalorimeterHitDigi::Output& output) const {
 
-  const auto [simhits] = input;
+  const auto [headers, simhits] = input;
 #if EDM4EIC_VERSION_MAJOR >= 7
   auto [rawhits, rawassocs] = output;
 #else
   auto [rawhits] = output;
 #endif
+
+  // reseed random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  m_generator.seed(seed);
 
   // find the hits that belong to the same group (for merging)
   std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;

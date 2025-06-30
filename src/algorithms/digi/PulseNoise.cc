@@ -21,8 +21,12 @@ void PulseNoise::init() {
 }
 
 void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Output& output) const {
-  const auto [inPulses] = input;
-  auto [outPulses]      = output;
+  const auto [headers, inPulses] = input;
+  auto [outPulses]               = output;
+
+  // reseed random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  m_generator.seed(seed);
 
   for (const auto& pulse : *inPulses) {
 

@@ -9,20 +9,22 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <functional>
 #include <string>
 #include <string_view>
 
 #include "MPGDTrackerDigiConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using MPGDTrackerDigiAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-                          algorithms::Output<edm4eic::RawTrackerHitCollection,
-                                             edm4eic::MCRecoTrackerHitAssociationCollection>>;
+using MPGDTrackerDigiAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
+    algorithms::Output<edm4eic::RawTrackerHitCollection,
+                       edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class MPGDTrackerDigi : public MPGDTrackerDigiAlgorithm,
                         public WithPodConfig<MPGDTrackerDigiConfig> {
@@ -31,7 +33,7 @@ public:
   MPGDTrackerDigi(std::string_view name)
       : MPGDTrackerDigiAlgorithm{
             name,
-            {"inputHitCollection"},
+            {"eventHeaderCollection", "inputHitCollection"},
             {"outputRawHitCollection", "outputHitAssociations"},
             "2D-strip segmentation, apply threshold, digitize within ADC range, "
             "convert time with smearing resolution."} {}
@@ -40,8 +42,10 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
+
   /** Random number generation*/
-  TRandomMixMax m_random;
+  mutable TRandomMixMax m_random;
   std::function<double()> m_gauss;
   // FIXME replace with standard random engine
   // std::default_random_engine generator; // TODO: need something more appropriate here
