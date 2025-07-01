@@ -5,6 +5,7 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <memory>
 #include <random>
@@ -15,13 +16,14 @@
 #include "TrackParamTruthInitConfig.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/ParticleSvc.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using TrackParamTruthInitAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4hep::MCParticleCollection>,
-                          algorithms::Output<edm4eic::TrackParametersCollection>>;
+using TrackParamTruthInitAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::MCParticleCollection>,
+    algorithms::Output<edm4eic::TrackParametersCollection>>;
 
 class TrackParamTruthInit : public TrackParamTruthInitAlgorithm,
                             public WithPodConfig<TrackParamTruthInitConfig> {
@@ -41,10 +43,8 @@ private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
-  const algorithms::ParticleSvc& m_particleSvc{algorithms::ParticleSvc::instance()};
-
-  mutable std::default_random_engine generator; // TODO: need something more appropriate here
-  mutable std::normal_distribution<double> m_normDist;
+  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  const algorithms::UniqueIDGenSvc& m_uid      = algorithms::UniqueIDGenSvc::instance();
 };
 
 } // namespace eicrecon
