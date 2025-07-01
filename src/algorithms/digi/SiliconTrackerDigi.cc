@@ -20,13 +20,7 @@
 
 namespace eicrecon {
 
-void SiliconTrackerDigi::init() {
-  // Create random gauss function
-  m_gauss = [&]() {
-    return m_random.Gaus(0, m_cfg.timeResolution);
-    //return m_rng.gaussian<double>(0., m_cfg.timeResolution);
-  };
-}
+void SiliconTrackerDigi::init() { }
 
 void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
                                  const SiliconTrackerDigi::Output& output) const {
@@ -34,9 +28,10 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   const auto [headers, sim_hits] = input;
   auto [raw_hits, associations]  = output;
 
-  // reseed random generator
+  // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
-  m_random.SetSeed(seed);
+  std::default_random_engine generator(seed);
+  std::normal_distribution<double> gaussian;
 
   // A map of unique cellIDs with temporary structure RawHit
   std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
@@ -44,7 +39,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   for (const auto& sim_hit : *sim_hits) {
 
     // time smearing
-    double time_smearing = m_gauss();
+    double time_smearing = gaussian(generator) * m_cfg.timeResolution;
     double result_time   = sim_hit.getTime() + time_smearing;
     auto hit_time_stamp  = (std::int32_t)(result_time * 1e3);
 
