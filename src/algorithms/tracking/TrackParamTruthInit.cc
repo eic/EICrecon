@@ -12,12 +12,14 @@
 #include <edm4eic/Cov6f.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <cmath>
 #include <cstdlib>
 #include <gsl/pointers>
 #include <limits>
 #include <memory>
+#include <random>
 
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
