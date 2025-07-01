@@ -14,9 +14,12 @@
 #else
 #include <edm4hep/TimeSeriesCollection.h>
 #endif
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <unordered_map>
+#include <vector>
 
 #include "algorithms/digi/SiliconPulseGenerationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -33,7 +36,47 @@ using SiliconPulseGenerationAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
                           algorithms::Output<PulseType::collection_type>>;
 
-class SignalPulse;
+class SignalPulse {
+
+public:
+  virtual ~SignalPulse()                                = default; // Virtual destructor
+  virtual double operator()(double time, double charge) = 0;
+  virtual double getMaximumTime() const                 = 0;
+};
+
+// Landau Pulse Shape Functor
+class LandauPulse : public SignalPulse {
+
+public:
+  LandauPulse(std::vector<double> params);
+  double operator()(double time, double charge) override;
+  double getMaximumTime() const override;
+
+private:
+  double m_gain             = 1.0;
+  double m_sigma_analog     = 1.0;
+  double m_hit_sigma_offset = 3.5;
+};
+
+// EvaluatorSvc Pulse
+class EvaluatorPulse : public SignalPulse {
+
+public:
+  EvaluatorPulse(const std::string& expression, const std::vector<double>& params);
+  double operator()(double time, double charge) override;
+  double getMaximumTime() const override;
+
+private:
+  std::unordered_map<std::string, double> param_map;
+  std::function<double(const std::unordered_map<std::string, double>&)> m_evaluator;
+};
+
+class PulseShapeFactory {
+
+public:
+  static std::unique_ptr<SignalPulse> createPulseShape(const std::string& type,
+                                                       const std::vector<double>& params);
+};
 
 class SiliconPulseGeneration : public SiliconPulseGenerationAlgorithm,
                                public WithPodConfig<SiliconPulseGenerationConfig> {
