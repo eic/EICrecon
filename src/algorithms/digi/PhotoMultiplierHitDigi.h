@@ -19,7 +19,6 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <TRandomGen.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
@@ -30,6 +29,7 @@
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <string_view>

@@ -29,6 +29,7 @@
 #include <gsl/pointers>
 #include <limits>
 #include <map>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
