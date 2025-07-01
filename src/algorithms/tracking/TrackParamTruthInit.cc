@@ -27,7 +27,8 @@ void eicrecon::TrackParamTruthInit::init(std::shared_ptr<const ActsGeometryProvi
 }
 
 std::unique_ptr<edm4eic::TrackParametersCollection>
-eicrecon::TrackParamTruthInit::produce(const edm4hep::EventHeaderCollection* headers, const edm4hep::MCParticleCollection* mcparticles) {
+eicrecon::TrackParamTruthInit::produce(const edm4hep::EventHeaderCollection* headers,
+                                       const edm4hep::MCParticleCollection* mcparticles) {
   // MCParticles uses numerical values in its specified units,
   // while m_cfg is in the DD4hep unit system
 

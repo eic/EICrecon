@@ -65,8 +65,7 @@ public:
 
     // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
     if (GetPluginName() == "DRICH" || GetPluginName() == "PFRICH") {
-      m_RichGeoSvc()
-          .GetReadoutGeo(config().detectorName, config().readoutClass);
+      m_RichGeoSvc().GetReadoutGeo(config().detectorName, config().readoutClass);
       m_algo->SetVisitRngCellIDs(
           [this](std::function<void(PhotoMultiplierHitDigi::CellIDType)> lambda, float p) {
             m_RichGeoSvc()
