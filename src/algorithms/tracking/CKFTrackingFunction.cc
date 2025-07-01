@@ -74,7 +74,7 @@ CKFTracking<edm_t>::makeCKFTrackingFunction(
   Navigator navigator(cfg);
 
   Propagator propagator(std::move(stepper), std::move(navigator));
-  typename CKFTracking<edm_t>::CKFTrackingFunctionImpl::CKF trackFinder(
+  typename CKFTrackingFunctionImpl<edm_t>::CKF trackFinder(
       std::move(propagator), logger.cloneWithSuffix("CKF"));
 
   // build the track finder functions. owns the track finder object.
