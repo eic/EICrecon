@@ -53,9 +53,11 @@ void PIDLookup::process(const Input& input, const Output& output) const {
   const auto [headers, recoparts_in, partassocs_in] = input;
   auto [recoparts_out, partassocs_out, partids_out] = output;
 
-  // reseed random generator
+  // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
-  m_gen.seed(seed);
+  std::default_random_engine generator(seed);
+  std::uniform_real_distribution<double> uniform;
+
 
   for (const auto& recopart_without_pid : *recoparts_in) {
     auto recopart = recopart_without_pid.clone();
@@ -96,7 +98,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
     if ((entry != nullptr) && ((entry->prob_electron != 0.) || (entry->prob_pion != 0.) ||
                                (entry->prob_kaon != 0.) || (entry->prob_proton != 0.))) {
-      double random_unit_interval = m_dist(m_gen);
+      double random_unit_interval = uniform(generator);
 
       trace("entry with e:pi:K:P={}:{}:{}:{}", entry->prob_electron, entry->prob_pion,
             entry->prob_kaon, entry->prob_proton);
