@@ -32,7 +32,7 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, "TrackParamTruthInit");
-  std::default_random_engine generator;
+  std::default_random_engine generator(seed);
   std::normal_distribution<double> gaussian;
 
   // Loop over input particles
