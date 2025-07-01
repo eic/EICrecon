@@ -9,7 +9,6 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <random>
 
 #include "ActsGeometryProvider.h"
 #include "TrackParamTruthInitConfig.h"

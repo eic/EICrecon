@@ -39,8 +39,8 @@
 // Access "algorithms:GeoSvc"
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -50,6 +50,7 @@
 #include <cstdint>
 #include <gsl/pointers>
 #include <initializer_list>
+#include <random>
 #include <unordered_map>
 #include <utility>
 #include <vector>

@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cstdint>
 #include <gsl/pointers>
+#include <random>
 #include <unordered_map>
 #include <utility>
 
