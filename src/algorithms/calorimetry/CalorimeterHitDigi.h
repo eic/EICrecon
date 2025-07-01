@@ -68,9 +68,6 @@ private:
 private:
   const algorithms::GeoSvc& m_geo         = algorithms::GeoSvc::instance();
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
-
-  mutable std::default_random_engine m_generator;
-  mutable std::normal_distribution<double> m_gaussian;
 };
 
 } // namespace eicrecon
