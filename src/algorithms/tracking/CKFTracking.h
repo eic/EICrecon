@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "ActsExamplesEdm.h"
+#include "ActsPodioEdm.h"
 
 #include "CKFTrackingConfig.h"
 #include "DD4hepBField.h"
@@ -49,7 +50,7 @@ public:
 #elif Acts_VERSION_MAJOR >= 36
   using TrackFinderOptions =
       Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
-                                             edm_t::TrackContainer>;
+                                             typename edm_t::TrackContainer>;
 #else
   using TrackFinderOptions =
       Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
