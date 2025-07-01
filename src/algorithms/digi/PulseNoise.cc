@@ -24,9 +24,10 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
   const auto [headers, inPulses] = input;
   auto [outPulses]               = output;
 
-  // reseed random generator
+  // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
-  m_generator.seed(seed);
+  std::default_random_engine generator(seed);
+  std::normal_distribution<double> gaussian;
 
   for (const auto& pulse : *inPulses) {
 
@@ -39,7 +40,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     float integral = 0;
     //Add noise to the pulse
     for (std::size_t i = 0; i < pulse.getAmplitude().size(); i++) {
-      double noise     = m_noise(m_generator) * m_cfg.scale;
+      double noise     = m_noise(generator) * m_cfg.scale;
       double amplitude = pulse.getAmplitude()[i] + noise;
       out_pulse.addToAmplitude(amplitude);
       integral += amplitude;

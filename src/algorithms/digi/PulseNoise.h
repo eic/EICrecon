@@ -45,7 +45,6 @@ public:
 
 private:
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
-  mutable std::default_random_engine m_generator; // TODO: need something more appropriate here
   mutable dd4hep::detail::FalphaNoise m_noise;    // FalphaNoise::operator() is not const
 };
 
