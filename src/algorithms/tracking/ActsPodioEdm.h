@@ -8,18 +8,17 @@
 
 namespace eicrecon {
 
-
 class ActsPodioEdm {
 
 public:
-
   /// (Reconstructed) track parameters e.g. close to the vertex.
   using TrackParameters = ::Acts::BoundTrackParameters;
   /// Container of reconstructed track states for multiple tracks.
   using TrackParametersContainer = std::vector<TrackParameters>;
 
-  using TrackContainer = Acts::TrackContainer<Acts::MutablePodioTrackContainer,
-                                              Acts::MutablePodioTrackStateContainer, std::shared_ptr>;
+  using TrackContainer =
+      Acts::TrackContainer<Acts::MutablePodioTrackContainer, Acts::MutablePodioTrackStateContainer,
+                           std::shared_ptr>;
 
   using ConstTrackContainer =
       Acts::TrackContainer<Acts::ConstPodioTrackContainer, Acts::ConstPodioTrackStateContainer,
