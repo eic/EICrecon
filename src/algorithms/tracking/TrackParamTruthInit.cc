@@ -34,7 +34,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::EventHeaderCollection* hea
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, "TrackParamTruthInit");
-  std::default_random_engine generator;
+  std::default_random_engine generator(seed);
   std::normal_distribution<double> gaussian;
 
   // Create output collection
