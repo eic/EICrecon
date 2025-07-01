@@ -11,6 +11,7 @@
 #include <cmath>
 #include <exception>
 #include <gsl/pointers>
+#include <random>
 #include <stdexcept>
 
 #include "algorithms/pid_lut/PIDLookup.h"

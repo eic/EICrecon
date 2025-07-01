@@ -10,6 +10,7 @@
 #include <podio/RelationRange.h>
 #include <cstddef>
 #include <gsl/pointers>
+#include <random>
 #include <vector>
 
 #include "PulseNoise.h"

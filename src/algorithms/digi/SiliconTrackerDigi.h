@@ -3,13 +3,11 @@
 
 #pragma once
 
-#include <TRandomGen.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-#include <functional>
 #include <string>
 #include <string_view>
 
