@@ -74,12 +74,6 @@ public:
     std::vector<std::size_t> sim_hit_indices;
   };
 
-  // random number generators
-  mutable TRandomMixMax m_random;
-  std::function<double()> m_rngNorm;
-  std::function<double()> m_rngUni;
-  //Rndm::Numbers m_rngUni, m_rngNorm;
-
   // set `m_VisitAllRngPixels`, a visitor to run an action (type
   // `function<void(cellID)>`) on a selection of random CellIDs; must be
   // defined externally, since this would be detector-specific
@@ -111,6 +105,7 @@ private:
   // add a hit to local `hit_groups` data structure
   void InsertHit(std::unordered_map<CellIDType, std::vector<HitData>>& hit_groups, CellIDType id,
                  double amp, TimeType time, std::size_t sim_hit_index,
+                 std::default_random_engine& generator, std::normal_distribution<double>& gaussian,
                  bool is_noise_hit = false) const;
 
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};

@@ -40,7 +40,6 @@ private:
 
   ParameterRef<std::string> m_detectorName{this, "detectorName", config().detectorName, ""};
   ParameterRef<std::string> m_readoutClass{this, "readoutClass", config().readoutClass, ""};
-  ParameterRef<unsigned long> m_seed{this, "seed", config().seed, "random number generator seed"};
   ParameterRef<double> m_hitTimeWindow{this, "hitTimeWindow", config().hitTimeWindow, ""};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().timeResolution, ""};
   ParameterRef<double> m_speMean{this, "speMean", config().speMean, ""};
@@ -67,8 +66,7 @@ public:
     // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
     if (GetPluginName() == "DRICH" || GetPluginName() == "PFRICH") {
       m_RichGeoSvc()
-          .GetReadoutGeo(config().detectorName, config().readoutClass)
-          ->SetSeed(config().seed);
+          .GetReadoutGeo(config().detectorName, config().readoutClass);
       m_algo->SetVisitRngCellIDs(
           [this](std::function<void(PhotoMultiplierHitDigi::CellIDType)> lambda, float p) {
             m_RichGeoSvc()
