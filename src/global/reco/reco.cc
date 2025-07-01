@@ -190,11 +190,6 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPTrackClusterMatches"}, {.calo_id = "EcalEndcapP_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "EcalEndcapPInsertTrackClusterMatcher",
-      {"CalorimeterTrackProjections", "EcalEndcapPInsertClusters"},
-      {"EcalEndcapPInsertTrackClusterMatches"}, {.calo_id = "EcalEndcapPInsert_ID"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
       "LFHCALTrackClusterMatcher", {"CalorimeterTrackProjections", "LFHCALClusters"},
       {"LFHCALTrackClusterMatches"}, {.calo_id = "LFHCAL_ID"}, app));
 

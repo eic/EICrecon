@@ -381,7 +381,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #endif
 #if EDM4EIC_VERSION_MAJOR >= 8
     "EcalEndcapPTrackClusterMatches",
-    "EcalEndcapPInsertTrackClusterMatches",
     "LFHCALTrackClusterMatches",
     "HcalEndcapPInsertClusterMatches",
     "EcalBarrelTrackClusterMatches",
