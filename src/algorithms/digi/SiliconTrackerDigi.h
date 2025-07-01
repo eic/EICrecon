@@ -40,16 +40,6 @@ public:
 
 private:
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
-
-  /** Random number generation*/
-  mutable TRandomMixMax m_random;
-  std::function<double()> m_gauss;
-
-  // FIXME replace with standard random engine
-  // std::default_random_engine generator; // TODO: need something more appropriate here
-  // std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1
-
-  // algorithms::Generator m_rng = algorithms::RandomSvc::instance().generator();
 };
 
 } // namespace eicrecon
