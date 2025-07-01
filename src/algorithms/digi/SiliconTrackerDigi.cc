@@ -20,7 +20,7 @@
 
 namespace eicrecon {
 
-void SiliconTrackerDigi::init() { }
+void SiliconTrackerDigi::init() {}
 
 void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
                                  const SiliconTrackerDigi::Output& output) const {

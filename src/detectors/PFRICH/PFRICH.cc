@@ -25,8 +25,8 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   PhotoMultiplierHitDigiConfig digi_cfg;
-  digi_cfg.detectorName = "RICHEndcapN";
-  digi_cfg.readoutClass = "RICHEndcapNHits";
+  digi_cfg.detectorName    = "RICHEndcapN";
+  digi_cfg.readoutClass    = "RICHEndcapNHits";
   digi_cfg.hitTimeWindow   = 20.0;     // [ns]
   digi_cfg.timeResolution  = 1 / 16.0; // [ns]
   digi_cfg.speMean         = 80.0;

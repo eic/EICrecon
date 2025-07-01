@@ -58,7 +58,6 @@ void PIDLookup::process(const Input& input, const Output& output) const {
   std::default_random_engine generator(seed);
   std::uniform_real_distribution<double> uniform;
 
-
   for (const auto& recopart_without_pid : *recoparts_in) {
     auto recopart = recopart_without_pid.clone();
 

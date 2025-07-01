@@ -121,8 +121,7 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
       // insert in `hit_groups`, or if the pixel already has a hit, update `npe` and `signal`
       this->InsertHit(hit_groups, id, amp, time,
                       0, // not used
-                      generator, gaussian,
-                      true);
+                      generator, gaussian, true);
     };
     m_VisitRngCellIDs(cellID_action, p);
   }
@@ -248,7 +247,8 @@ bool PhotoMultiplierHitDigi::qe_pass(double ev, double rand) const {
 // NOLINTBEGIN(bugprone-easily-swappable-parameters)
 void PhotoMultiplierHitDigi::InsertHit(
     std::unordered_map<CellIDType, std::vector<HitData>>& hit_groups, CellIDType id, double amp,
-    TimeType time, std::size_t sim_hit_index, std::default_random_engine& generator, std::normal_distribution<double>& gaussian,
+    TimeType time, std::size_t sim_hit_index, std::default_random_engine& generator,
+    std::normal_distribution<double>& gaussian,
     bool is_noise_hit) const // NOLINTEND(bugprone-easily-swappable-parameters)
 {
   auto it = hit_groups.find(id);
