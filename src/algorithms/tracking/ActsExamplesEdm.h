@@ -25,9 +25,6 @@ public:
   using TrackProxy      = ActsExamples::TrackProxy;
   using ConstTrackProxy = ActsExamples::ConstTrackProxy;
 
-  using TrackStateProxy      = ActsExamples::TrackStateProxy;
-  using ConstTrackStateProxy = ActsExamples::ConstTrackStateProxy;
-
   using Trajectories          = ActsExamples::Trajectories;
   using TrajectoriesContainer = ActsExamples::TrajectoriesContainer;
 };
