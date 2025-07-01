@@ -24,6 +24,8 @@
 #include <variant>
 #include <vector>
 
+#include "ActsExamplesEdm.h"
+
 #include "CKFTrackingConfig.h"
 #include "DD4hepBField.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -37,22 +39,23 @@ namespace eicrecon {
  * \ingroup tracking
  */
 
+template <typename edm_t = eicrecon::ActsExamplesEdm>
 class CKFTracking : public WithPodConfig<eicrecon::CKFTrackingConfig> {
 public:
   /// Track finder function that takes input measurements, initial trackstate
   /// and track finder options and returns some track-finder-specific result.
 #if Acts_VERSION_MAJOR >= 39
-  using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<ActsExamples::TrackContainer>;
+  using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<typename edm_t::TrackContainer>;
 #elif Acts_VERSION_MAJOR >= 36
   using TrackFinderOptions =
       Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
-                                             ActsExamples::TrackContainer>;
+                                             edm_t::TrackContainer>;
 #else
   using TrackFinderOptions =
       Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
                                              Acts::VectorMultiTrajectory>;
 #endif
-  using TrackFinderResult = Acts::Result<std::vector<ActsExamples::TrackContainer::TrackProxy>>;
+  using TrackFinderResult = Acts::Result<std::vector<typename edm_t::TrackContainer::TrackProxy>>;
 
   /// Find function that takes the above parameters
   /// @note This is separated into a virtual interface to keep compilation units
@@ -61,9 +64,8 @@ public:
   public:
     virtual ~CKFTrackingFunction() = default;
 
-    virtual TrackFinderResult operator()(const ActsExamples::TrackParameters&,
-                                         const TrackFinderOptions&,
-                                         ActsExamples::TrackContainer&) const = 0;
+    virtual TrackFinderResult operator()(const edm_t::TrackParameters&, const TrackFinderOptions&,
+                                         edm_t::TrackContainer&) const = 0;
   };
 
   /// Create the track finder function implementation.
@@ -74,13 +76,13 @@ public:
                           std::shared_ptr<const Acts::MagneticFieldProvider> magneticField,
                           const Acts::Logger& logger);
 
-  CKFTracking();
+  CKFTracking() = default;
 
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
 
-  std::tuple<std::vector<ActsExamples::Trajectories*>,
-             std::vector<ActsExamples::ConstTrackContainer*>>
+  std::tuple<std::vector<typename edm_t::Trajectories*>,
+             std::vector<typename edm_t::ConstTrackContainer*>>
   process(const edm4eic::TrackParametersCollection& init_trk_params,
           const edm4eic::Measurement2DCollection& meas2Ds);
 
