@@ -13,9 +13,9 @@
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <spdlog/common.h>
-#include <stdlib.h>
 #include <Eigen/Core>
 #include <cmath>
+#include <cstdlib>
 #include <limits>
 #include <memory>
 #include <random>
