@@ -43,8 +43,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  mutable std::mt19937 m_gen{};
-  mutable std::uniform_real_distribution<double> m_dist{0, 1};
   int32_t m_system;
   const algorithms::UniqueIDGenSvc& m_uid      = algorithms::UniqueIDGenSvc::instance();
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
