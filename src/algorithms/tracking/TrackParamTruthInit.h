@@ -25,7 +25,8 @@ public:
             const std::shared_ptr<spdlog::logger> logger);
 
   std::unique_ptr<edm4eic::TrackParametersCollection>
-  produce(const edm4hep::EventHeaderCollection* header, const edm4hep::MCParticleCollection* mcparticles);
+  produce(const edm4hep::EventHeaderCollection* header,
+          const edm4hep::MCParticleCollection* mcparticles);
 
 private:
   std::shared_ptr<spdlog::logger> m_log;

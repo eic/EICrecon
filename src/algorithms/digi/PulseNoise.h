@@ -45,7 +45,7 @@ public:
 
 private:
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
-  mutable dd4hep::detail::FalphaNoise m_noise;    // FalphaNoise::operator() is not const
+  mutable dd4hep::detail::FalphaNoise m_noise; // FalphaNoise::operator() is not const
 };
 
 } // namespace eicrecon
