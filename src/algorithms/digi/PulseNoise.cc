@@ -17,9 +17,7 @@
 
 namespace eicrecon {
 
-void PulseNoise::init() {
-  m_noise = dd4hep::detail::FalphaNoise(m_cfg.poles, m_cfg.variance, m_cfg.alpha);
-}
+void PulseNoise::init() { }
 
 void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Output& output) const {
   const auto [headers, inPulses] = input;
@@ -28,7 +26,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
   std::default_random_engine generator(seed);
-  dd4hep::detail::FalphaNoise falpha;
+  dd4hep::detail::FalphaNoise falpha(m_cfg.poles, m_cfg.variance, m_cfg.alpha);
 
   for (const auto& pulse : *inPulses) {
 
