@@ -23,13 +23,14 @@
 #include <algorithms/geo.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
+#include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
+#include <queue>
 #include <set>
 #include <stdexcept>
 #include <typeinfo>
 #include <utility>
-#include <queue>
 
 #include "DD4hep/Detector.h"
 #include "SiliconChargeSharing.h"
