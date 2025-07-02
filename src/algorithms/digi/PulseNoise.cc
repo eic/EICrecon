@@ -17,7 +17,7 @@
 
 namespace eicrecon {
 
-void PulseNoise::init() { }
+void PulseNoise::init() {}
 
 void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Output& output) const {
   const auto [headers, inPulses] = input;
