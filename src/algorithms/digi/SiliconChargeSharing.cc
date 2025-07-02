@@ -112,7 +112,7 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   // Create a new simhit for cell with deposited energy
   auto globalCellPos = m_converter->position(testCellID);
 
-  if (edepCell <= m_cfg.min_edep) {
+  if (edepCell > m_cfg.min_edep) {
     edm4hep::MutableSimTrackerHit shared_hit = hit.clone();
     shared_hit.setCellID(testCellID);
     shared_hit.setEDep(edepCell);
