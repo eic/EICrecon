@@ -108,19 +108,18 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   auto yDimension = segmentation->gridSizeY();
   // Calculate deposited energy in cell
   float edepCell = energyAtCell(xDimension, yDimension, localPos, hitPos, edep);
-  if (edepCell <= m_cfg.min_edep) {
-    return;
-  }
 
   // Create a new simhit for cell with deposited energy
   auto globalCellPos = m_converter->position(testCellID);
 
-  edm4hep::MutableSimTrackerHit shared_hit = hit.clone();
-  shared_hit.setCellID(testCellID);
-  shared_hit.setEDep(edepCell);
-  shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
-                          globalCellPos.z() / dd4hep::mm});
-  sharedHits->push_back(shared_hit);
+  if (edepCell <= m_cfg.min_edep) {
+    edm4hep::MutableSimTrackerHit shared_hit = hit.clone();
+    shared_hit.setCellID(testCellID);
+    shared_hit.setEDep(edepCell);
+    shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
+                            globalCellPos.z() / dd4hep::mm});
+    sharedHits->push_back(shared_hit);
+  }
 
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
