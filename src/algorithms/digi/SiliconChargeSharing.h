@@ -39,9 +39,9 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  dd4hep::rec::CellID findHitCellID(const dd4hep::rec::CellID testCellID,
-                                    const dd4hep::Position& hitPos,
-                                    const dd4hep::DDSegmentation::CartesianGridXY* segmentation) const;
+  dd4hep::rec::CellID
+  findHitCellID(const dd4hep::rec::CellID testCellID, const dd4hep::Position& hitPos,
+                const dd4hep::DDSegmentation::CartesianGridXY* segmentation) const;
 
   void findAllNeighborsInSensor(const dd4hep::rec::CellID testCellID,
                                 std::unordered_set<dd4hep::rec::CellID>& tested_cells,
