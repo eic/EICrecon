@@ -28,7 +28,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
   std::default_random_engine generator(seed);
-  dd4hep::detail::FalphaNoise noise;
+  dd4hep::detail::FalphaNoise falpha;
 
   for (const auto& pulse : *inPulses) {
 
@@ -41,7 +41,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     float integral = 0;
     //Add noise to the pulse
     for (std::size_t i = 0; i < pulse.getAmplitude().size(); i++) {
-      double noise     = noise(generator) * m_cfg.scale;
+      double noise     = falpha(generator) * m_cfg.scale;
       double amplitude = pulse.getAmplitude()[i] + noise;
       out_pulse.addToAmplitude(amplitude);
       integral += amplitude;
