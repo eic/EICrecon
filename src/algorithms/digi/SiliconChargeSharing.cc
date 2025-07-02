@@ -29,6 +29,7 @@
 #include <stdexcept>
 #include <typeinfo>
 #include <utility>
+#include <queue>
 
 #include "DD4hep/Detector.h"
 #include "SiliconChargeSharing.h"
@@ -74,6 +75,12 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
                                       globalHitPos.z * dd4hep::mm),
                      transformIt->second);
 
+    // globalHitPos can sometimes lie outside of cell with cellID given by hit.getCellID()
+    // therefore, we search neighbors in a sensor to find the cell ID that correspond to globalHitPos
+    auto hitCellID = this -> findHitCellID(cellID, hitPos, segmentationIt->second);
+    // if findHitCellID fails, revert back to hit.getCellID()
+    if(hitCellID) cellID = hitCellID;
+
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::unordered_map<dd4hep::rec::CellID, float> cell_charge;
 
@@ -84,6 +91,52 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 
   } // for simhits
 } // SiliconChargeSharing:process
+
+dd4hep::rec::CellID SiliconChargeSharing::findHitCellID(const dd4hep::rec::CellID testCellID,
+							const dd4hep::Position& hitPos,
+                                                        const dd4hep::DDSegmentation::CartesianGridXY* segmentation) const {
+  // use breath first search (BFS) to look for cellID that corresponds to hit Pos
+  // if cellID for hitPos is close to testCellID, BFS should be more efficient than depth first search
+  auto xDimension = segmentation->gridSizeX();
+  auto yDimension = segmentation->gridSizeY();
+
+  // queue of cellID to search
+  std::queue<dd4hep::rec::CellID> q;
+  q.push(testCellID);
+
+  // mark visited cells
+  std::unordered_set<dd4hep::rec::CellID> visited;
+  visited.insert(testCellID);
+
+  // iterate all cell candidates
+  while(!q.empty()) {
+    auto currID = q.front();
+    q.pop();
+
+    auto localPos = cell2LocalPosition(currID);
+
+    if(((localPos.x() - 0.5*xDimension) <= hitPos.x() && hitPos.x() <= (localPos.x() + 0.5*xDimension)) &&
+       ((localPos.y() - 0.5*yDimension) <= hitPos.y() && hitPos.y() <= (localPos.y() + 0.5*yDimension))) {
+            // we've found the cell
+            return currID;
+    }
+
+    // ask neighbors if the hit belongs to them
+    std::set<dd4hep::rec::CellID> testCellNeighbours;
+    segmentation->neighbours(currID, testCellNeighbours);
+
+    for (const auto& neighbourCell : testCellNeighbours) {
+      if (visited.find(neighbourCell) == visited.end()) {
+          visited.insert(neighbourCell);
+	  q.push(neighbourCell);
+      }
+    }
+  }
+
+  return 0; // find nothing
+
+}	
+
 
 // Recursively find neighbors where a charge is deposited
 void SiliconChargeSharing::findAllNeighborsInSensor(
@@ -108,18 +161,19 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   auto yDimension = segmentation->gridSizeY();
   // Calculate deposited energy in cell
   float edepCell = energyAtCell(xDimension, yDimension, localPos, hitPos, edep);
+  if (edepCell <= m_cfg.min_edep) {
+    return;
+  }
 
   // Create a new simhit for cell with deposited energy
   auto globalCellPos = m_converter->position(testCellID);
 
-  if (edepCell > m_cfg.min_edep) {
-    edm4hep::MutableSimTrackerHit shared_hit = hit.clone();
-    shared_hit.setCellID(testCellID);
-    shared_hit.setEDep(edepCell);
-    shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
-                            globalCellPos.z() / dd4hep::mm});
-    sharedHits->push_back(shared_hit);
-  }
+  edm4hep::MutableSimTrackerHit shared_hit = hit.clone();
+  shared_hit.setCellID(testCellID);
+  shared_hit.setEDep(edepCell);
+  shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
+                          globalCellPos.z() / dd4hep::mm});
+  sharedHits->push_back(shared_hit);
 
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
