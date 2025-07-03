@@ -17,7 +17,7 @@ struct EICROCDigitizationConfig {
   int tdc_range = std::pow(2, tdc_bit);
 
   double t_thres =
-      -0.1 *
+      -0.01 *
       adc_range; // TDC value = time when pulse exceed t_thres. Negative because Silicon voltage is negative when hit
   // period of the sensor clock. Time internal to sensor will all be digitized to integer multiple
   // of tInterval
