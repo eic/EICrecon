@@ -20,7 +20,7 @@
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/reco/LGADHitCalibration_factory.h"
-#include "factories/reco/LGADHitAssociationtion_factory.h"
+#include "factories/reco/LGADHitAssociation_factory.h"
 #include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
@@ -57,7 +57,7 @@ void InitPlugin(JApplication* app) {
       app)); // Hit reco default config for factories
 	     //
   app->Add(new JOmniFactoryGeneratorT<LGADHitAssociation_factory>(
-      "TOFBarrelCalHitsAssociations", {"TOFBarrelADCTDC", "TOFBarrelHits"}, // Input data collection tags
+      "TOFBarrelCalHitsAssociations", {"TOFBarrelCalHits", "TOFBarrelHits"}, // Input data collection tags
       {"TOFBarrelCalHitsAssociations"},                    // Output data tag
       {},
       app)); // Hit reco default config for factories
