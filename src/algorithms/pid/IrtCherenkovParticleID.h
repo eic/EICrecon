@@ -60,7 +60,7 @@ public:
 
 private:
   // any access (R or W) to m_irt_det_coll, m_irt_det, m_pid_radiators must be locked
-  mutable std::mutex m_irt_det_mutex;
+  inline static std::mutex m_irt_det_mutex;
   CherenkovDetectorCollection* m_irt_det_coll;
   CherenkovDetector* m_irt_det;
   std::map<std::string, CherenkovRadiator*> m_pid_radiators;
