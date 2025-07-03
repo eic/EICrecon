@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <DDDigi/noise/FalphaNoise.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/EventHeaderCollection.h>
