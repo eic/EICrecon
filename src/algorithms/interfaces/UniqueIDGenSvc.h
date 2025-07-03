@@ -1,4 +1,9 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
+// SPDX-License-Identifier: Apache-2.0
+// Copyright (C) 2014-2024 Key4hep-Project
+// Adapted from:
+// - https://github.com/key4hep/k4FWCore/blob/cc6a28a245592a5b54667925a4b2e3809e6eba54/k4FWCore/components/UniqueIDGenSvc.h
+// - https://github.com/key4hep/k4FWCore/blob/cc6a28a245592a5b54667925a4b2e3809e6eba54/k4FWCore/components/UniqueIDGenSvc.cpp
+// Local modifications: 
 // Copyright (C) 2025 Wouter Deconinck
 
 #pragma once
