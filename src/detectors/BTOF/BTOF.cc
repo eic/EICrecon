@@ -60,7 +60,7 @@ void InitPlugin(JApplication* app) {
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFBarrelClusterHits", {"TOFBarrelCalHits"}, // Input data collection tags
-      {"TOFBarrelClusterHits"},                         // Output data tag
+      {"TOFBarrelClusterHits"},                     // Output data tag
       {},
       app)); // Hit reco default config for factories
 
