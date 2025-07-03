@@ -5,14 +5,15 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <cmath>
-#include <cstddef>
+#include <JANA/JApplicationFwd.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <fmt/core.h>
+#include <cmath>
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
@@ -78,20 +79,20 @@ void InitPlugin(JApplication* app) {
       app));
 
   // Add noise to pulses
-  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>("TaggerTrackerPulseNoise",
-                                                          {"TaggerTrackerCombinedPulses"},
-                                                          {"TaggerTrackerCombinedPulsesWithNoise"},
-                                                          {
-                                                              .poles    = 5,
-                                                              .variance = 1.0,
-                                                              .alpha    = 0.5,
-                                                              .scale    = 0.000002,
-                                                          },
-                                                          app));
+  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "TaggerTrackerPulseNoise", {"EventHeader", "TaggerTrackerCombinedPulses"},
+      {"TaggerTrackerCombinedPulsesWithNoise"},
+      {
+          .poles    = 5,
+          .variance = 1.0,
+          .alpha    = 0.5,
+          .scale    = 0.000002,
+      },
+      app));
 
   // Digitization of silicon hits
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "TaggerTrackerRawHits", {"TaggerTrackerHits"},
+      "TaggerTrackerRawHits", {"EventHeader", "TaggerTrackerHits"},
       {"TaggerTrackerRawHits", "TaggerTrackerRawHitAssociations"},
       {
           .threshold      = 1.5 * edm4eic::unit::keV,

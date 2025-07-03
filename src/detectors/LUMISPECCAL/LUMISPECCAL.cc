@@ -5,18 +5,19 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <cmath>
 #include <edm4eic/EDM4eicVersion.h>
+#include <cmath>
 #include <string>
+#include <variant>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -26,7 +27,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalLumiSpecRawHits", {"EcalLumiSpecHits"},
+      "EcalLumiSpecRawHits", {"EventHeader", "EcalLumiSpecHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
       {"EcalLumiSpecRawHits", "EcalLumiSpecRawHitAssociations"},
 #else

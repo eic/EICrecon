@@ -38,7 +38,7 @@ void InitPlugin(JApplication* app) {
       10 * dd4hep::picosecond;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"},
+      "HcalEndcapPInsertRawHits", {"EventHeader", "HcalEndcapPInsertHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
       {"HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitAssociations"},
 #else
@@ -185,7 +185,7 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "LFHCALRawHits", {"LFHCALHits"},
+      "LFHCALRawHits", {"EventHeader", "LFHCALHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
       {"LFHCALRawHits", "LFHCALRawHitAssociations"},
 #else
