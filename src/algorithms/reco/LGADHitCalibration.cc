@@ -52,7 +52,7 @@ void LGADHitCalibration::process(const LGADHitCalibration::Input& input,
     double varZ = cellSize.size() > 2 ? cellSize[2] / mm / std::sqrt(12.) : 0;
     varZ *= varZ;
 
-    calibrated_hits->create(
+    auto hit = calibrated_hits->create(
         id,
         edm4hep::Vector3f{static_cast<float>(pos.x()), static_cast<float>(pos.y()),
                           static_cast<float>(pos.z())},
@@ -61,6 +61,7 @@ void LGADHitCalibration::process(const LGADHitCalibration::Input& input,
         m_cfg.t_slope / std::sqrt(12.),       // covariance of time
         std::max(0., charge),                 // total ADC sum
         m_cfg.c_slope / std::sqrt(12.));      // Error on the energy
+    hit.setRawHit(TDCADC_hit);
   }
 }
 
