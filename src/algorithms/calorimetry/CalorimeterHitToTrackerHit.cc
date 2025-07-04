@@ -34,7 +34,7 @@ void CalorimeterHitToTrackerHit::process(const CalorimeterHitToTrackerHit::Input
     auto det_element = m_volume_manager.lookupDetElement(cell_id);
 
     // Cache position errors for detector elements
-    static std::map<dd4hep::DetElement, edm4eic::CovDiag3f> position_error;
+    static thread_local std::map<dd4hep::DetElement, edm4eic::CovDiag3f> position_error;
     if (!position_error.contains(det_element)) {
 
       // Determine readout and segmentation
