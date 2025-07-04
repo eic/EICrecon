@@ -288,7 +288,7 @@ private:
     {  1000010030, {  1000010030,   1,   2.80925       , "Tritium" }},
     {  1000020030, {  1000020030,   2,   2.80923       , "He-3" }},
     {  1000020040, {  1000020040,   2,   3.72742       , "Alpha" }},
-      // clang-format on
+  // clang-format on
 #pragma GCC diagnostic pop
   };
 };
