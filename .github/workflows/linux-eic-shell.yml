@@ -274,7 +274,7 @@ jobs:
       uses: peter-evans/create-pull-request@v7
       if: ${{ github.event_name == 'pull_request' }}
       with:
-        token: github.EIC_EICRECON_PULL_REQUESTS_READ_WRITE
+        token: ${{ secrets.EIC_EICRECON_PULL_REQUESTS_READ_WRITE }}
         commit-message: "fix: iwyu"
         branch: pr${{ github.event.pull_request.number }}-iwyu
         base: ${{ github.event.pull_request.head.ref }}
