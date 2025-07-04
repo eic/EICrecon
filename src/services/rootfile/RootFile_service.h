@@ -5,7 +5,7 @@
 #include <string>
 #include <mutex>
 
-#include <JANA/JApplicationFwd.h>
+#include <JANA/JApplication.h>
 #include "services/log/Log_service.h"
 #include <JANA/Services/JGlobalRootLock.h>
 #include <JANA/Services/JServiceLocator.h>
