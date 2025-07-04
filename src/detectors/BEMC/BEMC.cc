@@ -12,6 +12,8 @@
 #include <fmt/core.h>
 #include <cmath>
 #include <map>
+#include <string>
+#include <variant>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
