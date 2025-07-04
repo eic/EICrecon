@@ -276,6 +276,7 @@ jobs:
       with:
         commit-message: "fix: iwyu"
         branch: pr${{ github.event.pull_request.number }}-iwyu
+        base: ${{ github.event.pull_request.head.ref }}
         delete-branch: true
         title: "${{ github.event.pull_request.title }} (fix: iwyu)"
         body: |
