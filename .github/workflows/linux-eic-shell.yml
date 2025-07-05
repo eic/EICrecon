@@ -299,7 +299,7 @@ jobs:
         path: iwyu_fixes.patch
         if-no-files-found: ignore # no file is good
     - name: Fail when iwyu provided a patch for this pull request
-      if: ${{ steps.create-pull-request.outputs.pull-request-operation == 'created' }}
+      if: ${{ steps.create-pull-request.outputs.pull-request-operation == 'created' || steps.create-pull-request.outputs.pull-request-operation == 'updated' }}
       run: exit 1
 
   llvm-cov:
