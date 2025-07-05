@@ -266,7 +266,7 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           # don't aim for stability for all files
-          iwyu_tool.py -p build -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
+          iwyu_tool.py -p build -j $(getconf _NPROCESSORS_ONLN) -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
           fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
           git diff | tee iwyu_fixes.patch
     - name: Create Pull Request
