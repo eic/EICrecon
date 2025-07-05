@@ -11,7 +11,6 @@
 #include <JANA/Services/JServiceLocator.h>
 
 #include <TFile.h>
-#include <TH1F.h>
 
 /**
  * This Service centralizes creation of a root file for histograms
