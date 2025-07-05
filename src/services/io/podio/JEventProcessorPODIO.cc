@@ -455,7 +455,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     std::set<std::string> all_collections_set =
         std::set<std::string>(all_collections.begin(), all_collections.end());
 
-    // Turn regexes among output collections into actual collections
+    // Turn regexes among output collections into actual collection names
     std::set<std::string> matching_collections_set;
     std::vector<std::regex> output_collections_regex(m_output_collections.size());
     std::transform(m_output_collections.begin(), m_output_collections.end(),
