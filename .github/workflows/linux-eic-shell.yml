@@ -297,7 +297,6 @@ jobs:
 
           [1]: https://github.com/peter-evans/create-pull-request
         assignees: ${{ github.event.pull_request.user.login }}
-        reviewers: ${{ github.event.pull_request.user.login }}
     - name: Upload iwyu patch as artifact
       uses: actions/upload-artifact@v4
       with:
