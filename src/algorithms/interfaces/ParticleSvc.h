@@ -45,6 +45,9 @@ protected:
   ALGORITHMS_DEFINE_SERVICE(ParticleSvc)
 
 private:
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#pragma GCC optimize("no-var-tracking") // to speed up compilation
   inline static const ParticleMap kParticleMap{
       // clang-format off
     {           0, {           0,   0,   0.0           , "unknown" }},
@@ -287,6 +290,7 @@ private:
     {  1000020040, {  1000020040,   2,   3.72742       , "Alpha" }},
       // clang-format on
   };
+#pragma GCC diagnostic pop
 };
 
 } // namespace algorithms
