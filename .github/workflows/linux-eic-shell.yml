@@ -281,6 +281,7 @@ jobs:
         delete-branch: true
         add-paths: |
           src/**
+        author: "github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>"
         title: "${{ github.event.pull_request.title }} (fix: iwyu)"
         body: |
           This PR applies the include-what-you-use fixes as suggested by
