@@ -280,7 +280,7 @@ jobs:
         base: ${{ github.event.pull_request.head.ref }}
         delete-branch: true
         add-paths: |
-          src/
+          src/**
         title: "${{ github.event.pull_request.title }} (fix: iwyu)"
         body: |
           This PR applies the include-what-you-use fixes as suggested by
