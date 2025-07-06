@@ -65,9 +65,8 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
       debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
             "will be performed.");
       continue;
-    } else {
-      associate_mc_particles(cl, mchitassociations, associations);
-    }
+    }       associate_mc_particles(cl, mchitassociations, associations);
+   
   }
 
   // debug output
