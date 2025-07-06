@@ -10,15 +10,16 @@
 #include <JANA/JApplicationFwd.h>
 #include <cmath>
 #include <string>
+#include <variant>
 
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
