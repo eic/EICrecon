@@ -380,7 +380,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "HcalFarForwardZDCRawHitAssociations",
 #endif
 #if EDM4EIC_VERSION_MAJOR >= 8
-    "TrackClusterMatches",
+    "EcalEndcapPTrackClusterMatches",
+    "LFHCALTrackClusterMatches",
+    "HcalEndcapPInsertClusterMatches",
+    "EcalBarrelTrackClusterMatches",
+    "HcalBarrelTrackClusterMatches",
+    "EcalEndcapNTrackClusterMatches",
+    "HcalEndcapNTrackClusterMatches",
 #endif
 
   };
