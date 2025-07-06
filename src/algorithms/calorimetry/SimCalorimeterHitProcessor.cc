@@ -197,8 +197,8 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
               ? std::abs(m_attenuationReferencePosition.value() - ih.getPosition().z) *
                     m_cfg.inversePropagationSpeed
               : 0.;
-      hit_accum.add(contrib.getEnergy() * attFactor, contrib.getTime() + propagationTime + m_cfg.fixedTimeDelay,
-                    ih.getPosition());
+      hit_accum.add(contrib.getEnergy() * attFactor,
+                    contrib.getTime() + propagationTime + m_cfg.fixedTimeDelay, ih.getPosition());
     }
   }
 

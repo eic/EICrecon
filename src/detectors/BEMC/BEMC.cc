@@ -39,8 +39,8 @@ void InitPlugin(JApplication* app) {
       "fiber", "z"};
   decltype(SimCalorimeterHitProcessorConfig::contributionMergeFields)
       EcalBarrelScFi_contributionMergeFields = {"fiber"};
-  decltype(SimCalorimeterHitProcessorConfig::inversePropagationSpeed) EcalBarrelScFi_inversePropagationSpeed = {
-      (1. / 160) * edm4eic::unit::ns / edm4eic::unit::mm};
+  decltype(SimCalorimeterHitProcessorConfig::inversePropagationSpeed)
+      EcalBarrelScFi_inversePropagationSpeed = {(1. / 160) * edm4eic::unit::ns / edm4eic::unit::mm};
   decltype(SimCalorimeterHitProcessorConfig::fixedTimeDelay) EcalBarrelScFi_fixedTimeDelay = {
       2 * edm4eic::unit::ns};
 
@@ -61,7 +61,7 @@ void InitPlugin(JApplication* app) {
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
-	  .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+          .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
       },
       app // TODO: Remove me once fixed
       ));
@@ -75,7 +75,7 @@ void InitPlugin(JApplication* app) {
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
-	  .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+          .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
       },
       app // TODO: Remove me once fixed
       ));
