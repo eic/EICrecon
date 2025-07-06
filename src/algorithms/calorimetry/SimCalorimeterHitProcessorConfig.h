@@ -22,8 +22,11 @@ struct SimCalorimeterHitProcessorConfig {
   // fields for merging contributions
   std::vector<std::string> contributionMergeFields{};
 
-  // propagation speed of hits in the detector material
-  double propagationSpeed{};
+  // inverse of the propagation speed of hits in the detector material
+  // declared as an inverse to avoid divison by zero
+  double inversePropagationSpeed{};
+  // detector-related time delay (e.g., scintillation)
+  double fixedTimeDelay{};
 };
 
 } // namespace eicrecon
