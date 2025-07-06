@@ -136,11 +136,9 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiClustersWithoutShapes",
-      {
-        "EcalBarrelScFiProtoClusters", // edm4eic::ProtoClusterCollection
-            "EcalBarrelScFiRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociation
-      {"EcalBarrelScFiClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalBarrelScFiProtoClusters",         // edm4eic::ProtoClusterCollection
+       "EcalBarrelScFiRawHitAssociations"},   // edm4eic::MCRecoCalorimeterHitAssociation
+      {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
        "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -211,10 +209,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
       "EcalBarrelImagingClusters",
-      {
-        "EcalBarrelImagingProtoClusters",
-            "EcalBarrelImagingRawHitAssociations"
-      },
+      {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitAssociations"},
       {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations",
        "EcalBarrelImagingLayers"},
       {

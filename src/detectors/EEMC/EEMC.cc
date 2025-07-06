@@ -109,8 +109,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNTruthClustersWithoutShapes",
       {
-        "EcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
-        "EcalEndcapNRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "EcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalEndcapNRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"EcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -131,8 +131,8 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapNClustersWithoutShapes",
 #endif
       {
-        "EcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
-        "EcalEndcapNRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "EcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalEndcapNRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
 #if EDM4EIC_VERSION_MAJOR >= 8
       {"EcalEndcapNClustersWithoutPIDAndShapes",             // edm4eic::Cluster
@@ -220,8 +220,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNSplitMergeClustersWithoutShapes",
       {
-        "EcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-        "EcalEndcapNRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
+          "EcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalEndcapNRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
       },
       {"EcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation

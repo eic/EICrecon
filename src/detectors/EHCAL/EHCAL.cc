@@ -102,8 +102,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNTruthClustersWithoutShapes",
       {
-        "HcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
-        "HcalEndcapNRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapNRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -118,8 +118,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNClustersWithoutShapes",
       {
-        "HcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
-        "HcalEndcapNRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapNRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalEndcapNClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -152,8 +152,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNSplitMergeClustersWithoutShapes",
       {
-        "HcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-        "HcalEndcapNRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
+          "HcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapNRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation

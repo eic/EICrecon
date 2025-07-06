@@ -93,8 +93,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalFarForwardZDCTruthClustersWithoutShapes",
       {
-        "EcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
-        "EcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoClusterHitAssociationCollection
+          "EcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalFarForwardZDCRawHitAssociations"  // edm4eic::MCRecoClusterHitAssociationCollection
       },
       {"EcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -112,8 +112,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalFarForwardZDCClustersWithoutShapes",
       {
-        "EcalFarForwardZDCIslandProtoClusters", // edm4eic::ProtoClusterCollection
-        "EcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoClusterHitAssociationCollection
+          "EcalFarForwardZDCIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalFarForwardZDCRawHitAssociations"   // edm4eic::MCRecoClusterHitAssociationCollection
       },
       {"EcalFarForwardZDCClustersWithoutShapes",             // edm4eic::Cluster
        "EcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -224,8 +224,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCClustersWithoutShapes",
       {
-        "HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
-        "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalFarForwardZDCClustersWithoutShapes",             // edm4eic::Cluster
        "HcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -280,8 +280,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCTruthClustersWithoutShapes",
       {
-        "HcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
-        "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -299,8 +299,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCClustersBaselineWithoutShapes",
       {
-        "HcalFarForwardZDCIslandProtoClustersBaseline", // edm4eic::ProtoClusterCollection
-        "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalFarForwardZDCIslandProtoClustersBaseline", // edm4eic::ProtoClusterCollection
+          "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalFarForwardZDCClustersBaselineWithoutShapes", // edm4eic::Cluster
        "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation

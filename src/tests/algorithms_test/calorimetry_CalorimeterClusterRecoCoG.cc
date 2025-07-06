@@ -182,7 +182,7 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   hitassoc2.setSimHit(simhit2);
 
   // Constructing input and output as per the algorithm's expected signature
-  auto input = std::make_tuple(&pclust_coll, &hitassocs_coll);
+  auto input  = std::make_tuple(&pclust_coll, &hitassocs_coll);
   auto output = std::make_tuple(clust_coll.get(), assoc_coll.get());
 
   algo.process(input, output);

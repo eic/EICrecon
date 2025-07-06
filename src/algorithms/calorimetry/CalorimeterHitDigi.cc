@@ -133,7 +133,7 @@ void CalorimeterHitDigi::init() {
 void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                                  const CalorimeterHitDigi::Output& output) const {
 
-  const auto [simhits] = input;
+  const auto [simhits]      = input;
   auto [rawhits, rawassocs] = output;
 
   // find the hits that belong to the same group (for merging)

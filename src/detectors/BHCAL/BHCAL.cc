@@ -122,8 +122,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelClustersWithoutShapes",
       {
-        "HcalBarrelIslandProtoClusters", // edm4eic::ProtoClusterCollection
-        "HcalBarrelRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalBarrelIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalBarrelRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalBarrelClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -140,8 +140,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelTruthClustersWithoutShapes",
       {
-        "HcalBarrelTruthProtoClusters", // edm4eic::ProtoClusterCollection
-        "HcalBarrelRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalBarrelTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalBarrelRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalBarrelTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -172,8 +172,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelSplitMergeClustersWithoutShapes",
       {
-        "HcalBarrelSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-        "HcalBarrelRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalBarrelSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalBarrelRawHitAssociations"       // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalBarrelSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation

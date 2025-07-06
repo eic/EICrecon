@@ -51,7 +51,7 @@ void CalorimeterClusterRecoCoG::init() {
 void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& input,
                                         const CalorimeterClusterRecoCoG::Output& output) const {
   const auto [proto, mchitassociations] = input;
-  auto [clusters, associations] = output;
+  auto [clusters, associations]         = output;
 
   for (const auto& pcl : *proto) {
     // skip protoclusters with no hits

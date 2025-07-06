@@ -118,8 +118,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapPInsertTruthClustersWithoutShapes",
       {
-        "HcalEndcapPInsertTruthProtoClusters", // edm4eic::ProtoClusterCollection
-        "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalEndcapPInsertTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalEndcapPInsertTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -137,8 +137,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapPInsertClustersWithoutShapes",
       {
-        "HcalEndcapPInsertImagingProtoClusters", // edm4eic::ProtoClusterCollection
-        "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalEndcapPInsertImagingProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalEndcapPInsertClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapPInsertClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -170,8 +170,7 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "LFHCALRawHits", {"LFHCALHits"},
-      {"LFHCALRawHits", "LFHCALRawHitAssociations"},
+      "LFHCALRawHits", {"LFHCALHits"}, {"LFHCALRawHits", "LFHCALRawHitAssociations"},
       {
           .eRes          = {},
           .tRes          = 0.0 * dd4hep::ns,
@@ -253,8 +252,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALTruthClustersWithoutShapes",
       {
-        "LFHCALTruthProtoClusters", // edm4eic::ProtoClusterCollection
-        "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "LFHCALRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"LFHCALTruthClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -271,8 +270,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALClustersWithoutShapes",
       {
-        "LFHCALIslandProtoClusters", // edm4eic::ProtoClusterCollection
-        "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "LFHCALRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"LFHCALClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -306,8 +305,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALSplitMergeClustersWithoutShapes",
       {
-        "LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-        "LFHCALRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+          "LFHCALRawHitAssociations"       // edm4hep::MCRecoCalorimeterHitAssociationCollection
       },
       {"LFHCALSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation

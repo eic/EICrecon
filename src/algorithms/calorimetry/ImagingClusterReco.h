@@ -31,8 +31,7 @@ namespace eicrecon {
 
 using ImagingClusterRecoAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ProtoClusterCollection,
-                                            edm4eic::MCRecoCalorimeterHitAssociationCollection
-                                            >,
+                                            edm4eic::MCRecoCalorimeterHitAssociationCollection>,
                           algorithms::Output<edm4eic::ClusterCollection,
                                              edm4eic::MCRecoClusterParticleAssociationCollection,
                                              edm4eic::ClusterCollection>>;
@@ -48,13 +47,12 @@ class ImagingClusterReco : public ImagingClusterRecoAlgorithm,
                            public WithPodConfig<ImagingClusterRecoConfig> {
 
 public:
-  ImagingClusterReco(std::string_view name) : ImagingClusterRecoAlgorithm {
-    name,
-        {"inputProtoClusterCollection", "mcRawHitAssocations"},
-        {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
-        "Reconstruct the cluster/layer info for imaging calorimeter."
-  }
-  {}
+  ImagingClusterReco(std::string_view name)
+      : ImagingClusterRecoAlgorithm{
+            name,
+            {"inputProtoClusterCollection", "mcRawHitAssocations"},
+            {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
+            "Reconstruct the cluster/layer info for imaging calorimeter."} {}
 
 public:
   void init() {}

@@ -76,7 +76,7 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
         edm4hep::Vector3f({0. /* mm */, 0. /* mm */, 0. /* mm */}) // edm4hep::Vector3f stepPosition
         ));
 
-    auto rawhits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
+    auto rawhits   = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
     auto rawassocs = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
     algo.process({simhits.get()}, {rawhits.get(), rawassocs.get()});
 

@@ -174,9 +174,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
               debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
                     meas2D.getLoc().a, meas2D.getLoc().b);
 
-// Determine track associations if hit associations provided
-// FIXME: not able to check whether optional inputs were provided
-//if (raw_hit_assocs->has_value()) {
+              // Determine track associations if hit associations provided
+              // FIXME: not able to check whether optional inputs were provided
+              //if (raw_hit_assocs->has_value()) {
               for (const auto& hit : meas2D.getHits()) {
                 auto raw_hit = hit.getRawHit();
                 for (const auto raw_hit_assoc : *raw_hit_assocs) {

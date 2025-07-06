@@ -28,8 +28,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "B0ECalRawHits", {"B0ECalHits"},
-      {"B0ECalRawHits", "B0ECalRawHitAssociations"},
+      "B0ECalRawHits", {"B0ECalHits"}, {"B0ECalRawHits", "B0ECalRawHitAssociations"},
       {
           // The stochastic term is set using light yield in PbOW4 of N_photons = 145.75 / GeV / mm, for 6x6 mm2 sensors with PDE=0.18 (a=1/sqrt(145.75*36*0.18))
           .eRes          = {0.0326 * sqrt(dd4hep::GeV), 0.00, 0.0 * dd4hep::GeV},
@@ -87,8 +86,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "B0ECalClustersWithoutShapes",
       {
-        "B0ECalIslandProtoClusters", // edm4eic::ProtoClusterCollection
-        "B0ECalRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "B0ECalIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "B0ECalRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"B0ECalClustersWithoutShapes",             // edm4eic::Cluster
        "B0ECalClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -103,8 +102,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "B0ECalTruthClustersWithoutShapes",
       {
-        "B0ECalTruthProtoClusters", // edm4eic::ProtoClusterCollection
-        "B0ECalRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "B0ECalTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "B0ECalRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"B0ECalTruthClustersWithoutShapes",             // edm4eic::Cluster
        "B0ECalTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation

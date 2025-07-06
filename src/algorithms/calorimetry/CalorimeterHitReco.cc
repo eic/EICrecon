@@ -307,9 +307,8 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
     const decltype(edm4eic::CalorimeterHitData::local) local_position(
         pos.x() / dd4hep::mm, pos.y() / dd4hep::mm, pos.z() / dd4hep::mm);
 
-    auto recohit =
-        recohits->create(rh.getCellID(), energy, 0, time, 0, position, dimension, sid, lid,
-                         local_position);
+    auto recohit = recohits->create(rh.getCellID(), energy, 0, time, 0, position, dimension, sid,
+                                    lid, local_position);
     recohit.setRawHit(rh);
   }
 }
