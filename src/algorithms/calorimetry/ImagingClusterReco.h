@@ -14,12 +14,7 @@
 #include <edm4hep/CaloHitContribution.h>
 // Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#else
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#endif
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
@@ -36,11 +31,7 @@ namespace eicrecon {
 
 using ImagingClusterRecoAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ProtoClusterCollection,
-#if EDM4EIC_VERSION_MAJOR >= 7
                                             edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-                                            edm4hep::SimCalorimeterHitCollection
-#endif
                                             >,
                           algorithms::Output<edm4eic::ClusterCollection,
                                              edm4eic::MCRecoClusterParticleAssociationCollection,
@@ -59,11 +50,7 @@ class ImagingClusterReco : public ImagingClusterRecoAlgorithm,
 public:
   ImagingClusterReco(std::string_view name) : ImagingClusterRecoAlgorithm {
     name,
-#if EDM4EIC_VERSION_MAJOR >= 7
         {"inputProtoClusterCollection", "mcRawHitAssocations"},
-#else
-        {"inputProtoClusterCollection", "mcHits"},
-#endif
         {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
         "Reconstruct the cluster/layer info for imaging calorimeter."
   }
@@ -88,11 +75,7 @@ private:
 
   void associate_mc_particles(
       const edm4eic::Cluster& cl,
-#if EDM4EIC_VERSION_MAJOR >= 7
       const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
-#else
-      const edm4hep::SimCalorimeterHitCollection* mchits,
-#endif
       edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
 
   edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;

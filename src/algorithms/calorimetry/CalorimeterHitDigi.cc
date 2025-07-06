@@ -19,10 +19,7 @@
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/service.h>
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#endif
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
@@ -137,11 +134,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                                  const CalorimeterHitDigi::Output& output) const {
 
   const auto [simhits] = input;
-#if EDM4EIC_VERSION_MAJOR >= 7
   auto [rawhits, rawassocs] = output;
-#else
-  auto [rawhits] = output;
-#endif
 
   // find the hits that belong to the same group (for merging)
   std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
@@ -163,9 +156,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
 
     // create hit and association in advance
     edm4hep::MutableRawCalorimeterHit rawhit;
-#if EDM4EIC_VERSION_MAJOR >= 7
     std::vector<edm4eic::MutableMCRecoCalorimeterHitAssociation> rawassocs_staging;
-#endif
 
     double edep      = 0;
     double time      = std::numeric_limits<double>::max();
@@ -196,13 +187,11 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
         }
       }
 
-#if EDM4EIC_VERSION_MAJOR >= 7
       edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
       assoc.setRawHit(rawhit);
       assoc.setSimHit(hit);
       assoc.setWeight(hit.getEnergy());
       rawassocs_staging.push_back(assoc);
-#endif
     }
     if (time > m_cfg.capTime) {
       continue;
@@ -265,12 +254,10 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     rawhit.setTimeStamp(tdc);
     rawhits->push_back(rawhit);
 
-#if EDM4EIC_VERSION_MAJOR >= 7
     for (auto& assoc : rawassocs_staging) {
       assoc.setWeight(assoc.getWeight() / edep);
       rawassocs->push_back(assoc);
     }
-#endif
   }
 }
 

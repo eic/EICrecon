@@ -25,7 +25,6 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
@@ -308,14 +307,10 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
     const decltype(edm4eic::CalorimeterHitData::local) local_position(
         pos.x() / dd4hep::mm, pos.y() / dd4hep::mm, pos.z() / dd4hep::mm);
 
-#if EDM4EIC_VERSION_MAJOR >= 7
     auto recohit =
-#endif
         recohits->create(rh.getCellID(), energy, 0, time, 0, position, dimension, sid, lid,
                          local_position);
-#if EDM4EIC_VERSION_MAJOR >= 7
     recohit.setRawHit(rh);
-#endif
   }
 }
 

@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, David Lawrence, Dhevan Gangadharan, Nathan Brei,, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
+
 // Copyright 2022, David Lawrence
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
@@ -6,7 +9,6 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <cmath>
-#include <edm4eic/EDM4eicVersion.h>
 #include <string>
 
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -27,11 +29,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalLumiSpecRawHits", {"EcalLumiSpecHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
       {"EcalLumiSpecRawHits", "EcalLumiSpecRawHitAssociations"},
-#else
-      {"EcalLumiSpecRawHits"},
-#endif
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}, // flat 2%
           .tRes          = 0.0 * dd4hep::ns,
@@ -95,13 +93,8 @@ void InitPlugin(JApplication* app) {
       "EcalLumiSpecClustersWithoutShapes",
       {
         "EcalLumiSpecIslandProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalLumiSpecRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "EcalLumiSpecHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+        "EcalLumiSpecRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"EcalLumiSpecClustersWithoutShapes",             // edm4eic::Cluster
        "EcalLumiSpecClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
@@ -117,13 +110,8 @@ void InitPlugin(JApplication* app) {
       "EcalLumiSpecTruthClustersWithoutShapes",
       {
         "EcalLumiSpecTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalLumiSpecRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "EcalLumiSpecHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+        "EcalLumiSpecRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"EcalLumiSpecTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalLumiSpecTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.6, .enableEtaBounds = false},

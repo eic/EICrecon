@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 David Lawrence, Derek Anderson, Wouter Deconinck
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <memory>
@@ -48,11 +47,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "HcalBarrelRawHits", {"HcalBarrelHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
       {"HcalBarrelRawHits", "HcalBarrelRawHitAssociations"},
-#else
-      {"HcalBarrelRawHits"},
-#endif
       {
           .eRes          = {},
           .tRes          = 0.0 * dd4hep::ns,
@@ -128,13 +123,8 @@ void InitPlugin(JApplication* app) {
       "HcalBarrelClustersWithoutShapes",
       {
         "HcalBarrelIslandProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalBarrelRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "HcalBarrelHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+        "HcalBarrelRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalBarrelClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
@@ -151,13 +141,8 @@ void InitPlugin(JApplication* app) {
       "HcalBarrelTruthClustersWithoutShapes",
       {
         "HcalBarrelTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalBarrelRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "HcalBarrelHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+        "HcalBarrelRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalBarrelTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
@@ -188,13 +173,8 @@ void InitPlugin(JApplication* app) {
       "HcalBarrelSplitMergeClustersWithoutShapes",
       {
         "HcalBarrelSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalBarrelRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "HcalBarrelHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+        "HcalBarrelRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalBarrelSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
