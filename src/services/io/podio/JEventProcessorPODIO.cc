@@ -222,6 +222,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTracksUnfiltered",
       "CentralCKFTrackUnfilteredAssociations",
       "CentralCKFTrackParametersUnfiltered",
+      // with BIC
+      "CentralWithBICTrackSegments",
 
       // B0 tracking
       "B0TrackerCKFTruthSeededTrajectories",
