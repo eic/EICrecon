@@ -36,6 +36,10 @@ void InitPlugin(JApplication* app) {
       "fiber", "z"};
   decltype(SimCalorimeterHitProcessorConfig::contributionMergeFields)
       EcalBarrelScFi_contributionMergeFields = {"fiber"};
+  decltype(SimCalorimeterHitProcessorConfig::inversePropagationSpeed)
+      EcalBarrelScFi_inversePropagationSpeed = {(1. / 160) * edm4eic::unit::ns / edm4eic::unit::mm};
+  decltype(SimCalorimeterHitProcessorConfig::fixedTimeDelay) EcalBarrelScFi_fixedTimeDelay = {
+      2 * edm4eic::unit::ns};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -53,6 +57,8 @@ void InitPlugin(JApplication* app) {
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmax",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
+          .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
+          .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
       },
       app // TODO: Remove me once fixed
       ));
@@ -65,6 +71,8 @@ void InitPlugin(JApplication* app) {
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
+          .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
+          .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
       },
       app // TODO: Remove me once fixed
       ));
