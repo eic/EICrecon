@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Nathan Brei, Sebouh Paul, Dmitry Kalinkin, Barak Schmookler
 
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
-
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <string>

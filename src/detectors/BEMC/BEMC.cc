@@ -1,11 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Sylvester Joosten, Chao Peng, David Lawrence, Thomas Britton, Wouter Deconinck, Maria Zurek, Akshaya Vijay, Nathan Brei, Dmitry Kalinkin, Derek Anderson, Minho Kim
 
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
-
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <edm4eic/unit_system.h>
