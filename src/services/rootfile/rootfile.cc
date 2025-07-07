@@ -6,7 +6,6 @@
 #include <JANA/JApplication.h>
 #include <memory>
 
-#include <TH3F.h>
 #include "RootFile_service.h"
 
 extern "C" {
