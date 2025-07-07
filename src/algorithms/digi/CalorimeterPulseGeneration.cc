@@ -14,7 +14,7 @@
 #include <limits>
 #include <vector>
 
-#include "algorithms/calorimetry/CalorimeterPulseGenerationConfig.h"
+#include "algorithms/digi/CalorimeterPulseGenerationConfig.h"
 #include "algorithms/digi/SiliconPulseGeneration.h"
 
 namespace eicrecon {

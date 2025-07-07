@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include "algorithms/calorimetry/CalorimeterPulseGeneration.h"
+#include "algorithms/digi/CalorimeterPulseGeneration.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 

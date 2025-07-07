@@ -12,7 +12,7 @@
 #include <variant>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
-#include "algorithms/calorimetry/CalorimeterPulseGenerationConfig.h"
+#include "algorithms/digi/CalorimeterPulseGenerationConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
@@ -20,7 +20,7 @@
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
-#include "factories/calorimetry/CalorimeterPulseGeneration_factory.h"
+#include "factories/digi/CalorimeterPulseGeneration_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
