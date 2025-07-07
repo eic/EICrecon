@@ -5,24 +5,25 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <cmath>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
+#include <cmath>
 #include <string>
+#include <variant>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
-#include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -38,6 +39,10 @@ void InitPlugin(JApplication* app) {
       "fiber", "z"};
   decltype(SimCalorimeterHitProcessorConfig::contributionMergeFields)
       EcalBarrelScFi_contributionMergeFields = {"fiber"};
+  decltype(SimCalorimeterHitProcessorConfig::inversePropagationSpeed)
+      EcalBarrelScFi_inversePropagationSpeed = {(1. / 160) * edm4eic::unit::ns / edm4eic::unit::mm};
+  decltype(SimCalorimeterHitProcessorConfig::fixedTimeDelay) EcalBarrelScFi_fixedTimeDelay = {
+      2 * edm4eic::unit::ns};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -55,6 +60,8 @@ void InitPlugin(JApplication* app) {
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmax",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
+          .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
+          .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
       },
       app // TODO: Remove me once fixed
       ));
@@ -67,6 +74,8 @@ void InitPlugin(JApplication* app) {
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
+          .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
+          .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
       },
       app // TODO: Remove me once fixed
       ));
