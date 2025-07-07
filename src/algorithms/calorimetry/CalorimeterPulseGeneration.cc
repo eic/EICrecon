@@ -20,8 +20,9 @@
 namespace eicrecon {
 
 void CalorimeterPulseGeneration::init() {
-  // Initialize seed
-  m_gen.seed(std::random_device{}());
+  // Initialize seed.
+  // To make the algorithm reproducible, a fixed value was used for the seed.
+  m_gen.seed(5140);
 
   // Get pulse and related parameters
   m_pulse = PulseShapeFactory::createPulseShape(m_cfg.pulse_shape, m_cfg.pulse_shape_params);
