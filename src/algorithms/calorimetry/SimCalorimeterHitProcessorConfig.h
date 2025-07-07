@@ -23,7 +23,7 @@ struct SimCalorimeterHitProcessorConfig {
   std::vector<std::string> contributionMergeFields{};
 
   // inverse of the propagation speed of hits in the detector material
-  // declared as an inverse to avoid divison by zero
+  // declared as an inverse to avoid division by zero
   double inversePropagationSpeed{};
   // detector-related time delay (e.g., scintillation)
   double fixedTimeDelay{};
