@@ -40,11 +40,14 @@ eicrecon::SecondaryVertexFinder::produce(
 
   Acts::EigenStepper<> stepperSec(m_BField);
 
-  // Calculate primary vertex using AMVF
-  primaryVertices = calculatePrimaryVertex(recotracks, trajectories, stepperSec);
-  //std::cout<<"*** The size of leftover container: "<<vtx_container.size()<<" ***\n";
-  // Primary vertex collection container to be used in Sec. Vertex fitting
-  outputVertices = calculateSecondaryVertex(recotracks, trajectories, stepperSec);
+  //Need to make sure that the track container is not actually empty
+  if (!trajectories.empty()){
+    // Calculate primary vertex using AMVF
+    primaryVertices = calculatePrimaryVertex(recotracks, trajectories, stepperSec);
+    //std::cout<<"*** The size of leftover container: "<<vtx_container.size()<<" ***\n";
+    // Primary vertex collection container to be used in Sec. Vertex fitting
+    outputVertices = calculateSecondaryVertex(recotracks, trajectories, stepperSec);
+  }
 
   return std::make_tuple(std::move(primaryVertices), std::move(outputVertices));
 }
