@@ -17,14 +17,12 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
-#if EDM4EIC_VERSION_MAJOR >= 6
 #include "algorithms/reco/HadronicFinalState.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
 #include "algorithms/reco/InclusiveKinematicsESigma.h"
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
-#endif
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
@@ -33,15 +31,11 @@
 #ifdef USE_ONNX
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #endif
-#if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
-#endif
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
-#if EDM4EIC_VERSION_MAJOR >= 6
 #include "factories/reco/HadronicFinalState_factory.h"
-#endif
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/MC2SmearedParticle_factory.h"
 #include "factories/reco/MatchClusters_factory.h"
@@ -102,7 +96,6 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsTruth_factory>(
       "InclusiveKinematicsTruth", {"MCParticles"}, {"InclusiveKinematicsTruth"}, app));
 
-#if EDM4EIC_VERSION_MAJOR >= 6
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
       "InclusiveKinematicsElectron",
@@ -138,7 +131,6 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
       "InclusiveKinematicsML", {"InclusiveKinematicsElectron", "InclusiveKinematicsDA"},
       {"InclusiveKinematicsML"}, app));
-#endif
 #endif
 
   app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
@@ -251,12 +243,10 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
 
-#if EDM4EIC_VERSION_MAJOR >= 6
   app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
       "HadronicFinalState",
       {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"},
       {"HadronicFinalState"}, app));
-#endif
 
   app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
       "GeneratedBreitFrameParticles",
