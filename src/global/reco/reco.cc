@@ -43,7 +43,7 @@
 #include "factories/reco/HadronicFinalState_factory.h"
 #endif
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
-#include "factories/reco/MC2SmearedParticle_factory.h"
+#include "factories/reco/MC2ReconstructedParticle_factory.h"
 #include "factories/reco/MatchClusters_factory.h"
 #include "factories/reco/PrimaryVertices_factory.h"
 #include "factories/reco/ReconstructedElectrons_factory.h"
@@ -70,7 +70,7 @@ void InitPlugin(JApplication* app) {
           {"ReconstructedChargedParticleAssociations", "MCScatteredElectrons"},
           {"MCScatteredElectronAssociations", "MCNonScatteredElectronAssociations"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<MC2SmearedParticle_factory>(
+  app->Add(new JOmniFactoryGeneratorT<MC2ReconstructedParticle_factory>(
       "GeneratedParticles", {"MCParticles"}, {"GeneratedParticles"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, true>>(
