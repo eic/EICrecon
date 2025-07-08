@@ -51,6 +51,7 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterPulseGenerationConfig::timestep) EcalBarrelScFi_timestep =
       0.2 * edm4eic::unit::ns;
   decltype(CalorimeterPulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = 1.0e-5;
+  decltype(CalorimeterPulseGenerationConfig::minimum_separation) EcalBarrelScFi_minimum_separation = 25 * edm4eic::unit::ns;
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -91,6 +92,7 @@ void InitPlugin(JApplication* app) {
           .edep_to_npe        = EcalBarrelScFi_edep_to_npe,
           .timestep           = EcalBarrelScFi_timestep,
           .ignore_thres       = EcalBarrelScFi_ignore_thres,
+	  .minimum_separation   = EcalBarrelScFi_minimum_separation,
       },
       app // TODO: Remove me once fixed
       ));
@@ -102,6 +104,7 @@ void InitPlugin(JApplication* app) {
           .edep_to_npe        = EcalBarrelScFi_edep_to_npe,
           .timestep           = EcalBarrelScFi_timestep,
           .ignore_thres       = EcalBarrelScFi_ignore_thres,
+	  .minimum_separation   = EcalBarrelScFi_minimum_separation,
       },
       app // TODO: Remove me once fixed
       ));

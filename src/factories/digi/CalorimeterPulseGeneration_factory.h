@@ -31,8 +31,8 @@ private:
   ParameterRef<double> m_timestep{this, "timestep", config().timestep};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};
   ParameterRef<double> m_min_sampling_time{this, "minSamplingTime", config().min_sampling_time};
-  ParameterRef<uint32_t> m_max_time_bin_contrib{this, "maxTimeBinPerContribution",
-                                                config().max_time_bin_contrib};
+  ParameterRef<uint32_t> m_max_time_bin{this, "maxTimeBin", config().max_time_bin};
+  ParameterRef<double> m_minimum_separation{this, "minimumSeparation", config().minimum_separation};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
