@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
+// Copyright (C) 2022 - 2025 Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
 #include "MC2ReconstructedParticle.h"
 
