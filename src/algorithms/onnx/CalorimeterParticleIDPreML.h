@@ -17,8 +17,7 @@
 namespace eicrecon {
 
 using CalorimeterParticleIDPreMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ClusterCollection,
-                      edm4eic::TrackClusterMatchCollection,
+    algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
                       std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
     algorithms::Output<edm4eic::TensorCollection, std::optional<edm4eic::TensorCollection>>>;
 
@@ -27,8 +26,10 @@ class CalorimeterParticleIDPreML : public CalorimeterParticleIDPreMLAlgorithm,
 
 public:
   CalorimeterParticleIDPreML(std::string_view name)
-      : CalorimeterParticleIDPreMLAlgorithm{
-            name, {"inputClusters", "inputTrackClusterMatches"}, {"outputFeatureTensor", "outputTargetTensor"}, ""} {}
+      : CalorimeterParticleIDPreMLAlgorithm{name,
+                                            {"inputClusters", "inputTrackClusterMatches"},
+                                            {"outputFeatureTensor", "outputTargetTensor"},
+                                            ""} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

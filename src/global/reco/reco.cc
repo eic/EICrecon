@@ -210,13 +210,12 @@ void InitPlugin(JApplication* app) {
   // Backward
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
       "EcalEndcapNTrackClusterMatches",
-      {"CalorimeterTrackProjections", "EcalEndcapNClustersWithoutPID"}, {"EcalEndcapNTrackClusterWithoutPIDMatches"},
-      {.calo_id = "EcalEndcapN_ID"}, app));
+      {"CalorimeterTrackProjections", "EcalEndcapNClustersWithoutPID"},
+      {"EcalEndcapNTrackClusterWithoutPIDMatches"}, {.calo_id = "EcalEndcapN_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "HcalEndcapNTrackClusterMatches",
-      {"CalorimeterTrackProjections", "HcalEndcapNClusters"}, {"HcalEndcapNTrackClusterMatches"},
-      {.calo_id = "HcalEndcapN_ID"}, app));
+      "HcalEndcapNTrackClusterMatches", {"CalorimeterTrackProjections", "HcalEndcapNClusters"},
+      {"HcalEndcapNTrackClusterMatches"}, {.calo_id = "HcalEndcapN_ID"}, app));
 
 #endif // EDM4EIC_VERSION_MAJOR >= 8
 

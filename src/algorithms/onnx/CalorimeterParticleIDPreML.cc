@@ -26,8 +26,8 @@ void CalorimeterParticleIDPreML::init() {
 void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input& input,
                                          const CalorimeterParticleIDPreML::Output& output) const {
 
-  const auto [clusters, track_matches, cluster_assocs]  = input;
-  auto [feature_tensors, target_tensors] = output;
+  const auto [clusters, track_matches, cluster_assocs] = input;
+  auto [feature_tensors, target_tensors]               = output;
 
   edm4eic::MutableTensor feature_tensor = feature_tensors->create();
   feature_tensor.addToShape(clusters->size());
