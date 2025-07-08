@@ -4,6 +4,7 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
@@ -12,7 +13,7 @@
 #include <string>
 #include <vector>
 
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "factories/digi/MPGDTrackerDigi_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"

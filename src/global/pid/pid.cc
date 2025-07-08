@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023, Christopher Dilks
 
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplicationFwd.h>
 #include <string>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/pid/MatchToRICHPID_factory.h"
 
