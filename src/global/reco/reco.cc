@@ -55,6 +55,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   // Finds associations matched to initial scattered electrons
   app->Add(

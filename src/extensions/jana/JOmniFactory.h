@@ -11,6 +11,7 @@
  */
 
 #include <JANA/CLI/JVersion.h>
+#include <JANA/Components/JOmniFactory.h>
 #include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
 #include <spdlog/spdlog.h>
@@ -25,10 +26,10 @@
 #include <string>
 #include <vector>
 
-struct EmptyConfig {};
+namespace eicrecon {
 
-template <typename AlgoT, typename ConfigT = EmptyConfig>
-class JOmniFactory : public JMultifactory {
+template <typename AlgoT, typename ConfigT = jana::components::EmptyConfig>
+class JOmniFactory : public jana::components::JOmniFactory<AlgoT, ConfigT> {
 public:
   /// ========================
   /// Handle input collections
@@ -164,11 +165,11 @@ public:
     friend class JOmniFactory;
 
     void CreateHelperFactory(JOmniFactory& fac) override {
-      fac.DeclareOutput<T>(this->collection_names[0]);
+      fac.template DeclareOutput<T>(this->collection_names[0]);
     }
 
     void SetCollection(JOmniFactory& fac) override {
-      fac.SetData<T>(this->collection_names[0], this->m_data);
+      fac.template SetData<T>(this->collection_names[0], this->m_data);
     }
 
     void Reset() override { m_data.clear(); }
@@ -191,7 +192,7 @@ public:
     friend class JOmniFactory;
 
     void CreateHelperFactory(JOmniFactory& fac) override {
-      fac.DeclarePodioOutput<PodioT>(this->collection_names[0]);
+      fac.template DeclarePodioOutput<PodioT>(this->collection_names[0]);
     }
 
     void SetCollection(JOmniFactory& fac) override {
@@ -200,7 +201,7 @@ public:
                          this->collection_names[0].c_str());
         // Otherwise this leads to a PODIO segfault
       }
-      fac.SetCollection<PodioT>(this->collection_names[0], std::move(this->m_data));
+      fac.template SetCollection<PodioT>(this->collection_names[0], std::move(this->m_data));
     }
 
     void Reset() override {
@@ -230,7 +231,7 @@ public:
 
     void CreateHelperFactory(JOmniFactory& fac) override {
       for (auto& coll_name : this->collection_names) {
-        fac.DeclarePodioOutput<PodioT>(coll_name);
+        fac.template DeclarePodioOutput<PodioT>(coll_name);
       }
     }
 
@@ -243,7 +244,7 @@ public:
       }
       std::size_t i = 0;
       for (auto& coll_name : this->collection_names) {
-        fac.SetCollection<PodioT>(coll_name, std::move(this->m_data[i++]));
+        fac.template SetCollection<PodioT>(coll_name, std::move(this->m_data[i++]));
       }
     }
 
@@ -459,6 +460,13 @@ public:
     return variadic_collection_count;
   }
 
+  inline void PreInit(std::string tag, JEventLevel level,
+                      std::vector<std::string> input_collection_names,
+                      std::vector<JEventLevel> input_collection_levels,
+                      std::vector<std::string> output_collection_names) {
+    PreInit(tag, input_collection_names, output_collection_names);
+  }
+
   inline void PreInit(std::string tag, std::vector<std::string> default_input_collection_names,
                       std::vector<std::string> default_output_collection_names) {
 
@@ -541,6 +549,10 @@ public:
 
   virtual void ChangeRun(int32_t /* run_number */) override {};
 
+  virtual void Execute(int32_t run_number, uint64_t event_number) {
+    Process(run_number, event_number);
+  };
+
   virtual void Process(int32_t /* run_number */, uint64_t /* event_number */) {};
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
@@ -581,3 +593,5 @@ public:
   /// Retrieve reference to embedded config object
   ConfigT& config() { return m_config; }
 };
+
+} // namespace eicrecon
