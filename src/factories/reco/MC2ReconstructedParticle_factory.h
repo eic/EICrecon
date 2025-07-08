@@ -16,7 +16,7 @@
 
 namespace eicrecon {
 
-class MC2ReconstructedParticle_factory : public JOmniFactory<MC2ReconstructedParticle_factory> {
+class MC2ReconstructedParticle_factory : public JOmniFactory<MC2ReconstructedParticle_factory, NoConfig> {
 
 private:
   using AlgoT = eicrecon::MC2ReconstructedParticle;
