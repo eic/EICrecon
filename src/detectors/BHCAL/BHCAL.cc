@@ -4,6 +4,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <memory>
 #include <string>
 #include <variant>
 #include <vector>
