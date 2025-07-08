@@ -370,12 +370,16 @@ std::cout<<"===============HIT COLLECTION SIZE AFTER : "<<cell_hit_map.size()<<"
       if (cellID == sim_hit.getCellID()) {
         auto hitassoc = associations->create();
         hitassoc.setWeight(1.0);
+<<<<<<< HEAD
         hitassoc.setRawHit(hit);
 #if EDM4EIC_VERSION_MAJOR >= 6
 <<<<<<< HEAD
 =======
 >>>>>>> 6b688420 (New functionality in Digitization for SiliconTrackekNosieHitStudy)
 >>>>>>> b81e0309 (New functionality in Digitization for SiliconTrackekNosieHitStudy)
+=======
+        hitassoc.setRawHit(item.second);
+>>>>>>> ed2aaa86 (treewide: drop support for EDM4eic older than 7 (#1953))
         hitassoc.setSimHit(sim_hit);
 #else
         hitassoc.addToSimHits(sim_hit);
