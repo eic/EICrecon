@@ -3,6 +3,7 @@
 //
 //
 
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
@@ -15,7 +16,6 @@
 #include <vector>
 
 #include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 

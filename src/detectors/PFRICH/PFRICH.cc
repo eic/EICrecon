@@ -5,6 +5,7 @@
 // Copyright (C) 2024, Dmitry Kalinkin
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
@@ -13,7 +14,6 @@
 
 // algorithm configurations
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 

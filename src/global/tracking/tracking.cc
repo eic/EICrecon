@@ -2,6 +2,7 @@
 // Copyright (C) 2022 - 2025, Dmitry Romanov, Tyler Kutz, Wouter Deconinck, Dmitry Kalinkin
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
@@ -22,7 +23,6 @@
 
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/tracking/ActsToTracks_factory.h"

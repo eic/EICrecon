@@ -4,6 +4,7 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
@@ -25,7 +26,6 @@
 #include <vector>
 
 #include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"

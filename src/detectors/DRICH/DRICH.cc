@@ -7,6 +7,7 @@
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
@@ -23,7 +24,6 @@
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 #include "factories/pid/IrtCherenkovParticleID_factory.h"

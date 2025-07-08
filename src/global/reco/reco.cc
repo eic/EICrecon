@@ -2,6 +2,7 @@
 // Copyright (C) 2022 - 2025, Dmitry Romanov, Nathan Brei, Tooba Ali, Wouter Deconinck, Dmitry Kalinkin, John Lajoie, Simon Gardner, Tristan Protzman, Daniel Brandenburg, Derek M Anderson, Sebouh Paul, Tyler Kutz, Alex Jentsch, Jihee Kim, Brian Page
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
@@ -24,7 +25,6 @@
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"

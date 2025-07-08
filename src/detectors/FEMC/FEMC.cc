@@ -2,6 +2,7 @@
 // Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
@@ -10,7 +11,6 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
