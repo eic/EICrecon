@@ -17,20 +17,19 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "SiBarrelRawHits", {"SiBarrelHits"}, {"SiBarrelRawHits", "SiBarrelRawHitAssociations"},
       {
           .threshold = 0.54 * dd4hep::keV,
-      },
-      app));
+      }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "SiBarrelTrackerRecHits", {"SiBarrelRawHits"}, {"SiBarrelTrackerRecHits"},
-      {}, // default config
-      app));
+      "SiBarrelTrackerRecHits", {"SiBarrelRawHits"}, {"SiBarrelTrackerRecHits"}, {}
+      // default config
+      ));
 }
 } // extern "C"

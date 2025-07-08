@@ -21,7 +21,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
   // Make sure digi and reco use the same value
@@ -49,9 +49,7 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC = EcalEndcapP_resolutionTDC,
           .corrMeanScale = "0.03",
           .readout       = "EcalEndcapPHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalEndcapPRecHits", {"EcalEndcapPRawHits"}, {"EcalEndcapPRecHits"},
       {
@@ -65,14 +63,10 @@ void InitPlugin(JApplication* app) {
               2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
           .sampFrac = "0.03",
           .readout  = "EcalEndcapPHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "EcalEndcapPTruthProtoClusters", {"EcalEndcapPRecHits", "EcalEndcapPHits"},
-      {"EcalEndcapPTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
+      {"EcalEndcapPTruthProtoClusters"}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalEndcapPIslandProtoClusters", {"EcalEndcapPRecHits"}, {"EcalEndcapPIslandProtoClusters"},
       {.adjacencyMatrix{},
@@ -90,9 +84,7 @@ void InitPlugin(JApplication* app) {
        .minClusterCenterEdep          = 60.0 * dd4hep::MeV,
        .transverseEnergyProfileMetric = "dimScaledLocalDistXY",
        .transverseEnergyProfileScale  = 1.,
-       .transverseEnergyProfileScaleUnits{}},
-      app // TODO: Remove me once fixed
-      ));
+       .transverseEnergyProfileScaleUnits{}}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPTruthClustersWithoutShapes",
@@ -102,15 +94,13 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapPTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapPTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = true},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = true}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalEndcapPTruthClusters",
       {"EcalEndcapPTruthClustersWithoutShapes", "EcalEndcapPTruthClusterAssociationsWithoutShapes"},
       {"EcalEndcapPTruthClusters", "EcalEndcapPTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.energyWeight = "log", .logWeightBase = 6.2}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPClustersWithoutShapes",
@@ -125,15 +115,13 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = 1.0,
           .logWeightBase   = 3.6,
           .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalEndcapPClusters",
       {"EcalEndcapPClustersWithoutShapes", "EcalEndcapPClusterAssociationsWithoutShapes"},
       {"EcalEndcapPClusters", "EcalEndcapPClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.energyWeight = "log", .logWeightBase = 3.6}));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "EcalEndcapPSplitMergeProtoClusters",
@@ -145,9 +133,7 @@ void InitPlugin(JApplication* app) {
        .sigEP                        = 0.10,
        .drAdd                        = 0.30,
        .sampFrac                     = 1.0,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
+       .transverseEnergyProfileScale = 1.0}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPSplitMergeClustersWithoutShapes",
@@ -157,15 +143,13 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapPSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalEndcapPSplitMergeClusters",
       {"EcalEndcapPSplitMergeClustersWithoutShapes",
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
       {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.energyWeight = "log", .logWeightBase = 3.6}));
 }
 }

@@ -20,7 +20,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
 
@@ -38,8 +38,7 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC = 1e-11,
           .corrMeanScale = "1.0",
           .readout       = "B0ECalHits",
-      },
-      app));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "B0ECalRecHits", {"B0ECalRawHits"}, {"B0ECalRecHits"},
       {
@@ -53,11 +52,9 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = "0.998",
           .readout         = "B0ECalHits",
           .sectorField     = "sector",
-      },
-      app));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "B0ECalTruthProtoClusters", {"B0ECalRecHits", "B0ECalHits"}, {"B0ECalTruthProtoClusters"},
-      app));
+      "B0ECalTruthProtoClusters", {"B0ECalRecHits", "B0ECalHits"}, {"B0ECalTruthProtoClusters"}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "B0ECalIslandProtoClusters", {"B0ECalRecHits"}, {"B0ECalIslandProtoClusters"},
       {
@@ -77,8 +74,7 @@ void InitPlugin(JApplication* app) {
           .transverseEnergyProfileMetric = "globalDistEtaPhi",
           .transverseEnergyProfileScale  = 1.,
           .transverseEnergyProfileScaleUnits{},
-      },
-      app));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "B0ECalClustersWithoutShapes",
@@ -88,13 +84,12 @@ void InitPlugin(JApplication* app) {
       },
       {"B0ECalClustersWithoutShapes",             // edm4eic::Cluster
        "B0ECalClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
-      app));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "B0ECalClusters", {"B0ECalClustersWithoutShapes", "B0ECalClusterAssociationsWithoutShapes"},
       {"B0ECalClusters", "B0ECalClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.energyWeight = "log", .logWeightBase = 3.6}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "B0ECalTruthClustersWithoutShapes",
@@ -104,13 +99,12 @@ void InitPlugin(JApplication* app) {
       },
       {"B0ECalTruthClustersWithoutShapes",             // edm4eic::Cluster
        "B0ECalTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "B0ECalTruthClusters",
       {"B0ECalTruthClustersWithoutShapes", "B0ECalTruthClusterAssociationsWithoutShapes"},
       {"B0ECalTruthClusters", "B0ECalTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.energyWeight = "log", .logWeightBase = 6.2}));
 }
 }

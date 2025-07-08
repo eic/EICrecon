@@ -16,7 +16,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // configuration parameters ///////////////////////////////////////////////
 
@@ -38,6 +38,6 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-      "DIRCRawHits", {"DIRCBarHits"}, {"DIRCRawHits", "DIRCRawHitsAssociations"}, digi_cfg, app));
+      "DIRCRawHits", {"DIRCBarHits"}, {"DIRCRawHits", "DIRCRawHitsAssociations"}, digi_cfg));
 }
 }
