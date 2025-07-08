@@ -209,12 +209,12 @@ void InitPlugin(JApplication* app) {
 
   // Backward
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "EcalEndcapNBarrelTrackClusterMatches",
-      {"CalorimeterTrackProjections", "EcalEndcapNClusters"}, {"EcalEndcapNTrackClusterMatches"},
+      "EcalEndcapNTrackClusterMatches",
+      {"CalorimeterTrackProjections", "EcalEndcapNClustersWithoutPID"}, {"EcalEndcapNTrackClusterWithoutPIDMatches"},
       {.calo_id = "EcalEndcapN_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "HcalEndcapNBarrelTrackClusterMatches",
+      "HcalEndcapNTrackClusterMatches",
       {"CalorimeterTrackProjections", "HcalEndcapNClusters"}, {"HcalEndcapNTrackClusterMatches"},
       {.calo_id = "HcalEndcapN_ID"}, app));
 
