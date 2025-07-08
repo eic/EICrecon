@@ -460,9 +460,9 @@ public:
     return variadic_collection_count;
   }
 
-  inline void PreInit(std::string tag, JEventLevel level,
+  inline void PreInit(std::string tag, JEventLevel /* level */,
                       std::vector<std::string> input_collection_names,
-                      std::vector<JEventLevel> input_collection_levels,
+                      std::vector<JEventLevel> /* input_collection_levels */,
                       std::vector<std::string> output_collection_names) {
     PreInit(tag, input_collection_names, output_collection_names);
   }
