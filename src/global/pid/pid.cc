@@ -15,7 +15,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // wiring between factories and data ///////////////////////////////////////
 
@@ -31,7 +31,6 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedRealPIDParticles",            // edm4eic::ReconstructedParticle
           "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
           "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID
-      },
-      app));
+      }));
 }
 }

@@ -24,7 +24,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // Divide MCParticle collection based on generator status and PDG
   std::vector<std::string> outCollections{"MCBeamElectrons",    "MCBeamProtons",
@@ -39,11 +39,10 @@ void InitPlugin(JApplication* app) {
           .function =
               ValueSplit<&edm4hep::MCParticle::getGeneratorStatus, &edm4hep::MCParticle::getPDG>{
                   values},
-      },
-      app));
+      }));
 
   // Combine beam protons and neutrons into beam hadrons
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>(
-      "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}, app));
+      "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}));
 }
 }

@@ -23,7 +23,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
 
@@ -41,9 +41,7 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC = 10 * dd4hep::picosecond,
           .corrMeanScale = "1.0",
           .readout       = "EcalFarForwardZDCHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalFarForwardZDCRecHits", {"EcalFarForwardZDCRawHits"}, {"EcalFarForwardZDCRecHits"},
       {
@@ -56,14 +54,10 @@ void InitPlugin(JApplication* app) {
           .thresholdValue  = 0.0,
           .sampFrac        = "1.0",
           .readout         = "EcalFarForwardZDCHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "EcalFarForwardZDCTruthProtoClusters", {"EcalFarForwardZDCRecHits", "EcalFarForwardZDCHits"},
-      {"EcalFarForwardZDCTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
+      {"EcalFarForwardZDCTruthProtoClusters"}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalFarForwardZDCIslandProtoClusters", {"EcalFarForwardZDCRecHits"},
       {"EcalFarForwardZDCIslandProtoClusters"},
@@ -84,9 +78,7 @@ void InitPlugin(JApplication* app) {
           .transverseEnergyProfileMetric = "globalDistEtaPhi",
           .transverseEnergyProfileScale  = 1.,
           .transverseEnergyProfileScaleUnits{},
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalFarForwardZDCTruthClustersWithoutShapes",
@@ -96,16 +88,14 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalFarForwardZDCTruthClusters",
       {"EcalFarForwardZDCTruthClustersWithoutShapes",
        "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
       {"EcalFarForwardZDCTruthClusters", "EcalFarForwardZDCTruthClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalFarForwardZDCClustersWithoutShapes",
@@ -120,16 +110,14 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = 1.0,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalFarForwardZDCClusters",
       {"EcalFarForwardZDCClustersWithoutShapes",
        "EcalFarForwardZDCClusterAssociationsWithoutShapes"},
       {"EcalFarForwardZDCClusters", "EcalFarForwardZDCClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "HcalFarForwardZDCRawHits", {"EventHeader", "HcalFarForwardZDCHits"},
@@ -144,9 +132,7 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC = 10 * dd4hep::picosecond,
           .corrMeanScale = "1.0",
           .readout       = "HcalFarForwardZDCHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "HcalFarForwardZDCRecHits", {"HcalFarForwardZDCRawHits"}, {"HcalFarForwardZDCRecHits"},
@@ -162,9 +148,7 @@ void InitPlugin(JApplication* app) {
           .readout         = "HcalFarForwardZDCHits",
           .layerField      = "layer",
           .sectorField     = "system",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>("HcalFarForwardZDCSubcellHits",
                                                        {"HcalFarForwardZDCRecHits"},
@@ -174,9 +158,7 @@ void InitPlugin(JApplication* app) {
                                                            .Emin_in_MIPs  = 0.5,
                                                            .delta_in_MIPs = 0.01,
                                                            .tmax          = 269 * dd4hep::ns,
-                                                       },
-                                                       app // TODO: Remove me once fixed
-                                                       ));
+                                                       }));
 
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
       "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"},
@@ -193,9 +175,7 @@ void InitPlugin(JApplication* app) {
           .minClusterCenterEdep = 3.0 * dd4hep::MeV,
           .minClusterEdep       = 11.0 * dd4hep::MeV,
           .minClusterNhits      = 30,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "HcalFarForwardZDCIslandProtoClusters", {"HcalFarForwardZDCSubcellHits"},
@@ -216,8 +196,7 @@ void InitPlugin(JApplication* app) {
        .minClusterCenterEdep = 1.0 * dd4hep::MeV,
        .transverseEnergyProfileMetric{}, // = "globalDistEtaPhi",
        .transverseEnergyProfileScale{},  // = 1.,
-       .transverseEnergyProfileScaleUnits{}},
-      app));
+       .transverseEnergyProfileScaleUnits{}}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCClustersWithoutShapes",
@@ -230,9 +209,7 @@ void InitPlugin(JApplication* app) {
       {.energyWeight        = "log",
        .sampFrac            = 0.0203,
        .logWeightBaseCoeffs = {5.8, 0.65, 0.31},
-       .logWeightBase_Eref  = 50 * dd4hep::GeV},
-      app // TODO: Remove me once fixed
-      ));
+       .logWeightBase_Eref  = 50 * dd4hep::GeV}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalFarForwardZDCClusters",
@@ -243,14 +220,11 @@ void InitPlugin(JApplication* app) {
        .energyWeight                    = "log",
        .sampFrac                        = 0.0203,
        .logWeightBaseCoeffs             = {5.8, 0.65, 0.31},
-       .logWeightBase_Eref              = 50 * dd4hep::GeV},
-      app));
+       .logWeightBase_Eref              = 50 * dd4hep::GeV}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "HcalFarForwardZDCTruthProtoClusters", {"HcalFarForwardZDCRecHits", "HcalFarForwardZDCHits"},
-      {"HcalFarForwardZDCTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
+      {"HcalFarForwardZDCTruthProtoClusters"}));
 
   //Clusters with the baseline algorithm (no HEXPLIT)
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
@@ -271,9 +245,7 @@ void InitPlugin(JApplication* app) {
        .minClusterCenterEdep          = 3.0 * dd4hep::MeV,
        .transverseEnergyProfileMetric = "globalDistEtaPhi",
        .transverseEnergyProfileScale  = 1.,
-       .transverseEnergyProfileScaleUnits{}},
-      app // TODO: Remove me once fixed
-      ));
+       .transverseEnergyProfileScaleUnits{}}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCTruthClustersWithoutShapes",
@@ -283,16 +255,14 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalFarForwardZDCTruthClusters",
       {"HcalFarForwardZDCTruthClustersWithoutShapes",
        "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"},
       {"HcalFarForwardZDCTruthClusters", "HcalFarForwardZDCTruthClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCClustersBaselineWithoutShapes",
@@ -307,9 +277,7 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = 0.0203,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalFarForwardZDCClustersBaseline",
@@ -319,7 +287,6 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
        .sampFrac                        = 0.0203,
-       .logWeightBase                   = 6.2},
-      app));
+       .logWeightBase                   = 6.2}));
 }
 }

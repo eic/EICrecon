@@ -20,7 +20,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   //-------------------------------------------------------------------------
   // FarBackward PID Through Phase Space
@@ -43,7 +43,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
           "FarBackwardTruthSeededPhaseSpacePIDParticleIDs",
       },
-      phase_space_pid_cfg, app));
+      phase_space_pid_cfg));
 
   app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
       "FarBackwardPhaseSpacePID",
@@ -56,7 +56,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithFBPIDParticleAssociations",
           "FarBackwardPhaseSpacePIDParticleIDs",
       },
-      phase_space_pid_cfg, app));
+      phase_space_pid_cfg));
 
   //-------------------------------------------------------------------------
   // PFRICH PID
@@ -90,7 +90,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNTruthSeededParticleIDs",
       },
-      pfrich_pid_cfg, app));
+      pfrich_pid_cfg));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "RICHEndcapNLUTPID",
@@ -104,7 +104,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNParticleIDs",
       },
-      pfrich_pid_cfg, app));
+      pfrich_pid_cfg));
 
   //-------------------------------------------------------------------------
   // TOF PID
@@ -136,7 +136,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFTruthSeededParticleIDs",
       },
-      tof_pid_cfg, app));
+      tof_pid_cfg));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "CombinedTOFLUTPID",
@@ -150,7 +150,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFParticleIDs",
       },
-      tof_pid_cfg, app));
+      tof_pid_cfg));
 
   //-------------------------------------------------------------------------
   // DIRC PID
@@ -193,7 +193,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
           "DIRCTruthSeededParticleIDs",
       },
-      dirc_pid_cfg, app));
+      dirc_pid_cfg));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DIRCLUTPID",
@@ -207,7 +207,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
           "DIRCParticleIDs",
       },
-      dirc_pid_cfg, app));
+      dirc_pid_cfg));
 
   //-------------------------------------------------------------------------
   // DRICH PID
@@ -243,7 +243,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedParticleAssociations",
           "DRICHTruthSeededParticleIDs",
       },
-      drich_pid_cfg, app));
+      drich_pid_cfg));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DRICHLUTPID",
@@ -257,6 +257,6 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedParticleAssociations",
           "DRICHParticleIDs",
       },
-      drich_pid_cfg, app));
+      drich_pid_cfg));
 }
 }
