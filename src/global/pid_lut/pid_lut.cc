@@ -3,7 +3,7 @@
 
 #include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplicationFwd.h>
-#include <math.h>
+#include <cmath>
 #include <memory>
 
 #include "algorithms/interfaces/WithPodConfig.h"
