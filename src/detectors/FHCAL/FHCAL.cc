@@ -320,8 +320,13 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "LFHCALSplitMergeProtoClusters", {"LFHCALIslandProtoClusters", "CalorimeterTrackProjections"},
-      {"LFHCALSplitMergeProtoClusters"},
+      "LFHCALSplitMergeProtoClusters", {"LFHCALClusters", "CalorimeterTrackProjections"},
+      {
+        "LFHCALSplitMergeProtoClusters",
+#if EDM4EIC_VERSION_MAJOR >= 8
+            "LFHCALTrackSplitMergeProtoClusterMatches"
+      },
+#endif
       {.idCalo                       = "LFHCAL_ID",
        .minSigCut                    = -2.0,
        .avgEP                        = 0.50,
@@ -335,17 +340,21 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALSplitMergeClustersWithoutShapes",
       {
-        "LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+        "LFHCALSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 7
             "LFHCALRawHitAssociations"
-      }, // edm4hep::MCRecoCalorimeterHitAssociationCollection
+      },
 #else
-            "LFHCALHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+                  "LFHCALHits"
+            },
 #endif
-      {"LFHCALSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
-       "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
+      {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
+      {
+          .energyWeight    = "log",
+          .sampFrac        = 1.0,
+          .logWeightBase   = 4.5,
+          .enableEtaBounds = false,
+      },
       app // TODO: Remove me once fixed
       ));
 
@@ -353,6 +362,6 @@ void InitPlugin(JApplication* app) {
       "LFHCALSplitMergeClusters",
       {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
       {"LFHCALSplitMergeClusters", "LFHCALSplitMergeClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true}, app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 }
 }

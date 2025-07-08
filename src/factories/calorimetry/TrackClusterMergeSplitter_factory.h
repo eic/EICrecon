@@ -7,6 +7,8 @@
 #include <string>
 // dd4hep utilities
 #include <DD4hep/Detector.h>
+// edm utilities
+#include <edm4eic/EDM4eicVersion.h>
 // eicrecon components
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
@@ -26,11 +28,14 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   // input collections
-  PodioInput<edm4eic::ProtoCluster> m_protoclusters_input{this};
+  PodioInput<edm4eic::Cluster> m_clusters_input{this};
   PodioInput<edm4eic::TrackSegment> m_track_projections_input{this};
 
   // output collections
   PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output{this};
+#if EDM4EIC_VERSION_MAJOR >= 8
+  PodioOutput<edm4eic::TrackProtoClusterLink> m_track_protocluster_match_output{this};
+#endif
 
   // parameter bindings
   ParameterRef<std::string> m_idCalo{this, "idCalo", config().idCalo};
@@ -50,15 +55,20 @@ public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->applyConfig(config());
-    m_algo->init();
+    m_algo->init(m_geoSvc().detector());
   }
 
-  void ChangeRun(int32_t /* run_number */) { /* nothing to do here */
+  void ChangeRun(int64_t run_number) { /* nothing to do here */
   }
 
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_protoclusters_input(), m_track_projections_input()},
-                    {m_protoclusters_output().get()});
+  void Process(int64_t run_number, uint64_t event_number) {
+    m_algo->process({m_clusters_input(), m_track_projections_input()},
+#if EDM4EIC_VERSION_MAJOR >= 8
+                    {m_protoclusters_output().get(), m_track_protocluster_match_output().get()}
+#else
+                    {m_protoclusters_output().get()}
+#endif
+    );
   }
 
 }; // end TrackClusterMergeSplitter_factory

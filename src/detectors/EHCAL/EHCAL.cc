@@ -154,9 +154,13 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapNClusters", "HcalEndcapNClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "HcalEndcapNSplitMergeProtoClusters",
-      {"HcalEndcapNIslandProtoClusters", "CalorimeterTrackProjections"},
-      {"HcalEndcapNSplitMergeProtoClusters"},
+      "HcalEndcapNSplitMergeProtoClusters", {"HcalEndcapNClusters", "CalorimeterTrackProjections"},
+      {
+        "HcalEndcapNSplitMergeProtoClusters",
+#if EDM4EIC_VERSION_MAJOR >= 8
+            "HcalEndcapNTrackSplitMergeProtoClusterMatches"
+      },
+#endif
       {.idCalo                       = "HcalEndcapN_ID",
        .minSigCut                    = -2.0,
        .avgEP                        = 0.60,
@@ -167,19 +171,24 @@ void InitPlugin(JApplication* app) {
       app // TODO: remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-      "HcalEndcapNSplitMergeClustersWithoutShapes",
+      "HcalEndcapNClustersWithoutShapes",
       {
-        "HcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+        "HcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 7
             "HcalEndcapNRawHitAssociations"
-      }, // edm4hep::MCRecoCalorimeterHitAssociationCollection
+      },
 #else
-            "HcalEndcapNHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+                  "HcalEndcapNHits"
+            },
 #endif
-      {"HcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
-       "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      {"HcalEndcapNSplitMergeClustersWithoutShapes",
+       "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
+      {
+          .energyWeight    = "log",
+          .sampFrac        = 1.0,
+          .logWeightBase   = 6.2,
+          .enableEtaBounds = false,
+      },
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
