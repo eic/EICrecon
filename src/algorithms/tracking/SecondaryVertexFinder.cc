@@ -11,18 +11,12 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Utilities/detail/ContextType.hpp>
-#include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
-#include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
-#include <Acts/Vertexing/ImpactPointEstimator.hpp>
-#include <Acts/Vertexing/LinearizedTrack.hpp>
-#include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <Eigen/Core>
 #include <tuple>
 #include <utility>
 
-#include "Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp"
 #include "Acts/Vertexing/AdaptiveGridTrackDensity.hpp"
 #include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -44,23 +38,31 @@ eicrecon::SecondaryVertexFinder::produce(
   auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
   auto outputVertices  = std::make_unique<edm4eic::VertexCollection>();
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
-
   Acts::EigenStepper<> stepperSec(m_BField);
+
+  // Calculate primary vertex using AMVF
+  primaryVertices = calculatePrimaryVertex(recotracks, trajectories, stepperSec);
+  //std::cout<<"*** The size of leftover container: "<<vtx_container.size()<<" ***\n";
+  // Primary vertex collection container to be used in Sec. Vertex fitting
+  outputVertices = calculateSecondaryVertex(recotracks, trajectories, stepperSec);
+
+  return std::make_tuple(std::move(primaryVertices), std::move(outputVertices));
+}
+
+//Quickly calculate the PV using the Adaptive Multi-vertex Finder
+std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calculatePrimaryVertex(
+    const edm4eic::ReconstructedParticleCollection* reconParticles,
+    std::vector<const ActsExamples::Trajectories*> trajectories,
+    Acts::EigenStepper<> stepperSec) {
 
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
 
+  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
+
   // Set up propagator with void navigator
   auto propagatorSec = std::make_shared<PropagatorSec>(stepperSec, Acts::VoidNavigator{},
                                                        logger().cloneWithSuffix("PropSec"));
-
-  //set up Impact estimator
-  using ImpactPointEstimator   = Acts::ImpactPointEstimator;
-  using LinearizerSec          = Acts::HelicalTrackLinearizer;
-  using VertexFitterSec        = Acts::AdaptiveMultiVertexFitter;
-  using VertexFinderSec        = Acts::AdaptiveMultiVertexFinder;
-  using VertexFinderOptionsSec = Acts::VertexingOptions;
 
   // Set up track density used during vertex seeding
   Acts::AdaptiveGridTrackDensity::Config trkDensityConfig;
@@ -134,19 +136,281 @@ eicrecon::SecondaryVertexFinder::produce(
   vertexfinderConfigSec.bField = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
       std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
 #endif
+  VertexFinderSec finder(std::move(vertexfinderConfigSec));
+  // Instantiate the finder
+  auto stateSec = finder.makeState(m_fieldctx);
+
+  VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
+
+  auto prmVertices = std::make_unique<edm4eic::VertexCollection>();
+  std::vector<Acts::InputTrack> inputTracks;
+
+  for (const auto& trajectory : trajectories) {
+    auto tips = trajectory->tips();
+    if (tips.empty()) {
+      continue;
+    }
+    /// CKF can provide multiple track trajectories for a single input seed
+    for (auto& tip : tips) {
+      ActsExamples::TrackParameters par = trajectory->trackParameters(tip);
+
+      inputTracks.emplace_back(&(trajectory->trackParameters(tip)));
+      m_log->trace("Track local position at input = {} mm, {} mm",
+                   par.localPosition().x() / Acts::UnitConstants::mm,
+                   par.localPosition().y() / Acts::UnitConstants::mm);
+    }
+  }
+
+  std::vector<Acts::Vertex> vertices;
+  auto result = finder.find(inputTracks, vfOptions, stateSec);
+  if (result.ok()) {
+    vertices = std::move(result.value());
+  }
+
+  for (const auto& vtx : vertices) {
+    edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
+                       vtx.fullCovariance()(2, 2), vtx.fullCovariance()(3, 3),
+                       vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
+                       vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
+                       vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
+    auto eicvertex = prmVertices->create();
+    eicvertex.setType(1); // boolean flag if vertex is primary vertex of event
+    eicvertex.setChi2(static_cast<float>(vtx.fitQuality().first)); // chi2
+    eicvertex.setNdf(static_cast<float>(vtx.fitQuality().second)); // ndf
+    eicvertex.setPosition({
+        static_cast<float>(vtx.position().x()),
+        static_cast<float>(vtx.position().y()),
+        static_cast<float>(vtx.position().z()),
+        static_cast<float>(vtx.time()),
+    });                              // vtxposition
+    eicvertex.setPositionError(cov); // covariance
+
+    for (const auto& t : vtx.tracks()) {
+      const auto& par = vertexfinderConfigSec.extractParameters(t.originalParams);
+      auto& origpar = t.originalParams;
+      m_log->trace("Track local position from vertex = {} mm, {} mm",
+                   par.localPosition().x() / Acts::UnitConstants::mm,
+                   par.localPosition().y() / Acts::UnitConstants::mm);
+      float loc_a = par.localPosition().x();
+      float loc_b = par.localPosition().y();
+
+      for (const auto& part : *reconParticles) {
+        const auto& tracks = part.getTracks();
+        for (const auto& trk : tracks) {
+          const auto& traj    = trk.getTrajectory();
+          const auto& trkPars = traj.getTrackParameters();
+          for (const auto& par : trkPars) {
+            double EPSILON = std::numeric_limits<double>::epsilon() * 1.0e-4; // mm
+            if (std::abs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
+                    EPSILON &&
+                std::abs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
+                    EPSILON) {
+              m_log->trace(
+                  "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
+                  par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
+              eicvertex.addToAssociatedParticles(part);
+            } // endif
+          }   // end for par
+        }     // end for trk
+      }       // end for part
+    }         // end for t
+    m_log->debug("One AMVF vertex found at (x,y,z) = ({}, {}, {}) mm.",
+                 vtx.position().x() / Acts::UnitConstants::mm,
+                 vtx.position().y() / Acts::UnitConstants::mm,
+                 vtx.position().z() / Acts::UnitConstants::mm);
+  } // end for vtx
+  return prmVertices;
+}
+
+std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
+    const edm4eic::ReconstructedParticleCollection* reconParticles,
+    std::vector<const ActsExamples::Trajectories*> trajectories,
+    Acts::EigenStepper<> stepperSec) {
+
+  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
+
+  // Set-up the propagator
+  using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
+
+  // Set up propagator with void navigator
+  auto propagatorSec = std::make_shared<PropagatorSec>(stepperSec, Acts::VoidNavigator{},
+                                                       logger().cloneWithSuffix("PropSec"));
+
+  // Set up track density used during vertex seeding
+  Acts::AdaptiveGridTrackDensity::Config trkDensityConfig;
+  // Bin extent in z-direction
+  trkDensityConfig.spatialBinExtent = m_cfg.spatialBinExtent;
+  // Bin extent in t-direction
+  trkDensityConfig.temporalBinExtent = m_cfg.temporalBinExtent;
+  trkDensityConfig.useTime           = m_cfg.useTime;
+  Acts::AdaptiveGridTrackDensity trkDensity(trkDensityConfig);
+
+  // Setup the track linearizer
+  LinearizerSec::Config linearizerConfigSec(m_BField, propagatorSec);
+  LinearizerSec linearizerSec(linearizerConfigSec, logger().cloneWithSuffix("HelLinSec"));
+
+  //Staring multivertex fitter
+  // Set up deterministic annealing with user-defined temperatures
+  Acts::AnnealingUtility::Config annealingConfig;
+  annealingConfig.setOfTemperatures = {9., 1.0};
+  Acts::AnnealingUtility annealingUtility(annealingConfig);
+  // Setup the vertex fitter
+  ImpactPointEstimator::Config ipEstConfig(m_BField, propagatorSec);
+  ImpactPointEstimator ipEst(ipEstConfig);
+  VertexFitterSec::Config vertexFitterConfigSec(ipEst);
+
+  vertexFitterConfigSec.annealingTool     = annealingUtility;
+  vertexFitterConfigSec.minWeight         = m_cfg.minWeight;
+  vertexFitterConfigSec.maxDistToLinPoint = m_cfg.maxDistToLinPoint;
+  vertexFitterConfigSec.doSmoothing       = m_cfg.doSmoothing;
+  vertexFitterConfigSec.useTime           = m_cfg.useTime;
+  vertexFitterConfigSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
+  vertexFitterConfigSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(&linearizerSec);
+  VertexFitterSec vertexFitterSec(std::move(vertexFitterConfigSec));
+
+  // Set up vertex seeder and finder
+  std::shared_ptr<const Acts::IVertexFinder> seeder;
+  seedFinder::Config seederConfig(trkDensity);
+  seederConfig.extractParameters.connect<&Acts::InputTrack::extractParameters>();
+  seeder = std::make_shared<seedFinder>(seedFinder::Config{seederConfig});
+
+  VertexFinderSec::Config vertexfinderConfigSec(std::move(vertexFitterSec), std::move(seeder),
+                                                std::move(ipEst), m_BField);
+
+  // The vertex finder state
+  // Set the initial variance of the 4D vertex position. Since time is on a
+  // numerical scale, we have to provide a greater value in the corresponding
+  // dimension.
+  vertexfinderConfigSec.initialVariances   = {1e+2, 1e+2, 1e+2, 1e+8};
+  //Use time for Sec. Vertex
+  vertexfinderConfigSec.useTime            = m_cfg.useTime;
+  vertexfinderConfigSec.useSeedConstraint  = m_cfg.useSeedConstraint;
+  vertexfinderConfigSec.tracksMaxZinterval = m_cfg.tracksMaxZintervalSec;
+  vertexfinderConfigSec.maxIterations      = m_cfg.maxSecIterations;
+  vertexfinderConfigSec.doFullSplitting    = m_cfg.doFullSplitting;
+  // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
+  vertexfinderConfigSec.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
+  vertexfinderConfigSec.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
+
+  if (m_cfg.useTime) {
+    // When using time, we have an extra contribution to the chi2 by the time
+    // coordinate.
+    vertexfinderConfigSec.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
+    vertexfinderConfigSec.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
+  }
+
+  vertexfinderConfigSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
+  vertexFitterConfigSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(&linearizerSec);
+
+#if Acts_VERSION_MAJOR >= 36
+  vertexfinderConfigSec.bField = m_BField;
+#else
+  vertexfinderConfigSec.bField = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
+      std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
+#endif
   VertexFinderSec vertexfinderSec(std::move(vertexfinderConfigSec));
   // Instantiate the finder
   auto stateSec = vertexfinderSec.makeState(m_fieldctx);
 
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
 
+  auto secVertices = std::make_unique<edm4eic::VertexCollection>();
+  //--->Add Prm Vertex container here
   std::vector<Acts::InputTrack> inputTracks;
-  // Calculate primary vertex using AMVF
-  primaryVertices = calculatePrimaryVertex(recotracks, trajectories, vertexfinderSec, vfOptions,
-                                           vertexfinderConfigSec, stateSec);
-  // Primary vertex collection container to be used in Sec. Vertex fitting
-  outputVertices = calculateSecondaryVertex(recotracks, trajectories, vertexfinderSec, vfOptions,
-                                            vertexfinderConfigSec, stateSec);
+  for (unsigned int i = 0; i < trajectories.size() - 1; i++) {
+    auto tips = trajectories[i]->tips();
+    if (tips.empty()) {
+      continue;
+    }
+    for (unsigned int j = i + 1; j < trajectories.size(); j++) {
+      auto tips2 = trajectories[j]->tips();
+      if (tips2.empty()) {
+        continue;
+      }
+      // Checking for default DCA cut-condition
+      for (auto& tip : tips) {
+        /// CKF can provide multiple track trajectories for a single input seed
+        inputTracks.emplace_back(&(trajectories[i]->trackParameters(tip)));
+      }
+      for (auto& tip : tips2) {
+        inputTracks.emplace_back(&(trajectories[j]->trackParameters(tip)));
+      }
+      // run the vertex finder for both tracks
+      std::vector<Acts::Vertex> verticesSec;
+      auto resultSecondary = vertexfinderSec.find(inputTracks, vfOptions, stateSec);
+      if (resultSecondary.ok()) {
+        verticesSec = std::move(resultSecondary.value());
+      }
 
-  return std::make_tuple(std::move(primaryVertices), std::move(outputVertices));
+/*
+  // Here, we keep incompatible tracks and refer them to the Secondary vertex
+  // Leftover tracks from primary vertex fit...
+  std::set<Acts::InputTrack> selectedTracks;
+  for (const auto& primvtx : prm_vertex) {
+    for (const auto& tr : primvtx.tracks().originalParams) {
+      if (!(std::find(inputTracks.begin(), inputTracks.end(), tr) != inputTracks.end())) {
+        selectedTracks.insert(tr);
+        std::cout<<"******** NOT Matching Vertex!!**********************\n";
+      }else{
+        std::cout<<"******** Matching Vertex found**********************\n";
+      }
+    }
+  }
+  std::cout<<"*** Trajectories size===> "<<trajectories.size()<<std::endl;
+  std::cout<<"****  Number of tracks per vertex:  "<<vertices.at(0).tracks().size()<<std::endl;
+  std::cout<<"====  Number of leftover tracks:    "<<selectedTracks.size()<<std::endl;
+*/
+      for (const auto& secvertex : verticesSec) {
+        edm4eic::Cov4f cov(secvertex.fullCovariance()(0, 0), secvertex.fullCovariance()(1, 1),
+                           secvertex.fullCovariance()(2, 2), secvertex.fullCovariance()(3, 3),
+                           secvertex.fullCovariance()(0, 1), secvertex.fullCovariance()(0, 2),
+                           secvertex.fullCovariance()(0, 3), secvertex.fullCovariance()(1, 2),
+                           secvertex.fullCovariance()(1, 3), secvertex.fullCovariance()(2, 3));
+        auto eicvertex = secVertices->create();
+        eicvertex.setType(0); // boolean flag if vertex is primary vertex of event
+        eicvertex.setChi2(static_cast<float>(secvertex.fitQuality().first)); // chi2
+        eicvertex.setNdf(static_cast<float>(secvertex.fitQuality().second)); // ndf
+        eicvertex.setPosition({
+            static_cast<float>(secvertex.position().x()),
+            static_cast<float>(secvertex.position().y()),
+            static_cast<float>(secvertex.position().z()),
+            static_cast<float>(secvertex.time()),
+        });                              // vtxposition
+        eicvertex.setPositionError(cov); // covariance
+
+        for (const auto& t : secvertex.tracks()) {
+          const auto& par = vertexfinderConfigSec.extractParameters(t.originalParams);
+          m_log->trace("Track local position from vertex = {} mm, {} mm",
+                       par.localPosition().x() / Acts::UnitConstants::mm,
+                       par.localPosition().y() / Acts::UnitConstants::mm);
+          float loc_a = par.localPosition().x();
+          float loc_b = par.localPosition().y();
+
+          for (const auto& part : *reconParticles) {
+            const auto& tracks = part.getTracks();
+            for (const auto& trk : tracks) {
+              const auto& traj    = trk.getTrajectory();
+              const auto& trkPars = traj.getTrackParameters();
+              for (const auto& par : trkPars) {
+                double EPSILON = std::numeric_limits<double>::epsilon() * 1.0e-4; // mm
+                if (std::abs((par.getLoc().a / edm4eic::unit::mm) -
+                             (loc_a / Acts::UnitConstants::mm)) < EPSILON &&
+                    std::abs((par.getLoc().b / edm4eic::unit::mm) -
+                             (loc_b / Acts::UnitConstants::mm)) < EPSILON) {
+                  m_log->trace(
+                      "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
+                      par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
+                  eicvertex.addToAssociatedParticles(part);
+                } // endif
+              }   // end for par
+            }     // end for trk
+          }       // end for part
+        }         // end for t
+      }           // end for secvertex
+
+      // empty the vector for the next set of tracks
+      inputTracks.clear();
+    } //end of int j=i+1
+  }   // end of int i=0; i<trajectories.size()
+  return secVertices;
 }
