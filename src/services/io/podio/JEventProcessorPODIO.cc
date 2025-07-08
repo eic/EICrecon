@@ -294,6 +294,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "EcalBarrelScFiPAttenuatedHitContributions",
     "EcalBarrelScFiNAttenuatedHits",
     "EcalBarrelScFiNAttenuatedHitContributions",
+    "EcalBarrelScFiPPulses",
+    "EcalBarrelScFiNPulses",
     "EcalBarrelScFiRawHits",
     "EcalBarrelScFiRecHits",
     "EcalBarrelScFiClusters",

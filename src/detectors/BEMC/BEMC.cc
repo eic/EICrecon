@@ -12,6 +12,7 @@
 #include <variant>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/digi/CalorimeterPulseGenerationConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
@@ -19,6 +20,7 @@
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/digi/CalorimeterPulseGeneration_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
@@ -43,6 +45,19 @@ void InitPlugin(JApplication* app) {
       EcalBarrelScFi_inversePropagationSpeed = {(1. / 160) * edm4eic::unit::ns / edm4eic::unit::mm};
   decltype(SimCalorimeterHitProcessorConfig::fixedTimeDelay) EcalBarrelScFi_fixedTimeDelay = {
       2 * edm4eic::unit::ns};
+
+  decltype(CalorimeterPulseGenerationConfig::pulse_shape) EcalBarrelScFi_pulse_shape =
+      "LandauPulse";
+  decltype(CalorimeterPulseGenerationConfig::pulse_shape_params) EcalBarrelScFi_pulse_shape_params =
+      {1.0, 2 * edm4eic::unit::ns};
+  decltype(CalorimeterPulseGenerationConfig::edep_to_npe) EcalBarrelScFi_edep_to_npe =
+      1690.75267 / edm4eic::unit::GeV;
+  decltype(CalorimeterPulseGenerationConfig::timestep) EcalBarrelScFi_timestep =
+      0.2 * edm4eic::unit::ns;
+  decltype(CalorimeterPulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres =
+      1.0e-5; // [arbitrary unit]
+  decltype(CalorimeterPulseGenerationConfig::minimum_separation) EcalBarrelScFi_minimum_separation =
+      25 * edm4eic::unit::ns;
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -76,6 +91,30 @@ void InitPlugin(JApplication* app) {
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
           .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterPulseGeneration_factory>(
+      "EcalBarrelScFiPPulses", {"EcalBarrelScFiPAttenuatedHits"}, {"EcalBarrelScFiPPulses"},
+      {
+          .pulse_shape        = EcalBarrelScFi_pulse_shape,
+          .pulse_shape_params = EcalBarrelScFi_pulse_shape_params,
+          .edep_to_npe        = EcalBarrelScFi_edep_to_npe,
+          .timestep           = EcalBarrelScFi_timestep,
+          .ignore_thres       = EcalBarrelScFi_ignore_thres,
+          .minimum_separation = EcalBarrelScFi_minimum_separation,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterPulseGeneration_factory>(
+      "EcalBarrelScFiNPulses", {"EcalBarrelScFiNAttenuatedHits"}, {"EcalBarrelScFiNPulses"},
+      {
+          .pulse_shape        = EcalBarrelScFi_pulse_shape,
+          .pulse_shape_params = EcalBarrelScFi_pulse_shape_params,
+          .edep_to_npe        = EcalBarrelScFi_edep_to_npe,
+          .timestep           = EcalBarrelScFi_timestep,
+          .ignore_thres       = EcalBarrelScFi_ignore_thres,
+          .minimum_separation = EcalBarrelScFi_minimum_separation,
       },
       app // TODO: Remove me once fixed
       ));
