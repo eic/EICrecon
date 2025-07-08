@@ -17,8 +17,8 @@ void CalorimeterParticleIDPostML::init() {
 void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Input& input,
                                           const CalorimeterParticleIDPostML::Output& output) const {
 
-  const auto [in_clusters, in_assocs, prediction_tensors] = input;
-  auto [out_clusters, out_assocs, out_particle_ids]       = output;
+  const auto [in_clusters, in_track_matches, in_assocs, prediction_tensors] = input;
+  auto [out_clusters, out_track_matches, out_assocs, out_particle_ids]      = output;
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
@@ -75,6 +75,15 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                                           0,  // std::int32_t algorithmType
                                                           prob_electron // float likelihood
                                                           ));
+
+    // propagate track matches
+    for (auto in_track_match : *in_track_matches) {
+      if (in_track_match.getCluster() == in_cluster) {
+        auto out_track_match = in_track_match.clone();
+        out_track_match.setCluster(out_cluster);
+        out_track_matches->push_back(out_track_match);
+      }
+    }
 
     // propagate associations
     for (auto in_assoc : *in_assocs) {
