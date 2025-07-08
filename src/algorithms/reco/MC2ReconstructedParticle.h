@@ -21,7 +21,7 @@ using MC2ReconstructedParticleAlgorithm =
   * Converts edm4hep::MCParticle to edm4eic::ReconstructedParticle
   */
 class MC2ReconstructedParticle
-    : public MC2ReconstructedParticleAlgorithm public WithPodConfig<NoConfig> {
+    : public MC2ReconstructedParticleAlgorithm, public WithPodConfig<NoConfig> {
 public:
   MC2ReconstructedParticle(std::string_view name)
       : MC2ReconstructedParticleAlgorithm{name,
