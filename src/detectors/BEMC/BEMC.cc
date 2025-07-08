@@ -50,7 +50,8 @@ void InitPlugin(JApplication* app) {
       1690.75267 / edm4eic::unit::GeV;
   decltype(CalorimeterPulseGenerationConfig::timestep) EcalBarrelScFi_timestep =
       0.2 * edm4eic::unit::ns;
-  decltype(CalorimeterPulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = 1.0e-5;// [arbitrary unit]
+  decltype(CalorimeterPulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres =
+      1.0e-5; // [arbitrary unit]
   decltype(CalorimeterPulseGenerationConfig::minimum_separation) EcalBarrelScFi_minimum_separation =
       25 * edm4eic::unit::ns;
 
