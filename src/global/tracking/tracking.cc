@@ -38,6 +38,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
       "TrackTruthSeeds", {"MCParticles"}, {"TrackTruthSeeds"}, {}, app));

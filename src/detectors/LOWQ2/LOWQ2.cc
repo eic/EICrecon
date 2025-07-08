@@ -46,6 +46,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   std::string readout = "TaggerTrackerHits";
 

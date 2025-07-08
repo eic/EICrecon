@@ -4,11 +4,15 @@
 
 #pragma once
 
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JFactorySet.h>
 #include <JANA/JFactoryGenerator.h>
 #include <vector>
 
-template <class FactoryT> class JOmniFactoryGeneratorT : public JFactoryGenerator {
+namespace eicrecon {
+
+template <class FactoryT>
+class JOmniFactoryGeneratorT : public jana::components::JOmniFactoryGeneratorT<FactoryT> {
 public:
   using FactoryConfigType = typename FactoryT::ConfigType;
 
@@ -97,3 +101,5 @@ private:
   std::vector<TypedWiring> m_wirings;
   JApplication* m_app;
 };
+
+} // namespace eicrecon

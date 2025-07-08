@@ -14,6 +14,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   // wiring between factories and data ///////////////////////////////////////
 
