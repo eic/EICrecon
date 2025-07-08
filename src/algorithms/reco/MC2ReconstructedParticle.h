@@ -16,8 +16,8 @@ using MC2ReconstructedParticleAlgorithm =
                           algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 /**
-     * Converts edm4hep::MCParticle to edm4eic::ReconstructedParticle
-     */
+  * Converts edm4hep::MCParticle to edm4eic::ReconstructedParticle
+  */
 class MC2ReconstructedParticle : public MC2ReconstructedParticleAlgorithm {
 public:
   MC2ReconstructedParticle(std::string_view name)
