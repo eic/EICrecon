@@ -2,6 +2,7 @@
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Sylvester Joosten, Chao Peng, David Lawrence, Thomas Britton, Wouter Deconinck, Maria Zurek, Akshaya Vijay, Nathan Brei, Dmitry Kalinkin, Derek Anderson, Minho Kim
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplicationFwd.h>
 #include <edm4eic/unit_system.h>
 #include <cmath>
@@ -10,7 +11,6 @@
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"

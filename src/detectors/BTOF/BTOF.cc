@@ -6,13 +6,13 @@
 // Copyright (C) 2024, Dmitry Kalinkin
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplicationFwd.h>
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
 #include <memory>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
