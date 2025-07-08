@@ -18,7 +18,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -27,8 +27,7 @@ void InitPlugin(JApplication* app) {
       {
           .threshold      = 6.0 * dd4hep::keV,
           .timeResolution = 0.025,
-      },
-      app));
+      }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -36,7 +35,6 @@ void InitPlugin(JApplication* app) {
       {"TOFEndcapRecHits"},                     // Output data tag
       {
           .timeResolution = 0.025,
-      },
-      app));
+      }));
 }
 } // extern "C"

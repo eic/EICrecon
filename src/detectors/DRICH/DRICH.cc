@@ -39,7 +39,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // configuration parameters ///////////////////////////////////////////////
 
@@ -119,33 +119,32 @@ void InitPlugin(JApplication* app) {
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "DRICHRawHits", {"EventHeader", "DRICHHits"}, {"DRICHRawHits", "DRICHRawHitsAssociations"},
-      digi_cfg, app));
+      digi_cfg));
 
   // charged particle tracks
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
       "DRICHAerogelTracks",
       {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
-      {"DRICHAerogelTracks"}, aerogel_track_cfg, app));
+      {"DRICHAerogelTracks"}, aerogel_track_cfg));
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
       "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
-      {"DRICHGasTracks"}, gas_track_cfg, app));
+      {"DRICHGasTracks"}, gas_track_cfg));
 
-  app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>("DRICHMergedTracks",
-                                                          {"DRICHAerogelTracks", "DRICHGasTracks"},
-                                                          {"DRICHMergedTracks"}, {}, app));
+  app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>(
+      "DRICHMergedTracks", {"DRICHAerogelTracks", "DRICHGasTracks"}, {"DRICHMergedTracks"}, {}));
 
   // PID algorithm
   app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
       "DRICHIrtCherenkovParticleID",
       {"DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks", "DRICHRawHits",
        "DRICHRawHitsAssociations"},
-      {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg, app));
+      {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg));
 
   // merge aerogel and gas PID results
   app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
       "DRICHMergedIrtCherenkovParticleID",
       {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
-      {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg, app));
+      {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg));
 
   // clang-format on
 }

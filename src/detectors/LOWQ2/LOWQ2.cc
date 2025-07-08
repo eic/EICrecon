@@ -51,7 +51,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   std::string readout = "TaggerTrackerHits";
 
@@ -62,8 +62,7 @@ void InitPlugin(JApplication* app) {
           .sigma_sharingy = 15 * dd4hep::um,
           .min_edep       = 0.1 * edm4eic::unit::keV,
           .readout        = readout,
-      },
-      app));
+      }));
   //  Generate signal pulse from hits
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
       "TaggerTrackerPulseGeneration", {"TaggerTrackerSharedHits"}, {"TaggerTrackerHitPulses"},
@@ -72,16 +71,14 @@ void InitPlugin(JApplication* app) {
           .pulse_shape_params   = {1.0, 2 * edm4eic::unit::ns},
           .ignore_thres         = 15.0e-8,
           .timestep             = 0.2 * edm4eic::unit::ns,
-      },
-      app));
+      }));
 
   // Combine pulses into larger pulses
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
       "TaggerTrackerPulseCombiner", {"TaggerTrackerHitPulses"}, {"TaggerTrackerCombinedPulses"},
       {
           .minimum_separation = 25 * edm4eic::unit::ns,
-      },
-      app));
+      }));
 
   // Add noise to pulses
   app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
@@ -92,8 +89,7 @@ void InitPlugin(JApplication* app) {
           .variance = 1.0,
           .alpha    = 0.5,
           .scale    = 0.000002,
-      },
-      app));
+      }));
 
   // Digitization of silicon hits
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -102,16 +98,14 @@ void InitPlugin(JApplication* app) {
       {
           .threshold      = 1.5 * edm4eic::unit::keV,
           .timeResolution = 2 * edm4eic::unit::ns,
-      },
-      app));
+      }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TaggerTrackerRecHits", {"TaggerTrackerRawHits"}, {"TaggerTrackerRecHits"},
       {
           .timeResolution = 2,
-      },
-      app));
+      }));
 
   // Divide collection based on geometry segmentation labels
   // This should really be done before digitization as summing hits in the same cell couldn't even be mixed between layers. At the moment just prep for clustering.
@@ -144,8 +138,7 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerSplitHits", {"TaggerTrackerRecHits"}, geometryDivisionCollectionNames,
       {
           .function = GeometrySplit{geometryDivisions, readout, geometryLabels},
-      },
-      app));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
       "TaggerTrackerClustering", geometryDivisionCollectionNames, outputClusterCollectionNames,
@@ -154,8 +147,7 @@ void InitPlugin(JApplication* app) {
           .x_field        = "x",
           .y_field        = "y",
           .hit_time_limit = 10 * edm4eic::unit::ns,
-      },
-      app));
+      }));
 
   // Linear tracking for each module, loop over modules
   for (std::size_t i = 0; i < moduleIDs.size(); i++) {
@@ -175,19 +167,18 @@ void InitPlugin(JApplication* app) {
             .optimum_theta        = -M_PI + 0.026,
             .optimum_phi          = 0,
             .step_angle_tolerance = 0.05,
-        },
-        app));
+        }));
   }
 
   // Combine the tracks from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}, app));
+      "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}));
 
   // Combine the associations from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
       "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
-      {"TaggerTrackerLocalTrackAssociations"}, app));
+      {"TaggerTrackerLocalTrackAssociations"}));
 
   // Project tracks onto a plane
   app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
@@ -197,8 +188,7 @@ void InitPlugin(JApplication* app) {
           .plane_position = {0.0, 0.0, 0.0},
           .plane_a        = {0.0, 1.0, 0.0},
           .plane_b        = {0.0, 0.0, 1.0},
-      },
-      app));
+      }));
 
 #if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
@@ -207,22 +197,19 @@ void InitPlugin(JApplication* app) {
       {"TaggerTrackerFeatureTensor", "TaggerTrackerTargetTensor"},
       {
           .beamE = 10.0,
-      },
-      app));
+      }));
   app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
       "TaggerTrackerTransportationInference", {"TaggerTrackerFeatureTensor"},
       {"TaggerTrackerPredictionTensor"},
       {
           .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
-      },
-      app));
+      }));
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
       "TaggerTrackerTransportationPostML", {"TaggerTrackerPredictionTensor", "MCBeamElectrons"},
       {"TaggerTrackerReconstructedParticles"},
       {
           .beamE = 10.0,
-      },
-      app));
+      }));
 #endif
 
   // Vector reconstruction at origin
@@ -235,7 +222,6 @@ void InitPlugin(JApplication* app) {
       {
           .modelPath  = "calibrations/tmva/LowQ2_DNN_CPU.weights.xml",
           .methodName = "DNN_CPU",
-      },
-      app));
+      }));
 }
 }

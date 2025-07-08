@@ -27,7 +27,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
-  using eicrecon::JOmniFactoryGeneratorT;
+  using jana::components::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
 
@@ -52,9 +52,7 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC = HcalEndcapPInsert_resolutionTDC,
           .corrMeanScale = "1.0",
           .readout       = "HcalEndcapPInsertHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "HcalEndcapPInsertRecHits", {"HcalEndcapPInsertRawHits"}, {"HcalEndcapPInsertRecHits"},
       {
@@ -69,20 +67,14 @@ void InitPlugin(JApplication* app) {
           .sampFrac   = "1.0",
           .readout    = "HcalEndcapPInsertHits",
           .layerField = "layer",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
       "HcalEndcapPInsertMergedHits", {"HcalEndcapPInsertRecHits"}, {"HcalEndcapPInsertMergedHits"},
-      {.readout = "HcalEndcapPInsertHits", .fieldTransformations = {"layer:1", "slice:0"}},
-      app // TODO: Remove me once fixed
-      ));
+      {.readout = "HcalEndcapPInsertHits", .fieldTransformations = {"layer:1", "slice:0"}}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "HcalEndcapPInsertTruthProtoClusters",
       {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"},
-      {"HcalEndcapPInsertTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
+      {"HcalEndcapPInsertTruthProtoClusters"}));
 
   app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
       "HcalEndcapPInsertSubcellHits", {"HcalEndcapPInsertRecHits"},
@@ -91,9 +83,7 @@ void InitPlugin(JApplication* app) {
           .MIP          = 480. * dd4hep::keV,
           .Emin_in_MIPs = 0.5,
           .tmax         = 162 * dd4hep::ns, //150 ns + (z at front face)/(speed of light)
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
       "HcalEndcapPInsertImagingProtoClusters", {"HcalEndcapPInsertSubcellHits"},
@@ -114,9 +104,7 @@ void InitPlugin(JApplication* app) {
           .minClusterCenterEdep = 3.0 * dd4hep::MeV,
           .minClusterEdep       = 11.0 * dd4hep::MeV,
           .minClusterNhits      = 100,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapPInsertTruthClustersWithoutShapes",
@@ -126,16 +114,14 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalEndcapPInsertTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 0.0257, .logWeightBase = 3.6, .enableEtaBounds = true},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 0.0257, .logWeightBase = 3.6, .enableEtaBounds = true}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapPInsertTruthClusters",
       {"HcalEndcapPInsertTruthClustersWithoutShapes",
        "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"},
       {"HcalEndcapPInsertTruthClusters", "HcalEndcapPInsertTruthClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 3.6}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapPInsertClustersWithoutShapes",
@@ -150,9 +136,7 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = 0.0257,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapPInsertClusters",
@@ -162,8 +146,7 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
        .sampFrac                        = 0.0257,
-       .logWeightBase                   = 6.2},
-      app));
+       .logWeightBase                   = 6.2}));
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) LFHCAL_capADC               = 65536;
@@ -186,9 +169,7 @@ void InitPlugin(JApplication* app) {
           .corrMeanScale = "1.0",
           .readout       = "LFHCALHits",
           .fields        = {"layerz"},
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "LFHCALRecHits", {"LFHCALRawHits"}, {"LFHCALRecHits"},
       {
@@ -202,13 +183,9 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = "(rlayerz == 0) ? 0.019 : 0.037", // 0.019 only in the 0-th tile
           .readout         = "LFHCALHits",
           .layerField      = "rlayerz",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALHits"}, {"LFHCALTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
+      "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALHits"}, {"LFHCALTruthProtoClusters"}));
 
   // Magic constants:
   //  54 - number of modules in a row/column
@@ -248,9 +225,7 @@ void InitPlugin(JApplication* app) {
           .transverseEnergyProfileMetric = "globalDistEtaPhi",
           .transverseEnergyProfileScale  = 1.,
           .transverseEnergyProfileScaleUnits{},
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALTruthClustersWithoutShapes",
@@ -260,15 +235,13 @@ void InitPlugin(JApplication* app) {
       },
       {"LFHCALTruthClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALTruthClusters",
       {"LFHCALTruthClustersWithoutShapes", "LFHCALTruthClusterAssociationsWithoutShapes"},
       {"LFHCALTruthClusters", "LFHCALTruthClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALClustersWithoutShapes",
@@ -283,14 +256,12 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = 1.0,
           .logWeightBase   = 4.5,
           .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALClusters", {"LFHCALClustersWithoutShapes", "LFHCALClusterAssociationsWithoutShapes"},
       {"LFHCALClusters", "LFHCALClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "LFHCALSplitMergeProtoClusters", {"LFHCALIslandProtoClusters", "CalorimeterTrackProjections"},
@@ -301,9 +272,7 @@ void InitPlugin(JApplication* app) {
        .sigEP                        = 0.25,
        .drAdd                        = 0.30,
        .sampFrac                     = 1.0,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
+       .transverseEnergyProfileScale = 1.0}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALSplitMergeClustersWithoutShapes",
@@ -313,14 +282,12 @@ void InitPlugin(JApplication* app) {
       },
       {"LFHCALSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "LFHCALSplitMergeClusters",
       {"LFHCALSplitMergeClustersWithoutShapes", "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
       {"LFHCALSplitMergeClusters", "LFHCALSplitMergeClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true}, app));
+      {.longitudinalShowerInfoAvailable = true}));
 }
 }
