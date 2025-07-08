@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Tyler Kutz
 
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 6
-
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
@@ -124,4 +121,3 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
 }
 
 } // namespace eicrecon
-#endif

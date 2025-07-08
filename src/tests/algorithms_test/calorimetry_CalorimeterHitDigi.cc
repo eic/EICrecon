@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023, Dmitry Kalinkin
+// Copyright (C) 2023 - 2025, Dmitry Kalinkin
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
@@ -8,10 +8,7 @@
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#endif
 #include <cmath>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
@@ -79,23 +76,17 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
         edm4hep::Vector3f({0. /* mm */, 0. /* mm */, 0. /* mm */}) // edm4hep::Vector3f stepPosition
         ));
 
-    auto rawhits = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
-#if EDM4EIC_VERSION_MAJOR >= 7
+    auto rawhits   = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
     auto rawassocs = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
     algo.process({simhits.get()}, {rawhits.get(), rawassocs.get()});
-#else
-    algo.process({simhits.get()}, {rawhits.get()});
-#endif
 
     REQUIRE((*rawhits).size() == 1);
     REQUIRE((*rawhits)[0].getCellID() == id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}));
     REQUIRE((*rawhits)[0].getAmplitude() == 123 + 111);
     REQUIRE((*rawhits)[0].getTimeStamp() == 7); // currently, earliest contribution is returned
 
-#if EDM4EIC_VERSION_MAJOR >= 7
     REQUIRE((*rawassocs).size() == 1);
     REQUIRE((*rawassocs)[0].getSimHit() == (*simhits)[0]);
     REQUIRE((*rawassocs)[0].getRawHit() == (*rawhits)[0]);
-#endif
   }
 }

@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wouter Deconinck, Tooba Ali
 
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 6
-
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
@@ -130,4 +127,3 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
 }
 
 } // namespace eicrecon
-#endif

@@ -1,11 +1,8 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Nathan Brei, Sebouh Paul, Dmitry Kalinkin, Barak Schmookler
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <string>
 #include <variant>
 
@@ -30,11 +27,7 @@ void InitPlugin(JApplication* app) {
   // LYSO part of the ZDC
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalFarForwardZDCRawHits", {"EcalFarForwardZDCHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
       {"EcalFarForwardZDCRawHits", "EcalFarForwardZDCRawHitAssociations"},
-#else
-      {"EcalFarForwardZDCRawHits"},
-#endif
       {
           .eRes{},
           .tRes          = 0.0 * dd4hep::ns,
@@ -95,14 +88,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalFarForwardZDCTruthClustersWithoutShapes",
       {
-        "EcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalFarForwardZDCRawHitAssociations"
-      }, // edm4eic::MCRecoClusterHitAssociationCollection
-#else
-            "EcalFarForwardZDCHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+          "EcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalFarForwardZDCRawHitAssociations"  // edm4eic::MCRecoClusterHitAssociationCollection
+      },
       {"EcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
@@ -119,14 +107,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalFarForwardZDCClustersWithoutShapes",
       {
-        "EcalFarForwardZDCIslandProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalFarForwardZDCRawHitAssociations"
-      }, // edm4eic::MCRecoClusterHitAssociationCollection
-#else
-            "EcalFarForwardZDCHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+          "EcalFarForwardZDCIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalFarForwardZDCRawHitAssociations"   // edm4eic::MCRecoClusterHitAssociationCollection
+      },
       {"EcalFarForwardZDCClustersWithoutShapes",             // edm4eic::Cluster
        "EcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
@@ -147,11 +130,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "HcalFarForwardZDCRawHits", {"HcalFarForwardZDCHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
       {"HcalFarForwardZDCRawHits", "HcalFarForwardZDCRawHitAssociations"},
-#else
-      {"HcalFarForwardZDCRawHits"},
-#endif
       {
           .eRes{},
           .tRes          = 0.0 * dd4hep::ns,
@@ -240,14 +219,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCClustersWithoutShapes",
       {
-        "HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalFarForwardZDCRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "HcalFarForwardZDCHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+          "HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalFarForwardZDCClustersWithoutShapes",             // edm4eic::Cluster
        "HcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight        = "log",
@@ -301,14 +275,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCTruthClustersWithoutShapes",
       {
-        "HcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalFarForwardZDCRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "HcalFarForwardZDCHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+          "HcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
@@ -325,14 +294,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalFarForwardZDCClustersBaselineWithoutShapes",
       {
-        "HcalFarForwardZDCIslandProtoClustersBaseline", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "HcalFarForwardZDCRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "HcalFarForwardZDCHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+          "HcalFarForwardZDCIslandProtoClustersBaseline", // edm4eic::ProtoClusterCollection
+          "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalFarForwardZDCClustersBaselineWithoutShapes", // edm4eic::Cluster
        "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {

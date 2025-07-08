@@ -14,7 +14,6 @@
 #include <DDSegmentation/CartesianGridXZ.h>
 #include <DDSegmentation/CartesianGridXYZ.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
@@ -370,12 +369,8 @@ std::cout<<"===============HIT COLLECTION SIZE AFTER : "<<cell_hit_map.size()<<"
       if (cellID == sim_hit.getCellID()) {
         auto hitassoc = associations->create();
         hitassoc.setWeight(1.0);
-        hitassoc.setRawHit(hit);
-#if EDM4EIC_VERSION_MAJOR >= 6
+        hitassoc.setRawHit(item.second);
         hitassoc.setSimHit(sim_hit);
-#else
-        hitassoc.addToSimHits(sim_hit);
-#endif
       }
     }
   }

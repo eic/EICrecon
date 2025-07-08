@@ -258,9 +258,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "ScatteredElectronsEMinusPz",
     "PrimaryVertices",
     "BarrelClusters",
-#if EDM4EIC_VERSION_MAJOR >= 6
     "HadronicFinalState",
-#endif
 
     // Track projections
     "CalorimeterTrackProjections",
@@ -365,7 +363,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "DIRCTruthSeededParticleIDs",
     "DIRCParticleIDs",
 
-#if EDM4EIC_VERSION_MAJOR >= 7
     "B0ECalRawHitAssociations",
     "EcalBarrelScFiRawHitAssociations",
     "EcalBarrelImagingRawHitAssociations",
@@ -378,7 +375,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "EcalLumiSpecRawHitAssociations",
     "EcalFarForwardZDCRawHitAssociations",
     "HcalFarForwardZDCRawHitAssociations",
-#endif
 #if EDM4EIC_VERSION_MAJOR >= 8
     "EcalEndcapPTrackClusterMatches",
     "LFHCALTrackClusterMatches",

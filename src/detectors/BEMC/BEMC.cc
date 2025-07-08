@@ -1,11 +1,8 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025 Whitney Armstrong, Sylvester Joosten, Chao Peng, David Lawrence, Thomas Britton, Wouter Deconinck, Maria Zurek, Akshaya Vijay, Nathan Brei, Dmitry Kalinkin, Derek Anderson, Minho Kim
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
 #include <cmath>
 #include <string>
@@ -81,11 +78,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelScFiRawHits", {"EcalBarrelScFiHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
       {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitAssociations"},
-#else
-      {"EcalBarrelScFiRawHits"},
-#endif
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
           .tRes          = 0.0 * dd4hep::ns,
@@ -147,16 +140,9 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiClustersWithoutShapes",
-      {
-        "EcalBarrelScFiProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalBarrelScFiRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociation
-#else
-            "EcalBarrelScFiHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
-      {"EcalBarrelScFiClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalBarrelScFiProtoClusters",         // edm4eic::ProtoClusterCollection
+       "EcalBarrelScFiRawHitAssociations"},   // edm4eic::MCRecoCalorimeterHitAssociation
+      {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
        "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -178,11 +164,7 @@ void InitPlugin(JApplication* app) {
       3.25 * dd4hep::nanosecond;
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelImagingRawHits", {"EcalBarrelImagingHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
       {"EcalBarrelImagingRawHits", "EcalBarrelImagingRawHitAssociations"},
-#else
-      {"EcalBarrelImagingRawHits"},
-#endif
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
           .tRes          = 0.0 * dd4hep::ns,
@@ -231,15 +213,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
       "EcalBarrelImagingClusters",
-      {
-        "EcalBarrelImagingProtoClusters",
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalBarrelImagingRawHitAssociations"
-      },
-#else
-            "EcalBarrelImagingHits"
-      },
-#endif
+      {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitAssociations"},
       {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations",
        "EcalBarrelImagingLayers"},
       {
