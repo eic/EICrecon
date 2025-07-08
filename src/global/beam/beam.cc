@@ -4,6 +4,7 @@
 //
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <fmt/core.h>
 #include <map>
