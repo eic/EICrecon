@@ -18,7 +18,6 @@
 #include <algorithm>
 #include <algorithms/logger.h>
 #include <cmath>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <gsl/pointers>
@@ -161,11 +160,7 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
           auto hit_assoc = hit_assocs->create();
           hit_assoc.setWeight(1.0 / data.sim_hit_indices.size()); // not used
           hit_assoc.setRawHit(raw_hit);
-#if EDM4EIC_VERSION_MAJOR >= 6
           hit_assoc.setSimHit(sim_hits->at(i));
-#else
-          hit_assoc.addToSimHits(sim_hits->at(i));
-#endif
         }
       }
     }

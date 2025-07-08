@@ -1,9 +1,7 @@
-// Copyright 2023, Wouter Deconinck
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Nathan Brei, Dmitry Kalinkin
 
 #pragma once
-
-#include <edm4eic/EDM4eicVersion.h>
 
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
@@ -22,9 +20,7 @@ private:
 
   PodioInput<edm4hep::SimCalorimeterHit> m_hits_input{this};
   PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output{this};
-#if EDM4EIC_VERSION_MAJOR >= 7
   PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
-#endif
 
   ParameterRef<std::vector<double>> m_energyResolutions{this, "energyResolutions", config().eRes};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().tRes};
@@ -56,11 +52,7 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-#if EDM4EIC_VERSION_MAJOR >= 7
     m_algo->process({m_hits_input()}, {m_hits_output().get(), m_hit_assocs_output().get()});
-#else
-    m_algo->process({m_hits_input()}, {m_hits_output().get()});
-#endif
   }
 };
 
