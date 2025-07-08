@@ -28,7 +28,7 @@ struct BasicTestAlgConfig {
   double threshold = 7.6;
 };
 
-struct BasicTestAlg : public JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
+struct BasicTestAlg : public eicrecon::JOmniFactory<BasicTestAlg, BasicTestAlgConfig> {
 
   PodioOutput<edm4hep::SimCalorimeterHit> output_hits_left{this, "output_hits_left"};
   PodioOutput<edm4hep::SimCalorimeterHit> output_hits_right{this, "output_hits_right"};
@@ -95,7 +95,7 @@ TEST_CASE("Configuration object is correctly wired from untyped wiring data") {
   JApplication app;
   app.AddPlugin("log");
   app.Initialize();
-  JOmniFactoryGeneratorT<BasicTestAlg> facgen(&app);
+  eicrecon::JOmniFactoryGeneratorT<BasicTestAlg> facgen(&app);
   facgen.AddWiring("ECalTestAlg", {}, {"ECalLeftHits", "ECalRightHits", "ECalVecHits"},
                    {{"threshold", "6.1"}, {"bucket_count", "22"}});
 
@@ -121,7 +121,7 @@ TEST_CASE("Multiple configuration objects are correctly wired from untyped wirin
   JApplication app;
   app.AddPlugin("log");
   app.Initialize();
-  JOmniFactoryGeneratorT<BasicTestAlg> facgen(&app);
+  eicrecon::JOmniFactoryGeneratorT<BasicTestAlg> facgen(&app);
   facgen.AddWiring("BCalTestAlg", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"},
                    {{"threshold", "6.1"}, {"bucket_count", "22"}});
   facgen.AddWiring("CCalTestAlg", {}, {"CCalLeftHits", "CCalRightHits", "CCalVecHits"},
@@ -163,7 +163,7 @@ TEST_CASE(
   JApplication app;
   app.AddPlugin("log");
 
-  auto* facgen = new JOmniFactoryGeneratorT<BasicTestAlg>(&app);
+  auto* facgen = new eicrecon::JOmniFactoryGeneratorT<BasicTestAlg>(&app);
   facgen->AddWiring("FunTest", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"},
                     {{"threshold", "6.1"}, {"bucket_count", "22"}});
   app.Add(facgen);
@@ -203,7 +203,7 @@ TEST_CASE("Wiring itself is correctly defaulted") {
   JApplication app;
   app.AddPlugin("log");
 
-  auto* facgen = new JOmniFactoryGeneratorT<BasicTestAlg>(&app);
+  auto* facgen = new eicrecon::JOmniFactoryGeneratorT<BasicTestAlg>(&app);
   facgen->AddWiring("FunTest", {}, {"BCalLeftHits", "BCalRightHits", "BCalVecHits"},
                     {{"threshold", "6.1"}});
   app.Add(facgen);
@@ -241,7 +241,7 @@ TEST_CASE("Wiring itself is correctly defaulted") {
   app.GetJParameterManager()->PrintParameters(1, 1); // verbosity, strictness
 }
 
-struct VariadicTestAlg : public JOmniFactory<VariadicTestAlg, BasicTestAlgConfig> {
+struct VariadicTestAlg : public eicrecon::JOmniFactory<VariadicTestAlg, BasicTestAlgConfig> {
 
   PodioInput<edm4hep::SimCalorimeterHit> m_hits_in{this};
   VariadicPodioInput<edm4hep::SimCalorimeterHit> m_variadic_hits_in{this};
@@ -287,7 +287,7 @@ TEST_CASE("VariadicOmniFactoryTests") {
   JApplication app;
   app.AddPlugin("log");
 
-  auto* facgen = new JOmniFactoryGeneratorT<VariadicTestAlg>(
+  auto* facgen = new eicrecon::JOmniFactoryGeneratorT<VariadicTestAlg>(
       "VariadicTest", {"main_hits", "fun_hits", "funner_hits"}, {"processed_hits"}, &app);
   app.Add(facgen);
   app.Initialize();
@@ -315,7 +315,7 @@ TEST_CASE("VariadicOmniFactoryTests") {
   REQUIRE(processed->size() == 4);
 }
 
-struct SubsetTestAlg : public JOmniFactory<SubsetTestAlg, BasicTestAlgConfig> {
+struct SubsetTestAlg : public eicrecon::JOmniFactory<SubsetTestAlg, BasicTestAlgConfig> {
 
   VariadicPodioInput<edm4hep::SimCalorimeterHit> m_left_hits_in{this};
   PodioInput<edm4hep::SimCalorimeterHit> m_center_hits_in{this};
@@ -355,7 +355,7 @@ TEST_CASE("SubsetOmniFactoryTests") {
   JApplication app;
   app.AddPlugin("log");
 
-  auto* facgen = new JOmniFactoryGeneratorT<SubsetTestAlg>(
+  auto* facgen = new eicrecon::JOmniFactoryGeneratorT<SubsetTestAlg>(
       "SubsetTest", {"left", "center", "right"}, {"processed_hits"}, &app);
   app.Add(facgen);
   app.Initialize();
@@ -383,7 +383,8 @@ TEST_CASE("SubsetOmniFactoryTests") {
   REQUIRE(processed->size() == 5);
 }
 
-struct VariadicOutputTestAlg : public JOmniFactory<VariadicOutputTestAlg, BasicTestAlgConfig> {
+struct VariadicOutputTestAlg
+    : public eicrecon::JOmniFactory<VariadicOutputTestAlg, BasicTestAlgConfig> {
 
   PodioInput<edm4hep::SimCalorimeterHit> m_hits_in{this};
 
@@ -410,7 +411,7 @@ TEST_CASE("VariadicPodioOutputTests") {
   JApplication app;
   app.AddPlugin("log");
 
-  auto* facgen = new JOmniFactoryGeneratorT<VariadicOutputTestAlg>(
+  auto* facgen = new eicrecon::JOmniFactoryGeneratorT<VariadicOutputTestAlg>(
       "VariadicOutputTest", {"all_hits"}, {"left_hits", "right_hits"}, &app);
   app.Add(facgen);
   app.Initialize();
@@ -433,7 +434,7 @@ TEST_CASE("VariadicPodioOutputTests") {
 }
 
 struct OptionalPodioInputTestAlg
-    : public JOmniFactory<OptionalPodioInputTestAlg, BasicTestAlgConfig> {
+    : public eicrecon::JOmniFactory<OptionalPodioInputTestAlg, BasicTestAlgConfig> {
 
   PodioInput<edm4hep::SimCalorimeterHit, true> m_left_hits_in{this};
   PodioInput<edm4hep::SimCalorimeterHit, false> m_right_hits_in{this};
@@ -471,7 +472,7 @@ TEST_CASE("Optional PodioInput") {
   JApplication app;
   app.AddPlugin("log");
 
-  auto* facgen = new JOmniFactoryGeneratorT<OptionalPodioInputTestAlg>(
+  auto* facgen = new eicrecon::JOmniFactoryGeneratorT<OptionalPodioInputTestAlg>(
       "OptionalPodioInputTest", {"left_hits", "right_hits"}, {"left_hits_out", "right_hits_out"},
       &app);
 
@@ -517,7 +518,7 @@ TEST_CASE("Optional PodioInput") {
 }
 
 struct OptionalVariadicPodioInputTestAlg
-    : public JOmniFactory<OptionalVariadicPodioInputTestAlg, BasicTestAlgConfig> {
+    : public eicrecon::JOmniFactory<OptionalVariadicPodioInputTestAlg, BasicTestAlgConfig> {
 
   VariadicPodioInput<edm4hep::SimCalorimeterHit, true> m_hits_in{this};
 
@@ -547,7 +548,7 @@ TEST_CASE("Optional Variadic Podio Input") {
   JApplication app;
   app.AddPlugin("log");
 
-  auto* facgen = new JOmniFactoryGeneratorT<OptionalVariadicPodioInputTestAlg>(
+  auto* facgen = new eicrecon::JOmniFactoryGeneratorT<OptionalVariadicPodioInputTestAlg>(
       "OptionalVariadicPodioInputTest", {"left_hits", "center_hits", "right_hits"}, {"hits_out"},
       &app);
 

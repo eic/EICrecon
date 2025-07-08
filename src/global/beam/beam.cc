@@ -22,6 +22,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   // Divide MCParticle collection based on generator status and PDG
   std::vector<std::string> outCollections{"MCBeamElectrons",    "MCBeamProtons",
