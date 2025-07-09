@@ -33,6 +33,9 @@ class JOmniFactory : public jana::components::JOmniFactory<AlgoT, ConfigT> {
 private:
   using JANA_JOmniFactory = jana::components::JOmniFactory<AlgoT, ConfigT>;
 
+  // Hide Process(JEvent) in private to prevent accidental use
+  using JANA_JOmniFactory::Process;
+
   /// Current logger
   std::shared_ptr<spdlog::logger> m_logger;
 
