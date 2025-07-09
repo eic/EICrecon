@@ -3,13 +3,14 @@
 
 #pragma once
 
+#include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <DDRec/CellIDPositionConverter.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
+#include <gsl/pointers>
+#include <string>
+#include <string_view>
 
 #include "TrackerHitReconstructionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
