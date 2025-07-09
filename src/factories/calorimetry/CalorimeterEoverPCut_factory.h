@@ -6,8 +6,7 @@
 
 namespace eicrecon {
 
-class CalorimeterEoverPCut_factory
-    : public JOmniFactory<CalorimeterEoverPCut_factory, NoConfig> {
+class CalorimeterEoverPCut_factory : public JOmniFactory<CalorimeterEoverPCut_factory, NoConfig> {
 public:
   using AlgoT = CalorimeterEoverPCut;
 
