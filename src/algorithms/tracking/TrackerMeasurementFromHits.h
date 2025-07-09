@@ -7,6 +7,8 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <edm4eic/Measurement2DCollection.h>
@@ -14,27 +16,36 @@
 #include <spdlog/logger.h>
 #include <memory>
 
-#include "ActsGeometryProvider.h"
+#include "algorithms/interfaces/ActsSvc.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
 
 namespace eicrecon {
 
-class TrackerMeasurementFromHits {
-public:
-  void init(const dd4hep::Detector* detector, const dd4hep::rec::CellIDPositionConverter* converter,
-            std::shared_ptr<const ActsGeometryProvider> acts_context,
-            std::shared_ptr<spdlog::logger> logger);
+using TrackerMeasurementFromHitsAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::TrackerHitCollection>,
+                          algorithms::Output<edm4eic::Measurement2DCollection>>;
 
-  std::unique_ptr<edm4eic::Measurement2DCollection>
-  produce(const edm4eic::TrackerHitCollection& trk_hits);
+class TrackerMeasurementFromHits : public TrackerMeasurementFromHitsAlgorithm,
+                                   public WithPodConfig<NoConfig> {
+public:
+  TrackerMeasurementFromHits(std::string_view name)
+      : TrackerMeasurementFromHitsAlgorithm{
+            name,
+            {"inputTrackerHits"},
+            {"outputMeasurements"},
+            "convert tracker hits to measurements."} {}
+
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
 private:
-  std::shared_ptr<spdlog::logger> m_log;
+  const algorithms::GeoSvc& m_geo{algorithms::GeoSvc::instance()};
+  const dd4hep::Detector* m_dd4hepGeo{m_geo.detector()};
+  const dd4hep::rec::CellIDPositionConverter* m_converter{m_geo.cellIDPositionConverter()};
 
-  /// Geometry and Cell ID position converter
-  const dd4hep::Detector* m_dd4hepGeo;
-  const dd4hep::rec::CellIDPositionConverter* m_converter;
-
-  std::shared_ptr<const ActsGeometryProvider> m_acts_context;
+  const algorithms::ActsSvc& m_acts{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const ActsGeometryProvider> m_acts_context{m_acts.acts_geometry_provider()};
 
   /// Detector-specific information
   unsigned long m_detid_b0tracker;
