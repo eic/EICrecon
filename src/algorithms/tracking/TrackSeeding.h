@@ -58,9 +58,6 @@ private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
   const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
-  //const std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField{std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider())};
-  //const Acts::MagneticFieldContext m_fieldctx{eicrecon::BField::BFieldVariant(m_BField)};
-
   Acts::SeedFilterConfig m_seedFilterConfig;
   Acts::SeedFinderOptions m_seedFinderOptions;
 #if Acts_VERSION_MAJOR >= 37
