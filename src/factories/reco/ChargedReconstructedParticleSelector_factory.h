@@ -10,10 +10,12 @@ namespace eicrecon {
 
 class ChargedReconstructedParticleSelector_factory
     : public JOmniFactory<ChargedReconstructedParticleSelector_factory, NoConfig> {
+public:
+  using AlgoT = eicrecon::ChargedReconstructedParticleSelector;
 
 private:
   // algorithm
-  std::unique_ptr<eicrecon::ChargedReconstructedParticleSelector> m_algo;
+  std::unique_ptr<AlgoT> m_algo;
 
   // input collection
   PodioInput<edm4eic::ReconstructedParticle> m_pars_in{this, "GeneratedParticles"};
@@ -23,7 +25,7 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<eicrecon::ChargedReconstructedParticleSelector>(GetPrefix());
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->init();
   }
 

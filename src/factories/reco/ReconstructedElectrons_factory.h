@@ -11,9 +11,12 @@ namespace eicrecon {
 
 class ReconstructedElectrons_factory
     : public JOmniFactory<ReconstructedElectrons_factory, ElectronReconstructionConfig> {
+public:
+  using AlgoT = eicrecon::ElectronReconstruction;
+
 private:
   // Underlying algorithm
-  std::unique_ptr<eicrecon::ElectronReconstruction> m_algo;
+  std::unique_ptr<AlgoT> m_algo;
 
   // Declare inputs
   PodioInput<edm4eic::ReconstructedParticle> m_in_rc_particles{this, "ReconstructedParticles"};
@@ -32,7 +35,7 @@ public:
     // This is called when the factory is instantiated.
     // Use this callback to make sure the algorithm is configured.
     // The logger, parameters, and services have all been fetched before this is called
-    m_algo = std::make_unique<eicrecon::ElectronReconstruction>(GetPrefix());
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
 
     // Pass config object to algorithm
     m_algo->applyConfig(config());

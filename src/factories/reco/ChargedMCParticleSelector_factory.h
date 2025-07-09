@@ -10,10 +10,12 @@ namespace eicrecon {
 
 class ChargedMCParticleSelector_factory
     : public JOmniFactory<ChargedMCParticleSelector_factory, NoConfig> {
+public:
+  using AlgoT = eicrecon::ChargedMCParticleSelector;
 
 private:
   // algorithm
-  std::unique_ptr<eicrecon::ChargedMCParticleSelector> m_algo;
+  std::unique_ptr<AlgoT> m_algo;
 
   // input collection
   PodioInput<edm4hep::MCParticle> m_pars_in{this, "GeneratedParticles"};
@@ -23,7 +25,7 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<eicrecon::ChargedMCParticleSelector>(GetPrefix());
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->init();
   }
 
