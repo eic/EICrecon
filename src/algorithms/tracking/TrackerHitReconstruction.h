@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
@@ -14,32 +16,30 @@
 
 namespace eicrecon {
 
+using TrackerHitReconstructionAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::RawTrackerHitCollection>,
+                          algorithms::Output<edm4eic::TrackerHitCollection>>;
+
 /**
-     * Produces edm4eic::TrackerHit with geometric info from edm4eic::RawTrackerHit
-     */
-class TrackerHitReconstruction : public WithPodConfig<TrackerHitReconstructionConfig> {
+ * Produces edm4eic::TrackerHit with geometric info from edm4eic::RawTrackerHit
+ */
+class TrackerHitReconstruction : public TrackerHitReconstructionAlgorithm,
+                                 public WithPodConfig<TrackerHitReconstructionConfig> {
 
 public:
+  TrackerHitReconstruction(std::string_view name)
+      : TrackerHitReconstructionAlgorithm{
+            name, {"inputRawHits"}, {"outputHits"}, "reconstruct raw hits into tracker hits."} {}
+
   /// Once in a lifetime initialization
-  void init(const dd4hep::rec::CellIDPositionConverter* converter,
-            std::shared_ptr<spdlog::logger>& logger);
+  void init() final{};
 
   /// Processes RawTrackerHit and produces a TrackerHit
-  std::unique_ptr<edm4eic::TrackerHitCollection>
-  process(const edm4eic::RawTrackerHitCollection& raw_hits);
-
-  /// Set a configuration
-  eicrecon::TrackerHitReconstructionConfig&
-  applyConfig(eicrecon::TrackerHitReconstructionConfig& cfg) {
-    m_cfg = cfg;
-    return m_cfg;
-  }
+  void process(const Input&, const Output&) const final;
 
 private:
-  /** algorithm logger */
-  std::shared_ptr<spdlog::logger> m_log;
-
-  /// Cell ID position converter
-  const dd4hep::rec::CellIDPositionConverter* m_converter;
+  const algorithms::GeoSvc& m_geo{algorithms::GeoSvc::instance()};
+  const dd4hep::rec::CellIDPositionConverter* m_converter{m_geo.cellIDPositionConverter()};
 };
+
 } // namespace eicrecon
