@@ -6,7 +6,7 @@
 #include <memory>
 #include <utility>
 
-#include <algorithms/algorithm.h
+#include <algorithms/algorithm.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <spdlog/logger.h>
 
