@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
@@ -12,16 +13,22 @@
 
 namespace eicrecon {
 
-class ElectronReconstruction : public WithPodConfig<ElectronReconstructionConfig> {
+using ElectronReconstructionAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection>,
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+
+class ElectronReconstruction : public ElectronReconstructionAlgorithm,
+                               public WithPodConfig<ElectronReconstructionConfig> {
 
 public:
-  void init(std::shared_ptr<spdlog::logger> logger);
+  ElectronReconstruction(std::string_view name)
+      : ElectronReconstructionAlgorithm{name,
+                                        {"inputParticles"},
+                                        {"outputParticles"},
+                                        "selected electrons from reconstructed particles"} {}
 
-  // idea will be to overload this with other version (e.g. reco mode)
-  std::unique_ptr<edm4eic::ReconstructedParticleCollection>
-  execute(const edm4eic::ReconstructedParticleCollection* rcparts);
-
-private:
-  std::shared_ptr<spdlog::logger> m_log;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 };
+
 } // namespace eicrecon

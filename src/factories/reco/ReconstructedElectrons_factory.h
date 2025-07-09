@@ -27,23 +27,17 @@ private:
   ParameterRef<double> m_max_energy_over_momentum{this, "maxEnergyOverMomentum",
                                                   config().max_energy_over_momentum};
 
-  // Declare services here, e.g.
-  // Service<DD4hep_service> m_geoSvc {this};
-
 public:
   void Configure() {
     // This is called when the factory is instantiated.
     // Use this callback to make sure the algorithm is configured.
     // The logger, parameters, and services have all been fetched before this is called
-    m_algo = std::make_unique<eicrecon::ElectronReconstruction>();
+    m_algo = std::make_unique<eicrecon::ElectronReconstruction>(GetPrefix());
 
     // Pass config object to algorithm
     m_algo->applyConfig(config());
 
-    // If we needed geometry, we'd obtain it like so
-    // m_algo->init(m_geoSvc().detector(), m_geoSvc().converter(), logger());
-
-    m_algo->init(logger());
+    m_algo->init();
   }
 
   void ChangeRun(int32_t /* run_number */) {
@@ -57,12 +51,9 @@ public:
     // This is called on every event.
     // Use this callback to call your Algorithm using all inputs and outputs
     // The inputs will have already been fetched for you at this point.
-    auto output = m_algo->execute(m_in_rc_particles());
+    m_algo->process({m_in_rc_particles()}, {m_out_reco_particles().get()});
 
-    logger()->debug("Found {} reconstructed electron candidates", output->size());
-
-    m_out_reco_particles() = std::move(output);
-    // JANA will take care of publishing the outputs for you.
+    logger()->debug("Found {} reconstructed electron candidates", m_out_reco_particles()->size());
   }
 };
 } // namespace eicrecon

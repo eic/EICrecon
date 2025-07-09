@@ -23,15 +23,15 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<eicrecon::ChargedReconstructedParticleSelector>();
-    m_algo->init(logger());
+    m_algo = std::make_unique<eicrecon::ChargedReconstructedParticleSelector>(GetPrefix());
+    m_algo->init();
   }
 
   void ChangeRun(int32_t /* run_number */) { /* nothing to do */
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_pars_out() = m_algo->process(m_pars_in());
+    m_algo->process({m_pars_in()}, {m_pars_out().get()});
   }
 };
 
