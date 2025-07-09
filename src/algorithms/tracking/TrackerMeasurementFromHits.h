@@ -7,14 +7,16 @@
 
 #pragma once
 
-#include <algorithms/algorithm.h>
-#include <algorithms/geo.h>
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <spdlog/logger.h>
+#include <gsl/pointers>
 #include <memory>
+#include <string>
+#include <string_view>
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
