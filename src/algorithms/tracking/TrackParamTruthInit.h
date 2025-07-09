@@ -14,6 +14,7 @@
 
 #include "ActsGeometryProvider.h"
 #include "TrackParamTruthInitConfig.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -38,9 +39,10 @@ public:
   void process(const Input& input, const Output& output) const final;
 
 private:
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
-  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  const algorithms::ParticleSvc& m_particleSvc{algorithms::ParticleSvc::instance()};
 
   mutable std::default_random_engine generator; // TODO: need something more appropriate here
   mutable std::normal_distribution<double> m_normDist;
