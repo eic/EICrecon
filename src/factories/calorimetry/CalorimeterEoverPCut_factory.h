@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 You
-
 #pragma once
 
 #include "algorithms/calorimetry/CalorimeterEoverPCut.h"
@@ -9,7 +6,6 @@
 
 namespace eicrecon {
 
-/// NoConfig because we manually pull parameters below
 class CalorimeterEoverPCut_factory
     : public JOmniFactory<CalorimeterEoverPCut_factory, NoConfig> {
 public:

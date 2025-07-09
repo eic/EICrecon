@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 You
-
 #pragma once
 
 #include <algorithms/algorithm.h>

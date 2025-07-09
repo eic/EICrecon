@@ -1,6 +1,3 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 You
-
 #include <edm4eic/EDM4eicVersion.h>
 #if EDM4EIC_VERSION_MAJOR >= 8
 
