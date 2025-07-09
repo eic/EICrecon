@@ -1,35 +1,30 @@
-#include <edm4eic/EDM4eicVersion.h>
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2025 You
 
+#include <edm4eic/EDM4eicVersion.h>
 #if EDM4EIC_VERSION_MAJOR >= 8
-#include <cstddef>
-#include <services/log/Log.h>
-#include <edm4hep/MCParticle.h>
+
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
 #include "CalorimeterEoverPCut.h"
 
 namespace eicrecon {
 
-void CalorimeterEoverPCut::init() {
-  // Nothing to do on init
-}
-
 void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input&  input,
                                    const CalorimeterEoverPCut::Output& output) const {
-
-  // Unpack inputs and outputs
   const auto& [clusters, assoc_opt] = input;
-  auto&       [pid_coll]            = output;  // shared_ptr<ParticleIDCollection>
+  auto&       [pid_coll_ptr]        = output;
 
   if (!assoc_opt) {
-    jwarn << "[E/P Cut] No MC associations provided, skipping" << jendl;
+    warning("[E/P Cut] no MC associations, skipping");
     return;
   }
   const auto& assocs = *assoc_opt;
+  auto&        pid_coll = *pid_coll_ptr;
 
-  // Loop over every cluster
+  // Loop clusters
   for (const auto& cluster : *clusters) {
-    // Find the MC association with highest weight
+    // pick the MC association with largest weight
     bool found = false;
     edm4eic::MCRecoClusterParticleAssociation bestAssoc;
     for (const auto& assoc : assocs) {
@@ -40,25 +35,26 @@ void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input&  input,
       }
     }
     if (!found) {
-      jwarn << "[E/P Cut] Cluster without association, skipping" << jendl;
+      warning("[E/P Cut] cluster w/o assoc, skipping");
       continue;
     }
 
-    // Compute track momentum and E/P
+    // true momentum and E/P
     double ptrack = edm4hep::utils::magnitude(bestAssoc.getSim().getMomentum());
-    double ep     = (ptrack > 0. ? cluster.getEnergy() / ptrack : 0.0);
+    double ep     = (ptrack>0 ? cluster.getEnergy()/ptrack : 0.0);
 
-    // Apply the cut
-    if (ep > config().ecut) {
-      auto pid = pid_coll->create();
-      pid.setType(0);            // algorithm-specific type
-      pid.setPDG(11);            // PDG code for electron
-      pid.setAlgorithmType(0);   // user-defined algorithm tag
-      pid.setLikelihood(ep);     // store EP as likelihood
-      pid.setReference(cluster); // link back to the cluster
+    // apply cut
+    if (ep > m_ecut) {
+      auto pid = pid_coll.create();
+      pid.setType(0);          // alg tag
+      pid.setPDG(11);          // electron
+      pid.setAlgorithmType(0); // user tag
+      pid.setLikelihood(ep);   // store EP
+      // Note: ParticleIDCollection does not support setReference()
     }
   }
 }
 
 } // namespace eicrecon
-#endif
+
+#endif // EDM4EIC_VERSION_MAJOR >= 8

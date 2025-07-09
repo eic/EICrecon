@@ -1,43 +1,48 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2025 You
+
 #pragma once
 
-#include "extensions/jana/JOmniFactory.h"
-#include "services/log/Log.h"
 #include "algorithms/calorimetry/CalorimeterEoverPCut.h"
+#include "extensions/jana/JOmniFactory.h"
+#include <JANA/JApplication.h> // for GetParameter
 
 namespace eicrecon {
 
-struct CalorimeterEoverPCutConfig {
-    int    max_layer = 8;  // how many layers to integrate (unused in this simple cut)
-    double ecut      = 0.74; // E/P threshold
-};
-
+/// NoConfig because we manually pull parameters below
 class CalorimeterEoverPCut_factory
-  : public JOmniFactory<CalorimeterEoverPCut_factory, CalorimeterEoverPCutConfig> {
+    : public JOmniFactory<CalorimeterEoverPCut_factory, NoConfig> {
 public:
-  using AlgoT = EoverPCutAlgorithm;
+  using AlgoT = CalorimeterEoverPCut;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  // Input ports: whole Cluster collection and its MC associations
-  PodioInput<edm4eic::Cluster> m_clusters_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_input{this};
-
-  // Output port: a stream of ParticleID objects
-  PodioOutput<edm4hep::ParticleID> m_pid_output{this};
+  // Exactly one‐argument PodioInput/Output
+  PodioInput<edm4eic::Cluster>                          m_clusters_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_input   {this};
+  PodioOutput<edm4hep::ParticleID>                      m_pid_output    {this};
 
 public:
-  void Configure() override {
-    // instantiate & configure the algorithm
+  void Configure() {
+    // instantiate
     m_algo = std::make_unique<AlgoT>(GetPrefix());
-    m_algo->applyConfig(config());
+
+    // pull params from JANA: BEMCEoverPCut:ecut , BEMCEoverPCut:max_layer
+    double ecut_val = m_algo->getEcut();   // initial default
+    GetApplication()->GetParameter(GetPrefix() + ":ecut", ecut_val);
+    m_algo->setEcut(ecut_val);
+
+    int maxL = m_algo->getMaxLayer();     // initial default
+    GetApplication()->GetParameter(GetPrefix() + ":max_layer", maxL);
+    m_algo->setMaxLayer(maxL);
+
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /*run*/) override {}
+  void ChangeRun(int32_t /*run_number*/) {}
 
-  void Process(const algorithm::InputTag&, const algorithm::ProcessingContext&) override {
-    // feed it the inputs and collect the ParticleID outputs
+  void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
     m_algo->process({ m_clusters_input(), m_assoc_input() },
                     { m_pid_output() });
   }
