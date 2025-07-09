@@ -24,6 +24,10 @@ public:
   void Configure() {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+
+    // FIXME clear output since it may not have been initialized or reset
+    m_acts_trajectories_output().clear();
+
     for (const auto& traj : m_acts_trajectories1_input()) {
       ActsExamples::Trajectories::IndexedParameters trackParameters;
       for (auto tip : traj->tips()) {
