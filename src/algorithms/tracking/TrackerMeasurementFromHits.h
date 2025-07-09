@@ -30,11 +30,10 @@ class TrackerMeasurementFromHits : public TrackerMeasurementFromHitsAlgorithm,
                                    public WithPodConfig<NoConfig> {
 public:
   TrackerMeasurementFromHits(std::string_view name)
-      : TrackerMeasurementFromHitsAlgorithm{
-            name,
-            {"inputTrackerHits"},
-            {"outputMeasurements"},
-            "convert tracker hits to measurements."} {}
+      : TrackerMeasurementFromHitsAlgorithm{name,
+                                            {"inputTrackerHits"},
+                                            {"outputMeasurements"},
+                                            "convert tracker hits to measurements."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

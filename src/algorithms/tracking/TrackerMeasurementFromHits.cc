@@ -92,9 +92,8 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
                 .value();
 
     } catch (std::exception& ex) {
-      warning(
-          "Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
-          vol_id, hit.getCellID() & 0xFF, hit.getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
+      warning("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
+              vol_id, hit.getCellID() & 0xFF, hit.getCellID(), hit_pos.x, hit_pos.y, hit_pos.z);
       continue;
     }
 
@@ -112,16 +111,14 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
       double surf_center_x = surface->center(Acts::GeometryContext()).transpose()[0];
       double surf_center_y = surface->center(Acts::GeometryContext()).transpose()[1];
       double surf_center_z = surface->center(Acts::GeometryContext()).transpose()[2];
-      trace("   hit position     : {:>10.2f} {:>10.2f} {:>10.2f}", hit_pos.x, hit_pos.y,
-                   hit_pos.z);
+      trace("   hit position     : {:>10.2f} {:>10.2f} {:>10.2f}", hit_pos.x, hit_pos.y, hit_pos.z);
       trace("   local position   : {:>10.2f} {:>10.2f} {:>10.2f}", local_position.x(),
-                   local_position.y(), local_position.z());
-      trace("   surface center   : {:>10.2f} {:>10.2f} {:>10.2f}", surf_center_x,
-                   surf_center_y, surf_center_z);
-      trace("   acts local center: {:>10.2f} {:>10.2f}", pos.transpose()[0],
-                   pos.transpose()[1]);
+            local_position.y(), local_position.z());
+      trace("   surface center   : {:>10.2f} {:>10.2f} {:>10.2f}", surf_center_x, surf_center_y,
+            surf_center_z);
+      trace("   acts local center: {:>10.2f} {:>10.2f}", pos.transpose()[0], pos.transpose()[1]);
       trace("   acts loc pos     : {:>10.2f} {:>10.2f}", loc[Acts::eBoundLoc0],
-                   loc[Acts::eBoundLoc1]);
+            loc[Acts::eBoundLoc1]);
     }
 
     auto meas2D = meas2Ds->create();
@@ -137,8 +134,7 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
   }
 
   debug("All hits processed. Hits size: {}  measurements->size: {}", trk_hits->size(),
-               meas2Ds->size());
-
+        meas2Ds->size());
 }
 
 } // namespace eicrecon
