@@ -41,11 +41,7 @@ public:
 
   Acts::MagneticFieldProvider::Cache
   makeCache(const Acts::MagneticFieldContext& mctx) const override {
-#if Acts_VERSION_MAJOR >= 32
     return Acts::MagneticFieldProvider::Cache(std::in_place_type<Cache>, mctx);
-#else
-    return Acts::MagneticFieldProvider::Cache::make<Cache>(mctx);
-#endif
   }
 
   /** construct constant magnetic field from field vector.
