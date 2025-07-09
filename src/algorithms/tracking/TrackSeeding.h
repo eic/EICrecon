@@ -7,7 +7,6 @@
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/SpacePointContainer.hpp>
 #endif
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
@@ -17,14 +16,14 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <spdlog/logger.h>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
 #include <vector>
 
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "OrthogonalTrackSeedingConfig.h"
 #include "SpacePoint.h"
 #include "algorithms/interfaces/ActsSvc.h"

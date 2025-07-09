@@ -28,6 +28,7 @@
 #include <Eigen/Geometry>
 #include <cmath>
 #include <functional>
+#include <gsl/pointers>
 #include <limits>
 #include <optional>
 #include <tuple>
