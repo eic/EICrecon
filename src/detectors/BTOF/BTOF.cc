@@ -7,6 +7,7 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
