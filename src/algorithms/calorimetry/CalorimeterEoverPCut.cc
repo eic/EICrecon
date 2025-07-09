@@ -10,17 +10,17 @@
 
 namespace eicrecon {
 
-void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input&  input,
+void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
                                    const CalorimeterEoverPCut::Output& output) const {
   const auto& [clusters, assoc_opt] = input;
-  auto&       [pid_coll_ptr]        = output;
+  auto& [pid_coll_ptr]              = output;
 
   if (!assoc_opt) {
     warning("[E/P Cut] no MC associations, skipping");
     return;
   }
   const auto& assocs = *assoc_opt;
-  auto&        pid_coll = *pid_coll_ptr;
+  auto& pid_coll     = *pid_coll_ptr;
 
   // Loop clusters
   for (const auto& cluster : *clusters) {
@@ -28,8 +28,7 @@ void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input&  input,
     bool found = false;
     edm4eic::MCRecoClusterParticleAssociation bestAssoc;
     for (const auto& assoc : assocs) {
-      if (assoc.getRec() == cluster &&
-         (!found || assoc.getWeight() > bestAssoc.getWeight())) {
+      if (assoc.getRec() == cluster && (!found || assoc.getWeight() > bestAssoc.getWeight())) {
         found     = true;
         bestAssoc = assoc;
       }
@@ -41,7 +40,7 @@ void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input&  input,
 
     // true momentum and E/P
     double ptrack = edm4hep::utils::magnitude(bestAssoc.getSim().getMomentum());
-    double ep     = (ptrack>0 ? cluster.getEnergy()/ptrack : 0.0);
+    double ep     = (ptrack > 0 ? cluster.getEnergy() / ptrack : 0.0);
 
     // apply cut
     if (ep > m_ecut) {
