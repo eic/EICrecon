@@ -48,38 +48,40 @@ void CalorimeterPulseGeneration::process(const CalorimeterPulseGeneration::Input
 
   // To build a pulse for a hit, this algorithm builds pulses for each
   // contribution and combine them.
+  // If some contributions are separated from the others in time, they
+  // will be combined and stored separately.
   for (const auto& sh : *simhits) {
-    // Fill the contributions in the editable form.
-    auto contribs = sh.getContributions();
-    std::vector<edm4hep::CaloHitContribution> ordered_contribs(contribs.begin(), contribs.end());
+    // Fill the contributions to be sorted by time
+    std::vector<const edm4hep::CaloHitContribution*> contribs;
+                        for (const auto& contrib : sh.getContributions()) {
+                                contribs.push_back(&contrib);
+                        }
 
     // Sort the contributions by time.
-    std::sort(ordered_contribs.begin(), ordered_contribs.end(),
-              [](const edm4hep::CaloHitContribution& a, const edm4hep::CaloHitContribution& b) {
-                return a.getTime() < b.getTime();
-              });
+    std::sort(contribs.begin(), contribs.end(),
+                                        [](const auto* a, const auto* b) {
+                                        return a->getTime() < b->getTime();
+                                        });
 
-    // Group the contributions that are close in time to combine and store them separately
-    // because some contributions are significantly separated from the others in time
-    std::vector<std::vector<edm4hep::CaloHitContribution>> contrib_clusters;
-    for (const auto& contrib : ordered_contribs) {
-      if (contrib_clusters.size() == 0)
-        contrib_clusters.push_back({contrib});
-      else {
-        edm4hep::CaloHitContribution last_contrib = contrib_clusters.back().back();
-        if (contrib.getTime() - last_contrib.getTime() < m_cfg.minimum_separation) {
-          contrib_clusters.back().push_back(contrib);
-        } else {
-          contrib_clusters.push_back({contrib});
-        }
-      }
-    }
+    // Group the contributions that are close in time.
+    std::vector<std::vector<const edm4hep::CaloHitContribution*>> contrib_clusters;
+                        for (const auto& contrib : contribs) {
+                                if(contrib_clusters.empty()) contrib_clusters.push_back({contrib});
+                                else{
+                                        const auto* last_contrib = contrib_clusters.back().back();
+                                        if(contrib->getTime() - last_contrib->getTime() < m_cfg.minimum_separation){
+                                                contrib_clusters.back().push_back(contrib);
+                                        }
+                                        else{
+                                                contrib_clusters.push_back({contrib});
+                                        }
+                                }
+                        }
 
     for (const auto& contribs : contrib_clusters) {
-      double earliest_time = contribs.front().getTime();
+      double earliest_time = contribs.front()->getTime();
 
       // A vector with a temporary size is created to accumulate the amplitudes.
-      // The size will increase when necessary
       std::vector<double> amplitudes(m_cfg.max_time_bin, 0.);
 
       // After accumulating all the amplitudes, the vector size will be reduced
@@ -89,8 +91,8 @@ void CalorimeterPulseGeneration::process(const CalorimeterPulseGeneration::Input
 
       // build pulses for each contribution and combine them.
       for (const auto& contrib : contribs) {
-        double pulse_height = contrib.getEnergy();
-        double time         = contrib.getTime();
+        double pulse_height = contrib->getEnergy();
+        double time         = contrib->getTime();
 
         // convert energy deposit to npe and apply poisson smearing ** if necessary **
         if (m_edep_to_npe) {
@@ -99,7 +101,8 @@ void CalorimeterPulseGeneration::process(const CalorimeterPulseGeneration::Input
           pulse_height = poisson(m_gen);
         }
 
-        // if the pulse height is lower than m_ignore_thres, it is not necessary to scan it.
+        // if the pulse height is lower than m_ignore_thres, it is not necessary to scan
+	// the amplitudes
         if ((*m_pulse)(m_pulse->getMaximumTime(), pulse_height) < m_ignore_thres)
           continue;
 
