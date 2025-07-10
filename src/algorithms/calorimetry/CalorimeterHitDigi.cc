@@ -135,7 +135,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                                  const CalorimeterHitDigi::Output& output) const {
 
   const auto [headers, simhits] = input;
-  auto [rawhits, rawassocs] = output;
+  auto [rawhits, rawassocs]     = output;
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());

@@ -24,8 +24,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "B0ECalRawHits", {"EventHeader", "B0ECalHits"},
-      {"B0ECalRawHits", "B0ECalRawHitAssociations"},
+      "B0ECalRawHits", {"EventHeader", "B0ECalHits"}, {"B0ECalRawHits", "B0ECalRawHitAssociations"},
       {
           // The stochastic term is set using light yield in PbOW4 of N_photons = 145.75 / GeV / mm, for 6x6 mm2 sensors with PDE=0.18 (a=1/sqrt(145.75*36*0.18))
           .eRes          = {0.0326 * sqrt(dd4hep::GeV), 0.00, 0.0 * dd4hep::GeV},
