@@ -8,7 +8,6 @@
 #include <Acts/EventData/TrackStateType.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <edm4eic/Cov6f.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4hep/EDM4hepVersion.h>
@@ -175,10 +174,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
               debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
                     meas2D.getLoc().a, meas2D.getLoc().b);
 
-// Determine track associations if hit associations provided
-// FIXME: not able to check whether optional inputs were provided
-//if (raw_hit_assocs->has_value()) {
-#if EDM4EIC_VERSION_MAJOR >= 7
+              // Determine track associations if hit associations provided
+              // FIXME: not able to check whether optional inputs were provided
+              //if (raw_hit_assocs->has_value()) {
               for (const auto& hit : meas2D.getHits()) {
                 auto raw_hit = hit.getRawHit();
                 for (const auto raw_hit_assoc : *raw_hit_assocs) {
@@ -193,7 +191,6 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                   }
                 }
               }
-#endif
               //}
             }
           }

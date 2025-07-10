@@ -353,13 +353,13 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
-      "CentralTrackVertices",
+      "CentralAndB0TrackVertices",
       {
           "CentralAndB0TrackerCKFActsTrajectories",
           "ReconstructedChargedParticles",
       },
       {
-          "CentralAndB0TrackerVertices",
+          "CentralAndB0TrackVertices",
       },
       {}, app));
 
