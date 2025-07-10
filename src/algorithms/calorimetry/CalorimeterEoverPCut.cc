@@ -6,46 +6,58 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
 #include "CalorimeterEoverPCut.h"
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/CalorimeterHit.h>
 
 namespace eicrecon {
 
 void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
                                    const CalorimeterEoverPCut::Output& output) const {
-  
-  const auto& [clusters, assocs] = input;
-  auto&       [pid_coll_ptr]     = output;
-  auto&        pid_coll          = *pid_coll_ptr;
+  // Unpack all three pointers
+  const auto& [clusters_notnull, assocs_notnull, hits_notnull] = input;
+  auto const& clusters = *clusters_notnull;
+  auto const& assocs   = *assocs_notnull;
+  auto const& hits     = *hits_notnull;
 
-  // Loop clusters
-  for (const auto& cluster : *clusters) {
-    // pick the MC association with largest weight
+  auto&       [pid_coll_ptr] = output;
+  auto&        pid_coll      = *pid_coll_ptr;
+
+  for ( auto const& cluster : clusters ) {
+    double energyInDepth = 0.0;
+    for ( auto const& hit : cluster.getHits() ) {
+      int layer = hit.getLayer();
+      if ( layer <= m_maxLayer ) {
+        energyInDepth += hit.getEnergy();
+      }
+    }
+
     bool found = false;
     edm4eic::MCRecoClusterParticleAssociation bestAssoc;
-    for (const auto& assoc : assocs) {
-      if (assoc.getRec() == cluster && (!found || assoc.getWeight() > bestAssoc.getWeight())) {
+    for ( auto const& assoc : assocs ) {
+      if ( assoc.getRec() == cluster
+           && (!found || assoc.getWeight() > bestAssoc.getWeight()) ) {
         found     = true;
         bestAssoc = assoc;
       }
     }
-    if (!found) {
+    if ( !found ) {
       warning("[E/P Cut] cluster w/o assoc, skipping");
       continue;
     }
 
-    // true momentum and E/P
     double ptrack = edm4hep::utils::magnitude(bestAssoc.getSim().getMomentum());
-    double ep     = (ptrack > 0 ? cluster.getEnergy() / ptrack : 0.0);
+    double ep     = (ptrack > 0 ? energyInDepth / ptrack : 0.0);
 
-    // apply cut
-    if (ep > m_ecut) {
+    if ( ep > m_ecut ) {
       auto pid = pid_coll.create();
-      pid.setType(0);          // alg tag
-      pid.setPDG(11);          // electron
-      pid.setAlgorithmType(0); // user tag
-      pid.setLikelihood(ep);   // store EP
-      // Note: ParticleIDCollection does not support setReference()
+      pid.setType(0);
+      pid.setPDG(11);
+      pid.setAlgorithmType(0);
+      pid.setLikelihood(ep);
     }
   }
 }
+
+
 
 } // namespace eicrecon
