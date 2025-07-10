@@ -278,6 +278,7 @@ eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds) {
 
   return trackparams;
 }
+
 std::pair<float, float>
 eicrecon::TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) {
   const float R  = std::get<0>(circleParams);

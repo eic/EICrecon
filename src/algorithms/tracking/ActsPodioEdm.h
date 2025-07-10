@@ -5,6 +5,10 @@
 
 #include <Acts/Plugins/Podio/PodioTrackContainer.hpp>
 #include <Acts/Plugins/Podio/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
+
+#include "algorithms/tracking/ActsEdm.h"
 
 namespace eicrecon {
 
@@ -31,6 +35,12 @@ public:
 
   using Trajectories          = ActsExamples::Trajectories;
   using TrajectoriesContainer = ActsExamples::TrajectoriesContainer;
+
+  using TrackCollection      = ::ActsPodioEdm::TrackCollection;
+  using TrajectoryCollection = ActsExamples::TrajectoriesContainer;
 };
+
+static_assert(is_track_container_backend<eicrecon::ActsPodioEdm>);
+static_assert(is_podio_container<eicrecon::ActsPodioEdm>);
 
 } // namespace eicrecon

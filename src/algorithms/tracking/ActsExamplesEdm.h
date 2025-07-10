@@ -6,6 +6,8 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 
+#include "algorithms/tracking/ActsEdm.h"
+
 namespace eicrecon {
 
 class ActsExamplesEdm {
@@ -27,6 +29,12 @@ public:
 
   using Trajectories          = ActsExamples::Trajectories;
   using TrajectoriesContainer = ActsExamples::TrajectoriesContainer;
+
+  using TrackCollection      = std::vector<ActsExamples::ConstTrackContainer*>;
+  using TrajectoryCollection = std::vector<ActsExamples::Trajectories*>;
 };
+
+static_assert(is_track_container_backend<eicrecon::ActsExamplesEdm>);
+static_assert(!is_podio_container<eicrecon::ActsExamplesEdm>);
 
 } // namespace eicrecon

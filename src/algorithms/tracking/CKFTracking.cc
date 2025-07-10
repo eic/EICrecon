@@ -425,7 +425,7 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
 
   // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
   //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
-  std::vector<typename edm_t::ConstTrackContainer*> constTracks_v;
+  typename edm_t::TrackCollection constTracks_v;
   constTracks_v.push_back(
       new edm_t::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
   auto& constTracks = *(constTracks_v.front());
@@ -434,7 +434,7 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
   const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
 
   // Prepare the output data with MultiTrajectory, per seed
-  std::vector<typename edm_t::Trajectories*> acts_trajectories;
+  typename edm_t::TrajectoryContainer acts_trajectories;
   acts_trajectories.reserve(init_trk_params.size());
 
   typename edm_t::Trajectories::IndexedParameters parameters;
@@ -474,7 +474,5 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
 
   return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
 }
-
-template <> class CKFTracking<ActsExamplesEdm>;
 
 } // namespace eicrecon

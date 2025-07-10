@@ -17,15 +17,17 @@
 #include "DD4hepBField.h"
 #include "IterativeVertexFinderConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 
 namespace eicrecon {
+template <typename edm_t = eicrecon::ActsExamplesEdm>
 class IterativeVertexFinder
     : public eicrecon::WithPodConfig<eicrecon::IterativeVertexFinderConfig> {
 public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
   std::unique_ptr<edm4eic::VertexCollection>
-  produce(std::vector<const ActsExamples::Trajectories*> trajectories,
+  produce(std::vector<const typename edm_t::Trajectories*> trajectories,
           const edm4eic::ReconstructedParticleCollection* reconParticles);
 
 private:
