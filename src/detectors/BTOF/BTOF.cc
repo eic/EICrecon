@@ -67,7 +67,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
       {
-          .sigma_sharingx = 0.2 * dd4hep::mm,
+          .sigma_sharingx = 0.1 * dd4hep::mm,
           .sigma_sharingy = 0.5 * dd4hep::cm,
           .min_edep       = 0.0 * edm4eic::unit::GeV,
           .readout        = "TOFBarrelHits",
@@ -80,7 +80,7 @@ void InitPlugin(JApplication* app) {
   const double x_when_landau_min = -0.22278;
   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
   const double sigma_analog      = 0.293951 * edm4eic::unit::ns;
-  const double Vm                = 1e-3 * dd4hep::GeV;
+  const double Vm                = 3e-4 * dd4hep::GeV;
   const double adc_range         = 256;
   // gain is set such that pulse reaches a height of adc_range when EDep = Vm
   // gain is negative as LGAD voltage is always negative
@@ -90,7 +90,7 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
       {
           .pulse_shape_function = "LandauPulse",
-          .pulse_shape_params   = {gain, sigma_analog, offset * sigma_analog},
+          .pulse_shape_params   = {gain, sigma_analog, offset},
           .ignore_thres         = 0.05 * adc_range,
           .timestep             = 0.01 * edm4eic::unit::ns,
       },

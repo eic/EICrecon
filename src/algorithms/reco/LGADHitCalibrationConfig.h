@@ -6,8 +6,8 @@
 namespace eicrecon {
 struct LGADHitCalibrationConfig {
   // parameters that convert ADC to EDep
-  double c_slope = 1.1488e-6, c_intercept = 0;
+  double c_slope = 1.175844e-6, c_intercept = 0;
   // parameters that convert TDC to hit time (ns)
-  double t_slope = 0.024414, t_intercept = 0.4 + 0.024; //0.0122074;
+  double t_slope = 0.024319882, t_intercept = 0.35439;
 };
 } // namespace eicrecon
