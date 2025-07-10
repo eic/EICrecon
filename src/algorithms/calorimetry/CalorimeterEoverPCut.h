@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2025 Tomas Sosa
+
 #pragma once
 
 #include <algorithms/algorithm.h>
@@ -10,7 +13,7 @@ namespace eicrecon {
 // Base alias: inputs=(clusters + optional assocs), outputs=ParticleIDCollection
 using CalorimeterEoverPCutAlgorithmBase = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection,
-                      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
+                      edm4eic::MCRecoClusterParticleAssociationCollection>,
     algorithms::Output<edm4hep::ParticleIDCollection>>;
 
 /// A simple E/P‑cut algorithm holding its own threshold and layer limit

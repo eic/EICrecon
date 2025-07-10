@@ -1,5 +1,7 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2025 Tomas Sosa
+
 #include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 8
 
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
@@ -9,15 +11,10 @@ namespace eicrecon {
 
 void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
                                    const CalorimeterEoverPCut::Output& output) const {
-  const auto& [clusters, assoc_opt] = input;
-  auto& [pid_coll_ptr]              = output;
-
-  if (!assoc_opt) {
-    warning("[E/P Cut] no MC associations, skipping");
-    return;
-  }
-  const auto& assocs = *assoc_opt;
-  auto& pid_coll     = *pid_coll_ptr;
+  
+  const auto& [clusters, assocs] = input;
+  auto&       [pid_coll_ptr]     = output;
+  auto&        pid_coll          = *pid_coll_ptr;
 
   // Loop clusters
   for (const auto& cluster : *clusters) {
@@ -52,5 +49,3 @@ void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
 }
 
 } // namespace eicrecon
-
-#endif // EDM4EIC_VERSION_MAJOR >= 8
