@@ -4,7 +4,6 @@
 #include "SiliconTrackerDigi.h"
 
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
@@ -97,11 +96,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
         auto hitassoc = associations->create();
         hitassoc.setWeight(1.0);
         hitassoc.setRawHit(item.second);
-#if EDM4EIC_VERSION_MAJOR >= 6
         hitassoc.setSimHit(sim_hit);
-#else
-        hitassoc.addToSimHits(sim_hit);
-#endif
       }
     }
   }
