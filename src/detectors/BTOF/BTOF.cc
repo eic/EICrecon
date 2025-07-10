@@ -92,7 +92,7 @@ void InitPlugin(JApplication* app) {
   const double adc_range         = 256;
   // gain is set such that pulse reaches a height of adc_range when EDep = Vm
   // gain is negative as LGAD voltage is always negative
-  const double gain = -adc_range / Vm / landau_min;
+  const double gain = -adc_range / Vm / landau_min * sigma_analog;
   const int offset  = 3;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
       "TOFBarrelPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
