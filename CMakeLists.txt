@@ -265,7 +265,7 @@ if(Acts_VERSION VERSION_LESS "40.0.0")
     LINK_LIBRARIES podio::podio ActsCore ActsPluginPodio)
   if(NOT Acts_needs_allow_multiple_definition)
     message(WARNING "This Acts version requires --allow-multiple-definition. "
-                    "This which may mask other multiple definition issues. "
+                    "This may mask other multiple definition issues. "
                     "Ref: https://github.com/acts-project/acts/pull/4380.")
     add_link_options("LINKER:--allow-multiple-definition")
   endif()
