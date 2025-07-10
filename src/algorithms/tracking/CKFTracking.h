@@ -24,8 +24,7 @@
 #include <variant>
 #include <vector>
 
-#include "ActsExamplesEdm.h"
-#include "ActsPodioEdm.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 
 #include "CKFTrackingConfig.h"
 #include "DD4hepBField.h"

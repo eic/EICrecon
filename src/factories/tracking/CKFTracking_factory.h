@@ -30,15 +30,20 @@ private:
 
   std::unique_ptr<AlgoT> m_algo;
 
-  template <typename T> using PodioInput = typename FactoryT::template PodioInput<T>;
-  template <typename T> using Output     = typename FactoryT::template Output<T>;
+  template <typename T> using PodioInput   = typename FactoryT::template PodioInput<T>;
+  template <typename T> using PodioOutput  = typename FactoryT::template PodioOutput<T>;
+  template <typename T> using Input        = typename FactoryT::template Input<T>;
+  template <typename T> using Output       = typename FactoryT::template Output<T>;
+  template <typename T> using ParameterRef = typename FactoryT::template ParameterRef<T>;
+  template <typename T> using Service      = typename FactoryT::template Service<T>;
 
   PodioInput<edm4eic::TrackParameters> m_parameters_input{this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
   Output<typename edm_t::Trajectories> m_acts_trajectories_output{this};
   Output<typename edm_t::ConstTrackContainer> m_acts_tracks_output{this};
-
-  template <typename T> using ParameterRef = typename FactoryT::template ParameterRef<T>;
+  //std::conditional<is_podio_container<edm_t>,
+  //     PodioOutput<typename edm_t::TrackCollection>,
+  //     Output<typename edm_t::ConstTrackContainer>> m_acts_tracks_output{this};
 
   ParameterRef<std::vector<double>> m_etaBins{this, "EtaBins", this->config().etaBins,
                                               "Eta Bins for ACTS CKF tracking reco"};
@@ -47,8 +52,6 @@ private:
   ParameterRef<std::vector<std::size_t>> m_numMeasurementsCutOff{
       this, "NumMeasurementsCutOff", this->config().numMeasurementsCutOff,
       "Number of measurements Cut Off for ACTS CKF tracking"};
-
-  template <typename T> using Service = typename FactoryT::template Service<T>;
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
@@ -69,5 +72,18 @@ public:
         m_algo->process(*m_parameters_input(), *m_measurements_input());
   }
 };
+
+template <>
+void CKFTracking_factory<eicrecon::ActsExamplesEdm>::Process(int32_t /* run_number */,
+                                                             uint64_t /* event_number */) {
+  std::tie(m_acts_trajectories_output(), m_acts_tracks_output()) =
+      m_algo->process(*m_parameters_input(), *m_measurements_input());
+}
+
+//template<>
+//void CKFTracking_factory<eicrecon::ActsPodioEdm>::Process(int32_t /* run_number */, uint64_t /* event_number */) {
+//  std::tie(m_acts_trajectories_output(), m_acts_tracks_output()) =
+//      m_algo->process(*m_parameters_input(), *m_measurements_input());
+//}
 
 } // namespace eicrecon

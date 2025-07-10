@@ -31,6 +31,7 @@
 #include "SpacePoint.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 
 namespace eicrecon {
 

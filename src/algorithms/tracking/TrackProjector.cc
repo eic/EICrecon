@@ -36,17 +36,19 @@ template <> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_forma
 
 namespace eicrecon {
 
-void TrackProjector::init() {
+template <typename edm_t> void TrackProjector<edm_t>::init() {
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   m_geo_provider   = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
 }
 
-void TrackProjector::process(const Input& input, const Output& output) const {
+template <typename edm_t>
+void TrackProjector<edm_t>::process(const typename TrackProjector<edm_t>::Input& input,
+                                    const typename TrackProjector<edm_t>::Output& output) const {
   const auto [acts_trajectories, tracks] = input;
   auto [track_segments]                  = output;
 
-  debug("Track projector event process. Num of input trajectories: {}",
-        std::size(acts_trajectories));
+  this->debug("Track projector event process. Num of input trajectories: {}",
+              std::size(acts_trajectories));
 
   // Loop over the trajectories
   for (std::size_t i = 0; const auto& traj : acts_trajectories) {
@@ -54,12 +56,12 @@ void TrackProjector::process(const Input& input, const Output& output) const {
     // The trajectory entry indices and the multiTrajectory
     const auto& mj        = traj->multiTrajectory();
     const auto& trackTips = traj->tips();
-    debug("------ Trajectory ------");
-    debug("  Num of elements in trackTips {}", trackTips.size());
+    this->debug("------ Trajectory ------");
+    this->debug("  Num of elements in trackTips {}", trackTips.size());
 
     // Skip empty
     if (trackTips.empty()) {
-      debug("  Empty multiTrajectory.");
+      this->debug("  Empty multiTrajectory.");
       continue;
     }
     const auto& trackTip = trackTips.front();
@@ -69,14 +71,14 @@ void TrackProjector::process(const Input& input, const Output& output) const {
     int m_nMeasurements = trajState.nMeasurements;
     int m_nStates       = trajState.nStates;
     int m_nCalibrated   = 0;
-    debug("  Num measurement in trajectory {}", m_nMeasurements);
-    debug("  Num state in trajectory {}", m_nStates);
+    this->debug("  Num measurement in trajectory {}", m_nMeasurements);
+    this->debug("  Num state in trajectory {}", m_nStates);
 
     auto track_segment = track_segments->create();
 
     // corresponding track
     if (tracks->size() == acts_trajectories.size()) {
-      trace("track segment connected to track {}", i);
+      this->trace("track segment connected to track {}", i);
       track_segment.setTrack((*tracks)[i]);
       ++i;
     }
@@ -173,39 +175,39 @@ void TrackProjector::process(const Input& input, const Output& output) const {
                                  .pathlength      = pathLength,
                                  .pathlengthError = pathLengthError});
 
-      debug("  ******************************");
-      debug("    position: {}", position);
-      debug("    positionError: {}", positionError);
-      debug("    momentum: {}", momentum);
-      debug("    momentumError: {}", momentumError);
-      debug("    time: {}", time);
-      debug("    timeError: {}", timeError);
-      debug("    theta: {}", theta);
-      debug("    phi: {}", phi);
-      debug("    directionError: {}", directionError);
-      debug("    pathLength: {}", pathLength);
-      debug("    pathLengthError: {}", pathLengthError);
-      debug("    geoID = {}", geoID);
-      debug("    volume = {}, layer = {}", volume, layer);
-      debug("    pathlength = {}", pathLength);
-      debug("    hasCalibrated = {}", trackstate.hasCalibrated());
-      debug("  ******************************");
+      this->debug("  ******************************");
+      this->debug("    position: {}", position);
+      this->debug("    positionError: {}", positionError);
+      this->debug("    momentum: {}", momentum);
+      this->debug("    momentumError: {}", momentumError);
+      this->debug("    time: {}", time);
+      this->debug("    timeError: {}", timeError);
+      this->debug("    theta: {}", theta);
+      this->debug("    phi: {}", phi);
+      this->debug("    directionError: {}", directionError);
+      this->debug("    pathLength: {}", pathLength);
+      this->debug("    pathLengthError: {}", pathLengthError);
+      this->debug("    geoID = {}", geoID);
+      this->debug("    volume = {}, layer = {}", volume, layer);
+      this->debug("    pathlength = {}", pathLength);
+      this->debug("    hasCalibrated = {}", trackstate.hasCalibrated());
+      this->debug("  ******************************");
 
       // Local position on the reference surface.
-      //debug("boundParams[eBoundLoc0] = {}", boundParams[Acts::eBoundLoc0]);
-      //debug("boundParams[eBoundLoc1] = {}", boundParams[Acts::eBoundLoc1]);
-      //debug("boundParams[eBoundPhi] = {}", boundParams[Acts::eBoundPhi]);
-      //debug("boundParams[eBoundTheta] = {}", boundParams[Acts::eBoundTheta]);
-      //debug("boundParams[eBoundQOverP] = {}", boundParams[Acts::eBoundQOverP]);
-      //debug("boundParams[eBoundTime] = {}", boundParams[Acts::eBoundTime]);
-      //debug("predicted variables: {}", trackstate.predicted());
+      //this->debug("boundParams[eBoundLoc0] = {}", boundParams[Acts::eBoundLoc0]);
+      //this->debug("boundParams[eBoundLoc1] = {}", boundParams[Acts::eBoundLoc1]);
+      //this->debug("boundParams[eBoundPhi] = {}", boundParams[Acts::eBoundPhi]);
+      //this->debug("boundParams[eBoundTheta] = {}", boundParams[Acts::eBoundTheta]);
+      //this->debug("boundParams[eBoundQOverP] = {}", boundParams[Acts::eBoundQOverP]);
+      //this->debug("boundParams[eBoundTime] = {}", boundParams[Acts::eBoundTime]);
+      //this->debug("predicted variables: {}", trackstate.predicted());
     });
 
-    debug("  Num calibrated state in trajectory {}", m_nCalibrated);
-    debug("------ end of trajectory process ------");
+    this->debug("  Num calibrated state in trajectory {}", m_nCalibrated);
+    this->debug("------ end of trajectory process ------");
   }
 
-  debug("END OF Track projector event process");
+  this->debug("END OF Track projector event process");
 }
 
 } // namespace eicrecon

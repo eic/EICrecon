@@ -25,6 +25,7 @@
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 
@@ -36,6 +37,7 @@ using ActsTrackPropagationResult = Acts::Result<std::unique_ptr<const Acts::Boun
      *
      * \ingroup tracking
      */
+template <typename edm_t = eicrecon::ActsExamplesEdm>
 class TrackPropagation : public eicrecon::WithPodConfig<TrackPropagationConfig> {
 
 public:
@@ -44,8 +46,8 @@ public:
             std::shared_ptr<spdlog::logger> logger);
 
   void process(const std::tuple<const edm4eic::TrackCollection&,
-                                const std::vector<const ActsExamples::Trajectories*>,
-                                const std::vector<const ActsExamples::ConstTrackContainer*>>
+                                const std::vector<const typename edm_t::Trajectories*>,
+                                const std::vector<const typename edm_t::ConstTrackContainer*>>
                    input,
                const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
 
@@ -73,7 +75,7 @@ public:
 
   /** Propagates a single trajectory to a given surface */
   std::unique_ptr<edm4eic::TrackPoint>
-  propagate(const edm4eic::Track&, const ActsExamples::Trajectories*,
+  propagate(const edm4eic::Track&, const typename edm_t::Trajectories*,
             const std::shared_ptr<const Acts::Surface>& targetSurf) const;
 
   /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`;
@@ -82,8 +84,8 @@ public:
          */
   void propagateToSurfaceList(
       const std::tuple<const edm4eic::TrackCollection&,
-                       const std::vector<const ActsExamples::Trajectories*>,
-                       const std::vector<const ActsExamples::ConstTrackContainer*>>
+                       const std::vector<const typename edm_t::Trajectories*>,
+                       const std::vector<const typename edm_t::ConstTrackContainer*>>
           input,
       const std::tuple<edm4eic::TrackSegmentCollection*> output) const;
 

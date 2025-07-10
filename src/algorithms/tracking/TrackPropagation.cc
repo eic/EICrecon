@@ -68,9 +68,10 @@ template <typename... L> struct multilambda : L... {
   constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
 };
 
-void TrackPropagation::init(const dd4hep::Detector* detector,
-                            std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                            std::shared_ptr<spdlog::logger> logger) {
+template <typename edm_t>
+void TrackPropagation<edm_t>::init(const dd4hep::Detector* detector,
+                                   std::shared_ptr<const ActsGeometryProvider> geo_svc,
+                                   std::shared_ptr<spdlog::logger> logger) {
   m_geoSvc = geo_svc;
   m_log    = logger;
 
@@ -139,10 +140,11 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
   m_log->trace("Initialized");
 }
 
-void TrackPropagation::propagateToSurfaceList(
+template <typename edm_t>
+void TrackPropagation<edm_t>::propagateToSurfaceList(
     const std::tuple<const edm4eic::TrackCollection&,
-                     const std::vector<const ActsExamples::Trajectories*>,
-                     const std::vector<const ActsExamples::ConstTrackContainer*>>
+                     const std::vector<const typename edm_t::Trajectories*>,
+                     const std::vector<const typename edm_t::ConstTrackContainer*>>
         input,
     const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
   const auto [tracks, acts_trajectories, acts_tracks] = input;
@@ -232,10 +234,11 @@ void TrackPropagation::propagateToSurfaceList(
   } // end loop over input trajectories
 }
 
+template <typename edm_t>
 std::unique_ptr<edm4eic::TrackPoint>
-TrackPropagation::propagate(const edm4eic::Track& /* track */,
-                            const ActsExamples::Trajectories* acts_trajectory,
-                            const std::shared_ptr<const Acts::Surface>& targetSurf) const {
+TrackPropagation<edm_t>::propagate(const edm4eic::Track& /* track */,
+                                   const typename edm_t::Trajectories* acts_trajectory,
+                                   const std::shared_ptr<const Acts::Surface>& targetSurf) const {
 
   // Get the entry index for the single trajectory
   // The trajectory entry indices and the multiTrajectory

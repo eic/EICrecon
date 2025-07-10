@@ -419,7 +419,7 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
       std::make_shared<typename edm_t::ConstTrackContainer::TrackContainerBackend>(
           std::move(*trackContainer));
 
-  std::vector<typename edm_t::ConstTrackContainer*> constTracks_v;
+  typename edm_t::TrackCollection constTracks_v;
   constTracks_v.push_back(
       new edm_t::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
   auto& constTracks = *(constTracks_v.front());
@@ -464,7 +464,5 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
 
   return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
 }
-
-template <> class CKFTracking<ActsExamplesEdm>;
 
 } // namespace eicrecon
