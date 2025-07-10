@@ -285,8 +285,7 @@ endmacro()
 macro(plugin_add_acts _name)
 
   if(NOT Acts_FOUND)
-    find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson
-                                          PluginPodio)
+    find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
     set(Acts_VERSION
         "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
     if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN})
