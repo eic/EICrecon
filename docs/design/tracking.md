@@ -89,7 +89,7 @@ flowchart TB
     CentralTrackingRecHits --> TrackSeeding[TrackSeeding]:::alg
 
     CKFTracking:::alg
-      SeedParameters --> CKFTracking
+    SeedParameters --> CKFTracking
     TrackerHitsOnSurface --> CKFTracking
     CKFTracking --> UnfilteredActsTracks[CentralCKFActsTracksUnfiltered]:::col
 
@@ -108,7 +108,24 @@ flowchart TB
     ActsToTracks --> CentralCKFTrackAssociations:::col
   end
 
-  subgraph Projections and Vertexing
+```
+
+## Track states, track projections, and primary vertexing
+```mermaid
+flowchart TB
+  classDef alg fill:#f96;
+  classDef col fill:#66ccff;
+
+subgraph Reconstructed Tracking Info
+  direction LR
+
+  CentralCKFActsTrajectories(<strong>CentralCKFActsTrajectories):::col
+  CentralCKFTracks(<strong>CentralCKFTracks):::col
+  ReconstructedChargedParticles(<strong>ReconstructedChargedParticles):::col
+  CentralCKFActsTracks(<strong>CentralCKFActsTracks):::col
+end
+
+subgraph Projections and Vertexing
     TrackProjector:::alg
     CentralCKFActsTrajectories --> TrackProjector
     CentralCKFTracks --> TrackProjector
@@ -116,7 +133,7 @@ flowchart TB
 
     IterativeVertexFinder:::alg
     CentralCKFActsTrajectories --> IterativeVertexFinder
-    ReconstructedChargedParticles:::col --> IterativeVertexFinder
+    ReconstructedChargedParticles --> IterativeVertexFinder
     IterativeVertexFinder --> CentralTrackVertices:::col
 
     TrackPropagation:::alg
@@ -128,25 +145,113 @@ flowchart TB
 ```
 
 ## Full diagram for idealized track reconstruction using truth seeding
+```mermaid
+flowchart TB
+  classDef alg fill:#f96;
+  classDef col fill:#66ccff;
+  subgraph Simulation output
+    direction LR
 
-This diagram illustrates data transformation and algorithms corresponding to
-tracking part.
+    BVTXSimHits(<strong>Barrel Si vertex</strong>:<br/>VertexBarrelHits):::col
+    BTRKSimHits(<strong>Barrel Si trk</strong>:<br/>SiBarrelHits):::col
+    ECTRKSimHits(<strong>EndCap Si trk</strong>:<br/>TrackerEndcapHits):::col
+    BMPGDSimHits(<strong>Barrel MPGD trk</strong>:<br/>MPGDBarrelHits):::col
+    OBMPGDSimHits(<strong>Barrel MPGD Outer trk</strong>:<br/>OuterMPGDBarrelHits):::col
+    ECNMPGDSimHits(<strong>Neg EndCap MPGD trk</strong>:<br/>BackwardMPGDEndcapHits):::col
+    ECPMPGDSimHits(<strong>Pos EndCap MPGD trk</strong>:<br/>ForwardMPGDEndcapHits):::col
+    BTOFSimHits(<strong>Barrel TOF</strong>:<br/>TOFBarrelHits):::col
+    ECTOFSimHits(<strong>EndCap TOF</strong>:<br/>TOFEndcapHits):::col
+  end
 
-What is on the graph:
+  subgraph Hit digitization
+    BVTXSimHits --> TrackerDigi1[SiliconTrackerDigi]:::alg
+    TrackerDigi1 --> VertexBarrelRawHits(SiBarrelVertexRawHits):::col
+    VertexBarrelRawHits --> TrackerHitReconstruction1[TrackerHitReconstruction]:::alg
+    TrackerHitReconstruction1 --> VertexBarrelRecHits(SiBarrelVertexRecHits):::col
 
-- Orange boxes - is an underlying algorithm
-- Light blue boxes with rounded corners - data collection names
+    BTRKSimHits -->  TrackerDigi2[SiliconTrackerDigi]:::alg
+    TrackerDigi2 --> TrackerBarrelRawHits(SiBarrelRawHits):::col
+    TrackerBarrelRawHits --> TrackerHitReconstruction2[TrackerHitReconstruction]:::alg
+    TrackerHitReconstruction2 --> TrackerBarrelRecHits(SiBarrelTrackerRecHits):::col
 
-The flow is:
+    ECTRKSimHits -->  TrackerDigi3[SiliconTrackerDigi]:::alg
+    TrackerDigi3 --> TrackerEndcapRawHits(SiEndcapTrackerRawHits):::col
+    TrackerEndcapRawHits --> TrackerHitReconstruction3[TrackerHitReconstruction]:::alg
+    TrackerHitReconstruction3 --> TrackerEndcapRecHits(SiEndcapTrackerRecHits):::col
 
-- Each detector hits first goes to **SiliconTrackerDigi** algorithm. Digitized tracking data has only geometry cell ID and timing data.
-- Then each digitized hit gets into **HitReconstruction**. Geometry is found by ID, position, time and covariance extracted.
-- Reconstructed hits from all detectors get to **TrackerSourceLinker** which provides measurement and linkage data for ACTS
-- **CFKTracking** does fitting and produces results in ACTS classes
-- **ParticlesFromTrackFit** process ACTS data and store it to PODIO edm4hep/eic data model
-- **ParticlesWithPID** algorithm does track-matching with MCParticles and produce resulted `edm4eic::ReconstructedParticles` with association class
-- **TrackProjection** - saves track states/points data to PODIO data model and returns CetntralTrackSegments data
+    BMPGDSimHits -->   MPGDTrackerBarrelDigi[SiliconTrackerDigi]:::alg
+    MPGDTrackerBarrelDigi --> MPGDTrackerBarrelRawHits(MPGDBarrelRawHits):::col
+    MPGDTrackerBarrelRawHits --> MPGDTrackerBarrelReconstruction[TrackerHitReconstruction]:::alg
+    MPGDTrackerBarrelReconstruction --> MPGDTrackerBarrelRecHits(MPGDBarrelRecHits):::col
 
-### Tracking related flags:
+    OBMPGDSimHits -->   MPGDTrackerOutBarrelDigi[SiliconTrackerDigi]:::alg
+    MPGDTrackerOutBarrelDigi --> MPGDTrackerOutBarrelRawHits(OuterMPGDBarrelRawHits):::col
+    MPGDTrackerOutBarrelRawHits --> MPGDTrackerOutBarrelReconstruction[TrackerHitReconstruction]:::alg
+    MPGDTrackerOutBarrelReconstruction --> MPGDTrackerOutBarrelRecHits(OuterMPGDBarrelRecHits):::col
 
-[ACTS flags](flags/acts.md ':include')
+    ECNMPGDSimHits -->   MPGDTrackerECNDigi[SiliconTrackerDigi]:::alg
+    MPGDTrackerECNDigi --> MPGDTrackerECNRawHits(BackwardMPGDEndcapRawHits):::col
+    MPGDTrackerECNRawHits --> MPGDTrackerECNReconstruction[TrackerHitReconstruction]:::alg
+    MPGDTrackerECNReconstruction --> MPGDTrackerECNRecHits(BackwardMPGDEndcapRecHits):::col
+
+    ECPMPGDSimHits -->   MPGDTrackerECPDigi[SiliconTrackerDigi]:::alg
+    MPGDTrackerECPDigi --> MPGDTrackerECPRawHits(ForwardMPGDEndcapRawHits):::col
+    MPGDTrackerECPRawHits --> MPGDTrackerECPReconstruction[TrackerHitReconstruction]:::alg
+    MPGDTrackerECPReconstruction --> MPGDTrackerECPRecHits(ForwardMPGDEndcapRecHits):::col
+
+    BTOFSimHits --> BTOFTrackerDigi[SiliconTrackerDigi]:::alg
+    BTOFTrackerDigi --> BTOFRawHits(TOFBarrelRawHits):::col
+    BTOFRawHits --> BTOFHitReconstruction[TrackerHitReconstruction]:::alg
+    BTOFHitReconstruction --> BTOFRecHits(TOFBarrelRawHits):::col
+
+    ECTOFSimHits --> ECTOFTrackerDigi[SiliconTrackerDigi]:::alg
+    ECTOFTrackerDigi --> ECTOFRawHits(TOFEndcapRawHits):::col
+    ECTOFRawHits --> ECTOFHitReconstruction[TrackerHitReconstruction]:::alg
+    ECTOFHitReconstruction --> ECTOFRecHits(TOFEndcapRecHits):::col
+
+    TrackerHitsCollector[CollectionCollector]:::alg
+
+    VertexBarrelRecHits --> TrackerHitsCollector
+    TrackerBarrelRecHits --> TrackerHitsCollector
+    TrackerEndcapRecHits --> TrackerHitsCollector
+    MPGDTrackerBarrelRecHits --> TrackerHitsCollector
+    MPGDTrackerOutBarrelRecHits --> TrackerHitsCollector
+    MPGDTrackerECNRecHits --> TrackerHitsCollector
+    MPGDTrackerECPRecHits --> TrackerHitsCollector
+    BTOFRecHits --> TrackerHitsCollector
+    ECTOFRecHits --> TrackerHitsCollector
+
+    TrackerHitsCollector --> CentralTrackingRecHits:::col
+  end
+
+  subgraph Simulation output
+    MCParticles:::col
+  end
+
+  subgraph Track finding & fitting
+    CentralTrackingRecHits ---> TrackerHitsConverter[TrackerMeasurementFromHits]:::alg
+    TrackerHitsConverter ---> TrackerHitsOnSurface[CentralTrackerMeasurements]:::col
+
+    MCParticles --> TrackParamTruthInit:::alg
+    TrackParamTruthInit --> TrackTruthSeeds:::col
+
+    TrackTruthSeeds --> SubDivideCollection:::alg
+    SubDivideCollection --> CentralTrackerTruthSeeds:::col
+
+    CKFTracking:::alg
+    TrackerHitsOnSurface --> CKFTracking
+    CentralTrackerTruthSeeds --> CKFTracking
+    CKFTracking --> UnfilteredActsTracks[CentralCKFTruthSeededActsTracksUnfiltered]:::col    
+
+  end
+
+```
+
+## Information
+
+Legend for above graphs:
+- Orange boxes - factory / algorithm
+- Blue boxes - data collection
+
+Acts information:
+- [ACTS flags](flags/acts.md ':include')
