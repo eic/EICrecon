@@ -1,5 +1,32 @@
 # Tracking
 
+## Conceptual diagram for track reconstruction
+```mermaid
+flowchart TB
+  classDef alg fill:#f96;
+  classDef col fill:#66ccff;
+
+  SimHits(<strong>Simulation hits for tracking detectors</strong>):::col
+  SimHits --> TrackDigi(<strong>Digitization</strong>):::alg
+  TrackDigi --> RecHits(<strong>Digitized hits for tracking detectors</strong>):::col
+
+  RecHits --> TrackSeeding(<strong> Track seeding):::alg
+  TrackSeeding --> InitParams(<strong> Initial track parameters from seed triplet):::col
+
+  RecHits --> CKFTracking(<strong> Combinatorial Kalman Filter for track finding and fitting):::alg
+  InitParams --> CKFTracking
+  CKFTracking --> ActsTracksUnsolved(<strong> Reconstructed tracks):::col
+
+  ActsTracksUnsolved --> AmbiguitySolver(<strong> Track ambiguity resolution):::alg
+  AmbiguitySolver --> ActsTracks(<strong> Final solved tracks):::col
+
+  ActsTracks --> TypeConverter(<strong> Conversion of tracks to PODIO data type):::alg
+  TypeConverter --> ReconstructedTracks(<strong> Reconstructed tracks in PODIO format):::col
+
+  ReconstructedTracks --> TrackProjector(<strong> Track states at track detector layers):::col
+  ReconstructedTracks --> TrackPropagator(<strong> Track projections at calorimeters and PID detectors):::col
+```
+
 ## Full diagram for track reconstruction
 
 ```mermaid
