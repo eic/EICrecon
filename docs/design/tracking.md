@@ -43,8 +43,6 @@ Simplified tracking data flows and algorithms diagram. Full diagram is described
 
 [ACTS flags](flags/acts.md ':include')
 
-### Reconstructed particles chart
-
 
 ## Full diagram
 
@@ -128,28 +126,42 @@ flowchart TB
   CentralTrackingRecHits --> TrackerHitsConverter[TrackerMeasurementFromHits]:::alg
   TrackerHitsConverter --> TrackerHitsOnSurface[CentralTrackerMeasurements]
 
-  CentralTrackingRecHits --> TrackSeeding[TrackSeeding]:::alg
   TrackSeeding --> SeedParameters[CentralTrackSeedingResults]
+  CentralTrackingRecHits --> TrackSeeding[TrackSeeding]:::alg
 
   CKFTracking:::alg
-  TrackerHitsOnSurface --> CKFTracking
   SeedParameters --> CKFTracking
+  TrackerHitsOnSurface --> CKFTracking
+  CKFTracking --> UnfilteredActsTracks[CentralCKFActsTracksUnfiltered]
 
-  subgraph Sim output
-    MCParticles(MCParticles)
-  end
+  AmbiguitySolver:::alg
+  UnfilteredActsTracks --> AmbiguitySolver
+  TrackerHitsOnSurface --> AmbiguitySolver
+  AmbiguitySolver --> CentralCKFActsTracks
+  AmbiguitySolver --> CentralCKFActsTrajectories
 
-  MCParticles --> TrackParamTruthInit[TrackParamTruthInit]:::alg
-  TrackParamTruthInit --> TrackTruthSeeds
+  ActsToTracks:::alg
+  CentralCKFActsTrajectories --> ActsToTracks
+  TrackerHitsOnSurface --> ActsToTracks
+  ActsToTracks --> CentralCKFTracks
+  ActsToTracks --> CentralCKFTrajectories
+  ActsToTracks --> CentralCKFTrackParameters
+  ActsToTracks --> CentralCKFTrackAssociations
 
-  TrackTruthSeeds --> SubDivideCollection:::alg
-  SubDivideCollection --> CentralTrackerTruthSeeds
+  TrackProjector:::alg
+  CentralCKFActsTrajectories --> TrackProjector
+  CentralCKFTracks --> TrackProjector
+  TrackProjector --> CentralTrackSegments
 
-  CKFTrackingTruthSeeded[CKFTracking]:::alg
+  IterativeVertexFinder:::alg
+  CentralCKFActsTrajectories --> IterativeVertexFinder
+  ReconstructedChargedParticles --> IterativeVertexFinder
+  IterativeVertexFinder --> CentralTrackVertices
 
-  TrackerHitsOnSurface --> CKFTrackingTruthSeeded
-  CentralTrackerTruthSeeds --> CKFTrackingTruthSeeded
-  
+  TrackPropagation:::alg
+  CentralCKFActsTracks --> TrackPropagation
+  CentralCKFActsTrajectories --> TrackPropagation
+  TrackPropagation --> CalorimeterTrackProjections
 
 ```
 
