@@ -110,7 +110,7 @@ flowchart TB
 
 ```
 
-## Track states, track projections, and primary vertexing
+## Full diagram for track states, track projections, and primary vertexing
 ```mermaid
 flowchart TB
   classDef alg fill:#f96;
@@ -241,11 +241,28 @@ flowchart TB
     CKFTracking:::alg
     TrackerHitsOnSurface --> CKFTracking
     CentralTrackerTruthSeeds --> CKFTracking
-    CKFTracking --> UnfilteredActsTracks[CentralCKFTruthSeededActsTracksUnfiltered]:::col    
+    CKFTracking --> UnfilteredActsTracks[CentralCKFTruthSeededActsTracksUnfiltered]:::col
+
+    AmbiguitySolver:::alg
+    UnfilteredActsTracks --> AmbiguitySolver
+    TrackerHitsOnSurface --> AmbiguitySolver
+    AmbiguitySolver --> CentralCKFActsTrajectories[CentralTruthSeededCKFActsTrajectories]:::col
+    AmbiguitySolver --> CentralCKFActsTracks[CentralTruthSeededCKFActsTracks]:::col
+
+    ActsToTracks:::alg
+    CentralCKFActsTrajectories --> ActsToTracks
+    TrackerHitsOnSurface --> ActsToTracks
+    ActsToTracks --> CentralCKFTruthSeededTracks:::col
+    ActsToTracks --> CentralCKFTruthSeededTrajectories:::col
+    ActsToTracks --> CentralCKFTruthSeededTrackParameters:::col
+    ActsToTracks --> CentralCKFTruthSeededTrackAssociations:::col 
 
   end
 
 ```
+
+## Full diagram for B0 track reconstruction
+In progress...
 
 ## Information
 
