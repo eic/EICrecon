@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Tomas Sosa
+// Copyright (C) 2025 Tomas Sosa, Wouter Deconinck
 
 #include <edm4eic/EDM4eicVersion.h>
 
@@ -14,13 +14,13 @@ namespace eicrecon {
 void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
                                    const CalorimeterEoverPCut::Output& output) const {
   // Unpack all three pointers
-  const auto& [clusters_notnull, assocs_notnull, hits_notnull] = input;
-  auto const& clusters = *clusters_notnull;
-  auto const& assocs   = *assocs_notnull;
-  auto const& hits     = *hits_notnull;
+  const auto& [clusters_notnull, track_matches_notnull, hits_notnull] = input;
+  auto const& clusters        = *clusters_notnull;
+  auto const& track_matches   = *track_matches_notnull;
+  auto const& hits            = *hits_notnull;
 
-  auto&       [pid_coll_ptr] = output;
-  auto&        pid_coll      = *pid_coll_ptr;
+  auto&       [pid_coll_ptr]  = output;
+  auto&        pid_coll       = *pid_coll_ptr;
 
   for ( auto const& cluster : clusters ) {
     double energyInDepth = 0.0;
@@ -32,20 +32,20 @@ void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
     }
 
     bool found = false;
-    edm4eic::MCRecoClusterParticleAssociation bestAssoc;
-    for ( auto const& assoc : assocs ) {
-      if ( assoc.getRec() == cluster
-           && (!found || assoc.getWeight() > bestAssoc.getWeight()) ) {
-        found     = true;
-        bestAssoc = assoc;
-      }
+    auto best_match = edm4eic::TrackClusterMatch::makeEmpty();
+      for ( auto const& match : track_matches )  {
+        if (match.getCluster() == cluster
+          && ((not best_match.isAvailable()) || (match.getWeight() > best_match.getWeight()))) {
+            found      = true;
+            best_match = match;
+        }
     }
     if ( !found ) {
-      warning("[E/P Cut] cluster w/o assoc, skipping");
+      warning("Can't find a match for the cluster. Skipping...");
       continue;
     }
 
-    double ptrack = edm4hep::utils::magnitude(bestAssoc.getSim().getMomentum());
+    double ptrack = edm4hep::utils::magnitude(best_match.getTrack().getMomentum());
     double ep     = (ptrack > 0 ? energyInDepth / ptrack : 0.0);
 
     if ( ep > m_ecut ) {
