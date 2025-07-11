@@ -69,84 +69,87 @@ flowchart TB
 
   BVTXSimHits --> TrackerDigi1[SiliconTrackerDigi]:::alg
   TrackerDigi1 --> VertexBarrelRawHits(SiBarrelVertexRawHits)
-  VertexBarrelRawHits --> TrackerHitReconstruction1[HitReconstruction]:::alg
+  VertexBarrelRawHits --> TrackerHitReconstruction1[TrackerHitReconstruction]:::alg
   TrackerHitReconstruction1 --> VertexBarrelRecHits(SiBarrelVertexRecHits)
 
   BTRKSimHits -->  TrackerDigi2[SiliconTrackerDigi]:::alg
   TrackerDigi2 --> TrackerBarrelRawHits(SiBarrelRawHits)
-  TrackerBarrelRawHits --> TrackerHitReconstruction2[HitReconstruction]:::alg
+  TrackerBarrelRawHits --> TrackerHitReconstruction2[TrackerHitReconstruction]:::alg
   TrackerHitReconstruction2 --> TrackerBarrelRecHits(SiBarrelTrackerRecHits)
 
   ECTRKSimHits -->  TrackerDigi3[SiliconTrackerDigi]:::alg
   TrackerDigi3 --> TrackerEndcapRawHits(SiEndcapTrackerRawHits)
-  TrackerEndcapRawHits --> TrackerHitReconstruction3[HitReconstruction]:::alg
+  TrackerEndcapRawHits --> TrackerHitReconstruction3[TrackerHitReconstruction]:::alg
   TrackerHitReconstruction3 --> TrackerEndcapRecHits(SiEndcapTrackerRecHits)
 
-  BMPGDSimHits -->   MPGDTrackerDigi1[SiliconTrackerDigi]:::alg
-  MPGDTrackerDigi1 --> MPGDTrackerBarrelRawHits(MPGDBarrelRawHits)
-  MPGDTrackerBarrelRawHits --> MPGDTrackerReconstruction1[HitReconstruction]:::alg
-  MPGDTrackerReconstruction1 --> MPGDTrackerBarrelRecHits(MPGDBarrelRecHits)
+  BMPGDSimHits -->   MPGDTrackerBarrelDigi[SiliconTrackerDigi]:::alg
+  MPGDTrackerBarrelDigi --> MPGDTrackerBarrelRawHits(MPGDBarrelRawHits)
+  MPGDTrackerBarrelRawHits --> MPGDTrackerBarrelReconstruction[TrackerHitReconstruction]:::alg
+  MPGDTrackerBarrelReconstruction --> MPGDTrackerBarrelRecHits(MPGDBarrelRecHits)
+
+  OBMPGDSimHits -->   MPGDTrackerOutBarrelDigi[SiliconTrackerDigi]:::alg
+  MPGDTrackerOutBarrelDigi --> MPGDTrackerOutBarrelRawHits(OuterMPGDBarrelRawHits)
+  MPGDTrackerOutBarrelRawHits --> MPGDTrackerOutBarrelReconstruction[TrackerHitReconstruction]:::alg
+  MPGDTrackerOutBarrelReconstruction --> MPGDTrackerOutBarrelRecHits(OuterMPGDBarrelRecHits)
+
+  ECNMPGDSimHits -->   MPGDTrackerECNDigi[SiliconTrackerDigi]:::alg
+  MPGDTrackerECNDigi --> MPGDTrackerECNRawHits(BackwardMPGDEndcapRawHits)
+  MPGDTrackerECNRawHits --> MPGDTrackerECNReconstruction[TrackerHitReconstruction]:::alg
+  MPGDTrackerECNReconstruction --> MPGDTrackerECNRecHits(BackwardMPGDEndcapRecHits)
+
+  ECPMPGDSimHits -->   MPGDTrackerECPDigi[SiliconTrackerDigi]:::alg
+  MPGDTrackerECPDigi --> MPGDTrackerECPRawHits(ForwardMPGDEndcapRawHits)
+  MPGDTrackerECPRawHits --> MPGDTrackerECPReconstruction[TrackerHitReconstruction]:::alg
+  MPGDTrackerECPReconstruction --> MPGDTrackerECPRecHits(ForwardMPGDEndcapRecHits)
 
   BTOFSimHits --> BTOFTrackerDigi[SiliconTrackerDigi]:::alg
   BTOFTrackerDigi --> BTOFRawHits(TOFBarrelRawHits)
-  BTOFRawHits --> BTOFHitReconstruction[HitReconstruction]:::alg
+  BTOFRawHits --> BTOFHitReconstruction[TrackerHitReconstruction]:::alg
   BTOFHitReconstruction --> BTOFRecHits(TOFBarrelRawHits)
 
   ECTOFSimHits --> ECTOFTrackerDigi[SiliconTrackerDigi]:::alg
   ECTOFTrackerDigi --> ECTOFRawHits(TOFEndcapRawHits)
-  ECTOFRawHits --> ECTOFHitReconstruction[HitReconstruction]:::alg
+  ECTOFRawHits --> ECTOFHitReconstruction[TrackerHitReconstruction]:::alg
   ECTOFHitReconstruction --> ECTOFRecHits(TOFEndcapRecHits)
 
-  TrackerHitsCollector[TrackerHitsCollector]:::col
+  TrackerHitsCollector[CollectionCollector]:::alg
 
+  VertexBarrelRecHits --> TrackerHitsCollector
   TrackerBarrelRecHits --> TrackerHitsCollector
   TrackerEndcapRecHits --> TrackerHitsCollector
-  VertexBarrelRecHits --> TrackerHitsCollector
   MPGDTrackerBarrelRecHits --> TrackerHitsCollector
-  ECTOFRecHits --> TrackerHitsCollector
+  MPGDTrackerOutBarrelRecHits --> TrackerHitsCollector
+  MPGDTrackerECNRecHits --> TrackerHitsCollector
+  MPGDTrackerECPRecHits --> TrackerHitsCollector
   BTOFRecHits --> TrackerHitsCollector
+  ECTOFRecHits --> TrackerHitsCollector
 
+  TrackerHitsCollector --> CentralTrackingRecHits
+  CentralTrackingRecHits --> TrackerHitsConverter[TrackerMeasurementFromHits]:::alg
+  TrackerHitsConverter --> TrackerHitsOnSurface[CentralTrackerMeasurements]
 
-  TrackerHitsCollector --> trackerHits
-  trackerHits --> TrackerSourceLinker[TrackerSourceLinker]:::alg
+  CentralTrackingRecHits --> TrackSeeding[TrackSeeding]:::alg
+  TrackSeeding --> SeedParameters[CentralTrackSeedingResults]
 
-  TrackerSourceLinker --> TrackSourceLinks(TrackSourceLinks)
-  TrackerSourceLinker --> TrackMeasurements(TrackMeasurements)
+  CKFTracking:::alg
+  TrackerHitsOnSurface --> CKFTracking
+  SeedParameters --> CKFTracking
 
   subgraph Sim output
     MCParticles(MCParticles)
   end
 
   MCParticles --> TrackParamTruthInit[TrackParamTruthInit]:::alg
-  TrackParamTruthInit --> InitTrackParams
+  TrackParamTruthInit --> TrackTruthSeeds
 
-  TrackSourceLinks --> CKFTracking[CKFTracking]:::alg
-  TrackMeasurements --> CKFTracking
-  InitTrackParams --> CKFTracking
-  CKFTracking --> CentralCKFTrajectories
+  TrackTruthSeeds --> SubDivideCollection:::alg
+  SubDivideCollection --> CentralTrackerTruthSeeds
 
-  CentralCKFTrajectories --> ParticlesFromTrackFit[ParticlesFromTrackFit]:::alg
-  ParticlesFromTrackFit --> outputTrackParameters
-  ParticlesFromTrackFit --> outputParticles
+  CKFTrackingTruthSeeded[CKFTracking]:::alg
 
-
-      CentralCKFTrajectories --> TrackProjector[TrackProjector]:::alg
-  TrackProjector --> CentralTrackSegments
-
-  outputTrackParameters --> ParticlesWithPID[ParticlesWithPID]:::alg
-  MCParticles --> ParticlesWithPID
-  ParticlesWithPID --> ReconstructedChargedParticles
-  ParticlesWithPID --> ReconstructedChargedParticlesAssociations
-
-
-
-  subgraph Tracking output
-    direction LR
-    CentralTrackSegments
-    ReconstructedChargedParticles
-    ReconstructedChargedParticlesAssociations
-
-  end
+  TrackerHitsOnSurface --> CKFTrackingTruthSeeded
+  CentralTrackerTruthSeeds --> CKFTrackingTruthSeeded
+  
 
 ```
 
@@ -156,8 +159,7 @@ tracking part.
 What is on the graph:
 
 - Orange boxes - is an underlying algorithm
-- BlueBoxes(TrackerHitsCollector) - simple factory that gets all hits together
-- Boxes with rounded corners - data collection names
+- Light blue boxes with rounded corners - data collection names
 
 The flow is:
 
