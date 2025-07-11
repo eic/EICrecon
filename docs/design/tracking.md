@@ -67,37 +67,35 @@ flowchart TB
     ECTOFSimHits(<strong>EndCap TOF</strong>:<br/>TOFEndcapHits)
   end
 
-  BTOFSimHits --> BTOFTrackerDigi[TrackerDigi]:::alg
-  BTOFTrackerDigi --> BTOFRawHits(TOFBarrelRawHit)
+  BVTXSimHits --> TrackerDigi1[SiliconTrackerDigi]:::alg
+  TrackerDigi1 --> VertexBarrelRawHits(SiBarrelVertexRawHits)
+  VertexBarrelRawHits --> TrackerHitReconstruction1[HitReconstruction]:::alg
+  TrackerHitReconstruction1 --> VertexBarrelRecHits(SiBarrelVertexRecHits)
+
+  BTRKSimHits -->  TrackerDigi2[SiliconTrackerDigi]:::alg
+  TrackerDigi2 --> TrackerBarrelRawHits(SiBarrelRawHits)
+  TrackerBarrelRawHits --> TrackerHitReconstruction2[HitReconstruction]:::alg
+  TrackerHitReconstruction2 --> TrackerBarrelRecHits(SiBarrelTrackerRecHits)
+
+  ECTRKSimHits -->  TrackerDigi3[SiliconTrackerDigi]:::alg
+  TrackerDigi3 --> TrackerEndcapRawHits(SiEndcapTrackerRawHits)
+  TrackerEndcapRawHits --> TrackerHitReconstruction3[HitReconstruction]:::alg
+  TrackerHitReconstruction3 --> TrackerEndcapRecHits(SiEndcapTrackerRecHits)
+
+  BMPGDSimHits -->   MPGDTrackerDigi1[SiliconTrackerDigi]:::alg
+  MPGDTrackerDigi1 --> MPGDTrackerBarrelRawHits(MPGDBarrelRawHits)
+  MPGDTrackerBarrelRawHits --> MPGDTrackerReconstruction1[HitReconstruction]:::alg
+  MPGDTrackerReconstruction1 --> MPGDTrackerBarrelRecHits(MPGDBarrelRecHits)
+
+  BTOFSimHits --> BTOFTrackerDigi[SiliconTrackerDigi]:::alg
+  BTOFTrackerDigi --> BTOFRawHits(TOFBarrelRawHits)
   BTOFRawHits --> BTOFHitReconstruction[HitReconstruction]:::alg
-  BTOFHitReconstruction --> BTOFRecHits(TOFBarrelTrackerHit)
+  BTOFHitReconstruction --> BTOFRecHits(TOFBarrelRawHits)
 
-  ECTOFSimHits --> ECTOFTrackerDigi[TrackerDigi]:::alg
-  ECTOFTrackerDigi --> ECTOFRawHits(TOFEndcapRawHit)
+  ECTOFSimHits --> ECTOFTrackerDigi[SiliconTrackerDigi]:::alg
+  ECTOFTrackerDigi --> ECTOFRawHits(TOFEndcapRawHits)
   ECTOFRawHits --> ECTOFHitReconstruction[HitReconstruction]:::alg
-  ECTOFHitReconstruction --> ECTOFRecHits(TOFEndcapTrackerHit)
-
-  ECTRKSimHits -->  TrackerDigi2[TrackerDigi]:::alg
-  TrackerDigi2 --> TrackerEndcapRawHits(TrackerEndcapRawHits)
-  TrackerEndcapRawHits --> TrackerHitReconstruction2[HitReconstruction]:::alg
-  TrackerHitReconstruction2 --> TrackerEndcapRecHits(EndcapTrackerHit)
-
-
-  BTRKSimHits -->  TrackerDigi[TrackerDigi]:::alg
-  TrackerDigi --> TrackerBarrelRawHits(TrackerBarrelRawHits)
-  TrackerBarrelRawHits --> TrackerHitReconstruction[HitReconstruction]:::alg
-  TrackerHitReconstruction --> TrackerBarrelRecHits(BarrelTrackerHit)
-
-  MPGDSimHits -->   TrackerDigi4[TrackerDigi]:::alg
-  TrackerDigi4 --> MPGDTrackerBarrelRawHits(MPGDTrackerRawHit)
-  MPGDTrackerBarrelRawHits --> TrackerHitReconstruction4[HitReconstruction]:::alg
-  TrackerHitReconstruction4 --> MPGDTrackerBarrelRecHits(MPGDTrackerHit)
-
-
-  BVTXSimHits --> TrackerDigi3[TrackerDigi]:::alg
-  TrackerDigi3 --> VertexBarrelRawHits(VertexBarrelRawHits)
-  VertexBarrelRawHits --> TrackerHitReconstruction3[HitReconstruction]:::alg
-  TrackerHitReconstruction3 --> VertexBarrelRecHits(VertexBarrelRecHits)
+  ECTOFHitReconstruction --> ECTOFRecHits(TOFEndcapRecHits)
 
   TrackerHitsCollector[TrackerHitsCollector]:::col
 
