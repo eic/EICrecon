@@ -56,12 +56,15 @@ flowchart TB
   subgraph Simulation output
     direction LR
 
-    BTRKSimHits(<strong>Barrel trk</strong>:<br/>SiBarrelHits)
+    BVTXSimHits(<strong>Barrel Si vertex</strong>:<br/>VertexBarrelHits)
+    BTRKSimHits(<strong>Barrel Si trk</strong>:<br/>SiBarrelHits)
+    ECTRKSimHits(<strong>EndCap Si trk</strong>:<br/>TrackerEndcapHits)
+    BMPGDSimHits(<strong>Barrel MPGD trk</strong>:<br/>MPGDBarrelHits)
+    OBMPGDSimHits(<strong>Barrel MPGD Outer trk</strong>:<br/>OuterMPGDBarrelHits)
+    ECNMPGDSimHits(<strong>Neg EndCap MPGD trk</strong>:<br/>BackwardMPGDEndcapHits)
+    ECPMPGDSimHits(<strong>Pos EndCap MPGD trk</strong>:<br/>ForwardMPGDEndcapHits)
     BTOFSimHits(<strong>Barrel TOF</strong>:<br/>TOFBarrelHits)
-    BVTXSimHits(<strong>Barrel vertex</strong>:<br/>VertexBarrelHits)
-    ECTRKSimHits(<strong>EndCap trk</strong>:<br/>TrackerEndcapHits)
-    MPGDSimHits(<strong>MPGD barrel trk</strong>:<br/>MPGDBarrelHits)
-    ECTOFSimHits(<strong>EndCap TOF</strong>:<br/>MPGDBarrelHits)
+    ECTOFSimHits(<strong>EndCap TOF</strong>:<br/>TOFEndcapHits)
   end
 
   BTOFSimHits --> BTOFTrackerDigi[TrackerDigi]:::alg
