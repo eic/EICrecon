@@ -23,8 +23,15 @@ flowchart TB
   ActsTracks --> TypeConverter(<strong> Conversion of tracks to PODIO data type):::alg
   TypeConverter --> ReconstructedTracks(<strong> Reconstructed tracks in PODIO format):::col
 
-  ReconstructedTracks --> TrackProjector(<strong> Track states at track detector layers):::col
-  ReconstructedTracks --> TrackPropagator(<strong> Track projections at calorimeters and PID detectors):::col
+  ReconstructedTracks --> TrackProjector(<strong> Save predicted track states at each tracking layer):::alg
+  TrackProjector --> TrackStates(<strong> Track parameters at each tracking layer):::col
+  ReconstructedTracks --> TrackPropagator(<strong> Track propagation to calorimeters and PID detectors):::alg
+  TrackPropagator --> PropagatedTracks(<strong> Projected track position and angle at calorimeters and PID detectors):::col
+  ReconstructedTracks -->IterVertFind(<strong> Iterative Vertex finder and primary vertex fitter):::alg
+  IterVertFind --> PrimVertices(<strong> Reconstructed primary vertex):::col
+  ReconstructedTracks --> ParticleFactory(<strong> Copy reconstructed tracks to collection used for physics analyses):::alg
+  ParticleFactory --> ReconstructedChargedParticles(<strong> Reconstructed charged particles used for physics analyses):::col
+
 ```
 
 ## Full diagram for track reconstruction
