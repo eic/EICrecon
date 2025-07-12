@@ -1,6 +1,5 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
 #include "TrackParamTruthInit.h"
 
@@ -9,37 +8,34 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithms/logger.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
-#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <cmath>
+#include <cstdlib>
+#include <gsl/pointers>
 #include <limits>
 #include <memory>
 
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
-void eicrecon::TrackParamTruthInit::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                                         const std::shared_ptr<spdlog::logger> logger) {
-  m_log    = logger;
-  m_geoSvc = geo_svc;
-}
+namespace eicrecon {
 
-std::unique_ptr<edm4eic::TrackParametersCollection>
-eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcparticles) {
+void TrackParamTruthInit::process(const Input& input, const Output& output) const {
   // MCParticles uses numerical values in its specified units,
   // while m_cfg is in the DD4hep unit system
 
-  // Create output collection
-  auto track_parameters = std::make_unique<edm4eic::TrackParametersCollection>();
+  const auto [mcparticles] = input;
+  auto [track_parameters]  = output;
 
   // Loop over input particles
   for (const auto& mcparticle : *mcparticles) {
 
     // require generatorStatus == 1 for stable generated particles in HepMC3 and DDSim gun
     if (mcparticle.getGeneratorStatus() != 1) {
-      m_log->trace("ignoring particle with generatorStatus = {}", mcparticle.getGeneratorStatus());
+      trace("ignoring particle with generatorStatus = {}", mcparticle.getGeneratorStatus());
       continue;
     }
 
@@ -48,7 +44,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     if (std::abs(v.x) * dd4hep::mm > m_cfg.maxVertexX ||
         std::abs(v.y) * dd4hep::mm > m_cfg.maxVertexY ||
         std::abs(v.z) * dd4hep::mm > m_cfg.maxVertexZ) {
-      m_log->trace("ignoring particle with vs = {} [mm]", v);
+      trace("ignoring particle with vs = {} [mm]", v);
       continue;
     }
 
@@ -56,7 +52,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     const auto& p   = mcparticle.getMomentum();
     const auto pmag = std::hypot(p.x, p.y, p.z);
     if (pmag * dd4hep::GeV < m_cfg.minMomentum) {
-      m_log->trace("ignoring particle with p = {} GeV ", pmag);
+      trace("ignoring particle with p = {} GeV ", pmag);
       continue;
     }
 
@@ -65,7 +61,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     const auto theta = std::atan2(std::hypot(p.x, p.y), p.z);
     const auto eta   = -std::log(std::tan(theta / 2));
     if (eta > m_cfg.maxEtaForward || eta < -std::abs(m_cfg.maxEtaBackward)) {
-      m_log->trace("ignoring particle with Eta = {}", eta);
+      trace("ignoring particle with Eta = {}", eta);
       continue;
     }
 
@@ -76,7 +72,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     const auto particle = m_particleSvc.particle(pdg);
     double charge       = std::copysign(1.0, particle.charge);
     if (std::abs(particle.charge) < std::numeric_limits<double>::epsilon()) {
-      m_log->trace("ignoring neutral particle");
+      trace("ignoring neutral particle");
       continue;
     }
 
@@ -101,7 +97,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
 
     if (!local.ok()) {
-      m_log->error("skipping the track because globaltoLocal function failed");
+      error("skipping the track because globaltoLocal function failed");
       continue;
     }
 
@@ -126,17 +122,16 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     track_parameter.setCovariance(cov);
 
     // Debug output
-    if (m_log->level() <= spdlog::level::debug) {
-      m_log->debug("Invoke track finding seeded by truth particle with:");
-      m_log->debug("   p     = {} GeV (smeared to {} GeV)", pmag / dd4hep::GeV,
-                   pinit / dd4hep::GeV);
-      m_log->debug("   q     = {}", charge);
-      m_log->debug("   q/p   = {} e/GeV (smeared to {} e/GeV)", charge / (pmag / dd4hep::GeV),
-                   charge / (pinit / dd4hep::GeV));
-      m_log->debug("   theta = {}", theta);
-      m_log->debug("   phi   = {}", phi);
+    if (level() <= algorithms::LogLevel::kDebug) {
+      debug("Invoke track finding seeded by truth particle with:");
+      debug("   p     = {} GeV (smeared to {} GeV)", pmag / dd4hep::GeV, pinit / dd4hep::GeV);
+      debug("   q     = {}", charge);
+      debug("   q/p   = {} e/GeV (smeared to {} e/GeV)", charge / (pmag / dd4hep::GeV),
+            charge / (pinit / dd4hep::GeV));
+      debug("   theta = {}", theta);
+      debug("   phi   = {}", phi);
     }
   }
-
-  return track_parameters;
 }
+
+} // namespace eicrecon
