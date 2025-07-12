@@ -18,9 +18,20 @@ public:
   /// Container of reconstructed track states for multiple tracks.
   using TrackParametersContainer = ActsExamples::TrackParametersContainer;
 
-  using TrackContainer = ActsExamples::TrackContainer;
-
+  using TrackContainer      = ActsExamples::TrackContainer;
   using ConstTrackContainer = ActsExamples::ConstTrackContainer;
+
+#if Acts_VERSION_MAJOR >= 36
+  using TrackContainerBackend           = TrackContainer::TrackContainerBackend;
+  using TrackStateContainerBackend      = TrackContainer::TrackStateContainerBackend;
+  using ConstTrackContainerBackend      = ConstTrackContainer::TrackContainerBackend;
+  using ConstTrackStateContainerBackend = ConstTrackContainer::TrackStateContainerBackend;
+#else
+  using TrackContainerBackend           = Acts::VectorTrackContainer;
+  using TrackStateContainerBackend      = Acts::VectorMultiTrajectory;
+  using ConstTrackContainerBackend      = Acts::ConstVectorTrackContainer;
+  using ConstTrackStateContainerBackend = Acts::ConstVectorMultiTrajectory;
+#endif
 
   using TrackIndexType = ActsExamples::TrackIndexType;
 
