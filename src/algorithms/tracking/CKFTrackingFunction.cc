@@ -45,8 +45,8 @@ struct CKFTrackingFunctionImpl : public eicrecon::CKFTracking<edm_t>::CKFTrackin
 #if Acts_VERSION_MAJOR >= 36
   using CKF = Acts::CombinatorialKalmanFilter<Propagator, typename edm_t::TrackContainer>;
 #else
-  using CKF = Acts::CombinatorialKalmanFilter<Propagator,
-                                              typename edm_t::TrackContainer::TrackStateBackend>;
+  using CKF =
+      Acts::CombinatorialKalmanFilter<Propagator, typename edm_t::TrackStateContainerBackend>;
 #endif
 
   CKF trackFinder;
