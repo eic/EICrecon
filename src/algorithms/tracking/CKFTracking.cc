@@ -273,15 +273,15 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
       &calibrator);
 #endif
 #if Acts_VERSION_MAJOR >= 36
-  extensions.updater.template connect<&Acts::GainMatrixUpdater::operator()<
-      typename edm_t::TrackContainer::TrackStateContainerBackend>>(&kfUpdater);
+  extensions.updater.template connect<
+      &Acts::GainMatrixUpdater::operator()<typename edm_t::TrackStateContainerBackend>>(&kfUpdater);
 #else
   extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
       &kfUpdater);
 #endif
 #if (Acts_VERSION_MAJOR >= 36) && (Acts_VERSION_MAJOR < 39)
-  extensions.measurementSelector.template connect<&Acts::MeasurementSelector::select<
-      typename edm_t::TrackContainer::TrackStateContainerBackend>>(&measSel);
+  extensions.measurementSelector.template connect<
+      &Acts::MeasurementSelector::select<typename edm_t::TrackStateContainerBackend>>(&measSel);
 #elif Acts_VERSION_MAJOR < 39
   extensions.measurementSelector
       .connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
@@ -347,9 +347,8 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
 #endif
 
   // Create track container
-  auto trackContainer = std::make_shared<typename edm_t::TrackContainer::TrackContainerBackend>();
-  auto trackStateContainer =
-      std::make_shared<typename edm_t::TrackContainer::TrackStateContainerBackend>();
+  auto trackContainer      = std::make_shared<typename edm_t::TrackContainerBackend>();
+  auto trackStateContainer = std::make_shared<typename edm_t::TrackStateContainerBackend>();
   typename edm_t::TrackContainer acts_tracks(trackContainer, trackStateContainer);
 
   // Add seed number column
@@ -411,13 +410,11 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
   // Move track states and track container to const containers
   // NOTE Using the non-const containers leads to references to
   // implicitly converted temporaries inside the Trajectories.
-  auto constTrackStateContainer =
-      std::make_shared<typename edm_t::ConstTrackContainer::TrackStateContainerBackend>(
-          std::move(*trackStateContainer));
+  auto constTrackStateContainer = std::make_shared<typename edm_t::ConstTrackStateContainerBackend>(
+      std::move(*trackStateContainer));
 
   auto constTrackContainer =
-      std::make_shared<typename edm_t::ConstTrackContainer::TrackContainerBackend>(
-          std::move(*trackContainer));
+      std::make_shared<typename edm_t::ConstTrackContainerBackend>(std::move(*trackContainer));
 
   typename edm_t::TrackCollection constTracks_v;
   constTracks_v.push_back(

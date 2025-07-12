@@ -23,10 +23,14 @@ public:
   using TrackContainer =
       Acts::TrackContainer<Acts::MutablePodioTrackContainer, Acts::MutablePodioTrackStateContainer,
                            std::shared_ptr>;
-
   using ConstTrackContainer =
       Acts::TrackContainer<Acts::ConstPodioTrackContainer, Acts::ConstPodioTrackStateContainer,
                            std::shared_ptr>;
+
+  using TrackContainerBackend           = TrackContainer::TrackContainerBackend;
+  using TrackStateContainerBackend      = TrackContainer::TrackStateContainerBackend;
+  using ConstTrackContainerBackend      = ConstTrackContainer::TrackContainerBackend;
+  using ConstTrackStateContainerBackend = ConstTrackContainer::TrackStateContainerBackend;
 
   using TrackIndexType = TrackContainer::IndexType;
 
