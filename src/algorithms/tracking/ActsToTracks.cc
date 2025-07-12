@@ -46,7 +46,7 @@ void ActsToTracks<edm_t>::process(const typename ActsToTracks<edm_t>::Input& inp
     const auto& trackTips = traj->tips();
     const auto& mj        = traj->multiTrajectory();
     if (trackTips.empty()) {
-      this->warn("Empty multiTrajectory.");
+      this->warning("Empty multiTrajectory.");
       continue;
     }
 
@@ -57,7 +57,7 @@ void ActsToTracks<edm_t>::process(const typename ActsToTracks<edm_t>::Input& inp
 
       // Check if the reco track has fitted track parameters
       if (not traj->hasTrackParameters(trackTip)) {
-        warning("No fitted track parameters for trajectory with entry index = {}", trackTip);
+        this->warning("No fitted track parameters for trajectory with entry index = {}", trackTip);
         continue;
       }
 
@@ -149,19 +149,19 @@ void ActsToTracks<edm_t>::process(const typename ActsToTracks<edm_t>::Input& inp
 
           // no hit on this state/surface, skip
           if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
-            debug("No hit found on geo id={}", geoID);
+            this->debug("No hit found on geo id={}", geoID);
 
           } else {
             auto meas2D = (*meas2Ds)[srclink_index];
             if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
               trajectory.addToOutliers_deprecated(meas2D);
-              debug("Outlier on geo id={}, index={}, loc={},{}", geoID, srclink_index,
-                    meas2D.getLoc().a, meas2D.getLoc().b);
+              this->debug("Outlier on geo id={}, index={}, loc={},{}", geoID, srclink_index,
+                          meas2D.getLoc().a, meas2D.getLoc().b);
             } else if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
               track.addToMeasurements(meas2D);
               trajectory.addToMeasurements_deprecated(meas2D);
-              debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
-                    meas2D.getLoc().a, meas2D.getLoc().b);
+              this->debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
+                          meas2D.getLoc().a, meas2D.getLoc().b);
 
               // Determine track associations if hit associations provided
               // FIXME: not able to check whether optional inputs were provided
@@ -198,8 +198,8 @@ void ActsToTracks<edm_t>::process(const typename ActsToTracks<edm_t>::Input& inp
         track_assoc.setSim(mcparticle);
         double normalized_weight = weight / total_weight;
         track_assoc.setWeight(normalized_weight);
-        debug("track {}: mcparticle {} weight {}", track.id().index, mcparticle.id().index,
-              normalized_weight);
+        this->debug("track {}: mcparticle {} weight {}", track.id().index, mcparticle.id().index,
+                    normalized_weight);
       }
       //}
     }
