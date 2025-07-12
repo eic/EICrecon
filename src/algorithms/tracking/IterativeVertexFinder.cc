@@ -42,9 +42,11 @@
 
 #include "extensions/spdlog/SpdlogToActs.h"
 
+namespace eicrecon {
+
 template <typename edm_t>
-void eicrecon::IterativeVertexFinder<edm_t>::init(
-    std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> log) {
+void IterativeVertexFinder<edm_t>::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
+                                        std::shared_ptr<spdlog::logger> log) {
 
   m_log = log;
 
@@ -56,7 +58,7 @@ void eicrecon::IterativeVertexFinder<edm_t>::init(
 }
 
 template <typename edm_t>
-std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder<edm_t>::produce(
+std::unique_ptr<edm4eic::VertexCollection> IterativeVertexFinder<edm_t>::produce(
     std::vector<const typename edm_t::Trajectories*> trajectories,
     const edm4eic::ReconstructedParticleCollection* reconParticles) {
 
@@ -192,3 +194,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder<edm_t
 
   return outputVertices;
 }
+
+template class IterativeVertexFinder<ActsExamplesEdm>;
+
+} // namespace eicrecon

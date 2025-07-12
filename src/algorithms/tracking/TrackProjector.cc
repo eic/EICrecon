@@ -210,4 +210,6 @@ void TrackProjector<edm_t>::process(const typename TrackProjector<edm_t>::Input&
   this->debug("END OF Track projector event process");
 }
 
+template class TrackProjector<ActsExamplesEdm>;
+
 } // namespace eicrecon

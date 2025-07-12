@@ -128,4 +128,6 @@ AmbiguitySolver<edm_t>::process(
   return std::make_tuple(std::move(output_tracks), std::move(output_trajectories));
 }
 
+template class AmbiguitySolver<ActsExamplesEdm>;
+
 } // namespace eicrecon
