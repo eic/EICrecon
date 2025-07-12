@@ -1,5 +1,5 @@
-// Copyright (C) 2022, 2023 Daniel Brandenburg
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025 Daniel Brandenburg, Wouter Deconinck
 
 #pragma once
 
