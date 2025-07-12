@@ -81,6 +81,6 @@ CKFTracking<edm_t>::makeCKFTrackingFunction(
   return std::make_shared<CKFTrackingFunctionImpl>(std::move(trackFinder));
 }
 
-template class CKFTrackingFunctionImpl<ActsExamplesEdm>;
+template struct CKFTrackingFunctionImpl<ActsExamplesEdm>;
 
 } // namespace eicrecon
