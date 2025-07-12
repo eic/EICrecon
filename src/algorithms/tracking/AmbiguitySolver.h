@@ -22,6 +22,10 @@ namespace eicrecon {
 /*Reco Track Filtering Based on Greedy ambiguity resolution solver adopted from ACTS*/
 template <typename edm_t = eicrecon::ActsExamplesEdm>
 class AmbiguitySolver : public WithPodConfig<eicrecon::AmbiguitySolverConfig> {
+private:
+  static std::size_t sourceLinkHash(const Acts::SourceLink& a);
+  static bool sourceLinkEquality(const Acts::SourceLink& a, const Acts::SourceLink& b);
+
 public:
   AmbiguitySolver() = default;
 

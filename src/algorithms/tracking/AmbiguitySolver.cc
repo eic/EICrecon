@@ -45,11 +45,14 @@ transformConfig(const eicrecon::AmbiguitySolverConfig& cfg) {
   return result;
 }
 
-static std::size_t sourceLinkHash(const Acts::SourceLink& a) {
+template <typename edm_t>
+std::size_t AmbiguitySolver<edm_t>::sourceLinkHash(const Acts::SourceLink& a) {
   return static_cast<std::size_t>(a.get<ActsExamples::IndexSourceLink>().index());
 }
 
-static bool sourceLinkEquality(const Acts::SourceLink& a, const Acts::SourceLink& b) {
+template <typename edm_t>
+bool AmbiguitySolver<edm_t>::sourceLinkEquality(const Acts::SourceLink& a,
+                                                const Acts::SourceLink& b) {
   return a.get<ActsExamples::IndexSourceLink>().index() ==
          b.get<ActsExamples::IndexSourceLink>().index();
 }
