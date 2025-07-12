@@ -5,6 +5,7 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
 #include <stdexcept>
 #include <string>
@@ -49,7 +50,7 @@ void InitPlugin(JApplication* app) {
   // Digitization
   if ((SiFactoryPattern & 0x1) != 0U) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "MPGDBarrelRawHits", {"MPGDBarrelHits"},
+        "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
         {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"},
         {
             .threshold      = 100 * dd4hep::eV,
@@ -81,7 +82,7 @@ void InitPlugin(JApplication* app) {
   // Digitization
   if ((SiFactoryPattern & 0x2) != 0U) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "OuterMPGDBarrelRawHits", {"OuterMPGDBarrelHits"},
+        "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
         {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"},
         {
             .threshold      = 100 * dd4hep::eV,
@@ -112,7 +113,7 @@ void InitPlugin(JApplication* app) {
   // ***** "BackwardMPGDEndcap"
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "BackwardMPGDEndcapRawHits", {"BackwardMPGDEndcapHits"},
+      "BackwardMPGDEndcapRawHits", {"EventHeader", "BackwardMPGDEndcapHits"},
       {"BackwardMPGDEndcapRawHits", "BackwardMPGDEndcapRawHitAssociations"},
       {
           .threshold      = 100 * dd4hep::eV,
@@ -132,7 +133,7 @@ void InitPlugin(JApplication* app) {
   // ""ForwardMPGDEndcap"
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "ForwardMPGDEndcapRawHits", {"ForwardMPGDEndcapHits"},
+      "ForwardMPGDEndcapRawHits", {"EventHeader", "ForwardMPGDEndcapHits"},
       {"ForwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHitAssociations"},
       {
           .threshold      = 100 * dd4hep::eV,

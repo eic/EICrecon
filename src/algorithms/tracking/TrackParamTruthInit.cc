@@ -15,8 +15,10 @@
 #include <spdlog/common.h>
 #include <Eigen/Core>
 #include <cmath>
+#include <cstdlib>
 #include <limits>
 #include <memory>
+#include <random>
 
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
@@ -27,9 +29,15 @@ void eicrecon::TrackParamTruthInit::init(std::shared_ptr<const ActsGeometryProvi
 }
 
 std::unique_ptr<edm4eic::TrackParametersCollection>
-eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcparticles) {
+eicrecon::TrackParamTruthInit::produce(const edm4hep::EventHeaderCollection* headers,
+                                       const edm4hep::MCParticleCollection* mcparticles) {
   // MCParticles uses numerical values in its specified units,
   // while m_cfg is in the DD4hep unit system
+
+  // local random generator
+  auto seed = m_uid.getUniqueID(*headers, "TrackParamTruthInit");
+  std::default_random_engine generator(seed);
+  std::normal_distribution<double> gaussian;
 
   // Create output collection
   auto track_parameters = std::make_unique<edm4eic::TrackParametersCollection>();
@@ -81,7 +89,7 @@ eicrecon::TrackParamTruthInit::produce(const edm4hep::MCParticleCollection* mcpa
     }
 
     // modify initial momentum to avoid bleeding truth to results when fit fails
-    const auto pinit = pmag * (1.0 + m_cfg.momentumSmear * m_normDist(generator));
+    const auto pinit = pmag * (1.0 + m_cfg.momentumSmear * gaussian(generator));
 
     // define line surface for local position values
     auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));

@@ -40,6 +40,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "RICHEndcapNTruthSeededLUTPID",
       {
+          "EventHeader",
           "ReconstructedTruthSeededChargedWithoutPIDParticles",
           "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
       },
@@ -53,6 +54,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "RICHEndcapNLUTPID",
       {
+          "EventHeader",
           "ReconstructedChargedWithoutPIDParticles",
           "ReconstructedChargedWithoutPIDParticleAssociations",
       },
@@ -84,6 +86,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "CombinedTOFTruthSeededLUTPID",
       {
+          "EventHeader",
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticleAssociations",
       },
@@ -97,6 +100,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "CombinedTOFLUTPID",
       {
+          "EventHeader",
           "ReconstructedChargedWithPFRICHPIDParticles",
           "ReconstructedChargedWithPFRICHPIDParticleAssociations",
       },
@@ -139,6 +143,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DIRCTruthSeededLUTPID",
       {
+          "EventHeader",
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticles",
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleAssociations",
       },
@@ -152,6 +157,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DIRCLUTPID",
       {
+          "EventHeader",
           "ReconstructedChargedWithPFRICHTOFPIDParticles",
           "ReconstructedChargedWithPFRICHTOFPIDParticleAssociations",
       },
@@ -187,6 +193,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DRICHTruthSeededLUTPID",
       {
+          "EventHeader",
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
       },
@@ -200,6 +207,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DRICHLUTPID",
       {
+          "EventHeader",
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
       },

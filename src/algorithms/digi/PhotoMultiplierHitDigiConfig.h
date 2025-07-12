@@ -12,13 +12,6 @@ public:
   std::string detectorName{""};
   std::string readoutClass{""};
 
-  // random number generator seed
-  /* FIXME: don't use 0 if `TRandomMixMax` is the RNG, it can get "stuck"
-       * FIXME: remove this warning when this issue is resolved:
-       *        https://github.com/eic/EICrecon/issues/539
-       */
-  unsigned long seed = 1; // seed for RNG (note: `0` might mean "unique" seed)
-
   // triggering
   double hitTimeWindow =
       20.0; // time gate in which 2 input hits will be grouped to 1 output hit // [ns]
@@ -68,7 +61,6 @@ std::ostream& operator<<(std::ostream& os, const PhotoMultiplierHitDigiConfig& c
   auto print_param = [&os](auto name, auto val) {
     os << fmt::format("  {:>20} = {:<}", name, val) << std::endl;
   };
-  print_param("seed", cfg.seed);
   print_param("hitTimeWindow", cfg.hitTimeWindow);
   print_param("timeResolution", cfg.timeResolution);
   print_param("speMean", cfg.speMean);
