@@ -61,6 +61,7 @@ struct CKFTrackingFunctionImpl : public eicrecon::CKFTracking<edm_t>::CKFTrackin
 };
 
 template struct CKFTrackingFunctionImpl<ActsExamplesEdm>;
+
 template <typename edm_t>
 std::shared_ptr<typename CKFTracking<edm_t>::CKFTrackingFunction>
 CKFTracking<edm_t>::makeCKFTrackingFunction(

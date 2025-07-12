@@ -359,4 +359,6 @@ TrackPropagation<edm_t>::propagate(const edm4eic::Track& /* track */,
                           timeError, theta, phi, directionError, pathLength, pathLengthError});
 }
 
+template class TrackPropagation<ActsExamplesEdm>;
+
 } // namespace eicrecon

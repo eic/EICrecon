@@ -220,4 +220,6 @@ void ActsToTracks<edm_t>::process(const typename ActsToTracks<edm_t>::Input& inp
   }
 }
 
+template class ActsToTracks<ActsExamplesEdm>;
+
 } // namespace eicrecon
