@@ -269,7 +269,7 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
   Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory> extensions;
 #endif
 #if Acts_VERSION_MAJOR < 39
-  extensions.calibrator.connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
+  extensions.calibrator.template connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
       &calibrator);
 #endif
 #if Acts_VERSION_MAJOR >= 36
@@ -280,7 +280,7 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
       &kfUpdater);
 #endif
 #if (Acts_VERSION_MAJOR >= 36) && (Acts_VERSION_MAJOR < 39)
-  extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<
+  extensions.measurementSelector.template connect<&Acts::MeasurementSelector::select<
       typename edm_t::TrackContainer::TrackStateContainerBackend>>(&measSel);
 #elif Acts_VERSION_MAJOR < 39
   extensions.measurementSelector
@@ -439,7 +439,7 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
     if (constSeedNumber(track) != lastSeed.value()) {
       // make copies and clear vectors
       acts_trajectories.push_back(
-          new edm_t::Trajectories(constTracks.trackStateContainer(), tips, parameters));
+          new typename edm_t::Trajectories(constTracks.trackStateContainer(), tips, parameters));
 
       tips.clear();
       parameters.clear();
@@ -450,8 +450,8 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
     tips.push_back(track.tipIndex());
     parameters.emplace(std::make_pair(
         track.tipIndex(),
-        edm_t::TrackParameters(track.referenceSurface().getSharedPtr(), track.parameters(),
-                               track.covariance(), track.particleHypothesis())));
+        typename edm_t::TrackParameters(track.referenceSurface().getSharedPtr(), track.parameters(),
+                                        track.covariance(), track.particleHypothesis())));
   }
 
   if (tips.empty()) {
@@ -464,5 +464,7 @@ CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_p
 
   return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
 }
+
+template class CKFTracking<ActsExamplesEdm>;
 
 } // namespace eicrecon
