@@ -82,5 +82,32 @@ CKFTracking<edm_t>::makeCKFTrackingFunction(
   return std::make_shared<CKFTrackingFunctionImpl>(std::move(trackFinder));
 }
 
+// FIXME why can't the following duplication be avoided with the explicit template specialization?
+template <>
+std::shared_ptr<typename CKFTracking<ActsExamplesEdm>::CKFTrackingFunction>
+CKFTracking<ActsExamplesEdm>::makeCKFTrackingFunction(
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
+    std::shared_ptr<const Acts::MagneticFieldProvider> magneticField, const Acts::Logger& logger);
+
+// FIXME but why is this explicit template specialization with definition needed?
+template <>
+std::shared_ptr<typename CKFTracking<ActsExamplesEdm>::CKFTrackingFunction>
+CKFTracking<ActsExamplesEdm>::makeCKFTrackingFunction(
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
+    std::shared_ptr<const Acts::MagneticFieldProvider> magneticField, const Acts::Logger& logger) {
+  Stepper stepper(std::move(magneticField));
+  Navigator::Config cfg{trackingGeometry};
+  cfg.resolvePassive   = false;
+  cfg.resolveMaterial  = true;
+  cfg.resolveSensitive = true;
+  Navigator navigator(cfg);
+
+  Propagator propagator(std::move(stepper), std::move(navigator));
+  typename CKFTrackingFunctionImpl<ActsExamplesEdm>::CKF trackFinder(std::move(propagator),
+                                                                     logger.cloneWithSuffix("CKF"));
+
+  // build the track finder functions. owns the track finder object.
+  return std::make_shared<CKFTrackingFunctionImpl<ActsExamplesEdm>>(std::move(trackFinder));
+}
 
 } // namespace eicrecon
