@@ -34,7 +34,9 @@ public:
   using TrajectoryCollection = std::vector<ActsExamples::Trajectories*>;
 };
 
+#if Acts_VERSION_MAJOR >= 36
 static_assert(is_track_container_backend<eicrecon::ActsExamplesEdm>);
 static_assert(!is_podio_container<eicrecon::ActsExamplesEdm>);
+#endif
 
 } // namespace eicrecon

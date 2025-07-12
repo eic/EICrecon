@@ -40,7 +40,9 @@ public:
   using TrajectoryCollection = ActsExamples::TrajectoriesContainer;
 };
 
+#if Acts_VERSION_MAJOR >= 36
 static_assert(is_track_container_backend<eicrecon::ActsPodioEdm>);
 static_assert(is_podio_container<eicrecon::ActsPodioEdm>);
+#endif
 
 } // namespace eicrecon
