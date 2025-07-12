@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Daniel Brandenburg
+// Copyright (C) 2023 - 2025 Daniel Brandenburg, Wouter Deconinck
 #include "ElectronReconstruction.h"
 
 #include <edm4eic/ClusterCollection.h>
