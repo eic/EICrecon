@@ -1,13 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023, Christopher Dilks
 
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
-#include <math.h>
+#include <cmath>
 #include <memory>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/pid_lut/PIDLookup_factory.h"
 
@@ -16,6 +17,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   //-------------------------------------------------------------------------
   // PFRICH PID
@@ -48,7 +50,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNTruthSeededParticleIDs",
       },
-      pfrich_pid_cfg, app));
+      pfrich_pid_cfg));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "RICHEndcapNLUTPID",
@@ -61,7 +63,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNParticleIDs",
       },
-      pfrich_pid_cfg, app));
+      pfrich_pid_cfg));
 
   //-------------------------------------------------------------------------
   // TOF PID
@@ -92,7 +94,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFTruthSeededParticleIDs",
       },
-      tof_pid_cfg, app));
+      tof_pid_cfg));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "CombinedTOFLUTPID",
@@ -105,7 +107,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFParticleIDs",
       },
-      tof_pid_cfg, app));
+      tof_pid_cfg));
 
   //-------------------------------------------------------------------------
   // DIRC PID
@@ -147,7 +149,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
           "DIRCTruthSeededParticleIDs",
       },
-      dirc_pid_cfg, app));
+      dirc_pid_cfg));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DIRCLUTPID",
@@ -160,7 +162,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
           "DIRCParticleIDs",
       },
-      dirc_pid_cfg, app));
+      dirc_pid_cfg));
 
   //-------------------------------------------------------------------------
   // DRICH PID
@@ -195,7 +197,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedParticleAssociations",
           "DRICHTruthSeededParticleIDs",
       },
-      drich_pid_cfg, app));
+      drich_pid_cfg));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DRICHLUTPID",
@@ -208,6 +210,6 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedParticleAssociations",
           "DRICHParticleIDs",
       },
-      drich_pid_cfg, app));
+      drich_pid_cfg));
 }
 }
