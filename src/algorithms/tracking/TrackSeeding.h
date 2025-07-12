@@ -27,8 +27,10 @@
 #include "OrthogonalTrackSeedingConfig.h"
 #include "SpacePoint.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 
 namespace eicrecon {
+
 class TrackSeeding : public eicrecon::WithPodConfig<eicrecon::OrthogonalTrackSeedingConfig> {
 public:
 #if Acts_VERSION_MAJOR >= 37

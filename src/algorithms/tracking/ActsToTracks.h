@@ -16,34 +16,39 @@
 #include <string_view>
 #include <vector>
 
+#include "algorithms/tracking/ActsExamplesEdm.h"
+
 namespace eicrecon {
 
+template <typename edm_t = eicrecon::ActsExamplesEdm>
 using ActsToTracksAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::Measurement2DCollection, std::vector<ActsExamples::Trajectories>,
+    algorithms::Input<edm4eic::Measurement2DCollection, std::vector<typename edm_t::Trajectories>,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
                        std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>>>;
 
-class ActsToTracks : public ActsToTracksAlgorithm {
+template <typename edm_t = eicrecon::ActsExamplesEdm>
+class ActsToTracks : public ActsToTracksAlgorithm<edm_t> {
 public:
   ActsToTracks(std::string_view name)
-      : ActsToTracksAlgorithm{name,
-                              {
-                                  "inputMeasurements",
-                                  "inputActsTrajectories",
-                                  "inputRawTrackerHitAssociations",
-                              },
-                              {
-                                  "outputTrajectories",
-                                  "outputTrackParameters",
-                                  "outputTracks",
-                                  "outputTrackAssociations",
-                              },
-                              "Converts ACTS trajectories to EDM4eic"} {};
+      : ActsToTracksAlgorithm<edm_t>{name,
+                                     {
+                                         "inputMeasurements",
+                                         "inputActsTrajectories",
+                                         "inputRawTrackerHitAssociations",
+                                     },
+                                     {
+                                         "outputTrajectories",
+                                         "outputTrackParameters",
+                                         "outputTracks",
+                                         "outputTrackAssociations",
+                                     },
+                                     "Converts ACTS trajectories to EDM4eic"} {};
 
   void init() final;
-  void process(const Input&, const Output&) const final;
+  void process(const typename ActsToTracks<edm_t>::Input&,
+               const typename ActsToTracks<edm_t>::Output&) const final;
 };
 
 } // namespace eicrecon

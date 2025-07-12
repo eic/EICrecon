@@ -46,9 +46,11 @@ static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_in
      {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
      {Acts::eBoundTime, Acts::UnitConstants::ns}}};
 
-void ActsToTracks::init() {}
+template <typename edm_t> void ActsToTracks<edm_t>::init() {}
 
-void ActsToTracks::process(const Input& input, const Output& output) const {
+template <typename edm_t>
+void ActsToTracks<edm_t>::process(const typename ActsToTracks<edm_t>::Input& input,
+                                  const typename ActsToTracks<edm_t>::Output& output) const {
   const auto [meas2Ds, acts_trajectories, raw_hit_assocs]     = input;
   auto [trajectories, track_parameters, tracks, tracks_assoc] = output;
 
@@ -58,7 +60,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     const auto& trackTips = traj->tips();
     const auto& mj        = traj->multiTrajectory();
     if (trackTips.empty()) {
-      warning("Empty multiTrajectory.");
+      this->warn("Empty multiTrajectory.");
       continue;
     }
 
@@ -81,8 +83,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       trajectory.setNHoles(trajectoryState.nHoles);
       trajectory.setNSharedHits(trajectoryState.nSharedHits);
 
-      debug("trajectory state, measurement, outlier, hole: {} {} {} {}", trajectoryState.nStates,
-            trajectoryState.nMeasurements, trajectoryState.nOutliers, trajectoryState.nHoles);
+      this->debug("trajectory state, measurement, outlier, hole: {} {} {} {}",
+                  trajectoryState.nStates, trajectoryState.nMeasurements, trajectoryState.nOutliers,
+                  trajectoryState.nHoles);
 
       for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
         trajectory.addToMeasurementChi2(measurementChi2);
