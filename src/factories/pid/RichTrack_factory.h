@@ -16,6 +16,7 @@
 
 // algorithms
 #include "algorithms/tracking/ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsPodioEdm.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactory.h"

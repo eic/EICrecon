@@ -3,6 +3,9 @@
 
 #pragma once
 
+// Only for Acts >= 36 is the Podio data model defined.
+#if Acts_VERSION_MAJOR >= 36
+
 #include <Acts/Plugins/Podio/PodioTrackContainer.hpp>
 #include <Acts/Plugins/Podio/PodioTrackStateContainer.hpp>
 #include <ActsPodioEdm/TrackCollection.h>
@@ -50,3 +53,5 @@ static_assert(is_podio_container<eicrecon::ActsPodioEdm>);
 #endif
 
 } // namespace eicrecon
+
+#endif

@@ -12,6 +12,7 @@
 #include <vector>
 
 #include "algorithms/tracking/ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsPodioEdm.h"
 #include "algorithms/tracking/TrackProjector.h"
 #include "extensions/jana/JOmniFactory.h"
 

@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "algorithms/tracking/ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsPodioEdm.h"
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/jana/JOmniFactory.h"

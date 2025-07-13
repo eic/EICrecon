@@ -27,6 +27,7 @@
 #include "DD4hepBField.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsPodioEdm.h"
 
 class ActsGeometryProvider;
 

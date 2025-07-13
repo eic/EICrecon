@@ -21,6 +21,7 @@
 
 #include "algorithms/tracking/ActsExamplesEdm.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsPodioEdm.h"
 
 namespace eicrecon {
 
