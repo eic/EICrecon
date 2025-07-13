@@ -14,7 +14,7 @@ concept is_podio_container = is_track_container_backend<edm_t> &&
                              requires(edm_t::ConstTrackContainer::TrackContainerBackend c) {
                                {
                                  c.trackCollection()
-                               } -> std::derived_from<const podio::CollectionBase&>;
+                               } -> std::convertible_to<const podio::CollectionBase&>;
                              };
 
 #endif
