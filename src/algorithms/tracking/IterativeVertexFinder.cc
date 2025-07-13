@@ -41,7 +41,7 @@
 #include <string>
 #include <utility>
 
-#include "ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {

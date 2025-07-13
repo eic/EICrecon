@@ -81,7 +81,7 @@
 #include <system_error>
 #include <utility>
 
-#include "ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"

@@ -29,7 +29,7 @@
 #include <utility>
 
 #include "Acts/Utilities/Logger.hpp"
-#include "ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "AmbiguitySolverConfig.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"

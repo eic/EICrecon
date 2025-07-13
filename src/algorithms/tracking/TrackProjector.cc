@@ -26,7 +26,7 @@
 #include <gsl/pointers>
 #include <iterator>
 
-#include "ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "ActsGeometryProvider.h"
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"

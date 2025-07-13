@@ -28,7 +28,7 @@
 #include <numeric>
 #include <optional>
 
-#include "ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "ActsToTracks.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 
