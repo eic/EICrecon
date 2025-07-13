@@ -39,8 +39,10 @@ namespace {
 template <class T> inline constexpr T square(const T& x) { return x * x; }
 } // namespace
 
-void eicrecon::TrackSeeding::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                                  std::shared_ptr<spdlog::logger> log) {
+namespace eicrecon {
+
+void TrackSeeding::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
+                        std::shared_ptr<spdlog::logger> log) {
 
   m_log = log;
 
@@ -53,7 +55,7 @@ void eicrecon::TrackSeeding::init(std::shared_ptr<const ActsGeometryProvider> ge
   configure();
 }
 
-void eicrecon::TrackSeeding::configure() {
+void TrackSeeding::configure() {
 
   // Filter parameters
   m_seedFilterConfig.maxSeedsPerSpM        = m_cfg.maxSeedsPerSpM_filter;
@@ -117,7 +119,7 @@ void eicrecon::TrackSeeding::configure() {
 }
 
 std::unique_ptr<edm4eic::TrackParametersCollection>
-eicrecon::TrackSeeding::produce(const edm4eic::TrackerHitCollection& trk_hits) {
+TrackSeeding::produce(const edm4eic::TrackerHitCollection& trk_hits) {
 
   std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(trk_hits);
 
@@ -180,7 +182,7 @@ eicrecon::TrackSeeding::produce(const edm4eic::TrackerHitCollection& trk_hits) {
 }
 
 std::vector<const eicrecon::SpacePoint*>
-eicrecon::TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits) {
+TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits) {
   std::vector<const eicrecon::SpacePoint*> spacepoints;
 
   for (const auto hit : trk_hits) {
@@ -192,7 +194,7 @@ eicrecon::TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_
 }
 
 std::unique_ptr<edm4eic::TrackParametersCollection>
-eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds) {
+TrackSeeding::makeTrackParams(SeedContainer& seeds) {
   auto trackparams = std::make_unique<edm4eic::TrackParametersCollection>();
 
   for (auto& seed : seeds) {
@@ -280,8 +282,7 @@ eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds) {
   return trackparams;
 }
 
-std::pair<float, float>
-eicrecon::TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) {
+std::pair<float, float> TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) {
   const float R  = std::get<0>(circleParams);
   const float X0 = std::get<1>(circleParams);
   const float Y0 = std::get<2>(circleParams);
@@ -295,9 +296,9 @@ eicrecon::TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) {
   return std::make_pair(xmin, ymin);
 }
 
-int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float, float>>& positions,
-                                            const std::pair<float, float>& PCA,
-                                            std::tuple<float, float, float>& RX0Y0) {
+int TrackSeeding::determineCharge(std::vector<std::pair<float, float>>& positions,
+                                  const std::pair<float, float>& PCA,
+                                  std::tuple<float, float, float>& RX0Y0) {
 
   const auto& firstpos = positions.at(0);
   auto hit_x           = firstpos.first;
@@ -333,7 +334,7 @@ int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float, float>>
    * Nikolai Chernov  (September 2012)
    */
 std::tuple<float, float, float>
-eicrecon::TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
+TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
   // Compute x- and y- sample means
   double meanX  = 0;
   double meanY  = 0;
@@ -423,8 +424,7 @@ eicrecon::TrackSeeding::circleFit(std::vector<std::pair<float, float>>& position
   return std::make_tuple(R, X0, Y0);
 }
 
-std::tuple<float, float>
-eicrecon::TrackSeeding::lineFit(std::vector<std::pair<float, float>>& positions) {
+std::tuple<float, float> TrackSeeding::lineFit(std::vector<std::pair<float, float>>& positions) {
   double xsum  = 0;
   double x2sum = 0;
   double ysum  = 0;
@@ -442,3 +442,5 @@ eicrecon::TrackSeeding::lineFit(std::vector<std::pair<float, float>>& positions)
   const float b            = (x2sum * ysum - xsum * xysum) / denominator; //calculate intercept
   return std::make_tuple(a, b);
 }
+
+} // namespace eicrecon
