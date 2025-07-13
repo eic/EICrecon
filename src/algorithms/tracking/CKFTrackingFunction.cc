@@ -120,6 +120,7 @@ CKFTracking<ActsExamplesEdm>::makeCKFTrackingFunction(
   return std::make_shared<CKFTrackingFunctionImpl<ActsExamplesEdm>>(std::move(trackFinder));
 }
 
+#if Acts_VERSION_MAJOR >= 36
 template <>
 std::shared_ptr<typename CKFTracking<ActsPodioEdm>::CKFTrackingFunction>
 CKFTracking<ActsPodioEdm>::makeCKFTrackingFunction(
@@ -139,5 +140,6 @@ CKFTracking<ActsPodioEdm>::makeCKFTrackingFunction(
   // build the track finder functions. owns the track finder object.
   return std::make_shared<CKFTrackingFunctionImpl<ActsPodioEdm>>(std::move(trackFinder));
 }
+#endif
 
 } // namespace eicrecon
