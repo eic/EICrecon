@@ -29,7 +29,7 @@
 #include <optional>
 #include <utility>
 
-#include "ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "ActsToTracks.h"
 
 namespace eicrecon {

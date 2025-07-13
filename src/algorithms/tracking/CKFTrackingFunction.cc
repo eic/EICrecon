@@ -28,7 +28,7 @@
 #include <memory>
 #include <utility>
 
-#include "ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "CKFTracking.h"
 
 namespace eicrecon {

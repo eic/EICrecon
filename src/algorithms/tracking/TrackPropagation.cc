@@ -42,7 +42,7 @@
 #include <typeinfo>
 #include <variant>
 
-#include "ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
