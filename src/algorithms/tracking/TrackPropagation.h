@@ -9,8 +9,6 @@
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
-#include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Detector.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>

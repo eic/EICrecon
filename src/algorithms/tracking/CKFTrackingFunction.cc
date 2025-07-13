@@ -2,9 +2,14 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
 #include <Acts/Definitions/Direction.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
+#include <Acts/EventData/TrackStateType.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
@@ -22,11 +27,12 @@
 #include <algorithm>
 #include <any>
 #include <cmath>
+#include <map>
 #include <memory>
 #include <string>
 #include <utility>
 
-#include "ActsExamples/EventData/Track.hpp"
+#include "ActsExamplesEdm.h"
 #include "CKFTracking.h"
 
 namespace eicrecon {

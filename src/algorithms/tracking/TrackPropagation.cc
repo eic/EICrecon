@@ -31,11 +31,11 @@
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
+#include <boost/container/vector.hpp>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
@@ -56,6 +56,7 @@
 #include <utility>
 #include <variant>
 
+#include "ActsExamplesEdm.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"

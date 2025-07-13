@@ -14,6 +14,7 @@
 #include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Measurement2DCollection.h>
@@ -24,11 +25,10 @@
 #include <variant>
 #include <vector>
 
-#include "algorithms/tracking/ActsExamplesEdm.h"
-
 #include "CKFTrackingConfig.h"
 #include "DD4hepBField.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 
 class ActsGeometryProvider;
 

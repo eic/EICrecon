@@ -6,6 +6,7 @@
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -27,6 +28,7 @@
 #include <numeric>
 #include <optional>
 
+#include "ActsExamplesEdm.h"
 #include "ActsToTracks.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 

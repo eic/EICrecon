@@ -26,6 +26,8 @@
 #include <gsl/pointers>
 #include <iterator>
 
+#include "ActsExamplesEdm.h"
+#include "ActsGeometryProvider.h"
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep

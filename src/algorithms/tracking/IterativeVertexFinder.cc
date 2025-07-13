@@ -5,6 +5,7 @@
 #include "IterativeVertexFinder.h"
 
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
@@ -40,6 +41,7 @@
 #include <string>
 #include <utility>
 
+#include "ActsExamplesEdm.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
