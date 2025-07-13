@@ -1,7 +1,8 @@
 
 ```
 #
-# Define installation area; start the container; define environment variables
+# Define installation area (/DATA00/ayk/ePIC in this line by line example below);
+# start the container; define environment variables
 #
 export SANDBOX=/DATA00/ayk/ePIC
 
@@ -42,8 +43,9 @@ cmake --install EICrecon/build
 
 ```
 #
-# Adjust environment variables
+# Adjust environment variables (FIXME: pass SANDBOX variable from the upstream environment);
 #
+export SANDBOX=/DATA00/ayk/ePIC
 export LD_LIBRARY_PATH=${SANDBOX}/prefix/lib:${LD_LIBRARY_PATH}
 export DETECTOR_PATH=${SANDBOX}/prefix/share/epic
 export JANA_PLUGIN_PATH=${SANDBOX}/prefix/lib/EICrecon/plugins:$JANA_PLUGIN_PATH
