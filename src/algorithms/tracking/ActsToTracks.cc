@@ -209,5 +209,8 @@ void ActsToTracks<edm_t>::process(const typename ActsToTracks<edm_t>::Input& inp
 }
 
 template class ActsToTracks<ActsExamplesEdm>;
+#if Acts_VERSION_MAJOR >= 36
+template class ActsToTracks<ActsPodioEdm>;
+#endif
 
 } // namespace eicrecon

@@ -213,5 +213,8 @@ void TrackProjector<edm_t>::process(const typename TrackProjector<edm_t>::Input&
 }
 
 template class TrackProjector<ActsExamplesEdm>;
+#if Acts_VERSION_MAJOR >= 36
+template class TrackProjector<ActsPodioEdm>;
+#endif
 
 } // namespace eicrecon

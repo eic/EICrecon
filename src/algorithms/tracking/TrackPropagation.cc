@@ -398,5 +398,8 @@ TrackPropagation<edm_t>::propagate(const edm4eic::Track& /* track */,
 }
 
 template class TrackPropagation<ActsExamplesEdm>;
+#if Acts_VERSION_MAJOR >= 36
+template class TrackPropagation<ActsPodioEdm>;
+#endif
 
 } // namespace eicrecon

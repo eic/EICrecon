@@ -198,5 +198,8 @@ std::unique_ptr<edm4eic::VertexCollection> IterativeVertexFinder<edm_t>::produce
 }
 
 template class IterativeVertexFinder<ActsExamplesEdm>;
+#if Acts_VERSION_MAJOR >= 36
+template class IterativeVertexFinder<ActsPodioEdm>;
+#endif
 
 } // namespace eicrecon
