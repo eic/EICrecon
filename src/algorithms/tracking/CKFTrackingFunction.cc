@@ -134,7 +134,7 @@ CKFTracking<ActsPodioEdm>::makeCKFTrackingFunction(
 
   Propagator propagator(std::move(stepper), std::move(navigator));
   typename CKFTrackingFunctionImpl<ActsPodioEdm>::CKF trackFinder(std::move(propagator),
-                                                                     logger.cloneWithSuffix("CKF"));
+                                                                  logger.cloneWithSuffix("CKF"));
 
   // build the track finder functions. owns the track finder object.
   return std::make_shared<CKFTrackingFunctionImpl<ActsPodioEdm>>(std::move(trackFinder));
