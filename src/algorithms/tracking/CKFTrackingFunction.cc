@@ -68,6 +68,9 @@ struct CKFTrackingFunctionImpl : public eicrecon::CKFTracking<edm_t>::CKFTrackin
 };
 
 template struct CKFTrackingFunctionImpl<ActsExamplesEdm>;
+#if Acts_VERSION_MAJOR >= 36
+template struct CKFTrackingFunctionImpl<ActsPodioEdm>;
+#endif
 
 template <typename edm_t>
 std::shared_ptr<typename CKFTracking<edm_t>::CKFTrackingFunction>
@@ -115,6 +118,26 @@ CKFTracking<ActsExamplesEdm>::makeCKFTrackingFunction(
 
   // build the track finder functions. owns the track finder object.
   return std::make_shared<CKFTrackingFunctionImpl<ActsExamplesEdm>>(std::move(trackFinder));
+}
+
+template <>
+std::shared_ptr<typename CKFTracking<ActsPodioEdm>::CKFTrackingFunction>
+CKFTracking<ActsPodioEdm>::makeCKFTrackingFunction(
+    std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
+    std::shared_ptr<const Acts::MagneticFieldProvider> magneticField, const Acts::Logger& logger) {
+  Stepper stepper(std::move(magneticField));
+  Navigator::Config cfg{trackingGeometry};
+  cfg.resolvePassive   = false;
+  cfg.resolveMaterial  = true;
+  cfg.resolveSensitive = true;
+  Navigator navigator(cfg);
+
+  Propagator propagator(std::move(stepper), std::move(navigator));
+  typename CKFTrackingFunctionImpl<ActsPodioEdm>::CKF trackFinder(std::move(propagator),
+                                                                     logger.cloneWithSuffix("CKF"));
+
+  // build the track finder functions. owns the track finder object.
+  return std::make_shared<CKFTrackingFunctionImpl<ActsPodioEdm>>(std::move(trackFinder));
 }
 
 } // namespace eicrecon
