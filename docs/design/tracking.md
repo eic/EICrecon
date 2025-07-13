@@ -6,31 +6,31 @@ flowchart TB
   classDef alg fill:#f96;
   classDef col fill:#66ccff;
 
-  SimHits(<strong>Simulation hits for tracking detectors</strong>):::col
+  SimHits(<strong>Simulation hits<br/> for tracking detectors</strong>):::col
   SimHits --> TrackDigi(<strong>Digitization</strong>):::alg
-  TrackDigi --> RecHits(<strong>Digitized hits for tracking detectors</strong>):::col
+  TrackDigi --> RecHits(<strong>Digitized hits<br/> for tracking detectors</strong>):::col
 
   RecHits --> TrackSeeding(<strong> Track seeding):::alg
-  TrackSeeding --> InitParams(<strong> Initial track parameters from seed triplet):::col
+  TrackSeeding --> InitParams(<strong> Initial track parameters<br/> from seed triplet):::col
 
-  RecHits --> CKFTracking(<strong> Combinatorial Kalman Filter for track finding and fitting):::alg
+  RecHits --> CKFTracking(<strong> Combinatorial Kalman Filter<br/> for track finding and fitting):::alg
   InitParams --> CKFTracking
   CKFTracking --> ActsTracksUnsolved(<strong> Reconstructed tracks):::col
 
   ActsTracksUnsolved --> AmbiguitySolver(<strong> Track ambiguity resolution):::alg
   AmbiguitySolver --> ActsTracks(<strong> Final solved tracks):::col
 
-  ActsTracks --> TypeConverter(<strong> Conversion of tracks to PODIO data type):::alg
-  TypeConverter --> ReconstructedTracks(<strong> Reconstructed tracks in PODIO format):::col
+  ActsTracks --> TypeConverter(<strong> Conversion of tracks<br/> to PODIO data type):::alg
+  TypeConverter --> ReconstructedTracks(<strong> Reconstructed tracks<br/> in PODIO format):::col
 
-  ReconstructedTracks --> TrackProjector(<strong> Save predicted track states at each tracking layer):::alg
-  TrackProjector --> TrackStates(<strong> Track parameters at each tracking layer):::col
-  ReconstructedTracks --> TrackPropagator(<strong> Track propagation to calorimeters and PID detectors):::alg
-  TrackPropagator --> PropagatedTracks(<strong> Projected track position and angle at calorimeters and PID detectors):::col
-  ReconstructedTracks -->IterVertFind(<strong> Iterative Vertex finder and primary vertex fitter):::alg
+  ReconstructedTracks --> TrackProjector(<strong> Save predicted track states<br/> at each tracking layer):::alg
+  TrackProjector --> TrackStates(<strong> Track parameters<br/> at each tracking layer):::col
+  ReconstructedTracks --> TrackPropagator(<strong> Track propagation<br/> to calorimeters and PID detectors):::alg
+  TrackPropagator --> PropagatedTracks(<strong> Projected track position and angle<br/> at calorimeters and PID detectors):::col
+  ReconstructedTracks -->IterVertFind(<strong> Iterative Vertex finder<br/> and primary vertex fitter):::alg
   IterVertFind --> PrimVertices(<strong> Reconstructed primary vertex):::col
-  ReconstructedTracks --> ParticleFactory(<strong> Copy reconstructed tracks to collection used for physics analyses):::alg
-  ParticleFactory --> ReconstructedChargedParticles(<strong> Reconstructed charged particles used for physics analyses):::col
+  ReconstructedTracks --> ParticleFactory(<strong> Copy reconstructed tracks<br/> to collection used for physics analyses):::alg
+  ParticleFactory --> ReconstructedChargedParticles(<strong> Reconstructed charged particles<br/> used for physics analyses):::col
 
 ```
 
