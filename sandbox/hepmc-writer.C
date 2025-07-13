@@ -39,7 +39,7 @@ void hepmc_writer(const char* out_fname, int n_events)
       //Double_t eta   = 2.40;//rdmn_gen->Uniform(1.30, 3.70);
       //Double_t eta   = -2.0;//rdmn_gen->Uniform(1.30, 3.70);
       //Double_t eta   = events_parsed%2 ? 2.0 : -2.0;//rdmn_gen->Uniform(1.30, 3.70);
-      Double_t eta   = iq%2 ? -2.0 : 2.5;//rdmn_gen->Uniform(1.30, 3.70);
+      Double_t eta   = iq%2 ? -2.0 : 3.0;//rdmn_gen->Uniform(1.30, 3.70);
       //Double_t eta   = rdmn_gen->Uniform(1.5, 1.6);//2.9, 3.0);//2.0, 2.1);
       Double_t th    = 2*std::atan(exp(-eta));
       Double_t p     = rdmn_gen->Uniform(6.999, 7.001);// + (iq ? 1.0 : 0.0);//30.0, 30.0001);
