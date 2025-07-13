@@ -114,8 +114,8 @@ void TrackProjector<edm_t>::process(const typename TrackProjector<edm_t>::Input&
 
       // global position
       const decltype(edm4eic::TrackPoint().position) position{static_cast<float>(global.x()),
-                                                             static_cast<float>(global.y()),
-                                                             static_cast<float>(global.z())};
+                                                              static_cast<float>(global.y()),
+                                                              static_cast<float>(global.z())};
 
       // local position
       const decltype(edm4eic::TrackParametersData().loc) loc{
