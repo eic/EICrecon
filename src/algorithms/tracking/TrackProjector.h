@@ -3,13 +3,20 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Utilities/UnitVectors.hpp>
 #include <algorithms/algorithm.h>
+#include <edm4eic/Cov2f.h>
+#include <edm4eic/Cov3f.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector3f.h>
+#include <fmt/core.h>
+#include <math.h>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <valarray>
 #include <vector>
 
 #include "algorithms/tracking/ActsExamplesEdm.h"

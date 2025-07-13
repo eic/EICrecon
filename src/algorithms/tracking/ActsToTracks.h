@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
@@ -11,6 +10,7 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
+#include <fmt/core.h>
 #include <optional>
 #include <string>
 #include <string_view>

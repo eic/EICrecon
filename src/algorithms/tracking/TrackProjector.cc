@@ -19,12 +19,13 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
-#include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <gsl/pointers>
 #include <iterator>
 
+#include "ActsExamplesEdm.h"
+#include "ActsGeometryProvider.h"
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep

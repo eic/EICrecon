@@ -7,6 +7,7 @@
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -28,6 +29,7 @@
 #include <optional>
 #include <utility>
 
+#include "ActsExamplesEdm.h"
 #include "ActsToTracks.h"
 
 namespace eicrecon {

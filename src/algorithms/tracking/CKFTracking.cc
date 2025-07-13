@@ -10,6 +10,8 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/TrackStateProxy.hpp>
 #include <Acts/EventData/Types.hpp>
+#include <Acts/TrackFitting/GainMatrixSmoother.hpp>
+#include <Acts/Utilities/detail/ContextType.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
@@ -57,7 +59,6 @@
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
-#include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
@@ -69,7 +70,6 @@
 #include <Eigen/Geometry>
 #include <algorithm>
 #include <array>
-#include <cmath>
 #include <cstddef>
 #include <functional>
 #include <list>
@@ -79,6 +79,7 @@
 #include <system_error>
 #include <utility>
 
+#include "ActsExamplesEdm.h"
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep

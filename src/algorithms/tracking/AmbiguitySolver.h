@@ -2,13 +2,14 @@
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #pragma once
 
+#include <Acts/EventData/SourceLink.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Measurement2D.h>
 #include <spdlog/logger.h>
+#include <cstddef>
 #include <memory>
 #include <tuple>
+#include <variant>
 #include <vector>
 
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"

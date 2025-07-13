@@ -15,7 +15,6 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Measurement2DCollection.h>
@@ -24,6 +23,7 @@
 #include <utility>
 
 #include "Acts/Utilities/Logger.hpp"
+#include "ActsExamplesEdm.h"
 #include "AmbiguitySolverConfig.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"

@@ -6,13 +6,12 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <edm4eic/VertexCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <vector>
 
-#include "ActsExamples/EventData/Trajectories.hpp"
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "IterativeVertexFinderConfig.h"
