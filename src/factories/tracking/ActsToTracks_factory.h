@@ -6,6 +6,7 @@
 #include <memory>
 
 #include "algorithms/tracking/ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsPodioEdm.h"
 #include "algorithms/tracking/ActsToTracks.h"
 #include "extensions/jana/JOmniFactory.h"
 

@@ -44,7 +44,11 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+#if Acts_VERSION_MAJOR < 36
   using ActsEdm = eicrecon::ActsExamplesEdm;
+#else
+  using ActsEdm = eicrecon::ActsExamplesEdm;
+#endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
       "TrackTruthSeeds", {"EventHeader", "MCParticles"}, {"TrackTruthSeeds"}, {}, app));

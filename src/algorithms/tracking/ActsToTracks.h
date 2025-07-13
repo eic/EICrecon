@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "algorithms/tracking/ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsPodioEdm.h"
 
 namespace eicrecon {
 

@@ -17,6 +17,7 @@
 #include "IterativeVertexFinderConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsPodioEdm.h"
 
 namespace eicrecon {
 template <typename edm_t = eicrecon::ActsExamplesEdm>

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "algorithms/tracking/ActsExamplesEdm.h"
+#include "algorithms/tracking/ActsPodioEdm.h"
 #include "algorithms/tracking/AmbiguitySolver.h"
 #include "algorithms/tracking/AmbiguitySolverConfig.h"
 #include "extensions/jana/JOmniFactory.h"

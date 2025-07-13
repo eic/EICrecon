@@ -25,6 +25,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/ActsExamplesEdm.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsPodioEdm.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 
 namespace eicrecon {
