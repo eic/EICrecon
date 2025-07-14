@@ -197,7 +197,7 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
       "TaggerTrackerTransportationPreML",
-      {"TaggerTrackerProjectedTracks", "MCScatteredElectrons", "MCBeamElectrons"},
+      {"TaggerTrackerLocalTracks", "MCScatteredElectrons", "MCBeamElectrons"},
       {"TaggerTrackerFeatureTensor", "TaggerTrackerTargetTensor"},
       {
           .beamE = 10.0,
@@ -207,7 +207,7 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerTransportationInference", {"TaggerTrackerFeatureTensor"},
       {"TaggerTrackerPredictionTensor"},
       {
-          .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
+          .modelPath = "BeamlineSteeringReconstruction.onnx",
       },
       app));
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(

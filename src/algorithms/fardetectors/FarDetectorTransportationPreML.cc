@@ -45,7 +45,7 @@ void FarDetectorTransportationPreML::process(
 
   edm4eic::MutableTensor feature_tensor = feature_tensors->create();
   feature_tensor.addToShape(inputTracks->size());
-  feature_tensor.addToShape(4);     // x,z,dirx,diry
+  feature_tensor.addToShape(6);     // x,z,dirx,diry
   feature_tensor.setElementType(1); // 1 - float
 
   edm4eic::MutableTensor target_tensor;
@@ -58,14 +58,15 @@ void FarDetectorTransportationPreML::process(
 
   for (const auto& track : *inputTracks) {
 
-    auto pos        = track.getLoc();
-    auto trackphi   = track.getPhi();
-    auto tracktheta = track.getTheta();
+    auto position = track.getPosition();
+    auto momentum = track.getMomentum();
 
-    feature_tensor.addToFloatData(pos.a);                           // x
-    feature_tensor.addToFloatData(pos.b);                           // z
-    feature_tensor.addToFloatData(sin(trackphi) * sin(tracktheta)); // dirx
-    feature_tensor.addToFloatData(cos(trackphi) * sin(tracktheta)); // diry
+    feature_tensor.addToFloatData(position.x); // x
+    feature_tensor.addToFloatData(position.y); // y
+    feature_tensor.addToFloatData(position.z); // z
+    feature_tensor.addToFloatData(momentum.x); // dirx
+    feature_tensor.addToFloatData(momentum.y); // diry
+    feature_tensor.addToFloatData(momentum.z); // dirz
 
     if (MCElectrons != nullptr) {
       // FIXME: use proper MC matching once available again, assume training sample is indexed correctly

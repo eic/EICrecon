@@ -19,7 +19,7 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4eic::TrackParameters> m_trackparam_input{this};
+  PodioInput<edm4eic::Track> m_track_input{this};
   PodioInput<edm4hep::MCParticle> m_scatteredelectrons_input{this};
   PodioInput<edm4hep::MCParticle> m_beamelectrons_input{this};
 
@@ -40,7 +40,7 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_trackparam_input(), m_scatteredelectrons_input(), m_beamelectrons_input()},
+    m_algo->process({m_track_input(), m_scatteredelectrons_input(), m_beamelectrons_input()},
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }
 };
