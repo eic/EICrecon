@@ -15,7 +15,7 @@ struct CFDROCDigitizationConfig {
   int adc_range = std::pow(2, adc_bit) * 10;
   int tdc_range = std::pow(2, tdc_bit);
 
-  double fraction = 0.1;
+  double fraction = 0.5;
   double tMax     = 25 * edm4eic::unit::ns; // 25 ns is the period of 40MHz EIC clock
 };
 
