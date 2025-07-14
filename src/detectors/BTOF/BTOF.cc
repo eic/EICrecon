@@ -48,7 +48,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
       {
-          .sigma_sharingx = 0.1 * dd4hep::cm,
+          .sigma_sharingx = 0.1 * dd4hep::mm,
           .sigma_sharingy = 0.5 * dd4hep::cm,
           .min_edep       = 0.0 * edm4eic::unit::GeV,
           .readout        = "TOFBarrelHits",
