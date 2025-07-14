@@ -9,7 +9,8 @@
 
 namespace eicrecon {
 
-inline ActsExamples::TrajectoriesContainer CreateTrajectories(const ActsExamples::ConstTrackContainer& tracks) {
+inline ActsExamples::TrajectoriesContainer
+CreateTrajectories(const ActsExamples::ConstTrackContainer& tracks) {
 
   // Seed number column accessor
   const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
@@ -39,7 +40,7 @@ inline ActsExamples::TrajectoriesContainer CreateTrajectories(const ActsExamples
 
     tips.push_back(track.tipIndex());
     parameters.emplace(std::make_pair(
-        track.tipIndex(), 
+        track.tipIndex(),
         ActsExamples::TrackParameters(track.referenceSurface().getSharedPtr(), track.parameters(),
                                       track.covariance(), track.particleHypothesis())));
   }

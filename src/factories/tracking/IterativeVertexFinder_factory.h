@@ -49,8 +49,7 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_vertices_output() =
-        m_algo->produce(m_acts_tracks_input(), m_edm4eic_reconParticles_input());
+    m_vertices_output() = m_algo->produce(m_acts_tracks_input(), m_edm4eic_reconParticles_input());
   }
 };
 

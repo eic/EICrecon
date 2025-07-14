@@ -121,12 +121,11 @@ void InitPlugin(JApplication* app) {
 
   // charged particle tracks
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
-      "DRICHAerogelTracks",
-      {"CentralCKFTracks", "CentralCKFActsTracks"},
-      {"DRICHAerogelTracks"}, aerogel_track_cfg, app));
+      "DRICHAerogelTracks", {"CentralCKFTracks", "CentralCKFActsTracks"}, {"DRICHAerogelTracks"},
+      aerogel_track_cfg, app));
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
-      "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTracks"},
-      {"DRICHGasTracks"}, gas_track_cfg, app));
+      "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTracks"}, {"DRICHGasTracks"},
+      gas_track_cfg, app));
 
   app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>("DRICHMergedTracks",
                                                           {"DRICHAerogelTracks", "DRICHGasTracks"},

@@ -194,8 +194,7 @@ void InitPlugin(JApplication* app) {
                                                                 {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
-      "CalorimeterTrackPropagator",
-      {"CentralCKFTracks", "CentralCKFActsTracks"},
+      "CalorimeterTrackPropagator", {"CentralCKFTracks", "CentralCKFActsTracks"},
       {"CalorimeterTrackProjections"},
       {.target_surfaces{
           // Ecal
