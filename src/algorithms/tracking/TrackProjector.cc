@@ -25,8 +25,9 @@
 #include <gsl/pointers>
 #include <iterator>
 
-#include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
+#include "algorithms/tracking/TrackProjector.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 #if FMT_VERSION >= 90000
@@ -41,8 +42,10 @@ void TrackProjector::init() {
 }
 
 void TrackProjector::process(const Input& input, const Output& output) const {
-  const auto [acts_trajectories, tracks] = input;
-  auto [track_segments]                  = output;
+  const auto [acts_tracks, tracks] = input;
+  auto [track_segments]            = output;
+
+  auto acts_trajectories = CreateTrajectories(*(acts_tracks.front()));
 
   debug("Track projector event process. Num of input trajectories: {}",
         std::size(acts_trajectories));
@@ -51,8 +54,8 @@ void TrackProjector::process(const Input& input, const Output& output) const {
   for (std::size_t i = 0; const auto& traj : acts_trajectories) {
     // Get the entry index for the single trajectory
     // The trajectory entry indices and the multiTrajectory
-    const auto& mj        = traj->multiTrajectory();
-    const auto& trackTips = traj->tips();
+    const auto& mj        = traj.multiTrajectory();
+    const auto& trackTips = traj.tips();
     debug("------ Trajectory ------");
     debug("  Num of elements in trackTips {}", trackTips.size());
 

@@ -15,6 +15,7 @@
 #include <vector>
 
 // algorithms
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -30,7 +31,6 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Track> m_tracks_input{this};
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
   Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_track_segments_output{this};
 
@@ -52,7 +52,7 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->propagateToSurfaceList(
-        {*m_tracks_input(), m_acts_trajectories_input(), m_acts_tracks_input()},
+        {*m_tracks_input(), m_acts_tracks_input()},
         {m_track_segments_output().get()});
   }
 };

@@ -24,6 +24,7 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 
 namespace eicrecon {
@@ -42,13 +43,14 @@ public:
             std::shared_ptr<spdlog::logger> logger);
 
   void process(const std::tuple<const edm4eic::TrackCollection&,
-                                const std::vector<const ActsExamples::Trajectories*>,
                                 const std::vector<const ActsExamples::ConstTrackContainer*>>
                    input,
                const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
 
-    const auto [tracks, acts_trajectories, acts_tracks] = input;
-    auto [propagated_tracks]                            = output;
+    const auto [tracks, acts_tracks] = input;
+    auto [propagated_tracks]         = output;
+
+    auto acts_trajectories = CreateTrajectories(*(acts_tracks.front()));
 
     for (std::size_t i = 0; auto traj : acts_trajectories) {
       auto this_propagated_track = propagated_tracks->create();
@@ -71,7 +73,7 @@ public:
 
   /** Propagates a single trajectory to a given surface */
   std::unique_ptr<edm4eic::TrackPoint>
-  propagate(const edm4eic::Track&, const ActsExamples::Trajectories*,
+  propagate(const edm4eic::Track&, const ActsExamples::Trajectories&,
             const std::shared_ptr<const Acts::Surface>& targetSurf) const;
 
   /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`;
@@ -80,7 +82,6 @@ public:
          */
   void propagateToSurfaceList(
       const std::tuple<const edm4eic::TrackCollection&,
-                       const std::vector<const ActsExamples::Trajectories*>,
                        const std::vector<const ActsExamples::ConstTrackContainer*>>
           input,
       const std::tuple<edm4eic::TrackSegmentCollection*> output) const;

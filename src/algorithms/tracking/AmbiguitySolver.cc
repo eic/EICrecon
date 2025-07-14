@@ -58,8 +58,7 @@ void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
   m_core        = std::make_unique<Acts::GreedyAmbiguityResolution>(m_acts_cfg, logger().clone());
 }
 
-std::tuple<std::vector<ActsExamples::ConstTrackContainer*>,
-           std::vector<ActsExamples::Trajectories*>>
+std::tuple<std::vector<ActsExamples::ConstTrackContainer*>>
 AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,
                          const edm4eic::Measurement2DCollection& /* meas2Ds */) {
 
@@ -108,7 +107,7 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
         ((*output_tracks.front())).trackStateContainer(), tips, parameters));
   }
 
-  return std::make_tuple(std::move(output_tracks), std::move(output_trajectories));
+  return std::make_tuple(std::move(output_tracks));
 }
 
 } // namespace eicrecon

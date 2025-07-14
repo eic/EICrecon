@@ -11,8 +11,17 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/Propagator/ActorList.hpp>
+#else
+#include <Acts/Propagator/AbortList.hpp>
+#include <Acts/Propagator/ActionList.hpp>
+#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#if Acts_VERSION_MAJOR >= 36
+#include <Acts/Propagator/PropagatorResult.hpp>
+#endif
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
@@ -20,16 +29,16 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
 #include <Evaluator/DD4hepUnits.h>
-#include <algorithm>
 #include <boost/container/vector.hpp>
-#include <cmath>
-#include <cstdint>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -41,6 +50,7 @@
 #include <variant>
 
 #include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -127,12 +137,13 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
 
 void TrackPropagation::propagateToSurfaceList(
     const std::tuple<const edm4eic::TrackCollection&,
-                     const std::vector<const ActsExamples::Trajectories*>,
                      const std::vector<const ActsExamples::ConstTrackContainer*>>
         input,
     const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
-  const auto [tracks, acts_trajectories, acts_tracks] = input;
-  auto [track_segments]                               = output;
+  const auto [tracks, acts_tracks] = input;
+  auto [track_segments]            = output;
+
+  auto acts_trajectories = CreateTrajectories(*(acts_tracks.front()));
 
   // logging
   m_log->trace("Propagate trajectories: --------------------");
@@ -220,13 +231,13 @@ void TrackPropagation::propagateToSurfaceList(
 
 std::unique_ptr<edm4eic::TrackPoint>
 TrackPropagation::propagate(const edm4eic::Track& /* track */,
-                            const ActsExamples::Trajectories* acts_trajectory,
+                            const ActsExamples::Trajectories& acts_trajectory,
                             const std::shared_ptr<const Acts::Surface>& targetSurf) const {
 
   // Get the entry index for the single trajectory
   // The trajectory entry indices and the multiTrajectory
-  const auto& mj        = acts_trajectory->multiTrajectory();
-  const auto& trackTips = acts_trajectory->tips();
+  const auto& mj        = acts_trajectory.multiTrajectory();
+  const auto& trackTips = acts_trajectory.tips();
 
   m_log->trace("  Number of elements in trackTips {}", trackTips.size());
 

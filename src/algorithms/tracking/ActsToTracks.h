@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
@@ -19,7 +19,7 @@
 namespace eicrecon {
 
 using ActsToTracksAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::Measurement2DCollection, std::vector<ActsExamples::Trajectories>,
+    algorithms::Input<edm4eic::Measurement2DCollection, std::vector<ActsExamples::ConstTrackContainer>,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
@@ -31,7 +31,7 @@ public:
       : ActsToTracksAlgorithm{name,
                               {
                                   "inputMeasurements",
-                                  "inputActsTrajectories",
+                                  "inputActsTracks",
                                   "inputRawTrackerHitAssociations",
                               },
                               {

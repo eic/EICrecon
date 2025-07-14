@@ -10,6 +10,7 @@
 #include <utility>
 #include <vector>
 
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {

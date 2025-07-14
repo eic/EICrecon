@@ -11,6 +11,7 @@
 #include <utility>
 #include <vector>
 
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 #include "algorithms/tracking/TrackProjector.h"
 #include "extensions/jana/JOmniFactory.h"
 
@@ -23,7 +24,7 @@ private:
 
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioInput<edm4eic::Track> m_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_segments_output{this};
 
@@ -39,13 +40,13 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    std::vector<gsl::not_null<const ActsExamples::Trajectories*>> acts_trajectories_input;
-    for (auto acts_traj : m_acts_trajectories_input()) {
-      acts_trajectories_input.push_back(acts_traj);
+    std::vector<gsl::not_null<const ActsExamples::ConstTrackContainer*>> acts_tracks_input;
+    for (auto acts_track : m_acts_tracks_input()) {
+      acts_tracks_input.push_back(acts_track);
     }
     m_algo->process(
         {
-            acts_trajectories_input,
+            acts_tracks_input,
             m_tracks_input(),
         },
         {

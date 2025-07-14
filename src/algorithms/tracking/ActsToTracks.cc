@@ -7,6 +7,7 @@
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -28,7 +29,8 @@
 #include <optional>
 #include <utility>
 
-#include "ActsToTracks.h"
+#include "algorithms/tracking/ActsToTracks.h"
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 
 namespace eicrecon {
 
@@ -49,14 +51,16 @@ static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_in
 void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
-  const auto [meas2Ds, acts_trajectories, raw_hit_assocs]     = input;
+  const auto [meas2Ds, acts_tracks, raw_hit_assocs]           = input;
   auto [trajectories, track_parameters, tracks, tracks_assoc] = output;
 
+  auto acts_trajectories = CreateTrajectories(*(acts_tracks.front()));
+
   // Loop over trajectories
-  for (const auto traj : acts_trajectories) {
+  for (const auto& traj : acts_trajectories) {
     // The trajectory entry indices and the multiTrajectory
-    const auto& trackTips = traj->tips();
-    const auto& mj        = traj->multiTrajectory();
+    const auto& trackTips = traj.tips();
+    const auto& mj        = traj.multiTrajectory();
     if (trackTips.empty()) {
       warning("Empty multiTrajectory.");
       continue;
@@ -68,7 +72,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       auto trajectoryState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
 
       // Check if the reco track has fitted track parameters
-      if (not traj->hasTrackParameters(trackTip)) {
+      if (not traj.hasTrackParameters(trackTip)) {
         warning("No fitted track parameters for trajectory with entry index = {}", trackTip);
         continue;
       }
@@ -93,7 +97,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       }
 
       // Get the fitted track parameter
-      const auto& boundParam = traj->trackParameters(trackTip);
+      const auto& boundParam = traj.trackParameters(trackTip);
       const auto& parameter  = boundParam.parameters();
       const auto& covariance = *boundParam.covariance();
 

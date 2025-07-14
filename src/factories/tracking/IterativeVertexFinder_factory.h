@@ -13,6 +13,7 @@
 #include <utility>
 #include <vector>
 
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "algorithms/tracking/IterativeVertexFinder.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -26,7 +27,7 @@ private:
   using AlgoT = eicrecon::IterativeVertexFinder;
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioInput<edm4eic::ReconstructedParticle> m_edm4eic_reconParticles_input{this};
   PodioOutput<edm4eic::Vertex> m_vertices_output{this};
 
@@ -49,7 +50,7 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_vertices_output() =
-        m_algo->produce(m_acts_trajectories_input(), m_edm4eic_reconParticles_input());
+        m_algo->produce(m_acts_tracks_input(), m_edm4eic_reconParticles_input());
   }
 };
 
