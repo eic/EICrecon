@@ -20,6 +20,7 @@
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
@@ -37,6 +38,11 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+#if Acts_VERSION_MAJOR < 36
+  using ActsEdm = eicrecon::ActsExamplesEdm;
+#else
+  using ActsEdm = eicrecon::ActsExamplesEdm;
+#endif
 
   // configuration parameters ///////////////////////////////////////////////
 
@@ -120,11 +126,11 @@ void InitPlugin(JApplication* app) {
       "DRICHRawHits", {"DRICHHits"}, {"DRICHRawHits", "DRICHRawHitsAssociations"}, digi_cfg, app));
 
   // charged particle tracks
-  app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
+  app->Add(new JOmniFactoryGeneratorT<RichTrack_factory<ActsEdm>>(
       "DRICHAerogelTracks",
       {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
       {"DRICHAerogelTracks"}, aerogel_track_cfg, app));
-  app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
+  app->Add(new JOmniFactoryGeneratorT<RichTrack_factory<ActsEdm>>(
       "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
       {"DRICHGasTracks"}, gas_track_cfg, app));
 

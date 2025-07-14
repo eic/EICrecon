@@ -29,6 +29,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
+
 class TrackSeeding : public eicrecon::WithPodConfig<eicrecon::OrthogonalTrackSeedingConfig> {
 public:
 #if Acts_VERSION_MAJOR >= 37

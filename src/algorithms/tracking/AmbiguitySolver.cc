@@ -15,7 +15,6 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Measurement2DCollection.h>
@@ -24,6 +23,7 @@
 #include <utility>
 
 #include "Acts/Utilities/Logger.hpp"
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "AmbiguitySolverConfig.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -39,18 +39,19 @@ transformConfig(const eicrecon::AmbiguitySolverConfig& cfg) {
   return result;
 }
 
-static std::size_t sourceLinkHash(const Acts::SourceLink& a) {
+template <typename edm_t>
+std::size_t AmbiguitySolver<edm_t>::sourceLinkHash(const Acts::SourceLink& a) {
   return static_cast<std::size_t>(a.get<ActsExamples::IndexSourceLink>().index());
 }
 
-static bool sourceLinkEquality(const Acts::SourceLink& a, const Acts::SourceLink& b) {
+template <typename edm_t>
+bool AmbiguitySolver<edm_t>::sourceLinkEquality(const Acts::SourceLink& a,
+                                                const Acts::SourceLink& b) {
   return a.get<ActsExamples::IndexSourceLink>().index() ==
          b.get<ActsExamples::IndexSourceLink>().index();
 }
 
-AmbiguitySolver::AmbiguitySolver() = default;
-
-void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
+template <typename edm_t> void AmbiguitySolver<edm_t>::init(std::shared_ptr<spdlog::logger> log) {
 
   m_log         = log;
   m_acts_logger = eicrecon::getSpdlogLogger("AmbiguitySolver", m_log);
@@ -58,15 +59,17 @@ void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
   m_core        = std::make_unique<Acts::GreedyAmbiguityResolution>(m_acts_cfg, logger().clone());
 }
 
-std::tuple<std::vector<ActsExamples::ConstTrackContainer*>,
-           std::vector<ActsExamples::Trajectories*>>
-AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,
-                         const edm4eic::Measurement2DCollection& /* meas2Ds */) {
+template <typename edm_t>
+std::tuple<std::vector<typename edm_t::ConstTrackContainer*>,
+           std::vector<typename edm_t::Trajectories*>>
+AmbiguitySolver<edm_t>::process(
+    std::vector<const typename edm_t::ConstTrackContainer*> input_container,
+    const edm4eic::Measurement2DCollection& /* meas2Ds */) {
 
   // Assuming ActsExamples::ConstTrackContainer is compatible with Acts::ConstVectorTrackContainer
   // Create track container
-  std::vector<ActsExamples::Trajectories*> output_trajectories;
-  std::vector<ActsExamples::ConstTrackContainer*> output_tracks;
+  std::vector<typename edm_t::Trajectories*> output_trajectories;
+  std::vector<typename edm_t::ConstTrackContainer*> output_tracks;
 
   auto& input_trks = input_container.front();
   Acts::GreedyAmbiguityResolution::State state;
@@ -85,12 +88,12 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
     destProxy.tipIndex() = srcProxy.tipIndex();
   }
 
-  output_tracks.push_back(new ActsExamples::ConstTrackContainer(
+  output_tracks.push_back(new typename edm_t::ConstTrackContainer(
       std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
       input_trks->trackStateContainerHolder()));
 
   //Make output trajectories
-  ActsExamples::Trajectories::IndexedParameters parameters;
+  typename edm_t::Trajectories::IndexedParameters parameters;
   std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
 
   for (const auto& track : *(output_tracks.front())) {
@@ -104,11 +107,13 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
         ActsExamples::TrackParameters{track.referenceSurface().getSharedPtr(), track.parameters(),
                                       track.covariance(), track.particleHypothesis()}});
 
-    output_trajectories.push_back(new ActsExamples::Trajectories(
+    output_trajectories.push_back(new typename edm_t::Trajectories(
         ((*output_tracks.front())).trackStateContainer(), tips, parameters));
   }
 
   return std::make_tuple(std::move(output_tracks), std::move(output_trajectories));
 }
+
+template class AmbiguitySolver<ActsExamplesEdm>;
 
 } // namespace eicrecon

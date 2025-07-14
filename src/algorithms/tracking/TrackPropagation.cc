@@ -11,25 +11,33 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/Propagator/ActorList.hpp>
+#else
+#include <Acts/Propagator/AbortList.hpp>
+#include <Acts/Propagator/ActionList.hpp>
+#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
+#if Acts_VERSION_MAJOR >= 36
+#include <Acts/Propagator/PropagatorResult.hpp>
+#endif
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
 #include <Evaluator/DD4hepUnits.h>
-#include <algorithm>
 #include <boost/container/vector.hpp>
-#include <cmath>
-#include <cstdint>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -40,6 +48,7 @@
 #include <typeinfo>
 #include <variant>
 
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
@@ -52,9 +61,10 @@ template <typename... L> struct multilambda : L... {
   constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
 };
 
-void TrackPropagation::init(const dd4hep::Detector* detector,
-                            std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                            std::shared_ptr<spdlog::logger> logger) {
+template <typename edm_t>
+void TrackPropagation<edm_t>::init(const dd4hep::Detector* detector,
+                                   std::shared_ptr<const ActsGeometryProvider> geo_svc,
+                                   std::shared_ptr<spdlog::logger> logger) {
   m_geoSvc = geo_svc;
   m_log    = logger;
 
@@ -125,10 +135,11 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
   m_log->trace("Initialized");
 }
 
-void TrackPropagation::propagateToSurfaceList(
+template <typename edm_t>
+void TrackPropagation<edm_t>::propagateToSurfaceList(
     const std::tuple<const edm4eic::TrackCollection&,
-                     const std::vector<const ActsExamples::Trajectories*>,
-                     const std::vector<const ActsExamples::ConstTrackContainer*>>
+                     const std::vector<const typename edm_t::Trajectories*>,
+                     const std::vector<const typename edm_t::ConstTrackContainer*>>
         input,
     const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
   const auto [tracks, acts_trajectories, acts_tracks] = input;
@@ -218,10 +229,11 @@ void TrackPropagation::propagateToSurfaceList(
   } // end loop over input trajectories
 }
 
+template <typename edm_t>
 std::unique_ptr<edm4eic::TrackPoint>
-TrackPropagation::propagate(const edm4eic::Track& /* track */,
-                            const ActsExamples::Trajectories* acts_trajectory,
-                            const std::shared_ptr<const Acts::Surface>& targetSurf) const {
+TrackPropagation<edm_t>::propagate(const edm4eic::Track& /* track */,
+                                   const typename edm_t::Trajectories* acts_trajectory,
+                                   const std::shared_ptr<const Acts::Surface>& targetSurf) const {
 
   // Get the entry index for the single trajectory
   // The trajectory entry indices and the multiTrajectory
@@ -355,5 +367,10 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
       edm4eic::TrackPoint{surface, system, position, positionError, momentum, momentumError, time,
                           timeError, theta, phi, directionError, pathLength, pathLengthError});
 }
+
+template class TrackPropagation<ActsExamplesEdm>;
+#if Acts_VERSION_MAJOR >= 36
+template class TrackPropagation<ActsPodioEdm>;
+#endif
 
 } // namespace eicrecon

@@ -19,11 +19,16 @@ print('Generating datamodel_glue.h ...')
 
 # Default to "not found"
 WORKING_DIR = None
+ACTS_INCLUDE_DIR = None
 EDM4HEP_INCLUDE_DIR = None
 EDM4EIC_INCLUDE_DIR = None
 
 # Try getting from environment first so we can overwrite
 # with command line below if available.
+ACTS_ROOT = os.environ.get("ACTS_ROOT")
+if ACTS_ROOT :
+    ACTS_INCLUDE_DIR=ACTS_ROOT+'/include'
+
 EDM4HEP_ROOT = os.environ.get("EDM4HEP_ROOT")
 if EDM4HEP_ROOT :
     EDM4HEP_INCLUDE_DIR=EDM4HEP_ROOT+'/include'
@@ -37,10 +42,23 @@ if EDM4EIC_ROOT :
 for arg in sys.argv:
     if arg.startswith('WORKING_DIR'):
         if '=' in arg: WORKING_DIR = arg.split('=',1)[1]
+    if arg.startswith('ACTS_INCLUDE_DIR'):
+        if '=' in arg: ACTS_INCLUDE_DIR = arg.split('=',1)[1]
     if arg.startswith('EDM4HEP_INCLUDE_DIR'):
         if '=' in arg: EDM4HEP_INCLUDE_DIR = arg.split('=',1)[1]
     if arg.startswith('EDM4EIC_INCLUDE_DIR'):
         if '=' in arg: EDM4EIC_INCLUDE_DIR = arg.split('=',1)[1]
+
+# Check if ACTS_ROOT is set
+if not ACTS_INCLUDE_DIR:
+    print("ERROR: ACTS_INCLUDE_DIR not specified on command line (with \n"
+          "ACTS_INCLUDE_DIR=/path/to/acts/include) and ACTS_ROOT\n"
+          "env. variable is None or empty\n"
+          "       Please specify the ACTS_INCLUDE_DIR value explicitly\n"
+          "       or point ACTS_ROOT envar to ACTS installation root.\n"
+          "       This script looks for '{ACTS_INCLUDE_DIR}/edm4hep/*Collection.h'\n"
+          "                          or '{ACTS_ROOT}/include/edm4hep/*Collection.h'\n")
+    sys.exit(1)
 
 # Check if EDM4HEP_ROOT is set
 if not EDM4HEP_INCLUDE_DIR:
@@ -48,7 +66,7 @@ if not EDM4HEP_INCLUDE_DIR:
           "EDM4HEP_INCLUDE_DIR=/path/to/edm4hep/include) and EDM4HEP_ROOT\n"
           "env. variable is None or empty\n"
           "       Please specify the EDM4HEP_INCLUDE_DIR value explicitly\n"
-          "       or point EDM4HEP_ROOT envar to edm4hep installation root.\n"
+          "       or point EDM4HEP_ROOT envar to EDM4HEP installation root.\n"
           "       This script looks for '{EDM4HEP_INCLUDE_DIR}/edm4hep/*Collection.h'\n"
           "                          or '{EDM4HEP_ROOT}/include/edm4hep/*Collection.h'\n")
     sys.exit(1)
@@ -89,13 +107,15 @@ def AddCollections(datamodelName, collectionfiles):
         visitor.append('        }')
 
 
+collectionfiles_acts = glob.glob(ACTS_INCLUDE_DIR+'/ActsPodioEdm//*Collection.h')
 collectionfiles_edm4hep = glob.glob(EDM4HEP_INCLUDE_DIR+'/edm4hep/*Collection.h')
-collectionfiles_edm4eic    = glob.glob(EDM4EIC_INCLUDE_DIR+'/edm4eic/*Collection.h')
+collectionfiles_edm4eic = glob.glob(EDM4EIC_INCLUDE_DIR+'/edm4eic/*Collection.h')
 header_lines      = []
 type_map = []
 visitor = []
+AddCollections('ActsPodioEdm', collectionfiles_acts)
 AddCollections('edm4hep', collectionfiles_edm4hep)
-AddCollections('edm4eic'   , collectionfiles_edm4eic   )
+AddCollections('edm4eic', collectionfiles_edm4eic   )
 
 
 if WORKING_DIR:
