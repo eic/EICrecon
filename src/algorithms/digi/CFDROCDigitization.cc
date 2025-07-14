@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Souvik Paul, Chun Yuen Tsang, Prithwish Tribedy
-// Special Acknowledgement: Kolja Kauder
+// Copyright (C) 2025 Chun Yuen Tsang
 //
-// Convert ADC pulses into ADC and TDC values
+// Convert ADC pulses into ADC and TDC values using constant fraction
 
 #include <podio/RelationRange.h>
 #include <algorithm>
