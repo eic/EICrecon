@@ -1,12 +1,17 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Tomas Sosa, Wouter Deconinck
 
-#include <edm4eic/EDM4eicVersion.h>
-
-#include <edm4hep/utils/vector_utils.h>
-#include <cmath>
 #include "CalorimeterEoverPCut.h"
-#include <edm4eic/CalorimeterHitCollection.h>
+
+#include <algorithm>                             
+#include <podio/RelationRange.h>               
+#include <edm4hep/utils/vector_utils.h>       
+
+#include <edm4eic/ClusterCollection.h>    
+#include <edm4eic/TrackClusterMatchCollection.h> 
+#include <edm4eic/TrackClusterMatch.h>           
+#include <edm4eic/Track.h>                       
+#include <edm4eic/CalorimeterHitCollection.h>    
 #include <edm4eic/CalorimeterHit.h>
 
 namespace eicrecon {

@@ -3,15 +3,19 @@
 
 #pragma once
 
+#include <string>
+#include <string_view>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
+#include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 
 namespace eicrecon {
 
 using CalorimeterEoverPCutAlgorithmBase = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
+    algorithms::Input<edm4eic::ClusterCollection,
+                      edm4eic::TrackClusterMatchCollection,
                       edm4eic::CalorimeterHitCollection>,
     algorithms::Output<edm4hep::ParticleIDCollection>>;
 
