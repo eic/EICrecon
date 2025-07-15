@@ -2,6 +2,7 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>

@@ -3,7 +3,7 @@
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>

@@ -4,8 +4,10 @@
 //
 
 #include <Acts/Geometry/GeometryContext.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <TDirectory.h>
 #include <vector>
 
