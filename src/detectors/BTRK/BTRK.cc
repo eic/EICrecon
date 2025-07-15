@@ -10,6 +10,7 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/digi/RandomNoise_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
@@ -26,9 +27,16 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
+        "RandomNoise",              // 1. The name of the plugin instance
+        {"SiBarrelRawHits"},        // 2. The input collection tag
+        {"NoisySiBarrelRawHits"},   // 3. The output collection tag
+        {},                         // 4. Use default config from your .yaml file
+        app));
+                         
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "SiBarrelTrackerRecHits", {"SiBarrelRawHits"}, {"SiBarrelTrackerRecHits"},
+      "SiBarrelTrackerRecHits", {"NoisySiBarrelRawHits"}, {"SiBarrelTrackerRecHits"},
       {}, // default config
       app));
 }
