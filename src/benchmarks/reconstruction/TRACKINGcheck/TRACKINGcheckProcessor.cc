@@ -41,7 +41,7 @@ void TRACKINGcheckProcessor::InitWithGlobalRootLock() {
 // ProcessSequential
 //-------------------------------------------
 void TRACKINGcheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-  auto Tracks = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
+  auto Tracks       = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
   auto Trajectories = eicrecon::CreateTrajectories(*(Tracks.front()));
 
   // Fill histograms here

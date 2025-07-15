@@ -83,7 +83,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
   // EXAMPLE II
   // This gets access to more direct ACTS results from CFKTracking
-  auto acts_tracks = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
+  auto acts_tracks  = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
   auto acts_results = eicrecon::CreateTrajectories(*(acts_tracks.front()));
   m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
   m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}", "[loc 0]",
