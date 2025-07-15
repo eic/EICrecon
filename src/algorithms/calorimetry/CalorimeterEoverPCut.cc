@@ -13,7 +13,7 @@ namespace eicrecon {
 
 void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
                                    const CalorimeterEoverPCut::Output& output) const {
-  // Unpack all three pointers
+  // Unpack all pointers
   const auto& [clusters_notnull, track_matches_notnull, hits_notnull] = input;
   auto const& clusters        = *clusters_notnull;
   auto const& track_matches   = *track_matches_notnull;
