@@ -21,8 +21,8 @@ void FarDetectorTransportationPostML::process(
     const FarDetectorTransportationPostML::Input& input,
     const FarDetectorTransportationPostML::Output& output) const {
 
-  const auto [prediction_tensors, beamElectrons] = input;
-  auto [out_particles]                           = output;
+  const auto [prediction_tensors, track_associations, beamElectrons] = input;
+  auto [out_particles, out_associations]                             = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
   std::call_once(m_initBeamE, [&]() {
@@ -99,6 +99,17 @@ void FarDetectorTransportationPostML::process(
     particle.setCharge(-1);
     particle.setMass(0.000511);
     particle.setPDG(11);
+
+    //Check if both association collections are set and copy the MCParticle association
+    if (track_associations && track_associations->size() > i / 3) {
+      // Copy the association from the input to the output
+      auto association = track_associations->at(i / 3);
+      auto out_association = out_associations->create();
+      out_association.setSim(association.getSim());
+      out_association.setRec(particle);
+      out_association.setWeight(association.getWeight());
+    }
+
   }
 
   // TODO: Implement the association of the reconstructed particles with the tracks
