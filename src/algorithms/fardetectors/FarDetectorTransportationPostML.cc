@@ -25,21 +25,20 @@ void FarDetectorTransportationPostML::process(
   auto [out_particles]                           = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
-  if (beamElectrons != nullptr) {
-    std::call_once(m_initBeamE, [&]() {
-      // Check if beam electrons are present
-      if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.NullDereference)
-        if (m_cfg.requireBeamElectron) {
-          critical("No beam electrons found");
-          throw std::runtime_error("No beam electrons found");
-        }
-        return;
+  std::call_once(m_initBeamE, [&]() {
+    // Check if beam electrons are present
+    if (!beamElectrons || beamElectrons->empty()) {
+      if (m_cfg.requireBeamElectron) {
+        critical("No beam electrons found");
+        throw std::runtime_error("No beam electrons found");
       }
-      m_beamE = beamElectrons->at(0).getEnergy();
-      //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
-      m_beamE = round(m_beamE);
-    });
-  }
+      return;
+    }
+    m_beamE = beamElectrons->at(0).getEnergy();
+    //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
+    m_beamE = round(m_beamE);
+  });
+  
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
