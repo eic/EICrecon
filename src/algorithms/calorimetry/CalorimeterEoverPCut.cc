@@ -10,12 +10,12 @@
 #include <gsl/pointers>
 
 // EDM4EIC types you actually use:
-#include <edm4eic/CalorimeterHit.h>    // hit.getLayer(), hit.getEnergy()
-#include <edm4eic/TrackClusterMatch.h> // TrackClusterMatch::makeEmpty()
-#include <edm4eic/Track.h>             // Track.getMomentum()
+#include <edm4eic/CalorimeterHit.h>       // hit.getLayer(), hit.getEnergy()
+#include <edm4eic/TrackClusterMatch.h>    // TrackClusterMatch::makeEmpty()
+#include <edm4eic/Track.h>                // Track.getMomentum()
 
 // EDM4HEP utils:
-#include <edm4hep/utils/vector_utils.h> // magnitude()
+#include <edm4hep/utils/vector_utils.h>   // magnitude()
 
 namespace eicrecon {
 
