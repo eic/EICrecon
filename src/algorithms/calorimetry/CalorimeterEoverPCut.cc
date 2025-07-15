@@ -18,28 +18,28 @@ void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
   auto const& clusters        = *clusters_notnull;
   auto const& track_matches   = *track_matches_notnull;
 
-  auto&       [pid_coll_ptr]  = output;
-  auto&        pid_coll       = *pid_coll_ptr;
+  auto& [pid_coll_ptr] = output;
+  auto& pid_coll       = *pid_coll_ptr;
 
-  for ( auto const& cluster : clusters ) {
+  for (auto const& cluster : clusters) {
     double energyInDepth = 0.0;
-    for ( auto const& hit : cluster.getHits() ) {
+    for (auto const& hit : cluster.getHits()) {
       int layer = hit.getLayer();
-      if ( layer <= m_maxLayer ) {
+      if (layer <= m_maxLayer) {
         energyInDepth += hit.getEnergy();
       }
     }
 
-    bool found = false;
+    bool found      = false;
     auto best_match = edm4eic::TrackClusterMatch::makeEmpty();
-      for ( auto const& match : track_matches )  {
-        if (match.getCluster() == cluster
-          && ((not best_match.isAvailable()) || (match.getWeight() > best_match.getWeight()))) {
-            found      = true;
-            best_match = match;
-        }
+    for (auto const& match : track_matches) {
+      if (match.getCluster() == cluster &&
+          ((not best_match.isAvailable()) || (match.getWeight() > best_match.getWeight()))) {
+        found      = true;
+        best_match = match;
+      }
     }
-    if ( !found ) {
+    if (!found) {
       warning("Can't find a match for the cluster. Skipping...");
       continue;
     }
@@ -47,7 +47,7 @@ void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
     double ptrack = edm4hep::utils::magnitude(best_match.getTrack().getMomentum());
     double ep     = (ptrack > 0 ? energyInDepth / ptrack : 0.0);
 
-    if ( ep > m_ecut ) {
+    if (ep > m_ecut) {
       auto pid = pid_coll.create();
       pid.setType(0);
       pid.setPDG(11);
@@ -56,7 +56,5 @@ void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
     }
   }
 }
-
-
 
 } // namespace eicrecon
