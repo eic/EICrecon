@@ -21,7 +21,7 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/tracking/ActsToTracks_factory.h"
-#include "factories/tracking/ActsTrajectoriesMerger_factory.h"
+#include "factories/tracking/ActsTrackContainerMerger_factory.h"
 #include "factories/tracking/AmbiguitySolver_factory.h"
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
@@ -332,14 +332,14 @@ void InitPlugin(JApplication* app) {
   // COMBINED TRACKING
 
   // Use both central and B0 tracks for vertexing
-  app->Add(new JOmniFactoryGeneratorT<ActsTrajectoriesMerger_factory>(
-      "CentralB0CKFActsTrajectories",
+  app->Add(new JOmniFactoryGeneratorT<ActsTrackContainerMerger_factory>(
+      "CentralAndB0CKFActsTracks",
       {
-          "CentralCKFActsTrajectories",
-          "B0TrackerCKFActsTrajectories",
+          "CentralCKFActsTracks",
+          "B0TrackerCKFActsTracks",
       },
       {
-          "CentralAndB0TrackerCKFActsTrajectories",
+          "CentralAndB0TrackerCKFActsTracks",
       },
       app));
 
