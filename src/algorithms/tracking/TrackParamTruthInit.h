@@ -8,6 +8,8 @@
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <memory>
+#include <string>
+#include <string_view>
 
 #include "ActsGeometryProvider.h"
 #include "TrackParamTruthInitConfig.h"
