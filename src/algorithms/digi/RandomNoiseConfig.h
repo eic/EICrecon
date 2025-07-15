@@ -1,0 +1,28 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2025 EIC-FT
+
+#pragma once
+
+#include <vector>
+#include <utility>
+
+namespace eicrecon {
+
+// Enum to specify subdetector regions for targeted noise injection.
+enum class SubdetectorRegion { barrel, backward, forward };
+
+struct RandomNoiseConfig {
+  // Enable or disable noise injection.
+  bool addNoise = true;
+
+  // Average number of noise hits to inject per system.
+  // This will be used as the mean for a Poisson distribution.
+  int n_noise_hits_per_system = 100;
+
+  // A vector of pairs to specify target layers for noise injection.
+  // Each pair consists of a SubdetectorRegion and a layer index (int).
+  std::vector<std::pair<SubdetectorRegion, int>> target_layers = {
+    {SubdetectorRegion::barrel, 2}, {SubdetectorRegion::forward, 3}, {SubdetectorRegion::backward, 1}};
+};
+
+} // namespace eicrecon
