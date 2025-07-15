@@ -23,7 +23,7 @@ void FarDetectorTransportationPreML::process(
     const FarDetectorTransportationPreML::Input& input,
     const FarDetectorTransportationPreML::Output& output) const {
 
-  const auto [inputTracks, MCElectrons, beamElectrons] = input;
+  const auto [inputTracks, mcAssociation, beamElectrons] = input;
   auto [feature_tensors, target_tensors]               = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
@@ -48,14 +48,17 @@ void FarDetectorTransportationPreML::process(
   feature_tensor.setElementType(1); // 1 - float
 
   edm4eic::MutableTensor target_tensor;
-  if (MCElectrons != nullptr) {
+  if (mcAssociation) {
     target_tensor = target_tensors->create();
     target_tensor.addToShape(inputTracks->size());
     target_tensor.addToShape(3);     // px,py,pz
     target_tensor.setElementType(1); // 1 - float
   }
 
-  for (const auto& track : *inputTracks) {
+  // Loop through inputTracks and simultaneously optionally associations if avaliable
+  // and fill the feature and target tensors
+  for (size_t i = 0; i < inputTracks->size(); ++i) {
+    const auto& track = inputTracks->at(i);
 
     auto position = track.getPosition();
     auto momentum = track.getMomentum();
@@ -67,16 +70,16 @@ void FarDetectorTransportationPreML::process(
     feature_tensor.addToFloatData(momentum.y); // diry
     feature_tensor.addToFloatData(momentum.z); // dirz
 
-    if (MCElectrons != nullptr) {
-      // FIXME: use proper MC matching once available again, assume training sample is indexed correctly
-      // Take the first scattered/simulated electron
-      auto MCElectron         = MCElectrons->at(0);
-      auto MCElectronMomentum = MCElectron.getMomentum() / m_beamE;
-      target_tensor.addToFloatData(MCElectronMomentum.x);
-      target_tensor.addToFloatData(MCElectronMomentum.y);
-      target_tensor.addToFloatData(MCElectronMomentum.z);
+    if (mcAssociation && mcAssociation->size()==inputTracks->size()) {
+        // Process the association if it exists and is non-empty
+        const auto& association = mcAssociation->at(i).getSim(); // Assuming 1-to-1 mapping
+        auto MCElectronMomentum = association.getMomentum() / m_beamE;
+        target_tensor.addToFloatData(MCElectronMomentum.x);
+        target_tensor.addToFloatData(MCElectronMomentum.y);
+        target_tensor.addToFloatData(MCElectronMomentum.z);
     }
   }
+
 }
 
 } // namespace eicrecon

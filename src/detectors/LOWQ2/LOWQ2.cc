@@ -197,7 +197,7 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
       "TaggerTrackerTransportationPreML",
-      {"TaggerTrackerLocalTracks", "MCScatteredElectrons", "MCBeamElectrons"},
+      {"TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
       {"TaggerTrackerFeatureTensor", "TaggerTrackerTargetTensor"},
       {
           .beamE = 10.0,
