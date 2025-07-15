@@ -3,14 +3,11 @@
 
 #include "CalorimeterEoverPCut.h"
 
+#include <edm4eic/Track.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <podio/RelationRange.h>
 #include <gsl/pointers>
-
-#include <edm4eic/CalorimeterHit.h>
-#include <edm4eic/TrackClusterMatch.h>
-#include <edm4eic/Track.h>
-
-#include <edm4hep/utils/vector_utils.h>
+#include <vector>
 
 namespace eicrecon {
 
