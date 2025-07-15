@@ -14,8 +14,7 @@
 namespace eicrecon {
 
 using CalorimeterEoverPCutAlgorithmBase = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ClusterCollection,
-                      edm4eic::TrackClusterMatchCollection,
+    algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
                       edm4eic::CalorimeterHitCollection>,
     algorithms::Output<edm4hep::ParticleIDCollection>>;
 

@@ -3,15 +3,15 @@
 
 #include "CalorimeterEoverPCut.h"
 
-#include <algorithm>                             
-#include <podio/RelationRange.h>               
-#include <edm4hep/utils/vector_utils.h>       
+#include <algorithm>
+#include <podio/RelationRange.h>
+#include <edm4hep/utils/vector_utils.h>
 
-#include <edm4eic/ClusterCollection.h>    
-#include <edm4eic/TrackClusterMatchCollection.h> 
-#include <edm4eic/TrackClusterMatch.h>           
-#include <edm4eic/Track.h>                       
-#include <edm4eic/CalorimeterHitCollection.h>    
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/TrackClusterMatchCollection.h>
+#include <edm4eic/TrackClusterMatch.h>
+#include <edm4eic/Track.h>
+#include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/CalorimeterHit.h>
 
 namespace eicrecon {
