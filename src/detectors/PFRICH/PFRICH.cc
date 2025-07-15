@@ -25,10 +25,8 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   PhotoMultiplierHitDigiConfig digi_cfg;
-  digi_cfg.detectorName = "RICHEndcapN";
-  digi_cfg.readoutClass = "RICHEndcapNHits";
-  digi_cfg.seed         = 5;           // FIXME: set to 0 for a 'unique' seed, but
-                                       // that seems to delay the RNG from actually randomizing
+  digi_cfg.detectorName    = "RICHEndcapN";
+  digi_cfg.readoutClass    = "RICHEndcapNHits";
   digi_cfg.hitTimeWindow   = 20.0;     // [ns]
   digi_cfg.timeResolution  = 1 / 16.0; // [ns]
   digi_cfg.speMean         = 80.0;
@@ -49,7 +47,7 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-      "RICHEndcapNRawHits", {"RICHEndcapNHits"},
+      "RICHEndcapNRawHits", {"EventHeader", "RICHEndcapNHits"},
       {"RICHEndcapNRawHits", "RICHEndcapNRawHitsAssociations"}, digi_cfg, app));
 }
 }

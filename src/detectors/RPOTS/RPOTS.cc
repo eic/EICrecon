@@ -22,7 +22,7 @@ void InitPlugin(JApplication* app) {
 
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "ForwardRomanPotRawHits", {"ForwardRomanPotHits"},
+      "ForwardRomanPotRawHits", {"EventHeader", "ForwardRomanPotHits"},
       {"ForwardRomanPotRawHits", "ForwardRomanPotRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
