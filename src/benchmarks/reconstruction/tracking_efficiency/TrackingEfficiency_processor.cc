@@ -25,6 +25,7 @@
 #include <string>
 #include <vector>
 
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 
@@ -82,7 +83,8 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
   // EXAMPLE II
   // This gets access to more direct ACTS results from CFKTracking
-  auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
+  auto acts_tracks = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
+  auto acts_results = eicrecon::CreateTrajectories(*(acts_tracks.front()));
   m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
   m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}", "[loc 0]",
                "[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]",
@@ -93,8 +95,8 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
     // Get the entry index for the single trajectory
     // The trajectory entry indices and the multiTrajectory
-    const auto& mj        = traj->multiTrajectory();
-    const auto& trackTips = traj->tips();
+    const auto& mj        = traj.multiTrajectory();
+    const auto& trackTips = traj.tips();
     if (trackTips.empty()) {
       m_log->debug("Empty multiTrajectory.");
       continue;
@@ -104,8 +106,8 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
     // Collect the trajectory summary info
     auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
-    if (traj->hasTrackParameters(trackTip)) {
-      const auto& boundParam = traj->trackParameters(trackTip);
+    if (traj.hasTrackParameters(trackTip)) {
+      const auto& boundParam = traj.trackParameters(trackTip);
       const auto& parameter  = boundParam.parameters();
       const auto& covariance = *boundParam.covariance();
       m_log->debug("{:>10.2f} {:>10.2f}  {:>10.2f} {:>10.3f} {:>10.4f} {:>10.3f} {:>12.4e} "

@@ -9,7 +9,8 @@
 #include <TDirectory.h>
 #include <vector>
 
-#include "TRACKINGcheckProcessor.h"
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
+#include "benchmarks/reconstruction/TRACKINGcheck/TRACKINGcheckProcessor.h"
 #include "services/rootfile/RootFile_service.h"
 
 //-------------------------------------------
@@ -40,19 +41,20 @@ void TRACKINGcheckProcessor::InitWithGlobalRootLock() {
 // ProcessSequential
 //-------------------------------------------
 void TRACKINGcheckProcessor::ProcessSequential(const std::shared_ptr<const JEvent>& event) {
-  auto Trajectories = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
+  auto Tracks = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
+  auto Trajectories = eicrecon::CreateTrajectories(*(Tracks.front()));
 
   // Fill histograms here
 
   // Trajectories
   hist1D["Trajectories_trajectories_per_event"]->Fill(Trajectories.size());
 
-  for (const auto* traj : Trajectories) {
-    for (auto entryIndex : traj->tips()) {
-      if (!traj->hasTrackParameters(entryIndex)) {
+  for (const auto& traj : Trajectories) {
+    for (auto entryIndex : traj.tips()) {
+      if (!traj.hasTrackParameters(entryIndex)) {
         continue;
       }
-      auto trackparams = traj->trackParameters(entryIndex);
+      auto trackparams = traj.trackParameters(entryIndex);
 
       auto pos = trackparams.position(Acts::GeometryContext());
       auto t   = trackparams.time();
