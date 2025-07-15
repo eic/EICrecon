@@ -6,13 +6,14 @@
 // Copyright (C) 2024, Dmitry Kalinkin
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
 #include <memory>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
@@ -26,6 +27,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -33,8 +35,7 @@ void InitPlugin(JApplication* app) {
       {
           .threshold      = 6.0 * dd4hep::keV,
           .timeResolution = 0.025, // [ns]
-      },
-      app));
+      }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -42,8 +43,7 @@ void InitPlugin(JApplication* app) {
       {"TOFBarrelRecHits"},                     // Output data tag
       {
           .timeResolution = 10,
-      },
-      app)); // Hit reco default config for factories
+      })); // Hit reco default config for factories
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
@@ -52,8 +52,7 @@ void InitPlugin(JApplication* app) {
           .sigma_sharingy = 0.5 * dd4hep::cm,
           .min_edep       = 0.0 * edm4eic::unit::GeV,
           .readout        = "TOFBarrelHits",
-      },
-      app));
+      }));
 
   // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
   // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =
@@ -74,15 +73,13 @@ void InitPlugin(JApplication* app) {
           .pulse_shape_params   = {gain, sigma_analog, offset * sigma_analog},
           .ignore_thres         = 0.05 * adc_range,
           .timestep             = 0.01 * edm4eic::unit::ns,
-      },
-      app));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
       "TOFBarrelPulseCombiner", {"TOFBarrelSmoothPulses"}, {"TOFBarrelCombinedPulses"},
       {
           .minimum_separation = 25 * edm4eic::unit::ns,
-      },
-      app));
+      }));
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
@@ -91,10 +88,9 @@ void InitPlugin(JApplication* app) {
           .EICROC_period = 25 * edm4eic::unit::ns,
           .local_period  = 25 * edm4eic::unit::ns / 1024,
           .global_offset = -offset * sigma_analog + risetime,
-      },
-      app));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-      "EICROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {}, app));
+      "EICROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {}));
 }
 } // extern "C"

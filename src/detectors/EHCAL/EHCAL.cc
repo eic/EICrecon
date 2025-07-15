@@ -2,12 +2,13 @@
 // Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, David Lawrence, Friederike Bock, Nathan Brei, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <string>
 #include <variant>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -21,6 +22,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
   // Make sure digi and reco use the same value
@@ -47,9 +49,7 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC = HcalEndcapN_resolutionTDC,
           .corrMeanScale = "1.0",
           .readout       = "HcalEndcapNHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "HcalEndcapNRecHits", {"HcalEndcapNRawHits"}, {"HcalEndcapNRecHits"},
       {
@@ -64,19 +64,13 @@ void InitPlugin(JApplication* app) {
           .sampFrac =
               "0.0095", // from latest study - implement at level of reco hits rather than clusters
           .readout = "HcalEndcapNHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
       "HcalEndcapNMergedHits", {"HcalEndcapNRecHits"}, {"HcalEndcapNMergedHits"},
-      {.readout = "HcalEndcapNHits", .fieldTransformations = {"layer:4", "slice:0"}},
-      app // TODO: Remove me once fixed
-      ));
+      {.readout = "HcalEndcapNHits", .fieldTransformations = {"layer:4", "slice:0"}}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "HcalEndcapNTruthProtoClusters", {"HcalEndcapNMergedHits", "HcalEndcapNHits"},
-      {"HcalEndcapNTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
+      {"HcalEndcapNTruthProtoClusters"}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "HcalEndcapNIslandProtoClusters", {"HcalEndcapNMergedHits"},
       {"HcalEndcapNIslandProtoClusters"},
@@ -97,9 +91,7 @@ void InitPlugin(JApplication* app) {
           .transverseEnergyProfileMetric = "globalDistEtaPhi",
           .transverseEnergyProfileScale  = 1.,
           .transverseEnergyProfileScaleUnits{},
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNTruthClustersWithoutShapes",
       {
@@ -108,14 +100,12 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapNTruthClusters",
       {"HcalEndcapNTruthClustersWithoutShapes", "HcalEndcapNTruthClusterAssociationsWithoutShapes"},
       {"HcalEndcapNTruthClusters", "HcalEndcapNTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.energyWeight = "log", .logWeightBase = 6.2}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNClustersWithoutShapes",
       {
@@ -129,14 +119,12 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = 1.0,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapNClusters",
       {"HcalEndcapNClustersWithoutShapes", "HcalEndcapNClusterAssociationsWithoutShapes"},
       {"HcalEndcapNClusters", "HcalEndcapNClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.energyWeight = "log", .logWeightBase = 6.2}));
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "HcalEndcapNSplitMergeProtoClusters",
       {"HcalEndcapNIslandProtoClusters", "CalorimeterTrackProjections"},
@@ -147,9 +135,7 @@ void InitPlugin(JApplication* app) {
        .sigEP                        = 0.40,
        .drAdd                        = 0.40,
        .sampFrac                     = 1.0,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
+       .transverseEnergyProfileScale = 1.0}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNSplitMergeClustersWithoutShapes",
       {
@@ -158,14 +144,12 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalEndcapNSplitMergeClusters",
       {"HcalEndcapNSplitMergeClustersWithoutShapes",
        "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
       {"HcalEndcapNSplitMergeClusters", "HcalEndcapNSplitMergeClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.energyWeight = "log", .logWeightBase = 6.2}));
 }
 }

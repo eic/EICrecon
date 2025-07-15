@@ -2,13 +2,14 @@
 // Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, David Lawrence, Dhevan Gangadharan, Nathan Brei,, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <cmath>
 #include <string>
 #include <variant>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -20,6 +21,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
 
@@ -36,9 +38,7 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC = 10 * dd4hep::picosecond,
           .corrMeanScale = "1.0",
           .readout       = "EcalLumiSpecHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalLumiSpecRecHits", {"EcalLumiSpecRawHits"}, {"EcalLumiSpecRecHits"},
       {
@@ -51,14 +51,10 @@ void InitPlugin(JApplication* app) {
           .thresholdValue  = 2.0,
           .sampFrac        = "1.0",
           .readout         = "EcalLumiSpecHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "EcalLumiSpecTruthProtoClusters", {"EcalLumiSpecRecHits", "EcalLumiSpecHits"},
-      {"EcalLumiSpecTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
+      {"EcalLumiSpecTruthProtoClusters"}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "EcalLumiSpecIslandProtoClusters", {"EcalLumiSpecRecHits"},
       {"EcalLumiSpecIslandProtoClusters"},
@@ -81,9 +77,7 @@ void InitPlugin(JApplication* app) {
           .transverseEnergyProfileMetric = "localDistXY",
           .transverseEnergyProfileScale  = 10. * dd4hep::mm,
           .transverseEnergyProfileScaleUnits{},
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalLumiSpecClustersWithoutShapes",
@@ -93,14 +87,12 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalLumiSpecClustersWithoutShapes",             // edm4eic::Cluster
        "EcalLumiSpecClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalLumiSpecClusters",
       {"EcalLumiSpecClustersWithoutShapes", "EcalLumiSpecClusterAssociationsWithoutShapes"},
       {"EcalLumiSpecClusters", "EcalLumiSpecClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 3.6}, app));
+      {.energyWeight = "log", .logWeightBase = 3.6}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalLumiSpecTruthClustersWithoutShapes",
@@ -110,14 +102,12 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalLumiSpecTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalLumiSpecTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.6, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.6, .enableEtaBounds = false}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalLumiSpecTruthClusters",
       {"EcalLumiSpecTruthClustersWithoutShapes",
        "EcalLumiSpecTruthClusterAssociationsWithoutShapes"},
       {"EcalLumiSpecTruthClusters", "EcalLumiSpecTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 4.6}, app));
+      {.energyWeight = "log", .logWeightBase = 4.6}));
 }
 }
