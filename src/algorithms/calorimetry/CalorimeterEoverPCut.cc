@@ -3,17 +3,17 @@
 
 #include "CalorimeterEoverPCut.h"
 
-#include <vector>                                      // for any use of std::vector
-#include <gsl/pointers>                                // for gsl::not_null<>
-#include <podio/RelationRange.h>                       // for cluster.getHits()
+#include <vector>                // for any use of std::vector
+#include <gsl/pointers>          // for gsl::not_null<>
+#include <podio/RelationRange.h> // for cluster.getHits()
 
-#include <edm4eic/ClusterCollection.h>                 // for ClusterCollection
-#include <edm4eic/CalorimeterHitCollection.h>           // for CalorimeterHitCollection
-#include <edm4eic/CalorimeterHit.h>                     // for getLayer()/getEnergy()
-#include <edm4eic/TrackClusterMatchCollection.h>        // for TrackClusterMatchCollection
-#include <edm4eic/TrackClusterMatch.h>                  // for TrackClusterMatch::makeEmpty()
-#include <edm4eic/Track.h>                              // for Track.getMomentum()
-#include <edm4hep/utils/vector_utils.h>                // for magnitude()
+#include <edm4eic/ClusterCollection.h>           // for ClusterCollection
+#include <edm4eic/CalorimeterHitCollection.h>    // for CalorimeterHitCollection
+#include <edm4eic/CalorimeterHit.h>              // for getLayer()/getEnergy()
+#include <edm4eic/TrackClusterMatchCollection.h> // for TrackClusterMatchCollection
+#include <edm4eic/TrackClusterMatch.h>           // for TrackClusterMatch::makeEmpty()
+#include <edm4eic/Track.h>                       // for Track.getMomentum()
+#include <edm4hep/utils/vector_utils.h>          // for magnitude()
 
 namespace eicrecon {
 
