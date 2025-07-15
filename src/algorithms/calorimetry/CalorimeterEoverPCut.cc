@@ -15,8 +15,8 @@ void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
                                    const CalorimeterEoverPCut::Output& output) const {
   // Unpack all pointers
   const auto& [clusters_notnull, track_matches_notnull, hits_notnull] = input;
-  auto const& clusters        = *clusters_notnull;
-  auto const& track_matches   = *track_matches_notnull;
+  auto const& clusters                                                = *clusters_notnull;
+  auto const& track_matches                                           = *track_matches_notnull;
 
   auto& [pid_coll_ptr] = output;
   auto& pid_coll       = *pid_coll_ptr;
