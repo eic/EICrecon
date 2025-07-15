@@ -28,19 +28,20 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
 
-    auto& acts_tracks1_input = *(m_acts_tracks1_input().front());
-    auto& trackContainer1 = acts_tracks1_input.container();
+    auto& acts_tracks1_input   = *(m_acts_tracks1_input().front());
+    auto& trackContainer1      = acts_tracks1_input.container();
     auto& trackStateContainer1 = acts_tracks1_input.trackStateContainer();
 
-    auto& acts_tracks2_input = *(m_acts_tracks2_input().front());
-    auto& trackContainer2 = acts_tracks2_input.container();
+    auto& acts_tracks2_input   = *(m_acts_tracks2_input().front());
+    auto& trackContainer2      = acts_tracks2_input.container();
     auto& trackStateContainer2 = acts_tracks2_input.trackStateContainer();
 
     auto trackContainer = std::make_shared<Acts::VectorTrackContainer>();
     trackContainer->reserve(trackContainer1.size_impl() + trackContainer2.size_impl());
 
     auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
-    trackStateContainer->reserve(trackStateContainer1.size_impl() + trackStateContainer2.size_impl());
+    trackStateContainer->reserve(trackStateContainer1.size_impl() +
+                                 trackStateContainer2.size_impl());
 
     ActsExamples::TrackContainer track_container_output(trackContainer, trackStateContainer);
     track_container_output.ensureDynamicColumns(acts_tracks1_input);
