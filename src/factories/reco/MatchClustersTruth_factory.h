@@ -14,13 +14,13 @@
 #include <stdint.h>
 #include <memory>
 
-#include "algorithms/reco/MatchClusters.h"
+#include "algorithms/reco/MatchClustersTruth.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
-class MatchClusters_factory : public JOmniFactory<MatchClusters_factory> {
+class MatchClustersTruth_factory : public JOmniFactory<MatchClustersTruth_factory> {
 private:
   // Underlying algorithm
   std::unique_ptr<eicrecon::MatchClusters> m_algo;

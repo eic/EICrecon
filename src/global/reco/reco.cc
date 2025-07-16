@@ -38,7 +38,7 @@
 #include "factories/reco/HadronicFinalState_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/MC2ReconstructedParticle_factory.h"
-#include "factories/reco/MatchClusters_factory.h"
+#include "factories/reco/MatchClustersTruth_factory.h"
 #include "factories/reco/PrimaryVertices_factory.h"
 #include "factories/reco/ReconstructedElectrons_factory.h"
 #include "factories/reco/ScatteredElectronsEMinusPz_factory.h"
@@ -78,8 +78,8 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapPClusterAssociations"},
       {"EcalClusterAssociations"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
-      "ReconstructedParticlesWithAssoc",
+  app->Add(new JOmniFactoryGeneratorT<MatchClustersTruth_factory>(
+      "ReconstructedParticlesTruthWithAssoc",
       {
           "MCParticles",
           "ReconstructedChargedParticles",
@@ -88,8 +88,8 @@ void InitPlugin(JApplication* app) {
           "EcalClusterAssociations",
       },
       {
-          "ReconstructedParticles",           // edm4eic::ReconstructedParticle
-          "ReconstructedParticleAssociations" // edm4eic::MCRecoParticleAssociation
+          "ReconstructedParticlesTruth",           // edm4eic::ReconstructedParticle
+          "ReconstructedParticleAssociationsTruth" // edm4eic::MCRecoParticleAssociation
       },
       app));
 
