@@ -298,11 +298,15 @@ flowchart TB
 ## Full diagram for B0 track reconstruction
 In progress...
 
-## Information
-
-Legend for above graphs:
+## Legend for above graphs:
 - Orange boxes - factory / algorithm
 - Blue boxes - data collection
 
-Acts information:
+## Description of collections
+- [MCParticle](https://github.com/key4hep/EDM4hep/blob/v00-99-02/edm4hep.yaml#L230-L258) -- Monte Carlo particle
+- [SimTrackerHit](https://github.com/key4hep/EDM4hep/blob/v00-99-02/edm4hep.yaml#L296-L333) -- Simulated tracker hit (e.g. VertexBarrelHits)
+- [RawTrackerHit](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L372-L379) -- "Raw (digitized) tracker hit (e.g. SiBarrelVertexRawHits)
+- 
+
+## Acts information:
 - [ACTS flags](flags/acts.md ':include')
