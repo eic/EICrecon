@@ -9,6 +9,7 @@
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Geometry/Layer.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #if Acts_VERSION_MAJOR >= 34
@@ -23,6 +24,13 @@
 #include <Acts/Propagator/Navigator.hpp>
 #endif
 #include <Acts/Propagator/Propagator.hpp>
+#if Acts_VERSION_MAJOR >= 36
+#include <Acts/Propagator/PropagatorOptions.hpp>
+#include <Acts/Propagator/PropagatorResult.hpp>
+#endif
+#if Acts_VERSION_MAJOR >= 34
+#include <Acts/Propagator/StandardAborters.hpp>
+#endif
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
@@ -30,16 +38,16 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
 #include <Evaluator/DD4hepUnits.h>
-#include <algorithm>
 #include <boost/container/vector.hpp>
-#include <cmath>
-#include <cstdint>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <map>
