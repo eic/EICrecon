@@ -11,7 +11,17 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#if Acts_VERSION_MAJOR >= 34
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/Propagator/ActorList.hpp>
+#else
+#include <Acts/Propagator/AbortList.hpp>
+#include <Acts/Propagator/ActionList.hpp>
+#endif
 #include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/MaterialInteractor.hpp>
+#include <Acts/Propagator/Navigator.hpp>
+#endif
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
@@ -263,20 +273,34 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry   = m_geoSvc->trackingGeometry();
   std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_geoSvc->getFieldProvider();
-  using Stepper                                                    = Acts::EigenStepper<>;
-  using Propagator                                                 = Acts::Propagator<Stepper>;
-  Stepper stepper(magneticField);
-  Propagator propagator(stepper);
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("PROP", m_log));
 
 #if Acts_VERSION_MAJOR >= 36
-  Propagator::template Options<> options(m_geoContext, m_fieldContext);
+  using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+#if Acts_VERSION_MAJOR >= 37
+  using PropagatorOptions = Propagator::template Options<
+      Acts::ActorList<Acts::MaterialInteractor, Acts::EndOfWorldReached>>;
 #else
-  Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext);
+  using PropagatorOptions = Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>,
+                                                         Acts::AbortList<Acts::EndOfWorldReached>>;
+#endif
+  Propagator propagator(
+      Acts::EigenStepper<>(magneticField),
+      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
+      logger().cloneWithSuffix("Propagator"));
+  PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
+#elif Acts_VERSION_MAJOR >= 34
+  Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> propagator(
+      Acts::EigenStepper<>(magneticField),
+      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
+      logger().cloneWithSuffix("Propagator"));
+  Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>,
+                          Acts::AbortList<Acts::EndOfWorldReached>>
+      propagationOptions(m_geoContext, m_fieldContext);
 #endif
 
-  auto result = propagator.propagate(initBoundParams, *targetSurf, options);
+  auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
 
   // check propagation result
   if (!result.ok()) {
