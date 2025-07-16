@@ -134,6 +134,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
             "BackwardMPGDEndcapRawHitAssociations",
             "ForwardMPGDEndcapRawHitAssociations",
 
+	    //Fake Bic
+            "FakeBICRecHits",
+            "FakeBICRawHits",
+            "FakeBICHits",
+            "FakeBICRawHitAssociations",
+
             // LOWQ2 hits
             "TaggerTrackerHits",
             "TaggerTrackerHitPulses",

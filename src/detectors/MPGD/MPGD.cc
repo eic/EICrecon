@@ -108,6 +108,21 @@ void InitPlugin(JApplication *app) {
             },
             app
         ));
+        app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+            "FakeBICRawHits",
+            {
+              "FakeBICHits"
+            },
+            {
+              "FakeBICRawHits",
+              "FakeBICRawHitAssociations"
+            },
+            {
+                .threshold = 100 * dd4hep::eV,
+                .timeResolution = 10,
+            },
+            app
+        ));
     }
     else {
         app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
@@ -126,6 +141,22 @@ void InitPlugin(JApplication *app) {
             },
             app
         ));
+       app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
+            "FakeBICRawHits",
+            {
+              "FakeBICHits"
+            },
+            {
+              "FakeBICRawHits",
+              "FakeBICRawHitAssociations"
+            },
+            {
+                .readout = "FakBICHits",
+                .threshold = 100 * dd4hep::eV,
+                .timeResolution = 10,
+            },
+            app
+        ));
     }
 
     // Convert raw digitized hits into hits with geometry info (ready for tracking)
@@ -133,6 +164,17 @@ void InitPlugin(JApplication *app) {
         "OuterMPGDBarrelRecHits",
         {"OuterMPGDBarrelRawHits"},     // Input data collection tags
         {"OuterMPGDBarrelRecHits"},     // Output data tag
+        {
+            .timeResolution = 10,
+        },
+        app
+    ));
+
+    // Convert raw digitized hits into hits with geometry info (ready for tracking)
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+         "FakeBICRecHits",
+        {"FakeBICRawHits"},     // Input data collection tags
+        {"FakeBICRecHits"},     // Output data tag
         {
             .timeResolution = 10,
         },

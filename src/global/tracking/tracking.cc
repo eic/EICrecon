@@ -57,9 +57,22 @@ void InitPlugin(JApplication *app) {
         {"OuterMPGDBarrelHits", "OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations", "OuterMPGDBarrelRecHits"},
         {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRawHits", "BackwardMPGDEndcapRawHitAssociations", "BackwardMPGDEndcapRecHits"},
         {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHitAssociations", "ForwardMPGDEndcapRecHits"},
+    };
+    /*
+    std::vector<std::tuple<std::string, std::string, std::string, std::string>> possible_collections = {
+        {"SiBarrelHits", "SiBarrelRawHits", "SiBarrelRawHitAssociations", "SiBarrelTrackerRecHits"},
+        {"VertexBarrelHits", "SiBarrelVertexRawHits", "SiBarrelVertexRawHitAssociations", "SiBarrelVertexRecHits"},
+        {"TrackerEndcapHits", "SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitAssociations", "SiEndcapTrackerRecHits"},
+        {"TOFBarrelHits", "TOFBarrelRawHits", "TOFBarrelRawHitAssociations", "TOFBarrelRecHits"},
+        {"TOFEndcapHits", "TOFEndcapRawHits", "TOFEndcapRawHitAssociations", "TOFEndcapRecHits"},
+        {"MPGDBarrelHits", "MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations", "MPGDBarrelRecHits"},
+        {"OuterMPGDBarrelHits", "OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations", "OuterMPGDBarrelRecHits"},
+        {"FakeBICHits", "FakeBICRawHits", "FakeBICRawHitAssociations", "FakeBICRecHits"},
+        {"BackwardMPGDEndcapHits", "BackwardMPGDEndcapRawHits", "BackwardMPGDEndcapRawHitAssociations", "BackwardMPGDEndcapRecHits"},
+        {"ForwardMPGDEndcapHits", "ForwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHitAssociations", "ForwardMPGDEndcapRecHits"},
         {"B0TrackerHits", "B0TrackerRawHits", "B0TrackerRawHitAssociations", "B0TrackerRecHits"}
     };
-
+    */
     // Filter out collections that are not present in the current configuration
     std::vector<std::string> input_rec_collections;
     std::vector<std::string> input_raw_assoc_collections;
