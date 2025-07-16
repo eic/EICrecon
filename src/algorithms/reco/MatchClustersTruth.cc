@@ -19,7 +19,7 @@
 #include <gsl/pointers>
 #include <map>
 
-#include "MatchClusters.h"
+#include "MatchClustersTruth.h"
 
 namespace eicrecon {
 
