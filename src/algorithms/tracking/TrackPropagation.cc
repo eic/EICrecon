@@ -25,7 +25,6 @@
 #endif
 #include <Acts/Propagator/Propagator.hpp>
 #if Acts_VERSION_MAJOR >= 36
-#include <Acts/Propagator/PropagatorOptions.hpp>
 #include <Acts/Propagator/PropagatorResult.hpp>
 #endif
 #if Acts_VERSION_MAJOR >= 34
