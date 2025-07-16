@@ -258,7 +258,7 @@ void CalorimeterHitReco::process(
             segmentation_type = segmentation->type();
         }
 
-        if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY") {
+        if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY" || segmentation_type== "CartesianGridXYStaggered") {
             auto cell_dim = m_converter->cellDimensions(cellID);
             cdim.resize(3);
             cdim[0] = cell_dim[0];

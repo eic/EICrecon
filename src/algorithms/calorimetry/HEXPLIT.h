@@ -47,21 +47,69 @@ using HEXPLITAlgorithm = algorithms::Algorithm<
     void process(const Input&, const Output&) const final;
 
   private:
+      typedef struct stagger_pattern{
+        int SUBCELLS;
+        int NEIGHBORS;
+        int OVERLAP;
+        std::vector<double> neighbor_offsets_x;
+        std::vector<double> neighbor_offsets_y;
+        std::vector<std::vector<int>> neighbor_indices;
+        std::vector<double>  subcell_offsets_x;
+        std::vector<double>  subcell_offsets_y;
+      } stagger_pattern;
+      
+      
       // number of subcells that a single cell is divided into
-      static const int SUBCELLS=12;
+      static const int SUBCELLS_H4=12;
       // number of neighboring positions whose overlap define the subcells
-      static const int NEIGHBORS=12;
+      static const int NEIGHBORS_H4=12;
       // number of neighboring cells that overlap to obtain a subcell
-      static const int OVERLAP=3;
+      static const int OVERLAP_H4=3;
   //positions where the overlapping cells are relative to a given cell (in units of hexagon side length)
-      static const std::vector<double> neighbor_offsets_x;
-      static const std::vector<double>  neighbor_offsets_y;
+      static const std::vector<double> neighbor_offsets_x_H4;
+      static const std::vector<double>  neighbor_offsets_y_H4;
       //indices of the neighboring cells which overlap to produce a given subcell
-      static const int neighbor_indices[SUBCELLS][OVERLAP];
+      static const std::vector<std::vector<int>> neighbor_indices_H4;
   //positions of the centers of subcells
-      static const std::vector<double>  subcell_offsets_x;
-      static const std::vector<double>  subcell_offsets_y;
+      static const std::vector<double>  subcell_offsets_x_H4;
+      static const std::vector<double>  subcell_offsets_y_H4;
 
+      const stagger_pattern stag_H4 = {
+        .SUBCELLS=SUBCELLS_H4,
+        .NEIGHBORS=NEIGHBORS_H4,
+        .neighbor_offsets_x=neighbor_offsets_x_H4,
+        .neighbor_offsets_y=neighbor_offsets_y_H4,
+        .neighbor_indices=neighbor_indices_H4,
+        .subcell_offsets_x=subcell_offsets_x_H4,
+        .subcell_offsets_y=subcell_offsets_y_H4,
+      };
+      
+      static const int SUBCELLS_S2=4;
+      // number of neighboring positions whose overlap define the subcells
+      static const int NEIGHBORS_S2=4;
+      // number of neighboring cells that overlap to obtain a subcell
+      static const int OVERLAP_S2=1;
+  //positions where the overlapping cells are relative to a given cell (in units of hexagon side length)
+      static const std::vector<double> neighbor_offsets_x_S2;
+      static const std::vector<double>  neighbor_offsets_y_S2;
+      //indices of the neighboring cells which overlap to produce a given subcell
+      static const std::vector<std::vector<int>> neighbor_indices_S2;
+  //positions of the centers of subcells
+      static const std::vector<double>  subcell_offsets_x_S2;
+      static const std::vector<double>  subcell_offsets_y_S2;
+
+      const stagger_pattern stag_S2 = {
+        .SUBCELLS=SUBCELLS_S2,
+        .NEIGHBORS=NEIGHBORS_S2,
+        .neighbor_offsets_x=neighbor_offsets_x_S2,
+        .neighbor_offsets_y=neighbor_offsets_y_S2,
+        .neighbor_indices=neighbor_indices_S2,
+        .subcell_offsets_x=subcell_offsets_x_S2,
+        .subcell_offsets_y=subcell_offsets_y_S2,
+      };
+      
+      stagger_pattern stag=stag_H4;
+      
   private:
     const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 

@@ -201,21 +201,22 @@ extern "C" {
             .Emin_in_MIPs=0.5,
             .delta_in_MIPs=0.01,
             .tmax=269 * dd4hep::ns,
+	    .stag_type=HEXPLITConfig::StaggerType::S2,
           },
           app   // TODO: Remove me once fixed
         ));
 
-        double side_length=31.3 * dd4hep::mm;
+        double side_length=47.8 * dd4hep::mm;
         app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
             "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCImagingProtoClusters"},
             {
                 .neighbourLayersRange = 1,
-                .localDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
-                .layerDistXY = {0.5*side_length, 0.5*side_length*sin(M_PI/3)},
+                .localDistXY = {0.75*side_length, 0.75*side_length},
+                .layerDistXY = {0.75*side_length, 0.75*side_length},
                 .layerMode=eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
                 .sectorDist = 10.0 * dd4hep::cm,
-                .minClusterHitEdep = 50.0 * dd4hep::keV,
-                .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+                .minClusterHitEdep = 235.0 * dd4hep::keV,
+                .minClusterCenterEdep = 18.8 * dd4hep::MeV,
                 .minClusterEdep = 11.0 * dd4hep::MeV,
                 .minClusterNhits = 30,
             },
