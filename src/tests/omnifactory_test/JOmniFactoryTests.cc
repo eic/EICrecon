@@ -1,5 +1,6 @@
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JFactorySet.h>
 #include <JANA/JMultifactory.h>
@@ -7,13 +8,13 @@
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <catch2/catch_test_macros.hpp>
-#include <cstdint>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <fmt/core.h>
+#include <spdlog/logger.h>
+#include <cstdint>
 #include <iostream>
 #include <map>
 #include <memory>
-#include <spdlog/logger.h>
 #include <string>
 #include <utility>
 #include <vector>
