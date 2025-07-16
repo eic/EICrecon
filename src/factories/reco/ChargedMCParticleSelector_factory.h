@@ -29,9 +29,6 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) { /* nothing to do */
-  }
-
   void Process(int32_t /* run_number */, int64_t /* event_number */) {
     m_algo->process({m_pars_in()}, {m_pars_out().get()});
   }

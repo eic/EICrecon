@@ -324,8 +324,6 @@ struct SubsetTestAlg : public JOmniFactory<SubsetTestAlg, BasicTestAlgConfig> {
 
   void Configure() {}
 
-  void ChangeRun(int32_t /* run_number */) override {}
-
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
 
@@ -390,7 +388,6 @@ struct VariadicOutputTestAlg : public JOmniFactory<VariadicOutputTestAlg, BasicT
   VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_hits_out{this};
 
   void Configure() {}
-  void ChangeRun(int32_t /* run_number */) override {}
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
@@ -443,8 +440,6 @@ struct OptionalPodioInputTestAlg
   PodioOutput<edm4hep::SimCalorimeterHit> m_right_hits_out{this};
 
   void Configure() {}
-
-  void ChangeRun(int32_t /* run_number */) override {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
 
@@ -527,8 +522,6 @@ struct OptionalVariadicPodioInputTestAlg
   PodioOutput<edm4hep::SimCalorimeterHit> m_hits_out{this};
 
   void Configure() {}
-
-  void ChangeRun(int32_t /* run_number */) override {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
 
