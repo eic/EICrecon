@@ -38,12 +38,12 @@ void InitPlugin(JApplication* app) {
       {
           "ReconstructedTruthSeededChargedWithFBPIDParticles",
           "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
-          "FarBackwardPhaseSpaceParticleIDs",
+          "FarBackwardTruthSeededPhaseSpacePIDParticleIDs",
       },
       phase_space_pid_cfg, app));
 
   app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
-      "LowQ2PhaseSpacePID",
+      "FarBackwardPhaseSpacePID",
       {
           "ReconstructedChargedWithoutPIDParticles",
           "ReconstructedChargedWithoutPIDParticleAssociations",
@@ -51,7 +51,7 @@ void InitPlugin(JApplication* app) {
       {
           "ReconstructedChargedWithFBPIDParticles",
           "ReconstructedChargedWithFBPIDParticleAssociations",
-          "PhaseSpaceParticleIDs",
+          "FarBackwardPhaseSpacePIDParticleIDs",
       },
       phase_space_pid_cfg, app));
 
