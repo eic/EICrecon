@@ -2,7 +2,7 @@
 // Copyright (C) 2022-2025 Christopher Dilks, Simon Gardner
 
 #include <JANA/JApplicationFwd.h>
-#include <math.h>
+#include <cmath>
 #include <memory>
 
 #include "algorithms/interfaces/WithPodConfig.h"
