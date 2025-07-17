@@ -3,7 +3,7 @@
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
@@ -22,10 +22,11 @@
 #include <string>
 #include <vector>
 
-#include "TrackPropagationTest_processor.h"
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
+#include "tests/track_propagation_test/TrackPropagationTest_processor.h"
 
 //------------------
 // Init
@@ -76,7 +77,8 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
   m_log->trace("TrackPropagationTest_processor event");
 
   // Get trajectories from tracking
-  auto trajectories = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
+  auto tracks       = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
+  auto trajectories = eicrecon::CreateTrajectories(*(tracks.front()));
 
   // Iterate over trajectories
   m_log->debug("Propagating through {} trajectories", trajectories.size());

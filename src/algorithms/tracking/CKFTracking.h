@@ -16,7 +16,6 @@
 #include <Acts/Utilities/Result.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <spdlog/logger.h>
@@ -79,8 +78,7 @@ public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
 
-  std::tuple<std::vector<ActsExamples::Trajectories*>,
-             std::vector<ActsExamples::ConstTrackContainer*>>
+  std::tuple<std::vector<ActsExamples::ConstTrackContainer*>>
   process(const edm4eic::TrackParametersCollection& init_trk_params,
           const edm4eic::Measurement2DCollection& meas2Ds);
 

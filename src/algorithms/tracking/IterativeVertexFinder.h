@@ -6,13 +6,13 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <edm4eic/VertexCollection.h>
+#include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <vector>
 
-#include "ActsExamples/EventData/Trajectories.hpp"
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "IterativeVertexFinderConfig.h"
@@ -25,7 +25,7 @@ public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
   std::unique_ptr<edm4eic::VertexCollection>
-  produce(std::vector<const ActsExamples::Trajectories*> trajectories,
+  produce(const std::vector<const ActsExamples::ConstTrackContainer*> tracks,
           const edm4eic::ReconstructedParticleCollection* reconParticles);
 
 private:

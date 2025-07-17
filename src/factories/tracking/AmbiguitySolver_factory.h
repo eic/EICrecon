@@ -2,6 +2,7 @@
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #pragma once
 
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 #include "algorithms/tracking/AmbiguitySolver.h"
 #include "algorithms/tracking/AmbiguitySolverConfig.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -25,7 +26,6 @@ private:
   Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
   Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output{this};
-  Output<ActsExamples::Trajectories> m_acts_trajectories_output{this};
 
   ParameterRef<std::uint32_t> m_maximumSharedHits{this, "maximumSharedHits",
                                                   config().maximum_shared_hits,
@@ -46,7 +46,7 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    std::tie(m_acts_tracks_output(), m_acts_trajectories_output()) =
+    std::tie(m_acts_tracks_output()) =
         m_algo->process(m_acts_tracks_input(), *m_measurements_input());
   }
 };

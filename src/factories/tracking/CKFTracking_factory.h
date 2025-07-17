@@ -29,7 +29,6 @@ private:
 
   PodioInput<edm4eic::TrackParameters> m_parameters_input{this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
-  Output<ActsExamples::Trajectories> m_acts_trajectories_output{this};
   Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output{this};
 
   ParameterRef<std::vector<double>> m_etaBins{this, "EtaBins", config().etaBins,
@@ -52,7 +51,7 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    std::tie(m_acts_trajectories_output(), m_acts_tracks_output()) =
+    std::tie(m_acts_tracks_output()) =
         m_algo->process(*m_parameters_input(), *m_measurements_input());
   }
 };

@@ -7,13 +7,13 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
 #include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <Acts/Utilities/detail/ContextType.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/IVertexFinder.hpp>
@@ -39,6 +39,7 @@
 #include <cmath>
 #include <utility>
 
+#include "algorithms/tracking/ActsTracksToTrajectoriesHelper.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
@@ -54,10 +55,12 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 }
 
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
-    std::vector<const ActsExamples::Trajectories*> trajectories,
+    const std::vector<const ActsExamples::ConstTrackContainer*> tracks,
     const edm4eic::ReconstructedParticleCollection* reconParticles) {
 
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
+
+  auto trajectories = CreateTrajectories(*(tracks.front()));
 
   using Propagator           = Acts::Propagator<Acts::EigenStepper<>>;
   using Linearizer           = Acts::HelicalTrackLinearizer;
@@ -113,15 +116,15 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   std::vector<Acts::InputTrack> inputTracks;
 
   for (const auto& trajectory : trajectories) {
-    auto tips = trajectory->tips();
+    auto tips = trajectory.tips();
     if (tips.empty()) {
       continue;
     }
     /// CKF can provide multiple track trajectories for a single input seed
     for (auto& tip : tips) {
-      ActsExamples::TrackParameters par = trajectory->trackParameters(tip);
+      ActsExamples::TrackParameters par = trajectory.trackParameters(tip);
 
-      inputTracks.emplace_back(&(trajectory->trackParameters(tip)));
+      inputTracks.emplace_back(&(trajectory.trackParameters(tip)));
       m_log->trace("Track local position at input = {} mm, {} mm",
                    par.localPosition().x() / Acts::UnitConstants::mm,
                    par.localPosition().y() / Acts::UnitConstants::mm);

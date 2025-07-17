@@ -4,8 +4,9 @@
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
@@ -22,6 +23,7 @@
 #include <boost/container/vector.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <map>
 #include <memory>
 #include <utility>
 

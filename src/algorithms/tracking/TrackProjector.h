@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -17,14 +17,14 @@
 namespace eicrecon {
 
 using TrackProjectorAlgorithm = algorithms::Algorithm<
-    algorithms::Input<std::vector<ActsExamples::Trajectories>, edm4eic::TrackCollection>,
+    algorithms::Input<std::vector<ActsExamples::ConstTrackContainer>, edm4eic::TrackCollection>,
     algorithms::Output<edm4eic::TrackSegmentCollection>>;
 
 class TrackProjector : public TrackProjectorAlgorithm {
 public:
   TrackProjector(std::string_view name)
       : TrackProjectorAlgorithm{name,
-                                {"inputActsTrajectories"},
+                                {"inputActsTracks"},
                                 {"outputTrackSegments"},
                                 "Exports track states as segments"} {}
 
