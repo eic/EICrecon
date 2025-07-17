@@ -31,10 +31,10 @@ private:
   ParameterRef<std::vector<float>> m_direction{
       this, "direction", config().direction,
       "Direction vector for the phase space (default is along z-axis)"};
-  ParameterRef<double> m_opening_angle{this, "opening_angle", config().opening_angle,
+  ParameterRef<double> m_opening_angle{this, "openingAngle", config().opening_angle,
                                        "Opening angle for the phase space in radians"};
   ParameterRef<int> m_pdg_value{
-      this, "pdg_value", config().pdg_value,
+      this, "pdgValue", config().pdg_value,
       "PDG value for the particle type to identify (default is electron)"};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
