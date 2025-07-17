@@ -20,10 +20,6 @@
 namespace eicrecon {
 
 void CalorimeterPulseGeneration::init() {
-  // Initialize seed.
-  // To make the algorithm reproducible, a fixed value was used for the seed.
-  m_gen.seed(5140);
-
   // Get pulse and related parameters
   m_pulse = PulseShapeFactory::createPulseShape(m_cfg.pulse_shape, m_cfg.pulse_shape_params);
   m_min_sampling_time = m_cfg.min_sampling_time;
@@ -46,126 +42,96 @@ void CalorimeterPulseGeneration::process(const CalorimeterPulseGeneration::Input
   const auto [simhits] = input;
   auto [simpulses]     = output;
 
-  // To build a pulse for a hit, this algorithm builds pulses for each
-  // contribution and combine them.
-  // If some contributions are separated from the others in time, they
-  // will be combined and stored separately.
+  // To build a pulse for a hit, this algorithm groups contributions
+  // that are close in time and builds pulse from each of them.
   for (const auto& sh : *simhits) {
     // Fill the contributions to be sorted by time
     std::vector<const edm4hep::CaloHitContribution*> contribs;
-                        for (const auto& contrib : sh.getContributions()) {
-                                contribs.push_back(&contrib);
-                        }
+    for (const auto& contrib : sh.getContributions()) {
+      contribs.push_back(&contrib);
+    }
 
     // Sort the contributions by time.
     std::sort(contribs.begin(), contribs.end(),
-                                        [](const auto* a, const auto* b) {
-                                        return a->getTime() < b->getTime();
-                                        });
+              [](const auto* a, const auto* b) { return a->getTime() < b->getTime(); });
 
     // Group the contributions that are close in time.
     std::vector<std::vector<const edm4hep::CaloHitContribution*>> contrib_clusters;
-                        for (const auto& contrib : contribs) {
-                                if(contrib_clusters.empty()) contrib_clusters.push_back({contrib});
-                                else{
-                                        const auto* last_contrib = contrib_clusters.back().back();
-                                        if(contrib->getTime() - last_contrib->getTime() < m_cfg.minimum_separation){
-                                                contrib_clusters.back().push_back(contrib);
-                                        }
-                                        else{
-                                                contrib_clusters.push_back({contrib});
-                                        }
-                                }
-                        }
+    for (const auto& contrib : contribs) {
+      if (contrib_clusters.empty())
+        contrib_clusters.push_back({contrib});
+      else {
+        const auto* last_contrib = contrib_clusters.back().back();
+        if (contrib->getTime() - last_contrib->getTime() < m_cfg.minimum_separation) {
+          contrib_clusters.back().push_back(contrib);
+        } else {
+          contrib_clusters.push_back({contrib});
+        }
+      }
+    }
 
     for (const auto& contribs : contrib_clusters) {
-      double earliest_time = contribs.front()->getTime();
+      double time = contribs.front()->getTime();
+      double pulse_height =
+          std::accumulate(contribs.begin(), contribs.end(), 0.0,
+                          [](double sum, const edm4hep::CaloHitContribution* contrib) {
+                            return sum + contrib->getEnergy();
+                          });
 
-      // A vector with a temporary size is created to accumulate the amplitudes.
-      std::vector<double> amplitudes(m_cfg.max_time_bin, 0.);
-
-      // After accumulating all the amplitudes, the vector size will be reduced
-      // so that only the amplitudes greater than m_ignore_thres are stored.
-      int min_time_bin_store = std::numeric_limits<int>::max();
-      int max_time_bin_store = 0;
-
-      // build pulses for each contribution and combine them.
-      for (const auto& contrib : contribs) {
-        double pulse_height = contrib->getEnergy();
-        double time         = contrib->getTime();
-
-        // convert energy deposit to npe and apply poisson smearing ** if necessary **
-        if (m_edep_to_npe) {
-          double npe = pulse_height * m_edep_to_npe.value();
-          std::poisson_distribution<> poisson(npe);
-          pulse_height = poisson(m_gen);
-        }
-
-        // if the pulse height is lower than m_ignore_thres, it is not necessary to scan
-	// the amplitudes
-        if ((*m_pulse)(m_pulse->getMaximumTime(), pulse_height) < m_ignore_thres)
-          continue;
-
-        bool passed_threshold = false;
-        int last_skip_bin     = 0;
-
-        for (std::uint32_t i = 0; i < m_cfg.max_time_bin; i++) {
-          double rel_time  = i * m_cfg.timestep;
-          double amplitude = (*m_pulse)(rel_time, pulse_height);
-
-          int abs_time_bin = i + std::round((time - earliest_time) / m_cfg.timestep);
-          // Increase the vector size if necessary
-          if (amplitudes.size() <= abs_time_bin)
-            amplitudes.resize(abs_time_bin + m_cfg.max_time_bin);
-
-          // to find the two indices where the pulse meets the m_ignore_thres
-          if (std::abs(amplitude) < m_ignore_thres) {
-            if (passed_threshold == false) {
-              last_skip_bin = i;
-              continue;
-            }
-            if (rel_time > m_min_sampling_time) {
-              max_time_bin_store = abs_time_bin;
-              break;
-            }
-          }
-
-          passed_threshold = true;
-          amplitudes[abs_time_bin] += pulse_height;
-        }
-
-        int pulse_time_bin_contrib =
-            last_skip_bin + std::round((time - earliest_time) / m_cfg.timestep);
-        min_time_bin_store = std::min(min_time_bin_store, pulse_time_bin_contrib);
+      // Convert energy deposit to npe and apply poisson smearing ** if necessary **
+      if (m_edep_to_npe) {
+        double npe = pulse_height * m_edep_to_npe.value();
+        std::poisson_distribution<> poisson(npe);
+        pulse_height = poisson(m_gen);
       }
 
-      // if all the pulse heights are lower than the m_ignore_thres,
-      // it is not necessary to store this hit.
-      if (max_time_bin_store == 0)
+      // If the pulse height is lower than m_ignore_thres, it is not necessary to scan it.
+      if ((*m_pulse)(m_pulse->getMaximumTime(), pulse_height) < m_ignore_thres)
         continue;
 
-      double pulse_time_hit = earliest_time + min_time_bin_store * m_cfg.timestep;
+      double signal_time = m_cfg.timestep * std::floor(time / m_cfg.timestep);
+
+      bool passed_threshold   = false;
+      std::uint32_t skip_bins = 0;
+      float integral          = 0;
+      std::vector<float> amplitudes;
+
+      // Build pulse and scanning the amplitudes.
+      for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
+        double t       = signal_time + i * m_cfg.timestep - time;
+        auto amplitude = (*m_pulse)(t, pulse_height);
+        if (std::abs(amplitude) < m_cfg.ignore_thres) {
+          if (!passed_threshold) {
+            skip_bins = i;
+            continue;
+          }
+          if (t > m_min_sampling_time) {
+            break;
+          }
+        }
+        passed_threshold = true;
+        amplitudes.push_back(amplitude);
+        integral += amplitude;
+      }
+
+      if (!passed_threshold) {
+        continue;
+      }
 
       auto pulse = simpulses->create();
       pulse.setCellID(sh.getCellID());
       pulse.setInterval(m_cfg.timestep);
-      pulse.setTime(pulse_time_hit);
+      pulse.setTime(signal_time + skip_bins * m_cfg.timestep);
 
-      // reduce the vertor size.
-      amplitudes.erase(amplitudes.begin() + max_time_bin_store, amplitudes.end());
-      amplitudes.erase(amplitudes.begin(), amplitudes.begin() + min_time_bin_store);
-
-      double integral = 0;
       for (const auto& amplitude : amplitudes) {
-        integral += amplitude;
         pulse.addToAmplitude(amplitude);
       }
 
-#if edm4eic_version_major > 8 || (edm4eic_version_major == 8 && edm4eic_version_minor >= 1)
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
       pulse.setIntegral(integral);
       pulse.setPosition(sh.getPosition());
-      pulse.addToCalorimeterhits(sh);
-      pulse.addtoparticles(sh.getContributions(0).getParticle());
+      pulse.addToCalorimeterHits(sh);
+      pulse.addToParticles(sh.getContributions(0).getParticle());
 #endif
     }
   }

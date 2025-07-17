@@ -21,7 +21,7 @@ struct CalorimeterPulseGenerationConfig {
   double timestep{0.2 * edm4eic::unit::ns};
   double min_sampling_time{0.0 * edm4eic::unit::ns};
   // maximal expected length of an afterpulse
-  uint32_t max_time_bin{10000};
+  uint32_t max_time_bins{10000};
   double ignore_thres{10};
   double minimum_separation{50 * edm4eic::unit::ns};
 };
