@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022-2025 Christopher Dilks, Simon Gardner
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <cmath>
 #include <memory>
