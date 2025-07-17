@@ -161,6 +161,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "TaggerTrackerTrackParameters",
     "TaggerTrackerTrackAssociations",
     "TaggerTrackerReconstructedParticles",
+    "FarBackwardTruthSeededPhaseSpacePIDParticleIDs",
+    "FarBackwardPhaseSpacePIDParticleIDs",
 
     // Forward & Far forward hits
     "B0TrackerTruthSeeds",
