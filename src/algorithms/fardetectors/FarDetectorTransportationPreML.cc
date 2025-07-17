@@ -24,7 +24,7 @@ void FarDetectorTransportationPreML::process(
     const FarDetectorTransportationPreML::Output& output) const {
 
   const auto [inputTracks, mcAssociation, beamElectrons] = input;
-  auto [feature_tensors, target_tensors]               = output;
+  auto [feature_tensors, target_tensors]                 = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
   std::call_once(m_initBeamE, [&]() {
@@ -40,7 +40,6 @@ void FarDetectorTransportationPreML::process(
     //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
     m_beamE = round(m_beamE);
   });
-  
 
   edm4eic::MutableTensor feature_tensor = feature_tensors->create();
   feature_tensor.addToShape(inputTracks->size());
@@ -69,16 +68,15 @@ void FarDetectorTransportationPreML::process(
     feature_tensor.addToFloatData(sin(trackphi) * sin(tracktheta)); // dirx
     feature_tensor.addToFloatData(cos(trackphi) * sin(tracktheta)); // diry
 
-    if (mcAssociation && mcAssociation->size()==inputTracks->size()) {
-        // Process the association if it exists and is non-empty
-        const auto& association = mcAssociation->at(i).getSim(); // Assuming 1-to-1 mapping
-        auto MCElectronMomentum = association.getMomentum() / m_beamE;
-        target_tensor.addToFloatData(MCElectronMomentum.x);
-        target_tensor.addToFloatData(MCElectronMomentum.y);
-        target_tensor.addToFloatData(MCElectronMomentum.z);
+    if (mcAssociation && mcAssociation->size() == inputTracks->size()) {
+      // Process the association if it exists and is non-empty
+      const auto& association = mcAssociation->at(i).getSim(); // Assuming 1-to-1 mapping
+      auto MCElectronMomentum = association.getMomentum() / m_beamE;
+      target_tensor.addToFloatData(MCElectronMomentum.x);
+      target_tensor.addToFloatData(MCElectronMomentum.y);
+      target_tensor.addToFloatData(MCElectronMomentum.z);
     }
   }
-
 }
 
 } // namespace eicrecon

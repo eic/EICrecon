@@ -20,7 +20,9 @@
 namespace eicrecon {
 
 using FarDetectorTransportationPostMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TensorCollection, std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>, std::optional<edm4hep::MCParticleCollection>>,
+    algorithms::Input<edm4eic::TensorCollection,
+                      std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
+                      std::optional<edm4hep::MCParticleCollection>>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
                        edm4eic::MCRecoParticleAssociationCollection>>;
 
@@ -32,8 +34,8 @@ public:
   FarDetectorTransportationPostML(std::string_view name)
       : FarDetectorTransportationPostMLAlgorithm{
             name,
-            {"inputPredictionsTensor","beamElectrons"},
-            {"outputParticles","outputAssociations"},
+            {"inputPredictionsTensor", "beamElectrons"},
+            {"outputParticles", "outputAssociations"},
             "Convert ML output tensor into reconstructed electron"} {}
 
   void init() final;

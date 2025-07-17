@@ -38,7 +38,6 @@ void FarDetectorTransportationPostML::process(
     //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
     m_beamE = round(m_beamE);
   });
-  
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
@@ -103,13 +102,12 @@ void FarDetectorTransportationPostML::process(
     //Check if both association collections are set and copy the MCParticle association
     if (track_associations && track_associations->size() > i / 3) {
       // Copy the association from the input to the output
-      auto association = track_associations->at(i / 3);
+      auto association     = track_associations->at(i / 3);
       auto out_association = out_associations->create();
       out_association.setSim(association.getSim());
       out_association.setRec(particle);
       out_association.setWeight(association.getWeight());
     }
-
   }
 
   // TODO: Implement the association of the reconstructed particles with the tracks
