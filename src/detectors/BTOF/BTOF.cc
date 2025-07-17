@@ -19,6 +19,8 @@
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/reco/LGADHitCalibration_factory.h"
+#include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
@@ -45,10 +47,27 @@ void InitPlugin(JApplication* app) {
       },
       app)); // Hit reco default config for factories
 
+  // Convert raw digitized hits into calibrated hits
+  // time walk correction is still TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
+      "TOFBarrelCalHits", {"TOFBarrelADCTDC"}, // Input data collection tags
+      {"TOFBarrelCalHits"},                    // Output data tag
+      {},
+      app)); // Hit reco default config for factories
+             //
+  // cluster all hits in a sensor into one hit location
+  // Currently it's just a simple weighted average
+  // More sophisticated algorithm TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
+      "TOFBarrelClusterHits", {"TOFBarrelCalHits"}, // Input data collection tags
+      {"TOFBarrelClusterHits"},                     // Output data tag
+      {},
+      app)); // Hit reco default config for factories
+
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
       {
-          .sigma_sharingx = 0.1 * dd4hep::cm,
+          .sigma_sharingx = 0.1 * dd4hep::mm,
           .sigma_sharingy = 0.5 * dd4hep::cm,
           .min_edep       = 0.0 * edm4eic::unit::GeV,
           .readout        = "TOFBarrelHits",
@@ -61,17 +80,17 @@ void InitPlugin(JApplication* app) {
   const double x_when_landau_min = -0.22278;
   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
   const double sigma_analog      = 0.293951 * edm4eic::unit::ns;
-  const double Vm                = 1e-4 * dd4hep::GeV;
+  const double Vm                = 3e-4 * dd4hep::GeV;
   const double adc_range         = 256;
   // gain is set such that pulse reaches a height of adc_range when EDep = Vm
   // gain is negative as LGAD voltage is always negative
-  const double gain = -adc_range / Vm / landau_min;
+  const double gain = -adc_range / Vm / landau_min * sigma_analog;
   const int offset  = 3;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
-      "LGADPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
+      "TOFBarrelPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
       {
           .pulse_shape_function = "LandauPulse",
-          .pulse_shape_params   = {gain, sigma_analog, offset * sigma_analog},
+          .pulse_shape_params   = {gain, sigma_analog, offset},
           .ignore_thres         = 0.05 * adc_range,
           .timestep             = 0.01 * edm4eic::unit::ns,
       },
@@ -86,7 +105,7 @@ void InitPlugin(JApplication* app) {
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
-      "SiliconPulseDiscretization", {"TOFBarrelCombinedPulses"}, {"TOFBarrelPulses"},
+      "TOFBarrelPulseDiscretization", {"TOFBarrelCombinedPulses"}, {"TOFBarrelPulses"},
       {
           .EICROC_period = 25 * edm4eic::unit::ns,
           .local_period  = 25 * edm4eic::unit::ns / 1024,
