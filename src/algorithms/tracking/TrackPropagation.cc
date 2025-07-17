@@ -16,7 +16,6 @@
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
 #else
-#include <Acts/Propagator/AbortList.hpp>
 #include <Acts/Propagator/ActionList.hpp>
 #endif
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -26,9 +25,6 @@
 #include <Acts/Propagator/Propagator.hpp>
 #if Acts_VERSION_MAJOR >= 36
 #include <Acts/Propagator/PropagatorResult.hpp>
-#endif
-#if Acts_VERSION_MAJOR >= 34
-#include <Acts/Propagator/StandardAborters.hpp>
 #endif
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
@@ -289,8 +285,8 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   using PropagatorOptions = Propagator::template Options<
       Acts::ActorList<Acts::MaterialInteractor, Acts::EndOfWorldReached>>;
 #else
-  using PropagatorOptions = Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>,
-                                                         Acts::AbortList<Acts::EndOfWorldReached>>;
+  using PropagatorOptions =
+      Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>>;
 #endif
   Propagator propagator(
       Acts::EigenStepper<>(magneticField),
@@ -302,9 +298,8 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
       Acts::EigenStepper<>(magneticField),
       Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
       logger().cloneWithSuffix("Propagator"));
-  Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>,
-                          Acts::AbortList<Acts::EndOfWorldReached>>
-      propagationOptions(m_geoContext, m_fieldContext);
+  Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>> propagationOptions(
+      m_geoContext, m_fieldContext);
 #endif
 
   auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
