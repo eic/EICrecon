@@ -21,25 +21,23 @@ void FarDetectorTransportationPostML::process(
     const FarDetectorTransportationPostML::Input& input,
     const FarDetectorTransportationPostML::Output& output) const {
 
-  const auto [prediction_tensors, beamElectrons] = input;
-  auto [out_particles]                           = output;
+  const auto [prediction_tensors, track_associations, beamElectrons] = input;
+  auto [out_particles, out_associations]                             = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
-  if (beamElectrons != nullptr) {
-    std::call_once(m_initBeamE, [&]() {
-      // Check if beam electrons are present
-      if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.NullDereference)
-        if (m_cfg.requireBeamElectron) {
-          critical("No beam electrons found");
-          throw std::runtime_error("No beam electrons found");
-        }
-        return;
+  std::call_once(m_initBeamE, [&]() {
+    // Check if beam electrons are present
+    if (!beamElectrons || beamElectrons->empty()) {
+      if (m_cfg.requireBeamElectron) {
+        critical("No beam electrons found");
+        throw std::runtime_error("No beam electrons found");
       }
-      m_beamE = beamElectrons->at(0).getEnergy();
-      //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
-      m_beamE = round(m_beamE);
-    });
-  }
+      return;
+    }
+    m_beamE = beamElectrons->at(0).getEnergy();
+    //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
+    m_beamE = round(m_beamE);
+  });
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
@@ -100,6 +98,16 @@ void FarDetectorTransportationPostML::process(
     particle.setCharge(-1);
     particle.setMass(0.000511);
     particle.setPDG(11);
+
+    //Check if both association collections are set and copy the MCParticle association
+    if (track_associations && track_associations->size() > i / 3) {
+      // Copy the association from the input to the output
+      auto association     = track_associations->at(i / 3);
+      auto out_association = out_associations->create();
+      out_association.setSim(association.getSim());
+      out_association.setRec(particle);
+      out_association.setWeight(association.getWeight());
+    }
   }
 
   // TODO: Implement the association of the reconstructed particles with the tracks
