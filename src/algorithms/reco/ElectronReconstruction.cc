@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2023 Daniel Brandenburg
+// Copyright (C) 2023 - 2025 Daniel Brandenburg, Wouter Deconinck
 #include "ElectronReconstruction.h"
 
 #include <edm4eic/ClusterCollection.h>
@@ -7,15 +7,16 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
+#include <gsl/pointers>
 
 #include "algorithms/reco/ElectronReconstructionConfig.h"
 
 namespace eicrecon {
 
-void ElectronReconstruction::init(std::shared_ptr<spdlog::logger> logger) { m_log = logger; }
+void ElectronReconstruction::process(const Input& input, const Output& output) const {
 
-std::unique_ptr<edm4eic::ReconstructedParticleCollection>
-ElectronReconstruction::execute(const edm4eic::ReconstructedParticleCollection* rcparts) {
+  const auto [rcparts] = input;
+  auto [out_electrons] = output;
 
   // Some obvious improvements:
   // - E/p cut from real study optimized for electron finding and hadron rejection
@@ -23,7 +24,6 @@ ElectronReconstruction::execute(const edm4eic::ReconstructedParticleCollection* 
   // - check for duplicates?
 
   // output container
-  auto out_electrons = std::make_unique<edm4eic::ReconstructedParticleCollection>();
   out_electrons
       ->setSubsetCollection(); // out_electrons is a subset of the ReconstructedParticles collection
 
@@ -39,15 +39,13 @@ ElectronReconstruction::execute(const edm4eic::ReconstructedParticleCollection* 
     double p      = edm4hep::utils::magnitude(particle.getMomentum());
     double EOverP = E / p;
 
-    m_log->trace(
-        "ReconstructedElectron: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", E, p,
-        EOverP, particle.getPDG());
+    trace("ReconstructedElectron: Energy={} GeV, p={} GeV, E/p = {} for PDG (from truth): {}", E, p,
+          EOverP, particle.getPDG());
     // Apply the E/p cut here to select electons
     if (EOverP >= m_cfg.min_energy_over_momentum && EOverP <= m_cfg.max_energy_over_momentum) {
       out_electrons->push_back(particle);
     }
   }
-  m_log->debug("Found {} electron candidates", out_electrons->size());
-  return out_electrons;
+  debug("Found {} electron candidates", out_electrons->size());
 }
 } // namespace eicrecon
