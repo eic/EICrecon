@@ -33,7 +33,7 @@ public:
                                      {"outputTrackParameters"},
                                      "create track seeds from truth information"} {}
 
-  void init() final{};
+  void init() final {};
 
   void process(const Input& input, const Output& output) const final;
 
