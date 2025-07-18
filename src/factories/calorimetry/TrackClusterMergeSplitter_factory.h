@@ -53,9 +53,6 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) { /* nothing to do here */
-  }
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_protoclusters_input(), m_track_projections_input()},
                     {m_protoclusters_output().get()});

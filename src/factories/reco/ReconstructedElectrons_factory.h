@@ -43,13 +43,6 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {
-    // This is called whenever the run number is changed.
-    // Use this callback to retrieve state that is keyed off of run number.
-    // This state should usually be managed by a Service.
-    // Note: You usually don't need this, because you can declare a Resource instead.
-  }
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     // This is called on every event.
     // Use this callback to call your Algorithm using all inputs and outputs
