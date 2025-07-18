@@ -16,6 +16,7 @@
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
 #else
+#include <Acts/Propagator/AbortList.hpp>
 #include <Acts/Propagator/ActionList.hpp>
 #endif
 #include <Acts/Propagator/EigenStepper.hpp>
