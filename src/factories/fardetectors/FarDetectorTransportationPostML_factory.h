@@ -26,6 +26,7 @@ private:
   PodioOutput<edm4eic::ReconstructedParticle> m_particle_output{this};
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_association_output{this};
 
+  ParameterRef<float> m_beamE{this, "beamE", config().beamE};
   ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron",
                                            config().requireBeamElectron};
 

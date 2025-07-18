@@ -26,6 +26,7 @@ private:
   PodioOutput<edm4eic::Tensor> m_feature_tensor_output{this};
   PodioOutput<edm4eic::Tensor> m_target_tensor_output{this};
 
+  ParameterRef<float> m_beamE{this, "beamE", config().beamE};
   ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron",
                                            config().requireBeamElectron};
 

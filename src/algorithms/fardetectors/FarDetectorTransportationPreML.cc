@@ -68,13 +68,25 @@ void FarDetectorTransportationPreML::process(
     feature_tensor.addToFloatData(sin(trackphi) * sin(tracktheta)); // dirx
     feature_tensor.addToFloatData(cos(trackphi) * sin(tracktheta)); // diry
 
-    if (mcAssociation && mcAssociation->size() == inputTracks->size()) {
-      // Process the association if it exists and is non-empty
-      const auto& association = mcAssociation->at(i).getSim(); // Assuming 1-to-1 mapping
-      auto MCElectronMomentum = association.getMomentum() / m_beamE;
-      target_tensor.addToFloatData(MCElectronMomentum.x);
-      target_tensor.addToFloatData(MCElectronMomentum.y);
-      target_tensor.addToFloatData(MCElectronMomentum.z);
+    if (mcAssociation && mcAssociation->size()>=1) {
+      //Loop through the MCRecoTrackParticleAssociationCollection finding the first one associated with the current track
+      for (const auto& assoc : *mcAssociation) {
+        if (assoc.getRec() == track) {
+          // Process the association if it exists and is non-empty
+          const auto& association = assoc.getSim(); // Assuming 1-to-1 mapping
+          auto MCElectronMomentum = association.getMomentum() / m_beamE;
+          target_tensor.addToFloatData(MCElectronMomentum.x);
+          target_tensor.addToFloatData(MCElectronMomentum.y);
+          target_tensor.addToFloatData(MCElectronMomentum.z);
+          break; // Exit loop after finding the first association
+        }
+      }
+    }
+    else {
+      // If no association is found, fill with zeros
+      target_tensor.addToFloatData(0.0f);
+      target_tensor.addToFloatData(0.0f);
+      target_tensor.addToFloatData(0.0f);
     }
   }
 }
