@@ -71,9 +71,9 @@ private:
 public:
   JEventProcessorJANATOP() : JEventProcessor() { SetTypeName("JEventProcessorJANATOP"); };
 
-  void Init() override{};
+  void Init() override {};
 
-  void BeginRun(const std::shared_ptr<const JEvent>& /* event */) override{};
+  void BeginRun(const std::shared_ptr<const JEvent>& /* event */) override {};
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
     // Get the call stack for ths event and add the results to our stats
@@ -131,7 +131,7 @@ public:
     }
   };
 
-  void EndRun() override{};
+  void EndRun() override {};
 
   void Finish() override {
     // In order to get the total time we have to first get a list of

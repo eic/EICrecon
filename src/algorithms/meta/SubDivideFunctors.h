@@ -12,7 +12,7 @@ namespace eicrecon {
 // ----------------------------------------------------------------------------
 template <auto MemberFunctionPtr> class RangeSplit {
 public:
-  RangeSplit(std::vector<std::pair<double, double>> ranges) : m_ranges(ranges){};
+  RangeSplit(std::vector<std::pair<double, double>> ranges) : m_ranges(ranges) {};
 
   template <typename T> std::vector<int> operator()(T& instance) const {
     std::vector<int> ids;
@@ -42,7 +42,7 @@ public:
       , m_readout(readout)
       , is_init(std::make_shared<std::once_flag>())
       , m_id_dec(std::make_shared<dd4hep::DDSegmentation::BitFieldCoder*>())
-      , m_div_ids(std::make_shared<std::vector<std::size_t>>()){};
+      , m_div_ids(std::make_shared<std::vector<std::size_t>>()) {};
 
   template <typename T> std::vector<int> operator()(T& instance) const {
 
@@ -87,7 +87,7 @@ private:
 // ----------------------------------------------------------------------------
 template <auto... MemberFunctionPtrs> class ValueSplit {
 public:
-  ValueSplit(std::vector<std::vector<int>> ids) : m_ids(ids){};
+  ValueSplit(std::vector<std::vector<int>> ids) : m_ids(ids) {};
 
   template <typename T> std::vector<int> operator()(T& instance) const {
     std::vector<int> ids;

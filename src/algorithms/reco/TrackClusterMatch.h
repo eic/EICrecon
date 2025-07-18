@@ -33,7 +33,7 @@ public:
       : TrackClusterMatchAlgorithm{
             name, {"inputTracks", "inputClusters"}, {"outputParticles"}, ""} {}
 
-  void init() final{};
+  void init() final {};
   void process(const Input&, const Output&) const final;
 };
 } // namespace eicrecon
