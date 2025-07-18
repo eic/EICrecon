@@ -135,17 +135,18 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
 
   // need list here for stable addresses
-  std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
 #if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
+  std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
   ActsExamples::IndexSourceLinkContainer src_links;
   src_links.reserve(meas2Ds.size());
-#endif
   std::size_t hit_index = 0;
+#endif
 
   for (const auto& meas2D : meas2Ds) {
 
     Acts::GeometryIdentifier geoId{meas2D.getSurface()};
 
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     // --follow example from ACTS to create source links
     sourceLinkStorage.emplace_back(geoId, hit_index);
     ActsExamples::IndexSourceLink& sourceLink = sourceLinkStorage.back();
@@ -153,7 +154,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     // index map and source link container are geometry-ordered.
     // since the input is also geometry-ordered, new items can
     // be added at the end.
-#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     src_links.insert(src_links.end(), sourceLink);
 #endif
     // ---
@@ -206,7 +206,9 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     measurements->emplace_back(std::move(measurement));
 #endif
 
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     hit_index++;
+#endif
   }
 
   ActsExamples::TrackParametersContainer acts_init_trk_params;
