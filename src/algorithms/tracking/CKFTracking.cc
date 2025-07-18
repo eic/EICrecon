@@ -4,12 +4,23 @@
 #include "CKFTracking.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/EventData/TrackStateProxy.hpp>
+#include <Acts/EventData/MeasurementHelpers.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/Types.hpp>
+#include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#if Acts_VERSION_MAJOR >= 39
+#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
+#endif
+#include <Acts/TrackFitting/detail/VoidFitterComponents.hpp>
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/Utilities/Iterator.hpp>
+#endif
+#include <Acts/Utilities/detail/ContextType.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
@@ -22,7 +33,6 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/Geometry/Layer.hpp>
 #if Acts_VERSION_MAJOR >= 34
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
@@ -69,13 +79,13 @@
 #include <Eigen/Geometry>
 #include <algorithm>
 #include <array>
-#include <cmath>
 #include <cstddef>
 #include <functional>
-#include <list>
 #include <optional>
 #include <ostream>
 #include <set>
+#include <stdexcept>
+#include <string>
 #include <system_error>
 #include <utility>
 
