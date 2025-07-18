@@ -6,38 +6,51 @@
 #include <string>
 #include <string_view>
 #include <algorithms/algorithm.h>
+#include <algorithms/interfaces/WithPodConfig.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 
+#include "algorithms/calorimetry/CalorimeterEoverPCutConfig.h"
+
 namespace eicrecon {
 
-using CalorimeterEoverPCutAlgorithmBase = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
-                      edm4eic::CalorimeterHitCollection>,
-    algorithms::Output<edm4hep::ParticleIDCollection>>;
+using CalorimeterEoverPCutAlgorithm = algorithms::Algorithm<
+  algorithms::Input<   edm4eic::ClusterCollection,
+                       edm4eic::TrackClusterMatchCollection,
+                       edm4eic::CalorimeterHitCollection >,
+  algorithms::Output<  edm4eic::ClusterCollection,
+                       edm4eic::TrackClusterMatchCollection,
+                       edm4hep::ParticleIDCollection    >
+>;
 
-class CalorimeterEoverPCut : public CalorimeterEoverPCutAlgorithmBase {
+class CalorimeterEoverPCut
+  : public CalorimeterEoverPCutAlgorithm
+  , public WithPodConfig<CalorimeterEoverPCutConfig>
+{
 public:
   CalorimeterEoverPCut(std::string_view name)
-      : CalorimeterEoverPCutAlgorithmBase{name,
-                                          {"inputClusters", "inputTrackClusterMatches",
-                                           "inputHits"},
-                                          {"outputPIDs"},
-                                          "E/P Cut with layer‐depth limit"}
-      , m_ecut(0.74)
-      , m_maxLayer(12) {}
+    : CalorimeterEoverPCutAlgorithm{
+        name,
+        { "inputClusters", "inputTrackClusterMatches", "inputHits" },
+        { "outputClusters","outputTrackClusterMatches","outputPIDs" },
+        "E/P Cut with layer‑depth limit"
+      }
+  {}
 
-  void init() final {} // nothing to do at run start
+  // Called by the factory before init()
+  void applyConfig(const CalorimeterEoverPCutConfig& cfg) {
+    m_ecut     = cfg.eOverPCut;
+    m_maxLayer = cfg.maxLayer;
+  }
+
+  void init()    final;
   void process(const Input& input, const Output& output) const final;
 
-  void setEcut(double e) { m_ecut = e; }
-  void setMaxLayer(int maxL) { m_maxLayer = maxL; }
-
 private:
-  double m_ecut;  // E/P threshold
-  int m_maxLayer; // integration depth
+  double m_ecut     = 0.0;
+  int    m_maxLayer = 0;
 };
 
 } // namespace eicrecon

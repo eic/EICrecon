@@ -11,48 +11,65 @@
 
 namespace eicrecon {
 
-void CalorimeterEoverPCut::process(const CalorimeterEoverPCut::Input& input,
-                                   const CalorimeterEoverPCut::Output& output) const {
-  // Unpack all pointers
-  const auto& [clusters_notnull, track_matches_notnull, hits_notnull] = input;
-  auto const& clusters                                                = *clusters_notnull;
-  auto const& track_matches                                           = *track_matches_notnull;
+void CalorimeterEoverPCut::process(const Input& input,
+                                   const Output& output) const 
+{
+  const auto& [clusters_notnull, matches_notnull, hits_notnull] = input;
+  auto const& clusters = *clusters_notnull;
+  auto const& matches  = *matches_notnull;
 
-  auto& [pid_coll_ptr] = output;
-  auto& pid_coll       = *pid_coll_ptr;
+  auto& [out_clusters_notnull, out_matches_notnull, out_pids_notnull] = output;
+  auto& out_clusters = *out_clusters_notnull;
+  auto& out_matches  = *out_matches_notnull;
+  auto& out_pids     = *out_pids_notnull;
 
-  for (auto const& cluster : clusters) {
+  for (auto const& in_cl : clusters) {
+    edm4eic::MutableCluster out_cl = in_cl.clone();
+    out_clusters.push_back(out_cl);
+
     double energyInDepth = 0.0;
-    for (auto const& hit : cluster.getHits()) {
-      int layer = hit.getLayer();
-      if (layer <= m_maxLayer) {
+    for (auto const& hit : in_cl.getHits()) {
+      if (hit.getLayer() <= m_maxLayer) {
         energyInDepth += hit.getEnergy();
       }
     }
 
-    bool found      = false;
-    auto best_match = edm4eic::TrackClusterMatch::makeEmpty();
-    for (auto const& match : track_matches) {
-      if (match.getCluster() == cluster &&
-          ((not best_match.isAvailable()) || (match.getWeight() > best_match.getWeight()))) {
-        found      = true;
-        best_match = match;
+    bool found_match = false;
+    edm4eic::TrackClusterMatch best_match =
+      edm4eic::TrackClusterMatch::makeEmpty();
+    for (auto const& m : matches) {
+      if (m.getCluster() == in_cl &&
+         (!found_match || m.getWeight() > best_match.getWeight())) {
+        best_match = m;
+        found_match = true;
       }
     }
-    if (!found) {
-      warning("Can't find a match for the cluster. Skipping...");
+    if (!found_match) {
+      warning("No TrackClusterMatch for this cluster; skipping PID.");
       continue;
     }
 
-    double ptrack = edm4hep::utils::magnitude(best_match.getTrack().getMomentum());
-    double ep     = (ptrack > 0 ? energyInDepth / ptrack : 0.0);
+    for (auto const& m : matches) {
+      if (m.getCluster() == in_cl) {
+        auto out_m = m.clone();
+        out_m.setCluster(out_cl);
+        out_matches.push_back(out_m);
+      }
+    }
+
+    double ptrack = edm4hep::utils::magnitude(
+                      best_match.getTrack().getMomentum());
+    double ep     = (ptrack > 0.0 ? energyInDepth/ptrack : 0.0);
 
     if (ep > m_ecut) {
-      auto pid = pid_coll.create();
-      pid.setType(0);
-      pid.setPDG(11);
-      pid.setAlgorithmType(0);
-      pid.setLikelihood(ep);
+      out_cl.addToParticleIDs(
+        out_pids.create(
+          /* type= */ 0,
+          /* PDG=  */ 11,
+          /* algo= */ 0,
+          /* like= */ static_cast<float>(ep)
+        )
+      );
     }
   }
 }
