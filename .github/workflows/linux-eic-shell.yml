@@ -296,7 +296,7 @@ jobs:
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
     - run: sudo apt-get update
-    - run: sudo apt-get install -y llvm-15 jq
+    - run: sudo apt-get install -y llvm-18 jq
     - name: llvm-cov
       run: |
         cd build
@@ -308,10 +308,10 @@ jobs:
           LIB_NAME="$(basename ${LIB_PATH%%.so})"
           LIB_NAME="${LIB_NAME##lib}"
           LIB_PATHS+=("$LIB_PATH")
-          llvm-cov-15 report $LIB_PATH \
+          llvm-cov-18 report $LIB_PATH \
             -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
             "${COV_OPTIONS[@]}"
-          COV_PERCENT=$(llvm-cov-15 export $LIB_PATH \
+          COV_PERCENT=$(llvm-cov-18 export $LIB_PATH \
             -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
             "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n")
           if [ "${{ github.event.pull_request.head.repo.full_name }}" = "${{ github.repository }}" ]; then
@@ -329,7 +329,7 @@ jobs:
             echo 'PR submitted from a fork. Skipping posting the "Code coverage ('$LIB_NAME') - '$COV_PERCENT'%" status.'
           fi
         done
-        llvm-cov-15 show "${LIB_PATHS[@]/#/--object=}" \
+        llvm-cov-18 show "${LIB_PATHS[@]/#/--object=}" \
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
           -output-dir=codecov_report -format=html \
           "${COV_OPTIONS[@]}"
