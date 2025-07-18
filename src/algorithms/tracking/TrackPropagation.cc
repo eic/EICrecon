@@ -284,7 +284,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
 #if Acts_VERSION_MAJOR >= 37
   using PropagatorOptions = Propagator::template Options<
-      Acts::ActorList<Acts::MaterialInteractor, Acts::EndOfWorldReached>>;
+      Acts::ActorList<Acts::MaterialInteractor>>;
 #else
   using PropagatorOptions =
       Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>>;
