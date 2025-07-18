@@ -7,7 +7,7 @@ namespace eicrecon {
 
 struct CalorimeterEoverPCutConfig {
   double eOverPCut = 0.74;
-  int    maxLayer   = 12;
+  int maxLayer     = 12;
 };
 
 } // namespace eicrecon

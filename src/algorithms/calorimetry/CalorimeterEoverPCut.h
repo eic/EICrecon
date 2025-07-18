@@ -17,27 +17,19 @@
 namespace eicrecon {
 
 using CalorimeterEoverPCutAlgorithm = algorithms::Algorithm<
-  algorithms::Input<   edm4eic::ClusterCollection,
-                       edm4eic::TrackClusterMatchCollection,
-                       edm4eic::CalorimeterHitCollection >,
-  algorithms::Output<  edm4eic::ClusterCollection,
-                       edm4eic::TrackClusterMatchCollection,
-                       edm4hep::ParticleIDCollection    >
->;
+    algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
+                      edm4eic::CalorimeterHitCollection>,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
+                       edm4hep::ParticleIDCollection>>;
 
-class CalorimeterEoverPCut
-  : public CalorimeterEoverPCutAlgorithm
-  , public WithPodConfig<CalorimeterEoverPCutConfig>
-{
+class CalorimeterEoverPCut : public CalorimeterEoverPCutAlgorithm,
+                             public WithPodConfig<CalorimeterEoverPCutConfig> {
 public:
   CalorimeterEoverPCut(std::string_view name)
-    : CalorimeterEoverPCutAlgorithm{
-        name,
-        { "inputClusters", "inputTrackClusterMatches", "inputHits" },
-        { "outputClusters","outputTrackClusterMatches","outputPIDs" },
-        "E/P Cut with layer‑depth limit"
-      }
-  {}
+      : CalorimeterEoverPCutAlgorithm{name,
+                                      {"inputClusters", "inputTrackClusterMatches", "inputHits"},
+                                      {"outputClusters", "outputTrackClusterMatches", "outputPIDs"},
+                                      "E/P Cut with layer‑depth limit"} {}
 
   // Called by the factory before init()
   void applyConfig(const CalorimeterEoverPCutConfig& cfg) {
@@ -45,12 +37,12 @@ public:
     m_maxLayer = cfg.maxLayer;
   }
 
-  void init()    final;
+  void init() final;
   void process(const Input& input, const Output& output) const final;
 
 private:
-  double m_ecut     = 0.0;
-  int    m_maxLayer = 0;
+  double m_ecut  = 0.0;
+  int m_maxLayer = 0;
 };
 
 } // namespace eicrecon

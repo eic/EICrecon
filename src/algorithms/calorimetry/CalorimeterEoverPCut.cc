@@ -11,17 +11,15 @@
 
 namespace eicrecon {
 
-void CalorimeterEoverPCut::process(const Input& input,
-                                   const Output& output) const 
-{
+void CalorimeterEoverPCut::process(const Input& input, const Output& output) const {
   const auto& [clusters_notnull, matches_notnull, hits_notnull] = input;
-  auto const& clusters = *clusters_notnull;
-  auto const& matches  = *matches_notnull;
+  auto const& clusters                                          = *clusters_notnull;
+  auto const& matches                                           = *matches_notnull;
 
   auto& [out_clusters_notnull, out_matches_notnull, out_pids_notnull] = output;
-  auto& out_clusters = *out_clusters_notnull;
-  auto& out_matches  = *out_matches_notnull;
-  auto& out_pids     = *out_pids_notnull;
+  auto& out_clusters                                                  = *out_clusters_notnull;
+  auto& out_matches                                                   = *out_matches_notnull;
+  auto& out_pids                                                      = *out_pids_notnull;
 
   for (auto const& in_cl : clusters) {
     edm4eic::MutableCluster out_cl = in_cl.clone();
@@ -34,13 +32,11 @@ void CalorimeterEoverPCut::process(const Input& input,
       }
     }
 
-    bool found_match = false;
-    edm4eic::TrackClusterMatch best_match =
-      edm4eic::TrackClusterMatch::makeEmpty();
+    bool found_match                      = false;
+    edm4eic::TrackClusterMatch best_match = edm4eic::TrackClusterMatch::makeEmpty();
     for (auto const& m : matches) {
-      if (m.getCluster() == in_cl &&
-         (!found_match || m.getWeight() > best_match.getWeight())) {
-        best_match = m;
+      if (m.getCluster() == in_cl && (!found_match || m.getWeight() > best_match.getWeight())) {
+        best_match  = m;
         found_match = true;
       }
     }
@@ -57,19 +53,15 @@ void CalorimeterEoverPCut::process(const Input& input,
       }
     }
 
-    double ptrack = edm4hep::utils::magnitude(
-                      best_match.getTrack().getMomentum());
-    double ep     = (ptrack > 0.0 ? energyInDepth/ptrack : 0.0);
+    double ptrack = edm4hep::utils::magnitude(best_match.getTrack().getMomentum());
+    double ep     = (ptrack > 0.0 ? energyInDepth / ptrack : 0.0);
 
     if (ep > m_ecut) {
-      out_cl.addToParticleIDs(
-        out_pids.create(
+      out_cl.addToParticleIDs(out_pids.create(
           /* type= */ 0,
           /* PDG=  */ 11,
           /* algo= */ 0,
-          /* like= */ static_cast<float>(ep)
-        )
-      );
+          /* like= */ static_cast<float>(ep)));
     }
   }
 }
