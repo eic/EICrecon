@@ -32,7 +32,7 @@ void InitPlugin(JApplication* app) {
         "NoisySiEndcapTrackerRawHits",              // 1. The name of the plugin instance
         {"SiEndcapTrackerRawHits"},        // 2. The input collection tag
         {"NoisySiEndcapTrackerRawHits"},   // 3. The output collection tag
-        {.addNoise = true, .n_noise_hits_per_system = 100, .readout_name = "TrackerEndcapHits"},                         // 4. Use default config from your .yaml file
+        {.addNoise = true, .n_noise_hits_per_system = 11820, .readout_name = "TrackerEndcapHits"},                         // 4. Use default config from your .yaml file
         app));
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(

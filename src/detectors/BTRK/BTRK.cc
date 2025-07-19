@@ -31,7 +31,7 @@ void InitPlugin(JApplication* app) {
         "NoisySiBarrelRawHits",              // 1. The name of the plugin instance
         {"SiBarrelRawHits"},        // 2. The input collection tag
         {"NoisySiBarrelRawHits"},   // 3. The output collection tag
-        {.addNoise = true, .n_noise_hits_per_system = 100, .readout_name = "SiBarrelHits"},                         // 4. Use default config from your .yaml file
+        {.addNoise = true, .n_noise_hits_per_system = 3784, .readout_name = "SiBarrelHits"},                         // 4. Use default config from your .yaml file
         app));
                          
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
