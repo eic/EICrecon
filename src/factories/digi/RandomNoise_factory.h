@@ -32,6 +32,9 @@ private:
     // Output collection of raw tracker hits with noise added.
     PodioOutput<edm4eic::RawTrackerHit> m_out_hits{this};
 
+    ParameterRef<bool> m_addNoise{this, "addNoise", config().addNoise};
+    ParameterRef<int> m_n_noise_hits_per_system{this, "n_noise_hits_per_system", config().n_noise_hits_per_system};
+    ParameterRef<std::string> m_readout_name{this, "readout_name", config().readout_name};
     // Service for accessing detector geometry information.
     Service<DD4hep_service> m_geoSvc{this};
 
@@ -41,10 +44,12 @@ public:
         m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
         m_algo->applyConfig(config());
         m_algo->init(m_geoSvc().detector());
+        if (!m_in_hits.collection_names.empty()) {
+            m_algo->setInputCollectionName(m_in_hits.collection_names[0]);
+        }
     }
 
     void Process(int32_t, uint64_t) {
-        std::cout<<"RANDOM NOISE INJECTION ONNNNNN"<<std::endl;
         m_algo->process({m_in_hits()}, {m_out_hits().get()});
     }
 };

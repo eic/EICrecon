@@ -19,6 +19,8 @@ struct RandomNoiseConfig {
   // This will be used as the mean for a Poisson distribution.
   int n_noise_hits_per_system = 100;
 
+  std::string readout_name="VertexBarrelHits";
+
   // A vector of pairs to specify target layers for noise injection.
   // Each pair consists of a SubdetectorRegion and a layer index (int).
   std::vector<std::pair<SubdetectorRegion, int>> target_layers = {
