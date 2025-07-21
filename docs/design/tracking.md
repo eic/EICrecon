@@ -290,7 +290,7 @@ flowchart TB
     ActsToTracks --> CentralCKFTruthSeededTracks:::col
     ActsToTracks --> CentralCKFTruthSeededTrajectories:::col
     ActsToTracks --> CentralCKFTruthSeededTrackParameters:::col
-    ActsToTracks --> CentralCKFTruthSeededTrackAssociations:::col 
+    ActsToTracks --> CentralCKFTruthSeededTrackAssociations:::col
 
   end
 
@@ -314,7 +314,7 @@ In progress...
 - CentralCKFTrajectories ([edm4eic::Trajectory](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L453-L471)) -- Track quality information and link to track parameters
 - CentralCKFTrackParameters ([edm4eic::TrackParameters](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L438-L450)] -- Reconstructed track parameters
 - CentralCKFTrackAssociations ([edm4eic::MCRecoTrackParticleAssociation](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L555-L564)) -- Hit-based association between reconstructed track and MCParticle
-- ReconstructedChargedParticles ([edm4eic::ReconstructedParticle](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L231-L263)) -- Reconstructed particle based on reconstructed track 
+- ReconstructedChargedParticles ([edm4eic::ReconstructedParticle](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L231-L263)) -- Reconstructed particle based on reconstructed track
 - ReconstructedChargedParticleAssociations ([edm4eic::MCRecoParticleAssociation](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L533-L542)) -- Copy of CentralCKFTrackAssociations to associate ReconstructedChargedParticle and MCParticle
 - CentralTrackSegments ([edm4eic::TrackSegment](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L473-L482)) -- Track segment with link to track information at various tracking detector layers ([edm4eic::TrackPoint](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L159-L174))
 - CentralTrackVertices ([edm4eic::Vertex](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L159-L174)) -- Reconstructed primary vertex (vertices)
