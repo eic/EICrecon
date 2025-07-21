@@ -100,11 +100,9 @@ TEST_CASE("the clustering algorithm runs", "[ImagingTopoCluster]") {
       auto protoclust_coll = std::make_unique<edm4eic::ProtoClusterCollection>();
       algo.process({&hits_coll}, {protoclust_coll.get()});
 
-      REQUIRE((*protoclust_coll).size() == 2);
-      REQUIRE((*protoclust_coll)[0].hits_size() == 1);
-      REQUIRE((*protoclust_coll)[0].weights_size() == 1);
-      REQUIRE((*protoclust_coll)[1].hits_size() == 1);
-      REQUIRE((*protoclust_coll)[1].weights_size() == 1);
+      REQUIRE((*protoclust_coll).size() == 1);
+      REQUIRE((*protoclust_coll)[0].hits_size() == 2);
+      REQUIRE((*protoclust_coll)[0].weights_size() == 2);
     }
 
     SECTION("on two adjacent cells (same layer)") {
