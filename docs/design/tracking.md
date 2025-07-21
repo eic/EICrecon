@@ -18,10 +18,11 @@ flowchart TB
   CKFTracking --> ActsTracksUnsolved(<strong> Reconstructed tracks):::col
 
   ActsTracksUnsolved --> AmbiguitySolver(<strong> Track ambiguity resolution):::alg
-  AmbiguitySolver --> ActsTracks(<strong> Final solved tracks):::col
 
-  ActsTracks --> TypeConverter(<strong> Conversion of tracks<br/> to PODIO data type):::alg
-  TypeConverter --> ReconstructedTracks(<strong> Reconstructed tracks<br/> in PODIO format):::col
+  %% AmbiguitySolver --> ActsTracks(<strong> Final solved tracks):::col
+  %% ActsTracks --> TypeConverter(<strong> Conversion of tracks<br/> to PODIO data type):::alg
+  %% TypeConverter --> ReconstructedTracks(<strong> Reconstructed tracks<br/> in PODIO format):::col
+  AmbiguitySolver --> ReconstructedTracks(<strong> Final Solved Tracks):::col
 
   ReconstructedTracks --> TrackProjector(<strong> Save predicted track states<br/> at each tracking layer):::alg
   TrackProjector --> TrackStates(<strong> Track parameters<br/> at each tracking layer):::col
@@ -320,4 +321,5 @@ In progress...
 - CalorimeterTrackProjections ([edm4eic::TrackSegment](https://github.com/eic/EDM4eic/blob/v8.2.0/edm4eic.yaml#L473-L482)) -- Track projection at calorimeter detectors
 
 ## Acts information
-- [ACTS flags](flags/acts.md ':include')
+- [Instructions for creating Acts Material Map](https://github.com/eic/epic/tree/main/scripts/material_map#material-map-for-acts)
+- [Acts flags](flags/acts.md ':include')
