@@ -190,7 +190,8 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
   int ldiff = std::abs(h1.getLayer() - h2.getLayer());
   // same layer, check local positions
   if (ldiff == 0) {
-    auto phi = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) + edm4hep::utils::angleAzimuthal(h2.getPosition()));
+    auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
+                      edm4hep::utils::angleAzimuthal(h2.getPosition()));
     auto h1_t = (h1.getPosition().x * sin(phi) - h1.getPosition().y * cos(phi));
     auto h2_t = (h2.getPosition().x * sin(phi) - h2.getPosition().y * cos(phi));
     return (std::abs(h1_t - h2_t) <= localDistXY[0]) &&
