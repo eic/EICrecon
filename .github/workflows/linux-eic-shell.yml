@@ -301,7 +301,7 @@ jobs:
       run: |
         cd build
         COV_OPTIONS=('--ignore-filename-regex=usr/local/include/eigen3.+')
-        llvm-profdata-15 merge -sparse src/tests/algorithms_test/algorithms_test.profraw \
+        llvm-profdata-18 merge -sparse src/tests/algorithms_test/algorithms_test.profraw \
           -o src/tests/algorithms_test/algorithms_test.profdata
         LIB_PATHS=()
         for LIB_PATH in $(find src/ -type f -name "libalgorithms_*.so"); do
