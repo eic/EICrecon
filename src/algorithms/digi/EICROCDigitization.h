@@ -27,7 +27,7 @@ class EICROCDigitization : public EICROCDigitizationAlgorithm,
 public:
   EICROCDigitization(std::string_view name)
       : EICROCDigitizationAlgorithm{name, {"EICROC"}, {"ADCTDCOutput"}, {}} {}
-  void init(){};
+  void init() {};
   void process(const Input&, const Output&) const final;
 };
 

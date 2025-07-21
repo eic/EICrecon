@@ -296,22 +296,22 @@ jobs:
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
     - run: sudo apt-get update
-    - run: sudo apt-get install -y llvm-15 jq
+    - run: sudo apt-get install -y llvm-19 jq
     - name: llvm-cov
       run: |
         cd build
         COV_OPTIONS=('--ignore-filename-regex=usr/local/include/eigen3.+')
-        llvm-profdata-15 merge -sparse src/tests/algorithms_test/algorithms_test.profraw \
+        llvm-profdata-19 merge -sparse src/tests/algorithms_test/algorithms_test.profraw \
           -o src/tests/algorithms_test/algorithms_test.profdata
         LIB_PATHS=()
         for LIB_PATH in $(find src/ -type f -name "libalgorithms_*.so"); do
           LIB_NAME="$(basename ${LIB_PATH%%.so})"
           LIB_NAME="${LIB_NAME##lib}"
           LIB_PATHS+=("$LIB_PATH")
-          llvm-cov-15 report $LIB_PATH \
+          llvm-cov-19 report $LIB_PATH \
             -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
             "${COV_OPTIONS[@]}"
-          COV_PERCENT=$(llvm-cov-15 export $LIB_PATH \
+          COV_PERCENT=$(llvm-cov-19 export $LIB_PATH \
             -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
             "${COV_OPTIONS[@]}" | jq '.data | map(.totals.regions.percent) | .[]' | xargs printf "%.1f\n")
           if [ "${{ github.event.pull_request.head.repo.full_name }}" = "${{ github.repository }}" ]; then
@@ -329,7 +329,7 @@ jobs:
             echo 'PR submitted from a fork. Skipping posting the "Code coverage ('$LIB_NAME') - '$COV_PERCENT'%" status.'
           fi
         done
-        llvm-cov-15 show "${LIB_PATHS[@]/#/--object=}" \
+        llvm-cov-19 show "${LIB_PATHS[@]/#/--object=}" \
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
           -output-dir=codecov_report -format=html \
           "${COV_OPTIONS[@]}"
