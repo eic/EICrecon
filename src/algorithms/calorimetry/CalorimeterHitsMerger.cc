@@ -88,7 +88,7 @@ void CalorimeterHitsMerger::init() {
 
   // loop through provided readout fields
   auto& svc = algorithms::ServiceSvc::instance();
-  for (std::size_t iField = 0; std::string & field : fields) {
+  for (std::size_t iField = 0; std::string& field : fields) {
 
     // grab provided transformation and field
     const std::string field_transform = transforms.at(iField);
