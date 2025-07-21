@@ -149,7 +149,7 @@ dd4hep::Position richgeo::ReadoutGeo::GetSensorLocalPosition(CellIDType cellID,
   // convert sensor position to global position (cf. `CellIDPositionConverter::positionNominal()`)
   const auto& volToElement = context->toElement();
   volToElement.LocalToMaster(static_cast<const Double_t*>(xyz_l), static_cast<Double_t*>(xyz_e));
-  const auto& elementToGlobal = sensor_elem.nominal().worldTransformation();
+  const auto elementToGlobal = sensor_elem.nominal().worldTransformation();
   elementToGlobal.LocalToMaster(static_cast<const Double_t*>(xyz_e), static_cast<Double_t*>(xyz_g));
   dd4hep::Position pos_sensor;
   pos_sensor.SetCoordinates(static_cast<const Double_t*>(xyz_g));
