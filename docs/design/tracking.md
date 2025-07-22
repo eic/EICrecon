@@ -1,5 +1,9 @@
 # Tracking
 
+## Legend for workflow diagrams
+- Blue boxes - data collection
+- Orange boxes - factory / algorithm
+
 ## Conceptual diagram for track reconstruction
 ```mermaid
 flowchart TB
@@ -298,10 +302,6 @@ flowchart TB
 
 ## Full diagram for B0 track reconstruction
 In progress...
-
-## Legend for above graphs
-- Orange boxes - factory / algorithm
-- Blue boxes - data collection
 
 ## Description of collections
 - MCParticles ([edm4hep::MCParticle](https://github.com/key4hep/EDM4hep/blob/v00-99-02/edm4hep.yaml#L230-L258)) -- Monte Carlo particle
