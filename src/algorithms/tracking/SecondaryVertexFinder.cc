@@ -192,7 +192,6 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
 
     for (const auto& t : vtx.tracks()) {
       const auto& par = vertexfinderConfigSec.extractParameters(t.originalParams);
-      auto& origpar = t.originalParams;
       m_log->trace("Track local position from vertex = {} mm, {} mm",
                    par.localPosition().x() / Acts::UnitConstants::mm,
                    par.localPosition().y() / Acts::UnitConstants::mm);
