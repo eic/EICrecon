@@ -19,15 +19,15 @@
 
 namespace eicrecon {
 
-static constexpr int   kNLAYERS = 12;
-static constexpr int   kNHITS   = 50;
-static constexpr int   kNFEAT   = 5;
-static constexpr float R0_MIN   = 500.f;
-static constexpr float R0_MAX   = 2000.f;
-static constexpr float ETA_MIN  = -0.3f;
-static constexpr float ETA_MAX  =  0.3f;
-static constexpr float PHI_MIN  = -0.4f;
-static constexpr float PHI_MAX  =  0.4f;
+static constexpr int kNLAYERS  = 12;
+static constexpr int kNHITS    = 50;
+static constexpr int kNFEAT    = 5;
+static constexpr float R0_MIN  = 500.f;
+static constexpr float R0_MAX  = 2000.f;
+static constexpr float ETA_MIN = -0.3f;
+static constexpr float ETA_MAX = 0.3f;
+static constexpr float PHI_MIN = -0.4f;
+static constexpr float PHI_MAX = 0.4f;
 
 void CalorimeterParticleIDPreML::init() {
   // Nothing
@@ -36,27 +36,26 @@ void CalorimeterParticleIDPreML::init() {
 void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input& input,
                                          const CalorimeterParticleIDPreML::Output& output) const {
 
-  const auto [clusters, cluster_assocs, ep_pids]  = input;
-  auto [feature_tensors, target_tensors] = output;
+  const auto [clusters, cluster_assocs, ep_pids] = input;
+  auto [feature_tensors, target_tensors]         = output;
 
   // decide which clusters to build features for:
   std::vector<edm4eic::Cluster> sel_clusters;
   if (!ep_pids || ep_pids->empty()) {
     // no E/P PID stage → use all clusters
     sel_clusters.reserve(clusters->size());
-    for (auto const &cl: *clusters) {
+    for (auto const& cl : *clusters) {
       sel_clusters.push_back(cl);
     }
-  }
-  else {
-  sel_clusters.reserve(clusters->size());
-  for (auto const &cl : *clusters) {
-    auto const &pids = cl.getParticleIDs();
-    if (!pids.empty() && pids[0].getPDG() == 11) {
-      sel_clusters.push_back(cl);
+  } else {
+    sel_clusters.reserve(clusters->size());
+    for (auto const& cl : *clusters) {
+      auto const& pids = cl.getParticleIDs();
+      if (!pids.empty() && pids[0].getPDG() == 11) {
+        sel_clusters.push_back(cl);
+      }
     }
   }
-}
   if (!ep_pids || ep_pids->empty()) {
     edm4eic::MutableTensor feature_tensor = feature_tensors->create();
     //feature_tensor.addToShape(clusters->size());
@@ -73,7 +72,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
       target_tensor.setElementType(7); // 7 - int64
     }
 
-    for (auto const &cluster : sel_clusters) {
+    for (auto const& cluster : sel_clusters) {
       double momentum = NAN;
       {
         // FIXME: use track momentum once matching to tracks becomes available
@@ -137,18 +136,21 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   ft.addToShape(sel_clusters.size());
   ft.addToShape(kNLAYERS);
   ft.addToShape(kNHITS);
-  ft.addToShape(kNFEAT);   // 5 canaux : eh, r0, η, φ, lval
-  ft.setElementType(1);    // float
+  ft.addToShape(kNFEAT); // 5 canaux : eh, r0, η, φ, lval
+  ft.setElementType(1);  // float
 
   for (auto const& cl : sel_clusters) {
     // 1) On collecte tous les hits layer<=m_maxLayer
-    struct Hit { int layer; float e, x, y, z; };
+    struct Hit {
+      int layer;
+      float e, x, y, z;
+    };
     std::vector<Hit> rec;
     rec.reserve(cl.getHits().size());
     float totalE = 0.f;
     for (auto const& h : cl.getHits()) {
       if (h.getLayer() <= 8) { // TODO: use m_maxLayer
-        float e = h.getEnergy();
+        float e  = h.getEnergy();
         auto pos = h.getPosition();
         rec.push_back({h.getLayer(), e, pos.x, pos.y, pos.z});
         totalE += e;
@@ -165,22 +167,25 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
     }
 
     // 3) Normalisation des énergies
-    for (auto &hit : rec) hit.e /= totalE;
+    for (auto& hit : rec)
+      hit.e /= totalE;
 
     // 4) Calcul du barycentre pondéré (x_c,y_c,z_c)
     float wsum = 0.f, xc = 0.f, yc = 0.f, zc = 0.f;
     for (auto const& hit : rec) {
       float lw = std::max(0.f, std::log(hit.e) + 5.6f);
       wsum += lw;
-      xc   += hit.x * lw;
-      yc   += hit.y * lw;
-      zc   += hit.z * lw;
+      xc += hit.x * lw;
+      yc += hit.y * lw;
+      zc += hit.z * lw;
     }
-    xc /= wsum; yc /= wsum; zc /= wsum;
+    xc /= wsum;
+    yc /= wsum;
+    zc /= wsum;
 
     // 5) Extraction de φ_c et η_c
-    float phi_c = std::atan2(yc, xc);
-    float r_c   = std::hypot(xc, yc, zc);
+    float phi_c   = std::atan2(yc, xc);
+    float r_c     = std::hypot(xc, yc, zc);
     float theta_c = std::atan2(r_c, zc);
     float eta_c   = -std::log(std::tan(theta_c * 0.5f));
 
@@ -188,39 +193,41 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
     std::vector<std::vector<Hit>> buckets(kNLAYERS);
     for (auto const& hit : rec) {
       int idx = hit.layer - 1;
-      if (idx >= 0 && idx < kNLAYERS) buckets[idx].push_back(hit);
+      if (idx >= 0 && idx < kNLAYERS)
+        buckets[idx].push_back(hit);
     }
-    for (auto &b : buckets) {
-      std::sort(b.begin(), b.end(),
-                [](auto &a, auto &b){ return a.e > b.e; });
+    for (auto& b : buckets) {
+      std::sort(b.begin(), b.end(), [](auto& a, auto& b) { return a.e > b.e; });
     }
 
     // 7) Remplissage du tenseur couche par couche
     for (int l = 0; l < kNLAYERS; ++l) {
-      auto &bucket = buckets[l];
+      auto& bucket = buckets[l];
       for (int h = 0; h < kNHITS; ++h) {
         if (h < (int)bucket.size()) {
           auto const& hit = bucket[h];
           // (x,y,z) → (r,η,φ)
-          float r_hit = std::hypot(hit.x, hit.y);
+          float r_hit     = std::hypot(hit.x, hit.y);
           float theta_hit = std::atan2(r_hit, hit.z);
           float eta_hit   = -std::log(std::tan(theta_hit * 0.5f));
           float phi_hit   = std::atan2(hit.y, hit.x);
           // normalisations linéaires
-          float r_norm   = std::clamp((r_hit   - R0_MIN)/(R0_MAX - R0_MIN), 0.f, 1.f);
-          float eta_norm = std::clamp((eta_hit - eta_c  - ETA_MIN)/(ETA_MAX - ETA_MIN), 0.f, 1.f);
+          float r_norm   = std::clamp((r_hit - R0_MIN) / (R0_MAX - R0_MIN), 0.f, 1.f);
+          float eta_norm = std::clamp((eta_hit - eta_c - ETA_MIN) / (ETA_MAX - ETA_MIN), 0.f, 1.f);
           float dphi     = phi_hit - phi_c;
-          if (dphi < -M_PI) dphi += 2 * M_PI;
-          if (dphi >  M_PI) dphi -= 2 * M_PI;
+          if (dphi < -M_PI)
+            dphi += 2 * M_PI;
+          if (dphi > M_PI)
+            dphi -= 2 * M_PI;
           float dsphi    = std::sin(dphi * 0.5f);
-          float phi_norm = std::clamp((dsphi - PHI_MIN)/(PHI_MAX - PHI_MIN), 0.f, 1.f);
+          float phi_norm = std::clamp((dsphi - PHI_MIN) / (PHI_MAX - PHI_MIN), 0.f, 1.f);
 
           // ★ on pousse les 5 canaux
-          ft.addToFloatData(hit.e);       // eh
-          ft.addToFloatData(r_norm);      // r0
-          ft.addToFloatData(eta_norm);    // η
-          ft.addToFloatData(phi_norm);    // φ
-          ft.addToFloatData(0.f);         // lval (0 pour Astropix)
+          ft.addToFloatData(hit.e);    // eh
+          ft.addToFloatData(r_norm);   // r0
+          ft.addToFloatData(eta_norm); // η
+          ft.addToFloatData(phi_norm); // φ
+          ft.addToFloatData(0.f);      // lval (0 pour Astropix)
         } else {
           // padding complet si moins de NHITS
           for (int f = 0; f < kNFEAT; ++f)
@@ -233,16 +240,15 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   // 8) Validation finale de la forme [N,NLAYERS,NHITS,5]
   {
     auto const& shape = ft.getShape();
-    size_t expected = 1;
-    for (auto dim : shape) expected *= dim;
+    size_t expected   = 1;
+    for (auto dim : shape)
+      expected *= dim;
     if (ft.floatData_size() != expected) {
       this->error("CNN tensor size {} != {}", ft.floatData_size(), expected);
       throw std::runtime_error("CNN tensor size mismatch");
     }
   }
-
 }
-
 
 } // namespace eicrecon
 #endif
