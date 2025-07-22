@@ -13,19 +13,23 @@
 #include <Acts/Utilities/detail/ContextType.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <algorithms/service.h>
 #include <Eigen/Core>
+#include <memory>
 #include <tuple>
 #include <utility>
 
 #include "Acts/Vertexing/AdaptiveGridTrackDensity.hpp"
 #include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
+#include "Acts/Utilities/Logger.hpp"
 #include "extensions/spdlog/SpdlogToActs.h"
+#include "algorithms/interfaces/ActsSvc.h"
+#include "extensions/spdlog/SpdlogFormatters.h"
 
-void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                                           std::shared_ptr<spdlog::logger> log) {
-
+void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<spdlog::logger> log) {
   m_log    = log;
-  m_geoSvc = geo_svc;
+  auto& serviceSvc = algorithms::ServiceSvc::instance();
+  m_geoSvc = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
   m_BField =
       std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
@@ -44,7 +48,6 @@ eicrecon::SecondaryVertexFinder::produce(
   if (!trajectories.empty()){
     // Calculate primary vertex using AMVF
     primaryVertices = calculatePrimaryVertex(recotracks, trajectories, stepperSec);
-    //std::cout<<"*** The size of leftover container: "<<vtx_container.size()<<" ***\n";
     // Primary vertex collection container to be used in Sec. Vertex fitting
     outputVertices = calculateSecondaryVertex(recotracks, trajectories, stepperSec);
   }
@@ -61,11 +64,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
-
+  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF_Prim",m_log));
   // Set up propagator with void navigator
   auto propagatorSec = std::make_shared<PropagatorSec>(stepperSec, Acts::VoidNavigator{},
-                                                       logger().cloneWithSuffix("PropSec"));
+                                                       logger().cloneWithSuffix("Prop"));
 
   // Set up track density used during vertex seeding
   Acts::AdaptiveGridTrackDensity::Config trkDensityConfig;
@@ -78,7 +80,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
 
   // Setup the track linearizer
   LinearizerSec::Config linearizerConfigSec(m_BField, propagatorSec);
-  LinearizerSec linearizerSec(linearizerConfigSec, logger().cloneWithSuffix("HelLinSec"));
+  LinearizerSec linearizerSec(linearizerConfigSec);//,m_log);
 
   //Staring multivertex fitter
   // Set up deterministic annealing with user-defined temperatures
@@ -231,13 +233,12 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
     Acts::EigenStepper<> stepperSec) {
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
-
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
 
   // Set up propagator with void navigator
   auto propagatorSec = std::make_shared<PropagatorSec>(stepperSec, Acts::VoidNavigator{},
-                                                       logger().cloneWithSuffix("PropSec"));
+                                                       logger().cloneWithSuffix("Prop"));
 
   // Set up track density used during vertex seeding
   Acts::AdaptiveGridTrackDensity::Config trkDensityConfig;
@@ -250,7 +251,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
 
   // Setup the track linearizer
   LinearizerSec::Config linearizerConfigSec(m_BField, propagatorSec);
-  LinearizerSec linearizerSec(linearizerConfigSec, logger().cloneWithSuffix("HelLinSec"));
+  // make sure you use a std::unique_ptr as needed
+  std::unique_ptr<const Acts::Logger> unique_log
+      = Acts::getDefaultLogger("MyLogger", Acts::Logging::VERBOSE, &std::cerr);
+  LinearizerSec linearizerSec(linearizerConfigSec, std::move(unique_log));
 
   //Staring multivertex fitter
   // Set up deterministic annealing with user-defined temperatures
@@ -345,24 +349,6 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
         verticesSec = std::move(resultSecondary.value());
       }
 
-/*
-  // Here, we keep incompatible tracks and refer them to the Secondary vertex
-  // Leftover tracks from primary vertex fit...
-  std::set<Acts::InputTrack> selectedTracks;
-  for (const auto& primvtx : prm_vertex) {
-    for (const auto& tr : primvtx.tracks().originalParams) {
-      if (!(std::find(inputTracks.begin(), inputTracks.end(), tr) != inputTracks.end())) {
-        selectedTracks.insert(tr);
-        std::cout<<"******** NOT Matching Vertex!!**********************\n";
-      }else{
-        std::cout<<"******** Matching Vertex found**********************\n";
-      }
-    }
-  }
-  std::cout<<"*** Trajectories size===> "<<trajectories.size()<<std::endl;
-  std::cout<<"****  Number of tracks per vertex:  "<<vertices.at(0).tracks().size()<<std::endl;
-  std::cout<<"====  Number of leftover tracks:    "<<selectedTracks.size()<<std::endl;
-*/
       for (const auto& secvertex : verticesSec) {
         edm4eic::Cov4f cov(secvertex.fullCovariance()(0, 0), secvertex.fullCovariance()(1, 1),
                            secvertex.fullCovariance()(2, 2), secvertex.fullCovariance()(3, 3),

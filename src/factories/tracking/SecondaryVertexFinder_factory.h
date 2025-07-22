@@ -15,7 +15,6 @@
 #include "algorithms/tracking/SecondaryVertexFinderConfig.h"
 #include "algorithms/tracking/SecondaryVertexFinder.h"
 #include "extensions/jana/JOmniFactory.h"
-#include <spdlog/logger.h>
 
 namespace eicrecon {
 
@@ -50,12 +49,12 @@ public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>();
     m_algo->applyConfig(config());
-    m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+    m_algo->init(logger());
   }
 
-  void ChangeRun(int32_t /*run_number*/) {}
+  void ChangeRun(int32_t) {}
 
-  void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
+  void Process(int32_t, uint64_t) {
     std::tie(prm_vertices_output(), sec_vertices_output()) =
         m_algo->produce(m_reco_input(), m_acts_trajectories_input());
   }

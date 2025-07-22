@@ -34,6 +34,7 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <algorithms/algorithm.h>
 
 #include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
@@ -52,8 +53,7 @@
 namespace eicrecon {
 class SecondaryVertexFinder : public WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
 public:
-  void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-            std::shared_ptr<spdlog::logger> log);
+  void init(std::shared_ptr<spdlog::logger> log);
 
   std::tuple<std::unique_ptr<edm4eic::VertexCollection>, std::unique_ptr<edm4eic::VertexCollection>>
   produce(const edm4eic::ReconstructedParticleCollection*,
