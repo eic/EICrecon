@@ -1,15 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
+// Copyright (C) 2022 - 2025 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
 
 #include "TrackerHitReconstruction.h"
 
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <algorithms/logger.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <spdlog/common.h>
 #include <cstddef>
 #include <iterator>
 #include <vector>
@@ -27,21 +27,13 @@ namespace {
   }
 } // namespace
 
-void TrackerHitReconstruction::init(const dd4hep::rec::CellIDPositionConverter* converter,
-                                    std::shared_ptr<spdlog::logger>& logger) {
-
-  m_log = logger;
-
-  m_converter = converter;
-}
-
-std::unique_ptr<edm4eic::TrackerHitCollection>
-TrackerHitReconstruction::process(const edm4eic::RawTrackerHitCollection& raw_hits) {
+void TrackerHitReconstruction::process(const Input& input, const Output& output) const {
   using dd4hep::mm;
 
-  auto rec_hits{std::make_unique<edm4eic::TrackerHitCollection>()};
+  const auto [raw_hits] = input;
+  auto [rec_hits]       = output;
 
-  for (const auto& raw_hit : raw_hits) {
+  for (const auto& raw_hit : *raw_hits) {
 
     auto id = raw_hit.getCellID();
 
@@ -50,12 +42,11 @@ TrackerHitReconstruction::process(const edm4eic::RawTrackerHitCollection& raw_hi
     auto dim = m_converter->cellDimensions(id);
 
     // >oO trace
-    if (m_log->level() == spdlog::level::trace) {
-      m_log->trace("position x={:.2f} y={:.2f} z={:.2f} [mm]: ", pos.x() / mm, pos.y() / mm,
-                   pos.z() / mm);
-      m_log->trace("dimension size: {}", dim.size());
+    if (level() == algorithms::LogLevel::kTrace) {
+      trace("position x={:.2f} y={:.2f} z={:.2f} [mm]: ", pos.x() / mm, pos.y() / mm, pos.z() / mm);
+      trace("dimension size: {}", dim.size());
       for (std::size_t j = 0; j < std::size(dim); ++j) {
-        m_log->trace(" - dimension {:<5} size: {:.2}", j, dim[j]);
+        trace(" - dimension {:<5} size: {:.2}", j, dim[j]);
       }
     }
 
@@ -81,8 +72,6 @@ TrackerHitReconstruction::process(const edm4eic::RawTrackerHitCollection& raw_hi
         0.0F);                                                         // Error on the energy
     rec_hit.setRawHit(raw_hit);
   }
-
-  return rec_hits;
 }
 
 } // namespace eicrecon

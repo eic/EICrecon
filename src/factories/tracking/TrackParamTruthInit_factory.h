@@ -52,15 +52,15 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<AlgoT>();
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->applyConfig(config());
-    m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+    m_algo->init();
   }
 
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_parameters_output() = m_algo->produce(m_particles_input());
+    m_algo->process({m_particles_input()}, {m_parameters_output().get()});
   }
 };
 
