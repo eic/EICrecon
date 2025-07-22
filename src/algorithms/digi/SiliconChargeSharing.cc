@@ -23,7 +23,6 @@
 #include <algorithms/geo.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
-#include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
 #include <queue>
