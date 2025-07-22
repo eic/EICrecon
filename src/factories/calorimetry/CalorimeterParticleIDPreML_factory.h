@@ -20,6 +20,7 @@ private:
 
   PodioInput<edm4eic::Cluster> m_cluster_input{this};
   PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_assoc_input{this};
+  PodioInput<edm4hep::ParticleID> m_pid_input{this};
 
   PodioOutput<edm4eic::Tensor> m_feature_tensor_output{this};
   PodioOutput<edm4eic::Tensor> m_target_tensor_output{this};
@@ -35,7 +36,7 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_cluster_input(), m_cluster_assoc_input()},
+    m_algo->process({m_cluster_input(), m_cluster_assoc_input(), m_pid_input()},
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }
 };

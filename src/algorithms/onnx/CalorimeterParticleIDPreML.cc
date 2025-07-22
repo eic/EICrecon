@@ -26,23 +26,44 @@ void CalorimeterParticleIDPreML::init() {
 void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input& input,
                                          const CalorimeterParticleIDPreML::Output& output) const {
 
-  const auto [clusters, cluster_assocs]  = input;
+  const auto [clusters, cluster_assocs, ep_pids]  = input;
   auto [feature_tensors, target_tensors] = output;
 
+  // decide which clusters to build features for:
+  std::vector<edm4eic::Cluster> sel_clusters;
+  if (!ep_pids || ep_pids->empty()) {
+    // no E/P PID stage → use all clusters
+    sel_clusters.reserve(clusters->size());
+    for (auto const &cl: *clusters) {
+      sel_clusters.push_back(cl);
+    }
+  }
+  else {
+  sel_clusters.reserve(clusters->size());
+  for (auto const &cl : *clusters) {
+    auto const &pids = cl.getParticleIDs();
+    if (!pids.empty() && pids[0].getPDG() == 11) {
+      sel_clusters.push_back(cl);
+    }
+  }
+}
+
   edm4eic::MutableTensor feature_tensor = feature_tensors->create();
-  feature_tensor.addToShape(clusters->size());
+  //feature_tensor.addToShape(clusters->size());
+  feature_tensor.addToShape(sel_clusters.size());
   feature_tensor.addToShape(11);    // p, E/p, azimuthal, polar, 7 shape parameters
   feature_tensor.setElementType(1); // 1 - float
 
   edm4eic::MutableTensor target_tensor;
   if (cluster_assocs != nullptr) {
     target_tensor = target_tensors->create();
-    target_tensor.addToShape(clusters->size());
+    //target_tensor.addToShape(clusters->size());
+    target_tensor.addToShape(sel_clusters.size());
     target_tensor.addToShape(2);     // is electron, is hadron
     target_tensor.setElementType(7); // 7 - int64
   }
 
-  for (edm4eic::Cluster cluster : *clusters) {
+  for (auto const &cluster : sel_clusters) {
     double momentum = NAN;
     {
       // FIXME: use track momentum once matching to tracks becomes available
