@@ -213,7 +213,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
 
     double corrMeanScale_value = corrMeanScale(leading_hit);
 
-    double ped = m_cfg.pedMeanADC + gaussian(generator) * m_cfg.pedSigmaADC;
+    double ped = m_cfg.pedMeanADC + (gaussian(generator) * m_cfg.pedSigmaADC);
 
     // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
     unsigned long long adc;
