@@ -1,6 +1,5 @@
 #pragma once
 
-#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <TDirectory.h>
@@ -12,9 +11,6 @@
 
 class TrackingOccupancy_processor : public JEventProcessor {
 public:
-  explicit TrackingOccupancy_processor(JApplication*);
-  ~TrackingOccupancy_processor() override = default;
-
   //----------------------------
   // Init
   //
