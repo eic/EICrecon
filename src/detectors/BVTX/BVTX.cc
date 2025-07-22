@@ -28,13 +28,15 @@ void InitPlugin(JApplication* app) {
           .threshold = 0.54 * dd4hep::keV,
       },
       app));
-app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
-        "NoisySiBarrelVertexRawHits",              // 1. The name of the plugin instance
-        {"SiBarrelVertexRawHits"},        // 2. The input collection tag
-        {"NoisySiBarrelVertexRawHits"},   // 3. The output collection tag
-        {.addNoise = false, .n_noise_hits_per_system = 433, .readout_name = "VertexBarrelHits"},                         // 4. Use default config from your .yaml file
-        app));
-                
+  app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
+      "NoisySiBarrelVertexRawHits",   // 1. The name of the plugin instance
+      {"SiBarrelVertexRawHits"},      // 2. The input collection tag
+      {"NoisySiBarrelVertexRawHits"}, // 3. The output collection tag
+      {.addNoise                = false,
+       .n_noise_hits_per_system = 433,
+       .readout_name            = "VertexBarrelHits"}, // 4. Use default config from your .yaml file
+      app));
+
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "SiBarrelVertexRecHits", {"NoisySiBarrelVertexRawHits"}, {"SiBarrelVertexRecHits"},

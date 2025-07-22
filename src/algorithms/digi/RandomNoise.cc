@@ -124,35 +124,32 @@ namespace {
     }
   }
 
-/* -------------------------------------------------------------- */
-/* PolarGridRPhi  (uniform ΔR, Δφ)                                */
-/* -------------------------------------------------------------- */
-template <typename POLAR_UNI>
-void scanPolarUniform(const POLAR_UNI& seg,
-                      const TGeoBBox* box,
-                      std::set<dd4hep::CellID>& unique)
-{
+  /* -------------------------------------------------------------- */
+  /* PolarGridRPhi  (uniform ΔR, Δφ)                                */
+  /* -------------------------------------------------------------- */
+  template <typename POLAR_UNI>
+  void scanPolarUniform(const POLAR_UNI& seg, const TGeoBBox* box,
+                        std::set<dd4hep::CellID>& unique) {
     const double dR     = seg.gridSizeR();
     const double dPhi   = seg.gridSizePhi();
     const double offR   = seg.offsetR();
     const double offPhi = seg.offsetPhi();
 
-   
     const double Rmax = std::hypot(box->GetDX(), box->GetDY());
 
     const std::size_t nR   = std::max<std::size_t>(1, std::ceil((Rmax - offR) / dR));
     const std::size_t nPhi = std::max<std::size_t>(1, std::round(2 * M_PI / dPhi));
 
     for (std::size_t iR = 0; iR < nR; ++iR) {
-        const double r = offR + (iR + 0.5) * dR;
-        for (std::size_t iP = 0; iP < nPhi; ++iP) {
-            const double phi = offPhi + (iP + 0.5) * dPhi;
-            const double x = r * std::cos(phi);
-            const double y = r * std::sin(phi);
-            unique.insert(seg.cellID({x, y, 0}, {x, y, 0}, 0));
-        }
+      const double r = offR + (iR + 0.5) * dR;
+      for (std::size_t iP = 0; iP < nPhi; ++iP) {
+        const double phi = offPhi + (iP + 0.5) * dPhi;
+        const double x   = r * std::cos(phi);
+        const double y   = r * std::sin(phi);
+        unique.insert(seg.cellID({x, y, 0}, {x, y, 0}, 0));
+      }
     }
-}
+  }
 
   /* Monte-Carlo fallback */
   void scanGeneric(const dd4hep::Segmentation& seg, const TGeoBBox* box,
@@ -366,7 +363,7 @@ RandomNoise::ComponentBounds RandomNoise::ScanComponent(dd4hep::DetElement de,
   } else if (auto* pol2 = dynamic_cast<const dd4hep::DDSegmentation::PolarGridRPhi2*>(ptr)) {
     scanPolarRPhi(*pol2, unique); // ← 새 함수
   } else if (auto* pol1 = dynamic_cast<const dd4hep::DDSegmentation::PolarGridRPhi*>(ptr)) {
-    scanPolarUniform(*pol1, box, unique);  
+    scanPolarUniform(*pol1, box, unique);
   } else {
     scanGeneric(seg, box, unique);
   }
@@ -394,7 +391,7 @@ RandomNoise::ComponentBounds RandomNoise::ScanComponent(dd4hep::DetElement de,
 void RandomNoise::add_noise_hits(
     std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map,
     const dd4hep::DetElement& det) const {
-  if (!m_cfg.addNoise ||!m_dd4hepGeo)
+  if (!m_cfg.addNoise || !m_dd4hepGeo)
     return;
 
   auto idPaths = ScanDetectorElement(det);
@@ -485,7 +482,7 @@ void RandomNoise::inject_noise_hits(
   static thread_local std::mt19937_64 rng{0xBADA55u};
   std::poisson_distribution<std::size_t> pois(m_cfg.n_noise_hits_per_system);
   std::size_t nNoise = nNoise = pois(rng);
-  nNoise             = std::min<std::size_t>(nNoise, nChannels);
+  nNoise                      = std::min<std::size_t>(nNoise, nChannels);
   if (nNoise == 0)
     return;
 
@@ -494,7 +491,6 @@ void RandomNoise::inject_noise_hits(
   /* ----------------------------------------------------------------
      * 2)  RNGs
      * ---------------------------------------------------------------- */
-
 
   std::uniform_int_distribution<std::size_t> pickSensor(0, nSensors - 1);
 
@@ -549,7 +545,7 @@ void RandomNoise::inject_noise_hits(
     hitMap.emplace(cid, h);
     ++created;
 
-  /* if (dbgPrint--) {
+    /* if (dbgPrint--) {
       std::cout << "[DBG] noise hit " << created << "  CellID=0x" << std::hex << cid << std::dec
                 << "  { ";
       bool first = true;
