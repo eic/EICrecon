@@ -1,0 +1,41 @@
+on:
+  workflow_call:
+    inputs:
+      pr:
+        required: true
+        type: number
+      head_sha:
+        required: true
+        type: number
+
+jobs:
+  get-docs-from-other-prs:
+    runs-on: ubuntu-24.04
+    if: github.event.pull_request.number != inputs.pr
+    steps:
+      - name: Download docs artifact (other PRs)
+        uses: dawidd6/action-download-artifact@v11
+        with:
+          commit: ${{ inputs.head_sha }}
+          path: publishing_docs/pr/${{ inputs.pr }}/
+          name: docs
+          workflow: ".github/workflows/linux-eic-shell.yml"
+          workflow_conclusion: "completed"
+          if_no_artifact_found: ignore
+      - name: Download capybara artifact (other PRs)
+        id: download_capybara
+        uses: dawidd6/action-download-artifact@v11
+        with:
+          commit: ${{ inputs.head_sha }}
+          path: publishing_docs/pr/${{ inputs.pr }}/capybara/
+          name: capybara
+          workflow: ".github/workflows/linux-eic-shell.yml"
+          workflow_conclusion: "completed"
+          if_no_artifact_found: ignore
+      - name: Remove doxygen in PR
+        run: rm -rf publishing_docs/pr/${{ inputs.pr }}/doxygen
+      - uses: actions/upload-artifact@v4
+        with:
+          name: github-pages-staging-pr-${{ inputs.pr }}
+          path: publishing_docs/
+          if-no-files-found: ignore
