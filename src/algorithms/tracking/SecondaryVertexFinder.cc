@@ -27,9 +27,9 @@
 #include "extensions/spdlog/SpdlogFormatters.h"
 
 void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<spdlog::logger> log) {
-  m_log    = log;
+  m_log            = log;
   auto& serviceSvc = algorithms::ServiceSvc::instance();
-  m_geoSvc = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
+  m_geoSvc         = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
   m_BField =
       std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
@@ -45,7 +45,7 @@ eicrecon::SecondaryVertexFinder::produce(
   Acts::EigenStepper<> stepperSec(m_BField);
 
   //Need to make sure that the track container is not actually empty
-  if (!trajectories.empty()){
+  if (!trajectories.empty()) {
     // Calculate primary vertex using AMVF
     primaryVertices = calculatePrimaryVertex(recotracks, trajectories, stepperSec);
     // Primary vertex collection container to be used in Sec. Vertex fitting
@@ -58,13 +58,12 @@ eicrecon::SecondaryVertexFinder::produce(
 //Quickly calculate the PV using the Adaptive Multi-vertex Finder
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calculatePrimaryVertex(
     const edm4eic::ReconstructedParticleCollection* reconParticles,
-    std::vector<const ActsExamples::Trajectories*> trajectories,
-    Acts::EigenStepper<> stepperSec) {
+    std::vector<const ActsExamples::Trajectories*> trajectories, Acts::EigenStepper<> stepperSec) {
 
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF_Prim",m_log));
+  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF_Prim", m_log));
   // Set up propagator with void navigator
   auto propagatorSec = std::make_shared<PropagatorSec>(stepperSec, Acts::VoidNavigator{},
                                                        logger().cloneWithSuffix("Prop"));
@@ -80,7 +79,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
 
   // Setup the track linearizer
   LinearizerSec::Config linearizerConfigSec(m_BField, propagatorSec);
-  LinearizerSec linearizerSec(linearizerConfigSec);//,m_log);
+  LinearizerSec linearizerSec(linearizerConfigSec); //,m_log);
 
   //Staring multivertex fitter
   // Set up deterministic annealing with user-defined temperatures
@@ -214,10 +213,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
                   par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
               eicvertex.addToAssociatedParticles(part);
             } // endif
-          }   // end for par
-        }     // end for trk
-      }       // end for part
-    }         // end for t
+          } // end for par
+        } // end for trk
+      } // end for part
+    } // end for t
     m_log->debug("One AMVF vertex found at (x,y,z) = ({}, {}, {}) mm.",
                  vtx.position().x() / Acts::UnitConstants::mm,
                  vtx.position().y() / Acts::UnitConstants::mm,
@@ -226,10 +225,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
   return prmVertices;
 }
 
-std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
+std::unique_ptr<edm4eic::VertexCollection>
+eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
     const edm4eic::ReconstructedParticleCollection* reconParticles,
-    std::vector<const ActsExamples::Trajectories*> trajectories,
-    Acts::EigenStepper<> stepperSec) {
+    std::vector<const ActsExamples::Trajectories*> trajectories, Acts::EigenStepper<> stepperSec) {
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
   // Set-up the propagator
@@ -251,8 +250,8 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
   // Setup the track linearizer
   LinearizerSec::Config linearizerConfigSec(m_BField, propagatorSec);
   // make sure you use a std::unique_ptr as needed
-  std::unique_ptr<const Acts::Logger> unique_log
-      = Acts::getDefaultLogger("MyLogger", Acts::Logging::VERBOSE, &std::cerr);
+  std::unique_ptr<const Acts::Logger> unique_log =
+      Acts::getDefaultLogger("MyLogger", Acts::Logging::VERBOSE, &std::cerr);
   LinearizerSec linearizerSec(linearizerConfigSec, std::move(unique_log));
 
   //Staring multivertex fitter
@@ -287,7 +286,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
   // Set the initial variance of the 4D vertex position. Since time is on a
   // numerical scale, we have to provide a greater value in the corresponding
   // dimension.
-  vertexfinderConfigSec.initialVariances   = {1e+2, 1e+2, 1e+2, 1e+8};
+  vertexfinderConfigSec.initialVariances = {1e+2, 1e+2, 1e+2, 1e+8};
   //Use time for Sec. Vertex
   vertexfinderConfigSec.useTime            = m_cfg.useTime;
   vertexfinderConfigSec.useSeedConstraint  = m_cfg.useSeedConstraint;
@@ -390,15 +389,15 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
                       par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
                   eicvertex.addToAssociatedParticles(part);
                 } // endif
-              }   // end for par
-            }     // end for trk
-          }       // end for part
-        }         // end for t
-      }           // end for secvertex
+              } // end for par
+            } // end for trk
+          } // end for part
+        } // end for t
+      } // end for secvertex
 
       // empty the vector for the next set of tracks
       inputTracks.clear();
     } //end of int j=i+1
-  }   // end of int i=0; i<trajectories.size()
+  } // end of int i=0; i<trajectories.size()
   return secVertices;
 }

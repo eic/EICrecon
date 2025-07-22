@@ -72,7 +72,9 @@ public:
                            Acts::EigenStepper<>);
 
   // Functions to be used to check efficacy of sec. vertex
-  void setVertexContainer(std::vector<Acts::Vertex> inputcontainer){vtx_container=inputcontainer;};
+  void setVertexContainer(std::vector<Acts::Vertex> inputcontainer) {
+    vtx_container = inputcontainer;
+  };
 
   //set up Impact estimator
   using ImpactPointEstimator   = Acts::ImpactPointEstimator;
@@ -80,7 +82,7 @@ public:
   using VertexFitterSec        = Acts::AdaptiveMultiVertexFitter;
   using VertexFinderSec        = Acts::AdaptiveMultiVertexFinder;
   using VertexFinderOptionsSec = Acts::VertexingOptions;
-  using seedFinder = Acts::AdaptiveGridDensityVertexFinder;
+  using seedFinder             = Acts::AdaptiveGridDensityVertexFinder;
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
