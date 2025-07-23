@@ -7,14 +7,11 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JTypeInfo.h>
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
-#include <cmath>
-#include <string>
-#include <vector>
+#include <memory>
 
-#include "algorithms/digi/SiliconChargeSharingConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
@@ -51,9 +48,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
       {
-          .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
-          .sigma_sharingx = 1,
-          .sigma_sharingy = 0.5,
+          .sigma_sharingx = 0.1 * dd4hep::mm,
+          .sigma_sharingy = 0.5 * dd4hep::cm,
           .min_edep       = 0.0 * edm4eic::unit::GeV,
           .readout        = "TOFBarrelHits",
       },
