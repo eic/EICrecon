@@ -27,7 +27,7 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <stdint.h>
 #include <cstddef>
-#include <format>
+#include <fmt/format> // IWYU pragma: keep
 #include <functional>
 #include <gsl/pointers>
 #include <iterator>

@@ -15,7 +15,7 @@
 #include <fmt/core.h>
 #include <cmath>
 #include <cstddef>
-#include <format>
+#include <fmt/format> // IWYU pragma: keep
 #include <functional>
 #include <map>
 #include <memory>
