@@ -7,13 +7,13 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
 #include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <Acts/Utilities/detail/ContextType.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/IVertexFinder.hpp>
@@ -176,10 +176,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
                   par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
               eicvertex.addToAssociatedParticles(part);
             } // endif
-          }   // end for par
-        }     // end for trk
-      }       // end for part
-    }         // end for t
+          } // end for par
+        } // end for trk
+      } // end for part
+    } // end for t
     m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.",
                  vtx.position().x() / Acts::UnitConstants::mm,
                  vtx.position().y() / Acts::UnitConstants::mm,
