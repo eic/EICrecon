@@ -28,7 +28,6 @@
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/VolumeManager.h>
-#include <DD4hep/config.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -49,6 +48,7 @@
 #include <cstdint>
 #include <gsl/pointers>
 #include <initializer_list>
+#include <iterator>
 #include <random>
 #include <unordered_map>
 #include <utility>

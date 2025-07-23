@@ -2,6 +2,8 @@
 // Copyright (C) 2022 - 2025 Christopher Dilks, Nilanga Wickramaarachchi, Dmitry Kalinkin
 
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <string>
 #include <utility>
 #include <vector>
 

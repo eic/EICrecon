@@ -3,9 +3,9 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JServiceFwd.h>
-#include <JANA/Services/JServiceLocator.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <string>
 
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "services/log/Log_service.h"

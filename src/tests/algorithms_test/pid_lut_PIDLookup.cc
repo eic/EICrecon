@@ -15,6 +15,8 @@
 #include <spdlog/common.h>
 #include <cmath>
 #include <memory>
+#include <string>
+#include <vector>
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"

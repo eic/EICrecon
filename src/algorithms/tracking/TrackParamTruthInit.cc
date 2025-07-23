@@ -10,6 +10,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/logger.h>
 #include <edm4eic/Cov6f.h>
+#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <Eigen/Core>

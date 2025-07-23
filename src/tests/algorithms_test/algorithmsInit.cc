@@ -3,9 +3,9 @@
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
-#include <DD4hep/Objects.h>
 #include <algorithms/geo.h>
 #include <algorithms/interfaces/ParticleSvc.h>
 #include <algorithms/interfaces/UniqueIDGenSvc.h>
@@ -19,6 +19,7 @@
 #include <services/pid_lut/PIDLookupTableSvc.h>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>

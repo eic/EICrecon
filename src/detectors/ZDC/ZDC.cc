@@ -3,8 +3,10 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"

@@ -27,8 +27,10 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <stdint.h>
 #include <cstddef>
+#include <format>
 #include <functional>
 #include <gsl/pointers>
+#include <iterator>
 #include <random>
 #include <stdexcept>
 #include <string>

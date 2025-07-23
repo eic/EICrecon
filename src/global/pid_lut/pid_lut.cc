@@ -3,10 +3,11 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
-#include <memory>
+#include <string>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "algorithms/pid_lut/PhaseSpacePIDConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"

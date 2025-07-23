@@ -3,8 +3,10 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <memory>
+#include <JANA/Utils/JTypeInfo.h>
+#include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"

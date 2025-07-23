@@ -4,15 +4,20 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <fmt/core.h>
+#include <math.h>
+#include <functional>
 #include <map>
 #include <memory>
+#include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "algorithms/meta/SubDivideFunctors.h"

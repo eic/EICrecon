@@ -3,9 +3,11 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <TString.h>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"

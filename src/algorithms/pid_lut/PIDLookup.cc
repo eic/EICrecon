@@ -13,6 +13,7 @@
 #include <gsl/pointers>
 #include <random>
 #include <stdexcept>
+#include <vector>
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
