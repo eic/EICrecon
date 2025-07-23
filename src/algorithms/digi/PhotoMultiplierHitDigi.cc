@@ -88,7 +88,7 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
     trace(" -> hit accepted");
     trace(" -> MC hit id={}", sim_hit.getObjectID().index);
     auto time  = sim_hit.getTime();
-    double amp = m_cfg.speMean + (gaussian(generator) * m_cfg.speError);
+    double amp = m_cfg.speMean + gaussian(generator) * m_cfg.speError;
 
     // insert hit to `hit_groups`
     InsertHit(hit_groups, id, amp, time, sim_hit_index, generator, gaussian);
@@ -278,7 +278,7 @@ void PhotoMultiplierHitDigi::InsertHit(
       trace("    so new group @ {:#018X}: signal={}", id, sig);
     }
   } else {
-    auto sig = amp + m_cfg.pedMean + (m_cfg.pedError * gaussian(generator));
+    auto sig = amp + m_cfg.pedMean + m_cfg.pedError * gaussian(generator);
     decltype(HitData::sim_hit_indices) indices;
     if (!is_noise_hit) {
       indices.push_back(sim_hit_index);
