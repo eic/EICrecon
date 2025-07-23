@@ -179,10 +179,16 @@ dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& glob
 float SiliconChargeSharing::energyAtCell(const double xDimension, const double yDimension,
                                          const dd4hep::Position localPos,
                                          const dd4hep::Position hitPos, const float edep) const {
+  auto sigma_sharingx = m_cfg.sigma_sharingx;
+  auto sigma_sharingy = m_cfg.sigma_sharingy;
+  if (m_cfg.sigma_mode == SiliconChargeSharingConfig::ESigmaMode::rel) {
+    sigma_sharingx *= xDimension;
+    sigma_sharingy *= yDimension;
+  }
   float energy = edep *
-                 integralGaus(hitPos.x(), m_cfg.sigma_sharingx, localPos.x() - 0.5 * xDimension,
+                 integralGaus(hitPos.x(), sigma_sharingx, localPos.x() - 0.5 * xDimension,
                               localPos.x() + 0.5 * xDimension) *
-                 integralGaus(hitPos.y(), m_cfg.sigma_sharingy, localPos.y() - 0.5 * yDimension,
+                 integralGaus(hitPos.y(), sigma_sharingy, localPos.y() - 0.5 * yDimension,
                               localPos.y() + 0.5 * yDimension);
   return energy;
 }
