@@ -181,7 +181,7 @@ float SiliconChargeSharing::energyAtCell(const double xDimension, const double y
                                          const dd4hep::Position hitPos, const float edep) const {
   auto sigma_sharingx = m_cfg.sigma_sharingx;
   auto sigma_sharingy = m_cfg.sigma_sharingy;
-  if(m_cfg.sigma_mode == SiliconChargeSharingConfig::ESigmaMode::rel) {
+  if (m_cfg.sigma_mode == SiliconChargeSharingConfig::ESigmaMode::rel) {
     sigma_sharingx *= xDimension;
     sigma_sharingy *= yDimension;
   }
