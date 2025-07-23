@@ -79,7 +79,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     // Precise reason unknown, but we suspect it's cause by steps in Geant4
     // Perhaps position is the average of all steps in volume while cellID is just the first cell the track hits
     // They disagree when there are multiple step and scattering inside the volume
-    auto temp = hitPos;
+    auto temp = hitPos; // do not re-use or modify
     cellID = segmentationIt->second->cellID(hitPos, temp, cellID);
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
