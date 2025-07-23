@@ -14,7 +14,6 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
-#include <format>
 #include <memory>
 #include <tuple>
 #include <variant>
