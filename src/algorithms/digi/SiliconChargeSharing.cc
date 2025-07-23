@@ -75,7 +75,8 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
                      transformIt->second);
 
     // globalHitPos can sometimes lie outside of cell with cellID given by hit.getCellID()
-    // therefore, we search neighbors in a sensor to find the cell ID that correspond to globalHitPos
+    // therefore, we search neighbors within the segmentation of the same volume
+    // to find the cell ID that correspond to globalHitPos.
     // Precise reason unknown, but we suspect it's cause by steps in Geant4
     // Perhaps position is the average of all steps in volume while cellID is just the first cell the track hits
     // They disagree when there are multiple step and scattering inside the volume
