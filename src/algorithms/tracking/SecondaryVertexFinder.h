@@ -3,46 +3,24 @@
 
 #pragma once
 
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <Acts/Utilities/Delegate.hpp>
-#include <Acts/Utilities/Result.hpp>
-#include <Acts/Vertexing/IVertexFinder.hpp>
-#include <Acts/Vertexing/TrackAtVertex.hpp>
-#include <Acts/Vertexing/Vertex.hpp>
-#include <Acts/Vertexing/VertexingOptions.hpp>
-#include <ActsExamples/EventData/Track.hpp>
-#include <TLorentzVector.h>
-#include <edm4eic/Cov4f.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/Trajectory.h>
-#include <edm4eic/VertexCollection.h>
-#include <edm4eic/unit_system.h>
-#include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
-#include <math.h>
-#include <podio/RelationRange.h>
-#include <spdlog/logger.h>
-#include <Eigen/Core>
-#include <limits>
-#include <memory>
-#include <tuple>
-#include <utility>
-#include <vector>
-#include <set>
-#include <algorithm>
-#include <algorithms/algorithm.h>
-
+#include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
-#include <Acts/Vertexing/LinearizedTrack.hpp>
+#include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/VertexCollection.h>
+#include <spdlog/logger.h>
+#include <format>
+#include <memory>
+#include <tuple>
+#include <variant>
+#include <vector>
+
 #include "Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp"
-#include "Acts/Definitions/Units.hpp"
 #include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
 #include "ActsExamples/EventData/Trajectories.hpp"
 #include "ActsGeometryProvider.h"

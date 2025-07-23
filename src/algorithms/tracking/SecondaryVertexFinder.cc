@@ -3,24 +3,40 @@
 
 #include "SecondaryVertexFinder.h"
 
-#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
 #include <Acts/Utilities/AnnealingUtility.hpp>
-#include <Acts/Utilities/Logger.hpp>
+#include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Utilities/detail/ContextType.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/service.h>
+#include <edm4eic/Cov4f.h>
+#include <edm4eic/Track.h>
+#include <edm4eic/TrackParameters.h>
+#include <edm4eic/Trajectory.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector4f.h>
+#include <fmt/core.h>
+#include <fmt/format.h>
+#include <podio/RelationRange.h>
 #include <Eigen/Core>
+#include <cmath>
+#include <iostream>
+#include <limits>
+#include <string>
 #include <memory>
 #include <tuple>
 #include <utility>
 
 #include "Acts/Vertexing/AdaptiveGridTrackDensity.hpp"
-#include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
 #include "Acts/Utilities/Logger.hpp"
 #include "extensions/spdlog/SpdlogToActs.h"
 #include "algorithms/interfaces/ActsSvc.h"
