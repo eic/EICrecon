@@ -80,7 +80,7 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     // Perhaps position is the average of all steps in volume while cellID is just the first cell the track hits
     // They disagree when there are multiple step and scattering inside the volume
     auto temp = hitPos; // do not re-use or modify
-    cellID = segmentationIt->second->cellID(hitPos, temp, cellID);
+    cellID    = segmentationIt->second->cellID(hitPos, temp, cellID);
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::unordered_map<dd4hep::rec::CellID, float> cell_charge;
