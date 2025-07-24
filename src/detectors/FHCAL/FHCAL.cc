@@ -3,9 +3,11 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <TString.h>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
@@ -37,7 +39,7 @@ void InitPlugin(JApplication* app) {
       10 * dd4hep::picosecond;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"},
+      "HcalEndcapPInsertRawHits", {"EventHeader", "HcalEndcapPInsertHits"},
       {"HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitAssociations"},
       {
           .eRes          = {},
@@ -170,7 +172,7 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) LFHCAL_resolutionTDC = 10 * dd4hep::picosecond;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "LFHCALRawHits", {"LFHCALHits"}, {"LFHCALRawHits", "LFHCALRawHitAssociations"},
+      "LFHCALRawHits", {"EventHeader", "LFHCALHits"}, {"LFHCALRawHits", "LFHCALRawHitAssociations"},
       {
           .eRes          = {},
           .tRes          = 0.0 * dd4hep::ns,
