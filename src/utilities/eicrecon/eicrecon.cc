@@ -18,7 +18,6 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "dd4hep",
     "evaluator",
     "acts",
-    "unique_id",
     "algorithms_init",
     "pid_lut",
     "richgeo",
