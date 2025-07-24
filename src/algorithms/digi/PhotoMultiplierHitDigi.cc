@@ -273,7 +273,8 @@ void PhotoMultiplierHitDigi::InsertHit(
       if (!is_noise_hit) {
         indices.push_back(sim_hit_index);
       }
-      hit_groups.insert({id, {HitData{1, sig, time, indices}}});
+      hit_groups.insert(
+          {id, {HitData{.npe = 1, .signal = sig, .time = time, .sim_hit_indices = indices}}});
       trace(" -> no group found,");
       trace("    so new group @ {:#018X}: signal={}", id, sig);
     }
