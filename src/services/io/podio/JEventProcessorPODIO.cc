@@ -267,6 +267,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // Track projections
       "CalorimeterTrackProjections",
+      "DIRCTrackProjections",
 
       // Ecal stuff
       "EcalEndcapNRawHits",

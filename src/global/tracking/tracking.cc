@@ -198,6 +198,15 @@ void InitPlugin(JApplication* app) {
                                                                 {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
+      "DIRCTrackPropagator",
+      {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+      {"DIRCTrackProjections"},
+      {.target_surfaces{
+          eicrecon::CylinderSurfaceConfig{"BarrelDIRC_ID","770.5*mm","-2000*mm","2000*mm"}
+      }},
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
       "CalorimeterTrackPropagator",
       {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
       {"CalorimeterTrackProjections"},
