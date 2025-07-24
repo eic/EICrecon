@@ -74,6 +74,14 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
                                       globalHitPos.z * dd4hep::mm),
                      transformIt->second);
 
+    // therefore, we search neighbors within the segmentation of the same volume
+    // to find the cell ID that correspond to globalHitPos.
+    // Precise reason unknown, but we suspect it's cause by steps in Geant4
+    // Perhaps position is the average of all steps in volume while cellID is just the first cell the track hits
+    // They disagree when there are multiple step and scattering inside the volume
+    const dd4hep::Position dummy;
+    cellID = segmentationIt->second->cellID(hitPos, dummy, cellID);
+
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::unordered_map<dd4hep::rec::CellID, float> cell_charge;
 
