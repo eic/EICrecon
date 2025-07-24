@@ -14,7 +14,6 @@
 #include <string>
 #include <vector>
 
-
 #include "algorithms/digi/SiliconChargeSharingConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
