@@ -3,10 +3,12 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/unit_system.h>
 #include <cmath>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
@@ -77,7 +79,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalBarrelScFiRawHits", {"EcalBarrelScFiHits"},
+      "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
       {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
@@ -163,7 +165,7 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelImaging_resolutionTDC =
       3.25 * dd4hep::nanosecond;
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalBarrelImagingRawHits", {"EcalBarrelImagingHits"},
+      "EcalBarrelImagingRawHits", {"EventHeader", "EcalBarrelImagingHits"},
       {"EcalBarrelImagingRawHits", "EcalBarrelImagingRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},

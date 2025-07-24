@@ -15,7 +15,6 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
-#include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/service.h>
@@ -29,6 +28,7 @@
 #include <gsl/pointers>
 #include <limits>
 #include <map>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -133,8 +133,13 @@ void CalorimeterHitDigi::init() {
 void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                                  const CalorimeterHitDigi::Output& output) const {
 
-  const auto [simhits]      = input;
-  auto [rawhits, rawassocs] = output;
+  const auto [headers, simhits] = input;
+  auto [rawhits, rawassocs]     = output;
+
+  // local random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  std::default_random_engine generator(seed);
+  std::normal_distribution<double> gaussian;
 
   // find the hits that belong to the same group (for merging)
   std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
@@ -200,18 +205,18 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     // safety check
     const double eResRel =
         (edep > m_cfg.threshold)
-            ? m_gaussian(m_generator) *
+            ? gaussian(generator) *
                   std::sqrt(std::pow(m_cfg.eRes[0] / std::sqrt(edep), 2) +
                             std::pow(m_cfg.eRes[1], 2) + std::pow(m_cfg.eRes[2] / (edep), 2))
             : 0;
 
     double corrMeanScale_value = corrMeanScale(leading_hit);
 
-    double ped = m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC;
+    double ped = m_cfg.pedMeanADC + gaussian(generator) * m_cfg.pedSigmaADC;
 
     // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
     unsigned long long adc;
-    unsigned long long tdc = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
+    unsigned long long tdc = std::llround((time + gaussian(generator) * tRes) * stepTDC);
 
     if (readoutType == kSimpleReadout) {
       adc = std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) /
@@ -221,7 +226,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       const long long int n_photons_mean =
           edep * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
       std::poisson_distribution<> n_photons_detected_dist(n_photons_mean);
-      const long long int n_photons_detected = n_photons_detected_dist(m_generator);
+      const long long int n_photons_detected = n_photons_detected_dist(generator);
       const long long int n_max_photons =
           m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
       trace("n_photons_detected {}", n_photons_detected);
@@ -232,7 +237,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       const long long int n_photons = edep * m_cfg.lightYield;
       std::binomial_distribution<> n_photons_detected_dist(n_photons,
                                                            m_cfg.photonDetectionEfficiency);
-      const long long int n_photons_detected = n_photons_detected_dist(m_generator);
+      const long long int n_photons_detected = n_photons_detected_dist(generator);
       const long long int n_pixels_fired =
           m_cfg.numEffectiveSipmPixels *
           (1 - exp(-n_photons_detected / (double)m_cfg.numEffectiveSipmPixels));

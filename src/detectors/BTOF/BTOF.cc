@@ -32,7 +32,8 @@ void InitPlugin(JApplication* app) {
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "TOFBarrelRawHits", {"TOFBarrelHits"}, {"TOFBarrelRawHits", "TOFBarrelRawHitAssociations"},
+      "TOFBarrelRawHits", {"EventHeader", "TOFBarrelHits"},
+      {"TOFBarrelRawHits", "TOFBarrelRawHitAssociations"},
       {
           .threshold      = 6.0 * dd4hep::keV,
           .timeResolution = 0.025, // [ns]

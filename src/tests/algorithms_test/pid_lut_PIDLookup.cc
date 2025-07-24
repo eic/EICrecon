@@ -3,17 +3,20 @@
 
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
-#include <cmath>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #include <edm4hep/Vector2i.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <memory>
 #include <spdlog/common.h>
+#include <cmath>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
@@ -41,6 +44,9 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
     algo.level(algorithms::LogLevel(spdlog::level::trace));
     algo.applyConfig(cfg);
     algo.init();
+
+    auto headers = std::make_unique<edm4hep::EventHeaderCollection>();
+    auto header  = headers->create(1, 1, 12345678, 1.0);
 
     auto parts_in  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     auto assocs_in = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
@@ -77,7 +83,7 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
     auto parts_out   = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     auto assocs_out  = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
     auto partids_out = std::make_unique<edm4hep::ParticleIDCollection>();
-    algo.process({parts_in.get(), assocs_in.get()},
+    algo.process({headers.get(), parts_in.get(), assocs_in.get()},
                  {parts_out.get(), assocs_out.get(), partids_out.get()});
 
     REQUIRE((*parts_in).size() == (*parts_out).size());
