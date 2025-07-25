@@ -6,14 +6,16 @@
 #include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <fmt/core.h>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"

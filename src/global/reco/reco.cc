@@ -5,6 +5,8 @@
 #include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/InclusiveKinematics.h>
@@ -15,8 +17,8 @@
 #include <fmt/core.h>
 #include <map>
 #include <memory>
-
-#include "algorithms/interfaces/WithPodConfig.h"
+#include <string>
+#include <vector>
 
 #include "algorithms/reco/HadronicFinalState.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
@@ -31,18 +33,18 @@
 #ifdef USE_ONNX
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #endif
+#include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
+#include "factories/reco/HadronicFinalState_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
-#include "factories/reco/TransformBreitFrame_factory.h"
-#include "factories/reco/HadronicFinalState_factory.h"
-#include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/MC2ReconstructedParticle_factory.h"
 #include "factories/reco/MatchClusters_factory.h"
 #include "factories/reco/PrimaryVertices_factory.h"
 #include "factories/reco/ReconstructedElectrons_factory.h"
 #include "factories/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "factories/reco/ScatteredElectronsTruth_factory.h"
+#include "factories/reco/TransformBreitFrame_factory.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
 
 #if EDM4EIC_VERSION_MAJOR >= 8
