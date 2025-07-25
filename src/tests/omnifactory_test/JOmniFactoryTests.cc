@@ -10,6 +10,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <cstdint>
 #include <iostream>
