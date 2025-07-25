@@ -20,7 +20,7 @@ void CalorimeterParticleIDPostML::init() {
 void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Input& input,
                                           const CalorimeterParticleIDPostML::Output& output) const {
 
-  const auto [in_clusters, in_assocs, ep_pids, prediction_tensors] = input;
+  const auto [in_clusters, in_assocs, prediction_tensors] = input;
   auto [out_clusters, out_assocs, out_particle_ids]                = output;
 
   if (prediction_tensors->size() != 1) {
@@ -58,26 +58,18 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                          prediction_tensor.getElementType()));
   }
 
+  // 3) Construire la liste des indices de clusters ayant reçu un PID E/p (PDG==11)
   std::vector<std::size_t> selIdx;
-  if (ep_pids && !ep_pids->empty()) {
-    selIdx.reserve(ep_pids->size());
-    for (auto const& pid : *ep_pids) {
+  selIdx.reserve(in_clusters->size());
+  for (std::size_t i = 0; i < in_clusters->size(); ++i) {
+    auto const& pvec = (*in_clusters)[i].getParticleIDs();
+    for (auto const& pid : pvec) {
       if (pid.getPDG() == 11) {
-        for (std::size_t i = 0; i < in_clusters->size(); ++i) {
-          if ((*in_clusters)[i] == pid.getRec()) {
-            selIdx.push_back(i);
-            break;
-          }
-        }
+        selIdx.push_back(i);
+        break;
       }
     }
-  } else {
-    selIdx.resize(in_clusters->size());
-    for (std::size_t i = 0; i < selIdx.size(); ++i) {
-      selIdx[i] = i;
-    }
   }
-
   if (prediction_tensor.getShape(0) != static_cast<long>(selIdx.size())) {
     error("Mismatch between tensor rows ({}) and selected clusters ({})",
           prediction_tensor.getShape(0), selIdx.size());
