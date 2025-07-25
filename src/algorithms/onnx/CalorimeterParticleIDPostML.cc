@@ -21,7 +21,7 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                           const CalorimeterParticleIDPostML::Output& output) const {
 
   const auto [in_clusters, in_assocs, prediction_tensors] = input;
-  auto [out_clusters, out_assocs, out_particle_ids]                = output;
+  auto [out_clusters, out_assocs, out_particle_ids]       = output;
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
