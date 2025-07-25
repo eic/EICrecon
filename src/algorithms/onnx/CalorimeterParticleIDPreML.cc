@@ -133,8 +133,8 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   ft.addToShape(sel_clusters.size());
   ft.addToShape(kNLAYERS);
   ft.addToShape(kNHITS);
-  ft.addToShape(kNFEAT); 
-  ft.setElementType(1); 
+  ft.addToShape(kNFEAT);
+  ft.setElementType(1);
 
   for (auto const& cl : sel_clusters) {
     struct Hit {
@@ -198,9 +198,9 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
           float theta_hit = std::atan2(r_hit, hit.z);
           float eta_hit   = -std::log(std::tan(theta_hit * 0.5f));
           float phi_hit   = std::atan2(hit.y, hit.x);
-          float r_norm   = std::clamp((r_hit - R0_MIN) / (R0_MAX - R0_MIN), 0.f, 1.f);
-          float eta_norm = std::clamp((eta_hit - eta_c - ETA_MIN) / (ETA_MAX - ETA_MIN), 0.f, 1.f);
-          float dphi     = phi_hit - phi_c;
+          float r_norm    = std::clamp((r_hit - R0_MIN) / (R0_MAX - R0_MIN), 0.f, 1.f);
+          float eta_norm  = std::clamp((eta_hit - eta_c - ETA_MIN) / (ETA_MAX - ETA_MIN), 0.f, 1.f);
+          float dphi      = phi_hit - phi_c;
           if (dphi < -M_PI)
             dphi += 2 * M_PI;
           if (dphi > M_PI)
