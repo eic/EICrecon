@@ -58,7 +58,6 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                          prediction_tensor.getElementType()));
   }
 
-  // 3) Construire la liste des indices de clusters ayant reçu un PID E/p (PDG==11)
   std::vector<std::size_t> selIdx;
   selIdx.reserve(in_clusters->size());
   for (std::size_t i = 0; i < in_clusters->size(); ++i) {
