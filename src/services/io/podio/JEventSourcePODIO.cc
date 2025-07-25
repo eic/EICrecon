@@ -50,7 +50,7 @@ struct InsertingVisitor {
   const std::string& m_collection_name;
 
   InsertingVisitor(JEvent& event, const std::string& collection_name)
-      : m_event(event), m_collection_name(collection_name){};
+      : m_event(event), m_collection_name(collection_name) {};
 
   template <typename T> void operator()(const T& collection) {
 

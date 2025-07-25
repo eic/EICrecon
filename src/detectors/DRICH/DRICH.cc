@@ -9,11 +9,13 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <functional>
 #include <map>
 #include <memory>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 // algorithm configurations
@@ -42,10 +44,8 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   PhotoMultiplierHitDigiConfig digi_cfg;
-  digi_cfg.detectorName = "DRICH";
-  digi_cfg.readoutClass = "DRICHHits";
-  digi_cfg.seed         = 5;           // FIXME: set to 0 for a 'unique' seed, but
-                                       // that seems to delay the RNG from actually randomizing
+  digi_cfg.detectorName    = "DRICH";
+  digi_cfg.readoutClass    = "DRICHHits";
   digi_cfg.hitTimeWindow   = 20.0;     // [ns]
   digi_cfg.timeResolution  = 1 / 16.0; // [ns]
   digi_cfg.speMean         = 80.0;
@@ -117,7 +117,8 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-      "DRICHRawHits", {"DRICHHits"}, {"DRICHRawHits", "DRICHRawHitsAssociations"}, digi_cfg, app));
+      "DRICHRawHits", {"EventHeader", "DRICHHits"}, {"DRICHRawHits", "DRICHRawHitsAssociations"},
+      digi_cfg, app));
 
   // charged particle tracks
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(

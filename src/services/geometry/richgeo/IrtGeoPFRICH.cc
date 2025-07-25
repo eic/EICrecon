@@ -178,7 +178,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       }
 
     } // if sensor found
-  }   // search for sensors
+  } // search for sensors
 
   // set reference refractive indices // NOTE: numbers may be overridden externally
   std::map<const char*, double> rIndices;

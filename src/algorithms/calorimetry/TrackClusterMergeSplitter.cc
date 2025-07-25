@@ -171,7 +171,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
             "pointing to merged cluster",
             mapClustToMerge[clustSeed].size(), eClustSum, sigSum, vecMatchProj.size());
     } // end cluster loop
-  }   // end matched cluster-projection loop
+  } // end matched cluster-projection loop
 
   // ------------------------------------------------------------------------
   // 4. Create an output protocluster for each merged cluster and for
@@ -220,7 +220,7 @@ void TrackClusterMergeSplitter::get_projections(const edm4eic::TrackSegmentColle
         relevant_projects.push_back(point);
       }
     } // end point loop
-  }   // end projection loop
+  } // end projection loop
   debug("Collected relevant projections: {} to process", relevant_projects.size());
 
 } // end 'get_projections(edm4eic::CalorimeterHit&, edm4eic::TrackSegmentCollection&, VecTrkPoint&)'
@@ -351,7 +351,7 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(
       }
 
     } // end hits to merge loop
-  }   // end clusters to merge loop
+  } // end clusters to merge loop
 
 } // end 'merge_and_split_clusters(VecClust&, VecProj&, edm4eic::MutableCluster&)'
 

@@ -169,7 +169,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
               axis_eigen(2, 0).real(),
           };
         } // end if weight sum is nonzero
-      }   // end if n hits > 1
+      } // end if n hits > 1
 
       // set shape parameters
       out_clust.addToShapeParameters(radius);
@@ -214,7 +214,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
         out_assoc.setWeight(in_assoc.getWeight());
       }
     } // end input association loop
-  }   // end input cluster loop
+  } // end input cluster loop
   debug("Completed processing input clusters");
 
 } // end 'process(Input&, Output&)'

@@ -33,7 +33,7 @@ public:
             name, {"inputRawHits"}, {"outputHits"}, "reconstruct raw hits into tracker hits."} {}
 
   /// Once in a lifetime initialization
-  void init() final{};
+  void init() final {};
 
   /// Processes RawTrackerHit and produces a TrackerHit
   void process(const Input&, const Output&) const final;
