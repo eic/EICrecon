@@ -149,12 +149,10 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
     rec.reserve(cl.getHits().size());
     float totalE = 0.f;
     for (auto const& h : cl.getHits()) {
-      if (h.getLayer() <= 8) { // TODO: use m_maxLayer
-        float e  = h.getEnergy();
-        auto pos = h.getPosition();
-        rec.push_back({h.getLayer(), e, pos.x, pos.y, pos.z});
-        totalE += e;
-      }
+      float e  = h.getEnergy();
+      auto pos = h.getPosition();
+      rec.push_back({h.getLayer(), e, pos.x, pos.y, pos.z});
+      totalE += e;
     }
 
     // 2) Si pas d’énergie, on pad tout à zéro
