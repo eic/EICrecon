@@ -81,7 +81,7 @@ richgeo::ReadoutGeo::ReadoutGeo(std::string detName_, std::string readoutClass_,
           } // end xy-segmentation loop
         }
       } // end sensor loop (for all sectors)
-    };  // end definition of m_loopCellIDs
+    }; // end definition of m_loopCellIDs
 
     // define k random cell IDs generator
     m_rngCellIDs = [this](std::function<void(CellIDType)> lambda, float p) {
@@ -149,7 +149,7 @@ dd4hep::Position richgeo::ReadoutGeo::GetSensorLocalPosition(CellIDType cellID,
   // convert sensor position to global position (cf. `CellIDPositionConverter::positionNominal()`)
   const auto& volToElement = context->toElement();
   volToElement.LocalToMaster(static_cast<const Double_t*>(xyz_l), static_cast<Double_t*>(xyz_e));
-  const auto& elementToGlobal = sensor_elem.nominal().worldTransformation();
+  const auto elementToGlobal = sensor_elem.nominal().worldTransformation();
   elementToGlobal.LocalToMaster(static_cast<const Double_t*>(xyz_e), static_cast<Double_t*>(xyz_g));
   dd4hep::Position pos_sensor;
   pos_sensor.SetCoordinates(static_cast<const Double_t*>(xyz_g));

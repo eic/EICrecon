@@ -26,7 +26,7 @@ public:
                                         "Merge content of collections into one subset collection"} {
   }
 
-  void init() final{};
+  void init() final {};
 
   void process(const typename CollectionCollector::Input& input,
                const typename CollectionCollector::Output& output) const final {

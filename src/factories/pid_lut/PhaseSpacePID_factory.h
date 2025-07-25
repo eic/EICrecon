@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, Nathan Brei
+// Copyright (C) 2025, Simon Gardner
 
 #pragma once
 
@@ -8,29 +8,34 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 
-#include "algorithms/pid_lut/PIDLookup.h"
+#include "algorithms/pid_lut/PhaseSpacePID.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
-class PIDLookup_factory : public JOmniFactory<PIDLookup_factory, PIDLookupConfig> {
+class PhaseSpacePID_factory : public JOmniFactory<PhaseSpacePID_factory, PhaseSpacePIDConfig> {
 public:
-  using AlgoT = eicrecon::PIDLookup;
+  using AlgoT = eicrecon::PhaseSpacePID;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
   PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input{this};
   PodioInput<edm4eic::MCRecoParticleAssociation> m_recoparticle_assocs_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_recoparticle_assocs_output{this};
   PodioOutput<edm4hep::ParticleID> m_particleids_output{this};
 
-  ParameterRef<std::string> m_filename{this, "filename", config().filename,
-                                       "Relative to current working directory"};
   ParameterRef<std::string> m_system{this, "system", config().system, "For the ParticleID record"};
+  ParameterRef<std::vector<float>> m_direction{
+      this, "direction", config().direction,
+      "Direction vector for the phase space (default is along z-axis)"};
+  ParameterRef<double> m_opening_angle{this, "openingAngle", config().opening_angle,
+                                       "Opening angle for the phase space in radians"};
+  ParameterRef<int> m_pdg_value{
+      this, "pdgValue", config().pdg_value,
+      "PDG value for the particle type to identify (default is electron)"};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -45,10 +50,9 @@ public:
   void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {m_event_headers_input(), m_recoparticles_input(), m_recoparticle_assocs_input()},
-        {m_recoparticles_output().get(), m_recoparticle_assocs_output().get(),
-         m_particleids_output().get()});
+    m_algo->process({m_recoparticles_input(), m_recoparticle_assocs_input()},
+                    {m_recoparticles_output().get(), m_recoparticle_assocs_output().get(),
+                     m_particleids_output().get()});
   }
 };
 

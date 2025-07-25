@@ -3,11 +3,12 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
 #include <string>
 #include <variant>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -24,7 +25,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalLumiSpecRawHits", {"EcalLumiSpecHits"},
+      "EcalLumiSpecRawHits", {"EventHeader", "EcalLumiSpecHits"},
       {"EcalLumiSpecRawHits", "EcalLumiSpecRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}, // flat 2%
