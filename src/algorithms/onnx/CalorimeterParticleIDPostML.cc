@@ -17,15 +17,15 @@ void CalorimeterParticleIDPostML::init() {
   // Nothing
 }
 
-void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Input& input,
+void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Input&  input,
                                           const CalorimeterParticleIDPostML::Output& output) const {
 
-  const auto [in_clusters, in_assocs, prediction_tensors] = input;
-  auto [out_clusters, out_assocs, out_particle_ids]       = output;
+  const auto [in_clusters, in_assocs, ep_pids, prediction_tensors] = input;
+  auto       [out_clusters, out_assocs, out_particle_ids]            = output;
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
-    throw std::runtime_error("");
+    throw std::runtime_error("Bad prediction tensor count");
   }
   edm4eic::Tensor prediction_tensor = (*prediction_tensors)[0];
 
@@ -45,10 +45,10 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
 
   if (prediction_tensor.getShape(1) != 2) {
     error("Expected 2 values per cluster in the output tensor, got {}",
-          prediction_tensor.getShape(0));
+          prediction_tensor.getShape(1));
     throw std::runtime_error(
         fmt::format("Expected 2 values per cluster in the output tensor, got {}",
-                    prediction_tensor.getShape(0)));
+                    prediction_tensor.getShape(1)));
   }
 
   if (prediction_tensor.getElementType() != 1) { // 1 - float
@@ -58,37 +58,68 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                          prediction_tensor.getElementType()));
   }
 
-  for (std::size_t cluster_ix = 0; cluster_ix < in_clusters->size(); cluster_ix++) {
-    edm4eic::Cluster in_cluster         = (*in_clusters)[cluster_ix];
-    edm4eic::MutableCluster out_cluster = in_cluster.clone();
-    out_clusters->push_back(out_cluster);
-
-    float prob_pion =
-        prediction_tensor.getFloatData(cluster_ix * prediction_tensor.getShape(1) + 0);
-    float prob_electron =
-        prediction_tensor.getFloatData(cluster_ix * prediction_tensor.getShape(1) + 1);
-
-    out_cluster.addToParticleIDs(out_particle_ids->create(0,        // std::int32_t type
-                                                          211,      // std::int32_t PDG
-                                                          0,        // std::int32_t algorithmType
-                                                          prob_pion // float likelihood
-                                                          ));
-    out_cluster.addToParticleIDs(out_particle_ids->create(0,  // std::int32_t type
-                                                          11, // std::int32_t PDG
-                                                          0,  // std::int32_t algorithmType
-                                                          prob_electron // float likelihood
-                                                          ));
-
-    // propagate associations
-    for (auto in_assoc : *in_assocs) {
-      if (in_assoc.getRec() == in_cluster) {
-        auto out_assoc = in_assoc.clone();
-        out_assoc.setRec(out_cluster);
-        out_assocs->push_back(out_assoc);
+  std::vector<std::size_t> selIdx;
+  if (ep_pids && !ep_pids->empty()) {
+    selIdx.reserve(ep_pids->size());
+    for (auto const& pid : *ep_pids) {
+      if (pid.getPDG() == 11) {
+        for (std::size_t i = 0; i < in_clusters->size(); ++i) {
+          if ((*in_clusters)[i] == pid.getRec()) {
+            selIdx.push_back(i);
+            break;
+          }
+        }
       }
+    }
+  } else {
+    selIdx.resize(in_clusters->size());
+    for (std::size_t i = 0; i < selIdx.size(); ++i) {
+      selIdx[i] = i;
+    }
+  }
+
+  if (prediction_tensor.getShape(0) != static_cast<long>(selIdx.size())) {
+    error("Mismatch between tensor rows ({}) and selected clusters ({})",
+          prediction_tensor.getShape(0), selIdx.size());
+    throw std::runtime_error("Prediction vs selClusters mismatch");
+  }
+
+  std::size_t j = 0;  
+  const auto N   = in_clusters->size();
+  for (std::size_t idx = 0; idx < N; ++idx) {
+    auto in_cl  = (*in_clusters)[idx];
+    auto out_cl = in_cl.clone();
+    out_clusters->push_back(out_cl);
+
+    if (in_assocs) {
+      for (auto const& a : *in_assocs) {
+        if (a.getRec() == in_cl) {
+          auto oa = a.clone();
+          oa.setRec(out_cl);
+          out_assocs->push_back(oa);
+        }
+      }
+    }
+
+    if (j < selIdx.size() && selIdx[j] == idx) {
+      float prob_pion     = prediction_tensor.getFloatData(j * 2 + 0);
+      float prob_electron = prediction_tensor.getFloatData(j * 2 + 1);
+
+      out_cl.addToParticleIDs(
+          out_particle_ids->create(0,   // type
+                                   211, // PDG π
+                                   0,   // algo
+                                   prob_pion));
+      out_cl.addToParticleIDs(
+          out_particle_ids->create(0,   // type
+                                   11,  // PDG e
+                                   0,   // algo
+                                   prob_electron));
+
+      ++j;
     }
   }
 }
 
-} // namespace eicrecon
+}  // namespace eicrecon
 #endif
