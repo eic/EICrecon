@@ -17,11 +17,11 @@ void CalorimeterParticleIDPostML::init() {
   // Nothing
 }
 
-void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Input&  input,
+void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Input& input,
                                           const CalorimeterParticleIDPostML::Output& output) const {
 
   const auto [in_clusters, in_assocs, ep_pids, prediction_tensors] = input;
-  auto       [out_clusters, out_assocs, out_particle_ids]            = output;
+  auto [out_clusters, out_assocs, out_particle_ids]                = output;
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
@@ -84,8 +84,8 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
     throw std::runtime_error("Prediction vs selClusters mismatch");
   }
 
-  std::size_t j = 0;  
-  const auto N   = in_clusters->size();
+  std::size_t j = 0;
+  const auto N  = in_clusters->size();
   for (std::size_t idx = 0; idx < N; ++idx) {
     auto in_cl  = (*in_clusters)[idx];
     auto out_cl = in_cl.clone();
@@ -105,21 +105,19 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
       float prob_pion     = prediction_tensor.getFloatData(j * 2 + 0);
       float prob_electron = prediction_tensor.getFloatData(j * 2 + 1);
 
-      out_cl.addToParticleIDs(
-          out_particle_ids->create(0,   // type
-                                   211, // PDG π
-                                   0,   // algo
-                                   prob_pion));
-      out_cl.addToParticleIDs(
-          out_particle_ids->create(0,   // type
-                                   11,  // PDG e
-                                   0,   // algo
-                                   prob_electron));
+      out_cl.addToParticleIDs(out_particle_ids->create(0,   // type
+                                                       211, // PDG π
+                                                       0,   // algo
+                                                       prob_pion));
+      out_cl.addToParticleIDs(out_particle_ids->create(0,  // type
+                                                       11, // PDG e
+                                                       0,  // algo
+                                                       prob_electron));
 
       ++j;
     }
   }
 }
 
-}  // namespace eicrecon
+} // namespace eicrecon
 #endif

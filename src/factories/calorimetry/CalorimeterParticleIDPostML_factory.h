@@ -39,7 +39,8 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process(
-        {m_cluster_input(), m_cluster_assoc_input(), m_ep_pids_input(), m_prediction_tensor_input()},
+        {m_cluster_input(), m_cluster_assoc_input(), m_ep_pids_input(),
+         m_prediction_tensor_input()},
         {m_cluster_output().get(), m_cluster_assoc_output().get(), m_particle_id_output().get()});
   }
 };
