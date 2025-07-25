@@ -539,7 +539,7 @@ public:
     static_cast<AlgoT*>(this)->ChangeRun(event->GetRunNumber());
   }
 
-  virtual void ChangeRun(int32_t /* run_number */) override{};
+  virtual void ChangeRun(int32_t /* run_number */) override {};
 
   virtual void Process(int32_t /* run_number */, uint64_t /* event_number */) {};
 
