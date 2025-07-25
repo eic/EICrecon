@@ -16,7 +16,7 @@
 
 #include "algorithms/digi/SiliconChargeSharingConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/EICROCDigitization_factory.h"
+#include "factories/digi/CFDROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
@@ -99,7 +99,7 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-      "EICROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {}, app));
+  app->Add(new JOmniFactoryGeneratorT<CFDROCDigitization_factory>(
+      "CFDROCDigitization", {"TOFBarrelPulses"}, {"TOFBarrelADCTDC"}, {}, app));
 }
 } // extern "C"
