@@ -6,10 +6,9 @@
 
 #include "AlgorithmsInit_service.h"
 
-
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
-    app->ProvideService(std::make_shared<AlgorithmsInit_service>(app));
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->ProvideService(std::make_shared<AlgorithmsInit_service>(app));
 }
 }

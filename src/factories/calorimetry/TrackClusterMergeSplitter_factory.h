@@ -15,56 +15,51 @@
 
 namespace eicrecon {
 
-  class TrackClusterMergeSplitter_factory : public JOmniFactory<TrackClusterMergeSplitter_factory, TrackClusterMergeSplitterConfig> {
+class TrackClusterMergeSplitter_factory
+    : public JOmniFactory<TrackClusterMergeSplitter_factory, TrackClusterMergeSplitterConfig> {
 
-    public:
+public:
+  using AlgoT = eicrecon::TrackClusterMergeSplitter;
 
-      using AlgoT = eicrecon::TrackClusterMergeSplitter;
+private:
+  // algorithm to run
+  std::unique_ptr<AlgoT> m_algo;
 
-    private:
+  // input collections
+  PodioInput<edm4eic::ProtoCluster> m_protoclusters_input{this};
+  PodioInput<edm4eic::TrackSegment> m_track_projections_input{this};
 
-      // algorithm to run
-      std::unique_ptr<AlgoT> m_algo;
+  // output collections
+  PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output{this};
 
-      // input collections
-      PodioInput<edm4eic::ProtoCluster> m_protoclusters_input {this};
-      PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
+  // parameter bindings
+  ParameterRef<std::string> m_idCalo{this, "idCalo", config().idCalo};
+  ParameterRef<double> m_minSigCut{this, "minSigCut", config().minSigCut};
+  ParameterRef<double> m_avgEP{this, "avgEP", config().avgEP};
+  ParameterRef<double> m_sigEP{this, "sigEP", config().sigEP};
+  ParameterRef<double> m_drAdd{this, "drAdd", config().drAdd};
+  ParameterRef<double> m_sampFrac{this, "sampFrac", config().sampFrac};
+  ParameterRef<double> m_transverseEnergyProfileScale{this, "transverseEnergyProfileScale",
+                                                      config().transverseEnergyProfileScale};
 
-      // output collections
-      PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output {this};
+  // services
+  Service<DD4hep_service> m_geoSvc{this};
+  Service<AlgorithmsInit_service> m_algoInitSvc{this};
 
-      // parameter bindings
-      ParameterRef<std::string> m_idCalo {this, "idCalo", config().idCalo};
-      ParameterRef<double> m_minSigCut {this, "minSigCut", config().minSigCut};
-      ParameterRef<double> m_avgEP {this, "avgEP", config().avgEP};
-      ParameterRef<double> m_sigEP {this, "sigEP", config().sigEP};
-      ParameterRef<double> m_drAdd {this, "drAdd", config().drAdd};
-      ParameterRef<double> m_sampFrac {this, "sampFrac", config().sampFrac};
-      ParameterRef<double> m_transverseEnergyProfileScale {this, "transverseEnergyProfileScale", config().transverseEnergyProfileScale};
+public:
+  void Configure() {
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->applyConfig(config());
+    m_algo->init();
+  }
 
-      // services
-      Service<DD4hep_service> m_geoSvc {this};
-      Service<AlgorithmsInit_service> m_algoInitSvc {this};
+  void ChangeRun(int32_t /* run_number */) { /* nothing to do here */ }
 
-    public:
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+    m_algo->process({m_protoclusters_input(), m_track_projections_input()},
+                    {m_protoclusters_output().get()});
+  }
 
-      void Configure() {
-        m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->applyConfig( config() );
-        m_algo->init(m_geoSvc().detector());
-      }
+}; // end TrackClusterMergeSplitter_factory
 
-      void ChangeRun(int64_t run_number) {
-        /* nothing to do here */
-      }
-
-      void Process(int64_t run_number, uint64_t event_number) {
-        m_algo->process(
-          {m_protoclusters_input(), m_track_projections_input()},
-          {m_protoclusters_output().get()}
-        );
-      }
-
-  };  // end TrackClusterMergeSplitter_factory
-
-}  // end eicrecon namespace
+} // namespace eicrecon

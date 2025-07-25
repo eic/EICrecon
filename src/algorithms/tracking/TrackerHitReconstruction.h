@@ -1,39 +1,46 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
+// Copyright (C) 2022 - 2025 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
 
 #pragma once
 
 #include <DDRec/CellIDPositionConverter.h>
+#include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <spdlog/logger.h>
-#include <memory>
+#include <gsl/pointers>
+#include <string>
+#include <string_view>
 
 #include "TrackerHitReconstructionConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-    /**
-     * Produces edm4eic::TrackerHit with geometric info from edm4eic::RawTrackerHit
-     */
-    class TrackerHitReconstruction : public WithPodConfig<TrackerHitReconstructionConfig> {
+using TrackerHitReconstructionAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::RawTrackerHitCollection>,
+                          algorithms::Output<edm4eic::TrackerHitCollection>>;
 
-    public:
-        /// Once in a lifetime initialization
-        void init(const dd4hep::rec::CellIDPositionConverter* converter, std::shared_ptr<spdlog::logger>& logger);
+/**
+ * Produces edm4eic::TrackerHit with geometric info from edm4eic::RawTrackerHit
+ */
+class TrackerHitReconstruction : public TrackerHitReconstructionAlgorithm,
+                                 public WithPodConfig<TrackerHitReconstructionConfig> {
 
-        /// Processes RawTrackerHit and produces a TrackerHit
-        std::unique_ptr<edm4eic::TrackerHitCollection> process(const edm4eic::RawTrackerHitCollection& raw_hits);
+public:
+  TrackerHitReconstruction(std::string_view name)
+      : TrackerHitReconstructionAlgorithm{
+            name, {"inputRawHits"}, {"outputHits"}, "reconstruct raw hits into tracker hits."} {}
 
-        /// Set a configuration
-        eicrecon::TrackerHitReconstructionConfig& applyConfig(eicrecon::TrackerHitReconstructionConfig& cfg) {m_cfg = cfg; return m_cfg;}
+  /// Once in a lifetime initialization
+  void init() final {};
 
-    private:
-        /** algorithm logger */
-        std::shared_ptr<spdlog::logger> m_log;
+  /// Processes RawTrackerHit and produces a TrackerHit
+  void process(const Input&, const Output&) const final;
 
-        /// Cell ID position converter
-        const dd4hep::rec::CellIDPositionConverter* m_converter;
-    };
-}
+private:
+  const algorithms::GeoSvc& m_geo{algorithms::GeoSvc::instance()};
+  const dd4hep::rec::CellIDPositionConverter* m_converter{m_geo.cellIDPositionConverter()};
+};
+
+} // namespace eicrecon

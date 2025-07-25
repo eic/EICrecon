@@ -151,13 +151,12 @@ void JetReconstruction<InputT>::process(
 
     // link constituents to jet kinematic info
     std::vector<PseudoJet> csts = jets[i].constituents();
-    for (unsigned j = 0; j < csts.size(); j++) {
-      jet_output.addToParticles(input_collection->at(csts[j].user_index()));
+    for (const auto& cst : csts) {
+      jet_output.addToParticles(input_collection->at(cst.user_index()));
     } // for constituent j
-  }   // for jet i
+  } // for jet i
 
   // return the jets
-  return;
 } // end 'process(const T&)'
 
 template class JetReconstruction<edm4eic::ReconstructedParticle>;

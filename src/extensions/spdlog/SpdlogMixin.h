@@ -6,13 +6,13 @@
 
 #include <memory>
 #include <spdlog/spdlog.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include "services/log/Log_service.h"
 #include "SpdlogExtensions.h"
 
 namespace eicrecon {
-    class SpdlogMixin {
-        /** Logger mixin
+class SpdlogMixin {
+  /** Logger mixin
          *
          * @example:
          *      class MyFactory : JFactory, SpdlogMixin {
@@ -29,10 +29,10 @@ namespace eicrecon {
          *          }
          *      };
          */
-    public:
-        using level = Log_service::level;
+public:
+  using level = Log_service::level;
 
-        /**
+  /**
          * Initializes logger through current LogService
          * @param app - JApplication pointer, as obtained from GetApplication()
          * @param param_prefix - name of both logger and user parameter
@@ -50,18 +50,18 @@ namespace eicrecon {
          *
          *  will create "BTRK:TrackerHits" logger and check -PBTRK:TrackerHits:LogLevel user parameter
          */
-        void InitLogger(JApplication* app, const std::string &param_prefix, const level default_level = level::info) {
+  void InitLogger(JApplication* app, const std::string& param_prefix,
+                  const level default_level = level::info) {
 
-            // Logger. Get plugin level sub-log
-            m_log = app->GetService<Log_service>()->logger(param_prefix, default_level);
-        }
+    // Logger. Get plugin level sub-log
+    m_log = app->GetService<Log_service>()->logger(param_prefix, default_level);
+  }
 
-    public:
-        std::shared_ptr<spdlog::logger> &logger() { return m_log; }
+public:
+  std::shared_ptr<spdlog::logger>& logger() { return m_log; }
 
-    protected: // FIXME change to private
-        /// current logger
-        std::shared_ptr<spdlog::logger> m_log;
-
-    };
-}
+protected: // FIXME change to private
+  /// current logger
+  std::shared_ptr<spdlog::logger> m_log;
+};
+} // namespace eicrecon

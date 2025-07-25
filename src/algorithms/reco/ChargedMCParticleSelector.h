@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Dmitry Kalinkin, Derek Anderson
+// Copyright (C) 2024 - 2025 Dmitry Kalinkin, Derek Anderson, Wouter Deconinck
 
 #pragma once
 
 #include <memory>
 #include <utility>
 
+#include <algorithms/algorithm.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <spdlog/logger.h>
 
@@ -13,33 +14,34 @@
 
 namespace eicrecon {
 
-  class ChargedMCParticleSelector : public WithPodConfig<NoConfig> {
+using ChargedMCParticleSelectorAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4hep::MCParticleCollection>,
+                          algorithms::Output<edm4hep::MCParticleCollection>>;
 
-  private:
+class ChargedMCParticleSelector : public ChargedMCParticleSelectorAlgorithm,
+                                  public WithPodConfig<NoConfig> {
 
-    std::shared_ptr<spdlog::logger> m_log;
+public:
+  ChargedMCParticleSelector(std::string_view name)
+      : ChargedMCParticleSelectorAlgorithm{
+            name, {"inputParticles"}, {"outputParticles"}, "select charged particles"} {}
 
-  public:
+  // algorithm initialization
+  void init() final {}
 
-    // algorithm initialization
-    void init(std::shared_ptr<spdlog::logger>& logger) {
-      m_log = logger;
-    }
+  // primary algorithm call
+  void process(const Input& input, const Output& output) const final {
+    const auto [mc_particles_in] = input;
+    auto [mc_particles_out]      = output;
 
-    // primary algorithm call
-    std::unique_ptr<edm4hep::MCParticleCollection> process(const edm4hep::MCParticleCollection* inputs) {
-      auto outputs = std::make_unique<edm4hep::MCParticleCollection>();
-      outputs->setSubsetCollection();
+    mc_particles_out->setSubsetCollection();
 
-      for (const auto &particle : *inputs) {
-        if (particle.getCharge() != 0.) {
-          outputs->push_back(particle);
-        }
+    for (const auto& particle : *mc_particles_in) {
+      if (particle.getCharge() != 0.) {
+        mc_particles_out->push_back(particle);
       }
-
-      return std::move(outputs);
     }
+  }
+};
 
-  };
-
-}
+} // namespace eicrecon

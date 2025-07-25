@@ -41,7 +41,7 @@
 
         created() {
             // Read json flags
-            fetch('arches_flags.json')
+            fetch('e_craterlake_flags.json')
                 .then(response => response.json())
                 .then(data => (this.flags = data))
                 .catch(err => console.log(err));

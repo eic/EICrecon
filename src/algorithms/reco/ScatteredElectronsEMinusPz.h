@@ -12,34 +12,27 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
 
-
 namespace eicrecon {
 
-  using ScatteredElectronsEMinusPzAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4eic::ReconstructedParticleCollection,
-      edm4eic::ReconstructedParticleCollection
-    >,
-    algorithms::Output<
-      edm4eic::ReconstructedParticleCollection
-    >
-  >;
+using ScatteredElectronsEMinusPzAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
+                                            edm4eic::ReconstructedParticleCollection>,
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-  class ScatteredElectronsEMinusPz : public ScatteredElectronsEMinusPzAlgorithm, WithPodConfig<ScatteredElectronsEMinusPzConfig>{
+class ScatteredElectronsEMinusPz : public ScatteredElectronsEMinusPzAlgorithm,
+                                   WithPodConfig<ScatteredElectronsEMinusPzConfig> {
 
-  public:
-
-    ScatteredElectronsEMinusPz(std::string_view name)
+public:
+  ScatteredElectronsEMinusPz(std::string_view name)
       : ScatteredElectronsEMinusPzAlgorithm{name,
-                            {"inputParticles", "inputElectronCandidates"},
-                            {"outputElectrons"},
-                            "Outputs DIS electrons ordered in decreasing E-pz"} {}
-    void init() final;
-    void process(const Input&, const Output&) const final;
+                                            {"inputParticles", "inputElectronCandidates"},
+                                            {"outputElectrons"},
+                                            "Outputs DIS electrons ordered in decreasing E-pz"} {}
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
-    const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
-
-  };
+private:
+  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+};
 
 } // namespace eicrecon

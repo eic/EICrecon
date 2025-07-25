@@ -17,7 +17,7 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <fmt/core.h>
 #include <spdlog/logger.h>
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 #include <tuple>
 #include <vector>
@@ -28,68 +28,70 @@
 
 namespace eicrecon {
 
-    using ActsTrackPropagationResult = Acts::Result<std::unique_ptr<const Acts::BoundTrackParameters>>;
+using ActsTrackPropagationResult = Acts::Result<std::unique_ptr<const Acts::BoundTrackParameters>>;
 
-    /** Extract the particles form fit trajectories.
+/** Extract the particles form fit trajectories.
      *
      * \ingroup tracking
      */
-    class TrackPropagation: public eicrecon::WithPodConfig<TrackPropagationConfig> {
+class TrackPropagation : public eicrecon::WithPodConfig<TrackPropagationConfig> {
 
+public:
+  /** Initialize algorithm */
+  void init(const dd4hep::Detector* detector, std::shared_ptr<const ActsGeometryProvider> geo_svc,
+            std::shared_ptr<spdlog::logger> logger);
 
-    public:
+  void process(const std::tuple<const edm4eic::TrackCollection&,
+                                const std::vector<const ActsExamples::Trajectories*>,
+                                const std::vector<const ActsExamples::ConstTrackContainer*>>
+                   input,
+               const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
 
-        /** Initialize algorithm */
-        void init(const dd4hep::Detector* detector, std::shared_ptr<const ActsGeometryProvider> geo_svc, std::shared_ptr<spdlog::logger> logger);
+    const auto [tracks, acts_trajectories, acts_tracks] = input;
+    auto [propagated_tracks]                            = output;
 
-        void process(
-                const std::tuple<const edm4eic::TrackCollection&, const std::vector<const ActsExamples::Trajectories*>, const std::vector<const ActsExamples::ConstTrackContainer*>> input,
-                const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
+    for (std::size_t i = 0; auto traj : acts_trajectories) {
+      auto this_propagated_track = propagated_tracks->create();
+      if (tracks.size() == acts_trajectories.size()) {
+        m_log->trace("track segment connected to track {}", i);
+        this_propagated_track.setTrack(tracks[i]);
+      }
+      for (auto& surf : m_target_surfaces) {
+        auto prop_point = propagate(
+            tracks.size() == acts_trajectories.size() ? tracks[i] : edm4eic::Track{}, traj, surf);
+        if (!prop_point)
+          continue;
+        prop_point->surface = surf->geometryId().layer();
+        prop_point->system  = surf->geometryId().extra();
+        this_propagated_track.addToPoints(*prop_point);
+      }
+      ++i;
+    }
+  }
 
-            const auto [tracks, acts_trajectories, acts_tracks] = input;
-            auto [propagated_tracks] = output;
-
-            for (size_t i = 0; auto traj: acts_trajectories) {
-                auto this_propagated_track = propagated_tracks->create();
-                if (tracks.size() == acts_trajectories.size()) {
-                    m_log->trace("track segment connected to track {}", i);
-                    this_propagated_track.setTrack(tracks[i]);
-                }
-                for (auto& surf : m_target_surfaces) {
-                    auto prop_point = propagate(
-                        tracks.size() == acts_trajectories.size() ? tracks[i] : edm4eic::Track{},
-                        traj, surf);
-                    if (!prop_point) continue;
-                    prop_point->surface = surf->geometryId().layer();
-                    prop_point->system  = surf->geometryId().extra();
-                    this_propagated_track.addToPoints(*prop_point);
-                }
-                ++i;
-            }
-        }
-
-        /** Propagates a single trajectory to a given surface */
-        std::unique_ptr<edm4eic::TrackPoint> propagate(
-            const edm4eic::Track&,
-            const ActsExamples::Trajectories*,
+  /** Propagates a single trajectory to a given surface */
+  std::unique_ptr<edm4eic::TrackPoint>
+  propagate(const edm4eic::Track&, const ActsExamples::Trajectories*,
             const std::shared_ptr<const Acts::Surface>& targetSurf) const;
 
-        /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`;
+  /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`;
          * @param trajectories the input collection of trajectories
          * @return the resulting collection of propagated tracks
          */
-        void propagateToSurfaceList(
-            const std::tuple<const edm4eic::TrackCollection&, const std::vector<const ActsExamples::Trajectories*>, const std::vector<const ActsExamples::ConstTrackContainer*>> input,
-            const std::tuple<edm4eic::TrackSegmentCollection*> output) const;
+  void propagateToSurfaceList(
+      const std::tuple<const edm4eic::TrackCollection&,
+                       const std::vector<const ActsExamples::Trajectories*>,
+                       const std::vector<const ActsExamples::ConstTrackContainer*>>
+          input,
+      const std::tuple<edm4eic::TrackSegmentCollection*> output) const;
 
-    private:
+private:
+  Acts::GeometryContext m_geoContext;
+  Acts::MagneticFieldContext m_fieldContext;
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
+  std::shared_ptr<spdlog::logger> m_log;
 
-        Acts::GeometryContext m_geoContext;
-        Acts::MagneticFieldContext m_fieldContext;
-        std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
-        std::shared_ptr<spdlog::logger> m_log;
-
-        std::vector<std::shared_ptr<Acts::Surface>> m_filter_surfaces;
-        std::vector<std::shared_ptr<Acts::Surface>> m_target_surfaces;
-    };
+  std::vector<std::shared_ptr<Acts::Surface>> m_filter_surfaces;
+  std::vector<std::shared_ptr<Acts::Surface>> m_target_surfaces;
+};
 } // namespace eicrecon

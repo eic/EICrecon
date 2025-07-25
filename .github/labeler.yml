@@ -48,6 +48,7 @@
 - changed-files:
   - any-glob-to-any-file:
     - "src/detectors/LUMISPECCAL/**"
+    - "src/algorithms/fardetectors/FarDetector*"
 
 "topic: far-forward":
 - changed-files:
@@ -58,6 +59,7 @@
     - "src/detectors/FOFFMTRK/**"
     - "src/detectors/RPOTS/**"
     - "src/detectors/ZDC/**"
+    - "src/algorithms/fardetectors/MatrixTransferStatic*"
 
 "topic: forward":
 - changed-files:
@@ -96,3 +98,4 @@
     - "src/detectors/BTRK/**"
     - "src/detectors/BVTX/**"
     - "src/detectors/MPGD/**"
+    - "src/services/geometry/acts/**"

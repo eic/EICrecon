@@ -7,9 +7,9 @@
 #include <vector>
 
 namespace eicrecon {
-    struct CKFTrackingConfig {
-        std::vector<double> etaBins = {};  // {this, "etaBins", {}};
-        std::vector<double> chi2CutOff = {15.}; //{this, "chi2CutOff", {15.}};
-        std::vector<size_t> numMeasurementsCutOff = {10}; //{this, "numMeasurementsCutOff", {10}};
-    };
-}
+struct CKFTrackingConfig {
+  std::vector<double> etaBins                    = {};    // {this, "etaBins", {}};
+  std::vector<double> chi2CutOff                 = {15.}; //{this, "chi2CutOff", {15.}};
+  std::vector<std::size_t> numMeasurementsCutOff = {10};  //{this, "numMeasurementsCutOff", {10}};
+};
+} // namespace eicrecon

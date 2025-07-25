@@ -3,14 +3,13 @@
 //
 //
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 
 #include "DumpFlags_processor.h"
 
-
 extern "C" {
-    void InitPlugin(JApplication *app) {
-        InitJANAPlugin(app);
-        app->Add(new DumpFlags_processor(app));
-    }
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->Add(new DumpFlags_processor());
+}
 }

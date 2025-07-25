@@ -8,16 +8,16 @@
 
 namespace eicrecon {
 
-  struct PrimaryVerticesConfig {
+struct PrimaryVerticesConfig {
 
-    // For now these are wide open
-    // In the future the cut should depend
-    // on the generator settings
-    float maxVr = 50.0; // mm
-    float maxVz = 500.0; // mm
-    float maxChi2 = 10000.0; //
-    int   minNtrk = 1;  // >=
-    int   maxNtrk = 1000000; // <=
-  };
+  // For now these are wide open
+  // In the future the cut should depend
+  // on the generator settings
+  float maxVr   = 50.0;    // mm
+  float maxVz   = 500.0;   // mm
+  float maxChi2 = 10000.0; //
+  int minNtrk   = 1;       // >=
+  int maxNtrk   = 1000000; // <=
+};
 
-}  // end eicrecon namespace
+} // namespace eicrecon
