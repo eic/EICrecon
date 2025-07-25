@@ -9,6 +9,7 @@
 #include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
@@ -17,7 +18,6 @@
 #include <vector>
 
 #include "algorithms/digi/SiliconChargeSharingConfig.h"
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "factories/digi/CFDROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
