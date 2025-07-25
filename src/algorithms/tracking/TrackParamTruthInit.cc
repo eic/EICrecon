@@ -10,6 +10,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/logger.h>
 #include <edm4eic/Cov6f.h>
+#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <fmt/core.h>
 #include <Eigen/Core>
@@ -18,6 +19,7 @@
 #include <gsl/pointers>
 #include <limits>
 #include <memory>
+#include <random>
 
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
@@ -27,8 +29,13 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
   // MCParticles uses numerical values in its specified units,
   // while m_cfg is in the DD4hep unit system
 
-  const auto [mcparticles] = input;
-  auto [track_parameters]  = output;
+  const auto [headers, mcparticles] = input;
+  auto [track_parameters]           = output;
+
+  // local random generator
+  auto seed = m_uid.getUniqueID(*headers, "TrackParamTruthInit");
+  std::default_random_engine generator(seed);
+  std::normal_distribution<double> gaussian;
 
   // Loop over input particles
   for (const auto& mcparticle : *mcparticles) {
@@ -77,7 +84,7 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
     }
 
     // modify initial momentum to avoid bleeding truth to results when fit fails
-    const auto pinit = pmag * (1.0 + m_cfg.momentumSmear * m_normDist(generator));
+    const auto pinit = pmag * (1.0 + m_cfg.momentumSmear * gaussian(generator));
 
     // define line surface for local position values
     auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));

@@ -14,6 +14,7 @@
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/ParticleSvc.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "services/log/Log_service.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
@@ -84,6 +85,20 @@ public:
 
     // Register a particle service
     [[maybe_unused]] auto& particleSvc = algorithms::ParticleSvc::instance();
+    serviceSvc.add<algorithms::ParticleSvc>(&particleSvc);
+
+    // Register a unique ID service
+    [[maybe_unused]] auto& uniqueIDGenSvc = algorithms::UniqueIDGenSvc::instance();
+    for (const auto& [key, prop] : uniqueIDGenSvc.getProperties()) {
+      std::visit(
+          [this, &uniqueIDGenSvc, key = key](auto&& val) {
+            this->GetApplication()->SetDefaultParameter(std::string(key),
+                                                        val); // FIXME add description
+            uniqueIDGenSvc.setProperty(key, val);
+          },
+          prop.get());
+    }
+    serviceSvc.add<algorithms::UniqueIDGenSvc>(&uniqueIDGenSvc);
 
     // Finally, initialize the ServiceSvc
     serviceSvc.init();
