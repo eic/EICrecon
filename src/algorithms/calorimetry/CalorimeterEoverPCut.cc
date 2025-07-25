@@ -11,6 +11,10 @@
 
 namespace eicrecon {
 
+void CalorimeterEoverPCut::init() {
+  // Nothing
+}
+
 void CalorimeterEoverPCut::process(const Input& input, const Output& output) const {
   const auto& [clusters_notnull, matches_notnull, hits_notnull] = input;
   auto const& clusters                                          = *clusters_notnull;
