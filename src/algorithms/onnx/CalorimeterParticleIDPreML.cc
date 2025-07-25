@@ -39,10 +39,8 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   const auto [clusters, cluster_assocs, ep_pids] = input;
   auto [feature_tensors, target_tensors]         = output;
 
-  // decide which clusters to build features for:
   std::vector<edm4eic::Cluster> sel_clusters;
   if (!ep_pids || ep_pids->empty()) {
-    // no E/P PID stage → use all clusters
     sel_clusters.reserve(clusters->size());
     for (auto const& cl : *clusters) {
       sel_clusters.push_back(cl);
@@ -131,16 +129,14 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
     }
   }
 
-  // Création du tenseur 4D [Nclusters, kNLAYERS, kNHITS, kNFEAT]
   auto ft = feature_tensors->create();
   ft.addToShape(sel_clusters.size());
   ft.addToShape(kNLAYERS);
   ft.addToShape(kNHITS);
-  ft.addToShape(kNFEAT); // 5 canaux : eh, r0, η, φ, lval
-  ft.setElementType(1);  // float
+  ft.addToShape(kNFEAT); 
+  ft.setElementType(1); 
 
   for (auto const& cl : sel_clusters) {
-    // 1) On collecte tous les hits layer<=m_maxLayer
     struct Hit {
       int layer;
       float e, x, y, z;
@@ -155,7 +151,6 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
       totalE += e;
     }
 
-    // 2) Si pas d’énergie, on pad tout à zéro
     if (totalE <= 0.f) {
       for (int l = 0; l < kNLAYERS; ++l)
         for (int h = 0; h < kNHITS; ++h)
@@ -164,11 +159,9 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
       continue;
     }
 
-    // 3) Normalisation des énergies
     for (auto& hit : rec)
       hit.e /= totalE;
 
-    // 4) Calcul du barycentre pondéré (x_c,y_c,z_c)
     float wsum = 0.f, xc = 0.f, yc = 0.f, zc = 0.f;
     for (auto const& hit : rec) {
       float lw = std::max(0.f, std::log(hit.e) + 5.6f);
@@ -181,13 +174,11 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
     yc /= wsum;
     zc /= wsum;
 
-    // 5) Extraction de φ_c et η_c
     float phi_c   = std::atan2(yc, xc);
     float r_c     = std::hypot(xc, yc, zc);
     float theta_c = std::atan2(r_c, zc);
     float eta_c   = -std::log(std::tan(theta_c * 0.5f));
 
-    // 6) Bucketting par couche + tri par énergie descendante
     std::vector<std::vector<Hit>> buckets(kNLAYERS);
     for (auto const& hit : rec) {
       int idx = hit.layer - 1;
@@ -198,18 +189,15 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
       std::sort(b.begin(), b.end(), [](auto& a, auto& b) { return a.e > b.e; });
     }
 
-    // 7) Remplissage du tenseur couche par couche
     for (int l = 0; l < kNLAYERS; ++l) {
       auto& bucket = buckets[l];
       for (int h = 0; h < kNHITS; ++h) {
         if (h < (int)bucket.size()) {
           auto const& hit = bucket[h];
-          // (x,y,z) → (r,η,φ)
           float r_hit     = std::hypot(hit.x, hit.y);
           float theta_hit = std::atan2(r_hit, hit.z);
           float eta_hit   = -std::log(std::tan(theta_hit * 0.5f));
           float phi_hit   = std::atan2(hit.y, hit.x);
-          // normalisations linéaires
           float r_norm   = std::clamp((r_hit - R0_MIN) / (R0_MAX - R0_MIN), 0.f, 1.f);
           float eta_norm = std::clamp((eta_hit - eta_c - ETA_MIN) / (ETA_MAX - ETA_MIN), 0.f, 1.f);
           float dphi     = phi_hit - phi_c;
@@ -220,14 +208,12 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
           float dsphi    = std::sin(dphi * 0.5f);
           float phi_norm = std::clamp((dsphi - PHI_MIN) / (PHI_MAX - PHI_MIN), 0.f, 1.f);
 
-          // ★ on pousse les 5 canaux
           ft.addToFloatData(hit.e);    // eh
           ft.addToFloatData(r_norm);   // r0
           ft.addToFloatData(eta_norm); // η
           ft.addToFloatData(phi_norm); // φ
           ft.addToFloatData(0.f);      // lval (0 pour Astropix)
         } else {
-          // padding complet si moins de NHITS
           for (int f = 0; f < kNFEAT; ++f)
             ft.addToFloatData(0.f);
         }
@@ -235,7 +221,6 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
     }
   }
 
-  // 8) Validation finale de la forme [N,NLAYERS,NHITS,5]
   {
     auto const& shape = ft.getShape();
     size_t expected   = 1;
