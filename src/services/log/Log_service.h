@@ -4,6 +4,7 @@
 #include <JANA/JServiceFwd.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
+#include <cstddef>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -39,4 +40,5 @@ private:
   JApplication* m_application;
   std::string m_log_level_str;
   std::string m_log_format_str;
+  std::size_t m_log_dup_filter;
 };
