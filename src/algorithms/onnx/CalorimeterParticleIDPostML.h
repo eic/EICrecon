@@ -7,6 +7,7 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/TensorCollection.h>
+#include <edm4hep/ParticleIDCollection.h>
 #include <optional>
 #include <string>
 #include <string_view>
