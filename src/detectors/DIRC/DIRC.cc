@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2025 Christopher Dilks, Nilanga Wickramaarachchi, Dmitry Kalinkin
 
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <utility>
@@ -9,7 +12,6 @@
 
 // algorithm configurations
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 
@@ -18,6 +20,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // configuration parameters ///////////////////////////////////////////////
 
@@ -38,6 +41,6 @@ void InitPlugin(JApplication* app) {
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "DIRCRawHits", {"EventHeader", "DIRCBarHits"}, {"DIRCRawHits", "DIRCRawHitsAssociations"},
-      digi_cfg, app));
+      digi_cfg));
 }
 }
