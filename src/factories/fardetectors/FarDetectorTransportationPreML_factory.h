@@ -37,8 +37,6 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_trackparam_input(), m_scatteredelectrons_input(), m_beamelectrons_input()},
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
