@@ -4,7 +4,7 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <edm4hep/Vector2f.h>
-#include <stdlib.h>
+#include <cstdlib>
 #if Acts_VERSION_MAJOR >= 34
 #include <Acts/EventData/TransformationHelpers.hpp>
 #endif
