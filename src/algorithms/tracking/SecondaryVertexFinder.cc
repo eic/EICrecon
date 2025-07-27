@@ -135,7 +135,6 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
   vertexfinderConfigSec.tracksMaxZinterval = m_cfg.tracksMaxZinterval;
   vertexfinderConfigSec.maxIterations      = m_cfg.maxIterations;
   vertexfinderConfigSec.doFullSplitting    = m_cfg.doFullSplitting;
-  // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
   vertexfinderConfigSec.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
   vertexfinderConfigSec.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
 
@@ -306,7 +305,6 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   vertexfinderConfigSec.tracksMaxZinterval = m_cfg.tracksMaxZintervalSec;
   vertexfinderConfigSec.maxIterations      = m_cfg.maxSecIterations;
   vertexfinderConfigSec.doFullSplitting    = m_cfg.doFullSplitting;
-  // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
   vertexfinderConfigSec.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
   vertexfinderConfigSec.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
 
