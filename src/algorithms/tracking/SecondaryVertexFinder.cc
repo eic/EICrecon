@@ -217,7 +217,7 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
           const auto& traj    = trk.getTrajectory();
           const auto& trkPars = traj.getTrackParameters();
           for (const auto& par : trkPars) {
-            double EPSILON = std::numeric_limits<double>::epsilon() * 1.0e-4; // mm
+            double EPSILON = std::numeric_limits<double>::epsilon(); // mm
             if (std::abs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
                     EPSILON &&
                 std::abs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
@@ -391,7 +391,7 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
               const auto& traj    = trk.getTrajectory();
               const auto& trkPars = traj.getTrackParameters();
               for (const auto& par : trkPars) {
-                double EPSILON = std::numeric_limits<double>::epsilon() * 1.0e-4; // mm
+                double EPSILON = std::numeric_limits<double>::epsilon(); // mm
                 if (std::abs((par.getLoc().a / edm4eic::unit::mm) -
                              (loc_a / Acts::UnitConstants::mm)) < EPSILON &&
                     std::abs((par.getLoc().b / edm4eic::unit::mm) -
