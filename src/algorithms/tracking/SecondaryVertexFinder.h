@@ -11,6 +11,9 @@
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
+#include <Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp>
+#include <Acts/Vertexing/AdaptiveMultiVertexFinder.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
@@ -20,9 +23,6 @@
 #include <variant>
 #include <vector>
 
-#include "Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp"
-#include "Acts/Vertexing/AdaptiveMultiVertexFinder.hpp"
-#include "ActsExamples/EventData/Trajectories.hpp"
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "SecondaryVertexFinderConfig.h"

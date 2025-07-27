@@ -16,6 +16,8 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <Acts/Vertexing/AdaptiveGridTrackDensity.hpp>
+#include <Acts/Utilities/Logger.hpp>
 #include <algorithms/service.h>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/Track.h>
@@ -36,8 +38,6 @@
 #include <tuple>
 #include <utility>
 
-#include "Acts/Vertexing/AdaptiveGridTrackDensity.hpp"
-#include "Acts/Utilities/Logger.hpp"
 #include "extensions/spdlog/SpdlogToActs.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h"
