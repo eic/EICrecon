@@ -42,7 +42,9 @@
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h"
 
-void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<spdlog::logger> log) {
+namespace eicrecon {
+
+void SecondaryVertexFinder::init(std::shared_ptr<spdlog::logger> log) {
   m_log            = log;
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   m_geoSvc         = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
@@ -51,30 +53,26 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<spdlog::logger> log) 
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
-std::tuple<std::unique_ptr<edm4eic::VertexCollection>, std::unique_ptr<edm4eic::VertexCollection>>
-eicrecon::SecondaryVertexFinder::produce(
-    const edm4eic::ReconstructedParticleCollection* recotracks,
-    std::vector<const ActsExamples::Trajectories*> trajectories) {
-  auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
-  auto outputVertices  = std::make_unique<edm4eic::VertexCollection>();
+void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input, const SecondaryVertexFinder::Output& output) const {
+  auto [recotracks, trajectories] = input;
+  auto [primaryVertices, outputVertices] = output;
 
   Acts::EigenStepper<> stepperSec(m_BField);
 
   //Need to make sure that the track container is not actually empty
   if (!trajectories.empty()) {
     // Calculate primary vertex using AMVF
-    primaryVertices = calculatePrimaryVertex(recotracks, trajectories, stepperSec);
+    calculatePrimaryVertex(*recotracks, trajectories, stepperSec, *primaryVertices);
     // Primary vertex collection container to be used in Sec. Vertex fitting
-    outputVertices = calculateSecondaryVertex(recotracks, trajectories, stepperSec);
+    calculateSecondaryVertex(*recotracks, trajectories, stepperSec, *outputVertices);
   }
-
-  return std::make_tuple(std::move(primaryVertices), std::move(outputVertices));
 }
 
 //Quickly calculate the PV using the Adaptive Multi-vertex Finder
-std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calculatePrimaryVertex(
-    const edm4eic::ReconstructedParticleCollection* reconParticles,
-    std::vector<const ActsExamples::Trajectories*> trajectories, Acts::EigenStepper<> stepperSec) {
+void SecondaryVertexFinder::calculatePrimaryVertex(
+    const edm4eic::ReconstructedParticleCollection &reconParticles,
+    const std::vector<gsl::not_null<const ActsExamples::Trajectories*>> &trajectories, Acts::EigenStepper<> stepperSec,
+    edm4eic::VertexCollection &prmVertices) const {
 
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
@@ -162,7 +160,6 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
 
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
 
-  auto prmVertices = std::make_unique<edm4eic::VertexCollection>();
   std::vector<Acts::InputTrack> inputTracks;
 
   for (const auto& trajectory : trajectories) {
@@ -193,7 +190,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
                        vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
                        vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
                        vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
-    auto eicvertex = prmVertices->create();
+    auto eicvertex = prmVertices.create();
     eicvertex.setType(1); // boolean flag if vertex is primary vertex of event
     eicvertex.setChi2(static_cast<float>(vtx.fitQuality().first)); // chi2
     eicvertex.setNdf(static_cast<float>(vtx.fitQuality().second)); // ndf
@@ -213,7 +210,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
       float loc_a = par.localPosition().x();
       float loc_b = par.localPosition().y();
 
-      for (const auto& part : *reconParticles) {
+      for (const auto& part : reconParticles) {
         const auto& tracks = part.getTracks();
         for (const auto& trk : tracks) {
           const auto& traj    = trk.getTrajectory();
@@ -238,13 +235,12 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
                  vtx.position().y() / Acts::UnitConstants::mm,
                  vtx.position().z() / Acts::UnitConstants::mm);
   } // end for vtx
-  return prmVertices;
 }
 
-std::unique_ptr<edm4eic::VertexCollection>
-eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
-    const edm4eic::ReconstructedParticleCollection* reconParticles,
-    std::vector<const ActsExamples::Trajectories*> trajectories, Acts::EigenStepper<> stepperSec) {
+void SecondaryVertexFinder::calculateSecondaryVertex(
+    const edm4eic::ReconstructedParticleCollection &reconParticles,
+    const std::vector<gsl::not_null<const ActsExamples::Trajectories*>> &trajectories, Acts::EigenStepper<> stepperSec,
+    edm4eic::VertexCollection &secVertices) const {
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
   // Set-up the propagator
@@ -335,7 +331,6 @@ eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
 
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
 
-  auto secVertices = std::make_unique<edm4eic::VertexCollection>();
   //--->Add Prm Vertex container here
   std::vector<Acts::InputTrack> inputTracks;
   for (unsigned int i = 0; i < trajectories.size() - 1; i++) {
@@ -369,7 +364,7 @@ eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
                            secvertex.fullCovariance()(0, 1), secvertex.fullCovariance()(0, 2),
                            secvertex.fullCovariance()(0, 3), secvertex.fullCovariance()(1, 2),
                            secvertex.fullCovariance()(1, 3), secvertex.fullCovariance()(2, 3));
-        auto eicvertex = secVertices->create();
+        auto eicvertex = secVertices.create();
         eicvertex.setType(0); // boolean flag if vertex is primary vertex of event
         eicvertex.setChi2(static_cast<float>(secvertex.fitQuality().first)); // chi2
         eicvertex.setNdf(static_cast<float>(secvertex.fitQuality().second)); // ndf
@@ -389,7 +384,7 @@ eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
           float loc_a = par.localPosition().x();
           float loc_b = par.localPosition().y();
 
-          for (const auto& part : *reconParticles) {
+          for (const auto& part : reconParticles) {
             const auto& tracks = part.getTracks();
             for (const auto& trk : tracks) {
               const auto& traj    = trk.getTrajectory();
@@ -415,5 +410,6 @@ eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
       inputTracks.clear();
     } //end of int j=i+1
   } // end of int i=0; i<trajectories.size()
-  return secVertices;
+}
+
 }

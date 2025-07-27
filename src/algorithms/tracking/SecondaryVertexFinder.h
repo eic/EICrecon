@@ -11,6 +11,7 @@
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
+#include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
@@ -28,25 +29,37 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
-class SecondaryVertexFinder : public WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
-public:
-  void init(std::shared_ptr<spdlog::logger> log);
 
-  std::tuple<std::unique_ptr<edm4eic::VertexCollection>, std::unique_ptr<edm4eic::VertexCollection>>
-  produce(const edm4eic::ReconstructedParticleCollection*,
-          std::vector<const ActsExamples::Trajectories*> trajectories);
+using SecondaryVertexFinderAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::ReconstructedParticleCollection, std::vector<const ActsExamples::Trajectories>>,
+    algorithms::Output<edm4eic::VertexCollection, edm4eic::VertexCollection>>;
+
+
+class SecondaryVertexFinder : public SecondaryVertexFinderAlgorithm,
+                              public WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
+public:
+  SecondaryVertexFinder(std::string_view name)
+      : SecondaryVertexFinderAlgorithm{
+            name,
+            {"inputReconstructedParticles", "inputActsTrajectories"},
+            {"outputPrimaryVertices", "outputSecondaryVertices"},
+            ""} {}
+
+  void init(std::shared_ptr<spdlog::logger> log) /*final*/;
+
+  void process(const Input&, const Output&) const final;
 
   // Calculate an initial Primary Vertex
-  std::unique_ptr<edm4eic::VertexCollection>
-  calculatePrimaryVertex(const edm4eic::ReconstructedParticleCollection*,
-                         std::vector<const ActsExamples::Trajectories*> trajectories,
-                         Acts::EigenStepper<>);
+  void calculatePrimaryVertex(const edm4eic::ReconstructedParticleCollection&,
+                         const std::vector<gsl::not_null<const ActsExamples::Trajectories*>> &trajectories,
+                         Acts::EigenStepper<>,
+                         edm4eic::VertexCollection&) const;
 
   //Calculate secondary vertex and store secVertex container
-  std::unique_ptr<edm4eic::VertexCollection>
-  calculateSecondaryVertex(const edm4eic::ReconstructedParticleCollection*,
-                           std::vector<const ActsExamples::Trajectories*> trajectories,
-                           Acts::EigenStepper<>);
+  void calculateSecondaryVertex(const edm4eic::ReconstructedParticleCollection&,
+                           const std::vector<gsl::not_null<const ActsExamples::Trajectories*>> &trajectories,
+                           Acts::EigenStepper<>,
+                           edm4eic::VertexCollection&) const;
 
   // Functions to be used to check efficacy of sec. vertex
   void setVertexContainer(std::vector<Acts::Vertex> inputcontainer) {
