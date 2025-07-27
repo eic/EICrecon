@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) Dongwi H. Dongwi (Bishoy)
+// Copyright (C) 2025 Dongwi H. Dongwi (Bishoy)
 
 #pragma once
 
