@@ -53,8 +53,9 @@ void SecondaryVertexFinder::init(std::shared_ptr<spdlog::logger> log) {
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
-void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input, const SecondaryVertexFinder::Output& output) const {
-  auto [recotracks, trajectories] = input;
+void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
+                                    const SecondaryVertexFinder::Output& output) const {
+  auto [recotracks, trajectories]        = input;
   auto [primaryVertices, outputVertices] = output;
 
   Acts::EigenStepper<> stepperSec(m_BField);
@@ -70,9 +71,9 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input, c
 
 //Quickly calculate the PV using the Adaptive Multi-vertex Finder
 void SecondaryVertexFinder::calculatePrimaryVertex(
-    const edm4eic::ReconstructedParticleCollection &reconParticles,
-    const std::vector<gsl::not_null<const ActsExamples::Trajectories*>> &trajectories, Acts::EigenStepper<> stepperSec,
-    edm4eic::VertexCollection &prmVertices) const {
+    const edm4eic::ReconstructedParticleCollection& reconParticles,
+    const std::vector<gsl::not_null<const ActsExamples::Trajectories*>>& trajectories,
+    Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& prmVertices) const {
 
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
@@ -238,9 +239,9 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
 }
 
 void SecondaryVertexFinder::calculateSecondaryVertex(
-    const edm4eic::ReconstructedParticleCollection &reconParticles,
-    const std::vector<gsl::not_null<const ActsExamples::Trajectories*>> &trajectories, Acts::EigenStepper<> stepperSec,
-    edm4eic::VertexCollection &secVertices) const {
+    const edm4eic::ReconstructedParticleCollection& reconParticles,
+    const std::vector<gsl::not_null<const ActsExamples::Trajectories*>>& trajectories,
+    Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& secVertices) const {
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
   // Set-up the propagator
@@ -412,4 +413,4 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   } // end of int i=0; i<trajectories.size()
 }
 
-}
+} // namespace eicrecon
