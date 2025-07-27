@@ -23,8 +23,6 @@ private:
 public:
   void Configure() {}
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     for (const auto& traj : m_acts_trajectories1_input()) {
       ActsExamples::Trajectories::IndexedParameters trackParameters;

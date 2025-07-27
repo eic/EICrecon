@@ -35,8 +35,6 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     auto in1 = m_track_segments_input();
     std::vector<gsl::not_null<const edm4eic::TrackSegmentCollection*>> in2;

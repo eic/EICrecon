@@ -48,10 +48,6 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {
-    //... nothing to do ...//
-  }
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_clusters_input(), m_assocs_input()},
                     {m_clusters_output().get(), m_assocs_output().get()});
