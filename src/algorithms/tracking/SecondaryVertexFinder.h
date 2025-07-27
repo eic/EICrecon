@@ -44,10 +44,14 @@ public:
                                        {"outputPrimaryVertices", "outputSecondaryVertices"},
                                        ""} {}
 
-  void init(std::shared_ptr<spdlog::logger> log) /*final*/;
+  void init() final;
 
   void process(const Input&, const Output&) const final;
 
+  // FIXME this is not compliant with algorithms interface
+  void applyLogger(std::shared_ptr<spdlog::logger> log) { m_log = log; };
+
+private:
   // Calculate an initial Primary Vertex
   void calculatePrimaryVertex(
       const edm4eic::ReconstructedParticleCollection&,
@@ -73,7 +77,6 @@ public:
   using VertexFinderOptionsSec = Acts::VertexingOptions;
   using seedFinder             = Acts::AdaptiveGridDensityVertexFinder;
 
-private:
   std::shared_ptr<spdlog::logger> m_log;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 

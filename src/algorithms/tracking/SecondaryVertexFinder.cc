@@ -44,8 +44,7 @@
 
 namespace eicrecon {
 
-void SecondaryVertexFinder::init(std::shared_ptr<spdlog::logger> log) {
-  m_log            = log;
+void SecondaryVertexFinder::init() {
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   m_geoSvc         = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
   m_BField =

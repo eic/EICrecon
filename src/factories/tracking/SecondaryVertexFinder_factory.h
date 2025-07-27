@@ -49,7 +49,8 @@ public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
     m_algo->applyConfig(config());
-    m_algo->init(logger());
+    m_algo->applyLogger(logger());
+    m_algo->init();
   }
 
   void ChangeRun(int32_t) {}
