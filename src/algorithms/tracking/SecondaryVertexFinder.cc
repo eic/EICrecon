@@ -131,10 +131,10 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
   // dimension.
   vertexfinderConfigSec.initialVariances = {1e+2, 1e+2, 1e+2, 1e+8};
   //Use time for Sec. Vertex
-  vertexfinderConfigSec.useTime            = m_cfg.useTime;
-  vertexfinderConfigSec.tracksMaxZinterval = m_cfg.tracksMaxZinterval;
-  vertexfinderConfigSec.maxIterations      = m_cfg.maxIterations;
-  vertexfinderConfigSec.doFullSplitting    = m_cfg.doFullSplitting;
+  vertexfinderConfigSec.useTime                    = m_cfg.useTime;
+  vertexfinderConfigSec.tracksMaxZinterval         = m_cfg.tracksMaxZinterval;
+  vertexfinderConfigSec.maxIterations              = m_cfg.maxIterations;
+  vertexfinderConfigSec.doFullSplitting            = m_cfg.doFullSplitting;
   vertexfinderConfigSec.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
   vertexfinderConfigSec.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
 
@@ -300,11 +300,11 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   // dimension.
   vertexfinderConfigSec.initialVariances = {1e+2, 1e+2, 1e+2, 1e+8};
   //Use time for Sec. Vertex
-  vertexfinderConfigSec.useTime            = m_cfg.useTime;
-  vertexfinderConfigSec.useSeedConstraint  = m_cfg.useSeedConstraint;
-  vertexfinderConfigSec.tracksMaxZinterval = m_cfg.tracksMaxZintervalSec;
-  vertexfinderConfigSec.maxIterations      = m_cfg.maxSecIterations;
-  vertexfinderConfigSec.doFullSplitting    = m_cfg.doFullSplitting;
+  vertexfinderConfigSec.useTime                    = m_cfg.useTime;
+  vertexfinderConfigSec.useSeedConstraint          = m_cfg.useSeedConstraint;
+  vertexfinderConfigSec.tracksMaxZinterval         = m_cfg.tracksMaxZintervalSec;
+  vertexfinderConfigSec.maxIterations              = m_cfg.maxSecIterations;
+  vertexfinderConfigSec.doFullSplitting            = m_cfg.doFullSplitting;
   vertexfinderConfigSec.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
   vertexfinderConfigSec.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
 
