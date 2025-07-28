@@ -11,13 +11,15 @@
 #include <Acts/Propagator/VoidNavigator.hpp>
 #include <Acts/Utilities/AnnealingUtility.hpp>
 #include <Acts/Utilities/Delegate.hpp>
+#include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Utilities/detail/ContextType.hpp>
-#include <ActsExamples/EventData/Track.hpp>
-#include <Acts/Vertexing/TrackAtVertex.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <Acts/Vertexing/AdaptiveGridTrackDensity.hpp>
-#include <Acts/Utilities/Logger.hpp>
+#include <Acts/Vertexing/IVertexFinder.hpp>
+#include <Acts/Vertexing/LinearizedTrack.hpp>
+#include <Acts/Vertexing/TrackAtVertex.hpp>
+#include <ActsExamples/EventData/Track.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/service.h>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/Track.h>
@@ -35,12 +37,11 @@
 #include <limits>
 #include <string>
 #include <memory>
-#include <tuple>
 #include <utility>
 
-#include "extensions/spdlog/SpdlogToActs.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h"
+#include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
 

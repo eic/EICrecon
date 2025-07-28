@@ -6,21 +6,22 @@
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp>
+#include <Acts/Vertexing/AdaptiveMultiVertexFinder.hpp>
 #include <Acts/Vertexing/AdaptiveMultiVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
-#include <Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp>
-#include <Acts/Vertexing/AdaptiveMultiVertexFinder.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
+#include <gsl/pointers>
 #include <memory>
-#include <tuple>
-#include <variant>
+#include <string>
+#include <string_view>
 #include <vector>
 
 #include "ActsGeometryProvider.h"
