@@ -40,7 +40,7 @@ class SignalPulse {
 
 public:
   virtual ~SignalPulse()                                = default; // Virtual destructor
-  virtual double operator()(double time, double charge) = 0;
+  virtual double operator()(double time, double charge) const = 0;
   virtual double getMaximumTime() const                 = 0;
 };
 
@@ -49,7 +49,7 @@ class LandauPulse : public SignalPulse {
 
 public:
   LandauPulse(std::vector<double> params);
-  double operator()(double time, double charge) override;
+  double operator()(double time, double charge) const override;
   double getMaximumTime() const override;
 
 private:
@@ -63,7 +63,7 @@ class EvaluatorPulse : public SignalPulse {
 
 public:
   EvaluatorPulse(const std::string& expression, const std::vector<double>& params);
-  double operator()(double time, double charge) override;
+  double operator()(double time, double charge) const override;
   double getMaximumTime() const override;
 
 private:

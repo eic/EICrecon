@@ -39,7 +39,7 @@ LandauPulse::LandauPulse(std::vector<double> params) {
   }
 };
 
-double LandauPulse::operator()(double time, double charge) {
+double LandauPulse::operator()(double time, double charge) const {
   return charge * m_gain *
          TMath::Landau(time, m_hit_sigma_offset * m_sigma_analog, m_sigma_analog, kTRUE);
 }
@@ -71,10 +71,11 @@ EvaluatorPulse::EvaluatorPulse(const std::string& expression, const std::vector<
   m_evaluator      = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->_compile(expression, keys);
 };
 
-double EvaluatorPulse::operator()(double time, double charge) {
-  param_map["time"]   = time;
-  param_map["charge"] = charge;
-  return m_evaluator(param_map);
+double EvaluatorPulse::operator()(double time, double charge) const {
+  auto local_map = param_map;
+  local_map["time"]   = time;
+  local_map["charge"] = charge;
+  return m_evaluator(local_map);
 }
 
 double EvaluatorPulse::getMaximumTime() const { return 0; }
