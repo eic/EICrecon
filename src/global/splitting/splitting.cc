@@ -52,16 +52,12 @@ void InitPlugin(JApplication* app) {
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
 
-
   app->Add(new JOmniFactoryGeneratorT<TimeCoincidenceFactory>(
       jana::components::JOmniFactoryGeneratorT<TimeCoincidenceFactory>::TypedWiring{
           .tag                  = "timeCoincidence",
           .level                = JEventLevel::PhysicsEvent,
           .variadic_input_names = m_simtrackerhit_collection_names,
-          .output_names         = {"triggerflag"}
-        }
-      ));
-
+          .output_names         = {"triggerflag"}}));
 
   // app->Add(new JOmniFactoryGeneratorT<HitChecker>(jana::components::JOmniFactoryGeneratorT<HitChecker>::TypedWiring
   //   {.tag          = "timeslice_hit_checker",
@@ -74,6 +70,5 @@ void InitPlugin(JApplication* app) {
   //    .level        = JEventLevel::PhysicsEvent,
   //    .input_names  = {"SiBarrelHits"},
   //    .output_names = {"phys_checked_hits"}}));
-
 }
 } // "C"

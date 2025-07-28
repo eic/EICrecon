@@ -50,8 +50,6 @@ struct TimeCoincidenceFactory : public JOmniFactory<TimeCoincidenceFactory> {
 
   void Execute(int64_t run_number, uint64_t event_number) {
 
-    
-
     for (size_t coll_index = 0; coll_index < m_simtrackerhits_in().size(); ++coll_index) {
       const auto* coll_in = m_simtrackerhits_in().at(coll_index);
       auto& coll_out      = m_simtrackerhits_out().at(coll_index);
