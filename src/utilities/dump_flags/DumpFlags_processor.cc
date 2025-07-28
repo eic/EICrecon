@@ -2,10 +2,10 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
-#include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
@@ -14,7 +14,9 @@
 #include <exception>
 #include <fstream>
 #include <map>
+#include <memory>
 #include <regex>
+#include <utility>
 
 using namespace fmt;
 

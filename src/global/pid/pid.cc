@@ -2,9 +2,10 @@
 // Copyright (C) 2022, 2023, Christopher Dilks
 
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <string>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/pid/MatchToRICHPID_factory.h"

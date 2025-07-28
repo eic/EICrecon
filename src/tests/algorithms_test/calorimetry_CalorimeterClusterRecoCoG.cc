@@ -6,8 +6,6 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4hep/Vector2i.h>
-#include <edm4hep/Vector3d.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
@@ -16,11 +14,14 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/Vector2i.h>
+#include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <memory>
+#include <string>
 #include <tuple>
 #include <vector>
 

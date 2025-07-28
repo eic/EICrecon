@@ -3,6 +3,8 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <edm4hep/Vector2f.h>
+#include <stdlib.h>
 #if Acts_VERSION_MAJOR >= 34
 #include <Acts/EventData/TransformationHelpers.hpp>
 #endif
@@ -19,6 +21,7 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
+#include <any>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>

@@ -2,6 +2,7 @@
 // Copyright (C) 2024, Simon Gardner
 
 #include <TMVA/IMethod.h>
+#include <TString.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/Vector2f.h>

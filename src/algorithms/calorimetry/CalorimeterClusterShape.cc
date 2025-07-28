@@ -15,6 +15,7 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <Eigen/Householder> // IWYU pragma: keep
+#include <Eigen/Jacobi>
 #include <cctype>
 #include <cmath>
 #include <complex>

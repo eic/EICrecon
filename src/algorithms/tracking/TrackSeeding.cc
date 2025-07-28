@@ -5,6 +5,9 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/SpacePointProxy.hpp>
+#include <Acts/Seeding/SeedFinderUtils.hpp>
+#include <edm4hep/Vector2f.h>
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/Seed.hpp>
 #else
@@ -20,18 +23,14 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Utilities/Result.hpp>
-#include <boost/container/small_vector.hpp>
-#include <boost/container/vector.hpp>
 #include <edm4eic/Cov6f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <array>
 #include <cmath>
-#include <functional>
 #include <gsl/pointers>
 #include <limits>
-#include <optional>
 #include <tuple>
-#include <type_traits>
 
 namespace eicrecon {
 

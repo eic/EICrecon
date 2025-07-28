@@ -4,6 +4,7 @@
 #include "RichGeo_service.h"
 
 #include <JANA/JException.h>
+#include <JANA/Services/JServiceLocator.h>
 #include <fmt/core.h>
 #include <exception>
 #include <gsl/pointers>

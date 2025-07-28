@@ -10,13 +10,11 @@
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <RtypesCore.h>
 #include <TMath.h>
-#include <algorithm>
-#include <cmath>
-#include <cstdint>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
@@ -25,11 +23,15 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <podio/RelationRange.h>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <gsl/pointers>
 #include <iostream>
 #include <limits>
 #include <map>
-#include <podio/RelationRange.h>
 #include <stdexcept>
 #include <vector>
 

@@ -13,10 +13,11 @@
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#include <boost/container/detail/std_fwd.hpp>
+#include <fmt/format.h>
 #if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #endif
-#include <Acts/TrackFitting/detail/VoidFitterComponents.hpp>
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Utilities/Iterator.hpp>
 #endif
@@ -78,6 +79,7 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
+#include <any>
 #include <array>
 #include <cstddef>
 #include <functional>

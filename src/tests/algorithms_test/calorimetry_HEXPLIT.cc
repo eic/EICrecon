@@ -17,7 +17,9 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <memory>  // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
+#include <string>
 #include <utility> // for pair
+#include <vector>
 
 #include "algorithms/calorimetry/HEXPLIT.h"       // for HEXPLIT
 #include "algorithms/calorimetry/HEXPLITConfig.h" // for HEXPLITConfig
