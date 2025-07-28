@@ -130,7 +130,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
   // Set the initial variance of the 4D vertex position. Since time is on a
   // numerical scale, we have to provide a greater value in the corresponding
   // dimension.
-  vertexfinderConfigSec.initialVariances = {1e+2, 1e+2, 1e+2, 1e+8};
+  vertexfinderConfigSec.initialVariances   = m_cfg.initialVariances;
   //Use time for Sec. Vertex
   vertexfinderConfigSec.useTime            = m_cfg.useTime;
   vertexfinderConfigSec.tracksMaxZinterval = m_cfg.tracksMaxZinterval;
@@ -302,7 +302,7 @@ eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
   // Set the initial variance of the 4D vertex position. Since time is on a
   // numerical scale, we have to provide a greater value in the corresponding
   // dimension.
-  vertexfinderConfigSec.initialVariances = {1e+2, 1e+2, 1e+2, 1e+8};
+  vertexfinderConfigSec.initialVariances   = m_cfg.initialVariances;
   //Use time for Sec. Vertex
   vertexfinderConfigSec.useTime            = m_cfg.useTime;
   vertexfinderConfigSec.useSeedConstraint  = m_cfg.useSeedConstraint;

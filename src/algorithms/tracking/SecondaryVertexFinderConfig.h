@@ -26,6 +26,7 @@ struct SecondaryVertexFinderConfig {
   float maxDistToLinPoint          = 5.5 * Acts::UnitConstants::mm;
   // Bin extent in z-direction
   float spatialBinExtent = 25 * Acts::UnitConstants::um;
+  Acts::Vector4 initialVariances = Acts::Vector4{1e+2, 1e+2, 1e+2, 1e+8};
   // Bin extent in t-direction
   float temporalBinExtent          = 19. * Acts::UnitConstants::mm;
   bool doSmoothing                 = true;
