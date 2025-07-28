@@ -35,8 +35,6 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_mcparticles_input(), m_energy_clusters_input(), m_energy_assocs_input(),
                      m_position_clusters_input(), m_position_assocs_input()},

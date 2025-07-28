@@ -3,9 +3,11 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
@@ -32,7 +34,7 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
       10 * dd4hep::picosecond;
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalEndcapPRawHits", {"EcalEndcapPHits"},
+      "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
       {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
       {
           .eRes      = {0.11333 * sqrt(dd4hep::GeV), 0.03,

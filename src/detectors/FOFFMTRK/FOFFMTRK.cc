@@ -5,6 +5,8 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <string>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
@@ -20,7 +22,7 @@ void InitPlugin(JApplication* app) {
 
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "ForwardOffMTrackerRawHits", {"ForwardOffMTrackerHits"},
+      "ForwardOffMTrackerRawHits", {"EventHeader", "ForwardOffMTrackerHits"},
       {"ForwardOffMTrackerRawHits", "ForwardOffMTrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,

@@ -11,7 +11,7 @@
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <fmt/core.h>
-#include <math.h>
+#include <cmath>
 #include <functional>
 #include <map>
 #include <memory>
@@ -46,7 +46,7 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "TrackTruthSeeds", {"MCParticles"}, {"TrackTruthSeeds"}, {}, app));
+      "TrackTruthSeeds", {"EventHeader", "MCParticles"}, {"TrackTruthSeeds"}, {}, app));
 
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};

@@ -32,8 +32,6 @@ public:
     m_algo->init();
   };
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     std::vector<gsl::not_null<const ActsExamples::Trajectories*>> acts_trajectories_input;
     for (auto acts_traj : m_acts_trajectories_input()) {

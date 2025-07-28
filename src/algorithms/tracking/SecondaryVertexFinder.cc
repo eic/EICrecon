@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) Dongwi H. Dongwi (Bishoy)
+// Copyright (C) 2025 Dongwi H. Dongwi (Bishoy)
 
 #include "SecondaryVertexFinder.h"
 
@@ -16,6 +16,8 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <Acts/Vertexing/AdaptiveGridTrackDensity.hpp>
+#include <Acts/Utilities/Logger.hpp>
 #include <algorithms/service.h>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/Track.h>
@@ -36,14 +38,13 @@
 #include <tuple>
 #include <utility>
 
-#include "Acts/Vertexing/AdaptiveGridTrackDensity.hpp"
-#include "Acts/Utilities/Logger.hpp"
 #include "extensions/spdlog/SpdlogToActs.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h"
 
-void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<spdlog::logger> log) {
-  m_log            = log;
+namespace eicrecon {
+
+void SecondaryVertexFinder::init() {
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   m_geoSvc         = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
   m_BField =
@@ -51,30 +52,27 @@ void eicrecon::SecondaryVertexFinder::init(std::shared_ptr<spdlog::logger> log) 
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
-std::tuple<std::unique_ptr<edm4eic::VertexCollection>, std::unique_ptr<edm4eic::VertexCollection>>
-eicrecon::SecondaryVertexFinder::produce(
-    const edm4eic::ReconstructedParticleCollection* recotracks,
-    std::vector<const ActsExamples::Trajectories*> trajectories) {
-  auto primaryVertices = std::make_unique<edm4eic::VertexCollection>();
-  auto outputVertices  = std::make_unique<edm4eic::VertexCollection>();
+void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
+                                    const SecondaryVertexFinder::Output& output) const {
+  auto [recotracks, trajectories]        = input;
+  auto [primaryVertices, outputVertices] = output;
 
   Acts::EigenStepper<> stepperSec(m_BField);
 
   //Need to make sure that the track container is not actually empty
   if (!trajectories.empty()) {
     // Calculate primary vertex using AMVF
-    primaryVertices = calculatePrimaryVertex(recotracks, trajectories, stepperSec);
+    calculatePrimaryVertex(*recotracks, trajectories, stepperSec, *primaryVertices);
     // Primary vertex collection container to be used in Sec. Vertex fitting
-    outputVertices = calculateSecondaryVertex(recotracks, trajectories, stepperSec);
+    calculateSecondaryVertex(*recotracks, trajectories, stepperSec, *outputVertices);
   }
-
-  return std::make_tuple(std::move(primaryVertices), std::move(outputVertices));
 }
 
 //Quickly calculate the PV using the Adaptive Multi-vertex Finder
-std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calculatePrimaryVertex(
-    const edm4eic::ReconstructedParticleCollection* reconParticles,
-    std::vector<const ActsExamples::Trajectories*> trajectories, Acts::EigenStepper<> stepperSec) {
+void SecondaryVertexFinder::calculatePrimaryVertex(
+    const edm4eic::ReconstructedParticleCollection& reconParticles,
+    const std::vector<gsl::not_null<const ActsExamples::Trajectories*>>& trajectories,
+    Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& prmVertices) const {
 
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
@@ -132,11 +130,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
   // dimension.
   vertexfinderConfigSec.initialVariances   = m_cfg.initialVariances;
   //Use time for Sec. Vertex
-  vertexfinderConfigSec.useTime            = m_cfg.useTime;
-  vertexfinderConfigSec.tracksMaxZinterval = m_cfg.tracksMaxZinterval;
-  vertexfinderConfigSec.maxIterations      = m_cfg.maxIterations;
-  vertexfinderConfigSec.doFullSplitting    = m_cfg.doFullSplitting;
-  // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
+  vertexfinderConfigSec.useTime                    = m_cfg.useTime;
+  vertexfinderConfigSec.tracksMaxZinterval         = m_cfg.tracksMaxZinterval;
+  vertexfinderConfigSec.maxIterations              = m_cfg.maxIterations;
+  vertexfinderConfigSec.doFullSplitting            = m_cfg.doFullSplitting;
   vertexfinderConfigSec.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
   vertexfinderConfigSec.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
 
@@ -162,7 +159,6 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
 
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
 
-  auto prmVertices = std::make_unique<edm4eic::VertexCollection>();
   std::vector<Acts::InputTrack> inputTracks;
 
   for (const auto& trajectory : trajectories) {
@@ -193,7 +189,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
                        vtx.fullCovariance()(0, 1), vtx.fullCovariance()(0, 2),
                        vtx.fullCovariance()(0, 3), vtx.fullCovariance()(1, 2),
                        vtx.fullCovariance()(1, 3), vtx.fullCovariance()(2, 3));
-    auto eicvertex = prmVertices->create();
+    auto eicvertex = prmVertices.create();
     eicvertex.setType(1); // boolean flag if vertex is primary vertex of event
     eicvertex.setChi2(static_cast<float>(vtx.fitQuality().first)); // chi2
     eicvertex.setNdf(static_cast<float>(vtx.fitQuality().second)); // ndf
@@ -213,13 +209,13 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
       float loc_a = par.localPosition().x();
       float loc_b = par.localPosition().y();
 
-      for (const auto& part : *reconParticles) {
+      for (const auto& part : reconParticles) {
         const auto& tracks = part.getTracks();
         for (const auto& trk : tracks) {
           const auto& traj    = trk.getTrajectory();
           const auto& trkPars = traj.getTrackParameters();
           for (const auto& par : trkPars) {
-            double EPSILON = std::numeric_limits<double>::epsilon() * 1.0e-4; // mm
+            double EPSILON = std::numeric_limits<double>::epsilon(); // mm
             if (std::abs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
                     EPSILON &&
                 std::abs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
@@ -238,13 +234,12 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::SecondaryVertexFinder::calc
                  vtx.position().y() / Acts::UnitConstants::mm,
                  vtx.position().z() / Acts::UnitConstants::mm);
   } // end for vtx
-  return prmVertices;
 }
 
-std::unique_ptr<edm4eic::VertexCollection>
-eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
-    const edm4eic::ReconstructedParticleCollection* reconParticles,
-    std::vector<const ActsExamples::Trajectories*> trajectories, Acts::EigenStepper<> stepperSec) {
+void SecondaryVertexFinder::calculateSecondaryVertex(
+    const edm4eic::ReconstructedParticleCollection& reconParticles,
+    const std::vector<gsl::not_null<const ActsExamples::Trajectories*>>& trajectories,
+    Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& secVertices) const {
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
   // Set-up the propagator
@@ -304,12 +299,11 @@ eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
   // dimension.
   vertexfinderConfigSec.initialVariances   = m_cfg.initialVariances;
   //Use time for Sec. Vertex
-  vertexfinderConfigSec.useTime            = m_cfg.useTime;
-  vertexfinderConfigSec.useSeedConstraint  = m_cfg.useSeedConstraint;
-  vertexfinderConfigSec.tracksMaxZinterval = m_cfg.tracksMaxZintervalSec;
-  vertexfinderConfigSec.maxIterations      = m_cfg.maxSecIterations;
-  vertexfinderConfigSec.doFullSplitting    = m_cfg.doFullSplitting;
-  // 5 corresponds to a p-value of ~0.92 using `chi2(x=5,ndf=2)`
+  vertexfinderConfigSec.useTime                    = m_cfg.useTime;
+  vertexfinderConfigSec.useSeedConstraint          = m_cfg.useSeedConstraint;
+  vertexfinderConfigSec.tracksMaxZinterval         = m_cfg.tracksMaxZintervalSec;
+  vertexfinderConfigSec.maxIterations              = m_cfg.maxSecIterations;
+  vertexfinderConfigSec.doFullSplitting            = m_cfg.doFullSplitting;
   vertexfinderConfigSec.tracksMaxSignificance      = m_cfg.tracksMaxSignificance;
   vertexfinderConfigSec.maxMergeVertexSignificance = m_cfg.maxMergeVertexSignificance;
 
@@ -335,7 +329,6 @@ eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
 
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
 
-  auto secVertices = std::make_unique<edm4eic::VertexCollection>();
   //--->Add Prm Vertex container here
   std::vector<Acts::InputTrack> inputTracks;
   for (unsigned int i = 0; i < trajectories.size() - 1; i++) {
@@ -369,7 +362,7 @@ eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
                            secvertex.fullCovariance()(0, 1), secvertex.fullCovariance()(0, 2),
                            secvertex.fullCovariance()(0, 3), secvertex.fullCovariance()(1, 2),
                            secvertex.fullCovariance()(1, 3), secvertex.fullCovariance()(2, 3));
-        auto eicvertex = secVertices->create();
+        auto eicvertex = secVertices.create();
         eicvertex.setType(0); // boolean flag if vertex is primary vertex of event
         eicvertex.setChi2(static_cast<float>(secvertex.fitQuality().first)); // chi2
         eicvertex.setNdf(static_cast<float>(secvertex.fitQuality().second)); // ndf
@@ -389,13 +382,13 @@ eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
           float loc_a = par.localPosition().x();
           float loc_b = par.localPosition().y();
 
-          for (const auto& part : *reconParticles) {
+          for (const auto& part : reconParticles) {
             const auto& tracks = part.getTracks();
             for (const auto& trk : tracks) {
               const auto& traj    = trk.getTrajectory();
               const auto& trkPars = traj.getTrackParameters();
               for (const auto& par : trkPars) {
-                double EPSILON = std::numeric_limits<double>::epsilon() * 1.0e-4; // mm
+                double EPSILON = std::numeric_limits<double>::epsilon(); // mm
                 if (std::abs((par.getLoc().a / edm4eic::unit::mm) -
                              (loc_a / Acts::UnitConstants::mm)) < EPSILON &&
                     std::abs((par.getLoc().b / edm4eic::unit::mm) -
@@ -415,5 +408,6 @@ eicrecon::SecondaryVertexFinder::calculateSecondaryVertex(
       inputTracks.clear();
     } //end of int j=i+1
   } // end of int i=0; i<trajectories.size()
-  return secVertices;
 }
+
+} // namespace eicrecon

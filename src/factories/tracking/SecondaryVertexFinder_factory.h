@@ -27,8 +27,8 @@ private:
 
   PodioInput<edm4eic::ReconstructedParticle> m_reco_input{this};
   Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
-  PodioOutput<edm4eic::Vertex> prm_vertices_output{this};
-  PodioOutput<edm4eic::Vertex> sec_vertices_output{this};
+  PodioOutput<edm4eic::Vertex> m_prm_vertices_output{this};
+  PodioOutput<edm4eic::Vertex> m_sec_vertices_output{this};
 
   ParameterRef<int> m_maxVertices{this, "maxVertices", config().maxVertices,
                                   "Maximum num vertices that can be found"};
@@ -47,16 +47,28 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<AlgoT>();
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
     m_algo->applyConfig(config());
-    m_algo->init(logger());
+    m_algo->applyLogger(logger());
+    m_algo->init();
   }
 
   void ChangeRun(int32_t) {}
 
   void Process(int32_t, uint64_t) {
-    std::tie(prm_vertices_output(), sec_vertices_output()) =
-        m_algo->produce(m_reco_input(), m_acts_trajectories_input());
+    std::vector<gsl::not_null<const ActsExamples::Trajectories*>> acts_trajectories_input;
+    for (auto acts_traj : m_acts_trajectories_input()) {
+      acts_trajectories_input.push_back(acts_traj);
+    }
+    m_algo->process(
+        {
+            m_reco_input(),
+            acts_trajectories_input,
+        },
+        {
+            m_prm_vertices_output().get(),
+            m_sec_vertices_output().get(),
+        });
   }
 };
 

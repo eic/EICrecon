@@ -5,9 +5,10 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <string>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -20,7 +21,8 @@ void InitPlugin(JApplication* app) {
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "SiBarrelRawHits", {"SiBarrelHits"}, {"SiBarrelRawHits", "SiBarrelRawHitAssociations"},
+      "SiBarrelRawHits", {"EventHeader", "SiBarrelHits"},
+      {"SiBarrelRawHits", "SiBarrelRawHitAssociations"},
       {
           .threshold = 0.54 * dd4hep::keV,
       },
