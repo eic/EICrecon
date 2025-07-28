@@ -75,7 +75,8 @@ class PulseShapeFactory {
 
 public:
   static std::unique_ptr<SignalPulse> createPulseShape(const std::string& type,
-                                                       const std::vector<double>& params);
+                                                       const std::vector<double>& params,
+						       const std::optional<std::string>& expression = std::nullopt);
 };
 
 class SiliconPulseGeneration : public SiliconPulseGenerationAlgorithm,

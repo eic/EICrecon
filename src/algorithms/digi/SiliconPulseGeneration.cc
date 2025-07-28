@@ -81,19 +81,15 @@ double EvaluatorPulse::operator()(double time, double charge) const {
 double EvaluatorPulse::getMaximumTime() const { return 0; }
 
 std::unique_ptr<SignalPulse>
-PulseShapeFactory::createPulseShape(const std::string& type, const std::vector<double>& params) {
+PulseShapeFactory::createPulseShape(const std::string& type, const std::vector<double>& params,
+		const std::optional<std::string>& expression) {
   if (type == "LandauPulse") {
     return std::make_unique<LandauPulse>(params);
   }
-  //
-  // Add more pulse shape variants here as needed
-
-  // If type not found, try and make a function using the ElavulatorSvc
-  try {
-    return std::make_unique<EvaluatorPulse>(type, params);
-  } catch (...) {
-    throw std::invalid_argument("Unable to make pulse shape type: " + type);
+  else if (type == "EvaluatorPulse") {
+    return std::make_unique<EvaluatorPulse>(*expression, params);
   }
+  throw std::invalid_argument("Unable to make pulse shape type: " + type);
 }
 
 void SiliconPulseGeneration::init() {
