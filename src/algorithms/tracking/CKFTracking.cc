@@ -16,7 +16,6 @@
 #if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #endif
-#include <Acts/TrackFitting/detail/VoidFitterComponents.hpp>
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Utilities/Iterator.hpp>
 #endif
@@ -68,6 +67,7 @@
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <boost/container/detail/std_fwd.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
@@ -75,9 +75,11 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
+#include <any>
 #include <array>
 #include <cstddef>
 #include <functional>

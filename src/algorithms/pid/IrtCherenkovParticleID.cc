@@ -17,18 +17,18 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
-#include <cmath>
-
-#include <algorithm>
-#include <cstddef>
-#include <functional>
-#include <gsl/pointers>
-#include <iterator>
-#include <memory>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <functional>
+#include <iterator>
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <utility>
