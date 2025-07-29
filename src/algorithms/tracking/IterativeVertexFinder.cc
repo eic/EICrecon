@@ -110,14 +110,13 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   Acts::IVertexFinder::State state(std::in_place_type<VertexFinder::State>, *m_BField, m_fieldctx);
   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
 
-
   std::vector<Acts::InputTrack> inputTracks;
   std::vector<Acts::BoundTrackParameters> inputParameters;
   std::vector<edm4eic::ReconstructedParticle*> inputParticles;
 
   for (const auto& particle : *reconParticles) {
     for (const auto& track : tracks) {
-      const auto& trajectory = track.getTrajectory();
+      const auto& trajectory      = track.getTrajectory();
       const auto& track_parameter = trajectory.getTrackParameters();
 
       // Get reference surface by geometryId
@@ -145,7 +144,8 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
       }
 
       // Finally create BoundTrackParameters
-      auto& par = inputParticles.emplace_back(surface->getSharedPtr(), params, cov, Acts::ParticleHypothesis::pion());
+      auto& par = inputParticles.emplace_back(surface->getSharedPtr(), params, cov,
+                                              Acts::ParticleHypothesis::pion());
 
       inputTracks.emplace_back(&par);
       m_log->trace("Track local position at input = {} mm, {} mm",
@@ -157,13 +157,11 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     }
   }
 
-
   std::vector<Acts::Vertex> vertices;
   auto result = finder.find(inputTracks, finderOpts, state);
   if (result.ok()) {
     vertices = std::move(result.value());
   }
-
 
   for (const auto& vtx : vertices) {
     edm4eic::Cov4f cov(vtx.fullCovariance()(0, 0), vtx.fullCovariance()(1, 1),
@@ -192,11 +190,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
       float loc_b = par.localPosition().y();
 
       auto inputTrackIter = std::ranges::find(inputTracks, t.originalParams);
-      auto i = std::distance(inputTracks.begin(), inputTrackIter);
+      auto i              = std::distance(inputTracks.begin(), inputTrackIter);
 
-      m_log->trace(
-          "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
-          par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
+      m_log->trace("From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
+                   par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
       eicvertex.addToAssociatedParticles(inputParticles.at(i));
 
     } // end for t
