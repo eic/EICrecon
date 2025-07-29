@@ -13,7 +13,9 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#if Acts_VERSION_MAJOR >= 37
 #include <Acts/Utilities/Iterator.hpp>
+#endif
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>

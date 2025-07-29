@@ -7,7 +7,6 @@
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/Seeding/SeedFinderUtils.hpp>
-#include <edm4hep/Vector2f.h>
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/Seed.hpp>
 #else
@@ -24,6 +23,7 @@
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Utilities/Result.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4hep/Vector2f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <array>

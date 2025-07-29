@@ -5,7 +5,6 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <math.h>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
@@ -22,6 +21,7 @@
 #include <Eigen/LU>
 #include <algorithm>
 #include <any>
+#include <cmath>
 #include <memory>
 #include <string>
 #include <utility>

@@ -10,13 +10,13 @@
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
 #include <Acts/Utilities/Holders.hpp>
-#include <math.h>
 #if Acts_VERSION_MAJOR >= 37
 #include <ActsExamples/EventData/SpacePointContainer.hpp>
 #endif
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <cmath>
 #include <iterator>
 #include <memory>
 #include <string>

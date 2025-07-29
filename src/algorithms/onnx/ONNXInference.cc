@@ -2,7 +2,6 @@
 // Copyright (C) 2022 - 2024 Wouter Deconinck, Tooba Ali, Dmitry Kalinkin
 
 #include <edm4eic/EDM4eicVersion.h>
-#include <sstream>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include <fmt/core.h>
@@ -12,6 +11,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <iterator>
+#include <sstream>
 #include <stdexcept>
 
 #include "ONNXInference.h"
