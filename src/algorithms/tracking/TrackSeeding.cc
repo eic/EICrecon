@@ -5,7 +5,9 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/SpacePointProxy.hpp>
+#endif
 #include <Acts/Seeding/SeedFinderUtils.hpp>
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/Seed.hpp>
