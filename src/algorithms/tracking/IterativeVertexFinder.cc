@@ -202,8 +202,6 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
       m_log->trace("Track local position from vertex = {} mm, {} mm",
                    par.localPosition().x() / Acts::UnitConstants::mm,
                    par.localPosition().y() / Acts::UnitConstants::mm);
-      float loc_a = par.localPosition().x();
-      float loc_b = par.localPosition().y();
 
       auto inputTrackIter = std::ranges::find(inputTracks, t.originalParams);
       auto i              = std::distance(inputTracks.begin(), inputTrackIter);
