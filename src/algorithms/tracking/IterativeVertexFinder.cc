@@ -134,7 +134,8 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
       for (const auto& track_parameter : trajectory.getTrackParameters()) {
 
         // Get reference surface by geometryId
-        const auto* surface = m_geoSvc->trackingGeometry()->findSurface(track_parameter.getSurface());
+        const auto* surface =
+            m_geoSvc->trackingGeometry()->findSurface(track_parameter.getSurface());
 
         // Parameters
         Acts::BoundVector params;
