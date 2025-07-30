@@ -16,7 +16,7 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
-#include <gsl/pointers>
+#include <iterator>
 #include <map>
 #include <set>
 #include <stdexcept>

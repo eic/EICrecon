@@ -15,7 +15,6 @@
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/contrib/Centauro.hh>
 #include <fmt/core.h>
-#include <gsl/pointers>
 #include <stdexcept>
 #include <vector>
 

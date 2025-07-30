@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
@@ -19,6 +21,7 @@
 #include <spdlog/logger.h>
 #include <memory>
 #include <tuple>
+#include <variant>
 #include <vector>
 
 #include "CKFTrackingConfig.h"

@@ -42,8 +42,6 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process(
         {m_event_headers_input(), m_recoparticles_input(), m_recoparticle_assocs_input()},

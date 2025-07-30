@@ -18,6 +18,7 @@
 #include <TRef.h>
 #include <TVector3.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <cmath>
 #include <cstdint>
 #include <map>

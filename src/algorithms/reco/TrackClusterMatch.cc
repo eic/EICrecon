@@ -2,6 +2,7 @@
 // Copyright (C) 2025 Tristan Protzman
 
 #include <edm4eic/EDM4eicVersion.h> // Needs edm4eic::TrackClusterMatch
+#include <edm4eic/Track.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <cstdint>

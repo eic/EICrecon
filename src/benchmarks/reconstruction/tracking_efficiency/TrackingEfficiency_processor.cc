@@ -9,14 +9,15 @@
 #include <JANA/Services/JGlobalRootLock.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/PxPyPzM4D.h>
-#include <Rtypes.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <Eigen/Core>
+#include <any>
 #include <cmath>
 #include <cstddef>
 #include <iterator>

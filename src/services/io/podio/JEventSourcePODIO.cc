@@ -14,6 +14,7 @@
 #include <TFile.h>
 #include <TObject.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
@@ -23,6 +24,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <sstream>
 #include <utility>
 #include <vector>
 
