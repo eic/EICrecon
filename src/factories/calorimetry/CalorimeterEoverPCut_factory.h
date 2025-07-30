@@ -29,15 +29,15 @@ private:
   ParameterRef<int> m_maxLayerParam{this, "maxLayer", config().maxLayer};
 
 public:
-  void Configure() override {
+  void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->applyConfig(config());
     m_algo->init();
   }
 
-  void ChangeRun(int32_t) override {}
+  void ChangeRun(int32_t) {}
 
-  void Process(int32_t, uint64_t) override {
+  void Process(int32_t, uint64_t) {
     m_algo->process({m_clusters_input(), m_assoc_input(), m_hits_input()},
                     {m_clusters_output().get(), m_assoc_output().get(), m_pid_output().get()});
   }
