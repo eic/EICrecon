@@ -5,6 +5,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/unit_system.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <cmath>
 #include <string>
 #include <variant>
