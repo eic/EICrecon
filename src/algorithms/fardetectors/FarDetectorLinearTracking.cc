@@ -2,19 +2,10 @@
 // Copyright (C) 2023 - 2025, Simon Gardner
 
 #include <DD4hep/VolumeManager.h>
-#include <Eigen/Geometry>
-#include <Eigen/Householder>
-#include <Eigen/Jacobi>
-#include <Eigen/QR>
-#include <Eigen/SVD>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <algorithm>
 #include <algorithms/geo.h>
-#include <cmath>
-#include <cstddef>
-#include <cstdint>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
@@ -31,6 +22,15 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
+#include <Eigen/Geometry>
+#include <Eigen/Householder>
+#include <Eigen/Jacobi>
+#include <Eigen/SVD>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <new>
 #include <unordered_map>
 #include <utility>
 

@@ -3,8 +3,10 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
@@ -26,7 +28,7 @@ void InitPlugin(JApplication* app) {
 
   // LYSO part of the ZDC
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalFarForwardZDCRawHits", {"EcalFarForwardZDCHits"},
+      "EcalFarForwardZDCRawHits", {"EventHeader", "EcalFarForwardZDCHits"},
       {"EcalFarForwardZDCRawHits", "EcalFarForwardZDCRawHitAssociations"},
       {
           .eRes{},
@@ -129,7 +131,7 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalFarForwardZDCRawHits", {"HcalFarForwardZDCHits"},
+      "HcalFarForwardZDCRawHits", {"EventHeader", "HcalFarForwardZDCHits"},
       {"HcalFarForwardZDCRawHits", "HcalFarForwardZDCRawHitAssociations"},
       {
           .eRes{},

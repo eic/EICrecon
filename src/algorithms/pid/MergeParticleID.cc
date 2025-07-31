@@ -12,6 +12,7 @@
 #include <podio/RelationRange.h>
 #include <cstddef>
 #include <gsl/pointers>
+#include <iterator>
 #include <stdexcept>
 #include <unordered_map>
 #include <utility>

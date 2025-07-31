@@ -3,8 +3,10 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <memory>
+#include <JANA/Utils/JTypeInfo.h>
+#include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
@@ -47,7 +49,7 @@ void InitPlugin(JApplication* app) {
       ") == 1";
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalBarrelRawHits", {"HcalBarrelHits"},
+      "HcalBarrelRawHits", {"EventHeader", "HcalBarrelHits"},
       {"HcalBarrelRawHits", "HcalBarrelRawHitAssociations"},
       {
           .eRes          = {},

@@ -5,7 +5,6 @@
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
 #include <DDSegmentation/BitFieldCoder.h>
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TDirectory.h>

@@ -2,6 +2,7 @@
 // Copyright (C) 2024 Dmitry Kalinkin
 
 #include <algorithms/logger.h>
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <mutex>

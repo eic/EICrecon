@@ -95,7 +95,7 @@ namespace Tools {
         for (double e = e0 + step; e < e1; e += step)
           ret.push_back(std::make_pair(e, a * e + b));
       } //if
-    }   //for entry
+    } //for entry
 
     return ret;
   }

@@ -21,16 +21,17 @@
 
 #include "algorithms/calorimetry/ImagingTopoCluster.h"
 
+#include <DD4hep/Handle.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <DD4hep/Handle.h>
 #include <fmt/core.h>
 #include <cmath>
 #include <cstdlib>
 #include <gsl/pointers>
-#include <vector>
+#include <utility>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 

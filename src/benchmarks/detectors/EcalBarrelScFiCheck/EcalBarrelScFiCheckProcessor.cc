@@ -7,6 +7,8 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/JEvent.h>
 #include <TDirectory.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
@@ -15,6 +17,7 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/RelationRange.h>
 #include <cmath>
+#include <memory>
 
 #include "services/rootfile/RootFile_service.h"
 

@@ -13,6 +13,7 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
 #include <cstddef>
