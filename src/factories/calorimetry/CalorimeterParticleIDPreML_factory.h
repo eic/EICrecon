@@ -42,14 +42,12 @@ public:
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }
 
-  void PreInit(const std::string&                plugin_name,
-               const std::vector<std::string>&   input_names,
-               const std::vector<std::string>&   output_names)
-  {
+  void PreInit(const std::string& plugin_name, const std::vector<std::string>& input_names,
+               const std::vector<std::string>& output_names) {
     // copy & pad
     auto tags = input_names;
     if (tags.size() < 3) {
-      tags.resize(3, "");  // missing slots → empty string = “no collection”
+      tags.resize(3, ""); // missing slots → empty string = “no collection”
     }
     // now register with JANA
     Base::PreInit(plugin_name, tags, output_names);
