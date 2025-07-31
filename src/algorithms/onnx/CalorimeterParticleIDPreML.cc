@@ -13,8 +13,6 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
-#include <stdexcept>
-
 #include <cstddef>
 #include <cstdint>
 #include <gsl/pointers>
