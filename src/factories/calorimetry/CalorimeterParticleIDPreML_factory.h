@@ -12,20 +12,10 @@ namespace eicrecon {
 class CalorimeterParticleIDPreML_factory
     : public JOmniFactory<CalorimeterParticleIDPreML_factory, NoConfig> {
 
+  using Base = JOmniFactory<CalorimeterParticleIDPreML_factory, NoConfig>;
+
 public:
   using AlgoT = eicrecon::CalorimeterParticleIDPreML;
-
-  void PreInit(std::string const& plugin_name, std::vector<std::string> const& input_names,
-               std::vector<std::string> const& output_names) {
-    // make a copy we can modify
-    auto names = input_names;
-    if (names.size() == 2) {
-      // inject an empty string for the optional ParticleID input
-      names.push_back("");
-    }
-    // now call the base implementation with exactly 3 inputs
-    JOmniFactory::PreInit(plugin_name, names, output_names);
-  }
 
 private:
   std::unique_ptr<AlgoT> m_algo;
@@ -50,6 +40,19 @@ public:
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_cluster_input(), m_cluster_assoc_input(), m_pid_input()},
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
+  }
+
+  void PreInit(const std::string&                plugin_name,
+               const std::vector<std::string>&   input_names,
+               const std::vector<std::string>&   output_names)
+  {
+    // copy & pad
+    auto tags = input_names;
+    if (tags.size() < 3) {
+      tags.resize(3, "");  // missing slots → empty string = “no collection”
+    }
+    // now register with JANA
+    Base::PreInit(plugin_name, tags, output_names);
   }
 };
 
