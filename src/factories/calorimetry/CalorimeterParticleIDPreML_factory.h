@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <JANA/JFactoryGenerator.h>
 #include "algorithms/onnx/CalorimeterParticleIDPreML.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -42,14 +43,12 @@ public:
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }
 
-  void PreInit(const std::string& plugin_name, const std::vector<std::string>& input_names,
-               const std::vector<std::string>& output_names) {
-    // copy & pad
+  void PreInit(const std::string&              plugin_name,
+               const std::vector<std::string>& input_names,
+               const std::vector<std::string>& output_names)
+  {
     auto tags = input_names;
-    if (tags.size() < 3) {
-      tags.resize(3, ""); // missing slots → empty string = “no collection”
-    }
-    // now register with JANA
+    tags.resize(3, "");               // fill missing slots with empty strings
     Base::PreInit(plugin_name, tags, output_names);
   }
 };
