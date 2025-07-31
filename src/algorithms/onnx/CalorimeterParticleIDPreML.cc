@@ -43,7 +43,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   auto [feature_tensors, target_tensors]         = output;
 
   std::vector<edm4eic::Cluster> sel_clusters;
-  if (!ep_pids || ep_pids->empty()) {
+  if (ep_pids->empty()) {
     sel_clusters.reserve(clusters->size());
     for (auto const& cl : *clusters) {
       sel_clusters.push_back(cl);
