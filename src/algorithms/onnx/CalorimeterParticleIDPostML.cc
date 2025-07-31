@@ -2,10 +2,12 @@
 // Copyright (C) 2024 Dmitry Kalinkin
 
 #include <edm4eic/EDM4eicVersion.h>
+#include <podio/RelationRange.h>
+#include <vector>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
-#include <cstddef>
 #include <fmt/core.h>
+#include <cstddef>
 #include <gsl/pointers>
 #include <stdexcept>
 
