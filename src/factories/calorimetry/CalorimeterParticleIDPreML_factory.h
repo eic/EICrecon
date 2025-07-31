@@ -43,7 +43,7 @@ public:
   }
 
   void PreInit(std::string plugin_name, std::vector<std::string> input_names,
-               std::vector<std::string> output_names) override {
+               std::vector<std::string> output_names) {
     // pad with empty strings so JOmniFactory::PreInit
     // never complains about “3 expected, 2 found”
     while (input_names.size() < 3) {
