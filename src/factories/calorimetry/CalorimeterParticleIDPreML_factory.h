@@ -42,18 +42,14 @@ public:
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }
 
-  void PreInit(std::string            plugin_name,
-               std::vector<std::string> input_names,
-               std::vector<std::string> output_names) override
-  {
+  void PreInit(std::string plugin_name, std::vector<std::string> input_names,
+               std::vector<std::string> output_names) override {
     // pad with empty strings so JOmniFactory::PreInit
     // never complains about “3 expected, 2 found”
     while (input_names.size() < 3) {
       input_names.emplace_back("");
     }
-    Base::PreInit(std::move(plugin_name),
-                  std::move(input_names),
-                  std::move(output_names));
+    Base::PreInit(std::move(plugin_name), std::move(input_names), std::move(output_names));
   }
 };
 
