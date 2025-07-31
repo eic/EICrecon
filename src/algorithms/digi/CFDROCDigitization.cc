@@ -21,7 +21,7 @@ void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
   const auto [simhits] = input;
   auto [rawhits]       = output;
 
-  // The real CFD compares delayed puluse with an inverted scaled pulse
+  // The real CFD compares delayed pulse with an inverted scaled pulse
   // This code is doing none of that, it's simply finding pulse height at a fraction of peak
   // more sophisticaed algorithm TBD
   //
