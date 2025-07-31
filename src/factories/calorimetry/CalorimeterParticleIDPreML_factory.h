@@ -43,11 +43,18 @@ public:
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }
 
-  void PreInit(const std::string& plugin_name, const std::vector<std::string>& input_names,
-               const std::vector<std::string>& output_names) {
-    auto tags = input_names;
-    tags.resize(3, ""); // fill missing slots with empty strings
-    Base::PreInit(plugin_name, tags, output_names);
+  void PreInit(const std::string&            plugin_name,
+               std::vector<std::string>      input_collections,
+               std::vector<std::string>      output_collections)
+  {
+    // pad missing slots up to 3
+    while(input_collections.size() < 3) {
+      input_collections.push_back("");
+    }
+    // now call the base, which will see exactly 3 names
+    Base::PreInit(plugin_name,
+                  std::move(input_collections),
+                  std::move(output_collections));
   }
 };
 
