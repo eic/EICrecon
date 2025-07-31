@@ -25,7 +25,7 @@ class CFDROCDigitization : public CFDROCDigitizationAlgorithm,
 
 public:
   CFDROCDigitization(std::string_view name)
-      : CFDROCDigitizationAlgorithm{name, {"CFDROC"}, {"ADCTDCOutput"}, {}} {}
+      : CFDROCDigitizationAlgorithm{name, {"inputWaveforms"}, {"outputRawHits"}, "Discriminate and digitize signals with timing based on what is expected from a CFD"} {}
   void init(){};
   void process(const Input&, const Output&) const final;
 };
