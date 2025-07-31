@@ -308,8 +308,10 @@ macro(plugin_add_acts _name)
 
   # Add libraries (works same as target_include_directories)
   plugin_link_libraries(
-    ${PLUGIN_NAME} ${Acts_NAMESPACE_PREFIX}Core
-    ${Acts_NAMESPACE_PREFIX}PluginDD4hep ${Acts_NAMESPACE_PREFIX}PluginJson
+    ${PLUGIN_NAME}
+    ${Acts_NAMESPACE_PREFIX}Core
+    ${Acts_NAMESPACE_PREFIX}PluginDD4hep
+    ${Acts_NAMESPACE_PREFIX}PluginJson
     ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
   if(${_name}_WITH_LIBRARY)
