@@ -302,11 +302,16 @@ macro(plugin_add_acts _name)
     set(Acts_NAMESPACE_PREFIX Acts)
   endif()
 
+  # Get ActsExamples base
+  get_target_property(ActsCore_LOCATION ${Acts_NAMESPACE_PREFIX}Core LOCATION)
+  get_filename_component(ActsCore_PATH ${ActsCore_LOCATION} DIRECTORY)
+
   # Add libraries (works same as target_include_directories)
   plugin_link_libraries(
     ${PLUGIN_NAME} ${Acts_NAMESPACE_PREFIX}Core
     ${Acts_NAMESPACE_PREFIX}PluginDD4hep ${Acts_NAMESPACE_PREFIX}PluginJson
-    ${Acts_NAMESPACE_PREFIX}ExamplesFramework)
+    ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
+  )
   if(${_name}_WITH_LIBRARY)
     target_compile_definitions(
       ${PLUGIN_NAME}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
