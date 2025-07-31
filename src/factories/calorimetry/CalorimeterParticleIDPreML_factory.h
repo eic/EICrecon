@@ -15,11 +15,8 @@ class CalorimeterParticleIDPreML_factory
 public:
   using AlgoT = eicrecon::CalorimeterParticleIDPreML;
 
-  void PreInit(
-      std::string const &plugin_name,
-      std::vector<std::string> const &input_names,
-      std::vector<std::string> const &output_names
-  ) {
+  void PreInit(std::string const& plugin_name, std::vector<std::string> const& input_names,
+               std::vector<std::string> const& output_names) {
     // make a copy we can modify
     auto names = input_names;
     if (names.size() == 2) {
