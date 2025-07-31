@@ -29,7 +29,7 @@ void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
     auto adcs = pulse.getAdcCounts();
     if (adcs.size() == 0)
       continue;
-    int n_CFDROC_cycle = static_cast<int>(std::floor(pulse.getTime() / m_cfg.tMax + 1e-3));
+    int n_CFDROC_cycle = static_cast<int>(std::floor(pulse.getTime() / m_cfg.tMax));
 
     // first we find all the peaks and store their location
     // Then we find the time corresponding to fraction of the peak height
