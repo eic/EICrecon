@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <JANA/JFactoryGenerator.h>
 #include "algorithms/onnx/CalorimeterParticleIDPreML.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -43,14 +42,18 @@ public:
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }
 
-  void PreInit(const std::string& plugin_name, std::vector<std::string> input_collections,
-               std::vector<std::string> output_collections) {
-    // pad missing slots up to 3
-    while (input_collections.size() < 3) {
-      input_collections.push_back("");
+  void PreInit(std::string            plugin_name,
+               std::vector<std::string> input_names,
+               std::vector<std::string> output_names) override
+  {
+    // pad with empty strings so JOmniFactory::PreInit
+    // never complains about “3 expected, 2 found”
+    while (input_names.size() < 3) {
+      input_names.emplace_back("");
     }
-    // now call the base, which will see exactly 3 names
-    Base::PreInit(plugin_name, std::move(input_collections), std::move(output_collections));
+    Base::PreInit(std::move(plugin_name),
+                  std::move(input_names),
+                  std::move(output_names));
   }
 };
 
