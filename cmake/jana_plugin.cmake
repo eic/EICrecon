@@ -288,8 +288,7 @@ macro(plugin_add_acts _name)
     find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
     set(Acts_VERSION
         "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
-    if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN}
-       AND NOT "${Acts_VERSION}" STREQUAL "9.9.9")
+    if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN})
       message(
         FATAL_ERROR
           "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found"
@@ -297,18 +296,17 @@ macro(plugin_add_acts _name)
     endif()
   endif()
 
-  # Get ActsExamples base
-  get_target_property(ActsCore_LOCATION ActsCore LOCATION)
-  get_filename_component(ActsCore_PATH ${ActsCore_LOCATION} DIRECTORY)
+  if(${Acts_VERSION} VERSION_GREATER_EQUAL "43.0.0")
+    set(Acts_NAMESPACE_PREFIX Acts::)
+  else()
+    set(Acts_NAMESPACE_PREFIX Acts)
+  endif()
 
   # Add libraries (works same as target_include_directories)
   plugin_link_libraries(
-    ${PLUGIN_NAME}
-    ActsCore
-    ActsPluginDD4hep
-    ActsPluginJson
-    ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
-  )
+    ${PLUGIN_NAME} ${Acts_NAMESPACE_PREFIX}Core
+    ${Acts_NAMESPACE_PREFIX}PluginDD4hep ${Acts_NAMESPACE_PREFIX}PluginJson
+    ${Acts_NAMESPACE_PREFIX}ExamplesFramework)
   if(${_name}_WITH_LIBRARY)
     target_compile_definitions(
       ${PLUGIN_NAME}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
