@@ -20,7 +20,7 @@ private:
 
   PodioInput<edm4eic::Cluster> m_cluster_input{this};
   PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_assoc_input{this};
-  PodioInput<edm4hep::ParticleID> m_pid_input{this};
+  PodioInput<edm4hep::ParticleID, /*IsOptional=*/true> m_pid_input{this};
 
   PodioOutput<edm4eic::Tensor> m_feature_tensor_output{this};
   PodioOutput<edm4eic::Tensor> m_target_tensor_output{this};
