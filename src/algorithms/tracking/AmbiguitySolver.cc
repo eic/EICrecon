@@ -13,7 +13,7 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#if Acts_VERSION_MAJOR >= 37
+#if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
 #include <Acts/Utilities/Iterator.hpp>
 #endif
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
