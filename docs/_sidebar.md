@@ -6,7 +6,6 @@
     * [Run DD4Hep simulation](howto/run_dd4hep_simulation.md)
     * [Use docker](howto/use_docker.md)
     * [Use singularity](howto/use_singularity.md)
-    * [Make Plugin](howto/make_plugin.md)
     * [Add Factory](howto/add_factory.md)
     * [Visualize Callgraph](howto/visualize_callgraph.md)
 * Design

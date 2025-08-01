@@ -644,10 +644,8 @@ jobs:
         particle: [e]
         detector_config: [craterlake]
         benchmark_plugins:
-        - EcalBarrelScFiCheck
         - femc_studies
         - lfhcal_studies
-        - TRACKINGcheck
         - tracking_efficiency
         - tracking_occupancy
     steps:
