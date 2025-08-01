@@ -287,7 +287,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
-      "EcalBarrelClusters",
+      "EcalBarrelClusterMerger",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
        "EcalBarrelImagingClusterAssociations"},
       {"EcalBarrelClusters", "EcalBarrelClusterAssociations"},
