@@ -18,18 +18,18 @@ class CalorimeterParticleIDPreML_factory
 public:
   using AlgoT = eicrecon::CalorimeterParticleIDPreML;
 
-  // Override PreInit to inject the missing ParticleID collection name
+  // Intercept PreInit to inject the missing third input name
   void PreInit(const std::string& tag,
                const std::vector<std::string>& input_names,
-               const std::vector<std::string>& output_names) override 
+               const std::vector<std::string>& output_names)
   {
-    // Copy the provided inputs (should be 2)
+    // Copy the two names we actually get
     std::vector<std::string> fixed_inputs = input_names;
-    // If only 2 were provided, append the default ParticleID collection
+    // Append the PID collection name if only two were provided
     if (fixed_inputs.size() == 2) {
-      fixed_inputs.push_back("ParticleID");  // adjust if your PID collection has a different name
+      fixed_inputs.push_back("ParticleID");  // adjust if your PID collection has another name
     }
-    // Call base PreInit with the corrected 3 inputs
+    // Delegate to the base implementation with three inputs now
     JOmniFactory<CalorimeterParticleIDPreML_factory, NoConfig>::
         PreInit(tag, fixed_inputs, output_names);
   }
