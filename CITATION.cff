@@ -1,4 +1,4 @@
-abstract: "EICrecon is the EIC online/offline reconstuction software."
+abstract: "EICrecon is the EIC online/offline reconstruction software."
 authors: # in the order of https://zenodo.org/records/15880663/export/cff
 - given-names: The ePIC Collaboration
 - family-names: Wouter Deconinck
