@@ -155,8 +155,8 @@ void InitPlugin(JApplication* app) {
 #else
       "EcalBarrelScFiClustersWithoutShapes",
 #endif
-      {"EcalBarrelScFiProtoClusters",         // edm4eic::ProtoClusterCollection
-       "EcalBarrelScFiRawHitAssociations"},   // edm4eic::MCRecoCalorimeterHitAssociation
+      {"EcalBarrelScFiProtoClusters",       // edm4eic::ProtoClusterCollection
+       "EcalBarrelScFiRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociation
 #if EDM4EIC_VERSION_MAJOR >= 8
       {"EcalBarrelScFiClustersWithoutPIDAndShapes",             // edm4eic::Cluster
        "EcalBarrelScFiClusterAssociationsWithoutPIDAndShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -186,12 +186,12 @@ void InitPlugin(JApplication* app) {
       {
           "EcalBarrelScFiClustersWithoutPID",            // edm4eic::ClusterCollection
           "EcalBarrelScFiClusterAssociationsWithoutPID", // edm4eic::TrackClusterMatchCollection
-          "EcalBarrelScFiRecHits"          // edm4eic::CalorimeterHitCollection (SciFi hits)
+          "EcalBarrelScFiRecHits" // edm4eic::CalorimeterHitCollection (SciFi hits)
       },
       {
           "EcalBarrelScFiClustersEOverPWithoutPID",            // edm4eic::ClusterCollection
           "EcalBarrelScFiClusterAssociationsEOverPWithoutPID", // edm4eic::TrackClusterMatchCollection
-          "EcalBarrelParticleID_EOverP"              // edm4hep::ParticleIDCollection
+          "EcalBarrelParticleID_EOverP"                        // edm4hep::ParticleIDCollection
       },
       app));
 
@@ -200,7 +200,7 @@ void InitPlugin(JApplication* app) {
       {
           "EcalBarrelScFiClustersEOverPWithoutPID",            // edm4eic::ClusterCollection
           "EcalBarrelScFiClusterAssociationsEOverPWithoutPID", // edm4eic::TrackClusterMatchCollection
-          "EcalBarrelParticleID_EOverP"              // edm4hep::ParticleIDCollection
+          "EcalBarrelParticleID_EOverP"                        // edm4hep::ParticleIDCollection
       },
       {
           "EcalBarrelParticleIDInput_features", // edm4eic::TensorCollection
@@ -222,14 +222,14 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPostML_factory>(
       "EcalBarrelParticleIDPostML",
       {
-          "EcalBarrelScFiClustersEOverPWithoutPID",                 // edm4eic::ClusterCollection
-          "EcalBarrelScFiClusterAssociationsEOverPWithoutPID",      // edm4eic::TrackClusterMatchCollection
-          "EcalBarrelParticleIDOutput_probability_tensor" // edm4eic::TensorCollection
+          "EcalBarrelScFiClustersEOverPWithoutPID",            // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociationsEOverPWithoutPID", // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelParticleIDOutput_probability_tensor"      // edm4eic::TensorCollection
       },
       {
           "EcalBarrelScFiClusters",            // edm4eic::ClusterCollection
           "EcalBarrelScFiClusterAssociations", // edm4eic::TrackClusterMatchCollection
-          "EcalBarrelClusterParticleIDs"   // edm4hep::ParticleIDCollection
+          "EcalBarrelClusterParticleIDs"       // edm4hep::ParticleIDCollection
       },
       app));
 #endif // EDM4EIC_VERSION_MAJOR >= 8
