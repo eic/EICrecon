@@ -150,31 +150,47 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+#if EDM4EIC_VERSION_MAJOR >= 8
+      "EcalBarrelScFiClustersWithoutPIDAndShapes",
+#else
       "EcalBarrelScFiClustersWithoutShapes",
+#endif
       {"EcalBarrelScFiProtoClusters",         // edm4eic::ProtoClusterCollection
        "EcalBarrelScFiRawHitAssociations"},   // edm4eic::MCRecoCalorimeterHitAssociation
-      {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
+#if EDM4EIC_VERSION_MAJOR >= 8
+      {"EcalBarrelScFiClustersWithoutPIDAndShapes",             // edm4eic::Cluster
+       "EcalBarrelScFiClusterAssociationsWithoutPIDAndShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+#else
+      {"EcalBarrelScFiClustersWithoutShapes",             // edm4eic::Cluster
        "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+#endif
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+#if EDM4EIC_VERSION_MAJOR >= 8
+      "EcalBarrelScFiClustersWithoutPID",
+      {"EcalBarrelScFiClustersWithoutPIDAndShapes",
+       "EcalBarrelScFiClusterAssociationsWithoutPIDAndShapes"},
+      {"EcalBarrelScFiClustersWithoutPID", "EcalBarrelScFiClusterAssociationsWithoutPID"},
+#else
       "EcalBarrelScFiClusters",
       {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations"},
+#endif
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
 #if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<CalorimeterEoverPCut_factory>(
       "EcalBarrelParticleIDEOverPCut",
       {
-          "EcalBarrelClusters",            // edm4eic::ClusterCollection
-          "EcalBarrelClusterAssociations", // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelScFiClustersWithoutPID",            // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociationsWithoutPID", // edm4eic::TrackClusterMatchCollection
           "EcalBarrelScFiRecHits"          // edm4eic::CalorimeterHitCollection (SciFi hits)
       },
       {
-          "EcalBarrelClustersWithoutPID",            // edm4eic::ClusterCollection
-          "EcalBarrelClusterAssociationsWithoutPID", // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelScFiClustersEOverPWithoutPID",            // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociationsEOverPWithoutPID", // edm4eic::TrackClusterMatchCollection
           "EcalBarrelParticleID_EOverP"              // edm4hep::ParticleIDCollection
       },
       app));
@@ -182,8 +198,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPreML_factory>(
       "EcalBarrelParticleIDPreML",
       {
-          "EcalBarrelClustersWithoutPID",            // edm4eic::ClusterCollection
-          "EcalBarrelClusterAssociationsWithoutPID", // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelScFiClustersEOverPWithoutPID",            // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociationsEOverPWithoutPID", // edm4eic::TrackClusterMatchCollection
           "EcalBarrelParticleID_EOverP"              // edm4hep::ParticleIDCollection
       },
       {
@@ -206,13 +222,13 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPostML_factory>(
       "EcalBarrelParticleIDPostML",
       {
-          "EcalBarrelClustersWithoutPID",                 // edm4eic::ClusterCollection
-          "EcalBarrelClusterAssociationsWithoutPID",      // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelScFiClustersEOverPWithoutPID",                 // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociationsEOverPWithoutPID",      // edm4eic::TrackClusterMatchCollection
           "EcalBarrelParticleIDOutput_probability_tensor" // edm4eic::TensorCollection
       },
       {
-          "EcalBarrelClusters",            // edm4eic::ClusterCollection
-          "EcalBarrelClusterAssociations", // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelScFiClusters",            // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociations", // edm4eic::TrackClusterMatchCollection
           "EcalBarrelClusterParticleIDs"   // edm4hep::ParticleIDCollection
       },
       app));
@@ -287,7 +303,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
-      "EcalBarrelClusterMerger",
+      "EcalBarrelClusters",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
        "EcalBarrelImagingClusterAssociations"},
       {"EcalBarrelClusters", "EcalBarrelClusterAssociations"},
@@ -299,7 +315,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<TruthEnergyPositionClusterMerger_factory>(
-      "EcalBarrelTruthClusterMerger",
+      "EcalBarrelTruthClusters",
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",
        "EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
       {"EcalBarrelTruthClusters", "EcalBarrelTruthClusterAssociations"},
