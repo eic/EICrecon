@@ -20,7 +20,7 @@ public:
 
   // Intercept PreInit to inject the missing third input name
   void PreInit(const std::string& tag, const std::vector<std::string>& input_names,
-               const std::vector<std::string>& output_names){
+               const std::vector<std::string>& output_names) {
     // Copy the two names we actually get
     std::vector<std::string> fixed_inputs = input_names;
     // Append the PID collection name if only two were provided
