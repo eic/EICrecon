@@ -1,0 +1,42 @@
+abstract: "EICrecon is the EIC online/offline reconstuction software."
+authors: # in the order of https://zenodo.org/records/15880663/export/cff
+- given-names: The ePIC Collaboration
+- family-names: Wouter Deconinck
+- family-names: David Lawrence
+- family-names: Dmitry Romanov
+- family-names: Dmitry Kalinkin
+- family-names: Christopher Dilks
+- family-names: Thomas Britton
+- family-names: Simon Gardner
+- family-names: Tooba Ali
+- family-names: Nathan Brei
+- family-names: Xinxin (Cissie) Mei
+- family-names: Derek M Anderson
+- family-names: Barak Schmookler
+- family-names: Ryan Milton
+- family-names: Sebouh Paul
+- family-names: Alex Jentsch
+- family-names: John Lajoie
+- family-names: Sakib Rahman
+- family-names: Joseph (Joe) Osborn
+- family-names: Shyam Kumar
+- family-names: Tommy Chun Yuen Tsang
+- family-names: Zhongling Ji
+- family-names: Matt Posik
+- family-names: Peter Steinberg
+- family-names: Minho Kim
+- family-names: Daniel Brandenburg
+- family-names: Dhevan Gangadharan
+cff-version: 1.2.0
+date-released: '<replace with the actual release date>'
+doi: 10.5281/zenodo.15880663
+identifiers:
+- type: swh
+  value: swh:1:dir:75196c46ce549dded398985e500dafcf6a1e5f7c;origin=https://doi.org/10.5281/zenodo.7942531;visit=swh:1:snp:eeac3d121922af83467c6081ca862b631acd15d7;anchor=swh:1:rel:166eaec6e708067946596cfa344c95189ce99608;path=eic-EICrecon-7fad7b7
+license:
+- lgpl-3.0-only
+message: If you use this software, please cite it using the metadata from this file.
+repository-code: https://github.com/eic/EICrecon
+title: 'eic/EICrecon: <replace with the actual version>'
+type: software
+version: '<replace with the actual version>'
