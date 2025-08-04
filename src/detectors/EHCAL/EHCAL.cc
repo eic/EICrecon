@@ -3,8 +3,10 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
@@ -34,7 +36,7 @@ void InitPlugin(JApplication* app) {
       10 * dd4hep::picosecond;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalEndcapNRawHits", {"HcalEndcapNHits"},
+      "HcalEndcapNRawHits", {"EventHeader", "HcalEndcapNHits"},
       {"HcalEndcapNRawHits", "HcalEndcapNRawHitAssociations"},
       {
           .eRes{},

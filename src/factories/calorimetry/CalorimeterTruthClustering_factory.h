@@ -28,8 +28,6 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_rc_hits_input(), m_mc_hits_input()}, {m_proto_clusters_output().get()});
   }

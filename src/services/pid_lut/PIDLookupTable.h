@@ -7,6 +7,7 @@
 #include <boost/histogram.hpp>
 #include <string>
 #include <tuple>
+#include <variant>
 #include <vector>
 // IWYU pragma: no_include <boost/mp11/detail/mp_defer.hpp>
 

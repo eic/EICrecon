@@ -5,7 +5,7 @@
 
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JParameterManager.h>
-#include <memory>
+#include <string>
 
 #include "JEventProcessorJANATOP.h"
 

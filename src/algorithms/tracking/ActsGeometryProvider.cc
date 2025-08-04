@@ -22,9 +22,12 @@
 #include <JANA/JException.h>
 #include <TGeoManager.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <spdlog/common.h>
 #include <exception>
+#include <filesystem>
+#include <functional>
 #include <initializer_list>
 #include <type_traits>
 

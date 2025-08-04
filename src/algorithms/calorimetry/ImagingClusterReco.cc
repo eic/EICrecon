@@ -21,12 +21,12 @@
 #include <Eigen/Core>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
-#include <Eigen/QR>
 #include <Eigen/SVD>
 #include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
 #include <map>
+#include <new>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingClusterRecoConfig.h"

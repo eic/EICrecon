@@ -11,14 +11,15 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/CaloHitContribution.h>
 // Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/ProtoClusterCollection.h>
+#include <iterator>
 #include <string>
 #include <string_view>
 #include <utility>
