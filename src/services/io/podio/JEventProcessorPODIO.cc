@@ -7,11 +7,15 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/ROOTWriter.h>
+#include <algorithm>
 #include <exception>
-#include <ostream>
+#include <iterator>
+#include <regex>
+#include <sstream>
 #include <stdexcept>
 
 #include "services/log/Log_service.h"
@@ -362,7 +366,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "HcalFarForwardZDCRawHitAssociations",
 #endif
 #if EDM4EIC_VERSION_MAJOR >= 8
-    "TrackClusterMatches",
+      "EcalEndcapPTrackClusterMatches",
+      "LFHCALTrackClusterMatches",
+      "HcalEndcapPInsertClusterMatches",
+      "EcalBarrelTrackClusterMatches",
+      "HcalBarrelTrackClusterMatches",
+      "EcalEndcapNTrackClusterMatches",
+      "HcalEndcapNTrackClusterMatches",
 #endif
 
   };
@@ -428,7 +438,21 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     std::set<std::string> all_collections_set =
         std::set<std::string>(all_collections.begin(), all_collections.end());
 
-    for (const auto& col : m_output_collections) {
+    // Turn regexes among output collections into actual collection names
+    std::set<std::string> matching_collections_set;
+    std::vector<std::regex> output_collections_regex(m_output_collections.size());
+    std::transform(m_output_collections.begin(), m_output_collections.end(),
+                   output_collections_regex.begin(),
+                   [](const std::string& r) { return std::regex(r); });
+    std::copy_if(all_collections_set.begin(), all_collections_set.end(),
+                 std::inserter(matching_collections_set, matching_collections_set.end()),
+                 [&](const std::string& c) {
+                   return std::any_of(output_collections_regex.begin(),
+                                      output_collections_regex.end(),
+                                      [&](const std::regex& r) { return std::regex_match(c, r); });
+                 });
+
+    for (const auto& col : matching_collections_set) {
       if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
         // Included and not excluded
         if (all_collections_set.find(col) == all_collections_set.end()) {

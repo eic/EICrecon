@@ -9,6 +9,7 @@
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/Vector2f.h>
 #include <array>
 #include <cstddef>
@@ -45,6 +46,7 @@ public:
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+  std::vector<double> m_localDistXY;
 
 public:
   // neighbor checking function

@@ -12,24 +12,23 @@
 #include <TVector3.h>
 #include <algorithms/logger.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
-#include <cmath>
-
-#include <algorithm>
-#include <cstddef>
-#include <functional>
-#include <gsl/pointers>
-#include <iterator>
-#include <memory>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <functional>
+#include <iterator>
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <utility>
@@ -57,7 +56,7 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
               "use MC photon vertex, wavelength, refractive index");
   print_cheat("cheatTrueRadiator", m_cfg.cheatTrueRadiator, "use MC truth to obtain true radiator");
 
-  // extract the the relevant `CherenkovDetector`, set to `m_irt_det`
+  // extract the relevant `CherenkovDetector`, set to `m_irt_det`
   const auto& detectors = m_irt_det_coll->GetDetectors();
   if (detectors.empty()) {
     throw std::runtime_error("No CherenkovDetectors found in input collection `irt_det_coll`");
@@ -78,11 +77,14 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
   // rebin refractive index tables to have `m_cfg.numRIndexBins` bins
   trace("Rebinning refractive index tables to have {} bins", m_cfg.numRIndexBins);
   for (auto [rad_name, irt_rad] : m_irt_det->Radiators()) {
+    // FIXME: m_cfg.numRIndexBins should be a service configurable
+    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
     auto ri_lookup_table_orig = irt_rad->m_ri_lookup_table;
-    irt_rad->m_ri_lookup_table.clear();
-    irt_rad->m_ri_lookup_table = Tools::ApplyFineBinning(ri_lookup_table_orig, m_cfg.numRIndexBins);
-    // trace("- {}", rad_name);
-    // for(auto [energy,rindex] : irt_rad->m_ri_lookup_table) trace("  {:>5} eV   {:<}", energy, rindex);
+    if (ri_lookup_table_orig.size() != m_cfg.numRIndexBins) {
+      irt_rad->m_ri_lookup_table.clear();
+      irt_rad->m_ri_lookup_table =
+          Tools::ApplyFineBinning(ri_lookup_table_orig, m_cfg.numRIndexBins);
+    }
   }
 
   // build `m_pid_radiators`, the list of radiators to use for PID
@@ -96,6 +98,7 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
 
   // check radiators' configuration, and pass it to `m_irt_det`'s radiators
   for (auto [rad_name, irt_rad] : m_pid_radiators) {
+    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
     // find `cfg_rad`, the associated `IrtCherenkovParticleIDConfig` radiator
     auto cfg_rad_it = m_cfg.radiators.find(rad_name);
     if (cfg_rad_it != m_cfg.radiators.end()) {
@@ -180,7 +183,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
     // loop over radiators
     // note: this must run exclusively since irt_rad points to shared IRT objects that are
     // owned by the RichGeo_service; it holds state (e.g. irt_rad->ResetLocation())
-    std::lock_guard<std::mutex> lock(m_pid_radiators_mutex);
+    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
     for (auto [rad_name, irt_rad] : m_pid_radiators) {
 
       // get the `charged_particle` for this radiator
@@ -229,26 +232,15 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
           for (const auto& hit_assoc : *in_hit_assocs) {
             if (hit_assoc.getRawHit().isAvailable()) {
               if (hit_assoc.getRawHit().id() == raw_hit.id()) {
-#if EDM4EIC_VERSION_MAJOR >= 6
 #if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
                 mc_photon = hit_assoc.getSimHit().getParticle();
 #else
                 mc_photon = hit_assoc.getSimHit().getMCParticle();
 #endif
-#else
-                // hit association found, get the MC photon and break the loop
-                if (hit_assoc.simHits_size() > 0) {
-                  mc_photon = hit_assoc.getSimHits(0).getMCParticle();
-#endif
                 mc_photon_found = true;
                 if (mc_photon.getPDG() != -22) {
                   warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());
                 }
-#if EDM4EIC_VERSION_MAJOR >= 6
-#else
-                } else if (m_cfg.CheatModeEnabled())
-                  error("cheat mode enabled, but no MC photons provided");
-#endif
                 break;
               }
             }

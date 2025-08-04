@@ -11,19 +11,15 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4eic/ProtoClusterCollection.h>
 #include <edm4hep/CaloHitContribution.h>
 // Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 7
-#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#else
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#endif
-#include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
-#include <edm4eic/ProtoClusterCollection.h>
+#include <iterator>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -36,12 +32,7 @@ namespace eicrecon {
 
 using ImagingClusterRecoAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ProtoClusterCollection,
-#if EDM4EIC_VERSION_MAJOR >= 7
-                                            edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-                                            edm4hep::SimCalorimeterHitCollection
-#endif
-                                            >,
+                                            edm4eic::MCRecoCalorimeterHitAssociationCollection>,
                           algorithms::Output<edm4eic::ClusterCollection,
                                              edm4eic::MCRecoClusterParticleAssociationCollection,
                                              edm4eic::ClusterCollection>>;
@@ -57,17 +48,12 @@ class ImagingClusterReco : public ImagingClusterRecoAlgorithm,
                            public WithPodConfig<ImagingClusterRecoConfig> {
 
 public:
-  ImagingClusterReco(std::string_view name) : ImagingClusterRecoAlgorithm {
-    name,
-#if EDM4EIC_VERSION_MAJOR >= 7
-        {"inputProtoClusterCollection", "mcRawHitAssocations"},
-#else
-        {"inputProtoClusterCollection", "mcHits"},
-#endif
-        {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
-        "Reconstruct the cluster/layer info for imaging calorimeter."
-  }
-  {}
+  ImagingClusterReco(std::string_view name)
+      : ImagingClusterRecoAlgorithm{
+            name,
+            {"inputProtoClusterCollection", "mcRawHitAssocations"},
+            {"outputClusterCollection", "outputClusterAssociations", "outputLayerCollection"},
+            "Reconstruct the cluster/layer info for imaging calorimeter."} {}
 
 public:
   void init() {}
@@ -88,11 +74,7 @@ private:
 
   void associate_mc_particles(
       const edm4eic::Cluster& cl,
-#if EDM4EIC_VERSION_MAJOR >= 7
       const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
-#else
-      const edm4hep::SimCalorimeterHitCollection* mchits,
-#endif
       edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
 
   edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib) const;

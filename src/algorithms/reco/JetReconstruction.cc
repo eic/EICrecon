@@ -15,7 +15,6 @@
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/contrib/Centauro.hh>
 #include <fmt/core.h>
-#include <gsl/pointers>
 #include <stdexcept>
 #include <vector>
 
@@ -154,7 +153,7 @@ void JetReconstruction<InputT>::process(
     for (const auto& cst : csts) {
       jet_output.addToParticles(input_collection->at(cst.user_index()));
     } // for constituent j
-  }   // for jet i
+  } // for jet i
 
   // return the jets
 } // end 'process(const T&)'

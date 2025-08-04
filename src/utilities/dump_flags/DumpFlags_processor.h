@@ -1,11 +1,8 @@
 #pragma once
 
-#include <JANA/JApplicationFwd.h>
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <algorithm>
 #include <cctype>
-#include <memory>
 #include <string>
 #include <vector>
 
@@ -13,9 +10,6 @@
 
 class DumpFlags_processor : public JEventProcessor, public eicrecon::SpdlogMixin {
 public:
-  explicit DumpFlags_processor(JApplication*);
-  ~DumpFlags_processor() override = default;
-
   //----------------------------
   // Init
   //

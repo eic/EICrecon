@@ -1,21 +1,61 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022, 2023, Christopher Dilks
+// Copyright (C) 2022-2025 Christopher Dilks, Simon Gardner
 
+#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <math.h>
-#include <memory>
+#include <JANA/Utils/JTypeInfo.h>
+#include <cmath>
+#include <string>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
+#include "algorithms/pid_lut/PhaseSpacePIDConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/pid_lut/PIDLookup_factory.h"
+#include "factories/pid_lut/PhaseSpacePID_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+
+  //-------------------------------------------------------------------------
+  // FarBackward PID Through Phase Space
+  //-------------------------------------------------------------------------
+  PhaseSpacePIDConfig phase_space_pid_cfg{
+      .system        = "TaggerTracker_ID",
+      .direction     = {0.0, 0.0, -1.0},  // Direction is along z-axis
+      .opening_angle = 12 * dd4hep::mrad, // Beampipe opening angle
+      .pdg_value     = 11,                // Set PID to electron
+  };
+
+  app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
+      "FarBackwardTruthSeededPhaseSpacePID",
+      {
+          "ReconstructedTruthSeededChargedWithoutPIDParticles",
+          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
+      },
+      {
+          "ReconstructedTruthSeededChargedWithFBPIDParticles",
+          "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
+          "FarBackwardTruthSeededPhaseSpacePIDParticleIDs",
+      },
+      phase_space_pid_cfg, app));
+
+  app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
+      "FarBackwardPhaseSpacePID",
+      {
+          "ReconstructedChargedWithoutPIDParticles",
+          "ReconstructedChargedWithoutPIDParticleAssociations",
+      },
+      {
+          "ReconstructedChargedWithFBPIDParticles",
+          "ReconstructedChargedWithFBPIDParticleAssociations",
+          "FarBackwardPhaseSpacePIDParticleIDs",
+      },
+      phase_space_pid_cfg, app));
 
   //-------------------------------------------------------------------------
   // PFRICH PID
@@ -40,8 +80,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "RICHEndcapNTruthSeededLUTPID",
       {
-          "ReconstructedTruthSeededChargedWithoutPIDParticles",
-          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
+          "EventHeader",
+          "ReconstructedTruthSeededChargedWithFBPIDParticles",
+          "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
       },
       {
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
@@ -53,8 +94,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "RICHEndcapNLUTPID",
       {
-          "ReconstructedChargedWithoutPIDParticles",
-          "ReconstructedChargedWithoutPIDParticleAssociations",
+          "EventHeader",
+          "ReconstructedChargedWithFBPIDParticles",
+          "ReconstructedChargedWithFBPIDParticleAssociations",
       },
       {
           "ReconstructedChargedWithPFRICHPIDParticles",
@@ -84,6 +126,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "CombinedTOFTruthSeededLUTPID",
       {
+          "EventHeader",
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticleAssociations",
       },
@@ -97,6 +140,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "CombinedTOFLUTPID",
       {
+          "EventHeader",
           "ReconstructedChargedWithPFRICHPIDParticles",
           "ReconstructedChargedWithPFRICHPIDParticleAssociations",
       },
@@ -139,6 +183,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DIRCTruthSeededLUTPID",
       {
+          "EventHeader",
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticles",
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleAssociations",
       },
@@ -152,6 +197,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DIRCLUTPID",
       {
+          "EventHeader",
           "ReconstructedChargedWithPFRICHTOFPIDParticles",
           "ReconstructedChargedWithPFRICHTOFPIDParticleAssociations",
       },
@@ -187,6 +233,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DRICHTruthSeededLUTPID",
       {
+          "EventHeader",
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
       },
@@ -200,6 +247,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DRICHLUTPID",
       {
+          "EventHeader",
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
       },

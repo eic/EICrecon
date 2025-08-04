@@ -1,13 +1,14 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Thomas Britton, David Lawrence, Dhevan Gangadharan, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <cmath>
+#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <cmath>
 #include <string>
+#include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
@@ -19,8 +20,8 @@
 #include "factories/calorimetry/CalorimeterParticleIDPostML_factory.h"
 #include "factories/calorimetry/CalorimeterParticleIDPreML_factory.h"
 #endif
-#include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
+#include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/meta/ONNXInference_factory.h"
@@ -41,23 +42,26 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapN_resolutionTDC =
       10 * dd4hep::picosecond;
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalEndcapNRawHits", {"EcalEndcapNHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
+      "EcalEndcapNRawHits", {"EventHeader", "EcalEndcapNHits"},
       {"EcalEndcapNRawHits", "EcalEndcapNRawHitAssociations"},
-#else
-      {"EcalEndcapNRawHits"},
-#endif
       {
-          .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
-          .tRes          = 0.0 * dd4hep::ns,
-          .threshold     = 0.0 * dd4hep::MeV, // Use ADC cut instead
-          .capADC        = EcalEndcapN_capADC,
-          .dyRangeADC    = EcalEndcapN_dyRangeADC,
-          .pedMeanADC    = EcalEndcapN_pedMeanADC,
-          .pedSigmaADC   = EcalEndcapN_pedSigmaADC,
-          .resolutionTDC = EcalEndcapN_resolutionTDC,
-          .corrMeanScale = "1.0",
-          .readout       = "EcalEndcapNHits",
+          .eRes        = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
+          .tRes        = 0.0 * dd4hep::ns,
+          .threshold   = 0.0 * dd4hep::MeV, // Use ADC cut instead
+          .readoutType = "sipm",
+          .lightYield  = 300. / dd4hep::MeV,
+          // See simulation study by A. Hoghmrtsyan https://indico.bnl.gov/event/20415/
+          // This includes quantum efficiency of the SiPM
+          .photonDetectionEfficiency = 17. / 300.,
+          // S14160-6015PS, 4 sensors per cell
+          .numEffectiveSipmPixels = 159565 * 4,
+          .capADC                 = EcalEndcapN_capADC,
+          .dyRangeADC             = EcalEndcapN_dyRangeADC,
+          .pedMeanADC             = EcalEndcapN_pedMeanADC,
+          .pedSigmaADC            = EcalEndcapN_pedSigmaADC,
+          .resolutionTDC          = EcalEndcapN_resolutionTDC,
+          .corrMeanScale          = "1.0",
+          .readout                = "EcalEndcapNHits",
       },
       app // TODO: Remove me once fixed
       ));
@@ -107,14 +111,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNTruthClustersWithoutShapes",
       {
-        "EcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalEndcapNRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "EcalEndcapNHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+          "EcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalEndcapNRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"EcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.6, .enableEtaBounds = false},
@@ -134,14 +133,9 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapNClustersWithoutShapes",
 #endif
       {
-        "EcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalEndcapNRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "EcalEndcapNHits"
-      },                                               // edm4hep::SimCalorimeterHitCollection
-#endif
+          "EcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalEndcapNRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
 #if EDM4EIC_VERSION_MAJOR >= 8
       {"EcalEndcapNClustersWithoutPIDAndShapes",             // edm4eic::Cluster
        "EcalEndcapNClusterAssociationsWithoutPIDAndShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -228,14 +222,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNSplitMergeClustersWithoutShapes",
       {
-        "EcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalEndcapNRawHitAssociations"
-      }, // edm4hep::MCRecoCalorimeterHitAssociationCollection
-#else
-            "EcalEndcapNHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
+          "EcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalEndcapNRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
+      },
       {"EcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},

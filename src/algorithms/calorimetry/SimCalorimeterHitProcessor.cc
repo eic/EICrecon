@@ -6,19 +6,19 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
-#include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/utils/vector_utils.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/podioVersion.h>
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <gsl/pointers>
 #include <limits>
 #include <stdexcept>
@@ -44,17 +44,17 @@ template <> struct hash<podio::ObjectID> {
     return h1 ^ (h2 << 1);
   }
 };
-#endif // podio version check
-#endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
 
 // Necessary to make MCParticle hashable
-// @TODO maybe this could be added to podio?
 template <> struct hash<edm4hep::MCParticle> {
   size_t operator()(const edm4hep::MCParticle& p) const noexcept {
     const auto& id = p.getObjectID();
     return std::hash<podio::ObjectID>()(id);
   }
 };
+#endif // podio version check
+#endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
+
 // Hash for tuple<edm4hep::MCParticle, uint64_t>
 // --> not yet supported by any compiler at the moment
 template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t>> {
@@ -192,7 +192,13 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
     for (const auto& contrib : ih.getContributions()) {
       edm4hep::MCParticle primary = lookup_primary(contrib);
       auto& hit_accum             = hit_map[{primary, newhit_cellID}][newcontrib_cellID];
-      hit_accum.add(contrib.getEnergy() * attFactor, contrib.getTime(), ih.getPosition());
+      const double propagationTime =
+          m_attenuationReferencePosition
+              ? std::abs(m_attenuationReferencePosition.value() - ih.getPosition().z) *
+                    m_cfg.inversePropagationSpeed
+              : 0.;
+      hit_accum.add(contrib.getEnergy() * attFactor,
+                    contrib.getTime() + propagationTime + m_cfg.fixedTimeDelay, ih.getPosition());
     }
   }
 

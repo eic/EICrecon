@@ -106,7 +106,6 @@ time is just the first place where the geometry was read in.
 | ![EcalBarrelSciGlassMergedTruthClusters](callgraphs/EcalBarrelSciGlassMergedTruthClusters.png) |
 | ![EcalBarrelImagingMergedClusters](callgraphs/EcalBarrelImagingMergedClusters.png)             |
 | ![EcalEndcapPMergedClusters](callgraphs/EcalEndcapPMergedClusters.png)                         |
-| ![EcalEndcapPInsertMergedClusters](callgraphs/EcalEndcapPInsertMergedClusters.png)             |
 | ![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)                         |
 | ![ForwardRomanPotParticles](callgraphs/ForwardRomanPotParticles.png)                           |
 | ![HcalBarrelClusters](callgraphs/HcalBarrelClusters.png)                                       |

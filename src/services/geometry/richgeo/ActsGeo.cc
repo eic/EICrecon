@@ -7,11 +7,13 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <algorithm>
-#include <cmath>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <algorithm>
+#include <cmath>
 #include <utility>
+#include <variant>
 
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "services/geometry/richgeo/RichGeo.h"
