@@ -71,17 +71,6 @@ void InitPlugin(JApplication* app) {
 
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
-
-  app->Add(new JOmniFactoryGeneratorT<TimeCoincidenceFactory>(
-      jana::components::JOmniFactoryGeneratorT<TimeCoincidenceFactory>::TypedWiring{
-          .tag                  = "timeCoincidence",
-          .level                = JEventLevel::PhysicsEvent,
-          .variadic_input_names = m_simtrackerhit_collection_names,
-          .output_names         = {"triggerflag"}
-        }
-      ));
-
-  //    .output_names = {"phys_checked_hits"}}));
   
   InitPlugin_digiBTOF(app);
   InitPlugin_digiMPGD(app);
