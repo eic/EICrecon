@@ -49,20 +49,23 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
       "ForwardRomanPotRecHits_TK", "LumiSpecTrackerRecHits_TK",    "MPGDBarrelRecHits_TK",
       "OuterMPGDBarrelRecHits_TK", "RICHEndcapNRecHits_TK",        "SiBarrelTrackerRecHits_TK",
       "TOFBarrelRecHits_TK",       "TOFEndcapRecHits_TK",          "TaggerTrackerRecHits_TK",
-      "SiEndcapTrackerRecHits_TK",   "SiBarrelVertexRecHits_TK"};
+      "SiEndcapTrackerRecHits_TK", "SiBarrelVertexRecHits_TK"};
 
   std::vector<std::string> m_trackerhit_collection_names_aligned = {
-      "B0TrackerRecHits_TK_aligned",       "BackwardMPGDEndcapRecHits_TK_aligned", "DIRCBarRecHits_TK_aligned",
-    "DRICHRecHits_TK_aligned",           "ForwardMPGDEndcapRecHits_TK_aligned",  "ForwardOffMTrackerRecHits_TK_aligned",
-    "ForwardRomanPotRecHits_TK_aligned", "LumiSpecTrackerRecHits_TK_aligned",    "MPGDBarrelRecHits_TK_aligned",
-    "OuterMPGDBarrelRecHits_TK_aligned", "RICHEndcapNRecHits_TK_aligned",        "SiBarrelTrackerRecHits_TK_aligned",
-    "TOFBarrelRecHits_TK_aligned",       "TOFEndcapRecHits_TK_aligned",          "TaggerTrackerRecHits_TK_aligned",
-    "SiEndcapTrackerRecHits_TK_aligned",   "SiBarrelVertexRecHits_TK_aligned"};
+      "B0TrackerRecHits_TK_aligned",         "BackwardMPGDEndcapRecHits_TK_aligned",
+      "DIRCBarRecHits_TK_aligned",           "DRICHRecHits_TK_aligned",
+      "ForwardMPGDEndcapRecHits_TK_aligned", "ForwardOffMTrackerRecHits_TK_aligned",
+      "ForwardRomanPotRecHits_TK_aligned",   "LumiSpecTrackerRecHits_TK_aligned",
+      "MPGDBarrelRecHits_TK_aligned",        "OuterMPGDBarrelRecHits_TK_aligned",
+      "RICHEndcapNRecHits_TK_aligned",       "SiBarrelTrackerRecHits_TK_aligned",
+      "TOFBarrelRecHits_TK_aligned",         "TOFEndcapRecHits_TK_aligned",
+      "TaggerTrackerRecHits_TK_aligned",     "SiEndcapTrackerRecHits_TK_aligned",
+      "SiBarrelVertexRecHits_TK_aligned"};
 
   VariadicPodioInput<edm4eic::TrackerHit> m_trackerhits_in{
       this, {.names = m_trackerhit_collection_names, .is_optional = true}};
-  VariadicPodioOutput<edm4eic::TrackerHit> m_trackerhits_out{
-      this, m_trackerhit_collection_names_aligned};
+  VariadicPodioOutput<edm4eic::TrackerHit> m_trackerhits_out{this,
+                                                             m_trackerhit_collection_names_aligned};
 
   Double_t m_time_offset = 0.0; // Time offset to apply to hits
 
