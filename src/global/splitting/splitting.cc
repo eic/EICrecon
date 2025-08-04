@@ -2,7 +2,7 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 // kuma edit
 
-// #include "HitChecker.h"
+#include "HitChecker.h"
 
 #include "timeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
