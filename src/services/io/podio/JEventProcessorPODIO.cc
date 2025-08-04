@@ -342,6 +342,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
     "DIRCTruthSeededParticleIDs",
     "DIRCParticleIDs",
 
+    // "triggerflag",
+    "EventHeader_TS", // This is a timeslice header, not a PODIO collection
+
+
 #if EDM4EIC_VERSION_MAJOR >= 7
     "B0ECalRawHitAssociations",
     "EcalBarrelScFiRawHitAssociations",

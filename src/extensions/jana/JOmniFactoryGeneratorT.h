@@ -12,14 +12,15 @@ template <class FactoryT> class JOmniFactoryGeneratorT : public JFactoryGenerato
 public:
   using FactoryConfigType = typename FactoryT::ConfigType;
 
-private:
   struct TypedWiring {
     std::string m_tag;
     std::vector<std::string> m_default_input_tags;
     std::vector<std::string> m_default_output_tags;
     FactoryConfigType m_default_cfg; /// Must be properly copyable!
+    JEventLevel level = JEventLevel::PhysicsEvent;
   };
 
+private:
   struct UntypedWiring {
     std::string m_tag;
     std::vector<std::string> m_default_input_tags;
@@ -28,6 +29,8 @@ private:
   };
 
 public:
+  explicit JOmniFactoryGeneratorT() = default;
+
   explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> default_input_tags,
                                   std::vector<std::string> default_output_tags,
                                   FactoryConfigType cfg, JApplication* app) {
@@ -45,6 +48,11 @@ public:
                          .m_default_input_tags  = default_input_tags,
                          .m_default_output_tags = default_output_tags,
                          .m_default_cfg         = {}});
+  }
+
+  explicit JOmniFactoryGeneratorT(TypedWiring&& wiring, JApplication* app) {
+    m_app = app;
+    m_wirings.push_back(std::move(wiring));
   }
 
   explicit JOmniFactoryGeneratorT(JApplication* app) : m_app(app) {}
@@ -82,7 +90,7 @@ public:
       factory->SetPluginName(this->GetPluginName());
       factory->SetFactoryName(JTypeInfo::demangle<FactoryT>());
       factory->config() = wiring.m_default_cfg;
-
+      factory->SetLevel(wiring.level);
       // Set up all of the wiring prereqs so that Init() can do its thing
       // Specifically, it needs valid input/output tags, a valid logger, and
       // valid default values in its Config object
