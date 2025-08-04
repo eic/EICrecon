@@ -3,45 +3,69 @@
 
 #pragma once
 
+#include <sys/resource.h>
+
+
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/TrackerHitCollection.h>
+
 #include "services/io/podio/datamodel_glue.h"
 #include <JANA/JEventUnfolder.h>
 
 struct TimeframeSplitter : public JEventUnfolder {
 
-  float m_timeframe_width = 2000.0; // ns
-  float m_timesplit_width = 20.0; // ns
+  Parameter<float> timeframe_width{this, "timeframe_width", 2000.0, "Width of each timeframe in ns"};
+  Parameter<float> timesplit_width{this, "timesplit_width", 2000.0, "Width of each timeslice in ns"};
+  // float m_timeframe_width = 2000.0; // ns
+  // float m_timesplit_width = 2000.0; // ns
   bool m_use_timeframe    = false;  // Use timeframes to split events, or use timeslices
 
   size_t m_event_number_ts = 0; // Event number for the current timeslice
   size_t m_event_number_orig = 0; // Event number for the current timeslice
   std::vector<Int_t> m_vTargetEvent; // List of original event numbers for each timeslice
 
+  // std::vector<std::string> m_simtrackerhit_collection_names = {
+  //   "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
+  //   "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
+  //   "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
+  //   "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
+  //   "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
+  //   "TrackerEndcapHits",   "VertexBarrelHits"
+  // };
+  // std::vector<std::string> m_simtrackerhit_collection_names_out = {
+  //   "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
+  //   "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
+  //   "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
+  //   "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
+  //   "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
+  //   "TrackerEndcapHits",   "VertexBarrelHits"
+  // };
+  
   std::vector<std::string> m_simtrackerhit_collection_names = {
-    "B0TrackerHits_aligned",       "BackwardMPGDEndcapHits_aligned", "DIRCBarHits_aligned",
-    "DRICHHits_aligned",           "ForwardMPGDEndcapHits_aligned",  "ForwardOffMTrackerHits_aligned",
-    "ForwardRomanPotHits_aligned", "LumiSpecTrackerHits_aligned",    "MPGDBarrelHits_aligned",
-    "OuterMPGDBarrelHits_aligned", "RICHEndcapNHits_aligned",        "SiBarrelHits_aligned",
-    "TOFBarrelHits_aligned",       "TOFEndcapHits_aligned",          "TaggerTrackerHits_aligned",
-    "TrackerEndcapHits_aligned",   "VertexBarrelHits_aligned"
+    "B0TrackerRecHits_TK_aligned",       "BackwardMPGDEndcapRecHits_TK_aligned", "DIRCBarRecHits_TK_aligned",
+    "DRICHRecHits_TK_aligned",           "ForwardMPGDEndcapRecHits_TK_aligned",  "ForwardOffMTrackerRecHits_TK_aligned",
+    "ForwardRomanPotRecHits_TK_aligned", "LumiSpecTrackerRecHits_TK_aligned",    "MPGDBarrelRecHits_TK_aligned",
+    "OuterMPGDBarrelRecHits_TK_aligned", "RICHEndcapNRecHits_TK_aligned",        "SiBarrelTrackerRecHits_TK_aligned",
+    "TOFBarrelRecHits_TK_aligned",       "TOFEndcapRecHits_TK_aligned",          "TaggerTrackerRecHits_TK_aligned",
+    "SiEndcapTrackerRecHits_TK_aligned",   "SiBarrelVertexRecHits_TK_aligned"
   };
   std::vector<std::string> m_simtrackerhit_collection_names_out = {
-    "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
-    "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
-    "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
-    "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
-    "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
-    "TrackerEndcapHits",   "VertexBarrelHits"
+    "B0TrackerRecHits",       "BackwardMPGDEndcapRecHits", "DIRCBarRecHits",
+    "DRICHRecHits",           "ForwardMPGDEndcapRecHits",  "ForwardOffMTrackerRecHits",
+    "ForwardRomanPotRecHits", "LumiSpecTrackerRecHits",    "MPGDBarrelRecHits",
+    "OuterMPGDBarrelRecHits", "RICHEndcapNRecHits",        "SiBarrelTrackerRecHits",
+    "TOFBarrelRecHits",       "TOFEndcapRecHits",          "TaggerTrackerRecHits",
+    "SiEndcapTrackerRecHits",   "SiBarrelVertexRecHits"
   };
 
 
-
-  // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelHits_aligned"};
+  // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelRecHits_TK"};
   // std::vector<std::string> m_simtrackerhit_collection_names_out = {"SiBarrelHits"};
 
   // std::vector<std::string> m_simtrackerhit_collection_names     = {"SiBarrelHits",
@@ -78,9 +102,14 @@ struct TimeframeSplitter : public JEventUnfolder {
   PodioInput<edm4hep::MCParticle> m_mcparticles_in{this, {.name = "MCParticles"}};
   PodioOutput<edm4hep::MCParticle> m_mcparticles_out{this, "MCParticles"};
 
-  VariadicPodioInput<edm4hep::SimTrackerHit> m_simtrackerhits_in{
+  // VariadicPodioInput<edm4hep::SimTrackerHit> m_simtrackerhits_in{
+  //     this, {.names = m_simtrackerhit_collection_names, .is_optional = true}};
+  // VariadicPodioOutput<edm4hep::SimTrackerHit> m_simtrackerhits_out{
+  //     this, m_simtrackerhit_collection_names_out};
+
+  VariadicPodioInput<edm4eic::TrackerHit> m_simtrackerhits_in{
       this, {.names = m_simtrackerhit_collection_names, .is_optional = true}};
-  VariadicPodioOutput<edm4hep::SimTrackerHit> m_simtrackerhits_out{
+  VariadicPodioOutput<edm4eic::TrackerHit> m_simtrackerhits_out{
       this, m_simtrackerhit_collection_names_out};
 
   VariadicPodioInput<edm4hep::SimCalorimeterHit> m_simcalorimeterhits_in{
@@ -101,14 +130,21 @@ struct TimeframeSplitter : public JEventUnfolder {
     SetChildLevel(JEventLevel::PhysicsEvent);
   }
 
-  std::vector<std::tuple<size_t, const edm4hep::SimTrackerHitCollection*, size_t>>
+  // std::vector<std::tuple<size_t, const edm4hep::SimTrackerHitCollection*, size_t>>
+  //     m_hitStartIndices_simTracker;
+
+  std::vector<std::tuple<size_t, const edm4eic::TrackerHitCollection*, size_t>>
       m_hitStartIndices_simTracker;
   std::vector<std::tuple<size_t, const edm4hep::SimCalorimeterHitCollection*, size_t>>
       m_hitStartIndices_simCalorimeter;
 
   Result Unfold(const JEvent& parent, JEvent& child, int child_idx) override {
+
+    float m_timeframe_width = timeframe_width();
+    float m_timesplit_width = timesplit_width();
+
     if (child_idx == 0) {
-      m_hitStartIndices_simTracker.clear();
+      m_hitStartIndices_simTracker.clear();      
       for (size_t detID = 0; detID < m_simtrackerhits_in().size(); ++detID) {
         const auto* detHitPtr = m_simtrackerhits_in().at(detID);
         m_hitStartIndices_simTracker.emplace_back(detID, detHitPtr, 0);
@@ -137,15 +173,18 @@ struct TimeframeSplitter : public JEventUnfolder {
       iTimeSlice = m_timesplit_width * child_idx;
       eTimeSlice = m_timesplit_width * (child_idx + 1.0);
       
-      std::vector<std::unique_ptr<edm4hep::SimTrackerHitCollection>> tempAllDetectorSimTrackerHits;
+      std::vector<std::unique_ptr<edm4eic::TrackerHitCollection>> tempAllDetectorSimTrackerHits;
+      // std::vector<std::unique_ptr<edm4hep::SimTrackerHitCollection>> tempAllDetectorSimTrackerHits;
+
       // Loop through SimTrackerHit collections and split them into time slice      
       for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simTracker) {
-          auto tempSimTrackerHits = std::make_unique<edm4hep::SimTrackerHitCollection>();          
+          // auto tempSimTrackerHits = std::make_unique<edm4hep::SimTrackerHitCollection>();
+          auto tempSimTrackerHits = std::make_unique<edm4eic::TrackerHitCollection>();
           bool bAllScan = true; // Scan all hits in the collection until we find a hit that is later than the end of the time slice
           
           if (detHitPtr != nullptr){
             tempSimTrackerHits->setSubsetCollection(true);
-
+            
             for (size_t hitID = start_index; hitID < detHitPtr->size(); ++hitID) {
                 const auto& hit = detHitPtr->at(hitID);
                 auto hitTime = hit.getTime();
@@ -215,10 +254,13 @@ struct TimeframeSplitter : public JEventUnfolder {
       if(bAdmitedInterval){
           Int_t detID = 0;
           for(auto& tempSimTrackerHits : tempAllDetectorSimTrackerHits) {
-
             auto& coll_out = m_simtrackerhits_out().at(detID);
-            coll_out->setSubsetCollection(true);
-            coll_out = std::move(tempSimTrackerHits);     
+            // coll_out->setSubsetCollection(true);
+            // coll_out = std::move(tempSimTrackerHits);
+            for (auto&& hit : *tempSimTrackerHits) {
+              coll_out->push_back(hit.clone(true)); 
+            }
+            tempSimTrackerHits->clear();
             detID++;
           }
 
@@ -230,7 +272,8 @@ struct TimeframeSplitter : public JEventUnfolder {
           event_header_ts.setRunNumber(m_event_number_ts * 10000 + child_idx);
           event_header_ts.setEventNumber(m_event_number_ts);
           event_header_ts.setTimeStamp(iTimeSlice+1);
-          event_header_ts.setWeight(m_event_number_ts * 10000 + child_idx); // Just a dummy weight for now
+          
+          // event_header_ts.setWeight(memoryUsage); // Just a dummy weight for now
           m_event_header_ts_out()->push_back(event_header_ts);
           m_event_number_ts++;
           
@@ -243,10 +286,7 @@ struct TimeframeSplitter : public JEventUnfolder {
           for (const auto& mcparticle : *m_mcparticles_in) {
             m_mcparticles_out()->push_back(mcparticle.clone(true));            
           }
-
           // == e == Basic container for simulatin data (but not related to data)  =========
-    
-          if(child_idx > 0) m_vTargetEvent.push_back(m_event_number_orig);
 
           break; // Break out of the interval loop if we have already admitted this interval
       }
@@ -264,6 +304,8 @@ struct TimeframeSplitter : public JEventUnfolder {
     return (eTimeSlice + 1 > m_timeframe_width) ? Result::NextChildNextParent
                                                 : Result::NextChildKeepParent;
 
-  
+
+
+
   }
 };
