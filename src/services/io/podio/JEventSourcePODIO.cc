@@ -82,23 +82,23 @@ JEventSourcePODIO::~JEventSourcePODIO() {
   LOG << "Closing Event Source for " << GetResourceName() << LOG_END;
 }
 
-  // Get Logger
-  m_log = GetApplication()->GetService<Log_service>()->logger("JEventSourcePODIO");
+// Get Logger
+m_log = GetApplication()->GetService<Log_service>()->logger("JEventSourcePODIO");
 
-  // Tell JANA that we want it to call the FinishEvent() method.
-  // EnableFinishEvent();
+// Tell JANA that we want it to call the FinishEvent() method.
+// EnableFinishEvent();
 
-  // Allow user to specify to recycle events forever
-  GetApplication()->SetDefaultParameter("podio:run_forever", m_run_forever,
-                                        "set to true to recycle through events continuously");
+// Allow user to specify to recycle events forever
+GetApplication()->SetDefaultParameter("podio:run_forever", m_run_forever,
+                                      "set to true to recycle through events continuously");
 
-  GetApplication()->SetDefaultParameter("podio:print_type_table", m_print_type_table,
-                                        "Print list of collection names and their types");
+GetApplication()->SetDefaultParameter("podio:print_type_table", m_print_type_table,
+                                      "Print list of collection names and their types");
 
-  // Hopefully we won't need to reimplement background event merging. Using podio frames, it looks like we would
-  // have to do a deep copy of all data in order to insert it into the same frame, which would probably be
-  // quite inefficient.
-  /*
+// Hopefully we won't need to reimplement background event merging. Using podio frames, it looks like we would
+// have to do a deep copy of all data in order to insert it into the same frame, which would probably be
+// quite inefficient.
+/*
     std::string background_filename;
     GetApplication()->SetDefaultParameter(
             "podio:background_filename",
@@ -114,7 +114,6 @@ JEventSourcePODIO::~JEventSourcePODIO() {
     );
     */
 }
-
 
 //------------------------------------------------------------------------------
 // Destructor
@@ -155,7 +154,6 @@ void JEventSourcePODIO::Open() {
     Nevents_in_file = m_reader.getEntries("events");
     m_log->info("Opened PODIO Frame file \"{}\" with {} events", GetResourceName(),
                 Nevents_in_file);
-
 
     if (print_type_table) {
       PrintCollectionTypeTable();

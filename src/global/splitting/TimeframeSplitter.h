@@ -47,7 +47,8 @@ struct TimeframeSplitter : public JEventUnfolder {
       "LFHCALHitsContributions",
       "LumiDirectPCALHitsContributions"};
 
-  PodioInput<edm4hep::EventHeader> m_event_header_in{this, {.name = "EventHeader", .is_optional = true}};
+  PodioInput<edm4hep::EventHeader> m_event_header_in{this,
+                                                     {.name = "EventHeader", .is_optional = true}};
   PodioOutput<edm4hep::EventHeader> m_event_header_out{this, "EventHeader"};
 
   PodioInput<edm4hep::MCParticle> m_mcparticles_in{this, {.name = "MCParticles"}};
@@ -68,8 +69,8 @@ struct TimeframeSplitter : public JEventUnfolder {
   VariadicPodioOutput<edm4hep::CaloHitContribution> m_calohitcontributions_out{
       this, m_calohitcontribution_collection_names};
 
-    // Kuma Hit checker
-    // PodioInput<edm4hep::SimTrackerHit> m_check_hits_in{this, {.name = "ts_checked_hits", .is_optional = true}};
+  // Kuma Hit checker
+  // PodioInput<edm4hep::SimTrackerHit> m_check_hits_in{this, {.name = "ts_checked_hits", .is_optional = true}};
 
   TimeframeSplitter() {
     SetTypeName(NAME_OF_THIS);
@@ -82,12 +83,13 @@ struct TimeframeSplitter : public JEventUnfolder {
     // LOG_INFO(GetLogger()) << "TimeframeSplitter: timeslice " << parent.GetEventNumber() << " timeStamp " << timeStamp << LOG_END;
     float iTimeSlice = 4.0 * child_idx; // 4.0 us per timeslice ( = 20 us / 5)
     float eTimeSlice = 4.0 * (child_idx + 1.0);
-    std::cout << "child_idx = " << child_idx << ":: TimeframeSplitter: timeslice " << parent.GetEventNumber()
-              << " iTimeSlice " << iTimeSlice << " eTimeSlice " << eTimeSlice << std::endl;
+    std::cout << "child_idx = " << child_idx << ":: TimeframeSplitter: timeslice "
+              << parent.GetEventNumber() << " iTimeSlice " << iTimeSlice << " eTimeSlice "
+              << eTimeSlice << std::endl;
 
     LOG_INFO(GetLogger()) << "Running TimeframeSplitter::Unfold() on timeslice #"
                           << parent.GetEventNumber() << LOG_END;
-    
+
     // For now, a one-to-one relationship between timeslices and events
     child.SetEventNumber(parent.GetEventNumber());
     child.SetRunNumber(parent.GetRunNumber());
@@ -116,8 +118,9 @@ struct TimeframeSplitter : public JEventUnfolder {
           // Get hit time
           auto hitTime = hit.getTime();
           // Separate a time frame into 5 time slices (one time frame = 20 us)
-          if (hitTime < iTimeSlice || hitTime >= eTimeSlice) continue;
-          
+          if (hitTime < iTimeSlice || hitTime >= eTimeSlice)
+            continue;
+
           coll_out->push_back(hit);
         }
       }
@@ -151,6 +154,7 @@ struct TimeframeSplitter : public JEventUnfolder {
 
     // Produce exactly one physics event per timeframe for now
     // return JEventUnfolder::Result::NextChildNextParent;
-    return (eTimeSlice+1 > m_timeframe_width) ? Result::NextChildNextParent : Result::NextChildKeepParent;
+    return (eTimeSlice + 1 > m_timeframe_width) ? Result::NextChildNextParent
+                                                : Result::NextChildKeepParent;
   }
 };

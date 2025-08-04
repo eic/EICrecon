@@ -3,7 +3,6 @@
 //
 //
 
-
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSourceGeneratorT.h>
 
