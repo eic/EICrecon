@@ -10,11 +10,12 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <math.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <cmath>
 #include <memory>
+#include <string>
 #include <tuple>
 
 #include "algorithms/calorimetry/CalorimeterClusterShape.h"

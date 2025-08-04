@@ -25,7 +25,7 @@ class TrackClusterMatch : public TrackClusterMatchAlgorithm,
                           public WithPodConfig<TrackClusterMatchConfig> {
 private:
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
-  double distance(const edm4hep::Vector3f& v1, const edm4hep::Vector3f& v2) const;
+  static double distance(const edm4hep::Vector3f& v1, const edm4hep::Vector3f& v2);
   static double Phi_mpi_pi(double phi) { return std::remainder(phi, 2 * M_PI); }
 
 public:
@@ -33,7 +33,7 @@ public:
       : TrackClusterMatchAlgorithm{
             name, {"inputTracks", "inputClusters"}, {"outputParticles"}, ""} {}
 
-  void init() final{};
+  void init() final {};
   void process(const Input&, const Output&) const final;
 };
 } // namespace eicrecon

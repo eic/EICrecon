@@ -2,6 +2,7 @@
 // Copyright (C) 2024, Simon Gardner
 
 #include <TMVA/IMethod.h>
+#include <TString.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/vector_utils.h>
 #include <edm4hep/Vector2f.h>
@@ -60,7 +61,7 @@ void FarDetectorMLReconstruction::process(const FarDetectorMLReconstruction::Inp
   //Set beam energy from first MCBeamElectron, using std::call_once
   std::call_once(m_initBeamE, [&]() {
     // Check if beam electrons are present
-    if (beamElectrons->size() == 0) {
+    if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.CallAndMessage)
       if (m_cfg.requireBeamElectron) {
         critical("No beam electrons found");
         throw std::runtime_error("No beam electrons found");

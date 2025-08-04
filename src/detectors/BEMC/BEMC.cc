@@ -1,25 +1,28 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025 Whitney Armstrong, Sylvester Joosten, Chao Peng, David Lawrence, Thomas Britton, Wouter Deconinck, Maria Zurek, Akshaya Vijay, Nathan Brei, Dmitry Kalinkin, Derek Anderson, Minho Kim
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
-#include <math.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/unit_system.h>
+#include <cmath>
 #include <string>
+#include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
+#include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -28,6 +31,18 @@ void InitPlugin(JApplication* app) {
 
   InitJANAPlugin(app);
 
+  // Make sure left and right use the same value
+  decltype(SimCalorimeterHitProcessorConfig::attenuationParameters) EcalBarrelScFi_attPars = {
+      0.416212, 747.39875 * edm4eic::unit::mm, 7521.88383 * edm4eic::unit::mm};
+  decltype(SimCalorimeterHitProcessorConfig::hitMergeFields) EcalBarrelScFi_hitMergeFields = {
+      "fiber", "z"};
+  decltype(SimCalorimeterHitProcessorConfig::contributionMergeFields)
+      EcalBarrelScFi_contributionMergeFields = {"fiber"};
+  decltype(SimCalorimeterHitProcessorConfig::inversePropagationSpeed)
+      EcalBarrelScFi_inversePropagationSpeed = {(1. / 160) * edm4eic::unit::ns / edm4eic::unit::mm};
+  decltype(SimCalorimeterHitProcessorConfig::fixedTimeDelay) EcalBarrelScFi_fixedTimeDelay = {
+      2 * edm4eic::unit::ns};
+
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
   decltype(CalorimeterHitDigiConfig::dyRangeADC) EcalBarrelScFi_dyRangeADC   = 1500 * dd4hep::MeV;
@@ -35,13 +50,37 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalBarrelScFi_pedSigmaADC = 1;
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelScFi_resolutionTDC =
       10 * dd4hep::picosecond;
+  app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
+      "EcalBarrelScFiPAttenuatedHits", {"EcalBarrelScFiHits"},
+      {"EcalBarrelScFiPAttenuatedHits", "EcalBarrelScFiPAttenuatedHitContributions"},
+      {
+          .attenuationParameters            = EcalBarrelScFi_attPars,
+          .readout                          = "EcalBarrelScFiHits",
+          .attenuationReferencePositionName = "EcalBarrel_Readout_zmax",
+          .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
+          .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
+          .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
+          .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
+      "EcalBarrelScFiNAttenuatedHits", {"EcalBarrelScFiHits"},
+      {"EcalBarrelScFiNAttenuatedHits", "EcalBarrelScFiNAttenuatedHitContributions"},
+      {
+          .attenuationParameters            = EcalBarrelScFi_attPars,
+          .readout                          = "EcalBarrelScFiHits",
+          .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
+          .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
+          .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
+          .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
+          .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+      },
+      app // TODO: Remove me once fixed
+      ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalBarrelScFiRawHits", {"EcalBarrelScFiHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
+      "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
       {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitAssociations"},
-#else
-      {"EcalBarrelScFiRawHits"},
-#endif
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
           .tRes          = 0.0 * dd4hep::ns,
@@ -103,16 +142,9 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiClustersWithoutShapes",
-      {
-        "EcalBarrelScFiProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalBarrelScFiRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociation
-#else
-            "EcalBarrelScFiHits"
-      }, // edm4hep::SimCalorimeterHitCollection
-#endif
-      {"EcalBarrelScFiClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalBarrelScFiProtoClusters",         // edm4eic::ProtoClusterCollection
+       "EcalBarrelScFiRawHitAssociations"},   // edm4eic::MCRecoCalorimeterHitAssociation
+      {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
        "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -133,12 +165,8 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelImaging_resolutionTDC =
       3.25 * dd4hep::nanosecond;
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalBarrelImagingRawHits", {"EcalBarrelImagingHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
+      "EcalBarrelImagingRawHits", {"EventHeader", "EcalBarrelImagingHits"},
       {"EcalBarrelImagingRawHits", "EcalBarrelImagingRawHitAssociations"},
-#else
-      {"EcalBarrelImagingRawHits"},
-#endif
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
           .tRes          = 0.0 * dd4hep::ns,
@@ -187,15 +215,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
       "EcalBarrelImagingClusters",
-      {
-        "EcalBarrelImagingProtoClusters",
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalBarrelImagingRawHitAssociations"
-      },
-#else
-            "EcalBarrelImagingHits"
-      },
-#endif
+      {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitAssociations"},
       {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations",
        "EcalBarrelImagingLayers"},
       {

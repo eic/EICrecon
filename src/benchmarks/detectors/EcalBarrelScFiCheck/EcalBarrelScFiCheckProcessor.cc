@@ -7,6 +7,8 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/JEvent.h>
 #include <TDirectory.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
@@ -15,6 +17,7 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/RelationRange.h>
 #include <cmath>
+#include <memory>
 
 #include "services/rootfile/RootFile_service.h"
 
@@ -24,7 +27,7 @@
 void EcalBarrelScFiCheckProcessor::InitWithGlobalRootLock() {
 
   auto rootfile_svc = GetApplication()->GetService<RootFile_service>();
-  auto rootfile     = rootfile_svc->GetHistFile();
+  auto* rootfile    = rootfile_svc->GetHistFile();
   rootfile->mkdir("EcalBarrelScFi")->cd();
 
   hist1D["EcalBarrelScFiHits_hits_per_event"] =
@@ -108,7 +111,7 @@ void EcalBarrelScFiCheckProcessor::ProcessSequential(const std::shared_ptr<const
   // EcalBarrelScFiRecHits
   hist1D["EcalBarrelScFiRecHits_hits_per_event"]->Fill(EcalBarrelScFiRecHits.size());
   for (auto hit : EcalBarrelScFiRecHits) {
-    auto& pos = hit.getPosition();
+    const auto& pos = hit.getPosition();
     hist1D["EcalBarrelScFiRecHits_hit_energy"]->Fill(hit.getEnergy() / dd4hep::MeV);
     hist2D["EcalBarrelScFiRecHits_xy"]->Fill(pos.x, pos.y, hit.getEnergy());
     hist1D["EcalBarrelScFiRecHits_z"]->Fill(pos.z);

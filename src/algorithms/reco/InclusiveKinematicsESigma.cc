@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck, Barak Schmookler
 
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 6
-
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
@@ -14,6 +11,7 @@
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <vector>
 
 #include "Beam.h"
 #include "Boost.h"
@@ -33,7 +31,7 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
 
   // Get incoming electron beam
   const auto ei_coll = find_first_beam_electron(mcparts);
-  if (ei_coll.size() == 0) {
+  if (ei_coll.empty()) {
     debug("No beam electron found");
     return;
   }
@@ -43,7 +41,7 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
 
   // Get incoming hadron beam
   const auto pi_coll = find_first_beam_hadron(mcparts);
-  if (pi_coll.size() == 0) {
+  if (pi_coll.empty()) {
     debug("No beam hadron found");
     return;
   }
@@ -55,7 +53,7 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
   auto boost = determine_boost(ei, pi);
 
   // Get electron variables
-  if (escat->size() == 0) {
+  if (escat->empty()) {
     debug("No scattered electron found");
     return;
   }
@@ -66,7 +64,7 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
   auto sigma_e            = e_boosted.E() - e_boosted.Pz();
 
   // Get hadronic final state variables
-  if (hfs->size() == 0) {
+  if (hfs->empty()) {
     debug("No hadronic final state found");
     return;
   }
@@ -103,4 +101,3 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
 }
 
 } // namespace eicrecon
-#endif

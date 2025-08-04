@@ -3,10 +3,9 @@
 
 #pragma once
 
-#include "extensions/jana/JOmniFactory.h"
-
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/digi/SiliconPulseDiscretization.h"
-#include <iostream>
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
@@ -33,13 +32,11 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<eicrecon::SiliconPulseDiscretization>(GetPrefix());
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_in_pulses()}, {m_out_pulses().get()});

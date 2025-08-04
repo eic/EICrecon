@@ -2,6 +2,7 @@
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks, Wouter Deconinck
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
@@ -11,8 +12,22 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <Acts/Material/MaterialInteraction.hpp>
+#if Acts_VERSION_MAJOR >= 34
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/Propagator/ActorList.hpp>
+#else
+#include <Acts/Propagator/AbortList.hpp>
+#include <Acts/Propagator/ActionList.hpp>
+#endif
 #include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/MaterialInteractor.hpp>
+#include <Acts/Propagator/Navigator.hpp>
+#endif
 #include <Acts/Propagator/Propagator.hpp>
+#if Acts_VERSION_MAJOR >= 36
+#include <Acts/Propagator/PropagatorResult.hpp>
+#endif
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
@@ -21,15 +36,17 @@
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <boost/container/vector.hpp>
+#include <edm4eic/Cov2f.h>
+#include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <stdint.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
+#include <any>
 #include <cmath>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -38,6 +55,7 @@
 #include <string>
 #include <tuple>
 #include <typeinfo>
+#include <utility>
 #include <variant>
 
 #include "algorithms/tracking/ActsGeometryProvider.h"
@@ -82,8 +100,13 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       auto t                   = Acts::Translation3(Acts::Vector3(0, 0, (zmax + zmin) / 2));
       auto tf                  = Acts::Transform3(t);
       auto acts_surface        = Acts::Surface::makeShared<Acts::CylinderSurface>(tf, bounds);
+#if Acts_VERSION_MAJOR >= 40
+      acts_surface->assignGeometryId(
+          Acts::GeometryIdentifier().withExtra(system_id).withLayer(++system_id_layers[system_id]));
+#else
       acts_surface->assignGeometryId(
           Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+#endif
       return acts_surface;
     }
     if (std::holds_alternative<DiscSurfaceConfig>(surface_variant)) {
@@ -99,8 +122,13 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
       auto t                   = Acts::Translation3(Acts::Vector3(0, 0, zmin));
       auto tf                  = Acts::Transform3(t);
       auto acts_surface        = Acts::Surface::makeShared<Acts::DiscSurface>(tf, bounds);
+#if Acts_VERSION_MAJOR >= 40
+      acts_surface->assignGeometryId(
+          Acts::GeometryIdentifier().withExtra(system_id).withLayer(++system_id_layers[system_id]));
+#else
       acts_surface->assignGeometryId(
           Acts::GeometryIdentifier().setExtra(system_id).setLayer(++system_id_layers[system_id]));
+#endif
       return acts_surface;
     }
     throw std::domain_error("Unknown surface type");
@@ -142,7 +170,7 @@ void TrackPropagation::propagateToSurfaceList(
         break;
       }
     }
-    if (trajectory_reaches_filter_surface == false) {
+    if (!trajectory_reaches_filter_surface) {
       ++i;
       continue;
     }
@@ -180,8 +208,9 @@ void TrackPropagation::propagateToSurfaceList(
       // track point cut
       if (!m_cfg.track_point_cut(*point)) {
         m_log->trace("                 => REJECTED by trackPointCut");
-        if (m_cfg.skip_track_on_track_point_cut_failure)
+        if (m_cfg.skip_track_on_track_point_cut_failure) {
           break;
+        }
         continue;
       }
 
@@ -234,31 +263,50 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   m_log->trace("  Num measurement in trajectory: {}", m_nMeasurements);
   m_log->trace("  Num states in trajectory     : {}", m_nStates);
 
-  //=================================================
-  //Track projection
-  //Reference sPHENIX code: https://github.com/sPHENIX-Collaboration/coresoftware/blob/335e6da4ccacc8374cada993485fe81d82e74a4f/offline/packages/trackreco/PHActsTrackProjection.h
-  //=================================================
-  const auto& initial_bound_parameters = acts_trajectory->trackParameters(trackTip);
+  // Get track state at last measurement surface
+  // For last measurement surface, filtered and smoothed results are equivalent
+  auto trackState        = mj.getTrackState(trackTip);
+  auto initSurface       = trackState.referenceSurface().getSharedPtr();
+  const auto& initParams = trackState.filtered();
+  const auto& initCov    = trackState.filteredCovariance();
+
+  Acts::BoundTrackParameters initBoundParams(initSurface, initParams, initCov,
+                                             Acts::ParticleHypothesis::pion());
+
+  // Get pathlength of last track state with respect to perigee surface
+  const auto initPathLength = trackState.pathLength();
 
   m_log->trace("    TrackPropagation. Propagating to surface # {}",
                typeid(targetSurf->type()).name());
 
   std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry   = m_geoSvc->trackingGeometry();
   std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_geoSvc->getFieldProvider();
-  using Stepper                                                    = Acts::EigenStepper<>;
-  using Propagator                                                 = Acts::Propagator<Stepper>;
-  Stepper stepper(magneticField);
-  Propagator propagator(stepper);
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("PROP", m_log));
 
 #if Acts_VERSION_MAJOR >= 36
-  Propagator::template Options<> options(m_geoContext, m_fieldContext);
+  using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+#if Acts_VERSION_MAJOR >= 37
+  using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
 #else
-  Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext);
+  using PropagatorOptions =
+      Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>>;
+#endif
+  Propagator propagator(
+      Acts::EigenStepper<>(magneticField),
+      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
+      logger().cloneWithSuffix("Propagator"));
+  PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
+#elif Acts_VERSION_MAJOR >= 34
+  Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> propagator(
+      Acts::EigenStepper<>(magneticField),
+      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
+      logger().cloneWithSuffix("Propagator"));
+  Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>> propagationOptions(
+      m_geoContext, m_fieldContext);
 #endif
 
-  auto result = propagator.propagate(initial_bound_parameters, *targetSurf, options);
+  auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
 
   // check propagation result
   if (!result.ok()) {
@@ -273,7 +321,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   const auto& covariance = *trackStateParams.covariance();
 
   // Path length
-  const float pathLength      = (*result).pathLength;
+  const float pathLength      = initPathLength + (*result).pathLength;
   const float pathLengthError = 0;
   m_log->trace("    path len = {}", pathLength);
 
@@ -333,19 +381,6 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   uint64_t surface = targetSurf->geometryId().value();
   uint32_t system  = 0; // default value...will be set in TrackPropagation factory
 
-  /*
-         ::edm4hep::Vector3f position{}; ///< Position of the trajectory point [mm]
-          ::edm4eic::Cov3f positionError{}; ///< Error on the position
-          ::edm4hep::Vector3f momentum{}; ///< 3-momentum at the point [GeV]
-          ::edm4eic::Cov3f momentumError{}; ///< Error on the 3-momentum
-          float time{}; ///< Time at this point [ns]
-          float timeError{}; ///< Error on the time at this point
-          float theta{}; ///< polar direction of the track at the surface [rad]
-          float phi{}; ///< azimuthal direction of the track at the surface [rad]
-          ::edm4eic::Cov2f directionError{}; ///< Error on the polar and azimuthal angles
-          float pathlength{}; ///< Pathlength from the origin to this point
-          float pathlengthError{}; ///< Error on the pathlenght
-         */
   return std::make_unique<edm4eic::TrackPoint>(
       edm4eic::TrackPoint{surface, system, position, positionError, momentum, momentumError, time,
                           timeError, theta, phi, directionError, pathLength, pathLengthError});

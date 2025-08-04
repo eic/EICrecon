@@ -7,7 +7,6 @@
 
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
-#include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
 #include <gsl/pointers>
@@ -28,10 +27,10 @@ void FarDetectorTransportationPreML::process(
   auto [feature_tensors, target_tensors]               = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
-  if (beamElectrons) {
+  if (beamElectrons != nullptr) {
     std::call_once(m_initBeamE, [&]() {
       // Check if beam electrons are present
-      if (beamElectrons->size() == 0) {
+      if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.NullDereference)
         if (m_cfg.requireBeamElectron) {
           critical("No beam electrons found");
           throw std::runtime_error("No beam electrons found");
@@ -50,7 +49,7 @@ void FarDetectorTransportationPreML::process(
   feature_tensor.setElementType(1); // 1 - float
 
   edm4eic::MutableTensor target_tensor;
-  if (MCElectrons) {
+  if (MCElectrons != nullptr) {
     target_tensor = target_tensors->create();
     target_tensor.addToShape(inputTracks->size());
     target_tensor.addToShape(3);     // px,py,pz
@@ -68,7 +67,7 @@ void FarDetectorTransportationPreML::process(
     feature_tensor.addToFloatData(sin(trackphi) * sin(tracktheta)); // dirx
     feature_tensor.addToFloatData(cos(trackphi) * sin(tracktheta)); // diry
 
-    if (MCElectrons) {
+    if (MCElectrons != nullptr) {
       // FIXME: use proper MC matching once available again, assume training sample is indexed correctly
       // Take the first scattered/simulated electron
       auto MCElectron         = MCElectrons->at(0);

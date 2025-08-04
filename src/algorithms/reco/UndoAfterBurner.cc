@@ -12,7 +12,6 @@
 #include <Math/GenVector/RotationY.h>
 #include <Math/Vector4Dfwd.h>
 #include <TMath.h>
-#include <edm4hep/Vector3f.h>
 #include <edm4hep/Vector3d.h>
 #include <gsl/pointers>
 
@@ -42,13 +41,13 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
   ROOT::Math::PxPyPzEVector h_beam(0., 0., 0., 0.);
 
   auto incoming_lepton = find_first_beam_electron(mcparts);
-  if (incoming_lepton.size() == 0) {
+  if (incoming_lepton.empty()) {
     debug("No beam electron found -- particleGun input");
     hasBeamLepton = false;
   }
 
   auto incoming_hadron = find_first_beam_hadron(mcparts);
-  if (incoming_hadron.size() == 0) {
+  if (incoming_hadron.empty()) {
     debug("No beam hadron found -- particleGun input");
     hasBeamHadron = false;
   }

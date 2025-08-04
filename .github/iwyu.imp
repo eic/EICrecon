@@ -10,6 +10,7 @@
 
   # STL
   { ref: '/opt/local/share/include-what-you-use/gcc.stl.headers.imp' },
+  { symbol: ['std::vector', private, '<vector>', public] },
 
   # Acts
   { include: ['@<Acts/(.*)\.ipp>', private, '<Acts/$1.hpp>', public] },
@@ -26,12 +27,9 @@
   { include: ['@<(edm4(eic|hep))/(Mutable)?([^/]*?)(Collection|Data|Obj)?\.h>', public, '<$1/$4Collection.h>', public] },
   { include: ['<edm4hep/utils/vector_utils_legacy.h>', private, '<edm4hep/utils/vector_utils.h>', public] },
 
-  # JANA2: for now, preserve compatibility with older versions
-  { include: ['<JANA/JApplicationFwd.h>', private, '<JANA/JApplication.h>', public] },
-
   # the rest
   { include: ['<bits/chrono.h>', private, '<chrono>', public] },
-  { include: ['<bits/std_abs.h>', private, '<math.h>', public] },
+  { include: ['<bits/std_abs.h>', private, '<cmath>', public] },
   { include: ['<bits/utility.h>', private, '<tuple>', public] },
   # https://github.com/include-what-you-use/include-what-you-use/issues/166
   { include: ['<ext/alloc_traits.h>', private, '<vector>', public] }

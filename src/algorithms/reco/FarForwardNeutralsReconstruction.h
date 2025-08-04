@@ -38,11 +38,12 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  double calc_corr(double Etot, const std::vector<double>&) const;
+  static double calc_corr(double Etot, const std::vector<double>&);
   bool isGamma(const edm4eic::Cluster& cluster) const;
 
   std::shared_ptr<spdlog::logger> m_log;
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+  double m_gammaZMax{0};
 };
 } // namespace eicrecon

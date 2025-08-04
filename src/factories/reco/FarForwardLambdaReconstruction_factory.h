@@ -23,8 +23,9 @@ private:
   PodioOutput<edm4eic::ReconstructedParticle> m_lambda_output{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_lambda_decay_products_cm_output{this};
 
+  ParameterRef<std::string> m_offset_position_name{this, "offsetPositionName",
+                                                   config().offsetPositionName};
   ParameterRef<double> m_rot_y{this, "globalToProtonRotation", config().globalToProtonRotation};
-  ParameterRef<double> m_zmax{this, "zMax", config().zMax};
   ParameterRef<double> m_lambda_max_mass_dev{this, "lambdaMaxMassDev", config().lambdaMaxMassDev};
   ParameterRef<int> m_iterations{this, "iterations", config().iterations};
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
@@ -37,8 +38,6 @@ public:
     m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_neutrals_input()},

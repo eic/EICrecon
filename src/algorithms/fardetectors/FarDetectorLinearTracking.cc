@@ -22,15 +22,15 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
-#include <stdint.h>
 #include <Eigen/Geometry>
 #include <Eigen/Householder>
 #include <Eigen/Jacobi>
-#include <Eigen/QR>
 #include <Eigen/SVD>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
+#include <cstdint>
+#include <new>
 #include <unordered_map>
 #include <utility>
 
@@ -78,7 +78,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
       info("Too many hits in layer");
       return;
     }
-    if ((*layerHits).size() == 0) {
+    if ((*layerHits).empty()) {
       trace("No hits in layer");
       return;
     }
@@ -130,8 +130,9 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
       // Iterate previous layer
       layerHitIndex[layer]++;
     }
-    if (doBreak)
+    if (doBreak) {
       break;
+    }
   }
 }
 
@@ -156,15 +157,17 @@ void FarDetectorLinearTracking::checkHitCombination(
   auto residuals     = rotatedMatrix.rightCols(2);
   double chi2        = (residuals.array() * residuals.array()).sum() / (2 * m_cfg.n_layer);
 
-  if (chi2 > m_cfg.chi2_max)
+  if (chi2 > m_cfg.chi2_max) {
     return;
+  }
 
   edm4hep::Vector3d outPos = weightedAnchor.data();
   edm4hep::Vector3d outVec = V.col(0).data();
 
   // Make sure fit was pointing in the right direction
-  if (outVec.z > 0)
+  if (outVec.z > 0) {
     outVec = outVec * -1;
+  }
 
   int32_t type{0};                                          // Type of track
   edm4hep::Vector3f position(outPos.x, outPos.y, outPos.z); // Position of the trajectory point [mm]
@@ -212,10 +215,7 @@ bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
         m_optimumDirection.z());
   debug("Angle: {}, Tolerance {}", angle, m_cfg.step_angle_tolerance);
 
-  if (angle > m_cfg.step_angle_tolerance)
-    return false;
-
-  return true;
+  return angle <= m_cfg.step_angle_tolerance;
 }
 
 // Convert measurements into global coordinates
@@ -235,8 +235,8 @@ void FarDetectorLinearTracking::ConvertClusters(
   for (auto cluster : clusters) {
 
     auto globalPos = context->localToWorld({cluster.getLoc()[0], cluster.getLoc()[1], 0});
-    layerPositions.push_back(Eigen::Vector3d(globalPos.x() / dd4hep::mm, globalPos.y() / dd4hep::mm,
-                                             globalPos.z() / dd4hep::mm));
+    layerPositions.emplace_back(globalPos.x() / dd4hep::mm, globalPos.y() / dd4hep::mm,
+                                globalPos.z() / dd4hep::mm);
 
     // Determine the MCParticle associated with this measurement based on the weights
     // Get hit in measurement with max weight

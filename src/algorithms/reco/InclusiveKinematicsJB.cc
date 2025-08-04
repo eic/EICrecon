@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck
 
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 6
-
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
@@ -12,6 +9,7 @@
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <vector>
 
 #include "Beam.h"
 #include "InclusiveKinematicsJB.h"
@@ -30,7 +28,7 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
 
   // Get incoming electron beam
   const auto ei_coll = find_first_beam_electron(mcparts);
-  if (ei_coll.size() == 0) {
+  if (ei_coll.empty()) {
     debug("No beam electron found");
     return;
   }
@@ -40,7 +38,7 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
 
   // Get incoming hadron beam
   const auto pi_coll = find_first_beam_hadron(mcparts);
-  if (pi_coll.size() == 0) {
+  if (pi_coll.empty()) {
     debug("No beam hadron found");
     return;
   }
@@ -49,7 +47,7 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
                                                   {41.0, 100.0, 275.0}, m_crossingAngle));
 
   // Get hadronic final state variables
-  if (hfs->size() == 0) {
+  if (hfs->empty()) {
     debug("No hadronic final state found");
     return;
   }
@@ -70,7 +68,7 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
   const auto nu_jb           = Q2_jb / (2. * m_proton * x_jb);
   const auto W_jb            = sqrt(m_proton * m_proton + 2 * m_proton * nu_jb - Q2_jb);
   auto kin                   = kinematics->create(x_jb, Q2_jb, W_jb, y_jb, nu_jb);
-  if (escat->size() == 0) {
+  if (escat->empty()) {
     debug("No scattered electron found");
   } else {
     kin.setScat(escat->at(0));
@@ -81,4 +79,3 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
 }
 
 } // namespace eicrecon
-#endif

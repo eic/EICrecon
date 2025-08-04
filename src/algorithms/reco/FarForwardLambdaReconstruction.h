@@ -2,9 +2,12 @@
 // Copyright (C) 2025 Sebouh Paul
 
 #pragma once
+#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <spdlog/logger.h>
+#include <gsl/pointers>
 #include <memory>
 #include <string>      // for basic_string
 #include <string_view> // for string_view
@@ -37,5 +40,7 @@ public:
 private:
   std::shared_ptr<spdlog::logger> m_log;
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+  double m_zMax{0};
 };
 } // namespace eicrecon

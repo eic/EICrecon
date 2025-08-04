@@ -15,7 +15,7 @@
 #include <JANA/JEvent.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
-#if SPDLOG_VERSION >= 11400
+#if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
 #include <spdlog/mdc.h>
 #endif
 
@@ -539,7 +539,9 @@ public:
     static_cast<AlgoT*>(this)->ChangeRun(event->GetRunNumber());
   }
 
-  virtual void Process(int32_t /* run_number */, uint64_t /* event_number */){};
+  virtual void ChangeRun(int32_t /* run_number */) override {};
+
+  virtual void Process(int32_t /* run_number */, uint64_t /* event_number */) {};
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
     try {
@@ -549,7 +551,7 @@ public:
       for (auto* output : m_outputs) {
         output->Reset();
       }
-#if SPDLOG_VERSION >= 11400 && !SPDLOG_NO_TLS
+#if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
       spdlog::mdc::put("e", std::to_string(event->GetEventNumber()));
 #endif
       static_cast<AlgoT*>(this)->Process(event->GetRunNumber(), event->GetEventNumber());

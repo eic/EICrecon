@@ -54,6 +54,23 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
                                                "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# Minimal dependency versions
+set(Acts_VERSION_MIN 33.0.0)
+set(algorithms_VERSION_MIN 1.0.0)
+set(DD4hep_VERSION_MIN 1.21)
+set(EDM4EIC_VERSION_MIN 7.0)
+set(EDM4HEP_VERSION_MIN 0.7.1)
+set(Eigen3_VERSION_MIN 3.3)
+set(FastJet_VERSION_MIN 3)
+set(FastJetContrib_VERSION_MIN 1.46)
+set(fmt_VERSION_MIN 9.0.0)
+set(IRT_VERSION_MIN 1.0.5)
+set(JANA_VERSION_MIN 2.2.0)
+set(onnxruntime_MIN_VERSION 1.17)
+set(podio_VERSION_MIN 0.17)
+set(ROOT_VERSION_MIN 6.28)
+set(spdlog_VERSION_MIN 1.11.0)
+
 # Set default standard to C++20
 set(CMAKE_CXX_STANDARD_MIN 20)
 set(CMAKE_CXX_STANDARD
@@ -150,25 +167,28 @@ set(CMAKE_INSTALL_RPATH
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Check and print what JANA2 is used
-find_package(JANA 2.2.0 REQUIRED)
+find_package(JANA ${JANA_VERSION_MIN} REQUIRED)
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 CMake   : ${JANA_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 includes: ${JANA_INCLUDE_DIR}")
 message(STATUS "${CMAKE_PROJECT_NAME}: JANA2 library : ${JANA_LIBRARY}")
 
 # Algorithms
-find_package(algorithms 1.0.0 REQUIRED Core)
+find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
 
 # PODIO, EDM4HEP, EDM4EIC event models
-find_package(Eigen3 REQUIRED)
-find_package(podio REQUIRED)
-find_package(EDM4HEP 0.7.1 REQUIRED)
-find_package(EDM4EIC 5.0 REQUIRED)
-
-# spdlog
-find_package(spdlog REQUIRED)
+find_package(Eigen3 ${Eigen3_VERSION_MIN} REQUIRED)
+find_package(podio ${podio_VERSION_MIN} QUIET)
+if(NOT podio_FOUND)
+  find_package(podio 1.0 REQUIRED)
+endif()
+find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
+find_package(EDM4EIC ${EDM4EIC_VERSION_MIN} REQUIRED)
 
 # fmt
-find_package(fmt 9.0.0 REQUIRED)
+find_package(fmt ${fmt_VERSION_MIN} REQUIRED)
+
+# spdlog
+find_package(spdlog ${spdlog_VERSION_MIN} REQUIRED)
 
 # Guidelines Support Library
 find_package(Microsoft.GSL CONFIG)
@@ -194,22 +214,26 @@ if(EDM4EIC_INTERFACE_COMPILE_DEFINITIONS)
 endif()
 
 # DD4Hep is required for the most of the part
-find_package(DD4hep REQUIRED)
+find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED)
 
 # ACTS cmake-lint: disable=C0103
 find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
-set(Acts_VERSION_MIN "33.0.0")
 set(Acts_VERSION
     "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
-if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN} AND NOT "${Acts_VERSION}"
-                                                        STREQUAL "9.9.9")
+if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN})
   message(
     FATAL_ERROR
       "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found"
   )
 endif()
-# ActsCore
-get_target_property(ACTS_COMPILE_FEATURES ActsCore INTERFACE_COMPILE_FEATURES)
+if(${Acts_VERSION} VERSION_GREATER_EQUAL "43.0.0")
+  set(Acts_NAMESPACE_PREFIX Acts::)
+else()
+  set(Acts_NAMESPACE_PREFIX Acts)
+endif()
+# Acts::Core
+get_target_property(ACTS_COMPILE_FEATURES ${Acts_NAMESPACE_PREFIX}Core
+                    INTERFACE_COMPILE_FEATURES)
 if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
   message(
     WARNING
@@ -218,7 +242,7 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
 endif()
 
 # ROOT
-find_package(ROOT REQUIRED)
+find_package(ROOT ${ROOT_VERSION_MIN} REQUIRED)
 # Check that ROOT is compiled with a modern enough c++ standard
 get_target_property(ROOT_COMPILE_FEATURES ROOT::Core INTERFACE_COMPILE_FEATURES)
 if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
@@ -231,7 +255,7 @@ endif()
 # ONNX Runtime
 option(USE_ONNX "Compile with ONNX support" ON)
 if(${USE_ONNX})
-  find_package(onnxruntime CONFIG)
+  find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
   add_compile_definitions(USE_ONNX)
 endif()
 

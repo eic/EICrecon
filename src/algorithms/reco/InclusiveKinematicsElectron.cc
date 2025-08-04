@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023 Wouter Deconinck, Tooba Ali
 
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 6
-
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
@@ -81,7 +78,7 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
 
   // Get incoming electron beam
   const auto ei_coll = find_first_beam_electron(mcparts);
-  if (ei_coll.size() == 0) {
+  if (ei_coll.empty()) {
     debug("No beam electron found");
     return;
   }
@@ -91,7 +88,7 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
 
   // Get incoming hadron beam
   const auto pi_coll = find_first_beam_hadron(mcparts);
-  if (pi_coll.size() == 0) {
+  if (pi_coll.empty()) {
     debug("No beam hadron found");
     return;
   }
@@ -107,7 +104,7 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
   }
 
   // If no scattered electron was found
-  if (electrons.size() == 0) {
+  if (electrons.empty()) {
     debug("No scattered electron found");
     return;
   }
@@ -130,4 +127,3 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
 }
 
 } // namespace eicrecon
-#endif

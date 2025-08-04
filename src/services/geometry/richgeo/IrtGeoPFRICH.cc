@@ -13,12 +13,14 @@
 #include <IRT/G4Object.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <RtypesCore.h>
 #include <TGeoNode.h>
 #include <TRef.h>
 #include <TVector3.h>
 #include <fmt/core.h>
-#include <math.h>
-#include <stdint.h>
+#include <fmt/format.h>
+#include <cmath>
+#include <cstdint>
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -40,11 +42,11 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
   TVector3 normX(1, 0, 0); // normal vectors
   TVector3 normY(0, 1, 0);
   m_surfEntrance = new FlatSurface(TVector3(0, 0, vesselZmin), normX, normY);
-  auto cv        = m_irtDetectorCollection->SetContainerVolume(
+  auto* cv       = m_irtDetectorCollection->SetContainerVolume(
       m_irtDetector,              // Cherenkov detector
       RadiatorName(kGas).c_str(), // name
       0,                          // path
-      (G4LogicalVolume*)(0x0),    // G4LogicalVolume (inaccessible? use an integer instead)
+      (G4LogicalVolume*)nullptr,  // G4LogicalVolume (inaccessible? use an integer instead)
       nullptr,                    // G4RadiatorMaterial (inaccessible?)
       m_surfEntrance              // surface
   );
@@ -125,23 +127,27 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       // - get surface normal and in-plane vectors
       double sensorLocalNormX[3] = {1.0, 0.0, 0.0};
       double sensorLocalNormY[3] = {0.0, 1.0, 0.0};
-      double sensorGlobalNormX[3], sensorGlobalNormY[3];
+      double sensorGlobalNormX[3];
+      double sensorGlobalNormY[3];
       pvSensor.ptr()->LocalToMasterVect(
-          sensorLocalNormX,
-          sensorGlobalNormX); // ignore vessel transformation, since it is a pure translation
-      pvSensor.ptr()->LocalToMasterVect(sensorLocalNormY, sensorGlobalNormY);
+          static_cast<const Double_t*>(sensorLocalNormX),
+          static_cast<Double_t*>(
+              sensorGlobalNormX)); // ignore vessel transformation, since it is a pure translation
+      pvSensor.ptr()->LocalToMasterVect(static_cast<const Double_t*>(sensorLocalNormY),
+                                        static_cast<Double_t*>(sensorGlobalNormY));
 
       // validate sensor position and normal
       // - test normal vectors
-      dd4hep::Direction normXdir, normYdir;
-      normXdir.SetCoordinates(sensorGlobalNormX);
-      normYdir.SetCoordinates(sensorGlobalNormY);
+      dd4hep::Direction normXdir;
+      dd4hep::Direction normYdir;
+      normXdir.SetCoordinates(static_cast<const Double_t*>(sensorGlobalNormX));
+      normYdir.SetCoordinates(static_cast<const Double_t*>(sensorGlobalNormY));
       auto normZdir =
           normXdir.Cross(normYdir); // sensor surface normal, given derived GlobalNormX,Y
       auto testOrtho  = normXdir.Dot(normYdir); // should be zero, if normX and normY are orthogonal
       auto testRadial = sensorNorm.Cross(normZdir)
                             .Mag2(); // should be zero, if sensor surface normal is as expected
-      if (abs(testOrtho) > 1e-6 || abs(testRadial) > 1e-6) {
+      if (std::abs(testOrtho) > 1e-6 || std::abs(testRadial) > 1e-6) {
         m_log->error(
             "sensor normal is wrong: normX.normY = {:f}   |sensorNorm x normZdir|^2 = {:f}",
             testOrtho, testRadial);
@@ -173,7 +179,7 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
       }
 
     } // if sensor found
-  }   // search for sensors
+  } // search for sensors
 
   // set reference refractive indices // NOTE: numbers may be overridden externally
   std::map<const char*, double> rIndices;
@@ -181,9 +187,10 @@ void richgeo::IrtGeoPFRICH::DD4hep_to_IRT() {
   rIndices.insert({RadiatorName(kAerogel).c_str(), 1.0190});
   rIndices.insert({"Filter", 1.5017});
   for (auto const& [rName, rIndex] : rIndices) {
-    auto rad = m_irtDetector->GetRadiator(rName);
-    if (rad)
+    auto* rad = m_irtDetector->GetRadiator(rName);
+    if (rad != nullptr) {
       rad->SetReferenceRefractiveIndex(rIndex);
+    }
   }
 
   // set refractive index table

@@ -1,4 +1,4 @@
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 
 #include "femc_studiesProcessor.h"
 

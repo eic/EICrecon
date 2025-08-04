@@ -37,7 +37,7 @@ public:
                                {"ReconstructedParticles", "ReconstructedParticleAssociations"},
                                "Match tracks with clusters, and assign associations."} {}
 
-  void init() final{};
+  void init() final {};
   void process(const Input&, const Output&) const final;
 
 private:
@@ -49,8 +49,8 @@ private:
 
   // reconstruct a neutral cluster
   // (for now assuming the vertex is at (0,0,0))
-  edm4eic::MutableReconstructedParticle
-  reconstruct_neutral(const edm4eic::Cluster* cluster, const double mass, const int32_t pdg) const;
+  static edm4eic::MutableReconstructedParticle
+  reconstruct_neutral(const edm4eic::Cluster* cluster, const double mass, const int32_t pdg);
 };
 
 } // namespace eicrecon

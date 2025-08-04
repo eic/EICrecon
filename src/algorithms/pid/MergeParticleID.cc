@@ -12,6 +12,7 @@
 #include <podio/RelationRange.h>
 #include <cstddef>
 #include <gsl/pointers>
+#include <iterator>
 #include <stdexcept>
 #include <unordered_map>
 #include <utility>
@@ -75,8 +76,8 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
     // loop over this PID collection
     for (std::size_t idx_pid = 0; idx_pid < in_pid_collection->size(); idx_pid++) {
       // make the index pair
-      const auto& in_pid                   = in_pid_collection->at(idx_pid);
-      auto& charged_particle_track_segment = in_pid.getChargedParticle();
+      const auto& in_pid                         = in_pid_collection->at(idx_pid);
+      const auto& charged_particle_track_segment = in_pid.getChargedParticle();
       if (!charged_particle_track_segment.isAvailable()) {
         error("PID object found with no charged particle");
         continue;
@@ -87,10 +88,11 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
 
       // insert in `particle_pids`
       auto it = particle_pids.find(id_particle);
-      if (it == particle_pids.end())
+      if (it == particle_pids.end()) {
         particle_pids.insert({id_particle, {idx_paired}});
-      else
+      } else {
         it->second.push_back(idx_paired);
+      }
     }
   }
 
@@ -99,8 +101,9 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
     trace("{:-<70}", "Resulting `particle_pids` ");
     for (auto& [id_particle, idx_paired_list] : particle_pids) {
       trace("id_particle={}", id_particle);
-      for (auto& [idx_coll, idx_pid] : idx_paired_list)
+      for (auto& [idx_coll, idx_pid] : idx_paired_list) {
         trace("  (idx_coll, idx_pid) = ({}, {})", idx_coll, idx_pid);
+      }
     }
   }
 
@@ -141,12 +144,14 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
       out_photonEnergy += in_pid.getNpe() * in_pid.getPhotonEnergy();       // NPE-weighted average
 
       // merge photon Cherenkov angles
-      for (auto in_photon_vec : in_pid.getThetaPhiPhotons())
+      for (auto in_photon_vec : in_pid.getThetaPhiPhotons()) {
         out_pid.addToThetaPhiPhotons(in_photon_vec);
+      }
 
       // relate the charged particle
-      if (!out_pid.getChargedParticle().isAvailable()) // only needs to be done once
+      if (!out_pid.getChargedParticle().isAvailable()) { // only needs to be done once
         out_pid.setChargedParticle(in_pid.getChargedParticle());
+      }
 
       // merge PDG hypotheses, combining their weights and other members
       for (auto in_hyp : in_pid.getHypotheses()) {
@@ -186,14 +191,16 @@ void MergeParticleID::process(const MergeParticleID::Input& input,
     }
 
     // append hypotheses
-    for (auto [pdg, out_hyp] : pdg_2_out_hyp)
+    for (auto [pdg, out_hyp] : pdg_2_out_hyp) {
       out_pid.addToHypotheses(out_hyp);
+    }
 
     // logging: print merged hypothesis table
     trace("    => merged hypothesis weights:");
     trace(Tools::HypothesisTableHead(6));
-    for (auto out_hyp : out_pid.getHypotheses())
+    for (auto out_hyp : out_pid.getHypotheses()) {
       trace(Tools::HypothesisTableLine(out_hyp, 6));
+    }
 
   } // end `particle_pids` loop over charged particles
 }

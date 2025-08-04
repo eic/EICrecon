@@ -4,14 +4,14 @@
 #include <edm4eic/EDM4eicVersion.h>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
-#include <algorithm>
-#include <cstddef>
 #include <fmt/core.h>
-#include <gsl/pointers>
-#include <iterator>
 #include <onnxruntime_c_api.h>
 #include <onnxruntime_cxx_api.h>
-#include <ostream>
+#include <algorithm>
+#include <cstddef>
+#include <gsl/pointers>
+#include <iterator>
+#include <sstream>
 #include <stdexcept>
 
 #include "ONNXInference.h"
@@ -20,8 +20,9 @@ namespace eicrecon {
 
 static std::string print_shape(const std::vector<std::int64_t>& v) {
   std::stringstream ss("");
-  for (std::size_t i = 0; i < v.size() - 1; i++)
+  for (std::size_t i = 0; i < v.size() - 1; i++) {
     ss << v[i] << " x ";
+  }
   ss << v[v.size() - 1];
   return ss.str();
 }

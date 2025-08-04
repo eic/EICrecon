@@ -46,7 +46,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
     // FIXME: This is clearly not the right way to do this! Podio needs
     // FIXME: to be fixed so proper object tracking can be done without
     // FIXME: requiring Collection classes be used to manage all objects.
-    std::size_t mcIndex;
+    std::size_t mcIndex = 0;
     if ((hit.getObjectID().index >= 0) &&
         (hit.getObjectID().index < static_cast<long>(mc->size()))) {
       mcIndex = hit.getObjectID().index;
@@ -67,7 +67,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
 
     const auto& trackID = (*mc)[mcIndex].getContributions(0).getParticle().getObjectID().index;
     // Create a new protocluster if we don't have one for this trackID
-    if (protoIndex.count(trackID) == 0) {
+    if (!protoIndex.contains(trackID)) {
       clusters->create();
       protoIndex[trackID] = clusters->size() - 1;
     }

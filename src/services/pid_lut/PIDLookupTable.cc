@@ -4,15 +4,14 @@
 #include "services/pid_lut/PIDLookupTable.h"
 
 #include <boost/histogram.hpp>
-#include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/close.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
 #include <fmt/core.h>
-#include <math.h>
-#include <stdlib.h>
 #include <algorithm>
 #include <cctype>
+#include <cmath>
+#include <cstdlib>
 #include <fstream> // IWYU pragma: keep
 #include <iterator>
 #include <sstream> // IWYU pragma: keep
@@ -82,12 +81,21 @@ void PIDLookupTable::load_file(const std::string& filename,
     Entry entry;
     if (line.empty() || line[0] == '#' ||
         std::all_of(std::begin(line), std::end(line),
-                    [](unsigned char c) { return std::isspace(c); }))
+                    [](unsigned char c) { return std::isspace(c); })) {
       continue;
+    }
 
     iss.str(line);
     iss.clear();
-    double pdg, charge, momentum, eta, phi, prob_electron, prob_pion, prob_kaon, prob_proton;
+    double pdg      = NAN;
+    double charge   = NAN;
+    double momentum = NAN;
+    double eta;
+    double phi;
+    double prob_electron;
+    double prob_pion;
+    double prob_kaon;
+    double prob_proton;
     // Read each field from the line and assign to Entry struct members
     if ((bool)(iss >> pdg >> charge >> momentum >> eta >> phi) &&
         (binning.missing_electron_prob || (bool)(iss >> prob_electron)) &&

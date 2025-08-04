@@ -57,8 +57,9 @@ void FarDetectorTrackerCluster::process(const FarDetectorTrackerCluster::Input& 
   // surface
   for (std::size_t i = 0; i < inputHitsCollections.size(); i++) {
     auto inputHits = inputHitsCollections[i];
-    if (inputHits->size() == 0)
+    if (inputHits->empty()) {
       continue;
+    }
     auto outputClusters = outputClustersCollection[i];
 
     // Make clusters
@@ -110,7 +111,7 @@ void FarDetectorTrackerCluster::ClusterHits(
     auto cluster = outputClusters->create();
 
     // Loop over hits, adding neighbouring hits as relevant
-    while (clusterList.size()) {
+    while (!clusterList.empty()) {
 
       // Takes first remaining hit in cluster list
       auto index = clusterList[0];

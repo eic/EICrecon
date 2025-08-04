@@ -15,13 +15,16 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
+#include <any>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <gsl/pointers>
 #include <iterator>
 
@@ -158,7 +161,7 @@ void TrackProjector::process(const Input& input, const Output& output) const {
           static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundTheta)),
           static_cast<float>(boundCov(Acts::eBoundPhi, Acts::eBoundPhi)),
           static_cast<float>(boundCov(Acts::eBoundTheta, Acts::eBoundPhi))};
-      const float pathLength      = static_cast<float>(trackstate.pathLength());
+      const auto pathLength       = static_cast<float>(trackstate.pathLength());
       const float pathLengthError = 0;
 
       uint64_t surface = trackstate.referenceSurface().geometryId().value();

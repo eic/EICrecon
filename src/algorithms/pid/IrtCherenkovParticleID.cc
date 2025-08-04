@@ -12,20 +12,21 @@
 #include <TVector3.h>
 #include <algorithms/logger.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
+#include <cmath>
 #include <cstddef>
 #include <functional>
-#include <gsl/pointers>
 #include <iterator>
 #include <memory>
 #include <set>
@@ -47,20 +48,23 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
 
   // inform the user if a cheat mode is enabled
   auto print_cheat = [this](auto name, bool val, auto desc) {
-    if (val)
+    if (val) {
       warning("CHEAT MODE '{}' ENABLED: {}", name, desc);
+    }
   };
   print_cheat("cheatPhotonVertex", m_cfg.cheatPhotonVertex,
               "use MC photon vertex, wavelength, refractive index");
   print_cheat("cheatTrueRadiator", m_cfg.cheatTrueRadiator, "use MC truth to obtain true radiator");
 
-  // extract the the relevant `CherenkovDetector`, set to `m_irt_det`
-  auto& detectors = m_irt_det_coll->GetDetectors();
-  if (detectors.size() == 0)
+  // extract the relevant `CherenkovDetector`, set to `m_irt_det`
+  const auto& detectors = m_irt_det_coll->GetDetectors();
+  if (detectors.empty()) {
     throw std::runtime_error("No CherenkovDetectors found in input collection `irt_det_coll`");
-  if (detectors.size() > 1)
+  }
+  if (detectors.size() > 1) {
     warning("IrtCherenkovParticleID currently only supports 1 CherenkovDetector at a time; "
             "taking the first");
+  }
   auto this_detector = *detectors.begin();
   m_det_name         = this_detector.first;
   m_irt_det          = this_detector.second;
@@ -73,11 +77,14 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
   // rebin refractive index tables to have `m_cfg.numRIndexBins` bins
   trace("Rebinning refractive index tables to have {} bins", m_cfg.numRIndexBins);
   for (auto [rad_name, irt_rad] : m_irt_det->Radiators()) {
+    // FIXME: m_cfg.numRIndexBins should be a service configurable
+    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
     auto ri_lookup_table_orig = irt_rad->m_ri_lookup_table;
-    irt_rad->m_ri_lookup_table.clear();
-    irt_rad->m_ri_lookup_table = Tools::ApplyFineBinning(ri_lookup_table_orig, m_cfg.numRIndexBins);
-    // trace("- {}", rad_name);
-    // for(auto [energy,rindex] : irt_rad->m_ri_lookup_table) trace("  {:>5} eV   {:<}", energy, rindex);
+    if (ri_lookup_table_orig.size() != m_cfg.numRIndexBins) {
+      irt_rad->m_ri_lookup_table.clear();
+      irt_rad->m_ri_lookup_table =
+          Tools::ApplyFineBinning(ri_lookup_table_orig, m_cfg.numRIndexBins);
+    }
   }
 
   // build `m_pid_radiators`, the list of radiators to use for PID
@@ -91,6 +98,7 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
 
   // check radiators' configuration, and pass it to `m_irt_det`'s radiators
   for (auto [rad_name, irt_rad] : m_pid_radiators) {
+    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
     // find `cfg_rad`, the associated `IrtCherenkovParticleIDConfig` radiator
     auto cfg_rad_it = m_cfg.radiators.find(rad_name);
     if (cfg_rad_it != m_cfg.radiators.end()) {
@@ -99,18 +107,21 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
       irt_rad->m_ID                     = Tools::GetRadiatorID(std::string(rad_name));
       irt_rad->m_AverageRefractiveIndex = cfg_rad.referenceRIndex;
       irt_rad->SetReferenceRefractiveIndex(cfg_rad.referenceRIndex);
-      if (cfg_rad.attenuation > 0)
+      if (cfg_rad.attenuation > 0) {
         irt_rad->SetReferenceAttenuationLength(cfg_rad.attenuation);
-      if (cfg_rad.smearing > 0) {
-        if (cfg_rad.smearingMode == "uniform")
-          irt_rad->SetUniformSmearing(cfg_rad.smearing);
-        else if (cfg_rad.smearingMode == "gaussian")
-          irt_rad->SetGaussianSmearing(cfg_rad.smearing);
-        else
-          error("Unknown smearing mode '{}' for {} radiator", cfg_rad.smearingMode, rad_name);
       }
-    } else
+      if (cfg_rad.smearing > 0) {
+        if (cfg_rad.smearingMode == "uniform") {
+          irt_rad->SetUniformSmearing(cfg_rad.smearing);
+        } else if (cfg_rad.smearingMode == "gaussian") {
+          irt_rad->SetGaussianSmearing(cfg_rad.smearing);
+        } else {
+          error("Unknown smearing mode '{}' for {} radiator", cfg_rad.smearingMode, rad_name);
+        }
+      }
+    } else {
       error("Cannot find radiator '{}' in IrtCherenkovParticleIDConfig instance", rad_name);
+    }
   }
 
   // get PDG info for the particles we want to identify in PID
@@ -170,6 +181,9 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
     auto irt_particle = std::make_unique<ChargedParticle>();
 
     // loop over radiators
+    // note: this must run exclusively since irt_rad points to shared IRT objects that are
+    // owned by the RichGeo_service; it holds state (e.g. irt_rad->ResetLocation())
+    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
     for (auto [rad_name, irt_rad] : m_pid_radiators) {
 
       // get the `charged_particle` for this radiator
@@ -218,25 +232,15 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
           for (const auto& hit_assoc : *in_hit_assocs) {
             if (hit_assoc.getRawHit().isAvailable()) {
               if (hit_assoc.getRawHit().id() == raw_hit.id()) {
-#if EDM4EIC_VERSION_MAJOR >= 6
 #if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
                 mc_photon = hit_assoc.getSimHit().getParticle();
 #else
                 mc_photon = hit_assoc.getSimHit().getMCParticle();
 #endif
-#else
-                // hit association found, get the MC photon and break the loop
-                if (hit_assoc.simHits_size() > 0) {
-                  mc_photon = hit_assoc.getSimHits(0).getMCParticle();
-#endif
                 mc_photon_found = true;
-                if (mc_photon.getPDG() != -22)
+                if (mc_photon.getPDG() != -22) {
                   warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());
-#if EDM4EIC_VERSION_MAJOR >= 6
-#else
-                } else if (m_cfg.CheatModeEnabled())
-                  error("cheat mode enabled, but no MC photons provided");
-#endif
+                }
                 break;
               }
             }
@@ -245,10 +249,11 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
 
         // cheat mode, for testing only: use MC photon to get the actual radiator
         if (m_cfg.cheatTrueRadiator && mc_photon_found) {
-          auto vtx    = Tools::PodioVector3_to_TVector3(mc_photon.getVertex());
-          auto mc_rad = m_irt_det->GuessRadiator(vtx, vtx); // assume IP is at (0,0,0)
-          if (mc_rad != irt_rad)
+          auto vtx     = Tools::PodioVector3_to_TVector3(mc_photon.getVertex());
+          auto* mc_rad = m_irt_det->GuessRadiator(vtx, vtx); // assume IP is at (0,0,0)
+          if (mc_rad != irt_rad) {
             continue; // skip this photon, if not from radiator `irt_rad`
+          }
           trace(Tools::PrintTVector3(
               fmt::format("cheat: radiator '{}' determined from photon vertex", rad_name), vtx));
         }
@@ -267,8 +272,9 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
             TVector3 mc_endpoint = Tools::PodioVector3_to_TVector3(mc_photon.getEndpoint());
             trace(Tools::PrintTVector3("photon endpoint", mc_endpoint));
             trace("{:>30} = {}", "dist( pixel,  photon )", (pixel_pos - mc_endpoint).Mag());
-          } else
+          } else {
             trace("  no MC photon found; probably a noise hit");
+          }
         }
 
         // start new IRT photon
@@ -289,16 +295,17 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         // cheat mode: retrieve a refractive index estimate; it is not exactly the one, which
         // was used in GEANT, but should be very close
         if (m_cfg.cheatPhotonVertex) {
-          double ri;
+          double ri   = NAN;
           auto mom    = 1e9 * irt_photon->GetVertexMomentum().Mag();
           auto ri_set = Tools::GetFinelyBinnedTableEntry(irt_rad->m_ri_lookup_table, mom, &ri);
           if (ri_set) {
             irt_photon->SetVertexRefractiveIndex(ri);
             trace("{:>30} = {}", "refractive index", ri);
-          } else
+          } else {
             warning("Tools::GetFinelyBinnedTableEntry failed to lookup refractive index for "
                     "momentum {} eV",
                     mom);
+          }
         }
 
         // add each `irt_photon` to the radiator history
@@ -357,8 +364,9 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
             break;
           }
         }
-        if (!photon_selected)
+        if (!photon_selected) {
           continue;
+        }
 
         // trace logging
         trace(
@@ -393,9 +401,10 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
           static_cast<decltype(edm4eic::CherenkovParticleIDData::refractiveIndex)>(rindex_ave));
       out_cherenkov_pid.setPhotonEnergy(
           static_cast<decltype(edm4eic::CherenkovParticleIDData::photonEnergy)>(energy_ave));
-      for (auto [phot_theta, phot_phi] : phot_theta_phi)
+      for (auto [phot_theta, phot_phi] : phot_theta_phi) {
         out_cherenkov_pid.addToThetaPhiPhotons(
             edm4hep::Vector2f{static_cast<float>(phot_theta), static_cast<float>(phot_phi)});
+      }
 
       // relate mass hypotheses
       for (auto [pdg, mass] : m_pdg_mass) {
@@ -423,9 +432,11 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
       auto PrintCherenkovEstimate = [this](edm4eic::CherenkovParticleID pid,
                                            bool printHypotheses = true, int indent = 2) {
         double thetaAve = 0;
-        if (pid.getNpe() > 0)
-          for (const auto& [theta, phi] : pid.getThetaPhiPhotons())
+        if (pid.getNpe() > 0) {
+          for (const auto& [theta, phi] : pid.getThetaPhiPhotons()) {
             thetaAve += theta / pid.getNpe();
+          }
+        }
         trace("{:{}}Cherenkov Angle Estimate:", "", indent);
         trace("{:{}}  {:>16}:  {:>10}", "", indent, "NPE", pid.getNpe());
         trace("{:{}}  {:>16}:  {:>10.8} mrad", "", indent, "<theta>",
@@ -436,8 +447,9 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         if (printHypotheses) {
           trace("{:{}}Mass Hypotheses:", "", indent);
           trace("{}", Tools::HypothesisTableHead(indent + 2));
-          for (const auto& hyp : pid.getHypotheses())
+          for (const auto& hyp : pid.getHypotheses()) {
             trace("{}", Tools::HypothesisTableLine(hyp, indent + 2));
+          }
         }
       };
       PrintCherenkovEstimate(out_cherenkov_pid);
@@ -448,12 +460,14 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         const auto* charged_particle_list = charged_particle_list_it->second;
         auto charged_particle             = charged_particle_list->at(i_charged_particle);
         out_cherenkov_pid.setChargedParticle(charged_particle);
-      } else
+      } else {
         error("Cannot find radiator 'Merged' in `in_charged_particles`");
+      }
 
       // relate hit associations
-      for (const auto& hit_assoc : *in_hit_assocs)
+      for (const auto& hit_assoc : *in_hit_assocs) {
         out_cherenkov_pid.addToRawHitAssociations(hit_assoc);
+      }
 
     } // end radiator loop
 

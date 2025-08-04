@@ -15,6 +15,7 @@
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <Eigen/Householder> // IWYU pragma: keep
+#include <Eigen/Jacobi>
 #include <cctype>
 #include <cmath>
 #include <complex>
@@ -64,7 +65,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
   auto [out_clusters, out_associations]     = output;
 
   // exit if no clusters in collection
-  if (in_clusters->size() == 0) {
+  if (in_clusters->empty()) {
     debug("No clusters in input collection.");
     return;
   }
@@ -77,7 +78,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
 
     // set up base for weights
     double logWeightBase = m_cfg.logWeightBase;
-    if (m_cfg.logWeightBaseCoeffs.size() != 0) {
+    if (!m_cfg.logWeightBaseCoeffs.empty()) {
       double l      = std::log(out_clust.getEnergy() / m_cfg.logWeightBase_Eref);
       logWeightBase = 0;
       for (std::size_t i = 0; i < m_cfg.logWeightBaseCoeffs.size(); i++) {
@@ -91,7 +92,9 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     {
 
       // create addresses for quantities we'll need later
-      float radius = 0, dispersion = 0, w_sum = 0;
+      float radius     = 0;
+      float dispersion = 0;
+      float w_sum      = 0;
 
       // set up matrices/vectors
       Eigen::Matrix2f sum2_2D         = Eigen::Matrix2f::Zero();
@@ -167,7 +170,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
               axis_eigen(2, 0).real(),
           };
         } // end if weight sum is nonzero
-      }   // end if n hits > 1
+      } // end if n hits > 1
 
       // set shape parameters
       out_clust.addToShapeParameters(radius);
@@ -212,7 +215,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
         out_assoc.setWeight(in_assoc.getWeight());
       }
     } // end input association loop
-  }   // end input cluster loop
+  } // end input cluster loop
   debug("Completed processing input clusters");
 
 } // end 'process(Input&, Output&)'

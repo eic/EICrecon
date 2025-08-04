@@ -9,7 +9,7 @@
 #include <exception>
 #include <gsl/pointers>
 #include <iterator>
-#include <ostream>
+#include <sstream>
 
 #include "InclusiveKinematicsML.h"
 
@@ -17,8 +17,9 @@ namespace eicrecon {
 
 static std::string print_shape(const std::vector<std::int64_t>& v) {
   std::stringstream ss("");
-  for (std::size_t i = 0; i < v.size() - 1; i++)
+  for (std::size_t i = 0; i < v.size() - 1; i++) {
     ss << v[i] << "x";
+  }
   ss << v[v.size() - 1];
   return ss.str();
 }
@@ -92,7 +93,7 @@ void InclusiveKinematicsML::process(const InclusiveKinematicsML::Input& input,
   auto [ml]                 = output;
 
   // Require valid inputs
-  if (electron->size() == 0 || da->size() == 0) {
+  if (electron->empty() || da->empty()) {
     debug("skipping because input collections have no entries");
     return;
   }
@@ -106,8 +107,8 @@ void InclusiveKinematicsML::process(const InclusiveKinematicsML::Input& input,
   // Prepare input tensor
   std::vector<float> input_tensor_values;
   std::vector<Ort::Value> input_tensors;
-  for (std::size_t i = 0; i < electron->size(); i++) {
-    input_tensor_values.push_back(electron->at(i).getX());
+  for (auto&& i : *electron) {
+    input_tensor_values.push_back(i.getX());
   }
   input_tensors.emplace_back(vec_to_tensor<float>(input_tensor_values, m_input_shapes.front()));
 
@@ -131,9 +132,9 @@ void InclusiveKinematicsML::process(const InclusiveKinematicsML::Input& input,
     }
 
     // Convert output tensor
-    float* output_tensor_data = output_tensors[0].GetTensorMutableData<float>();
-    auto x                    = output_tensor_data[0];
-    auto kin                  = ml->create();
+    auto* output_tensor_data = output_tensors[0].GetTensorMutableData<float>();
+    auto x   = output_tensor_data[0]; // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+    auto kin = ml->create();
     kin.setX(x);
 
   } catch (const Ort::Exception& exception) {

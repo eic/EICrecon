@@ -2,6 +2,7 @@
 #include "TrackingTest_processor.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <JANA/Services/JParameterManager.h>
@@ -13,6 +14,7 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
 #include <cstddef>
@@ -26,11 +28,6 @@
 #include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;
-
-//------------------
-// OccupancyAnalysis (Constructor)
-//------------------
-TrackingTest_processor::TrackingTest_processor(JApplication* app) : JEventProcessor(app) {}
 
 //------------------
 // Init
@@ -103,16 +100,18 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
 
     const auto* particle = mc_particles[i];
 
-    if (particle->getGeneratorStatus() != 1)
+    if (particle->getGeneratorStatus() != 1) {
       continue;
+    }
     //
     double px = particle->getMomentum().x;
     double py = particle->getMomentum().y;
     double pz = particle->getMomentum().z;
     ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
     ROOT::Math::Cartesian3D p(px, py, pz);
-    if (p.R() < 1)
+    if (p.R() < 1) {
       continue;
+    }
 
     m_log->debug("   {:<5} {:<6} {:<7} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i,
                  particle->getGeneratorStatus(), particle->getPDG(), px, py, pz, p.R());

@@ -1,15 +1,12 @@
 #include "GeometryNavigationSteps_processor.h"
 
 #include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <string>
 
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/rootfile/RootFile_service.h"
-
-GeometryNavigationSteps_processor::GeometryNavigationSteps_processor(JApplication* app)
-    : JEventProcessor(app) {}
 
 void GeometryNavigationSteps_processor::Init() {
   std::string plugin_name = ("geometry_navigation_test");

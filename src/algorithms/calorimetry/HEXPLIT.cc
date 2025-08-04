@@ -29,8 +29,9 @@ const std::vector<double> HEXPLIT::neighbor_offsets_x = []() {
   double rs[2]      = {1.5, sqrt(3) / 2.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
-    for (int j = 0; j < 6; j += 1)
+    for (int j = 0; j < 6; j += 1) {
       x.push_back(rs[i] * cos(j * M_PI / 3 + offsets[i]));
+    }
   }
   return x;
 }();
@@ -40,8 +41,9 @@ const std::vector<double> HEXPLIT::neighbor_offsets_y = []() {
   double rs[2]      = {1.5, sqrt(3) / 2.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
-    for (int j = 0; j < 6; j += 1)
+    for (int j = 0; j < 6; j += 1) {
       y.push_back(rs[i] * sin(j * M_PI / 3 + offsets[i]));
+    }
   }
   return y;
 }();
@@ -57,8 +59,9 @@ const std::vector<double> HEXPLIT::subcell_offsets_x = []() {
   double rs[2]      = {0.75, sqrt(3) / 4.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
-    for (int j = 0; j < 6; j += 1)
+    for (int j = 0; j < 6; j += 1) {
       x.push_back(rs[i] * cos(j * M_PI / 3 + offsets[i]));
+    }
   }
   return x;
 }();
@@ -68,8 +71,9 @@ const std::vector<double> HEXPLIT::subcell_offsets_y = []() {
   double rs[2]      = {0.75, sqrt(3) / 4.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
-    for (int j = 0; j < 6; j += 1)
+    for (int j = 0; j < 6; j += 1) {
       y.push_back(rs[i] * sin(j * M_PI / 3 + offsets[i]));
+    }
   }
   return y;
 }();
@@ -90,8 +94,9 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
 
   for (const auto& hit : *hits) {
     //skip hits that do not pass E and t cuts
-    if (hit.getEnergy() < Emin || hit.getTime() > tmax)
+    if (hit.getEnergy() < Emin || hit.getTime() > tmax) {
       continue;
+    }
 
     //keep track of the energy in each neighboring cell
     std::vector<double> Eneighbors(NEIGHBORS, 0.0);
@@ -105,15 +110,18 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
 
       //only look at hits nearby within two layers of the current layer
       int dz = std::abs(hit.getLayer() - other_hit.getLayer());
-      if (dz > 2 || dz == 0)
+      if (dz > 2 || dz == 0) {
         continue;
-      if (other_hit.getEnergy() < Emin || other_hit.getTime() > tmax)
+      }
+      if (other_hit.getEnergy() < Emin || other_hit.getTime() > tmax) {
         continue;
+      }
       //difference in transverse position (in units of side lengths)
       double dx = (other_hit.getLocal().x - hit.getLocal().x) / sl;
       double dy = (other_hit.getLocal().y - hit.getLocal().y) / sl;
-      if (std::abs(dx) > 2 || std::abs(dy) > sqrt(3))
+      if (std::abs(dx) > 2 || std::abs(dy) > sqrt(3)) {
         continue;
+      }
 
       //loop over locations of the neighboring cells
       //and check if the jth hit matches this location
@@ -169,9 +177,9 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
           static_cast<float>(global_position.Z() / dd4hep::mm)};
 
       //bounding box dimensions depend on the orientation of the rhombus
-      int orientation = k % 3 == 0;
+      int orientation = static_cast<int>(k % 3 == 0);
       const decltype(edm4eic::CalorimeterHitData::dimension) dimension(
-          sl * (orientation ? 1 : 1.5), sl * sqrt(3) / 2. * (orientation ? 2 : 1),
+          sl * (orientation != 0 ? 1 : 1.5), sl * sqrt(3) / 2. * (orientation != 0 ? 2 : 1),
           hit.getDimension()[2]);
 
       subcellHits->create(hit.getCellID(), hit.getEnergy() * weights[k] / sum_weights, 0,

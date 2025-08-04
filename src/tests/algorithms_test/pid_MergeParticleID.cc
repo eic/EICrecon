@@ -16,6 +16,7 @@
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "algorithms/pid/MergeParticleID.h"
@@ -34,8 +35,9 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
    * since `MergeParticleID` matches tracks by ID
    */
   auto tracks = std::make_unique<edm4eic::TrackSegmentCollection>();
-  for (int i = 0; i < 2; i++)
+  for (int i = 0; i < 2; i++) {
     tracks->create();
+  }
 
   // Cherenkov PID inputs
   //----------------------------------------------------------
@@ -62,8 +64,9 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
   pid_hyp.npe    = 8;
   pid_hyp.weight = 80;
   pid.addToHypotheses(pid_hyp);
-  for (int i = 0; i <= pid.getNpe(); i++)
+  for (int i = 0; i <= pid.getNpe(); i++) {
     pid.addToThetaPhiPhotons(edm4hep::Vector2f{M_PI / 4, 0});
+  }
 
   pid = coll_cherenkov_1->create();
   pid.setChargedParticle(tracks->at(1));
@@ -78,8 +81,9 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
   pid_hyp.npe    = 10;
   pid_hyp.weight = 80;
   pid.addToHypotheses(pid_hyp);
-  for (int i = 0; i <= pid.getNpe(); i++)
+  for (int i = 0; i <= pid.getNpe(); i++) {
     pid.addToThetaPhiPhotons(edm4hep::Vector2f{-M_PI / 4, 0});
+  }
 
   // collection 2 ------
   auto coll_cherenkov_2 = std::make_unique<edm4eic::CherenkovParticleIDCollection>();
@@ -97,8 +101,9 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
   pid_hyp.npe    = 2;
   pid_hyp.weight = 90;
   pid.addToHypotheses(pid_hyp);
-  for (int i = 0; i <= pid.getNpe(); i++)
+  for (int i = 0; i <= pid.getNpe(); i++) {
     pid.addToThetaPhiPhotons(edm4hep::Vector2f{M_PI / 4, 0});
+  }
 
   pid = coll_cherenkov_2->create();
   pid.setChargedParticle(tracks->at(0));
@@ -117,8 +122,9 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
   pid_hyp.npe    = 1;
   pid_hyp.weight = 60;
   pid.addToHypotheses(pid_hyp);
-  for (int i = 0; i <= pid.getNpe(); i++)
+  for (int i = 0; i <= pid.getNpe(); i++) {
     pid.addToThetaPhiPhotons(edm4hep::Vector2f{-M_PI / 4, 0});
+  }
 
   // Cherenkov PID tests
   //----------------------------------------------------------
@@ -128,13 +134,15 @@ TEST_CASE("the PID MergeParticleID algorithm runs", "[MergeParticleID]") {
 
   auto find_cherenkov_pid_for_track = [](const auto& coll, auto trk) {
     for (auto obj : *coll) {
-      if (obj.getChargedParticle().id() == trk.id())
+      if (obj.getChargedParticle().id() == trk.id()) {
         return obj;
+      }
     }
     FAIL("ERROR: cannot find CherenkovParticleID given track");
-    if (coll->size() == 0)
+    if (coll->size() == 0) {
       throw std::runtime_error(
           "empty collection used in pid_MergeParticleID::find_cherenkov_pid_for_track");
+    }
     return coll->at(0);
   };
 

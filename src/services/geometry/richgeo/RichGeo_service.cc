@@ -4,6 +4,7 @@
 #include "RichGeo_service.h"
 
 #include <JANA/JException.h>
+#include <JANA/Services/JServiceLocator.h>
 #include <fmt/core.h>
 #include <exception>
 #include <gsl/pointers>
@@ -36,16 +37,18 @@ richgeo::IrtGeo* RichGeo_service::GetIrtGeo(std::string detector_name) {
   try {
     m_log->debug("Call RichGeo_service::GetIrtGeo initializer");
     auto initialize = [this, &detector_name]() {
-      if (!m_dd4hepGeo)
+      if (m_dd4hepGeo == nullptr) {
         throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
+      }
       // instantiate IrtGeo-derived object, depending on detector
       auto which_rich = detector_name;
-      if (which_rich == "DRICH")
+      if (which_rich == "DRICH") {
         m_irtGeo = new richgeo::IrtGeoDRICH(m_dd4hepGeo, m_converter, m_log);
-      else if (which_rich == "RICHEndcapN")
+      } else if (which_rich == "RICHEndcapN") {
         m_irtGeo = new richgeo::IrtGeoPFRICH(m_dd4hepGeo, m_converter, m_log);
-      else
+      } else {
         throw JException(fmt::format("IrtGeo is not defined for detector '{}'", detector_name));
+      }
     };
     std::lock_guard<std::mutex> lock(m_init_lock);
     std::call_once(m_init_irt[detector_name], initialize);
@@ -62,8 +65,9 @@ const richgeo::ActsGeo* RichGeo_service::GetActsGeo(std::string detector_name) {
   try {
     m_log->debug("Call RichGeo_service::GetActsGeo initializer");
     auto initialize = [this, &detector_name]() {
-      if (!m_dd4hepGeo)
+      if (m_dd4hepGeo == nullptr) {
         throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
+      }
       m_actsGeo = new richgeo::ActsGeo(detector_name, m_dd4hepGeo, m_log);
     };
     std::lock_guard<std::mutex> lock(m_init_lock);
@@ -81,8 +85,9 @@ std::shared_ptr<richgeo::ReadoutGeo> RichGeo_service::GetReadoutGeo(std::string 
   try {
     m_log->debug("Call RichGeo_service::GetReadoutGeo initializer");
     auto initialize = [this, &detector_name, &readout_class]() {
-      if (!m_dd4hepGeo)
+      if (m_dd4hepGeo == nullptr) {
         throw JException("RichGeo_service m_dd4hepGeo==null which should never be!");
+      }
       m_readoutGeo = std::make_shared<richgeo::ReadoutGeo>(detector_name, readout_class,
                                                            m_dd4hepGeo, m_converter, m_log);
     };

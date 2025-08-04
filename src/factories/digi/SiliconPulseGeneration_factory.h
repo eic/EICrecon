@@ -4,10 +4,9 @@
 
 #pragma once
 
-#include "extensions/jana/JOmniFactory.h"
-
 #include "algorithms/digi/SiliconPulseGeneration.h"
-#include <iostream>
+#include "services/algorithms_init/AlgorithmsInit_service.h"
+#include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
@@ -33,19 +32,17 @@ private:
   ParameterRef<double> m_timestep{this, "timestep", config().timestep};
   ParameterRef<double> m_ignore_thres{this, "ignoreThreshold", config().ignore_thres};
   ParameterRef<double> m_min_sampling_time{this, "minSamplingTime", config().min_sampling_time};
-  ParameterRef<int> m_max_time_bins{this, "maxTimeBins", config().max_time_bins};
+  ParameterRef<uint32_t> m_max_time_bins{this, "maxTimeBins", config().max_time_bins};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {
-    m_algo = std::make_unique<eicrecon::SiliconPulseGeneration>(GetPrefix());
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_in_sim_hits()}, {m_out_pulses().get()});

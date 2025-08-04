@@ -3,7 +3,9 @@
 //
 //
 
-#include <JANA/JApplication.h>
+
+#include <JANA/JApplicationFwd.h>
+#include <JANA/JEventSourceGeneratorT.h>
 
 #include "JEventProcessorPODIO.h"
 #include "JEventSourcePODIO_generator.h"

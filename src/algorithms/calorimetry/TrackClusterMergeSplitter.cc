@@ -8,7 +8,6 @@
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <stdint.h>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
@@ -64,7 +63,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   auto [out_protoclusters]                      = output;
 
   // exit if no clusters in collection
-  if (in_protoclusters->size() == 0) {
+  if (in_protoclusters->empty()) {
     debug("No proto-clusters in input collection.");
     return;
   }
@@ -79,12 +78,11 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   // 2. Match relevant projections to clusters
   // ------------------------------------------------------------------------
   MapToVecProj mapProjToSplit;
-  if (vecProject.size() == 0) {
+  if (vecProject.empty()) {
     debug("No projections to match clusters to.");
     return;
-  } else {
-    match_clusters_to_tracks(in_protoclusters, vecProject, mapProjToSplit);
   }
+  match_clusters_to_tracks(in_protoclusters, vecProject, mapProjToSplit);
 
   // ------------------------------------------------------------------------
   // 3. Loop over projection-cluster pairs to check if merging is needed
@@ -98,7 +96,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     auto projSeed = vecMatchProj.front();
 
     // skip if cluster is already used
-    if (setUsedClust.count(clustSeed)) {
+    if (setUsedClust.contains(clustSeed)) {
       continue;
     }
 
@@ -136,7 +134,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     for (auto in_cluster : *in_protoclusters) {
 
       // ignore used clusters
-      if (setUsedClust.count(in_cluster)) {
+      if (setUsedClust.contains(in_cluster)) {
         continue;
       }
 
@@ -154,15 +152,14 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
       // --------------------------------------------------------------------
       if (drToSeed > m_cfg.drAdd) {
         continue;
-      } else {
-        mapClustToMerge[clustSeed].push_back(in_cluster);
-        setUsedClust.insert(in_cluster);
       }
+      mapClustToMerge[clustSeed].push_back(in_cluster);
+      setUsedClust.insert(in_cluster);
 
       // --------------------------------------------------------------------
       // if picked up cluster w/ matched track, add projection to list
       // --------------------------------------------------------------------
-      if (mapProjToSplit.count(in_cluster)) {
+      if (mapProjToSplit.contains(in_cluster)) {
         vecMatchProj.insert(vecMatchProj.end(), mapProjToSplit[in_cluster].begin(),
                             mapProjToSplit[in_cluster].end());
       }
@@ -174,7 +171,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
             "pointing to merged cluster",
             mapClustToMerge[clustSeed].size(), eClustSum, sigSum, vecMatchProj.size());
     } // end cluster loop
-  }   // end matched cluster-projection loop
+  } // end matched cluster-projection loop
 
   // ------------------------------------------------------------------------
   // 4. Create an output protocluster for each merged cluster and for
@@ -190,7 +187,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   for (auto in_cluster : *in_protoclusters) {
 
     // ignore used clusters
-    if (setUsedClust.count(in_cluster)) {
+    if (setUsedClust.contains(in_cluster)) {
       continue;
     }
 
@@ -211,7 +208,7 @@ void TrackClusterMergeSplitter::get_projections(const edm4eic::TrackSegmentColle
                                                 VecProj& relevant_projects) const {
 
   // return if projections are empty
-  if (projections->size() == 0) {
+  if (projections->empty()) {
     debug("No projections in input collection.");
     return;
   }
@@ -223,7 +220,7 @@ void TrackClusterMergeSplitter::get_projections(const edm4eic::TrackSegmentColle
         relevant_projects.push_back(point);
       }
     } // end point loop
-  }   // end projection loop
+  } // end projection loop
   debug("Collected relevant projections: {} to process", relevant_projects.size());
 
 } // end 'get_projections(edm4eic::CalorimeterHit&, edm4eic::TrackSegmentCollection&, VecTrkPoint&)'
@@ -238,11 +235,9 @@ void TrackClusterMergeSplitter::match_clusters_to_tracks(
     MapToVecProj& matches) const {
 
   // loop over relevant projections
-  for (uint32_t iProject = 0; iProject < projections.size(); ++iProject) {
+  for (auto project : projections) {
 
     // grab projection
-    auto project = projections[iProject];
-
     // get eta, phi of projection
     const float etaProj = edm4hep::utils::eta(project.position);
     const float phiProj = edm4hep::utils::angleAzimuthal(project.position);
@@ -356,7 +351,7 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(
       }
 
     } // end hits to merge loop
-  }   // end clusters to merge loop
+  } // end clusters to merge loop
 
 } // end 'merge_and_split_clusters(VecClust&, VecProj&, edm4eic::MutableCluster&)'
 

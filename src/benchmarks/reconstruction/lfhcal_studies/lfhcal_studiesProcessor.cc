@@ -10,6 +10,7 @@
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <RtypesCore.h>
@@ -22,10 +23,11 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/RelationRange.h>
-#include <stdint.h>
 #include <algorithm>
 #include <cmath>
+#include <cstdint>
 #include <gsl/pointers>
 #include <iostream>
 #include <limits>
@@ -47,7 +49,7 @@ void lfhcal_studiesProcessor::Init() {
   // ===============================================================================================
   // Get JANA application and seup general variables
   // ===============================================================================================
-  auto app = GetApplication();
+  auto* app = GetApplication();
 
   m_log = app->GetService<Log_service>()->logger(plugin_name);
 
@@ -313,8 +315,9 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   double mcenergy         = 0;
   int iMC                 = 0;
   for (auto mcparticle : mcParticles) {
-    if (mcparticle.getGeneratorStatus() != 1)
+    if (mcparticle.getGeneratorStatus() != 1) {
       continue;
+    }
     const auto& mom = mcparticle.getMomentum();
     // get particle energy
     mcenergy = mcparticle.getEnergy();
@@ -337,8 +340,9 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     }
     iMC++;
   }
-  if (enableTreeCluster)
+  if (enableTreeCluster) {
     t_mc_N = iMC;
+  }
   // ===============================================================================================
   // process sim hits
   // ===============================================================================================
@@ -366,8 +370,9 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     auto detector_layer_x  = m_decoder->get(cellID, iLx);
     auto detector_layer_y  = m_decoder->get(cellID, iLy);
     long detector_layer_rz = -1;
-    if (isLFHCal)
+    if (isLFHCal) {
       detector_layer_rz = m_decoder->get(cellID, 7);
+    }
     auto detector_layer_z = m_decoder->get(cellID, iLz);
     if (detector_passive == 0) {
       sumActiveCaloEnergy += energy;
@@ -375,15 +380,16 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       sumPassiveCaloEnergy += energy;
     }
 
-    if (detector_passive > 0)
+    if (detector_passive > 0) {
       continue;
+    }
     // calc cell IDs
     long cellIDx = -1;
     long cellIDy = -1;
     long cellIDz = -1;
     if (isLFHCal) {
-      cellIDx = 54ll * 2 - detector_module_x * 2 + detector_layer_x;
-      cellIDy = 54ll * 2 - detector_module_y * 2 + detector_layer_y;
+      cellIDx = 54LL * 2 - detector_module_x * 2 + detector_layer_x;
+      cellIDy = 54LL * 2 - detector_module_y * 2 + detector_layer_y;
       cellIDz = detector_layer_rz * 10 + detector_layer_z;
     }
     nCaloHitsSim++;
@@ -448,15 +454,16 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       detector_layer_rz = m_decoder->get(cellID, 7);
     }
 
-    if (detector_passive > 0)
+    if (detector_passive > 0) {
       continue;
+    }
 
     // calc cell IDs
     long cellIDx = -1;
     long cellIDy = -1;
     if (isLFHCal) {
-      cellIDx = 54ll * 2 - detector_module_x * 2 + detector_layer_x;
-      cellIDy = 54ll * 2 - detector_module_y * 2 + detector_layer_y;
+      cellIDx = 54LL * 2 - detector_module_x * 2 + detector_layer_x;
+      cellIDy = 54LL * 2 - detector_module_y * 2 + detector_layer_y;
     }
 
     hPosCaloHitsXY->Fill(x, y);
@@ -484,8 +491,9 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       tempstructT.cellID  = cellID;
       tempstructT.cellIDx = cellIDx;
       tempstructT.cellIDy = cellIDy;
-      if (isLFHCal)
+      if (isLFHCal) {
         tempstructT.cellIDz = detector_layer_rz;
+      }
       tempstructT.tower_trueID = 0; //TODO how to get trueID?
       input_tower_rec.push_back(tempstructT);
       input_tower_recSav.push_back(tempstructT);
@@ -493,8 +501,9 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   }
   m_log->trace("LFHCal mod: nCaloHits sim  {}\t rec {}", nCaloHitsSim, nCaloHitsRec);
 
-  if (nCaloHitsRec > 0)
+  if (nCaloHitsRec > 0) {
     nEventsWithCaloHits++;
+  }
 
   // ===============================================================================================
   // sort tower arrays
@@ -522,10 +531,11 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   // sim hits
   double tot_energySimHit = 0;
   for (auto& tower : input_tower_sim) {
-    if (tower.cellIDz < minCellIDzDiffSamp)
+    if (tower.cellIDz < minCellIDzDiffSamp) {
       tower.energy = tower.energy / samplingFractionW; // calibrate
-    else
+    } else {
       tower.energy = tower.energy / samplingFractionFe; // calibrate
+    }
     tot_energySimHit += tower.energy;
   }
   m_log->trace("Mc E: {} \t eta: {} \t sim E rec: {}\t rec E rec: {}", mcenergy, mceta,
@@ -577,13 +587,15 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
         // determine remaining cluster properties from its towers
         float* showershape_eta_phi =
             CalculateM02andWeightedPosition(cluster_towers, tempstructC.cluster_E, 4.5);
-        tempstructC.cluster_M02    = showershape_eta_phi[0];
-        tempstructC.cluster_M20    = showershape_eta_phi[1];
-        tempstructC.cluster_Eta    = showershape_eta_phi[2];
-        tempstructC.cluster_Phi    = showershape_eta_phi[3];
-        tempstructC.cluster_X      = showershape_eta_phi[4];
-        tempstructC.cluster_Y      = showershape_eta_phi[5];
-        tempstructC.cluster_Z      = showershape_eta_phi[6];
+        // NOLINTBEGIN(cppcoreguidelines-pro-bounds-pointer-arithmetic)
+        tempstructC.cluster_M02 = showershape_eta_phi[0];
+        tempstructC.cluster_M20 = showershape_eta_phi[1];
+        tempstructC.cluster_Eta = showershape_eta_phi[2];
+        tempstructC.cluster_Phi = showershape_eta_phi[3];
+        tempstructC.cluster_X   = showershape_eta_phi[4];
+        tempstructC.cluster_Y   = showershape_eta_phi[5];
+        tempstructC.cluster_Z   = showershape_eta_phi[6];
+        // NOLINTEND(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         tempstructC.cluster_towers = cluster_towers;
         m_log->trace("---------> \t {} \tcluster with E = {} \tEta: {} \tPhi: {} \tX: {} \tY: {} "
                      "\tZ: {} \tntowers: {} \ttrueID: {}",
@@ -619,13 +631,15 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
         t_lFHCal_cluster_Phi[iCl]    = (float)cluster.cluster_Phi;
       }
       hRecClusterEcalib_E_eta->Fill(mcenergy, cluster.cluster_E / mcenergy, mceta);
-      for (int iCell = 0; iCell < (int)cluster.cluster_towers.size(); iCell++) {
+      for (const auto& cluster_tower : cluster.cluster_towers) {
         int pSav = 0;
-        while (cluster.cluster_towers.at(iCell).cellID != input_tower_recSav.at(pSav).cellID &&
-               pSav < (int)input_tower_recSav.size())
+        while (cluster_tower.cellID != input_tower_recSav.at(pSav).cellID &&
+               pSav < (int)input_tower_recSav.size()) {
           pSav++;
-        if (cluster.cluster_towers.at(iCell).cellID == input_tower_recSav.at(pSav).cellID)
+        }
+        if (cluster_tower.cellID == input_tower_recSav.at(pSav).cellID) {
           input_tower_recSav.at(pSav).tower_clusterIDA = iCl;
+        }
       }
 
       if (iCl == 0) {
@@ -635,14 +649,16 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       iCl++;
       m_log->trace("MA cluster {}:\t {} \t {}", iCl, cluster.cluster_E, cluster.cluster_NTowers);
     }
-    if (iCl < maxNCluster && enableTreeCluster)
+    if (iCl < maxNCluster && enableTreeCluster) {
       t_lFHCal_clusters_N = (int)iCl;
+    }
 
     clusters_calo.clear();
   } else {
     hRecNClusters_E_eta->Fill(mcenergy, 0., mceta);
-    if (enableTreeCluster)
+    if (enableTreeCluster) {
       t_lFHCal_clusters_N = 0;
+    }
   }
 
   // ===============================================================================================

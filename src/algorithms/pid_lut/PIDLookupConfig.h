@@ -9,7 +9,7 @@ namespace eicrecon {
 
 struct PIDLookupConfig {
   std::string filename;
-  int system;
+  std::string system;
   std::vector<int> pdg_values;
   std::vector<int> charge_values;
   std::vector<double> momentum_edges;

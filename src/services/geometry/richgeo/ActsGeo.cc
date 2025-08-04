@@ -9,8 +9,11 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
+#include <utility>
+#include <variant>
 
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "services/geometry/richgeo/RichGeo.h"
@@ -18,7 +21,7 @@
 // constructor
 richgeo::ActsGeo::ActsGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_,
                           std::shared_ptr<spdlog::logger> log_)
-    : m_detName(detName_), m_det(det_), m_log(log_) {}
+    : m_detName(std::move(detName_)), m_det(det_), m_log(std::move(log_)) {}
 
 // generate list ACTS disc surfaces, for a given radiator
 std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiator,
@@ -52,8 +55,10 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
     auto snoutSlope = (rmax1 - rmax0) / snoutLength;
 
     // get z and radial limits where we will expect charged particles in the RICH
-    double trackZmin, trackZmax;
-    std::function<double(double)> trackRmin, trackRmax;
+    double trackZmin = NAN;
+    double trackZmax = NAN;
+    std::function<double(double)> trackRmin;
+    std::function<double(double)> trackRmax;
     switch (radiator) {
     case kAerogel:
       trackZmin = aerogelZpos - aerogelThickness / 2;
@@ -65,10 +70,10 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
       trackZmax = zmax - window_thickness;
       trackRmax = [&](auto z) {
         auto z0 = z - zmin;
-        if (z0 < snoutLength)
+        if (z0 < snoutLength) {
           return rmax0 + snoutSlope * z0;
-        else
-          return rmax2;
+        }
+        return rmax2;
       };
       break;
     default:
@@ -108,7 +113,7 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
       auto z    = trackZmin + (i + 1) * trackZstep;
       auto rmin = trackRmin(z);
       auto rmax = trackRmax(z);
-      discs.push_back(eicrecon::DiscSurfaceConfig{"ForwardRICH_ID", z, rmin, rmax});
+      discs.emplace_back(eicrecon::DiscSurfaceConfig{"ForwardRICH_ID", z, rmin, rmax});
       m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
     }
   }
@@ -119,8 +124,9 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
   }
 
   // ------------------------------------------------------------------------------------------------
-  else
+  else {
     m_log->error("ActsGeo is not defined for detector '{}'", m_detName);
+  }
   return discs;
 }
 
@@ -134,21 +140,20 @@ std::function<bool(edm4eic::TrackPoint)> richgeo::ActsGeo::TrackPointCut(int rad
 
     // get sphere centers
     std::vector<dd4hep::Position> mirror_centers;
-    for (int isec = 0; isec < m_det->constant<int>("DRICH_num_sectors"); isec++)
+    for (int isec = 0; isec < m_det->constant<int>("DRICH_num_sectors"); isec++) {
       mirror_centers.emplace_back(
           m_det->constant<double>("DRICH_mirror_center_x_sec" + std::to_string(isec)) / dd4hep::mm,
           m_det->constant<double>("DRICH_mirror_center_y_sec" + std::to_string(isec)) / dd4hep::mm,
           m_det->constant<double>("DRICH_mirror_center_z_sec" + std::to_string(isec)) / dd4hep::mm);
+    }
     auto mirror_radius = m_det->constant<double>("DRICH_mirror_radius") / dd4hep::mm;
 
     // beyond the mirror cut
     return [mirror_centers, mirror_radius](edm4eic::TrackPoint p) {
-      for (const auto& c : mirror_centers) {
+      return std::ranges::any_of(mirror_centers, [&p, &mirror_radius](const auto& c) {
         auto dist = std::hypot(c.x() - p.position.x, c.y() - p.position.y, c.z() - p.position.z);
-        if (dist < mirror_radius)
-          return true;
-      }
-      return false;
+        return dist < mirror_radius;
+      });
     };
   }
 

@@ -4,12 +4,22 @@
 #include "CKFTracking.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/EventData/TrackStateProxy.hpp>
+#include <Acts/EventData/MeasurementHelpers.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/Types.hpp>
+#include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#if Acts_VERSION_MAJOR >= 39
+#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
+#endif
+#if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
+#include <Acts/Utilities/Iterator.hpp>
+#endif
+#include <Acts/Utilities/detail/ContextType.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
@@ -22,7 +32,6 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/Geometry/Layer.hpp>
 #if Acts_VERSION_MAJOR >= 34
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
@@ -58,6 +67,7 @@
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <boost/container/detail/std_fwd.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
@@ -65,17 +75,19 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
+#include <any>
 #include <array>
-#include <cmath>
 #include <cstddef>
 #include <functional>
-#include <list>
 #include <optional>
 #include <ostream>
 #include <set>
+#include <stdexcept>
+#include <string>
 #include <system_error>
 #include <utility>
 
@@ -102,7 +114,7 @@ static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_in
      {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
      {Acts::eBoundTime, Acts::UnitConstants::ns}}};
 
-CKFTracking::CKFTracking() {}
+CKFTracking::CKFTracking() = default;
 
 void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
                        std::shared_ptr<spdlog::logger> log) {
@@ -135,17 +147,18 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
 
   // need list here for stable addresses
-  std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
 #if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
+  std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
   ActsExamples::IndexSourceLinkContainer src_links;
   src_links.reserve(meas2Ds.size());
-#endif
   std::size_t hit_index = 0;
+#endif
 
   for (const auto& meas2D : meas2Ds) {
 
-    Acts::GeometryIdentifier geoId = meas2D.getSurface();
+    Acts::GeometryIdentifier geoId{meas2D.getSurface()};
 
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     // --follow example from ACTS to create source links
     sourceLinkStorage.emplace_back(geoId, hit_index);
     ActsExamples::IndexSourceLink& sourceLink = sourceLinkStorage.back();
@@ -153,7 +166,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     // index map and source link container are geometry-ordered.
     // since the input is also geometry-ordered, new items can
     // be added at the end.
-#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     src_links.insert(src_links.end(), sourceLink);
 #endif
     // ---
@@ -206,7 +218,9 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     measurements->emplace_back(std::move(measurement));
 #endif
 
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     hit_index++;
+#endif
   }
 
   ActsExamples::TrackParametersContainer acts_init_trk_params;
@@ -395,8 +409,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     }
   }
 
-  for (std::size_t track_index = acts_tracks.size(); track_index--;) {
-    if (not passed_tracks.count(track_index)) {
+  for (std::size_t track_index = acts_tracks.size(); (track_index--) != 0U;) {
+    if (!passed_tracks.contains(track_index)) {
       // NOTE This does not remove track states corresponding to the
       // removed tracks. Doing so would require implementing some garbage
       // collection. We'll just assume no algorithm will access them

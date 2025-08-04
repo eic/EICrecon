@@ -6,15 +6,17 @@
 
 #include <JANA/CLI/JBenchmarker.h>
 #include <JANA/CLI/JSignalHandler.h>
+#include <JANA/JApplication.h>
 #include <JANA/JVersion.h>
 #include <JANA/Services/JComponentManager.h>
-#include <string.h>
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <filesystem>
 #include <iostream>
 #include <memory>
 #include <set>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <utility>
@@ -110,12 +112,15 @@ void PrintDefaultPlugins(std::vector<std::string> const& default_plugins) {
 
 void GetPluginNamesInDir(std::set<std::string>& plugin_names, std::string dir_str) {
   // Edge case handler: taking care of invalid and empty dirs
-  if (std::filesystem::is_directory(dir_str) == false)
+  if (!std::filesystem::is_directory(dir_str)) {
     return;
-  if (std::filesystem::is_empty(dir_str))
+  }
+  if (std::filesystem::is_empty(dir_str)) {
     return;
+  }
 
-  std::string full_path, filename;
+  std::string full_path;
+  std::string filename;
   for (const auto& entry : std::filesystem::directory_iterator(dir_str)) {
     full_path = std::string(entry.path()); // Example: "/usr/local/plugins/Tutorial.so"
     filename  = full_path.substr(full_path.find_last_of("/") + 1); // Example: "Tutorial.so"
@@ -131,10 +136,11 @@ void GetPluginNamesInDir(std::set<std::string>& plugin_names, std::string dir_st
 /// $EICrecon_MY/plugins.
 /// @note It does not guarantee any effectiveness of the plugins.
 void GetPluginNamesFromEnvPath(std::set<std::string>& plugin_names, const char* env_var) {
-  std::string dir_path, paths;
+  std::string dir_path;
+  std::string paths;
 
-  const char* env_p = getenv(env_var);
-  if (env_p) {
+  const char* env_p = getenv(env_var); // NOLINT(concurrency-mt-unsafe)
+  if (env_p != nullptr) {
     if (strcmp(env_var, "EICrecon_MY") == 0) {
       paths = std::string(env_p) + "/plugins";
     } else {
@@ -152,8 +158,9 @@ std::vector<std::string> GetAvailablePluginNames(std::vector<std::string> const&
   // Use set to remove duplicates.
   /// @note The plugins will be override if you use the same plugin name at different paths.
   std::set<std::string> set_plugin_name;
-  for (std::string s : default_plugins)
+  for (std::string s : default_plugins) {
     set_plugin_name.insert(s);
+  }
 
   jana::GetPluginNamesFromEnvPath(set_plugin_name, "JANA_PLUGIN_PATH");
   jana::GetPluginNamesFromEnvPath(set_plugin_name, "EICrecon_MY");
@@ -197,13 +204,15 @@ bool HasPrintOnlyCliOptions(UserOptions& options, std::vector<std::string> const
 /// string "-Pplugins_to_ignore".
 bool HasExcludeDefaultPluginsInCliParams(UserOptions& options, const std::string erase_str) {
   auto has_ignore_plugins = options.params.find("plugins_to_ignore");
-  if (has_ignore_plugins == options.params.end())
+  if (has_ignore_plugins == options.params.end()) {
     return false;
+  }
 
   // Has cli option "-Pplugins_to_ignore". Look for @param erase_str
   std::size_t pos = has_ignore_plugins->second.find(erase_str);
-  if (pos == std::string::npos) // does not contain @param erase_str
+  if (pos == std::string::npos) { // does not contain @param erase_str
     return false;
+  }
 
   // Detect @param flag_str. Delete flag_str from the original cli option.
   std::string ignore_str;
@@ -226,17 +235,19 @@ void AddAvailablePluginsToOptionParams(UserOptions& options,
   //        want to automatically add these
 
   std::string plugins_str; // the complete plugins list
-  for (std::string s : set_plugins)
+  for (std::string s : set_plugins) {
     plugins_str += s + ",";
+  }
 
   // Add the default plugins into the plugin set if there is no
   // "-Pplugins_to_ignore=default (exclude all default plugins)" option
-  if (HasExcludeDefaultPluginsInCliParams(options, "default") == false)
+  if (!HasExcludeDefaultPluginsInCliParams(options, "default")) {
     /// @note: The sequence of adding the default plugins matters.
     /// Have to keep the original sequence to not causing troubles.
     for (std::string s : default_plugins) {
       plugins_str += s + ",";
     }
+  }
 
   // Insert other plugins in cli option "-Pplugins=pl1,pl2,..."
   auto has_cli_plugin_params = options.params.find("plugins");
@@ -287,7 +298,7 @@ JApplication* CreateJApplication(UserOptions& options) {
   auto* app = new JApplication(para_mgr);
 
   const char* env_p = getenv("EICrecon_MY");
-  if (env_p) {
+  if (env_p != nullptr) {
     app->AddPluginPath(std::string(env_p) + "/plugins");
   }
 
@@ -299,8 +310,9 @@ JApplication* CreateJApplication(UserOptions& options) {
 
 void AddDefaultPluginsToJApplication(JApplication* app,
                                      std::vector<std::string> const& default_plugins) {
-  for (std::string s : default_plugins)
+  for (std::string s : default_plugins) {
     app->AddPlugin(s);
+  }
 }
 
 void PrintFactories(JApplication* app) {
@@ -340,11 +352,13 @@ void PrintConfigParameters(JApplication* app) {
   std::size_t max_val_length     = 0;
   std::size_t max_max_val_length = 32; // maximum width allowed for column.
   for (auto& [key, p] : params) {
-    if (key.length() > max_key_length)
+    if (key.length() > max_key_length) {
       max_key_length = key.length();
+    }
     if (p->GetValue().length() > max_val_length) {
-      if (p->GetValue().length() <= max_max_val_length)
+      if (p->GetValue().length() <= max_max_val_length) {
         max_val_length = p->GetValue().length();
+      }
     }
   }
 
@@ -356,14 +370,16 @@ void PrintConfigParameters(JApplication* app) {
   for (auto& [key, p] : params) {
     std::stringstream ss;
     int key_length_diff = max_key_length - key.length();
-    if (key_length_diff > 0)
+    if (key_length_diff > 0) {
       ss << std::string(key_length_diff, ' ');
+    }
     ss << key;
     ss << " | ";
 
     int val_length_diff = max_val_length - p->GetValue().length();
-    if (val_length_diff > 0)
+    if (val_length_diff > 0) {
       ss << std::string(val_length_diff, ' ');
+    }
     ss << p->GetValue();
     ss << " | ";
     ss << p->GetDescription();

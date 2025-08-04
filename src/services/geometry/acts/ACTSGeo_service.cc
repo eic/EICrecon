@@ -6,7 +6,9 @@
 #include "ACTSGeo_service.h"
 
 #include <Acts/Visualization/ViewConfig.hpp>
+#include <JANA/JApplication.h>
 #include <JANA/JException.h>
+#include <JANA/Services/JServiceLocator.h>
 #include <array>
 #include <exception>
 #include <gsl/pointers>
@@ -19,7 +21,7 @@
 
 // Virtual destructor implementation to pin vtable and typeinfo to this
 // translation unit
-ACTSGeo_service::~ACTSGeo_service(){};
+ACTSGeo_service::~ACTSGeo_service() = default;
 
 //----------------------------------------------------------------
 // detector
@@ -33,7 +35,7 @@ std::shared_ptr<const ActsGeometryProvider> ACTSGeo_service::actsGeoProvider() {
     std::call_once(m_init_flag, [this]() {
       // Assemble everything on the first call
 
-      if (!m_dd4hepGeo) {
+      if (m_dd4hepGeo == nullptr) {
         throw JException("ACTSGeo_service m_dd4hepGeo==null which should never be!");
       }
 

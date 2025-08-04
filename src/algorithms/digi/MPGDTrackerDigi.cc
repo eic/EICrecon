@@ -28,7 +28,6 @@
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/VolumeManager.h>
-#include <DD4hep/config.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -40,7 +39,6 @@
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <edm4hep/EDM4hepVersion.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -50,6 +48,8 @@
 #include <cstdint>
 #include <gsl/pointers>
 #include <initializer_list>
+#include <iterator>
+#include <random>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -61,15 +61,9 @@ using namespace dd4hep;
 namespace eicrecon {
 
 void MPGDTrackerDigi::init() {
-  // Create random gauss function
-  m_gauss = [&]() {
-    return m_random.Gaus(0, m_cfg.timeResolution);
-    //return m_rng.gaussian<double>(0., m_cfg.timeResolution);
-  };
-
   // Access id decoder
-  m_detector = algorithms::GeoSvc::instance().detector();
-  const dd4hep::BitFieldCoder* m_id_dec;
+  m_detector                            = algorithms::GeoSvc::instance().detector();
+  const dd4hep::BitFieldCoder* m_id_dec = nullptr;
   if (m_cfg.readout.empty()) {
     throw JException("Readout is empty");
   }
@@ -85,11 +79,12 @@ void MPGDTrackerDigi::init() {
   // - That "strip" field includes bits 30|31.
   // Let's check.
   if (m_id_dec->get(((CellID)0x3) << 30, "strip") != 0x3) {
-    critical("Missing or invalid \"strip\" field in IDDescriptor for \"{}\" readout.",
+    critical(R"(Missing or invalid "strip" field in IDDescriptor for "{}"
+        readout.)",
              m_cfg.readout);
     throw JException("Invalid IDDescriptor");
   }
-  debug("Find valid \"strip\" field in IDDescriptor for \"{}\" readout.", m_cfg.readout);
+  debug(R"(Find valid "strip" field in IDDescriptor for "{}" readout.)", m_cfg.readout);
 }
 
 void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
@@ -106,8 +101,13 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   //  is fixed = cellID>>32&0x3.
   // - The simulation is simplistic: single-hit cluster per coordinate.
 
-  const auto [sim_hits]         = input;
-  auto [raw_hits, associations] = output;
+  const auto [headers, sim_hits] = input;
+  auto [raw_hits, associations]  = output;
+
+  // local random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  std::default_random_engine generator(seed);
+  std::normal_distribution<double> gaussian;
 
   // A map of unique cellIDs with temporary structure RawHit
   std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
@@ -126,7 +126,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     //  both coordinates of the 2D-strip readout (due to the drifting of the
     //  leading primary electrons) from other smearing effects, specific to
     //  each coordinate.
-    double time_smearing = m_gauss();
+    double time_smearing = gaussian(generator) * m_cfg.timeResolution;
     double result_time   = sim_hit.getTime() + time_smearing;
     auto hit_time_stamp  = (std::int32_t)(result_time * 1e3);
 
@@ -151,19 +151,23 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     DetElement local = volman.lookupDetElement(vID);
     const auto lpos  = local.nominal().worldToLocal(gpos);
     // p "strip"
-    CellID stripBitp = ((CellID)0x1) << 30, vIDp = vID | stripBitp;
-    CellID cIDp = m_seg->cellID(lpos, dummy, vIDp);
+    CellID stripBitp = ((CellID)0x1) << 30;
+    CellID vIDp      = vID | stripBitp;
+    CellID cIDp      = m_seg->cellID(lpos, dummy, vIDp);
     // n "strip"
-    CellID stripBitn = ((CellID)0x2) << 30, vIDn = vID | stripBitn;
-    CellID cIDn = m_seg->cellID(lpos, dummy, vIDn);
+    CellID stripBitn = ((CellID)0x2) << 30;
+    CellID vIDn      = vID | stripBitn;
+    CellID cIDn      = m_seg->cellID(lpos, dummy, vIDn);
 
-    sim2IDs.push_back({cIDp, cIDn}); // Remember cellIDs.
+    sim2IDs.emplace_back(cIDp, cIDn); // Remember cellIDs.
     // ***** DEBUGGING INFO
     if (level() >= algorithms::LogLevel::kDebug) {
-      CellID hIDp = cIDp >> 32, sIDp = cIDp >> 30 & 0x3;
+      CellID hIDp = cIDp >> 32;
+      CellID sIDp = cIDp >> 30 & 0x3;
       debug("--------------------");
       debug("Hit cellIDp  = 0x{:08x}, 0x{:08x} 0x{:02x}", hIDp, vIDp, sIDp);
-      CellID hIDn = cIDn >> 32, sIDn = cIDn >> 30 & 0x3;
+      CellID hIDn = cIDn >> 32;
+      CellID sIDn = cIDn >> 30 & 0x3;
       debug("Hit cellIDn  = 0x{:08x}, 0x{:08x} 0x{:02x}", hIDn, vIDn, sIDn);
       debug("   position  = ({:.2f}, {:.2f}, {:.2f})", sim_hit.getPosition().x,
             sim_hit.getPosition().y, sim_hit.getPosition().z);
@@ -189,7 +193,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 
     // ***** HIT ACCUMULATION
     for (CellID cID : {cIDp, cIDn}) {
-      if (cell_hit_map.count(cID) == 0) {
+      if (!cell_hit_map.contains(cID)) {
         // This cell doesn't have hits
         cell_hit_map[cID] = {
             cID, (std::int32_t)std::llround(sim_hit.getEDep() * 1e6),
@@ -213,7 +217,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   // ***** raw_hit INSTANTIATION AND raw<-sim_hit's ASSOCIATION
   for (auto item : cell_hit_map) {
     raw_hits->push_back(item.second);
-    Sim2IDs::const_iterator sim_it = sim2IDs.cbegin();
+    auto sim_it = sim2IDs.cbegin();
     for (const auto& sim_hit : *sim_hits) {
       CellIDs cIDs = *sim_it++;
       for (CellID cID : {cIDs.first, cIDs.second}) {
@@ -222,11 +226,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
           auto hitassoc = associations->create();
           hitassoc.setWeight(1.0);
           hitassoc.setRawHit(item.second);
-#if EDM4EIC_VERSION_MAJOR >= 6
           hitassoc.setSimHit(sim_hit);
-#else
-          hitassoc.addToSimHits(sim_hit);
-#endif
         }
       }
     }

@@ -4,12 +4,13 @@
 
 #pragma once
 
-#include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 #include <podio/ROOTReader.h>
+#include <spdlog/logger.h>
 #include <cstddef>
+#include <memory>
 #include <string>
 
 #if ((JANA_VERSION_MAJOR == 2) && (JANA_VERSION_MINOR >= 3)) || (JANA_VERSION_MAJOR > 2)
@@ -49,7 +50,10 @@ protected:
 
   bool m_run_forever       = false;
   bool m_use_event_headers = true;
-  bool m_print_type_table  = false;
+
+
+private:
+  std::shared_ptr<spdlog::logger> m_log;
 };
 
 template <> double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);

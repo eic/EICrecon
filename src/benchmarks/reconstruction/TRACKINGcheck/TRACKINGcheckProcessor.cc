@@ -6,7 +6,10 @@
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/JEvent.h>
 #include <TDirectory.h>
+#include <memory>
 #include <vector>
 
 #include "TRACKINGcheckProcessor.h"
@@ -49,8 +52,9 @@ void TRACKINGcheckProcessor::ProcessSequential(const std::shared_ptr<const JEven
 
   for (const auto* traj : Trajectories) {
     for (auto entryIndex : traj->tips()) {
-      if (!traj->hasTrackParameters(entryIndex))
+      if (!traj->hasTrackParameters(entryIndex)) {
         continue;
+      }
       auto trackparams = traj->trackParameters(entryIndex);
 
       auto pos = trackparams.position(Acts::GeometryContext());
