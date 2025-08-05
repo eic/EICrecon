@@ -205,6 +205,8 @@ void InitPlugin(JApplication* app) {
           .localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
           .layerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
           .sectorDist           = 3.0 * dd4hep::cm,
+          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::phiz,
+          .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi,
           .minClusterHitEdep    = 0,
           .minClusterCenterEdep = 0,
           .minClusterEdep       = 100 * dd4hep::MeV,
