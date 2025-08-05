@@ -1,12 +1,14 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022, 2023, Christopher Dilks
 
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
 
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/pid/MatchToRICHPID_factory.h"
 
@@ -15,6 +17,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // wiring between factories and data ///////////////////////////////////////
 
@@ -30,7 +33,6 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedRealPIDParticles",            // edm4eic::ReconstructedParticle
           "ReconstructedChargedRealPIDParticleAssociations", // edm4eic::MCRecoParticleAssociationCollection
           "ReconstructedChargedRealPIDParticleIDs",          // edm4hep::ParticleID
-      },
-      app));
+      }));
 }
 }

@@ -5,7 +5,10 @@
 // Copyright (C) 2024, Dmitry Kalinkin
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <utility>
@@ -13,7 +16,6 @@
 
 // algorithm configurations
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 
@@ -22,6 +24,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // configuration parameters ///////////////////////////////////////////////
 
@@ -50,6 +53,6 @@ void InitPlugin(JApplication* app) {
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "RICHEndcapNRawHits", {"EventHeader", "RICHEndcapNHits"},
-      {"RICHEndcapNRawHits", "RICHEndcapNRawHitsAssociations"}, digi_cfg, app));
+      {"RICHEndcapNRawHits", "RICHEndcapNRawHitsAssociations"}, digi_cfg));
 }
 }
