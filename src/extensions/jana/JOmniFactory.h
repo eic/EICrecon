@@ -559,6 +559,7 @@ public:
         output->SetCollection(*this);
       }
     } catch (std::exception& e) {
+      m_logger->error(e.what());
       throw JException(e.what());
     }
   }
