@@ -348,6 +348,24 @@ macro(plugin_add_irt _name)
 
 endmacro()
 
+# Adds nopayloadclient for a plugin
+macro(plugin_add_nopayloadclient _name)
+
+  if(NOT CURL_FOUND)
+    find_package(CURL REQUIRED)
+  endif()
+
+  find_library(npc_lib REQUIRED NAMES nopayloadclient)
+  find_path(npc_include REQUIRED NAMES nopayloadclient)
+
+  # Add include directories
+  plugin_include_directories(${PLUGIN_NAME} PUBLIC ${npc_include})
+
+  # Add libraries
+  plugin_link_libraries(${PLUGIN_NAME} CURL::libcurl ${npc_lib})
+
+endmacro()
+
 # Adds podio, edm4hep, edm4eic for a plugin
 macro(plugin_add_event_model _name)
 
