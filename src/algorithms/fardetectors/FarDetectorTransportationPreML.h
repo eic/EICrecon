@@ -5,7 +5,7 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/TensorCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <mutex>
@@ -19,7 +19,7 @@
 namespace eicrecon {
 
 using FarDetectorTransportationPreMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TrackParametersCollection,
+    algorithms::Input<edm4eic::TrackCollection,
                       std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
                       std::optional<edm4hep::MCParticleCollection>>,
     algorithms::Output<edm4eic::TensorCollection, std::optional<edm4eic::TensorCollection>>>;

@@ -183,21 +183,21 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
       {"TaggerTrackerLocalTrackAssociations"}, app));
 
-  // Project tracks onto a plane
-  app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
-      "TaggerTrackerProjectedTracks", {"TaggerTrackerLocalTracks"},
-      {"TaggerTrackerProjectedTracks"},
-      {
-          .plane_position = {0.0, 0.0, 0.0},
-          .plane_a        = {0.0, 1.0, 0.0},
-          .plane_b        = {0.0, 0.0, 1.0},
-      },
-      app));
+//   // Project tracks onto a plane
+//   app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
+//       "TaggerTrackerProjectedTracks", {"TaggerTrackerLocalTracks"},
+//       {"TaggerTrackerProjectedTracks"},
+//       {
+//           .plane_position = {0.0, 0.0, 0.0},
+//           .plane_a        = {0.0, 1.0, 0.0},
+//           .plane_b        = {0.0, 0.0, 1.0},
+//       },
+//       app));
 
 #if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
       "TaggerTrackerTransportationPreML",
-      {"TaggerTrackerProjectedTracks", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
+      {"TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
       {"TaggerTrackerFeatureTensor", "TaggerTrackerTargetTensor"},
       {
           .beamE = 10.0,
@@ -207,7 +207,7 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerTransportationInference", {"TaggerTrackerFeatureTensor"},
       {"TaggerTrackerPredictionTensor"},
       {
-          .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
+          .modelPath = "calibrations/onnx/Low-Q2_Steering_Reconstruction.onnx",
       },
       app));
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(

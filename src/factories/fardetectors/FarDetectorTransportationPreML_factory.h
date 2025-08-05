@@ -19,7 +19,7 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4eic::TrackParameters> m_track_input{this};
+  PodioInput<edm4eic::Track> m_track_input{this};
   PodioInput<edm4eic::MCRecoTrackParticleAssociation, true> m_association_input{this};
   PodioInput<edm4hep::MCParticle, true> m_beamelectrons_input{this};
 
