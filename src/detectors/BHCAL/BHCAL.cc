@@ -2,7 +2,10 @@
 // Copyright (C) 2022 - 2024 David Lawrence, Derek Anderson, Wouter Deconinck
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <variant>
@@ -10,7 +13,6 @@
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/CalorimeterIslandClusterConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -25,6 +27,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
 
@@ -63,9 +66,7 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC = HcalBarrel_resolutionTDC,
           .corrMeanScale = "1.0",
           .readout       = "HcalBarrelHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "HcalBarrelRecHits", {"HcalBarrelRawHits"}, {"HcalBarrelRecHits"},
@@ -81,9 +82,7 @@ void InitPlugin(JApplication* app) {
           .readout         = "HcalBarrelHits",
           .layerField      = "",
           .sectorField     = "",
-      },
-      app // TODO: Remove me once fixed
-      ));
+      }));
 
   // --------------------------------------------------------------------
   // If needed, merge adjacent phi tiles into towers. By default,
@@ -91,15 +90,11 @@ void InitPlugin(JApplication* app) {
   // --------------------------------------------------------------------
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitsMerger_factory>(
       "HcalBarrelMergedHits", {"HcalBarrelRecHits"}, {"HcalBarrelMergedHits"},
-      {.readout = "HcalBarrelHits", .fieldTransformations = {"phi:phi"}},
-      app // TODO: Remove me once fixed
-      ));
+      {.readout = "HcalBarrelHits", .fieldTransformations = {"phi:phi"}}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "HcalBarrelTruthProtoClusters", {"HcalBarrelRecHits", "HcalBarrelHits"},
-      {"HcalBarrelTruthProtoClusters"},
-      app // TODO: Remove me once fixed
-      ));
+      {"HcalBarrelTruthProtoClusters"}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "HcalBarrelIslandProtoClusters", {"HcalBarrelRecHits"}, {"HcalBarrelIslandProtoClusters"},
@@ -118,9 +113,7 @@ void InitPlugin(JApplication* app) {
        .minClusterCenterEdep          = 30.0 * dd4hep::MeV,
        .transverseEnergyProfileMetric = "globalDistEtaPhi",
        .transverseEnergyProfileScale  = 1.,
-       .transverseEnergyProfileScaleUnits{}},
-      app // TODO: Remove me once fixed
-      ));
+       .transverseEnergyProfileScaleUnits{}}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelClustersWithoutShapes",
@@ -130,15 +123,13 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalBarrelClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalBarrelClusters",
       {"HcalBarrelClustersWithoutShapes", "HcalBarrelClusterAssociationsWithoutShapes"},
       {"HcalBarrelClusters", "HcalBarrelClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.energyWeight = "log", .logWeightBase = 6.2}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelTruthClustersWithoutShapes",
@@ -148,15 +139,13 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalBarrelTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalBarrelTruthClusters",
       {"HcalBarrelTruthClustersWithoutShapes", "HcalBarrelTruthClusterAssociationsWithoutShapes"},
       {"HcalBarrelTruthClusters", "HcalBarrelTruthClusterAssociations"},
-      {.energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.energyWeight = "log", .logWeightBase = 6.2}));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "HcalBarrelSplitMergeProtoClusters",
@@ -168,9 +157,7 @@ void InitPlugin(JApplication* app) {
        .sigEP                        = 0.25,
        .drAdd                        = 0.40,
        .sampFrac                     = 1.0,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
+       .transverseEnergyProfileScale = 1.0}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelSplitMergeClustersWithoutShapes",
@@ -180,14 +167,12 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalBarrelSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
-      app // TODO: Remove me once fixed
-      ));
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false}));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "HcalBarrelSplitMergeClusters",
       {"HcalBarrelSplitMergeClustersWithoutShapes",
        "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"},
-      {"HcalBarrelSplitMergeClusters", "HcalBarrelSplitMergeClusterAssociations"}, {}, app));
+      {"HcalBarrelSplitMergeClusters", "HcalBarrelSplitMergeClusterAssociations"}, {}));
 }
 }
