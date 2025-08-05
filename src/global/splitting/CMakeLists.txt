@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
-if(JANA_VERSION VERSION_LESS "2.4.2")
+if(JANA_VERSION VERSION_LESS "2.4.3")
 
-  message(STATUS "Skipping `splitting` plugin because JANA_VERSION < 2.4.2")
+  message(STATUS "Skipping `splitting` plugin because JANA_VERSION < 2.4.3")
 
 else()
 
