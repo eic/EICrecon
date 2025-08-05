@@ -57,15 +57,15 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
       "TOFBarrelCalHits", {"TOFBarrelADCTDC"}, // Input data collection tags
       {"TOFBarrelCalHits"},                    // Output data tag
-      {})); // Hit reco default config for factories
-             //
+      {}));                                    // Hit reco default config for factories
+                                               //
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFBarrelClusterHits", {"TOFBarrelCalHits"}, // Input data collection tags
       {"TOFBarrelClusterHits"},                     // Output data tag
-      {})); // Hit reco default config for factories
+      {}));                                         // Hit reco default config for factories
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
