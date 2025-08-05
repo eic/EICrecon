@@ -22,7 +22,7 @@ void InitPlugin_digiBVTX(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
           .m_tag                 = "SiBarrelVertexRawHits_TK",
-          .m_default_input_tags  = {"VertexBarrelHits"},
+          .m_default_input_tags  = {"EventHeader", "VertexBarrelHits"},
           .m_default_output_tags = {"SiBarrelVertexRawHits_TK",
                                     "SiBarrelVertexRawHitAssociations_TK"},
           .m_default_cfg =

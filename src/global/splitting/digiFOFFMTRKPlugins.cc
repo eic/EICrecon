@@ -21,7 +21,7 @@ void InitPlugin_digiFOFFMTRK(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
           .m_tag                 = "ForwardOffMTrackerRawHits_TK",
-          .m_default_input_tags  = {"ForwardOffMTrackerHits"},
+          .m_default_input_tags  = {"EventHeader", "ForwardOffMTrackerHits"},
           .m_default_output_tags = {"ForwardOffMTrackerRawHits_TK",
                                     "ForwardOffMTrackerRawHitAssociations_TK"},
           .m_default_cfg =

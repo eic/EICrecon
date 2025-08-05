@@ -31,7 +31,7 @@ void InitPlugin_digiBTOF(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
           .m_tag                 = "TOFBarrelRawHits_TK",
-          .m_default_input_tags  = {"TOFBarrelHits"},
+          .m_default_input_tags  = {"EventHeader", "TOFBarrelHits"},
           .m_default_output_tags = {"TOFBarrelRawHits_TK", "TOFBarrelRawHitAssociations_TK"},
           .m_default_cfg =
               {

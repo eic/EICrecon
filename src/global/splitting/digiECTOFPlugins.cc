@@ -22,7 +22,7 @@ void InitPlugin_digiECTOF(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
           .m_tag                 = "TOFEndcapRawHits_TK",
-          .m_default_input_tags  = {"TOFEndcapHits"},
+          .m_default_input_tags  = {"EventHeader", "TOFEndcapHits"},
           .m_default_output_tags = {"TOFEndcapRawHits_TK", "TOFEndcapRawHitAssociations_TK"},
           .m_default_cfg =
               {

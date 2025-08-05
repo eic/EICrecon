@@ -22,7 +22,7 @@ void InitPlugin_digiBTRK(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
           .m_tag                 = "SiBarrelRawHits_TK",
-          .m_default_input_tags  = {"SiBarrelHits"},
+          .m_default_input_tags  = {"EventHeader", "SiBarrelHits"},
           .m_default_output_tags = {"SiBarrelRawHits_TK", "SiBarrelRawHitAssociations_TK"},
           .m_default_cfg =
               {

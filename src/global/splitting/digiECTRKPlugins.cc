@@ -22,7 +22,7 @@ void InitPlugin_digiECTRK(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
           .m_tag                 = "SiEndcapTrackerRawHits_TK",
-          .m_default_input_tags  = {"TrackerEndcapHits"},
+          .m_default_input_tags  = {"EventHeader", "TrackerEndcapHits"},
           .m_default_output_tags = {"SiEndcapTrackerRawHits_TK",
                                     "SiEndcapTrackerRawHitAssociations_TK"},
           .m_default_cfg =

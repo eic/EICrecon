@@ -51,7 +51,7 @@ void InitPlugin_digiMPGD(JApplication* app) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
             .m_tag                 = "MPGDBarrelRawHits_TK",
-            .m_default_input_tags  = {"MPGDBarrelHits"},
+            .m_default_input_tags  = {"EventHeader", "MPGDBarrelHits"},
             .m_default_output_tags = {"MPGDBarrelRawHits_TK", "MPGDBarrelRawHitAssociations_TK"},
             .m_default_cfg =
                 {
@@ -95,7 +95,7 @@ void InitPlugin_digiMPGD(JApplication* app) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
             .m_tag                 = "OuterMPGDBarrelRawHits_TK",
-            .m_default_input_tags  = {"OuterMPGDBarrelHits"},
+            .m_default_input_tags  = {"EventHeader", "OuterMPGDBarrelHits"},
             .m_default_output_tags = {"OuterMPGDBarrelRawHits_TK",
                                       "OuterMPGDBarrelRawHitAssociations_TK"},
             .m_default_cfg =
@@ -140,7 +140,7 @@ void InitPlugin_digiMPGD(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
           .m_tag                 = "BackwardMPGDEndcapRawHits_TK",
-          .m_default_input_tags  = {"BackwardMPGDEndcapHits"},
+          .m_default_input_tags  = {"EventHeader", "BackwardMPGDEndcapHits"},
           .m_default_output_tags = {"BackwardMPGDEndcapRawHits_TK",
                                     "BackwardMPGDEndcapRawHitAssociations_TK"},
           .m_default_cfg =
@@ -169,7 +169,7 @@ void InitPlugin_digiMPGD(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
           .m_tag                 = "ForwardMPGDEndcapRawHits_TK",
-          .m_default_input_tags  = {"ForwardMPGDEndcapHits"},
+          .m_default_input_tags  = {"EventHeader", "ForwardMPGDEndcapHits"},
           .m_default_output_tags = {"ForwardMPGDEndcapRawHits_TK",
                                     "ForwardMPGDEndcapRawHitAssociations_TK"},
           .m_default_cfg =
