@@ -25,10 +25,8 @@ struct ImagingTopoClusterConfig {
   // enum ELayerMode { etaphi = 0, xy = 1 } layerMode = etaphi;
 
   enum ELayerMode { etaphi = 0, xy = 1, phiz = 2 };
-  ELayerMode sameLayerMode = xy;      // for ldiff =0
-  ELayerMode diffLayerMode = etaphi;  // for ldiff <= neighbourLayersRange 
-
-
+  ELayerMode sameLayerMode = xy;     // for ldiff =0
+  ELayerMode diffLayerMode = etaphi; // for ldiff <= neighbourLayersRange
 
   // maximum global distance to be considered as neighbors in different sectors
   double sectorDist = 1.0 * dd4hep::cm;
@@ -53,8 +51,7 @@ std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode&
     layerMode = ImagingTopoClusterConfig::ELayerMode::xy;
   } else if (s == "phiz" or s == "2") {
     layerMode = ImagingTopoClusterConfig::ELayerMode::phiz;
-  } 
-    else {
+  } else {
     in.setstate(std::ios::failbit); // Set the fail bit if the input is not valid
   }
 
