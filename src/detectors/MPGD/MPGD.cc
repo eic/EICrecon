@@ -4,15 +4,16 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/MPGDTrackerDigi_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -28,6 +29,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // PIXEL DIGITIZATION?
   // It's encoded in bit pattern "SiFactoryPattern": 0x1=CyMBaL, 0x2=OuterBarrel, ...
@@ -56,18 +58,16 @@ void InitPlugin(JApplication* app) {
         {
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
-        },
-        app));
+        }));
   } else {
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-        "MPGDBarrelRawHits", {"MPGDBarrelHits"},
+        "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
         {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"},
         {
             .readout        = "MPGDBarrelHits",
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
-        },
-        app));
+        }));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
@@ -76,8 +76,7 @@ void InitPlugin(JApplication* app) {
       {"MPGDBarrelRecHits"},                      // Output data tag
       {
           .timeResolution = 10,
-      },
-      app));
+      }));
 
   // ***** OuterMPGDBarrel
   // Digitization
@@ -88,18 +87,16 @@ void InitPlugin(JApplication* app) {
         {
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
-        },
-        app));
+        }));
   } else {
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-        "OuterMPGDBarrelRawHits", {"OuterMPGDBarrelHits"},
+        "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
         {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"},
         {
             .readout        = "OuterMPGDBarrelHits",
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
-        },
-        app));
+        }));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
@@ -108,8 +105,7 @@ void InitPlugin(JApplication* app) {
       {"OuterMPGDBarrelRecHits"},                           // Output data tag
       {
           .timeResolution = 10,
-      },
-      app));
+      }));
 
   // ***** "BackwardMPGDEndcap"
   // Digitization
@@ -119,8 +115,7 @@ void InitPlugin(JApplication* app) {
       {
           .threshold      = 100 * dd4hep::eV,
           .timeResolution = 10,
-      },
-      app));
+      }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -128,8 +123,7 @@ void InitPlugin(JApplication* app) {
       {"BackwardMPGDEndcapRecHits"},                              // Output data tag
       {
           .timeResolution = 10,
-      },
-      app));
+      }));
 
   // ""ForwardMPGDEndcap"
   // Digitization
@@ -139,8 +133,7 @@ void InitPlugin(JApplication* app) {
       {
           .threshold      = 100 * dd4hep::eV,
           .timeResolution = 10,
-      },
-      app));
+      }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
@@ -148,7 +141,6 @@ void InitPlugin(JApplication* app) {
       {"ForwardMPGDEndcapRecHits"},                             // Output data tag
       {
           .timeResolution = 10,
-      },
-      app));
+      }));
 }
 } // extern "C"
