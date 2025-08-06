@@ -8,7 +8,7 @@
 #include <string>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "JANA/Components/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
@@ -19,29 +19,27 @@ void InitPlugin_digiBTRK(JApplication* app) {
   using namespace eicrecon;
 
   // Digitization
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
-          .m_tag                 = "SiBarrelRawHits_TK",
-          .m_default_input_tags  = {"EventHeader", "SiBarrelHits"},
-          .m_default_output_tags = {"SiBarrelRawHits_TK", "SiBarrelRawHitAssociations_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>({
+          .tag          = "SiBarrelRawHits_TK",
+          .level        = JEventLevel::Timeslice,
+          .input_names  = {"EventHeader", "SiBarrelHits"},
+          .output_names = {"SiBarrelRawHits_TK", "SiBarrelRawHitAssociations_TK"},
+          .configs =
               {
                   .threshold = 0.54 * dd4hep::keV,
               },
-          .level = JEventLevel::Timeslice},
-      app));
+        }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
-          .m_tag                 = "SiBarrelTrackerRecHits_TK",
-          .m_default_input_tags  = {"SiBarrelRawHits_TK"},
-          .m_default_output_tags = {"SiBarrelTrackerRecHits_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
+          .tag                 = "SiBarrelTrackerRecHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"SiBarrelRawHits_TK"},
+          .output_names = {"SiBarrelTrackerRecHits_TK"},
+          .configs =
               {
                   .timeResolution = 10,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+    }));
 }
 // } // extern "C"

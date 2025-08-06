@@ -9,7 +9,7 @@
 #include <memory>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "JANA/Components/JOmniFactoryGeneratorT.h"
 #include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
@@ -30,45 +30,42 @@ void InitPlugin_digiBTOF(JApplication* app) {
   // // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
-          .m_tag                 = "TOFBarrelRawHits_TK",
-          .m_default_input_tags  = {"EventHeader", "TOFBarrelHits"},
-          .m_default_output_tags = {"TOFBarrelRawHits_TK", "TOFBarrelRawHitAssociations_TK"},
-          .m_default_cfg =
+          .tag          = "TOFBarrelRawHits_TK",
+          .level        = JEventLevel::Timeslice,
+          .input_names  = {"EventHeader", "TOFBarrelHits"},
+          .output_names = {"TOFBarrelRawHits_TK", "TOFBarrelRawHitAssociations_TK"},
+          .configs =
               {
                   .threshold      = 6.0 * dd4hep::keV,
                   .timeResolution = 0.025, // [ns]
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+        }));
 
   // Convert raw digitized Hits_TK into Hits_TK with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
-          .m_tag                 = "TOFBarrelRecHits_TK",
-          .m_default_input_tags  = {"TOFBarrelRawHits_TK"},
-          .m_default_output_tags = {"TOFBarrelRecHits_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
+          .tag                 = "TOFBarrelRecHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"TOFBarrelRawHits_TK"},
+          .output_names = {"TOFBarrelRecHits_TK"},
+          .configs =
               {
                   .timeResolution = 10,
-              },
-          .level = JEventLevel::Timeslice},
-      app)); // Hit reco default config for factories
+              }
+        }));
 
-  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-      JOmniFactoryGeneratorT<SiliconChargeSharing_factory>::TypedWiring{
-          .m_tag                 = "TOFBarrelSharedHits_TK",
-          .m_default_input_tags  = {"TOFBarrelHits"},
-          .m_default_output_tags = {"TOFBarrelSharedHits_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>({
+          .tag                 = "TOFBarrelSharedHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"TOFBarrelHits"},
+          .output_names = {"TOFBarrelSharedHits_TK"},
+          .configs =
               {
                   .sigma_sharingx = 0.1 * dd4hep::cm,
                   .sigma_sharingy = 0.5 * dd4hep::cm,
                   .min_edep       = 0.0 * edm4eic::unit::GeV,
                   .readout        = "TOFBarrelHits_TK",
-              },
-          .level = JEventLevel::Timeslice,
-      },
-      app)); // Hit reco default config for factories
+              }
+      }));
 
   // // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
   // // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =
@@ -84,55 +81,53 @@ void InitPlugin_digiBTOF(JApplication* app) {
   const int offset  = 3;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
       JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>::TypedWiring{
-          .m_tag                 = "LGADPulseGeneration_TK",
-          .m_default_input_tags  = {"TOFBarrelSharedHits_TK"},
-          .m_default_output_tags = {"TOFBarrelSmoothPulses_TK"},
-          .m_default_cfg =
+          .tag                 = "LGADPulseGeneration_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"TOFBarrelSharedHits_TK"},
+          .output_names = {"TOFBarrelSmoothPulses_TK"},
+          .configs =
               {
                   .pulse_shape_function = "LandauPulse",
                   .pulse_shape_params   = {gain, sigma_analog, offset * sigma_analog},
                   .ignore_thres         = 0.05 * adc_range,
                   .timestep             = 0.01 * edm4eic::unit::ns,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+        }));
 
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
       JOmniFactoryGeneratorT<PulseCombiner_factory>::TypedWiring{
-          .m_tag                 = "TOFBarrelPulseCombiner_TK",
-          .m_default_input_tags  = {"TOFBarrelSmoothPulses_TK"},
-          .m_default_output_tags = {"TOFBarrelCombinedPulses_TK"},
-          .m_default_cfg =
+          .tag                 = "TOFBarrelPulseCombiner_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"TOFBarrelSmoothPulses_TK"},
+          .output_names = {"TOFBarrelCombinedPulses_TK"},
+          .configs =
               {
                   .minimum_separation = 25 * edm4eic::unit::ns,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+        }));
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
       JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>::TypedWiring{
-          .m_tag                 = "SiliconPulseDiscretization_TK",
-          .m_default_input_tags  = {"TOFBarrelCombinedPulses_TK"},
-          .m_default_output_tags = {"TOFBarrelPulses_TK"},
-          .m_default_cfg =
+          .tag                 = "SiliconPulseDiscretization_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"TOFBarrelCombinedPulses_TK"},
+          .output_names = {"TOFBarrelPulses_TK"},
+          .configs =
               {
                   .EICROC_period = 25 * edm4eic::unit::ns,
                   .local_period  = 25 * edm4eic::unit::ns / 1024,
                   .global_offset = -offset * sigma_analog + risetime,
               },
-          .level = JEventLevel::Timeslice,
-      },
-      app));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
       JOmniFactoryGeneratorT<EICROCDigitization_factory>::TypedWiring{
-          .m_tag                 = "EICROCDigitization_TK",
-          .m_default_input_tags  = {"TOFBarrelPulses_TK"},
-          .m_default_output_tags = {"TOFBarrelADCTDC_TK"},
+          .tag                 = "EICROCDigitization_TK",
           .level                 = JEventLevel::Timeslice,
-      },
-      app));
+          .input_names  = {"TOFBarrelPulses_TK"},
+          .output_names = {"TOFBarrelADCTDC_TK"},
+      }));
   // == e == Register all digitization factories  =================================================
 }
 // } // "C"

@@ -10,7 +10,7 @@
 #include <string>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "JANA/Components/JOmniFactoryGeneratorT.h"
 #include "factories/digi/MPGDTrackerDigi_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -48,149 +48,139 @@ void InitPlugin_digiMPGD(JApplication* app) {
   // ***** "MPGDBarrel" (=CyMBaL)
   // Digitization
   if ((SiFactoryPattern & 0x1) != 0U) {
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
-            .m_tag                 = "MPGDBarrelRawHits_TK",
-            .m_default_input_tags  = {"EventHeader", "MPGDBarrelHits"},
-            .m_default_output_tags = {"MPGDBarrelRawHits_TK", "MPGDBarrelRawHitAssociations_TK"},
-            .m_default_cfg =
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>({
+            .tag                 = "MPGDBarrelRawHits_TK",
+            .level = JEventLevel::Timeslice,
+            .input_names  = {"EventHeader", "MPGDBarrelHits"},
+            .output_names = {"MPGDBarrelRawHits_TK", "MPGDBarrelRawHitAssociations_TK"},
+            .configs =
                 {
                     .threshold      = 100 * dd4hep::eV,
                     .timeResolution = 10,
-                },
-            .level = JEventLevel::Timeslice},
-        app));
+                }
+        }));
   } else {
-    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-        JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>::TypedWiring{
-            .m_tag                 = "MPGDBarrelRawHits_TK",
-            .m_default_input_tags  = {"MPGDBarrelHits"},
-            .m_default_output_tags = {"MPGDBarrelRawHits_TK", "MPGDBarrelRawHitAssociations_TK"},
-            .m_default_cfg =
+    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>({
+            .tag                 = "MPGDBarrelRawHits_TK",
+            .level = JEventLevel::Timeslice,
+            .input_names  = {"MPGDBarrelHits"},
+            .output_names = {"MPGDBarrelRawHits_TK", "MPGDBarrelRawHitAssociations_TK"},
+            .configs =
                 {
                     .readout        = "MPGDBarrelHits",
                     .threshold      = 100 * dd4hep::eV,
                     .timeResolution = 10,
-                },
-            .level = JEventLevel::Timeslice},
-        app));
+                }
+        }));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
-          .m_tag                 = "MPGDBarrelRecHits_TK",
-          .m_default_input_tags  = {"MPGDBarrelRawHits_TK"},
-          .m_default_output_tags = {"MPGDBarrelRecHits_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
+          .tag                 = "MPGDBarrelRecHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"MPGDBarrelRawHits_TK"},
+          .output_names = {"MPGDBarrelRecHits_TK"},
+          .configs =
               {
                   .timeResolution = 10,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+           }));
 
   // ***** OuterMPGDBarrel
   // Digitization
   if ((SiFactoryPattern & 0x2) != 0U) {
-    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
-            .m_tag                 = "OuterMPGDBarrelRawHits_TK",
-            .m_default_input_tags  = {"EventHeader", "OuterMPGDBarrelHits"},
-            .m_default_output_tags = {"OuterMPGDBarrelRawHits_TK",
+    app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>({
+            .tag                 = "OuterMPGDBarrelRawHits_TK",
+            .level = JEventLevel::Timeslice,
+            .input_names  = {"EventHeader", "OuterMPGDBarrelHits"},
+            .output_names = {"OuterMPGDBarrelRawHits_TK",
                                       "OuterMPGDBarrelRawHitAssociations_TK"},
-            .m_default_cfg =
+            .configs =
                 {
                     .threshold      = 100 * dd4hep::eV,
                     .timeResolution = 10,
-                },
-            .level = JEventLevel::Timeslice},
-        app));
+                }
+            }));
   } else {
-    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-        JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>::TypedWiring{
-            .m_tag                 = "OuterMPGDBarrelRawHits_TK",
-            .m_default_input_tags  = {"OuterMPGDBarrelHits"},
-            .m_default_output_tags = {"OuterMPGDBarrelRawHits_TK",
+    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>({
+            .tag                 = "OuterMPGDBarrelRawHits_TK",
+            .level = JEventLevel::Timeslice,
+            .input_names  = {"OuterMPGDBarrelHits"},
+            .output_names = {"OuterMPGDBarrelRawHits_TK",
                                       "OuterMPGDBarrelRawHitAssociations_TK"},
-            .m_default_cfg =
+            .configs =
                 {
                     .readout        = "OuterMPGDBarrelHits",
                     .threshold      = 100 * dd4hep::eV,
                     .timeResolution = 10,
-                },
-            .level = JEventLevel::Timeslice},
-        app));
+                }
+        }));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
-          .m_tag                 = "OuterMPGDBarrelRecHits_TK",
-          .m_default_input_tags  = {"OuterMPGDBarrelRawHits_TK"},
-          .m_default_output_tags = {"OuterMPGDBarrelRecHits_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
+          .tag                 = "OuterMPGDBarrelRecHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"OuterMPGDBarrelRawHits_TK"},
+          .output_names = {"OuterMPGDBarrelRecHits_TK"},
+          .configs =
               {
                   .timeResolution = 10,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+    }));
 
   // ***** "BackwardMPGDEndcap"
   // Digitization
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
-          .m_tag                 = "BackwardMPGDEndcapRawHits_TK",
-          .m_default_input_tags  = {"EventHeader", "BackwardMPGDEndcapHits"},
-          .m_default_output_tags = {"BackwardMPGDEndcapRawHits_TK",
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>({
+          .tag                 = "BackwardMPGDEndcapRawHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"EventHeader", "BackwardMPGDEndcapHits"},
+          .output_names = {"BackwardMPGDEndcapRawHits_TK",
                                     "BackwardMPGDEndcapRawHitAssociations_TK"},
-          .m_default_cfg =
+          .configs =
               {
                   .threshold      = 100 * dd4hep::eV,
                   .timeResolution = 10,
               },
-          .level = JEventLevel::Timeslice},
-      app));
+    }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
-          .m_tag                 = "BackwardMPGDEndcapRecHits_TK",
-          .m_default_input_tags  = {"BackwardMPGDEndcapRawHits_TK"},
-          .m_default_output_tags = {"BackwardMPGDEndcapRecHits_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
+          .tag                 = "BackwardMPGDEndcapRecHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"BackwardMPGDEndcapRawHits_TK"},
+          .output_names = {"BackwardMPGDEndcapRecHits_TK"},
+          .configs =
               {
                   .timeResolution = 10,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+    }));
 
   // ""ForwardMPGDEndcap"
   // Digitization
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
-          .m_tag                 = "ForwardMPGDEndcapRawHits_TK",
-          .m_default_input_tags  = {"EventHeader", "ForwardMPGDEndcapHits"},
-          .m_default_output_tags = {"ForwardMPGDEndcapRawHits_TK",
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>({
+          .tag                 = "ForwardMPGDEndcapRawHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"EventHeader", "ForwardMPGDEndcapHits"},
+          .output_names = {"ForwardMPGDEndcapRawHits_TK",
                                     "ForwardMPGDEndcapRawHitAssociations_TK"},
-          .m_default_cfg =
+          .configs =
               {
                   .threshold      = 100 * dd4hep::eV,
                   .timeResolution = 10,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+        }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
-          .m_tag                 = "ForwardMPGDEndcapRecHits_TK",
-          .m_default_input_tags  = {"ForwardMPGDEndcapRawHits_TK"},
-          .m_default_output_tags = {"ForwardMPGDEndcapRecHits_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
+          .tag                 = "ForwardMPGDEndcapRecHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"ForwardMPGDEndcapRawHits_TK"},
+          .output_names = {"ForwardMPGDEndcapRecHits_TK"},
+          .configs =
               {
                   .timeResolution = 10,
               },
-          .level = JEventLevel::Timeslice},
-      app));
+           }));
 }
 // } // extern "C"

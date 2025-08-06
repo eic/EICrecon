@@ -5,10 +5,8 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <string>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 
-#include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
@@ -19,30 +17,27 @@ void InitPlugin_digiECTRK(JApplication* app) {
   using namespace eicrecon;
 
   // Digitization
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
-          .m_tag                 = "SiEndcapTrackerRawHits_TK",
-          .m_default_input_tags  = {"EventHeader", "TrackerEndcapHits"},
-          .m_default_output_tags = {"SiEndcapTrackerRawHits_TK",
-                                    "SiEndcapTrackerRawHitAssociations_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>({
+          .tag        = "SiEndcapTrackerRawHits_TK",
+          .level        = JEventLevel::Timeslice,
+          .input_names  = {"EventHeader", "TrackerEndcapHits"},
+          .output_names = {"SiEndcapTrackerRawHits_TK", "SiEndcapTrackerRawHitAssociations_TK"},
+          .configs =
               {
                   .threshold = 0.54 * dd4hep::keV,
               },
-          .level = JEventLevel::Timeslice},
-      app));
+        }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
-          .m_tag                 = "SiEndcapTrackerRecHits_TK",
-          .m_default_input_tags  = {"SiEndcapTrackerRawHits_TK"},
-          .m_default_output_tags = {"SiEndcapTrackerRecHits_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
+          .tag                 = "SiEndcapTrackerRecHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"SiEndcapTrackerRawHits_TK"},
+          .output_names = {"SiEndcapTrackerRecHits_TK"},
+          .configs =
               {
                   .timeResolution = 10,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+        }));
 }
 // } // extern "C"

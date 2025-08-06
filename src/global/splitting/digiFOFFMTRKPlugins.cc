@@ -8,7 +8,7 @@
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "JANA/Components/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -18,38 +18,36 @@ void InitPlugin_digiFOFFMTRK(JApplication* app) {
   InitJANAPlugin(app);
   using namespace eicrecon;
   //Digitized hits, especially for thresholds
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
-          .m_tag                 = "ForwardOffMTrackerRawHits_TK",
-          .m_default_input_tags  = {"EventHeader", "ForwardOffMTrackerHits"},
-          .m_default_output_tags = {"ForwardOffMTrackerRawHits_TK",
-                                    "ForwardOffMTrackerRawHitAssociations_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>({
+          .tag                 = "ForwardOffMTrackerRawHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"EventHeader", "ForwardOffMTrackerHits"},
+          .output_names = {"ForwardOffMTrackerRawHits_TK",
+                           "ForwardOffMTrackerRawHitAssociations_TK"},
+          .configs =
               {
                   .threshold      = 10.0 * dd4hep::keV,
                   .timeResolution = 8,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+           }));
 
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
-          .m_tag                 = "ForwardOffMTrackerRecHits_TK",
-          .m_default_input_tags  = {"ForwardOffMTrackerRawHits_TK"},
-          .m_default_output_tags = {"ForwardOffMTrackerRecHits_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
+          .tag                 = "ForwardOffMTrackerRecHits_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"ForwardOffMTrackerRawHits_TK"},
+          .output_names  = {"ForwardOffMTrackerRecHits_TK"},
+          .configs =
               {
                   .timeResolution = 8,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+           }));
 
-  app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
-      JOmniFactoryGeneratorT<MatrixTransferStatic_factory>::TypedWiring{
-          .m_tag                 = "ForwardOffMRecParticles_TK",
-          .m_default_input_tags  = {"MCParticles", "ForwardOffMTrackerRecHits_TK"},
-          .m_default_output_tags = {"ForwardOffMRecParticles_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>({
+          .tag                 = "ForwardOffMRecParticles_TK",
+          .level = JEventLevel::Timeslice,
+          .input_names  = {"MCParticles", "ForwardOffMTrackerRecHits_TK"},
+          .output_names = {"ForwardOffMRecParticles_TK"},
+          .configs =
               {
                   .matrix_configs = {{
                       .nomMomentum = 130.0,
@@ -79,8 +77,7 @@ void InitPlugin_digiFOFFMTRK(JApplication* app) {
                   .hit2maxZ = 24535.0,
 
                   .readout = "ForwardOffMTrackerRecHits_TK",
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+           }));
 }
 // }

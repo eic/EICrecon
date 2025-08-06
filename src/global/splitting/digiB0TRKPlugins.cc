@@ -5,10 +5,8 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <string>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 
-#include "algorithms/interfaces/WithPodConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
@@ -19,30 +17,27 @@ void InitPlugin_digiB0TRK(JApplication* app) {
   using namespace eicrecon;
 
   // Digitization
-  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
-          .m_tag                 = "B0TrackerRawHits_TK",
-          .m_default_input_tags  = {"EventHeader", "B0TrackerHits"},
-          .m_default_output_tags = {"B0TrackerRawHits_TK", "B0TrackerRawHitAssociations_TK"},
-          .m_default_cfg =
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>({
+          .tag          = "B0TrackerRawHits_TK",
+          .level        = JEventLevel::Timeslice,
+          .input_names  = {"EventHeader", "B0TrackerHits"},
+          .output_names = {"B0TrackerRawHits_TK", "B0TrackerRawHitAssociations_TK"},
+          .configs =
               {
                   .threshold      = 10.0 * dd4hep::keV,
                   .timeResolution = 8,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+              }
+            }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>::TypedWiring{
-          .m_tag                 = "B0TrackerRecHits_TK",
-          .m_default_input_tags  = {"B0TrackerRawHits_TK"},
-          .m_default_output_tags = {"B0TrackerRecHits_TK"},
-          .m_default_cfg =
-              {
-                  .timeResolution = 8,
-              },
-          .level = JEventLevel::Timeslice},
-      app));
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
+          .tag          = "B0TrackerRecHits_TK",
+          .level        = JEventLevel::Timeslice,
+          .input_names  = {"B0TrackerRawHits_TK"},
+          .output_names = {"B0TrackerRecHits_TK"},
+          .configs = {
+             .timeResolution = 8,
+            }
+          }));
 }
 // } // extern "C"
