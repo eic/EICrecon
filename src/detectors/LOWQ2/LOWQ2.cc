@@ -186,16 +186,16 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
       {"TaggerTrackerLocalTrackAssociations"}, app));
 
-//   // Project tracks onto a plane
-//   app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
-//       "TaggerTrackerProjectedTracks", {"TaggerTrackerLocalTracks"},
-//       {"TaggerTrackerProjectedTracks"},
-//       {
-//           .plane_position = {0.0, 0.0, 0.0},
-//           .plane_a        = {0.0, 1.0, 0.0},
-//           .plane_b        = {0.0, 0.0, 1.0},
-//       },
-//       app));
+  // Project tracks onto a plane
+  app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
+      "TaggerTrackerProjectedTracks", {"TaggerTrackerLocalTracks"},
+      {"TaggerTrackerProjectedTracks"},
+      {
+          .plane_position = {0.0, 0.0, 0.0},
+          .plane_a        = {0.0, 1.0, 0.0},
+          .plane_b        = {0.0, 0.0, 1.0},
+      },
+      app));
 
 #if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
