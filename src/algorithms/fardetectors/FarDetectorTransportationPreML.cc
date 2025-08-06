@@ -49,7 +49,7 @@ void FarDetectorTransportationPreML::process(
   feature_tensor.setElementType(1); // 1 - float
 
   edm4eic::MutableTensor target_tensor;
-  if (mcAssociation) {
+  if (mcAssociation != nullptr) {
     target_tensor = target_tensors->create();
     target_tensor.addToShape(inputTracks->size());
     target_tensor.addToShape(3);     // px,py,pz
@@ -71,7 +71,7 @@ void FarDetectorTransportationPreML::process(
     feature_tensor.addToFloatData(momentum.y); // diry
     feature_tensor.addToFloatData(momentum.z); // dirz
 
-    if ((mcAssociation != nullptr) && (mcAssociation->size() >= 1)) {
+    if ((mcAssociation != nullptr) && (!mcAssociation->empty())) {
       //Loop through the MCRecoTrackParticleAssociationCollection finding the first one associated with the current track
       for (const auto& assoc : *mcAssociation) {
         if (assoc.getRec() == track) {
