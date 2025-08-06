@@ -22,9 +22,8 @@
 * Tutorials
     * [Introduction](tutorial/01-introduction.md)
     * [Work environment](tutorial/02-work-environment.md)
-    * [End user plugin](tutorial/03-end-user-plugin.md)
-    * [Factory](tutorial/04-factory.md)
-    * [Contributing](tutorial/05-contributing.md)
+    * [Factory](tutorial/03-factory.md)
+    * [Contributing](tutorial/04-contributing.md)
 * Misc
     * [References](misc/references.md)
 * Flags
