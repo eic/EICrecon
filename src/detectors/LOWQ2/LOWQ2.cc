@@ -202,8 +202,7 @@ void InitPlugin(JApplication* app) {
       {"TaggerTrackerPredictionTensor"},
       {
           .modelPath = "calibrations/onnx/Low-Q2_Steering_Reconstruction.onnx",
-      },
-      app));
+      }));
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
       "TaggerTrackerTransportationPostML",
       {"TaggerTrackerPredictionTensor", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
