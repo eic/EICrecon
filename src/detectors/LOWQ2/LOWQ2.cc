@@ -133,20 +133,46 @@ void InitPlugin(JApplication* app) {
     }
   }
 
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>(
-      "TaggerTrackerSplitHits", {"TaggerTrackerRecHits"}, geometryDivisionCollectionNames,
-      {
-          .function = GeometrySplit{geometryDivisions, readout, geometryLabels},
-      }));
+  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>(
+        "TaggerTrackerSplitHits", {"TaggerTrackerRecHits"}, geometryDivisionCollectionNames,
+        {
+            .function = GeometrySplit{geometryDivisions, readout, geometryLabels},
+        }));
+  }
+  else {
+    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>({
+        .tag="TaggerTrackerSplitHits", 
+        .input_names={"TaggerTrackerRecHits"}, 
+        .variadic_output_names = {geometryDivisionCollectionNames},
+        .configs={
+            .function = GeometrySplit{geometryDivisions, readout, geometryLabels},
+        }}));
+   }
 
-  app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
-      "TaggerTrackerClustering", geometryDivisionCollectionNames, outputClusterCollectionNames,
-      {
-          .readout        = "TaggerTrackerHits",
-          .x_field        = "x",
-          .y_field        = "y",
-          .hit_time_limit = 10 * edm4eic::unit::ns,
-      }));
+  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
+        "TaggerTrackerClustering", geometryDivisionCollectionNames, outputClusterCollectionNames,
+        {
+            .readout        = "TaggerTrackerHits",
+            .x_field        = "x",
+            .y_field        = "y",
+            .hit_time_limit = 10 * edm4eic::unit::ns,
+        }));
+  }
+  else {
+    app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>({
+        .tag = "TaggerTrackerClustering", 
+        .variadic_input_names = {geometryDivisionCollectionNames}, 
+        .variadic_output_names = {outputClusterCollectionNames},
+        .configs = {
+            .readout        = "TaggerTrackerHits",
+            .x_field        = "x",
+            .y_field        = "y",
+            .hit_time_limit = 10 * edm4eic::unit::ns,
+        }}));
+  }
+
 
   // Linear tracking for each module, loop over modules
   for (std::size_t i = 0; i < moduleIDs.size(); i++) {
@@ -154,30 +180,64 @@ void InitPlugin(JApplication* app) {
     std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags = moduleClusterTags[i];
 
-    inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
-
-    app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
-        outputTrackTag, {inputClusterTags}, {outputTrackTag, outputTrackAssociationTag},
-        {
-            .layer_hits_max       = 200,
-            .chi2_max             = 0.001,
-            .n_layer              = 4,
-            .restrict_direction   = true,
-            .optimum_theta        = -M_PI + 0.026,
-            .optimum_phi          = 0,
-            .step_angle_tolerance = 0.05,
-        }));
+    if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+      inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
+      app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
+          outputTrackTag, {inputClusterTags}, {outputTrackTag, outputTrackAssociationTag},
+          {
+              .layer_hits_max       = 200,
+              .chi2_max             = 0.001,
+              .n_layer              = 4,
+              .restrict_direction   = true,
+              .optimum_theta        = -M_PI + 0.026,
+              .optimum_phi          = 0,
+              .step_angle_tolerance = 0.05,
+          }));
+    }
+    else {
+      app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>({
+          .tag = outputTrackTag, 
+          .input_names = {"TaggerTrackerRawHitAssociations"},
+          .variadic_input_names = {inputClusterTags},
+          .output_names = {outputTrackTag, outputTrackAssociationTag},
+          .configs = {
+              .layer_hits_max       = 200,
+              .chi2_max             = 0.001,
+              .n_layer              = 4,
+              .restrict_direction   = true,
+              .optimum_theta        = -M_PI + 0.026,
+              .optimum_phi          = 0,
+              .step_angle_tolerance = 0.05,
+          }}));
+    }
   }
 
-  // Combine the tracks from each module into one collection
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}));
+  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+    // Combine the tracks from each module into one collection
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
+        "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}));
 
-  // Combine the associations from each module into one collection
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
-      "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
-      {"TaggerTrackerLocalTrackAssociations"}));
+    // Combine the associations from each module into one collection
+    app->Add(new JOmniFactoryGeneratorT<
+            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
+        "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
+        {"TaggerTrackerLocalTrackAssociations"}));
+  }
+  else{
+    // Combine the tracks from each module into one collection
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>({
+        .tag="TaggerTrackerLocalTracks",
+        .variadic_input_names={outputTrackTags},
+        .output_names = {"TaggerTrackerLocalTracks"}}));
+
+    // Combine the associations from each module into one collection
+    app->Add(new JOmniFactoryGeneratorT<
+            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>({
+        .tag="TaggerTrackerLocalTrackAssociations", 
+        .variadic_input_names = {outputTrackAssociationTags},
+        .output_names = {"TaggerTrackerLocalTrackAssociations"}
+    }));
+  }
 
   // Project tracks onto a plane
   app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
@@ -197,12 +257,24 @@ void InitPlugin(JApplication* app) {
       {
           .beamE = 10.0,
       }));
-  app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
-      "TaggerTrackerTransportationInference", {"TaggerTrackerFeatureTensor"},
-      {"TaggerTrackerPredictionTensor"},
-      {
-          .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
-      }));
+  
+  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+    app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
+        "TaggerTrackerTransportationInference", {"TaggerTrackerFeatureTensor"},
+        {"TaggerTrackerPredictionTensor"},
+        {
+            .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
+        }));
+  }
+  else {
+    app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>({
+        .tag= "TaggerTrackerTransportationInference", 
+        .variadic_input_names = {{"TaggerTrackerFeatureTensor"}},
+        .variadic_output_names = {{"TaggerTrackerPredictionTensor"}},
+        .configs = {
+            .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
+        }}));
+  }
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
       "TaggerTrackerTransportationPostML", {"TaggerTrackerPredictionTensor", "MCBeamElectrons"},
       {"TaggerTrackerReconstructedParticles"},

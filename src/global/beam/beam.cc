@@ -34,16 +34,34 @@ void InitPlugin(JApplication* app) {
   std::vector<std::vector<int>> values{{4, 11}, {4, 2212}, {4, 2112},
                                        {1, 11}, {1, 2212}, {1, 2112}};
 
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4hep::MCParticle>>(
-      "BeamParticles", {"MCParticles"}, outCollections,
-      {
-          .function =
-              ValueSplit<&edm4hep::MCParticle::getGeneratorStatus, &edm4hep::MCParticle::getPDG>{
-                  values},
-      }));
+  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
 
-  // Combine beam protons and neutrons into beam hadrons
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>(
-      "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}));
+    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4hep::MCParticle>>(
+        "BeamParticles", {"MCParticles"}, outCollections,
+        {
+            .function =
+                ValueSplit<&edm4hep::MCParticle::getGeneratorStatus, &edm4hep::MCParticle::getPDG>{
+                    values},
+        }));
+
+    // Combine beam protons and neutrons into beam hadrons
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>(
+        "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}));
+  }
+  else {
+    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4hep::MCParticle>>({
+        .tag = "BeamParticles",
+        .input_names = {"MCParticles"},
+        .variadic_output_names = {outCollections},
+        .configs = {
+            .function =
+                ValueSplit<&edm4hep::MCParticle::getGeneratorStatus, &edm4hep::MCParticle::getPDG>{values}
+            }}));
+
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>({
+            .tag="MCBeamHadrons", 
+            .variadic_input_names = {{"MCBeamProtons", "MCBeamNeutrons"}},
+            .output_names = {"MCBeamHadrons"}}));
+  }
 }
 }

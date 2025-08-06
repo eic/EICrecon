@@ -179,18 +179,32 @@ void InitPlugin(JApplication* app) {
           "EcalEndcapNParticleIDInput_features",
           "EcalEndcapNParticleIDTarget",
       }));
-  app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
-      "EcalEndcapNParticleIDInference",
+  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+    app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
+        "EcalEndcapNParticleIDInference",
       {
-          "EcalEndcapNParticleIDInput_features",
-      },
+            "EcalEndcapNParticleIDInput_features",
+        },
+        {
+            "EcalEndcapNParticleIDOutput_label",
+            "EcalEndcapNParticleIDOutput_probability_tensor",
+        },
       {
-          "EcalEndcapNParticleIDOutput_label",
-          "EcalEndcapNParticleIDOutput_probability_tensor",
-      },
-      {
-          .modelPath = "calibrations/onnx/EcalEndcapN_pi_rejection.onnx",
-      }));
+            .modelPath = "calibrations/onnx/EcalEndcapN_pi_rejection.onnx",
+        }));
+    }
+  else {
+        app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>({
+            .tag="EcalEndcapNParticleIDInference",
+            .variadic_input_names={{ "EcalEndcapNParticleIDInput_features", }},
+            .variadic_output_names={{
+                "EcalEndcapNParticleIDOutput_label",
+                "EcalEndcapNParticleIDOutput_probability_tensor",
+            }},
+            .configs={
+                .modelPath = "calibrations/onnx/EcalEndcapN_pi_rejection.onnx",
+            }}));
+    }
   app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPostML_factory>(
       "EcalEndcapNParticleIDPostML",
       {

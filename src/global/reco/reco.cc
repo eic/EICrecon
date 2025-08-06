@@ -70,16 +70,33 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<MC2ReconstructedParticle_factory>(
       "GeneratedParticles", {"MCParticles"}, {"GeneratedParticles"}));
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, true>>(
-      "EcalClusters", {"EcalEndcapNClusters", "EcalBarrelScFiClusters", "EcalEndcapPClusters"},
-      {"EcalClusters"}));
 
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation, true>>(
-      "EcalClusterAssociations",
-      {"EcalEndcapNClusterAssociations", "EcalBarrelScFiClusterAssociations",
-       "EcalEndcapPClusterAssociations"},
-      {"EcalClusterAssociations"}));
+  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, true>>(
+        "EcalClusters", {"EcalEndcapNClusters", "EcalBarrelScFiClusters", "EcalEndcapPClusters"},
+        {"EcalClusters"}));
+
+    app->Add(new JOmniFactoryGeneratorT<
+            CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation, true>>(
+        "EcalClusterAssociations",
+        {"EcalEndcapNClusterAssociations", "EcalBarrelScFiClusterAssociations",
+        "EcalEndcapPClusterAssociations"},
+        {"EcalClusterAssociations"}));
+  }
+  else {
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, true>>({
+        .tag="EcalClusters", 
+        .variadic_input_names={{"EcalEndcapNClusters", "EcalBarrelScFiClusters", "EcalEndcapPClusters"}},
+        .output_names={"EcalClusters"}
+        }));
+
+    app->Add(new JOmniFactoryGeneratorT<
+            CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation, true>>({
+        .tag="EcalClusterAssociations",
+        .variadic_input_names={{"EcalEndcapNClusterAssociations", "EcalBarrelScFiClusterAssociations",
+        "EcalEndcapPClusterAssociations"}},
+        .output_names={"EcalClusterAssociations"}}));
+  }
 
   app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
       "ReconstructedParticlesWithAssoc",
@@ -119,10 +136,20 @@ void InitPlugin(JApplication* app) {
       "InclusiveKinematicsESigma", {"MCParticles", "ScatteredElectronsTruth", "HadronicFinalState"},
       {"InclusiveKinematicsESigma"}));
 
-  // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
-      "InclusiveKinematicseSigma_legacy", {"InclusiveKinematicsESigma"},
-      {"InclusiveKinematicseSigma"}));
+
+  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+    // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
+        "InclusiveKinematicseSigma_legacy", {"InclusiveKinematicsESigma"},
+        {"InclusiveKinematicseSigma"}));
+  }
+  else {
+    // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
+    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>({
+        .tag="InclusiveKinematicseSigma_legacy", 
+        .variadic_input_names={{"InclusiveKinematicsESigma"}},
+        .output_names={"InclusiveKinematicseSigma"}}));
+  }
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(

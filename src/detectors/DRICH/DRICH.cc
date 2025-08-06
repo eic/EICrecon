@@ -131,8 +131,17 @@ void InitPlugin(JApplication* app) {
       "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
       {"DRICHGasTracks"}, gas_track_cfg));
 
-  app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>(
-      "DRICHMergedTracks", {"DRICHAerogelTracks", "DRICHGasTracks"}, {"DRICHMergedTracks"}, {}));
+  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+    app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>(
+        "DRICHMergedTracks", {"DRICHAerogelTracks", "DRICHGasTracks"}, {"DRICHMergedTracks"}, {}));
+  }
+  else {
+    app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>( {
+        .tag = "DRICHMergedTracks",
+        .variadic_input_names = {{"DRICHAerogelTracks", "DRICHGasTracks"}}, 
+        .output_names = {"DRICHMergedTracks"} 
+    }));
+  }
 
   // PID algorithm
   app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
@@ -142,10 +151,20 @@ void InitPlugin(JApplication* app) {
       {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg));
 
   // merge aerogel and gas PID results
-  app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
-      "DRICHMergedIrtCherenkovParticleID",
-      {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
-      {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg));
+  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+    app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
+        "DRICHMergedIrtCherenkovParticleID",
+        {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
+        {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg));
+    }
+  else {
+    app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>({
+         .tag = "DRICHMergedIrtCherenkovParticleID",
+         .variadic_input_names = {{"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}},
+         .output_names = {"DRICHMergedIrtCherenkovParticleID"}, 
+         .configs = merge_cfg
+    }));
+  }
 
   // clang-format on
 }
