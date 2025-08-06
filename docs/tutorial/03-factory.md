@@ -10,7 +10,7 @@
 ## Introduction
 
 
-Now that you've learned about JANA plugins and JEventProcessors, let's talk about JFactories. JFactories are another essential JANA component just like JEventProcessors and JEventSources. While JEventProcessors are used for _aggregating_ results from each event into a structured output such as a histogram or a file, JFactories are used for computing those results in an organized way.
+Let's talk about JFactories. JFactories are another essential JANA component just like JEventProcessors and JEventSources. While JEventProcessors are used for _aggregating_ results from each event into a structured output such as a histogram or a file, JFactories are used for computing those results in an organized way.
 
 
 ### When do I use a JFactory?
@@ -29,14 +29,6 @@ Now that you've learned about JANA plugins and JEventProcessors, let's talk abou
 3. EICrecon needs to run multithreaded, and using JFactories can help steer you away from introducing thorny parallelism bugs.
 
 4. You can simply ask for the results you need and the JFactory will provide it. If nobody needs the results from the JFactory, it won't be run. If the results were already in the input file, it won't be run. If there are multiple consumers, the results are only computed once and then cached. If the JFactory relies on results from other JFactories, it will call them transparently and recursively.
-
-
-### When do I create my own plugin?
-
-- If you are doing a one-off prototype, it's fine to just use a ROOT macro.
-- If you are writing code you'll probably return to, we recommend putting the code in a standalone (i.e. outside of the EICrecon source tree) plugin.
-- If you are writing code other people will probably want to run, we recommend adding your plugin to the EICrecon source tree.
-- If you are writing a JFactory, we recommend adding it to the EICrecon source tree, either to an existing plugin or to a new one.
 
 
 ## Algorithms vs Factories
