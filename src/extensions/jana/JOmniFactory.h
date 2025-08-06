@@ -14,6 +14,7 @@
 #include <JANA/Components/JOmniFactory.h>
 #include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
+#include <JANA/JVersion.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
 #if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
@@ -40,19 +41,45 @@ private:
   std::shared_ptr<spdlog::logger> m_logger;
 
 public:
+
+  // This PreInit is needed for JANA2 <= 2.4.3
   inline void PreInit(std::string tag, JEventLevel level,
                       std::vector<std::string> input_collection_names,
                       std::vector<JEventLevel> input_collection_levels,
                       std::vector<std::string> output_collection_names) {
 
-    // PreInit using the underlying JANA JOmniFactory
-    JANA_JOmniFactory::PreInit(tag, level, input_collection_names, input_collection_levels,
-                               output_collection_names);
+    if constexpr (JVersion::major*10000 + JVersion::minor*100 + JVersion::patch < 20403) {
+        // PreInit using the underlying JANA JOmniFactory
+        JANA_JOmniFactory::PreInit(tag, level, input_collection_names, input_collection_levels,
+                                output_collection_names);
+    }
 
     // But obtain our own logger (defines the parameter option)
     m_logger =
         this->GetApplication()->template GetService<Log_service>()->logger(this->GetPrefix());
   }
+
+  // This PreInit is needed for JANA2 >= 2.4.3
+  inline void PreInit(std::string tag,
+                      JEventLevel level,
+                      std::vector<std::string> input_collection_names,
+                      std::vector<JEventLevel> input_collection_levels,
+                      std::vector<std::vector<std::string>> variadic_input_collection_names,
+                      std::vector<JEventLevel> variadic_input_collection_levels,
+                      std::vector<std::string> output_collection_names,
+                      std::vector<std::vector<std::string>> variadic_output_collection_names
+                      ) {
+  // PreInit using the underlying JANA JOmniFactory
+  if constexpr (JVersion::major*10000 + JVersion::minor*100 + JVersion::patch >= 20403) {
+    JANA_JOmniFactory::PreInit(tag, level, input_collection_names, input_collection_levels,
+                                variadic_input_collection_names, variadic_input_collection_levels,
+                                output_collection_names, variadic_output_collection_names);
+  }
+
+  // But obtain our own logger (defines the parameter option)
+  m_logger = this->GetApplication()->template GetService<Log_service>()->logger(this->GetPrefix());
+}
+
 
   virtual void ChangeRun(int32_t /* run_number */) override {};
 
