@@ -84,8 +84,7 @@ void FarDetectorTransportationPreML::process(
           break; // Exit loop after finding the first association
         }
       }
-    }
-    else {
+    } else {
       // If no association is found, fill with zeros
       target_tensor.addToFloatData(0.0f);
       target_tensor.addToFloatData(0.0f);
