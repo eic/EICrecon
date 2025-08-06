@@ -36,7 +36,7 @@ cmake --build epic/build -j8
 cmake --install epic/build
 
 git clone -b irt-2.0 https://github.com/eic/EICrecon.git
-cmake -S EICrecon -B EICrecon/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_FIND_DEBUG_MODE=OFF -DEICRECON_VERBOSE_CMAKE=ON -DCMAKE_INSTALL_PREFIX=$EIC_SHELL_PREFIX -Wno-dev
+cmake -S EICrecon -B EICrecon/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_FIND_DEBUG_MODE=OFF -DCMAKE_INSTALL_PREFIX=$EIC_SHELL_PREFIX -Wno-dev
 cmake --build EICrecon/build -j8
 cmake --install EICrecon/build
 ```
