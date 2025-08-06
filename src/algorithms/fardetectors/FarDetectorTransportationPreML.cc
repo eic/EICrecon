@@ -59,7 +59,7 @@ void FarDetectorTransportationPreML::process(
   // Loop through inputTracks and simultaneously optionally associations if avaliable
   // and fill the feature and target tensors
   for (const auto& track : *inputTracks) {
-    
+
     auto position = track.getPosition();
     auto momentum = track.getMomentum();
 
