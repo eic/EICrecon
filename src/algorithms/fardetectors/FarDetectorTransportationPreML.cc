@@ -5,8 +5,8 @@
 
 #if EDM4EIC_VERSION_MAJOR >= 8
 
-#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
 #include <gsl/pointers>
@@ -59,7 +59,7 @@ void FarDetectorTransportationPreML::process(
   // Loop through inputTracks and simultaneously optionally associations if avaliable
   // and fill the feature and target tensors
   for (const auto& track : *inputTracks) {
-    
+
     auto position = track.getPosition();
     auto momentum = track.getMomentum();
 
