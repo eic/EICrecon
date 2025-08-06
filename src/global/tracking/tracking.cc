@@ -222,9 +222,10 @@ void InitPlugin(JApplication* app) {
       {"CalorimeterTrackProjections"},
       {.target_surfaces{
           // DIRC
-          eicrecon::CylinderSurfaceConfig{.id="BarrelDIRC_ID", .rmin="DIRC_rmin",
-                                          .zmin="DIRC_offset - DIRC_length / 2.0",
-                                          .zmax="DIRC_offset + DIRC_length / 2.0"},
+          eicrecon::CylinderSurfaceConfig{.id   = "BarrelDIRC_ID",
+                                          .rmin = "DIRC_rmin",
+                                          .zmin = "DIRC_offset - DIRC_length / 2.0",
+                                          .zmax = "DIRC_offset + DIRC_length / 2.0"},
           // Ecal
           eicrecon::DiscSurfaceConfig{.id   = "EcalEndcapN_ID",
                                       .zmin = "- EcalEndcapN_zmin",
