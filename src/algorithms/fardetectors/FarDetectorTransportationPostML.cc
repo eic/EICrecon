@@ -26,19 +26,21 @@ void FarDetectorTransportationPostML::process(
   auto [out_particles, out_associations]                             = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
-  std::call_once(m_initBeamE, [&]() {
-    // Check if beam electrons are present
-    if (!beamElectrons || beamElectrons->empty()) {
-      if (m_cfg.requireBeamElectron) {
-        critical("No beam electrons found");
-        throw std::runtime_error("No beam electrons found");
+  if (beamElectrons != nullptr) {
+    std::call_once(m_initBeamE, [&]() {
+      // Check if beam electrons are present
+      if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.NullDereference)
+        if (m_cfg.requireBeamElectron) {
+          critical("No beam electrons found");
+          throw std::runtime_error("No beam electrons found");
+        }
+        return;
       }
-      return;
-    }
-    m_beamE = beamElectrons->at(0).getEnergy();
-    //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
-    m_beamE = round(m_beamE);
-  });
+      m_beamE = beamElectrons->at(0).getEnergy();
+      //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
+      m_beamE = round(m_beamE);
+    });
+  }
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
@@ -101,7 +103,7 @@ void FarDetectorTransportationPostML::process(
     particle.setPDG(11);
 
     //Check if both association collections are set and copy the MCParticle association
-    if (track_associations && track_associations->size() > i / 3) {
+    if ((track_associations != nullptr) && (track_associations->size() > i / 3)) {
       // Copy the association from the input to the output
       auto association     = track_associations->at(i / 3);
       auto out_association = out_associations->create();

@@ -27,19 +27,21 @@ void FarDetectorTransportationPreML::process(
   auto [feature_tensors, target_tensors]                 = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
-  std::call_once(m_initBeamE, [&]() {
-    // Check if beam electrons are present
-    if (!beamElectrons || beamElectrons->empty()) {
-      if (m_cfg.requireBeamElectron) {
-        critical("No beam electrons found");
-        throw std::runtime_error("No beam electrons found");
+  if (beamElectrons != nullptr) {
+    std::call_once(m_initBeamE, [&]() {
+      // Check if beam electrons are present
+      if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.NullDereference)
+        if (m_cfg.requireBeamElectron) {
+          critical("No beam electrons found");
+          throw std::runtime_error("No beam electrons found");
+        }
+        return;
       }
-      return;
-    }
-    m_beamE = beamElectrons->at(0).getEnergy();
-    //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
-    m_beamE = round(m_beamE);
-  });
+      m_beamE = beamElectrons->at(0).getEnergy();
+      //Round beam energy to nearest GeV - Should be 5, 10 or 18GeV
+      m_beamE = round(m_beamE);
+    });
+  }
 
   edm4eic::MutableTensor feature_tensor = feature_tensors->create();
   feature_tensor.addToShape(inputTracks->size());
@@ -69,7 +71,7 @@ void FarDetectorTransportationPreML::process(
     feature_tensor.addToFloatData(momentum.y); // diry
     feature_tensor.addToFloatData(momentum.z); // dirz
 
-    if (mcAssociation && mcAssociation->size()>=1) {
+    if ((mcAssociation != nullptr) && (mcAssociation->size() >= 1)) {
       //Loop through the MCRecoTrackParticleAssociationCollection finding the first one associated with the current track
       for (const auto& assoc : *mcAssociation) {
         if (assoc.getRec() == track) {
