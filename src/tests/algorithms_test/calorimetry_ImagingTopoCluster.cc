@@ -15,7 +15,9 @@
 #include <spdlog/spdlog.h>
 #include <gsl/pointers>
 #include <memory>
+#include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "algorithms/calorimetry/ImagingTopoCluster.h"

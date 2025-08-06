@@ -6,9 +6,8 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JServiceFwd.h>
-#include <JANA/Services/JServiceLocator.h>
 #include <spdlog/logger.h>
 #include <gsl/pointers>
 #include <memory>

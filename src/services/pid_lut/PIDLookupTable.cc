@@ -3,16 +3,15 @@
 
 #include "services/pid_lut/PIDLookupTable.h"
 
-#include <algorithm>
 #include <boost/histogram.hpp>
-#include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/close.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
+#include <fmt/core.h>
+#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstdlib>
-#include <fmt/core.h>
 #include <fstream> // IWYU pragma: keep
 #include <iterator>
 #include <sstream> // IWYU pragma: keep

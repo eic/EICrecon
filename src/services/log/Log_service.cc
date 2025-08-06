@@ -6,7 +6,6 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JException.h>
-#include <spdlog/details/log_msg.h>
 #include <spdlog/formatter.h>
 #include <spdlog/pattern_formatter.h>
 #include <spdlog/spdlog.h>

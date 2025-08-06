@@ -6,7 +6,10 @@
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/JEvent.h>
 #include <TDirectory.h>
+#include <memory>
 #include <vector>
 
 #include "TRACKINGcheckProcessor.h"

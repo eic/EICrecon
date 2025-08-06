@@ -37,7 +37,7 @@ public:
             {"outputMatchedAssociations", "outputUnmatchedAssociations"},
             "Filter by matching to a collection"} {};
 
-  void init() final{};
+  void init() final {};
 
   void
   process(const typename FilterMatchingAlgorithm<ToFilterObjectT, FilterByObjectT>::Input& input,

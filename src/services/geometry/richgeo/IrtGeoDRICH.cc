@@ -14,9 +14,11 @@
 #include <IRT/G4Object.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <Parsers/Primitives.h>
 #include <TRef.h>
-#include <cstdint>
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <cstdint>
 #include <map>
 #include <stdexcept>
 #include <string>

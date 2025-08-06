@@ -4,6 +4,7 @@
 #include <edm4eic/EDM4eicVersion.h>
 
 #if EDM4EIC_VERSION_MAJOR >= 8
+#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <cmath>

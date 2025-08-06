@@ -26,6 +26,8 @@ private:
   ParameterRef<float> m_sigma_sharingy{this, "sigmaSharingY", config().sigma_sharingy};
   ParameterRef<float> m_min_edep{this, "minEDep", config().min_edep};
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
+  ParameterRef<eicrecon::SiliconChargeSharingConfig::ESigmaMode> m_sigma_mode{this, "sigmaMode",
+                                                                              config().sigma_mode};
 
 public:
   void Configure() {
@@ -34,8 +36,6 @@ public:
     m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_in_sim_track()}, {m_out_reco_particles().get()});

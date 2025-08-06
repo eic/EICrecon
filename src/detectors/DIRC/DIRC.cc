@@ -2,6 +2,8 @@
 // Copyright (C) 2022 - 2025 Christopher Dilks, Nilanga Wickramaarachchi, Dmitry Kalinkin
 
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -21,8 +23,6 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   PhotoMultiplierHitDigiConfig digi_cfg;
-  digi_cfg.seed = 5;                   // FIXME: set to 0 for a 'unique' seed, but
-                                       // that seems to delay the RNG from actually randomizing
   digi_cfg.hitTimeWindow   = 20.0;     // [ns]
   digi_cfg.timeResolution  = 1 / 16.0; // [ns]
   digi_cfg.speMean         = 80.0;
@@ -37,6 +37,7 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-      "DIRCRawHits", {"DIRCBarHits"}, {"DIRCRawHits", "DIRCRawHitsAssociations"}, digi_cfg, app));
+      "DIRCRawHits", {"EventHeader", "DIRCBarHits"}, {"DIRCRawHits", "DIRCRawHitsAssociations"},
+      digi_cfg, app));
 }
 }

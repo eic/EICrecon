@@ -2,15 +2,13 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
 #include <Acts/Definitions/Direction.hpp>
-#include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/EventData/ParticleHypothesis.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #endif
-#include <Acts/Geometry/Layer.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -18,11 +16,14 @@
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilter.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/IndexSourceLink.hpp>
-#include <boost/container/vector.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <Eigen/LU>
+#include <algorithm>
+#include <any>
+#include <cmath>
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "ActsExamples/EventData/Track.hpp"

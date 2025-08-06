@@ -1,6 +1,5 @@
 #pragma once
 
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <TDirectory.h>
 #include <spdlog/fwd.h>

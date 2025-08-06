@@ -16,7 +16,7 @@ class FilterMatching_factory
 
 public:
   using AlgoT    = eicrecon::FilterMatching<ToFilterObjectT, ToFilterMemberFunctionPtr,
-                                         FilterByObjectT, FilterByMemberFunctionPtr>;
+                                            FilterByObjectT, FilterByMemberFunctionPtr>;
   using FactoryT = JOmniFactory<FilterMatching_factory<ToFilterObjectT, ToFilterMemberFunctionPtr,
                                                        FilterByObjectT, FilterByMemberFunctionPtr>>;
 
@@ -34,8 +34,6 @@ public:
     m_algo->level(static_cast<algorithms::LogLevel>(this->logger()->level()));
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_collection_input(), m_matched_input()},

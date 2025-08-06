@@ -20,6 +20,8 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <algorithm>
 #include <cmath>
@@ -87,8 +89,9 @@ void CalorimeterHitsMerger::init() {
   };
 
   // loop through provided readout fields
-  auto& svc = algorithms::ServiceSvc::instance();
-  for (std::size_t iField = 0; std::string & field : fields) {
+  auto& svc          = algorithms::ServiceSvc::instance();
+  std::size_t iField = 0;
+  for (std::string& field : fields) {
 
     // grab provided transformation and field
     const std::string field_transform = transforms.at(iField);
