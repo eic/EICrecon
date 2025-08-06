@@ -16,7 +16,7 @@ class JEventSourcePODIO_generator : public JEventSourceGenerator {
     // Check if the string "timeslices" appears anywhere in our filename.
     // If so, we assume the file contains timeslices, otherwise it contains physics events.
     // Another approach might be to peek at the file's contents
-    if (mApplication->GetParameterValue<bool>("split_timeframes")) {
+    if (mApplication->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting")) {
       source->SetLevel(JEventLevel::Timeslice);
     } else {
       source->SetLevel(JEventLevel::PhysicsEvent);
