@@ -44,6 +44,20 @@
 
 #include "extensions/spdlog/SpdlogToActs.h"
 
+// This array relates the Acts and EDM4eic covariance matrices, including
+// the unit conversion to get from Acts units into EDM4eic units.
+//
+// Note: std::map is not constexpr, so we use a constexpr std::array
+// std::array initialization need double braces since arrays are aggregates
+// ref: https://en.cppreference.com/w/cpp/language/aggregate_initialization
+static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_indexed_units{
+    {{Acts::eBoundLoc0, Acts::UnitConstants::mm},
+     {Acts::eBoundLoc1, Acts::UnitConstants::mm},
+     {Acts::eBoundPhi, 1.},
+     {Acts::eBoundTheta, 1.},
+     {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
+     {Acts::eBoundTime, Acts::UnitConstants::ns}}};
+
 void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
                                            std::shared_ptr<spdlog::logger> log) {
 
@@ -57,7 +71,7 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 }
 
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
-    std::vector<const ActsExamples::Trajectories*> trajectories,
+    std::vector<const ActsExamples::Trajectories*> /* trajectories */,
     const edm4eic::ReconstructedParticleCollection* reconParticles) {
 
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
@@ -114,20 +128,51 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
 
   std::vector<Acts::InputTrack> inputTracks;
+  std::vector<Acts::BoundTrackParameters> inputTrackParameters;
+  std::vector<const edm4eic::ReconstructedParticle*> inputParticles;
 
-  for (const auto& trajectory : trajectories) {
-    auto tips = trajectory->tips();
-    if (tips.empty()) {
-      continue;
-    }
-    /// CKF can provide multiple track trajectories for a single input seed
-    for (auto& tip : tips) {
-      ActsExamples::TrackParameters par = trajectory->trackParameters(tip);
+  for (const auto& particle : *reconParticles) {
+    for (const auto& track : particle.getTracks()) {
+      const auto& trajectory = track.getTrajectory();
+      for (const auto& track_parameter : trajectory.getTrackParameters()) {
 
-      inputTracks.emplace_back(&(trajectory->trackParameters(tip)));
-      m_log->trace("Track local position at input = {} mm, {} mm",
-                   par.localPosition().x() / Acts::UnitConstants::mm,
-                   par.localPosition().y() / Acts::UnitConstants::mm);
+        // Get reference surface by geometryId
+        const auto* surface =
+            m_geoSvc->trackingGeometry()->findSurface(track_parameter.getSurface());
+
+        // Parameters
+        Acts::BoundVector params;
+        params(Acts::eBoundLoc0) =
+            track_parameter.getLoc().a * Acts::UnitConstants::mm; // cylinder radius
+        params(Acts::eBoundLoc1) =
+            track_parameter.getLoc().b * Acts::UnitConstants::mm; // cylinder length
+        params(Acts::eBoundPhi)    = track_parameter.getPhi();
+        params(Acts::eBoundTheta)  = track_parameter.getTheta();
+        params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
+        params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
+
+        // Covariance FIXME stick edm4eic_indexed_units elsewhere
+        Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
+        for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
+          for (std::size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
+            cov(a, b) = track_parameter.getCovariance()(i, j) * x * y;
+            ++j;
+          }
+          ++i;
+        }
+
+        // Finally create BoundTrackParameters
+        auto& par = inputTrackParameters.emplace_back(surface->getSharedPtr(), params, cov,
+                                                      Acts::ParticleHypothesis::pion());
+
+        inputTracks.emplace_back(&par);
+        m_log->trace("Track local position at input = {} mm, {} mm",
+                     par.localPosition().x() / Acts::UnitConstants::mm,
+                     par.localPosition().y() / Acts::UnitConstants::mm);
+
+        // Store reference to particles
+        inputParticles.push_back(&particle);
+      }
     }
   }
 
@@ -160,29 +205,14 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
       m_log->trace("Track local position from vertex = {} mm, {} mm",
                    par.localPosition().x() / Acts::UnitConstants::mm,
                    par.localPosition().y() / Acts::UnitConstants::mm);
-      float loc_a = par.localPosition().x();
-      float loc_b = par.localPosition().y();
 
-      for (const auto& part : *reconParticles) {
-        const auto& tracks = part.getTracks();
-        for (const auto& trk : tracks) {
-          const auto& traj    = trk.getTrajectory();
-          const auto& trkPars = traj.getTrackParameters();
-          for (const auto& par : trkPars) {
-            const double EPSILON = 1.0e-4; // mm
-            if (std::abs((par.getLoc().a / edm4eic::unit::mm) - (loc_a / Acts::UnitConstants::mm)) <
-                    EPSILON &&
-                std::abs((par.getLoc().b / edm4eic::unit::mm) - (loc_b / Acts::UnitConstants::mm)) <
-                    EPSILON) {
-              m_log->trace(
-                  "From ReconParticles, track local position [Loc a, Loc b] = {} mm, {} mm",
-                  par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
-              eicvertex.addToAssociatedParticles(part);
-            } // endif
-          } // end for par
-        } // end for trk
-      } // end for part
+      auto inputTrackIter = std::ranges::find(inputTracks, t.originalParams);
+      auto i              = std::distance(inputTracks.begin(), inputTrackIter);
+
+      eicvertex.addToAssociatedParticles(*inputParticles.at(i));
+
     } // end for t
+
     m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.",
                  vtx.position().x() / Acts::UnitConstants::mm,
                  vtx.position().y() / Acts::UnitConstants::mm,
