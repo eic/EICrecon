@@ -56,7 +56,7 @@ void FarDetectorTransportationPreML::process(
     target_tensor.setElementType(1); // 1 - float
   }
 
-  // Loop through inputTracks and simultaneously optionally associations if avaliable
+  // Loop through inputTracks and simultaneously optionally associations if available
   // and fill the feature and target tensors
   for (const auto& track : *inputTracks) {
 
