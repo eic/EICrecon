@@ -100,7 +100,7 @@ void InitPlugin(JApplication* app) {
               {"0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
                "0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
                "sin(pi / 3)"},
-          // .layerMode            = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
+          
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .sectorDist           = 10.0 * dd4hep::cm,
           .minClusterHitEdep    = 5.0 * dd4hep::keV,
