@@ -45,6 +45,8 @@ void InitPlugin(JApplication* app) {
       EcalBarrelScFi_inversePropagationSpeed = {(1. / 160) * edm4eic::unit::ns / edm4eic::unit::mm};
   decltype(SimCalorimeterHitProcessorConfig::fixedTimeDelay) EcalBarrelScFi_fixedTimeDelay = {
       2 * edm4eic::unit::ns};
+  decltype(SimCalorimeterHitProcessorConfig::timeWindow) EcalBarrelScFi_timeWindow = {
+      100 * edm4eic::unit::ns};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -64,6 +66,7 @@ void InitPlugin(JApplication* app) {
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
           .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+	  .timeWindow                       = EcalBarrelScFi_timeWindow,
       }));
   app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
       "EcalBarrelScFiNAttenuatedHits", {"EcalBarrelScFiHits"},
@@ -76,6 +79,7 @@ void InitPlugin(JApplication* app) {
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
           .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+	  .timeWindow                       = EcalBarrelScFi_timeWindow,
       }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
