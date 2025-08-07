@@ -265,6 +265,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
                        edm4hep::utils::angleAzimuthal(h2.getPosition())) <= layerDistEtaPhi[1]);
 
     case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
+      // Here, the xy layer mode is based on global XY positions rather than local XY positions, and thus it only works for endcap detectors.
       return (std::abs(h1.getPosition().x - h2.getPosition().x) <= layerDistXY[0]) &&
              (std::abs(h1.getPosition().y - h2.getPosition().y) <= layerDistXY[1]);
 
