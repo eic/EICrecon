@@ -157,9 +157,9 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
   for (auto idx = indices.begin(); idx != indices.end();
        indices.empty() ? idx = indices.end() : idx) {
 
-    debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {}), energy = {}",
+    trace("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {}), energy = {}",
           *idx, (*hits)[*idx].getLocal().x, (*hits)[*idx].getLocal().y,
-          (*hits)[*idx].getPosition().z, (*hits)[*idx].getPosition().x,
+          (*hits)[*idx].getLocal().z, (*hits)[*idx].getPosition().x,
           (*hits)[*idx].getPosition().y, (*hits)[*idx].getPosition().z, (*hits)[*idx].getEnergy());
 
     // not energetic enough for cluster center, but could still be cluster hit
@@ -176,9 +176,6 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
     idx = indices.erase(idx); // takes role of idx++
   }
   debug("found {} potential clusters (groups of hits)", groups.size());
-  // for (std::size_t i = 0; i < groups.size(); ++i) {
-  //   debug("group {}: {} hits", i, groups[i].size());
-  // }
   for (std::size_t i = 0; i < groups.size(); ++i) {
     debug("group {}: {} hits", i, groups[i].size());
     for (auto idx : groups[i]) {
@@ -224,10 +221,6 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
   // layer check
   int ldiff = std::abs(h1.getLayer() - h2.getLayer());
   // same layer, check local positions
-  // if (ldiff == 0) {
-  //   return (std::abs(h1.getLocal().x - h2.getLocal().x) <= localDistXY[0]) &&
-  //          (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
-  // }
   if (ldiff == 0) {
     switch (m_cfg.sameLayerMode) {
     case ImagingTopoClusterConfig::ELayerMode::xy:
@@ -242,7 +235,6 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
 
     case ImagingTopoClusterConfig::ELayerMode::phiz: {
       // Layer mode 'phiz' uses the average phi of the hits to define a rotated direction. The coordinate is a distance, not an angle.
-
       auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                         edm4hep::utils::angleAzimuthal(h2.getPosition()));
       auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
