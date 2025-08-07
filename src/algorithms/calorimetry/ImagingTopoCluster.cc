@@ -241,7 +241,8 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
                        edm4hep::utils::angleAzimuthal(h2.getPosition())) <= layerDistEtaPhi[1]);
 
     case ImagingTopoClusterConfig::ELayerMode::phiz: {
-      // use average phi to calculate transverse coordinate in rotated frame
+      // Layer mode 'phiz' uses the average phi of the hits to define a rotated direction. The coordinate is a distance, not an angle.
+
       auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                         edm4hep::utils::angleAzimuthal(h2.getPosition()));
       auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
