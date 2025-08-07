@@ -63,9 +63,6 @@ std::ostream& operator<<(std::ostream& out, ImagingTopoClusterConfig::ELayerMode
   case ImagingTopoClusterConfig::ELayerMode::xy:
     out << "xy";
     break;
-  // case ImagingTopoClusterConfig::ELayerMode::xyz:
-  //   out << "xyz";
-  //   break;
   case ImagingTopoClusterConfig::ELayerMode::phiz:
     out << "phiz";
     break;
