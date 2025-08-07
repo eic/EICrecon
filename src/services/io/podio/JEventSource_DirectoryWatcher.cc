@@ -5,7 +5,6 @@
 // This is a JANA event source that uses PODIO to read from a ROOT
 // file created using the EDM4hep Data Model.
 //
-#pragma once
 
 #include "JEventSource_DirectoryWatcher.h"
 
