@@ -23,8 +23,8 @@ struct ImagingTopoClusterConfig {
   std::vector<std::variant<std::string, double>> layerDistXY = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
   // determines how neighbors are determined for hits in different layers (using either eta and phi, or x and y)
   enum class ELayerMode { etaphi = 0, xy = 1, phiz = 2 };
-  ELayerMode sameLayerMode = ELayerMode::xy;     // for ldiff =0
-  ELayerMode diffLayerMode = ELayerMode::xy;     // for ldiff <= neighbourLayersRange
+  ELayerMode sameLayerMode = ELayerMode::xy; // for ldiff =0
+  ELayerMode diffLayerMode = ELayerMode::xy; // for ldiff <= neighbourLayersRange
 
   // maximum global distance to be considered as neighbors in different sectors
   double sectorDist = 1.0 * dd4hep::cm;
