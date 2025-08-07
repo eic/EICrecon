@@ -158,9 +158,9 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
        indices.empty() ? idx = indices.end() : idx) {
 
     trace("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {}), energy = {}",
-          *idx, (*hits)[*idx].getLocal().x, (*hits)[*idx].getLocal().y,
-          (*hits)[*idx].getLocal().z, (*hits)[*idx].getPosition().x,
-          (*hits)[*idx].getPosition().y, (*hits)[*idx].getPosition().z, (*hits)[*idx].getEnergy());
+          *idx, (*hits)[*idx].getLocal().x, (*hits)[*idx].getLocal().y, (*hits)[*idx].getLocal().z,
+          (*hits)[*idx].getPosition().x, (*hits)[*idx].getPosition().y,
+          (*hits)[*idx].getPosition().z, (*hits)[*idx].getEnergy());
 
     // not energetic enough for cluster center, but could still be cluster hit
     if ((*hits)[*idx].getEnergy() < minClusterCenterEdep) {
