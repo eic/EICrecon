@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
