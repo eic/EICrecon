@@ -183,7 +183,7 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
     debug("group {}: {} hits", i, groups[i].size());
     for (auto idx : groups[i]) {
       const auto& hit = (*hits)[idx];
-      debug("  hit {} -> energy = {:.6f}, layer = {}, sector = {}, local = ({:.2f}, {:.2f}, "
+      trace("  hit {} -> energy = {:.6f}, layer = {}, sector = {}, local = ({:.2f}, {:.2f}, "
             "{:.2f}), global = ({:.2f}, {:.2f}, {:.2f})",
             idx, hit.getEnergy(), hit.getLayer(), hit.getSector(), hit.getLocal().x,
             hit.getLocal().y, hit.getLocal().z, hit.getPosition().x, hit.getPosition().y,
