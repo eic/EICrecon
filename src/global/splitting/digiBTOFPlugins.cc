@@ -34,38 +34,32 @@ void InitPlugin_digiBTOF(JApplication* app) {
           .level        = JEventLevel::Timeslice,
           .input_names  = {"EventHeader", "TOFBarrelHits"},
           .output_names = {"TOFBarrelRawHits_TK", "TOFBarrelRawHitAssociations_TK"},
-          .configs =
-              {
-                  .threshold      = 6.0 * dd4hep::keV,
-                  .timeResolution = 0.025, // [ns]
-              }
-        }));
+          .configs      = {
+                   .threshold      = 6.0 * dd4hep::keV,
+                   .timeResolution = 0.025, // [ns]
+          }}));
 
   // Convert raw digitized Hits_TK into Hits_TK with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
-          .tag                 = "TOFBarrelRecHits_TK",
-          .level = JEventLevel::Timeslice,
-          .input_names  = {"TOFBarrelRawHits_TK"},
-          .output_names = {"TOFBarrelRecHits_TK"},
-          .configs =
-              {
-                  .timeResolution = 10,
-              }
-        }));
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      {.tag          = "TOFBarrelRecHits_TK",
+       .level        = JEventLevel::Timeslice,
+       .input_names  = {"TOFBarrelRawHits_TK"},
+       .output_names = {"TOFBarrelRecHits_TK"},
+       .configs      = {
+                .timeResolution = 10,
+       }}));
 
-  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>({
-          .tag                 = "TOFBarrelSharedHits_TK",
-          .level = JEventLevel::Timeslice,
-          .input_names  = {"TOFBarrelHits"},
-          .output_names = {"TOFBarrelSharedHits_TK"},
-          .configs =
-              {
-                  .sigma_sharingx = 0.1 * dd4hep::cm,
-                  .sigma_sharingy = 0.5 * dd4hep::cm,
-                  .min_edep       = 0.0 * edm4eic::unit::GeV,
-                  .readout        = "TOFBarrelHits_TK",
-              }
-      }));
+  app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
+      {.tag          = "TOFBarrelSharedHits_TK",
+       .level        = JEventLevel::Timeslice,
+       .input_names  = {"TOFBarrelHits"},
+       .output_names = {"TOFBarrelSharedHits_TK"},
+       .configs      = {
+                .sigma_sharingx = 0.1 * dd4hep::cm,
+                .sigma_sharingy = 0.5 * dd4hep::cm,
+                .min_edep       = 0.0 * edm4eic::unit::GeV,
+                .readout        = "TOFBarrelHits_TK",
+       }}));
 
   // // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
   // // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =
@@ -81,36 +75,32 @@ void InitPlugin_digiBTOF(JApplication* app) {
   const int offset  = 3;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
       JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>::TypedWiring{
-          .tag                 = "LGADPulseGeneration_TK",
-          .level = JEventLevel::Timeslice,
+          .tag          = "LGADPulseGeneration_TK",
+          .level        = JEventLevel::Timeslice,
           .input_names  = {"TOFBarrelSharedHits_TK"},
           .output_names = {"TOFBarrelSmoothPulses_TK"},
-          .configs =
-              {
-                  .pulse_shape_function = "LandauPulse",
-                  .pulse_shape_params   = {gain, sigma_analog, offset * sigma_analog},
-                  .ignore_thres         = 0.05 * adc_range,
-                  .timestep             = 0.01 * edm4eic::unit::ns,
-              }
-        }));
+          .configs      = {
+                   .pulse_shape_function = "LandauPulse",
+                   .pulse_shape_params   = {gain, sigma_analog, offset * sigma_analog},
+                   .ignore_thres         = 0.05 * adc_range,
+                   .timestep             = 0.01 * edm4eic::unit::ns,
+          }}));
 
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
       JOmniFactoryGeneratorT<PulseCombiner_factory>::TypedWiring{
-          .tag                 = "TOFBarrelPulseCombiner_TK",
-          .level = JEventLevel::Timeslice,
+          .tag          = "TOFBarrelPulseCombiner_TK",
+          .level        = JEventLevel::Timeslice,
           .input_names  = {"TOFBarrelSmoothPulses_TK"},
           .output_names = {"TOFBarrelCombinedPulses_TK"},
-          .configs =
-              {
-                  .minimum_separation = 25 * edm4eic::unit::ns,
-              }
-        }));
+          .configs      = {
+                   .minimum_separation = 25 * edm4eic::unit::ns,
+          }}));
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
       JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>::TypedWiring{
-          .tag                 = "SiliconPulseDiscretization_TK",
-          .level = JEventLevel::Timeslice,
+          .tag          = "SiliconPulseDiscretization_TK",
+          .level        = JEventLevel::Timeslice,
           .input_names  = {"TOFBarrelCombinedPulses_TK"},
           .output_names = {"TOFBarrelPulses_TK"},
           .configs =
@@ -123,8 +113,8 @@ void InitPlugin_digiBTOF(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
       JOmniFactoryGeneratorT<EICROCDigitization_factory>::TypedWiring{
-          .tag                 = "EICROCDigitization_TK",
-          .level                 = JEventLevel::Timeslice,
+          .tag          = "EICROCDigitization_TK",
+          .level        = JEventLevel::Timeslice,
           .input_names  = {"TOFBarrelPulses_TK"},
           .output_names = {"TOFBarrelADCTDC_TK"},
       }));

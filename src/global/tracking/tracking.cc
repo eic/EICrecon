@@ -52,67 +52,69 @@ void InitPlugin(JApplication* app) {
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};
 
-#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
-    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>(
-        "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
-        {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
-        {
-            .function = RangeSplit<&edm4eic::TrackParameters::getTheta>(thetaRanges),
-        }));
+#if (10000 * JANA_VERSION_MAJOR + 100 * JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>(
+      "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
+      {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
+      {
+          .function = RangeSplit<&edm4eic::TrackParameters::getTheta>(thetaRanges),
+      }));
 #else
-    app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>({
-        .tag="CentralB0TrackTruthSeeds", 
-        .input_names={"TrackTruthSeeds"},
-        .variadic_output_names={{"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"}},
-        .configs={
-            .function = RangeSplit<&edm4eic::TrackParameters::getTheta>(thetaRanges),
-        }}));
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>(
+      {.tag                   = "CentralB0TrackTruthSeeds",
+       .input_names           = {"TrackTruthSeeds"},
+       .variadic_output_names = {{"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"}},
+       .configs               = {
+                         .function = RangeSplit<&edm4eic::TrackParameters::getTheta>(thetaRanges),
+       }}));
 #endif
 
   // CENTRAL TRACKER
 
-#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
-    // Tracker hits collector
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
-        "CentralTrackingRecHits",
-        {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
-        "TOFBarrelRecHits", "TOFEndcapRecHits", "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
-        "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"},
-        {"CentralTrackingRecHits"} // Output collection name
-        ));
+#if (10000 * JANA_VERSION_MAJOR + 100 * JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
+  // Tracker hits collector
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
+      "CentralTrackingRecHits",
+      {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
+       "TOFBarrelRecHits", "TOFEndcapRecHits", "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
+       "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"},
+      {"CentralTrackingRecHits"} // Output collection name
+      ));
 
-    // Tracker hit associations collector
-    app->Add(new JOmniFactoryGeneratorT<
-            CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation, true>>(
-        "CentralTrackingRawHitAssociations",
-        {"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
-        "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
-        "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
-        "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
-        "ForwardMPGDEndcapRawHitAssociations"},
-        {"CentralTrackingRawHitAssociations"} // Output collection name
-        ));
+  // Tracker hit associations collector
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation, true>>(
+      "CentralTrackingRawHitAssociations",
+      {"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
+       "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
+       "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
+       "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
+       "ForwardMPGDEndcapRawHitAssociations"},
+      {"CentralTrackingRawHitAssociations"} // Output collection name
+      ));
 #else
-    // Tracker hits collector
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>({
-        .tag="CentralTrackingRecHits",
-        .variadic_input_names={{"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
-        "TOFBarrelRecHits", "TOFEndcapRecHits", "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
-        "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"}},
-        .output_names={"CentralTrackingRecHits"} // Output collection name
-      }));
+  // Tracker hits collector
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>({
+      .tag                  = "CentralTrackingRecHits",
+      .variadic_input_names = {{"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
+                                "SiEndcapTrackerRecHits", "TOFBarrelRecHits", "TOFEndcapRecHits",
+                                "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
+                                "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"}},
+      .output_names         = {"CentralTrackingRecHits"} // Output collection name
+  }));
 
-    // Tracker hit associations collector
-    app->Add(new JOmniFactoryGeneratorT<
-            CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation, true>>({
-        .tag="CentralTrackingRawHitAssociations",
-        .variadic_input_names={{"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
-        "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
-        "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
-        "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
-        "ForwardMPGDEndcapRawHitAssociations"}},
-        .output_names={"CentralTrackingRawHitAssociations"} // Output collection name
-      }));
+  // Tracker hit associations collector
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation, true>>({
+      .tag                  = "CentralTrackingRawHitAssociations",
+      .variadic_input_names = {{"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
+                                "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
+                                "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
+                                "OuterMPGDBarrelRawHitAssociations",
+                                "BackwardMPGDEndcapRawHitAssociations",
+                                "ForwardMPGDEndcapRawHitAssociations"}},
+      .output_names         = {"CentralTrackingRawHitAssociations"} // Output collection name
+  }));
 #endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
@@ -383,57 +385,58 @@ void InitPlugin(JApplication* app) {
       },
       {}));
 
+#if (10000 * JANA_VERSION_MAJOR + 100 * JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
 
-#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
+  // Add Low-Q2, central and B0 tracks
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
+      "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks", "TaggerTrackerTracks"},
+      {"CombinedTracks"}));
 
-    // Add Low-Q2, central and B0 tracks
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-        "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks", "TaggerTrackerTracks"},
-        {"CombinedTracks"}));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
+      "CombinedTrackAssociations",
+      {"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations",
+       "TaggerTrackerTrackAssociations"},
+      {"CombinedTrackAssociations"}));
 
-    app->Add(new JOmniFactoryGeneratorT<
-            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
-        "CombinedTrackAssociations",
-        {"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations",
-        "TaggerTrackerTrackAssociations"},
-        {"CombinedTrackAssociations"}));
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
+      "CombinedTruthSeededTracks",
+      {"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks", "TaggerTrackerTracks"},
+      {"CombinedTruthSeededTracks"}));
 
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-        "CombinedTruthSeededTracks",
-        {"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks", "TaggerTrackerTracks"},
-        {"CombinedTruthSeededTracks"}));
-
-    app->Add(new JOmniFactoryGeneratorT<
-            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
-        "CombinedTruthSeededTrackAssociations",
-        {"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations",
-        "TaggerTrackerTrackAssociations"},
-        {"CombinedTruthSeededTrackAssociations"}));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
+      "CombinedTruthSeededTrackAssociations",
+      {"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations",
+       "TaggerTrackerTrackAssociations"},
+      {"CombinedTruthSeededTrackAssociations"}));
 #else
-    // Add Low-Q2, central and B0 tracks
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>({
-        .tag="CombinedTracks", 
-        .variadic_input_names={{"CentralCKFTracks", "B0TrackerCKFTracks", "TaggerTrackerTracks"}},
-        .output_names={"CombinedTracks"}}));
+  // Add Low-Q2, central and B0 tracks
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
+      {.tag                  = "CombinedTracks",
+       .variadic_input_names = {{"CentralCKFTracks", "B0TrackerCKFTracks", "TaggerTrackerTracks"}},
+       .output_names         = {"CombinedTracks"}}));
 
-    app->Add(new JOmniFactoryGeneratorT<
-            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>({
-        .tag="CombinedTrackAssociations",
-        .variadic_input_names={{"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations",
-        "TaggerTrackerTrackAssociations"}},
-        .output_names={"CombinedTrackAssociations"}}));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
+      {.tag                  = "CombinedTrackAssociations",
+       .variadic_input_names = {{"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations",
+                                 "TaggerTrackerTrackAssociations"}},
+       .output_names         = {"CombinedTrackAssociations"}}));
 
-    app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>({
-        .tag="CombinedTruthSeededTracks",
-        .variadic_input_names={{"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks", "TaggerTrackerTracks"}},
-        .output_names={"CombinedTruthSeededTracks"}}));
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
+      {.tag                  = "CombinedTruthSeededTracks",
+       .variadic_input_names = {{"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks",
+                                 "TaggerTrackerTracks"}},
+       .output_names         = {"CombinedTruthSeededTracks"}}));
 
-    app->Add(new JOmniFactoryGeneratorT<
-            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>({
-        .tag="CombinedTruthSeededTrackAssociations",
-        .variadic_input_names={{"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations",
-        "TaggerTrackerTrackAssociations"}},
-        .output_names={"CombinedTruthSeededTrackAssociations"}}));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
+      {.tag                  = "CombinedTruthSeededTrackAssociations",
+       .variadic_input_names = {{"CentralCKFTruthSeededTrackAssociations",
+                                 "B0TrackerCKFTruthSeededTrackAssociations",
+                                 "TaggerTrackerTrackAssociations"}},
+       .output_names         = {"CombinedTruthSeededTrackAssociations"}}));
 #endif
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(

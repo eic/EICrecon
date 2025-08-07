@@ -20,26 +20,24 @@ void InitPlugin_digiBTRK(JApplication* app) {
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>({
-          .tag          = "SiBarrelRawHits_TK",
-          .level        = JEventLevel::Timeslice,
-          .input_names  = {"EventHeader", "SiBarrelHits"},
-          .output_names = {"SiBarrelRawHits_TK", "SiBarrelRawHitAssociations_TK"},
-          .configs =
-              {
-                  .threshold = 0.54 * dd4hep::keV,
-              },
-        }));
+      .tag          = "SiBarrelRawHits_TK",
+      .level        = JEventLevel::Timeslice,
+      .input_names  = {"EventHeader", "SiBarrelHits"},
+      .output_names = {"SiBarrelRawHits_TK", "SiBarrelRawHitAssociations_TK"},
+      .configs =
+          {
+              .threshold = 0.54 * dd4hep::keV,
+          },
+  }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
-          .tag                 = "SiBarrelTrackerRecHits_TK",
-          .level = JEventLevel::Timeslice,
-          .input_names  = {"SiBarrelRawHits_TK"},
-          .output_names = {"SiBarrelTrackerRecHits_TK"},
-          .configs =
-              {
-                  .timeResolution = 10,
-              }
-    }));
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      {.tag          = "SiBarrelTrackerRecHits_TK",
+       .level        = JEventLevel::Timeslice,
+       .input_names  = {"SiBarrelRawHits_TK"},
+       .output_names = {"SiBarrelTrackerRecHits_TK"},
+       .configs      = {
+                .timeResolution = 10,
+       }}));
 }
 // } // extern "C"

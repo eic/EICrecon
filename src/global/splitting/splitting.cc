@@ -43,16 +43,16 @@ void InitPlugin(JApplication* app) {
   //     "TaggerTrackerHits_aligned",     "TrackerEndcapHits_aligned",
   //     "VertexBarrelHits_aligned"};
 
-  std::vector<std::vector<std::string>> m_simtrackerhit_collection_names_aligned = {{
-      "B0TrackerRecHits_TK_aligned",         "BackwardMPGDEndcapRecHits_TK_aligned",
-      "DIRCBarRecHits_TK_aligned",           "DRICHRecHits_TK_aligned",
-      "ForwardMPGDEndcapRecHits_TK_aligned", "ForwardOffMTrackerRecHits_TK_aligned",
-      "ForwardRomanPotRecHits_TK_aligned",   "LumiSpecTrackerRecHits_TK_aligned",
-      "MPGDBarrelRecHits_TK_aligned",        "OuterMPGDBarrelRecHits_TK_aligned",
-      "RICHEndcapNRecHits_TK_aligned",       "SiBarrelTrackerRecHits_TK_aligned",
-      "TOFBarrelRecHits_TK_aligned",         "TOFEndcapRecHits_TK_aligned",
-      "TaggerTrackerRecHits_TK_aligned",     "SiEndcapTrackerRecHits_TK_aligned",
-      "SiBarrelVertexRecHits_TK_aligned"}};
+  std::vector<std::vector<std::string>> m_simtrackerhit_collection_names_aligned = {
+      {"B0TrackerRecHits_TK_aligned", "BackwardMPGDEndcapRecHits_TK_aligned",
+       "DIRCBarRecHits_TK_aligned", "DRICHRecHits_TK_aligned",
+       "ForwardMPGDEndcapRecHits_TK_aligned", "ForwardOffMTrackerRecHits_TK_aligned",
+       "ForwardRomanPotRecHits_TK_aligned", "LumiSpecTrackerRecHits_TK_aligned",
+       "MPGDBarrelRecHits_TK_aligned", "OuterMPGDBarrelRecHits_TK_aligned",
+       "RICHEndcapNRecHits_TK_aligned", "SiBarrelTrackerRecHits_TK_aligned",
+       "TOFBarrelRecHits_TK_aligned", "TOFEndcapRecHits_TK_aligned",
+       "TaggerTrackerRecHits_TK_aligned", "SiEndcapTrackerRecHits_TK_aligned",
+       "SiBarrelVertexRecHits_TK_aligned"}};
 
   std::vector<std::vector<std::string>> m_simtrackerhit_collection_names = {
       {"B0TrackerRecHits_TK", "BackwardMPGDEndcapRecHits_TK", "DIRCBarRecHits_TK",
@@ -66,10 +66,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
       jana::components::JOmniFactoryGeneratorT<timeAlignmentFactory>::TypedWiring{
-          .tag                  = "timeAlignment",
-          .level                = JEventLevel::Timeslice,
-          .variadic_input_names = m_simtrackerhit_collection_names,
-          .variadic_output_names         = m_simtrackerhit_collection_names_aligned}));
+          .tag                   = "timeAlignment",
+          .level                 = JEventLevel::Timeslice,
+          .variadic_input_names  = m_simtrackerhit_collection_names,
+          .variadic_output_names = m_simtrackerhit_collection_names_aligned}));
 
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());

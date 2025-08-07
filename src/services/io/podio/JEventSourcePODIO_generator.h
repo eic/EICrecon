@@ -16,7 +16,8 @@ class JEventSourcePODIO_generator : public JEventSourceGenerator {
     // Check if the string "timeslices" appears anywhere in our filename.
     // If so, we assume the file contains timeslices, otherwise it contains physics events.
     // Another approach might be to peek at the file's contents
-    if (mApplication->RegisterParameter<bool>("split_timeframes", false, "Enable timeframe splitting")) {
+    if (mApplication->RegisterParameter<bool>("split_timeframes", false,
+                                              "Enable timeframe splitting")) {
       if constexpr (10000 * JVersion::major + 100 * JVersion::minor + 1 * JVersion::patch < 20403) {
         throw JException("Timeframe splitting requires JANA2 v2.4.3 or greater");
       }

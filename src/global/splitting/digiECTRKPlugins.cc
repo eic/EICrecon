@@ -18,26 +18,24 @@ void InitPlugin_digiECTRK(JApplication* app) {
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>({
-          .tag        = "SiEndcapTrackerRawHits_TK",
-          .level        = JEventLevel::Timeslice,
-          .input_names  = {"EventHeader", "TrackerEndcapHits"},
-          .output_names = {"SiEndcapTrackerRawHits_TK", "SiEndcapTrackerRawHitAssociations_TK"},
-          .configs =
-              {
-                  .threshold = 0.54 * dd4hep::keV,
-              },
-        }));
+      .tag          = "SiEndcapTrackerRawHits_TK",
+      .level        = JEventLevel::Timeslice,
+      .input_names  = {"EventHeader", "TrackerEndcapHits"},
+      .output_names = {"SiEndcapTrackerRawHits_TK", "SiEndcapTrackerRawHitAssociations_TK"},
+      .configs =
+          {
+              .threshold = 0.54 * dd4hep::keV,
+          },
+  }));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>({
-          .tag                 = "SiEndcapTrackerRecHits_TK",
-          .level = JEventLevel::Timeslice,
-          .input_names  = {"SiEndcapTrackerRawHits_TK"},
-          .output_names = {"SiEndcapTrackerRecHits_TK"},
-          .configs =
-              {
-                  .timeResolution = 10,
-              }
-        }));
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      {.tag          = "SiEndcapTrackerRecHits_TK",
+       .level        = JEventLevel::Timeslice,
+       .input_names  = {"SiEndcapTrackerRawHits_TK"},
+       .output_names = {"SiEndcapTrackerRecHits_TK"},
+       .configs      = {
+                .timeResolution = 10,
+       }}));
 }
 // } // extern "C"
