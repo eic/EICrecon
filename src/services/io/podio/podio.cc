@@ -8,12 +8,14 @@
 
 #include "JEventProcessorPODIO.h"
 #include "JEventSourcePODIO.h"
+#include "JEventSource_DirectoryWatcher.h"
 
 // Make this a JANA plugin
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
   app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
+  app->Add(new JEventSourceGeneratorT<JEventSource_DirectoryWatcher>());
 
   // Disable this behavior for now so one can run eicrecon with only the
   // input file as an argument.
