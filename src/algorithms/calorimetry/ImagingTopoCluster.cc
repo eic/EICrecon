@@ -180,8 +180,6 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
   //   debug("group {}: {} hits", i, groups[i].size());
   // }
   for (std::size_t i = 0; i < groups.size(); ++i) {
-    debug("");
-    debug("");
     debug("group {}: {} hits", i, groups[i].size());
     for (auto idx : groups[i]) {
       const auto& hit = (*hits)[idx];
