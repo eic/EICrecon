@@ -56,8 +56,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCScatteredProtons",
       "MCParticlesHeadOnFrameNoBeamFX",
 
-      // Central tracking hits combined
-      "CentralTrackerTruthSeeds",
+      // All tracking hits combined
+      "CentralTrackTruthSeeds",
       "CentralTrackingRecHits",
       "CentralTrackingRawHitAssociations",
       "CentralTrackSeedingResults",
@@ -162,17 +162,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TaggerTrackerTrackParameters",
       "TaggerTrackerTrackAssociations",
       "TaggerTrackerReconstructedParticles",
-      "FarBackwardTruthSeededPhaseSpacePIDParticleIDs",
-      "FarBackwardPhaseSpacePIDParticleIDs",
 
       // Forward & Far forward hits
-      "B0TrackerTruthSeeds",
       "B0TrackerRecHits",
       "B0TrackerRawHits",
       "B0TrackerHits",
       "B0TrackerRawHitAssociations",
-      "B0TrackerSeedingResults",
-      "B0TrackerMeasurements",
 
       "ForwardRomanPotRecHits",
       "ForwardOffMTrackerRecHits",
@@ -199,8 +194,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCScatteredElectronAssociations",    // Remove if/when used internally
       "MCNonScatteredElectronAssociations", // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
-
-      // Central tracking
       "CentralTrackSegments",
       "CentralTrackVertices",
       "CentralCKFTruthSeededTrajectories",
@@ -211,40 +204,16 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTracks",
       "CentralCKFTrackAssociations",
       "CentralCKFTrackParameters",
-      // tracking properties - true seeding
+      //tracking properties - true seeding
       "CentralCKFTruthSeededTrajectoriesUnfiltered",
       "CentralCKFTruthSeededTracksUnfiltered",
       "CentralCKFTruthSeededTrackUnfilteredAssociations",
       "CentralCKFTruthSeededTrackParametersUnfiltered",
-      // tracking properties - realistic seeding
+      //tracking properties - realistic seeding
       "CentralCKFTrajectoriesUnfiltered",
       "CentralCKFTracksUnfiltered",
       "CentralCKFTrackUnfilteredAssociations",
       "CentralCKFTrackParametersUnfiltered",
-
-      // B0 tracking
-      "B0TrackerCKFTruthSeededTrajectories",
-      "B0TrackerCKFTruthSeededTracks",
-      "B0TrackerCKFTruthSeededTrackAssociations",
-      "B0TrackerCKFTruthSeededTrackParameters",
-      "B0TrackerCKFTrajectories",
-      "B0TrackerCKFTracks",
-      "B0TrackerCKFTrackAssociations",
-      "B0TrackerCKFTrackParameters",
-      // tracking properties - true seeding
-      "B0TrackerCKFTruthSeededTrajectoriesUnfiltered",
-      "B0TrackerCKFTruthSeededTracksUnfiltered",
-      "B0TrackerCKFTruthSeededTrackUnfilteredAssociations",
-      "B0TrackerCKFTruthSeededTrackParametersUnfiltered",
-      // tracking properties - realistic seeding
-      "B0TrackerCKFTrajectoriesUnfiltered",
-      "B0TrackerCKFTrackParametersUnfiltered",
-      "B0TrackerCKFTracksUnfiltered",
-      "B0TrackerCKFTrackUnfilteredAssociations",
-
-      "CentralAndB0TrackVertices",
-
-      // Inclusive kinematics
       "InclusiveKinematicsDA",
       "InclusiveKinematicsJB",
       "InclusiveKinematicsML",
@@ -264,7 +233,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ScatteredElectronsEMinusPz",
       "PrimaryVertices",
       "BarrelClusters",
+#if EDM4EIC_VERSION_MAJOR >= 6
       "HadronicFinalState",
+#endif
 
       // Track projections
       "CalorimeterTrackProjections",
@@ -286,6 +257,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapPClusterAssociations",
       "EcalEndcapPSplitMergeClusters",
       "EcalEndcapPSplitMergeClusterAssociations",
+      "EcalEndcapPInsertRawHits",
+      "EcalEndcapPInsertRecHits",
+      "EcalEndcapPInsertTruthClusters",
+      "EcalEndcapPInsertTruthClusterAssociations",
+      "EcalEndcapPInsertClusters",
+      "EcalEndcapPInsertClusterAssociations",
       "EcalBarrelClusters",
       "EcalBarrelClusterAssociations",
       "EcalBarrelTruthClusters",
@@ -369,6 +346,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DIRCTruthSeededParticleIDs",
       "DIRCParticleIDs",
 
+      // "triggerflag",
+      "EventHeader_TS", // This is a timeslice header, not a PODIO collection
+
+#if EDM4EIC_VERSION_MAJOR >= 7
       "B0ECalRawHitAssociations",
       "EcalBarrelScFiRawHitAssociations",
       "EcalBarrelImagingRawHitAssociations",
@@ -376,11 +357,13 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapNRawHitAssociations",
       "HcalEndcapNRawHitAssociations",
       "EcalEndcapPRawHitAssociations",
+      "EcalEndcapPInsertRawHitAssociations",
       "HcalEndcapPInsertRawHitAssociations",
       "LFHCALRawHitAssociations",
       "EcalLumiSpecRawHitAssociations",
       "EcalFarForwardZDCRawHitAssociations",
       "HcalFarForwardZDCRawHitAssociations",
+#endif
 #if EDM4EIC_VERSION_MAJOR >= 8
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",

@@ -22,9 +22,11 @@
 class JEventSourcePODIO : public JEventSource {
 
 public:
-  JEventSourcePODIO(std::string resource_name, JApplication* app);
+  JEventSourcePODIO();
 
   virtual ~JEventSourcePODIO();
+
+  void Init() override;
 
   void Open() override;
 
@@ -48,6 +50,7 @@ protected:
 
   bool m_run_forever       = false;
   bool m_use_event_headers = true;
+  bool m_print_type_table  = false;
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
