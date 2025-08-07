@@ -133,14 +133,13 @@ void InitPlugin(JApplication* app) {
     }
   }
 
-  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>(
         "TaggerTrackerSplitHits", {"TaggerTrackerRecHits"}, geometryDivisionCollectionNames,
         {
             .function = GeometrySplit{geometryDivisions, readout, geometryLabels},
         }));
-  }
-  else {
+#else
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackerHit>>({
         .tag="TaggerTrackerSplitHits", 
         .input_names={"TaggerTrackerRecHits"}, 
@@ -148,9 +147,9 @@ void InitPlugin(JApplication* app) {
         .configs={
             .function = GeometrySplit{geometryDivisions, readout, geometryLabels},
         }}));
-   }
+#endif
 
-  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
     app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>(
         "TaggerTrackerClustering", geometryDivisionCollectionNames, outputClusterCollectionNames,
         {
@@ -159,8 +158,7 @@ void InitPlugin(JApplication* app) {
             .y_field        = "y",
             .hit_time_limit = 10 * edm4eic::unit::ns,
         }));
-  }
-  else {
+#else
     app->Add(new JOmniFactoryGeneratorT<FarDetectorTrackerCluster_factory>({
         .tag = "TaggerTrackerClustering", 
         .variadic_input_names = {geometryDivisionCollectionNames}, 
@@ -171,7 +169,7 @@ void InitPlugin(JApplication* app) {
             .y_field        = "y",
             .hit_time_limit = 10 * edm4eic::unit::ns,
         }}));
-  }
+#endif
 
 
   // Linear tracking for each module, loop over modules
@@ -180,7 +178,7 @@ void InitPlugin(JApplication* app) {
     std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags = moduleClusterTags[i];
 
-    if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
       inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
       app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
           outputTrackTag, {inputClusterTags}, {outputTrackTag, outputTrackAssociationTag},
@@ -193,8 +191,7 @@ void InitPlugin(JApplication* app) {
               .optimum_phi          = 0,
               .step_angle_tolerance = 0.05,
           }));
-    }
-    else {
+#else
       app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>({
           .tag = outputTrackTag, 
           .input_names = {"TaggerTrackerRawHitAssociations"},
@@ -209,10 +206,10 @@ void InitPlugin(JApplication* app) {
               .optimum_phi          = 0,
               .step_angle_tolerance = 0.05,
           }}));
-    }
+#endif
   }
 
-  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
     // Combine the tracks from each module into one collection
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
         "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}));
@@ -222,8 +219,7 @@ void InitPlugin(JApplication* app) {
             CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
         "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
         {"TaggerTrackerLocalTrackAssociations"}));
-  }
-  else{
+#else
     // Combine the tracks from each module into one collection
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>({
         .tag="TaggerTrackerLocalTracks",
@@ -237,7 +233,7 @@ void InitPlugin(JApplication* app) {
         .variadic_input_names = {outputTrackAssociationTags},
         .output_names = {"TaggerTrackerLocalTrackAssociations"}
     }));
-  }
+#endif
 
   // Project tracks onto a plane
   app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
@@ -258,15 +254,14 @@ void InitPlugin(JApplication* app) {
           .beamE = 10.0,
       }));
   
-  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
     app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
         "TaggerTrackerTransportationInference", {"TaggerTrackerFeatureTensor"},
         {"TaggerTrackerPredictionTensor"},
         {
             .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
         }));
-  }
-  else {
+#else
     app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>({
         .tag= "TaggerTrackerTransportationInference", 
         .variadic_input_names = {{"TaggerTrackerFeatureTensor"}},
@@ -274,7 +269,7 @@ void InitPlugin(JApplication* app) {
         .configs = {
             .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
         }}));
-  }
+#endif
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
       "TaggerTrackerTransportationPostML", {"TaggerTrackerPredictionTensor", "MCBeamElectrons"},
       {"TaggerTrackerReconstructedParticles"},

@@ -34,7 +34,7 @@ void InitPlugin(JApplication* app) {
   std::vector<std::vector<int>> values{{4, 11}, {4, 2212}, {4, 2112},
                                        {1, 11}, {1, 2212}, {1, 2112}};
 
-  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
 
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4hep::MCParticle>>(
         "BeamParticles", {"MCParticles"}, outCollections,
@@ -47,8 +47,9 @@ void InitPlugin(JApplication* app) {
     // Combine beam protons and neutrons into beam hadrons
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>(
         "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}));
-  }
-  else {
+
+#else
+
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4hep::MCParticle>>({
         .tag = "BeamParticles",
         .input_names = {"MCParticles"},
@@ -62,6 +63,6 @@ void InitPlugin(JApplication* app) {
             .tag="MCBeamHadrons", 
             .variadic_input_names = {{"MCBeamProtons", "MCBeamNeutrons"}},
             .output_names = {"MCBeamHadrons"}}));
-  }
+#endif
 }
 }

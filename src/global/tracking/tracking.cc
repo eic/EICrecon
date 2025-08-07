@@ -51,16 +51,15 @@ void InitPlugin(JApplication* app) {
 
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};
-  
-  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>(
         "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
         {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
         {
             .function = RangeSplit<&edm4eic::TrackParameters::getTheta>(thetaRanges),
         }));
-  }
-  else {
+#else
     app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>({
         .tag="CentralB0TrackTruthSeeds", 
         .input_names={"TrackTruthSeeds"},
@@ -68,11 +67,11 @@ void InitPlugin(JApplication* app) {
         .configs={
             .function = RangeSplit<&edm4eic::TrackParameters::getTheta>(thetaRanges),
         }}));
-  }
+#endif
 
   // CENTRAL TRACKER
 
-  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
     // Tracker hits collector
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
         "CentralTrackingRecHits",
@@ -93,8 +92,7 @@ void InitPlugin(JApplication* app) {
         "ForwardMPGDEndcapRawHitAssociations"},
         {"CentralTrackingRawHitAssociations"} // Output collection name
         ));
-  }
-  else {
+#else
     // Tracker hits collector
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>({
         .tag="CentralTrackingRecHits",
@@ -115,7 +113,7 @@ void InitPlugin(JApplication* app) {
         "ForwardMPGDEndcapRawHitAssociations"}},
         .output_names={"CentralTrackingRawHitAssociations"} // Output collection name
       }));
-  }
+#endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
       "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"}));
@@ -386,7 +384,7 @@ void InitPlugin(JApplication* app) {
       {}));
 
 
-  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
 
     // Add Low-Q2, central and B0 tracks
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
@@ -411,8 +409,7 @@ void InitPlugin(JApplication* app) {
         {"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations",
         "TaggerTrackerTrackAssociations"},
         {"CombinedTruthSeededTrackAssociations"}));
-  }
-  else {
+#else
     // Add Low-Q2, central and B0 tracks
     app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>({
         .tag="CombinedTracks", 
@@ -437,7 +434,7 @@ void InitPlugin(JApplication* app) {
         .variadic_input_names={{"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations",
         "TaggerTrackerTrackAssociations"}},
         .output_names={"CombinedTruthSeededTrackAssociations"}}));
-  }
+#endif
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedTruthSeededParticlesWithAssociations",

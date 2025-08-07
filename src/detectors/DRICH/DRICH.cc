@@ -131,17 +131,16 @@ void InitPlugin(JApplication* app) {
       "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
       {"DRICHGasTracks"}, gas_track_cfg));
 
-  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
     app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>(
         "DRICHMergedTracks", {"DRICHAerogelTracks", "DRICHGasTracks"}, {"DRICHMergedTracks"}, {}));
-  }
-  else {
+#else
     app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>( {
         .tag = "DRICHMergedTracks",
         .variadic_input_names = {{"DRICHAerogelTracks", "DRICHGasTracks"}}, 
         .output_names = {"DRICHMergedTracks"} 
     }));
-  }
+#endif
 
   // PID algorithm
   app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
@@ -151,20 +150,19 @@ void InitPlugin(JApplication* app) {
       {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg));
 
   // merge aerogel and gas PID results
-  if constexpr (10000*JVersion::major + 100*JVersion::minor + JVersion::patch < 20403) {
+#if (10000*JANA_VERSION_MAJOR + 100*JANA_VERSION_MINOR + JANA_VERSION_PATCH) < 20403
     app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
         "DRICHMergedIrtCherenkovParticleID",
         {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
         {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg));
-    }
-  else {
+#else
     app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>({
          .tag = "DRICHMergedIrtCherenkovParticleID",
          .variadic_input_names = {{"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}},
          .output_names = {"DRICHMergedIrtCherenkovParticleID"}, 
          .configs = merge_cfg
     }));
-  }
+#endif
 
   // clang-format on
 }
