@@ -116,9 +116,11 @@ void JEventSource_DirectoryWatcher::OpenFile(std::string filename) {
 /// \param event
 //------------------------------------------------------------------------------
 void JEventSource_DirectoryWatcher::Close() {
-  m_current_reader = nullptr; // Destroys the last reader
-  m_directory_watcher.FinishSuccess(m_current_filename);
-  m_log->info("Closed PODIO file: '{}'", m_current_filename);
+  if (m_current_reader != nullptr) {
+    m_current_reader = nullptr; // Destroys the last reader
+    m_directory_watcher.FinishSuccess(m_current_filename);
+    m_log->info("Closed PODIO file: '{}'", m_current_filename);
+  }
 }
 
 //------------------------------------------------------------------------------
