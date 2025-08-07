@@ -192,7 +192,8 @@ void InitPlugin(JApplication* app) {
           .localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
           .layerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
           .sectorDist           = 3.0 * dd4hep::cm,
-          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::phiz, // Layer mode 'phiz' uses the average phi of the hits to define a rotated direction. The coordinate is a distance, not an angle. 
+          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::
+              phiz, // Layer mode 'phiz' uses the average phi of the hits to define a rotated direction. The coordinate is a distance, not an angle.
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi,
           .minClusterHitEdep    = 0,
           .minClusterCenterEdep = 0,
