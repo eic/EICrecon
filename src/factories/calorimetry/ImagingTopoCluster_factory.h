@@ -26,9 +26,9 @@ private:
   // ParameterRef<std::vector<double>> m_ldxy_adjacent{this, "layerDistXY", config().layerDistXY};
   // ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_laymode{this, "layerMode",
   //                                                                        config().layerMode};
-  ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_sameLayMode{
+  ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_sameLayerMode{
       this, "sameLayerMode", config().sameLayerMode};
-  ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_diffLayMode{
+  ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_diffLayerMode{
       this, "diffLayerMode", config().diffLayerMode};
 
   ParameterRef<int> m_nlr{this, "neighbourLayersRange", config().neighbourLayersRange};
