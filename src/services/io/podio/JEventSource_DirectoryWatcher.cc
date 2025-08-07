@@ -117,6 +117,7 @@ void JEventSource_DirectoryWatcher::OpenFile(std::string filename) {
 //------------------------------------------------------------------------------
 void JEventSource_DirectoryWatcher::Close() {
   m_current_reader = nullptr; // Destroys the last reader
+  m_directory_watcher.FinishSuccess(m_current_filename);
   m_log->info("Closed PODIO file: '{}'", m_current_filename);
 }
 
@@ -159,6 +160,7 @@ JEventSource::Result JEventSource_DirectoryWatcher::Emit(JEvent& event) {
   if (m_events_emitted == m_events_in_file) {
     // Check if this was the last event. If so, close the file now so that the next Emit() call immediately looks for a new one
     m_current_reader = nullptr;
+    m_directory_watcher.FinishSuccess(m_current_filename);
     m_log->info("Closed PODIO file: '{}'", m_current_filename);
   }
   return Result::Success;
