@@ -49,14 +49,12 @@ void InitPlugin(JApplication* app) {
   decltype(SimCalorimeterHitProcessorConfig::timeWindow) EcalBarrelScFi_timeWindow = {
       100 * edm4eic::unit::ns};
 
-  decltype(PulseGenerationConfig::pulse_shape_function)
-      EcalBarrelScFi_pulse_shape_function = {"LandauPulse"};
-  decltype(PulseGenerationConfig::pulse_shape_params)
-      EcalBarrelScFi_pulse_shape_params = {1.0, 2 * edm4eic::unit::ns};
-  decltype(PulseGenerationConfig::ignore_thres)
-      EcalBarrelScFi_ignore_thres = {1.0e-5};
-  decltype(PulseGenerationConfig::timestep)
-      EcalBarrelScFi_timestep = {0.2 * edm4eic::unit::ns};
+  decltype(PulseGenerationConfig::pulse_shape_function) EcalBarrelScFi_pulse_shape_function = {
+      "LandauPulse"};
+  decltype(PulseGenerationConfig::pulse_shape_params) EcalBarrelScFi_pulse_shape_params = {
+      1.0, 2 * edm4eic::unit::ns};
+  decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {1.0e-5};
+  decltype(PulseGenerationConfig::timestep) EcalBarrelScFi_timestep = {0.2 * edm4eic::unit::ns};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -76,7 +74,7 @@ void InitPlugin(JApplication* app) {
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
           .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
-	  .timeWindow                       = EcalBarrelScFi_timeWindow,
+          .timeWindow                       = EcalBarrelScFi_timeWindow,
       }));
   app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
       "EcalBarrelScFiNAttenuatedHits", {"EcalBarrelScFiHits"},
@@ -89,25 +87,23 @@ void InitPlugin(JApplication* app) {
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
           .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
-	  .timeWindow                       = EcalBarrelScFi_timeWindow,
+          .timeWindow                       = EcalBarrelScFi_timeWindow,
       }));
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "EcalBarrelScFiPPulses", {"EcalBarrelScFiPAttenuatedHits"},
-      {"EcalBarrelScFiPPulses"},
+      "EcalBarrelScFiPPulses", {"EcalBarrelScFiPAttenuatedHits"}, {"EcalBarrelScFiPPulses"},
       {
-          .pulse_shape_function            = EcalBarrelScFi_pulse_shape_function,
-          .pulse_shape_params              = EcalBarrelScFi_pulse_shape_params,
-          .ignore_thres                    = EcalBarrelScFi_ignore_thres,
-          .timestep                        = EcalBarrelScFi_timestep,
+          .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
+          .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
+          .ignore_thres         = EcalBarrelScFi_ignore_thres,
+          .timestep             = EcalBarrelScFi_timestep,
       }));
   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
-      "EcalBarrelScFiNPulses", {"EcalBarrelScFiNAttenuatedHits"},
-      {"EcalBarrelScFiNPulses"},
+      "EcalBarrelScFiNPulses", {"EcalBarrelScFiNAttenuatedHits"}, {"EcalBarrelScFiNPulses"},
       {
-          .pulse_shape_function            = EcalBarrelScFi_pulse_shape_function,
-          .pulse_shape_params              = EcalBarrelScFi_pulse_shape_params,
-          .ignore_thres                    = EcalBarrelScFi_ignore_thres,
-          .timestep                        = EcalBarrelScFi_timestep,
+          .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
+          .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
+          .ignore_thres         = EcalBarrelScFi_ignore_thres,
+          .timestep             = EcalBarrelScFi_timestep,
       }));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
