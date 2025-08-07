@@ -29,6 +29,10 @@ public:
   std::shared_ptr<spdlog::logger> m_log;
   bool m_output_include_collections_set = false;
 
+  int m_events_per_file = 0;
+  int m_events_written = 0;
+  int m_file_suffix = 0;
+
   std::string m_output_file          = "podio_output.root";
   std::string m_output_file_copy_dir = "";
   std::set<std::string> m_output_collections;         // config. parameter

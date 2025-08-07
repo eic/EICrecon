@@ -412,6 +412,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "podio:print_collections", m_collections_to_print,
       "Comma separated list of collection names to print to screen, e.g. for debugging.");
 
+  japp->SetDefaultParameter("podio:output_file_max_event_count", m_events_per_file, "Max number of events before opening a new file");
+
   m_output_collections =
       std::set<std::string>(output_collections.begin(), output_collections.end());
   m_output_exclude_collections =
@@ -422,9 +424,13 @@ void JEventProcessorPODIO::Init() {
 
   auto* app = GetApplication();
   m_log     = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
-  m_writer  = std::make_unique<podio::ROOTWriter>(m_output_file);
-  // TODO: NWB: Verify that output file is writable NOW, rather than after event processing completes.
-  //       I definitely don't trust PODIO to do this for me.
+
+  if (m_events_per_file == 0) {
+    m_writer  = std::make_unique<podio::ROOTWriter>(m_output_file);
+  } else {
+    std::string filename = fmt::format("{}_{:05}.root", m_output_file, m_file_suffix);
+    m_writer  = std::make_unique<podio::ROOTWriter>(filename);
+  }
 
   if (m_output_include_collections_set) {
     m_log->error("The podio:output_include_collections was provided, but is deprecated. Use "
@@ -566,6 +572,14 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   {
     std::lock_guard<std::mutex> lock(m_mutex);
     m_writer->writeFrame(*frame, "events", m_collections_to_write);
+    m_events_written += 1;
+    if (m_events_written == m_events_per_file) {
+      m_writer->finish();
+      m_events_written = 0;
+      m_file_suffix += 1;
+      std::string filename = fmt::format("{}_{:05}.root", m_output_file, m_file_suffix);
+      m_writer = std::make_unique<podio::ROOTWriter>(filename);
+    }
   }
 }
 
