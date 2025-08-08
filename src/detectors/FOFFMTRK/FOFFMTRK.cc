@@ -4,13 +4,15 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -19,6 +21,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
@@ -27,15 +30,13 @@ void InitPlugin(JApplication* app) {
       {
           .threshold      = 10.0 * dd4hep::keV,
           .timeResolution = 8,
-      },
-      app));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardOffMTrackerRecHits", {"ForwardOffMTrackerRawHits"}, {"ForwardOffMTrackerRecHits"},
       {
           .timeResolution = 8,
-      },
-      app));
+      }));
 
   app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
       "ForwardOffMRecParticles", {"MCParticles", "ForwardOffMTrackerRecHits"},
@@ -69,7 +70,6 @@ void InitPlugin(JApplication* app) {
           .hit2maxZ = 27035.0,
 
           .readout = "ForwardOffMTrackerRecHits",
-      },
-      app));
+      }));
 }
 }
