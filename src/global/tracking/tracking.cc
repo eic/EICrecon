@@ -239,7 +239,10 @@ void InitPlugin(JApplication* app) {
               "1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)"},
           eicrecon::DiscSurfaceConfig{
               .id = "LFHCAL_ID", .zmin = "LFHCAL_zmin", .rmin = 0., .rmax = "1.1*LFHCAL_rmax"},
-          eicrecon::DiscSurfaceConfig{.id="LFHCAL_ID", .zmin="LFHCAL_zmin + 150*mm", .rmin=0., .rmax="1.1*LFHCAL_rmax"},
+          eicrecon::DiscSurfaceConfig{.id   = "LFHCAL_ID",
+                                      .zmin = "LFHCAL_zmin + 150*mm",
+                                      .rmin = 0.,
+                                      .rmax = "1.1*LFHCAL_rmax"},
       }},
       app));
 
