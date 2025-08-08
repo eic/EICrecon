@@ -3,8 +3,10 @@
 //
 //
 
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <fmt/core.h>
@@ -15,7 +17,6 @@
 #include <vector>
 
 #include "algorithms/meta/SubDivideFunctors.h"
-#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 
@@ -24,6 +25,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using jana::components::JOmniFactoryGeneratorT;
 
   // Divide MCParticle collection based on generator status and PDG
   std::vector<std::string> outCollections{"MCBeamElectrons",    "MCBeamProtons",
@@ -38,11 +40,10 @@ void InitPlugin(JApplication* app) {
           .function =
               ValueSplit<&edm4hep::MCParticle::getGeneratorStatus, &edm4hep::MCParticle::getPDG>{
                   values},
-      },
-      app));
+      }));
 
   // Combine beam protons and neutrons into beam hadrons
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4hep::MCParticle, true>>(
-      "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}, app));
+      "MCBeamHadrons", {"MCBeamProtons", "MCBeamNeutrons"}, {"MCBeamHadrons"}));
 }
 }
