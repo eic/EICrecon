@@ -34,7 +34,7 @@ public:
   FarDetectorTransportationPostML(std::string_view name)
       : FarDetectorTransportationPostMLAlgorithm{
             name,
-            {"inputPredictionsTensor", "beamElectrons"},
+            {"inputPredictionsTensor", "trackAssociations", "beamElectrons"},
             {"outputParticles", "outputAssociations"},
             "Convert ML output tensor into reconstructed electron"} {}
 

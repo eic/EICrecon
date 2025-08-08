@@ -31,7 +31,7 @@ public:
   FarDetectorTransportationPreML(std::string_view name)
       : FarDetectorTransportationPreMLAlgorithm{
             name,
-            {"TrackParameters", "ScatteredElectrons", "BeamElectrons"},
+            {"tracks", "trackAssociations", "beamElectrons"},
             {"outputFeatureTensor", "outputTargetTensor"},
             "Create tensor for input to far-detector magnetic transportation ML."} {}
 
