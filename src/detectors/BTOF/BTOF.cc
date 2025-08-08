@@ -22,6 +22,8 @@
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/reco/LGADHitCalibration_factory.h"
+#include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
@@ -49,6 +51,21 @@ void InitPlugin(JApplication* app) {
       },
       app)); // Hit reco default config for factories
 
+  // Convert raw digitized hits into calibrated hits
+  // time walk correction is still TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
+      "TOFBarrelCalHits", {"TOFBarrelADCTDC"}, // Input data collection tags
+      {"TOFBarrelCalHits"},                    // Output data tag
+      {}));                                    // Hit reco default config for factories
+                                               //
+  // cluster all hits in a sensor into one hit location
+  // Currently it's just a simple weighted average
+  // More sophisticated algorithm TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
+      "TOFBarrelClusterHits", {"TOFBarrelCalHits"}, // Input data collection tags
+      {"TOFBarrelClusterHits"},                     // Output data tag
+      {}));                                         // Hit reco default config for factories
+
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
       {
@@ -73,7 +90,7 @@ void InitPlugin(JApplication* app) {
   const double gain = -adc_range / Vm / landau_min * sigma_analog;
   const int offset  = 3;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
-      "LGADPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
+      "TOFBarrelPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
       {
           .pulse_shape_function = "LandauPulse",
           .pulse_shape_params   = {gain, sigma_analog, offset},
@@ -91,7 +108,7 @@ void InitPlugin(JApplication* app) {
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
-      "SiliconPulseDiscretization", {"TOFBarrelCombinedPulses"}, {"TOFBarrelPulses"},
+      "TOFBarrelPulseDiscretization", {"TOFBarrelCombinedPulses"}, {"TOFBarrelPulses"},
       {
           .EICROC_period = 25 * edm4eic::unit::ns,
           .local_period  = 25 * edm4eic::unit::ns / 1024,
