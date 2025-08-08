@@ -234,9 +234,10 @@ void InitPlugin(JApplication* app) {
               "- 1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)",
               "1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)"},
           eicrecon::CylinderSurfaceConfig{
-              .id="HcalBarrel_ID", .rmin="HcalBarrel_rmin + 150*mm",
-              .zmin="- 1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)",
-              .zmax="1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)"},
+              .id   = "HcalBarrel_ID",
+              .rmin = "HcalBarrel_rmin + 150*mm",
+              .zmin = "- 1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)",
+              .zmax = "1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)"},
           eicrecon::DiscSurfaceConfig{
               .id = "LFHCAL_ID", .zmin = "LFHCAL_zmin", .rmin = 0., .rmax = "1.1*LFHCAL_rmax"},
           eicrecon::DiscSurfaceConfig{.id   = "LFHCAL_ID",
