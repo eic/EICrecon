@@ -4,15 +4,13 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/Components/JOmniFactoryGeneratorT.h>
-#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -20,9 +18,7 @@
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
-
   using namespace eicrecon;
-  using jana::components::JOmniFactoryGeneratorT;
 
   MatrixTransferStaticConfig recon_cfg;
 
@@ -33,13 +29,15 @@ void InitPlugin(JApplication* app) {
       {
           .threshold      = 10.0 * dd4hep::keV,
           .timeResolution = 8,
-      }));
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardRomanPotRecHits", {"ForwardRomanPotRawHits"}, {"ForwardRomanPotRecHits"},
       {
           .timeResolution = 8,
-      }));
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
       "ForwardRomanPotRecParticles",
@@ -136,6 +134,7 @@ void InitPlugin(JApplication* app) {
           .hit2maxZ = 34252.0,
 
           .readout = "ForwardRomanPotRecHits",
-      }));
+      },
+      app));
 }
 }
