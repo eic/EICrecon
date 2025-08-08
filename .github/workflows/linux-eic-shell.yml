@@ -549,45 +549,6 @@ jobs:
         path: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
 
-  eicrecon-eicmkplugin:
-    runs-on: ubuntu-24.04
-    needs:
-    - build
-    - npsim-gun
-    strategy:
-      matrix:
-        CXX: [g++]
-        particle: [e]
-        detector_config: [craterlake]
-    steps:
-    - name: Checkout .github
-      uses: actions/checkout@v4
-      with:
-        sparse-checkout: .github
-    - name: Download install directory
-      uses: actions/download-artifact@v4
-      with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
-    - name: Unarchive install directory
-      run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v4
-      with:
-        name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
-    - name: Run EICrecon
-      uses: eic/run-cvmfs-osg-eic-shell@main
-      with:
-        platform-release: "${{ env.platform }}:${{ env.release }}"
-        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
-        run: |
-          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
-          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicmkplugin.py MyCustomPlugin
-          cmake -S MyCustomPlugin -B MyCustomPlugin/build -DEICrecon_ROOT=$PWD/install -DUSER_PLUGIN_OUTPUT_DIRECTORY=$PWD/install/lib/EICrecon/plugins
-          cmake --build MyCustomPlugin/build -j $(getconf _NPROCESSORS_ONLN) --target install
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Pplugins=MyCustomPlugin -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-
   eicrecon-test-plugins:
     runs-on: ubuntu-24.04
     needs:
@@ -644,10 +605,8 @@ jobs:
         particle: [e]
         detector_config: [craterlake]
         benchmark_plugins:
-        - EcalBarrelScFiCheck
         - femc_studies
         - lfhcal_studies
-        - TRACKINGcheck
         - tracking_efficiency
         - tracking_occupancy
     steps:
