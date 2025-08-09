@@ -33,7 +33,7 @@ TEST_CASE("the clustering algorithm runs", "[ImagingTopoCluster]") {
   logger->set_level(spdlog::level::trace);
 
   ImagingTopoClusterConfig cfg;
-  cfg.layerMode            = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy;
+  cfg.sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy;
   cfg.minClusterHitEdep    = 0. * dd4hep::GeV;
   cfg.minClusterCenterEdep = 0. * dd4hep::GeV;
   cfg.localDistXY          = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm}; //mm
