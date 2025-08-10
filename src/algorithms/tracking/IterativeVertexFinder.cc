@@ -10,6 +10,7 @@
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
+#include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
@@ -133,9 +134,14 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
       const auto& trajectory = track.getTrajectory();
       for (const auto& track_parameter : trajectory.getTrackParameters()) {
 
+        std::shared_ptr<const Acts::Surface> surface;
         // Get reference surface by geometryId
-        const auto* surface =
-            m_geoSvc->trackingGeometry()->findSurface(track_parameter.getSurface());
+        if (const auto* surface_ptr = m_geoSvc->trackingGeometry()->findSurface(track_parameter.getSurface())) {
+          surface = surface_ptr->getSharedPtr();
+        } else {
+          // Perigee surface is the default
+          surface = std::dynamic_pointer_cast<const Acts::Surface>(Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.}));
+        }
 
         // Parameters
         Acts::BoundVector params;
@@ -159,7 +165,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
         }
 
         // Finally create BoundTrackParameters
-        auto& par = inputTrackParameters.emplace_back(surface->getSharedPtr(), params, cov,
+        auto& par = inputTrackParameters.emplace_back(surface, params, cov,
                                                       Acts::ParticleHypothesis::pion());
 
         inputTracks.emplace_back(&par);
