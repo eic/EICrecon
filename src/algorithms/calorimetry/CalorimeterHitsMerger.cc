@@ -20,6 +20,8 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <algorithm>
 #include <cmath>

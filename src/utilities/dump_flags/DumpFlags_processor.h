@@ -1,10 +1,8 @@
 #pragma once
 
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <algorithm>
 #include <cctype>
-#include <memory>
 #include <string>
 #include <vector>
 

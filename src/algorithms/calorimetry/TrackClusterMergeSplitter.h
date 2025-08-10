@@ -10,7 +10,6 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
-#include <algorithm>
 #include <map>
 #include <set>
 #include <string>

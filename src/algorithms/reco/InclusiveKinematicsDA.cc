@@ -11,6 +11,7 @@
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <vector>
 
 #include "Beam.h"
 #include "Boost.h"

@@ -7,14 +7,15 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/ROOTWriter.h>
 #include <algorithm>
 #include <exception>
 #include <iterator>
-#include <ostream>
 #include <regex>
+#include <sstream>
 #include <stdexcept>
 
 #include "services/log/Log_service.h"
