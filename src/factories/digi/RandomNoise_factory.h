@@ -4,10 +4,16 @@
 #pragma once
 
 #include "algorithms/digi/RandomNoise.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "algorithms/digi/RandomNoiseConfig.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
+#include <edm4hep/EventHeader.h>
+#include <cstdint>
 
 namespace eicrecon {
+
+// Note: When standalone=true, the algorithm ignores PodioInput and produces a noise-only collection.
+// CollectionCollector should be configured to merge this with the primary hit collection later.
 
 /**
  * @brief JANA factory for the RandomNoise algorithm.
@@ -24,32 +30,34 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  // Input collection of raw tracker hits. The name "inputRawHitCollection" is
-  // automatically inferred from the algorithm's definition.
-  PodioInput<edm4eic::RawTrackerHit> m_in_hits{this};
+  // EventHeader input (used only to seed RNG deterministically per event)
+  PodioInput<edm4hep::EventHeader> m_in_event_header{this};
 
   // Output collection of raw tracker hits with noise added.
   PodioOutput<edm4eic::RawTrackerHit> m_out_hits{this};
 
+  // Tunables (forwarded into RandomNoiseConfig)
+  // - addNoise: master switch
   ParameterRef<bool> m_addNoise{this, "addNoise", config().addNoise};
+  // - n_noise_hits_per_system: Poisson mean
   ParameterRef<int> m_n_noise_hits_per_system{this, "n_noise_hits_per_system",
                                               config().n_noise_hits_per_system};
+  // - readout_name: target readout
   ParameterRef<std::string> m_readout_name{this, "readout_name", config().readout_name};
   // Service for accessing detector geometry information.
-  Service<DD4hep_service> m_geoSvc{this};
 
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    m_algo->applyConfig(config());
-    m_algo->init(m_geoSvc().detector());
-    if (!m_in_hits.collection_names.empty()) {
-      m_algo->setInputCollectionName(m_in_hits.collection_names[0]);
-    }
+    m_algo->applyConfig(
+        config()); // passes ParameterRef values into the algorithm (including standalone mode)
+    m_algo->init();
   }
 
-  void Process(int32_t, uint64_t) { m_algo->process({m_in_hits()}, {m_out_hits().get()}); }
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
+    m_algo->process({m_in_event_header()}, {m_out_hits().get()});
+  }
 };
 
 } // namespace eicrecon

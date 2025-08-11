@@ -5,11 +5,9 @@
 
 #include <vector>
 #include <utility>
+#include <string>
 
 namespace eicrecon {
-
-// Enum to specify subdetector regions for targeted noise injection.
-enum class SubdetectorRegion { barrel, backward, forward };
 
 struct RandomNoiseConfig {
   // Enable or disable noise injection.
@@ -20,6 +18,9 @@ struct RandomNoiseConfig {
   int n_noise_hits_per_system = 100;
 
   std::string readout_name = "VertexBarrelHits";
+
+  // Standalone mode: ignore input and produce a separate noise-only collection.
+  // CollectionCollector can merge later. Default: true.
 };
 
 } // namespace eicrecon

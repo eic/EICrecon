@@ -15,6 +15,7 @@
 // ------------------------------------------------------------------
 
 #include "RandomNoise.h"
+#include <edm4hep/EventHeader.h>
 
 /* DD4hep / segmentation ------------------------------------------------ */
 #include <DD4hep/IDDescriptor.h>
@@ -28,6 +29,7 @@
 #include <DDSegmentation/PolarGridRPhi.h>
 #include <TGeoBBox.h>
 #include <TGeoNode.h>
+#include <algorithms/geo.h>
 
 /* STL / helpers -------------------------------------------------------- */
 #include <algorithm>
@@ -172,31 +174,25 @@ namespace {
 //====================================================================//
 //  0.1  Initialisation                                                //
 //====================================================================//
-void RandomNoise::init(const dd4hep::Detector* det) { m_dd4hepGeo = det; }
-
-//====================================================================//
-//  1.  Event processing                                               //
-//====================================================================//
-void RandomNoise::process(const Input& in, const Output& out) const {
-  const auto [in_hits] = in;
-  auto [out_hits]      = out;
-
-  //----------------------------------------------------------------
-  // 1.1  Resolve the DD4hep read-out that belongs to the collection
-  //----------------------------------------------------------------
-  std::string readoutname = m_cfg.readout_name;
-
-  dd4hep::Readout rd = m_dd4hepGeo->readout(readoutname);
-  if (!rd.isValid()) {
-    error("Invalid Readout name: {}", readoutname);
+void RandomNoise::init() {
+  // 1. Get DD4hep geometry
+  m_dd4hepGeo = algorithms::GeoSvc::instance().detector();
+  if (!m_dd4hepGeo) {
+    error("RandomNoise: no DD4hep geometry service found");
     return;
   }
-  info("Found valid Readout: {}", readoutname);
 
-  //----------------------------------------------------------------
-  // 1.2  Collect all DetElements that use exactly this read-out
-  //----------------------------------------------------------------
-  std::vector<dd4hep::DetElement> targetDets;
+  // 2. Resolve readout
+  m_readout = m_dd4hepGeo->readout(m_cfg.readout_name);
+  if (!m_readout.isValid()) {
+    error("RandomNoise: Invalid Readout name: {}", m_cfg.readout_name);
+    return;
+  }
+
+  // 3. Find and store target detector elements
+  m_targetDets.clear();
+  m_idPathsCache.clear();
+  m_boundsCache.clear();
   const auto& elements = m_dd4hepGeo->detectors();
   for (const auto& de : elements) {
     const dd4hep::DetElement& tdet = de.second;
@@ -206,43 +202,67 @@ void RandomNoise::process(const Input& in, const Output& out) const {
     auto readout = sd.readout();
     if (!readout)
       continue;
-    if (readout.name() == readoutname) {
-      info("Found target DetElement: {} for readout {}", tdet.name(), readoutname);
-      targetDets.push_back(tdet);
+    if (readout.name() == m_cfg.readout_name) {
+      m_targetDets.push_back(tdet);
     }
   }
 
-  //----------------------------------------------------------------
-  // 1.3  If noise is disabled or no target detectors are found
-  //----------------------------------------------------------------
-  if (!m_cfg.addNoise || targetDets.empty()) {
-    for (auto const& h : *in_hits)
-      out_hits->push_back(h.clone());
+  // 4. Precompute and cache idPaths and bounds for each target DetElement
+  for (const auto& tdet : m_targetDets) {
+    auto idPaths                = ScanDetectorElement(tdet);
+    auto bounds                 = ScanComponent(tdet);
+    m_idPathsCache[tdet.name()] = idPaths;
+    m_boundsCache[tdet.name()]  = bounds;
+  }
+}
 
-    if (targetDets.empty())
-      error("No valid detector found for random noise injection");
+//====================================================================//
+//  1.  Event processing                                               //
+//====================================================================//
+// Source-mode: this process() ignores the input collection and emits only synthetic noise.
+void RandomNoise::process(const Input& in, const Output& out) const {
+  auto [out_hits]      = out;
+  const auto [headers] = in; // EventHeader collection (may be null)
+  // Source-mode: no input collection is consumed. If disabled or no targets, emit empty.
+  if (!m_cfg.addNoise) {
+    info("RandomNoise: addNoise=false → emitting empty collection");
+    return;
+  }
+  if (m_targetDets.empty()) {
+    error("RandomNoise: no valid detector found for requested readout");
     return;
   }
 
-  //----------------------------------------------------------------
-  // 1.4  Build a map of existing hits (key = CellID)
-  //----------------------------------------------------------------
+  // ------------------------------------------------------------------
+  // RNG seeded from EventHeader for reproducibility (#1934)
+  // Prefer metadata input EventHeader; fall back to optional member pointer.
+  // ------------------------------------------------------------------
+  // Seed RNG exactly like SiliconTrackerDigi
+  uint64_t seed = 0;
+  if (headers) {
+    seed = m_uid.getUniqueID(*headers, name());
+  } else if (m_eventHeader) {
+    // Optional fallback if someone set a single header via setter
+    seed = (static_cast<uint64_t>(m_eventHeader->getRunNumber()) << 32) ^
+           static_cast<uint64_t>(m_eventHeader->getEventNumber()) ^
+           std::hash<std::string_view>{}(name());
+  } else {
+    info("RandomNoise: EventHeader not provided; seeding only from algorithm name (non-ideal)");
+    seed = std::hash<std::string_view>{}(name());
+  }
+  std::mt19937_64 rng(seed);
+  // Build map of noise-only hits (no input cloning)
   std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_map;
-  for (auto const& h : *in_hits)
-    cell_hit_map.emplace(h.getCellID(), h.clone());
 
-  //----------------------------------------------------------------
-  // 1.5  Noise injection for every matching detector component
-  //----------------------------------------------------------------
-  for (auto const& tdet : targetDets) {
-    info("Random Noise Injection for {}", tdet.name());
-    add_noise_hits(cell_hit_map, tdet);
+  // Inject noise for each cached DetElement using precomputed data
+  for (const auto& tdet : m_targetDets) {
+    const auto& idPaths = m_idPathsCache.at(tdet.name());
+    const auto& bounds  = m_boundsCache.at(tdet.name());
+    add_noise_hits(cell_hit_map, tdet, idPaths, bounds, rng);
   }
 
-  //----------------------------------------------------------------
-  // 1.6  Copy back to the output collection
-  //----------------------------------------------------------------
-  for (auto const& kv : cell_hit_map)
+  // Copy to output
+  for (const auto& kv : cell_hit_map)
     out_hits->push_back(kv.second);
 }
 
@@ -388,48 +408,35 @@ RandomNoise::ComponentBounds RandomNoise::ScanComponent(dd4hep::DetElement de,
 //====================================================================//
 //  5.  Add noise hits for ONE DetElement                             //
 //====================================================================//
+// New overload: add_noise_hits with precomputed idPaths and bounds and RNG
+void RandomNoise::add_noise_hits(
+    std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map,
+    const dd4hep::DetElement& det, const VolIDMapArray& idPaths, const ComponentBounds& bounds,
+    std::mt19937_64& rng) const {
+  if (!m_cfg.addNoise || !m_dd4hepGeo)
+    return;
+  inject_noise_hits(cell_hit_map, det, idPaths, bounds, rng);
+}
+
+// Optionally, keep the old signature for compatibility
 void RandomNoise::add_noise_hits(
     std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map,
     const dd4hep::DetElement& det) const {
-  if (!m_cfg.addNoise || !m_dd4hepGeo)
-    return;
+  // Use cached data if available, otherwise fallback to scanning
+  auto it_id = m_idPathsCache.find(det.name());
+  auto it_b  = m_boundsCache.find(det.name());
 
-  auto idPaths = ScanDetectorElement(det);
-  auto bounds  = ScanComponent(det);
+  // Fallback deterministic seed when EventHeader not available here
+  uint64_t fallbackSeed = std::hash<std::string_view>{}(name()) ^ 0x9e3779b97f4a7c15ULL;
+  std::mt19937_64 rng(fallbackSeed);
 
-  //--------------------------------------------------------------------
-  // debug print – ScanDetectorElement
-  //--------------------------------------------------------------------
-  /*{
-    std::size_t maxPrint = 10; // change as you like
-    std::cout << "[DBG] DetElement '" << det.name() << "'  idPaths = " << idPaths.size() << '\n';
-
-    for (std::size_t i = 0; i < idPaths.size() && i < maxPrint; ++i) {
-      std::cout << "  path " << i << ": ";
-      bool first = true;
-      for (auto const& kv : idPaths[i]) {
-        if (!first)
-          std::cout << ", ";
-        std::cout << kv.first << '=' << kv.second;
-        first = false;
-      }
-      std::cout << '\n';
-    }
-    if (idPaths.size() > maxPrint)
-      std::cout << "  ... (" << idPaths.size() - maxPrint << " additional paths suppressed)\n";
+  if (it_id != m_idPathsCache.end() && it_b != m_boundsCache.end()) {
+    add_noise_hits(cell_hit_map, det, it_id->second, it_b->second, rng);
+  } else {
+    auto idPaths = ScanDetectorElement(det);
+    auto bounds  = ScanComponent(det);
+    inject_noise_hits(cell_hit_map, det, idPaths, bounds, rng);
   }
-
-  //--------------------------------------------------------------------
-  // debug print – ScanComponent
-  //--------------------------------------------------------------------
-  {
-    std::cout << "[DBG] DetElement '" << det.name() << "'  bounds = " << bounds.size()
-              << " fields\n";
-    for (auto const& [name, rng] : bounds)
-      std::cout << "  " << name << ": " << rng.first << " .. " << rng.second << '\n';
-  }
-  */
-  inject_noise_hits(cell_hit_map, det, idPaths, bounds);
 }
 
 //--------------------------------------------------------------------------
@@ -437,8 +444,8 @@ void RandomNoise::add_noise_hits(
 //--------------------------------------------------------------------------
 void RandomNoise::inject_noise_hits(
     std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& hitMap,
-    const dd4hep::DetElement& det, const VolIDMapArray& idPaths,
-    const ComponentBounds& bounds) const {
+    const dd4hep::DetElement& det, const VolIDMapArray& idPaths, const ComponentBounds& bounds,
+    std::mt19937_64& rng) const {
   if (idPaths.empty() || bounds.empty())
     return;
 
@@ -479,10 +486,9 @@ void RandomNoise::inject_noise_hits(
   const std::size_t nSensors  = idPaths.size();
   const std::size_t nChannels = perSensor * nSensors;
 
-  static thread_local std::mt19937_64 rng{0xBADA55u};
   std::poisson_distribution<std::size_t> pois(m_cfg.n_noise_hits_per_system);
-  std::size_t nNoise = nNoise = pois(rng);
-  nNoise                      = std::min<std::size_t>(nNoise, nChannels);
+  std::size_t nNoise = pois(rng);
+  nNoise             = std::min<std::size_t>(nNoise, nChannels);
   if (nNoise == 0)
     return;
 
