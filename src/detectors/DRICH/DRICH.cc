@@ -7,10 +7,8 @@
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/Components/JOmniFactoryGeneratorT.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <functional>
 #include <map>
@@ -25,6 +23,7 @@
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/MergeParticleIDConfig.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/digi/PhotoMultiplierHitDigi_factory.h"
 #include "factories/pid/IrtCherenkovParticleID_factory.h"
@@ -40,7 +39,6 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  using jana::components::JOmniFactoryGeneratorT;
 
   // configuration parameters ///////////////////////////////////////////////
 
@@ -120,32 +118,33 @@ void InitPlugin(JApplication* app) {
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
       "DRICHRawHits", {"EventHeader", "DRICHHits"}, {"DRICHRawHits", "DRICHRawHitsAssociations"},
-      digi_cfg));
+      digi_cfg, app));
 
   // charged particle tracks
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
       "DRICHAerogelTracks",
       {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
-      {"DRICHAerogelTracks"}, aerogel_track_cfg));
+      {"DRICHAerogelTracks"}, aerogel_track_cfg, app));
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
       "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
-      {"DRICHGasTracks"}, gas_track_cfg));
+      {"DRICHGasTracks"}, gas_track_cfg, app));
 
-  app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>(
-      "DRICHMergedTracks", {"DRICHAerogelTracks", "DRICHGasTracks"}, {"DRICHMergedTracks"}, {}));
+  app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>("DRICHMergedTracks",
+                                                          {"DRICHAerogelTracks", "DRICHGasTracks"},
+                                                          {"DRICHMergedTracks"}, {}, app));
 
   // PID algorithm
   app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
       "DRICHIrtCherenkovParticleID",
       {"DRICHAerogelTracks", "DRICHGasTracks", "DRICHMergedTracks", "DRICHRawHits",
        "DRICHRawHitsAssociations"},
-      {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg));
+      {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg, app));
 
   // merge aerogel and gas PID results
   app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
       "DRICHMergedIrtCherenkovParticleID",
       {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
-      {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg));
+      {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg, app));
 
   // clang-format on
 }
