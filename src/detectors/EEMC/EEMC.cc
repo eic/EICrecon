@@ -138,7 +138,7 @@ void InitPlugin(JApplication* app) {
       },
 #if EDM4EIC_VERSION_MAJOR >= 8
       {"EcalEndcapNClustersWithoutPIDAndShapes",             // edm4eic::Cluster
-       "EcalEndcapNClusterAssociationsWithoutPIDAndShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+       "EcalEndcapNClusterWithoutPIDAssociationsAndShapes"}, // edm4eic::MCRecoClusterParticleAssociation
 #else
       {"EcalEndcapNClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapNClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
@@ -156,8 +156,8 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_VERSION_MAJOR >= 8
       "EcalEndcapNClustersWithoutPID",
       {"EcalEndcapNClustersWithoutPIDAndShapes",
-       "EcalEndcapNClusterAssociationsWithoutPIDAndShapes"},
-      {"EcalEndcapNClustersWithoutPID", "EcalEndcapNClusterAssociationsWithoutPID"},
+       "EcalEndcapNClusterWithoutPIDAssociationsAndShapes"},
+      {"EcalEndcapNClustersWithoutPID", "EcalEndcapNClusterWithoutPIDAssociations"},
 #else
       "EcalEndcapNClusters",
       {"EcalEndcapNClustersWithoutShapes", "EcalEndcapNClusterAssociationsWithoutShapes"},
@@ -184,7 +184,8 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapNParticleIDPreML",
       {
           "EcalEndcapNClustersWithoutPID",
-          "EcalEndcapNClusterAssociationsWithoutPID",
+          "EcalEndcapNTrackClusterWithoutPIDMatches",
+          "EcalEndcapNClusterWithoutPIDAssociations",
       },
       {
           "EcalEndcapNParticleIDInput_features",
@@ -208,11 +209,13 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapNParticleIDPostML",
       {
           "EcalEndcapNClustersWithoutPID",
-          "EcalEndcapNClusterAssociationsWithoutPID",
+          "EcalEndcapNTrackClusterWithoutPIDMatches",
+          "EcalEndcapNClusterWithoutPIDAssociations",
           "EcalEndcapNParticleIDOutput_probability_tensor",
       },
       {
           "EcalEndcapNClusters",
+          "EcalEndcapNTrackClusterMatches",
           "EcalEndcapNClusterAssociations",
           "EcalEndcapNClusterParticleIDs",
       },
