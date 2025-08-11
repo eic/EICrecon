@@ -32,18 +32,13 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
       "SiEndcapTrackerNoiseRawHits",   // Instance name (noise-only producer)
-      {"EventHeader"},                                //  Inputs now include EventHeader for seeding RNG
+      {"EventHeader"},                 //  Inputs now include EventHeader for seeding RNG
       {"SiEndcapTrackerNoiseRawHits"}, // Output: noise-only collection
-      {.addNoise                = true,
-       .n_noise_hits_per_system = 11820,
-       .readout_name            = "TrackerEndcapHits"},
+      {.addNoise = true, .n_noise_hits_per_system = 11820, .readout_name = "TrackerEndcapHits"},
       app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-      "SiEndcapTrackerRawHitsWithNoise",
-      {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},
-      {"SiEndcapTrackerRawHitsWithNoise"},
-      {},
-      app));
+      "SiEndcapTrackerRawHitsWithNoise", {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},
+      {"SiEndcapTrackerRawHitsWithNoise"}, {}, app));
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "SiEndcapTrackerRecHits", {"SiEndcapTrackerRawHitsWithNoise"}, {"SiEndcapTrackerRecHits"},

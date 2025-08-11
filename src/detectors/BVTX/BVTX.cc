@@ -33,16 +33,10 @@ void InitPlugin(JApplication* app) {
       "SiBarrelVertexNoiseRawHits",   // Instance name (noise-only producer)
       {"EventHeader"},                // Inputs now include EventHeader for seeding RNG
       {"SiBarrelVertexNoiseRawHits"}, // Output: noise-only collection
-      {.addNoise                = true,
-       .n_noise_hits_per_system = 433,
-       .readout_name            = "VertexBarrelHits"},
-      app));
+      {.addNoise = true, .n_noise_hits_per_system = 433, .readout_name = "VertexBarrelHits"}, app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-      "SiBarrelVertexRawHitsWithNoise",
-      {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
-      {"SiBarrelVertexRawHitsWithNoise"},
-      {},
-      app));
+      "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
+      {"SiBarrelVertexRawHitsWithNoise"}, {}, app));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(

@@ -114,16 +114,13 @@ public:
                       const dd4hep::DetElement& det) const;
 
   void add_noise_hits(std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& hitMap,
-                      const dd4hep::DetElement& det,
-                      const VolIDMapArray& idPaths,
-                      const ComponentBounds& bounds,
-                      std::mt19937_64& rng) const;
+                      const dd4hep::DetElement& det, const VolIDMapArray& idPaths,
+                      const ComponentBounds& bounds, std::mt19937_64& rng) const;
 
   /* Core routine that creates the actual RawTrackerHits. */
   void inject_noise_hits(std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& map,
                          const dd4hep::DetElement& det, const VolIDMapArray& idPaths,
-                         const ComponentBounds& bounds,
-                         std::mt19937_64& rng) const;
+                         const ComponentBounds& bounds, std::mt19937_64& rng) const;
 
   //=====================================================================
   //  Recursive helper used by ScanDetectorElement

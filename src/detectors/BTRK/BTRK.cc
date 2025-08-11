@@ -31,19 +31,16 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
-      "SiBarrelNoiseRawHits",   // 1. Instance name (noise-only producer)
-      {"EventHeader"},                        // 2. No input collection but Event header for random generator (source-mode)
+      "SiBarrelNoiseRawHits", // 1. Instance name (noise-only producer)
+      {"EventHeader"}, // 2. No input collection but Event header for random generator (source-mode)
       {"SiBarrelNoiseRawHits"}, // 3. Output: noise-only collection
-      {.addNoise                = true,
-       .n_noise_hits_per_system = 3784,
-       .readout_name            = "SiBarrelHits"},
-      app));
+      {.addNoise = true, .n_noise_hits_per_system = 3784, .readout_name = "SiBarrelHits"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
-      "SiBarrelRawHitsWithNoise",                            // Name of the combiner instance
-      {"SiBarrelRawHits", "SiBarrelNoiseRawHits"},          // Inputs: original + noise-only
-      {"SiBarrelRawHitsWithNoise"},                          // Output: merged collection
-      {},                                                     // default config
+      "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
+      {"SiBarrelRawHits", "SiBarrelNoiseRawHits"}, // Inputs: original + noise-only
+      {"SiBarrelRawHitsWithNoise"},                // Output: merged collection
+      {},                                          // default config
       app));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
