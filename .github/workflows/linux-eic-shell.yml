@@ -489,6 +489,38 @@ jobs:
         path: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root
         if-no-files-found: error
 
+  eicrecon-pr2000:
+    runs-on: ubuntu-24.04
+    needs:
+    - build
+    strategy:
+      matrix:
+        CXX: [g++]
+        detector_config: [craterlake]
+    steps:
+    - name: Checkout .github
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
+    - name: Download install directory
+      uses: actions/download-artifact@v4
+      with:
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+    - name: Unarchive install directory
+      run: tar -xaf install.tar.zst
+    - name: Setup cvmfs
+      uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Run EICrecon
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} root://dtn-eic.jlab.org//work/eic3/users/davidl/2025.08.05.S1_demo/simulation/DVCS_5x41_02/all/output4998.edm4hep.root
+
   eicrecon-two-stage-running:
     runs-on: ubuntu-24.04
     needs:
