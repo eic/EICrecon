@@ -19,7 +19,5 @@ plugin_add_onnxruntime(${PLUGIN_NAME})
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library
-                      algorithms_fardetectors_library)
-if(USE_ONNX)
-  plugin_link_libraries(${PLUGIN_NAME} algorithms_onnx_library)
-endif()
+                      algorithms_fardetectors_library
+                      algorithms_onnx_library)
