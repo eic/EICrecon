@@ -6,6 +6,11 @@ plugins/*
 build/*
 install/*
 
+# Artifacts
+calibrations/*
+fieldmaps/*
+gdml/*
+
 # macOS metadata
 .DS_Store
 
