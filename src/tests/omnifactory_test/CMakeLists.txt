@@ -1,8 +1,7 @@
-
-if (NOT JANA_VERSION VERSION_GREATER "2.4.2")
-  # Disable omnifactory tests for versions of JANA > 2.4.2.
-  # These tests use some internal JANA machinery which is going away.
-  # Tests will be re-enabled once the next version has been released.
+if(NOT JANA_VERSION VERSION_GREATER "2.4.2")
+  # Disable omnifactory tests for versions of JANA > 2.4.2. These tests use some
+  # internal JANA machinery which is going away. Tests will be re-enabled once
+  # the next version has been released.
 
   # Automatically set plugin name the same as the directory name
   get_filename_component(TEST_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
@@ -36,7 +35,8 @@ if (NOT JANA_VERSION VERSION_GREATER "2.4.2")
   # Install executable
   install(TARGETS ${TEST_NAME} DESTINATION bin)
 
-  add_test(NAME t_${TEST_NAME} COMMAND env LLVM_PROFILE_FILE=${TEST_NAME}.profraw
-           $<TARGET_FILE:${TEST_NAME}>)
+  add_test(NAME t_${TEST_NAME}
+           COMMAND env LLVM_PROFILE_FILE=${TEST_NAME}.profraw
+                   $<TARGET_FILE:${TEST_NAME}>)
 
 endif()
