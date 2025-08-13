@@ -253,11 +253,7 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
 endif()
 
 # ONNX Runtime
-option(USE_ONNX "Compile with ONNX support" ON)
-if(${USE_ONNX})
-  find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
-  add_compile_definitions(USE_ONNX)
-endif()
+find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
