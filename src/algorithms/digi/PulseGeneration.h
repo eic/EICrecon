@@ -26,19 +26,27 @@
 namespace eicrecon {
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
-using PulseType = edm4eic::SimPulse;
+using PulseType        = edm4eic::SimPulse;
+using MutablePulseType = edm4eic::MutableSimPulse;
 #else
-using PulseType = edm4hep::TimeSeries;
+using PulseType        = edm4hep::TimeSeries;
+using MutablePulseType = edm4hep::MutableTimeSeries;
 #endif
 
 template <typename HitT> struct HitAdapter;
 
 template <> struct HitAdapter<edm4hep::SimTrackerHit> {
   static std::tuple<double, double> getPulseSources(const edm4hep::SimTrackerHit& hit);
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+  static void addAssociations(MutablePulseType& pulse, const edm4hep::SimTrackerHit& hit);
+#endif
 };
 
 template <> struct HitAdapter<edm4hep::SimCalorimeterHit> {
   static std::tuple<double, double> getPulseSources(const edm4hep::SimCalorimeterHit& hit);
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+  static void addAssociations(MutablePulseType& pulse, const edm4hep::SimCalorimeterHit& hit);
+#endif
 };
 
 template <typename HitT>
