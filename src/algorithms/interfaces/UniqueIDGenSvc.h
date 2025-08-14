@@ -9,6 +9,7 @@
 #pragma once
 
 #include <edm4hep/EventHeaderCollection.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <algorithms/logger.h>
 #include <algorithms/service.h>
 #include <bitset>
@@ -49,7 +50,12 @@ public:
                      const std::string_view& name) const {
     std::bitset<seed_digits> seed_bits           = m_seed.value();
     std::bitset<event_num_digits> event_num_bits = evt_num;
+#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 99, 2)
     std::bitset<run_num_digits> run_num_bits     = run_num;
+#else
+    // FIXME until edm4hep 0.99.1, the run number is signed and defaults to -1
+    std::bitset<run_num_digits> run_num_bits     = static_cast<std::uint32_t>(run_num);
+#endif
     std::bitset<name_digits> name_bits           = std::hash<std::string_view>{}(name);
 
     std::bitset<seed_digits + event_num_digits + run_num_digits + name_digits> combined_bits;
