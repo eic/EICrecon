@@ -5,6 +5,8 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <mutex>
@@ -18,8 +20,11 @@
 namespace eicrecon {
 
 using FarDetectorTransportationPostMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TensorCollection, std::optional<edm4hep::MCParticleCollection>>,
-    algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+    algorithms::Input<edm4eic::TensorCollection,
+                      std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
+                      std::optional<edm4hep::MCParticleCollection>>,
+    algorithms::Output<edm4eic::ReconstructedParticleCollection,
+                       edm4eic::MCRecoParticleAssociationCollection>>;
 
 class FarDetectorTransportationPostML
     : public FarDetectorTransportationPostMLAlgorithm,
@@ -29,8 +34,8 @@ public:
   FarDetectorTransportationPostML(std::string_view name)
       : FarDetectorTransportationPostMLAlgorithm{
             name,
-            {"inputPredictionsTensor"},
-            {"outputParticles"},
+            {"inputPredictionsTensor", "trackAssociations", "beamElectrons"},
+            {"outputParticles", "outputAssociations"},
             "Convert ML output tensor into reconstructed electron"} {}
 
   void init() final;
