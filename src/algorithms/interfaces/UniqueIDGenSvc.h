@@ -50,7 +50,7 @@ public:
                      const std::string_view& name) const {
     std::bitset<seed_digits> seed_bits           = m_seed.value();
     std::bitset<event_num_digits> event_num_bits = evt_num;
-#if EDM4HEP_BUILD_VERSION > EDM4HEP_VERSION(0, 99, 2)
+#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 2)
     std::bitset<run_num_digits> run_num_bits     = run_num;
 #else
     // FIXME until edm4hep 0.99.1, the run number is signed and defaults to -1
