@@ -185,7 +185,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
         (ih.getCellID() & m_hit_id_mask.value() & m_contribution_id_mask.value());
     // the cell ID of this particular contribution (we are using contributions to store
     // the hits making up this "superhit" with more segmentation)
-    const uint64_t newcontrib_cellID = (ih.getCellID() & m_hit_id_mask.value());
+    const uint64_t newcontrib_cellID = (ih.getCellID() & m_contribution_id_mask.value());
     // Optional attenuation
     const double attFactor =
         m_attenuationReferencePosition ? get_attenuation(ih.getPosition().z) : 1.;
