@@ -12,6 +12,7 @@
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <chrono>
 #include <filesystem>
 #include <fmt/core.h>
 #include <fmt/format.h>
@@ -22,6 +23,7 @@
 #include <podio/podioVersion.h>
 #include <exception>
 #include <memory>
+#include <thread>
 #include <utility>
 
 // These files are generated automatically by make_datamodel_glue.py
@@ -136,6 +138,7 @@ JEventSource::Result JEventSource_DirectoryWatcher::Emit(JEvent& event) {
     // If we don't have a current file, try to obtain a new one
     auto filename = m_directory_watcher.GetNextFilename();
     if (filename == std::nullopt) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(1000));
       return Result::FailureTryAgain;
     }
     // We have a file. Attempt to open it.
