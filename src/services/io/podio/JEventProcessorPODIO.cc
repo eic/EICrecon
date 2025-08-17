@@ -6,6 +6,7 @@
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <filesystem>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
@@ -428,8 +429,15 @@ void JEventProcessorPODIO::Init() {
   if (m_events_per_file == 0) {
     m_writer  = std::make_unique<podio::ROOTWriter>(m_output_file);
   } else {
-    std::string filename = fmt::format("{}_{:05}.root", m_output_file, m_file_suffix);
-    m_writer  = std::make_unique<podio::ROOTWriter>(filename);
+    std::filesystem::path output_path {m_output_file};
+    auto dir = output_path.parent_path();
+    std::string stem = output_path.stem();
+    std::string ext = output_path.extension();
+    std::string temp_filename = fmt::format(".{}_{:05}{}", stem, m_file_suffix, ext);
+    std::string finished_filename = fmt::format("{}_{:05}{}", stem, m_file_suffix, ext);
+    m_temp_filename = dir / temp_filename;
+    m_finished_filename = dir / finished_filename;
+    m_writer  = std::make_unique<podio::ROOTWriter>(m_temp_filename);
   }
 
   if (m_output_include_collections_set) {
@@ -575,10 +583,19 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
     m_events_written += 1;
     if (m_events_written == m_events_per_file) {
       m_writer->finish();
+      std::filesystem::rename(m_temp_filename, m_finished_filename);
       m_events_written = 0;
       m_file_suffix += 1;
-      std::string filename = fmt::format("{}_{:05}.root", m_output_file, m_file_suffix);
-      m_writer = std::make_unique<podio::ROOTWriter>(filename);
+
+      std::filesystem::path output_path {m_output_file};
+      auto dir = output_path.parent_path();
+      std::string stem = output_path.stem();
+      std::string ext = output_path.extension();
+      std::string temp_filename = fmt::format(".{}_{:05}{}", stem, m_file_suffix, ext);
+      std::string finished_filename = fmt::format("{}_{:05}{}", stem, m_file_suffix, ext);
+      m_temp_filename = dir / temp_filename;
+      m_finished_filename = dir / finished_filename;
+      m_writer  = std::make_unique<podio::ROOTWriter>(m_temp_filename);
     }
   }
 }
@@ -592,4 +609,6 @@ void JEventProcessorPODIO::Finish() {
   }
 
   m_writer->finish();
+  std::filesystem::rename(m_temp_filename, m_finished_filename);
+  m_writer = nullptr;
 }

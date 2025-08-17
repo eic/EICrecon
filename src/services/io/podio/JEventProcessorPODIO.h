@@ -32,6 +32,8 @@ public:
   int m_events_per_file = 0;
   int m_events_written = 0;
   int m_file_suffix = 0;
+  std::string m_temp_filename;
+  std::string m_finished_filename;
 
   std::string m_output_file          = "podio_output.root";
   std::string m_output_file_copy_dir = "";
