@@ -36,8 +36,8 @@ TEST_CASE("the clustering algorithm runs", "[ImagingTopoCluster]") {
   cfg.sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy;
   cfg.minClusterHitEdep    = 0. * dd4hep::GeV;
   cfg.minClusterCenterEdep = 0. * dd4hep::GeV;
-  cfg.localDistXY          = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm}; //mm
-  cfg.layerDistXY          = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm}; //mm
+  cfg.sameLayerDistXY          = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm}; //mm
+  cfg.diffLayerDistXY          = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm}; //mm
   cfg.minClusterEdep       = 9 * dd4hep::MeV;
   // minimum number of hits (to save this cluster)
   cfg.minClusterNhits = 1;
@@ -147,7 +147,7 @@ TEST_CASE("the clustering algorithm runs", "[ImagingTopoCluster]") {
   SECTION("run on three cells, two of which are on the same layer, and there is a third one on "
           "another layer acting as a bridge between them") {
 
-    cfg.localDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
+    cfg.sameLayerDistXY = {1 * dd4hep::mm, 1 * dd4hep::mm};
     algo.applyConfig(cfg);
     algo.init();
 
