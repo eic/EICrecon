@@ -15,7 +15,7 @@
 #include <string>
 
 #include "ActsGeo.h"
-#include "IrtGeo.h"
+//#include "IrtGeo.h"
 #include "ReadoutGeo.h"
 
 class RichGeo_service : public JService {
@@ -27,7 +27,7 @@ public:
   virtual const dd4hep::Detector* GetDD4hepGeo() { return m_dd4hepGeo; };
 
   // return pointers to geometry bindings; initializes the bindings upon the first time called
-  virtual richgeo::IrtGeo* GetIrtGeo(std::string detector_name);
+  //virtual richgeo::IrtGeo* GetIrtGeo(std::string detector_name);
   virtual const richgeo::ActsGeo* GetActsGeo(std::string detector_name);
   virtual std::shared_ptr<richgeo::ReadoutGeo> GetReadoutGeo(std::string detector_name,
                                                              std::string readout_class);
@@ -43,7 +43,7 @@ private:
 
   const dd4hep::Detector* m_dd4hepGeo                     = nullptr;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
-  richgeo::IrtGeo* m_irtGeo                               = nullptr;
+  //richgeo::IrtGeo* m_irtGeo                               = nullptr;
   richgeo::ActsGeo* m_actsGeo                             = nullptr;
   std::shared_ptr<richgeo::ReadoutGeo> m_readoutGeo;
 

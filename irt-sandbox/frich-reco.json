@@ -1,0 +1,48 @@
+{
+    "Optics": "frich-optics.root",
+    
+    "OutputTree": "frich-events.root",
+	
+    "Acceptance": {
+	"comment": "Nominal values, used to calculate ACTS DiscSurfaceConfig parameters",
+	"eta-min":  1.5,
+	"eta-max":  3.5
+    },
+    
+    "Radiators": {
+	"Aerogel": {
+	    "imaging": "yes",
+	    "acts-planes": 5
+	},
+	"Acrylic": {
+	    "imaging": "no",
+	    "acts-planes": 5
+	},
+	"GasVolume": {
+	    "imaging": "yes",
+	    "acts-planes": 10
+	}
+    },
+    
+    "Photosensor": {
+	"quantum-efficiency": {
+	    "315*nm": 0.00,
+	    "325*nm": 0.04,
+	    "340*nm": 0.10,
+	    "350*nm": 0.20,
+	    "370*nm": 0.30,
+	    "400*nm": 0.35,
+	    "450*nm": 0.40,
+	    "500*nm": 0.38,
+	    "550*nm": 0.35,
+	    "600*nm": 0.27,
+	    "650*nm": 0.20,
+	    "700*nm": 0.15,
+	    "750*nm": 0.12,
+	    "800*nm": 0.08,
+	    "850*nm": 0.06,
+	    "900*nm": 0.04,
+	    "999*nm": 0.00
+	}
+    }
+}
