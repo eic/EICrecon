@@ -22,14 +22,14 @@ private:
   PodioOutput<edm4eic::ProtoCluster> m_protos_output{this};
 
   // ParameterRef<std::vector<double>> m_ldxy{this, "localDistXY", config().localDistXY};
-  // ParameterRef<std::vector<double>> m_ldxy_adjacent{this, "sameLayerDistXY", config().sameLayerDistXY};
-  // ParameterRef<std::vector<double>> m_ldxy_adjacent{this, "diffLayerDistXY", config().diffLayerDistXY};
-  ParameterRef<std::vector<double>> m_ldep{this, "sameLayerDistEtaPhi",
+  // ParameterRef<std::vector<double>> m_ldxy_same{this, "sameLayerDistXY", config().sameLayerDistXY};
+  // ParameterRef<std::vector<double>> m_ldxy_diff{this, "diffLayerDistXY", config().diffLayerDistXY};
+  ParameterRef<std::vector<double>> m_ldep_same{this, "sameLayerDistEtaPhi",
                                            config().sameLayerDistEtaPhi};
-  ParameterRef<std::vector<double>> m_ldep{this, "diffLayerDistEtaPhi",
+  ParameterRef<std::vector<double>> m_ldep_diff{this, "diffLayerDistEtaPhi",
                                            config().diffLayerDistEtaPhi};
-  // ParameterRef<std::vector<double>> m_ldxy_adjacent{this, "sameLayerDistPhiZ", config().sameLayerDistPhiZ};
-  // ParameterRef<std::vector<double>> m_ldxy_adjacent{this, "diffLayerDistPhiZ", config().diffLayerDistPhiZ};
+  // ParameterRef<std::vector<double>> m_ldxy_same{this, "sameLayerDistPhiZ", config().sameLayerDistPhiZ};
+  // ParameterRef<std::vector<double>> m_ldxy_diff{this, "diffLayerDistPhiZ", config().diffLayerDistPhiZ};
   // ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_sameLayerMode{
   //     this, "sameLayerMode", config().sameLayerMode};
   // ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_diffLayerMode{
