@@ -15,24 +15,27 @@ struct ImagingTopoClusterConfig {
 
   // maximum difference in layer numbers that can be considered as neighbours
   int neighbourLayersRange = 1;
-  // maximum distance of local (x, y) to be considered as neighbors at the same layer
-  std::vector<std::variant<std::string, double>> localDistXY = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
-  // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode==xy)
+  // maximum distance of global (x, y) to be considered as neighbors at same layers (if layerMode==xy)
   std::vector<std::variant<std::string, double>> sameLayerDistXY = {1.0 * dd4hep::mm,
                                                                     1.0 * dd4hep::mm};
+  // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode==xy)
   std::vector<std::variant<std::string, double>> diffLayerDistXY = {1.0 * dd4hep::mm,
                                                                     1.0 * dd4hep::mm};
-  // maximum distance of global (eta, phi) to be considered as neighbors at different layers (if layerMode==etaphi)
+  // maximum distance of global (eta, phi) to be considered as neighbors at same layers (if layerMode==etaphi)
   std::vector<double> sameLayerDistEtaPhi = {0.01, 0.01};
+  // maximum distance of global (eta, phi) to be considered as neighbors at different layers (if layerMode==etaphi)
   std::vector<double> diffLayerDistEtaPhi = {0.01, 0.01};
-  // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode==phiz)
+  // maximum distance of global (x, y) to be considered as neighbors at same layers (if layerMode==phiz)
   std::vector<std::variant<std::string, double>> sameLayerDistPhiZ = {1.0 * dd4hep::mm,
                                                                       1.0 * dd4hep::mm};
+  // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode==phiz)
   std::vector<std::variant<std::string, double>> diffLayerDistPhiZ = {1.0 * dd4hep::mm,
                                                                       1.0 * dd4hep::mm};
-  // determines how neighbors are determined for hits in different layers (using either eta and phi, or x and y)
+  // Layermodes
   enum class ELayerMode { etaphi = 0, xy = 1, phiz = 2 };
+  // determines how neighbors are determined for hits in same layers (using either eta and phi, or x and y)
   ELayerMode sameLayerMode = ELayerMode::xy; // for ldiff =0
+  // determines how neighbors are determined for hits in different layers (using either eta and phi, or x and y)
   ELayerMode diffLayerMode = ELayerMode::xy; // for ldiff <= neighbourLayersRange
 
   // maximum global distance to be considered as neighbors in different sectors
