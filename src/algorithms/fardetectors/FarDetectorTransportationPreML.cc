@@ -84,7 +84,6 @@ void FarDetectorTransportationPreML::process(
         }
       }
     }
-    
   }
 }
 
