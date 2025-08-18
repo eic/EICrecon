@@ -50,10 +50,6 @@ void ImagingTopoCluster::init() {
 
   // unitless conversion
   // sanity checks
-  if (m_cfg.localDistXY.size() != 2) {
-    error("Expected 2 values (x_dist, y_dist) for localDistXY");
-    return;
-  }
   if (m_cfg.sameLayerDistXY.size() != 2) {
     error("Expected 2 values (x_dist, y_dist) for sameLayerDistXY");
     return;
@@ -84,8 +80,6 @@ void ImagingTopoCluster::init() {
   }
 
   // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
-  localDistXY[0]         = std::visit(_toDouble, m_cfg.localDistXY[0]) / dd4hep::mm;
-  localDistXY[1]         = std::visit(_toDouble, m_cfg.localDistXY[1]) / dd4hep::mm;
   sameLayerDistXY[0]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[0]) / dd4hep::mm;
   sameLayerDistXY[1]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
   diffLayerDistXY[0]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
@@ -109,7 +103,7 @@ void ImagingTopoCluster::init() {
   case ImagingTopoClusterConfig::ELayerMode::xy:
     info("Same-layer clustering (same sector and same layer): "
          "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
-         localDistXY[0], localDistXY[1]);
+         sameLayerDistXY[0], sameLayerDistXY[1]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::etaphi:
     info("Same-layer clustering (same sector and same layer): "
@@ -254,8 +248,8 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
   if (ldiff == 0) {
     switch (m_cfg.sameLayerMode) {
     case ImagingTopoClusterConfig::ELayerMode::xy:
-      return (std::abs(h1.getLocal().x - h2.getLocal().x) <= localDistXY[0]) &&
-             (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
+      return (std::abs(h1.getLocal().x - h2.getLocal().x) <= sameLayerDistXY[0]) &&
+             (std::abs(h1.getLocal().y - h2.getLocal().y) <= sameLayerDistXY[1]);
 
     case ImagingTopoClusterConfig::ELayerMode::etaphi:
       return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
