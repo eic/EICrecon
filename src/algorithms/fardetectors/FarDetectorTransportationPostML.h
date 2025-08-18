@@ -37,6 +37,8 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+  double m_mass = 0.000511; // Default to electron mass in GeV
+  float m_charge = -1.0;     // Default to electron charge
   mutable float m_beamE = 10.0;
   mutable std::once_flag m_initBeamE;
 };

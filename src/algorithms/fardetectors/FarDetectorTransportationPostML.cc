@@ -13,10 +13,16 @@
 #include <stdexcept>
 
 #include "FarDetectorTransportationPostML.h"
+#include "algorithms/interfaces/ParticleSvc.h"
 
 namespace eicrecon {
 
-void FarDetectorTransportationPostML::init() { m_beamE = m_cfg.beamE; }
+void FarDetectorTransportationPostML::init() { 
+  m_beamE = m_cfg.beamE;
+  auto& particleSvc = algorithms::ParticleSvc::instance();
+  m_mass            = particleSvc.particle(m_cfg.pdg_value).mass;
+  m_charge          = particleSvc.particle(m_cfg.pdg_value).charge;
+}
 
 void FarDetectorTransportationPostML::process(
     const FarDetectorTransportationPostML::Input& input,
@@ -92,15 +98,15 @@ void FarDetectorTransportationPostML::process(
     float pz = prediction_tensor_data[i + 2] * m_beamE;
 
     // Calculate reconstructed electron energy
-    double energy = sqrt(px * px + py * py + pz * pz + 0.000511 * 0.000511);
+    double energy = sqrt(px * px + py * py + pz * pz + m_mass * m_mass);
 
     particle = out_particles->create();
 
     particle.setEnergy(energy);
     particle.setMomentum({px, py, pz});
-    particle.setCharge(-1);
-    particle.setMass(0.000511);
-    particle.setPDG(11);
+    particle.setCharge(m_charge);
+    particle.setMass(m_mass);
+    particle.setPDG(m_cfg.pdg_value);
   }
 
   // TODO: Implement the association of the reconstructed particles with the tracks
