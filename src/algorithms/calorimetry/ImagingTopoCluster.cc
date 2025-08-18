@@ -84,21 +84,21 @@ void ImagingTopoCluster::init() {
   }
 
   // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
-  localDistXY[0]       = std::visit(_toDouble, m_cfg.localDistXY[0]) / dd4hep::mm;
-  localDistXY[1]       = std::visit(_toDouble, m_cfg.localDistXY[1]) / dd4hep::mm;
-  sameLayerDistXY[0]       = std::visit(_toDouble, m_cfg.sameLayerDistXY[0]) / dd4hep::mm;
-  sameLayerDistXY[1]       = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
-  diffLayerDistXY[0]       = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
-  diffLayerDistXY[1]       = std::visit(_toDouble, m_cfg.diffLayerDistXY[1]) / dd4hep::mm;
-  sameLayerDistEtaPhi[0]   = m_cfg.sameLayerDistEtaPhi[0];
-  sameLayerDistEtaPhi[1]   = m_cfg.sameLayerDistEtaPhi[1]/ dd4hep::rad;
-  diffLayerDistEtaPhi[0]   = m_cfg.diffLayerDistEtaPhi[0];
-  diffLayerDistEtaPhi[1]   = m_cfg.diffLayerDistEtaPhi[1] / dd4hep::rad;
-  sameLayerDistPhiZ[0]   = std::visit(_toDouble,m_cfg.sameLayerDistPhiZ[0])/dd4hep::mm;
-  sameLayerDistPhiZ[1]   = std::visit(_toDouble,m_cfg.sameLayerDistPhiZ[1])/dd4hep::mm;
-  diffLayerDistPhiZ[0]   = std::visit(_toDouble,m_cfg.diffLayerDistPhiZ[0])/dd4hep::mm;
-  diffLayerDistPhiZ[1]   = std::visit(_toDouble,m_cfg.diffLayerDistPhiZ[1])/dd4hep::mm;
-  
+  localDistXY[0]         = std::visit(_toDouble, m_cfg.localDistXY[0]) / dd4hep::mm;
+  localDistXY[1]         = std::visit(_toDouble, m_cfg.localDistXY[1]) / dd4hep::mm;
+  sameLayerDistXY[0]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[0]) / dd4hep::mm;
+  sameLayerDistXY[1]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
+  diffLayerDistXY[0]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
+  diffLayerDistXY[1]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[1]) / dd4hep::mm;
+  sameLayerDistEtaPhi[0] = m_cfg.sameLayerDistEtaPhi[0];
+  sameLayerDistEtaPhi[1] = m_cfg.sameLayerDistEtaPhi[1] / dd4hep::rad;
+  diffLayerDistEtaPhi[0] = m_cfg.diffLayerDistEtaPhi[0];
+  diffLayerDistEtaPhi[1] = m_cfg.diffLayerDistEtaPhi[1] / dd4hep::rad;
+  sameLayerDistPhiZ[0]   = std::visit(_toDouble, m_cfg.sameLayerDistPhiZ[0]) / dd4hep::mm;
+  sameLayerDistPhiZ[1]   = std::visit(_toDouble, m_cfg.sameLayerDistPhiZ[1]) / dd4hep::mm;
+  diffLayerDistPhiZ[0]   = std::visit(_toDouble, m_cfg.diffLayerDistPhiZ[0]) / dd4hep::mm;
+  diffLayerDistPhiZ[1]   = std::visit(_toDouble, m_cfg.diffLayerDistPhiZ[1]) / dd4hep::mm;
+
   sectorDist           = m_cfg.sectorDist / dd4hep::mm;
   minClusterHitEdep    = m_cfg.minClusterHitEdep / dd4hep::GeV;
   minClusterCenterEdep = m_cfg.minClusterCenterEdep / dd4hep::GeV;
@@ -138,9 +138,10 @@ void ImagingTopoCluster::init() {
          m_cfg.neighbourLayersRange, diffLayerDistXY[0], diffLayerDistXY[1]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::phiz:
-    info("Neighbour layers clustering (same sector and layer id within +- {:d}): "
-         "Global [phi, z] distance between hits <= [{:.4f} mm, {:.4f} mm].", // The coordinate Phi is the projected Phi and thus is a distance, not an angle.
-         m_cfg.neighbourLayersRange, diffLayerDistPhiZ[0], diffLayerDistPhiZ[1]);
+    info(
+        "Neighbour layers clustering (same sector and layer id within +- {:d}): "
+        "Global [phi, z] distance between hits <= [{:.4f} mm, {:.4f} mm].", // The coordinate Phi is the projected Phi and thus is a distance, not an angle.
+        m_cfg.neighbourLayersRange, diffLayerDistPhiZ[0], diffLayerDistPhiZ[1]);
     break;
   default:
     error("Unknown different-layer mode.");
@@ -271,7 +272,8 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
       auto h1_z = h1.getPosition().z;
       auto h2_z = h2.getPosition().z;
 
-      return (std::abs(h1_t - h2_t) <= sameLayerDistPhiZ[0]) && (std::abs(h1_z - h2_z) <= sameLayerDistPhiZ[1]);
+      return (std::abs(h1_t - h2_t) <= sameLayerDistPhiZ[0]) &&
+             (std::abs(h1_z - h2_z) <= sameLayerDistPhiZ[1]);
     }
 
     default:
@@ -299,7 +301,8 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
       auto h1_z = h1.getPosition().z;
       auto h2_z = h2.getPosition().z;
 
-      return (std::abs(h1_t - h2_t) <= diffLayerDistPhiZ[0]) && (std::abs(h1_z - h2_z) <= diffLayerDistPhiZ[1]);
+      return (std::abs(h1_t - h2_t) <= diffLayerDistPhiZ[0]) &&
+             (std::abs(h1_z - h2_z) <= diffLayerDistPhiZ[1]);
     }
 
     default:
