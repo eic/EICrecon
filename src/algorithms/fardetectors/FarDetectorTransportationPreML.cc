@@ -26,8 +26,6 @@ void FarDetectorTransportationPreML::process(
   const auto [inputTracks, mcAssociation, beamElectrons] = input;
   auto [feature_tensors, target_tensors]                 = output;
 
-  m_beamE = m_cfg.beamE;
-
   //Set beam energy from first MCBeamElectron, using std::call_once
   if (beamElectrons != nullptr) {
     std::call_once(m_initBeamE, [&]() {
