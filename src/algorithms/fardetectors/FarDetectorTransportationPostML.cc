@@ -72,7 +72,7 @@ void FarDetectorTransportationPostML::process(
   auto prediction_tensor_data = prediction_tensor.getFloatData();
 
   // Ensure the size of prediction_tensor_data is a multiple of its shape
-  if (prediction_tensor_data.size() % 3 != 0 || prediction_tensor.getShape(1) != 3 ) {
+  if (prediction_tensor_data.size() % 3 != 0 || prediction_tensor.getShape(1) != 3) {
     error("The size of prediction_tensor_data is not a multiple of 3.");
     throw std::runtime_error("The size of prediction_tensor_data is not a multiple of 3.");
   }
@@ -80,7 +80,7 @@ void FarDetectorTransportationPostML::process(
   edm4eic::MutableReconstructedParticle particle;
 
   // Iterate over the prediction_tensor_data in steps of three
-  for (std::size_t i = 0; i < prediction_tensor.getShape(0); i++ ) {
+  for (std::size_t i = 0; i < prediction_tensor.getShape(0); i++) {
 
     std::size_t base_index = i * 3;
 
