@@ -17,8 +17,8 @@
 
 namespace eicrecon {
 
-void FarDetectorTransportationPostML::init() { 
-  m_beamE = m_cfg.beamE;
+void FarDetectorTransportationPostML::init() {
+  m_beamE           = m_cfg.beamE;
   auto& particleSvc = algorithms::ParticleSvc::instance();
   m_mass            = particleSvc.particle(m_cfg.pdg_value).mass;
   m_charge          = particleSvc.particle(m_cfg.pdg_value).charge;
