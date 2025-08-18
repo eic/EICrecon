@@ -182,9 +182,9 @@ void InitPlugin(JApplication* app) {
       {"HcalFarForwardZDCImagingProtoClusters"},
       {
           .neighbourLayersRange = 1,
-          .sameLayerDistXY          = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
+          .sameLayerDistXY      = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
                                    "0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
-          .diffLayerDistXY          = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
+          .diffLayerDistXY      = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
                                    "0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .sectorDist           = 10.0 * dd4hep::cm,
