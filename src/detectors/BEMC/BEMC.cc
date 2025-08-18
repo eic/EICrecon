@@ -203,8 +203,8 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelImagingProtoClusters"},
       {
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
-          .sameLayerDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
-          .diffLayerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
+          .sameLayerDistXY      = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
+          .diffLayerDistEtaPhi  = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::
               phiz, // Layer mode 'phiz' uses the average phi of the hits to define a rotated direction. The coordinate is a distance, not an angle.
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi,
