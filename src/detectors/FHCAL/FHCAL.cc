@@ -99,11 +99,11 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapPInsertImagingProtoClusters"},
       {
           .neighbourLayersRange = 1,
-          .localDistXY =
+          .sameLayerDistXY =
               {"0.5 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
                "0.5 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
                "sin(pi / 3)"},
-          .layerDistXY =
+          .diffLayerDistXY =
               {"0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
                "0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
                "sin(pi / 3)"},
