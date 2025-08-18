@@ -62,6 +62,7 @@ plugin_include_directories(${PLUGIN_NAME} PRIVATE ${PROJECT_BINARY_DIR}/include)
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(
   ${PLUGIN_NAME}
+  dd4hep_plugin
   fmt::fmt
   EDM4HEP::edm4hep
   EDM4HEP::edm4hepDict
