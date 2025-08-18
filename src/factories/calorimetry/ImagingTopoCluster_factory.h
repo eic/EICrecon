@@ -25,9 +25,9 @@ private:
   // ParameterRef<std::vector<double>> m_ldxy_same{this, "sameLayerDistXY", config().sameLayerDistXY};
   // ParameterRef<std::vector<double>> m_ldxy_diff{this, "diffLayerDistXY", config().diffLayerDistXY};
   ParameterRef<std::vector<double>> m_ldep_same{this, "sameLayerDistEtaPhi",
-                                           config().sameLayerDistEtaPhi};
+                                                config().sameLayerDistEtaPhi};
   ParameterRef<std::vector<double>> m_ldep_diff{this, "diffLayerDistEtaPhi",
-                                           config().diffLayerDistEtaPhi};
+                                                config().diffLayerDistEtaPhi};
   // ParameterRef<std::vector<double>> m_ldxy_same{this, "sameLayerDistPhiZ", config().sameLayerDistPhiZ};
   // ParameterRef<std::vector<double>> m_ldxy_diff{this, "diffLayerDistPhiZ", config().diffLayerDistPhiZ};
   // ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_sameLayerMode{
