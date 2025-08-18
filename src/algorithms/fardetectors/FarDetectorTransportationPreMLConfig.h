@@ -7,6 +7,6 @@ namespace eicrecon {
 struct FarDetectorTransportationPreMLConfig {
 
   float beamE = 10.0;
-  bool requireBeamElectron{false};
+  bool requireBeamElectron{true};
 };
 } // namespace eicrecon
