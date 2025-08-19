@@ -375,18 +375,15 @@ void InitPlugin(JApplication* app) {
 
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"},
-      {"CombinedTracks"}, app));
+      "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
-      "CombinedTrackAssociations",
-      {"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations"},
+      "CombinedTrackAssociations", {"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations"},
       {"CombinedTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "CombinedTruthSeededTracks",
-      {"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks"},
+      "CombinedTruthSeededTracks", {"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks"},
       {"CombinedTruthSeededTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
