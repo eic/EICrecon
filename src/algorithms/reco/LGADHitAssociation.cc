@@ -7,10 +7,13 @@
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4hep/SimTrackerHitCollection.h>
 #include <algorithms/geo.h>
+#include <edm4eic/RawTrackerHit.h>
+#include <edm4hep/SimTrackerHitCollection.h>
 #include <algorithm>
+#include <cmath>
 #include <gsl/pointers>
+#include <limits>
 #include <unordered_map>
 #include <utility>
 #include <vector>

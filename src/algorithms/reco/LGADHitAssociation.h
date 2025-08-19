@@ -8,8 +8,8 @@
 #include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <spdlog/logger.h>
