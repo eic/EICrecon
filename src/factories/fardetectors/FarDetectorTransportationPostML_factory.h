@@ -32,7 +32,7 @@ private:
   ParameterRef<int> m_pdg_value{
       this, "pdgValue", config().pdg_value,
       "PDG value for the particle type to identify (default is electron)"};
-      
+
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
