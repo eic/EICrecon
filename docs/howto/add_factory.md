@@ -160,8 +160,7 @@ extern "C" {
 
 ## Testing the new factory
 
-Please follow the instructions on [creating a user plugin](HowTo_make_plugin.md)
-to get a working plugin. Then add these lines in the inidacted places:
+Add these lines in your plugin:
 
 ```cpp
 // Place this at the top of the processor header file (e.g. DaveTestProcessor.h)

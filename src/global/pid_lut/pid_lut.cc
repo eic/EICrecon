@@ -2,10 +2,7 @@
 // Copyright (C) 2022-2025 Christopher Dilks, Simon Gardner
 
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/Components/JOmniFactoryGeneratorT.h>
-#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
-#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
 #include <string>
@@ -13,6 +10,7 @@
 
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "algorithms/pid_lut/PhaseSpacePIDConfig.h"
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/pid_lut/PIDLookup_factory.h"
 #include "factories/pid_lut/PhaseSpacePID_factory.h"
@@ -22,7 +20,6 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-  using jana::components::JOmniFactoryGeneratorT;
 
   //-------------------------------------------------------------------------
   // FarBackward PID Through Phase Space
@@ -45,7 +42,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
           "FarBackwardTruthSeededPhaseSpacePIDParticleIDs",
       },
-      phase_space_pid_cfg));
+      phase_space_pid_cfg, app));
 
   app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
       "FarBackwardPhaseSpacePID",
@@ -58,7 +55,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithFBPIDParticleAssociations",
           "FarBackwardPhaseSpacePIDParticleIDs",
       },
-      phase_space_pid_cfg));
+      phase_space_pid_cfg, app));
 
   //-------------------------------------------------------------------------
   // PFRICH PID
@@ -92,7 +89,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNTruthSeededParticleIDs",
       },
-      pfrich_pid_cfg));
+      pfrich_pid_cfg, app));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "RICHEndcapNLUTPID",
@@ -106,7 +103,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithPFRICHPIDParticleAssociations",
           "RICHEndcapNParticleIDs",
       },
-      pfrich_pid_cfg));
+      pfrich_pid_cfg, app));
 
   //-------------------------------------------------------------------------
   // TOF PID
@@ -138,7 +135,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFTruthSeededParticleIDs",
       },
-      tof_pid_cfg));
+      tof_pid_cfg, app));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "CombinedTOFLUTPID",
@@ -152,7 +149,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithPFRICHTOFPIDParticleAssociations",
           "CombinedTOFParticleIDs",
       },
-      tof_pid_cfg));
+      tof_pid_cfg, app));
 
   //-------------------------------------------------------------------------
   // DIRC PID
@@ -195,7 +192,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
           "DIRCTruthSeededParticleIDs",
       },
-      dirc_pid_cfg));
+      dirc_pid_cfg, app));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DIRCLUTPID",
@@ -209,7 +206,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
           "DIRCParticleIDs",
       },
-      dirc_pid_cfg));
+      dirc_pid_cfg, app));
 
   //-------------------------------------------------------------------------
   // DRICH PID
@@ -245,7 +242,7 @@ void InitPlugin(JApplication* app) {
           "ReconstructedTruthSeededChargedParticleAssociations",
           "DRICHTruthSeededParticleIDs",
       },
-      drich_pid_cfg));
+      drich_pid_cfg, app));
 
   app->Add(new JOmniFactoryGeneratorT<PIDLookup_factory>(
       "DRICHLUTPID",
@@ -259,6 +256,6 @@ void InitPlugin(JApplication* app) {
           "ReconstructedChargedParticleAssociations",
           "DRICHParticleIDs",
       },
-      drich_pid_cfg));
+      drich_pid_cfg, app));
 }
 }

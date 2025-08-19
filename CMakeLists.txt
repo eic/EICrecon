@@ -65,7 +65,7 @@ set(FastJet_VERSION_MIN 3)
 set(FastJetContrib_VERSION_MIN 1.46)
 set(fmt_VERSION_MIN 9.0.0)
 set(IRT_VERSION_MIN 1.0.5)
-set(JANA_VERSION_MIN 2.3.2)
+set(JANA_VERSION_MIN 2.2.0)
 set(onnxruntime_MIN_VERSION 1.17)
 set(podio_VERSION_MIN 0.17)
 set(ROOT_VERSION_MIN 6.28)
@@ -253,11 +253,7 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
 endif()
 
 # ONNX Runtime
-option(USE_ONNX "Compile with ONNX support" ON)
-if(${USE_ONNX})
-  find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
-  add_compile_definitions(USE_ONNX)
-endif()
+find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins

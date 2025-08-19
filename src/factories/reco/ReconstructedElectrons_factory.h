@@ -19,8 +19,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   // Declare inputs
-  PodioInput<edm4eic::ReconstructedParticle> m_in_rc_particles{this,
-                                                               {.name = "ReconstructedParticles"}};
+  PodioInput<edm4eic::ReconstructedParticle> m_in_rc_particles{this, "ReconstructedParticles"};
 
   // Declare outputs
   PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles{this};
