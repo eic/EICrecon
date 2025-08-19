@@ -209,6 +209,5 @@ void InitPlugin(JApplication* app) {
       },
       app));
 #endif
-
 }
 }

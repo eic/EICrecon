@@ -78,16 +78,17 @@ void InitPlugin(JApplication* app) {
       {"EcalClusterAssociations"}, app));
 
   // Combine reconstructed charged particles and their associations from different sources
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
-      "CombinedReconstructedChargedParticles",
-      {"ReconstructedChargedParticles", "TaggerTrackerReconstructedParticles"},
-      {"CombinedReconstructedChargedParticles"},
-      app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
+          "CombinedReconstructedChargedParticles",
+          {"ReconstructedChargedParticles", "TaggerTrackerReconstructedParticles"},
+          {"CombinedReconstructedChargedParticles"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
       "CombinedReconstructedChargedParticleAssociations",
-      {"ReconstructedChargedParticleAssociations", "TaggerTrackerReconstructedParticleAssociations"},
+      {"ReconstructedChargedParticleAssociations",
+       "TaggerTrackerReconstructedParticleAssociations"},
       {"CombinedReconstructedChargedParticleAssociations"}, app));
 
   // Create ReconstructedParticles
