@@ -1,6 +1,4 @@
 //
-//   export ROOT_LIBRARY_PATH=/DATA00/ayk/ePIC/prefix/lib:${ROOT_LIBRARY_PATH}
-//
 //   root -l './frich-hit-map.C("frich-events.root", "frich-optics.root")'
 //
 //    or
