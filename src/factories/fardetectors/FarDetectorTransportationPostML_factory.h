@@ -20,10 +20,13 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Tensor> m_prediction_tensor_input{this};
+  PodioInput<edm4eic::MCRecoTrackParticleAssociation> m_association_input{this};
   PodioInput<edm4hep::MCParticle> m_beamelectrons_input{this};
 
   PodioOutput<edm4eic::ReconstructedParticle> m_particle_output{this};
+  PodioOutput<edm4eic::MCRecoParticleAssociation> m_association_output{this};
 
+  ParameterRef<float> m_beamE{this, "beamE", config().beamE};
   ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron",
                                            config().requireBeamElectron};
 
@@ -36,8 +39,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_prediction_tensor_input(), m_beamelectrons_input()},
-                    {m_particle_output().get()});
+    m_algo->process({m_prediction_tensor_input(), m_association_input(), m_beamelectrons_input()},
+                    {m_particle_output().get(), m_association_output().get()});
   }
 };
 
