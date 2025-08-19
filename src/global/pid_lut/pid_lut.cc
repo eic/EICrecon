@@ -4,6 +4,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
+#include <numbers>
 #include <string>
 #include <vector>
 
