@@ -14,6 +14,7 @@
 #include <cstring>
 #include <filesystem>
 #include <iostream>
+#include <map>
 #include <memory>
 #include <set>
 #include <sstream>
@@ -328,27 +329,53 @@ void PrintFactories(JApplication* app) {
 }
 
 void PrintPluginFactories(JApplication* app, const std::string& plugin_name) {
-  std::cout << std::endl << "List factories for plugin '" << plugin_name << "':" << std::endl << std::endl;
+  std::cout << std::endl << "Factories provided by plugin '" << plugin_name << "':" << std::endl << std::endl;
   
   auto cs = app->GetComponentSummary();
   JTablePrinter factory_table;
   factory_table.AddColumn("Object name");
   factory_table.AddColumn("Tag");
+  factory_table.AddColumn("Description");
   
   bool found_any = false;
+  int factory_count = 0;
+  
   for (const auto& factory : cs.factories) {
     if (factory.plugin_name == plugin_name) {
-      factory_table | factory.object_name | factory.factory_tag;
+      std::string description = "Produces: " + factory.object_name;
+      if (!factory.factory_tag.empty()) {
+        description += " (tag: " + factory.factory_tag + ")";
+      }
+      factory_table | factory.object_name | factory.factory_tag | description;
       found_any = true;
+      factory_count++;
     }
   }
   
   if (!found_any) {
     std::cout << "No factories found for plugin '" << plugin_name << "'" << std::endl;
+    std::cout << std::endl << "Available plugins with factories:" << std::endl;
+    
+    // Show available plugins that have factories
+    std::set<std::string> available_plugins;
+    for (const auto& factory : cs.factories) {
+      available_plugins.insert(factory.plugin_name);
+    }
+    
+    JTablePrinter plugin_table;
+    plugin_table.AddColumn("Plugin name");
+    for (const auto& plugin : available_plugins) {
+      plugin_table | plugin;
+    }
+    
+    std::ostringstream plugin_ss;
+    plugin_table.Render(plugin_ss);
+    std::cout << plugin_ss.str() << std::endl;
   } else {
     std::ostringstream ss;
     factory_table.Render(ss);
     std::cout << ss.str() << std::endl;
+    std::cout << "Summary: Plugin '" << plugin_name << "' provides " << factory_count << " factories." << std::endl;
   }
   std::cout << std::endl;
 }
@@ -379,22 +406,37 @@ void PrintFactoryInfo(JApplication* app) {
   factory_table.AddColumn("Plugin");
   factory_table.AddColumn("Object name");
   factory_table.AddColumn("Tag");
-  factory_table.AddColumn("Info");
+  factory_table.AddColumn("Type Info");
   
   for (const auto& factory : cs.factories) {
-    std::string info = "Factory: " + factory.object_name;
+    std::string type_info = factory.object_name;
     if (!factory.factory_tag.empty()) {
-      info += " (tag: " + factory.factory_tag + ")";
+      type_info += " [" + factory.factory_tag + "]";
     }
-    factory_table | factory.plugin_name | factory.object_name | factory.factory_tag | info;
+    factory_table | factory.plugin_name | factory.object_name | factory.factory_tag | type_info;
   }
   
   std::ostringstream ss;
   factory_table.Render(ss);
   std::cout << ss.str() << std::endl;
   
-  std::cout << "Note: Detailed input/output collection information requires factory introspection." << std::endl;
-  std::cout << "Use the --list-available-factories <plugin> command to see factories by plugin." << std::endl;
+  std::cout << "Factory Summary:" << std::endl;
+  std::cout << "  Total factories: " << cs.factories.size() << std::endl;
+  
+  // Count factories by plugin
+  std::map<std::string, int> plugin_counts;
+  for (const auto& factory : cs.factories) {
+    plugin_counts[factory.plugin_name]++;
+  }
+  
+  std::cout << "  Factories by plugin:" << std::endl;
+  for (const auto& pair : plugin_counts) {
+    std::cout << "    " << pair.first << ": " << pair.second << " factories" << std::endl;
+  }
+  
+  std::cout << std::endl;
+  std::cout << "Note: For detailed input/output collection information, inspect individual" << std::endl;
+  std::cout << "      factory source code or use --list-available-factories <plugin>." << std::endl;
   std::cout << std::endl;
 }
 
