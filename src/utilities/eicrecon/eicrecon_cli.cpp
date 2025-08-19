@@ -454,7 +454,7 @@ void PrintFactoryInfo(JApplication* app) {
   for (const auto& pattern : patterns) {
     if (pattern.second.size() > 1) { // Only show patterns with multiple factories
       std::cout << "    " << pattern.first << "*: " << pattern.second.size() << " collections (";
-      for (size_t i = 0; i < std::min(pattern.second.size(), size_t(3)); ++i) {
+      for (size_t i = 0; i < std::min(pattern.second.size(), static_cast<size_t>(3)); ++i) {
         if (i > 0)
           std::cout << ", ";
         std::cout << pattern.second[i];
@@ -499,8 +499,10 @@ void PrintConfigParameters(JApplication* app) {
   }
 
   std::cout << "\nConfiguration Parameters:" << std::endl;
-  std::cout << "Name" + std::string(std::max(max_key_length, std::size_t(4)) - 4, ' ') << " : ";
-  std::cout << "Value" + std::string(std::max(max_val_length, std::size_t(5)) - 5, ' ') << " : ";
+  std::cout << "Name" + std::string(std::max(max_key_length, static_cast<std::size_t>(4)) - 4, ' ')
+            << " : ";
+  std::cout << "Value" + std::string(std::max(max_val_length, static_cast<std::size_t>(5)) - 5, ' ')
+            << " : ";
   std::cout << "Description" << std::endl;
   std::cout << std::string(max_key_length + max_val_length + 20, '-') << std::endl;
   for (auto& [key, p] : params) {
