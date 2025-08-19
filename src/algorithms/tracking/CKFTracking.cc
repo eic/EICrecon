@@ -476,7 +476,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   }
 
   if (tips.empty()) {
-    m_log->info("Last trajectory is empty");
+    m_log->debug("Last trajectory is empty");
   }
 
   // last entry: move vectors
