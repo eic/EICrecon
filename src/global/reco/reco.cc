@@ -174,12 +174,12 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsTruth_factory>(
       "ScatteredElectronsTruth",
-      {"MCParticles", "ReconstructedChargedParticles", "ReconstructedChargedParticleAssociations"},
+      {"MCParticles", "CombinedReconstructedChargedParticles", "CombinedReconstructedChargedParticlesAssociations"},
       {"ScatteredElectronsTruth"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsEMinusPz_factory>(
       "ScatteredElectronsEMinusPz",
-      {"ReconstructedChargedParticles", "ReconstructedElectronsForDIS"},
+      {"CombinedReconstructedChargedParticles", "ReconstructedElectronsForDIS"},
       {"ScatteredElectronsEMinusPz"},
       {
           .minEMinusPz = 0,         // GeV
