@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022-2025 Christopher Dilks, Simon Gardner
 
-#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
@@ -9,11 +8,9 @@
 #include <vector>
 
 #include "algorithms/pid_lut/PIDLookupConfig.h"
-#include "algorithms/pid_lut/PhaseSpacePIDConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 // factories
 #include "factories/pid_lut/PIDLookup_factory.h"
-#include "factories/pid_lut/PhaseSpacePID_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
