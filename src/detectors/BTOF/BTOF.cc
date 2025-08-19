@@ -47,8 +47,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFBarrelRecHits", {"TOFBarrelRawHits"}, // Input data collection tags
       {"TOFBarrelRecHits"},                     // Output data tag
-      {
-      },
+      {},
       app)); // Hit reco default config for factories
 
   // Convert raw digitized hits into calibrated hits
@@ -56,16 +55,15 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
       "TOFBarrelCalHits", {"TOFBarrelADCTDC"}, // Input data collection tags
       {"TOFBarrelCalHits"},                    // Output data tag
-      {
-      },
-      app));                                    // Hit reco default config for factories
+      {},
+      app)); // Hit reco default config for factories
 
   app->Add(new JOmniFactoryGeneratorT<LGADHitAssociation_factory>(
-    "TOFBarrelCalHitsAssociations", {"TOFBarrelCalHits", "TOFBarrelHits"}, // Input data collection tags
-    {"TOFBarrelCalHitsAssociations"},                                      // Output data tag
-    {},
-    app)); 
-	    
+      "TOFBarrelCalHitsAssociations",
+      {"TOFBarrelCalHits", "TOFBarrelHits"}, // Input data collection tags
+      {"TOFBarrelCalHitsAssociations"},      // Output data tag
+      {}, app));
+
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
@@ -73,7 +71,7 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelClusterHits", {"TOFBarrelCalHits"}, // Input data collection tags
       {"TOFBarrelClusterHits"},                     // Output data tag
       {},
-      app));                                         // Hit reco default config for factories
+      app)); // Hit reco default config for factories
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},

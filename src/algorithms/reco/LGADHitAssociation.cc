@@ -43,7 +43,7 @@ void LGADHitAssociation::process(const LGADHitAssociation::Input& input,
   // group sim hit by cell ID
   std::unordered_map<dd4hep::rec::CellID, std::vector<edm4hep::SimTrackerHit>> cellHitMap;
 
-  for (const auto& hit : *sim_hits) 
+  for (const auto& hit : *sim_hits)
     cellHitMap[getSensorInfos(hit.getCellID())].push_back(hit);
 
   // sort the tracker hits by time
@@ -55,7 +55,7 @@ void LGADHitAssociation::process(const LGADHitAssociation::Input& input,
 
   // get the associated raw_hits by the closest time
   for (const auto& cal_hit : *cal_hits) {
-    auto time     = cal_hit.getTime(); 
+    auto time     = cal_hit.getTime();
     auto sensorID = getSensorInfos(cal_hit.getCellID());
     auto it       = cellHitMap.find(sensorID);
     if (it != cellHitMap.end()) {
@@ -64,22 +64,22 @@ void LGADHitAssociation::process(const LGADHitAssociation::Input& input,
       auto itVec = std::lower_bound(
           hits.begin(), hits.end(), time - m_cfg.assoDeltaT,
           [](const edm4hep::SimTrackerHit& a, double t) { return a.getTime() < t; });
-      double deltaT = std::numeric_limits<double>::max();
+      double deltaT          = std::numeric_limits<double>::max();
       bool associationIsMade = false;
       edm4eic::MutableMCRecoTrackerHitAssociation hitassoc;
       for (; itVec != hits.end() && itVec->getTime() <= time + m_cfg.assoDeltaT; ++itVec) {
-	double newDeltaT = std::abs(itVec -> getTime() - time);
-	if(newDeltaT < deltaT) {
+        double newDeltaT = std::abs(itVec->getTime() - time);
+        if (newDeltaT < deltaT) {
           deltaT = newDeltaT;
-	  // make association
-	  if(!associationIsMade) {
-		  hitassoc = associations -> create();
-		  associationIsMade = true;
-	  }
-	  hitassoc.setWeight(1.0);
-	  hitassoc.setSimHit(*itVec);
-	  hitassoc.setRawHit(cal_hit.getRawHit());
-	}
+          // make association
+          if (!associationIsMade) {
+            hitassoc          = associations->create();
+            associationIsMade = true;
+          }
+          hitassoc.setWeight(1.0);
+          hitassoc.setSimHit(*itVec);
+          hitassoc.setRawHit(cal_hit.getRawHit());
+        }
       }
     }
   }
