@@ -174,7 +174,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsTruth_factory>(
       "ScatteredElectronsTruth",
-      {"MCParticles", "CombinedReconstructedChargedParticles", "CombinedReconstructedChargedParticlesAssociations"},
+      {"MCParticles", "CombinedReconstructedChargedParticles",
+       "CombinedReconstructedChargedParticlesAssociations"},
       {"ScatteredElectronsTruth"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsEMinusPz_factory>(
