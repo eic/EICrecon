@@ -49,6 +49,10 @@ void PrintUsageOptions() {
   std::cout << "   -b   --benchmark             Run in benchmark mode" << std::endl;
   std::cout << "   -L   --list-factories        List all the factories without running"
             << std::endl;
+  std::cout << "   --list-available-factories <plugin>   List factories for a specific plugin"
+            << std::endl;
+  std::cout << "   --print-factory-info         Print detailed factory information"
+            << std::endl;
   std::cout << "   -Pkey=value                  Specify a configuration parameter" << std::endl;
   std::cout << "   -Pplugin:param=value         Specify a parameter value for a plugin"
             << std::endl;
@@ -72,7 +76,9 @@ void PrintUsageExample() {
   std::cout << "Example:" << std::endl;
   std::cout << "    eicrecon -Pplugins=plugin1,plugin2,plugin3 -Pnthreads=8 infile.root"
             << std::endl;
-  std::cout << "    eicrecon -Ppodio:print_type_table=1 infile.root" << std::endl << std::endl;
+  std::cout << "    eicrecon -Ppodio:print_type_table=1 infile.root" << std::endl;
+  std::cout << "    eicrecon --list-available-factories EEMC" << std::endl;
+  std::cout << "    eicrecon --print-factory-info" << std::endl << std::endl;
   std::cout << std::endl << std::endl;
 }
 
@@ -321,6 +327,32 @@ void PrintFactories(JApplication* app) {
   std::cout << std::endl;
 }
 
+void PrintPluginFactories(JApplication* app, const std::string& plugin_name) {
+  std::cout << std::endl << "List factories for plugin '" << plugin_name << "':" << std::endl << std::endl;
+  
+  auto cs = app->GetComponentSummary();
+  JTablePrinter factory_table;
+  factory_table.AddColumn("Object name");
+  factory_table.AddColumn("Tag");
+  
+  bool found_any = false;
+  for (const auto& factory : cs.factories) {
+    if (factory.plugin_name == plugin_name) {
+      factory_table | factory.object_name | factory.factory_tag;
+      found_any = true;
+    }
+  }
+  
+  if (!found_any) {
+    std::cout << "No factories found for plugin '" << plugin_name << "'" << std::endl;
+  } else {
+    std::ostringstream ss;
+    factory_table.Render(ss);
+    std::cout << ss.str() << std::endl;
+  }
+  std::cout << std::endl;
+}
+
 void PrintPodioCollections(JApplication* app) {
   if (app->GetJParameterManager()->Exists("PODIO:PRINT_TYPE_TABLE")) {
     bool print_type_table = app->GetParameterValue<bool>("podio:print_type_table");
@@ -337,6 +369,33 @@ void PrintPodioCollections(JApplication* app) {
       }
     }
   }
+}
+
+void PrintFactoryInfo(JApplication* app) {
+  std::cout << std::endl << "Detailed factory information:" << std::endl << std::endl;
+  
+  auto cs = app->GetComponentSummary();
+  JTablePrinter factory_table;
+  factory_table.AddColumn("Plugin");
+  factory_table.AddColumn("Object name");
+  factory_table.AddColumn("Tag");
+  factory_table.AddColumn("Info");
+  
+  for (const auto& factory : cs.factories) {
+    std::string info = "Factory: " + factory.object_name;
+    if (!factory.factory_tag.empty()) {
+      info += " (tag: " + factory.factory_tag + ")";
+    }
+    factory_table | factory.plugin_name | factory.object_name | factory.factory_tag | info;
+  }
+  
+  std::ostringstream ss;
+  factory_table.Render(ss);
+  std::cout << ss.str() << std::endl;
+  
+  std::cout << "Note: Detailed input/output collection information requires factory introspection." << std::endl;
+  std::cout << "Use the --list-available-factories <plugin> command to see factories by plugin." << std::endl;
+  std::cout << std::endl;
 }
 
 void PrintConfigParameters(JApplication* app) {
@@ -419,6 +478,12 @@ int Execute(JApplication* app, UserOptions& options) {
 
     // TODO: more elegant processing here
     PrintPodioCollections(app);
+  } else if (options.flags[ListPluginFactories]) {
+    app->Initialize();
+    PrintPluginFactories(app, options.plugin_name);
+  } else if (options.flags[PrintFactoryInfo]) {
+    app->Initialize();
+    PrintFactoryInfo(app);
   } else {
     if ((JVersion::GetMajorNumber() == 2) && (JVersion::GetMinorNumber() == 3) &&
         (JVersion::GetPatchNumber() <= 1)) {
@@ -468,6 +533,8 @@ UserOptions GetCliOptions(int nargs, char* argv[], bool expect_extra) {
   tokenizer["--benchmark"]              = Benchmark;
   tokenizer["-L"]                       = ListFactories;
   tokenizer["--list-factories"]         = ListFactories;
+  tokenizer["--list-available-factories"] = ListPluginFactories;
+  tokenizer["--print-factory-info"]     = PrintFactoryInfo;
   tokenizer["--list-default-plugins"]   = ShowDefaultPlugins;
   tokenizer["--list-available-plugins"] = ShowAvailablePlugins;
 
@@ -530,6 +597,21 @@ UserOptions GetCliOptions(int nargs, char* argv[], bool expect_extra) {
 
     case ListFactories:
       options.flags[ListFactories] = true;
+      break;
+
+    case ListPluginFactories:
+      options.flags[ListPluginFactories] = true;
+      if (i + 1 < nargs && argv[i + 1][0] != '-') {
+        options.plugin_name = argv[i + 1];
+        i += 1;
+      } else {
+        std::cout << "Error: --list-available-factories requires a plugin name argument" << std::endl;
+        options.flags[ShowUsage] = true;
+      }
+      break;
+
+    case PrintFactoryInfo:
+      options.flags[PrintFactoryInfo] = true;
       break;
 
     case ShowDefaultPlugins:
