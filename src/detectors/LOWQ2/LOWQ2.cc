@@ -29,14 +29,12 @@
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/fardetectors/FarDetectorTransportationPostML_factory.h"
 #include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
 #endif
-#include "factories/fardetectors/FarDetectorMLReconstruction_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
@@ -186,17 +184,6 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
       {"TaggerTrackerLocalTrackAssociations"}, app));
 
-  // Project tracks onto a plane
-  app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
-      "TaggerTrackerProjectedTracks", {"TaggerTrackerLocalTracks"},
-      {"TaggerTrackerProjectedTracks"},
-      {
-          .plane_position = {0.0, 0.0, 0.0},
-          .plane_a        = {0.0, 1.0, 0.0},
-          .plane_b        = {0.0, 0.0, 1.0},
-      },
-      app));
-
 #if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
       "TaggerTrackerTransportationPreML",
@@ -223,17 +210,5 @@ void InitPlugin(JApplication* app) {
       app));
 #endif
 
-  // Vector reconstruction at origin
-  app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
-      "TaggerTrackerTrajectories",
-      {"TaggerTrackerProjectedTracks", "MCBeamElectrons", "TaggerTrackerLocalTracks",
-       "TaggerTrackerLocalTrackAssociations"},
-      {"TaggerTrackerTrajectories", "TaggerTrackerTrackParameters", "TaggerTrackerTracks",
-       "TaggerTrackerTrackAssociations"},
-      {
-          .modelPath  = "calibrations/tmva/LowQ2_DNN_CPU.weights.xml",
-          .methodName = "DNN_CPU",
-      },
-      app));
 }
 }

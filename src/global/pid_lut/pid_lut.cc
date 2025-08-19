@@ -22,42 +22,6 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   //-------------------------------------------------------------------------
-  // FarBackward PID Through Phase Space
-  //-------------------------------------------------------------------------
-  PhaseSpacePIDConfig phase_space_pid_cfg{
-      .system        = "TaggerTracker_ID",
-      .direction     = {0.0, 0.0, -1.0},  // Direction is along z-axis
-      .opening_angle = 12 * dd4hep::mrad, // Beampipe opening angle
-      .pdg_value     = 11,                // Set PID to electron
-  };
-
-  app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
-      "FarBackwardTruthSeededPhaseSpacePID",
-      {
-          "ReconstructedTruthSeededChargedWithoutPIDParticles",
-          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
-      },
-      {
-          "ReconstructedTruthSeededChargedWithFBPIDParticles",
-          "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
-          "FarBackwardTruthSeededPhaseSpacePIDParticleIDs",
-      },
-      phase_space_pid_cfg, app));
-
-  app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
-      "FarBackwardPhaseSpacePID",
-      {
-          "ReconstructedChargedWithoutPIDParticles",
-          "ReconstructedChargedWithoutPIDParticleAssociations",
-      },
-      {
-          "ReconstructedChargedWithFBPIDParticles",
-          "ReconstructedChargedWithFBPIDParticleAssociations",
-          "FarBackwardPhaseSpacePIDParticleIDs",
-      },
-      phase_space_pid_cfg, app));
-
-  //-------------------------------------------------------------------------
   // PFRICH PID
   //-------------------------------------------------------------------------
   PIDLookupConfig pfrich_pid_cfg{
@@ -83,8 +47,8 @@ void InitPlugin(JApplication* app) {
       "RICHEndcapNTruthSeededLUTPID",
       {
           "EventHeader",
-          "ReconstructedTruthSeededChargedWithFBPIDParticles",
-          "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
+          "ReconstructedTruthSeededChargedWithoutPIDParticles",
+          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
       },
       {
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
@@ -97,8 +61,8 @@ void InitPlugin(JApplication* app) {
       "RICHEndcapNLUTPID",
       {
           "EventHeader",
-          "ReconstructedChargedWithFBPIDParticles",
-          "ReconstructedChargedWithFBPIDParticleAssociations",
+          "ReconstructedChargedWithoutFBPIDParticles",
+          "ReconstructedChargedWithoutFBPIDParticleAssociations",
       },
       {
           "ReconstructedChargedWithPFRICHPIDParticles",
