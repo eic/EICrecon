@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Chun Yuen Tsang
+// Copyright (C) 2025 Chun Yuen Tsang
 
 #pragma once
 #include <edm4eic/unit_system.h>
