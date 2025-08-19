@@ -23,6 +23,7 @@
 #include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/reco/LGADHitCalibration_factory.h"
+#include "factories/reco/LGADHitAssociation_factory.h"
 #include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
@@ -47,7 +48,6 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelRecHits", {"TOFBarrelRawHits"}, // Input data collection tags
       {"TOFBarrelRecHits"},                     // Output data tag
       {
-          .timeResolution = 10,
       },
       app)); // Hit reco default config for factories
 
@@ -56,15 +56,24 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
       "TOFBarrelCalHits", {"TOFBarrelADCTDC"}, // Input data collection tags
       {"TOFBarrelCalHits"},                    // Output data tag
-      {}));                                    // Hit reco default config for factories
-                                               //
+      {
+      },
+      app));                                    // Hit reco default config for factories
+
+  app->Add(new JOmniFactoryGeneratorT<LGADHitAssociation_factory>(
+    "TOFBarrelCalHitsAssociations", {"TOFBarrelCalHits", "TOFBarrelHits"}, // Input data collection tags
+    {"TOFBarrelCalHitsAssociations"},                                      // Output data tag
+    {},
+    app)); 
+	    
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFBarrelClusterHits", {"TOFBarrelCalHits"}, // Input data collection tags
       {"TOFBarrelClusterHits"},                     // Output data tag
-      {}));                                         // Hit reco default config for factories
+      {},
+      app));                                         // Hit reco default config for factories
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
