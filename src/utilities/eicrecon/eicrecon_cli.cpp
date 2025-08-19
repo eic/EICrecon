@@ -434,9 +434,38 @@ void PrintFactoryInfo(JApplication* app) {
     std::cout << "    " << pair.first << ": " << pair.second << " factories" << std::endl;
   }
   
+  // Look for potential collection patterns (basic heuristic)
+  std::cout << std::endl << "  Collection naming patterns (heuristic analysis):" << std::endl;
+  std::map<std::string, std::vector<std::string>> patterns;
+  
+  for (const auto& factory : cs.factories) {
+    // Extract potential collection base names by looking at factory tags
+    std::string tag = factory.factory_tag.empty() ? factory.object_name : factory.factory_tag;
+    
+    // Simple pattern matching - look for common prefixes
+    if (tag.length() > 4) {
+      std::string prefix = tag.substr(0, 4);
+      patterns[prefix].push_back(tag);
+    }
+  }
+  
+  for (const auto& pattern : patterns) {
+    if (pattern.second.size() > 1) { // Only show patterns with multiple factories
+      std::cout << "    " << pattern.first << "*: " << pattern.second.size() << " collections (";
+      for (size_t i = 0; i < std::min(pattern.second.size(), size_t(3)); ++i) {
+        if (i > 0) std::cout << ", ";
+        std::cout << pattern.second[i];
+      }
+      if (pattern.second.size() > 3) std::cout << ", ...";
+      std::cout << ")" << std::endl;
+    }
+  }
+  
   std::cout << std::endl;
-  std::cout << "Note: For detailed input/output collection information, inspect individual" << std::endl;
-  std::cout << "      factory source code or use --list-available-factories <plugin>." << std::endl;
+  std::cout << "For detailed input/output collection information:" << std::endl;
+  std::cout << "  1. Use --list-available-factories <plugin> to see factories by plugin" << std::endl;
+  std::cout << "  2. Inspect factory source code for precise input/output definitions" << std::endl;
+  std::cout << "  3. Look at plugin registration code (e.g., EEMC.cc) for I/O specifications" << std::endl;
   std::cout << std::endl;
 }
 

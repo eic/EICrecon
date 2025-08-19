@@ -24,6 +24,7 @@
     * [Work environment](tutorial/02-work-environment.md)
     * [Factory](tutorial/03-factory.md)
     * [Contributing](tutorial/04-contributing.md)
+    * [Factory Help Commands](tutorial/05-factory-help-commands.md)
 * Misc
     * [References](misc/references.md)
 * Flags
