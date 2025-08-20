@@ -6,9 +6,11 @@
 
 #include <JANA/CLI/JBenchmarker.h>
 #include <JANA/CLI/JSignalHandler.h>
+#include <JANA/Components/JComponentSummary.h>
 #include <JANA/JApplication.h>
 #include <JANA/JVersion.h>
 #include <JANA/Services/JComponentManager.h>
+#include <JANA/Utils/JTablePrinter.h>
 #include <algorithm>
 #include <cstdlib>
 #include <cstring>
