@@ -84,7 +84,7 @@ void PrintPodioCollections(JApplication* app);
 void PrintPluginFactories(JApplication* app, const std::string& plugin_name);
 
 /// Print detailed factory information including input/output collections
-void PrintFactoryInfo(JApplication* app);
+void ShowFactoryInfo(JApplication* app);
 
 /// Copy the @param options params (from the cli or the config file) to a JParameterManager @var para_mgr.
 /// Create an empty JApplication @var app.

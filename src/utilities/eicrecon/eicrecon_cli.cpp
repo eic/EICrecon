@@ -332,7 +332,7 @@ void PrintPluginFactories(JApplication* app, const std::string& plugin_name) {
             << "Factories provided by plugin '" << plugin_name << "':" << std::endl
             << std::endl;
 
-  auto cs = app->GetComponentSummary();
+  const auto& cs = app->GetComponentSummary();
   JTablePrinter factory_table;
   factory_table.AddColumn("Object name");
   factory_table.AddColumn("Tag");
@@ -400,10 +400,10 @@ void PrintPodioCollections(JApplication* app) {
   }
 }
 
-void PrintFactoryInfo(JApplication* app) {
+void ShowFactoryInfo(JApplication* app) {
   std::cout << std::endl << "Detailed factory information:" << std::endl << std::endl;
 
-  auto cs = app->GetComponentSummary();
+  const auto& cs = app->GetComponentSummary();
   JTablePrinter factory_table;
   factory_table.AddColumn("Plugin");
   factory_table.AddColumn("Object name");
@@ -562,7 +562,7 @@ int Execute(JApplication* app, UserOptions& options) {
     PrintPluginFactories(app, options.plugin_name);
   } else if (options.flags[PrintFactoryInfo]) {
     app->Initialize();
-    PrintFactoryInfo(app);
+    ShowFactoryInfo(app);
   } else {
     if ((JVersion::GetMajorNumber() == 2) && (JVersion::GetMinorNumber() == 3) &&
         (JVersion::GetPatchNumber() <= 1)) {
