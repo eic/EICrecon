@@ -22,6 +22,8 @@
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 #include <IRT/CherenkovRadiator.h>
+//#include <IRT/ReconstructionFactory.h>
+class ReconstructionFactory;
 
 class TTree;
 class TFile;
@@ -64,7 +66,7 @@ namespace eicrecon {
 
   public:
     IrtInterface(std::string_view name)
-      : m_Event(0), m_EventPtr(0), m_Instance(0), IrtInterfaceAlgorithm {
+      : m_Event(0), m_EventPtr(0), m_Instance(0), m_ReconstructionFactory(0), IrtInterfaceAlgorithm {
 	  name,
 	  {
 	    "inputMCParticles",
@@ -79,6 +81,8 @@ namespace eicrecon {
     
     void init(DD4hep_service &service, IrtConfig &config, std::shared_ptr<spdlog::logger>& logger);
 
+    void JsonParser( void );
+    
     void process(const Input&, const Output&) const;
     
     ~IrtInterface();
@@ -98,5 +102,7 @@ namespace eicrecon {
     std::function<double()> m_rngUni;
 
     IrtConfig m_config;
+
+    ReconstructionFactory *m_ReconstructionFactory;
   };
 }

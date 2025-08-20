@@ -21,6 +21,7 @@
 #include <IRT/ChargedParticle.h>
 #include "IRT/CherenkovEvent.h"
 #include "IRT/CherenkovDetectorCollection.h"
+#include "IRT/ReconstructionFactory.h"
 
 #include "G4DataInterpolation.h"
 #include "IrtInterface.h"
@@ -50,6 +51,10 @@ namespace eicrecon {
     m_InstanceCounters[m_OutputFileName]--;
     
     if (!m_InstanceCounters[m_OutputFileName]) {
+      // FIXME: hardcoded;
+      if (m_ReconstructionFactory)
+	m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots", -1265,  10,  625,1115);
+      
       m_OutputFiles[m_OutputFileName]->cd();
       m_EventTrees[m_OutputFileName]->Write();
 
@@ -77,6 +82,11 @@ namespace eicrecon {
       return m_random.Uniform(0., 1.0);
     };
     
+    m_log = logger;
+
+    // Extract the the relevant `CherenkovDetector`; FIXME: for now assume it is the only one;
+    m_irt_det = config.m_irt_geometry->GetDetectors().begin()->second;
+    
     {
       std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
     
@@ -90,6 +100,13 @@ namespace eicrecon {
 
       //+printf("@@@ IrtInterface::init() ... %2d\n", m_InstanceCounters[m_OutputFileName.Data()]);
             
+      // FIXME: this is a hack, for the time being;
+      if (jptr->find("IntegratedReconstruction") != jptr->end() &&
+	  !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
+	m_ReconstructionFactory = new ReconstructionFactory(config.m_irt_geometry, m_irt_det, m_Event);
+	JsonParser();
+      } //if
+    
       if (!m_InstanceCounters[m_OutputFileName]) {
 	//printf("@R@ Here %d!\n", m_InstanceCounters[m_OutputFileName]);
 
@@ -104,11 +121,6 @@ namespace eicrecon {
       m_Instance = m_InstanceCounters[m_OutputFileName]++;
     }
     
-    m_log = logger;
-
-    // Extract the the relevant `CherenkovDetector`; FIXME: for now assume it is the only one;
-    m_irt_det = config.m_irt_geometry->GetDetectors().begin()->second;
-
     {
       const dd4hep::Detector *det = dd4hep_service.detector();
 
@@ -428,6 +440,9 @@ namespace eicrecon {
       m_EventBranches[m_OutputFileName]->SetAddress(m_EventPtr);
       m_EventTrees[m_OutputFileName]->Fill();
     }
+
+    // FIXME: this is a hack to the moment;
+    if (m_ReconstructionFactory) m_ReconstructionFactory->GetEvent(0, false);
   } // IrtInterface::process()
 } // namespace eicrecon
 

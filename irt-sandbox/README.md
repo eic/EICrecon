@@ -67,7 +67,7 @@ gStyle->SetOptStat(0);
 hmap->SetMinimum(5);
 hmap->Draw("COLZ");
 
-# Run EICrecon and produce output GEANT events ROOT tree in a custom format;
+# Run 'eicrecon' and produce output GEANT events ROOT tree in a custom format;
 $EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_frich.xml -Ppodio:output_collections="FRICHHits,MCParticles,FRICHTracks,FRICHIrtOutput" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.frich.root" sim.edm4hep.frich.root -PFRICH:config=frich-reco.json
 
 # See a digitized hit map;
@@ -76,3 +76,19 @@ root -l './frich-hit-map.C("frich-events.root")'
 # Run a standalone IRT reconstruction script and inspect 1D output plots;
 root -l './frich-reco.C("frich-events.root")'
 ```
+
+The last command also produced 'frich-optics-with-calibrations.root' file, which contains a copy of the IRT optics dump, yet with the calibrations appended. This file can be used as an input to 'eicrecon', which can also be instructed to run thje IRT reconstruction engine internally (see the first few lines in 
+frich-reco-integrated.json).
+
+```
+# Run 'eicrecon' calling IRT reconstruction internally, in addition to dumping an event tree for further standalone processing;
+$EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_frich.xml -Ppodio:output_collections="FRICHHits,MCParticles,FRICHTracks,FRICHIrtOutput" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.frich.root" sim.edm4hep.frich.root -PFRICH:config=frich-reco-integrated.json
+```
+
+There is no visualization available (and it is not really needed), but one can see a familiar MINUIT printout at the end of processing, similar to the one produced by frich-reco.C script. This printout would be numerically identical to the one by 'frich-reco.C' script, if one comments lines 'reco->PerformCalibration(200);' and 'reco->ExportModifiedOpticsFile("frich-optics-with-calibrations.root");' in it and re-runs using the same optics file with the built-in calibrations:
+
+```
+root -l './frich-reco.C("frich-events.root", "frich-optics-with-calibrations.root")'
+```
+
+just because the random numbers will (presently) be initialized the same way as in 'eicrecon'.
