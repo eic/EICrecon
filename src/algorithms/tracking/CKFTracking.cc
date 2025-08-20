@@ -145,13 +145,15 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 
   // Create output collections
   std::vector<ActsExamples::Trajectories*> acts_trajectories;
+  // Prepare the output data with MultiTrajectory, per seed
+  acts_trajectories.reserve(init_trk_params.size());
   // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
   //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
   std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
 
   // If measurements or initial track parameters are empty, return early
   if (meas2Ds.empty() || init_trk_params.empty()) {
-    return {std::move(acts_trajectories), std::move(constTracks_v)};
+    return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
   }
 
   // create sourcelink and measurement containers
@@ -452,8 +454,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   // Seed number column accessor
   const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
 
-  // Prepare the output data with MultiTrajectory, per seed
-  acts_trajectories.reserve(init_trk_params.size());
 
   ActsExamples::Trajectories::IndexedParameters parameters;
   std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
