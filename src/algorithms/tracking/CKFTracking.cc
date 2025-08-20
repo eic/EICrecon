@@ -454,7 +454,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   // Seed number column accessor
   const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
 
-
   ActsExamples::Trajectories::IndexedParameters parameters;
   std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
 
