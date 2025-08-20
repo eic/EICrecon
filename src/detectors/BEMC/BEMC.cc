@@ -161,14 +161,11 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiTopoClustersWithoutShapes",
-      {
-        "EcalBarrelScFiProtoClusters_Topo", // edm4eic::ProtoClusterCollection
+      {"EcalBarrelScFiProtoClusters_Topo", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalBarrelScFiRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociation
+       "EcalBarrelScFiRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociation
 #else
-            "EcalBarrelScFiHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+       "EcalBarrelScFiHits"}, // edm4hep::SimCalorimeterHitCollection
 #endif
       {"EcalBarrelScFiTopoClustersWithoutShapes",             // edm4eic::Cluster
        "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation

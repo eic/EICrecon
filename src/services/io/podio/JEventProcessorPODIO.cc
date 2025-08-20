@@ -384,7 +384,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalLumiSpecRawHitAssociations",
       "EcalFarForwardZDCRawHitAssociations",
       "HcalFarForwardZDCRawHitAssociations",
-  
+
 #if EDM4EIC_VERSION_MAJOR >= 8
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
