@@ -6,7 +6,6 @@
 #include <DD4hep/Detector.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JServiceFwd.h>
-#include <JANA/Services/JServiceLocator.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <mutex>

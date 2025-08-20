@@ -30,9 +30,9 @@ public:
                                         {"inputCollection"},
                                         {"outputCollection"},
                                         "Sub-Divide collection"}
-      , WithPodConfig<SubDivideCollectionConfig<T>>(){};
+      , WithPodConfig<SubDivideCollectionConfig<T>>() {};
 
-  void init() final{};
+  void init() final {};
 
   void process(const typename SubDivideCollectionAlgorithm<T>::Input& input,
                const typename SubDivideCollectionAlgorithm<T>::Output& output) const final {

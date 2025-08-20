@@ -1,5 +1,6 @@
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JFactorySet.h>
 #include <JANA/JMultifactory.h>
@@ -7,13 +8,14 @@
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <catch2/catch_test_macros.hpp>
-#include <cstdint>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <spdlog/logger.h>
+#include <cstdint>
 #include <iostream>
 #include <map>
 #include <memory>
-#include <spdlog/logger.h>
 #include <string>
 #include <utility>
 #include <vector>
@@ -324,8 +326,6 @@ struct SubsetTestAlg : public JOmniFactory<SubsetTestAlg, BasicTestAlgConfig> {
 
   void Configure() {}
 
-  void ChangeRun(int32_t /* run_number */) override {}
-
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
 
@@ -390,7 +390,6 @@ struct VariadicOutputTestAlg : public JOmniFactory<VariadicOutputTestAlg, BasicT
   VariadicPodioOutput<edm4hep::SimCalorimeterHit> m_hits_out{this};
 
   void Configure() {}
-  void ChangeRun(int32_t /* run_number */) override {}
 
   // NOLINTNEXTLINE(bugprone-easily-swappable-parameters)
   void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
@@ -443,8 +442,6 @@ struct OptionalPodioInputTestAlg
   PodioOutput<edm4hep::SimCalorimeterHit> m_right_hits_out{this};
 
   void Configure() {}
-
-  void ChangeRun(int32_t /* run_number */) override {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
 
@@ -527,8 +524,6 @@ struct OptionalVariadicPodioInputTestAlg
   PodioOutput<edm4hep::SimCalorimeterHit> m_hits_out{this};
 
   void Configure() {}
-
-  void ChangeRun(int32_t /* run_number */) override {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
 

@@ -9,7 +9,7 @@
 #include <exception>
 #include <gsl/pointers>
 #include <iterator>
-#include <ostream>
+#include <sstream>
 
 #include "InclusiveKinematicsML.h"
 

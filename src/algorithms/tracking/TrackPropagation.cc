@@ -2,6 +2,7 @@
 // Copyright (C) 2022, 2023 Wenqing Fan, Barak Schmookler, Whitney Armstrong, Sylvester Joosten, Dmitry Romanov, Christopher Dilks, Wouter Deconinck
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
@@ -11,8 +12,22 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <Acts/Material/MaterialInteraction.hpp>
+#if Acts_VERSION_MAJOR >= 34
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/Propagator/ActorList.hpp>
+#else
+#include <Acts/Propagator/AbortList.hpp>
+#include <Acts/Propagator/ActionList.hpp>
+#endif
 #include <Acts/Propagator/EigenStepper.hpp>
+#include <Acts/Propagator/MaterialInteractor.hpp>
+#include <Acts/Propagator/Navigator.hpp>
+#endif
 #include <Acts/Propagator/Propagator.hpp>
+#if Acts_VERSION_MAJOR >= 36
+#include <Acts/Propagator/PropagatorResult.hpp>
+#endif
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
@@ -20,16 +35,18 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
-#include <Eigen/Core>
-#include <Eigen/Geometry>
 #include <Evaluator/DD4hepUnits.h>
-#include <algorithm>
-#include <boost/container/vector.hpp>
-#include <cmath>
-#include <cstdint>
+#include <edm4eic/Cov2f.h>
+#include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <algorithm>
+#include <any>
+#include <cmath>
+#include <cstdint>
 #include <functional>
 #include <iterator>
 #include <map>
@@ -38,6 +55,7 @@
 #include <string>
 #include <tuple>
 #include <typeinfo>
+#include <utility>
 #include <variant>
 
 #include "algorithms/tracking/ActsGeometryProvider.h"
@@ -263,20 +281,32 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry   = m_geoSvc->trackingGeometry();
   std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_geoSvc->getFieldProvider();
-  using Stepper                                                    = Acts::EigenStepper<>;
-  using Propagator                                                 = Acts::Propagator<Stepper>;
-  Stepper stepper(magneticField);
-  Propagator propagator(stepper);
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("PROP", m_log));
 
 #if Acts_VERSION_MAJOR >= 36
-  Propagator::template Options<> options(m_geoContext, m_fieldContext);
+  using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
+#if Acts_VERSION_MAJOR >= 37
+  using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
 #else
-  Acts::PropagatorOptions<> options(m_geoContext, m_fieldContext);
+  using PropagatorOptions =
+      Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>>;
+#endif
+  Propagator propagator(
+      Acts::EigenStepper<>(magneticField),
+      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
+      logger().cloneWithSuffix("Propagator"));
+  PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
+#elif Acts_VERSION_MAJOR >= 34
+  Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> propagator(
+      Acts::EigenStepper<>(magneticField),
+      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
+      logger().cloneWithSuffix("Propagator"));
+  Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>> propagationOptions(
+      m_geoContext, m_fieldContext);
 #endif
 
-  auto result = propagator.propagate(initBoundParams, *targetSurf, options);
+  auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
 
   // check propagation result
   if (!result.ok()) {

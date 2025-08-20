@@ -10,6 +10,7 @@
 
   # STL
   { ref: '/opt/local/share/include-what-you-use/gcc.stl.headers.imp' },
+  { symbol: ['std::vector', private, '<vector>', public] },
 
   # Acts
   { include: ['@<Acts/(.*)\.ipp>', private, '<Acts/$1.hpp>', public] },
@@ -28,7 +29,7 @@
 
   # the rest
   { include: ['<bits/chrono.h>', private, '<chrono>', public] },
-  { include: ['<bits/std_abs.h>', private, '<math.h>', public] },
+  { include: ['<bits/std_abs.h>', private, '<cmath>', public] },
   { include: ['<bits/utility.h>', private, '<tuple>', public] },
   # https://github.com/include-what-you-use/include-what-you-use/issues/166
   { include: ['<ext/alloc_traits.h>', private, '<vector>', public] }

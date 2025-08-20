@@ -1,26 +1,24 @@
 #include "DumpFlags_processor.h"
 
 #include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
-#include <cstddef>
-#include <cstring>
-#include <exception>
 #include <fmt/core.h>
-#include <fstream>
-#include <map>
-#include <regex>
+#include <fmt/format.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <cstddef>
+#include <cstring>
+#include <exception>
+#include <fstream>
+#include <map>
+#include <memory>
+#include <regex>
+#include <utility>
 
 using namespace fmt;
-
-//------------------
-// DefaultFlags_processor (Constructor)
-//------------------
-DumpFlags_processor::DumpFlags_processor(JApplication* app) : JEventProcessor(app) {}
 
 //------------------
 // Init

@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
+#include <iterator>
 #include <map>
 #include <string>
 #include <string_view>

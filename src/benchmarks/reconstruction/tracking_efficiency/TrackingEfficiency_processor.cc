@@ -3,35 +3,31 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
-#include <Eigen/Core>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/PxPyPzM4D.h>
-#include <Rtypes.h>
-#include <cmath>
-#include <cstddef>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <spdlog/logger.h>
+#include <Eigen/Core>
+#include <any>
+#include <cmath>
+#include <cstddef>
 #include <iterator>
 #include <map>
 #include <optional>
-#include <spdlog/logger.h>
 #include <string>
 #include <vector>
 
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
-
-//--------------------------------
-// OccupancyAnalysis (Constructor)
-//--------------------------------
-TrackingEfficiency_processor::TrackingEfficiency_processor(JApplication* app)
-    : JEventProcessor(app) {}
 
 //------------------
 // Init

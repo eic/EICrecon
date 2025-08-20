@@ -21,9 +21,9 @@ private:
   PodioInput<edm4eic::CalorimeterHit> m_hits_input{this};
   PodioOutput<edm4eic::ProtoCluster> m_protos_output{this};
 
-  ParameterRef<std::vector<double>> m_ldxy{this, "localDistXY", config().localDistXY};
+  // ParameterRef<std::vector<double>> m_ldxy{this, "localDistXY", config().localDistXY};
   ParameterRef<std::vector<double>> m_ldep{this, "layerDistEtaPhi", config().layerDistEtaPhi};
-  ParameterRef<std::vector<double>> m_ldxy_adjacent{this, "layerDistXY", config().layerDistXY};
+  // ParameterRef<std::vector<double>> m_ldxy_adjacent{this, "layerDistXY", config().layerDistXY};
   ParameterRef<eicrecon::ImagingTopoClusterConfig::ELayerMode> m_laymode{this, "layerMode",
                                                                          config().layerMode};
   ParameterRef<int> m_nlr{this, "neighbourLayersRange", config().neighbourLayersRange};
@@ -42,8 +42,6 @@ public:
     m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_hits_input()}, {m_protos_output().get()});

@@ -1,22 +1,29 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
+// Copyright (C) 2022 - 2025 Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
-#include "MC2SmearedParticle.h"
+#include "MC2ReconstructedParticle.h"
 
+#include <edm4eic/Cov4f.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <gsl/pointers>
 
-void eicrecon::MC2SmearedParticle::init(std::shared_ptr<spdlog::logger> logger) { m_log = logger; }
+namespace eicrecon {
 
-std::unique_ptr<edm4eic::ReconstructedParticleCollection>
-eicrecon::MC2SmearedParticle::produce(const edm4hep::MCParticleCollection* mc_particles) {
-  auto rec_particles = std::make_unique<edm4eic::ReconstructedParticleCollection>();
+void MC2ReconstructedParticle::init() {}
+
+void MC2ReconstructedParticle::process(const MC2ReconstructedParticle::Input& input,
+                                       const MC2ReconstructedParticle::Output& output) const {
+
+  const auto [mc_particles] = input;
+  auto [rec_particles]      = output;
+
   for (const auto& mc_particle : *mc_particles) {
 
     if (mc_particle.getGeneratorStatus() != 1) {
-      m_log->debug("ignoring particle with generatorStatus = {}", mc_particle.getGeneratorStatus());
+      debug("ignoring particle with generatorStatus = {}", mc_particle.getGeneratorStatus());
       continue;
     }
 
@@ -42,5 +49,6 @@ eicrecon::MC2SmearedParticle::produce(const edm4hep::MCParticleCollection* mc_pa
     rec_part.setCovMatrix({0, 0, 0, 0});
     rec_part.setPDG(mc_particle.getPDG());
   }
-  return rec_particles;
 }
+
+} // namespace eicrecon

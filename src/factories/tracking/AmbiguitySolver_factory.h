@@ -43,9 +43,12 @@ public:
     m_algo->init(logger());
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+    // FIXME clear output since it may not have been initialized or reset
+    // See https://github.com/eic/EICrecon/issues/1961
+    m_acts_tracks_output().clear();
+    m_acts_trajectories_output().clear();
+
     std::tie(m_acts_tracks_output(), m_acts_trajectories_output()) =
         m_algo->process(m_acts_tracks_input(), *m_measurements_input());
   }

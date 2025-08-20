@@ -33,15 +33,12 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<AlgoT>();
-    m_algo->init(m_DD4hepSvc().detector(), m_DD4hepSvc().converter(),
-                 m_ACTSGeoSvc().actsGeoProvider(), logger());
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_measurements_output() = m_algo->produce(*m_hits_input());
+    m_algo->process({m_hits_input()}, {m_measurements_output().get()});
   }
 };
 

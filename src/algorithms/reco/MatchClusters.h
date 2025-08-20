@@ -37,7 +37,7 @@ public:
                                {"ReconstructedParticles", "ReconstructedParticleAssociations"},
                                "Match tracks with clusters, and assign associations."} {}
 
-  void init() final{};
+  void init() final {};
   void process(const Input&, const Output&) const final;
 
 private:

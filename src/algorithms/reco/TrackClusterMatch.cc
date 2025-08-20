@@ -1,13 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Tristan Protzman
 
-#include <cstdint>
 #include <edm4eic/EDM4eicVersion.h> // Needs edm4eic::TrackClusterMatch
+#include <edm4eic/Track.h>
 #include <fmt/core.h>
+#include <podio/RelationRange.h>
+#include <cstdint>
 #include <gsl/pointers>
 #include <optional>
-#include <podio/RelationRange.h>
 #include <set>
+#include <stdexcept>
 #include <vector>
 #if EDM4EIC_VERSION_MAJOR >= 8
 
@@ -26,6 +28,14 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   auto [tracks, clusters]  = input;
   auto [matched_particles] = output;
   trace("We have {} tracks and {} clusters", tracks->size(), clusters->size());
+
+  // Validate the configuration
+  if (m_cfg.matching_distance <= 0) {
+    throw std::runtime_error(fmt::format("Invalid matching distance: {}", m_cfg.matching_distance));
+  }
+  if (m_cfg.calo_id.empty()) {
+    throw std::runtime_error("Calorimeter ID must be set in the configuration");
+  }
 
   std::set<int> used_tracks;
   // Loop across each cluster, and find the cloeset projected track
@@ -47,13 +57,11 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
       for (auto point : track.getPoints()) {
         // Check if the point is at the calorimeter
         // int id = m_detector->volumeManager().lookupDetector(cluster.getHits()[0].getCellID()).id(); // TODO: Find programmatic way to get detector cluster is from
-        uint32_t ecal_barrel_id = m_geo.detector()->constant<int>("EcalBarrel_ID");
-        uint32_t hcal_barrel_id = m_geo.detector()->constant<int>("HcalBarrel_ID");
-        bool is_ecal            = point.system == ecal_barrel_id;
-        bool is_hcal            = point.system == hcal_barrel_id;
-        bool is_surface         = point.surface == 1;
+        uint32_t calo_id = m_geo.detector()->constant<int>(m_cfg.calo_id);
+        bool is_calo     = point.system == calo_id;
+        bool is_surface  = point.surface == 1;
 
-        if (!(is_ecal || is_hcal) || !is_surface) {
+        if (!is_calo || !is_surface) {
           trace("Skipping track point not at the calorimeter");
           continue;
         }

@@ -21,6 +21,7 @@
 
 #include "algorithms/calorimetry/ImagingTopoCluster.h"
 
+#include <DD4hep/Handle.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -28,13 +29,25 @@
 #include <cmath>
 #include <cstdlib>
 #include <gsl/pointers>
+#include <utility>
+#include <variant>
 #include <vector>
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 
 namespace eicrecon {
+template <typename... L> struct multilambda : L... {
+  using L::operator()...;
+  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
+};
 
 void ImagingTopoCluster::init() {
+
+  multilambda _toDouble = {
+      [](const std::string& v) { return dd4hep::_toDouble(v); },
+      [](const double& v) { return v; },
+  };
+
   // unitless conversion
   // sanity checks
   if (m_cfg.localDistXY.size() != 2) {
@@ -51,10 +64,10 @@ void ImagingTopoCluster::init() {
   }
 
   // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
-  localDistXY[0]       = m_cfg.localDistXY[0] / dd4hep::mm;
-  localDistXY[1]       = m_cfg.localDistXY[1] / dd4hep::mm;
-  layerDistXY[0]       = m_cfg.layerDistXY[0] / dd4hep::mm;
-  layerDistXY[1]       = m_cfg.layerDistXY[1] / dd4hep::mm;
+  localDistXY[0]       = std::visit(_toDouble, m_cfg.localDistXY[0]) / dd4hep::mm;
+  localDistXY[1]       = std::visit(_toDouble, m_cfg.localDistXY[1]) / dd4hep::mm;
+  layerDistXY[0]       = std::visit(_toDouble, m_cfg.layerDistXY[0]) / dd4hep::mm;
+  layerDistXY[1]       = std::visit(_toDouble, m_cfg.layerDistXY[1]) / dd4hep::mm;
   layerDistEtaPhi[0]   = m_cfg.layerDistEtaPhi[0];
   layerDistEtaPhi[1]   = m_cfg.layerDistEtaPhi[1] / dd4hep::rad;
   sectorDist           = m_cfg.sectorDist / dd4hep::mm;

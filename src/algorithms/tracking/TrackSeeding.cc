@@ -1,11 +1,14 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023  - 2025 Joe Osborn, Dmitry Romanov, Wouter Deconinck
 
 #include "TrackSeeding.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/EventData/SpacePointProxy.hpp>
+#endif
+#include <Acts/Seeding/SeedFinderUtils.hpp>
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/Seed.hpp>
 #else
@@ -21,38 +24,19 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Utilities/Result.hpp>
-#include <boost/container/small_vector.hpp>
-#include <boost/container/vector.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4hep/Vector2f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <array>
 #include <cmath>
-#include <functional>
+#include <gsl/pointers>
 #include <limits>
-#include <optional>
 #include <tuple>
-#include <type_traits>
 
-namespace {
-//! convenience square method
-template <class T> inline constexpr T square(const T& x) { return x * x; }
-} // namespace
+namespace eicrecon {
 
-void eicrecon::TrackSeeding::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                                  std::shared_ptr<spdlog::logger> log) {
-
-  m_log = log;
-
-  m_geoSvc = geo_svc;
-
-  m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-  m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
-
-  configure();
-}
-
-void eicrecon::TrackSeeding::configure() {
+void TrackSeeding::init() {
 
   // Filter parameters
   m_seedFilterConfig.maxSeedsPerSpM        = m_cfg.maxSeedsPerSpM_filter;
@@ -115,10 +99,12 @@ void eicrecon::TrackSeeding::configure() {
       m_seedFinderOptions.toInternalUnits().calculateDerivedQuantities(m_seedFinderConfig);
 }
 
-std::unique_ptr<edm4eic::TrackParametersCollection>
-eicrecon::TrackSeeding::produce(const edm4eic::TrackerHitCollection& trk_hits) {
+void TrackSeeding::process(const Input& input, const Output& output) const {
 
-  std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(trk_hits);
+  const auto [trk_hits] = input;
+  auto [trackparams]    = output;
+
+  std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(*trk_hits);
 
 #if Acts_VERSION_MAJOR >= 37
   Acts::SeedFinderOrthogonal<proxy_type> finder(m_seedFinderConfig); // FIXME move into class scope
@@ -152,7 +138,7 @@ eicrecon::TrackSeeding::produce(const edm4eic::TrackerHitCollection& trk_hits) {
     seedsToAdd.back().setQuality(seed.seedQuality());
   }
 
-  std::unique_ptr<edm4eic::TrackParametersCollection> trackparams = makeTrackParams(seedsToAdd);
+  addToTrackParams(*trackparams, seedsToAdd);
 
 #else
 
@@ -167,19 +153,17 @@ eicrecon::TrackSeeding::produce(const edm4eic::TrackerHitCollection& trk_hits) {
   eicrecon::SeedContainer seeds =
       finder.createSeeds(m_seedFinderOptions, spacePoints, create_coordinates);
 
-  std::unique_ptr<edm4eic::TrackParametersCollection> trackparams = makeTrackParams(seeds);
+  addToTrackParams(*trackparams, seeds);
 
 #endif
 
   for (auto& sp : spacePoints) {
     delete sp;
   }
-
-  return trackparams;
 }
 
 std::vector<const eicrecon::SpacePoint*>
-eicrecon::TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits) {
+TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits) {
   std::vector<const eicrecon::SpacePoint*> spacepoints;
 
   for (const auto hit : trk_hits) {
@@ -190,9 +174,8 @@ eicrecon::TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_
   return spacepoints;
 }
 
-std::unique_ptr<edm4eic::TrackParametersCollection>
-eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds) {
-  auto trackparams = std::make_unique<edm4eic::TrackParametersCollection>();
+void TrackSeeding::addToTrackParams(edm4eic::TrackParametersCollection& trackparams,
+                                    SeedContainer& seeds) const {
 
   for (auto& seed : seeds) {
     std::vector<std::pair<float, float>> xyHitPositions;
@@ -258,7 +241,7 @@ eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds) {
 
     localpos = local.value();
 
-    auto trackparam = trackparams->create();
+    auto trackparam = trackparams.create();
     trackparam.setType(-1); // type --> seed(-1)
     trackparam.setLoc({static_cast<float>(localpos(0)),
                        static_cast<float>(localpos(1))}); // 2d location on surface
@@ -275,11 +258,9 @@ eicrecon::TrackSeeding::makeTrackParams(SeedContainer& seeds) {
     cov(5, 5) = m_cfg.timeError / Acts::UnitConstants::ns;    // time
     trackparam.setCovariance(cov);
   }
-
-  return trackparams;
 }
-std::pair<float, float>
-eicrecon::TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) {
+
+std::pair<float, float> TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) {
   const float R  = std::get<0>(circleParams);
   const float X0 = std::get<1>(circleParams);
   const float Y0 = std::get<2>(circleParams);
@@ -293,9 +274,9 @@ eicrecon::TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) {
   return std::make_pair(xmin, ymin);
 }
 
-int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float, float>>& positions,
-                                            const std::pair<float, float>& PCA,
-                                            std::tuple<float, float, float>& RX0Y0) {
+int TrackSeeding::determineCharge(std::vector<std::pair<float, float>>& positions,
+                                  const std::pair<float, float>& PCA,
+                                  std::tuple<float, float, float>& RX0Y0) {
 
   const auto& firstpos = positions.at(0);
   auto hit_x           = firstpos.first;
@@ -331,7 +312,7 @@ int eicrecon::TrackSeeding::determineCharge(std::vector<std::pair<float, float>>
    * Nikolai Chernov  (September 2012)
    */
 std::tuple<float, float, float>
-eicrecon::TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
+TrackSeeding::circleFit(std::vector<std::pair<float, float>>& positions) {
   // Compute x- and y- sample means
   double meanX  = 0;
   double meanY  = 0;
@@ -421,8 +402,7 @@ eicrecon::TrackSeeding::circleFit(std::vector<std::pair<float, float>>& position
   return std::make_tuple(R, X0, Y0);
 }
 
-std::tuple<float, float>
-eicrecon::TrackSeeding::lineFit(std::vector<std::pair<float, float>>& positions) {
+std::tuple<float, float> TrackSeeding::lineFit(std::vector<std::pair<float, float>>& positions) {
   double xsum  = 0;
   double x2sum = 0;
   double ysum  = 0;
@@ -440,3 +420,5 @@ eicrecon::TrackSeeding::lineFit(std::vector<std::pair<float, float>>& positions)
   const float b            = (x2sum * ysum - xsum * xysum) / denominator; //calculate intercept
   return std::make_tuple(a, b);
 }
+
+} // namespace eicrecon
