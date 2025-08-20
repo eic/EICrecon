@@ -385,6 +385,10 @@ jobs:
       matrix:
         CXX: [g++]
     steps:
+    - name: Checkout .github
+      uses: actions/checkout@v5
+      with:
+        sparse-checkout: .github
     - name: Download install directory
       uses: actions/download-artifact@v5
       with:
