@@ -457,12 +457,14 @@ void ShowFactoryInfo(JApplication* app) {
     if (pattern.second.size() > 1) { // Only show patterns with multiple factories
       std::cout << "    " << pattern.first << "*: " << pattern.second.size() << " collections (";
       for (size_t i = 0; i < std::min(pattern.second.size(), static_cast<size_t>(3)); ++i) {
-        if (i > 0)
+        if (i > 0) {
           std::cout << ", ";
+        }
         std::cout << pattern.second[i];
       }
-      if (pattern.second.size() > 3)
+      if (pattern.second.size() > 3) {
         std::cout << ", ...";
+      }
       std::cout << ")" << std::endl;
     }
   }
