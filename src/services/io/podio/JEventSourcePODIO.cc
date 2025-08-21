@@ -68,25 +68,33 @@ struct InsertingVisitor {
 /// \param resource_name  Name of root file to open (n.b. file is not opened until Open() is called)
 /// \param app            JApplication
 //------------------------------------------------------------------------------
-JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* app)
-    : JEventSource(resource_name, app) {
+JEventSourcePODIO::JEventSourcePODIO() {
   SetTypeName(NAME_OF_THIS); // Provide JANA with class name
 #if JANA_NEW_CALLBACK_STYLE
   SetCallbackStyle(CallbackStyle::ExpertMode); // Use new, exception-free Emit() callback
 #endif
+}
 
-  // Get Logger
+//------------------------------------------------------------------------------
+// Destructor
+//------------------------------------------------------------------------------
+JEventSourcePODIO::~JEventSourcePODIO() {
+  m_log->info("Closing Event Source for {}", GetResourceName());
+}
+
+//------------------------------------------------------------------------------
+// Init
+//------------------------------------------------------------------------------
+void JEventSourcePODIO::Init() {
+
+  // Configure spdlog logger
   m_log = GetApplication()->GetService<Log_service>()->logger("JEventSourcePODIO");
-
-  // Tell JANA that we want it to call the FinishEvent() method.
-  // EnableFinishEvent();
 
   // Allow user to specify to recycle events forever
   GetApplication()->SetDefaultParameter("podio:run_forever", m_run_forever,
                                         "set to true to recycle through events continuously");
 
-  bool print_type_table = false;
-  GetApplication()->SetDefaultParameter("podio:print_type_table", print_type_table,
+  GetApplication()->SetDefaultParameter("podio:print_type_table", m_print_type_table,
                                         "Print list of collection names and their types");
 
   // Hopefully we won't need to reimplement background event merging. Using podio frames, it looks like we would
@@ -110,20 +118,12 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
 }
 
 //------------------------------------------------------------------------------
-// Destructor
-//------------------------------------------------------------------------------
-JEventSourcePODIO::~JEventSourcePODIO() {
-  m_log->info("Closing Event Source for {}", GetResourceName());
-}
-
-//------------------------------------------------------------------------------
 // Open
 //
 /// Open the root file and read in metadata.
 //------------------------------------------------------------------------------
 void JEventSourcePODIO::Open() {
 
-  bool print_type_table = GetApplication()->GetParameterValue<bool>("podio:print_type_table");
   // std::string background_filename = GetApplication()->GetParameterValue<std::string>("podio:background_filename");;
   // int num_background_events = GetApplication()->GetParameterValue<int>("podio:num_background_events");;
 
@@ -149,7 +149,7 @@ void JEventSourcePODIO::Open() {
     m_log->info("Opened PODIO Frame file \"{}\" with {} events", GetResourceName(),
                 Nevents_in_file);
 
-    if (print_type_table) {
+    if (m_print_type_table) {
       PrintCollectionTypeTable();
     }
 
