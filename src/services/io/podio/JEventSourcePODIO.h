@@ -42,7 +42,7 @@ protected:
   bool m_run_forever       = false;
   bool m_use_event_headers = true;
 
-  std::set<std::string> m_input_collections; // config. parameter
+  std::set<std::string> m_input_collections;          // config. parameter
   std::set<std::string> m_resolved_input_collections; // resolved from regex patterns
 
 private:
