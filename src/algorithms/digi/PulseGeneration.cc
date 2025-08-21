@@ -134,7 +134,7 @@ HitAdapter<edm4hep::SimTrackerHit>::getPulseSources(const edm4hep::SimTrackerHit
 }
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
-void HitAdapter<edm4hep::SimTrackerHit>::addAssociations(MutablePulseType& pulse,
+void HitAdapter<edm4hep::SimTrackerHit>::addRelations(MutablePulseType& pulse,
                                                          const edm4hep::SimTrackerHit& hit) {
   pulse.addToTrackerHits(hit);
   pulse.addToParticles(hit.getParticle());
@@ -151,7 +151,7 @@ HitAdapter<edm4hep::SimCalorimeterHit>::getPulseSources(const edm4hep::SimCalori
 }
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
-void HitAdapter<edm4hep::SimCalorimeterHit>::addAssociations(
+void HitAdapter<edm4hep::SimCalorimeterHit>::addRelations(
     MutablePulseType& pulse, const edm4hep::SimCalorimeterHit& hit) {
   pulse.addToCalorimeterHits(hit);
   pulse.addToParticles(hit.getContributions(0).getParticle());
@@ -219,7 +219,7 @@ void PulseGeneration<HitT>::process(
     time_series.setIntegral(integral);
     time_series.setPosition(
         edm4hep::Vector3f(hit.getPosition().x, hit.getPosition().y, hit.getPosition().z));
-    HitAdapter<HitT>::addAssociations(time_series, hit);
+    HitAdapter<HitT>::addRelations(time_series, hit);
 #endif
   }
 
