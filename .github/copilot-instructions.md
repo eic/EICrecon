@@ -23,7 +23,7 @@ curl --location https://get.epic-eic.org | bash
 singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly eic-shell
 ```
 
-This approach is achieved by the following GitHub Actions snippet (inside :
+This approach is achieved by the following GitHub Actions snippet (inside a workflow):
 ```yaml
     steps:
     - name: Ensure CernVM-FS is available
