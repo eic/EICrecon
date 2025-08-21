@@ -143,6 +143,19 @@ std::tuple<std::vector<ActsExamples::Trajectories*>,
 CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
                      const edm4eic::Measurement2DCollection& meas2Ds) {
 
+  // Create output collections
+  std::vector<ActsExamples::Trajectories*> acts_trajectories;
+  // Prepare the output data with MultiTrajectory, per seed
+  acts_trajectories.reserve(init_trk_params.size());
+  // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
+  //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
+  std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
+
+  // If measurements or initial track parameters are empty, return early
+  if (meas2Ds.empty() || init_trk_params.empty()) {
+    return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
+  }
+
   // create sourcelink and measurement containers
   auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
 
@@ -434,19 +447,12 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   auto constTrackContainer =
       std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*trackContainer));
 
-  // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
-  //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
-  std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
   constTracks_v.push_back(
       new ActsExamples::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
   auto& constTracks = *(constTracks_v.front());
 
   // Seed number column accessor
   const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
-
-  // Prepare the output data with MultiTrajectory, per seed
-  std::vector<ActsExamples::Trajectories*> acts_trajectories;
-  acts_trajectories.reserve(init_trk_params.size());
 
   ActsExamples::Trajectories::IndexedParameters parameters;
   std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
