@@ -685,6 +685,63 @@ jobs:
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root
         if-no-files-found: error
 
+  eicrecon-input-collections-test:
+    runs-on: ubuntu-24.04
+    needs:
+    - build
+    - npsim-gun
+    strategy:
+      matrix:
+        CXX: [g++]
+        particle: [e]
+        detector_config: [craterlake]
+    steps:
+    - name: Checkout .github
+      uses: actions/checkout@v5
+      with:
+        sparse-checkout: .github
+    - name: Download install directory
+      uses: actions/download-artifact@v5
+      with:
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+    - name: Unarchive install directory
+      run: tar -xaf install.tar.zst
+    - uses: actions/download-artifact@v5
+      with:
+        name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Run EICrecon with all collections (baseline)
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_all_collections.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EventHeader,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits,CentralTrackingRecHits -Pjana:nevents=5
+    - name: Run EICrecon without MCParticles (test input filtering)
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
+          # Test that our input_collections parameter works to exclude MCParticles - simulating real data without MC truth
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:input_collections=EventHeader,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits,EcalEndcapPRawHits,EcalEndcapNRawHits,EcalBarrelScFiHits,EcalBarrelImagingHits,EcalEndcapPHits,EcalEndcapNHits,HcalBarrelRawHits,HcalEndcapPRawHits,HcalEndcapNRawHits,HcalBarrelHits,HcalEndcapPHits,HcalEndcapNHits,SiBarrelRawHits,SiBarrelVertexRawHits,SiEndcapTrackerRawHits,SiBarrelHits,VertexBarrelHits,TrackerEndcapHits -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_no_mc.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EventHeader,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits,CentralTrackingRecHits -Pjana:nevents=5
+    - uses: actions/upload-artifact@v4
+      with:
+        name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_all_collections.edm4eic.root
+        path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_all_collections.edm4eic.root
+        if-no-files-found: error
+    - uses: actions/upload-artifact@v4
+      with:
+        name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_no_mc.edm4eic.root
+        path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_no_mc.edm4eic.root
+        if-no-files-found: error
+
   eicrecon-benchmarks-plugins:
     runs-on: ubuntu-24.04
     needs:

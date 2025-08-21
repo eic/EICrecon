@@ -11,6 +11,7 @@
 #include <spdlog/logger.h>
 #include <cstddef>
 #include <memory>
+#include <set>
 #include <string>
 
 class JEventSourcePODIO : public JEventSource {
@@ -38,6 +39,8 @@ protected:
 
   bool m_run_forever       = false;
   bool m_use_event_headers = true;
+
+  std::set<std::string> m_input_collections;     // config. parameter
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
