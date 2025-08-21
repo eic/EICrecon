@@ -91,7 +91,8 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
   std::vector<std::string> input_collections;
   GetApplication()->SetDefaultParameter(
       "podio:input_collections", input_collections,
-      "Comma separated list of collection names to read from input. If not set, all collections will be "
+      "Comma separated list of collection names to read from input. If not set, all collections "
+      "will be "
       "read from input file. Setting this allows filtering which collections are loaded.");
 
   m_input_collections = std::set<std::string>(input_collections.begin(), input_collections.end());
@@ -226,24 +227,25 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
 
   // Insert contents of frame into JFactories
   VisitPodioCollection<InsertingVisitor> visit;
-  
+
   // Log collection filtering info on first event only
   static bool first_event = true;
   if (first_event && !m_input_collections.empty()) {
-    m_log->info("Filtering input collections - loading {} of {} available collections", 
+    m_log->info("Filtering input collections - loading {} of {} available collections",
                 m_input_collections.size(), frame->getAvailableCollections().size());
     first_event = false;
   }
-  
+
   for (const std::string& coll_name : frame->getAvailableCollections()) {
     // Filter collections based on input_collections parameter
     // If input_collections is not set (empty), load all collections (default behavior)
     // If input_collections is set, only load collections that are in the set
-    if (!m_input_collections.empty() && m_input_collections.find(coll_name) == m_input_collections.end()) {
+    if (!m_input_collections.empty() &&
+        m_input_collections.find(coll_name) == m_input_collections.end()) {
       // Skip this collection as it's not in the input_collections list
       continue;
     }
-    
+
     const podio::CollectionBase* collection = frame->get(coll_name);
     InsertingVisitor visitor(event, coll_name);
     visit(visitor, *collection);
