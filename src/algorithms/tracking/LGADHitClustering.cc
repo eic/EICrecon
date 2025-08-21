@@ -137,7 +137,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
   const auto& surfaceMap = m_acts_context->surfaceMap();
   const auto is          = surfaceMap.find(volID);
   if (is == surfaceMap.end())
-    error(" WARNING: vol_id ({})  not found in m_surfaces.", volID);
+    error("vol_id ({})  not found in m_surfaces.", volID);
 
   const Acts::Surface* surface = is->second;
 
