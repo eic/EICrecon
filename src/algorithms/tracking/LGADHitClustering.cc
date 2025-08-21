@@ -87,7 +87,9 @@ void LGADHitClustering::_calcCluster(const Output& output,
     // weigh all hits by ADC value
     auto pos = m_seg->position(hit.getCellID());
     if (hit.getEdep() < 0)
-      error("Edep for hit at cellID{} is negative. Please check the accuracy of your energy calibration. ", hit.getCellID());
+      error("Edep for hit at cellID{} is negative. Please check the accuracy of your energy "
+            "calibration. ",
+            hit.getCellID());
     const auto Edep = hit.getEdep();
     ave_x += Edep * pos.x();
     ave_y += Edep * pos.y();
