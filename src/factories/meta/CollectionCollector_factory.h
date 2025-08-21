@@ -15,8 +15,9 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>>::template VariadicPodioInput<T>
-      m_inputs{this, {.is_optional = IsOptional}};
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>>::template VariadicPodioInput<
+      T, IsOptional>
+      m_inputs{this};
   typename JOmniFactory<CollectionCollector_factory<T, IsOptional>>::template PodioOutput<T>
       m_output{this};
 
