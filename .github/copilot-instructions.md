@@ -135,7 +135,7 @@ ctest --test-dir build -V
 
 ### Key Directories
 - `src/algorithms/` - Core physics algorithms
-- `src/factories/` - JANA factory implementations  
+- `src/factories/` - JANA factory implementations
 - `src/services/` - Service components
 - `src/tests/` - Unit and integration tests
 - `src/benchmarks/` - Performance benchmarks
