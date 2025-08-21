@@ -327,7 +327,8 @@ double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string reso
 /// Resolve regex patterns in m_input_collections to actual collection names
 /// from the available collections in the input file
 //------------------------------------------------------------------------------
-void JEventSourcePODIO::ResolveInputCollections(const std::vector<std::string>& available_collections) {
+void JEventSourcePODIO::ResolveInputCollections(
+    const std::vector<std::string>& available_collections) {
 
   // Clear any previously resolved collections
   m_resolved_input_collections.clear();
@@ -338,7 +339,8 @@ void JEventSourcePODIO::ResolveInputCollections(const std::vector<std::string>& 
   }
 
   // Convert available collections to a set for efficient lookup
-  std::set<std::string> all_collections_set(available_collections.begin(), available_collections.end());
+  std::set<std::string> all_collections_set(available_collections.begin(),
+                                            available_collections.end());
 
   // Turn regexes among input collections into actual collection names
   std::vector<std::regex> input_collections_regex(m_input_collections.size());
@@ -349,8 +351,7 @@ void JEventSourcePODIO::ResolveInputCollections(const std::vector<std::string>& 
   std::copy_if(all_collections_set.begin(), all_collections_set.end(),
                std::inserter(m_resolved_input_collections, m_resolved_input_collections.end()),
                [&](const std::string& c) {
-                 return std::any_of(input_collections_regex.begin(),
-                                    input_collections_regex.end(),
+                 return std::any_of(input_collections_regex.begin(), input_collections_regex.end(),
                                     [&](const std::regex& r) { return std::regex_match(c, r); });
                });
 
