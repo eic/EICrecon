@@ -20,8 +20,20 @@ curl --location https://get.epic-eic.org | bash
 
 **Alternative if /cvmfs is available:**
 ```bash
-# Note: On JLab ifarm, run 'module load singularity/3.9.5' first
 singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly eic-shell
+```
+
+This approach is achieved by the following GitHub Actions snippet (inside :
+```yaml
+    steps:
+    - name: Ensure CernVM-FS is available
+      uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Run inside the eic_xl:nightly environment
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "eic_xl:nightly"
+        run: |
+          echo
 ```
 
 **Setup geometry and clone EICrecon:**
@@ -70,7 +82,7 @@ Expected output shows usage information with options like `-h`, `-v`, `-c`, `-Pk
 
 **Test plugin loading (basic validation):**
 ```bash
-jana -PPLUGINS=podio,dd4hep
+eicrecon -Pplugins=podio,dd4hep
 ```
 
 ### Manual Validation Scenarios
