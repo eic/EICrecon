@@ -719,7 +719,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_all_collections.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EventHeader,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits,CentralTrackingRecHits -Pjana:nevents=5
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_all_collections.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EventHeader,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits,CentralTrackingRecHits
     - name: Run EICrecon without MCParticles (test input filtering)
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -730,7 +730,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           # Test that our input_collections parameter works to exclude MCParticles - simulating real data without MC truth
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:input_collections=EventHeader,EcalBarrel.*,HcalBarrel.*,SiBarrel.* -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_no_mc.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EventHeader,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits,CentralTrackingRecHits -Pjana:nevents=5
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:input_collections=EventHeader,EcalBarrel.*,HcalBarrel.*,SiBarrel.* -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_no_mc.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EventHeader,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits,CentralTrackingRecHits
           # List the output collections that were created from the limited input collections
           podio-dump --category events rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_no_mc.edm4eic.root
     - uses: actions/upload-artifact@v4
