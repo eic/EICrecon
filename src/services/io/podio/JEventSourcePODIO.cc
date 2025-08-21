@@ -96,6 +96,16 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
 
   m_input_collections = std::set<std::string>(input_collections.begin(), input_collections.end());
 
+  // Log input collections configuration for debugging
+  if (!input_collections.empty()) {
+    m_log->info("podio:input_collections parameter set - will only load specified collections:");
+    for (const auto& coll : input_collections) {
+      m_log->info("  - {}", coll);
+    }
+  } else {
+    m_log->debug("podio:input_collections not set - will load all available collections");
+  }
+
   // Hopefully we won't need to reimplement background event merging. Using podio frames, it looks like we would
   // have to do a deep copy of all data in order to insert it into the same frame, which would probably be
   // quite inefficient.
@@ -216,6 +226,15 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
 
   // Insert contents of frame into JFactories
   VisitPodioCollection<InsertingVisitor> visit;
+  
+  // Log collection filtering info on first event only
+  static bool first_event = true;
+  if (first_event && !m_input_collections.empty()) {
+    m_log->info("Filtering input collections - loading {} of {} available collections", 
+                m_input_collections.size(), frame->getAvailableCollections().size());
+    first_event = false;
+  }
+  
   for (const std::string& coll_name : frame->getAvailableCollections()) {
     // Filter collections based on input_collections parameter
     // If input_collections is not set (empty), load all collections (default behavior)
