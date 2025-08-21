@@ -24,6 +24,7 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include <mutex>
 #include <sstream>
 #include <vector>
 
@@ -228,12 +229,13 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
   // Insert contents of frame into JFactories
   VisitPodioCollection<InsertingVisitor> visit;
 
-  // Log collection filtering info on first event only
-  static bool first_event = true;
-  if (first_event && !m_input_collections.empty()) {
-    m_log->info("Filtering input collections - loading {} of {} available collections",
-                m_input_collections.size(), frame->getAvailableCollections().size());
-    first_event = false;
+  // Log collection filtering info on first event only (thread-safe)
+  static std::once_flag log_once;
+  if (!m_input_collections.empty()) {
+    std::call_once(log_once, [this, &frame]() {
+      m_log->info("Filtering input collections - loading {} of {} available collections",
+                  m_input_collections.size(), frame->getAvailableCollections().size());
+    });
   }
 
   for (const std::string& coll_name : frame->getAvailableCollections()) {
