@@ -2,16 +2,21 @@
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Sylvester Joosten, Chao Peng, David Lawrence, Thomas Britton, Wouter Deconinck, Maria Zurek, Akshaya Vijay, Nathan Brei, Dmitry Kalinkin, Derek Anderson, Minho Kim
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/SimCalorimeterHit.h>
 #include <cmath>
+#include <map>
+#include <memory>
 #include <string>
 #include <variant>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
+#include "algorithms/digi/PulseGenerationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -22,8 +27,8 @@
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
-#include "factories/digi/PulseGeneration_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {

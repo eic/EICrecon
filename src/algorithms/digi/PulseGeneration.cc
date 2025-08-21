@@ -10,14 +10,18 @@
 #include <RtypesCore.h>
 #include <TMath.h>
 #include <algorithms/service.h>
-#include <edm4hep/Vector3d.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/RelationRange.h>
+#include <stdlib.h>
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <gsl/pointers>
 #include <stdexcept>
+#include <string>
 #include <unordered_map>
 #include <vector>
 

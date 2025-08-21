@@ -9,16 +9,17 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 #include <edm4eic/SimPulseCollection.h>
 #else
 #include <edm4hep/TimeSeriesCollection.h>
 #endif
 #include <memory>
-#include <string>
 #include <string_view>
+#include <tuple>
+#include <variant>
 
 #include "algorithms/digi/PulseGenerationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
