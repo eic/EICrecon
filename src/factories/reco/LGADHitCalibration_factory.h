@@ -17,10 +17,10 @@ private:
   PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input{this};
   PodioOutput<edm4eic::TrackerHit> m_rec_hits_output{this};
 
-  ParameterRef<double> m_c_slope{this, "c_slope", config().c_slope};
-  ParameterRef<double> m_c_intercept{this, "c_intercept", config().c_intercept};
-  ParameterRef<double> m_t_slope{this, "t_slope", config().t_slope};
-  ParameterRef<double> m_t_intercept{this, "t_intercept", config().t_intercept};
+  ParameterRef<double> m_c_slope{this, "cSlope", config().c_slope};
+  ParameterRef<double> m_c_intercept{this, "cIntercept", config().c_intercept};
+  ParameterRef<double> m_t_slope{this, "tSlope", config().t_slope};
+  ParameterRef<double> m_t_intercept{this, "tIntercept", config().t_intercept};
 
 public:
   void Configure() {
