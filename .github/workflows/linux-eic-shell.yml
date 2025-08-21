@@ -730,7 +730,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           # Test that our input_collections parameter works to exclude MCParticles - simulating real data without MC truth
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:input_collections=EventHeader,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits,EcalBarrelScFiHits,EcalBarrelImagingHits,HcalBarrelRawHits,HcalBarrelHits,SiBarrelRawHits,SiBarrelHits -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_no_mc.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EventHeader,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits,CentralTrackingRecHits -Pjana:nevents=5
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:input_collections=EventHeader,EcalBarrel.*,HcalBarrel.*,SiBarrel.* -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_no_mc.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EventHeader,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits,CentralTrackingRecHits -Pjana:nevents=5
     - uses: actions/upload-artifact@v4
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_all_collections.edm4eic.root

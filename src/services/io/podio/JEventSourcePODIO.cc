@@ -22,9 +22,11 @@
 #include <algorithm>
 #include <exception>
 #include <iostream>
+#include <iterator>
 #include <map>
 #include <memory>
 #include <mutex>
+#include <regex>
 #include <sstream>
 #include <vector>
 
@@ -229,22 +231,23 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
   // Insert contents of frame into JFactories
   VisitPodioCollection<InsertingVisitor> visit;
 
-  // Log collection filtering info on first event only (thread-safe)
-  static std::once_flag log_once;
+  // Resolve input collections patterns on first event only (thread-safe)
+  static std::once_flag resolve_once;
   if (!m_input_collections.empty()) {
-    std::call_once(log_once, [this, &frame]() {
+    std::call_once(resolve_once, [this, &frame]() {
+      ResolveInputCollections(frame->getAvailableCollections());
       m_log->info("Filtering input collections - loading {} of {} available collections",
-                  m_input_collections.size(), frame->getAvailableCollections().size());
+                  m_resolved_input_collections.size(), frame->getAvailableCollections().size());
     });
   }
 
   for (const std::string& coll_name : frame->getAvailableCollections()) {
-    // Filter collections based on input_collections parameter
+    // Filter collections based on resolved input_collections parameter
     // If input_collections is not set (empty), load all collections (default behavior)
-    // If input_collections is set, only load collections that are in the set
+    // If input_collections is set, only load collections that match the resolved patterns
     if (!m_input_collections.empty() &&
-        m_input_collections.find(coll_name) == m_input_collections.end()) {
-      // Skip this collection as it's not in the input_collections list
+        m_resolved_input_collections.find(coll_name) == m_resolved_input_collections.end()) {
+      // Skip this collection as it's not in the resolved input_collections list
       continue;
     }
 
@@ -302,6 +305,43 @@ double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string reso
     return 0.0;
   }
   return 0.03;
+}
+
+//------------------------------------------------------------------------------
+// ResolveInputCollections
+//
+/// Resolve regex patterns in m_input_collections to actual collection names
+/// from the available collections in the input file
+//------------------------------------------------------------------------------
+void JEventSourcePODIO::ResolveInputCollections(const std::vector<std::string>& available_collections) {
+
+  // Clear any previously resolved collections
+  m_resolved_input_collections.clear();
+
+  if (m_input_collections.empty()) {
+    // If no input collections specified, load all available collections
+    return;
+  }
+
+  // Convert available collections to a set for efficient lookup
+  std::set<std::string> all_collections_set(available_collections.begin(), available_collections.end());
+
+  // Turn regexes among input collections into actual collection names
+  std::vector<std::regex> input_collections_regex(m_input_collections.size());
+  std::transform(m_input_collections.begin(), m_input_collections.end(),
+                 input_collections_regex.begin(),
+                 [](const std::string& r) { return std::regex(r); });
+
+  std::copy_if(all_collections_set.begin(), all_collections_set.end(),
+               std::inserter(m_resolved_input_collections, m_resolved_input_collections.end()),
+               [&](const std::string& c) {
+                 return std::any_of(input_collections_regex.begin(),
+                                    input_collections_regex.end(),
+                                    [&](const std::regex& r) { return std::regex_match(c, r); });
+               });
+
+  m_log->debug("Resolved {} input collection patterns to {} actual collections",
+               m_input_collections.size(), m_resolved_input_collections.size());
 }
 
 //------------------------------------------------------------------------------
