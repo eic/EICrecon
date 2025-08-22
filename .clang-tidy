@@ -9,7 +9,6 @@ Checks: '
   -bugprone-easily-swappable-parameters,
   -bugprone-macro-parentheses,
   -bugprone-narrowing-conversions,
-  -bugprone-unchecked-optional-access,
   -modernize-use-trailing-return-type,
   -modernize-avoid-c-arrays,
   -modernize-use-nodiscard,
