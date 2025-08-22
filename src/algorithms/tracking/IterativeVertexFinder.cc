@@ -5,12 +5,10 @@
 #include "IterativeVertexFinder.h"
 
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
-#include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Utilities/detail/ContextType.hpp>
