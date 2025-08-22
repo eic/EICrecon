@@ -214,15 +214,20 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
-      "EcalBarrelImagingClusters",
+      "EcalBarrelImagingClustersWithoutShapes",
       {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitAssociations"},
-      {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations",
+      {"EcalBarrelImagingClustersWithoutShapes", "EcalBarrelImagingClusterAssociationsWithoutShapes",
        "EcalBarrelImagingLayers"},
       {
           .trackStopLayer = 6,
       },
       app // TODO: Remove me once fixed
       ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelImagingClusters",
+      {"EcalBarrelImagingClustersWithoutShapes", "EcalBarrelImagingClusterAssociationsWithoutShapes"},
+      {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
       "EcalBarrelClusters",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
