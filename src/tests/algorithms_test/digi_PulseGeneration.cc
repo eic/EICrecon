@@ -19,8 +19,8 @@
 #include <tuple>
 #include <vector>
 
-#include "algorithms/digi/SiliconPulseGeneration.h"
-#include "algorithms/digi/SiliconPulseGenerationConfig.h"
+#include "algorithms/digi/PulseGeneration.h"
+#include "algorithms/digi/PulseGenerationConfig.h"
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
 using PulseType = edm4eic::SimPulse;
@@ -28,10 +28,10 @@ using PulseType = edm4eic::SimPulse;
 using PulseType = edm4hep::TimeSeries;
 #endif
 
-TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[SiliconPulseGeneration]") {
+TEST_CASE("PulseGeneration generates correct number of pulses", "[PulseGeneration]") {
 
-  eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
-  eicrecon::SiliconPulseGenerationConfig cfg;
+  eicrecon::PulseGeneration<edm4hep::SimTrackerHit> algo("PulseGeneration");
+  eicrecon::PulseGenerationConfig cfg;
   cfg.pulse_shape_function = "LandauPulse"; // Example pulse shape
   cfg.pulse_shape_params   = {1.0, 1.0};    // Example parameters for the pulse shape
   cfg.ignore_thres         = 1;
@@ -67,10 +67,10 @@ TEST_CASE("SiliconPulseGeneration generates correct number of pulses", "[Silicon
 }
 
 TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse",
-          "[SiliconPulseGeneration]") {
+          "[PulseGeneration]") {
 
-  eicrecon::SiliconPulseGeneration algo("SiliconPulseGeneration");
-  eicrecon::SiliconPulseGenerationConfig cfg;
+  eicrecon::PulseGeneration<edm4hep::SimTrackerHit> algo("PulseGeneration");
+  eicrecon::PulseGenerationConfig cfg;
 
   // Square wave expression
   std::string expression = "(time >= param0 && time < param1) ? charge : 0";
