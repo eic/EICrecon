@@ -12,6 +12,7 @@
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/SimTrackerHit.h>
 #include <fmt/core.h>
 #include <fmt/format.h> // IWYU pragma: keep
 #include <cmath>
