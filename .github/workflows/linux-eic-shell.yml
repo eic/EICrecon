@@ -1043,7 +1043,7 @@ jobs:
           const name = process.env.PIPELINE_NAME;
           return name ? name.substring(0, 255) : ''
         env:
-          PIPELINE_NAME: "${{ github.repository }}: ${{ github.event.pull_request.title || github.ref_name }}"
+          PIPELINE_NAME: '${{ github.repository }}: ${{ github.event.pull_request.title || github.ref_name }}'
     - uses: eic/trigger-gitlab-ci@v3
       id: trigger
       with:
