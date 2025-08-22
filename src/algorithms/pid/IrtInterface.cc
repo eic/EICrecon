@@ -104,7 +104,7 @@ namespace eicrecon {
       if (jptr->find("IntegratedReconstruction") != jptr->end() &&
 	  !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
 	m_ReconstructionFactory = new ReconstructionFactory(config.m_irt_geometry, m_irt_det, m_Event);
-	JsonParser();
+	JsonParser();//jptr);
       } //if
     
       if (!m_InstanceCounters[m_OutputFileName]) {

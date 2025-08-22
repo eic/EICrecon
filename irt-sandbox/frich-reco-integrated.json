@@ -3,6 +3,14 @@
 
     "IntegratedReconstruction": "yes", 
     "OutputTree": "frich-events.root",
+
+    "UsePoissonTermInChiSquare": "no",
+    "UseTimingInChiSquare": "no",
+    "DefaultSinglePhotonThetaResolution": 0.002,
+    "SensorActiveAreaPixellation": 32,
+    "UseMcTruthPhotonDirectionSeed": "no",
+    "MinHitCountCutoff": 5,
+    "BuildCombinedEvaluationPlots": "yes",
 	
     "Acceptance": {
 	"comment": "Nominal values, used to calculate ACTS DiscSurfaceConfig parameters",
@@ -13,7 +21,12 @@
     "Radiators": {
 	"Aerogel": {
 	    "imaging": "yes",
-	    "acts-planes": 5
+	    "acts-planes": 5,
+	    
+	    "evaluation-plots": "yes",
+	    "refractive-index-range": [1.015, 1.025],
+	    "photon-vertex-range": [2500, 2650],
+	    "cherenkov-angle-range": [180, 200]
 	},
 	"Acrylic": {
 	    "imaging": "no",
@@ -21,7 +34,12 @@
 	},
 	"GasVolume": {
 	    "imaging": "yes",
-	    "acts-planes": 10
+	    "acts-planes": 10,
+	    
+	    "evaluation-plots": "yes",
+	    "refractive-index-range": [1.00050, 1.00100],
+	    "photon-vertex-range": [2400, 4000],
+	    "cherenkov-angle-range": [30, 50]
 	}
     },
     
