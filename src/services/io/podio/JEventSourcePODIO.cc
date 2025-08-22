@@ -48,8 +48,8 @@ template <> struct fmt::formatter<podio::version::Version> : ostream_formatter {
 /// \param collection_name   name of the collection which will be used as the factory tag for these objects
 //------------------------------------------------------------------------------
 struct InsertingVisitor {
+  // NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members): Lifetime of referenced objects is guaranteed beyond visitor lifetime in this pattern
   JEvent& m_event;
-  // NOLINTBEGIN(cppcoreguidelines-avoid-const-or-ref-data-members): Lifetime of referenced string is guaranteed beyond visitor lifetime in this pattern
   const std::string& m_collection_name;
   // NOLINTEND(cppcoreguidelines-avoid-const-or-ref-data-members)
 
