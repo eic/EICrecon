@@ -55,7 +55,7 @@ void InitPlugin(JApplication* app) {
       "LandauPulse"};
   decltype(PulseGenerationConfig::pulse_shape_params) EcalBarrelScFi_pulse_shape_params = {
       1.0, 2 * edm4eic::unit::ns};
-  decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {1.0e-10};
+  decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {1.0e-6};
   decltype(PulseGenerationConfig::timestep) EcalBarrelScFi_timestep = {0.2 * edm4eic::unit::ns};
 
   // Make sure digi and reco use the same value
