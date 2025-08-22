@@ -301,8 +301,17 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   m_log->trace("    propagation result is OK");
 
   // Pulling results to convenient variables
-  auto trackStateParams  = *((*result).endParameters);
+  if (!(*result).endParameters) {
+    m_log->trace("    propagation failed (no endParameters)");
+    return nullptr;
+  }
+  auto trackStateParams  = *(*result).endParameters;
   const auto& parameter  = trackStateParams.parameters();
+  
+  if (!trackStateParams.covariance()) {
+    m_log->trace("    propagation failed (no covariance)");
+    return nullptr;
+  }
   const auto& covariance = *trackStateParams.covariance();
 
   // Path length
