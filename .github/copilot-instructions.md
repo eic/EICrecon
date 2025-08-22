@@ -254,7 +254,10 @@ eicrecon -Ppodio:output_file=output.edm4eic.root input_simulation.edm4hep.root
 
 **Header organization rules:**
 1. **Always sort headers alphabetically within each group** separated by blank lines
-2. **Group headers in this order:**
+2. **Use correct include syntax:**
+   - **Angle brackets `<>`** for system/standard library headers and external dependencies
+   - **Quotes `""`** for project-specific/local headers
+3. **Group headers in this order:**
    - System/standard library headers (e.g., `<algorithm>`, `<cmath>`, `<memory>`, `<vector>`)
    - Third-party library headers (e.g., `<DD4hep/...>`, `<JANA/...>`, `<edm4eic/...>`, `<fmt/...>`)
    - Project-specific headers (e.g., `"algorithms/..."`, `"services/..."`, `"utilities/..."`)
@@ -283,6 +286,7 @@ eicrecon -Ppodio:output_file=output.edm4eic.root input_simulation.edm4hep.root
 
 **When editing existing code:**
 - Always maintain alphabetical ordering when adding new headers
+- **Use angle brackets `<>` for system and third-party headers, quotes `""` for project headers**
 - Check that new headers are placed in the correct group (system, third-party, or project)
 - Respect existing blank line separations between header groups
 - Use the IWYU mapping file (`.github/iwyu.imp`) rules for header substitutions
