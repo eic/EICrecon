@@ -3,6 +3,8 @@
 
 #include "ParticleSvc.h"
 
+#include <utility>
+
 namespace algorithms {
 
 void ParticleSvc::init(std::shared_ptr<ParticleMap> map) {
