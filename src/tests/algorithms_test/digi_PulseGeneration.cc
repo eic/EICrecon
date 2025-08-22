@@ -66,8 +66,7 @@ TEST_CASE("PulseGeneration generates correct number of pulses", "[PulseGeneratio
   }
 }
 
-TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse",
-          "[PulseGeneration]") {
+TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[PulseGeneration]") {
 
   eicrecon::PulseGeneration<edm4hep::SimTrackerHit> algo("PulseGeneration");
   eicrecon::PulseGenerationConfig cfg;
