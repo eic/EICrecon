@@ -730,7 +730,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           # Test that our input_collections parameter works with RawHits-only input - simulating real data processing pipeline
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:input_collections=.*RawHits -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_from_rawhits.edm4eic.root rawhits_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:input_collections=EventHeader,.*RawHits -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_from_rawhits.edm4eic.root rawhits_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           # List the output collections that were created from the RawHits-only input collections
           podio-dump --category events rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_from_rawhits.edm4eic.root
     - uses: actions/upload-artifact@v4
