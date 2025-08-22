@@ -290,3 +290,92 @@ eicrecon -Ppodio:output_file=output.edm4eic.root input_simulation.edm4hep.root
 - Check that new headers are placed in the correct group (system, third-party, or project)
 - Respect existing blank line separations between header groups
 - Use the IWYU mapping file (`.github/iwyu.imp`) rules for header substitutions
+
+## Conventional Commits and Breaking Changes
+
+### Commit Message Format
+
+**CRITICAL: All pull requests must follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) to clearly highlight breaking changes.**
+
+**Standard commit message format:**
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Common commit types:**
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `docs:` - Documentation changes
+- `style:` - Code style changes (formatting, etc.)
+- `refactor:` - Code refactoring without functional changes
+- `test:` - Adding or modifying tests
+- `chore:` - Maintenance tasks, build changes
+- `perf:` - Performance improvements
+
+**Examples of conventional commit messages:**
+```
+feat(tracking): add silicon tracker hit reconstruction
+fix(calorimetry): correct energy calibration for ECAL clusters
+docs(readme): update build instructions for new dependencies
+refactor(algorithms): simplify cluster formation algorithm
+test(tracking): add unit tests for track fitting
+```
+
+### Breaking Changes in EICrecon Context
+
+**CRITICAL: Use `BREAKING CHANGE:` footer or `!` suffix for any changes that affect user workflows.**
+
+**Consider as breaking changes:**
+
+1. **Command-line interface changes:**
+   - Removal or renaming of `eicrecon` command-line options
+   - Changes to argument parsing that affect existing scripts
+   - Modifications to configuration parameter names or behavior
+   - Changes to plugin loading syntax or requirements
+
+2. **Output collection changes:**
+   - Renaming of output collection names (e.g., `EcalBarrelClusters` → `ECALClusters`)
+   - Removal of existing output collections that users depend on
+   - Significant changes to collection content structure or data members
+   - Changes to default output file naming conventions
+
+**Examples of breaking change commits:**
+```
+feat!: change ECAL cluster collection name for consistency
+
+BREAKING CHANGE: EcalBarrelClusters collection renamed to ECALBarrelClusters
+to match naming convention. Update analysis scripts to use new name.
+
+feat(cli): add new reconstruction mode option
+
+BREAKING CHANGE: --mode argument now required for eicrecon execution.
+Add --mode=default to existing scripts to maintain current behavior.
+
+refactor(algorithms): restructure tracking output collections
+
+BREAKING CHANGE: TrackCandidates collection split into ReconstructedTracks
+and TrackParameters. Analysis code must be updated to use new collections.
+```
+
+**Non-breaking changes (safe to implement without `BREAKING CHANGE`):**
+- Algorithm improvements that produce better but compatible results
+- Addition of new optional command-line arguments
+- Addition of new output collections alongside existing ones
+- Performance optimizations that don't change interfaces
+- Internal refactoring that doesn't affect user-facing APIs
+
+**Validation before marking as breaking:**
+```bash
+# Test command-line compatibility
+eicrecon --help  # Verify existing options still work
+eicrecon -Pkey=value input.edm4hep.root  # Test parameter syntax
+
+# Test output collection compatibility
+# Run reconstruction and verify expected collections exist
+eicrecon -Ppodio:output_file=test.root input.edm4hep.root
+# Check collection names match expectations
+```
