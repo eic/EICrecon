@@ -108,7 +108,7 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
     if (traj->hasTrackParameters(trackTip)) {
       const auto& boundParam = traj->trackParameters(trackTip);
       const auto& parameter  = boundParam.parameters();
-      
+
       if (!boundParam.covariance()) {
         m_log->debug("No covariance available for track parameters");
         continue;

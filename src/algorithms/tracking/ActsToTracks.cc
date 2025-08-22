@@ -97,7 +97,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       // Get the fitted track parameter
       const auto& boundParam = traj->trackParameters(trackTip);
       const auto& parameter  = boundParam.parameters();
-      
+
       if (!boundParam.covariance()) {
         warning("No covariance matrix for trajectory with entry index = {}", trackTip);
         continue;
