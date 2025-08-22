@@ -7,8 +7,8 @@
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
 #include <algorithms/geo.h>
-#include <services/particle/ParticleSvc.h>
 #include <algorithms/interfaces/UniqueIDGenSvc.h>
+#include <services/particle/ParticleSvc.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
 #include <catch2/generators/catch_generators_random.hpp>

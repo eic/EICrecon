@@ -13,11 +13,11 @@
 #include <spdlog/logger.h>
 
 #include "algorithms/interfaces/ActsSvc.h"
-#include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
-#include "services/log/Log_service.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/log/Log_service.h"
+#include "services/particle/ParticleSvc.h"
 
 /**
  * The AlgorithmsInit_service centralizes use of ServiceSvc

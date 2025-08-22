@@ -19,8 +19,8 @@
 #include <unordered_map>
 
 // EICrecon
-#include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 
 namespace eicrecon {
