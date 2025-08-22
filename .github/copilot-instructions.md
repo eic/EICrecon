@@ -245,3 +245,44 @@ eicrecon -Ppodio:output_file=output.edm4eic.root input_simulation.edm4hep.root
 ```
 
 **For physics validation, you need appropriate simulation files. The CI system generates these automatically.**
+
+## Code Style and Header Organization
+
+### Header Include Order and Alphabetization
+
+**CRITICAL: Headers must be sorted alphabetically within each blank-line delimited header block to pass include-what-you-use (IWYU) checks.**
+
+**Header organization rules:**
+1. **Always sort headers alphabetically within each group** separated by blank lines
+2. **Group headers in this order:**
+   - System/standard library headers (e.g., `<algorithm>`, `<cmath>`, `<memory>`, `<vector>`)
+   - Third-party library headers (e.g., `<DD4hep/...>`, `<JANA/...>`, `<edm4eic/...>`, `<fmt/...>`)
+   - Project-specific headers (e.g., `"algorithms/..."`, `"services/..."`, `"utilities/..."`)
+
+**Example correct header ordering:**
+```cpp
+#include <algorithm>
+#include <cmath>
+#include <memory>
+#include <vector>
+
+#include <DD4hep/Detector.h>
+#include <JANA/JApplication.h>
+#include <edm4eic/ClusterCollection.h>
+#include <fmt/core.h>
+
+#include "algorithms/calorimetry/CalorimeterHitDigi.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/log/Log_service.h"
+```
+
+**IWYU enforcement:** The CI system runs include-what-you-use with `--reorder` and `fix_includes.py --reorder` to automatically detect and fix header ordering violations. If headers are not properly sorted:
+- CI will fail with IWYU violations
+- An automatic PR may be created with header fixes
+- Manual fixes must sort headers alphabetically within each group
+
+**When editing existing code:**
+- Always maintain alphabetical ordering when adding new headers
+- Check that new headers are placed in the correct group (system, third-party, or project)
+- Respect existing blank line separations between header groups
+- Use the IWYU mapping file (`.github/iwyu.imp`) rules for header substitutions
