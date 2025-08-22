@@ -49,7 +49,8 @@ template <> struct fmt::formatter<podio::version::Version> : ostream_formatter {
 //------------------------------------------------------------------------------
 struct InsertingVisitor {
   JEvent& m_event;
-  const std::string& m_collection_name;  // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members): Lifetime of referenced string is guaranteed beyond visitor lifetime in this pattern
+  const std::string&
+      m_collection_name; // NOLINT(cppcoreguidelines-avoid-const-or-ref-data-members): Lifetime of referenced string is guaranteed beyond visitor lifetime in this pattern
 
   InsertingVisitor(JEvent& event, const std::string& collection_name)
       : m_event(event), m_collection_name(collection_name) {};
