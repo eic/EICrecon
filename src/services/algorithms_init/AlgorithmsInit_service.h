@@ -13,7 +13,7 @@
 #include <spdlog/logger.h>
 
 #include "algorithms/interfaces/ActsSvc.h"
-#include "algorithms/interfaces/ParticleSvc.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "services/log/Log_service.h"
 #include "services/geometry/acts/ACTSGeo_service.h"

@@ -14,7 +14,7 @@
 #include "ActsGeometryProvider.h"
 #include "TrackParamTruthInitConfig.h"
 #include "algorithms/interfaces/ActsSvc.h"
-#include "algorithms/interfaces/ParticleSvc.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 

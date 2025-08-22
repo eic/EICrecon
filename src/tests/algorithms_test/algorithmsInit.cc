@@ -7,7 +7,7 @@
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
 #include <algorithms/geo.h>
-#include <algorithms/interfaces/ParticleSvc.h>
+#include <services/particle/ParticleSvc.h>
 #include <algorithms/interfaces/UniqueIDGenSvc.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>

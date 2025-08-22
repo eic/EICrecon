@@ -19,7 +19,7 @@
 #include <unordered_map>
 
 // EICrecon
-#include "algorithms/interfaces/ParticleSvc.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 
