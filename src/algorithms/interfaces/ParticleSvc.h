@@ -7,6 +7,7 @@
 // This header is kept for backward compatibility and will be removed in a future version.
 // Please update your includes to: #include <services/particle/ParticleSvc.h>
 
-#pragma message("Warning: algorithms/interfaces/ParticleSvc.h is deprecated. Use services/particle/ParticleSvc.h instead.")
+#pragma message(                                                                                   \
+    "Warning: algorithms/interfaces/ParticleSvc.h is deprecated. Use services/particle/ParticleSvc.h instead.")
 
 #include <services/particle/ParticleSvc.h>
