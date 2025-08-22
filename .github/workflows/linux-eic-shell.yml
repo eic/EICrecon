@@ -1040,10 +1040,10 @@ jobs:
       id: truncate_pipeline_name
       with:
         script: |
-          const title = github.context.payload.pull_request?.title;
-          const ref_name = github.context.ref.replace(/^refs\/heads\//, '');
-          const name = title || ref_name;
+          const name = process.env.PIPELINE_NAME;
           return name ? name.substring(0, 255) : ''
+        env:
+          PIPELINE_NAME: ${{ github.event.pull_request.title || github.ref_name }}
     - uses: eic/trigger-gitlab-ci@v3
       id: trigger
       with:
