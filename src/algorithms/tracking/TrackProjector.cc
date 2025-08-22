@@ -96,11 +96,11 @@ void TrackProjector::process(const Input& input, const Output& output) const {
         return; // skip this track state if no predicted parameters
       }
       const auto& boundParams = trackstate.predicted();
-      
+
       if (!trackstate.predictedCovariance()) {
         return; // skip this track state if no predicted covariance
       }
-      const auto& boundCov    = trackstate.predictedCovariance();
+      const auto& boundCov = trackstate.predictedCovariance();
 
       // convert local to global
       auto global = trackstate.referenceSurface().localToGlobal(
