@@ -92,15 +92,18 @@ void TrackProjector::process(const Input& input, const Output& output) const {
       }
 
       // get track state bound parameters and their boundCovs
+#if Acts_VERSION_MAJOR >= 36
       if (!trackstate.predicted()) {
         return; // skip this track state if no predicted parameters
       }
+#endif
       const auto& boundParams = trackstate.predicted();
-
+#if Acts_VERSION_MAJOR >= 36
       if (!trackstate.predictedCovariance()) {
         return; // skip this track state if no predicted covariance
       }
-      const auto& boundCov = trackstate.predictedCovariance();
+#endif
+      const auto& boundCov    = trackstate.predictedCovariance();
 
       // convert local to global
       auto global = trackstate.referenceSurface().localToGlobal(

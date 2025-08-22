@@ -267,12 +267,11 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
     return nullptr;
   }
   const auto& initParams = trackState.filtered();
-
   if (!trackState.filteredCovariance()) {
     m_log->trace("    no filtered covariance available");
     return nullptr;
   }
-  const auto& initCov = trackState.filteredCovariance();
+  const auto& initCov    = trackState.filteredCovariance();
 
   Acts::BoundTrackParameters initBoundParams(initSurface, initParams, initCov,
                                              acts_track.particleHypothesis());
@@ -315,9 +314,9 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
     m_log->trace("    propagation failed (no endParameters)");
     return nullptr;
   }
-  auto trackStateParams = *(*result).endParameters;
-  const auto& parameter = trackStateParams.parameters();
-
+  auto trackStateParams  = *(*result).endParameters;
+  const auto& parameter  = trackStateParams.parameters();
+  
   if (!trackStateParams.covariance()) {
     m_log->trace("    propagation failed (no covariance)");
     return nullptr;
