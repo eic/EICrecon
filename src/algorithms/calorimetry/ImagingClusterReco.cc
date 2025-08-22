@@ -131,13 +131,7 @@ edm4eic::MutableCluster ImagingClusterReco::reconstruct_layer(
   // positionError not set
   // Intrinsic direction meaningless in a cluster layer --> not set
 
-  // Calculate radius as the standard deviation of the hits versus the cluster center
-  double radius = 0.;
-  for (const auto& [hit, weight] : hits) {
-    radius += std::pow(edm4hep::utils::magnitude(hit.getPosition() - layer.getPosition()), 2);
-  }
-  layer.addToShapeParameters(std::sqrt(radius / layer.getNhits()));
-  // TODO Skewedness
+  // Shape parameters are calculated separately by CalorimeterClusterShape algorithm
 
   return layer;
 }
@@ -179,17 +173,7 @@ ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const 
   cluster.setPosition(edm4hep::utils::sphericalToVector(
       r, edm4hep::utils::etaToAngle(meta / energy), mphi / energy));
 
-  // shower radius estimate (eta-phi plane)
-  double radius = 0.;
-  for (const auto& hit : hits) {
-    radius += std::pow(std::hypot((edm4hep::utils::eta(hit.getPosition()) -
-                                   edm4hep::utils::eta(cluster.getPosition())),
-                                  (edm4hep::utils::angleAzimuthal(hit.getPosition()) -
-                                   edm4hep::utils::angleAzimuthal(cluster.getPosition()))),
-                       2.0);
-  }
-  cluster.addToShapeParameters(std::sqrt(radius / cluster.getNhits()));
-  // Skewedness not calculated TODO
+  // Shape parameters are calculated separately by CalorimeterClusterShape algorithm
 
   // Optionally store the MC truth associated with the first hit in this cluster
   // FIXME no connection between cluster and truth in edm4hep
