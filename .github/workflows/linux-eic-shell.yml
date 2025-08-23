@@ -730,7 +730,7 @@ jobs:
           if [ -f jana.dot ]; then
             mv jana.dot rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
           fi
-          
+
           # Convert all dot files to SVG (both main and plugin-specific files)
           for dotfile in *.dot; do
             if [ -f "$dotfile" ]; then
@@ -833,7 +833,7 @@ jobs:
           if [ -f jana.dot ]; then
             mv jana.dot rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
           fi
-          
+
           # Convert all dot files to SVG (both main and plugin-specific files)
           for dotfile in *.dot; do
             if [ -f "$dotfile" ]; then
@@ -950,7 +950,7 @@ jobs:
           if [ -f jana.dot ]; then
             mv jana.dot rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
           fi
-          
+
           # Convert all dot files to SVG (both main and plugin-specific files)
           for dotfile in *.dot; do
             if [ -f "$dotfile" ]; then
