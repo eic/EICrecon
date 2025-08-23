@@ -261,19 +261,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   // For last measurement surface, filtered and smoothed results are equivalent
   auto trackState        = mj.getTrackState(trackTip);
   auto initSurface       = trackState.referenceSurface().getSharedPtr();
-#if Acts_VERSION_MAJOR >= 36
-  if (!trackState.filtered()) {
-    m_log->trace("    no filtered parameters available");
-    return nullptr;
-  }
-#endif
   const auto& initParams = trackState.filtered();
-#if Acts_VERSION_MAJOR >= 36
-  if (!trackState.filteredCovariance()) {
-    m_log->trace("    no filtered covariance available");
-    return nullptr;
-  }
-#endif
   const auto& initCov    = trackState.filteredCovariance();
 
   Acts::BoundTrackParameters initBoundParams(initSurface, initParams, initCov,
@@ -313,17 +301,8 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   m_log->trace("    propagation result is OK");
 
   // Pulling results to convenient variables
-  if (!(*result).endParameters) {
-    m_log->trace("    propagation failed (no endParameters)");
-    return nullptr;
-  }
-  auto trackStateParams  = *(*result).endParameters;
+  auto trackStateParams  = *((*result).endParameters);
   const auto& parameter  = trackStateParams.parameters();
-  
-  if (!trackStateParams.covariance()) {
-    m_log->trace("    propagation failed (no covariance)");
-    return nullptr;
-  }
   const auto& covariance = *trackStateParams.covariance();
 
   // Path length
