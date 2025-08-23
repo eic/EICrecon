@@ -314,8 +314,8 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
     m_log->trace("    propagation failed (endParameters not available)");
     return nullptr;
   }
-  auto trackStateParams  = *((*result).endParameters);
-  const auto& parameter  = trackStateParams.parameters();
+  auto trackStateParams = *((*result).endParameters);
+  const auto& parameter = trackStateParams.parameters();
   if (!trackStateParams.covariance().has_value()) {
     m_log->trace("    propagation failed (covariance not available)");
     return nullptr;
