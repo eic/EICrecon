@@ -41,7 +41,7 @@ void JEventProcessorJANADOT::Init() {
   params->SetDefaultParameter("janadot:max_edges_per_graph", max_edges_per_graph,
                               "Maximum number of edges per graph when splitting");
 
-  split_criteria = "size";
+  split_criteria = "plugin";
   params->SetDefaultParameter("janadot:split_criteria", split_criteria,
                               "Criteria for splitting graphs: size, components, type, plugin");
 }
