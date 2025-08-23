@@ -216,8 +216,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
       "EcalBarrelImagingClustersWithoutShapes",
       {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitAssociations"},
-      {"EcalBarrelImagingClustersWithoutShapes", "EcalBarrelImagingClusterAssociationsWithoutShapes",
-       "EcalBarrelImagingLayers"},
+      {"EcalBarrelImagingClustersWithoutShapes",
+       "EcalBarrelImagingClusterAssociationsWithoutShapes", "EcalBarrelImagingLayers"},
       {
           .trackStopLayer = 6,
       },
@@ -225,9 +225,11 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelImagingClusters",
-      {"EcalBarrelImagingClustersWithoutShapes", "EcalBarrelImagingClusterAssociationsWithoutShapes"},
+      {"EcalBarrelImagingClustersWithoutShapes",
+       "EcalBarrelImagingClusterAssociationsWithoutShapes"},
       {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2}, app));
+      {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
+      app));
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
       "EcalBarrelClusters",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
