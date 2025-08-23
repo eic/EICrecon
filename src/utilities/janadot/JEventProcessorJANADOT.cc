@@ -58,14 +58,14 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
   if (!factory_mapping_built) {
     auto factories = event->GetFactorySet()->GetAllFactories();
     for (auto* factory : factories) {
-      std::string nametag = MakeNametag(factory->GetObjectName(), factory->GetTag());
+      std::string nametag     = MakeNametag(factory->GetObjectName(), factory->GetTag());
       std::string plugin_name = factory->GetPluginName();
-      
+
       // If plugin name is empty, try to use a reasonable default
       if (plugin_name.empty()) {
         plugin_name = "core";
       }
-      
+
       nametag_to_plugin[nametag] = plugin_name;
     }
     factory_mapping_built = true;
@@ -919,7 +919,7 @@ std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphB
   // Group nodes by their actual plugin (from factory information)
   for (auto& [nametag, fstats] : factory_stats) {
     std::string plugin;
-    
+
     // Try to get plugin from our mapping first
     auto it = nametag_to_plugin.find(nametag);
     if (it != nametag_to_plugin.end()) {
@@ -928,7 +928,7 @@ std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphB
       // Fall back to heuristic extraction for items not in factory set
       plugin = ExtractPluginName(nametag);
     }
-    
+
     plugin_groups[plugin].insert(nametag);
   }
 
