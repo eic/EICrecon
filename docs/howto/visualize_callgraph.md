@@ -9,6 +9,10 @@ sources in the event. It also times how long it takes each factory
 to run, integrating it over all calls so that one can see the relative
 time spent in each factory.
 
+The `janadot` plugin in EICrecon includes enhanced functionality to automatically
+split large graphs into multiple smaller graphs for better processing by graphviz
+and improved readability.
+
 *Note that this requires JANA2 v2.0.8 or later and EICrecon v0.3.6 or
 later.*
 
@@ -42,6 +46,27 @@ you would run:
 ~~~bash
 dot -Tpng jana.dot -o jana.png
 ~~~
+
+### Graph Splitting for Large Call Graphs
+When processing complex reconstructions with many algorithms, the resulting call graph can become too large for graphviz to handle efficiently. The janadot plugin automatically detects large graphs and splits them into multiple smaller graphs.
+
+To control the splitting behavior, you can use these parameters:
+
+~~~bash
+# Enable/disable splitting (enabled by default)
+eicrecon -Pplugins=janadot -Pjanadot:enable_splitting=false sim_file.edm4hep.root
+
+# Control splitting thresholds
+eicrecon -Pplugins=janadot \
+   -Pjanadot:max_nodes_per_graph=30 \
+   -Pjanadot:max_edges_per_graph=60 \
+   sim_file.edm4hep.root
+
+# Change splitting method (size, components, or type)
+eicrecon -Pplugins=janadot -Pjanadot:split_criteria=components sim_file.edm4hep.root
+~~~
+
+When graphs are split, multiple files are created (`jana_part001.dot`, `jana_part002.dot`, etc.) along with an index file (`jana_index.txt`) that explains how to process them.
 
 ### Running for a single detector
 By default `eicrecon` activates the full reconstruction. This will
