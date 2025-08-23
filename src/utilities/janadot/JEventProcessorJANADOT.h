@@ -92,8 +92,6 @@ private:
   // Configuration parameters
   std::string output_filename;
   bool enable_splitting;
-  int max_nodes_per_graph;
-  int max_edges_per_graph;
   std::string split_criteria;
 
   // Group-related parameters
@@ -118,9 +116,6 @@ private:
   void WriteOverallDotFile(const std::map<std::string, std::set<std::string>>& plugin_groups);
   void WriteOverallDotFile(const std::vector<std::set<std::string>>& node_groups);
   void WriteIndexFile(int num_parts);
-  std::vector<std::set<std::string>> SplitGraphByConnectedComponents();
-  std::vector<std::set<std::string>> SplitGraphBySize();
-  std::vector<std::set<std::string>> SplitGraphByType();
   std::map<std::string, std::set<std::string>> SplitGraphByPlugin();
   std::map<std::string, std::set<std::string>> SplitGraphByGroups();
   void WriteGroupGraphs(const std::map<std::string, std::set<std::string>>& groups);
