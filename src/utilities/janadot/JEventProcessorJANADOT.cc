@@ -48,14 +48,10 @@ void JEventProcessorJANADOT::Init() {
       "janadot:split_criteria", split_criteria,
       "Criteria for splitting graphs: size, components, type, plugin, groups");
 
-  // Also check for JANADOT:GROUP parameters (command line group definitions)
-  auto parameter_keys = params->GetParameterNames();
-  for (const auto& key : parameter_keys) {
-    if (key.find("janadot:group:") == 0) {
-      std::string group_name = key.substr(13); // Remove "janadot:group:" prefix
-      std::string group_definition;
-      params->GetParameter(key, group_definition);
-
+  // Check for janadot:group parameters (command line group definitions)
+  std::map<std::string,std::string> parameter_keys;
+  params->FilterParameters(parameter_keys, "janadot:group:");
+  for (const auto& [group_name, group_definition] : parameter_keys) {
       // Parse command line group definition similar to file format
       std::vector<std::string> factories;
       std::string color = "lightblue"; // default color
@@ -77,7 +73,6 @@ void JEventProcessorJANADOT::Init() {
       for (const auto& factory : factories) {
         nametag_to_group[factory] = group_name;
       }
-    }
   }
 }
 
