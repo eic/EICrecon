@@ -76,7 +76,7 @@ eicrecon -Pplugins=janadot -Pjanadot:split_criteria=plugin sim_file.edm4hep.root
 
 This generates:
 - `jana.tracking.dot` - All tracking-related components
-- `jana.ecal_barrel.dot` - ECAL barrel subsystem components  
+- `jana.ecal_barrel.dot` - ECAL barrel subsystem components
 - `jana.hcal_endcap.dot` - HCAL endcap subsystem components
 - `jana.dot` - Overall inter-plugin connection summary
 
