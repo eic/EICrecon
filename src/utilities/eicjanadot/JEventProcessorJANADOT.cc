@@ -23,22 +23,22 @@ void JEventProcessorJANADOT::Init() {
 
   // Set default parameter values and register them
   output_filename = "jana.dot";
-  params->SetDefaultParameter("janadot:output_file", output_filename, "Output DOT filename");
+  params->SetDefaultParameter("eicjanadot:output_file", output_filename, "Output DOT filename");
 
   enable_splitting = true;
-  params->SetDefaultParameter("janadot:enable_splitting", enable_splitting,
+  params->SetDefaultParameter("eicjanadot:enable_splitting", enable_splitting,
                               "Enable splitting large graphs into multiple files");
 
   max_nodes_per_graph = 50;
-  params->SetDefaultParameter("janadot:max_nodes_per_graph", max_nodes_per_graph,
+  params->SetDefaultParameter("eicjanadot:max_nodes_per_graph", max_nodes_per_graph,
                               "Maximum number of nodes per graph when splitting");
 
   max_edges_per_graph = 100;
-  params->SetDefaultParameter("janadot:max_edges_per_graph", max_edges_per_graph,
+  params->SetDefaultParameter("eicjanadot:max_edges_per_graph", max_edges_per_graph,
                               "Maximum number of edges per graph when splitting");
 
-  split_criteria = "size";
-  params->SetDefaultParameter("janadot:split_criteria", split_criteria,
+  split_criteria = "plugin";
+  params->SetDefaultParameter("eicjanadot:split_criteria", split_criteria,
                               "Criteria for splitting graphs: size, components, type, plugin");
 }
 
