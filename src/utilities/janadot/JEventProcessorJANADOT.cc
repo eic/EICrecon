@@ -5,6 +5,7 @@
 
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
+#include <JANA/JFactorySet.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JCallGraphRecorder.h>
 #include <ctype.h>
@@ -40,7 +41,7 @@ void JEventProcessorJANADOT::Init() {
   params->SetDefaultParameter("janadot:max_edges_per_graph", max_edges_per_graph,
                               "Maximum number of edges per graph when splitting");
 
-  split_criteria = "plugin";
+  split_criteria = "size";
   params->SetDefaultParameter("janadot:split_criteria", split_criteria,
                               "Criteria for splitting graphs: size, components, type, plugin");
 }
@@ -51,6 +52,24 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
 
   // Lock mutex in case we are running with multiple threads
   std::lock_guard<std::mutex> lck(mutex);
+
+  // Build mapping of nametags to plugin names (only do this once per execution)
+  static bool factory_mapping_built = false;
+  if (!factory_mapping_built) {
+    auto factories = event->GetFactorySet()->GetAllFactories();
+    for (auto* factory : factories) {
+      std::string nametag = MakeNametag(factory->GetObjectName(), factory->GetTag());
+      std::string plugin_name = factory->GetPluginName();
+      
+      // If plugin name is empty, try to use a reasonable default
+      if (plugin_name.empty()) {
+        plugin_name = "core";
+      }
+      
+      nametag_to_plugin[nametag] = plugin_name;
+    }
+    factory_mapping_built = true;
+  }
 
   // Loop over the call stack elements and add in the values
   for (unsigned int i = 0; i < stack.size(); i++) {
@@ -428,9 +447,12 @@ std::string JEventProcessorJANADOT::MakeTimeString(double time_in_ms) {
 }
 
 std::string JEventProcessorJANADOT::MakeNametag(const std::string& name, const std::string& tag) {
-  std::string nametag = name;
-  if (tag.size() > 0)
-    nametag += ":" + tag;
+  std::string nametag = tag;
+  if (tag.size() > 0 && name.size() > 0) {
+    nametag += " (" + name + ")";
+  } else if (name.size() > 0) {
+    nametag = name;
+  }
   return nametag;
 }
 
@@ -894,9 +916,19 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
 std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphByPlugin() {
   std::map<std::string, std::set<std::string>> plugin_groups;
 
-  // Group nodes by their detected plugin
+  // Group nodes by their actual plugin (from factory information)
   for (auto& [nametag, fstats] : factory_stats) {
-    std::string plugin = ExtractPluginName(nametag);
+    std::string plugin;
+    
+    // Try to get plugin from our mapping first
+    auto it = nametag_to_plugin.find(nametag);
+    if (it != nametag_to_plugin.end()) {
+      plugin = it->second;
+    } else {
+      // Fall back to heuristic extraction for items not in factory set
+      plugin = ExtractPluginName(nametag);
+    }
+    
     plugin_groups[plugin].insert(nametag);
   }
 

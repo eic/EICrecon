@@ -22,11 +22,11 @@ The plugin supports several configuration parameters:
 - `janadot:enable_splitting` (default: true) - Enable splitting large graphs into multiple files
 - `janadot:max_nodes_per_graph` (default: 50) - Maximum number of nodes per graph when splitting
 - `janadot:max_edges_per_graph` (default: 100) - Maximum number of edges per graph when splitting
-- `janadot:split_criteria` (default: "plugin") - Criteria for splitting graphs: size, components, type, plugin
+- `janadot:split_criteria` (default: "size") - Criteria for splitting graphs: size, components, type, plugin
 
 ## Plugin-based Splitting
 
-The default splitting method groups components by detector subsystem plugins:
+To use plugin-based splitting to group components by detector subsystem plugins:
 
 ```bash
 eicrecon -Pplugins=janadot -Pjanadot:split_criteria=plugin sim_file.root
@@ -67,11 +67,11 @@ dot -Tpdf jana.ecal_barrel.dot -o jana.ecal_barrel.pdf
 
 ## Graph Splitting Methods
 
-### Plugin-based Splitting (default)
-Groups components by detector subsystem, providing both detailed subsystem views and high-level architectural overview.
-
-### Size-based Splitting
+### Size-based Splitting (default)
 Nodes are grouped to keep within the specified limits of nodes and edges per graph.
+
+### Plugin-based Splitting
+Groups components by detector subsystem, providing both detailed subsystem views and high-level architectural overview.
 
 ### Component-based Splitting
 Uses connected components analysis to group nodes that are connected by call relationships.

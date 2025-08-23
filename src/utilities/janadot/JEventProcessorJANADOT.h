@@ -87,6 +87,7 @@ private:
 
   std::map<CallLink, CallStats> call_links;
   std::map<std::string, FactoryCallStats> factory_stats;
+  std::map<std::string, std::string> nametag_to_plugin; // Maps nametag to plugin name
 
   // Configuration parameters
   std::string output_filename;
