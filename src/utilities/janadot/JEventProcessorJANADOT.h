@@ -96,6 +96,11 @@ private:
   int max_edges_per_graph;
   std::string split_criteria;
 
+  // Group-related parameters
+  std::map<std::string, std::vector<std::string>> user_groups;  // Group name -> list of factories
+  std::map<std::string, std::string> user_group_colors;        // Group name -> color
+  std::map<std::string, std::string> nametag_to_group;         // Nametag -> group name
+
   // Helper methods
   std::string MakeTimeString(double time_in_ms);
   std::string MakeNametag(const std::string& name, const std::string& tag);
@@ -117,6 +122,10 @@ private:
   std::vector<std::set<std::string>> SplitGraphBySize();
   std::vector<std::set<std::string>> SplitGraphByType();
   std::map<std::string, std::set<std::string>> SplitGraphByPlugin();
+  std::map<std::string, std::set<std::string>> SplitGraphByGroups();
+  void WriteGroupGraphs(const std::map<std::string, std::set<std::string>>& groups);
+  void WriteGroupDotFile(const std::string& group_name, const std::set<std::string>& nodes);
+  void LoadGroupDefinitions();
   std::string ExtractPluginName(const std::string& nametag);
 
   // Graph analysis methods
