@@ -121,8 +121,4 @@ private:
   void WriteGroupGraphs(const std::map<std::string, std::set<std::string>>& groups);
   void WriteGroupDotFile(const std::string& group_name, const std::set<std::string>& nodes);
   std::string ExtractPluginName(const std::string& nametag);
-
-  // Graph analysis methods
-  void AnalyzeGraph(int& total_nodes, int& total_edges);
-  bool ShouldSplitGraph(int total_nodes, int total_edges);
 };
