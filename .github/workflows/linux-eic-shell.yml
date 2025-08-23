@@ -312,7 +312,7 @@ jobs:
               echo "File $file not found"
             fi
           done
-          
+
           # Original IWYU logic on specific files
           echo "Running IWYU on PR files..."
           # reduce headers until diff is stable
