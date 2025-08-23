@@ -47,9 +47,6 @@ void JEventProcessorJANADOT::Init() {
   params->SetDefaultParameter("janadot:split_criteria", split_criteria,
                               "Criteria for splitting graphs: size, components, type, plugin, groups");
 
-  // Load group definitions if they exist
-  LoadGroupDefinitions();
-
   // Also check for JANADOT:GROUP parameters (command line group definitions)
   auto parameter_keys = params->GetParameterNames();
   for (const auto& key : parameter_keys) {
@@ -1079,57 +1076,7 @@ std::string JEventProcessorJANADOT::ExtractPluginName(const std::string& nametag
   return "misc";
 }
 
-void JEventProcessorJANADOT::LoadGroupDefinitions() {
-  // Load group definitions from .github/janadot.groups file
-  std::ifstream file(".github/janadot.groups");
-  if (!file.is_open()) {
-    std::cout << "Warning: Could not open .github/janadot.groups file. Group splitting may not work properly." << std::endl;
-    return;
-  }
 
-  std::string line;
-  while (std::getline(file, line)) {
-    // Skip empty lines and comments
-    if (line.empty() || line[0] == '#') {
-      continue;
-    }
-
-    // Parse lines of format: -PJANADOT:GROUP:GroupName=factory1,factory2,...,color
-    if (line.find("-PJANADOT:GROUP:") == 0) {
-      size_t group_start = line.find("GROUP:") + 6;
-      size_t equals_pos = line.find("=", group_start);
-      if (equals_pos == std::string::npos) continue;
-
-      std::string group_name = line.substr(group_start, equals_pos - group_start);
-      std::string factories_str = line.substr(equals_pos + 1);
-
-      // Parse comma-separated list of factories and color
-      std::vector<std::string> factories;
-      std::string color = "lightblue"; // default color
-      
-      std::stringstream ss(factories_str);
-      std::string item;
-      while (std::getline(ss, item, ',')) {
-        if (item.find("color_") == 0) {
-          color = item.substr(6); // remove "color_" prefix
-        } else if (!item.empty()) {
-          factories.push_back(item);
-        }
-      }
-
-      user_groups[group_name] = factories;
-      user_group_colors[group_name] = color;
-
-      // Build nametag to group mapping
-      for (const auto& factory : factories) {
-        nametag_to_group[factory] = group_name;
-      }
-    }
-  }
-  file.close();
-
-  std::cout << "Loaded " << user_groups.size() << " group definitions from .github/janadot.groups" << std::endl;
-}
 
 std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphByGroups() {
   std::map<std::string, std::set<std::string>> groups;
