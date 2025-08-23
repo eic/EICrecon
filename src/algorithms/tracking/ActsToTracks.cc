@@ -95,6 +95,10 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       // Get the fitted track parameter
       const auto& boundParam = traj->trackParameters(trackTip);
       const auto& parameter  = boundParam.parameters();
+      if (!boundParam.covariance().has_value()) {
+        m_log->warn("Track parameters do not have covariance matrix, skipping track");
+        continue;
+      }
       const auto& covariance = *boundParam.covariance();
 
       auto pars = track_parameters->create();
