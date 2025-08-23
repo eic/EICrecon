@@ -214,10 +214,10 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
 void JEventProcessorJANADOT::WriteSplitDotFiles() {
   std::vector<std::set<std::string>> node_groups;
   std::map<std::string, std::set<std::string>> plugin_groups;
-  
+
   // Use switch/case for better structure
   enum SplitMethod { PLUGIN, SIZE, COMPONENTS, TYPE } method = PLUGIN;
-  
+
   if (split_criteria == "plugin") {
     method = PLUGIN;
   } else if (split_criteria == "size") {
@@ -229,27 +229,28 @@ void JEventProcessorJANADOT::WriteSplitDotFiles() {
   } else {
     // Default to plugin if unknown
     method = PLUGIN;
-    std::cout << "Unknown split criteria '" << split_criteria << "', defaulting to plugin" << std::endl;
+    std::cout << "Unknown split criteria '" << split_criteria << "', defaulting to plugin"
+              << std::endl;
   }
 
   switch (method) {
-    case PLUGIN:
-      plugin_groups = SplitGraphByPlugin();
-      WritePluginGraphs(plugin_groups);
-      WriteOverallDotFile(plugin_groups);
-      return;
-      
-    case SIZE:
-      node_groups = SplitGraphBySize();
-      break;
-      
-    case COMPONENTS:
-      node_groups = SplitGraphByConnectedComponents();
-      break;
-      
-    case TYPE:
-      node_groups = SplitGraphByType();
-      break;
+  case PLUGIN:
+    plugin_groups = SplitGraphByPlugin();
+    WritePluginGraphs(plugin_groups);
+    WriteOverallDotFile(plugin_groups);
+    return;
+
+  case SIZE:
+    node_groups = SplitGraphBySize();
+    break;
+
+  case COMPONENTS:
+    node_groups = SplitGraphByConnectedComponents();
+    break;
+
+  case TYPE:
+    node_groups = SplitGraphByType();
+    break;
   }
 
   // For size, components, and type splitting
@@ -272,7 +273,7 @@ void JEventProcessorJANADOT::WriteSplitDotFiles() {
 
   // Write an index file explaining the split
   WriteIndexFile(node_groups.size());
-  
+
   // Write overall summary for all split types
   WriteOverallDotFile(node_groups);
 }
@@ -607,7 +608,8 @@ std::vector<std::set<std::string>> JEventProcessorJANADOT::SplitGraphByType() {
   return groups;
 }
 
-void JEventProcessorJANADOT::WritePluginGraphs(const std::map<std::string, std::set<std::string>>& plugin_groups) {
+void JEventProcessorJANADOT::WritePluginGraphs(
+    const std::map<std::string, std::set<std::string>>& plugin_groups) {
   std::cout << "Splitting graph into " << plugin_groups.size() << " plugin-based subgraphs"
             << std::endl;
 
@@ -833,7 +835,8 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
 }
 
 // Overloaded WriteOverallDotFile for non-plugin splitting methods
-void JEventProcessorJANADOT::WriteOverallDotFile(const std::vector<std::set<std::string>>& node_groups) {
+void JEventProcessorJANADOT::WriteOverallDotFile(
+    const std::vector<std::set<std::string>>& node_groups) {
   std::ofstream ofs(output_filename);
   if (!ofs.is_open()) {
     std::cerr << "Error: Unable to open file " << output_filename << " for writing!" << std::endl;
@@ -866,7 +869,8 @@ void JEventProcessorJANADOT::WriteOverallDotFile(const std::vector<std::set<std:
   ofs << "  rankdir=TB;" << std::endl;
   ofs << "  node [fontname=\"Arial\", fontsize=12];" << std::endl;
   ofs << "  edge [fontname=\"Arial\", fontsize=10];" << std::endl;
-  ofs << "  label=\"EICrecon Overall Call Graph - " << split_criteria << " splitting summary\";" << std::endl;
+  ofs << "  label=\"EICrecon Overall Call Graph - " << split_criteria << " splitting summary\";"
+      << std::endl;
   ofs << "  labelloc=\"t\";" << std::endl;
   ofs << std::endl;
 
