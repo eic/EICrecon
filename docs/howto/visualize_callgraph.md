@@ -62,11 +62,26 @@ eicrecon -Pplugins=janadot \
    -Pjanadot:max_edges_per_graph=60 \
    sim_file.edm4hep.root
 
-# Change splitting method (size, components, or type)
+# Change splitting method (plugin, size, components, or type)
 eicrecon -Pplugins=janadot -Pjanadot:split_criteria=components sim_file.edm4hep.root
 ~~~
 
-When graphs are split, multiple files are created (`jana_part001.dot`, `jana_part002.dot`, etc.) along with an index file (`jana_index.txt`) that explains how to process them.
+#### Plugin-based Splitting (Default)
+The default splitting method groups components by detector subsystem plugins, providing both detailed subsystem views and high-level architectural overview:
+
+~~~bash
+# Plugin-based splitting for system architecture analysis
+eicrecon -Pplugins=janadot -Pjanadot:split_criteria=plugin sim_file.edm4hep.root
+~~~
+
+This generates:
+- `jana.tracking.dot` - All tracking-related components
+- `jana.ecal_barrel.dot` - ECAL barrel subsystem components  
+- `jana.hcal_endcap.dot` - HCAL endcap subsystem components
+- `jana.dot` - Overall inter-plugin connection summary
+
+#### Other Splitting Methods
+When graphs are split using size, components, or type methods, multiple files are created (`jana_part001.dot`, `jana_part002.dot`, etc.) along with an index file (`jana_index.txt`) that explains how to process them.
 
 ### Running for a single detector
 By default `eicrecon` activates the full reconstruction. This will
