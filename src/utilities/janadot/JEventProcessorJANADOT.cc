@@ -35,18 +35,10 @@ void JEventProcessorJANADOT::Init() {
   params->SetDefaultParameter("janadot:enable_splitting", enable_splitting,
                               "Enable splitting large graphs into multiple files");
 
-  max_nodes_per_graph = 50;
-  params->SetDefaultParameter("janadot:max_nodes_per_graph", max_nodes_per_graph,
-                              "Maximum number of nodes per graph when splitting");
-
-  max_edges_per_graph = 100;
-  params->SetDefaultParameter("janadot:max_edges_per_graph", max_edges_per_graph,
-                              "Maximum number of edges per graph when splitting");
-
   split_criteria = "plugin";
   params->SetDefaultParameter(
       "janadot:split_criteria", split_criteria,
-      "Criteria for splitting graphs: size, components, type, plugin, groups");
+      "Criteria for splitting graphs: plugin, groups");
 
   // Check for janadot:group parameters (command line group definitions)
   std::map<std::string, std::string> parameter_keys;
@@ -266,16 +258,10 @@ void JEventProcessorJANADOT::WriteSplitDotFiles() {
   std::map<std::string, std::set<std::string>> plugin_groups;
 
   // Use switch/case for better structure
-  enum SplitMethod { PLUGIN, SIZE, COMPONENTS, TYPE, GROUPS } method = PLUGIN;
+  enum SplitMethod { PLUGIN, GROUPS } method = PLUGIN;
 
   if (split_criteria == "plugin") {
     method = PLUGIN;
-  } else if (split_criteria == "size") {
-    method = SIZE;
-  } else if (split_criteria == "components") {
-    method = COMPONENTS;
-  } else if (split_criteria == "type") {
-    method = TYPE;
   } else if (split_criteria == "groups") {
     method = GROUPS;
   } else {
@@ -297,43 +283,7 @@ void JEventProcessorJANADOT::WriteSplitDotFiles() {
     WriteGroupGraphs(plugin_groups);
     WriteOverallDotFile(plugin_groups);
     return;
-
-  case SIZE:
-    node_groups = SplitGraphBySize();
-    break;
-
-  case COMPONENTS:
-    node_groups = SplitGraphByConnectedComponents();
-    break;
-
-  case TYPE:
-    node_groups = SplitGraphByType();
-    break;
   }
-
-  // For size, components, and type splitting
-  std::cout << "Splitting graph into " << node_groups.size() << " subgraphs" << std::endl;
-
-  for (size_t i = 0; i < node_groups.size(); i++) {
-    // Create filename for this subgraph
-    std::string base_filename = output_filename;
-    size_t dot_pos            = base_filename.find_last_of('.');
-    if (dot_pos != std::string::npos) {
-      base_filename = base_filename.substr(0, dot_pos);
-    }
-
-    std::stringstream ss;
-    ss << base_filename << "_part" << std::setfill('0') << std::setw(3) << (i + 1) << ".dot";
-    std::string filename = ss.str();
-
-    WriteSplitDotFile(filename, node_groups[i]);
-  }
-
-  // Write an index file explaining the split
-  WriteIndexFile(node_groups.size());
-
-  // Write overall summary for all split types
-  WriteOverallDotFile(node_groups);
 }
 
 void JEventProcessorJANADOT::WriteSplitDotFile(const std::string& filename,
@@ -460,8 +410,6 @@ void JEventProcessorJANADOT::WriteIndexFile(int num_parts) {
   ofs << std::endl;
   ofs << "Configuration used:" << std::endl;
   ofs << "  Split criteria: " << split_criteria << std::endl;
-  ofs << "  Max nodes per graph: " << max_nodes_per_graph << std::endl;
-  ofs << "  Max edges per graph: " << max_edges_per_graph << std::endl;
 
   ofs.close();
 
@@ -547,126 +495,8 @@ void JEventProcessorJANADOT::AnalyzeGraph(int& total_nodes, int& total_edges) {
 }
 
 bool JEventProcessorJANADOT::ShouldSplitGraph(int total_nodes, int total_edges) {
-  return (total_nodes > max_nodes_per_graph) || (total_edges > max_edges_per_graph);
-}
-
-std::vector<std::set<std::string>> JEventProcessorJANADOT::SplitGraphBySize() {
-  std::vector<std::set<std::string>> groups;
-  std::set<std::string> current_group;
-
-  int current_nodes = 0;
-  int current_edges = 0;
-
-  // Simple greedy algorithm: add nodes to current group until limits are reached
-  for (auto& [nametag, fstats] : factory_stats) {
-    // Count edges involving this node
-    int node_edges = 0;
-    for (auto& [link, stats] : call_links) {
-      std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-      std::string callee = MakeNametag(link.callee_name, link.callee_tag);
-      if (caller == nametag || callee == nametag) {
-        // Only count edge if both nodes are in current group (or this is the first node)
-        if (current_group.empty() || current_group.find(caller) != current_group.end() ||
-            current_group.find(callee) != current_group.end()) {
-          node_edges++;
-        }
-      }
-    }
-
-    // Check if adding this node would exceed limits
-    if (current_nodes > 0 && (current_nodes + 1 > max_nodes_per_graph ||
-                              current_edges + node_edges > max_edges_per_graph)) {
-      groups.push_back(current_group);
-      current_group.clear();
-      current_nodes = 0;
-      current_edges = 0;
-    }
-
-    current_group.insert(nametag);
-    current_nodes++;
-    current_edges += node_edges;
-  }
-
-  if (!current_group.empty()) {
-    groups.push_back(current_group);
-  }
-
-  // If we only have one group, return it as-is (even if it's large)
-  if (groups.empty()) {
-    std::set<std::string> all_nodes;
-    for (auto& [nametag, fstats] : factory_stats) {
-      all_nodes.insert(nametag);
-    }
-    groups.push_back(all_nodes);
-  }
-
-  return groups;
-}
-
-std::vector<std::set<std::string>> JEventProcessorJANADOT::SplitGraphByConnectedComponents() {
-  // Implementation of connected components finding using Union-Find
-  std::map<std::string, std::string> parent;
-
-  // Initialize each node as its own parent
-  for (auto& [nametag, fstats] : factory_stats) {
-    parent[nametag] = nametag;
-  }
-
-  // Union-Find helper functions
-  std::function<std::string(const std::string&)> find = [&](const std::string& x) -> std::string {
-    if (parent[x] != x) {
-      parent[x] = find(parent[x]);
-    }
-    return parent[x];
-  };
-
-  auto unite = [&](const std::string& x, const std::string& y) {
-    std::string px = find(x);
-    std::string py = find(y);
-    if (px != py) {
-      parent[px] = py;
-    }
-  };
-
-  // Connect nodes that have edges between them
-  for (auto& [link, stats] : call_links) {
-    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-    std::string callee = MakeNametag(link.callee_name, link.callee_tag);
-    unite(caller, callee);
-  }
-
-  // Group nodes by their root parent
-  std::map<std::string, std::set<std::string>> components;
-  for (auto& [nametag, fstats] : factory_stats) {
-    components[find(nametag)].insert(nametag);
-  }
-
-  // Convert to vector of sets
-  std::vector<std::set<std::string>> groups;
-  for (auto& [root, component] : components) {
-    groups.push_back(component);
-  }
-
-  return groups;
-}
-
-std::vector<std::set<std::string>> JEventProcessorJANADOT::SplitGraphByType() {
-  std::map<node_type, std::set<std::string>> type_groups;
-
-  // Group nodes by their type
-  for (auto& [nametag, fstats] : factory_stats) {
-    type_groups[fstats.type].insert(nametag);
-  }
-
-  // Convert to vector of sets
-  std::vector<std::set<std::string>> groups;
-  for (auto& [type, group] : type_groups) {
-    if (!group.empty()) {
-      groups.push_back(group);
-    }
-  }
-
-  return groups;
+  // For plugin and groups splitting, we always split if there are multiple groups
+  return true;
 }
 
 void JEventProcessorJANADOT::WritePluginGraphs(
@@ -1140,7 +970,7 @@ void JEventProcessorJANADOT::WriteGroupDotFile(const std::string& group_name,
       ofs << ",shape=" << GetNodeShape(fstats.type);
 
       // Add timing information to label
-      double total_time    = fstats.total_time_waiting_on + fstats.total_time_factory_active;
+      double total_time    = fstats.time_waited_on + fstats.time_waiting;
       std::string time_str = MakeTimeString(total_time);
       ofs << ",label=\"" << nametag << "\\n" << time_str << "\"";
       ofs << "];" << std::endl;
