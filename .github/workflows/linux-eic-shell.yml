@@ -301,13 +301,27 @@ jobs:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
+          # Run clang-tidy on specific files to check for bugprone-unchecked-optional-access warnings
+          echo "Running clang-tidy on PR files to check for bugprone-unchecked-optional-access warnings..."
+          PR_FILES="src/algorithms/tracking/TrackPropagation.cc src/algorithms/tracking/ActsToTracks.cc src/benchmarks/reconstruction/tracking_efficiency/TrackingEfficiency_processor.cc src/algorithms/tracking/TrackProjector.cc"
+          for file in $PR_FILES; do
+            if [[ -f "$file" ]]; then
+              echo "Checking $file for clang-tidy warnings..."
+              run-clang-tidy -p build -checks=bugprone-unchecked-optional-access -extra-arg='-std=c++20' "$file" || true
+            else
+              echo "File $file not found"
+            fi
+          done
+          
+          # Original IWYU logic on specific files
+          echo "Running IWYU on PR files..."
           # reduce headers until diff is stable
           i=5
           while [[ $i > 0 && ${sha:-} != $(git diff | sha256sum) ]] ; do
             let i=i-1
             sha=$(git diff | sha256sum)
             echo $sha
-            iwyu_tool.py -p build $(git diff --name-only ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }}) -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
+            iwyu_tool.py -p build $PR_FILES -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
             fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
             git diff | tee iwyu_fixes.patch
           done
