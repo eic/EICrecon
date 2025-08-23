@@ -726,24 +726,18 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          # Rename all jana dot files with matrix test name prefix
           for dotfile in jana*.dot; do
-            if [ -f "$dotfile" ]; then
-              newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.${dotfile#jana.}"
-              # Handle the case where jana.dot should become rec_..._dot without extra period
-              if [ "$dotfile" = "jana.dot" ]; then
-                newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot"
-              fi
-              mv "$dotfile" "$newname"
+            # Rename all jana dot files with matrix test name prefix
+            newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.${dotfile#jana.}"
+            # Handle the case where jana.dot should become rec_..._dot without extra period
+            if [ "$dotfile" = "jana.dot" ]; then
+              newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot"
             fi
-          done
+            mv "$dotfile" "$newname"
 
-          # Convert all dot files to SVG (both main and plugin-specific files)
-          for dotfile in *.dot; do
-            if [ -f "$dotfile" ]; then
-              svgfile="${dotfile%.dot}.svg"
-              sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$dotfile" | dot -Tsvg > "$svgfile"
-            fi
+            # Convert all dot files to SVG (both main and plugin-specific files)
+            svgfile="${newname%.dot}.svg"
+            sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$newname" | dot -Tsvg > "$svgfile"
           done
       continue-on-error: true
     - uses: actions/upload-artifact@v4
@@ -836,17 +830,18 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          # Rename main file and convert all dot files to SVG
-          if [ -f jana.dot ]; then
-            mv jana.dot rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
-          fi
-
-          # Convert all dot files to SVG (both main and plugin-specific files)
-          for dotfile in *.dot; do
-            if [ -f "$dotfile" ]; then
-              svgfile="${dotfile%.dot}.svg"
-              sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$dotfile" | dot -Tsvg > "$svgfile"
+          for dotfile in jana*.dot; do
+            # Rename all jana dot files with matrix test name prefix
+            newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.${dotfile#jana.}"
+            # Handle the case where jana.dot should become rec_..._dot without extra period
+            if [ "$dotfile" = "jana.dot" ]; then
+              newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot"
             fi
+            mv "$dotfile" "$newname"
+
+            # Convert all dot files to SVG (both main and plugin-specific files)
+            svgfile="${newname%.dot}.svg"
+            sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$newname" | dot -Tsvg > "$svgfile"
           done
       continue-on-error: true
     - uses: actions/upload-artifact@v4
@@ -953,17 +948,18 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          # Rename main file and convert all dot files to SVG
-          if [ -f jana.dot ]; then
-            mv jana.dot rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
-          fi
-
-          # Convert all dot files to SVG (both main and plugin-specific files)
-          for dotfile in *.dot; do
-            if [ -f "$dotfile" ]; then
-              svgfile="${dotfile%.dot}.svg"
-              sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$dotfile" | dot -Tsvg > "$svgfile"
+          for dotfile in jana*.dot; do
+            # Rename all jana dot files with matrix test name prefix
+            newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.${dotfile#jana.}"
+            # Handle the case where jana.dot should become rec_..._dot without extra period
+            if [ "$dotfile" = "jana.dot" ]; then
+              newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot"
             fi
+            mv "$dotfile" "$newname"
+
+            # Convert all dot files to SVG (both main and plugin-specific files)
+            svgfile="${newname%.dot}.svg"
+            sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$newname" | dot -Tsvg > "$svgfile"
           done
       continue-on-error: true
     - uses: actions/upload-artifact@v4
