@@ -125,7 +125,6 @@ private:
   std::map<std::string, std::set<std::string>> SplitGraphByGroups();
   void WriteGroupGraphs(const std::map<std::string, std::set<std::string>>& groups);
   void WriteGroupDotFile(const std::string& group_name, const std::set<std::string>& nodes);
-  void LoadGroupDefinitions();
   std::string ExtractPluginName(const std::string& nametag);
 
   // Graph analysis methods
