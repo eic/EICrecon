@@ -36,9 +36,8 @@ void JEventProcessorJANADOT::Init() {
                               "Enable splitting large graphs into multiple files");
 
   split_criteria = "plugin";
-  params->SetDefaultParameter(
-      "janadot:split_criteria", split_criteria,
-      "Criteria for splitting graphs: plugin, groups");
+  params->SetDefaultParameter("janadot:split_criteria", split_criteria,
+                              "Criteria for splitting graphs: plugin, groups");
 
   // Check for janadot:group parameters (command line group definitions)
   std::map<std::string, std::string> parameter_keys;
