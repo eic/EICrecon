@@ -749,7 +749,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           prmon --json-summary rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json -- \
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,eicjanadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Peicjanadot:split_criteria=plugin
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjanadot:split_criteria=plugin
     - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -766,10 +766,17 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          # Rename main file and convert all dot files to SVG
-          if [ -f jana.dot ]; then
-            mv jana.dot rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
-          fi
+          # Rename all jana dot files with matrix test name prefix
+          for dotfile in jana*.dot; do
+            if [ -f "$dotfile" ]; then
+              newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.${dotfile#jana.}"
+              # Handle the case where jana.dot should become rec_..._dot without extra period
+              if [ "$dotfile" = "jana.dot" ]; then
+                newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot"
+              fi
+              mv "$dotfile" "$newname"
+            fi
+          done
 
           # Convert all dot files to SVG (both main and plugin-specific files)
           for dotfile in *.dot; do

@@ -1,35 +1,35 @@
-# EIC JANADOT Plugin
+# JANADOT Plugin
 
 This plugin creates DOT (graphviz) files from JANA2 call graphs for visualization purposes.
 
 ## Overview
 
-The eicjanadot plugin records call stack information during event processing and generates DOT format files that can be processed by graphviz to create visual call graphs. It includes functionality to split large graphs into multiple smaller graphs for better processing and readability.
+The janadot plugin records call stack information during event processing and generates DOT format files that can be processed by graphviz to create visual call graphs. It includes functionality to split large graphs into multiple smaller graphs for better processing and readability.
 
 ## Usage
 
 To use the plugin, add it to your eicrecon command:
 
 ```bash
-eicrecon -Pplugins=eicjanadot sim_file.edm4hep.root
+eicrecon -Pplugins=janadot sim_file.edm4hep.root
 ```
 
 ## Configuration Parameters
 
 The plugin supports several configuration parameters:
 
-- `eicjanadot:output_file` (default: "jana.dot") - Output DOT filename
-- `eicjanadot:enable_splitting` (default: true) - Enable splitting large graphs into multiple files
-- `eicjanadot:max_nodes_per_graph` (default: 50) - Maximum number of nodes per graph when splitting
-- `eicjanadot:max_edges_per_graph` (default: 100) - Maximum number of edges per graph when splitting
-- `eicjanadot:split_criteria` (default: "plugin") - Criteria for splitting graphs: size, components, type, plugin
+- `janadot:output_file` (default: "jana.dot") - Output DOT filename
+- `janadot:enable_splitting` (default: true) - Enable splitting large graphs into multiple files
+- `janadot:max_nodes_per_graph` (default: 50) - Maximum number of nodes per graph when splitting
+- `janadot:max_edges_per_graph` (default: 100) - Maximum number of edges per graph when splitting
+- `janadot:split_criteria` (default: "plugin") - Criteria for splitting graphs: size, components, type, plugin
 
 ## Plugin-based Splitting
 
 The default splitting method groups components by detector subsystem plugins:
 
 ```bash
-eicrecon -Pplugins=eicjanadot -Peicjanadot:split_criteria=plugin sim_file.root
+eicrecon -Pplugins=janadot -Pjanadot:split_criteria=plugin sim_file.root
 ```
 
 This generates:

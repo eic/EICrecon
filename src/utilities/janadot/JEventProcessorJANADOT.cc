@@ -26,22 +26,22 @@ void JEventProcessorJANADOT::Init() {
 
   // Set default parameter values and register them
   output_filename = "jana.dot";
-  params->SetDefaultParameter("eicjanadot:output_file", output_filename, "Output DOT filename");
+  params->SetDefaultParameter("janadot:output_file", output_filename, "Output DOT filename");
 
   enable_splitting = true;
-  params->SetDefaultParameter("eicjanadot:enable_splitting", enable_splitting,
+  params->SetDefaultParameter("janadot:enable_splitting", enable_splitting,
                               "Enable splitting large graphs into multiple files");
 
   max_nodes_per_graph = 50;
-  params->SetDefaultParameter("eicjanadot:max_nodes_per_graph", max_nodes_per_graph,
+  params->SetDefaultParameter("janadot:max_nodes_per_graph", max_nodes_per_graph,
                               "Maximum number of nodes per graph when splitting");
 
   max_edges_per_graph = 100;
-  params->SetDefaultParameter("eicjanadot:max_edges_per_graph", max_edges_per_graph,
+  params->SetDefaultParameter("janadot:max_edges_per_graph", max_edges_per_graph,
                               "Maximum number of edges per graph when splitting");
 
   split_criteria = "plugin";
-  params->SetDefaultParameter("eicjanadot:split_criteria", split_criteria,
+  params->SetDefaultParameter("janadot:split_criteria", split_criteria,
                               "Criteria for splitting graphs: size, components, type, plugin");
 }
 
@@ -212,21 +212,47 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
 }
 
 void JEventProcessorJANADOT::WriteSplitDotFiles() {
-  if (split_criteria == "plugin") {
-    WritePluginDotFiles();
-    return;
-  }
-
   std::vector<std::set<std::string>> node_groups;
-
-  if (split_criteria == "components") {
-    node_groups = SplitGraphByConnectedComponents();
+  std::map<std::string, std::set<std::string>> plugin_groups;
+  
+  // Use switch/case for better structure
+  enum SplitMethod { PLUGIN, SIZE, COMPONENTS, TYPE } method = PLUGIN;
+  
+  if (split_criteria == "plugin") {
+    method = PLUGIN;
+  } else if (split_criteria == "size") {
+    method = SIZE;
+  } else if (split_criteria == "components") {
+    method = COMPONENTS;
   } else if (split_criteria == "type") {
-    node_groups = SplitGraphByType();
-  } else { // default to "size"
-    node_groups = SplitGraphBySize();
+    method = TYPE;
+  } else {
+    // Default to plugin if unknown
+    method = PLUGIN;
+    std::cout << "Unknown split criteria '" << split_criteria << "', defaulting to plugin" << std::endl;
   }
 
+  switch (method) {
+    case PLUGIN:
+      plugin_groups = SplitGraphByPlugin();
+      WritePluginGraphs(plugin_groups);
+      WriteOverallDotFile(plugin_groups);
+      return;
+      
+    case SIZE:
+      node_groups = SplitGraphBySize();
+      break;
+      
+    case COMPONENTS:
+      node_groups = SplitGraphByConnectedComponents();
+      break;
+      
+    case TYPE:
+      node_groups = SplitGraphByType();
+      break;
+  }
+
+  // For size, components, and type splitting
   std::cout << "Splitting graph into " << node_groups.size() << " subgraphs" << std::endl;
 
   for (size_t i = 0; i < node_groups.size(); i++) {
@@ -246,6 +272,9 @@ void JEventProcessorJANADOT::WriteSplitDotFiles() {
 
   // Write an index file explaining the split
   WriteIndexFile(node_groups.size());
+  
+  // Write overall summary for all split types
+  WriteOverallDotFile(node_groups);
 }
 
 void JEventProcessorJANADOT::WriteSplitDotFile(const std::string& filename,
@@ -578,9 +607,7 @@ std::vector<std::set<std::string>> JEventProcessorJANADOT::SplitGraphByType() {
   return groups;
 }
 
-void JEventProcessorJANADOT::WritePluginDotFiles() {
-  auto plugin_groups = SplitGraphByPlugin();
-
+void JEventProcessorJANADOT::WritePluginGraphs(const std::map<std::string, std::set<std::string>>& plugin_groups) {
   std::cout << "Splitting graph into " << plugin_groups.size() << " plugin-based subgraphs"
             << std::endl;
 
@@ -588,9 +615,6 @@ void JEventProcessorJANADOT::WritePluginDotFiles() {
   for (auto& [plugin_name, nodes] : plugin_groups) {
     WritePluginDotFile(plugin_name, nodes);
   }
-
-  // Write overall summary graph showing inter-plugin connections
-  WriteOverallDotFile(plugin_groups);
 
   std::cout << std::endl;
   std::cout << "Factory calling information written to " << plugin_groups.size()
@@ -798,10 +822,67 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     ofs << "label=\"" << total_calls << " calls\\n";
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\", ";
-    ofs << "penwidth=2";
+    // Scale penwidth linearly from 1 (0%) to 8 (100%)
+    double penwidth = 1.0 + (percent / 100.0) * 7.0;
+    ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
     ofs << "];" << std::endl;
   }
 
+  ofs << "}" << std::endl;
+  ofs.close();
+}
+
+// Overloaded WriteOverallDotFile for non-plugin splitting methods
+void JEventProcessorJANADOT::WriteOverallDotFile(const std::vector<std::set<std::string>>& node_groups) {
+  std::ofstream ofs(output_filename);
+  if (!ofs.is_open()) {
+    std::cerr << "Error: Unable to open file " << output_filename << " for writing!" << std::endl;
+    return;
+  }
+
+  // Calculate total time for percentages
+  double total_ms = 0.0;
+  for (auto& [link, stats] : call_links) {
+    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
+    // Only count top-level callers (those not called by others)
+    bool is_top_level = true;
+    for (auto& [other_link, other_stats] : call_links) {
+      std::string other_callee = MakeNametag(other_link.callee_name, other_link.callee_tag);
+      if (other_callee == caller) {
+        is_top_level = false;
+        break;
+      }
+    }
+    if (is_top_level) {
+      total_ms += stats.from_factory_ms + stats.from_source_ms + stats.from_cache_ms +
+                  stats.data_not_available_ms;
+    }
+  }
+  if (total_ms == 0.0)
+    total_ms = 1.0;
+
+  // Write DOT file header
+  ofs << "digraph G {" << std::endl;
+  ofs << "  rankdir=TB;" << std::endl;
+  ofs << "  node [fontname=\"Arial\", fontsize=12];" << std::endl;
+  ofs << "  edge [fontname=\"Arial\", fontsize=10];" << std::endl;
+  ofs << "  label=\"EICrecon Overall Call Graph - " << split_criteria << " splitting summary\";" << std::endl;
+  ofs << "  labelloc=\"t\";" << std::endl;
+  ofs << std::endl;
+
+  // Create summary nodes for each group
+  for (size_t i = 0; i < node_groups.size(); i++) {
+    std::string group_name = "Group_" + std::to_string(i + 1);
+    ofs << "  \"" << group_name << "\" [";
+    ofs << "shape=box, ";
+    ofs << "style=filled, ";
+    ofs << "fillcolor=lightblue, ";
+    ofs << "label=\"" << group_name << "\\n(" << node_groups[i].size() << " nodes)\"";
+    ofs << "];" << std::endl;
+  }
+
+  ofs << std::endl;
+  ofs << "  // Note: Individual group details are in separate _partXXX.dot files" << std::endl;
   ofs << "}" << std::endl;
   ofs.close();
 }
