@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <cmath>
 #include <chrono>
+#include <functional>
 
 void JEventProcessorJANADOT::Init() {
   // Get parameter manager
@@ -38,7 +39,7 @@ void JEventProcessorJANADOT::Init() {
 
   split_criteria = "size";
   params->SetDefaultParameter("janadot:split_criteria", split_criteria,
-                              "Criteria for splitting graphs: size, components, type");
+                              "Criteria for splitting graphs: size, components, type, plugin");
 }
 
 void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event) {
@@ -208,6 +209,11 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
 }
 
 void JEventProcessorJANADOT::WriteSplitDotFiles() {
+  if (split_criteria == "plugin") {
+    WritePluginDotFiles();
+    return;
+  }
+
   std::vector<std::set<std::string>> node_groups;
 
   if (split_criteria == "components") {
@@ -567,4 +573,326 @@ std::vector<std::set<std::string>> JEventProcessorJANADOT::SplitGraphByType() {
   }
 
   return groups;
+}
+
+void JEventProcessorJANADOT::WritePluginDotFiles() {
+  auto plugin_groups = SplitGraphByPlugin();
+  
+  std::cout << "Splitting graph into " << plugin_groups.size() << " plugin-based subgraphs" << std::endl;
+
+  // Write individual plugin dot files
+  for (auto& [plugin_name, nodes] : plugin_groups) {
+    WritePluginDotFile(plugin_name, nodes);
+  }
+
+  // Write overall summary graph showing inter-plugin connections
+  WriteOverallDotFile(plugin_groups);
+  
+  std::cout << std::endl;
+  std::cout << "Factory calling information written to " << plugin_groups.size() << " plugin files plus overall summary." << std::endl;
+  std::cout << "Plugin files use period-separated naming (e.g., jana.tracking.dot)." << std::endl;
+  std::cout << "Overall summary in \"" << output_filename << "\" shows inter-plugin connections." << std::endl;
+  std::cout << std::endl;
+}
+
+void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name, const std::set<std::string>& nodes) {
+  // Create filename using period-separated plugin name
+  std::string base_filename = output_filename;
+  size_t dot_pos = base_filename.find_last_of('.');
+  if (dot_pos != std::string::npos) {
+    base_filename = base_filename.substr(0, dot_pos);
+  }
+  
+  std::string filename = base_filename + "." + plugin_name + ".dot";
+  
+  std::ofstream ofs(filename);
+  if (!ofs.is_open()) {
+    std::cerr << "Error: Unable to open file " << filename << " for writing!" << std::endl;
+    return;
+  }
+
+  // Calculate total time for this plugin
+  double total_ms = 0.0;
+  for (auto& [link, stats] : call_links) {
+    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
+    if (nodes.find(caller) != nodes.end()) {
+      total_ms += stats.from_factory_ms + stats.from_source_ms + stats.from_cache_ms +
+                  stats.data_not_available_ms;
+    }
+  }
+  if (total_ms == 0.0)
+    total_ms = 1.0;
+
+  // Write DOT file header
+  ofs << "digraph G {" << std::endl;
+  ofs << "  rankdir=TB;" << std::endl;
+  ofs << "  node [fontname=\"Arial\", fontsize=10];" << std::endl;
+  ofs << "  edge [fontname=\"Arial\", fontsize=8];" << std::endl;
+  ofs << "  label=\"EICrecon Call Graph - " << plugin_name << " Plugin\";" << std::endl;
+  ofs << "  labelloc=\"t\";" << std::endl;
+  ofs << std::endl;
+
+  // Write nodes (only those in this plugin)
+  for (const std::string& nametag : nodes) {
+    auto fstats_it = factory_stats.find(nametag);
+    if (fstats_it == factory_stats.end())
+      continue;
+
+    const FactoryCallStats& fstats = fstats_it->second;
+    double time_in_factory         = fstats.time_waited_on - fstats.time_waiting;
+    double percent                 = 100.0 * time_in_factory / total_ms;
+
+    std::string color = GetNodeColor(fstats.type);
+    std::string shape = GetNodeShape(fstats.type);
+
+    ofs << "  \"" << nametag << "\" [";
+    ofs << "fillcolor=" << color << ", ";
+    ofs << "style=filled, ";
+    ofs << "shape=" << shape << ", ";
+    ofs << "label=\"" << nametag << "\\n";
+    ofs << MakeTimeString(time_in_factory) << " (" << std::fixed << std::setprecision(1) << percent
+        << "%)\"";
+    ofs << "];" << std::endl;
+  }
+
+  ofs << std::endl;
+
+  // Write edges (only those within this plugin)
+  for (auto& [link, stats] : call_links) {
+    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
+    std::string callee = MakeNametag(link.callee_name, link.callee_tag);
+
+    // Only include edges where both nodes are in this plugin
+    if (nodes.find(caller) == nodes.end() || nodes.find(callee) == nodes.end()) {
+      continue;
+    }
+
+    unsigned int total_calls =
+        stats.Nfrom_cache + stats.Nfrom_source + stats.Nfrom_factory + stats.Ndata_not_available;
+    double total_time = stats.from_cache_ms + stats.from_source_ms + stats.from_factory_ms +
+                        stats.data_not_available_ms;
+    double percent = 100.0 * total_time / total_ms;
+
+    ofs << "  \"" << caller << "\" -> \"" << callee << "\" [";
+    ofs << "label=\"" << total_calls << " calls\\n";
+    ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
+        << "%)\"";
+    ofs << "];" << std::endl;
+  }
+
+  ofs << "}" << std::endl;
+  ofs.close();
+}
+
+void JEventProcessorJANADOT::WriteOverallDotFile(const std::map<std::string, std::set<std::string>>& plugin_groups) {
+  std::ofstream ofs(output_filename);
+  if (!ofs.is_open()) {
+    std::cerr << "Error: Unable to open file " << output_filename << " for writing!" << std::endl;
+    return;
+  }
+
+  // Calculate total time for percentages
+  double total_ms = 0.0;
+  for (auto& [link, stats] : call_links) {
+    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
+    // Only count top-level callers (those not called by others)
+    bool is_top_level = true;
+    for (auto& [other_link, other_stats] : call_links) {
+      std::string other_callee = MakeNametag(other_link.callee_name, other_link.callee_tag);
+      if (other_callee == caller) {
+        is_top_level = false;
+        break;
+      }
+    }
+    if (is_top_level) {
+      total_ms += stats.from_factory_ms + stats.from_source_ms + stats.from_cache_ms +
+                  stats.data_not_available_ms;
+    }
+  }
+  if (total_ms == 0.0)
+    total_ms = 1.0;
+
+  // Write DOT file header
+  ofs << "digraph G {" << std::endl;
+  ofs << "  rankdir=TB;" << std::endl;
+  ofs << "  node [fontname=\"Arial\", fontsize=12];" << std::endl;
+  ofs << "  edge [fontname=\"Arial\", fontsize=10];" << std::endl;
+  ofs << "  label=\"EICrecon Overall Call Graph - Inter-Plugin Connections\";" << std::endl;
+  ofs << "  labelloc=\"t\";" << std::endl;
+  ofs << std::endl;
+
+  // Create plugin nodes (aggregate statistics per plugin)
+  std::map<std::string, double> plugin_times;
+  std::map<std::string, int> plugin_node_counts;
+  
+  for (auto& [plugin_name, nodes] : plugin_groups) {
+    double plugin_time = 0.0;
+    int node_count = 0;
+    
+    for (const std::string& nametag : nodes) {
+      auto fstats_it = factory_stats.find(nametag);
+      if (fstats_it != factory_stats.end()) {
+        const FactoryCallStats& fstats = fstats_it->second;
+        plugin_time += fstats.time_waited_on - fstats.time_waiting;
+        node_count++;
+      }
+    }
+    
+    plugin_times[plugin_name] = plugin_time;
+    plugin_node_counts[plugin_name] = node_count;
+    
+    double percent = 100.0 * plugin_time / total_ms;
+    
+    ofs << "  \"" << plugin_name << "\" [";
+    ofs << "fillcolor=lightsteelblue, ";
+    ofs << "style=filled, ";
+    ofs << "shape=box, ";
+    ofs << "label=\"" << plugin_name << "\\n";
+    ofs << node_count << " components\\n";
+    ofs << MakeTimeString(plugin_time) << " (" << std::fixed << std::setprecision(1) << percent
+        << "%)\"";
+    ofs << "];" << std::endl;
+  }
+
+  ofs << std::endl;
+
+  // Create edges between plugins (when there are calls between different plugins)
+  std::map<std::pair<std::string, std::string>, std::pair<int, double>> inter_plugin_calls;
+  
+  for (auto& [link, stats] : call_links) {
+    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
+    std::string callee = MakeNametag(link.callee_name, link.callee_tag);
+    
+    std::string caller_plugin = ExtractPluginName(caller);
+    std::string callee_plugin = ExtractPluginName(callee);
+    
+    // Only show inter-plugin connections
+    if (caller_plugin != callee_plugin && !caller_plugin.empty() && !callee_plugin.empty()) {
+      auto key = std::make_pair(caller_plugin, callee_plugin);
+      
+      unsigned int total_calls =
+          stats.Nfrom_cache + stats.Nfrom_source + stats.Nfrom_factory + stats.Ndata_not_available;
+      double total_time = stats.from_cache_ms + stats.from_source_ms + stats.from_factory_ms +
+                          stats.data_not_available_ms;
+      
+      inter_plugin_calls[key].first += total_calls;
+      inter_plugin_calls[key].second += total_time;
+    }
+  }
+  
+  // Write inter-plugin edges
+  for (auto& [plugins, call_data] : inter_plugin_calls) {
+    int total_calls = call_data.first;
+    double total_time = call_data.second;
+    double percent = 100.0 * total_time / total_ms;
+    
+    ofs << "  \"" << plugins.first << "\" -> \"" << plugins.second << "\" [";
+    ofs << "label=\"" << total_calls << " calls\\n";
+    ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
+        << "%)\", ";
+    ofs << "penwidth=2";
+    ofs << "];" << std::endl;
+  }
+
+  ofs << "}" << std::endl;
+  ofs.close();
+}
+
+std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphByPlugin() {
+  std::map<std::string, std::set<std::string>> plugin_groups;
+
+  // Group nodes by their detected plugin
+  for (auto& [nametag, fstats] : factory_stats) {
+    std::string plugin = ExtractPluginName(nametag);
+    plugin_groups[plugin].insert(nametag);
+  }
+
+  return plugin_groups;
+}
+
+std::string JEventProcessorJANADOT::ExtractPluginName(const std::string& nametag) {
+  // Try to extract meaningful plugin names from component names
+  
+  // Common EIC patterns
+  if (nametag.find("Ecal") != std::string::npos) {
+    if (nametag.find("Barrel") != std::string::npos) return "ecal_barrel";
+    if (nametag.find("Endcap") != std::string::npos) return "ecal_endcap";
+    if (nametag.find("Insert") != std::string::npos) return "ecal_insert";
+    if (nametag.find("LumiSpec") != std::string::npos) return "ecal_lumispec";
+    return "ecal";
+  }
+  
+  if (nametag.find("Hcal") != std::string::npos) {
+    if (nametag.find("Barrel") != std::string::npos) return "hcal_barrel";
+    if (nametag.find("Endcap") != std::string::npos) return "hcal_endcap";
+    if (nametag.find("Insert") != std::string::npos) return "hcal_insert";
+    return "hcal";
+  }
+  
+  if (nametag.find("Track") != std::string::npos || nametag.find("track") != std::string::npos) {
+    if (nametag.find("CKF") != std::string::npos) return "tracking_ckf";
+    if (nametag.find("Seed") != std::string::npos) return "tracking_seeding";
+    if (nametag.find("Vertex") != std::string::npos) return "tracking_vertex";
+    return "tracking";
+  }
+  
+  if (nametag.find("Cluster") != std::string::npos || nametag.find("cluster") != std::string::npos) {
+    return "clustering";
+  }
+  
+  if (nametag.find("PID") != std::string::npos || nametag.find("Pid") != std::string::npos) {
+    return "pid";
+  }
+  
+  if (nametag.find("Jet") != std::string::npos || nametag.find("jet") != std::string::npos) {
+    return "jets";
+  }
+  
+  if (nametag.find("Truth") != std::string::npos || nametag.find("MC") != std::string::npos) {
+    return "truth";
+  }
+  
+  if (nametag.find("B0") != std::string::npos || nametag.find("ZDC") != std::string::npos) {
+    return "far_detectors";
+  }
+  
+  if (nametag.find("RICH") != std::string::npos) {
+    return "rich";
+  }
+  
+  if (nametag.find("TOF") != std::string::npos) {
+    return "tof";
+  }
+  
+  if (nametag.find("DIRC") != std::string::npos) {
+    return "dirc";
+  }
+  
+  if (nametag.find("GEM") != std::string::npos || nametag.find("MPGD") != std::string::npos) {
+    return "gem_tracking";
+  }
+  
+  if (nametag.find("Silicon") != std::string::npos || nametag.find("Pixel") != std::string::npos) {
+    return "silicon_tracking";
+  }
+  
+  if (nametag.find("Processor") != std::string::npos) {
+    return "processors";
+  }
+  
+  if (nametag.find("Source") != std::string::npos) {
+    return "io";
+  }
+  
+  // Default fallback - try to use first part of name
+  size_t colon_pos = nametag.find(':');
+  if (colon_pos != std::string::npos) {
+    std::string base_name = nametag.substr(0, colon_pos);
+    // Convert to lowercase for consistency
+    std::transform(base_name.begin(), base_name.end(), base_name.begin(), ::tolower);
+    return base_name;
+  }
+  
+  // Final fallback
+  return "misc";
 }
