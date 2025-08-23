@@ -60,6 +60,7 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
     for (auto* factory : factories) {
       std::string nametag     = MakeNametag(factory->GetObjectName(), factory->GetTag());
       std::string plugin_name = factory->GetPluginName();
+      std::cout << nametag << " " << plugin_name << std::endl;
 
       // If plugin name is empty, try to use a reasonable default
       if (plugin_name.empty()) {
