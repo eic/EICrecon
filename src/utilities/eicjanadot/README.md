@@ -35,7 +35,7 @@ eicrecon -Pplugins=eicjanadot -Peicjanadot:split_criteria=plugin sim_file.root
 This generates:
 - `jana.tracking.dot` - All tracking-related components
 - `jana.ecal_barrel.dot` - ECAL barrel subsystem components
-- `jana.hcal_endcap.dot` - HCAL endcap subsystem components  
+- `jana.hcal_endcap.dot` - HCAL endcap subsystem components
 - `jana.dot` - Overall inter-plugin connection summary
 
 ## Output Files
