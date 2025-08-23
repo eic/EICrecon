@@ -97,7 +97,7 @@ private:
   std::string split_criteria;
 
   // Group-related parameters
-  std::map<std::string, std::vector<std::string>> user_groups;  // Group name -> list of factories
+  std::map<std::string, std::vector<std::string>> user_groups; // Group name -> list of factories
   std::map<std::string, std::string> user_group_colors;        // Group name -> color
   std::map<std::string, std::string> nametag_to_group;         // Nametag -> group name
 
