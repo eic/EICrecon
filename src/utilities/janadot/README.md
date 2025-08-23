@@ -19,7 +19,7 @@ eicrecon -Pplugins=janadot sim_file.edm4hep.root
 The plugin supports several configuration parameters:
 
 - `janadot:output_file` (default: "jana.dot") - Output DOT filename
-- `janadot:enable_splitting` (default: true) - Enable splitting large graphs into multiple files  
+- `janadot:enable_splitting` (default: true) - Enable splitting large graphs into multiple files
 - `janadot:max_nodes_per_graph` (default: 50) - Maximum number of nodes per graph when splitting
 - `janadot:max_edges_per_graph` (default: 100) - Maximum number of edges per graph when splitting
 - `janadot:split_criteria` (default: "size") - Criteria for splitting graphs: size, components, type
@@ -50,7 +50,7 @@ dot -Tpdf jana_part002.dot -o jana_part002.pdf
 ### Size-based Splitting
 Nodes are grouped to keep within the specified limits of nodes and edges per graph.
 
-### Component-based Splitting  
+### Component-based Splitting
 Uses connected components analysis to group nodes that are connected by call relationships.
 
 ### Type-based Splitting
