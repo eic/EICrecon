@@ -4,18 +4,21 @@
 #include "JEventProcessorJANADOT.h"
 
 #include <JANA/JApplicationFwd.h>
-#include <JANA/Services/JParameterManager.h>
 #include <JANA/JEvent.h>
+#include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JCallGraphRecorder.h>
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
+#include <ctype.h>
+#include <stddef.h>
 #include <algorithm>
-#include <cmath>
 #include <chrono>
+#include <cmath>
+#include <fstream>
 #include <functional>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <utility>
 
 void JEventProcessorJANADOT::Init() {
   // Get parameter manager

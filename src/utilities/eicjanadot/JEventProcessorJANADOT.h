@@ -4,12 +4,11 @@
 #pragma once
 
 #include <JANA/JEventProcessor.h>
-#include <JANA/Services/JParameterManager.h>
-
+#include <compare>
 #include <map>
-#include <string>
-#include <fstream>
+#include <mutex>
 #include <set>
+#include <string>
 #include <vector>
 
 class JEventProcessorJANADOT : public JEventProcessor {
