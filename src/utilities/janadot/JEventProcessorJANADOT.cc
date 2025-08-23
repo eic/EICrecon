@@ -5,6 +5,7 @@
 
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
+#include <JANA/JFactory.h>
 #include <JANA/JFactorySet.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JCallGraphRecorder.h>
