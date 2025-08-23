@@ -75,9 +75,7 @@ private:
   };
 
 public:
-  JEventProcessorJANADOT() : JEventProcessor() { 
-    SetTypeName("JEventProcessorJANADOT"); 
-  };
+  JEventProcessorJANADOT() : JEventProcessor() { SetTypeName("JEventProcessorJANADOT"); };
 
   void Init() override;
   void BeginRun(const std::shared_ptr<const JEvent>& /* event */) override {};
@@ -87,24 +85,24 @@ public:
 
 private:
   std::mutex mutex;
-  
+
   std::map<CallLink, CallStats> call_links;
   std::map<std::string, FactoryCallStats> factory_stats;
-  
-  // Configuration parameters  
+
+  // Configuration parameters
   std::string output_filename;
   bool enable_splitting;
   int max_nodes_per_graph;
   int max_edges_per_graph;
   std::string split_criteria;
-  
+
   // Helper methods
   std::string MakeTimeString(double time_in_ms);
   std::string MakeNametag(const std::string& name, const std::string& tag);
   node_type GetNodeType(const std::string& name, const std::string& tag);
   std::string GetNodeColor(node_type type);
   std::string GetNodeShape(node_type type);
-  
+
   // DOT file generation methods
   void WriteDotFile();
   void WriteSingleDotFile(const std::string& filename);
@@ -114,7 +112,7 @@ private:
   std::vector<std::set<std::string>> SplitGraphByConnectedComponents();
   std::vector<std::set<std::string>> SplitGraphBySize();
   std::vector<std::set<std::string>> SplitGraphByType();
-  
+
   // Graph analysis methods
   void AnalyzeGraph(int& total_nodes, int& total_edges);
   bool ShouldSplitGraph(int total_nodes, int total_edges);
