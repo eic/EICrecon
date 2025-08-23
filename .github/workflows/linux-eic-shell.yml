@@ -273,8 +273,13 @@ jobs:
         run: |
           # Run clang-tidy on specific files to check for bugprone-unchecked-optional-access warnings
           echo "Running clang-tidy on PR files to check for bugprone-unchecked-optional-access warnings..."
-          PR_FILES="src/algorithms/tracking/TrackPropagation.cc src/algorithms/tracking/ActsToTracks.cc src/benchmarks/reconstruction/tracking_efficiency/TrackingEfficiency_processor.cc src/algorithms/tracking/TrackProjector.cc"
-          for file in $PR_FILES; do
+          PR_FILES=(
+            "src/algorithms/tracking/TrackPropagation.cc"
+            "src/algorithms/tracking/ActsToTracks.cc"
+            "src/benchmarks/reconstruction/tracking_efficiency/TrackingEfficiency_processor.cc"
+            "src/algorithms/tracking/TrackProjector.cc"
+          )
+          for file in "${PR_FILES[@]}"; do
             if [[ -f "$file" ]]; then
               echo "Checking $file for clang-tidy warnings..."
               run-clang-tidy -p build -checks=bugprone-unchecked-optional-access -extra-arg='-std=c++20' "$file" || true
