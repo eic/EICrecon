@@ -108,10 +108,15 @@ private:
   void WriteSingleDotFile(const std::string& filename);
   void WriteSplitDotFiles();
   void WriteSplitDotFile(const std::string& filename, const std::set<std::string>& nodes);
+  void WritePluginDotFiles();
+  void WritePluginDotFile(const std::string& plugin_name, const std::set<std::string>& nodes);
+  void WriteOverallDotFile(const std::map<std::string, std::set<std::string>>& plugin_groups);
   void WriteIndexFile(int num_parts);
   std::vector<std::set<std::string>> SplitGraphByConnectedComponents();
   std::vector<std::set<std::string>> SplitGraphBySize();
   std::vector<std::set<std::string>> SplitGraphByType();
+  std::map<std::string, std::set<std::string>> SplitGraphByPlugin();
+  std::string ExtractPluginName(const std::string& nametag);
 
   // Graph analysis methods
   void AnalyzeGraph(int& total_nodes, int& total_edges);
