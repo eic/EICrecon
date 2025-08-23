@@ -18,6 +18,7 @@
 #include <functional>
 #include <iomanip>
 #include <iostream>
+#include <sstream>
 #include <memory>
 #include <sstream>
 #include <utility>
@@ -44,7 +45,42 @@ void JEventProcessorJANADOT::Init() {
 
   split_criteria = "plugin";
   params->SetDefaultParameter("janadot:split_criteria", split_criteria,
-                              "Criteria for splitting graphs: size, components, type, plugin");
+                              "Criteria for splitting graphs: size, components, type, plugin, groups");
+
+  // Load group definitions if they exist
+  LoadGroupDefinitions();
+
+  // Also check for JANADOT:GROUP parameters (command line group definitions)
+  auto parameter_keys = params->GetParameterNames();
+  for (const auto& key : parameter_keys) {
+    if (key.find("janadot:group:") == 0) {
+      std::string group_name = key.substr(13); // Remove "janadot:group:" prefix
+      std::string group_definition;
+      params->GetParameter(key, group_definition);
+      
+      // Parse command line group definition similar to file format
+      std::vector<std::string> factories;
+      std::string color = "lightblue"; // default color
+      
+      std::stringstream ss(group_definition);
+      std::string item;
+      while (std::getline(ss, item, ',')) {
+        if (item.find("color_") == 0) {
+          color = item.substr(6); // remove "color_" prefix
+        } else if (!item.empty()) {
+          factories.push_back(item);
+        }
+      }
+
+      user_groups[group_name] = factories;
+      user_group_colors[group_name] = color;
+
+      // Build nametag to group mapping
+      for (const auto& factory : factories) {
+        nametag_to_group[factory] = group_name;
+      }
+    }
+  }
 }
 
 void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event) {
@@ -237,7 +273,7 @@ void JEventProcessorJANADOT::WriteSplitDotFiles() {
   std::map<std::string, std::set<std::string>> plugin_groups;
 
   // Use switch/case for better structure
-  enum SplitMethod { PLUGIN, SIZE, COMPONENTS, TYPE } method = PLUGIN;
+  enum SplitMethod { PLUGIN, SIZE, COMPONENTS, TYPE, GROUPS } method = PLUGIN;
 
   if (split_criteria == "plugin") {
     method = PLUGIN;
@@ -247,6 +283,8 @@ void JEventProcessorJANADOT::WriteSplitDotFiles() {
     method = COMPONENTS;
   } else if (split_criteria == "type") {
     method = TYPE;
+  } else if (split_criteria == "groups") {
+    method = GROUPS;
   } else {
     // Default to plugin if unknown
     method = PLUGIN;
@@ -258,6 +296,12 @@ void JEventProcessorJANADOT::WriteSplitDotFiles() {
   case PLUGIN:
     plugin_groups = SplitGraphByPlugin();
     WritePluginGraphs(plugin_groups);
+    WriteOverallDotFile(plugin_groups);
+    return;
+
+  case GROUPS:
+    plugin_groups = SplitGraphByGroups();
+    WriteGroupGraphs(plugin_groups);
     WriteOverallDotFile(plugin_groups);
     return;
 
@@ -1033,4 +1077,149 @@ std::string JEventProcessorJANADOT::ExtractPluginName(const std::string& nametag
 
   // Final fallback
   return "misc";
+}
+
+void JEventProcessorJANADOT::LoadGroupDefinitions() {
+  // Load group definitions from .github/janadot.groups file
+  std::ifstream file(".github/janadot.groups");
+  if (!file.is_open()) {
+    std::cout << "Warning: Could not open .github/janadot.groups file. Group splitting may not work properly." << std::endl;
+    return;
+  }
+
+  std::string line;
+  while (std::getline(file, line)) {
+    // Skip empty lines and comments
+    if (line.empty() || line[0] == '#') {
+      continue;
+    }
+
+    // Parse lines of format: -PJANADOT:GROUP:GroupName=factory1,factory2,...,color
+    if (line.find("-PJANADOT:GROUP:") == 0) {
+      size_t group_start = line.find("GROUP:") + 6;
+      size_t equals_pos = line.find("=", group_start);
+      if (equals_pos == std::string::npos) continue;
+
+      std::string group_name = line.substr(group_start, equals_pos - group_start);
+      std::string factories_str = line.substr(equals_pos + 1);
+
+      // Parse comma-separated list of factories and color
+      std::vector<std::string> factories;
+      std::string color = "lightblue"; // default color
+      
+      std::stringstream ss(factories_str);
+      std::string item;
+      while (std::getline(ss, item, ',')) {
+        if (item.find("color_") == 0) {
+          color = item.substr(6); // remove "color_" prefix
+        } else if (!item.empty()) {
+          factories.push_back(item);
+        }
+      }
+
+      user_groups[group_name] = factories;
+      user_group_colors[group_name] = color;
+
+      // Build nametag to group mapping
+      for (const auto& factory : factories) {
+        nametag_to_group[factory] = group_name;
+      }
+    }
+  }
+  file.close();
+
+  std::cout << "Loaded " << user_groups.size() << " group definitions from .github/janadot.groups" << std::endl;
+}
+
+std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphByGroups() {
+  std::map<std::string, std::set<std::string>> groups;
+
+  // Group nodes based on user-defined groups
+  for (auto& [nametag, fstats] : factory_stats) {
+    std::string group_name = "Ungrouped";
+    
+    // Check if this factory is in any user-defined group
+    if (nametag_to_group.find(nametag) != nametag_to_group.end()) {
+      group_name = nametag_to_group[nametag];
+    }
+
+    groups[group_name].insert(nametag);
+  }
+
+  return groups;
+}
+
+void JEventProcessorJANADOT::WriteGroupGraphs(const std::map<std::string, std::set<std::string>>& groups) {
+  std::cout << "Splitting graph into " << groups.size() << " group-based subgraphs" << std::endl;
+
+  for (auto& [group_name, nodes] : groups) {
+    WriteGroupDotFile(group_name, nodes);
+  }
+
+  std::cout << "Factory calling information written to " << groups.size()
+            << " group-based dot files. Use graphviz to convert to images." << std::endl;
+}
+
+void JEventProcessorJANADOT::WriteGroupDotFile(const std::string& group_name, const std::set<std::string>& nodes) {
+  // Create filename like jana.GroupName.dot
+  std::string base_filename = output_filename;
+  size_t dot_pos = base_filename.find_last_of('.');
+  if (dot_pos != std::string::npos) {
+    base_filename = base_filename.substr(0, dot_pos);
+  }
+  
+  std::string filename = base_filename + "." + group_name + ".dot";
+  std::ofstream ofs(filename);
+
+  ofs << "digraph G {" << std::endl;
+  ofs << "  rankdir=LR;" << std::endl;
+  ofs << "  node [fontsize=10,style=filled];" << std::endl;
+  ofs << "  edge [fontsize=8];" << std::endl;
+  ofs << std::endl;
+
+  // Get group color
+  std::string color = "lightblue";
+  if (user_group_colors.find(group_name) != user_group_colors.end()) {
+    color = user_group_colors[group_name];
+  }
+
+  ofs << "  label=\"EICrecon Call Graph - " << group_name << " Group\";" << std::endl;
+  ofs << "  labeljust=c;" << std::endl;
+  ofs << std::endl;
+
+  // Write nodes (only those in this group)
+  for (const std::string& nametag : nodes) {
+    if (factory_stats.find(nametag) != factory_stats.end()) {
+      FactoryCallStats& fstats = factory_stats[nametag];
+      
+      ofs << "  \"" << nametag << "\" [";
+      ofs << "color=" << color;
+      ofs << ",shape=" << GetNodeShape(fstats.type);
+      
+      // Add timing information to label
+      double total_time = fstats.total_time_waiting_on + fstats.total_time_factory_active;
+      std::string time_str = MakeTimeString(total_time);
+      ofs << ",label=\"" << nametag << "\\n" << time_str << "\"";
+      ofs << "];" << std::endl;
+    }
+  }
+  ofs << std::endl;
+
+  // Write edges (only those within this group)
+  for (auto& [link, stats] : call_links) {
+    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
+    std::string callee = MakeNametag(link.callee_name, link.callee_tag);
+    
+    // Only include edges where both nodes are in this group
+    if (nodes.find(caller) != nodes.end() && nodes.find(callee) != nodes.end()) {
+      double total_time = stats.from_cache_ms + stats.from_source_ms + stats.from_factory_ms + stats.data_not_available_ms;
+      std::string time_str = MakeTimeString(total_time);
+      
+      ofs << "  \"" << caller << "\" -> \"" << callee << "\"";
+      ofs << " [label=\"" << time_str << "\"];" << std::endl;
+    }
+  }
+
+  ofs << "}" << std::endl;
+  ofs.close();
 }

@@ -22,7 +22,7 @@ The plugin supports several configuration parameters:
 - `janadot:enable_splitting` (default: true) - Enable splitting large graphs into multiple files
 - `janadot:max_nodes_per_graph` (default: 50) - Maximum number of nodes per graph when splitting
 - `janadot:max_edges_per_graph` (default: 100) - Maximum number of edges per graph when splitting
-- `janadot:split_criteria` (default: "size") - Criteria for splitting graphs: size, components, type, plugin
+- `janadot:split_criteria` (default: "plugin") - Criteria for splitting graphs: size, components, type, plugin, groups
 
 ## Plugin-based Splitting
 
@@ -38,13 +38,37 @@ This generates:
 - `jana.hcal_endcap.dot` - HCAL endcap subsystem components
 - `jana.dot` - Overall inter-plugin connection summary
 
+## Group-based Splitting
+
+To use user-defined group splitting based on the `.github/janadot.groups` file:
+
+```bash
+eicrecon -Pplugins=janadot -Pjanadot:split_criteria=groups sim_file.root
+```
+
+This generates:
+- `jana.EcalEndcapN.dot` - Components in the EcalEndcapN group
+- `jana.HcalBarrel.dot` - Components in the HcalBarrel group
+- `jana.Tracking.dot` - Components in the Tracking group
+- `jana.dot` - Overall inter-group connection summary
+
+Groups can also be defined on the command line:
+
+```bash
+eicrecon -Pplugins=janadot \
+  -Pjanadot:split_criteria=groups \
+  -Pjanadot:group:MyGroup="Factory1:Tag1,Factory2:Tag2,color_blue" \
+  sim_file.root
+```
+
 ## Output Files
 
 When splitting is disabled or graphs are small enough, a single DOT file is generated. When splitting is enabled and graphs are large, multiple files are created:
 
 - `jana_part001.dot`, `jana_part002.dot`, etc. - Individual graph parts (for size/components/type splitting)
 - `jana.plugin_name.dot` - Plugin-specific graphs (for plugin splitting)
-- `jana.dot` - Main graph showing inter-plugin connections (for plugin splitting)
+- `jana.GroupName.dot` - Group-specific graphs (for groups splitting)
+- `jana.dot` - Main graph showing inter-plugin/inter-group connections (for plugin/groups splitting)
 - `jana_index.txt` - Index file explaining the split and how to process the files
 
 ## Generating Graphics
