@@ -149,13 +149,7 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
 void JEventProcessorJANADOT::Finish() { WriteDotFile(); }
 
 void JEventProcessorJANADOT::WriteDotFile() {
-  int total_nodes, total_edges;
-  AnalyzeGraph(total_nodes, total_edges);
-
-  std::cout << "Graph analysis: " << total_nodes << " nodes, " << total_edges << " edges"
-            << std::endl;
-
-  if (enable_splitting && ShouldSplitGraph(total_nodes, total_edges)) {
+  if (enable_splitting) {
     std::cout << "Graph is large, splitting into multiple files..." << std::endl;
     WriteSplitDotFiles();
   } else {
@@ -486,16 +480,6 @@ std::string JEventProcessorJANADOT::GetNodeShape(node_type type) {
   default:
     return "ellipse";
   }
-}
-
-void JEventProcessorJANADOT::AnalyzeGraph(int& total_nodes, int& total_edges) {
-  total_nodes = factory_stats.size();
-  total_edges = call_links.size();
-}
-
-bool JEventProcessorJANADOT::ShouldSplitGraph(int total_nodes, int total_edges) {
-  // For plugin and groups splitting, we always split if there are multiple groups
-  return true;
 }
 
 void JEventProcessorJANADOT::WritePluginGraphs(
