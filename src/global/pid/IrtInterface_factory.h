@@ -34,7 +34,7 @@ private:
   PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
   PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input {this};
   
-  PodioOutput<edm4eic::IrtOutput> m_irt_info_output {this};
+  PodioOutput<edm4eic::IrtEvent> m_irt_event_output {this};
   
   Service<DD4hep_service> m_dd4hep_service {this};
 
@@ -58,7 +58,7 @@ public:
 	m_sim_hits_input()
       },
       {
-	m_irt_info_output().get()
+	m_irt_event_output().get()
       }
       );
   }

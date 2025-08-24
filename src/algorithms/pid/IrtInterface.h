@@ -11,7 +11,7 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/IrtOutputCollection.h>
+#include <edm4eic/IrtEventCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -22,7 +22,6 @@
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 #include <IRT/CherenkovRadiator.h>
-//#include <IRT/ReconstructionFactory.h>
 class ReconstructionFactory;
 
 class TTree;
@@ -57,7 +56,7 @@ namespace eicrecon {
       const edm4hep::SimTrackerHitCollection
       >,
     algorithms::Output<
-      edm4eic::IrtOutputCollection
+      edm4eic::IrtEventCollection
       >
     >;
 

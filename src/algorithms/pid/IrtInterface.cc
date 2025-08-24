@@ -17,6 +17,8 @@
 #include <edm4hep/utils/kinematics.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegment.h>
+#include <edm4eic/MutableIrtParticle.h>
+#include <edm4eic/MutableIrtRadiator.h>
 
 #include <IRT/ChargedParticle.h>
 #include "IRT/CherenkovEvent.h"
@@ -213,8 +215,10 @@ namespace eicrecon {
 		in_reco_particles,
 		in_mc_reco_associations,
 		in_track_projections, in_sim_hits] = input;
-    auto [out_irt_debug_info] = output;
+    auto [out_irt_event] = output;
 
+    //auto irtEvent = out_irt_event->create();
+      
     // First build MC->reco lookup table;
     std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
     for(const auto &assoc: *in_mc_reco_associations) {
@@ -253,8 +257,8 @@ namespace eicrecon {
 
       unsigned mcid = mcparticle.id().index;
       
-      // Now check that MC->reco association exists; for now ignore cases where more than one track
-      // is associated with a given MC particle;
+      // Now check that MC->reco association exists; for now ignore cases where more than one
+      // reconstructed track is associated with a given MC particle;
       if (MCParticle_to_Tracks_lut.find(mcid) == MCParticle_to_Tracks_lut.end()) continue;
       auto &rctracks = MCParticle_to_Tracks_lut[mcid];
       if (rctracks.size() > 1) continue;
@@ -265,9 +269,14 @@ namespace eicrecon {
 	double eta = Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()).Eta();
 	if (eta < m_config.m_eta_min || eta > m_config.m_eta_max) continue; 
       }
-      
+
       // Now add a charged particle to the event structure; 'true': primary;
       auto particle = new ChargedParticle(mcparticle.getPDG(), true);
+      
+      // For now, just record a reference to EICrecon track; the actual loop with assignments
+      // will be at the end of processing;
+      particle->SetEICreconParticleID(rctrack);
+      
       // FIXME: check units;
       particle->SetVertexPosition(Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
       particle->SetVertexMomentum(Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()));
@@ -443,6 +452,53 @@ namespace eicrecon {
 
     // FIXME: this is a hack to the moment;
     if (m_ReconstructionFactory) m_ReconstructionFactory->GetEvent(0, false);
+
+    // And eventually, populate PODIO output tables;
+    {
+      auto irtEvent = out_irt_event->create();
+    
+      for(auto particle: m_Event->ChargedParticles()) {
+	if (!particle->IsPrimary()) continue;
+	
+	unsigned npe_per_track = 0, nhits_per_track = 0;
+
+	edm4eic::MutableIrtParticle irtParticle;
+#if _DEBUG_
+	irtParticle.setChargedParticle((*in_reco_particles)[particle->m_EICreconParticleID]);
+	
+	//printf("   --> %4ld radiators\n", mcparticle->GetRadiatorHistory().size());
+	for(auto rhptr: particle->GetRadiatorHistory()) {
+	  auto radiator = particle->GetRadiator(rhptr);
+	  if (!radiator->UsedInRingImaging()) continue;
+	  
+	  edm4eic::MutableIrtRadiator irtRadiator;
+	  unsigned npe_per_radiator = 0, nhits_per_radiator = 0;
+	  
+	  nhits_per_radiator = particle->GetRecoCherenkovPhotonCount(radiator);
+	  irtRadiator.setNhits(nhits_per_radiator);
+	  nhits_per_track += nhits_per_radiator;
+	  
+	  for(auto photon: particle->GetHistory(rhptr)->Photons()) 
+	    if (photon->WasDetected()) 
+	      npe_per_radiator++;
+	  
+	  //printf("     --> %4d detected photons\n", npe_per_radiator);
+	  irtRadiator.setNpe(npe_per_radiator);
+	  npe_per_track += npe_per_radiator;
+
+	  irtRadiator.setAngle(1000*particle->GetRecoCherenkovAverageTheta(radiator));
+	  
+	  irtParticle.addToRadiators(irtRadiator);
+	} //for rhistory
+
+	irtParticle.setPDG  (particle->GetPDG());
+	irtParticle.setNpe  (  npe_per_track);
+	irtParticle.setNhits(nhits_per_track);
+	
+	irtEvent.addToIrtParticles(irtParticle);
+#endif
+      } //for particle
+    }
   } // IrtInterface::process()
 } // namespace eicrecon
 
