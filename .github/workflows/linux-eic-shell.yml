@@ -664,6 +664,86 @@ jobs:
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.benchmark_plugins }}.hists.root
         if-no-files-found: error
 
+  eicrecon-nopayloadclient:
+    runs-on: ubuntu-24.04
+    needs:
+    - build
+    - npsim-gun
+    strategy:
+      matrix:
+        CXX: [clang++]
+        particle: [e]
+        detector_config: [craterlake]
+    services:
+      db:
+        image: postgres
+        env:
+          POSTGRES_DB: dbname
+          POSTGRES_USER: login
+          POSTGRES_PASSWORD: password
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      nopayloaddb-webapp:
+        image: ghcr.io/eic/nopayloaddb-webapp:latest
+        env:
+          POSTGRES_DB: dbname
+          POSTGRES_USER: login
+          POSTGRES_PASSWORD: password
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+        ports:
+          - 8000:8000
+    steps:
+    - name: Checkout .github
+      uses: actions/checkout@v4
+      with:
+        sparse-checkout: .github
+    - name: Download install directory
+      uses: actions/download-artifact@v4
+      with:
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
+    - name: Uncompress install directory
+      run: tar -xaf install.tar.zst
+    - uses: actions/download-artifact@v4
+      with:
+        name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
+    - uses: cvmfs-contrib/github-action-cvmfs@v4
+    - name: Run EICrecon
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/setup.sh"
+        run: |
+          export NOPAYLOADCLIENT_CONF=$PWD/default.json
+          cat <<- EOF > $NOPAYLOADCLIENT_CONF
+          {
+            "base_url": "localhost:8000",
+            "api_res": "/api/cdb_rest/",
+            "write_dir": "/tmp/remote_pl_store/",
+            "read_dir_list": ["/tmp/remote_pl_store/"],
+            "n_retries": 5,
+            "retry_sleep_mean": 30,
+            "cache_life_time": 10,
+            "cache_max_mb": 1,
+            "print_time_stamps": false,
+            "use_fake_backend": false,
+            "logger": "terminal",
+            "log_level": "INFO"
+          }
+          EOF
+          cli_npc checkConnection
+          export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
+          $PWD/install/bin/eicrecon -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json -Pjana:warmup_timeout=0 -Pjana:timeout=0
+
   eicrecon-gun:
     runs-on: ubuntu-24.04
     needs:
