@@ -15,10 +15,8 @@
 #include <chrono>
 #include <cmath>
 #include <fstream>
-#include <functional>
 #include <iomanip>
 #include <iostream>
-#include <sstream>
 #include <memory>
 #include <sstream>
 #include <utility>
