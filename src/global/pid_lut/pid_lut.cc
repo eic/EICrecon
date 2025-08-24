@@ -178,27 +178,35 @@ void InitPlugin(JApplication* app) {
   // as a particle in the ReconstructedChargedParticle collection rather than needing
   // a subset collection. This should be fixed in the future.
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
-    "ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles",
-    {"ReconstructedChargedWithPFRICHTOFDIRCPIDParticles", "TaggerTrackerReconstructedParticles"},
-    {"ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles"}, app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
+          "ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles",
+          {"ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
+           "TaggerTrackerReconstructedParticles"},
+          {"ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
-    "ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
-    {"ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations", "TaggerTrackerReconstructedParticleAssociations"},
-    {"ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
+      "ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
+      {"ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+       "TaggerTrackerReconstructedParticleAssociations"},
+      {"ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
 
   // And the same for truth seeded particles and associations
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
-    "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles",
-    {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles", "TaggerTrackerReconstructedParticles"},
-    {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles"}, app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
+          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles",
+          {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
+           "TaggerTrackerReconstructedParticles"},
+          {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
-    "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
-    {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations", "TaggerTrackerReconstructedParticleAssociations"},
-    {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
+      "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
+      {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+       "TaggerTrackerReconstructedParticleAssociations"},
+      {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
 
   //-------------------------------------------------------------------------
   // DRICH PID
