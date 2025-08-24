@@ -58,8 +58,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // Central tracking hits combined
       "CentralTrackerTruthSeeds",
+      "CentralCalorimeterRecHits",
       "CentralTrackingRecHits",
       "CentralTrackingRawHitAssociations",
+      "CentralTrackingCalorimeterRecHits",
       "CentralTrackSeedingResults",
       "CentralTrackerMeasurements",
 
@@ -222,6 +224,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralCKFTracksUnfiltered",
       "CentralCKFTrackUnfilteredAssociations",
       "CentralCKFTrackParametersUnfiltered",
+      // with BIC
+      "CentralWithBICTrackSegments",
 
       // B0 tracking
       "B0TrackerCKFTruthSeededTrajectories",
@@ -293,6 +297,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelTruthClusterAssociations",
       "EcalBarrelImagingRawHits",
       "EcalBarrelImagingRecHits",
+      "EcalBarrelImaging1stLayerRecHits",
+      "EcalBarrelImagingTrackerRecHits",
       "EcalBarrelImagingClusters",
       "EcalBarrelImagingClusterAssociations",
       "EcalBarrelScFiPAttenuatedHits",

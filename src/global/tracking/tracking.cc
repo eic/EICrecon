@@ -80,116 +80,156 @@ void InitPlugin(JApplication* app) {
       {"CentralTrackingRawHitAssociations"}, // Output collection name
       app));
 
+  // Calorimeter hits collector
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
+      "CentralCalorimeterRecHits", {"EcalBarrelImagingTrackerRecHits"},
+      {"CentralCalorimeterRecHits"}, // Output collection name
+      app));
+
+  // Tracker and calorimeter hits
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
+      "CentralTrackingCalorimeterRecHits", {"CentralTrackingRecHits", "CentralCalorimeterRecHits"},
+      {"CentralTrackingCalorimeterRecHits"}, // Output collection name
+      app));
+
+  // Tracker measurements
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
       "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
       app));
+  // ... with BIC first layer
+  app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
+      "CentralWithBICTrackerMeasurements", {"CentralTrackingCalorimeterRecHits"},
+      {"CentralWithBICTrackerMeasurements"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralCKFTruthSeededTrajectories",
-      {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements"},
-      {
-          "CentralCKFTruthSeededActsTrajectoriesUnfiltered",
-          "CentralCKFTruthSeededActsTracksUnfiltered",
-      },
-      app));
+  // Define tracking chains with prefix
+  struct tracking_inputs {
+    std::string measurements;
+    std::string associations;
+  };
+  std::map<std::string, tracking_inputs> tracking_chains = {
+      {std::string{"Central"},
+       {
+           .measurements{"CentralTrackerMeasurements"},
+           .associations{"CentralTrackingRawHitAssociations"},
+       }},
+      {std::string{"CentralWithBIC"},
+       {
+           .measurements{"CentralWithBICTrackerMeasurements"},
+           .associations{"CentralTrackingRawHitAssociations"},
+       }}};
 
-  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
-      "CentralCKFTruthSeededTracksUnfiltered",
-      {
-          "CentralTrackerMeasurements",
-          "CentralCKFTruthSeededActsTrajectoriesUnfiltered",
-          "CentralTrackingRawHitAssociations",
-      },
-      {
-          "CentralCKFTruthSeededTrajectoriesUnfiltered",
-          "CentralCKFTruthSeededTrackParametersUnfiltered",
-          "CentralCKFTruthSeededTracksUnfiltered",
-          "CentralCKFTruthSeededTrackUnfilteredAssociations",
-      },
-      app));
+  // Truth-seeded tracking with tracker
+  for (auto& [prefix, input] : tracking_chains) {
+    app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
+        prefix + "CKFTruthSeededTrajectories", {prefix + "TrackerTruthSeeds", input.measurements},
+        {
+            prefix + "CKFTruthSeededActsTrajectoriesUnfiltered",
+            prefix + "CKFTruthSeededActsTracksUnfiltered",
+        },
+        app));
 
-  app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
-      "TruthSeededAmbiguityResolutionSolver",
-      {"CentralCKFTruthSeededActsTracksUnfiltered", "CentralTrackerMeasurements"},
-      {
-          "CentralCKFTruthSeededActsTracks",
-          "CentralCKFTruthSeededActsTrajectories",
-      },
-      app));
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        prefix + "CKFTruthSeededTracksUnfiltered",
+        {
+            input.measurements,
+            prefix + "CKFTruthSeededActsTrajectoriesUnfiltered",
+            input.associations,
+        },
+        {
+            prefix + "CKFTruthSeededTrajectoriesUnfiltered",
+            prefix + "CKFTruthSeededTrackParametersUnfiltered",
+            prefix + "CKFTruthSeededTracksUnfiltered",
+            prefix + "CKFTruthSeededTrackUnfilteredAssociations",
+        },
+        app));
 
-  app->Add(
-      new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTruthSeededTracks",
-                                                       {
-                                                           "CentralTrackerMeasurements",
-                                                           "CentralCKFTruthSeededActsTrajectories",
-                                                           "CentralTrackingRawHitAssociations",
-                                                       },
-                                                       {
-                                                           "CentralCKFTruthSeededTrajectories",
-                                                           "CentralCKFTruthSeededTrackParameters",
-                                                           "CentralCKFTruthSeededTracks",
-                                                           "CentralCKFTruthSeededTrackAssociations",
-                                                       },
-                                                       app));
+    app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
+        prefix + "TruthSeededAmbiguityResolutionSolver",
+        {prefix + "CKFTruthSeededActsTracksUnfiltered", input.measurements},
+        {
+            prefix + "CKFTruthSeededActsTracks",
+            prefix + "CKFTruthSeededActsTrajectories",
+        },
+        app));
 
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        prefix + "CKFTruthSeededTracks",
+        {
+            input.measurements,
+            prefix + "CKFTruthSeededActsTrajectories",
+            input.associations,
+        },
+        {
+            prefix + "CKFTruthSeededTrajectories",
+            prefix + "CKFTruthSeededTrackParameters",
+            prefix + "CKFTruthSeededTracks",
+            prefix + "CKFTruthSeededTrackAssociations",
+        },
+        app));
+  }
+
+  // Realistically seeded tracking with tracker
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
       "CentralTrackSeedingResults", {"CentralTrackingRecHits"}, {"CentralTrackSeedingResults"}, {},
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralCKFTrajectories", {"CentralTrackSeedingResults", "CentralTrackerMeasurements"},
-      {
-          "CentralCKFActsTrajectoriesUnfiltered",
-          "CentralCKFActsTracksUnfiltered",
-      },
-      app));
+  for (auto& [prefix, input] : tracking_chains) {
+    app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
+        prefix + "CKFTrajectories", {"CentralTrackSeedingResults", input.measurements},
+        {
+            prefix + "CKFActsTrajectoriesUnfiltered",
+            prefix + "CKFActsTracksUnfiltered",
+        },
+        app));
 
-  app->Add(
-      new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTracksUnfiltered",
-                                                       {
-                                                           "CentralTrackerMeasurements",
-                                                           "CentralCKFActsTrajectoriesUnfiltered",
-                                                           "CentralTrackingRawHitAssociations",
-                                                       },
-                                                       {
-                                                           "CentralCKFTrajectoriesUnfiltered",
-                                                           "CentralCKFTrackParametersUnfiltered",
-                                                           "CentralCKFTracksUnfiltered",
-                                                           "CentralCKFTrackUnfilteredAssociations",
-                                                       },
-                                                       app));
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
+        prefix + "CKFTracksUnfiltered",
+        {
+            input.measurements,
+            prefix + "CKFActsTrajectoriesUnfiltered",
+            input.associations,
+        },
+        {
+            prefix + "CKFTrajectoriesUnfiltered",
+            prefix + "CKFTrackParametersUnfiltered",
+            prefix + "CKFTracksUnfiltered",
+            prefix + "CKFTrackUnfilteredAssociations",
+        },
+        app));
 
-  app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
-      "AmbiguityResolutionSolver", {"CentralCKFActsTracksUnfiltered", "CentralTrackerMeasurements"},
-      {
-          "CentralCKFActsTracks",
-          "CentralCKFActsTrajectories",
-      },
-      app));
+    app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
+        prefix + "AmbiguityResolutionSolver",
+        {prefix + "CKFActsTracksUnfiltered", input.measurements},
+        {
+            prefix + "CKFActsTracks",
+            prefix + "CKFActsTrajectories",
+        },
+        app));
 
-  app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTracks",
-                                                            {
-                                                                "CentralTrackerMeasurements",
-                                                                "CentralCKFActsTrajectories",
-                                                                "CentralTrackingRawHitAssociations",
-                                                            },
-                                                            {
-                                                                "CentralCKFTrajectories",
-                                                                "CentralCKFTrackParameters",
-                                                                "CentralCKFTracks",
-                                                                "CentralCKFTrackAssociations",
-                                                            },
-                                                            app));
-
-  app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>("CentralTrackSegments",
+    app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(prefix + "CKFTracks",
                                                               {
-                                                                  "CentralCKFActsTrajectories",
-                                                                  "CentralCKFTracks",
+                                                                  input.measurements,
+                                                                  prefix + "CKFActsTrajectories",
+                                                                  input.associations,
                                                               },
                                                               {
-                                                                  "CentralTrackSegments",
+                                                                  prefix + "CKFTrajectories",
+                                                                  prefix + "CKFTrackParameters",
+                                                                  prefix + "CKFTracks",
+                                                                  prefix + "CKFTrackAssociations",
                                                               },
                                                               app));
+
+    app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>(prefix + "TrackSegments",
+                                                                {
+                                                                    prefix + "CKFActsTrajectories",
+                                                                    prefix + "CKFTracks",
+                                                                },
+                                                                {
+                                                                    prefix + "TrackSegments",
+                                                                },
+                                                                app));
+  }
 
   app->Add(
       new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>("CentralTrackVertices",
