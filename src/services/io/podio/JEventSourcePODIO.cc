@@ -107,6 +107,9 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
             "Number of background events to add to every primary event."
     );
     */
+
+  // Ensure we have a geometry service
+  m_dd4hep_service = app->GetService<DD4hep_service>();
 }
 
 //------------------------------------------------------------------------------
@@ -148,6 +151,26 @@ void JEventSourcePODIO::Open() {
     Nevents_in_file = m_reader.getEntries("events");
     m_log->info("Opened PODIO Frame file \"{}\" with {} events", GetResourceName(),
                 Nevents_in_file);
+
+    // Verify detector geometry checksum
+    auto frame_data = m_reader.readEntry("runs", 0);
+    auto frame      = std::make_unique<podio::Frame>(std::move(frame_data));
+    LOG << "Detector checksums:" << LOG_END;
+    for (const auto& [name, hash] : m_dd4hep_service->GetDetectorChecksums()) {
+      std::string hash_geo = fmt::format("{:x}", hash);
+      auto hash_podio      = frame->getParameter<std::string>(name + "_hash");
+      if (hash_podio.has_value()) {
+        if (hash_podio.value() != hash_geo) {
+          LOG << "Hash mismatch for detector " << name << ": " << hash_podio.value()
+              << " != " << hash_geo << LOG_END;
+        } else {
+          LOG << "Hash match for detector " << name << ": " << hash_podio.value()
+              << " == " << hash_geo << LOG_END;
+        }
+      } else {
+        LOG << "Event source is missing hash for detector " << name << LOG_END;
+      }
+    }
 
     if (print_type_table) {
       PrintCollectionTypeTable();

@@ -13,6 +13,8 @@
 #include <memory>
 #include <string>
 
+#include "services/geometry/dd4hep/DD4hep_service.h"
+
 #if ((JANA_VERSION_MAJOR == 2) && (JANA_VERSION_MINOR >= 3)) || (JANA_VERSION_MAJOR > 2)
 #define JANA_NEW_CALLBACK_STYLE 1
 #else
@@ -42,6 +44,8 @@ public:
 
 protected:
   podio::ROOTReader m_reader;
+
+  std::shared_ptr<DD4hep_service> m_dd4hep_service;
 
   std::size_t Nevents_in_file = 0;
   std::size_t Nevents_read    = 0;

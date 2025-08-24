@@ -5,6 +5,8 @@
 #include <JANA/JApplication.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JServiceLocator.h>
+#include <DD4hep/DetElement.h>
+#include <Parsers/Primitives.h>
 #include <Parsers/Printout.h>
 #include <TGeoManager.h>
 #include <fmt/color.h>
@@ -14,9 +16,14 @@
 #include <exception>
 #include <filesystem>
 #include <iostream>
+#include <set>
 #include <stdexcept>
 #include <utility>
 #include <vector>
+
+#if __has_include(<DD4hep/plugins/DetectorChecksum.h>)
+#include <DD4hep/plugins/DetectorChecksum.h>
+#endif
 
 #include "DD4hep_service.h"
 #include "services/log/Log_service.h"
@@ -121,6 +128,11 @@ void DD4hep_service::Initialize() {
     throw std::runtime_error("No dd4hep XML file specified.");
   }
 
+  std::vector<std::string> ignore_detectors{};
+  m_app->SetDefaultParameter(
+      "dd4hep:ignore_detectors", ignore_detectors,
+      "Comma separated list of detetors to ignore when determining detector checksums");
+
   // Reading the geometry may take a long time and if the JANA ticker is enabled, it will keep printing
   // while no other output is coming which makes it look like something is wrong. Disable the ticker
   // while parsing and loading the geometry
@@ -146,7 +158,35 @@ void DD4hep_service::Initialize() {
     detector->volumeManager();
     detector->apply("DD4hepVolumeManager", 0, nullptr);
     m_cellid_converter = std::make_unique<const dd4hep::rec::CellIDPositionConverter>(*detector);
-    m_dd4hepGeo        = std::move(detector); // const
+
+#if __has_include(<DD4hep/plugins/DetectorChecksum.h>)
+    // Determine detector checksum
+    auto printLevel = dd4hep::printLevel();
+    dd4hep::setPrintLevel(dd4hep::WARNING);
+    using dd4hep::detail::DetectorChecksum;
+    DetectorChecksum checksum(*detector);
+    checksum.debug        = 0;
+    checksum.precision    = 3;
+    checksum.hash_meshes  = true;
+    checksum.hash_readout = true;
+    std::set<std::string> ignore_detectors_set(ignore_detectors.begin(), ignore_detectors.end());
+    for (const auto& [name, det] : detector->world().children()) {
+      m_log->info("Geometry checksum {}", name);
+      if (ignore_detectors_set.contains(name)) {
+        continue;
+      }
+      checksum.analyzeDetector(det);
+      DetectorChecksum::hashes_t hash_vec{checksum.handleHeader().hash};
+      checksum.checksumDetElement(0, det, hash_vec, true);
+      DetectorChecksum::hash_t hash =
+          dd4hep::detail::hash64(&hash_vec[0], hash_vec.size() * sizeof(DetectorChecksum::hash_t));
+      m_detector_checksums[name] = hash;
+      m_log->info("Geometry checksum {} {:#16x}", name, hash);
+    }
+    dd4hep::setPrintLevel(printLevel);
+#endif
+
+    m_dd4hepGeo = std::move(detector); // const
 
     m_log->info("Geometry successfully loaded.");
   } catch (std::exception& e) {
