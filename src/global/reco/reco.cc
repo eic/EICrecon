@@ -77,27 +77,13 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapPClusterAssociations"},
       {"EcalClusterAssociations"}, app));
 
-  // Combine reconstructed charged particles and their associations from different sources
-  app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
-          "CombinedReconstructedChargedParticles",
-          {"ReconstructedChargedParticles", "TaggerTrackerReconstructedParticles"},
-          {"CombinedReconstructedChargedParticles"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
-      "CombinedReconstructedChargedParticleAssociations",
-      {"ReconstructedChargedParticleAssociations",
-       "TaggerTrackerReconstructedParticleAssociations"},
-      {"CombinedReconstructedChargedParticleAssociations"}, app));
-
   // Create ReconstructedParticles
   app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
       "ReconstructedParticlesWithAssoc",
       {
           "MCParticles",
-          "CombinedReconstructedChargedParticles",
-          "CombinedReconstructedChargedParticleAssociations",
+          "ReconstructedChargedParticles",
+          "ReconstructedChargedParticleAssociations",
           "EcalClusters",
           "EcalClusterAssociations",
       },
@@ -174,13 +160,13 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsTruth_factory>(
       "ScatteredElectronsTruth",
-      {"MCParticles", "CombinedReconstructedChargedParticles",
-       "CombinedReconstructedChargedParticlesAssociations"},
+      {"MCParticles", "ReconstructedChargedParticles",
+       "ReconstructedChargedParticleAssociations"},
       {"ScatteredElectronsTruth"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsEMinusPz_factory>(
       "ScatteredElectronsEMinusPz",
-      {"CombinedReconstructedChargedParticles", "ReconstructedElectronsForDIS"},
+      {"ReconstructedChargedParticles", "ReconstructedElectronsForDIS"},
       {"ScatteredElectronsEMinusPz"},
       {
           .minEMinusPz = 0,         // GeV
