@@ -5,6 +5,7 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
@@ -17,10 +18,10 @@
 namespace eicrecon {
 
 using CalorimeterParticleIDPostMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ClusterCollection,
+    algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
                       std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
                       edm4eic::TensorCollection>,
-    algorithms::Output<edm4eic::ClusterCollection,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
                        std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
                        edm4hep::ParticleIDCollection>>;
 
