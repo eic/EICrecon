@@ -58,8 +58,8 @@ void InitPlugin(JApplication* app) {
       "RICHEndcapNLUTPID",
       {
           "EventHeader",
-          "ReconstructedChargedWithoutFBPIDParticles",
-          "ReconstructedChargedWithoutFBPIDParticleAssociations",
+          "ReconstructedChargedWithoutPIDParticles",
+          "ReconstructedChargedWithoutPIDParticleAssociations",
       },
       {
           "ReconstructedChargedWithPFRICHPIDParticles",
