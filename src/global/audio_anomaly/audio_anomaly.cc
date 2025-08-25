@@ -7,13 +7,13 @@
 #include <string>
 
 extern "C" {
-    void InitPlugin(JApplication *app) {
-        InitJANAPlugin(app);
-        
-        // Register the audio anomaly detection service
-        app->ProvideService(std::make_shared<AudioAnomalyDetection_service>(app));
-        
-        // Register the anomaly detection factory
-        app->Add(new eicrecon::AnomalyDetection_factory());
-    }
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+
+  // Register the audio anomaly detection service
+  app->ProvideService(std::make_shared<AudioAnomalyDetection_service>(app));
+
+  // Register the anomaly detection factory
+  app->Add(new eicrecon::AnomalyDetection_factory());
+}
 }
