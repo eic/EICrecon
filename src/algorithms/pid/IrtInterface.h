@@ -11,6 +11,8 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/IrtRadiatorInfoCollection.h>
+#include <edm4eic/IrtParticleCollection.h>
 #include <edm4eic/IrtEventCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
@@ -56,6 +58,8 @@ namespace eicrecon {
       const edm4hep::SimTrackerHitCollection
       >,
     algorithms::Output<
+      edm4eic::IrtRadiatorInfoCollection,
+      edm4eic::IrtParticleCollection,
       edm4eic::IrtEventCollection
       >
     >;

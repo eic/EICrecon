@@ -215,7 +215,7 @@ namespace eicrecon {
 		in_reco_particles,
 		in_mc_reco_associations,
 		in_track_projections, in_sim_hits] = input;
-    auto [out_irt_event] = output;
+    auto [out_irt_radiator_info, out_irt_particles, out_irt_event] = output;
 
     //auto irtEvent = out_irt_event->create();
       
@@ -455,6 +455,8 @@ namespace eicrecon {
 
     // And eventually, populate PODIO output tables;
     {
+      out_irt_radiator_info->create();
+      /*auto irtParticles =*/ out_irt_particles->create();
       auto irtEvent = out_irt_event->create();
     
       for(auto particle: m_Event->ChargedParticles()) {
@@ -463,7 +465,7 @@ namespace eicrecon {
 	unsigned npe_per_track = 0, nhits_per_track = 0;
 
 	edm4eic::MutableIrtParticle irtParticle;
-#if _DEBUG_
+	//printf("--> %d\n", particle->m_EICreconParticleID);
 	irtParticle.setChargedParticle((*in_reco_particles)[particle->m_EICreconParticleID]);
 	
 	//printf("   --> %4ld radiators\n", mcparticle->GetRadiatorHistory().size());
@@ -471,7 +473,7 @@ namespace eicrecon {
 	  auto radiator = particle->GetRadiator(rhptr);
 	  if (!radiator->UsedInRingImaging()) continue;
 	  
-	  edm4eic::MutableIrtRadiator irtRadiator;
+	  edm4eic::MutableIrtRadiatorInfo irtRadiator;
 	  unsigned npe_per_radiator = 0, nhits_per_radiator = 0;
 	  
 	  nhits_per_radiator = particle->GetRecoCherenkovPhotonCount(radiator);
@@ -488,6 +490,7 @@ namespace eicrecon {
 
 	  irtRadiator.setAngle(1000*particle->GetRecoCherenkovAverageTheta(radiator));
 	  
+	  out_irt_radiator_info->push_back(irtRadiator);
 	  irtParticle.addToRadiators(irtRadiator);
 	} //for rhistory
 
@@ -495,8 +498,8 @@ namespace eicrecon {
 	irtParticle.setNpe  (  npe_per_track);
 	irtParticle.setNhits(nhits_per_track);
 	
+	out_irt_particles->push_back(irtParticle);
 	irtEvent.addToIrtParticles(irtParticle);
-#endif
       } //for particle
     }
   } // IrtInterface::process()

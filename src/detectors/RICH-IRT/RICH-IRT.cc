@@ -230,7 +230,7 @@ extern "C" {
 			  "ReconstructedChargedWithoutPIDParticleAssociations",
 			  RICHtracks.Data(), (RICHstr + "Hits").Data()
 			},
-			{(RICHstr + "IrtEvent").Data()},
+			{(RICHstr + "IrtRadiatorInfo").Data(), (RICHstr + "IrtParticles").Data(), (RICHstr + "IrtEvent").Data()},
 			config,
 			app
 			));
