@@ -9,6 +9,7 @@
 #include <cmath>
 #include <algorithm>
 #include <stdexcept>
+#include <chrono>
 
 AudioAnomalyDetection_service::AudioAnomalyDetection_service(JApplication* app) 
     : m_app(app), m_running(false), m_pcm_handle(nullptr) {
@@ -77,10 +78,13 @@ void AudioAnomalyDetection_service::initializeAudio() {
     snd_pcm_t* handle;
     snd_pcm_hw_params_t* params;
     
-    // Open PCM device for playback
+    // Try to open PCM device for playback
     int rc = snd_pcm_open(&handle, m_audio_device.c_str(), SND_PCM_STREAM_PLAYBACK, 0);
     if (rc < 0) {
-        m_log->error("Unable to open PCM device {}: {}", m_audio_device, snd_strerror(rc));
+        m_log->warn("Unable to open PCM device {}: {} - running in silent mode", 
+                   m_audio_device, snd_strerror(rc));
+        // Set handle to nullptr to indicate silent mode
+        m_pcm_handle = nullptr;
         return;
     }
     
@@ -135,13 +139,18 @@ void AudioAnomalyDetection_service::reportAnomaly(const std::string& detector_na
 }
 
 void AudioAnomalyDetection_service::startAudioStream() {
-    if (m_running.load() || !m_pcm_handle) {
+    if (m_running.load()) {
         return;
     }
     
     m_running.store(true);
     m_audio_thread = std::thread(&AudioAnomalyDetection_service::audioGenerationLoop, this);
-    m_log->info("Audio stream started");
+    
+    if (m_pcm_handle) {
+        m_log->info("Audio stream started with device output");
+    } else {
+        m_log->info("Audio stream started in silent mode (no audio device available)");
+    }
 }
 
 void AudioAnomalyDetection_service::stopAudioStream() {
@@ -161,12 +170,6 @@ bool AudioAnomalyDetection_service::isStreamActive() const {
 }
 
 void AudioAnomalyDetection_service::audioGenerationLoop() {
-    if (!m_pcm_handle) {
-        m_log->error("Cannot start audio loop: PCM handle not initialized");
-        return;
-    }
-    
-    snd_pcm_t* handle = static_cast<snd_pcm_t*>(m_pcm_handle);
     std::vector<float> buffer(m_buffer_size * m_channels);
     
     while (m_running.load()) {
@@ -174,15 +177,22 @@ void AudioAnomalyDetection_service::audioGenerationLoop() {
             // Generate audio frame
             generateAudioFrame(buffer);
             
-            // Write to audio device
-            int rc = snd_pcm_writei(handle, buffer.data(), m_buffer_size);
-            if (rc == -EPIPE) {
-                // Buffer underrun - recover
-                m_log->warn("Audio buffer underrun, attempting recovery");
-                snd_pcm_prepare(handle);
-            } else if (rc < 0) {
-                m_log->error("Audio write error: {}", snd_strerror(rc));
-                break;
+            if (m_pcm_handle) {
+                // Write to audio device if available
+                snd_pcm_t* handle = static_cast<snd_pcm_t*>(m_pcm_handle);
+                int rc = snd_pcm_writei(handle, buffer.data(), m_buffer_size);
+                if (rc == -EPIPE) {
+                    // Buffer underrun - recover
+                    m_log->warn("Audio buffer underrun, attempting recovery");
+                    snd_pcm_prepare(handle);
+                } else if (rc < 0) {
+                    m_log->error("Audio write error: {}", snd_strerror(rc));
+                    break;
+                }
+            } else {
+                // Silent mode - just simulate timing
+                std::this_thread::sleep_for(
+                    std::chrono::microseconds(m_buffer_size * 1000000 / m_sample_rate));
             }
         } catch (const std::exception& e) {
             m_log->error("Audio generation error: {}", e.what());
