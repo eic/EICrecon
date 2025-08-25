@@ -8,8 +8,8 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
 
 namespace eicrecon {
