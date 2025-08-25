@@ -5,15 +5,18 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <fmt/core.h>
 #include <cmath>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "algorithms/pid_lut/PIDLookupConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/meta/CollectionCollector_factory.h"
 // factories
 #include "factories/pid_lut/PIDLookup_factory.h"
-#include "factories/meta/CollectionCollector_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
