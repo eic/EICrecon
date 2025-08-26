@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Derek Anderson
+// Copyright (C) 2025 Derek Anderson
 
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
@@ -14,7 +14,6 @@
 #include <vector>
 
 #include "TrackClusterSubtractor.h"
-#include "algorithms/particle/PFTools.h"
 #include "algorithms/particle/TrackClusterSubtractorConfig.h"
 
 namespace eicrecon {
@@ -56,7 +55,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   // ------------------------------------------------------------------------
   // 1. Build map of clusters onto projections
   // ------------------------------------------------------------------------
-  PFTools::MapToVecSeg mapClustToProj;
+  MapToVecSeg mapClustToProj;
   for (const auto& match : *in_matches) {
     for (const auto& project : *in_projections) {
 
@@ -95,7 +94,8 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     edm4eic::MutableCluster sub_clust = cluster.clone();
     sub_clust.setEnergy(subtractFrac * cluster.getEnergy());
     out_sub_clusters->push_back(sub_clust);
-    trace("Created subtracted cluster with {} GeV (originally {} GeV)", sub_clust.getEnergy(),
+    trace("Created subtracted cluster with {} GeV (originally {} GeV)",
+          sub_clust.getEnergy(),
           cluster.getEnergy());
 
     // create track cluster matches
@@ -126,11 +126,11 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
 //! Sum energy of tracks
 // --------------------------------------------------------------------------
 /*! Sums energy of tracks projected to the surface in the
-   *  calorimeter specified by `surfaceToUse`. Uses PDG of
-   *  track to select mass for energy; if not available,
-   *  uses mass set by `defaultMassPdg`.
-   */
-double TrackClusterSubtractor::sum_track_energy(const PFTools::VecSeg& projects) const {
+ *  calorimeter specified by `surfaceToUse`. Uses PDG of
+ *  track to select mass for energy; if not available,
+ *  uses mass set by `defaultMassPdg`.
+ */
+double TrackClusterSubtractor::sum_track_energy(const VecSeg& projects) const {
 
   double eSum = 0.;
   for (const auto& project : projects) {
@@ -160,17 +160,17 @@ double TrackClusterSubtractor::sum_track_energy(const PFTools::VecSeg& projects)
   trace("Sum of track energy = {} GeV", eSum);
   return eSum;
 
-} // end 'sum_track_energy(PFTools::VecSeg&)'
+} // end 'sum_track_energy(VecSeg&)'
 
 // --------------------------------------------------------------------------
 //! Is difference consistent with zero?
 // --------------------------------------------------------------------------
 /*! Checks if provided difference is consistent with zero,
-   *  either checking if difference is within an epsilon
-   *  (if `doNSigmaCut` is false), or if difference is within
-   *  `nSigmaMax` of zero (if `doNSigmaCut` is true) based on
-   *  the provided tracker and calorimeter resolutions.
-   */
+ *  either checking if difference is within an epsilon
+ *  (if `doNSigmaCut` is false), or if difference is within
+ *  `nSigmaMax` of zero (if `doNSigmaCut` is true) based on
+ *  the provided tracker and calorimeter resolutions.
+ */
 bool TrackClusterSubtractor::is_zero(const double difference) const {
 
   // if < 0, automatically return true
@@ -187,7 +187,9 @@ bool TrackClusterSubtractor::is_zero(const double difference) const {
   bool isZero = false;
   if (m_cfg.doNSigmaCut) {
     isZero = (nSigma < m_cfg.nSigmaMax);
-    trace("Difference of {} GeV consistent with zero: nSigma = {} < {}", difference, nSigma,
+    trace("Difference of {} GeV consistent with zero: nSigma = {} < {}",
+          difference,
+          nSigma,
           m_cfg.nSigmaMax);
   } else {
     isZero = std::abs(difference) < std::numeric_limits<double>::epsilon();
