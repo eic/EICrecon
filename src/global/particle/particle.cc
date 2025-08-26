@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Derek Anderson
+// Copyright (C) 2025 Derek Anderson
 
 #include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -7,7 +7,6 @@
 #include <memory>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/particle/TrackClusterMergeSplitter_factory.h"
 #include "factories/particle/TrackClusterSubtractor_factory.h"
 
 extern "C" {
@@ -36,34 +35,63 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "EcalEndcapNSubtractedClusters",
-      {"EcalEndcapNTrackSplitMergeClusterMatches", "CalorimeterTrackProjections"},
-      {"EcalEndcapNSubtractedClusters", "EcalEndcapNRemnantClusters",
+      {"EcalEndcapNTrackClusterMatches",
+       "CalorimeterTrackProjections"},
+      {"EcalEndcapNSubtractedClusters",
+       "EcalEndcapNRemnantClusters",
        "EcalEndcapNTrackSubtractedClusterMatches"},
       {
-          .fracEnergyToSub = 1.0,
-          .defaultMassPdg  = 211,
-          .surfaceToUse    = 1,
+        .fracEnergyToSub = 1.0,
+        .defaultMassPdg  = 211,
+        .surfaceToUse    = 1,
       },
       app // TODO: remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "HcalEndcapNSubtractedClusters",
-      {"HcalEndcapNTrackSplitMergeClusterMatches", "CalorimeterTrackProjections"},
-      {"HcalEndcapNSubtractedClusters", "HcalEndcapNRemnantClusters",
+      {"HcalEndcapNTrackClusterMatches",
+       "CalorimeterTrackProjections"},
+      {"HcalEndcapNSubtractedClusters",
+       "HcalEndcapNRemnantClusters",
        "HcalEndcapNTrackSubtractedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {
+        .fracEnergyToSub = 1.0,
+        .defaultMassPdg = 211,
+        .surfaceToUse = 1
+      },
       app // TODO: remove me once fixed
       ));
 
   // central ------------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "EcalBarrelSubtractedClusters",
+      {"EcalBarrelTrackClusterMatches",
+       "CalorimeterTrackProjections"},
+      {"EcalBarrelSubtractedClusters",
+       "EcalBarrelRemnantClusters",
+       "EcalBarrelTrackSubtractedClusterMatches"},
+      {
+        .fracEnergyToSub = 1.0,
+        .defaultMassPdg = 211,
+        .surfaceToUse = 1
+      },
+      app // TODO: remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "HcalBarrelSubtractedClusters",
-      {"HcalBarrelTrackSplitMergeClusterMatches", "CalorimeterTrackProjections"},
-      {"HcalBarrelSubtractedClusters", "HcalBarrelRemnantClusters",
+      {"HcalBarrelTrackClusterMatches",
+       "CalorimeterTrackProjections"},
+      {"HcalBarrelSubtractedClusters",
+       "HcalBarrelRemnantClusters",
        "HcalBarrelTrackSubtractedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {
+        .fracEnergyToSub = 1.0,
+        .defaultMassPdg = 211,
+        .surfaceToUse = 1
+      },
       app // TODO: remove me once fixed
       ));
 
@@ -71,18 +99,31 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "EcalEndcapPSubtractedClusters",
-      {"EcalEndcapPTrackSplitMergeClusterMatches", "CalorimeterTrackProjections"},
-      {"EcalEndcapPSubtractedClusters", "EcalEndcapPRemnantClusters",
+      {"EcalEndcapPTrackClusterMatches",
+       "CalorimeterTrackProjections"},
+      {"EcalEndcapPSubtractedClusters",
+       "EcalEndcapPRemnantClusters",
        "EcalEndcapPTrackSubtractedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {
+        .fracEnergyToSub = 1.0,
+        .defaultMassPdg = 211,
+        .surfaceToUse = 1
+      },
       app // TODO: remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "LFHCALSubtractedClusters",
-      {"LFHCALTrackSplitMergeClusterMatches", "CalorimeterTrackProjections"},
-      {"LFHCALSubtractedClusters", "LFHCALRemnantClusters", "LFHCALTrackSubtractedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {"LFHCALTrackSplitMergeClusterMatches",
+       "CalorimeterTrackProjections"},
+      {"LFHCALSubtractedClusters",
+       "LFHCALRemnantClusters",
+       "LFHCALTrackSubtractedClusterMatches"},
+      {
+        .fracEnergyToSub = 1.0,
+        .defaultMassPdg = 211,
+        .surfaceToUse = 1
+      },
       app // TODO: remove me once fixed
       ));
 
@@ -104,4 +145,4 @@ void InitPlugin(JApplication* app) {
 
   /* TODO add here */
 }
-}
+}  // extern "C"
