@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Derek Anderson
+// Copyright (C) 2025 Derek Anderson
 
 #pragma once
 
-// c++ utilities
-#include <string>
-// dd4hep utilities
 #include <DD4hep/Detector.h>
-// eicrecon components
+#include <string>
+
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
@@ -19,10 +17,13 @@ class TrackClusterSubtractor_factory
     : public JOmniFactory<TrackClusterSubtractor_factory, TrackClusterSubtractorConfig> {
 
 public:
+
+  ///! alias for algorithm name
   using AlgoT = eicrecon::TrackClusterSubtractor;
 
 private:
-  // algorithm to run
+
+  // pointer to algorithm
   std::unique_ptr<AlgoT> m_algo;
 
   // input collections
@@ -47,22 +48,27 @@ private:
   Service<AlgorithmsInit_service> m_algoInitSvc{this};
 
 public:
+
+  ///! Configures algorithm
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->applyConfig(config());
     m_algo->init();
   }
 
+  ///! Applies any updates between changes in runs
   void ChangeRun(int64_t run_number) {
     //... nothing to do ...//
   }
 
+  ///! Primary algorithm call
   void Process(int64_t run_number, uint64_t event_number) {
-    m_algo->process({m_track_cluster_match_input(), m_track_projections_input()},
-                    {m_subtract_clusters_output().get(), m_remnant_clusters_output().get(),
+    m_algo->process({m_track_cluster_match_input(),
+                     m_track_projections_input()},
+                    {m_subtract_clusters_output().get(),
+                     m_remnant_clusters_output().get(),
                      m_track_sub_cluster_match_output().get()});
   }
-
 }; // end TrackClusterSubtractor_factory
 
 } // namespace eicrecon

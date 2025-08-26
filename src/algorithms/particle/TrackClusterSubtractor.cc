@@ -19,15 +19,6 @@
 namespace eicrecon {
 
 // --------------------------------------------------------------------------
-//! Initialize algorithm
-// --------------------------------------------------------------------------
-void TrackClusterSubtractor::init() {
-
-  //... nothing to do ...//
-
-} // end 'init(dd4hep::Detector*)'
-
-// --------------------------------------------------------------------------
 //! Process inputs
 // --------------------------------------------------------------------------
 /*! Subtract energy of matched tracks via the following algorithm.
@@ -43,7 +34,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
                                      const TrackClusterSubtractor::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_matches, in_projections]                       = input;
+  const auto [in_matches, in_projections] = input;
   auto [out_sub_clusters, out_remain_clusters, out_sub_matches] = output;
 
   // exit if no matched tracks in collection
@@ -77,17 +68,17 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
 
     // do subtraction
     const double eTrkSum = sum_track_energy(projects);
-    const double eToSub  = m_cfg.fracEnergyToSub * eTrkSum;
-    const double eSub    = cluster.getEnergy() - eToSub;
+    const double eToSub = m_cfg.fracEnergyToSub * eTrkSum;
+    const double eSub = cluster.getEnergy() - eToSub;
     trace("Subtracted {} GeV from cluster with {} GeV", eToSub, cluster.getEnergy());
 
     // check if consistent with zero,
     // set eSub accordingly
-    const bool isZero      = is_zero(eSub);
+    const bool isZero = is_zero(eSub);
     const double eSubToUse = isZero ? 0. : eSub;
 
     // calculate energy fractions
-    const double remainFrac   = eSubToUse / cluster.getEnergy();
+    const double remainFrac = eSubToUse / cluster.getEnergy();
     const double subtractFrac = 1. - remainFrac;
 
     // scale subtracted cluster energy
@@ -104,7 +95,8 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
       match.setCluster(sub_clust);
       match.setTrack(project.getTrack());
       match.setWeight(1.0); // FIXME placeholder
-      trace("Matched subtracted cluster {} to track {}", sub_clust.getObjectID().index,
+      trace("Matched subtracted cluster {} to track {}",
+            sub_clust.getObjectID().index,
             project.getTrack().getObjectID().index);
     }
 

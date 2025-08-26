@@ -60,7 +60,7 @@ public:
   ///! Alias for a map from a cluster to the segments of matched tracks
   using MapToVecSeg = std::map<edm4eic::Cluster, VecSeg, CompareClust>;
 
-  ///! CTOR DESCRIPTION WILL GO HERE
+  ///! Algorithm constructor
   TrackClusterSubtractor(std::string_view name)
       : TrackClusterSubtractorAlgorithm{name,
                                         {"inputTrackClusterMatches",
@@ -70,12 +70,12 @@ public:
                                          "outputTrackSubtractedClusterMatches"},
                                         "Subtracts energy of tracks pointing to clusters."} {}
 
-  void init();
+  // public method
   void process(const Input&, const Output&) const final;
 
 private:
 
-  ///! private methods
+  // private methods
   double sum_track_energy(const VecSeg& projects) const;
   bool is_zero(const double difference) const;
 
