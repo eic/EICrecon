@@ -8,40 +8,41 @@
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
-
 namespace eicrecon {
 
-  class FarForwardLambdaReconstruction_factory : public JOmniFactory<FarForwardLambdaReconstruction_factory,FarForwardLambdaReconstructionConfig> {
-
-    public:
-      using AlgoT = eicrecon::FarForwardLambdaReconstruction;
-    private:
-      std::unique_ptr<AlgoT> m_algo;
-    PodioInput<edm4eic::ReconstructedParticle> m_neutrals_input {this};
-    PodioOutput<edm4eic::ReconstructedParticle> m_lambda_output {this};
-    PodioOutput<edm4eic::ReconstructedParticle> m_lambda_decay_products_cm_output {this};
-
-    ParameterRef<double> m_rot_y {this, "globalToProtonRotation", config().globalToProtonRotation};
-    ParameterRef<double> m_zmax {this, "zMax", config().zMax};
-    ParameterRef<double> m_lambda_max_mass_dev {this, "lambdaMaxMassDev", config().lambdaMaxMassDev};
-    ParameterRef<int> m_iterations {this, "iterations", config().iterations};
-    Service<AlgorithmsInit_service> m_algorithmsInit {this};
+class FarForwardLambdaReconstruction_factory
+    : public JOmniFactory<FarForwardLambdaReconstruction_factory,
+                          FarForwardLambdaReconstructionConfig> {
 
 public:
-    void Configure() {
-        m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->level((algorithms::LogLevel)logger()->level());
+  using AlgoT = eicrecon::FarForwardLambdaReconstruction;
 
-        m_algo->applyConfig(config());
-        m_algo->init();
-    }
+private:
+  std::unique_ptr<AlgoT> m_algo;
+  PodioInput<edm4eic::ReconstructedParticle> m_neutrals_input{this};
+  PodioOutput<edm4eic::ReconstructedParticle> m_lambda_output{this};
+  PodioOutput<edm4eic::ReconstructedParticle> m_lambda_decay_products_cm_output{this};
 
-    void ChangeRun(int64_t run_number) {
-    }
+  ParameterRef<std::string> m_offset_position_name{this, "offsetPositionName",
+                                                   config().offsetPositionName};
+  ParameterRef<double> m_rot_y{this, "globalToProtonRotation", config().globalToProtonRotation};
+  ParameterRef<double> m_lambda_max_mass_dev{this, "lambdaMaxMassDev", config().lambdaMaxMassDev};
+  ParameterRef<int> m_iterations{this, "iterations", config().iterations};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
-    void Process(int64_t run_number, uint64_t event_number) {
-      m_algo->process({m_neutrals_input()},{m_lambda_output().get(), m_lambda_decay_products_cm_output().get()});
-    }
+public:
+  void Configure() {
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->level((algorithms::LogLevel)logger()->level());
+
+    m_algo->applyConfig(config());
+    m_algo->init();
+  }
+
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+    m_algo->process({m_neutrals_input()},
+                    {m_lambda_output().get(), m_lambda_decay_products_cm_output().get()});
+  }
 };
 
-} // eicrecon
+} // namespace eicrecon

@@ -4,18 +4,18 @@
 #include <float.h>
 #include <DD4hep/Detector.h>
 
-
 namespace eicrecon {
 
-  struct FarForwardLambdaReconstructionConfig {
-    /** transformation from global coordinates to proton-frame coordinates*/
-    double globalToProtonRotation=-0.025;
-    /** distance to the ZDC */
-    double zMax=35800*dd4hep::mm;
-    /** maximum deviation between reconstructed mass and PDG mass */
-    double lambdaMaxMassDev=0.030*dd4hep::GeV;
-    /** number of iterations for the IDOLA algorithm */
-    int iterations=10;
-  };
+struct FarForwardLambdaReconstructionConfig {
 
-} // eicrecon
+  /** detector constant describing distance to the ZDC */
+  std::string offsetPositionName = "HcalFarForwardZDC_SiPMonTile_r_pos";
+  /** transformation from global coordinates to proton-frame coordinates*/
+  double globalToProtonRotation = -0.025;
+  /** maximum deviation between reconstructed mass and PDG mass */
+  double lambdaMaxMassDev = 0.030 * dd4hep::GeV;
+  /** number of iterations for the IDOLA algorithm */
+  int iterations = 10;
+};
+
+} // namespace eicrecon

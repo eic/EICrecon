@@ -16,26 +16,24 @@
 #include "algorithms/tracking/TrackPropagationConfig.h"
 
 namespace richgeo {
-  class ActsGeo {
-    public:
+class ActsGeo {
+public:
+  // constructor and destructor
+  ActsGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_,
+          std::shared_ptr<spdlog::logger> log_);
+  ~ActsGeo() {}
 
-      // constructor and destructor
-      ActsGeo(std::string detName_, gsl::not_null<const dd4hep::Detector*> det_, std::shared_ptr<spdlog::logger> log_);
-      ~ActsGeo() {}
+  // generate list ACTS disc surfaces, for a given radiator
+  std::vector<eicrecon::SurfaceConfig> TrackingPlanes(int radiator, int numPlanes) const;
 
-      // generate list ACTS disc surfaces, for a given radiator
-      std::vector<eicrecon::SurfaceConfig> TrackingPlanes(int radiator, int numPlanes);
+  // generate a cut to remove any track points that should not be used
+  std::function<bool(edm4eic::TrackPoint)> TrackPointCut(int radiator) const;
 
-      // generate a cut to remove any track points that should not be used
-      std::function<bool(edm4eic::TrackPoint)> TrackPointCut(int radiator);
+protected:
+  std::string m_detName;
+  gsl::not_null<const dd4hep::Detector*> m_det;
+  std::shared_ptr<spdlog::logger> m_log;
 
-    protected:
-
-      std::string                     m_detName;
-      gsl::not_null<const dd4hep::Detector*> m_det;
-      std::shared_ptr<spdlog::logger> m_log;
-
-    private:
-
-  };
-}
+private:
+};
+} // namespace richgeo

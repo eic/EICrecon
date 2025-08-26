@@ -4,7 +4,9 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <string>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
@@ -13,61 +15,61 @@
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
-
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
-    using namespace eicrecon;
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  using namespace eicrecon;
 
-    MatrixTransferStaticConfig recon_cfg;
+  //Digitized hits, especially for thresholds
+  app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
+      "ForwardOffMTrackerRawHits", {"EventHeader", "ForwardOffMTrackerHits"},
+      {"ForwardOffMTrackerRawHits", "ForwardOffMTrackerRawHitAssociations"},
+      {
+          .threshold      = 10.0 * dd4hep::keV,
+          .timeResolution = 8,
+      },
+      app));
 
-        //Digitized hits, especially for thresholds
-        app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-        "ForwardOffMTrackerRawHits",
-        {
-          "ForwardOffMTrackerHits"
-        },
-        {
-          "ForwardOffMTrackerRawHits",
-          "ForwardOffMTrackerRawHitAssociations"
-        },
-        {
-            .threshold = 10.0 * dd4hep::keV,
-            .timeResolution = 8,
-        },
-        app
-    ));
+  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+      "ForwardOffMTrackerRecHits", {"ForwardOffMTrackerRawHits"}, {"ForwardOffMTrackerRecHits"},
+      {
+          .timeResolution = 8,
+      },
+      app));
 
-        app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-        "ForwardOffMTrackerRecHits",
-        {"ForwardOffMTrackerRawHits"},
-        {"ForwardOffMTrackerRecHits"},
-        {
-            .timeResolution = 8,
-        },
-        app
-    ));
+  app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
+      "ForwardOffMRecParticles", {"MCParticles", "ForwardOffMTrackerRecHits"},
+      {"ForwardOffMRecParticles"},
+      {
+          .matrix_configs = {{
+              .nomMomentum = 130.0,
 
-    //Static transport matrix for Off Momentum detectors
-    recon_cfg.aX = {{1.6248, 12.966293},
-                    {0.1832, -2.8636535}};
-    recon_cfg.aY = {{0.0001674, -28.6003},
-                    {0.0000837, -2.87985}};
+              .aX =
+                  {
+                      {2.08344, 5.37571},
+                      {0.188756, -2.90941},
+                  },
 
-    recon_cfg.local_x_offset       = -11.9872;  // in mm --> this is from misalignment of the detector
-    recon_cfg.local_y_offset       = -0.0146;   // in mm --> this is from misalignment of the detector
-    recon_cfg.local_x_slope_offset = -14.75315; // in mrad
-    recon_cfg.local_y_slope_offset = -0.0073;   // in mrad
-    recon_cfg.nomMomentum          =  137.5;    // in GEV --> exactly half of the top energy momentum (for proton spectators from deuteron breakup)
+              .aY =
+                  {
+                      {-0.977013, -35.7785},
+                      {-0.0812252, -2.86315},
+                  },
 
-    recon_cfg.hit1minZ = 22499.0;
-    recon_cfg.hit1maxZ = 22522.0;
-    recon_cfg.hit2minZ = 24499.0;
-    recon_cfg.hit2maxZ = 24522.0;
+              .local_x_offset       = -1032.2,
+              .local_y_offset       = 0.00462829,
+              .local_x_slope_offset = -59.7363,
+              .local_y_slope_offset = -0.0030213,
 
-    recon_cfg.readout              = "ForwardOffMTrackerRecHits";
+          }},
 
-    app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>("ForwardOffMRecParticles",{"MCParticles","ForwardOffMTrackerRecHits"},{"ForwardOffMRecParticles"},recon_cfg,app));
+          .hit1minZ = 25490.0,
+          .hit1maxZ = 25512.0,
+          .hit2minZ = 27012.0,
+          .hit2maxZ = 27035.0,
 
+          .readout = "ForwardOffMTrackerRecHits",
+      },
+      app));
 }
 }

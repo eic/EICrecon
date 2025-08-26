@@ -31,7 +31,7 @@ public:
                              {"outputTrackSegments"},
                              "Effectively 'zip' the input track segments."} {}
 
-  void init() final{};
+  void init() final {};
   void process(const Input&, const Output&) const final;
 };
 } // namespace eicrecon

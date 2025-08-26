@@ -9,6 +9,7 @@
 #include <spdlog/logger.h>
 #include <memory>
 #include <tuple>
+#include <variant>
 #include <vector>
 
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"
@@ -24,11 +25,10 @@ public:
 
   void init(std::shared_ptr<spdlog::logger> log);
 
-std::tuple<
-      std::vector<ActsExamples::ConstTrackContainer *>,
-      std::vector<ActsExamples::Trajectories *>
-      >
-  process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,const edm4eic::Measurement2DCollection& meas2Ds);
+  std::tuple<std::vector<ActsExamples::ConstTrackContainer*>,
+             std::vector<ActsExamples::Trajectories*>>
+  process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,
+          const edm4eic::Measurement2DCollection& meas2Ds);
 
 private:
   std::shared_ptr<spdlog::logger> m_log;

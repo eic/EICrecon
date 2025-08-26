@@ -89,7 +89,7 @@ Below are some example images produced for 100 DIS events. The events were
 simulated using the following on the JLab ifarm:
 
 ~~~bash
-cp /work/eic2/EPIC/MC_input/SIDIS/Lambda_ABCONV/hepmc_Lambda1_ab_hiAcc_18x275_00.hepmc.gz .
+cp /volatile/eic/EPIC/MC_input/SIDIS/Lambda_ABCONV/hepmc_Lambda1_ab_hiAcc_18x275_00.hepmc.gz .
 tar xzf hepmc_Lambda1_ab_hiAcc_18x275_00.hepmc.gz
 ddsim --compactFile $DETECTOR_PATH/epic_arches.xml --numberOfEvents 100 --inputFiles hepmc_Lambda1_ab_hiAcc_18x275_00.hepmc --outputFile sim_hepmc3_Lambda1_ab_hiAcc_18x275_00.edm4hep.root
 ~~~
@@ -106,7 +106,6 @@ time is just the first place where the geometry was read in.
 | ![EcalBarrelSciGlassMergedTruthClusters](callgraphs/EcalBarrelSciGlassMergedTruthClusters.png) |
 | ![EcalBarrelImagingMergedClusters](callgraphs/EcalBarrelImagingMergedClusters.png)             |
 | ![EcalEndcapPMergedClusters](callgraphs/EcalEndcapPMergedClusters.png)                         |
-| ![EcalEndcapPInsertMergedClusters](callgraphs/EcalEndcapPInsertMergedClusters.png)             |
 | ![EcalEndcapNMergedClusters](callgraphs/EcalEndcapNMergedClusters.png)                         |
 | ![ForwardRomanPotParticles](callgraphs/ForwardRomanPotParticles.png)                           |
 | ![HcalBarrelClusters](callgraphs/HcalBarrelClusters.png)                                       |

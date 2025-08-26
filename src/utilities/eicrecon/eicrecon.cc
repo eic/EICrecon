@@ -3,7 +3,8 @@
 //
 //
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <TROOT.h>
 #include <string>
 #include <vector>
 
@@ -12,61 +13,65 @@
 /// The default plugins
 /// Add new default plugin names here and the main() will do JApplication::AddPlugin() for you.
 std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
-
-        "log",
-        "dd4hep",
-        "evaluator",
-        "acts",
-        "algorithms_init",
-        "pid_lut",
-        "richgeo",
-        "rootfile",
-        "beam",
-        "reco",
-        "tracking",
-        "particle",
-        "pid",
-        "EEMC",
-        "BEMC",
-        "FEMC",
-        "EHCAL",
-        "BHCAL",
-        "FHCAL",
-        "B0ECAL",
-        "ZDC",
-        "BTRK",
-        "BVTX",
-        "PFRICH",
-        "DIRC",
-        "DRICH",
-        "ECTRK",
-        "MPGD",
-        "B0TRK",
-        "RPOTS",
-        "FOFFMTRK",
-        "BTOF",
-        "ECTOF",
-        "LOWQ2",
-        "LUMISPECCAL",
-        "podio",
-        "janatop",
+    // clang-format off
+    "log",
+    "dd4hep",
+    "evaluator",
+    "acts",
+    "algorithms_init",
+    "pid_lut",
+    "richgeo",
+    "rootfile",
+    "beam",
+    "reco",
+    "tracking",
+    "particle",
+    "pid",
+    "global_pid_lut",
+    "EEMC",
+    "BEMC",
+    "FEMC",
+    "EHCAL",
+    "BHCAL",
+    "FHCAL",
+    "B0ECAL",
+    "ZDC",
+    "BTRK",
+    "BVTX",
+    "PFRICH",
+    "DIRC",
+    "DRICH",
+    "ECTRK",
+    "MPGD",
+    "B0TRK",
+    "RPOTS",
+    "FOFFMTRK",
+    "BTOF",
+    "ECTOF",
+    "LOWQ2",
+    "LUMISPECCAL",
+    "podio",
+    "janatop",
+    // clang-format on
 };
 
-int main( int narg, char **argv)
-{
-    std::vector<std::string> default_plugins = EICRECON_DEFAULT_PLUGINS;
+int main(int narg, char** argv) {
+  ROOT::EnableThreadSafety();
 
-    auto options = jana::GetCliOptions(narg, argv, false);
+  std::vector<std::string> default_plugins = EICRECON_DEFAULT_PLUGINS;
 
-    if (jana::HasPrintOnlyCliOptions(options, default_plugins))
-        return -1;
+  auto options = jana::GetCliOptions(narg, argv, false);
 
-    AddAvailablePluginsToOptionParams(options, default_plugins);
+  if (jana::HasPrintOnlyCliOptions(options, default_plugins)) {
+    return -1;
+  }
 
-    japp = jana::CreateJApplication(options);
+  AddAvailablePluginsToOptionParams(options, default_plugins);
 
-    auto exit_code = jana::Execute(japp, options);
+  japp = jana::CreateJApplication(options);
 
-    delete japp;
-    return exit_code;
+  auto exit_code = jana::Execute(japp, options);
+
+  delete japp;
+  return exit_code;
 }

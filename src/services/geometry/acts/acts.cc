@@ -4,13 +4,14 @@
 //
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <memory>
 
 #include "ACTSGeo_service.h"
 
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
-    app->ProvideService(std::make_shared<ACTSGeo_service>(app) );
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->ProvideService(std::make_shared<ACTSGeo_service>(app));
 }
 }

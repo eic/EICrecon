@@ -11,26 +11,31 @@
 #include <spdlog/logger.h>
 #include <gsl/pointers>
 #include <memory>
+#include <string>
 
 #include "IrtGeo.h"
 
 namespace richgeo {
-  class IrtGeoPFRICH : public IrtGeo {
+class IrtGeoPFRICH : public IrtGeo {
 
-    public:
-      IrtGeoPFRICH(gsl::not_null<const dd4hep::Detector*> det_, gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_, std::shared_ptr<spdlog::logger> log_) :
-        IrtGeo("PFRICH",det_,conv_,log_) { DD4hep_to_IRT(); }
-      ~IrtGeoPFRICH();
+public:
+  IrtGeoPFRICH(gsl::not_null<const dd4hep::Detector*> det_,
+               gsl::not_null<const dd4hep::rec::CellIDPositionConverter*> conv_,
+               std::shared_ptr<spdlog::logger> log_)
+      : IrtGeo("PFRICH", det_, conv_, log_) {
+    DD4hep_to_IRT();
+  }
+  ~IrtGeoPFRICH();
 
-    protected:
-      void DD4hep_to_IRT() override;
+protected:
+  void DD4hep_to_IRT() override;
 
-    private:
-      // FIXME: should be smart pointers, but IRT methods sometimes assume ownership of such raw pointers
-      FlatSurface*             m_surfEntrance;
-      CherenkovPhotonDetector* m_irtPhotonDetector;
-      FlatSurface*             m_aerogelFlatSurface;
-      FlatSurface*             m_filterFlatSurface;
-      FlatSurface*             m_sensorFlatSurface;
-  };
-}
+private:
+  // FIXME: should be smart pointers, but IRT methods sometimes assume ownership of such raw pointers
+  FlatSurface* m_surfEntrance;
+  CherenkovPhotonDetector* m_irtPhotonDetector;
+  FlatSurface* m_aerogelFlatSurface;
+  FlatSurface* m_filterFlatSurface;
+  FlatSurface* m_sensorFlatSurface;
+};
+} // namespace richgeo

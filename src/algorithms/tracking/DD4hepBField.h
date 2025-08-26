@@ -11,52 +11,45 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
-#include <Acts/Utilities/Result.hpp>
 #include <DD4hep/Detector.h>
 #include <gsl/pointers>
 #include <memory>
+#include <utility>
 #include <variant>
-
-
-
 
 namespace eicrecon::BField {
 
-  ///// The Context to be handed around
-  //struct ScalableBFieldContext {
-  //  double scalor = 1.;
-  //};
+///// The Context to be handed around
+//struct ScalableBFieldContext {
+//  double scalor = 1.;
+//};
 
-  /** Use the dd4hep magnetic field in acts.
+/** Use the dd4hep magnetic field in acts.
    *
    * \ingroup magnets
    * \ingroup magsvc
    */
-  class DD4hepBField final : public Acts::MagneticFieldProvider {
-  public:
-      gsl::not_null<const dd4hep::Detector*> m_det;
+class DD4hepBField final : public Acts::MagneticFieldProvider {
+public:
+  gsl::not_null<const dd4hep::Detector*> m_det;
 
-  public:
-    struct Cache {
-      Cache(const Acts::MagneticFieldContext& /*mcfg*/) { }
-    };
+public:
+  struct Cache {
+    Cache(const Acts::MagneticFieldContext& /*mcfg*/) {}
+  };
 
-    Acts::MagneticFieldProvider::Cache makeCache(const Acts::MagneticFieldContext& mctx) const override
-    {
-#if Acts_VERSION_MAJOR >= 32
-      return Acts::MagneticFieldProvider::Cache(std::in_place_type<Cache>, mctx);
-#else
-      return Acts::MagneticFieldProvider::Cache::make<Cache>(mctx);
-#endif
-    }
+  Acts::MagneticFieldProvider::Cache
+  makeCache(const Acts::MagneticFieldContext& mctx) const override {
+    return Acts::MagneticFieldProvider::Cache(std::in_place_type<Cache>, mctx);
+  }
 
-    /** construct constant magnetic field from field vector.
+  /** construct constant magnetic field from field vector.
     *
     * @param [in] DD4hep detector instance
     */
-    explicit DD4hepBField(gsl::not_null<const dd4hep::Detector*> det) : m_det(det) {}
+  explicit DD4hepBField(gsl::not_null<const dd4hep::Detector*> det) : m_det(det) {}
 
-    /**  retrieve magnetic field value.
+  /**  retrieve magnetic field value.
      *
      *  @param [in] position global position
      *  @param [in] cache Cache object (is ignored)
@@ -65,9 +58,11 @@ namespace eicrecon::BField {
      *  @note The @p position is ignored and only kept as argument to provide
      *        a consistent interface with other magnetic field services.
      */
-    Acts::Result<Acts::Vector3> getField(const Acts::Vector3& position, Acts::MagneticFieldProvider::Cache& cache) const override;
+  Acts::Result<Acts::Vector3> getField(const Acts::Vector3& position,
+                                       Acts::MagneticFieldProvider::Cache& cache) const override;
 
-    /** @brief retrieve magnetic field value & its gradient
+#if Acts_VERSION_MAJOR < 39
+  /** @brief retrieve magnetic field value & its gradient
      *
      * @param [in]  position   global position
      * @param [out] derivative gradient of magnetic field vector as (3x3)
@@ -80,12 +75,12 @@ namespace eicrecon::BField {
      * @note currently the derivative is not calculated
      * @todo return derivative
      */
-    Acts::Result<Acts::Vector3> getFieldGradient(const Acts::Vector3& position, Acts::ActsMatrix<3, 3>& /*derivative*/,
-                                                 Acts::MagneticFieldProvider::Cache& cache) const override;
-  };
+  Acts::Result<Acts::Vector3>
+  getFieldGradient(const Acts::Vector3& position, Acts::ActsMatrix<3, 3>& /*derivative*/,
+                   Acts::MagneticFieldProvider::Cache& cache) const override;
+#endif
+};
 
-  using BFieldVariant = std::variant<std::shared_ptr<const DD4hepBField>>;
-
-
+using BFieldVariant = std::variant<std::shared_ptr<const DD4hepBField>>;
 
 } // namespace eicrecon::BField

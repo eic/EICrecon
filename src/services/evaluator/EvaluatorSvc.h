@@ -2,8 +2,11 @@
 // Copyright (C) 2024 Dmitry Kalinkin
 
 #include <algorithms/logger.h>
+#include <cstddef>
+#include <exception>
 #include <functional>
 #include <mutex>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -29,7 +32,7 @@ public:
 
   /**
    * @brief Compile expression `expr` to std::function
-   * @param expr String expression to compile (e.g. `"a + b"`)
+   * @param expr String expression to compile (e.g. `"0.998"`, `"a + b"`)
    * @param Args Types of arguments for the resulting function
    * @param transform Function providing mapping from Args
    *
@@ -40,15 +43,26 @@ public:
   std::function<double(Args...)>
   compile(const std::string& expr,
           std::function<std::unordered_map<std::string, double>(Args...)> transform) {
-    std::vector<std::string> params;
-    // Call transform with default values to detect parameter names
-    for (auto& p : transform(Args{}...)) {
-      params.push_back(p.first);
+    try {
+      // trivial function if string is representation of float
+      std::size_t pos;
+      float expr_value = std::stof(expr, &pos);
+      if (pos < expr.size()) {
+        throw std::invalid_argument("unparsed trailing characters");
+      }
+      return [expr_value](Args... /* args */) { return expr_value; };
+    } catch (std::exception& e) {
+      // more complicated function otherwise
+      std::vector<std::string> params;
+      // Call transform with default values to detect parameter names
+      for (auto& p : transform(Args{}...)) {
+        params.push_back(p.first);
+      }
+      auto compiled_expr = _compile(expr, params);
+      return [compiled_expr, transform](Args... args) {
+        return compiled_expr(transform(std::forward<Args>(args)...));
+      };
     }
-    auto compiled_expr = _compile(expr, params);
-    return [compiled_expr, transform](Args... args) {
-      return compiled_expr(transform(std::forward<Args>(args)...));
-    };
   };
 
   /**
