@@ -12,134 +12,96 @@
 
 extern "C" {
 
-    void InitPlugin(JApplication *app) {
+void InitPlugin(JApplication* app) {
 
-        using namespace eicrecon;
+  using namespace eicrecon;
 
-        InitJANAPlugin(app);
+  InitJANAPlugin(app);
 
-        // ====================================================================
-        // PFAlpha: baseline PF implementation
-        // ====================================================================
+  // ====================================================================
+  // PFAlpha: baseline PF implementation
+  // ====================================================================
 
-        // --------------------------------------------------------------------
-        // PFA (0) connection: split/merge clusters accordingly
-        // --------------------------------------------------------------------
+  // --------------------------------------------------------------------
+  // PFA (0) connection: split/merge clusters accordingly
+  // --------------------------------------------------------------------
 
-        /* TODO move here when ready */
+  /* TODO move here when ready */
 
-        // --------------------------------------------------------------------
-        // PFA (1a) arbitration: apply track correction to clusters
-        // --------------------------------------------------------------------
+  // --------------------------------------------------------------------
+  // PFA (1a) arbitration: apply track correction to clusters
+  // --------------------------------------------------------------------
 
-        // backward -----------------------------------------------------------
+  // backward -----------------------------------------------------------
 
-        app->Add(
-          new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-            "EcalEndcapNSubtractedClusters",
-            {"EcalEndcapNTrackSplitMergeClusterMatches",
-             "CalorimeterTrackProjections"},
-            {"EcalEndcapNSubtractedClusters",
-             "EcalEndcapNRemnantClusters",
-             "EcalEndcapNTrackSubtractedClusterMatches"},
-            {
-              .fracEnergyToSub = 1.0,
-              .defaultMassPdg = 211,
-              .surfaceToUse = 1,
-            },
-            app  // TODO: remove me once fixed
-          )
-        );
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "EcalEndcapNSubtractedClusters",
+      {"EcalEndcapNTrackSplitMergeClusterMatches", "CalorimeterTrackProjections"},
+      {"EcalEndcapNSubtractedClusters", "EcalEndcapNRemnantClusters",
+       "EcalEndcapNTrackSubtractedClusterMatches"},
+      {
+          .fracEnergyToSub = 1.0,
+          .defaultMassPdg  = 211,
+          .surfaceToUse    = 1,
+      },
+      app // TODO: remove me once fixed
+      ));
 
-        app->Add(
-          new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-            "HcalEndcapNSubtractedClusters",
-            {"HcalEndcapNTrackSplitMergeClusterMatches",
-             "CalorimeterTrackProjections"},
-            {"HcalEndcapNSubtractedClusters",
-             "HcalEndcapNRemnantClusters",
-             "HcalEndcapNTrackSubtractedClusterMatches"},
-            {
-              .fracEnergyToSub = 1.0,
-              .defaultMassPdg = 211,
-              .surfaceToUse = 1
-            },
-            app  // TODO: remove me once fixed
-          )
-        );
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "HcalEndcapNSubtractedClusters",
+      {"HcalEndcapNTrackSplitMergeClusterMatches", "CalorimeterTrackProjections"},
+      {"HcalEndcapNSubtractedClusters", "HcalEndcapNRemnantClusters",
+       "HcalEndcapNTrackSubtractedClusterMatches"},
+      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
 
-        // central ------------------------------------------------------------
+  // central ------------------------------------------------------------
 
-        app->Add(
-          new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-            "HcalBarrelSubtractedClusters",
-            {"HcalBarrelTrackSplitMergeClusterMatches",
-             "CalorimeterTrackProjections"},
-            {"HcalBarrelSubtractedClusters",
-             "HcalBarrelRemnantClusters",
-             "HcalBarrelTrackSubtractedClusterMatches"},
-            {
-              .fracEnergyToSub = 1.0,
-              .defaultMassPdg = 211,
-              .surfaceToUse = 1
-            },
-            app  // TODO: remove me once fixed
-          )
-        );
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "HcalBarrelSubtractedClusters",
+      {"HcalBarrelTrackSplitMergeClusterMatches", "CalorimeterTrackProjections"},
+      {"HcalBarrelSubtractedClusters", "HcalBarrelRemnantClusters",
+       "HcalBarrelTrackSubtractedClusterMatches"},
+      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
 
-        // forward ------------------------------------------------------------
+  // forward ------------------------------------------------------------
 
-        app->Add(
-          new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-            "EcalEndcapPSubtractedClusters",
-            {"EcalEndcapPTrackSplitMergeClusterMatches",
-             "CalorimeterTrackProjections"},
-            {"EcalEndcapPSubtractedClusters",
-             "EcalEndcapPRemnantClusters",
-             "EcalEndcapPTrackSubtractedClusterMatches"},
-            {
-              .fracEnergyToSub = 1.0,
-              .defaultMassPdg = 211,
-              .surfaceToUse = 1
-            },
-            app  // TODO: remove me once fixed
-          )
-        );
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "EcalEndcapPSubtractedClusters",
+      {"EcalEndcapPTrackSplitMergeClusterMatches", "CalorimeterTrackProjections"},
+      {"EcalEndcapPSubtractedClusters", "EcalEndcapPRemnantClusters",
+       "EcalEndcapPTrackSubtractedClusterMatches"},
+      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
 
-        app->Add(
-          new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-            "LFHCALSubtractedClusters",
-            {"LFHCALTrackSplitMergeClusterMatches",
-             "CalorimeterTrackProjections"},
-            {"LFHCALSubtractedClusters",
-             "LFHCALRemnantClusters",
-             "LFHCALTrackSubtractedClusterMatches"},
-            {
-              .fracEnergyToSub = 1.0,
-              .defaultMassPdg = 211,
-              .surfaceToUse = 1
-            },
-            app  // TODO: remove me once fixed
-          )
-        );
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "LFHCALSubtractedClusters",
+      {"LFHCALTrackSplitMergeClusterMatches", "CalorimeterTrackProjections"},
+      {"LFHCALSubtractedClusters", "LFHCALRemnantClusters", "LFHCALTrackSubtractedClusterMatches"},
+      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
 
-        // --------------------------------------------------------------------
-        // PFA (1b) arbitration: form charged candidates
-        // --------------------------------------------------------------------
+  // --------------------------------------------------------------------
+  // PFA (1b) arbitration: form charged candidates
+  // --------------------------------------------------------------------
 
-        /* TODO add here */
+  /* TODO add here */
 
-        // --------------------------------------------------------------------
-        // PFA (2) arbitration: combine remnants, form neutral candidates
-        // --------------------------------------------------------------------
+  // --------------------------------------------------------------------
+  // PFA (2) arbitration: combine remnants, form neutral candidates
+  // --------------------------------------------------------------------
 
-        /* TODO add here */
+  /* TODO add here */
 
-        // --------------------------------------------------------------------
-        // PFA (3) regression: convert candidates to reco particles
-        // --------------------------------------------------------------------
+  // --------------------------------------------------------------------
+  // PFA (3) regression: convert candidates to reco particles
+  // --------------------------------------------------------------------
 
-        /* TODO add here */
-
-    }
+  /* TODO add here */
+}
 }

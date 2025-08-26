@@ -7,20 +7,20 @@
 
 namespace eicrecon {
 
-  struct TrackClusterSubtractorConfig {
+struct TrackClusterSubtractorConfig {
 
-    // general parameters
-    double   fracEnergyToSub = 1.0;  ///< fraction of track energy to subtract
-    int32_t  defaultMassPdg  = 211;  ///< default mass to use for track energy
-    uint64_t surfaceToUse    = 1;    ///< index of surface to use for measuring momentum
+  // general parameters
+  double fracEnergyToSub = 1.0; ///< fraction of track energy to subtract
+  int32_t defaultMassPdg = 211; ///< default mass to use for track energy
+  uint64_t surfaceToUse  = 1;   ///< index of surface to use for measuring momentum
 
-    // parameters for resolution-based
-    // comparison
-    bool     doNSigmaCut = false;  ///< turn on/off checking against resolutions
-    uint32_t nSigmaMax   = 1;      ///< max no. of sigma to be consistent w/ zero
-    double   trkReso     = 1.0;    ///< tracking momentum resolution to use
-    double   calReso     = 1.0;    ///< calorimeter energy resolution to use
+  // parameters for resolution-based
+  // comparison
+  bool doNSigmaCut   = false; ///< turn on/off checking against resolutions
+  uint32_t nSigmaMax = 1;     ///< max no. of sigma to be consistent w/ zero
+  double trkReso     = 1.0;   ///< tracking momentum resolution to use
+  double calReso     = 1.0;   ///< calorimeter energy resolution to use
 
-  };  // end TrackClusterSubtractorConfig
+}; // end TrackClusterSubtractorConfig
 
-}  // end eicrecon namespace
+} // namespace eicrecon

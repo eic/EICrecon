@@ -15,61 +15,54 @@
 
 namespace eicrecon {
 
-  class TrackClusterSubtractor_factory
-    : public JOmniFactory<TrackClusterSubtractor_factory, TrackClusterSubtractorConfig>
-  {
+class TrackClusterSubtractor_factory
+    : public JOmniFactory<TrackClusterSubtractor_factory, TrackClusterSubtractorConfig> {
 
-    public:
+public:
+  using AlgoT = eicrecon::TrackClusterSubtractor;
 
-      using AlgoT = eicrecon::TrackClusterSubtractor;
+private:
+  // algorithm to run
+  std::unique_ptr<AlgoT> m_algo;
 
-    private:
+  // input collections
+  PodioInput<edm4eic::TrackClusterMatch> m_track_cluster_match_input{this};
+  PodioInput<edm4eic::TrackSegment> m_track_projections_input{this};
 
-      // algorithm to run
-      std::unique_ptr<AlgoT> m_algo;
+  // output collections
+  PodioOutput<edm4eic::Cluster> m_subtract_clusters_output{this};
+  PodioOutput<edm4eic::Cluster> m_remnant_clusters_output{this};
+  PodioOutput<edm4eic::TrackClusterMatch> m_track_sub_cluster_match_output{this};
 
-      // input collections
-      PodioInput<edm4eic::TrackClusterMatch> m_track_cluster_match_input {this};
-      PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
+  // parameter bindings
+  ParameterRef<double> m_fracEnergyToSub{this, "fracEnergyToSub", config().fracEnergyToSub};
+  ParameterRef<int32_t> m_defaultMassPdg{this, "defaultMassPdg", config().defaultMassPdg};
+  ParameterRef<uint64_t> m_surfaceToUse{this, "surfaceToUse", config().surfaceToUse};
+  ParameterRef<bool> m_doNSigmaCut{this, "doNSigmaCut", config().doNSigmaCut};
+  ParameterRef<uint32_t> m_nSigmaMax{this, "nSigmaMax", config().nSigmaMax};
+  ParameterRef<double> m_trkReso{this, "trkReso", config().trkReso};
+  ParameterRef<double> m_calReso{this, "calReso", config().calReso};
 
-      // output collections
-      PodioOutput<edm4eic::Cluster> m_subtract_clusters_output {this};
-      PodioOutput<edm4eic::Cluster> m_remnant_clusters_output {this};
-      PodioOutput<edm4eic::TrackClusterMatch> m_track_sub_cluster_match_output {this};
+  // services
+  Service<AlgorithmsInit_service> m_algoInitSvc{this};
 
-      // parameter bindings
-      ParameterRef<double> m_fracEnergyToSub {this, "fracEnergyToSub", config().fracEnergyToSub};
-      ParameterRef<int32_t> m_defaultMassPdg {this, "defaultMassPdg", config().defaultMassPdg};
-      ParameterRef<uint64_t> m_surfaceToUse {this, "surfaceToUse", config().surfaceToUse};
-      ParameterRef<bool> m_doNSigmaCut {this, "doNSigmaCut", config().doNSigmaCut};
-      ParameterRef<uint32_t> m_nSigmaMax {this, "nSigmaMax", config().nSigmaMax};
-      ParameterRef<double> m_trkReso {this, "trkReso", config().trkReso};
-      ParameterRef<double> m_calReso {this, "calReso", config().calReso};
+public:
+  void Configure() {
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->applyConfig(config());
+    m_algo->init();
+  }
 
-      // services
-      Service<AlgorithmsInit_service> m_algoInitSvc {this};
+  void ChangeRun(int64_t run_number) {
+    //... nothing to do ...//
+  }
 
-    public:
+  void Process(int64_t run_number, uint64_t event_number) {
+    m_algo->process({m_track_cluster_match_input(), m_track_projections_input()},
+                    {m_subtract_clusters_output().get(), m_remnant_clusters_output().get(),
+                     m_track_sub_cluster_match_output().get()});
+  }
 
-      void Configure() {
-        m_algo = std::make_unique<AlgoT>(GetPrefix());
-        m_algo->applyConfig( config() );
-        m_algo->init();
-      }
+}; // end TrackClusterSubtractor_factory
 
-      void ChangeRun(int64_t run_number) {
-        //... nothing to do ...//
-      }
-
-      void Process(int64_t run_number, uint64_t event_number) {
-        m_algo->process(
-          {m_track_cluster_match_input(), m_track_projections_input()},
-          {m_subtract_clusters_output().get(),
-           m_remnant_clusters_output().get(),
-           m_track_sub_cluster_match_output().get()}
-        );
-      }
-
-  };  // end TrackClusterSubtractor_factory
-
-}  // end eicrecon namespace
+} // namespace eicrecon
