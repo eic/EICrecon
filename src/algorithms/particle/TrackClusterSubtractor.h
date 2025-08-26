@@ -3,20 +3,12 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
-#include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <edm4hep/Vector3f.h>
-#include <podio/ObjectID.h>
-#include <algorithm>
-#include <map>
-#include <set>
 #include <string>
 #include <string_view>
-#include <vector>
 
 #include "PFTools.h"
 #include "TrackClusterSubtractorConfig.h"
