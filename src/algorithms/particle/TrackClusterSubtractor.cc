@@ -1,19 +1,20 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Derek Anderson
 
-#include <edm4eic/CalorimeterHit.h>
-#include <edm4hep/Vector3f.h>
+#include <edm4eic/Track.h>
+#include <edm4eic/TrackPoint.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <stdint.h>
 #include <cmath>
-#include <cstddef>
 #include <gsl/pointers>
 #include <limits>
+#include <map>
+#include <vector>
 
 #include "TrackClusterSubtractor.h"
+#include "algorithms/particle/PFTools.h"
 #include "algorithms/particle/TrackClusterSubtractorConfig.h"
 
 namespace eicrecon {
