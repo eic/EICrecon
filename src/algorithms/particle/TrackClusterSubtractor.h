@@ -20,10 +20,8 @@ namespace eicrecon {
 //! Algorithm input/output
 // --------------------------------------------------------------------------
 using TrackClusterSubtractorAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TrackClusterMatchCollection,
-                      edm4eic::TrackSegmentCollection>,
-    algorithms::Output<edm4eic::ClusterCollection,
-                       edm4eic::ClusterCollection,
+    algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::TrackSegmentCollection>,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::ClusterCollection,
                        edm4eic::TrackClusterMatchCollection>>;
 
 // ==========================================================================
@@ -37,7 +35,6 @@ class TrackClusterSubtractor : public TrackClusterSubtractorAlgorithm,
                                public WithPodConfig<TrackClusterSubtractorConfig> {
 
 public:
-
   // ------------------------------------------------------------------------
   //! Comparator struct for clusters
   // ------------------------------------------------------------------------
@@ -63,8 +60,7 @@ public:
   ///! Algorithm constructor
   TrackClusterSubtractor(std::string_view name)
       : TrackClusterSubtractorAlgorithm{name,
-                                        {"inputTrackClusterMatches",
-                                         "inputTrackProjections"},
+                                        {"inputTrackClusterMatches", "inputTrackProjections"},
                                         {"outputSubtractedClusterCollection",
                                          "outputRemnantClusterCollection",
                                          "outputTrackSubtractedClusterMatches"},
@@ -74,7 +70,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-
   // private methods
   double sum_track_energy(const VecSeg& projects) const;
   bool is_zero(const double difference) const;
