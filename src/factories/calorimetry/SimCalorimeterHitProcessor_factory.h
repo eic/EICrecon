@@ -34,6 +34,7 @@ private:
   ParameterRef<double> m_inversePropagationSpeed{this, "inversePropagationSpeed",
                                                  config().inversePropagationSpeed};
   ParameterRef<double> m_fixedTimeDelay{this, "fixedTimeDelay", config().fixedTimeDelay};
+  ParameterRef<double> m_timeWindow{this, "timeWindow", config().timeWindow};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
