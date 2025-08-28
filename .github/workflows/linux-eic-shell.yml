@@ -375,8 +375,9 @@ jobs:
       run: |
         file=/cvmfs/singularity.opensciencegrid.org/eicweb/${{ env.platform }}:${{ env.release }}/etc/jug_info
         test -f ${file}
-        grep ' epic@' ${file}
-        hash=$(grep ' epic@' ${file} | sha256sum)
+        sed -e 's/\x1b\[[0-9;]*m//g' ${file} > $(basename ${file})
+        grep ' epic@' $(basename ${file})
+        hash=$(grep ' epic@' $(basename ${file}) | sha256sum)
         echo "hash=${hash%% *}" | tee $GITHUB_OUTPUT
 
   npsim-gun:
