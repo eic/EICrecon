@@ -6,22 +6,20 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <TMath.h>
+#include <edm4eic/unit_system.h>
+#include <cmath>
 #include <string>
 #include <vector>
 
-#include <TMath.h>
-#include <edm4eic/unit_system.h>
-#include <memory>
-
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/digi/EICROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconPulseGeneration_factory.h"
+#include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
