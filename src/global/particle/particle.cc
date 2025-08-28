@@ -35,11 +35,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "EcalEndcapNSubtractedClusters",
-      {"EcalEndcapNTrackClusterMatches",
-       "EcalEndcapNClusters",
-       "CalorimeterTrackProjections"},
-      {"EcalEndcapNRemnantClusters",
-       "EcalEndcapNExpectedClusters",
+      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters", "CalorimeterTrackProjections"},
+      {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
        "EcalEndcapNTrackExpectedClusterMatches"},
       {
           .fracEnergyToSub = 1.0,
@@ -51,17 +48,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "HcalEndcapNSubtractedClusters",
-      {"HcalEndcapNTrackClusterMatches",
-       "HcalEndcapNClusters",
-       "CalorimeterTrackProjections"},
-      {"HcalEndcapNRemnantClusters",
-       "HcalEndcapNExpectedClusters",
+      {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters", "CalorimeterTrackProjections"},
+      {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
        "HcalEndcapNTrackExpectedClusterMatches"},
-      {
-        .fracEnergyToSub = 1.0,
-        .defaultMassPdg = 211,
-        .surfaceToUse = 1
-      },
+      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 
@@ -69,33 +59,19 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "EcalBarrelSubtractedClusters",
-      {"EcalBarrelTrackClusterMatches",
-       "EcalBarrelClusters",
-       "CalorimeterTrackProjections"},
-      {"EcalBarrelRemnantClusters",
-       "EcalBarrelExpectedClusters",
+      {"EcalBarrelTrackClusterMatches", "EcalBarrelClusters", "CalorimeterTrackProjections"},
+      {"EcalBarrelRemnantClusters", "EcalBarrelExpectedClusters",
        "EcalBarrelTrackExpectedClusterMatches"},
-      {
-        .fracEnergyToSub = 1.0,
-        .defaultMassPdg = 211,
-        .surfaceToUse = 1
-      },
+      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "HcalBarrelSubtractedClusters",
-      {"HcalBarrelTrackClusterMatches",
-       "HcalBarrelClusters",
-       "CalorimeterTrackProjections"},
-      {"HcalBarrelRemnantClusters",
-       "HcalBarrelExpectedClusters",
+      {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters", "CalorimeterTrackProjections"},
+      {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
        "HcalBarrelTrackExpectedClusterMatches"},
-      {
-        .fracEnergyToSub = 1.0,
-        .defaultMassPdg = 211,
-        .surfaceToUse = 1
-      },
+      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 
@@ -103,33 +79,18 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "EcalEndcapPSubtractedClusters",
-      {"EcalEndcapPTrackClusterMatches",
-       "EcalEndcapPClusters",
-       "CalorimeterTrackProjections"},
-      {"EcalEndcapPRemnantClusters",
-       "EcalEndcapPExpectedClusters",
+      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters", "CalorimeterTrackProjections"},
+      {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
        "EcalEndcapPTrackExpectedClusterMatches"},
-      {
-        .fracEnergyToSub = 1.0,
-        .defaultMassPdg = 211,
-        .surfaceToUse = 1
-      },
+      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "LFHCALSubtractedClusters",
-      {"LFHCALTrackSplitMergeClusterMatches",
-       "LFHCALClusters",
-       "CalorimeterTrackProjections"},
-      {"LFHCALRemnantClusters",
-       "LFHCALExpectedClusters",
-       "LFHCALTrackExpectedClusterMatches"},
-      {
-        .fracEnergyToSub = 1.0,
-        .defaultMassPdg = 211,
-        .surfaceToUse = 1
-      },
+      {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
+      {"LFHCALRemnantClusters", "LFHCALExpectedClusters", "LFHCALTrackExpectedClusterMatches"},
+      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 

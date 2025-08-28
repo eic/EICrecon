@@ -39,7 +39,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
 
   // grab inputs/outputs
   const auto [in_match, in_cluster, in_project] = input;
-  auto [out_remnant, out_expect, out_match] = output;
+  auto [out_remnant, out_expect, out_match]     = output;
 
   // exit if no clusters in collection
   if (in_cluster->size() == 0) {
@@ -86,7 +86,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
 
     // do subtraction
     const double eToSub = m_cfg.fracEnergyToSub * sum_track_energy(projects);
-    const double eSub = cluster.getEnergy() - eToSub;
+    const double eSub   = cluster.getEnergy() - eToSub;
     trace("Subtracted {} GeV from cluster with {} GeV", eToSub, cluster.getEnergy());
 
     // check if consistent with zero,
@@ -110,8 +110,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     auto expect_clust = cluster.clone();
     expect_clust.setEnergy(cluster.getEnergy() - eSubToUse);
     out_expect->push_back(expect_clust);
-    trace("Created subtracted cluster with {} GeV (originally {} GeV)",
-          expect_clust.getEnergy(),
+    trace("Created subtracted cluster with {} GeV (originally {} GeV)", expect_clust.getEnergy(),
           cluster.getEnergy());
 
     // create a track-cluster match for expected clusters
@@ -120,14 +119,12 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
       match.setCluster(expect_clust);
       match.setTrack(project.getTrack());
       match.setWeight(1.0); // FIXME placeholder
-      trace("Matched expected cluster {} to track {}",
-            expect_clust.getObjectID().index,
+      trace("Matched expected cluster {} to track {}", expect_clust.getObjectID().index,
             project.getTrack().getObjectID().index);
     }
 
   } // end cluster-to-projections loop
-  debug("Finished subtraction, {} remnant clusters and {} expected clusters",
-        out_remnant->size(),
+  debug("Finished subtraction, {} remnant clusters and {} expected clusters", out_remnant->size(),
         out_expect->size());
 
   // --------------------------------------------------------------------------
@@ -137,7 +134,8 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     auto remain_clust = cluster.clone();
     out_remnant->push_back(remain_clust);
   }
-  debug("Finished copying unmatched clusters to remnants, {} remnant clusters", out_remnant->size());
+  debug("Finished copying unmatched clusters to remnants, {} remnant clusters",
+        out_remnant->size());
 
 } // end 'process(Input&, Output&)'
 

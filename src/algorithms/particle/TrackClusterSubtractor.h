@@ -20,11 +20,9 @@ namespace eicrecon {
 //! Algorithm input/output
 // --------------------------------------------------------------------------
 using TrackClusterSubtractorAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TrackClusterMatchCollection,
-                      edm4eic::ClusterCollection,
+    algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
                       edm4eic::TrackSegmentCollection>,
-    algorithms::Output<edm4eic::ClusterCollection,
-                       edm4eic::ClusterCollection,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::ClusterCollection,
                        edm4eic::TrackClusterMatchCollection>>;
 
 // ==========================================================================
@@ -66,14 +64,12 @@ public:
 
   ///! Algorithm constructor
   TrackClusterSubtractor(std::string_view name)
-      : TrackClusterSubtractorAlgorithm{name,
-                                        {"inputTrackClusterMatches",
-                                         "inputClusters",
-                                         "inputTrackProjections"},
-                                        {"outputRemnantClusterCollection",
-                                         "outputExpectedClusterCollection",
-                                         "outputTrackExpectedClusterMatches"},
-                                        "Subtracts energy of tracks pointing to clusters."} {}
+      : TrackClusterSubtractorAlgorithm{
+            name,
+            {"inputTrackClusterMatches", "inputClusters", "inputTrackProjections"},
+            {"outputRemnantClusterCollection", "outputExpectedClusterCollection",
+             "outputTrackExpectedClusterMatches"},
+            "Subtracts energy of tracks pointing to clusters."} {}
 
   // public method
   void process(const Input&, const Output&) const final;
