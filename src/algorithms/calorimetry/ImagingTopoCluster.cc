@@ -141,11 +141,10 @@ void ImagingTopoCluster::init() {
       error(msg);
       throw std::runtime_error(msg);
     }
-    info(
-        "Neighbour layers clustering (same sector and layer id within +- {:d}): "
-        "Global [t, z] distance between hits <= [{:.4f} mm, {:.4f} mm].",
-        m_cfg.neighbourLayersRange, diffLayerDistTZ[0], diffLayerDistTZ[1]);
-break;
+    info("Neighbour layers clustering (same sector and layer id within +- {:d}): "
+         "Global [t, z] distance between hits <= [{:.4f} mm, {:.4f} mm].",
+         m_cfg.neighbourLayersRange, diffLayerDistTZ[0], diffLayerDistTZ[1]);
+    break;
   default:
     error("Unknown different-layer mode.");
     throw std::runtime_error("Unknown different-layer mode.");
