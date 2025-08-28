@@ -63,7 +63,7 @@ void InitPlugin(JApplication* app) {
   const double sigma_analog      = 0.293951 * edm4eic::unit::ns;
   const double Vm                = 3e-4 * dd4hep::GeV;
   const double adc_range         = 256;
-                                          
+
   const double gain = -adc_range / Vm / landau_min * sigma_analog;
   const int offset  = 3;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
@@ -95,7 +95,5 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
       "EICROCDigitization", {"TOFEndcapPulses"}, {"TOFEndcapADCTDC"}, {}, app));
-
-  
 }
 } // extern "C"
