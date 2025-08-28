@@ -137,15 +137,15 @@ void ImagingTopoCluster::init() {
     break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
     if (m_cfg.diffLayerDistTZ.size() != 2) {
-      const std::string msg = "Expected 2 values (phi_dist, z_dist) for diffLayerDistTZ";
+      const std::string msg = "Expected 2 values (t_dist, z_dist) for diffLayerDistTZ";
       error(msg);
       throw std::runtime_error(msg);
     }
     info(
         "Neighbour layers clustering (same sector and layer id within +- {:d}): "
-        "Global [phi, z] distance between hits <= [{:.4f} mm, {:.4f} mm].", // The coordinate Phi is the projected Phi and thus is a distance, not an angle.
+        "Global [t, z] distance between hits <= [{:.4f} mm, {:.4f} mm].",
         m_cfg.neighbourLayersRange, diffLayerDistTZ[0], diffLayerDistTZ[1]);
-    break;
+break;
   default:
     error("Unknown different-layer mode.");
     throw std::runtime_error("Unknown different-layer mode.");
