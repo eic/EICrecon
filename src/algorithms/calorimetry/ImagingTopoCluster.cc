@@ -29,6 +29,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <gsl/pointers>
+#include <stdexcept>
 #include <utility>
 #include <variant>
 #include <vector>
