@@ -51,7 +51,8 @@ void ImagingTopoCluster::init() {
   // unitless conversion
   // sanity checks
   if (m_cfg.minClusterCenterEdep < m_cfg.minClusterHitEdep) {
-    const std::string msg = "minClusterCenterEdep must be greater than or equal to minClusterHitEdep";
+    const std::string msg =
+        "minClusterCenterEdep must be greater than or equal to minClusterHitEdep";
     error(msg);
     throw std::runtime_error(msg);
   }
@@ -65,10 +66,10 @@ void ImagingTopoCluster::init() {
   sameLayerDistEtaPhi[1] = m_cfg.sameLayerDistEtaPhi[1] / dd4hep::rad;
   diffLayerDistEtaPhi[0] = m_cfg.diffLayerDistEtaPhi[0];
   diffLayerDistEtaPhi[1] = m_cfg.diffLayerDistEtaPhi[1] / dd4hep::rad;
-  sameLayerDistTZ[0]   = std::visit(_toDouble, m_cfg.sameLayerDistTZ[0]) / dd4hep::mm;
-  sameLayerDistTZ[1]   = std::visit(_toDouble, m_cfg.sameLayerDistTZ[1]) / dd4hep::mm;
-  diffLayerDistTZ[0]   = std::visit(_toDouble, m_cfg.diffLayerDistTZ[0]) / dd4hep::mm;
-  diffLayerDistTZ[1]   = std::visit(_toDouble, m_cfg.diffLayerDistTZ[1]) / dd4hep::mm;
+  sameLayerDistTZ[0]     = std::visit(_toDouble, m_cfg.sameLayerDistTZ[0]) / dd4hep::mm;
+  sameLayerDistTZ[1]     = std::visit(_toDouble, m_cfg.sameLayerDistTZ[1]) / dd4hep::mm;
+  diffLayerDistTZ[0]     = std::visit(_toDouble, m_cfg.diffLayerDistTZ[0]) / dd4hep::mm;
+  diffLayerDistTZ[1]     = std::visit(_toDouble, m_cfg.diffLayerDistTZ[1]) / dd4hep::mm;
 
   sectorDist           = m_cfg.sectorDist / dd4hep::mm;
   minClusterHitEdep    = m_cfg.minClusterHitEdep / dd4hep::GeV;
@@ -98,7 +99,7 @@ void ImagingTopoCluster::init() {
          sameLayerDistEtaPhi[0], sameLayerDistEtaPhi[1]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
-    if (m_cfg.sameLayerDistTZ.size()!=2){
+    if (m_cfg.sameLayerDistTZ.size() != 2) {
       const std::string msg = "Expected 2 values (phi_dist, z_dist) for sameLayerDistTZ";
       error(msg);
       throw std::runtime_error(msg);
