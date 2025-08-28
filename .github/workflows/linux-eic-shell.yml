@@ -272,7 +272,7 @@ jobs:
     - name: Create Pull Request
       id: create-pull-request
       uses: peter-evans/create-pull-request@v7
-      if: ${{ github.event_name == 'pull_request' }}
+      if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
       with:
         token: ${{ secrets.EIC_EICRECON_PULL_REQUESTS_READ_WRITE }}
         commit-message: "fix: iwyu [skip ci]"
