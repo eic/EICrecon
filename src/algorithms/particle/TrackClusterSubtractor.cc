@@ -18,37 +18,46 @@
 
 namespace eicrecon {
 
-// --------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 //! Process inputs
-// --------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /*! Subtract energy of matched tracks via the following algorithm.
-   *    1. Build a map of each cluster onto a list of matched
-   *       track projections.
-   *    2. For each cluster, subtract the sum of momenta of
-   *       all matched tracks scaled by the specified fraction
-   *       from the cluster's energy.
-   *    3. If subtracted energy is greater than 0, copy cluster
-   *       into output with new subtracted energy.
-   */
+ *    1. Build a map of each cluster onto a list of matched
+ *       track projections.
+ *    2. For each cluster, subtract the sum of momenta of
+ *       all matched tracks scaled by the specified fraction
+ *       from the cluster's energy.
+ *    3. For each matched cluster:
+ *       a. If subtracted energy is greater than zero, create
+ *          a remnant cluster with the subtracted energy
+ *       b. And create an expected cluster with energy equal
+ *          to the difference between the total and the remnant.
+ *    4. Flag any un-matched clusters as remnants.
+ */
 void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
                                      const TrackClusterSubtractor::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_matches, in_projections]                       = input;
-  auto [out_sub_clusters, out_remain_clusters, out_sub_matches] = output;
+  const auto [in_match, in_cluster, in_project] = input;
+  auto [out_remnant, out_expect, out_match] = output;
 
-  // exit if no matched tracks in collection
-  if (in_matches->size() == 0) {
-    debug("No matched tracks in collection.");
+  // exit if no clusters in collection
+  if (in_cluster->size() == 0) {
+    debug("No clusters in collection");
     return;
   }
 
-  // ------------------------------------------------------------------------
+  // emit debugging message if no matched tracks in collection
+  if (in_match->size() == 0) {
+    debug("No matched tracks in collection.");
+  }
+
+  // --------------------------------------------------------------------------
   // 1. Build map of clusters onto projections
-  // ------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   MapToVecSeg mapClustToProj;
-  for (const auto& match : *in_matches) {
-    for (const auto& project : *in_projections) {
+  for (const auto& match : *in_match) {
+    for (const auto& project : *in_project) {
 
       // pick out corresponding projection from track
       if (match.getTrack() != project.getTrack()) {
@@ -61,15 +70,23 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   } // end track-cluster match loop
   debug("Built map of clusters-onto-tracks, size = {}", mapClustToProj.size());
 
-  // ------------------------------------------------------------------------
+  // now identify any clusters without matching tracks
+  VecClust vecNoMatchClust;
+  for (const auto& cluster : *in_cluster) {
+    if (mapClustToProj.count(cluster) == 0) {
+      vecNoMatchClust.push_back(cluster);
+    }
+  }
+  debug("Built vector of unmatched clusters, size = {}", vecNoMatchClust.size());
+
+  // --------------------------------------------------------------------------
   // 2. Subtract energy for tracks
-  // ------------------------------------------------------------------------
+  // --------------------------------------------------------------------------
   for (const auto& [cluster, projects] : mapClustToProj) {
 
     // do subtraction
-    const double eTrkSum = sum_track_energy(projects);
-    const double eToSub  = m_cfg.fracEnergyToSub * eTrkSum;
-    const double eSub    = cluster.getEnergy() - eToSub;
+    const double eToSub = m_cfg.fracEnergyToSub * sum_track_energy(projects);
+    const double eSub = cluster.getEnergy() - eToSub;
     trace("Subtracted {} GeV from cluster with {} GeV", eToSub, cluster.getEnergy());
 
     // check if consistent with zero,
@@ -77,44 +94,56 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     const bool isZero      = is_zero(eSub);
     const double eSubToUse = isZero ? 0. : eSub;
 
-    // calculate energy fractions
-    const double remainFrac   = eSubToUse / cluster.getEnergy();
-    const double subtractFrac = 1. - remainFrac;
-
-    // scale subtracted cluster energy
-    edm4eic::MutableCluster sub_clust = cluster.clone();
-    sub_clust.setEnergy(subtractFrac * cluster.getEnergy());
-    out_sub_clusters->push_back(sub_clust);
-    trace("Created subtracted cluster with {} GeV (originally {} GeV)", sub_clust.getEnergy(),
-          cluster.getEnergy());
-
-    // create track cluster matches
-    for (const auto& project : projects) {
-      edm4eic::MutableTrackClusterMatch match = out_sub_matches->create();
-      match.setCluster(sub_clust);
-      match.setTrack(project.getTrack());
-      match.setWeight(1.0); // FIXME placeholder
-      trace("Matched subtracted cluster {} to track {}", sub_clust.getObjectID().index,
-            project.getTrack().getObjectID().index);
-    }
-
-    // if NOT consistent with zero, write
-    // out remnant cluster
+    // ------------------------------------------------------------------------
+    // 3(a). If difference not consistent with zero, create output remnant
+    // ------------------------------------------------------------------------
     if (!isZero) {
-      edm4eic::MutableCluster remain_clust = cluster.clone();
-      remain_clust.setEnergy(remainFrac * cluster.getEnergy());
-      out_remain_clusters->push_back(remain_clust);
+      auto remain_clust = cluster.clone();
+      remain_clust.setEnergy(eSubToUse);
+      out_remnant->push_back(remain_clust);
       trace("Created remnant cluster with {} GeV", remain_clust.getEnergy());
     }
 
+    // ------------------------------------------------------------------------
+    // 3(b). Create cluster with energy equal to eTotal - eRemnant and match
+    // ------------------------------------------------------------------------
+    auto expect_clust = cluster.clone();
+    expect_clust.setEnergy(cluster.getEnergy() - eSubToUse);
+    out_expect->push_back(expect_clust);
+    trace("Created subtracted cluster with {} GeV (originally {} GeV)",
+          expect_clust.getEnergy(),
+          cluster.getEnergy());
+
+    // create a track-cluster match for expected clusters
+    for (const auto& project : projects) {
+      edm4eic::MutableTrackClusterMatch match = out_match->create();
+      match.setCluster(expect_clust);
+      match.setTrack(project.getTrack());
+      match.setWeight(1.0); // FIXME placeholder
+      trace("Matched expected cluster {} to track {}",
+            expect_clust.getObjectID().index,
+            project.getTrack().getObjectID().index);
+    }
+
   } // end cluster-to-projections loop
-  debug("Finished subtraction, {} remnant clusters", out_remain_clusters->size());
+  debug("Finished subtraction, {} remnant clusters and {} expected clusters",
+        out_remnant->size(),
+        out_expect->size());
 
-} // end 'get_projections(edm4eic::CalorimeterHit&, edm4eic::TrackSegmentCollection&, VecTrkPoint&)'
+  // --------------------------------------------------------------------------
+  // 4. Any unmatched clusters are remnants by definition
+  // --------------------------------------------------------------------------
+  for (const auto& cluster : vecNoMatchClust) {
+    auto remain_clust = cluster.clone();
+    out_remnant->push_back(remain_clust);
+  }
+  debug("Finished copying unmatched clusters to remnants, {} remnant clusters", out_remnant->size());
 
-// --------------------------------------------------------------------------
+} // end 'process(Input&, Output&)'
+
+// ----------------------------------------------------------------------------
 //! Sum energy of tracks
-// --------------------------------------------------------------------------
+// ----------------------------------------------------------------------------
 /*! Sums energy of tracks projected to the surface in the
  *  calorimeter specified by `surfaceToUse`. Uses PDG of
  *  track to select mass for energy; if not available,

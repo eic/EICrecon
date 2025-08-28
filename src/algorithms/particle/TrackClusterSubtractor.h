@@ -20,8 +20,11 @@ namespace eicrecon {
 //! Algorithm input/output
 // --------------------------------------------------------------------------
 using TrackClusterSubtractorAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::TrackSegmentCollection>,
-    algorithms::Output<edm4eic::ClusterCollection, edm4eic::ClusterCollection,
+    algorithms::Input<edm4eic::TrackClusterMatchCollection,
+                      edm4eic::ClusterCollection,
+                      edm4eic::TrackSegmentCollection>,
+    algorithms::Output<edm4eic::ClusterCollection,
+                       edm4eic::ClusterCollection,
                        edm4eic::TrackClusterMatchCollection>>;
 
 // ==========================================================================
@@ -29,7 +32,8 @@ using TrackClusterSubtractorAlgorithm = algorithms::Algorithm<
 // ==========================================================================
 /*! An algorithm which takes a collection of clusters and their matched
  *  tracks, subtracts the sum of all tracks pointing to the cluster,
- *  and outputs the remnant cluster and their matched tracks.
+ *  and outputs the remnant clusters, expected clusters, and their matched
+ *  tracks.
  */
 class TrackClusterSubtractor : public TrackClusterSubtractorAlgorithm,
                                public WithPodConfig<TrackClusterSubtractorConfig> {
@@ -51,6 +55,9 @@ public:
     }
   };
 
+  ///! Alias for vectors of clusters
+  using VecClust = std::vector<edm4eic::Cluster>;
+
   ///! Alias for vectors of track segments
   using VecSeg = std::vector<edm4eic::TrackSegment>;
 
@@ -60,10 +67,12 @@ public:
   ///! Algorithm constructor
   TrackClusterSubtractor(std::string_view name)
       : TrackClusterSubtractorAlgorithm{name,
-                                        {"inputTrackClusterMatches", "inputTrackProjections"},
-                                        {"outputSubtractedClusterCollection",
-                                         "outputRemnantClusterCollection",
-                                         "outputTrackSubtractedClusterMatches"},
+                                        {"inputTrackClusterMatches",
+                                         "inputClusters",
+                                         "inputTrackProjections"},
+                                        {"outputRemnantClusterCollection",
+                                         "outputExpectedClusterCollection",
+                                         "outputTrackExpectedClusterMatches"},
                                         "Subtracts energy of tracks pointing to clusters."} {}
 
   // public method

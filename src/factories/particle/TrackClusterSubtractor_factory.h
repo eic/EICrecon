@@ -26,12 +26,13 @@ private:
 
   // input collections
   PodioInput<edm4eic::TrackClusterMatch> m_track_cluster_match_input{this};
+  PodioInput<edm4eic::Cluster> m_clusters_input{this};
   PodioInput<edm4eic::TrackSegment> m_track_projections_input{this};
 
   // output collections
-  PodioOutput<edm4eic::Cluster> m_subtract_clusters_output{this};
   PodioOutput<edm4eic::Cluster> m_remnant_clusters_output{this};
-  PodioOutput<edm4eic::TrackClusterMatch> m_track_sub_cluster_match_output{this};
+  PodioOutput<edm4eic::Cluster> m_expected_clusters_output{this};
+  PodioOutput<edm4eic::TrackClusterMatch> m_track_expected_match_output{this};
 
   // parameter bindings
   ParameterRef<double> m_fracEnergyToSub{this, "fracEnergyToSub", config().fracEnergyToSub};
@@ -60,9 +61,12 @@ public:
 
   ///! Primary algorithm call
   void Process(int64_t run_number, uint64_t event_number) {
-    m_algo->process({m_track_cluster_match_input(), m_track_projections_input()},
-                    {m_subtract_clusters_output().get(), m_remnant_clusters_output().get(),
-                     m_track_sub_cluster_match_output().get()});
+    m_algo->process({m_track_cluster_match_input(),
+                     m_clusters_input(),
+                     m_track_projections_input()},
+                    {m_remnant_clusters_output().get(),
+                     m_expected_clusters_output().get(),
+                     m_track_expected_match_output().get()});
   }
 }; // end TrackClusterSubtractor_factory
 
