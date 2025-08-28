@@ -22,7 +22,7 @@ struct ImagingTopoClusterConfig {
   std::vector<double> sameLayerDistEtaPhi = {0.01, 0.01};
   // maximum distance of global (x, y) to be considered as neighbors at same layers (if layerMode==tz)
   std::vector<std::variant<std::string, double>> sameLayerDistTZ = {1.0 * dd4hep::mm,
-                                                                      1.0 * dd4hep::mm};
+                                                                    1.0 * dd4hep::mm};
   // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode==xy)
   std::vector<std::variant<std::string, double>> diffLayerDistXY = {1.0 * dd4hep::mm,
                                                                     1.0 * dd4hep::mm};
@@ -30,7 +30,7 @@ struct ImagingTopoClusterConfig {
   std::vector<double> diffLayerDistEtaPhi = {0.01, 0.01};
   // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode==tz)
   std::vector<std::variant<std::string, double>> diffLayerDistTZ = {1.0 * dd4hep::mm,
-                                                                      1.0 * dd4hep::mm};
+                                                                    1.0 * dd4hep::mm};
   // Layermodes
   enum class ELayerMode { etaphi = 0, xy = 1, tz = 2 };
   // determines how neighbors are determined for hits in same layers (using either eta and phi, or x and y)
