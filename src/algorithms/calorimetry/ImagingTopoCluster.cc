@@ -135,8 +135,8 @@ void ImagingTopoCluster::init() {
          m_cfg.neighbourLayersRange, diffLayerDistXY[0], diffLayerDistXY[1]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
-    if (m_cfg.diffLayerDistPhiZ.size() != 2) {
-      const std::string msg = "Expected 2 values (phi_dist, z_dist) for diffLayerDistPhiZ";
+    if (m_cfg.diffLayerDistTZ.size() != 2) {
+      const std::string msg = "Expected 2 values (phi_dist, z_dist) for diffLayerDistTZ";
       error(msg);
       throw std::runtime_error(msg);
     }
