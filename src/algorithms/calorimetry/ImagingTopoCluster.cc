@@ -101,12 +101,12 @@ void ImagingTopoCluster::init() {
     break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
     if (m_cfg.sameLayerDistTZ.size() != 2) {
-      const std::string msg = "Expected 2 values (phi_dist, z_dist) for sameLayerDistTZ";
+      const std::string msg = "Expected 2 values (t_dist, z_dist) for sameLayerDistTZ";
       error(msg);
       throw std::runtime_error(msg);
     }
     info("Same-layer clustering (same sector and same layer): "
-         "Global [phi, z] distance between hits <= [{:.4f} rad, {:.4f} mm].",
+         "Global [t, z] distance between hits <= [{:.4f} mm, {:.4f} mm].",
          sameLayerDistTZ[0], sameLayerDistTZ[1]);
     break;
   default:
