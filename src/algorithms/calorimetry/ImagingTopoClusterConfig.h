@@ -20,19 +20,19 @@ struct ImagingTopoClusterConfig {
                                                                     1.0 * dd4hep::mm};
   // maximum distance of global (eta, phi) to be considered as neighbors at same layers (if layerMode==etaphi)
   std::vector<double> sameLayerDistEtaPhi = {0.01, 0.01};
-  // maximum distance of global (x, y) to be considered as neighbors at same layers (if layerMode==phiz)
-  std::vector<std::variant<std::string, double>> sameLayerDistPhiZ = {1.0 * dd4hep::mm,
+  // maximum distance of global (x, y) to be considered as neighbors at same layers (if layerMode==tz)
+  std::vector<std::variant<std::string, double>> sameLayerDistTZ = {1.0 * dd4hep::mm,
                                                                       1.0 * dd4hep::mm};
   // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode==xy)
   std::vector<std::variant<std::string, double>> diffLayerDistXY = {1.0 * dd4hep::mm,
                                                                     1.0 * dd4hep::mm};
   // maximum distance of global (eta, phi) to be considered as neighbors at different layers (if layerMode==etaphi)
   std::vector<double> diffLayerDistEtaPhi = {0.01, 0.01};
-  // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode==phiz)
-  std::vector<std::variant<std::string, double>> diffLayerDistPhiZ = {1.0 * dd4hep::mm,
+  // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode==tz)
+  std::vector<std::variant<std::string, double>> diffLayerDistTZ = {1.0 * dd4hep::mm,
                                                                       1.0 * dd4hep::mm};
   // Layermodes
-  enum class ELayerMode { etaphi = 0, xy = 1, phiz = 2 };
+  enum class ELayerMode { etaphi = 0, xy = 1, tz = 2 };
   // determines how neighbors are determined for hits in same layers (using either eta and phi, or x and y)
   ELayerMode sameLayerMode = ELayerMode::xy; // for ldiff =0
   // determines how neighbors are determined for hits in different layers (using either eta and phi, or x and y)
@@ -59,8 +59,8 @@ std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode&
     layerMode = ImagingTopoClusterConfig::ELayerMode::etaphi;
   } else if (s == "xy" or s == "1") {
     layerMode = ImagingTopoClusterConfig::ELayerMode::xy;
-  } else if (s == "phiz" or s == "2") {
-    layerMode = ImagingTopoClusterConfig::ELayerMode::phiz;
+  } else if (s == "tz" or s == "2") {
+    layerMode = ImagingTopoClusterConfig::ELayerMode::tz;
   } else {
     in.setstate(std::ios::failbit); // Set the fail bit if the input is not valid
   }
@@ -75,8 +75,8 @@ std::ostream& operator<<(std::ostream& out, ImagingTopoClusterConfig::ELayerMode
   case ImagingTopoClusterConfig::ELayerMode::xy:
     out << "xy";
     break;
-  case ImagingTopoClusterConfig::ELayerMode::phiz:
-    out << "phiz";
+  case ImagingTopoClusterConfig::ELayerMode::tz:
+    out << "tz";
     break;
   default:
     out.setstate(std::ios::failbit);
