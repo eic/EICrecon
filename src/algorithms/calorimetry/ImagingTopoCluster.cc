@@ -147,6 +147,7 @@ void ImagingTopoCluster::init() {
         m_cfg.neighbourLayersRange, diffLayerDistTZ[0], diffLayerDistTZ[1]);
     break;
   default:
+    error("Unknown different-layer mode.");
     throw std::runtime_error("Unknown different-layer mode.");
   }
   info("Neighbour sectors clustering (different sector): "
