@@ -31,18 +31,8 @@ public:
                                       {"outputClusters", "outputTrackClusterMatches", "outputPIDs"},
                                       "E/P Cut with layer‑depth limit"} {}
 
-  // Called by the factory before init()
-  void applyConfig(const CalorimeterEoverPCutConfig& cfg) {
-    m_ecut     = cfg.eOverPCut;
-    m_maxLayer = cfg.maxLayer;
-  }
-
   void init() final {};
   void process(const Input& input, const Output& output) const final;
-
-private:
-  double m_ecut  = 0.0;
-  int m_maxLayer = 0;
 };
 
 } // namespace eicrecon

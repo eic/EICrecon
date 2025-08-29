@@ -26,7 +26,7 @@ void CalorimeterEoverPCut::process(const Input& input, const Output& output) con
 
     double energyInDepth = 0.0;
     for (auto const& hit : in_cl.getHits()) {
-      if (hit.getLayer() <= m_maxLayer) {
+      if (hit.getLayer() <= m_cfg.maxLayer) {
         energyInDepth += hit.getEnergy();
       }
     }
@@ -55,7 +55,7 @@ void CalorimeterEoverPCut::process(const Input& input, const Output& output) con
     double ptrack = edm4hep::utils::magnitude(best_match.getTrack().getMomentum());
     double ep     = (ptrack > 0.0 ? energyInDepth / ptrack : 0.0);
 
-    if (ep > m_ecut) {
+    if (ep > m_cfg.eOverPCut) {
       out_cl.addToParticleIDs(out_pids.create(
           /* type= */ 0,
           /* PDG=  */ 11,
