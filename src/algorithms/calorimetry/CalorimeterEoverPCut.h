@@ -37,7 +37,7 @@ public:
     m_maxLayer = cfg.maxLayer;
   }
 
-  void init() final { };
+  void init() final {};
   void process(const Input& input, const Output& output) const final;
 
 private:
