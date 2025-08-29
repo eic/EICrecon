@@ -63,14 +63,14 @@ void ImagingTopoCluster::init() {
   sameLayerDistXY[1]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
   diffLayerDistXY[0]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
   diffLayerDistXY[1]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[1]) / dd4hep::mm;
-  sameLayerDistEtaPhi[0] = std::visit(_toDouble, m_cfg.sameLayerDistEtaPhi[0]);
-  sameLayerDistEtaPhi[1] = std::visit(_toDouble, m_cfg.sameLayerDistEtaPhi[1]) / dd4hep::rad;
-  diffLayerDistEtaPhi[0] = std::visit(_toDouble, m_cfg.diffLayerDistEtaPhi[0]);
-  diffLayerDistEtaPhi[1] = std::visit(_toDouble, m_cfg.diffLayerDistEtaPhi[1]) / dd4hep::rad;
-  sameLayerDistTZ[0]     = std::visit(_toDouble, m_cfg.sameLayerDistTZ[0]) / dd4hep::mm;
-  sameLayerDistTZ[1]     = std::visit(_toDouble, m_cfg.sameLayerDistTZ[1]) / dd4hep::mm;
-  diffLayerDistTZ[0]     = std::visit(_toDouble, m_cfg.diffLayerDistTZ[0]) / dd4hep::mm;
-  diffLayerDistTZ[1]     = std::visit(_toDouble, m_cfg.diffLayerDistTZ[1]) / dd4hep::mm;
+  sameLayerDistEtaPhi[0] = m_cfg.sameLayerDistEtaPhi[0];
+  sameLayerDistEtaPhi[1] = m_cfg.sameLayerDistEtaPhi[1] / dd4hep::rad;
+  diffLayerDistEtaPhi[0] = m_cfg.diffLayerDistEtaPhi[0];
+  diffLayerDistEtaPhi[1] = m_cfg.diffLayerDistEtaPhi[1] / dd4hep::rad;
+  sameLayerDistTZ[0]     = m_cfg.sameLayerDistTZ[0] / dd4hep::mm;
+  sameLayerDistTZ[1]     = m_cfg.sameLayerDistTZ[1] / dd4hep::mm;
+  diffLayerDistTZ[0]     = m_cfg.diffLayerDistTZ[0] / dd4hep::mm;
+  diffLayerDistTZ[1]     = m_cfg.diffLayerDistTZ[1] / dd4hep::mm;
 
   sectorDist           = m_cfg.sectorDist / dd4hep::mm;
   minClusterHitEdep    = m_cfg.minClusterHitEdep / dd4hep::GeV;

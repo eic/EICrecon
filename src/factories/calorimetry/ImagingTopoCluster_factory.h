@@ -21,9 +21,10 @@ private:
   PodioInput<edm4eic::CalorimeterHit> m_hits_input{this};
   PodioOutput<edm4eic::ProtoCluster> m_protos_output{this};
 
-  // ParameterRef<std::vector<double>> m_ldxy{this, "localDistXY", config().localDistXY};
-  ParameterRef<std::vector<double>> m_ldxy_same{this, "sameLayerDistXY", config().sameLayerDistXY};
-  ParameterRef<std::vector<double>> m_ldxy_diff{this, "diffLayerDistXY", config().diffLayerDistXY};
+  // ParameterRef<std::vector<double>> m_ldxy_same{this, "sameLayerDistXY",
+  //                                                    config().sameLayerDistXY};
+  // ParameterRef<std::vector<double>> m_ldxy_diff{this, "diffLayerDistXY",
+  //                                                    config().diffLayerDistXY};
   ParameterRef<std::vector<double>> m_ldep_same{this, "sameLayerDistEtaPhi",
                                                 config().sameLayerDistEtaPhi};
   ParameterRef<std::vector<double>> m_ldep_diff{this, "diffLayerDistEtaPhi",
