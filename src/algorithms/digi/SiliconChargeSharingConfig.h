@@ -31,7 +31,7 @@ std::istream& operator>>(std::istream& in, SiliconChargeSharingConfig::ESigmaMod
 
   return in;
 }
-std::ostream& operator<<(std::ostream& out, SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
+std::ostream& operator<<(std::ostream& out, const SiliconChargeSharingConfig::ESigmaMode& sigmaMode) {
   switch (sigmaMode) {
   case SiliconChargeSharingConfig::ESigmaMode::abs:
     out << "abs";
