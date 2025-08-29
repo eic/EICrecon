@@ -14,7 +14,7 @@
 #include <stdexcept>
 #include <vector>
 
-#include "algorithms/interfaces/ParticleSvc.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/pid_lut/PhaseSpacePID.h"
 #include "algorithms/pid_lut/PhaseSpacePIDConfig.h"
 

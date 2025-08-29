@@ -14,8 +14,8 @@
 #include <string_view>
 
 #include "PIDLookupConfig.h"
-#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "services/pid_lut/PIDLookupTable.h"
 
