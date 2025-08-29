@@ -25,12 +25,12 @@ namespace eicrecon {
 static constexpr int kNLAYERS  = 12;
 static constexpr int kNHITS    = 50;
 static constexpr int kNFEAT    = 5;
-static constexpr float R0_MIN  = 500.f;
-static constexpr float R0_MAX  = 2000.f;
-static constexpr float ETA_MIN = -0.3f;
-static constexpr float ETA_MAX = 0.3f;
-static constexpr float PHI_MIN = -0.4f;
-static constexpr float PHI_MAX = 0.4f;
+static constexpr float R0_MIN  = 500.F;
+static constexpr float R0_MAX  = 2000.F;
+static constexpr float ETA_MIN = -0.3F;
+static constexpr float ETA_MAX = 0.3F;
+static constexpr float PHI_MIN = -0.4F;
+static constexpr float PHI_MAX = 0.4F;
 
 void CalorimeterParticleIDPreML::init() {
   // Nothing
