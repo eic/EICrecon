@@ -29,6 +29,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <gsl/pointers>
+#include <stdexcept>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -50,48 +51,103 @@ void ImagingTopoCluster::init() {
 
   // unitless conversion
   // sanity checks
-  if (m_cfg.localDistXY.size() != 2) {
-    error("Expected 2 values (x_dist, y_dist) for localDistXY");
-    return;
-  }
-  if (m_cfg.layerDistEtaPhi.size() != 2) {
-    error("Expected 2 values (eta_dist, phi_dist) for layerDistEtaPhi");
-    return;
-  }
   if (m_cfg.minClusterCenterEdep < m_cfg.minClusterHitEdep) {
-    error("minClusterCenterEdep must be greater than or equal to minClusterHitEdep");
-    return;
+    const std::string msg =
+        "minClusterCenterEdep must be greater than or equal to minClusterHitEdep";
+    error(msg);
+    throw std::runtime_error(msg);
   }
 
   // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
-  localDistXY[0]       = std::visit(_toDouble, m_cfg.localDistXY[0]) / dd4hep::mm;
-  localDistXY[1]       = std::visit(_toDouble, m_cfg.localDistXY[1]) / dd4hep::mm;
-  layerDistXY[0]       = std::visit(_toDouble, m_cfg.layerDistXY[0]) / dd4hep::mm;
-  layerDistXY[1]       = std::visit(_toDouble, m_cfg.layerDistXY[1]) / dd4hep::mm;
-  layerDistEtaPhi[0]   = m_cfg.layerDistEtaPhi[0];
-  layerDistEtaPhi[1]   = m_cfg.layerDistEtaPhi[1] / dd4hep::rad;
+  sameLayerDistXY[0]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[0]) / dd4hep::mm;
+  sameLayerDistXY[1]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
+  diffLayerDistXY[0]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
+  diffLayerDistXY[1]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[1]) / dd4hep::mm;
+  sameLayerDistEtaPhi[0] = m_cfg.sameLayerDistEtaPhi[0];
+  sameLayerDistEtaPhi[1] = m_cfg.sameLayerDistEtaPhi[1] / dd4hep::rad;
+  diffLayerDistEtaPhi[0] = m_cfg.diffLayerDistEtaPhi[0];
+  diffLayerDistEtaPhi[1] = m_cfg.diffLayerDistEtaPhi[1] / dd4hep::rad;
+  sameLayerDistTZ[0]     = m_cfg.sameLayerDistTZ[0] / dd4hep::mm;
+  sameLayerDistTZ[1]     = m_cfg.sameLayerDistTZ[1] / dd4hep::mm;
+  diffLayerDistTZ[0]     = m_cfg.diffLayerDistTZ[0] / dd4hep::mm;
+  diffLayerDistTZ[1]     = m_cfg.diffLayerDistTZ[1] / dd4hep::mm;
+
   sectorDist           = m_cfg.sectorDist / dd4hep::mm;
   minClusterHitEdep    = m_cfg.minClusterHitEdep / dd4hep::GeV;
   minClusterCenterEdep = m_cfg.minClusterCenterEdep / dd4hep::GeV;
   minClusterEdep       = m_cfg.minClusterEdep / dd4hep::GeV;
 
-  // summarize the clustering parameters
-  info("Local clustering (same sector and same layer): "
-       "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
-       localDistXY[0], localDistXY[1]);
-  switch (m_cfg.layerMode) {
-  case ImagingTopoClusterConfig::ELayerMode::etaphi:
-    info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
-         "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
-         m_cfg.neighbourLayersRange, layerDistEtaPhi[0], layerDistEtaPhi[1]);
-    break;
+  // same layer clustering parameters
+  switch (m_cfg.sameLayerMode) {
   case ImagingTopoClusterConfig::ELayerMode::xy:
-    info("Neighbour layers clustering (same sector and layer id within +- {:d}: "
+    if (m_cfg.sameLayerDistXY.size() != 2) {
+      const std::string msg = "Expected 2 values (x_dist, y_dist) for sameLayerDistXY";
+      error(msg);
+      throw std::runtime_error(msg);
+    }
+    info("Same-layer clustering (same sector and same layer): "
          "Local [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
-         m_cfg.neighbourLayersRange, layerDistXY[0], layerDistXY[1]);
+         sameLayerDistXY[0], sameLayerDistXY[1]);
+    break;
+  case ImagingTopoClusterConfig::ELayerMode::etaphi:
+    if (m_cfg.sameLayerDistEtaPhi.size() != 2) {
+      const std::string msg = "Expected 2 values (eta_dist, phi_dist) for sameLayerDistEtaPhi";
+      error(msg);
+      throw std::runtime_error(msg);
+    }
+    info("Same-layer clustering (same sector and same layer): "
+         "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
+         sameLayerDistEtaPhi[0], sameLayerDistEtaPhi[1]);
+    break;
+  case ImagingTopoClusterConfig::ELayerMode::tz:
+    if (m_cfg.sameLayerDistTZ.size() != 2) {
+      const std::string msg = "Expected 2 values (t_dist, z_dist) for sameLayerDistTZ";
+      error(msg);
+      throw std::runtime_error(msg);
+    }
+    info("Same-layer clustering (same sector and same layer): "
+         "Global [t, z] distance between hits <= [{:.4f} mm, {:.4f} mm].",
+         sameLayerDistTZ[0], sameLayerDistTZ[1]);
     break;
   default:
-    error("Unknown layer mode.");
+    throw std::runtime_error("Unknown same-layer mode.");
+  }
+
+  // different layer clustering parameters
+  switch (m_cfg.diffLayerMode) {
+  case ImagingTopoClusterConfig::ELayerMode::etaphi:
+    if (m_cfg.diffLayerDistEtaPhi.size() != 2) {
+      const std::string msg = "Expected 2 values (eta_dist, phi_dist) for diffLayerDistEtaPhi";
+      error(msg);
+      throw std::runtime_error(msg);
+    }
+    info("Neighbour layers clustering (same sector and layer id within +- {:d}): "
+         "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
+         m_cfg.neighbourLayersRange, diffLayerDistEtaPhi[0], diffLayerDistEtaPhi[1]);
+    break;
+  case ImagingTopoClusterConfig::ELayerMode::xy:
+    if (m_cfg.diffLayerDistXY.size() != 2) {
+      const std::string msg = "Expected 2 values (x_dist, y_dist) for diffLayerDistXY";
+      error(msg);
+      throw std::runtime_error(msg);
+    }
+    info("Neighbour layers clustering (same sector and layer id within +- {:d}): "
+         "Global [x, y] distance between hits <= [{:.4f} mm, {:.4f} mm].",
+         m_cfg.neighbourLayersRange, diffLayerDistXY[0], diffLayerDistXY[1]);
+    break;
+  case ImagingTopoClusterConfig::ELayerMode::tz:
+    if (m_cfg.diffLayerDistTZ.size() != 2) {
+      const std::string msg = "Expected 2 values (t_dist, z_dist) for diffLayerDistTZ";
+      error(msg);
+      throw std::runtime_error(msg);
+    }
+    info("Neighbour layers clustering (same sector and layer id within +- {:d}): "
+         "Global [t, z] distance between hits <= [{:.4f} mm, {:.4f} mm].",
+         m_cfg.neighbourLayersRange, diffLayerDistTZ[0], diffLayerDistTZ[1]);
+    break;
+  default:
+    error("Unknown different-layer mode.");
+    throw std::runtime_error("Unknown different-layer mode.");
   }
   info("Neighbour sectors clustering (different sector): "
        "Global distance between hits <= {:.4f} mm.",
@@ -134,10 +190,10 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
   for (auto idx = indices.begin(); idx != indices.end();
        indices.empty() ? idx = indices.end() : idx) {
 
-    debug("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {}), energy = {}",
-          *idx, (*hits)[*idx].getLocal().x, (*hits)[*idx].getLocal().y,
-          (*hits)[*idx].getPosition().z, (*hits)[*idx].getPosition().x,
-          (*hits)[*idx].getPosition().y, (*hits)[*idx].getPosition().z, (*hits)[*idx].getEnergy());
+    trace("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {}), energy = {}",
+          *idx, (*hits)[*idx].getLocal().x, (*hits)[*idx].getLocal().y, (*hits)[*idx].getLocal().z,
+          (*hits)[*idx].getPosition().x, (*hits)[*idx].getPosition().y,
+          (*hits)[*idx].getPosition().z, (*hits)[*idx].getEnergy());
 
     // not energetic enough for cluster center, but could still be cluster hit
     if ((*hits)[*idx].getEnergy() < minClusterCenterEdep) {
@@ -155,6 +211,14 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
   debug("found {} potential clusters (groups of hits)", groups.size());
   for (std::size_t i = 0; i < groups.size(); ++i) {
     debug("group {}: {} hits", i, groups[i].size());
+    for (auto idx : groups[i]) {
+      const auto& hit = (*hits)[idx];
+      trace("  hit {} -> energy = {:.6f}, layer = {}, sector = {}, local = ({:.2f}, {:.2f}, "
+            "{:.2f}), global = ({:.2f}, {:.2f}, {:.2f})",
+            idx, hit.getEnergy(), hit.getLayer(), hit.getSector(), hit.getLocal().x,
+            hit.getLocal().y, hit.getLocal().z, hit.getPosition().x, hit.getPosition().y,
+            hit.getPosition().z);
+    }
   }
 
   // form clusters
@@ -191,20 +255,65 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
   int ldiff = std::abs(h1.getLayer() - h2.getLayer());
   // same layer, check local positions
   if (ldiff == 0) {
-    return (std::abs(h1.getLocal().x - h2.getLocal().x) <= localDistXY[0]) &&
-           (std::abs(h1.getLocal().y - h2.getLocal().y) <= localDistXY[1]);
+    switch (m_cfg.sameLayerMode) {
+    case ImagingTopoClusterConfig::ELayerMode::xy:
+      return (std::abs(h1.getLocal().x - h2.getLocal().x) <= sameLayerDistXY[0]) &&
+             (std::abs(h1.getLocal().y - h2.getLocal().y) <= sameLayerDistXY[1]);
+
+    case ImagingTopoClusterConfig::ELayerMode::etaphi:
+      return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
+                       edm4hep::utils::eta(h2.getPosition())) <= sameLayerDistEtaPhi[0]) &&
+             (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -
+                       edm4hep::utils::angleAzimuthal(h2.getPosition())) <= sameLayerDistEtaPhi[1]);
+
+    case ImagingTopoClusterConfig::ELayerMode::tz: {
+      // Layer mode 'tz' uses the average phi of the hits to define a rotated direction. The coordinate is a distance, not an angle.
+      auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
+                        edm4hep::utils::angleAzimuthal(h2.getPosition()));
+      auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
+      auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
+      auto h1_z = h1.getPosition().z;
+      auto h2_z = h2.getPosition().z;
+
+      return (std::abs(h1_t - h2_t) <= sameLayerDistTZ[0]) &&
+             (std::abs(h1_z - h2_z) <= sameLayerDistTZ[1]);
+    }
+
+    default:
+      error("Unknown layer mode for same-layer clustering.");
+      return false;
+    }
   } else if (ldiff <= m_cfg.neighbourLayersRange) {
-    switch (m_cfg.layerMode) {
+    switch (m_cfg.diffLayerMode) {
     case eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi:
       return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
-                       edm4hep::utils::eta(h2.getPosition())) <= layerDistEtaPhi[0]) &&
+                       edm4hep::utils::eta(h2.getPosition())) <= diffLayerDistEtaPhi[0]) &&
              (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -
-                       edm4hep::utils::angleAzimuthal(h2.getPosition())) <= layerDistEtaPhi[1]);
+                       edm4hep::utils::angleAzimuthal(h2.getPosition())) <= diffLayerDistEtaPhi[1]);
+
     case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
-      return (std::abs(h1.getPosition().x - h2.getPosition().x) <= layerDistXY[0]) &&
-             (std::abs(h1.getPosition().y - h2.getPosition().y) <= layerDistXY[1]);
+      // Here, the xy layer mode is based on global XY positions rather than local XY positions, and thus it only works for endcap detectors.
+      return (std::abs(h1.getPosition().x - h2.getPosition().x) <= diffLayerDistXY[0]) &&
+             (std::abs(h1.getPosition().y - h2.getPosition().y) <= diffLayerDistXY[1]);
+
+    case eicrecon::ImagingTopoClusterConfig::ELayerMode::tz: {
+      auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
+                        edm4hep::utils::angleAzimuthal(h2.getPosition()));
+      auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
+      auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
+      auto h1_z = h1.getPosition().z;
+      auto h2_z = h2.getPosition().z;
+
+      return (std::abs(h1_t - h2_t) <= diffLayerDistTZ[0]) &&
+             (std::abs(h1_z - h2_z) <= diffLayerDistTZ[1]);
+    }
+
+    default:
+      error("Unknown layer mode for different-layer clustering.");
+      return false;
     }
   }
+
   // not in adjacent layers
   return false;
 }
