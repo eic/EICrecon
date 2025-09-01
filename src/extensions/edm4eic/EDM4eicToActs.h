@@ -3,6 +3,9 @@
 
 #pragma once
 
+#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
+
 namespace eicrecon {
 
 // This array relates the Acts and EDM4eic covariance matrices, including
