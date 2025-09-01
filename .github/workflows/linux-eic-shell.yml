@@ -150,7 +150,7 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
-          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=${{matrix.USE_ASAN}} -DUSE_TSAN=${{matrix.USE_TSAN}} -DUSE_UBSAN=${{matrix.USE_UBSAN}}
+          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_UNITY_BUILD=ON -DCMAKE_UNITY_BUILD_BATCH_SIZE=24 -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=${{matrix.USE_ASAN}} -DUSE_TSAN=${{matrix.USE_TSAN}} -DUSE_UBSAN=${{matrix.USE_UBSAN}}
           cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target install
           ccache --show-stats --verbose
           ccache --evict-older-than 7d
