@@ -67,7 +67,6 @@
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <boost/container/detail/std_fwd.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>

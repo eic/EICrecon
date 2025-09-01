@@ -2,12 +2,10 @@
 // Copyright (C) 2024 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
 #include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
-#include <boost/container/detail/std_fwd.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -28,10 +26,8 @@
 #include <map>
 #include <numeric>
 #include <optional>
-#include <utility>
 
 #include "ActsToTracks.h"
-
 #include "extensions/edm4eic/EDM4eicToActs.h"
 
 namespace eicrecon {
