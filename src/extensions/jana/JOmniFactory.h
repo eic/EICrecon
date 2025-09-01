@@ -10,9 +10,9 @@
  * which might be changed by user parameters.
  */
 
-#include <JANA/CLI/JVersion.h>
 #include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
+#include <JANA/JVersion.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
 #if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
