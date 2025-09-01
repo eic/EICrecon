@@ -15,25 +15,37 @@
 
 namespace eicrecon {
 
-static std::string print_shape(const std::vector<std::int64_t>& v) {
-  std::stringstream ss("");
-  for (std::size_t i = 0; i < v.size() - 1; i++) {
-    ss << v[i] << "x";
-  }
-  ss << v[v.size() - 1];
-  return ss.str();
-}
+#ifndef UNITY_BUILD_UNIQUE_ID
+#define UNITY_BUILD_UNIQUE_ID
+#endif
 
-template <typename T>
-Ort::Value vec_to_tensor(std::vector<T>& data, const std::vector<std::int64_t>& shape) {
-  Ort::MemoryInfo mem_info = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
-                                                        OrtMemType::OrtMemTypeDefault);
-  auto tensor =
-      Ort::Value::CreateTensor<T>(mem_info, data.data(), data.size(), shape.data(), shape.size());
-  return tensor;
-}
+namespace {
+  namespace UNITY_BUILD_UNIQUE_ID {
+
+    static std::string print_shape(const std::vector<std::int64_t>& v) {
+      std::stringstream ss("");
+      for (std::size_t i = 0; i < v.size() - 1; i++) {
+        ss << v[i] << "x";
+      }
+      ss << v[v.size() - 1];
+      return ss.str();
+    }
+
+    template <typename T>
+    Ort::Value vec_to_tensor(std::vector<T>& data, const std::vector<std::int64_t>& shape) {
+      Ort::MemoryInfo mem_info = Ort::MemoryInfo::CreateCpu(OrtAllocatorType::OrtArenaAllocator,
+                                                            OrtMemType::OrtMemTypeDefault);
+      auto tensor = Ort::Value::CreateTensor<T>(mem_info, data.data(), data.size(), shape.data(),
+                                                shape.size());
+      return tensor;
+    }
+
+  } // namespace UNITY_BUILD_UNIQUE_ID
+} // namespace
 
 void InclusiveKinematicsML::init() {
+  using namespace UNITY_BUILD_UNIQUE_ID;
+
   // onnxruntime setup
   m_env = Ort::Env(ORT_LOGGING_LEVEL_WARNING, "inclusive-kinematics-ml");
   Ort::SessionOptions session_options;
@@ -86,6 +98,8 @@ void InclusiveKinematicsML::init() {
 
 void InclusiveKinematicsML::process(const InclusiveKinematicsML::Input& input,
                                     const InclusiveKinematicsML::Output& output) const {
+
+  using namespace UNITY_BUILD_UNIQUE_ID;
 
   const auto [electron, da] = input;
   auto [ml]                 = output;
