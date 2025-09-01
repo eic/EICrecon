@@ -19,4 +19,4 @@ static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_in
      {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
      {Acts::eBoundTime, Acts::UnitConstants::ns}}};
 
-}
+} // namespace eicrecon
