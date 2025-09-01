@@ -10,8 +10,8 @@
  * which might be changed by user parameters.
  */
 
-#include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
+#include <JANA/JMultifactory.h>
 #include <JANA/JVersion.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
