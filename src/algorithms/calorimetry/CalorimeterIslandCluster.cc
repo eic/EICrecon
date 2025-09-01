@@ -35,10 +35,6 @@
 using namespace edm4eic;
 
 namespace eicrecon {
-template <typename... L> struct multilambda : L... {
-  using L::operator()...;
-  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
-};
 
 static double Phi_mpi_pi(double phi) { return std::remainder(phi, 2 * M_PI); }
 
