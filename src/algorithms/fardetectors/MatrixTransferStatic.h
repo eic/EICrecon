@@ -3,6 +3,8 @@
 //
 // This converted from: https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/FarForwardParticles.cpp
 
+#pragma once
+
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>

@@ -2,6 +2,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#pragma once
+
 #include <DDRec/CellIDPositionConverter.h>
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/fardetectors/MatrixTransferStatic.h"

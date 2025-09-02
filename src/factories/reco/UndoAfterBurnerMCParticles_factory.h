@@ -2,6 +2,8 @@
 // Copyright (C) 2024 Alex Jentsch, Jihee Kim, Brian Page
 //
 
+#pragma once
+
 #include "algorithms/reco/UndoAfterBurner.h"
 #include "algorithms/reco/UndoAfterBurnerConfig.h"
 
