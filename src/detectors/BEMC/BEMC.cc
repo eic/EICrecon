@@ -141,6 +141,47 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
+
+  //======================================================================
+  // Trying ImagingTopoClustering for ScFi
+
+  app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
+      "EcalBarrelScFiProtoClusters_Topo", {"EcalBarrelScFiRecHits"},
+      {"EcalBarrelScFiProtoClusters_Topo"},
+      {
+          .neighbourLayersRange = 2, //  # id diff for adjacent layer
+          .localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
+          .layerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
+          .sectorDist           = 3.0 * dd4hep::cm,
+          .minClusterHitEdep    = 0,
+          .minClusterCenterEdep = 0,
+          .minClusterEdep       = 100 * dd4hep::MeV,
+          .minClusterNhits      = 10,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "EcalBarrelScFiTopoClustersWithoutShapes",
+      {"EcalBarrelScFiProtoClusters_Topo", // edm4eic::ProtoClusterCollection
+#if EDM4EIC_VERSION_MAJOR >= 7
+       "EcalBarrelScFiRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociation
+#else
+       "EcalBarrelScFiHits"}, // edm4hep::SimCalorimeterHitCollection
+#endif
+      {"EcalBarrelScFiTopoClustersWithoutShapes",             // edm4eic::Cluster
+       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelScFiTopoClusters",
+      {"EcalBarrelScFiTopoClustersWithoutShapes",
+       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
+      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
+
+  //======================================================================
+
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiClustersWithoutShapes",
       {"EcalBarrelScFiProtoClusters",         // edm4eic::ProtoClusterCollection
