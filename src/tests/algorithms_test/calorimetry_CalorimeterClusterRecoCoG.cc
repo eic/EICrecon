@@ -130,7 +130,7 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   simhit1.addToContributions(contrib11);
   simhit1.addToContributions(contrib12);
 
-  auto hitassoc1 = hitassocs_coll->create();
+  auto hitassoc1 = hitassocs_coll.create();
   hitassoc1.setRawHit(rawhit1);
   hitassoc1.setSimHit(simhit1);
 
@@ -178,7 +178,7 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   simhit2.setPosition(hit2.getPosition());
   simhit2.addToContributions(contrib2);
 
-  auto hitassoc2 = hitassocs_coll->create();
+  auto hitassoc2 = hitassocs_coll.create();
   hitassoc2.setRawHit(rawhit2);
   hitassoc2.setSimHit(simhit2);
 
