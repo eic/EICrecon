@@ -88,7 +88,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
   }
 
   for (auto item : cell_hit_map) {
-    auto raw_hit=item.second;
+    auto raw_hit = item.second;
     raw_hits->push_back(raw_hit);
     for (const auto& sim_hit : *sim_hits) {
       if (item.first == sim_hit.getCellID()) {
@@ -96,7 +96,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
         auto hitassoc = associations->create();
         double weight = 0.0;
         if (raw_hit.getCharge() > 0) {
-            weight = std::round((sim_hit.getEDep() * 1e6 / raw_hit.getCharge()) * 10.0) / 10.0;
+          weight = std::round((sim_hit.getEDep() * 1e6 / raw_hit.getCharge()) * 10.0) / 10.0;
         }
         hitassoc.setWeight(weight);
         hitassoc.setRawHit(item.second);
