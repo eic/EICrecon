@@ -217,6 +217,16 @@ jobs:
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
+    - name: Check for pragma once in changed files
+      if: ${{ github.event_name == 'pull_request' }}
+      run: |
+        missing_pragma_headers=$(git diff --name-only ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} | grep "\.h$" | xargs -n 1 grep -L 'pragma once')
+        test -z "${missing_pragma_headers}"
+    - name: Check for pragma once in all files
+      if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+      run: |
+        missing_pragma_headers=$(find src -name "*.h" | xargs -n 1 grep -L 'pragma once')
+        test -z "${missing_pragma_headers}"
     - name: Run clang-tidy on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}

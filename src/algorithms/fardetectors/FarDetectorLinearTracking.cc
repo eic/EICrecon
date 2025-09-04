@@ -181,8 +181,8 @@ void FarDetectorLinearTracking::checkHitCombination(
 
   // Create the track
   auto track = (*outputTracks)
-                   ->create(type, position, momentum, positionMomentumCovariance, time, timeError,
-                            charge, chi2, ndf, pdg);
+                   .create(type, position, momentum, positionMomentumCovariance, time, timeError,
+                           charge, chi2, ndf, pdg);
 
   // Add Measurement2D relations and count occurrence of particles contributing to the track
   std::unordered_map<const edm4hep::MCParticle*, int> particleCount;
