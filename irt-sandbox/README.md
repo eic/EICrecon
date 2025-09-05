@@ -107,3 +107,28 @@ just because the random numbers will (presently) be initialized the same way as 
 
 pfRICH example
 --------------
+
+```
+# Change to a local 'irt-sandbox' directory in EICrecon repository;
+cd ${SANDBOX}/EICrecon/sandbox
+
+# Generate a HEPMC file (here: 1000 events, pions, p=7 GeV/c, eta=-2.5, phi=0);
+root -l 'hepmc-writer-single-track.C("electron-going-endcap.hepmc", 1000, 211, 7.0, 7.0, -2.5, -2.5, 0.0, 0.0)'
+
+# Run npsim with a pfRICH detector only (in a GEANT Qt mode); use green button to generate one event at a time;
+npsim --runType qt --macroFile vis-pfrich.mac --compactFile $EIC_SHELL_PREFIX/share/epic/epic_pfrich_only.xml --outputFile ./sim.edm4hep.pfrich.root --part.userParticleHandler= --inputFiles ./electron-going-endcap.hepmc -N 10
+
+# Run npsim on 1000 events in a batch mode (with pfRICH only);
+npsim --runType run --compactFile $EIC_SHELL_PREFIX/share/epic/epic_pfrich_only.xml --outputFile ./sim.edm4hep.pfrich.root --part.userParticleHandler= --inputFiles ./electron-going-endcap.hepmc -N 1000
+
+# Open simulated ROOT file;
+root -l sim.edm4hep.pfrich.root
+
+# See simulated hits;
+root [1] events->Draw("PFRICHHits.position.y:PFRICHHits.position.x");
+```
+
+```
+# Run a geometry overlap check with ePIC tracker;
+npsim --runType run --macroFile check-geometry.mac --compactFile $EIC_SHELL_PREFIX/share/epic/epic_tracking_and_pfrich.xml --outputFile ./sim.edm4hep.pfrich.root --part.userParticleHandler= --inputFiles ./electron-going-endcap.hepmc -N 10
+```
