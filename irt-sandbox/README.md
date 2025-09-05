@@ -1,7 +1,7 @@
 
- Content:
 
- * [Introduction](#introduction)
+ * [Installation](#installation)
+ * [FRICH example](#frich-example)
 
 <br/>
 
@@ -50,6 +50,9 @@ cmake -S EICrecon -B EICrecon/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_FIND_DEBUG_
 cmake --build EICrecon/build -j8
 cmake --install EICrecon/build
 ```
+
+FRICH example
+-------------
 
 ```
 # Change to a local 'irt-sandbox' directory in EICrecon repository;
