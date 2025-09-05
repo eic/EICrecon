@@ -2,6 +2,7 @@
 
  * [Installation](#installation)
  * [FRICH example](#frich-example)
+ * [pfRICH example](#pfrich-example)
 
 <br/>
 
@@ -103,3 +104,6 @@ root -l './frich-reco.C("frich-events.root", "frich-optics-with-calibrations.roo
 ```
 
 just because the random numbers will (presently) be initialized the same way as in 'eicrecon'.
+
+pfRICH example
+--------------
