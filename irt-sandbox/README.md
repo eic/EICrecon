@@ -1,10 +1,8 @@
 
-
  * [Installation](#installation)
  * [FRICH example](#frich-example)
  * [pfRICH example](#pfrich-example)
 
-#<br/>
 
 Installation
 ------------
