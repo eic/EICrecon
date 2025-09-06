@@ -91,11 +91,11 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
 
     auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
     auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
-    #if Acts_VERSION_MAJOR >= 44
+#if Acts_VERSION_MAJOR >= 44
     destProxy.copyFromWithoutStates(srcProxy);
-    #else
+#else
     destProxy.copyFrom(srcProxy, false);
-    #endif
+#endif
     destProxy.tipIndex() = srcProxy.tipIndex();
   }
 
