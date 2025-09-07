@@ -5,6 +5,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/unit_system.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <cmath>
 #include <string>
 #include <variant>
@@ -19,11 +20,19 @@
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
+#include "factories/calorimetry/CalorimeterEoverPCut_factory.h"
+#if EDM4EIC_VERSION_MAJOR >= 8
+#include "factories/calorimetry/CalorimeterParticleIDPostML_factory.h"
+#include "factories/calorimetry/CalorimeterParticleIDPreML_factory.h"
+#endif
 #include "factories/calorimetry/EnergyPositionClusterMerger_factory.h"
 #include "factories/calorimetry/ImagingClusterReco_factory.h"
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
+#if EDM4EIC_VERSION_MAJOR >= 8
+#include "factories/meta/ONNXInference_factory.h"
+#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -142,19 +151,89 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+#if EDM4EIC_VERSION_MAJOR >= 8
+      "EcalBarrelScFiClustersWithoutPIDAndShapes",
+#else
       "EcalBarrelScFiClustersWithoutShapes",
-      {"EcalBarrelScFiProtoClusters",         // edm4eic::ProtoClusterCollection
-       "EcalBarrelScFiRawHitAssociations"},   // edm4eic::MCRecoCalorimeterHitAssociation
-      {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
+#endif
+      {"EcalBarrelScFiProtoClusters",       // edm4eic::ProtoClusterCollection
+       "EcalBarrelScFiRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociation
+#if EDM4EIC_VERSION_MAJOR >= 8
+      {"EcalBarrelScFiClustersWithoutPIDAndShapes",             // edm4eic::Cluster
+       "EcalBarrelScFiClusterAssociationsWithoutPIDAndShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+#else
+      {"EcalBarrelScFiClustersWithoutShapes",             // edm4eic::Cluster
        "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+#endif
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+#if EDM4EIC_VERSION_MAJOR >= 8
+      "EcalBarrelScFiClustersWithoutPID",
+      {"EcalBarrelScFiClustersWithoutPIDAndShapes",
+       "EcalBarrelScFiClusterAssociationsWithoutPIDAndShapes"},
+      {"EcalBarrelScFiClustersWithoutPID", "EcalBarrelScFiClusterAssociationsWithoutPID"},
+#else
       "EcalBarrelScFiClusters",
       {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations"},
+#endif
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
+
+#if EDM4EIC_VERSION_MAJOR >= 8
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterEoverPCut_factory>(
+      "EcalBarrelParticleIDEOverPCut",
+      {
+          "EcalBarrelScFiClustersWithoutPID",            // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociationsWithoutPID", // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelScFiRecHits" // edm4eic::CalorimeterHitCollection (SciFi hits)
+      },
+      {
+          "EcalBarrelScFiClustersEOverPWithoutPID",            // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociationsEOverPWithoutPID", // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelParticleID_EOverP"                        // edm4hep::ParticleIDCollection
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPreML_factory>(
+      "EcalBarrelParticleIDPreML",
+      {
+          "EcalBarrelScFiClustersEOverPWithoutPID",            // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociationsEOverPWithoutPID", // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelParticleID_EOverP"                        // edm4hep::ParticleIDCollection
+      },
+      {
+          "EcalBarrelParticleIDInput_features", // edm4eic::TensorCollection
+          "EcalBarrelParticleIDTarget"          // edm4eic::TensorCollection (optionnel)
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
+      "EcalBarrelParticleIDInference",
+      {
+          "EcalBarrelParticleIDInput_features" // edm4eic::TensorCollection
+      },
+      {
+          "EcalBarrelParticleIDOutput_label",             // edm4eic::TensorCollection (int label)
+          "EcalBarrelParticleIDOutput_probability_tensor" // edm4eic::TensorCollection (floats)
+      },
+      {.modelPath = "calibrations/onnx/EcalBarrel_pi_rejection.onnx"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPostML_factory>(
+      "EcalBarrelParticleIDPostML",
+      {
+          "EcalBarrelScFiClustersEOverPWithoutPID",            // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociationsEOverPWithoutPID", // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelParticleIDOutput_probability_tensor"      // edm4eic::TensorCollection
+      },
+      {
+          "EcalBarrelScFiClusters",            // edm4eic::ClusterCollection
+          "EcalBarrelScFiClusterAssociations", // edm4eic::TrackClusterMatchCollection
+          "EcalBarrelClusterParticleIDs"       // edm4hep::ParticleIDCollection
+      },
+      app));
+#endif // EDM4EIC_VERSION_MAJOR >= 8
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelImaging_capADC = 8192; //8192,  13bit ADC
