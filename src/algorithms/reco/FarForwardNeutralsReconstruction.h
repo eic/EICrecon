@@ -14,8 +14,8 @@
 #include <string_view> // for string_view
 #include <vector>
 
-#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/reco/FarForwardNeutralsReconstructionConfig.h"
 
 namespace eicrecon {

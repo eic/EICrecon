@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
@@ -202,8 +203,10 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelImagingProtoClusters"},
       {
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
-          .localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
-          .layerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
+          .sameLayerDistTZ      = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
+          .diffLayerDistEtaPhi  = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
+          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::tz,
+          .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi,
           .sectorDist           = 3.0 * dd4hep::cm,
           .minClusterHitEdep    = 0,
           .minClusterCenterEdep = 0,
@@ -214,15 +217,22 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
-      "EcalBarrelImagingClusters",
+      "EcalBarrelImagingClustersWithoutShapes",
       {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitAssociations"},
-      {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations",
-       "EcalBarrelImagingLayers"},
+      {"EcalBarrelImagingClustersWithoutShapes",
+       "EcalBarrelImagingClusterAssociationsWithoutShapes", "EcalBarrelImagingLayers"},
       {
           .trackStopLayer = 6,
       },
       app // TODO: Remove me once fixed
       ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelImagingClusters",
+      {"EcalBarrelImagingClustersWithoutShapes",
+       "EcalBarrelImagingClusterAssociationsWithoutShapes"},
+      {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
+      app));
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
       "EcalBarrelClusters",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",

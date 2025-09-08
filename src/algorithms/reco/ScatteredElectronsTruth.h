@@ -10,7 +10,7 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/interfaces/ParticleSvc.h"
+#include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
