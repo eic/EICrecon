@@ -220,7 +220,7 @@ jobs:
     - name: Check for pragma once in changed files
       if: ${{ github.event_name == 'pull_request' }}
       run: |
-        missing_pragma_headers=$(git diff --name-status ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} | grep -v ^D | cut -f2 | grep "\.h$" | xargs -n 1 -r grep -L 'pragma once')
+        missing_pragma_headers=$(git diff --diff-filter=AM --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "\.h$" | xargs -n 1 -r grep -L 'pragma once')
         test -z "${missing_pragma_headers}"
     - name: Check for pragma once in all files
       if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
