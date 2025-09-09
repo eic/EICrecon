@@ -7,7 +7,7 @@
 
 namespace eicrecon {
 
-struct SiliconPulseGenerationConfig {
+struct PulseGenerationConfig {
   // Parameters of Silicon signal generation
   std::string pulse_shape_function       = "LandauPulse"; // Pulse shape function
   std::vector<double> pulse_shape_params = {1.0, 0.1};    // Parameters of the pulse shape function
