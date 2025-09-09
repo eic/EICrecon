@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Dmitry Kalinkin
 
+#pragma once
+
 #include <algorithms/logger.h>
 #include <cstddef>
 #include <exception>
