@@ -1277,9 +1277,84 @@ jobs:
           name: capybara_${{ github.event.pull_request.number }}.md
           path: capybara_${{ github.event.pull_request.number }}.md
 
+  reconstruction-quality-analysis:
+    runs-on: ubuntu-24.04
+    needs:
+      - eicrecon-gun
+      - eicrecon-dis
+    strategy:
+      matrix:
+        include:
+          # Gun reconstruction analysis
+          - particle: pi
+            detector_config: craterlake
+            file_type: gun
+          - particle: e
+            detector_config: craterlake  
+            file_type: gun
+          # DIS reconstruction analysis
+          - beam: 10x100
+            minq2: 1000
+            detector_config: craterlake_tracking_only
+            file_type: dis
+          - beam: 18x275
+            minq2: 1000
+            detector_config: craterlake_18x275
+            file_type: dis
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          sparse-checkout: scripts
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install uproot awkward numpy
+      - name: Download gun reconstruction artifacts
+        if: matrix.file_type == 'gun'
+        uses: actions/download-artifact@v5
+        with:
+          name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+          path: ./
+      - name: Download DIS reconstruction artifacts
+        if: matrix.file_type == 'dis'  
+        uses: actions/download-artifact@v5
+        with:
+          name: rec_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4eic.root
+          path: ./
+      - name: Run reconstruction quality analysis (gun)
+        if: matrix.file_type == 'gun'
+        run: |
+          chmod +x scripts/compare_reconstruction_truth.py
+          python scripts/compare_reconstruction_truth.py rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root --output reconstruction_quality_${{ matrix.particle }}_${{ matrix.detector_config }}.txt
+      - name: Run reconstruction quality analysis (DIS)
+        if: matrix.file_type == 'dis'
+        run: |
+          chmod +x scripts/compare_reconstruction_truth.py  
+          python scripts/compare_reconstruction_truth.py rec_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4eic.root --output reconstruction_quality_dis_${{ matrix.beam }}_${{ matrix.detector_config }}.txt
+      - name: Display results
+        run: |
+          echo "=== RECONSTRUCTION QUALITY ANALYSIS RESULTS ==="
+          if [ -f reconstruction_quality_*.txt ]; then
+            cat reconstruction_quality_*.txt
+          else
+            echo "No analysis results found"
+          fi
+      - name: Upload analysis results
+        uses: actions/upload-artifact@v4
+        with:
+          name: reconstruction-quality-${{ matrix.file_type }}-${{ matrix.particle || matrix.beam }}-${{ matrix.detector_config }}
+          path: reconstruction_quality_*.txt
+          if-no-files-found: error
+
   deploy-docs:
     needs:
       - collect-docs
+      - reconstruction-quality-analysis
     permissions:
       pages: write
       id-token: write
