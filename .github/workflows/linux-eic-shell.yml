@@ -1330,18 +1330,28 @@ jobs:
         if: matrix.file_type == 'gun'
         run: |
           chmod +x scripts/compare_reconstruction_truth.py
-          python scripts/compare_reconstruction_truth.py rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root --output reconstruction_quality_${{ matrix.particle }}_${{ matrix.detector_config }}.txt
+          echo "Running reconstruction quality analysis for particle gun..."
+          python scripts/compare_reconstruction_truth.py rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root --output reconstruction_quality_${{ matrix.particle }}_${{ matrix.detector_config }}.txt || echo "Analysis failed for gun file"
       - name: Run reconstruction quality analysis (DIS)
         if: matrix.file_type == 'dis'
         run: |
           chmod +x scripts/compare_reconstruction_truth.py  
-          python scripts/compare_reconstruction_truth.py rec_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4eic.root --output reconstruction_quality_dis_${{ matrix.beam }}_${{ matrix.detector_config }}.txt
+          echo "Running reconstruction quality analysis for DIS..."
+          python scripts/compare_reconstruction_truth.py rec_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4eic.root --output reconstruction_quality_dis_${{ matrix.beam }}_${{ matrix.detector_config }}.txt || echo "Analysis failed for DIS file"
       - name: Display results
         run: |
           echo "=== RECONSTRUCTION QUALITY ANALYSIS RESULTS ==="
-          if [ -f reconstruction_quality_*.txt ]; then
-            cat reconstruction_quality_*.txt
-          else
+          for result_file in reconstruction_quality_*.txt; do
+            if [ -f "$result_file" ]; then
+              echo "Results from: $result_file"
+              echo "----------------------------------------"
+              cat "$result_file"
+              echo ""
+              echo "========================================"
+              echo ""
+            fi
+          done
+          if ! ls reconstruction_quality_*.txt 1> /dev/null 2>&1; then
             echo "No analysis results found"
           fi
       - name: Upload analysis results

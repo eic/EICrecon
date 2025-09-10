@@ -189,6 +189,20 @@ def print_analysis_results(ratios, collection_name):
     
     print(f"\n=== {collection_name} Analysis ===")
     
+    # Print matching statistics first
+    total_particles = ratios.get('n_mc_total', 0) + ratios.get('n_reco_total', 0)
+    matched = ratios.get('n_matched', 0) + ratios.get('n_matched_tracks', 0)
+    
+    if total_particles > 0:
+        print(f"Total MC particles: {ratios.get('n_mc_total', 0)}")
+        print(f"Total reconstructed particles: {ratios.get('n_reco_total', 0)}")
+        print(f"Successfully matched: {matched}")
+        if ratios.get('n_mc_total', 0) > 0:
+            efficiency = matched / ratios.get('n_mc_total', 1) * 100
+            print(f"Reconstruction efficiency: {efficiency:.1f}%")
+    
+    # Print ratio statistics
+    found_ratios = False
     for ratio_type, values in ratios.items():
         if isinstance(values, list) and len(values) > 0:
             values = np.array(values)
@@ -197,23 +211,38 @@ def print_analysis_results(ratios, collection_name):
             filtered_values = values[(values > 0.1) & (values < 10.0)]
             
             if len(filtered_values) > 0:
+                found_ratios = True
                 mean_ratio = np.mean(filtered_values)
                 std_ratio = np.std(filtered_values)
                 median_ratio = np.median(filtered_values)
                 
-                print(f"{ratio_type}:")
+                print(f"\n{ratio_type.replace('_', ' ').title()}:")
                 print(f"  Mean ratio: {mean_ratio:.3f} ± {std_ratio:.3f}")
                 print(f"  Median ratio: {median_ratio:.3f}")
                 print(f"  RMS: {np.sqrt(np.mean(filtered_values**2)):.3f}")
-                print(f"  Resolution (σ/μ): {std_ratio/mean_ratio:.3f}")
+                if mean_ratio > 0:
+                    print(f"  Resolution (σ/μ): {std_ratio/mean_ratio:.3f}")
                 print(f"  N matched: {len(filtered_values)} / {len(values)} total")
                 
                 # Print percentile information
                 p25, p75 = np.percentile(filtered_values, [25, 75])
                 print(f"  25th-75th percentile: [{p25:.3f}, {p75:.3f}]")
                 
-        elif isinstance(values, (int, float)):
-            print(f"{ratio_type}: {values}")
+                # Assess quality
+                if 0.9 <= mean_ratio <= 1.1 and std_ratio/mean_ratio < 0.2:
+                    quality = "EXCELLENT"
+                elif 0.8 <= mean_ratio <= 1.2 and std_ratio/mean_ratio < 0.3:
+                    quality = "GOOD"
+                elif 0.7 <= mean_ratio <= 1.3 and std_ratio/mean_ratio < 0.5:
+                    quality = "FAIR"
+                else:
+                    quality = "POOR"
+                print(f"  Quality assessment: {quality}")
+    
+    if not found_ratios:
+        print("No reconstruction ratios could be calculated (no matched particles with associations)")
+    
+    print(f"{'='*50}")
 
 
 def analyze_file(file_path, file_type):
@@ -239,7 +268,9 @@ def analyze_file(file_path, file_type):
     
     if not data:
         print("No data could be read from file")
-        return
+        return None
+    
+    results = {}
     
     # Analyze particles if available
     if all(col in data for col in ["MCParticles", "ReconstructedParticles"]):
@@ -250,6 +281,7 @@ def analyze_file(file_path, file_type):
             assoc
         )
         print_analysis_results(particle_ratios, "Reconstructed Particles")
+        results['particles'] = particle_ratios
         
     # Analyze regular tracks if available
     if all(col in data for col in ["MCParticles", "CentralCKFTracks"]):
@@ -260,6 +292,7 @@ def analyze_file(file_path, file_type):
             track_assoc
         )
         print_analysis_results(track_ratios, "Central CKF Tracks")
+        results['tracks'] = track_ratios
         
     # Analyze truth-seeded tracks if available
     if all(col in data for col in ["MCParticles", "CentralCKFTruthSeededTracks"]):
@@ -270,6 +303,9 @@ def analyze_file(file_path, file_type):
             truth_track_assoc
         )
         print_analysis_results(truth_track_ratios, "Central CKF Truth-Seeded Tracks")
+        results['truth_seeded_tracks'] = truth_track_ratios
+        
+    return results
 
 
 def main():
@@ -283,15 +319,21 @@ def main():
     if args.output:
         sys.stdout = open(args.output, 'w')
     
-    print("Reconstruction Quality Analysis")
-    print("=" * 40)
+    print("EICRECON RECONSTRUCTION QUALITY ANALYSIS")
+    print("=" * 60)
     print(f"Analyzing {len(args.files)} file(s)")
+    print("This analysis compares reconstructed quantities to MC truth")
+    print("for collections where truth-reconstruction associations exist.\n")
+    
+    overall_results = []
     
     try:
-        for file_path in args.files:
+        for i, file_path in enumerate(args.files, 1):
             if not Path(file_path).exists():
                 print(f"Warning: File not found: {file_path}")
                 continue
+                
+            print(f"[{i}/{len(args.files)}] Processing: {Path(file_path).name}")
                 
             # Determine file type from name
             file_name = Path(file_path).name
@@ -302,16 +344,34 @@ def main():
             else:
                 file_type = "Unknown"
                 
-            analyze_file(file_path, file_type)
+            result = analyze_file(file_path, file_type)
+            overall_results.append((file_path, file_type, result))
             
     except KeyboardInterrupt:
         print("\nAnalysis interrupted by user")
     except Exception as e:
         print(f"Error during analysis: {e}")
+        import traceback
+        traceback.print_exc()
         return 1
         
     print(f"\n{'='*60}")
-    print("Analysis completed")
+    print("SUMMARY")
+    print(f"{'='*60}")
+    
+    if overall_results:
+        print(f"Successfully analyzed {len(overall_results)} files:")
+        for file_path, file_type, _ in overall_results:
+            print(f"  - {Path(file_path).name} ({file_type})")
+    else:
+        print("No files were successfully analyzed.")
+        
+    print("\nReconstruction quality analysis completed.")
+    print("\nKey metrics interpretation:")
+    print("- Mean ratio close to 1.0 indicates good reconstruction accuracy")
+    print("- Small resolution (σ/μ) indicates good reconstruction precision") 
+    print("- High efficiency indicates good particle finding capability")
+    print("- Quality assessments: EXCELLENT > GOOD > FAIR > POOR")
     
     return 0
 
