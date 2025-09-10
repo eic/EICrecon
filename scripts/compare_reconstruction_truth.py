@@ -275,7 +275,11 @@ def analyze_file(file_path, file_type):
     # Read data
     data = read_collections(file_path, collections_to_read)
 
-    if not data:
+    # Check if data is empty (could be empty dict or awkward array with no fields)
+    if isinstance(data, dict) and not data:
+        print("No data could be read from file")
+        return None
+    elif hasattr(data, 'fields') and len(data.fields) == 0:
         print("No data could be read from file")
         return None
 
