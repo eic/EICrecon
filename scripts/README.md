@@ -64,5 +64,5 @@ This script is automatically run in the EICrecon GitHub Actions workflow via the
 
 The analysis covers:
 - Particle gun events (pions and electrons)
-- Deep inelastic scattering events  
+- Deep inelastic scattering events
 - Multiple detector configurations (craterlake, craterlake_tracking_only, craterlake_18x275)

@@ -37,12 +37,12 @@ The `reconstruction-quality-analysis` job in the CI workflow:
 
 The script analyzes the following data when associations are available:
 
-1. **Reconstructed Particles**: 
+1. **Reconstructed Particles**:
    - Uses `MCParticles`, `ReconstructedParticles`, and `ReconstructedParticleAssociations`
    - Compares momentum components, total momentum, and energy
 
 2. **Central Tracking**:
-   - Uses `CentralCKFTracks` and `CentralCKFTrackAssociations`  
+   - Uses `CentralCKFTracks` and `CentralCKFTrackAssociations`
    - Compares track-level momentum measurements
 
 3. **Truth-Seeded Tracking**:
@@ -65,7 +65,7 @@ For each quantity, the analysis reports:
 The analysis provides qualitative assessments:
 
 - **EXCELLENT**: Mean ratio 0.9-1.1, resolution < 20%
-- **GOOD**: Mean ratio 0.8-1.2, resolution < 30%  
+- **GOOD**: Mean ratio 0.8-1.2, resolution < 30%
 - **FAIR**: Mean ratio 0.7-1.3, resolution < 50%
 - **POOR**: Outside fair range
 
