@@ -28,12 +28,20 @@ def read_collections(file_path, collections):
     """Read specified collections from an EDM4hep ROOT file."""
     try:
         with uproot.open(file_path) as file:
-            # Get the events tree
-            if 'events' not in file:
-                print(f"Warning: No 'events' tree found in {file_path}")
-                return {}
+            # Get the events tree (try common names)
+            tree_names = ['events', 'Events', 'tree', 'T']
+            tree = None
             
-            tree = file['events']
+            for tree_name in tree_names:
+                if tree_name in file:
+                    tree = file[tree_name]
+                    break
+            
+            if tree is None:
+                available_trees = list(file.keys())
+                print(f"Warning: No recognized event tree found in {file_path}")
+                print(f"Available objects: {available_trees}")
+                return {}
             
             # Check which collections exist
             available_collections = set(tree.keys())
@@ -47,6 +55,7 @@ def read_collections(file_path, collections):
             
             if not found_collections:
                 print(f"Warning: No requested collections found in {file_path}")
+                print(f"Available collections: {list(available_collections)[:10]}...")  # Show first 10
                 return {}
             
             # Read the collections
