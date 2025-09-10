@@ -295,13 +295,52 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
       "EcalBarrelImagingClusters",
       {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitAssociations"},
-      {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations",
-       "EcalBarrelImagingLayers"},
+      {"EcalBarrelImagingClustersWithoutPID", "EcalBarrelImagingClusterAssociationsWithoutPID",
+      "EcalBarrelImagingLayers"},
       {
           .trackStopLayer = 6,
       },
       app // TODO: Remove me once fixed
       ));
+
+#if EDM4EIC_VERSION_MAJOR >= 8
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPreML_factory>(
+  "EcalBarrelImagingParticleIDPreML",
+  {
+    "EcalBarrelImagingClustersWithoutPID",              // edm4eic::ClusterCollection
+    "EcalBarrelImagingClusterAssociationsWithoutPID"    // edm4eic::MCRecoClusterParticleAssociation
+  },
+  {
+    "EcalBarrelImagingParticleIDInput_features",        // edm4eic::TensorCollection
+    "EcalBarrelImagingParticleIDTarget"                 // edm4eic::TensorCollection (optionnel)
+  },
+  app));
+
+  app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
+  "EcalBarrelImagingParticleIDInference",
+  { "EcalBarrelImagingParticleIDInput_features" },
+  {
+    "EcalBarrelImagingParticleIDOutput_label",
+    "EcalBarrelImagingParticleIDOutput_probability_tensor"
+  },
+  { .modelPath = "calibrations/onnx/EcalBarrel_pi_rejection.onnx" },
+  app));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPostML_factory>(
+  "EcalBarrelImagingParticleIDPostML",
+  {
+    "EcalBarrelImagingClustersWithoutPID",
+    "EcalBarrelImagingClusterAssociationsWithoutPID",
+    "EcalBarrelImagingParticleIDOutput_probability_tensor"
+  },
+  {
+    "EcalBarrelImagingClusters",
+    "EcalBarrelImagingClusterAssociations",
+    "EcalBarrelImagingClusterParticleIDs"
+  },
+  app));
+#endif
+
   app->Add(new JOmniFactoryGeneratorT<EnergyPositionClusterMerger_factory>(
       "EcalBarrelClusters",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
