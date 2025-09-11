@@ -11,7 +11,9 @@
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/digi/RandomNoise_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "factories/meta/CollectionCollector_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -27,10 +29,18 @@ void InitPlugin(JApplication* app) {
           .threshold = 0.54 * dd4hep::keV,
       },
       app));
+  app->Add(new JOmniFactoryGeneratorT<RandomNoise_factory>(
+      "SiBarrelVertexNoiseRawHits",   // Instance name (noise-only producer)
+      {"EventHeader"},                // Inputs now include EventHeader for seeding RNG
+      {"SiBarrelVertexNoiseRawHits"}, // Output: noise-only collection
+      {.addNoise = true, .n_noise_hits_per_system = 433, .readout_name = "VertexBarrelHits"}, app));
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
+      "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
+      {"SiBarrelVertexRawHitsWithNoise"}, {}, app));
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "SiBarrelVertexRecHits", {"SiBarrelVertexRawHits"}, {"SiBarrelVertexRecHits"},
+      "SiBarrelVertexRecHits", {"SiBarrelVertexRawHitsWithNoise"}, {"SiBarrelVertexRecHits"},
       {}, // default config
       app));
 }
