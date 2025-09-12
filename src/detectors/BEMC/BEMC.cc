@@ -66,11 +66,11 @@ void InitPlugin(JApplication* app) {
   decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field           = {"grid"};
   decltype(PulseCombinerConfig::minimum_separation) EcalBarrelScFi_minimum_separation = {
       100 * edm4eic::unit::ns};
-  decltype(PulseNoiseConfig::poles) EcalBarrelScFi_poles = {2};
+  decltype(PulseNoiseConfig::poles) EcalBarrelScFi_poles       = {2};
   decltype(PulseNoiseConfig::variance) EcalBarrelScFi_variance = {0.5};
-  decltype(PulseNoiseConfig::alpha) EcalBarrelScFi_alpha = {0};
-  decltype(PulseNoiseConfig::scale) EcalBarrelScFi_scale = {5.0e-4};
-  decltype(PulseNoiseConfig::offset) EcalBarrelScFi_offset = {3};
+  decltype(PulseNoiseConfig::alpha) EcalBarrelScFi_alpha       = {0};
+  decltype(PulseNoiseConfig::scale) EcalBarrelScFi_scale       = {5.0e-4};
+  decltype(PulseNoiseConfig::offset) EcalBarrelScFi_offset     = {3};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
