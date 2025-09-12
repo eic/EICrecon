@@ -19,6 +19,7 @@
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "algorithms/digi/PulseGenerationConfig.h"
 #include "algorithms/digi/PulseCombinerConfig.h"
+#include "algorithms/digi/PulseNoiseConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -32,6 +33,7 @@
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseNoise_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -61,8 +63,14 @@ void InitPlugin(JApplication* app) {
   decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {1.0e-5};
   decltype(PulseGenerationConfig::timestep) EcalBarrelScFi_timestep = {0.5 * edm4eic::unit::ns};
 
-  decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field = {"grid"};
-  decltype(PulseCombinerConfig::minimum_separation) EcalBarrelScFi_minimum_separation = {100 * edm4eic::unit::ns};
+  decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field           = {"grid"};
+  decltype(PulseCombinerConfig::minimum_separation) EcalBarrelScFi_minimum_separation = {
+      100 * edm4eic::unit::ns};
+  decltype(PulseNoiseConfig::poles) EcalBarrelScFi_poles = {2};
+  decltype(PulseNoiseConfig::variance) EcalBarrelScFi_variance = {0.5};
+  decltype(PulseNoiseConfig::alpha) EcalBarrelScFi_alpha = {0};
+  decltype(PulseNoiseConfig::scale) EcalBarrelScFi_scale = {5.0e-4};
+  decltype(PulseNoiseConfig::offset) EcalBarrelScFi_offset = {3};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -136,6 +144,30 @@ void InitPlugin(JApplication* app) {
           .minimum_separation = EcalBarrelScFi_minimum_separation,
           .readout            = "EcalBarrelScFiHits",
           .combine_field      = EcalBarrelScFi_combine_field,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "EcalBarrelScFiPCombinedPulsesWithNoise", {"EventHeader", "EcalBarrelScFiPCombinedPulses"},
+      {"EcalBarrelScFiPCombinedPulsesWithNoise"},
+      {
+          .poles    = EcalBarrelScFi_poles,
+          .variance = EcalBarrelScFi_variance,
+          .alpha    = EcalBarrelScFi_alpha,
+          .scale    = EcalBarrelScFi_scale,
+          .offset   = EcalBarrelScFi_offset,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "EcalBarrelScFiNCombinedPulsesWithNoise", {"EventHeader", "EcalBarrelScFiNCombinedPulses"},
+      {"EcalBarrelScFiNCombinedPulsesWithNoise"},
+      {
+          .poles    = EcalBarrelScFi_poles,
+          .variance = EcalBarrelScFi_variance,
+          .alpha    = EcalBarrelScFi_alpha,
+          .scale    = EcalBarrelScFi_scale,
+          .offset   = EcalBarrelScFi_offset,
       },
       app // TODO: Remove me once fixed
       ));
