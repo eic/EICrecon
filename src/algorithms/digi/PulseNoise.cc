@@ -41,7 +41,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
     float integral = 0;
     //Add noise to the pulse
     for (std::size_t i = 0; i < pulse.getAmplitude().size(); i++) {
-      double noise     = falpha(generator) * m_cfg.scale;
+      double noise     = falpha(generator) * m_cfg.scale + m_cfg.offset;
       double amplitude = pulse.getAmplitude()[i] + noise;
       out_pulse.addToAmplitude(amplitude);
       integral += amplitude;
