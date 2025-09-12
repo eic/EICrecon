@@ -18,6 +18,7 @@
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "algorithms/digi/PulseGenerationConfig.h"
+#include "algorithms/digi/PulseCombinerConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -30,6 +31,7 @@
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -58,6 +60,9 @@ void InitPlugin(JApplication* app) {
       1.0, 2 * edm4eic::unit::ns};
   decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {1.0e-5};
   decltype(PulseGenerationConfig::timestep) EcalBarrelScFi_timestep = {0.5 * edm4eic::unit::ns};
+
+  decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field = {"grid"};
+  decltype(PulseCombinerConfig::minimum_separation) EcalBarrelScFi_minimum_separation = {100 * edm4eic::unit::ns};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -113,6 +118,24 @@ void InitPlugin(JApplication* app) {
           .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
           .ignore_thres         = EcalBarrelScFi_ignore_thres,
           .timestep             = EcalBarrelScFi_timestep,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+      "EcalBarrelScFiPCombinedPulses", {"EcalBarrelScFiPPulses"}, {"EcalBarrelScFiPCombinedPulses"},
+      {
+          .minimum_separation = EcalBarrelScFi_minimum_separation,
+          .readout            = "EcalBarrelScFiHits",
+          .combine_field      = EcalBarrelScFi_combine_field,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+      "EcalBarrelScFiNCombinedPulses", {"EcalBarrelScFiNPulses"}, {"EcalBarrelScFiNCombinedPulses"},
+      {
+          .minimum_separation = EcalBarrelScFi_minimum_separation,
+          .readout            = "EcalBarrelScFiHits",
+          .combine_field      = EcalBarrelScFi_combine_field,
       },
       app // TODO: Remove me once fixed
       ));
