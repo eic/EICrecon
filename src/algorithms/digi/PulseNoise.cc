@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Simon Gardner
+// Copyright (C) 2025 Simon Gardner, Minho Kim
 //
 // Adds noise to a time series pulse
 //
@@ -28,7 +28,7 @@ void PulseNoise::process(const PulseNoise::Input& input, const PulseNoise::Outpu
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
   std::default_random_engine generator(seed);
-  dd4hep::detail::FalphaNoise falpha(m_cfg.poles, m_cfg.variance, m_cfg.alpha);
+  dd4hep::detail::FalphaNoise falpha(m_cfg.poles, m_cfg.alpha, m_cfg.variance);
 
   for (const auto& pulse : *inPulses) {
 
