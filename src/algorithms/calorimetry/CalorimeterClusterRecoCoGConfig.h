@@ -7,6 +7,8 @@
 #include <vector>
 #include <Evaluator/DD4hepUnits.h>
 
+#include "ClusterTypes.h"
+
 namespace eicrecon {
 
 struct CalorimeterClusterRecoCoGConfig {
@@ -27,6 +29,12 @@ struct CalorimeterClusterRecoCoGConfig {
   // the eta of the contributing hits. This is useful to avoid edge effects
   // for endcaps.
   bool enableEtaBounds = false;
+
+  // cluster type: can be used to flag clusters
+  // as being a type specified by the Jug::Reco::ClusterType
+  // enum in ./ClusterTypes.h
+  int32_t clusterType = Jug::Reco::ClusterType::kCluster2D;
+
 };
 
 } // namespace eicrecon
