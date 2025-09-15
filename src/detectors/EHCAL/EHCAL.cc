@@ -9,6 +9,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ClusterTypes.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -110,7 +111,7 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
@@ -131,6 +132,7 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = 1.0,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
+          .clusterType     = Jug::Reco::ClusterType::kClusterHCal
       },
       app // TODO: Remove me once fixed
       ));
@@ -160,7 +162,7 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(

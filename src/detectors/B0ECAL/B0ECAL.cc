@@ -9,6 +9,7 @@
 #include <variant>
 #include <vector>
 
+#include "algorithms/calorimetry/ClusterTypes.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -88,7 +89,7 @@ void InitPlugin(JApplication* app) {
       },
       {"B0ECalClustersWithoutShapes",             // edm4eic::Cluster
        "B0ECalClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterEMCal },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
@@ -104,7 +105,7 @@ void InitPlugin(JApplication* app) {
       },
       {"B0ECalTruthClustersWithoutShapes",             // edm4eic::Cluster
        "B0ECalTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterEMCal },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(

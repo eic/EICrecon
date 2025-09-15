@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
@@ -126,7 +127,7 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalEndcapPInsertTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 0.0257, .logWeightBase = 3.6, .enableEtaBounds = true},
+      {.energyWeight = "log", .sampFrac = 0.0257, .logWeightBase = 3.6, .enableEtaBounds = true, .clusterType = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -150,6 +151,7 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = 0.0257,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
+          .clusterType     = Jug::Reco::ClusterType::kClusterHCal
       },
       app // TODO: Remove me once fixed
       ));
@@ -260,7 +262,7 @@ void InitPlugin(JApplication* app) {
       },
       {"LFHCALTruthClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -283,6 +285,7 @@ void InitPlugin(JApplication* app) {
           .sampFrac        = 1.0,
           .logWeightBase   = 4.5,
           .enableEtaBounds = false,
+          .clusterType     = Jug::Reco::ClusterType::kClusterHCal
       },
       app // TODO: Remove me once fixed
       ));
@@ -313,7 +316,7 @@ void InitPlugin(JApplication* app) {
       },
       {"LFHCALSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
 
