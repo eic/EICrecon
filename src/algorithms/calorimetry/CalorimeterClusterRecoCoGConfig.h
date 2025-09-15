@@ -35,7 +35,6 @@ struct CalorimeterClusterRecoCoGConfig {
   // enum in ClusterTypes.h. This can be useful for, eg.,
   // flagging EMCal vs. HCal clusters in downstream algorithms
   int32_t clusterType = Jug::Reco::ClusterType::kCluster2D;
-
 };
 
 } // namespace eicrecon

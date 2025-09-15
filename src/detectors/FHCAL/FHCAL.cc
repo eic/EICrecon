@@ -127,7 +127,11 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalEndcapPInsertTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 0.0257, .logWeightBase = 3.6, .enableEtaBounds = true, .clusterType = Jug::Reco::ClusterType::kClusterHCal},
+      {.energyWeight    = "log",
+       .sampFrac        = 0.0257,
+       .logWeightBase   = 3.6,
+       .enableEtaBounds = true,
+       .clusterType     = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -146,13 +150,11 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalEndcapPInsertClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapPInsertClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 0.0257,
-          .logWeightBase   = 6.2,
-          .enableEtaBounds = false,
-          .clusterType     = Jug::Reco::ClusterType::kClusterHCal
-      },
+      {.energyWeight    = "log",
+       .sampFrac        = 0.0257,
+       .logWeightBase   = 6.2,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -262,7 +264,11 @@ void InitPlugin(JApplication* app) {
       },
       {"LFHCALTruthClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterHCal},
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 4.5,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -280,13 +286,11 @@ void InitPlugin(JApplication* app) {
       },
       {"LFHCALClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = 4.5,
-          .enableEtaBounds = false,
-          .clusterType     = Jug::Reco::ClusterType::kClusterHCal
-      },
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 4.5,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -316,7 +320,11 @@ void InitPlugin(JApplication* app) {
       },
       {"LFHCALSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterHCal},
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 4.5,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
 

@@ -96,7 +96,11 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterEMCal},
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 3.6,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterEMCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -115,13 +119,11 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalFarForwardZDCClustersWithoutShapes",             // edm4eic::Cluster
        "EcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = 6.2,
-          .enableEtaBounds = false,
-          .clusterType     = Jug::Reco::ClusterType::kClusterEMCal
-      },
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 6.2,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterEMCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -285,7 +287,11 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalFarForwardZDCTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterHCal},
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 3.6,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -304,13 +310,11 @@ void InitPlugin(JApplication* app) {
       },
       {"HcalFarForwardZDCClustersBaselineWithoutShapes", // edm4eic::Cluster
        "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 0.0203,
-          .logWeightBase   = 6.2,
-          .enableEtaBounds = false,
-          .clusterType     = Jug::Reco::ClusterType::kClusterHCal
-      },
+      {.energyWeight    = "log",
+       .sampFrac        = 0.0203,
+       .logWeightBase   = 6.2,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterHCal},
       app // TODO: Remove me once fixed
       ));
 

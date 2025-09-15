@@ -104,7 +104,11 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapPTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapPTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = true, .clusterType = Jug::Reco::ClusterType::kClusterEMCal},
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 6.2,
+       .enableEtaBounds = true,
+       .clusterType     = Jug::Reco::ClusterType::kClusterEMCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -122,13 +126,11 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapPClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapPClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = 3.6,
-          .enableEtaBounds = false,
-          .clusterType     = Jug::Reco::ClusterType::kClusterEMCal
-      },
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 3.6,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterEMCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -160,7 +162,11 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapPSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false, .clusterType = Jug::Reco::ClusterType::kClusterEMCal},
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 3.6,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterEMCal},
       app // TODO: Remove me once fixed
       ));
 
