@@ -3,19 +3,22 @@
 
 #pragma once
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <podio/ObjectID.h>
 #if EDM4EIC_VERSION_MAJOR >= 8
 #include <edm4eic/TrackClusterMatchCollection.h>
 #endif
 #include <edm4eic/TrackSegmentCollection.h>
+#include <map>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "TrackClusterSubtractorConfig.h"
-#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 
 #if EDM4EIC_VERSION_MAJOR >= 8
 
