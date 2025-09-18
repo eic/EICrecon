@@ -16,6 +16,8 @@
 #include <initializer_list>
 #include <vector>
 
+#include "algorithms/calorimetry/TruthEnergyPositionClusterMergerConfig.h"
+
 namespace eicrecon {
 
 void TruthEnergyPositionClusterMerger::process(const Input& input, const Output& output) const {
@@ -54,6 +56,7 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
 
     debug(" --> Processing position cluster {}, mcID: {}, energy: {}", pclus.getObjectID().index,
           mcID, pclus.getEnergy());
+
     if (energyMap.count(mcID)) {
 
       const auto& eclus = energyMap[mcID];
@@ -61,6 +64,7 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
       auto new_clus = merged_clus->create();
       new_clus.setEnergy(eclus.getEnergy());
       new_clus.setEnergyError(eclus.getEnergyError());
+      new_clus.setType(m_cfg.clusterType);
       new_clus.setTime(pclus.getTime());
       new_clus.setNhits(pclus.getNhits() + eclus.getNhits());
       new_clus.setPosition(pclus.getPosition());
@@ -96,6 +100,7 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
       debug("   --> No matching energy cluster found, copying over position cluster");
       auto new_clus = pclus.clone();
       new_clus.addToClusters(pclus);
+      new_clus.setType(m_cfg.clusterType);
       merged_clus->push_back(new_clus);
 
       // set association
@@ -120,6 +125,7 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
     auto new_clus = merged_clus->create();
     new_clus.setEnergy(eclus.getEnergy());
     new_clus.setEnergyError(eclus.getEnergyError());
+    new_clus.setType(m_cfg.clusterType);
     new_clus.setTime(eclus.getTime());
     new_clus.setNhits(eclus.getNhits());
     // FIXME use nominal dd4hep::radius of 110cm, and use start vertex theta and phi

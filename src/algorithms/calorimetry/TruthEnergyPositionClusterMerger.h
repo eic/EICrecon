@@ -11,6 +11,9 @@
 #include <string>
 #include <string_view>
 
+#include "TruthEnergyPositionClusterMergerConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
 namespace eicrecon {
 
 using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
@@ -22,14 +25,15 @@ using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
                        edm4eic::MCRecoClusterParticleAssociationCollection>>;
 
 /** Simple algorithm to merge the energy measurement from cluster1 with the position
-   * measurement of cluster2 (in case matching clusters are found). If not, it will
-   * propagate the raw cluster from cluster1 or cluster2
-   *
-   * Matching occurs based on the mc truth information of the clusters.
-   *
-   * \ingroup reco
-   */
-class TruthEnergyPositionClusterMerger : public TruthEnergyPositionClusterMergerAlgorithm {
+  * measurement of cluster2 (in case matching clusters are found). If not, it will
+  * propagate the raw cluster from cluster1 or cluster2
+  *
+  * Matching occurs based on the mc truth information of the clusters.
+  *
+  * \ingroup reco
+  */
+class TruthEnergyPositionClusterMerger : public TruthEnergyPositionClusterMergerAlgorithm,
+                                         public WithPodConfig<TruthEnergyPositionClusterMergerConfig> {
 
 public:
   TruthEnergyPositionClusterMerger(std::string_view name)

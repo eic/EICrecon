@@ -289,6 +289,7 @@ void InitPlugin(JApplication* app) {
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",
        "EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
       {"EcalBarrelTruthClusters", "EcalBarrelTruthClusterAssociations"},
+      {.clusterType = Jug::Reco::ClusterType::kClusterEMCal},
       app // TODO: Remove me once fixed
       ));
 }

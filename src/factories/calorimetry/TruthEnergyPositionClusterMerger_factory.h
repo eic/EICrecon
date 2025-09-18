@@ -10,7 +10,7 @@
 namespace eicrecon {
 
 class TruthEnergyPositionClusterMerger_factory
-    : public JOmniFactory<TruthEnergyPositionClusterMerger_factory> {
+    : public JOmniFactory<TruthEnergyPositionClusterMerger_factory, TruthEnergyPositionClusterMergerConfig> {
 public:
   using AlgoT = eicrecon::TruthEnergyPositionClusterMerger;
 
@@ -26,12 +26,15 @@ private:
   PodioOutput<edm4eic::Cluster> m_clusters_output{this};
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assocs_output{this};
 
+  ParameterRef<int32_t> m_systemID{this, "clusterType", config().clusterType};
+
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 
