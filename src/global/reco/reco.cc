@@ -29,9 +29,7 @@
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
-#ifdef USE_ONNX
 #include "factories/reco/InclusiveKinematicsML_factory.h"
-#endif
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
@@ -128,11 +126,9 @@ void InitPlugin(JApplication* app) {
       "InclusiveKinematicsSigma", {"MCParticles", "ScatteredElectronsTruth", "HadronicFinalState"},
       {"InclusiveKinematicsSigma"}, app));
 
-#ifdef USE_ONNX
   app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
       "InclusiveKinematicsML", {"InclusiveKinematicsElectron", "InclusiveKinematicsDA"},
       {"InclusiveKinematicsML"}, app));
-#endif
 
   app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
       "ReconstructedElectrons", {"ReconstructedParticles"}, {"ReconstructedElectrons"}, {}, app));

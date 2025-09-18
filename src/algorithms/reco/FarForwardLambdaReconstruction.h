@@ -12,8 +12,8 @@
 #include <string>      // for basic_string
 #include <string_view> // for string_view
 
-#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/reco/FarForwardLambdaReconstructionConfig.h"
 
 namespace eicrecon {

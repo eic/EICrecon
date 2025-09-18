@@ -12,6 +12,7 @@
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/SimTrackerHit.h>
 #include <fmt/core.h>
 #include <fmt/format.h> // IWYU pragma: keep
 #include <cmath>
@@ -25,9 +26,9 @@
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
-#include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
@@ -62,7 +63,7 @@ void InitPlugin(JApplication* app) {
       },
       app));
   //  Generate signal pulse from hits
-  app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
+  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimTrackerHit>>(
       "TaggerTrackerPulseGeneration", {"TaggerTrackerSharedHits"}, {"TaggerTrackerHitPulses"},
       {
           .pulse_shape_function = "LandauPulse",
@@ -200,7 +201,7 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
       "TaggerTrackerTransportationPreML",
-      {"TaggerTrackerProjectedTracks", "MCScatteredElectrons", "MCBeamElectrons"},
+      {"TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
       {"TaggerTrackerFeatureTensor", "TaggerTrackerTargetTensor"},
       {
           .beamE = 10.0,
@@ -210,12 +211,13 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerTransportationInference", {"TaggerTrackerFeatureTensor"},
       {"TaggerTrackerPredictionTensor"},
       {
-          .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
+          .modelPath = "calibrations/onnx/Low-Q2_Steering_Reconstruction.onnx",
       },
       app));
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
-      "TaggerTrackerTransportationPostML", {"TaggerTrackerPredictionTensor", "MCBeamElectrons"},
-      {"TaggerTrackerReconstructedParticles"},
+      "TaggerTrackerTransportationPostML",
+      {"TaggerTrackerPredictionTensor", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
+      {"TaggerTrackerReconstructedParticles", "TaggerTrackerReconstructedParticleAssociations"},
       {
           .beamE = 10.0,
       },

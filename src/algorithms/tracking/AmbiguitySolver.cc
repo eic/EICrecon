@@ -74,6 +74,10 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
   std::vector<ActsExamples::Trajectories*> output_trajectories;
   std::vector<ActsExamples::ConstTrackContainer*> output_tracks;
 
+  if (input_container.empty()) {
+    return std::make_tuple(std::move(output_tracks), std::move(output_trajectories));
+  }
+
   auto& input_trks = input_container.front();
   Acts::GreedyAmbiguityResolution::State state;
   m_core->computeInitialState(*input_trks, state, &sourceLinkHash, &sourceLinkEquality);
@@ -87,7 +91,11 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
 
     auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
     auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
+#if Acts_VERSION_MAJOR >= 44
+    destProxy.copyFromWithoutStates(srcProxy);
+#else
     destProxy.copyFrom(srcProxy, false);
+#endif
     destProxy.tipIndex() = srcProxy.tipIndex();
   }
 
