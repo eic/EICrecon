@@ -15,6 +15,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "algorithms/digi/PulseGenerationConfig.h"
@@ -279,6 +280,7 @@ void InitPlugin(JApplication* app) {
           .energyRelTolerance = 0.5,
           .phiTolerance       = 0.1,
           .etaTolerance       = 0.2,
+          .clusterType        = Jug::Reco::ClusterType::kClusterEMCal,
       },
       app // TODO: Remove me once fixed
       ));

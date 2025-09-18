@@ -30,6 +30,7 @@ private:
                                             config().energyRelTolerance};
   ParameterRef<double> m_phiTolerance{this, "phiTolerance", config().phiTolerance};
   ParameterRef<double> m_etaTolerance{this, "etaTolerance", config().etaTolerance};
+  ParameterRef<int32_t> m_systemID{this, "clusterType", config().clusterType};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

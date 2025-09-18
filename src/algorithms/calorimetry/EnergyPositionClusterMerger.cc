@@ -86,6 +86,7 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       auto new_clus = merged_clus->create();
       new_clus.setEnergy(ec.getEnergy());
       new_clus.setEnergyError(ec.getEnergyError());
+      new_clus.setType(m_cfg.clusterType);
       new_clus.setTime(pc.getTime());
       new_clus.setNhits(pc.getNhits() + ec.getNhits());
       new_clus.setPosition(pc.getPosition());
