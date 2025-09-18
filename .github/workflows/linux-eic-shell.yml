@@ -217,6 +217,16 @@ jobs:
         path: .
     - name: Uncompress build artifact
       run: tar -xaf build.tar.zst
+    - name: Check for pragma once in changed files
+      if: ${{ github.event_name == 'pull_request' }}
+      run: |
+        missing_pragma_headers=$(git diff --diff-filter=AM --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep "\.h$" | xargs -n 1 -r grep -L 'pragma once')
+        test -z "${missing_pragma_headers}"
+    - name: Check for pragma once in all files
+      if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
+      run: |
+        missing_pragma_headers=$(find src -name "*.h" | xargs -n 1 grep -L 'pragma once')
+        test -z "${missing_pragma_headers}"
     - name: Run clang-tidy on changed files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
@@ -272,7 +282,7 @@ jobs:
     - name: Create Pull Request
       id: create-pull-request
       uses: peter-evans/create-pull-request@v7
-      if: ${{ github.event_name == 'pull_request' }}
+      if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
       with:
         token: ${{ secrets.EIC_EICRECON_PULL_REQUESTS_READ_WRITE }}
         commit-message: "fix: iwyu [skip ci]"
@@ -375,8 +385,9 @@ jobs:
       run: |
         file=/cvmfs/singularity.opensciencegrid.org/eicweb/${{ env.platform }}:${{ env.release }}/etc/jug_info
         test -f ${file}
-        grep ' epic@' ${file}
-        hash=$(grep ' epic@' ${file} | sha256sum)
+        sed -e 's/\x1b\[[0-9;]*m//g' ${file} > $(basename ${file})
+        grep ' epic@' $(basename ${file})
+        hash=$(grep ' epic@' $(basename ${file}) | sha256sum)
         echo "hash=${hash%% *}" | tee $GITHUB_OUTPUT
 
   npsim-gun:
@@ -1244,7 +1255,7 @@ jobs:
         run:
           find publishing_docs/
       - name: Upload GitHub Pages artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v4
         with:
           path: publishing_docs/
           retention-days: 7
