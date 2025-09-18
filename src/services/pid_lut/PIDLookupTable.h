@@ -37,8 +37,7 @@ public:
 private:
   boost::histogram::histogram<
       std::tuple<boost::histogram::axis::category<int>, boost::histogram::axis::category<int>,
-                 boost::histogram::axis::variable<>,
-                 boost::histogram::axis::variable<>,
+                 boost::histogram::axis::variable<>, boost::histogram::axis::variable<>,
                  boost::histogram::axis::circular<>>,
       boost::histogram::dense_storage<Entry>>
       m_hist;
