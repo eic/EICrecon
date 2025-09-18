@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Simon Gardner
+// Copyright (C) 2025 Simon Gardner, Minho Kim
 
 #pragma once
 
@@ -18,6 +18,9 @@ struct PulseNoiseConfig {
 
   // Noise scale
   double scale = 1000;
+
+  // Noise offset
+  double offset = 0;
 };
 
 } // namespace eicrecon
