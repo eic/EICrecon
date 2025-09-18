@@ -54,13 +54,8 @@ public:
     m_algo->init();
   }
 
-  ///! Applies any updates between changes in runs
-  void ChangeRun(int64_t run_number) {
-    //... nothing to do ...//
-  }
-
   ///! Primary algorithm call
-  void Process(int64_t run_number, uint64_t event_number) {
+  void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
     m_algo->process(
         {m_track_cluster_match_input(), m_clusters_input(), m_track_projections_input()},
         {m_remnant_clusters_output().get(), m_expected_clusters_output().get(),
