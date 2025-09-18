@@ -67,50 +67,13 @@ void PIDLookupTable::load_file(const std::string& filename,
   for (double& edge : polar_edges) {
     edge *= angle_fudge;
   }
-  //Print polar edges after fudge
-  // info("Polar edges after fudge: {}", fmt::join(polar_edges, ", "));
-  bh::axis::variable<double, bh::use_default, bh::axis::option::none_t> polar_bins(polar_edges);
-  //Print the polar_bins themselves
-  //   std::vector<std::string> polar_edges_str;
-  // for (size_t i = 0; i <= polar_bins.size(); ++i) {
-  //     const auto& bin = polar_bins.bin(i);
-  //     polar_edges_str.push_back(fmt::format("[{}, {})", bin.lower(), bin.upper()));
-  // }
-  // info("Polar bins: {}", fmt::join(polar_edges_str, ", "));
+  bh::axis::variable<> polar_bins(polar_edges);
   bh::axis::circular<> azimuthal_bins(bh::axis::step(binning.azimuthal_binning.at(2) * angle_fudge),
                                       binning.azimuthal_binning.at(0) * angle_fudge,
                                       binning.azimuthal_binning.at(1) * angle_fudge);
 
   m_hist = bh::make_histogram_with(bh::dense_storage<PIDLookupTable::Entry>(), pdg_bins,
                                    charge_bins, momentum_bins, polar_bins, azimuthal_bins);
-
-  // Print the binning for verification
-  // info("PID LUT binning:");
-  // info("  PDG values: {}", fmt::join(binning.pdg_values, ", "));
-  // info("  Charge values: {}", fmt::join(binning.charge_values, ", "));
-  // info("  Momentum edges: {}", fmt::join(binning.momentum_edges, ", "));
-  // info("  Polar edges: {}", fmt::join(binning.polar_edges, ", "));
-  // info("  Azimuthal binning: lower={}, upper={}, step={}", binning.azimuthal_binning.at(0),
-  //       binning.azimuthal_binning.at(1), binning.azimuthal_binning.at(2));
-
-  // Print the bin ranges from the bh::axis objects
-  // info("  Momentum bins: {}", fmt::join(momentum_bins.edges(), ", "));
-  // {
-  //   std::vector<std::string> polar_intervals;
-  //   for (size_t i = 0; i < polar_bins.size(); ++i) {
-  //     const auto& bin = polar_bins.bin(i);
-  //     polar_intervals.push_back(fmt::format("[{}, {})", bin.lower(), bin.upper()));
-  //   }
-  //   info("  Polar bins: {}", fmt::join(polar_intervals, ", "));
-  // }
-  // {
-  //   std::vector<std::string> azimuthal_intervals;
-  //   for (size_t i = 0; i < azimuthal_bins.size(); ++i) {
-  //     const auto& bin = azimuthal_bins.bin(i);
-  //     azimuthal_intervals.push_back(fmt::format("[{}, {})", bin.lower(), bin.upper()));
-  //   }
-  //   info("  Azimuthal bins: {}", fmt::join(azimuthal_intervals, ", "));
-  // }
 
   m_symmetrizing_charges = binning.charge_values.size() == 1;
 
@@ -137,15 +100,16 @@ void PIDLookupTable::load_file(const std::string& filename,
     if ((bool)(iss >> pdg >> charge >> momentum >> eta >> phi) &&
         (binning.missing_electron_prob || (bool)(iss >> prob_electron)) &&
         (bool)(iss >> prob_pion >> prob_kaon >> prob_proton)) {
+          
+      if(eta * angle_fudge < polar_bins.bin(0).lower() ||
+         eta * angle_fudge > polar_bins.bin(polar_bins.size() -1).upper()) {
+        debug("Out of bounds: eta");
+        continue; // out of bounds
+      }
 
       if (m_symmetrizing_charges) {
         charge = std::abs(charge);
       }
-
-      //
-      // error("Filling LUT with pdg={}, charge={}, momentum={:.2f}, theta={:.2f}, phi={:.2f},     "
-      //       "prob_electron={}, prob_pion={}, prob_kaon={}, prob_proton={}",
-      //       pdg, charge, momentum, eta, phi, prob_electron, prob_pion, prob_kaon, prob_proton);
 
       // operator() here allows to lookup mutable entry and increases the access counter
       auto& entry = *m_hist(
@@ -158,23 +122,6 @@ void PIDLookupTable::load_file(const std::string& filename,
                                    ? 0.
                                    : (azimuthal_bins.bin(0).width() /
                                       2))); // N.B. bin(0) may not be of a correct width
-      // Print the parsed values for verification if the eta is larger than the maximum polar bins from m_hist
-      // if (eta * angle_fudge < polar_bins.bin(0).lower() ||
-      //     eta * angle_fudge > polar_bins.bin(polar_bins.size() ).upper()) {
-      //   error("Skipping LUT entry with out-of-bounds polar angle: pdg={}, charge={}, momentum={:.2f}, "
-      //        "theta={:.2f}, phi={:.2f}, prob_electron={}, prob_pion={}, prob_kaon={}, prob_proton={}",
-      //        pdg, charge, momentum, eta * angle_fudge, phi * angle_fudge, prob_electron, prob_pion,
-      //        prob_kaon, prob_proton);
-      //   error("Max polar bin edges are: {}, {}", polar_bins.bin(polar_bins.size()).lower(), polar_bins.bin(polar_bins.size()).upper());
-      //   //Try and look at the properties of entry
-      //   error("Entry bin edges are: pdg=[{}, {}), charge=[{}, {}), momentum=[{}, {}), polar=[{}, {}), azimuthal=[{}, {})",
-      //         m_hist.axis(0).bin(m_hist.axis(0).index(pdg)).lower(), m_hist.axis(0).bin(m_hist.axis(0).index(pdg)).upper(),
-      //         m_hist.axis(1).bin(m_hist.axis(1).index(charge)).lower(), m_hist.axis(1).bin(m_hist.axis(1).index(charge)).upper(),
-      //         m_hist.axis(2).bin(m_hist.axis(2).index(momentum)).lower(), m_hist.axis(2).bin(m_hist.axis(2).index(momentum)).upper(),
-      //         m_hist.axis(3).bin(m_hist.axis(3).index(eta * angle_fudge)).lower(), m_hist.axis(3).bin(m_hist.axis(3).index(eta * angle_fudge)).upper(),
-      //         m_hist.axis(4).bin(m_hist.axis(4).index(phi * angle_fudge)).lower(), m_hist.axis(4).bin(m_hist.axis(4).index(phi * angle_fudge)).upper());
-      // }
-
       entry.prob_electron = prob_electron;
       entry.prob_pion     = prob_pion;
       entry.prob_kaon     = prob_kaon;

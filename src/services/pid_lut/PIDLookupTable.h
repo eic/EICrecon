@@ -4,7 +4,6 @@
 #pragma once
 
 #include <algorithms/logger.h>
-#include <boost/core/use_default.hpp>
 #include <boost/histogram.hpp>
 #include <string>
 #include <tuple>
@@ -39,8 +38,7 @@ private:
   boost::histogram::histogram<
       std::tuple<boost::histogram::axis::category<int>, boost::histogram::axis::category<int>,
                  boost::histogram::axis::variable<>,
-                 boost::histogram::axis::variable<double, boost::histogram::use_default,
-                                                  boost::histogram::axis::option::none_t>,
+                 boost::histogram::axis::variable<>,
                  boost::histogram::axis::circular<>>,
       boost::histogram::dense_storage<Entry>>
       m_hist;
