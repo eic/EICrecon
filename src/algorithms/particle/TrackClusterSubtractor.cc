@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Derek Anderson
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -12,6 +13,7 @@
 #include <limits>
 #include <map>
 #include <vector>
+#if EDM4EIC_VERSION_MAJOR >= 8
 
 #include "TrackClusterSubtractor.h"
 #include "algorithms/particle/TrackClusterSubtractorConfig.h"
@@ -86,12 +88,12 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
 
     // do subtraction
     const double eToSub = m_cfg.fracEnergyToSub * sum_track_energy(projects);
-    const double eSub   = cluster.getEnergy() - eToSub;
+    const double eSub = cluster.getEnergy() - eToSub;
     trace("Subtracted {} GeV from cluster with {} GeV", eToSub, cluster.getEnergy());
 
     // check if consistent with zero,
     // set eSub accordingly
-    const bool isZero      = is_zero(eSub);
+    const bool isZero = is_zero(eSub);
     const double eSubToUse = isZero ? 0. : eSub;
 
     // ------------------------------------------------------------------------
@@ -110,7 +112,8 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     auto expect_clust = cluster.clone();
     expect_clust.setEnergy(cluster.getEnergy() - eSubToUse);
     out_expect->push_back(expect_clust);
-    trace("Created subtracted cluster with {} GeV (originally {} GeV)", expect_clust.getEnergy(),
+    trace("Created subtracted cluster with {} GeV (originally {} GeV)",
+          expect_clust.getEnergy(),
           cluster.getEnergy());
 
     // create a track-cluster match for expected clusters
@@ -122,9 +125,9 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
       trace("Matched expected cluster {} to track {}", expect_clust.getObjectID().index,
             project.getTrack().getObjectID().index);
     }
-
   } // end cluster-to-projections loop
-  debug("Finished subtraction, {} remnant clusters and {} expected clusters", out_remnant->size(),
+  debug("Finished subtraction, {} remnant clusters and {} expected clusters",
+        out_remnant->size(),
         out_expect->size());
 
   // --------------------------------------------------------------------------
@@ -204,14 +207,16 @@ bool TrackClusterSubtractor::is_zero(const double difference) const {
   bool isZero = false;
   if (m_cfg.doNSigmaCut) {
     isZero = (nSigma < m_cfg.nSigmaMax);
-    trace("Difference of {} GeV consistent with zero: nSigma = {} < {}", difference, nSigma,
+    trace("Difference of {} GeV consistent with zero: nSigma = {} < {}",
+          difference,
+          nSigma,
           m_cfg.nSigmaMax);
   } else {
-    isZero = std::abs(difference) < std::numeric_limits<double>::epsilon();
-    trace("Difference of {} GeV consistent with zero within an epsilon", difference);
+    isZero = std::abs(difference) < std::numeric_limits<double>::epsilon();    trace("Difference of {} GeV consistent with zero within an epsilon", difference);
   }
   return isZero;
 
 } // end 'is_zero(double)'
-
 } // namespace eicrecon
+
+#endif // EDM4EIC_VERSION_MAJOR >= 8

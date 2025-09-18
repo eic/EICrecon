@@ -3,9 +3,12 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#if EDM4EIC_VERSION_MAJOR >= 8
 #include <edm4eic/TrackClusterMatchCollection.h>
+#endif
 #include <edm4eic/TrackSegmentCollection.h>
 #include <string>
 #include <string_view>
@@ -13,6 +16,8 @@
 #include "TrackClusterSubtractorConfig.h"
 #include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+#if EDM4EIC_VERSION_MAJOR >= 8
 
 namespace eicrecon {
 
@@ -85,3 +90,5 @@ private:
 }; // end TrackClusterSubtractor
 
 } // namespace eicrecon
+
+#endif // EDM4EIC_VERSION_MAJOR >= 8
