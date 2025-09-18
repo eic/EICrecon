@@ -3,7 +3,6 @@
 
 #include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
 
-#include <edm4eic/Cov3f.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
