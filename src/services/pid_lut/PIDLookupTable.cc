@@ -101,6 +101,12 @@ void PIDLookupTable::load_file(const std::string& filename,
         (binning.missing_electron_prob || (bool)(iss >> prob_electron)) &&
         (bool)(iss >> prob_pion >> prob_kaon >> prob_proton)) {
 
+      if (eta * angle_fudge < polar_bins.bin(0).lower() ||
+          eta * angle_fudge > polar_bins.bin(polar_bins.size() - 1).upper()) {
+        debug("Out of bounds: eta");
+        continue; // out of bounds
+      }
+
       if (m_symmetrizing_charges) {
         charge = std::abs(charge);
       }
