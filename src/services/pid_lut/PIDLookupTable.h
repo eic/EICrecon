@@ -4,6 +4,7 @@
 #pragma once
 
 #include <algorithms/logger.h>
+#include <boost/core/use_default.hpp>
 #include <boost/histogram.hpp>
 #include <string>
 #include <tuple>
