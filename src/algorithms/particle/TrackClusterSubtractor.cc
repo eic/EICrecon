@@ -88,12 +88,12 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
 
     // do subtraction
     const double eToSub = m_cfg.fracEnergyToSub * sum_track_energy(projects);
-    const double eSub = cluster.getEnergy() - eToSub;
+    const double eSub   = cluster.getEnergy() - eToSub;
     trace("Subtracted {} GeV from cluster with {} GeV", eToSub, cluster.getEnergy());
 
     // check if consistent with zero,
     // set eSub accordingly
-    const bool isZero = is_zero(eSub);
+    const bool isZero      = is_zero(eSub);
     const double eSubToUse = isZero ? 0. : eSub;
 
     // ------------------------------------------------------------------------
@@ -112,8 +112,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     auto expect_clust = cluster.clone();
     expect_clust.setEnergy(cluster.getEnergy() - eSubToUse);
     out_expect->push_back(expect_clust);
-    trace("Created subtracted cluster with {} GeV (originally {} GeV)",
-          expect_clust.getEnergy(),
+    trace("Created subtracted cluster with {} GeV (originally {} GeV)", expect_clust.getEnergy(),
           cluster.getEnergy());
 
     // create a track-cluster match for expected clusters
@@ -126,8 +125,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
             project.getTrack().getObjectID().index);
     }
   } // end cluster-to-projections loop
-  debug("Finished subtraction, {} remnant clusters and {} expected clusters",
-        out_remnant->size(),
+  debug("Finished subtraction, {} remnant clusters and {} expected clusters", out_remnant->size(),
         out_expect->size());
 
   // --------------------------------------------------------------------------
@@ -207,12 +205,11 @@ bool TrackClusterSubtractor::is_zero(const double difference) const {
   bool isZero = false;
   if (m_cfg.doNSigmaCut) {
     isZero = (nSigma < m_cfg.nSigmaMax);
-    trace("Difference of {} GeV consistent with zero: nSigma = {} < {}",
-          difference,
-          nSigma,
+    trace("Difference of {} GeV consistent with zero: nSigma = {} < {}", difference, nSigma,
           m_cfg.nSigmaMax);
   } else {
-    isZero = std::abs(difference) < std::numeric_limits<double>::epsilon();    trace("Difference of {} GeV consistent with zero within an epsilon", difference);
+    isZero = std::abs(difference) < std::numeric_limits<double>::epsilon();
+    trace("Difference of {} GeV consistent with zero within an epsilon", difference);
   }
   return isZero;
 
