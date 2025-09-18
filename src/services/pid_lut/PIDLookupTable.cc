@@ -71,12 +71,12 @@ void PIDLookupTable::load_file(const std::string& filename,
   // info("Polar edges after fudge: {}", fmt::join(polar_edges, ", "));
   bh::axis::variable<double, bh::use_default, bh::axis::option::none_t> polar_bins(polar_edges);
   //Print the polar_bins themselves
-//   std::vector<std::string> polar_edges_str;
-// for (size_t i = 0; i <= polar_bins.size(); ++i) {
-//     const auto& bin = polar_bins.bin(i);
-//     polar_edges_str.push_back(fmt::format("[{}, {})", bin.lower(), bin.upper()));
-// }
-// info("Polar bins: {}", fmt::join(polar_edges_str, ", "));
+  //   std::vector<std::string> polar_edges_str;
+  // for (size_t i = 0; i <= polar_bins.size(); ++i) {
+  //     const auto& bin = polar_bins.bin(i);
+  //     polar_edges_str.push_back(fmt::format("[{}, {})", bin.lower(), bin.upper()));
+  // }
+  // info("Polar bins: {}", fmt::join(polar_edges_str, ", "));
   bh::axis::circular<> azimuthal_bins(bh::axis::step(binning.azimuthal_binning.at(2) * angle_fudge),
                                       binning.azimuthal_binning.at(0) * angle_fudge,
                                       binning.azimuthal_binning.at(1) * angle_fudge);
@@ -93,7 +93,7 @@ void PIDLookupTable::load_file(const std::string& filename,
   // info("  Azimuthal binning: lower={}, upper={}, step={}", binning.azimuthal_binning.at(0),
   //       binning.azimuthal_binning.at(1), binning.azimuthal_binning.at(2));
 
-// Print the bin ranges from the bh::axis objects
+  // Print the bin ranges from the bh::axis objects
   // info("  Momentum bins: {}", fmt::join(momentum_bins.edges(), ", "));
   // {
   //   std::vector<std::string> polar_intervals;
@@ -142,13 +142,10 @@ void PIDLookupTable::load_file(const std::string& filename,
         charge = std::abs(charge);
       }
 
-
-      
       //
       // error("Filling LUT with pdg={}, charge={}, momentum={:.2f}, theta={:.2f}, phi={:.2f},     "
       //       "prob_electron={}, prob_pion={}, prob_kaon={}, prob_proton={}",
       //       pdg, charge, momentum, eta, phi, prob_electron, prob_pion, prob_kaon, prob_proton);
-
 
       // operator() here allows to lookup mutable entry and increases the access counter
       auto& entry = *m_hist(
