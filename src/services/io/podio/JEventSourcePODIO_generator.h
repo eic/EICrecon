@@ -1,4 +1,5 @@
 
+#pragma once
 
 #include <JANA/JEventSourceGenerator.h>
 #include "JEventSourcePODIO.h"
