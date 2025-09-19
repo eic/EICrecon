@@ -32,6 +32,7 @@ private:
   ParameterRef<double> m_logWeightBase_Eref{this, "logWeightBase_Eref",
                                             config().logWeightBase_Eref};
   ParameterRef<bool> m_enableEtaBounds{this, "enableEtaBounds", config().enableEtaBounds};
+  ParameterRef<int32_t> m_systemID{this, "clusterType", config().clusterType};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
