@@ -60,7 +60,7 @@ int main(int narg, char** argv) {
 
   std::vector<std::string> default_plugins = EICRECON_DEFAULT_PLUGINS;
 
-  if constexpr (10000 * JVersion::major + 100 * JVersion::minor + 1 * JVersion::patch >= 20402) {
+  if constexpr (10000 * JVersion::major + 100 * JVersion::minor + 1 * JVersion::patch > 20403) {
     // The splitting plugin requires new JANA features not present on older versions
     default_plugins.emplace_back("splitting");
   }
