@@ -178,7 +178,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
         }
       }
       if (timeC > m_cfg.capTime) {
-        continue;
+        debug("retaining hit, even though time %f ns > %f ns", timeC / dd4hep::ns,
+              m_cfg.capTime / dd4hep::ns);
       }
       edep += hit.getEnergy();
       trace("adding {} \t total: {}", hit.getEnergy(), edep);
@@ -199,7 +200,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       rawassocs_staging.push_back(assoc);
     }
     if (time > m_cfg.capTime) {
-      continue;
+      debug("retaining hit, even though time %f ns > %f ns", time / dd4hep::ns,
+            m_cfg.capTime / dd4hep::ns);
     }
 
     // safety check

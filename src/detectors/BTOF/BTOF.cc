@@ -6,11 +6,15 @@
 // Copyright (C) 2024, Dmitry Kalinkin
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TMath.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/SimTrackerHit.h>
 #include <cmath>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -18,9 +22,9 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/CFDROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
-#include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/reco/LGADHitCalibration_factory.h"
 #include "factories/reco/LGADHitAssociation_factory.h"
@@ -96,8 +100,8 @@ void InitPlugin(JApplication* app) {
   // gain is negative as LGAD voltage is always negative
   const double gain = -adc_range / Vm / landau_min * sigma_analog;
   const int offset  = 3;
-  app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
-      "TOFBarrelPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
+  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimTrackerHit>>(
+      "LGADPulseGeneration", {"TOFBarrelSharedHits"}, {"TOFBarrelSmoothPulses"},
       {
           .pulse_shape_function = "LandauPulse",
           .pulse_shape_params   = {gain, sigma_analog, offset},
