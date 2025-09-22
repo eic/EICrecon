@@ -12,13 +12,14 @@ Installation
 cd <your-working-directory>
 
 # Install eic-shell script and a docker container image known to work;
-curl -L https://github.com/eic/eic-shell/raw/main/install.sh     | bash -s --  --version 25.07.0-stable --no-cvmfs
+#curl -L https://github.com/eic/eic-shell/raw/main/install.sh     | bash -s --  --version 25.07.0-stable --no-cvmfs
+curl --location https://get.epic-eic.org | bash
 
 # Run 'eic-shell';
 ./eic-shell
 
-# Use git branch irt-2.1a for all repositories;
-export branch="irt-2.1a"
+# Use git branch irt-2.1b for all repositories;
+export branch="irt-2.1b"
 
 # Download EICrecon;
 git clone -b ${branch} https://github.com/eic/EICrecon.git
