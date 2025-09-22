@@ -128,6 +128,6 @@ root [1] events->Draw("PFRICHHits.position.y:PFRICHHits.position.x");
 ```
 
 ```
-# Run a geometry overlap check with ePIC tracker;
+# Run a geometry overlap check with ePIC tracker (takes several minutes);
 npsim --runType run --macroFile check-geometry.mac --compactFile $EIC_SHELL_PREFIX/share/epic/epic_tracking_and_pfrich.xml --outputFile ./sim.edm4hep.pfrich.root --part.userParticleHandler= --inputFiles ./electron-going-endcap.hepmc -N 10
 ```
