@@ -44,8 +44,8 @@ void PulseDigi::process(const PulseDigi::Input& input, const PulseDigi::Output& 
       if (totInProgress && !totComplete && amplitude < m_cfg.threshold) {
         totComplete   = true;
         totInProgress = false;
-        tot           = (((m_cfg.threshold - amps_neighbor[i % 2]) * pulse.getInterval()) /
-               (amps_neighbor[i % 2] - amps_neighbor[1 - (i % 2)])) +
+        tot = get_crossing_time(((m_cfg.threshold - amps_neighbor[i % 2]) * pulse.getInterval()) /
+                                (amps_neighbor[i % 2] - amps_neighbor[1 - (i % 2)])) +
               t - toa;
       }
 
