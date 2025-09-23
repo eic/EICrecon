@@ -173,7 +173,7 @@ std::map<int, edm4eic::Cluster> TruthEnergyPositionClusterMerger::indexedCluster
       continue;
     }
 
-    const bool duplicate = matched.count(mcID);
+    const bool duplicate = matched.contains(mcID);
     if (duplicate) {
       trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
       if (cluster.getEnergy() < matched[mcID].getEnergy()) {
