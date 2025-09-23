@@ -74,8 +74,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFBarrelClusterHits", {"TOFBarrelCalHits"}, // Input data collection tags
       {"TOFBarrelClusterHits"},                     // Output data tag
-      {},
-      app));
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
