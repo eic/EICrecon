@@ -75,7 +75,7 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelClusterHits", {"TOFBarrelCalHits"}, // Input data collection tags
       {"TOFBarrelClusterHits"},                     // Output data tag
       {},
-      app)); // Hit reco default config for factories
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
