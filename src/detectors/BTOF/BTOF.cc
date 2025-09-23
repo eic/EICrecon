@@ -27,7 +27,6 @@
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/reco/LGADHitCalibration_factory.h"
-#include "factories/reco/LGADHitAssociation_factory.h"
 #include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
@@ -61,12 +60,6 @@ void InitPlugin(JApplication* app) {
       {"TOFBarrelCalHits"},                    // Output data tag
       {},
       app)); // Hit reco default config for factories
-
-  app->Add(new JOmniFactoryGeneratorT<LGADHitAssociation_factory>(
-      "TOFBarrelCalHitsAssociations",
-      {"TOFBarrelCalHits", "TOFBarrelHits"}, // Input data collection tags
-      {"TOFBarrelCalHitsAssociations"},      // Output data tag
-      {}, app));
 
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average
