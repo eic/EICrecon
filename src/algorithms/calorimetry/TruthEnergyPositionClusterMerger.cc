@@ -55,7 +55,7 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
     debug(" --> Processing position cluster {}, mcID: {}, energy: {}", pclus.getObjectID().index,
           mcID, pclus.getEnergy());
 
-    if (energyMap.count(mcID)) {
+    if (energyMap.contains(mcID)) {
 
       const auto& eclus = energyMap[mcID];
 
