@@ -18,7 +18,7 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackSegment.h>
 #include <edm4eic/MutableIrtParticle.h>
-#include <edm4eic/MutableIrtRadiator.h>
+#include <edm4eic/MutableIrtRadiatorInfo.h>
 
 #include <IRT/ChargedParticle.h>
 #include "IRT/CherenkovEvent.h"
