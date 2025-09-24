@@ -56,8 +56,8 @@ void InitPlugin(JApplication* app) {
   // Convert raw digitized hits into calibrated hits
   // time walk correction is still TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
-      "TOFBarrelCalHits", {"TOFBarrelADCTDC"}, // Input data collection tags
-      {"TOFBarrelCalHits"},                    // Output data tag
+      "TOFBarrelCalibratedHits", {"TOFBarrelADCTDC"}, // Input data collection tags
+      {"TOFBarrelCalibratedHits"},                    // Output data tag
       {},
       app)); // Hit reco default config for factories
 
@@ -65,7 +65,7 @@ void InitPlugin(JApplication* app) {
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
-      "TOFBarrelClusterHits", {"TOFBarrelCalHits"}, // Input data collection tags
+      "TOFBarrelClusterHits", {"TOFBarrelCalibratedHits"}, // Input data collection tags
       {"TOFBarrelClusterHits"},                     // Output data tag
       {}, app));
 
