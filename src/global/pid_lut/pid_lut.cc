@@ -1,61 +1,28 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022-2025 Christopher Dilks, Simon Gardner
 
-#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
+#include <edm4eic/ReconstructedParticle.h>
+#include <fmt/core.h>
 #include <cmath>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "algorithms/pid_lut/PIDLookupConfig.h"
-#include "algorithms/pid_lut/PhaseSpacePIDConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/meta/CollectionCollector_factory.h"
 // factories
 #include "factories/pid_lut/PIDLookup_factory.h"
-#include "factories/pid_lut/PhaseSpacePID_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-
-  //-------------------------------------------------------------------------
-  // FarBackward PID Through Phase Space
-  //-------------------------------------------------------------------------
-  PhaseSpacePIDConfig phase_space_pid_cfg{
-      .system        = "TaggerTracker_ID",
-      .direction     = {0.0, 0.0, -1.0},  // Direction is along z-axis
-      .opening_angle = 12 * dd4hep::mrad, // Beampipe opening angle
-      .pdg_value     = 11,                // Set PID to electron
-  };
-
-  app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
-      "FarBackwardTruthSeededPhaseSpacePID",
-      {
-          "ReconstructedTruthSeededChargedWithoutPIDParticles",
-          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
-      },
-      {
-          "ReconstructedTruthSeededChargedWithFBPIDParticles",
-          "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
-          "FarBackwardTruthSeededPhaseSpacePIDParticleIDs",
-      },
-      phase_space_pid_cfg, app));
-
-  app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
-      "FarBackwardPhaseSpacePID",
-      {
-          "ReconstructedChargedWithoutPIDParticles",
-          "ReconstructedChargedWithoutPIDParticleAssociations",
-      },
-      {
-          "ReconstructedChargedWithFBPIDParticles",
-          "ReconstructedChargedWithFBPIDParticleAssociations",
-          "FarBackwardPhaseSpacePIDParticleIDs",
-      },
-      phase_space_pid_cfg, app));
 
   //-------------------------------------------------------------------------
   // PFRICH PID
@@ -83,8 +50,8 @@ void InitPlugin(JApplication* app) {
       "RICHEndcapNTruthSeededLUTPID",
       {
           "EventHeader",
-          "ReconstructedTruthSeededChargedWithFBPIDParticles",
-          "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
+          "ReconstructedTruthSeededChargedWithoutPIDParticles",
+          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
       },
       {
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
@@ -97,8 +64,8 @@ void InitPlugin(JApplication* app) {
       "RICHEndcapNLUTPID",
       {
           "EventHeader",
-          "ReconstructedChargedWithFBPIDParticles",
-          "ReconstructedChargedWithFBPIDParticleAssociations",
+          "ReconstructedChargedWithoutPIDParticles",
+          "ReconstructedChargedWithoutPIDParticleAssociations",
       },
       {
           "ReconstructedChargedWithPFRICHPIDParticles",
@@ -210,6 +177,40 @@ void InitPlugin(JApplication* app) {
       },
       dirc_pid_cfg, app));
 
+  // Inject particles from other sources without PID detectors so they are contained
+  // as a particle in the ReconstructedChargedParticle collection rather than needing
+  // a subset collection. This should be fixed in the future.
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
+          "ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles",
+          {"ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
+           "TaggerTrackerReconstructedParticles"},
+          {"ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
+      "ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
+      {"ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+       "TaggerTrackerReconstructedParticleAssociations"},
+      {"ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
+
+  // And the same for truth seeded particles and associations
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
+          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles",
+          {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
+           "TaggerTrackerReconstructedParticles"},
+          {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
+      "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
+      {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+       "TaggerTrackerReconstructedParticleAssociations"},
+      {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
+
   //-------------------------------------------------------------------------
   // DRICH PID
   //-------------------------------------------------------------------------
@@ -236,8 +237,8 @@ void InitPlugin(JApplication* app) {
       "DRICHTruthSeededLUTPID",
       {
           "EventHeader",
-          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
-          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles",
+          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
       },
       {
           "ReconstructedTruthSeededChargedParticles",
@@ -250,8 +251,8 @@ void InitPlugin(JApplication* app) {
       "DRICHLUTPID",
       {
           "EventHeader",
-          "ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
-          "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+          "ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles",
+          "ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
       },
       {
           "ReconstructedChargedParticles",
