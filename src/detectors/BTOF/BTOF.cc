@@ -66,7 +66,7 @@ void InitPlugin(JApplication* app) {
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFBarrelClusterHits", {"TOFBarrelCalibratedHits"}, // Input data collection tags
-      {"TOFBarrelClusterHits"},                     // Output data tag
+      {"TOFBarrelClusterHits"},                            // Output data tag
       {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
