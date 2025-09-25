@@ -88,6 +88,7 @@ void InitPlugin(JApplication* app) {
           .attenuationParameters            = EcalBarrelScFi_attPars,
           .readout                          = "EcalBarrelScFiHits",
           .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
+	  .attenuationReferencePositionSign = -1,
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
