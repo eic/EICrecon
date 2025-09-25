@@ -20,7 +20,7 @@ struct PulseNoiseConfig {
   double scale = 1000;
 
   // Noise offset
-  double offset = 0;
+  double pedestal = 0;
 };
 
 } // namespace eicrecon
