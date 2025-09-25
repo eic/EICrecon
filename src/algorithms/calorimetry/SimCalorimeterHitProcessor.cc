@@ -153,8 +153,7 @@ void SimCalorimeterHitProcessor::init() {
   if (!m_cfg.attenuationReferencePositionName.empty()) {
     m_attenuationReferencePosition =
         m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) *
-        (edm4eic::unit::mm / dd4hep::mm) *
-	m_cfg.attenuationReferencePositionSign;
+        (edm4eic::unit::mm / dd4hep::mm) * m_cfg.attenuationReferencePositionSign;
   }
 }
 
