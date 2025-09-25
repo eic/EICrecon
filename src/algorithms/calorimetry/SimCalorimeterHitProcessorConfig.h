@@ -18,6 +18,7 @@ struct SimCalorimeterHitProcessorConfig {
 
   std::string readout{""};
   std::string attenuationReferencePositionName{""};
+  int attenuationReferencePositionSign{1};
   // fields for merging hits
   std::vector<std::string> hitMergeFields{};
   // fields for merging contributions
