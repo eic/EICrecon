@@ -60,7 +60,7 @@ void InitPlugin(JApplication* app) {
       "LandauPulse"};
   decltype(PulseGenerationConfig::pulse_shape_params) EcalBarrelScFi_pulse_shape_params = {
       1.0, 2 * edm4eic::unit::ns};
-  decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {1.0e-5};
+  decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {5.0e-5};
   decltype(PulseGenerationConfig::timestep) EcalBarrelScFi_timestep = {0.5 * edm4eic::unit::ns};
 
   decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field           = {"grid"};
@@ -69,8 +69,8 @@ void InitPlugin(JApplication* app) {
   decltype(PulseNoiseConfig::poles) EcalBarrelScFi_poles       = {2};
   decltype(PulseNoiseConfig::variance) EcalBarrelScFi_variance = {0.5};
   decltype(PulseNoiseConfig::alpha) EcalBarrelScFi_alpha       = {0};
-  decltype(PulseNoiseConfig::scale) EcalBarrelScFi_scale       = {5.0e-4};
-  decltype(PulseNoiseConfig::offset) EcalBarrelScFi_offset     = {3};
+  decltype(PulseNoiseConfig::scale) EcalBarrelScFi_scale       = {5.4e-5};
+  decltype(PulseNoiseConfig::pedestal) EcalBarrelScFi_pedestal = {1.6e-4};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -155,7 +155,7 @@ void InitPlugin(JApplication* app) {
           .variance = EcalBarrelScFi_variance,
           .alpha    = EcalBarrelScFi_alpha,
           .scale    = EcalBarrelScFi_scale,
-          .offset   = EcalBarrelScFi_offset,
+          .pedestal = EcalBarrelScFi_pedestal,
       },
       app // TODO: Remove me once fixed
       ));
@@ -167,7 +167,7 @@ void InitPlugin(JApplication* app) {
           .variance = EcalBarrelScFi_variance,
           .alpha    = EcalBarrelScFi_alpha,
           .scale    = EcalBarrelScFi_scale,
-          .offset   = EcalBarrelScFi_offset,
+          .pedestal = EcalBarrelScFi_pedestal,
       },
       app // TODO: Remove me once fixed
       ));
