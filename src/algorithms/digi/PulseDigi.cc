@@ -29,6 +29,9 @@ public:
   std::vector<double> getMeasValues() { return meas_values; }
 
 private:
+  // meas_type 0: Pulse crossed above the threshold. The crossing time is pushed back onto meas_values.
+  // meas_type 1: Pulse crossed below the threshold. The crossing time is pushed back onto meas_values.
+  // meas_type 2: Pulse didn't cross the threshold. The maximum amplitude is pushed back onto meas_values.
   std::vector<uint8_t> meas_types;
   std::vector<double> meas_values;
 };
@@ -45,8 +48,8 @@ void PulseDigi::process(const PulseDigi::Input& input, const PulseDigi::Output& 
     float pulse_t            = pulse.getTime();
     float pulse_dt           = pulse.getInterval();
     std::size_t n_amplitudes = pulse.getAmplitude().size();
-    ;
 
+    // Estimate the number of samples.
     const std::size_t idx_begin = static_cast<std::size_t>(std::floor(pulse_t / m_cfg.time_window));
     const std::size_t idx_end   = static_cast<std::size_t>(
         std::floor((pulse_t + (n_amplitudes - 1) * pulse_dt) / m_cfg.time_window));
@@ -61,9 +64,11 @@ void PulseDigi::process(const PulseDigi::Input& input, const PulseDigi::Output& 
       const std::size_t idx =
           static_cast<std::size_t>(std::floor(t / m_cfg.time_window)) - idx_begin;
 
+      // Pulse didn't cross the threshold.
       if (!tot_progess) {
         raw_sample.addAmplitude(idx, pulse.getAmplitude()[i]);
 
+	// Pulse crossed above the threshold.
         if (pulse.getAmplitude()[i] > m_cfg.threshold) {
           raw_sample.addUpCrossTime(idx, get_crossing_time(m_cfg.threshold, t, pulse_dt,
                                                            pulse.getAmplitude()[i],
@@ -73,6 +78,7 @@ void PulseDigi::process(const PulseDigi::Input& input, const PulseDigi::Output& 
         }
       }
 
+      // Pulse crossed below the threshold.
       if (tot_progress && !tot_complete && pulse.getAmplitude()[i] < m_cfg.threshold) {
         pulse_info.addDownCrossTime(idx, get_crossing_time(m_cfg.threshold, t, pulse_dt,
                                                            pulse.getAmplitude()[i],
