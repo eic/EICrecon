@@ -136,7 +136,7 @@ namespace eicrecon {
 	    e [row] = rindex_matrix->Get(row,0) / dd4hep::eV;
 	    ri[row] = rindex_matrix->Get(row,1);
 	    
-	    //printf("%7.3f %7.3f\n", energy, rindex);
+	    //printf(" @Q@ %7.3f %7.3f\n", e[row], ri[row]);//energy, rindex);
 	  } //for row
 	  
 	  auto ptr = rad->m_RefractiveIndex = new G4DataInterpolation(e, ri, dim);
@@ -174,7 +174,7 @@ namespace eicrecon {
 	    
 	    WL[counter  ] = atoi(wlstr.c_str());
 	    QE[counter++] = it.value(). template get<double>();
-	    //printf("%7.2f %7.2f\n", WL[counter-1], QE[counter-1]);
+	    //printf("@Q@ %7.2f %7.2f\n", WL[counter-1], QE[counter-1]);
 	  } //it
 	  
 	  double qemax = 0.0, qePhotonEnergy[qeEntries], qeData[qeEntries];
@@ -229,7 +229,7 @@ namespace eicrecon {
     
       auto rcparticle = (*in_reco_particles)[rcid];//assoc.getRecID()];
       //auto tnum = rcparticle.getTracks().size();
-      //printf("tnum: %ld\n", rcparticle.getTracks().size());
+      //printf("@R@   tnum: %ld\n", rcparticle.getTracks().size());
       for(auto &track: rcparticle.getTracks())
 	MCParticle_to_Tracks_lut[mcid].push_back(track.id().index);
     } //for assoc
@@ -365,7 +365,7 @@ namespace eicrecon {
       TVector3 vtx = Tools::PodioVector3_to_TVector3(mcparticle.getVertex());
       // FIXME: may want to use the very first projection rather than the IP info?;
       auto radiator = m_irt_det->GuessRadiator(vtx, parent->GetVertexMomentum().Unit());
-      //printf("   %7.2f -> %p\n", vtx.Z(), radiator);
+      //printf("@Q@   %7.2f -> %p\n", vtx.Z(), radiator);
       
       if (radiator) {
 	// FIXME: really needed in ePIC IRT 2.0 implementation?;
