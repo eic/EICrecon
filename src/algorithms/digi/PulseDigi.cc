@@ -21,8 +21,8 @@ public:
     meas_values[idx] = t;
   }
 
-  std::vector<uint8_t> getMeasTypes() { return meas_types; }
-  std::vector<double> getMeasValues() { return meas_values; }
+  const std::vector<uint8_t>& getMeasTypes() const { return meas_types; }
+  const std::vector<double>& getMeasValues() const { return meas_values; }
 
 private:
   // meas_type 0: Pulse crossed above the threshold. The crossing time is pushed back onto meas_values.
