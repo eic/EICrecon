@@ -162,7 +162,7 @@ void InitPlugin(JApplication* app) {
           .adjacencyMatrix{},
           .peakNeighbourhoodMatrix{},
           .readout{},
-          .sectorDist = 50. * dd4hep::mm,
+          .sectorDist  = 50. * dd4hep::mm,
           .localDistXY = {80 * dd4hep::mm, 80 * dd4hep::mm},
           .localDistXZ{},
           .localDistYZ{},
