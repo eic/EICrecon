@@ -216,16 +216,14 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
       new_hit.add(contrib.getEnergy(), contrib.getMinTime(), contrib.getAvgPosition());
       // Now store the contribution itself
       auto out_hit_contrib = out_hit_contribs->create();
-      out_hit_contrib.setPDG(particle.getPDG());
-      out_hit_contrib.setEnergy(contrib.getEnergy());
       out_hit_contrib.setTime(contrib.getMinTime());
-      out_hit_contrib.setStepPosition(contrib.getAvgPosition());
+      out_hit_contrib.setStepPosition(edm4hep::Vector3f{0, 0, contrib.getAvgPosition().z});
       out_hit_contrib.setParticle(particle);
       out_hit.addToContributions(out_hit_contrib);
     }
     out_hit.setCellID(cellID);
     out_hit.setEnergy(new_hit.getEnergy());
-    out_hit.setPosition(new_hit.getAvgPosition());
+    out_hit.setPosition(edm4hep::Vector3f{0, 0, new_hit.getAvgPosition().z});
   }
 }
 
