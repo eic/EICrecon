@@ -35,7 +35,7 @@ using json = nlohmann::json;
 //  FRICH: forward RICH testbed
 // PFRICH: ePIC backward RICH
 //
-static const char *RICHes[] = {"PFRICH", "BRICH", "FRICH"};
+static const char *RICHes[] = {"PFRICH", "DRICH", "BRICH", "FRICH"};
 
 #include "IRT/CherenkovDetectorCollection.h"
 
@@ -155,11 +155,14 @@ extern "C" {
 
 	      // Estimate a required Z-range;
 	      double zmin = 0.0, zmax = 0.0;
+	      //printf("@Q@ Here-1\n");
 	      for(unsigned iq=0; iq<2; iq++) {
 		double theta = iq ? theta_max : theta_min;
 		TVector3 x0(0,0,0), n0(0.0, sin(theta), cos(theta)), from, to;
 		// FIXME: may require a further adjustment for dRICH (sector binning phase?);
 		unsigned isec = cdet->GetSector(n0);
+		//printf("@Q@ Here-2: %d\n", isec);
+		//isec = 1;
 		
 		auto sf = radiator->GetFrontSide(isec);
 		auto sr = radiator->GetRearSide (isec);
@@ -180,7 +183,7 @@ extern "C" {
 	      for(int i=0; i<numPlanes; i++) {
 		auto zCoord = zmid + step*(i - (numPlanes-1)/2.);
 		double rmin = fabs(zCoord)*tan(theta_min), rmax = fabs(zCoord)*tan(theta_max);
-		//printf("@R@ %f %f %f (%f %f) %f\n", rmin, rmax, zCoord, zf, zr, step);
+		printf("@R@ %f %f %f %f\n", rmin / dd4hep::mm, rmax / dd4hep::mm, zCoord / dd4hep::mm, step / dd4hep::mm);
 
 		// Yes, prefer to order in ascending fabs(z) order in both endcaps; FIXME: implicitly assume
 		// all these coordinates are >0 in the hadron-going endcap and <0 in the electron-going one;
@@ -220,7 +223,7 @@ extern "C" {
 			app
 			));
 
-	      // A unified IRT 2.0 debugging algorithm; FIXME: split digitization step off later;
+	      // A unified IRT 2.1 algorithm; FIXME: split digitization step off later;
 	      app->Add(new JOmniFactoryGeneratorT<IrtInterface_factory>
 		       (
 			(RICHstr + "IrtInterface").Data(),
