@@ -16,12 +16,8 @@ public:
   void addAmplitude(std::size_t idx, float amp) {
     meas_values[idx] = std::max(meas_values[idx], amp);
   }
-  void addUpCrossTime(std::size_t idx, double t) {
-    meas_types[idx]  = 1;
-    meas_values[idx] = t;
-  }
-  void addDownCrossTime(std::size_t idx, double t) {
-    meas_types[idx]  = 2;
+  void addCrossTime(uint8_t type, std::size_t idx, double t) {
+    meas_types[idx]  = type;
     meas_values[idx] = t;
   }
 
@@ -70,7 +66,7 @@ void PulseDigi::process(const PulseDigi::Input& input, const PulseDigi::Output& 
 
 	// Pulse crossed above the threshold.
         if (pulse.getAmplitude()[i] > m_cfg.threshold) {
-          raw_sample.addUpCrossTime(idx, get_crossing_time(m_cfg.threshold, t, pulse_dt,
+          raw_sample.addCrossTime(1, idx, get_crossing_time(m_cfg.threshold, t, pulse_dt,
                                                            pulse.getAmplitude()[i],
                                                            pulse.getAmplitude()[i - 1]));
           tot_progress = true;
@@ -80,7 +76,7 @@ void PulseDigi::process(const PulseDigi::Input& input, const PulseDigi::Output& 
 
       // Pulse crossed below the threshold.
       if (tot_progress && !tot_complete && pulse.getAmplitude()[i] < m_cfg.threshold) {
-        pulse_info.addDownCrossTime(idx, get_crossing_time(m_cfg.threshold, t, pulse_dt,
+        pulse_info.addCrossTime(2, idx, get_crossing_time(m_cfg.threshold, t, pulse_dt,
                                                            pulse.getAmplitude()[i],
                                                            pulse.getAmplitude()[i - 1]));
         tot_complete   = true;
