@@ -61,7 +61,7 @@ void PulseDigi::process(const PulseDigi::Input& input, const PulseDigi::Output& 
       const std::size_t idx =
           static_cast<std::size_t>(std::floor(t / m_cfg.time_window)) - idx_begin;
 
-      if (!tot_in_progess) {
+      if (!tot_progess) {
         raw_sample.addAmplitude(idx, pulse.getAmplitude()[i]);
 
         if (pulse.getAmplitude()[i] > m_cfg.threshold) {
@@ -73,12 +73,12 @@ void PulseDigi::process(const PulseDigi::Input& input, const PulseDigi::Output& 
         }
       }
 
-      if (tot_in_progress && !tot_complete && pulse.getAmplitude()[i] < m_cfg.threshold) {
+      if (tot_progress && !tot_complete && pulse.getAmplitude()[i] < m_cfg.threshold) {
         pulse_info.addDownCrossTime(idx, get_crossing_time(m_cfg.threshold, t, pulse_dt,
                                                            pulse.getAmplitude()[i],
                                                            pulse.getAmplitude()[i - 1]));
         tot_complete   = true;
-        tot_in_progess = false;
+        tot_progess = false;
       }
     }
   }
