@@ -396,7 +396,7 @@ namespace eicrecon {
       if (pd) {
 	photon->SetPhotonDetector(pd);
 	// Would be a VolumeCopy in a standalone GEANT code, but is an encoded sensor ID in ePIC;
-	photon->SetVolumeCopy(sensorID);
+	photon->SetVolumeCopy(sensorID & 0xFFFFFFFFFFFFF8FF);
 
 	// The logic behind this multiplication and division by the same number is 
 	// to select calibration photons, which originate from the same QE(lambda) 
