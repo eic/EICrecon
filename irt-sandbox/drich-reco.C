@@ -7,7 +7,7 @@
 //
 
 #define _USE_AEROGEL_RADIATOR_
-//#define _USE_GAS_RADIATOR_
+#define _USE_GAS_RADIATOR_
 
 void drich_reco(const char *dfname, const char *cfname = 0)
 {

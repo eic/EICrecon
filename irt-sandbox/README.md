@@ -58,14 +58,16 @@ FRICH example
 # Change to a local 'irt-sandbox' directory in EICrecon repository;
 cd ${SANDBOX}/EICrecon/irt-sandbox
 
-# Generate a HEPMC file (presently: 1000 events, p=10 GeV/c, eta=3);
-root -l 'hepmc-writer.C("hadron-going-endcap.hepmc", 1000)'
+# Generate a HEPMC file (presently: 1000 events, p=10 GeV/c, eta=3, phi=pi/2 to hit a small aerogel piece);
+#root -l 'hepmc-writer.C("hadron-going-endcap.hepmc", 1000)'
+# Generate a HEPMC file (here: 1000 events, pions, p=10 GeV/c, eta=2.0, phi=30 degrees);
+root -l 'hepmc-writer-single-track.C("hadron-going-endcap-frich.hepmc", 1000, 211, 10.0, 10.0, 3.0, 3.0, M_PI/2, M_PI/2)'
 
 # Run npsim with a simplistic FRICH detector only (in a GEANT Qt mode); use green button to generate one event at a time;
-npsim --runType qt --macroFile vis-frich.mac --compactFile $EIC_SHELL_PREFIX/share/epic/epic_frich_only.xml --outputFile ./sim.edm4hep.frich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap.hepmc -N 10
+npsim --runType qt --macroFile vis-frich.mac --compactFile $EIC_SHELL_PREFIX/share/epic/epic_frich_only.xml --outputFile ./sim.edm4hep.frich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap-frich.hepmc -N 10
 
 # Run npsim on 1000 events in a batch mode (with FRICH and ePIC tracking detectors);
-npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_frich.xml --outputFile ./sim.edm4hep.frich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap.hepmc -N 1000
+npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_frich.xml --outputFile ./sim.edm4hep.frich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap-frich.hepmc -N 1000
 
 # Open simulated ROOT file;
 root -l sim.edm4hep.frich.root
@@ -140,13 +142,13 @@ dRICH example
 cd ${SANDBOX}/EICrecon/sandbox
 
 # Generate a HEPMC file (here: 1000 events, pions, p=10 GeV/c, eta=2.0, phi=30 degrees);
-root -l 'hepmc-writer-single-track.C("hadron-going-endcap.hepmc", 1000, 211, 10.0, 10.0, 2.0, 2.0, M_PI/6, M_PI/6)'
+root -l 'hepmc-writer-single-track.C("hadron-going-endcap-drich.hepmc", 1000, 211, 10.0, 10.0, 2.0, 2.0, M_PI/6, M_PI/6)'
 
 # Run npsim with a dRICH detector only (in a GEANT Qt mode); use green button to generate one event at a time;
-npsim --runType qt --macroFile vis-drich.mac --compactFile $EIC_SHELL_PREFIX/share/epic/epic_drich_only.xml --outputFile ./sim.edm4hep.drich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap.hepmc -N 10
+npsim --runType qt --macroFile vis-drich.mac --compactFile $EIC_SHELL_PREFIX/share/epic/epic_drich_only.xml --outputFile ./sim.edm4hep.drich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap-drich.hepmc -N 10
 
 # Run npsim on 1000 events in a batch mode (with dRICH only);
-npsim --runType run --compactFile $EIC_SHELL_PREFIX/share/epic/epic_drich_only.xml --outputFile ./sim.edm4hep.drich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap.hepmc -N 1000
+npsim --runType run --compactFile $EIC_SHELL_PREFIX/share/epic/epic_drich_only.xml --outputFile ./sim.edm4hep.drich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap-drich.hepmc -N 1000
 
 # Open simulated ROOT file;
 root -l sim.edm4hep.drich.root
@@ -155,7 +157,7 @@ root -l sim.edm4hep.drich.root
 root [1] events->Draw("DRICHHits.position.y:DRICHHits.position.x");
 
 # Run npsim on 1000 events in a batch mode (with DRICH and ePIC tracking detectors);
-npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_drich.xml --outputFile ./sim.edm4hep.drich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap.hepmc -N 1000
+npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_drich.xml --outputFile ./sim.edm4hep.drich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap-drich.hepmc -N 1000
 
 # Run 'eicrecon' and produce output GEANT events ROOT tree in a custom format;
 $EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich.xml -Ppodio:output_collections="DRICHHits,MCParticles,DRICHTracks,DRICHIrtRadiatorInfo,DRICHIrtParticles,DRICHIrtEvent" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.drich.root" sim.edm4hep.drich.root -PDRICH:config=drich-reco.json
