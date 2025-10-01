@@ -11,6 +11,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ClusterTypes.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
@@ -116,7 +117,11 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.6, .enableEtaBounds = false},
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 4.6,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterEMCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -143,12 +148,11 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapNClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapNClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
 #endif
-      {
-          .energyWeight    = "log",
-          .sampFrac        = 1.0,
-          .logWeightBase   = 3.6,
-          .enableEtaBounds = false,
-      },
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 3.6,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterEMCal},
       app // TODO: Remove me once fixed
       ));
 
@@ -227,7 +231,11 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapNSplitMergeClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
+      {.energyWeight    = "log",
+       .sampFrac        = 1.0,
+       .logWeightBase   = 3.6,
+       .enableEtaBounds = false,
+       .clusterType     = Jug::Reco::ClusterType::kClusterEMCal},
       app // TODO: Remove me once fixed
       ));
 

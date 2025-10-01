@@ -121,6 +121,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   cl.setEnergyError(0.);
   cl.setTime(time);
   cl.setTimeError(timeError);
+  cl.setType(m_cfg.clusterType);
 
   // center of gravity with logarithmic weighting
   float tw = 0.;
