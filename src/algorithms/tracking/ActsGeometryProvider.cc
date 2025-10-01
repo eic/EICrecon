@@ -54,11 +54,11 @@ struct fmt::formatter<T, std::enable_if_t<std::is_base_of_v<Eigen::MatrixBase<T>
 // Ensure ActsPlugins namespace is used when present
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 // Acts_MAJOR_VERSION >= 44
-using DD4hepDetectorElement = ActsPlugins::DD4hepDetectorElement;
+using DD4hepDetectorElement       = ActsPlugins::DD4hepDetectorElement;
 const auto& convertDD4hepDetector = ActsPlugins::convertDD4hepDetector;
 #else
 // Acts_MAJOR_VERSION < 44
-using DD4hepDetectorElement = Acts::DD4hepDetectorElement;
+using DD4hepDetectorElement       = Acts::DD4hepDetectorElement;
 const auto& convertDD4hepDetector = Acts::convertDD4hepDetector;
 #endif
 
@@ -124,10 +124,10 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
   using Acts::sortDetElementsByID;
 
   try {
-    m_trackingGeo = convertDD4hepDetector(m_dd4hepDetector->world(), *logger, bTypePhi,
-                                          bTypeR, bTypeZ, layerEnvelopeR, layerEnvelopeZ,
-                                          defaultLayerThickness, sortDetElementsByID,
-                                          m_trackingGeoCtx, materialDeco, geometryIdHook);
+    m_trackingGeo =
+        convertDD4hepDetector(m_dd4hepDetector->world(), *logger, bTypePhi, bTypeR, bTypeZ,
+                              layerEnvelopeR, layerEnvelopeZ, defaultLayerThickness,
+                              sortDetElementsByID, m_trackingGeoCtx, materialDeco, geometryIdHook);
   } catch (std::exception& ex) {
     m_init_log->error("Error during DD4Hep -> ACTS geometry conversion: {}", ex.what());
     m_init_log->info("Set parameter acts::InitLogLevel=trace to see conversion info and possibly "
