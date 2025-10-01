@@ -38,6 +38,7 @@
 #include "factories/reco/MC2ReconstructedParticle_factory.h"
 #include "factories/reco/MatchClusters_factory.h"
 #include "factories/reco/PrimaryVertices_factory.h"
+#include "factories/reco/SecondaryVertices_factory.h"
 #include "factories/reco/ReconstructedElectrons_factory.h"
 #include "factories/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "factories/reco/ScatteredElectronsTruth_factory.h"
@@ -77,7 +78,6 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapPClusterAssociations"},
       {"EcalClusterAssociations"}, app));
 
-  // Create ReconstructedParticles
   app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
       "ReconstructedParticlesWithAssoc",
       {
@@ -274,5 +274,9 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<PrimaryVertices_factory>(
       "PrimaryVertices", {"CentralTrackVertices"}, {"PrimaryVertices"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<SecondaryVertices_factory>(
+      "SecondaryVertices", {"PrimaryVertices","ReconstructedParticles"}, {"SecondaryVertices"}, {}, app));
+      
 }
 } // extern "C"
