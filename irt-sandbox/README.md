@@ -142,7 +142,7 @@ dRICH example
 cd ${SANDBOX}/EICrecon/sandbox
 
 # Generate a HEPMC file (here: 1000 events, pions, p=10 GeV/c, eta=2.0, phi=30 degrees);
-root -l 'hepmc-writer-single-track.C("hadron-going-endcap-drich.hepmc", 1000, 211, 10.0, 10.0, 2.0, 2.0, M_PI/6, M_PI/6)'
+root -l 'hepmc-writer-single-track.C("hadron-going-endcap-drich.hepmc", 1000, 211, 10.0, 10.0, 2.0, 2.0, 0.0, 0.0)'
 
 # Run npsim with a dRICH detector only (in a GEANT Qt mode); use green button to generate one event at a time;
 npsim --runType qt --macroFile vis-drich.mac --compactFile $EIC_SHELL_PREFIX/share/epic/epic_drich_only.xml --outputFile ./sim.edm4hep.drich.root --part.userParticleHandler= --inputFiles ./hadron-going-endcap-drich.hepmc -N 10

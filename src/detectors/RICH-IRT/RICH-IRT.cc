@@ -33,7 +33,8 @@ using json = nlohmann::json;
 //
 //  BRICH: backward RICH testbed
 //  FRICH: forward RICH testbed
-// PFRICH: ePIC backward RICH
+// PFRICH: ePIC backward proximity focusing RICH
+//  DRICH: ePIC forward dual radiator RICH
 //
 static const char *RICHes[] = {"PFRICH", "DRICH", "BRICH", "FRICH"};
 
@@ -155,14 +156,10 @@ extern "C" {
 
 	      // Estimate a required Z-range;
 	      double zmin = 0.0, zmax = 0.0;
-	      //printf("@Q@ Here-1\n");
 	      for(unsigned iq=0; iq<2; iq++) {
 		double theta = iq ? theta_max : theta_min;
 		TVector3 x0(0,0,0), n0(0.0, sin(theta), cos(theta)), from, to;
-		// FIXME: may require a further adjustment for dRICH (sector binning phase?);
 		unsigned isec = cdet->GetSector(n0);
-		//printf("@Q@ Here-2: %d\n", isec);
-		//isec = 1;
 		
 		auto sf = radiator->GetFrontSide(isec);
 		auto sr = radiator->GetRearSide (isec);
@@ -170,7 +167,6 @@ extern "C" {
 		// FIXME: may want to check return codes?;
 		bool bf = sf->GetCrossing(x0, n0, &from, false);
 		bool br = sr->GetCrossing(x0, n0, &to,   false);
-		//printf("@R@ %d %d\n", bf, br);
 		double zf = fabs(from.Z()), zr = fabs(to.Z());
 		if (!iq || zf < zmin) zmin = zf;
 		if (!iq || zr > zmax) zmax = zr;
@@ -183,7 +179,6 @@ extern "C" {
 	      for(int i=0; i<numPlanes; i++) {
 		auto zCoord = zmid + step*(i - (numPlanes-1)/2.);
 		double rmin = fabs(zCoord)*tan(theta_min), rmax = fabs(zCoord)*tan(theta_max);
-		printf("@R@ %f %f %f %f\n", rmin / dd4hep::mm, rmax / dd4hep::mm, zCoord / dd4hep::mm, step / dd4hep::mm);
 
 		// Yes, prefer to order in ascending fabs(z) order in both endcaps; FIXME: implicitly assume
 		// all these coordinates are >0 in the hadron-going endcap and <0 in the electron-going one;
@@ -197,7 +192,6 @@ extern "C" {
 	    for(auto disk: disks) {
 	      double z = (config.m_eta_min > 0.0 ? 1.0 : -1.0)*disk.first;
 	      double rmin = disk.second.first, rmax = disk.second.second;
-	      //printf("@R@ %f %f %f\n", z, rmin, rmax);
 	      
 	      track_cfg.target_surfaces.push_back(eicrecon::DiscSurfaceConfig{tag, z, rmin, rmax});
 	    } //for disk
