@@ -20,7 +20,7 @@ using ScatteredElectronsEMinusPzAlgorithm =
                           algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 class ScatteredElectronsEMinusPz : public ScatteredElectronsEMinusPzAlgorithm,
-                                   WithPodConfig<ScatteredElectronsEMinusPzConfig> {
+                                   public WithPodConfig<ScatteredElectronsEMinusPzConfig> {
 
 public:
   ScatteredElectronsEMinusPz(std::string_view name)
