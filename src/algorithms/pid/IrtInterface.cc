@@ -325,8 +325,7 @@ namespace eicrecon {
     //printf("--> %4ld hits\n", (*in_sim_hits).size());
     for(auto mchit: *in_sim_hits) {
       auto cell_id   = mchit.getCellID();
-      // Use a fully encoded number in std::map, no tricks;
-      uint64_t sensorID = cell_id & m_irt_det->GetReadoutCellMask();
+      uint64_t sensorID = cell_id & m_irt_det->GetReadoutCellMask();// & 0xFFFFFFFFFFFFF8FF;
       //printf("@S@ cell: 0x%lX, sensor: 0x%lX\n", cell_id, sensorID);
 
       //printf("dE: %7.2f\n", 1E9 * mchit.getEDep());
@@ -395,8 +394,9 @@ namespace eicrecon {
       
       if (pd) {
 	photon->SetPhotonDetector(pd);
-	// Would be a VolumeCopy in a standalone GEANT code, but is an encoded sensor ID in ePIC;
-	photon->SetVolumeCopy(sensorID & 0xFFFFFFFFFFFFF8FF);
+	// Would be a VolumeCopy in a standalone GEANT code, but is an encoded sensor ID (with
+	// a blanked out 'sector' field for dRICH) in ePIC;
+	photon->SetVolumeCopy(sensorID);
 
 	// The logic behind this multiplication and division by the same number is 
 	// to select calibration photons, which originate from the same QE(lambda) 
