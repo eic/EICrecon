@@ -31,8 +31,8 @@ private:
   PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles{this};
 
   // Declare parameters
-  ParameterRef<double> m_min_e_minus_pz{this, "minEMinusPz", config().minEMinusPz};
-  ParameterRef<double> m_max_e_minus_pz{this, "maxEMinusPz", config().maxEMinusPz};
+  ParameterRef<float> m_min_e_minus_pz{this, "minEMinusPz", config().minEMinusPz};
+  ParameterRef<float> m_max_e_minus_pz{this, "maxEMinusPz", config().maxEMinusPz};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
