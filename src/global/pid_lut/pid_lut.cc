@@ -216,7 +216,7 @@ void InitPlugin(JApplication* app) {
   //-------------------------------------------------------------------------
 
   PIDLookupConfig drich_pid_cfg{
-      .filename                 = "calibrations/drich.lut",
+      .filename                 = "calibrations/drich.lut.gz",
       .system                   = "ForwardRICH_ID",
       .pdg_values               = {211, 321, 2212},
       .charge_values            = {1},
