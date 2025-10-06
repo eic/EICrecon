@@ -108,7 +108,7 @@ void FarDetectorTrackerCluster::ClusterHits(
     ROOT::VecOps::RVec<float> clusterW;
 
     // Create cluster
-    auto cluster = outputClusters->create();
+    auto cluster = outputClusters.create();
 
     // Loop over hits, adding neighbouring hits as relevant
     while (!clusterList.empty()) {

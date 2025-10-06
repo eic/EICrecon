@@ -26,9 +26,8 @@ void EICROCDigitization::process(const EICROCDigitization::Input& input,
   int adc_range = m_cfg.adc_range;
 
   for (const auto& pulse : *simhits) {
-    int tdc  = std::numeric_limits<int>::max();
-    int adc  = 0;
-    double V = 0.0;
+    int tdc = std::numeric_limits<int>::max();
+    int V   = 0;
 
     int time_bin          = 0;
     double adc_prev       = 0;
@@ -46,7 +45,7 @@ void EICROCDigitization::process(const EICROCDigitization::Input& input,
     }
 
     // limit the range of adc values
-    adc = std::min(static_cast<double>(adc_range), std::round(-V));
+    int adc = std::min(adc_range, -V);
     // only store valid hits
     if (tdc < std::numeric_limits<int>::max()) {
       rawhits->create(pulse.getCellID(), adc, tdc);

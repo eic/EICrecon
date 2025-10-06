@@ -2,16 +2,22 @@
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Sylvester Joosten, Chao Peng, David Lawrence, Thomas Britton, Wouter Deconinck, Maria Zurek, Akshaya Vijay, Nathan Brei, Dmitry Kalinkin, Derek Anderson, Minho Kim
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/SimCalorimeterHit.h>
 #include <cmath>
+#include <map>
+#include <memory>
 #include <string>
 #include <variant>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
+#include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
+#include "algorithms/digi/PulseGenerationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -23,6 +29,7 @@
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -42,6 +49,15 @@ void InitPlugin(JApplication* app) {
       EcalBarrelScFi_inversePropagationSpeed = {(1. / 160) * edm4eic::unit::ns / edm4eic::unit::mm};
   decltype(SimCalorimeterHitProcessorConfig::fixedTimeDelay) EcalBarrelScFi_fixedTimeDelay = {
       2 * edm4eic::unit::ns};
+  decltype(SimCalorimeterHitProcessorConfig::timeWindow) EcalBarrelScFi_timeWindow = {
+      100 * edm4eic::unit::ns};
+
+  decltype(PulseGenerationConfig::pulse_shape_function) EcalBarrelScFi_pulse_shape_function = {
+      "LandauPulse"};
+  decltype(PulseGenerationConfig::pulse_shape_params) EcalBarrelScFi_pulse_shape_params = {
+      1.0, 2 * edm4eic::unit::ns};
+  decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {1.0e-5};
+  decltype(PulseGenerationConfig::timestep) EcalBarrelScFi_timestep = {0.5 * edm4eic::unit::ns};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -61,6 +77,7 @@ void InitPlugin(JApplication* app) {
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
           .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+          .timeWindow                       = EcalBarrelScFi_timeWindow,
       },
       app // TODO: Remove me once fixed
       ));
@@ -75,6 +92,27 @@ void InitPlugin(JApplication* app) {
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
           .fixedTimeDelay                   = EcalBarrelScFi_fixedTimeDelay,
+          .timeWindow                       = EcalBarrelScFi_timeWindow,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
+      "EcalBarrelScFiPPulses", {"EcalBarrelScFiPAttenuatedHits"}, {"EcalBarrelScFiPPulses"},
+      {
+          .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
+          .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
+          .ignore_thres         = EcalBarrelScFi_ignore_thres,
+          .timestep             = EcalBarrelScFi_timestep,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimCalorimeterHit>>(
+      "EcalBarrelScFiNPulses", {"EcalBarrelScFiNAttenuatedHits"}, {"EcalBarrelScFiNPulses"},
+      {
+          .pulse_shape_function = EcalBarrelScFi_pulse_shape_function,
+          .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
+          .ignore_thres         = EcalBarrelScFi_ignore_thres,
+          .timestep             = EcalBarrelScFi_timestep,
       },
       app // TODO: Remove me once fixed
       ));
@@ -202,8 +240,10 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelImagingProtoClusters"},
       {
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
-          .localDistXY          = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
-          .layerDistEtaPhi      = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
+          .sameLayerDistTZ      = {2.0 * dd4hep::mm, 2 * dd4hep::mm},     //  # same layer
+          .diffLayerDistEtaPhi  = {10 * dd4hep::mrad, 10 * dd4hep::mrad}, //  # adjacent layer
+          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::tz,
+          .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi,
           .sectorDist           = 3.0 * dd4hep::cm,
           .minClusterHitEdep    = 0,
           .minClusterCenterEdep = 0,

@@ -77,6 +77,7 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapPClusterAssociations"},
       {"EcalClusterAssociations"}, app));
 
+  // Create ReconstructedParticles
   app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
       "ReconstructedParticlesWithAssoc",
       {

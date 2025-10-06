@@ -88,6 +88,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TOFEndcapRawHits",
 
       "TOFBarrelHits",
+      "TOFBarrelClusterHits",
       "TOFBarrelADCTDC",
       "TOFEndcapHits",
 
@@ -159,15 +160,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TaggerTrackerM2LocalTrackAssociations",
       "TaggerTrackerLocalTracks",
       "TaggerTrackerLocalTrackAssociations",
-      "TaggerTrackerProjectedTracks",
-      "TaggerTrackerTracks",
-      "TaggerTrackerTrajectories",
-      "TaggerTrackerTrackParameters",
-      "TaggerTrackerTrackAssociations",
       "TaggerTrackerReconstructedParticles",
       "TaggerTrackerReconstructedParticleAssociations",
-      "FarBackwardTruthSeededPhaseSpacePIDParticleIDs",
-      "FarBackwardPhaseSpacePIDParticleIDs",
 
       // Forward & Far forward hits
       "B0TrackerTruthSeeds",
