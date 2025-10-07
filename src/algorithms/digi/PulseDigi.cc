@@ -25,12 +25,12 @@ public:
   HGCROCRawSample(std::size_t n_meas)
       : meas_types(n_meas, 0), amplitudes(n_meas, 0), TOAs(n_meas, 0), TOTs(n_meas, 0) {}
 
-  void addAmplitude(std::size_t idx, double amp) { amplitudes[idx] = amp; }
-  void addTOA(std::size_t idx, double toa) {
+  void setAmplitude(std::size_t idx, double amp) { amplitudes[idx] = amp; }
+  void setTOA(std::size_t idx, double toa) {
     meas_types[idx] = 1;
     TOAs[idx]       = toa;
   }
-  void addTOT(std::size_t idx, double tot) {
+  void setTOT(std::size_t idx, double tot) {
     meas_types[idx] = 2;
     TOTs[idx]       = tot;
   }
@@ -87,14 +87,14 @@ void PulseDigi::process(const PulseDigi::Input& input, const PulseDigi::Output& 
       adc_counter++;
       // Measure amplitudes
       if (adc_counter == sample_tick) {
-        raw_sample.addAmplitude(sampleIdx, pulse.getAmplitude()[i]);
+        raw_sample.setAmplitude(sampleIdx, pulse.getAmplitude()[i]);
         adc_counter = 0;
       }
 
       // Measure crossing point for TOA
       if (!tot_progress && pulse.getAmplitude()[i] > m_cfg.toa_thres) {
         toaIdx = sampleIdx;
-        raw_sample.addTOA(sampleIdx,
+        raw_sample.setTOA(sampleIdx,
                           get_crossing_time(m_cfg.threshold, t, pulse_dt, pulse.getAmplitude()[i],
                                             pulse.getAmplitude()[i - 1]));
         tot_progress = true;
@@ -103,7 +103,7 @@ void PulseDigi::process(const PulseDigi::Input& input, const PulseDigi::Output& 
 
       // Measure crossing point for TOT
       if (tot_progress && !tot_complete && pulse.getAmplitude()[i] < m_cfg.threshold) {
-        raw_sample.addTOT(toaIdx,
+        raw_sample.setTOT(toaIdx,
                           get_crossing_time(m_cfg.threshold, t, pulse_dt, pulse.getAmplitude()[i],
                                             pulse.getAmplitude()[i - 1]));
         tot_complete = true;
