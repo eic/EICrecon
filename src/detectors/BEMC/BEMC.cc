@@ -148,7 +148,7 @@ void InitPlugin(JApplication* app) {
           .readout         = "EcalBarrelScFiHits",
           .layerField      = "layer",
           .sectorField     = "sector",
-          .localDetFields  = {"system"},
+          .localDetFields  = {"sector"},
           // here we want to use grid center position (XY) but keeps the z information from fiber-segment
           // TODO: a more realistic way to get z is to reconstruct it from timing
           .maskPos       = "xy",
