@@ -25,6 +25,7 @@
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <numbers>
 #include <set>
 #include <stdexcept>
 #include <typeinfo>

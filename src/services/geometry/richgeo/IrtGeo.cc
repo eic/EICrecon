@@ -16,6 +16,7 @@
 #include <cstdint>
 #include <functional>
 #include <map>
+#include <numbers>
 #include <utility>
 #include <vector>
 

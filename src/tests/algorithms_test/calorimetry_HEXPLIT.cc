@@ -17,6 +17,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
+#include <numbers>
 #include <string>
 #include <utility> // for pair
 #include <vector>
