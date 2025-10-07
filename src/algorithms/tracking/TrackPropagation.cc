@@ -134,11 +134,9 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
     throw std::domain_error("Unknown surface type");
   };
   m_target_surfaces.resize(m_cfg.target_surfaces.size());
-  std::transform(m_cfg.target_surfaces.cbegin(), m_cfg.target_surfaces.cend(),
-                 m_target_surfaces.begin(), _toActsSurface);
+  std::ranges::transform(m_cfg.target_surfaces, m_target_surfaces.begin(), _toActsSurface);
   m_filter_surfaces.resize(m_cfg.filter_surfaces.size());
-  std::transform(m_cfg.filter_surfaces.cbegin(), m_cfg.filter_surfaces.cend(),
-                 m_filter_surfaces.begin(), _toActsSurface);
+  std::ranges::transform(m_cfg.filter_surfaces, m_filter_surfaces.begin(), _toActsSurface);
 
   m_log->trace("Initialized");
 }

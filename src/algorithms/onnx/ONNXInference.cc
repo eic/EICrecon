@@ -89,13 +89,11 @@ void ONNXInference::init() {
 
     // convert names to char*
     m_input_names_char.resize(m_input_names.size(), nullptr);
-    std::transform(std::begin(m_input_names), std::end(m_input_names),
-                   std::begin(m_input_names_char),
-                   [&](const std::string& str) { return str.c_str(); });
+    std::ranges::transform(m_input_names, std::begin(m_input_names_char),
+                           [&](const std::string& str) { return str.c_str(); });
     m_output_names_char.resize(m_output_names.size(), nullptr);
-    std::transform(std::begin(m_output_names), std::end(m_output_names),
-                   std::begin(m_output_names_char),
-                   [&](const std::string& str) { return str.c_str(); });
+    std::ranges::transform(m_output_names, std::begin(m_output_names_char),
+                           [&](const std::string& str) { return str.c_str(); });
 
   } catch (const Ort::Exception& exception) {
     error("ONNX error {}", exception.what());

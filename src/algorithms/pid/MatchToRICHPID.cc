@@ -127,9 +127,8 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
   }
 
   // choose the closest matching CherenkovParticleID object corresponding to this input reconstructed particle
-  auto closest_prox_match =
-      *std::min_element(prox_match_list.begin(), prox_match_list.end(),
-                        [](ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; });
+  auto closest_prox_match = *std::ranges::min_element(
+      prox_match_list, [](ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; });
   auto in_pid_matched = in_pids.at(closest_prox_match.pid_idx);
   trace("  => best match: match_dist = {:<5.4} at idx = {}", closest_prox_match.match_dist,
         closest_prox_match.pid_idx);
