@@ -168,4 +168,9 @@ src/tools/default_flags_table/fieldmaps/
 
 src/examples/test_data_generator/__pycache__/
 
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
 .run/
