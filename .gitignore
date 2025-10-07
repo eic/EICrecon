@@ -4,6 +4,7 @@
 include/*
 plugins/*
 build/*
+build_test/*
 install/*
 
 # Artifacts
