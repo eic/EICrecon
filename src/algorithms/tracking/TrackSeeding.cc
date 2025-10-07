@@ -50,16 +50,24 @@ void TrackSeeding::init() {
   m_seedFilterConfig.seedWeightIncrement   = m_cfg.seedWeightIncrement;
 
   m_seedFilterConfig.centralSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
-      m_cfg.zMinSeedConfCentral,       m_cfg.zMaxSeedConfCentral,
-      m_cfg.rMaxSeedConfCentral,       m_cfg.nTopForLargeRCentral,
-      m_cfg.nTopForSmallRCentral,      m_cfg.seedConfMinBottomRadiusCentral,
-      m_cfg.seedConfMaxZOriginCentral, m_cfg.minImpactSeedConfCentral};
+      .zMinSeedConf            = m_cfg.zMinSeedConfCentral,
+      .zMaxSeedConf            = m_cfg.zMaxSeedConfCentral,
+      .rMaxSeedConf            = m_cfg.rMaxSeedConfCentral,
+      .nTopForLargeR           = m_cfg.nTopForLargeRCentral,
+      .nTopForSmallR           = m_cfg.nTopForSmallRCentral,
+      .seedConfMinBottomRadius = m_cfg.seedConfMinBottomRadiusCentral,
+      .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginCentral,
+      .minImpactSeedConf       = m_cfg.minImpactSeedConfCentral};
 
   m_seedFilterConfig.forwardSeedConfirmationRange = Acts::SeedConfirmationRangeConfig{
-      m_cfg.zMinSeedConfForward,       m_cfg.zMaxSeedConfForward,
-      m_cfg.rMaxSeedConfForward,       m_cfg.nTopForLargeRForward,
-      m_cfg.nTopForSmallRForward,      m_cfg.seedConfMinBottomRadiusForward,
-      m_cfg.seedConfMaxZOriginForward, m_cfg.minImpactSeedConfForward};
+      .zMinSeedConf            = m_cfg.zMinSeedConfForward,
+      .zMaxSeedConf            = m_cfg.zMaxSeedConfForward,
+      .rMaxSeedConf            = m_cfg.rMaxSeedConfForward,
+      .nTopForLargeR           = m_cfg.nTopForLargeRForward,
+      .nTopForSmallR           = m_cfg.nTopForSmallRForward,
+      .seedConfMinBottomRadius = m_cfg.seedConfMinBottomRadiusForward,
+      .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginForward,
+      .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
 
   m_seedFilterConfig = m_seedFilterConfig.toInternalUnits();
 
