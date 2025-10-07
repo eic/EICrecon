@@ -26,7 +26,7 @@ namespace eicrecon {
 //positions where the overlapping cells are relative to a given cell (in units of hexagon side length)
 const std::vector<double> HEXPLIT::neighbor_offsets_x = []() {
   std::vector<double> x;
-  double rs[2]      = {1.5, sqrt(3) / 2.};
+  double rs[2]      = {1.5, std::numbers::sqrt3 / 2.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 6; j += 1) {
@@ -38,7 +38,7 @@ const std::vector<double> HEXPLIT::neighbor_offsets_x = []() {
 
 const std::vector<double> HEXPLIT::neighbor_offsets_y = []() {
   std::vector<double> y;
-  double rs[2]      = {1.5, sqrt(3) / 2.};
+  double rs[2]      = {1.5, std::numbers::sqrt3 / 2.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 6; j += 1) {
@@ -56,7 +56,7 @@ const int HEXPLIT::neighbor_indices[SUBCELLS][OVERLAP] = {
 //positions of the centers of subcells
 const std::vector<double> HEXPLIT::subcell_offsets_x = []() {
   std::vector<double> x;
-  double rs[2]      = {0.75, sqrt(3) / 4.};
+  double rs[2]      = {0.75, std::numbers::sqrt3 / 4.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 6; j += 1) {
@@ -68,7 +68,7 @@ const std::vector<double> HEXPLIT::subcell_offsets_x = []() {
 
 const std::vector<double> HEXPLIT::subcell_offsets_y = []() {
   std::vector<double> y;
-  double rs[2]      = {0.75, sqrt(3) / 4.};
+  double rs[2]      = {0.75, std::numbers::sqrt3 / 4.};
   double offsets[2] = {0, M_PI / 2};
   for (int i = 0; i < 2; i++) {
     for (int j = 0; j < 6; j += 1) {
@@ -119,7 +119,7 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       //difference in transverse position (in units of side lengths)
       double dx = (other_hit.getLocal().x - hit.getLocal().x) / sl;
       double dy = (other_hit.getLocal().y - hit.getLocal().y) / sl;
-      if (std::abs(dx) > 2 || std::abs(dy) > sqrt(3)) {
+      if (std::abs(dx) > 2 || std::abs(dy) > std::numbers::sqrt3) {
         continue;
       }
 
@@ -179,8 +179,8 @@ void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output
       //bounding box dimensions depend on the orientation of the rhombus
       int orientation = static_cast<int>(k % 3 == 0);
       const decltype(edm4eic::CalorimeterHitData::dimension) dimension(
-          sl * (orientation != 0 ? 1 : 1.5), sl * sqrt(3) / 2. * (orientation != 0 ? 2 : 1),
-          hit.getDimension()[2]);
+          sl * (orientation != 0 ? 1 : 1.5),
+          sl * std::numbers::sqrt3 / 2. * (orientation != 0 ? 2 : 1), hit.getDimension()[2]);
 
       subcellHits->create(hit.getCellID(), hit.getEnergy() * weights[k] / sum_weights, 0,
                           hit.getTime(), 0, position, dimension, hit.getSector(), hit.getLayer(),

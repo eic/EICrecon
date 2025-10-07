@@ -149,8 +149,8 @@ float SiliconChargeSharing::integralGaus(float mean, float sd, float low_lim, fl
   float up  = mean > up_lim ? -0.5 : 0.5;
   float low = mean > low_lim ? -0.5 : 0.5;
   if (sd > 0) {
-    up  = -0.5 * std::erf(std::sqrt(2) * (mean - up_lim) / sd);
-    low = -0.5 * std::erf(std::sqrt(2) * (mean - low_lim) / sd);
+    up  = -0.5 * std::erf(std::numbers::sqrt2 * (mean - up_lim) / sd);
+    low = -0.5 * std::erf(std::numbers::sqrt2 * (mean - low_lim) / sd);
   }
   return up - low;
 }
