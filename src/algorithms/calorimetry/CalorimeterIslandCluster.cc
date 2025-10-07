@@ -18,6 +18,7 @@
 #include <cmath>
 #include <iterator>
 #include <map>
+#include <ranges>
 #include <set>
 #include <stdexcept>
 #include <string>

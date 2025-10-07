@@ -3,7 +3,6 @@
 
 #include "services/pid_lut/PIDLookupTable.h"
 
-#include <algorithm>
 #include <boost/histogram.hpp>
 #include <boost/iostreams/close.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
@@ -14,7 +13,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <fstream> // IWYU pragma: keep
-#include <iterator>
 #include <sstream> // IWYU pragma: keep
 #include <stdexcept>
 // IWYU pragma: no_include <boost/mp11/detail/mp_defer.hpp>
