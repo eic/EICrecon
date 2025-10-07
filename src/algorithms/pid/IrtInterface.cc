@@ -130,8 +130,10 @@ namespace eicrecon {
 	//printf("@R@ %s\n", name.Data());
 	const auto *rindex_matrix = det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
 	if (rindex_matrix) {
-	  unsigned dim = rindex_matrix->GetRows();
-	  double e[dim], ri[dim];
+	  const unsigned dim = rindex_matrix->GetRows();
+	  //double e[dim], ri[dim];
+   	std::unique_ptr<double[]> e(new double[dim]);
+		std::unique_ptr<double[]> ri(new double[dim]);	 
 	  for(unsigned row=0; row<rindex_matrix->GetRows(); row++) {
 	    e [row] = rindex_matrix->Get(row,0) / dd4hep::eV;
 	    ri[row] = rindex_matrix->Get(row,1);
@@ -139,7 +141,7 @@ namespace eicrecon {
 	    //printf(" @Q@ %7.3f %7.3f\n", e[row], ri[row]);//energy, rindex);
 	  } //for row
 	  
-	  auto ptr = rad->m_RefractiveIndex = new G4DataInterpolation(e, ri, dim);
+	  auto ptr = rad->m_RefractiveIndex = new G4DataInterpolation(e.get(), ri.get(), dim);
 	  // FIXME: 100 hardcoded;
 	  ptr->CreateLookupTable(100);
 	} //if
@@ -163,8 +165,9 @@ namespace eicrecon {
 	if (jpref.find("quantum-efficiency") != jpref.end()) {
 	  /*const*/ auto &qeref = jpref["quantum-efficiency"];
 	  
-	  const unsigned qeEntries = qeref.size();
-	  double WL[qeEntries], QE[qeEntries];
+	  const int qeEntries = qeref.size();
+	  std::unique_ptr<double[]> WL(new double[qeEntries]); 
+    std::unique_ptr<double[]> QE(new double[qeEntries]);
 	  
 	  unsigned counter = 0;
 	  for (json::iterator it = qeref.begin(); it != qeref.end(); ++it) {
@@ -177,7 +180,9 @@ namespace eicrecon {
 	    //printf("@Q@ %7.2f %7.2f\n", WL[counter-1], QE[counter-1]);
 	  } //it
 	  
-	  double qemax = 0.0, qePhotonEnergy[qeEntries], qeData[qeEntries];
+	  double qemax = 0.0;
+    std::vector<double> qePhotonEnergy(qeEntries);
+    std::vector<double> qeData(qeEntries);
 	  for(int iq=0; iq<qeEntries; iq++) {
 	    qePhotonEnergy[iq] = _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
 	    qeData        [iq] =                QE[qeEntries - iq - 1] * qe_rescaling_factor;
@@ -188,7 +193,7 @@ namespace eicrecon {
 	  pd->SetQE(_MAGIC_CFF_ / WL[qeEntries-1], _MAGIC_CFF_ / WL[0], 
 		    // NB: last argument: want a built-in selection of unused photons, which follow the QE(lambda);
 		    // see CherenkovSteppingAction::UserSteppingAction() for a usage case;
-		    new G4DataInterpolation(qePhotonEnergy, qeData, qeEntries/*, 0.0, 0.0*/), qemax ? 1.0/qemax : 1.0);
+		    new G4DataInterpolation(qePhotonEnergy.data(), qeData.data(), qeEntries/*, 0.0, 0.0*/), qemax ? 1.0/qemax : 1.0);
 	  // FIXME: 100 hardcoded;
 	  pd->GetQE()->CreateLookupTable(100);
 	} //if

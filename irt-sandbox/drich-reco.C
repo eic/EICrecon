@@ -52,7 +52,7 @@ void drich_reco(const char *dfname, const char *cfname = 0)
     // Initialize aerogel QA plots; 
     ra->Plots()->SetRefractiveIndexRange(1.015, 1.025);
     ra->Plots()->SetPhotonVertexRange(1970, 2030);
-    ra->Plots()->SetCherenkovAngleRange(180, 200);
+    ra->Plots()->SetCherenkovAngleRange(200, 250);
   } //if
 #endif
 #ifdef _USE_GAS_RADIATOR_
