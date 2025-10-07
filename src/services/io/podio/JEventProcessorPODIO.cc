@@ -13,6 +13,7 @@
 #include <podio/ROOTWriter.h>
 #include <algorithm>
 #include <exception>
+#include <functional>
 #include <iterator>
 #include <regex>
 #include <sstream>
