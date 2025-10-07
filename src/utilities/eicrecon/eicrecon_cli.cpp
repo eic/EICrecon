@@ -444,7 +444,7 @@ int Execute(JApplication* app, UserOptions& options) {
       app->SetExitCode(EXIT_FAILURE);
     }
   }
-  return (int)app->GetExitCode();
+  return app->GetExitCode();
 }
 
 UserOptions GetCliOptions(int nargs, char* argv[], bool expect_extra) {
