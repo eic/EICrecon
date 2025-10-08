@@ -6,7 +6,6 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/InclusiveKinematics.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
@@ -43,10 +42,6 @@
 #include "factories/reco/ScatteredElectronsTruth_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
-
-#if EDM4EIC_VERSION_MAJOR >= 8
-#include "factories/reco/TrackClusterMatch_factory.h"
-#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -173,7 +168,6 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-#if EDM4EIC_VERSION_MAJOR >= 8
   // Forward
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
       "EcalEndcapPTrackClusterMatches", {"CalorimeterTrackProjections", "EcalEndcapPClusters"},
@@ -207,8 +201,6 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapNBarrelTrackClusterMatches",
       {"CalorimeterTrackProjections", "HcalEndcapNClusters"}, {"HcalEndcapNTrackClusterMatches"},
       {.calo_id = "HcalEndcapN_ID"}, app));
-
-#endif // EDM4EIC_VERSION_MAJOR >= 8
 
   app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
       "ReconstructedBreitFrameParticles",
