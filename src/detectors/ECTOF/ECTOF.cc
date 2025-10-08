@@ -75,7 +75,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
-      "TOFEndcapPulseCombiner", {"TOFEndcapSmoothPulses"}, {"TOFEndcapCombinedPulses"},
+      "TOFEndcapCombinedPulses", {"TOFEndcapSmoothPulses"}, {"TOFEndcapCombinedPulses"},
       {
           .minimum_separation = 25 * edm4eic::unit::ns,
       },
