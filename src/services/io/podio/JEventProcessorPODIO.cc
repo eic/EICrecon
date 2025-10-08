@@ -404,6 +404,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "LFHCALRemnantClusters",
       "LFHCALExpectedClusters",
       "LFHCALTrackExpectedClusterMatches",
+      "HcalEndcapPInsertRemnantClusters",
+      "HcalEndcapPInsertExpectedClusters",
+      "HcalEndcapPInsertTrackExpectedClusterMatches",
 #endif
 
   };
