@@ -39,7 +39,7 @@ void InitPlugin(JApplication* app) {
 
 #if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "EcalEndcapNSubtractedClusters",
+      "EcalEndcapNRemnantClusters",
       {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters", "CalorimeterTrackProjections"},
       {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
        "EcalEndcapNTrackExpectedClusterMatches"},
@@ -48,7 +48,7 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "HcalEndcapNSubtractedClusters",
+      "HcalEndcapNRemnantClusters",
       {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters", "CalorimeterTrackProjections"},
       {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
        "HcalEndcapNTrackExpectedClusterMatches"},
@@ -59,7 +59,7 @@ void InitPlugin(JApplication* app) {
   // central ------------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "EcalBarrelSubtractedClusters",
+      "EcalBarrelRemnantClusters",
       {"EcalBarrelTrackClusterMatches", "EcalBarrelClusters", "CalorimeterTrackProjections"},
       {"EcalBarrelRemnantClusters", "EcalBarrelExpectedClusters",
        "EcalBarrelTrackExpectedClusterMatches"},
@@ -68,7 +68,7 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "HcalBarrelSubtractedClusters",
+      "HcalBarrelRemnantClusters",
       {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters", "CalorimeterTrackProjections"},
       {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
        "HcalBarrelTrackExpectedClusterMatches"},
@@ -79,7 +79,7 @@ void InitPlugin(JApplication* app) {
   // forward ------------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "EcalEndcapPSubtractedClusters",
+      "EcalEndcapPRemnantClusters",
       {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters", "CalorimeterTrackProjections"},
       {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
        "EcalEndcapPTrackExpectedClusterMatches"},
@@ -88,7 +88,7 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "LFHCALSubtractedClusters",
+      "LFHCALRemnantClusters",
       {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
       {"LFHCALRemnantClusters", "LFHCALExpectedClusters", "LFHCALTrackExpectedClusterMatches"},
       {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
@@ -96,7 +96,7 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
-      "HcalEndcapPInsertSubtractedClusters",
+      "HcalEndcapPInsertRemnantClusters",
       {"HcalEndcapPInsertTrackSplitMergeClusterMatches", "HcalEndcapPInsertClusters", "CalorimeterTrackProjections"},
       {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters", "HcalEndcapPInsertTrackExpectedClusterMatches"},
       {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
