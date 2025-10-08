@@ -13,8 +13,7 @@
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
-#include <podio/RelationRange.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -147,10 +146,9 @@ void HitAdapter<edm4hep::SimTrackerHit>::addRelations(MutablePulseType& pulse,
 
 std::tuple<double, double>
 HitAdapter<edm4hep::SimCalorimeterHit>::getPulseSources(const edm4hep::SimCalorimeterHit& hit) {
-  const auto& contribs = hit.getContributions();
-  auto earliest_contrib =
-      std::min_element(contribs.begin(), contribs.end(),
-                       [](const auto& a, const auto& b) { return a.getTime() < b.getTime(); });
+  const auto& contribs  = hit.getContributions();
+  auto earliest_contrib = std::ranges::min_element(
+      contribs, [](const auto& a, const auto& b) { return a.getTime() < b.getTime(); });
   return {earliest_contrib->getTime(), hit.getEnergy()};
 }
 

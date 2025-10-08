@@ -161,9 +161,8 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
   }
   if (in_charged_particle_size_distribution.size() != 1) {
     std::vector<std::size_t> in_charged_particle_sizes;
-    std::transform(
-        in_charged_particles.begin(), in_charged_particles.end(),
-        std::back_inserter(in_charged_particle_sizes),
+    std::ranges::transform(
+        in_charged_particles, std::back_inserter(in_charged_particle_sizes),
         [](const auto& in_charged_particle) { return in_charged_particle.second->size(); });
     error("radiators have differing numbers of TrackSegments {}",
           fmt::join(in_charged_particle_sizes, ", "));

@@ -13,7 +13,6 @@
 #include <cmath>
 #include <cstdlib>
 #include <fstream> // IWYU pragma: keep
-#include <iterator>
 #include <sstream> // IWYU pragma: keep
 #include <stdexcept>
 // IWYU pragma: no_include <boost/mp11/detail/mp_defer.hpp>
@@ -80,8 +79,7 @@ void PIDLookupTable::load_file(const std::string& filename,
   while (std::getline(in, line)) {
     Entry entry;
     if (line.empty() || line[0] == '#' ||
-        std::all_of(std::begin(line), std::end(line),
-                    [](unsigned char c) { return std::isspace(c); })) {
+        std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
       continue;
     }
 
