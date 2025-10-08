@@ -26,6 +26,8 @@
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
+#include "factories/reco/LGADHitCalibration_factory.h"
+#include "factories/tracking/LGADHitClustering_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
@@ -48,10 +50,24 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFBarrelRecHits", {"TOFBarrelRawHits"}, // Input data collection tags
       {"TOFBarrelRecHits"},                     // Output data tag
-      {
-          .timeResolution = 10,
-      },
+      {},
       app)); // Hit reco default config for factories
+
+  // Convert raw digitized hits into calibrated hits
+  // time walk correction is still TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
+      "TOFBarrelCalibratedHits", {"TOFBarrelADCTDC"}, // Input data collection tags
+      {"TOFBarrelCalibratedHits"},                    // Output data tag
+      {},
+      app)); // Hit reco default config for factories
+
+  // cluster all hits in a sensor into one hit location
+  // Currently it's just a simple weighted average
+  // More sophisticated algorithm TBD
+  app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
+      "TOFBarrelClusterHits", {"TOFBarrelCalibratedHits"}, // Input data collection tags
+      {"TOFBarrelClusterHits"},                            // Output data tag
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"},
@@ -95,7 +111,7 @@ void InitPlugin(JApplication* app) {
 
   double risetime = 0.45 * edm4eic::unit::ns;
   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
-      "SiliconPulseDiscretization", {"TOFBarrelCombinedPulses"}, {"TOFBarrelPulses"},
+      "TOFBarrelPulses", {"TOFBarrelCombinedPulses"}, {"TOFBarrelPulses"},
       {
           .EICROC_period = 25 * edm4eic::unit::ns,
           .local_period  = 25 * edm4eic::unit::ns / 1024,
