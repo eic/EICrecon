@@ -30,12 +30,17 @@ private:
   // Declare outputs
   PodioOutput<edm4eic::ReconstructedParticle> m_out_reco_particles{this};
 
+  // Declare parameters
+  ParameterRef<float> m_min_e_minus_pz{this, "minEMinusPz", config().minEMinusPz};
+  ParameterRef<float> m_max_e_minus_pz{this, "maxEMinusPz", config().maxEMinusPz};
+
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 
