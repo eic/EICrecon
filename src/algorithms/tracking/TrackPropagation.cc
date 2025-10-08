@@ -13,7 +13,6 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Material/MaterialInteraction.hpp>
-#if Acts_VERSION_MAJOR >= 34
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
 #else
@@ -23,7 +22,6 @@
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
-#endif
 #include <Acts/Propagator/Propagator.hpp>
 #if Acts_VERSION_MAJOR >= 36
 #include <Acts/Propagator/PropagatorResult.hpp>
@@ -297,7 +295,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
                                         logger().cloneWithSuffix("Navigator")),
                         logger().cloneWithSuffix("Propagator"));
   PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
-#elif Acts_VERSION_MAJOR >= 34
+#else
   Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> propagator(
       Acts::EigenStepper<>(magneticField),
       Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
