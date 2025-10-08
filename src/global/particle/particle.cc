@@ -94,6 +94,15 @@ void InitPlugin(JApplication* app) {
       {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
+
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
+      "HcalEndcapPInsertSubtractedClusters",
+      {"HcalEndcapPInsertTrackSplitMergeClusterMatches", "HcalEndcapPInsertClusters", "CalorimeterTrackProjections"},
+      {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters", "HcalEndcapPInsertTrackExpectedClusterMatches"},
+      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      app // TODO: remove me once fixed
+      ));
+
 #endif
 
   // --------------------------------------------------------------------
