@@ -92,6 +92,6 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-      "EICROCDigitization", {"TOFEndcapPulses"}, {"TOFEndcapADCTDC"}, {}, app));
+      "TOFEndcapADCTDC", {"TOFEndcapPulses"}, {"TOFEndcapADCTDC"}, {}, app));
 }
 } // extern "C"
