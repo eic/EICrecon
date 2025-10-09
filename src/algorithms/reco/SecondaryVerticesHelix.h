@@ -10,7 +10,7 @@
 #include <string_view> // for string_view
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/reco/SecondaryVerticesConfig.h"
+#include "algorithms/reco/SecondaryVerticesHelixConfig.h"
 
 namespace eicrecon {
 
