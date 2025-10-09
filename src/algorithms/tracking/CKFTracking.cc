@@ -116,9 +116,10 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
   // eta bins, chi2 and #sourclinks per surface cutoffs
   m_sourcelinkSelectorCfg = {
       {Acts::GeometryIdentifier(),
-       {m_cfg.etaBins,
-        m_cfg.chi2CutOff,
-        {m_cfg.numMeasurementsCutOff.begin(), m_cfg.numMeasurementsCutOff.end()}}},
+       {.etaBins               = m_cfg.etaBins,
+        .chi2CutOff            = m_cfg.chi2CutOff,
+        .numMeasurementsCutOff = {m_cfg.numMeasurementsCutOff.begin(),
+                                  m_cfg.numMeasurementsCutOff.end()}}},
   };
   m_trackFinderFunc =
       CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
@@ -346,10 +347,10 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
       Extrapolator::template Options<Acts::ActionList<Acts::MaterialInteractor>,
                                      Acts::AbortList<Acts::EndOfWorldReached>>;
 #endif
-  Extrapolator extrapolator(
-      Acts::EigenStepper<>(m_BField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
-      logger().cloneWithSuffix("Propagator"));
+  Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
+                            Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
+                                            logger().cloneWithSuffix("Navigator")),
+                            logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(m_geoctx, m_fieldctx);
 #elif Acts_VERSION_MAJOR >= 34
   Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> extrapolator(
