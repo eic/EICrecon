@@ -52,8 +52,8 @@ void InitPlugin(JApplication* app) {
           // 18. pe/MeV is measured with PMT at 25% QE
           .lightYield = 18. / 0.25 / dd4hep::MeV,
           // Based on slide 6 of https://indico.bnl.gov/event/29076/contributions/110749/attachments/63706/109457/Calo_meeting_Jun25_Updated.pdf
-          // Geometric factor for 16 of 3x3 mm^2 sensors covering 20x20 mm^2 area for sensor with 28% QE and 80 ns dead time for 100 ns scintillation constant
-          .photonDetectionEfficiency = (16 * (3. * 3.) / (20. * 20.)) * 0.28 * 80. / 100.,
+          // Geometric factor for 16 of 3x3 mm^2 sensors covering 20x20 mm^2 area for sensor with 28% QE
+          .photonDetectionEfficiency = (16 * (3. * 3.) / (20. * 20.)) * 0.28,
           // S14160-3015PS, 16 sensors per cell
           .numEffectiveSipmPixels = 39984ULL * 16,
           .capADC                 = EcalEndcapN_capADC,
