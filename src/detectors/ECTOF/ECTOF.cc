@@ -65,7 +65,7 @@ void InitPlugin(JApplication* app) {
 
   const double gain = -adc_range / Vm / landau_min * sigma_analog;
   const int offset  = 3;
-  app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
+  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory>(
       "TOFEndcapSmoothPulses", {"TOFEndcapSharedHits"}, {"TOFEndcapSmoothPulses"},
       {
           .pulse_shape_function = "LandauPulse",
