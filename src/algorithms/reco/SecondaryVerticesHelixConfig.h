@@ -9,7 +9,7 @@
 
 namespace eicrecon {
 
-struct SecondaryVerticesConfig {
+struct SecondaryVerticesHelixConfig {
 
   float b_field = -1.7*dd4hep::tesla;
   float minDca1 = 0.03*edm4eic::unit::mm;    // mm, daughter1 to pVtx

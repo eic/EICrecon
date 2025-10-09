@@ -9,18 +9,18 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/reco/SecondaryVertices.h"
-#include "algorithms/reco/SecondaryVerticesConfig.h"
+#include "algorithms/reco/SecondaryVerticesHelix.h"
+#include "algorithms/reco/SecondaryVerticesHelixConfig.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-class SecondaryVertices_factory
-    : public JOmniFactory<SecondaryVertices_factory, SecondaryVerticesConfig> {
+class SecondaryVerticesHelix_factory
+    : public JOmniFactory<SecondaryVerticesHelix_factory, SecondaryVerticesHelixConfig> {
 
 public:
-  using AlgoT = eicrecon::SecondaryVertices;
+  using AlgoT = eicrecon::SecondaryVerticesHelix;
 
 private:
   std::unique_ptr<AlgoT> m_algo;

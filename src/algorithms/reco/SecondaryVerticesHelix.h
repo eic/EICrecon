@@ -14,16 +14,16 @@
 
 namespace eicrecon {
 
-using SecondaryVerticesAlgorithm = algorithms::Algorithm<
+using SecondaryVerticesHelixAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::VertexCollection, edm4eic::ReconstructedParticleCollection>,
     algorithms::Output<edm4eic::VertexCollection>>;
 
-class SecondaryVertices : public SecondaryVerticesAlgorithm,
-                        public WithPodConfig<SecondaryVerticesConfig> {
+class SecondaryVerticesHelix : public SecondaryVerticesHelixAlgorithm,
+                        public WithPodConfig<SecondaryVerticesHelixConfig> {
 
 public:
-  SecondaryVertices(std::string_view name)
-      : SecondaryVerticesAlgorithm{name,
+  SecondaryVerticesHelix(std::string_view name)
+      : SecondaryVerticesHelixAlgorithm{name,
                                  {"inputVertices", "inputParticles"},
                                  {"outputSecondaryVertices"},
                                  "Reconstruct secondary vertices in SecondaryVertices collection"} {}
@@ -32,6 +32,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  SecondaryVerticesConfig m_cfg;
+  SecondaryVerticesHelixConfig m_cfg;
 };
 } // namespace eicrecon

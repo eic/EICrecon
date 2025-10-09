@@ -15,18 +15,18 @@
 #include <utility>
 #include <vector>
 
-#include "algorithms/reco/SecondaryVertices.h"
+#include "algorithms/reco/SecondaryVerticesHelix.h"
 #include "algorithms/reco/Helix.h"
-#include "algorithms/reco/SecondaryVerticesConfig.h"
+#include "algorithms/reco/SecondaryVerticesHelixConfig.h"
 #include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
 /**
-   * @brief Initialize the SecondaryVertices Algorithm
+   * @brief Initialize the SecondaryVerticesHelix Algorithm
    *
    */
-void SecondaryVertices::init() {}
+void SecondaryVerticesHelix::init() {}
 
 /**
    * @brief Produce a list of secondary vertex candidates
@@ -34,8 +34,8 @@ void SecondaryVertices::init() {}
    * @param rcvtx  - input collection of all vertex candidates
    * @return edm4eic::VertexCollection
    */
-void SecondaryVertices::process(const SecondaryVertices::Input& input,
-                              const SecondaryVertices::Output& output) const {
+void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
+                                     const SecondaryVerticesHelix::Output& output) const {
   const auto [rcvtx, rcparts] = input;
   auto [out_secondary_vertices] = output;
 
