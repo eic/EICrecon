@@ -49,12 +49,13 @@ void InitPlugin(JApplication* app) {
           .tRes        = 0.0 * dd4hep::ns,
           .threshold   = 0.0 * dd4hep::MeV, // Use ADC cut instead
           .readoutType = "sipm",
-          .lightYield  = 300. / dd4hep::MeV,
-          // See simulation study by A. Hoghmrtsyan https://indico.bnl.gov/event/20415/
-          // This includes quantum efficiency of the SiPM
-          .photonDetectionEfficiency = 17. / 300.,
-          // S14160-6015PS, 4 sensors per cell
-          .numEffectiveSipmPixels = 159565 * 4,
+          // 18. pe/MeV is measured with PMT at 25% QE
+          .lightYield  = 18. / 0.25 / dd4hep::MeV,
+          // Based on slide 6 of https://indico.bnl.gov/event/29076/contributions/110749/attachments/63706/109457/Calo_meeting_Jun25_Updated.pdf
+          // Geometric factor for 16 of 3x3 mm^2 sensors covering 20x20 mm^2 area for sensor with 28% QE and 80 ns dead time for 100 ns scintillation constant
+          .photonDetectionEfficiency = (16 * (3 * 3) / (20 * 20)) * 0.28 * 80. / 100.,
+          // S14160-3015PS, 16 sensors per cell
+          .numEffectiveSipmPixels = 39984 * 16,
           .capADC                 = EcalEndcapN_capADC,
           .dyRangeADC             = EcalEndcapN_dyRangeADC,
           .pedMeanADC             = EcalEndcapN_pedMeanADC,
