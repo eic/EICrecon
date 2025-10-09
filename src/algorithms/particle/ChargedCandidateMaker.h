@@ -25,12 +25,12 @@ namespace eicrecon {
 // --------------------------------------------------------------------------
 //! Algorithm input/output
 // --------------------------------------------------------------------------
-using ChargedCandidateMakerAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TrackClusterMatchCollection>,
-    algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+using ChargedCandidateMakerAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::TrackClusterMatchCollection>,
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 // ==========================================================================
-//! Candidate Charged Particle Maker 
+//! Candidate Charged Particle Maker
 // ==========================================================================
 /*! An algorithm which takes a collection of clusters and their matched
  *  tracks, subtracts the sum of all tracks pointing to the cluster,
@@ -58,17 +58,14 @@ public:
   };
 
   ///! Alias for a map from a track to matched clusters
-  using MapToVecClust = std::map<edm4eic::Track,
-                                 std::vector<edm4eic::Cluster>,
-                                 CompareTrack>;
+  using MapToVecClust = std::map<edm4eic::Track, std::vector<edm4eic::Cluster>, CompareTrack>;
 
   ///! Algorithm constructor
   ChargedCandidateMaker(std::string_view name)
-      : ChargedCandidateMakerAlgorithm{
-          name,
-          {"inputTrackClusterMatches"},
-          {"outputChargedCandidateParticles"},
-          "Forms candidate charged particles."} {}
+      : ChargedCandidateMakerAlgorithm{name,
+                                       {"inputTrackClusterMatches"},
+                                       {"outputChargedCandidateParticles"},
+                                       "Forms candidate charged particles."} {}
 
   // public method
   void process(const Input&, const Output&) const final;

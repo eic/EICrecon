@@ -105,53 +105,50 @@ void InitPlugin(JApplication* app) {
 
   // backward -----------------------------------------------------------
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
-      "EndcapNTrackExpectedClusterMatches",
-      {"EcalEndcapNTrackExpectedClusterMatches", "HcalEndcapNTrackExpectedClusterMatches"},
-      {"EndcapNTrackExpectedClusterMatches"}, app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "EndcapNTrackExpectedClusterMatches",
+          {"EcalEndcapNTrackExpectedClusterMatches", "HcalEndcapNTrackExpectedClusterMatches"},
+          {"EndcapNTrackExpectedClusterMatches"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
-      "EndcapNChargedCandidateParticlesAlpha",
-      {"EndcapNTrackExpectedClusterMatches"},
-      {"EndcapNChargedCandidateParticlesAlpha"},
-      {}, app));
+      "EndcapNChargedCandidateParticlesAlpha", {"EndcapNTrackExpectedClusterMatches"},
+      {"EndcapNChargedCandidateParticlesAlpha"}, {}, app));
 
   // central ------------------------------------------------------------
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
-      "BarrelTrackExpectedClusterMatches",
-      {"EcalBarrelTrackExpectedClusterMatches", "HcalBarrelTrackExpectedClusterMatches"},
-      {"BarrelTrackExpectedClusterMatches"}, app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "BarrelTrackExpectedClusterMatches",
+          {"EcalBarrelTrackExpectedClusterMatches", "HcalBarrelTrackExpectedClusterMatches"},
+          {"BarrelTrackExpectedClusterMatches"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
-      "BarrelChargedCandidateParticlesAlpha",
-      {"BarrelTrackExpectedClusterMatches"},
-      {"BarrelChargedCandidateParticlesAlpha"},
-      {}, app));
+      "BarrelChargedCandidateParticlesAlpha", {"BarrelTrackExpectedClusterMatches"},
+      {"BarrelChargedCandidateParticlesAlpha"}, {}, app));
 
   // forward ------------------------------------------------------------
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
-      "EndcapPTrackExpectedClusterMatches",
-      {"EcalEndcapPTrackExpectedClusterMatches", "LFHCALTrackExpectedClusterMatches"},
-      {"EndcapPTrackExpectedClusterMatches"}, app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "EndcapPTrackExpectedClusterMatches",
+          {"EcalEndcapPTrackExpectedClusterMatches", "LFHCALTrackExpectedClusterMatches"},
+          {"EndcapPTrackExpectedClusterMatches"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
-      "EndcapPChargedCandidateParticlesAlpha",
-      {"EndcapPTrackExpectedClusterMatches"},
-      {"EndcapPChargedCandidateParticlesAlpha"},
-      {}, app));
+      "EndcapPChargedCandidateParticlesAlpha", {"EndcapPTrackExpectedClusterMatches"},
+      {"EndcapPChargedCandidateParticlesAlpha"}, {}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
-      "EndcapPInsertTrackExpectedClusterMatches",
-      {"EcalEndcapPTrackExpectedClusterMatches", "HcalEndcapPInsertTrackExpectedClusterMatches"},
-      {"EndcapPInsertTrackExpectedClusterMatches"}, app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
+          "EndcapPInsertTrackExpectedClusterMatches",
+          {"EcalEndcapPTrackExpectedClusterMatches",
+           "HcalEndcapPInsertTrackExpectedClusterMatches"},
+          {"EndcapPInsertTrackExpectedClusterMatches"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
-      "EndcapPInsertChargedCandidateParticlesAlpha",
-      {"EndcapPInsertTrackExpectedClusterMatches"},
-      {"EndcapPInsertChargedCandidateParticlesAlpha"},
-      {}, app));
+      "EndcapPInsertChargedCandidateParticlesAlpha", {"EndcapPInsertTrackExpectedClusterMatches"},
+      {"EndcapPInsertChargedCandidateParticlesAlpha"}, {}, app));
 #endif
 
 }

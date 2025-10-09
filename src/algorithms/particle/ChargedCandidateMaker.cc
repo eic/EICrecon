@@ -32,7 +32,7 @@ void ChargedCandidateMaker::process(const ChargedCandidateMaker::Input& input,
 
   // grab inputs/outputs
   const auto [in_match] = input;
-  auto [out_particle] = output;
+  auto [out_particle]   = output;
 
   // exit if no matches in collection
   if (in_match->size() == 0) {
