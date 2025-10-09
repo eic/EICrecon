@@ -19,7 +19,7 @@ curl --location https://get.epic-eic.org | bash
 ./eic-shell
 
 # Use git branch irt-2.1b for all repositories;
-export branch="irt-2.1b"
+export branch="irt-2.1c"
 
 # Download EICrecon;
 git clone -b ${branch} https://github.com/eic/EICrecon.git
