@@ -168,9 +168,19 @@ void TrackProjector::process(const Input& input, const Output& output) const {
       uint32_t system  = 0;
 
       // Store track point
-      track_segment.addToPoints({surface, system, position, positionError, momentum, momentumError,
-                                 time, timeError, theta, phi, directionError, pathLength,
-                                 pathLengthError});
+      track_segment.addToPoints({.surface         = surface,
+                                 .system          = system,
+                                 .position        = position,
+                                 .positionError   = positionError,
+                                 .momentum        = momentum,
+                                 .momentumError   = momentumError,
+                                 .time            = time,
+                                 .timeError       = timeError,
+                                 .theta           = theta,
+                                 .phi             = phi,
+                                 .directionError  = directionError,
+                                 .pathlength      = pathLength,
+                                 .pathlengthError = pathLengthError});
 
       debug("  ******************************");
       debug("    position: {}", position);
