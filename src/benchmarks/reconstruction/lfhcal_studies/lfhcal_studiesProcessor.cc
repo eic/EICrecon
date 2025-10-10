@@ -359,9 +359,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     float energy    = caloHit.getEnergy();
     double time     = std::numeric_limits<double>::max();
     for (const auto& c : caloHit.getContributions()) {
-      if (c.getTime() <= time) {
-        time = c.getTime();
-      }
+      time = std::min<double>(c.getTime(), time);
     }
 
     auto detector_module_x = m_decoder->get(cellID, 1);
