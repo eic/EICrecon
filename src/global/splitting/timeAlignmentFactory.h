@@ -21,7 +21,7 @@
 struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
   JEventLevel m_factory_level;
 
-  std::vector<std::string> m_trackerhit_collection_names = {"MPGDBarrelRecHits_TK"};
+  std::vector<std::string> m_trackerhit_collection_names         = {"MPGDBarrelRecHits_TK"};
   std::vector<std::string> m_trackerhit_collection_names_aligned = {"MPGDBarrelRecHits_TK_aligned"};
 
   // std::vector<std::string> m_trackerhit_collection_names = {

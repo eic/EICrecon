@@ -1,6 +1,6 @@
 // Copyright 2024, Jefferson Science Associates, LLC.
 // Subject to the terms in the LICENSE file found in the top-level directory.
-// copy from src/detectors/BTOF/BTOF.cc 
+// copy from src/detectors/BTOF/BTOF.cc
 // kuma edit
 
 #include <Evaluator/DD4hepUnits.h>
