@@ -167,9 +167,7 @@ template <typename HitT> void PulseGeneration<HitT>::init() {
       PulseShapeFactory::createPulseShape(m_cfg.pulse_shape_function, m_cfg.pulse_shape_params);
   m_min_sampling_time = m_cfg.min_sampling_time;
 
-  if (m_pulse->getMaximumTime() > m_min_sampling_time) {
-    m_min_sampling_time = m_pulse->getMaximumTime();
-  }
+  m_min_sampling_time = std::max<double>(m_pulse->getMaximumTime(), m_min_sampling_time);
 }
 
 template <typename HitT>
