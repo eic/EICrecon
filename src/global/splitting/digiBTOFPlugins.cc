@@ -1,5 +1,6 @@
 // Copyright 2024, Jefferson Science Associates, LLC.
 // Subject to the terms in the LICENSE file found in the top-level directory.
+// copy from src/detectors/BTOF/BTOF.cc 
 // kuma edit
 
 #include <Evaluator/DD4hepUnits.h>
@@ -10,11 +11,11 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/digi/EICROCDigitization_factory.h"
+#include "factories/digi/CFDROCDigitization_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconPulseDiscretization_factory.h"
-#include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
@@ -70,9 +71,9 @@ void InitPlugin_digiBTOF(JApplication* app) {
       },
       app)); // Hit reco default config for factories
 
-  // // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
-  // // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =
-  // // 0 and sigma = 1 at x = -0.22278
+  // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
+  // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =
+  // 0 and sigma = 1 at x = -0.22278
   const double x_when_landau_min = -0.22278;
   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
   const double sigma_analog      = 0.293951 * edm4eic::unit::ns;
@@ -82,8 +83,8 @@ void InitPlugin_digiBTOF(JApplication* app) {
   // gain is negative as LGAD voltage is always negative
   const double gain = -adc_range / Vm / landau_min;
   const int offset  = 3;
-  app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
-      JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>::TypedWiring{
+  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimTrackerHit>>(
+      JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimTrackerHit>>::TypedWiring{
           .m_tag                 = "LGADPulseGeneration_TK",
           .m_default_input_tags  = {"TOFBarrelSharedHits_TK"},
           .m_default_output_tags = {"TOFBarrelSmoothPulses_TK"},
@@ -125,9 +126,9 @@ void InitPlugin_digiBTOF(JApplication* app) {
       },
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-      JOmniFactoryGeneratorT<EICROCDigitization_factory>::TypedWiring{
-          .m_tag                 = "EICROCDigitization_TK",
+  app->Add(new JOmniFactoryGeneratorT<CFDROCDigitization_factory>(
+      JOmniFactoryGeneratorT<CFDROCDigitization_factory>::TypedWiring{
+          .m_tag                 = "CFDROCDigitization_TK",
           .m_default_input_tags  = {"TOFBarrelPulses_TK"},
           .m_default_output_tags = {"TOFBarrelADCTDC_TK"},
           .level                 = JEventLevel::Timeslice,

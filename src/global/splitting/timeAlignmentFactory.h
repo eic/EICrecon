@@ -21,46 +21,27 @@
 struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
   JEventLevel m_factory_level;
 
-  // PodioInput<edm4hep::trackerhit> check_hits_in {this};
-  // PodioOutput<edm4hep::trackerhit> check_hits_out {this};
+  std::vector<std::string> m_trackerhit_collection_names = {"MPGDBarrelRecHits_TK"};
+  std::vector<std::string> m_trackerhit_collection_names_aligned = {"MPGDBarrelRecHits_TK_aligned"};
 
   // std::vector<std::string> m_trackerhit_collection_names = {
-  //     "B0TrackerHits",       "BackwardMPGDEndcapHits", "DIRCBarHits",
-  //     "DRICHHits",           "ForwardMPGDEndcapHits",  "ForwardOffMTrackerHits",
-  //     "ForwardRomanPotHits", "LumiSpecTrackerHits",    "MPGDBarrelHits",
-  //     "OuterMPGDBarrelHits", "RICHEndcapNHits",        "SiBarrelHits",
-  //     "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
-  //     "TrackerEndcapHits",   "VertexBarrelHits"};
+  //     "B0TrackerRecHits_TK",       "BackwardMPGDEndcapRecHits_TK", "DIRCBarRecHits_TK",
+  //     "DRICHRecHits_TK",           "ForwardMPGDEndcapRecHits_TK",  "ForwardOffMTrackerRecHits_TK",
+  //     "ForwardRomanPotRecHits_TK", "LumiSpecTrackerRecHits_TK",    "MPGDBarrelRecHits_TK",
+  //     "OuterMPGDBarrelRecHits_TK", "RICHEndcapNRecHits_TK",        "SiBarrelTrackerRecHits_TK",
+  //     "TOFBarrelRecHits_TK",       "TOFEndcapRecHits_TK",          "TaggerTrackerRecHits_TK",
+  //     "SiEndcapTrackerRecHits_TK", "SiBarrelVertexRecHits_TK"};
 
   // std::vector<std::string> m_trackerhit_collection_names_aligned = {
-  //     "B0TrackerHits_aligned",         "BackwardMPGDEndcapHits_aligned",
-  //     "DIRCBarHits_aligned",           "DRICHHits_aligned",
-  //     "ForwardMPGDEndcapHits_aligned", "ForwardOffMTrackerHits_aligned",
-  //     "ForwardRomanPotHits_aligned",   "LumiSpecTrackerHits_aligned",
-  //     "MPGDBarrelHits_aligned",        "OuterMPGDBarrelHits_aligned",
-  //     "RICHEndcapNHits_aligned",       "SiBarrelHits_aligned",
-  //     "TOFBarrelHits_aligned",         "TOFEndcapHits_aligned",
-  //     "TaggerTrackerHits_aligned",     "TrackerEndcapHits_aligned",
-  //     "VertexBarrelHits_aligned"};
-
-  std::vector<std::string> m_trackerhit_collection_names = {
-      "B0TrackerRecHits_TK",       "BackwardMPGDEndcapRecHits_TK", "DIRCBarRecHits_TK",
-      "DRICHRecHits_TK",           "ForwardMPGDEndcapRecHits_TK",  "ForwardOffMTrackerRecHits_TK",
-      "ForwardRomanPotRecHits_TK", "LumiSpecTrackerRecHits_TK",    "MPGDBarrelRecHits_TK",
-      "OuterMPGDBarrelRecHits_TK", "RICHEndcapNRecHits_TK",        "SiBarrelTrackerRecHits_TK",
-      "TOFBarrelRecHits_TK",       "TOFEndcapRecHits_TK",          "TaggerTrackerRecHits_TK",
-      "SiEndcapTrackerRecHits_TK", "SiBarrelVertexRecHits_TK"};
-
-  std::vector<std::string> m_trackerhit_collection_names_aligned = {
-      "B0TrackerRecHits_TK_aligned",         "BackwardMPGDEndcapRecHits_TK_aligned",
-      "DIRCBarRecHits_TK_aligned",           "DRICHRecHits_TK_aligned",
-      "ForwardMPGDEndcapRecHits_TK_aligned", "ForwardOffMTrackerRecHits_TK_aligned",
-      "ForwardRomanPotRecHits_TK_aligned",   "LumiSpecTrackerRecHits_TK_aligned",
-      "MPGDBarrelRecHits_TK_aligned",        "OuterMPGDBarrelRecHits_TK_aligned",
-      "RICHEndcapNRecHits_TK_aligned",       "SiBarrelTrackerRecHits_TK_aligned",
-      "TOFBarrelRecHits_TK_aligned",         "TOFEndcapRecHits_TK_aligned",
-      "TaggerTrackerRecHits_TK_aligned",     "SiEndcapTrackerRecHits_TK_aligned",
-      "SiBarrelVertexRecHits_TK_aligned"};
+  //     "B0TrackerRecHits_TK_aligned",         "BackwardMPGDEndcapRecHits_TK_aligned",
+  //     "DIRCBarRecHits_TK_aligned",           "DRICHRecHits_TK_aligned",
+  //     "ForwardMPGDEndcapRecHits_TK_aligned", "ForwardOffMTrackerRecHits_TK_aligned",
+  //     "ForwardRomanPotRecHits_TK_aligned",   "LumiSpecTrackerRecHits_TK_aligned",
+  //     "MPGDBarrelRecHits_TK_aligned",        "OuterMPGDBarrelRecHits_TK_aligned",
+  //     "RICHEndcapNRecHits_TK_aligned",       "SiBarrelTrackerRecHits_TK_aligned",
+  //     "TOFBarrelRecHits_TK_aligned",         "TOFEndcapRecHits_TK_aligned",
+  //     "TaggerTrackerRecHits_TK_aligned",     "SiEndcapTrackerRecHits_TK_aligned",
+  //     "SiBarrelVertexRecHits_TK_aligned"};
 
   VariadicPodioInput<edm4eic::TrackerHit> m_trackerhits_in{
       this, {.names = m_trackerhit_collection_names, .is_optional = true}};
@@ -74,27 +55,28 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
   void ChangeRun(int32_t /*run_nr*/) {}
 
   void Execute(int64_t run_number, uint64_t event_number) {
-    for (size_t coll_index = 0; coll_index < m_trackerhits_in().size(); ++coll_index) {
-      const auto* coll_in = m_trackerhits_in().at(coll_index);
-      auto& coll_out      = m_trackerhits_out().at(coll_index);
-      if (coll_in != nullptr) {
-        // std::vector<edm4hep::Mutabletrackerhit> sorted_hits; // for edm4hep (G4Hit level)
-        std::vector<edm4eic::MutableTrackerHit> sorted_hits; // for edm4eic (After digitization)
-        for (const auto& hit : *coll_in) {
-          // edm4hep::Mutabletrackerhit copiedHit = hit.clone(); // for edm4hep (G4Hit level)
-          edm4eic::MutableTrackerHit copiedHit = hit.clone(); // for edm4eic (After digitization)
-          copiedHit.setTime(hit.getTime() - m_time_offset);
-          sorted_hits.push_back(copiedHit);
-        }
+    Int_t a = 1;
+    // for (size_t coll_index = 0; coll_index < m_trackerhits_in().size(); ++coll_index) {
+    //   const auto* coll_in = m_trackerhits_in().at(coll_index);
+    //   auto& coll_out      = m_trackerhits_out().at(coll_index);
+    //   if (coll_in != nullptr) {
+    //     // std::vector<edm4hep::Mutabletrackerhit> sorted_hits; // for edm4hep (G4Hit level)
+    //     std::vector<edm4eic::MutableTrackerHit> sorted_hits; // for edm4eic (After digitization)
+    //     for (const auto& hit : *coll_in) {
+    //       // edm4hep::Mutabletrackerhit copiedHit = hit.clone(); // for edm4hep (G4Hit level)
+    //       edm4eic::MutableTrackerHit copiedHit = hit.clone(); // for edm4eic (After digitization)
+    //       copiedHit.setTime(hit.getTime() - m_time_offset);
+    //       sorted_hits.push_back(copiedHit);
+    //     }
 
-        std::sort(sorted_hits.begin(), sorted_hits.end(),
-                  [](const auto& a, const auto& b) { return a.getTime() < b.getTime(); });
+    //     std::sort(sorted_hits.begin(), sorted_hits.end(),
+    //               [](const auto& a, const auto& b) { return a.getTime() < b.getTime(); });
 
-        for (auto hit : sorted_hits) {
-          auto hitTime = hit.getTime();
-          coll_out->push_back(hit);
-        }
-      }
-    }
+    //     for (auto hit : sorted_hits) {
+    //       auto hitTime = hit.getTime();
+    //       coll_out->push_back(hit);
+    //     }
+    //   }
+    // }
   }
 };
