@@ -4,9 +4,7 @@
 #include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"
 
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector3d.h>
-#include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
@@ -15,6 +13,8 @@
 #include <gsl/pointers>
 #include <initializer_list>
 #include <vector>
+
+#include "algorithms/calorimetry/TruthEnergyPositionClusterMergerConfig.h"
 
 namespace eicrecon {
 
@@ -54,13 +54,15 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
 
     debug(" --> Processing position cluster {}, mcID: {}, energy: {}", pclus.getObjectID().index,
           mcID, pclus.getEnergy());
-    if (energyMap.count(mcID)) {
+
+    if (energyMap.contains(mcID)) {
 
       const auto& eclus = energyMap[mcID];
 
       auto new_clus = merged_clus->create();
       new_clus.setEnergy(eclus.getEnergy());
       new_clus.setEnergyError(eclus.getEnergyError());
+      new_clus.setType(m_cfg.clusterType);
       new_clus.setTime(pclus.getTime());
       new_clus.setNhits(pclus.getNhits() + eclus.getNhits());
       new_clus.setPosition(pclus.getPosition());
@@ -96,6 +98,7 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
       debug("   --> No matching energy cluster found, copying over position cluster");
       auto new_clus = pclus.clone();
       new_clus.addToClusters(pclus);
+      new_clus.setType(m_cfg.clusterType);
       merged_clus->push_back(new_clus);
 
       // set association
@@ -120,6 +123,7 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
     auto new_clus = merged_clus->create();
     new_clus.setEnergy(eclus.getEnergy());
     new_clus.setEnergyError(eclus.getEnergyError());
+    new_clus.setType(m_cfg.clusterType);
     new_clus.setTime(eclus.getTime());
     new_clus.setNhits(eclus.getNhits());
     // FIXME use nominal dd4hep::radius of 110cm, and use start vertex theta and phi
@@ -169,7 +173,7 @@ std::map<int, edm4eic::Cluster> TruthEnergyPositionClusterMerger::indexedCluster
       continue;
     }
 
-    const bool duplicate = matched.count(mcID);
+    const bool duplicate = matched.contains(mcID);
     if (duplicate) {
       trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
       if (cluster.getEnergy() < matched[mcID].getEnergy()) {
