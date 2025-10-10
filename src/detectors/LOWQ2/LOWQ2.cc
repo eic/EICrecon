@@ -35,8 +35,8 @@
 #include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
-#include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/meta/ONNXInference_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
