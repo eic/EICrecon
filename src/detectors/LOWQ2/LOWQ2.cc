@@ -7,7 +7,6 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
@@ -32,16 +31,12 @@
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/fardetectors/FarDetectorTransportationPostML_factory.h"
 #include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
-#endif
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
-#include "factories/meta/SubDivideCollection_factory.h"
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/meta/ONNXInference_factory.h"
-#endif
+#include "factories/meta/SubDivideCollection_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -185,7 +180,6 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
       {"TaggerTrackerLocalTrackAssociations"}, app));
 
-#if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
       "TaggerTrackerTransportationPreML",
       {"TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
@@ -209,6 +203,5 @@ void InitPlugin(JApplication* app) {
           .beamE = 10.0,
       },
       app));
-#endif
 }
 }

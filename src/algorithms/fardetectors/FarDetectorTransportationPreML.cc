@@ -1,10 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 - 2025, Simon Gardner
 
-#include <edm4eic/EDM4eicVersion.h>
-
-#if EDM4EIC_VERSION_MAJOR >= 8
-
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -88,4 +84,3 @@ void FarDetectorTransportationPreML::process(
 }
 
 } // namespace eicrecon
-#endif
