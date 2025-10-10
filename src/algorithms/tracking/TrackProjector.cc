@@ -3,9 +3,7 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#if Acts_VERSION_MAJOR >= 34
 #include <Acts/EventData/TransformationHelpers.hpp>
-#endif
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
@@ -105,18 +103,11 @@ void TrackProjector::process(const Input& input, const Output& output) const {
           Acts::makeDirectionFromPhiTheta(boundParams[Acts::eBoundPhi],
                                           boundParams[Acts::eBoundTheta]));
 
-#if Acts_VERSION_MAJOR >= 34
       auto freeParams = Acts::transformBoundToFreeParameters(
           trackstate.referenceSurface(), m_geo_provider->getActsGeometryContext(), boundParams);
       auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
           m_geo_provider->getActsGeometryContext(), freeParams.template segment<3>(Acts::eFreePos0),
           freeParams.template segment<3>(Acts::eFreeDir0));
-#else
-                auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
-                        m_geo_provider->getActsGeometryContext(),
-                        boundParams
-                );
-#endif
       auto freeCov = jacobian * boundCov * jacobian.transpose();
 
       // global position
