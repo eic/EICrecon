@@ -9,6 +9,7 @@
  */
 
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithm>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
@@ -110,12 +111,8 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
     cl.addToHits(hit);
     cl.addToHitContributions(energy);
     const float eta = edm4hep::utils::eta(hit.getPosition());
-    if (eta < minHitEta) {
-      minHitEta = eta;
-    }
-    if (eta > maxHitEta) {
-      maxHitEta = eta;
-    }
+    minHitEta       = std::min(eta, minHitEta);
+    maxHitEta       = std::max(eta, maxHitEta);
   }
   cl.setEnergy(totalE / m_cfg.sampFrac);
   cl.setEnergyError(0.);

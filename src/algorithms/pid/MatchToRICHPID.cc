@@ -111,7 +111,7 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
     auto match_is_close = std::abs(in_part_eta - in_track_eta) < m_cfg.etaTolerance &&
                           std::abs(in_part_phi - in_track_phi) < m_cfg.phiTolerance;
     if (match_is_close) {
-      prox_match_list.push_back(ProxMatch{match_dist, in_pid_idx});
+      prox_match_list.push_back(ProxMatch{.match_dist = match_dist, .pid_idx = in_pid_idx});
     }
 
     // logging

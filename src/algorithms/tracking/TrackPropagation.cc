@@ -292,10 +292,10 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   using PropagatorOptions =
       Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>>;
 #endif
-  Propagator propagator(
-      Acts::EigenStepper<>(magneticField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
-      logger().cloneWithSuffix("Propagator"));
+  Propagator propagator(Acts::EigenStepper<>(magneticField),
+                        Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
+                                        logger().cloneWithSuffix("Navigator")),
+                        logger().cloneWithSuffix("Propagator"));
   PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
 #elif Acts_VERSION_MAJOR >= 34
   Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> propagator(
@@ -382,8 +382,19 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   uint32_t system  = 0; // default value...will be set in TrackPropagation factory
 
   return std::make_unique<edm4eic::TrackPoint>(
-      edm4eic::TrackPoint{surface, system, position, positionError, momentum, momentumError, time,
-                          timeError, theta, phi, directionError, pathLength, pathLengthError});
+      edm4eic::TrackPoint{.surface         = surface,
+                          .system          = system,
+                          .position        = position,
+                          .positionError   = positionError,
+                          .momentum        = momentum,
+                          .momentumError   = momentumError,
+                          .time            = time,
+                          .timeError       = timeError,
+                          .theta           = theta,
+                          .phi             = phi,
+                          .directionError  = directionError,
+                          .pathlength      = pathLength,
+                          .pathlengthError = pathLengthError});
 }
 
 } // namespace eicrecon

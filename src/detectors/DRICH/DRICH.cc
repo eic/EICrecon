@@ -93,7 +93,7 @@ void InitPlugin(JApplication* app) {
   irt_cfg.numRIndexBins = 100;
   // - aerogel
   irt_cfg.radiators.insert({"Aerogel", RadiatorConfig{}});
-  irt_cfg.radiators.at("Aerogel").referenceRIndex = 1.0190;
+  irt_cfg.radiators.at("Aerogel").referenceRIndex = 1.0260;
   irt_cfg.radiators.at("Aerogel").attenuation     = 48; // [mm]
   irt_cfg.radiators.at("Aerogel").smearingMode    = "gaussian";
   irt_cfg.radiators.at("Aerogel").smearing        = 2e-3; // [radians]
