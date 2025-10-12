@@ -42,7 +42,7 @@ void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
       auto next_V = adcs[time_bin + 1];
       if ((std::abs(prev_V) < std::abs(V)) &&
           (std::abs(V) >= std::abs(next_V))) { // To get peak of the Analog signal
-        peakTimeAndHeight.push({time_bin, V});
+        peakTimeAndHeight.emplace(time_bin, V);
       }
     }
 
