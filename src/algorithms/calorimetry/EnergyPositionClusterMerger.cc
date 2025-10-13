@@ -3,7 +3,6 @@
 
 #include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
 
-#include <edm4eic/Cov3f.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -26,7 +25,7 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
 
   debug("Merging energy and position clusters for new event");
 
-  if (energy_clus->size() == 0 && pos_clus->size() == 0) {
+  if (energy_clus->empty() && pos_clus->empty()) {
     debug("Nothing to do for this event, returning...");
     return;
   }

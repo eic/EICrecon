@@ -51,8 +51,9 @@ void LGADHitClustering::init() {
 
 void LGADHitClustering::_calcCluster(const Output& output,
                                      const std::vector<edm4eic::TrackerHit>& hits) const {
-  if (hits.size() == 0)
+  if (hits.empty()) {
     return;
+  }
   constexpr double mm_acts = Acts::UnitConstants::mm;
   using dd4hep::mm;
 
