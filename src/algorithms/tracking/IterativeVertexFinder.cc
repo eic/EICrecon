@@ -5,7 +5,6 @@
 #include "IterativeVertexFinder.h"
 
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
@@ -209,7 +208,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     eicvertex.setPositionError(cov); // covariance
 
     for (const auto& t : vtx.tracks()) {
-      const auto& par = finderCfg.extractParameters(t.originalParams);
+      const auto& par = Acts::InputTrack::extractParameters(t.originalParams);
       m_log->trace("Track local position from vertex = {} mm, {} mm",
                    par.localPosition().x() / Acts::UnitConstants::mm,
                    par.localPosition().y() / Acts::UnitConstants::mm);

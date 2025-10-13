@@ -6,7 +6,6 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/InclusiveKinematics.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
@@ -29,9 +28,7 @@
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
-#ifdef USE_ONNX
 #include "factories/reco/InclusiveKinematicsML_factory.h"
-#endif
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
@@ -43,12 +40,9 @@
 #include "factories/reco/ReconstructedElectrons_factory.h"
 #include "factories/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "factories/reco/ScatteredElectronsTruth_factory.h"
+#include "factories/reco/TrackClusterMatch_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
-
-#if EDM4EIC_VERSION_MAJOR >= 8
-#include "factories/reco/TrackClusterMatch_factory.h"
-#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -79,6 +73,7 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapPClusterAssociations"},
       {"EcalClusterAssociations"}, app));
 
+  // Create ReconstructedParticles
   app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
       "ReconstructedParticlesWithAssoc",
       {
@@ -128,11 +123,9 @@ void InitPlugin(JApplication* app) {
       "InclusiveKinematicsSigma", {"MCParticles", "ScatteredElectronsTruth", "HadronicFinalState"},
       {"InclusiveKinematicsSigma"}, app));
 
-#ifdef USE_ONNX
   app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
       "InclusiveKinematicsML", {"InclusiveKinematicsElectron", "InclusiveKinematicsDA"},
       {"InclusiveKinematicsML"}, app));
-#endif
 
   app->Add(new JOmniFactoryGeneratorT<ReconstructedElectrons_factory>(
       "ReconstructedElectrons", {"ReconstructedParticles"}, {"ReconstructedElectrons"}, {}, app));
@@ -176,7 +169,6 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-#if EDM4EIC_VERSION_MAJOR >= 8
   // Forward
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
       "EcalEndcapPTrackClusterMatches", {"CalorimeterTrackProjections", "EcalEndcapPClusters"},
@@ -210,8 +202,6 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapNBarrelTrackClusterMatches",
       {"CalorimeterTrackProjections", "HcalEndcapNClusters"}, {"HcalEndcapNTrackClusterMatches"},
       {.calo_id = "HcalEndcapN_ID"}, app));
-
-#endif // EDM4EIC_VERSION_MAJOR >= 8
 
   app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
       "ReconstructedBreitFrameParticles",

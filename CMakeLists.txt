@@ -55,10 +55,10 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Minimal dependency versions
-set(Acts_VERSION_MIN 33.0.0)
+set(Acts_VERSION_MIN 34.0.0)
 set(algorithms_VERSION_MIN 1.0.0)
 set(DD4hep_VERSION_MIN 1.21)
-set(EDM4EIC_VERSION_MIN 7.0)
+set(EDM4EIC_VERSION_MIN 8.0)
 set(EDM4HEP_VERSION_MIN 0.7.1)
 set(Eigen3_VERSION_MIN 3.3)
 set(FastJet_VERSION_MIN 3)
@@ -253,11 +253,7 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
 endif()
 
 # ONNX Runtime
-option(USE_ONNX "Compile with ONNX support" ON)
-if(${USE_ONNX})
-  find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
-  add_compile_definitions(USE_ONNX)
-endif()
+find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins

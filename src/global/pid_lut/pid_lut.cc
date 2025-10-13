@@ -1,61 +1,28 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022-2025 Christopher Dilks, Simon Gardner
 
-#include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/MCRecoParticleAssociation.h>
+#include <edm4eic/ReconstructedParticle.h>
+#include <fmt/core.h>
 #include <cmath>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
 #include "algorithms/pid_lut/PIDLookupConfig.h"
-#include "algorithms/pid_lut/PhaseSpacePIDConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
+#include "factories/meta/CollectionCollector_factory.h"
 // factories
 #include "factories/pid_lut/PIDLookup_factory.h"
-#include "factories/pid_lut/PhaseSpacePID_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
-
-  //-------------------------------------------------------------------------
-  // FarBackward PID Through Phase Space
-  //-------------------------------------------------------------------------
-  PhaseSpacePIDConfig phase_space_pid_cfg{
-      .system        = "TaggerTracker_ID",
-      .direction     = {0.0, 0.0, -1.0},  // Direction is along z-axis
-      .opening_angle = 12 * dd4hep::mrad, // Beampipe opening angle
-      .pdg_value     = 11,                // Set PID to electron
-  };
-
-  app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
-      "FarBackwardTruthSeededPhaseSpacePID",
-      {
-          "ReconstructedTruthSeededChargedWithoutPIDParticles",
-          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
-      },
-      {
-          "ReconstructedTruthSeededChargedWithFBPIDParticles",
-          "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
-          "FarBackwardTruthSeededPhaseSpacePIDParticleIDs",
-      },
-      phase_space_pid_cfg, app));
-
-  app->Add(new JOmniFactoryGeneratorT<PhaseSpacePID_factory>(
-      "FarBackwardPhaseSpacePID",
-      {
-          "ReconstructedChargedWithoutPIDParticles",
-          "ReconstructedChargedWithoutPIDParticleAssociations",
-      },
-      {
-          "ReconstructedChargedWithFBPIDParticles",
-          "ReconstructedChargedWithFBPIDParticleAssociations",
-          "FarBackwardPhaseSpacePIDParticleIDs",
-      },
-      phase_space_pid_cfg, app));
 
   //-------------------------------------------------------------------------
   // PFRICH PID
@@ -68,8 +35,10 @@ void InitPlugin(JApplication* app) {
       .momentum_edges = {0.4,  0.8,  1.2,  1.6, 2,    2.4,  2.8,  3.2,  3.6, 4,    4.4,  4.8, 5.2,
                          5.6,  6,    6.4,  6.8, 7.2,  7.6,  8,    8.4,  8.8, 9.2,  9.6,  10,  10.4,
                          10.8, 11.2, 11.6, 12,  12.4, 12.8, 13.2, 13.6, 14,  14.4, 14.8, 15.2},
-      .polar_edges    = {2.65,  2.6725, 2.695, 2.7175, 2.74,  2.7625, 2.785, 2.8075, 2.83,  2.8525,
-                         2.875, 2.8975, 2.92,  2.9425, 2.965, 2.9875, 3.01,  3.0325, 3.055, 3.0775},
+      // NOLINTBEGIN(modernize-use-std-numbers)
+      .polar_edges = {2.65,  2.6725, 2.695, 2.7175, 2.74,  2.7625, 2.785, 2.8075, 2.83,  2.8525,
+                      2.875, 2.8975, 2.92,  2.9425, 2.965, 2.9875, 3.01,  3.0325, 3.055, 3.0775},
+      // NOLINTEND(modernize-use-std-numbers)
       .azimuthal_binning            = {0., 2 * M_PI, 2 * M_PI / 120.}, // lower, upper, step
       .azimuthal_bin_centers_in_lut = true,
       .momentum_bin_centers_in_lut  = true,
@@ -81,8 +50,8 @@ void InitPlugin(JApplication* app) {
       "RICHEndcapNTruthSeededLUTPID",
       {
           "EventHeader",
-          "ReconstructedTruthSeededChargedWithFBPIDParticles",
-          "ReconstructedTruthSeededChargedWithFBPIDParticleAssociations",
+          "ReconstructedTruthSeededChargedWithoutPIDParticles",
+          "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations",
       },
       {
           "ReconstructedTruthSeededChargedWithPFRICHPIDParticles",
@@ -95,8 +64,8 @@ void InitPlugin(JApplication* app) {
       "RICHEndcapNLUTPID",
       {
           "EventHeader",
-          "ReconstructedChargedWithFBPIDParticles",
-          "ReconstructedChargedWithFBPIDParticleAssociations",
+          "ReconstructedChargedWithoutPIDParticles",
+          "ReconstructedChargedWithoutPIDParticleAssociations",
       },
       {
           "ReconstructedChargedWithPFRICHPIDParticles",
@@ -208,22 +177,62 @@ void InitPlugin(JApplication* app) {
       },
       dirc_pid_cfg, app));
 
+  // Inject particles from other sources without PID detectors so they are contained
+  // as a particle in the ReconstructedChargedParticle collection rather than needing
+  // a subset collection. This should be fixed in the future.
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
+          "ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles",
+          {"ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
+           "TaggerTrackerReconstructedParticles"},
+          {"ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
+      "ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
+      {"ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+       "TaggerTrackerReconstructedParticleAssociations"},
+      {"ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
+
+  // And the same for truth seeded particles and associations
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
+          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles",
+          {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
+           "TaggerTrackerReconstructedParticles"},
+          {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
+      "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
+      {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+       "TaggerTrackerReconstructedParticleAssociations"},
+      {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
+
   //-------------------------------------------------------------------------
   // DRICH PID
   //-------------------------------------------------------------------------
 
   PIDLookupConfig drich_pid_cfg{
-      .filename                 = "calibrations/drich.lut",
-      .system                   = "ForwardRICH_ID",
-      .pdg_values               = {211, 321, 2212},
-      .charge_values            = {1},
-      .momentum_edges           = {0.25,  0.75,  1.25,  1.75,  2.25,  2.75,  3.25,  3.75,  4.25,
-                                   4.75,  5.25,  5.75,  6.25,  6.75,  7.25,  7.75,  8.25,  8.75,
-                                   9.25,  9.75,  10.25, 10.75, 11.25, 11.75, 12.25, 12.75, 13.25,
-                                   13.75, 14.25, 14.75, 15.25, 15.75, 16.25, 16.75, 17.25, 17.75,
-                                   18.25, 18.75, 19.25, 19.75, 20.50, 21.50, 22.50, 23.50, 24.50,
-                                   25.50, 26.50, 27.50, 28.50, 29.50, 30.50},
-      .polar_edges              = {0.060, 0.164, 0.269, 0.439},
+      .filename       = "calibrations/drich.lut.gz",
+      .system         = "ForwardRICH_ID",
+      .pdg_values     = {211, 321, 2212},
+      .charge_values  = {1},
+      .momentum_edges = {0.75,  1.25,  1.75,  2.25,  2.75,  3.25,  3.75,  4.25,  4.75,  5.25,
+                         5.75,  6.25,  6.75,  7.25,  7.75,  8.25,  8.75,  9.25,  9.75,  10.25,
+                         10.75, 11.25, 11.75, 12.25, 12.75, 13.25, 13.75, 14.25, 14.75, 15.25,
+                         15.75, 16.25, 16.75, 17.25, 17.75, 18.25, 18.75, 19.25, 19.75, 20.25,
+                         20.75, 21.25, 21.75, 22.25, 22.75, 23.25, 23.75, 24.25, 24.75, 25.25,
+                         25.75, 26.25, 26.75, 27.25, 27.75, 28.25, 28.75, 29.25, 29.75, 30.25,
+                         30.75, 31.25, 33.00, 35.00, 37.00, 39.00, 41.00, 43.00, 45.00, 47.00,
+                         49.00, 51.00, 59.00, 61.00},
+
+      .polar_edges = {0.0635, 0.0702, 0.0776, 0.0858, 0.0948, 0.1047, 0.1157,
+                      0.1278, 0.1412, 0.1560, 0.1724, 0.1904, 0.2103, 0.2322,
+                      0.2564, 0.2830, 0.3123, 0.3445, 0.3799, 0.4188},
+
       .azimuthal_binning        = {0., 2 * M_PI, 2 * M_PI}, // lower, upper, step
       .polar_bin_centers_in_lut = true,
       .use_radians              = true,
@@ -234,8 +243,8 @@ void InitPlugin(JApplication* app) {
       "DRICHTruthSeededLUTPID",
       {
           "EventHeader",
-          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
-          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles",
+          "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
       },
       {
           "ReconstructedTruthSeededChargedParticles",
@@ -248,8 +257,8 @@ void InitPlugin(JApplication* app) {
       "DRICHLUTPID",
       {
           "EventHeader",
-          "ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
-          "ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+          "ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles",
+          "ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
       },
       {
           "ReconstructedChargedParticles",

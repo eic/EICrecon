@@ -173,12 +173,11 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
 
       double timeC = std::numeric_limits<double>::max();
       for (const auto& c : hit.getContributions()) {
-        if (c.getTime() <= timeC) {
-          timeC = c.getTime();
-        }
+        timeC = std::min<double>(c.getTime(), timeC);
       }
       if (timeC > m_cfg.capTime) {
-        continue;
+        debug("retaining hit, even though time %f ns > %f ns", timeC / dd4hep::ns,
+              m_cfg.capTime / dd4hep::ns);
       }
       edep += hit.getEnergy();
       trace("adding {} \t total: {}", hit.getEnergy(), edep);
@@ -187,9 +186,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       if (hit.getEnergy() > max_edep) {
         max_edep    = hit.getEnergy();
         leading_hit = hit;
-        if (timeC <= time) {
-          time = timeC;
-        }
+        time        = std::min(timeC, time);
       }
 
       edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
@@ -199,7 +196,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       rawassocs_staging.push_back(assoc);
     }
     if (time > m_cfg.capTime) {
-      continue;
+      debug("retaining hit, even though time %f ns > %f ns", time / dd4hep::ns,
+            m_cfg.capTime / dd4hep::ns);
     }
 
     // safety check
