@@ -13,7 +13,6 @@
 #include <limits>
 #include <map>
 #include <vector>
-#if EDM4EIC_VERSION_MAJOR >= 8
 
 #include "TrackClusterSubtractor.h"
 #include "algorithms/particle/TrackClusterSubtractorConfig.h"
@@ -215,5 +214,3 @@ bool TrackClusterSubtractor::is_zero(const double difference) const {
 
 } // end 'is_zero(double)'
 } // namespace eicrecon
-
-#endif // EDM4EIC_VERSION_MAJOR >= 8

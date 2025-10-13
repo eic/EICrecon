@@ -8,10 +8,7 @@
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/particle/TrackClusterSubtractor_factory.h"
-#endif
 
 extern "C" {
 
@@ -27,7 +24,6 @@ void InitPlugin(JApplication* app) {
 
   // backward -----------------------------------------------------------
 
-#if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "EcalEndcapNRemnantClusters",
       {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters", "CalorimeterTrackProjections"},
@@ -94,7 +90,5 @@ void InitPlugin(JApplication* app) {
       {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
-
-#endif
 }
 } // extern "C"

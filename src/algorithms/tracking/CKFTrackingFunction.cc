@@ -73,7 +73,7 @@ std::shared_ptr<CKFTracking::CKFTrackingFunction> CKFTracking::makeCKFTrackingFu
     std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry,
     std::shared_ptr<const Acts::MagneticFieldProvider> magneticField, const Acts::Logger& logger) {
   Stepper stepper(std::move(magneticField));
-  Navigator::Config cfg{trackingGeometry};
+  Navigator::Config cfg{.trackingGeometry = trackingGeometry};
   cfg.resolvePassive   = false;
   cfg.resolveMaterial  = true;
   cfg.resolveSensitive = true;
