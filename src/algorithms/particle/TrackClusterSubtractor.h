@@ -45,7 +45,7 @@ public:
   //! Comparator struct for clusters
   // ------------------------------------------------------------------------
   /*! Organizes clusters by their ObjectIDs in decreasing collection
-   *  ID first, and second by decreasing index second.
+   *  ID first, and by decreasing index second.
    */
   struct CompareClust {
     bool operator()(const edm4eic::Cluster& lhs, const edm4eic::Cluster& rhs) const {
