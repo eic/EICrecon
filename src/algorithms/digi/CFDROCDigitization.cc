@@ -27,8 +27,9 @@ void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
   //
   for (const auto& pulse : *simhits) {
     auto adcs = pulse.getAdcCounts();
-    if (adcs.size() == 0)
+    if (adcs.empty()) {
       continue;
+    }
     int n_CFDROC_cycle = static_cast<int>(std::floor(pulse.getTime() / m_cfg.tMax));
 
     // first we find all the peaks and store their location
@@ -42,7 +43,7 @@ void CFDROCDigitization::process(const CFDROCDigitization::Input& input,
       auto next_V = adcs[time_bin + 1];
       if ((std::abs(prev_V) < std::abs(V)) &&
           (std::abs(V) >= std::abs(next_V))) { // To get peak of the Analog signal
-        peakTimeAndHeight.push({time_bin, V});
+        peakTimeAndHeight.emplace(time_bin, V);
       }
     }
 
