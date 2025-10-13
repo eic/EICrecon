@@ -10,8 +10,7 @@
 
 namespace eicrecon {
 
-class ChargedCandidateMaker_factory
-    : public JOmniFactory<ChargedCandidateMaker_factory> {
+class ChargedCandidateMaker_factory : public JOmniFactory<ChargedCandidateMaker_factory> {
 
 public:
   ///! alias for algorithm name
@@ -36,9 +35,7 @@ public:
 
   ///! Primary algorithm call
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
-    m_algo->process(
-        {m_track_cluster_match_input()},
-        {m_charged_candidate_output().get()});
+    m_algo->process({m_track_cluster_match_input()}, {m_charged_candidate_output().get()});
   }
 }; // end ChargedCandidateMaker_factory
 
