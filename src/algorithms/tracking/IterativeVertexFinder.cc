@@ -4,13 +4,19 @@
 
 #include "IterativeVertexFinder.h"
 
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/TrackParameters.hpp>
+#include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
-#include <Acts/Utilities/Delegate.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Utilities/detail/ContextType.hpp>
@@ -24,21 +30,24 @@
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
-#include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#include <boost/container/detail/std_fwd.hpp>
 #include <edm4eic/Cov4f.h>
+#include <edm4eic/Cov6f.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/Trajectory.h>
-#include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector4f.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
-#include <cmath>
+#include <array>
+#include <cstddef>
+#include <iterator>
+#include <ranges>
 #include <string>
 #include <utility>
 
