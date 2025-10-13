@@ -8,17 +8,13 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <podio/ObjectID.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include <edm4eic/TrackClusterMatchCollection.h>
-#endif
 #include <map>
 #include <string>
 #include <string_view>
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-
-#if EDM4EIC_VERSION_MAJOR >= 8
 
 namespace eicrecon {
 
@@ -73,5 +69,3 @@ public:
 }; // end ChargedCandidateMaker
 
 } // namespace eicrecon
-
-#endif // EDM4EIC_VERSION_MAJOR >= 8

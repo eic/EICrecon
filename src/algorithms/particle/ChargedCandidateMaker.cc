@@ -10,7 +10,6 @@
 #include <gsl/pointers>
 #include <map>
 #include <vector>
-#if EDM4EIC_VERSION_MAJOR >= 8
 
 #include "ChargedCandidateMaker.h"
 
@@ -60,5 +59,3 @@ void ChargedCandidateMaker::process(const ChargedCandidateMaker::Input& input,
   }
 } // end 'process(Input&, Output&)'
 } // namespace eicrecon
-
-#endif // EDM4EIC_VERSION_MAJOR >= 8
