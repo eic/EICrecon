@@ -9,11 +9,8 @@
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
-
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/particle/ChargedCandidateMaker_factory.h"
 #include "factories/particle/TrackClusterSubtractor_factory.h"
-#endif
 
 extern "C" {
 
@@ -33,7 +30,6 @@ void InitPlugin(JApplication* app) {
 
   // backward -----------------------------------------------------------
 
-#if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "EcalEndcapNRemnantClusters",
       {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters", "CalorimeterTrackProjections"},
@@ -93,8 +89,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterSubtractor_factory>(
       "HcalEndcapPInsertRemnantClusters",
-      {"HcalEndcapPInsertTrackSplitMergeClusterMatches", "HcalEndcapPInsertClusters", "CalorimeterTrackProjections"},
-      {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters", "HcalEndcapPInsertTrackExpectedClusterMatches"},
+      {"HcalEndcapPInsertTrackSplitMergeClusterMatches", "HcalEndcapPInsertClusters",
+       "CalorimeterTrackProjections"},
+      {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters",
+       "HcalEndcapPInsertTrackExpectedClusterMatches"},
       {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
@@ -149,7 +147,5 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
       "EndcapPInsertChargedCandidateParticlesAlpha", {"EndcapPInsertTrackExpectedClusterMatches"},
       {"EndcapPInsertChargedCandidateParticlesAlpha"}, {}, app));
-#endif
-
 }
 } // extern "C"
