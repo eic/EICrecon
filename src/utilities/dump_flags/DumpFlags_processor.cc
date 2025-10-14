@@ -9,6 +9,7 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <algorithm>
 #include <cstddef>
 #include <cstring>
 #include <exception>
@@ -62,13 +63,9 @@ void DumpFlags_processor::Finish() {
   std::size_t max_name_len        = 0;
   std::size_t max_default_val_len = 0;
   for (auto [name, param] : pm->GetAllParameters()) {
-    if (max_name_len < strlen(name.c_str())) {
-      max_name_len = strlen(name.c_str());
-    }
+    max_name_len = std::max(max_name_len, strlen(name.c_str()));
 
-    if (max_default_val_len < strlen(param->GetDefault().c_str())) {
-      max_default_val_len = strlen(param->GetDefault().c_str());
-    }
+    max_default_val_len = std::max(max_default_val_len, strlen(param->GetDefault().c_str()));
   }
 
   // Found longest values?
