@@ -55,13 +55,13 @@ struct fmt::formatter<T, std::enable_if_t<std::is_base_of_v<Eigen::MatrixBase<T>
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 // Acts_MAJOR_VERSION >= 44
 using DD4hepDetectorElement       = ActsPlugins::DD4hepDetectorElement;
-using sortDetElementsByID         = ActsPlugins::sortDetElementsByID;
 const auto& convertDD4hepDetector = ActsPlugins::convertDD4hepDetector;
+const auto& sortDetElementsByID   = ActsPlugins::sortDetElementsByID;
 #else
 // Acts_MAJOR_VERSION < 44
 using DD4hepDetectorElement       = Acts::DD4hepDetectorElement;
-using sortDetElementsByID         = Acts::sortDetElementsByID;
 const auto& convertDD4hepDetector = Acts::convertDD4hepDetector;
+const auto& sortDetElementsByID   = Acts::sortDetElementsByID;
 #endif
 
 void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::string material_file,
