@@ -55,12 +55,12 @@ struct fmt::formatter<T, std::enable_if_t<std::is_base_of_v<Eigen::MatrixBase<T>
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 // Acts_MAJOR_VERSION >= 44
 using DD4hepDetectorElement       = ActsPlugins::DD4hepDetectorElement;
-using sortDetElementsByID         = ActsPluginsentsByIDActsPlugins::sortDetElementsByID;
+using sortDetElementsByID         = ActsPlugins::sortDetElementsByID;
 const auto& convertDD4hepDetector = ActsPlugins::convertDD4hepDetector;
 #else
 // Acts_MAJOR_VERSION < 44
 using DD4hepDetectorElement       = Acts::DD4hepDetectorElement;
-using sortDetElementsByID         = Acts::Acts;
+using sortDetElementsByID         = Acts::sortDetElementsByID;
 const auto& convertDD4hepDetector = Acts::convertDD4hepDetector;
 #endif
 
