@@ -5,7 +5,6 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
@@ -91,6 +90,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TOFBarrelClusterHits",
       "TOFBarrelADCTDC",
       "TOFEndcapHits",
+
+      "TOFEndcapSharedHits",
+      "TOFEndcapADCTDC",
 
       "TOFBarrelRawHitAssociations",
       "TOFEndcapRawHitAssociations",
@@ -376,7 +378,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalLumiSpecRawHitAssociations",
       "EcalFarForwardZDCRawHitAssociations",
       "HcalFarForwardZDCRawHitAssociations",
-#if EDM4EIC_VERSION_MAJOR >= 8
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
       "HcalEndcapPInsertClusterMatches",
@@ -384,7 +385,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalBarrelTrackClusterMatches",
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
-#endif
 
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set

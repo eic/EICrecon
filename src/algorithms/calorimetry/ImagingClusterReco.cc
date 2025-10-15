@@ -90,7 +90,7 @@ ImagingClusterReco::reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl)
     //                std::vector<std::pair<const edm4eic::CalorimeterHit, float>> v;
     //                layer_map[lid] = {};
     //            }
-    layer_map[lid].push_back({hit, weights[i]});
+    layer_map[lid].emplace_back(hit, weights[i]);
   }
 
   // create layers
