@@ -167,7 +167,7 @@ namespace eicrecon {
 	  
 	  const int qeEntries = qeref.size();
 	  std::unique_ptr<double[]> WL(new double[qeEntries]); 
-    std::unique_ptr<double[]> QE(new double[qeEntries]);
+	  std::unique_ptr<double[]> QE(new double[qeEntries]);
 	  
 	  unsigned counter = 0;
 	  for (json::iterator it = qeref.begin(); it != qeref.end(); ++it) {
@@ -181,8 +181,8 @@ namespace eicrecon {
 	  } //it
 	  
 	  double qemax = 0.0;
-    std::vector<double> qePhotonEnergy(qeEntries);
-    std::vector<double> qeData(qeEntries);
+	  std::vector<double> qePhotonEnergy(qeEntries);
+	  std::vector<double> qeData(qeEntries);
 	  for(int iq=0; iq<qeEntries; iq++) {
 	    qePhotonEnergy[iq] = _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
 	    qeData        [iq] =                QE[qeEntries - iq - 1] * qe_rescaling_factor;

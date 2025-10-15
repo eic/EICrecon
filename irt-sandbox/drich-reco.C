@@ -95,9 +95,11 @@ void drich_reco(const char *dfname, const char *cfname = 0)
   {
 #ifdef _USE_AEROGEL_RADIATOR_
     ra  ->DisplayStandardPlots("Aerogel radiator",            -10,  10, 1250, 540);
+    ra  ->BookHistograms("aerogel_histo.root");
 #endif
 #ifdef _USE_GAS_RADIATOR_
     rg  ->DisplayStandardPlots("Gas radiator",                -10, 600, 1250, 540);
+    rg  ->BookHistograms("gas_histo.root");
 #endif
     reco->DisplayStandardPlots("Track / event level plots", -1265,  10,  625,1115);
   }

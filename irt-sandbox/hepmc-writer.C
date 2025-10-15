@@ -32,12 +32,12 @@ void hepmc_writer(const char* out_fname, int n_events)
     GenVertexPtr v1 = std::make_shared<GenVertex>();
 
     // type 1 is final state; 
-    for(int iq=0; iq</*2*/1; iq++){
-      auto particle = pion;//iq ? kaon : pion;
+    for(int iq=0; iq<3; iq++){
+      auto particle = (iq%2==0) ? kaon : pion;
       double eta    = 3.0;//-3.0;
       Double_t th   = 2*std::atan(exp(-eta));
-      Double_t p    = 10.0;//5.0;
-      Double_t phi  = M_PI/2;
+      Double_t p    = (iq==2) ? 30.0 : 50;//5.0;
+      Double_t phi  = (iq==2) ? M_PI/2 : M_PI/2.5 ;
 
       Double_t px   = p * std::cos(phi) * std::sin(th);
       Double_t py   = p * std::sin(phi) * std::sin(th);
