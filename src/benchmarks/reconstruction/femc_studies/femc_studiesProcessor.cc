@@ -549,7 +549,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
       m_log->trace("MA cluster {}:\t {} \t {}", iCl, cluster.cluster_E, cluster.cluster_NTowers);
     }
     if (iCl < maxNCluster && enableTreeCluster) {
-      t_fEMC_clusters_N = (int)iCl;
+      t_fEMC_clusters_N = iCl;
     }
 
     clusters_calo.clear();
@@ -600,13 +600,13 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
                    input_tower_recSav.at(iCell).tower_clusterIDA,
                    input_tower_recSav.at(iCell).tower_clusterIDB);
 
-      t_fEMC_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
-      t_fEMC_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
+      t_fEMC_towers_cellE[iCell]      = input_tower_recSav.at(iCell).energy;
+      t_fEMC_towers_cellT[iCell]      = input_tower_recSav.at(iCell).time;
       t_fEMC_towers_cellIDx[iCell]    = (short)input_tower_recSav.at(iCell).cellIDx;
       t_fEMC_towers_cellIDy[iCell]    = (short)input_tower_recSav.at(iCell).cellIDy;
       t_fEMC_towers_clusterIDA[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDA;
       t_fEMC_towers_clusterIDB[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDB;
-      t_fEMC_towers_cellTrueID[iCell] = (int)input_tower_recSav.at(iCell).tower_trueID;
+      t_fEMC_towers_cellTrueID[iCell] = input_tower_recSav.at(iCell).tower_trueID;
     }
 
     event_tree->Fill();
