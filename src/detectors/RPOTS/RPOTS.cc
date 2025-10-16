@@ -153,25 +153,15 @@ void InitPlugin(JApplication* app) {
 	          .poly_matrix_configs =
 	              {{
 	                   .nomMomentum = 275.0,
-	                   
-
 	               },
 	               {
-	                   // NOT TUNED -- just for testing purposes
 	                   .nomMomentum = 130.0,
-	                   
-
 	               },
 	               {
 	                   .nomMomentum = 100.0,
-
-	                   
-
 	               },
 	               {
 	                   .nomMomentum = 41.0,
-
-	                   
 
 	               }},
 	          .hit1minZ = 32541.0,

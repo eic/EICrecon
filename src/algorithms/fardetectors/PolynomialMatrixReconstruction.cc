@@ -21,6 +21,8 @@
 #include <stdexcept>
 #include <vector>
 
+#include <TGraph2D.h>
+
 #include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"
 
 void eicrecon::PolynomialMatrixReconstruction::init() {}
@@ -113,33 +115,30 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
   // allowing us to isolate the various smearing effects.
   //
 
-  /*
-  bool matrix_found = false;
-  for (const MatrixConfig& matrix_config : m_cfg.matrix_configs) {
-    if (std::abs(matrix_config.nomMomentum - nomMomentum) / matrix_config.nomMomentum <
-        nomMomentumError) {
-      if (matrix_found) {
-        error("Conflicting matrix values matching momentum {}", nomMomentum);
-      }
-      matrix_found = true;
-
-      aX = matrix_config.aX;
-      aY = matrix_config.aY;
-
-      local_x_offset       = matrix_config.local_x_offset;
-      local_y_offset       = matrix_config.local_y_offset;
-      local_x_slope_offset = matrix_config.local_x_slope_offset;
-      local_y_slope_offset = matrix_config.local_y_slope_offset;
+  
+  bool valid_energy_found = false;
+  for (const PolynomialMatrixConfig& poly_matrix_configs : m_cfg.poly_matrix_configs) {
+    if (std::abs(poly_matrix_configs.nomMomentum - nomMomentum) / poly_matrix_configs.nomMomentum < nomMomentumError) {
+      if (valid_energy_found) { error("Conflicting matrix values matching momentum {}", nomMomentum);}
+        valid_energy_found = true;
+		nomMomentum = poly_matrix_configs.nomMomentum;
     }
   }
-  if (not matrix_found) {
-    if (m_cfg.requireMatchingMatrix) {
-      critical("No matrix found with matching beam momentum");
-      throw std::runtime_error("No matrix found with matching beam momentum");
+  if (not valid_energy_found) {
+    if (m_cfg.requireValidBeamEnergy) {
+      critical("No tune beam energy found - cannot acquire lookup table");
+      throw std::runtime_error("No valid beam energy found, cannot reconstruct momentum");
     }
     return;
   }
-  */
+  
+  //let's fill the xL table here, so it only has to be done one time.
+
+  TGraph2D * xLGraph = new TGraph2D(Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum), "%lf %lf %lf");
+
+  trace("filename for lookup --> {}", Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum));
+
+  xLGraph->RemoveDuplicates(); //important to ensure interoplation works correctly -- do not remove
 
   //---- begin Reconstruction code ----
 
@@ -173,7 +172,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
     gpos = gpos / dd4hep::mm;
     pos0 = pos0 / dd4hep::mm;
 
-    trace("gpos.z() = {}, pos0.z() = {}, E_dep = {}", gpos.z(), pos0.z(), h.getEdep());
+    trace("gpos.z() = {}, gpos.x() = {}, gpos.y() = {}, E_dep = {}", gpos.z(), gpos.x(), gpos.y(), h.getEdep());
 
     if (gpos.z() > m_cfg.hit2minZ && gpos.z() < m_cfg.hit2maxZ) {
 
@@ -209,6 +208,8 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
 
     if (base == 0) {
       info("Detector separation = 0! Cannot calculate slope!");
+	  delete xLGraph;
+	  return;
     }
 
     double XL[2] = {goodHit[0].x, goodHit[1].x};
@@ -222,19 +223,21 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
     //First, we use the hit information to extract the x_L value needed for the matrix.
     //This x_L evaluation only uses the x_rp and theta_x_rp values (2D lookup).
 
-    double extracted_xL_value = extractXLFromHits(Xrp[0], Xrp[1], "RP"); //RP string necessary - will eventually store OMD table there too 
+    //double extracted_xL_value = extractXLFromHits(Xrp[0], Xrp[1]); //RP string necessary - will eventually store OMD table there too 
+	double extracted_xL_value = 100*xLGraph->Interpolate(Xrp[0], Xrp[1]);
 
     trace("RP extracted x_L ---> x_rp = {}, theta_x_rp = {}, x_L = {}", Xrp[0],  Xrp[1],  extracted_xL_value);
 
     if(extracted_xL_value == 0){
         info("Extracted X_L value is 0 --> cannot calculate matrix");
+		delete xLGraph;
 		return;
     }
 
-    local_x_offset       = calculateOffsetFromXL(0, extracted_xL_value, "RP");
-    local_x_slope_offset = calculateOffsetFromXL(1, extracted_xL_value, "RP");
-    local_y_offset       = calculateOffsetFromXL(2, extracted_xL_value, "RP");
-    local_y_slope_offset = calculateOffsetFromXL(3, extracted_xL_value, "RP");
+    local_x_offset       = calculateOffsetFromXL(0, extracted_xL_value, nomMomentum);
+    local_x_slope_offset = calculateOffsetFromXL(1, extracted_xL_value, nomMomentum);
+    local_y_offset       = calculateOffsetFromXL(2, extracted_xL_value, nomMomentum);
+    local_y_slope_offset = calculateOffsetFromXL(3, extracted_xL_value, nomMomentum);
 
     trace("RP offsets ---> local_x_offset = {},  local_x_slope_offset = {}, local_y_offset = {}, local_y_slope_offset = {}", local_x_offset, local_x_slope_offset, local_y_offset, local_y_slope_offset);
     
@@ -244,15 +247,15 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
     Yrp[0] = Yrp[0] - local_y_offset;
     Yrp[1] = Yrp[1] - local_y_slope_offset;
 
-    aXRP[0][0] = calculateMatrixValueFromXL(0, extracted_xL_value, "RP");
-    aXRP[0][1] = calculateMatrixValueFromXL(1, extracted_xL_value, "RP");
-    aXRP[1][0] = calculateMatrixValueFromXL(2, extracted_xL_value, "RP");
-    aXRP[1][1] = calculateMatrixValueFromXL(3, extracted_xL_value, "RP");
+    aXRP[0][0] = calculateMatrixValueFromXL(0, extracted_xL_value, nomMomentum);
+    aXRP[0][1] = calculateMatrixValueFromXL(1, extracted_xL_value, nomMomentum);
+    aXRP[1][0] = calculateMatrixValueFromXL(2, extracted_xL_value, nomMomentum);
+    aXRP[1][1] = calculateMatrixValueFromXL(3, extracted_xL_value, nomMomentum);
 
-    aYRP[0][0] = calculateMatrixValueFromXL(4, extracted_xL_value, "RP");
-    aYRP[0][1] = calculateMatrixValueFromXL(5, extracted_xL_value, "RP");
-    aYRP[1][0] = calculateMatrixValueFromXL(6, extracted_xL_value, "RP");
-    aYRP[1][1] = calculateMatrixValueFromXL(7, extracted_xL_value, "RP");
+    aYRP[0][0] = calculateMatrixValueFromXL(4, extracted_xL_value, nomMomentum);
+    aYRP[0][1] = calculateMatrixValueFromXL(5, extracted_xL_value, nomMomentum);
+    aYRP[1][0] = calculateMatrixValueFromXL(6, extracted_xL_value, nomMomentum);
+    aYRP[1][1] = calculateMatrixValueFromXL(7, extracted_xL_value, nomMomentum);
 
     trace("matrix values --> x[0][0] = {}, x[0][1] = {}, x[1][0] = {}, x[1][1] = {}", aXRP[0][0], aXRP[0][1], aXRP[1][0], aXRP[1][1]);
 	trace("matrix values --> y[0][0] = {}, y[0][1] = {}, y[1][0] = {}, y[1][1] = {}", aYRP[0][0], aYRP[0][1], aYRP[1][0], aYRP[1][1]);
@@ -262,6 +265,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
 										
     if (determinant_x == 0 || determinant_y == 0) {
       error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
+	  delete xLGraph;
       return;
     }
 
@@ -282,7 +286,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
 
       // use the hit information and calculated slope at the RP + the transfer matrix inverse to calculate the
       // Polar Angle and deltaP at the IP
-	/*
+	  /*
       for (unsigned i0 = 0; i0 < 2; i0++) {
         for (unsigned i1 = 0; i1 < 2; i1++) {
           Xip[i0] += aXInv[i0][i1] * Xrp[i1];
@@ -292,20 +296,16 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
 	  */
       //Yip[1] = Yrp[0] / aY[0][1];
 
-	  double thetax_ip      = 0.0;
-	  double thetay_ip      = 0.0;
-	  double delta_p_over_p = 0.0;
-
-	  thetax_ip      = aXInv[0][0]*Xrp[0] + aXInv[0][1]*Xrp[1];
-	  delta_p_over_p = aXInv[1][0]*Xrp[0] + aXInv[1][1]*Xrp[1];
-	  
-	  thetay_ip      = aYInv[1][0]*Yrp[0] + aYInv[1][1]*Yrp[1];
+      double thetax_ip      = aXInv[0][0]*Xrp[0] + aXInv[0][1]*Xrp[1];
+      double delta_p_over_p = aXInv[1][0]*Xrp[0] + aXInv[1][1]*Xrp[1];
+      double thetay_ip      = aYInv[1][0]*Yrp[0] + aYInv[1][1]*Yrp[1];
 
       // convert polar angles to radians
       //double rsx = Xip[0] * dd4hep::mrad;
       //double rsy = Yip[1] * dd4hep::mrad;
 
-      double rsx = thetax_ip/1000., rsy = thetay_ip/1000.;
+      double rsx = thetax_ip * dd4hep::mrad; 
+      double rsy = thetay_ip * dd4hep::mrad;
 
       // calculate momentum magnitude from measured deltaP – using thin lens optics.
 	  double momOrbit = (extracted_xL_value/100.0)*nomMomentum;
@@ -333,6 +333,10 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
       reconTrack.setPDG(m_cfg.partPDG);
       //reconTrack.covMatrix(); // @TODO: Errors
       outputParticles->push_back(reconTrack);
-    }
-  } // end enough hits for matrix reco
+	  
+    } // end enough hits for matrix reco
+	
+    delete xLGraph;
+	
+  } //end ::process
 
