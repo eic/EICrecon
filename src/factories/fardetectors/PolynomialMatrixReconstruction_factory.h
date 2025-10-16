@@ -20,7 +20,8 @@
 namespace eicrecon {
 
 class PolynomialMatrixReconstruction_factory
-    : public JOmniFactory<PolynomialMatrixReconstruction_factory, PolynomialMatrixReconstructionConfig> {
+    : public JOmniFactory<PolynomialMatrixReconstruction_factory,
+                          PolynomialMatrixReconstructionConfig> {
 
 public:
   using AlgoT = eicrecon::PolynomialMatrixReconstruction;
@@ -48,7 +49,6 @@ private:
   ParameterRef<std::string> readout{this, "readout", config().readout};
 
   ParameterRef<bool> requireBeamProton{this, "requireBeamProton", config().requireBeamProton};
-  
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
