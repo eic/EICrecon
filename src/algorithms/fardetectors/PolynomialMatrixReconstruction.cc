@@ -44,10 +44,10 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
   double aYInv[2][2] = {{0.0, 0.0}, {0.0, 0.0}};
 
   double nomMomentum = NAN;
-  double local_x_offset{0.0};
-  double local_y_offset{0.0};
-  double local_x_slope_offset{0.0};
-  double local_y_slope_offset{0.0};
+  double local_x_offset = 0.0;
+  double local_y_offset = 0.0;
+  double local_x_slope_offset = 0.0;
+  double local_y_slope_offset = 0.0;
 
   double numBeamProtons  = 0;
   double runningMomentum = 0.0;
@@ -83,12 +83,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
 
   trace("nomMomentum extracted from beam protons --> nomMomentum = {}", nomMomentum);
 
-  //nomMomentum = 275.0;
-
   double nomMomentumError = 0.05;
-
-  //This is a temporary solution to get the beam energy information
-  //needed to select the correct matrix
 
   //method for polynomial method of reconstruction
   //
@@ -132,7 +127,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
     return;
   }
   
-  //let's fill the xL table here, so it only has to be done one time.
+  //xL table filled here from LUT -- Graph2D used for nice interpolation functionality and simple loading of LUT file
 
   TGraph2D * xLGraph = new TGraph2D(Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum), "%lf %lf %lf");
 
@@ -198,9 +193,10 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
     }
   }
 
-  // NB:
-  // This is a "dumb" algorithm - I am just checking the basic thing works with a simple single-proton test.
-  // Will need to update and modify for generic # of hits for more complicated final-states.
+  // This algorithm uses single hits from the first and last layer of the RP
+  // Better to do a linear fit with all 4 layers to improve resolution and to 
+  // better handle both multi-particle final-states and cases where large numbers
+  // of secondaries are produced from spallation on detector material
 
   if (goodHit1 && goodHit2) {
 
@@ -208,7 +204,12 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
 
     if (base == 0) {
       info("Detector separation = 0! Cannot calculate slope!");
-	  delete xLGraph;
+	  //delete avoids overwriting of TGraph2D and memory leak warning
+      // cannot load the table in init stage because the beam energy is
+	  // extracted event by event
+	  // can be fixed with beam energy meta data being added in the npsim 
+	  // output tree
+      delete xLGraph; 
 	  return;
     }
 
@@ -223,14 +224,13 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
     //First, we use the hit information to extract the x_L value needed for the matrix.
     //This x_L evaluation only uses the x_rp and theta_x_rp values (2D lookup).
 
-    //double extracted_xL_value = extractXLFromHits(Xrp[0], Xrp[1]); //RP string necessary - will eventually store OMD table there too 
-	double extracted_xL_value = 100*xLGraph->Interpolate(Xrp[0], Xrp[1]);
+	double extracted_xL_value = 100*xLGraph->Interpolate(Xrp[0], Xrp[1]); //100 converts xL from decimal to percentage -- it's how the fits were done.
 
     trace("RP extracted x_L ---> x_rp = {}, theta_x_rp = {}, x_L = {}", Xrp[0],  Xrp[1],  extracted_xL_value);
 
     if(extracted_xL_value == 0){
         info("Extracted X_L value is 0 --> cannot calculate matrix");
-		delete xLGraph;
+        delete xLGraph;
 		return;
     }
 
@@ -241,6 +241,8 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
 
     trace("RP offsets ---> local_x_offset = {},  local_x_slope_offset = {}, local_y_offset = {}, local_y_slope_offset = {}", local_x_offset, local_x_slope_offset, local_y_offset, local_y_slope_offset);
     
+    // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
+    // trajectory --> then we can get the matrix parameters
 
     Xrp[0] = Xrp[0] - local_x_offset;
     Xrp[1] = Xrp[1] - local_x_slope_offset;
@@ -265,12 +267,11 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
 										
     if (determinant_x == 0 || determinant_y == 0) {
       error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
-	  delete xLGraph;
+      delete xLGraph;
       return;
     }
 
-	
-    aXInv[0][0] =    (aXRP[1][1]/determinant_x);
+	aXInv[0][0] =    (aXRP[1][1]/determinant_x);
     aXInv[0][1] = -1*(aXRP[0][1]/determinant_x);
     aXInv[1][0] = -1*(aXRP[1][0]/determinant_x);
     aXInv[1][1] =    (aXRP[0][0]/determinant_x);
@@ -280,63 +281,42 @@ void eicrecon::PolynomialMatrixReconstruction::process(const PolynomialMatrixRec
     aYInv[1][0] = -1*(aYRP[1][0]/determinant_y);
     aYInv[1][1] =    (aYRP[0][0]/determinant_y);
 
+    double thetax_ip      = aXInv[0][0]*Xrp[0] + aXInv[0][1]*Xrp[1];
+    double delta_p_over_p = aXInv[1][0]*Xrp[0] + aXInv[1][1]*Xrp[1];
+    double thetay_ip      = aYInv[1][0]*Yrp[0] + aYInv[1][1]*Yrp[1];
 
-    // extract hit, subtract orbit offset – this is to get the hits in the coordinate system of the orbit
-    // trajectory
+    double rsx = thetax_ip * dd4hep::mrad; 
+    double rsy = thetay_ip * dd4hep::mrad;
 
-      // use the hit information and calculated slope at the RP + the transfer matrix inverse to calculate the
-      // Polar Angle and deltaP at the IP
-	  /*
-      for (unsigned i0 = 0; i0 < 2; i0++) {
-        for (unsigned i1 = 0; i1 < 2; i1++) {
-          Xip[i0] += aXInv[i0][i1] * Xrp[i1];
-          Yip[i0] += aYInv[i0][i1] * Yrp[i1];
-        }
-      }
-	  */
-      //Yip[1] = Yrp[0] / aY[0][1];
-
-      double thetax_ip      = aXInv[0][0]*Xrp[0] + aXInv[0][1]*Xrp[1];
-      double delta_p_over_p = aXInv[1][0]*Xrp[0] + aXInv[1][1]*Xrp[1];
-      double thetay_ip      = aYInv[1][0]*Yrp[0] + aYInv[1][1]*Yrp[1];
-
-      // convert polar angles to radians
-      //double rsx = Xip[0] * dd4hep::mrad;
-      //double rsy = Yip[1] * dd4hep::mrad;
-
-      double rsx = thetax_ip * dd4hep::mrad; 
-      double rsy = thetay_ip * dd4hep::mrad;
-
-      // calculate momentum magnitude from measured deltaP – using thin lens optics.
-	  double momOrbit = (extracted_xL_value/100.0)*nomMomentum;
+    // calculate momentum magnitude from measured deltaP – using thin lens optics.
+	double momOrbit = (extracted_xL_value/100.0)*nomMomentum;
 	  
-      double p    = momOrbit * (1 + 0.01 * delta_p_over_p);
-      double norm = std::sqrt(1.0 + rsx * rsx + rsy * rsy);
+    double p    = momOrbit * (1 + 0.01 * delta_p_over_p);
+    double norm = std::sqrt(1.0 + rsx * rsx + rsy * rsy);
 
-      edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm),
-                                static_cast<float>(p * rsy / norm), static_cast<float>(p / norm)};
-      auto refPoint          = goodHit[0];
+    edm4hep::Vector3f prec = {static_cast<float>(p * rsx / norm),
+                              static_cast<float>(p * rsy / norm), static_cast<float>(p / norm)};
+    auto refPoint          = goodHit[0];
 
-      trace("RP polynomial Reco Momentum ---> px = {},  py = {}, pz = {}", prec.x, prec.y, prec.z);
+    trace("RP polynomial Reco Momentum ---> px = {},  py = {}, pz = {}", prec.x, prec.y, prec.z);
 
-      //----- end reconstruction code ------
+    //----- end reconstruction code ------
 
-      edm4eic::MutableReconstructedParticle reconTrack;
-      reconTrack.setType(0);
-      reconTrack.setMomentum(prec);
-      reconTrack.setEnergy(
-          std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
-      reconTrack.setReferencePoint(refPoint);
-      reconTrack.setCharge(m_cfg.partCharge);
-      reconTrack.setMass(m_cfg.partMass);
-      reconTrack.setGoodnessOfPID(1.);
-      reconTrack.setPDG(m_cfg.partPDG);
-      //reconTrack.covMatrix(); // @TODO: Errors
-      outputParticles->push_back(reconTrack);
+    edm4eic::MutableReconstructedParticle reconTrack;
+    reconTrack.setType(0);
+    reconTrack.setMomentum(prec);
+    reconTrack.setEnergy(std::hypot(edm4hep::utils::magnitude(reconTrack.getMomentum()), m_cfg.partMass));
+    reconTrack.setReferencePoint(refPoint);
+    reconTrack.setCharge(m_cfg.partCharge);
+    reconTrack.setMass(m_cfg.partMass);
+    reconTrack.setGoodnessOfPID(1.);
+    reconTrack.setPDG(m_cfg.partPDG);
+    //reconTrack.covMatrix(); // @TODO: Errors
+    outputParticles->push_back(reconTrack);
 	  
-    } // end enough hits for matrix reco
+  } // end enough hits for matrix reco
 	
-    delete xLGraph;
+  delete xLGraph;
 	
-  } //end ::process
+} //end ::process
 
