@@ -142,7 +142,8 @@ void eicrecon::PolynomialMatrixReconstruction::process(
   trace("filename for lookup --> {}",
         Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum));
 
-  xLGraph->RemoveDuplicates(); //important to ensure interoplation works correctly -- do not remove
+  //important to ensure interoplation works correctly -- do not remove -- not available until ROOT v6.36, will need to add back in later
+  //xLGraph->RemoveDuplicates();
 
   //---- begin Reconstruction code ----
 
