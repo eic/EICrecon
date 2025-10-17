@@ -222,7 +222,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
       // extracted event by event
       // can be fixed with beam energy meta data being added in the npsim
       // output tree
-      return;
+      throw std::runtime_exception("Detector separation = 0! Cannot calculate slope!");
     }
 
     double XL[2] = {goodHit[0].x, goodHit[1].x};
