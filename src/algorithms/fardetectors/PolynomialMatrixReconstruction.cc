@@ -337,6 +337,5 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
   } // end enough hits for matrix reco
 
-  delete xLGraph;
 
 } //end ::process
