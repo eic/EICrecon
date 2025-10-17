@@ -36,8 +36,7 @@ struct PolynomialMatrixReconstructionConfig {
 double calculateOffsetFromXL(int whichOffset, double x_L, double beamEnergy) {
 
   if (whichOffset > 4) {
-    std::cout << "Bad offset index " << whichOffset << std::endl;
-    return -99999;
+    throw std::runtime_exception(fmt::format("Bad offset index {}", whichOffset));
   }
 
   double offset_value_and_par[4][3];
