@@ -1265,7 +1265,8 @@ jobs:
           echo "### Capybara summary for PR ${{ github.event.pull_request.number }}" >> capybara_${{ github.event.pull_request.number }}.md
           find publishing_docs/pr/${{ github.event.pull_request.number }}/capybara/ -mindepth 1 -maxdepth 1 -type d -printf \
             "- [%f](https://eicrecon.epic-eic.org/pr/${{ github.event.pull_request.number }}/capybara/%f/index.html)\n" | sort >> capybara_${{ github.event.pull_request.number }}.md
-          echo "<sup><sub>Last updated $(TZ=America/New_York date -Iminutes) ${{github.event.pull_request.head.sha}}</sub></sup>" >> capybara_${{ github.event.pull_request.number }}.md
+          echo >> capybara_${{ github.event.pull_request.number }}.md
+          echo "<small>Last updated $(TZ=America/New_York date -Iminutes) ${{github.event.pull_request.head.sha}}</small>" >> capybara_${{ github.event.pull_request.number }}.md
       - name: Create capybara step summary
         if: ${{ github.event_name == 'pull_request' }}
         run: |
