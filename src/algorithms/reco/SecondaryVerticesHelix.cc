@@ -90,14 +90,13 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
        edm4hep::Vector3f h2MomAtDca = h2.momentumAt(ss.second, m_cfg.b_field);
        edm4hep::Vector3f pairMom = h1MomAtDca + h2MomAtDca;
        
-       float e1 = std::hypot(edm4hep::utils::magnitude(h1MomAtDca), particleSvc.particle(211).mass);
-       float e2 = std::hypot(edm4hep::utils::magnitude(h2MomAtDca), particleSvc.particle(211).mass);
-       float pairE = e1+e2;
+       double e1 = std::hypot(edm4hep::utils::magnitude(h1MomAtDca), particleSvc.particle(211).mass);
+       double e2 = std::hypot(edm4hep::utils::magnitude(h2MomAtDca), particleSvc.particle(211).mass);
+       double pairE = e1+e2;
+       double pairP = edm4hep::utils::magnitude(pairMom);
        
-       edm4hep::Vector4f h1FourMom(h1MomAtDca.x, h1MomAtDca.y, h1MomAtDca.z, e1);
-       edm4hep::Vector4f h2FourMom(h2MomAtDca.x, h2MomAtDca.y, h2MomAtDca.z, e2);
-       
-       double m_inv = std::hypot(pairE, -edm4hep::utils::magnitude(pairMom));
+       double m_inv2 = pairE*pairE - pairP*pairP;
+       double m_inv = (m_inv2>0) sqrt(m_inv2) : 0.;
        double angle = edm4hep::utils::angleBetween(pairMom, pairPos - pVtxPos);
        if(cos(angle) < m_cfg.minCostheta ) continue;
 
