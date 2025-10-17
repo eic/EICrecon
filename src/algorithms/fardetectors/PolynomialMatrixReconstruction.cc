@@ -221,7 +221,6 @@ void eicrecon::PolynomialMatrixReconstruction::process(
       // extracted event by event
       // can be fixed with beam energy meta data being added in the npsim
       // output tree
-      delete xLGraph;
       return;
     }
 
