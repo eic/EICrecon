@@ -93,6 +93,7 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
       outPulse.setTime(startTime);
 
       // stop at the next cycle
+      // NOLINTNEXTLINE(clang-analyzer-security.FloatLoopCounter, security.FloatLoopCounter)
       for (double currTime = startTime; currTime < startTime + m_cfg.EICROC_period;
            currTime += m_cfg.local_period) {
         outPulse.addToAdcCounts(this->_interpolateOrZero(graph, currTime, tMin, tMax));
