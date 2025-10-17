@@ -287,7 +287,6 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
     if (determinant_x == 0 || determinant_y == 0) {
       error("Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
-      delete xLGraph;
       throw std::runtime_exception(
           "Reco matrix determinant = 0! Matrix cannot be inverted! Double-check matrix!");
     }
