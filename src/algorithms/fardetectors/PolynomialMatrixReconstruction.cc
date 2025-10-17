@@ -337,5 +337,4 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
   } // end enough hits for matrix reco
 
-
 } //end ::process
