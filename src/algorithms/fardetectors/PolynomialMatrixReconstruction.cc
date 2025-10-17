@@ -20,6 +20,7 @@
 #include <gsl/pointers>
 #include <stdexcept>
 #include <vector>
+#include <memory>
 
 #include <TGraph2D.h>
 
@@ -235,19 +236,15 @@ void eicrecon::PolynomialMatrixReconstruction::process(
     //First, we use the hit information to extract the x_L value needed for the matrix.
     //This x_L evaluation only uses the x_rp and theta_x_rp values (2D lookup).
 
-    double extracted_xL_value =
-        100 *
-        xLGraph->Interpolate(
-            Xrp[0],
-            Xrp[1]); //100 converts xL from decimal to percentage -- it's how the fits were done.
+    //100 converts xL from decimal to percentage -- it's how the fits were done.
+    double extracted_xL_value = 100 * xLGraph->Interpolate(Xrp[0], Xrp[1]); 
 
     trace("RP extracted x_L ---> x_rp = {}, theta_x_rp = {}, x_L = {}", Xrp[0], Xrp[1],
           extracted_xL_value);
 
     if (extracted_xL_value == 0) {
-      info("Extracted X_L value is 0 --> cannot calculate matrix");
-      delete xLGraph;
-      return;
+        error("Extracted X_L value is 0 --> cannot calculate matrix");
+        throw std::runtime_exception("Extracted X_L value is 0 --> cannot calculate matrix");    
     }
 
     local_x_offset       = calculateOffsetFromXL(0, extracted_xL_value, nomMomentum);
