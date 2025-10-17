@@ -197,7 +197,7 @@ double calculateMatrixValueFromXL(int whichElement, double x_L, double beamEnerg
     matrix_value_and_par[7][1] = 0.155002;
     matrix_value_and_par[7][2] = -0.000708;
   } else
-    return -99999;
+    throw std::runtime_exception(fmt::format("Unknown beamEnergy {}", beamEnergy));
 
   return (matrix_value_and_par[whichElement][0] + matrix_value_and_par[whichElement][1] * x_L +
           matrix_value_and_par[whichElement][2] * x_L * x_L);
