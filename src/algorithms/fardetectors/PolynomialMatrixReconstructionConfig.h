@@ -81,7 +81,7 @@ double calculateOffsetFromXL(int whichOffset, double x_L, double beamEnergy) {
     offset_value_and_par[1][1] = 0.391292;
     offset_value_and_par[1][2] = -0.001063;
   } else
-    return -99999;
+    throw std::runtime_exception(fmt::format("Unknown beamEnergy {}", beamEnergy));
 
   return (offset_value_and_par[whichOffset][0] + offset_value_and_par[whichOffset][1] * x_L +
           offset_value_and_par[whichOffset][2] * x_L * x_L);
