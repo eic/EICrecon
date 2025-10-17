@@ -91,9 +91,8 @@ double calculateMatrixValueFromXL(int whichElement, double x_L, double beamEnerg
 
   double matrix_value_and_par[8][3];
 
-  if (whichElement > 7) {
-    std::cout << "Bad Array index(ces) " << whichElement << std::endl;
-    return -1;
+  if ((whichElement < 0) || (whichElement > 7)) {
+    throw std::runtime_exception(fmt::format("Bad Array index(ces)", whichElement));
   }
 
   if (beamEnergy == 275) { //275 GeV
