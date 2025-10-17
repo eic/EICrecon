@@ -237,14 +237,14 @@ void eicrecon::PolynomialMatrixReconstruction::process(
     //This x_L evaluation only uses the x_rp and theta_x_rp values (2D lookup).
 
     //100 converts xL from decimal to percentage -- it's how the fits were done.
-    double extracted_xL_value = 100 * xLGraph->Interpolate(Xrp[0], Xrp[1]); 
+    double extracted_xL_value = 100 * xLGraph->Interpolate(Xrp[0], Xrp[1]);
 
     trace("RP extracted x_L ---> x_rp = {}, theta_x_rp = {}, x_L = {}", Xrp[0], Xrp[1],
           extracted_xL_value);
 
     if (extracted_xL_value == 0) {
-        error("Extracted X_L value is 0 --> cannot calculate matrix");
-        throw std::runtime_exception("Extracted X_L value is 0 --> cannot calculate matrix");    
+      error("Extracted X_L value is 0 --> cannot calculate matrix");
+      throw std::runtime_exception("Extracted X_L value is 0 --> cannot calculate matrix");
     }
 
     local_x_offset       = calculateOffsetFromXL(0, extracted_xL_value, nomMomentum);
