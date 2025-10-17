@@ -418,9 +418,9 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   // ===============================================================================================
   hSamplingFractionEta->Fill(mceta,
                              sumActiveCaloEnergy / (sumActiveCaloEnergy + sumPassiveCaloEnergy));
-  std::sort(input_tower_rec.begin(), input_tower_rec.end(), &acompare);
-  std::sort(input_tower_recSav.begin(), input_tower_recSav.end(), &acompare);
-  std::sort(input_tower_sim.begin(), input_tower_sim.end(), &acompare);
+  std::ranges::sort(input_tower_rec, &acompare);
+  std::ranges::sort(input_tower_recSav, &acompare);
+  std::ranges::sort(input_tower_sim, &acompare);
 
   // ===============================================================================================
   // calculated summed hit energy for rec and sim hits
@@ -518,7 +518,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     // -----------------------------------------------------------------------------------------------
     // --------------------------- Fill LFHCal MA clusters in tree and hists -------------------------
     // -----------------------------------------------------------------------------------------------
-    std::sort(clusters_calo.begin(), clusters_calo.end(), &acompareCl);
+    std::ranges::sort(clusters_calo, &acompareCl);
     m_log->info("-----> found {} clusters", clusters_calo.size());
     hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);
     int iCl = 0;
