@@ -338,7 +338,8 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
 } //end ::process
 
-double PolynomialMatrixReconstruction::calculateOffsetFromXL(int whichOffset, double x_L, double beamEnergy) const {
+double PolynomialMatrixReconstruction::calculateOffsetFromXL(int whichOffset, double x_L,
+                                                             double beamEnergy) const {
 
   if (whichOffset > 4) {
     throw std::runtime_error(fmt::format("Bad offset index {}", whichOffset));
@@ -392,7 +393,8 @@ double PolynomialMatrixReconstruction::calculateOffsetFromXL(int whichOffset, do
           offset_value_and_par[whichOffset][2] * x_L * x_L);
 }
 
-double PolynomialMatrixReconstruction::calculateMatrixValueFromXL(int whichElement, double x_L, double beamEnergy) const {
+double PolynomialMatrixReconstruction::calculateMatrixValueFromXL(int whichElement, double x_L,
+                                                                  double beamEnergy) const {
 
   double matrix_value_and_par[8][3];
 

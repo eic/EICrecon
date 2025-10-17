@@ -35,10 +35,8 @@ public:
             {"outputParticleCollection"},
             "Apply polynomial matrix method reconstruction to hits."} {}
 
-  
   void init() final;
   void process(const Input&, const Output&) const final;
-  
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
