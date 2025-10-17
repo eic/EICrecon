@@ -32,9 +32,9 @@ void MergeTracks::process(const MergeTracks::Input& input,
   }
   if (in_track_collection_size_distribution.size() != 1) {
     std::vector<std::size_t> in_track_collection_sizes;
-    std::transform(in_track_collections.begin(), in_track_collections.end(),
-                   std::back_inserter(in_track_collection_sizes),
-                   [](const auto& in_track_collection) { return in_track_collection->size(); });
+    std::ranges::transform(
+        in_track_collections, std::back_inserter(in_track_collection_sizes),
+        [](const auto& in_track_collection) { return in_track_collection->size(); });
     error("cannot merge input track collections with different sizes {}",
           fmt::join(in_track_collection_sizes, ", "));
     return;
@@ -57,8 +57,9 @@ void MergeTracks::process(const MergeTracks::Input& input,
     }
 
     // sort all `out_track_points` by time
-    std::sort(out_track_points.begin(), out_track_points.end(),
-              [](edm4eic::TrackPoint& a, edm4eic::TrackPoint& b) { return a.time < b.time; });
+    std::ranges::sort(out_track_points, [](edm4eic::TrackPoint& a, edm4eic::TrackPoint& b) {
+      return a.time < b.time;
+    });
 
     // add these sorted points to `out_track`
     for (const auto& point : out_track_points) {

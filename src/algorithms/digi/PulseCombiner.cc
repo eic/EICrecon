@@ -119,8 +119,8 @@ PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
   std::vector<PulseType> ordered_pulses{pulses};
 
   // Sort pulses by time, greaty simplifying the combination process
-  std::sort(ordered_pulses.begin(), ordered_pulses.end(),
-            [](PulseType a, PulseType b) { return a.getTime() < b.getTime(); });
+  std::ranges::sort(ordered_pulses,
+                    [](PulseType a, PulseType b) { return a.getTime() < b.getTime(); });
 
   // Create vector of pulses
   std::vector<std::vector<PulseType>> cluster_pulses;
