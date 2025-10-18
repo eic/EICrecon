@@ -231,9 +231,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
     double XL[2] = {goodHit[0].x, goodHit[1].x};
     double YL[2] = {goodHit[0].y, goodHit[1].y};
 
-    double Xip[2] = {0.0, 0.0};
     double Xrp[2] = {XL[1], ((XL[1] - XL[0]) / (base)) / dd4hep::mrad};
-    double Yip[2] = {0.0, 0.0};
     double Yrp[2] = {YL[1], ((YL[1] - YL[0]) / (base)) / dd4hep::mrad};
 
     //First, we use the hit information to extract the x_L value needed for the matrix.
