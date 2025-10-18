@@ -296,6 +296,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiPAttenuatedHitContributions",
       "EcalBarrelScFiNAttenuatedHits",
       "EcalBarrelScFiNAttenuatedHitContributions",
+      "EcalBarrelScFiRawHits",
       "EcalBarrelScFiPPulses",
       "EcalBarrelScFiNPulses",
       "EcalBarrelScFiPCombinedPulses",
@@ -373,6 +374,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DIRCParticleIDs",
 
       "B0ECalRawHitAssociations",
+      "EcalBarrelScFiRawHitAssociations",
       "EcalBarrelImagingRawHitAssociations",
       "HcalBarrelRawHitAssociations",
       "EcalEndcapNRawHitAssociations",
