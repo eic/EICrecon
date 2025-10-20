@@ -276,7 +276,7 @@ void InitPlugin(JApplication* app) {
       "PrimaryVertices", {"CentralTrackVertices"}, {"PrimaryVertices"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVerticesHelix_factory>(
-      "SecondaryVerticesHelix", {"PrimaryVertices","ReconstructedParticles"}, {"SecondaryVerticesHelix"}, {}, app));
-      
+      "SecondaryVerticesHelix", {"PrimaryVertices", "ReconstructedParticles"},
+      {"SecondaryVerticesHelix"}, {}, app));
 }
 } // extern "C"

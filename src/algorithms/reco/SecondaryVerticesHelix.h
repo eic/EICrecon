@@ -19,14 +19,15 @@ using SecondaryVerticesHelixAlgorithm = algorithms::Algorithm<
     algorithms::Output<edm4eic::VertexCollection>>;
 
 class SecondaryVerticesHelix : public SecondaryVerticesHelixAlgorithm,
-                        public WithPodConfig<SecondaryVerticesHelixConfig> {
+                               public WithPodConfig<SecondaryVerticesHelixConfig> {
 
 public:
   SecondaryVerticesHelix(std::string_view name)
-      : SecondaryVerticesHelixAlgorithm{name,
-                                 {"inputVertices", "inputParticles"},
-                                 {"outputSecondaryVertices"},
-                                 "Reconstruct secondary vertices in SecondaryVertices collection"} {}
+      : SecondaryVerticesHelixAlgorithm{
+            name,
+            {"inputVertices", "inputParticles"},
+            {"outputSecondaryVertices"},
+            "Reconstruct secondary vertices in SecondaryVertices collection"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;

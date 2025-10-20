@@ -43,7 +43,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_rc_vertices_input(), m_rc_parts_input()}, {m_secondary_vertices_output().get()});
+    m_algo->process({m_rc_vertices_input(), m_rc_parts_input()},
+                    {m_secondary_vertices_output().get()});
   }
 };
 
