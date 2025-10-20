@@ -71,7 +71,8 @@ void eicrecon::PolynomialMatrixReconstruction::process(
       numBeamProtons++;
     }
     if (p.getGeneratorStatus() == 1 && p.getPDG() == 2212) {
-      double xMom_noXAngle = sin(m_cfg.crossingAngle) * p.getMomentum().z + cos(m_cfg.crossingAngle) * p.getMomentum().x;
+      double xMom_noXAngle = sin(m_cfg.crossingAngle) * p.getMomentum().z +
+                             cos(m_cfg.crossingAngle) * p.getMomentum().x;
 
       trace("Final-state proton MCParticle momentum --> px = {}, py = {}, pz = {}, theta_x_IP = "
             "{}, theta_y_IP = {}",
