@@ -135,21 +135,21 @@ public:
   //
   void Print() const;
 =======
-    // Requires:  signed Magnetic Field
-    edm4hep::Vector3f momentum(double) const;     // returns the momentum at origin
-    edm4hep::Vector3f momentumAt(double, double) const; // returns momentum at S
-    int                   charge(double)   const;     // returns charge of particle
-    // 2d DCA to x,y point signed relative to curvature
-    double curvatureSignedDistance(double x, double y) ;
-    // 2d DCA to x,y point signed relative to rotation 
-    double geometricSignedDistance(double x, double y) ;
-    // 3d DCA to 3d point signed relative to curvature
-    double curvatureSignedDistance(const edm4hep::Vector3f&) ;
-    // 3d DCA to 3d point signed relative to rotation
-    double geometricSignedDistance(const edm4hep::Vector3f&) ;
-    
-    //
-    void Print() const;
+  // Requires:  signed Magnetic Field
+  edm4hep::Vector3f momentum(double) const;           // returns the momentum at origin
+  edm4hep::Vector3f momentumAt(double, double) const; // returns momentum at S
+  int charge(double) const;                           // returns charge of particle
+  // 2d DCA to x,y point signed relative to curvature
+  double curvatureSignedDistance(double x, double y);
+  // 2d DCA to x,y point signed relative to rotation
+  double geometricSignedDistance(double x, double y);
+  // 3d DCA to 3d point signed relative to curvature
+  double curvatureSignedDistance(const edm4hep::Vector3f&);
+  // 3d DCA to 3d point signed relative to rotation
+  double geometricSignedDistance(const edm4hep::Vector3f&);
+
+  //
+  void Print() const;
 >>>>>>> 5c2ad0d0 (fixed typos in Helix function (in commenting area))
 
 }; // end class Helix
