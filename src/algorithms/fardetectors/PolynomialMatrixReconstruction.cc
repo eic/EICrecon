@@ -143,8 +143,8 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
   if (not std::filesystem::exists(
           Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum))) {
-    critical("Cannot find lookup xL table -- likely network issue ");
-    throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed.");
+    critical("Cannot find lookup xL table for {}", nomMomentum);
+    throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed");
   }
 
   static std::unique_ptr<TGraph2D> xLGraph{new TGraph2D(
