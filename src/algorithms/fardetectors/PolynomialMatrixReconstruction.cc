@@ -70,8 +70,10 @@ void eicrecon::PolynomialMatrixReconstruction::process(
       numBeamProtons++;
     }
     if (p.getGeneratorStatus() == 1 && p.getPDG() == 2212) {
-      trace("Final-state proton MCParticle momentum --> px = {}, py = {}, pz = {}",
-            p.getMomentum().x, p.getMomentum().y, p.getMomentum().z);
+      double xMom_noXAngle = sin(0.025)*p.getMomentum().z + cos(0.025)*p.getMomentum().x;  
+
+      trace("Final-state proton MCParticle momentum --> px = {}, py = {}, pz = {}, theta_x_IP = {}, theta_y_IP = {}",
+            xMom_noXAngle, p.getMomentum().y, p.getMomentum().z, xMom_noXAngle/p.getMomentum().z, p.getMomentum().y/p.getMomentum().z);
     }
   }
 
@@ -140,6 +142,11 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
   trace("filename for lookup --> {}",
         Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum));
+
+  if(xLGraph->IsZombie()){
+    critical("Cannot find lookup xL table -- likely network issue ");
+    throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed.");
+  }
 
   //important to ensure interoplation works correctly -- do not remove -- not available until ROOT v6.36, will need to add back in later
   //xLGraph->RemoveDuplicates();
@@ -298,12 +305,16 @@ void eicrecon::PolynomialMatrixReconstruction::process(
     aYInv[1][0] = -1 * (aYRP[1][0] / determinant_y);
     aYInv[1][1] = (aYRP[0][0] / determinant_y);
 
-    double thetax_ip      = aXInv[0][0] * Xrp[0] + aXInv[0][1] * Xrp[1];
-    double delta_p_over_p = aXInv[1][0] * Xrp[0] + aXInv[1][1] * Xrp[1];
-    double thetay_ip      = aYInv[1][0] * Yrp[0] + aYInv[1][1] * Yrp[1];
+    double thetax_ip        = aXInv[0][0] * Xrp[0] + aXInv[0][1] * Xrp[1];
+    double delta_p_over_p   = aXInv[1][0] * Xrp[0] + aXInv[1][1] * Xrp[1];
+    double thetay_ip        = aYInv[1][0] * Yrp[0] + aYInv[1][1] * Yrp[1];
+    double thetay_ip_STATIC = Yrp[0] / aYRP[0][1]; 
+	double thetay_AVG = 0.5*(thetay_ip + thetay_ip_STATIC); //approximation to solve issue with small numbers in y-matrix
+
+    trace("theta_x_IP_proper = {}, thetay_IP_proper = {}, thetay_IP_STATIC = {}, thetay_IP_AVG = {}", thetax_ip/1000, thetay_ip/1000, thetay_ip_STATIC/1000, thetay_AVG/1000);
 
     double rsx = thetax_ip * dd4hep::mrad;
-    double rsy = thetay_ip * dd4hep::mrad;
+    double rsy = thetay_AVG * dd4hep::mrad; //using approximation here for the theta_y
 
     // calculate momentum magnitude from measured deltaP – using thin lens optics.
     double momOrbit = (extracted_xL_value / 100.0) * nomMomentum;
