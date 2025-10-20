@@ -112,10 +112,10 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
       double e2 =
           std::hypot(edm4hep::utils::magnitude(h2MomAtDca), particleSvc.particle(p2.getPDG()).mass);
       double pairE = e1 + e2;
-      double pairP = edm4hep::utils::magnitude(pairMom);
+//      double pairP = edm4hep::utils::magnitude(pairMom);
 
-      double m_inv2 = pairE * pairE - pairP * pairP;
-      double m_inv  = (m_inv2 > 0) ? sqrt(m_inv2) : 0.;
+//      double m_inv2 = pairE * pairE - pairP * pairP;
+//      double m_inv  = (m_inv2 > 0) ? sqrt(m_inv2) : 0.;
       double angle  = edm4hep::utils::angleBetween(pairMom, pairPos - pVtxPos);
       if (cos(angle) < m_cfg.minCostheta)
         continue;

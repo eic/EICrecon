@@ -107,7 +107,7 @@ public:
   int bad(double world = 1.e+5) const;
 
   /// move the origin along the helix to s which becomes then s=0
-  virtual void moveOrigin(double s);
+  void moveOrigin(double s);
 
   static const double NoSolution;
 
