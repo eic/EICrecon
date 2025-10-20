@@ -372,7 +372,7 @@ double Helix::pathLength(const edm4hep::Vector3f& r, const edm4hep::Vector3f& n)
 
     double a, f, fp;
     double sOld = s = 0;
-    double shiftOld = 0;
+//    double shiftOld = 0;
     double shift;
     //          (cos(angMax)-1)/angMax = 0.1
     const double angMax = 0.21;
@@ -400,7 +400,7 @@ double Helix::pathLength(const edm4hep::Vector3f& r, const edm4hep::Vector3f& n)
         shift = f / fp;
       }
       s -= shift;
-      shiftOld = shift;
+//      shiftOld = shift;
       if (fabs(sOld - s) < MaxPrecisionNeeded)
         break;
       sOld = s;
