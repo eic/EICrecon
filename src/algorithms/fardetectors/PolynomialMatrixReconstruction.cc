@@ -140,7 +140,8 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
   //xL table filled here from LUT -- Graph2D used for nice interpolation functionality and simple loading of LUT file
 
-  if(not std::filesystem::exists(Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum))){
+  if (not std::filesystem::exists(
+          Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum))) {
     critical("Cannot find lookup xL table -- likely network issue ");
     throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed.");
   }
