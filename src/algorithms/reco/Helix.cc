@@ -514,6 +514,7 @@ std::pair<double, double> Helix::pathLengths(const Helix& h, double minStepSize,
   }
 }
 
+<<<<<<< HEAD
 void Helix::moveOrigin(double s) {
   if (mSingularity)
     mOrigin = at(s);
@@ -523,6 +524,130 @@ void Helix::moveOrigin(double s) {
     mOrigin                     = newOrigin;
     setPhase(newPhase);
   }
+=======
+std::pair<double, double>
+Helix::pathLengths(const Helix& h, double minStepSize, double minRange) const
+{
+    //
+    //	Cannot handle case where one is a helix
+    //  and the other one is a straight line.
+    //
+    if (mSingularity != h.mSingularity)
+        return std::pair<double, double>(NoSolution, NoSolution);
+    
+    double s1, s2;
+    
+    if (mSingularity) {
+        //
+        //  Analytic solution
+        //
+        edm4hep::Vector3f dv = h.mOrigin - mOrigin;
+        edm4hep::Vector3f a(-mCosDipAngle*mSinPhase,
+                                mCosDipAngle*mCosPhase,
+                                mSinDipAngle);
+        edm4hep::Vector3f b(-h.mCosDipAngle*h.mSinPhase,
+                                h.mCosDipAngle*h.mCosPhase,
+                                h.mSinDipAngle);
+        double ab = a*b;
+        double g  = dv*a;
+        double k  = dv*b;
+        s2 = (k-ab*g)/(ab*ab-1.);
+        s1 = g+s2*ab;
+        return std::pair<double, double>(s1, s2);
+    }
+    else {
+        //
+        //  First step: get dca in the xy-plane as start value
+        //
+        double dx = h.xcenter() - xcenter();
+        double dy = h.ycenter() - ycenter();
+        double dd = ::sqrt(dx*dx + dy*dy);
+        double r1 = 1/curvature();
+        double r2 = 1/h.curvature();
+        
+        double cosAlpha = (r1*r1 + dd*dd - r2*r2)/(2*r1*dd);
+        
+        double s;
+        double x, y;
+        if (fabs(cosAlpha) < 1) {           // two solutions
+            double sinAlpha = sin(acos(cosAlpha));
+            x = xcenter() + r1*(cosAlpha*dx - sinAlpha*dy)/dd;
+            y = ycenter() + r1*(sinAlpha*dx + cosAlpha*dy)/dd;
+            s = pathLength(x, y);
+            x = xcenter() + r1*(cosAlpha*dx + sinAlpha*dy)/dd;
+            y = ycenter() + r1*(cosAlpha*dy - sinAlpha*dx)/dd;
+            double a = pathLength(x, y);
+            if (h.distance(at(a)) < h.distance(at(s))) s = a;
+        }
+        else {                              // no intersection (or exactly one)
+            int rsign = ((r2-r1) > dd ? -1 : 1); // set -1 when *this* helix is
+            // completely contained in the other
+            x = xcenter() + rsign*r1*dx/dd;
+            y = ycenter() + rsign*r1*dy/dd;
+            s = pathLength(x, y);
+        }
+        
+        //
+        //   Second step: scan in decreasing intervals around seed 's'
+        //   minRange and minStepSize are passed as arguments to the method.
+        //   They have default values defined in the header file.
+        //
+        double dmin              = h.distance(at(s));
+        double range             = std::max(2*dmin, minRange);
+        double ds                = range/10;
+        double slast=-999999, ss, d;
+        s1 = s - range/2.;
+        s2 = s + range/2.;
+        
+        while (ds > minStepSize) {
+            for (ss=s1; ss<s2+ds; ss+=ds) {
+                d = h.distance(at(ss));
+                if (d < dmin) {
+                    dmin = d;
+                    s = ss;
+                }
+                slast = ss;
+            }
+            //
+            //  In the rare cases where the minimum is at the
+            //  the border of the current range we shift the range
+            //  and start all over, i.e we do not decrease 'ds'.
+            //  Else we decrease the search interval around the
+            //  current minimum and redo the scan in smaller steps.
+            //
+            if (s == s1) {
+                d = 0.8*(s2-s1);
+                s1 -= d;
+                s2 -= d;
+            }
+            else if (s == slast) {
+                d = 0.8*(s2-s1);
+                s1 += d;
+                s2 += d;
+            }
+            else {           
+                s1 = s-ds;
+                s2 = s+ds;
+                ds /= 10;
+            }
+        }
+        return std::pair<double, double>(s, h.pathLength(at(s)));
+    }
+}
+
+
+void Helix::moveOrigin(double s)
+{
+    if (mSingularity)
+	mOrigin	= at(s);
+    else {
+	edm4hep::Vector3f newOrigin = at(s);
+	double newPhase = atan2(newOrigin.y - ycenter(),
+				newOrigin.x - xcenter());
+	mOrigin = newOrigin;
+	setPhase(newPhase);	        
+    }
+>>>>>>> 5c2ad0d0 (fixed typos in Helix function (in commenting area))
 }
 /*
 int operator== (const Helix& a, const Helix& b)
