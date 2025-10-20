@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Daniel Brandenburg, Xin Dong
+// Copyright (C) 2025 Xin Dong
 
 #pragma once
 
