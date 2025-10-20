@@ -358,7 +358,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 double PolynomialMatrixReconstruction::calculateOffsetFromXL(int whichOffset, double x_L,
                                                              double beamEnergy) const {
 
-  if (whichOffset > 4) {
+  if (whichOffset >= 4) {
     throw std::runtime_error(fmt::format("Bad offset index {}", whichOffset));
   }
 
