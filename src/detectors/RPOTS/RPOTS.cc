@@ -43,13 +43,13 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
-      "ForwardRomanPotRecParticles",
+      "ForwardRomanPotStaticRecParticles",
       {
           "MCParticles",
           "ForwardRomanPotRecHits",
       },
       {
-          "ForwardRomanPotRecParticles",
+          "ForwardRomanPotStaticRecParticles",
       },
       {
           .matrix_configs =
@@ -141,13 +141,13 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<PolynomialMatrixReconstruction_factory>(
-      "ForwardRomanPotPolynomialRecParticles",
+      "ForwardRomanPotRecParticles",
       {
           "MCParticles",
           "ForwardRomanPotRecHits",
       },
       {
-          "ForwardRomanPotPolynomialRecParticles",
+          "ForwardRomanPotRecParticles",
       },
       {
           .poly_matrix_configs = {{

@@ -176,7 +176,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ForwardOffMTrackerRecHits",
 
       "ForwardRomanPotRecParticles",
-      "ForwardRomanPotPolynomialRecParticles",
+      "ForwardRomanPotStaticRecParticles",
       "ForwardOffMRecParticles",
 
       "ForwardRomanPotRawHits",
