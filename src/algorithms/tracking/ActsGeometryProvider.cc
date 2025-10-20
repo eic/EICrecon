@@ -54,12 +54,14 @@ struct fmt::formatter<T, std::enable_if_t<std::is_base_of_v<Eigen::MatrixBase<T>
 // Ensure ActsPlugins namespace is used when present
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 // Acts_MAJOR_VERSION >= 44
-using DD4hepDetectorElement       = ActsPlugins::DD4hepDetectorElement;
-const auto& convertDD4hepDetector = ActsPlugins::convertDD4hepDetector;
+using DD4hepDetectorElement = ActsPlugins::DD4hepDetectorElement;
+using ActsPlugins::convertDD4hepDetector;
+using ActsPlugins::sortDetElementsByID;
 #else
 // Acts_MAJOR_VERSION < 44
-using DD4hepDetectorElement       = Acts::DD4hepDetectorElement;
-const auto& convertDD4hepDetector = Acts::convertDD4hepDetector;
+using DD4hepDetectorElement = Acts::DD4hepDetectorElement;
+using Acts::convertDD4hepDetector;
+using Acts::sortDetElementsByID;
 #endif
 
 void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::string material_file,
@@ -121,7 +123,6 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
   double layerEnvelopeR        = Acts::UnitConstants::mm;
   double layerEnvelopeZ        = Acts::UnitConstants::mm;
   double defaultLayerThickness = Acts::UnitConstants::fm;
-  using Acts::sortDetElementsByID;
 
   try {
     m_trackingGeo =
