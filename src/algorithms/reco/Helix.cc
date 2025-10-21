@@ -1,24 +1,22 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Xin Dong, Rongrong Ma
 
-#include <algorithm>
-#include <cmath>
-#include <exception>
-#include <limits>
-#include <string>
-#include <vector>
-#include <utility>
-#include <iostream>
-#include <edm4hep/Vector3d.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/Track.h>
+#include <edm4eic/Trajectory.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/RelationRange.h>
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <limits>
+#include <utility>
+#include <vector>
 
-#include <edm4eic/unit_system.h>
-#include <Evaluator/DD4hepUnits.h>
 #include "algorithms/reco/Helix.h"
-#include <edm4eic/Track.h>
-#include <edm4eic/TrackParameters.h>
-#include <edm4eic/Trajectory.h>
 
 namespace eicrecon {
 
