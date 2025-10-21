@@ -3,22 +3,14 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cmath>
-#include <exception>
-#include <limits>
-#include <string>
-#include <vector>
-#include <utility>
-#include <iostream>
-#include <edm4hep/Vector3d.h>
-#include <edm4hep/Vector3f.h>
-#include <edm4hep/utils/vector_utils.h>
-
-#include <edm4eic/unit_system.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/ReconstructedParticleData.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/unit_system.h>
+#include <edm4hep/Vector3f.h>
+#include <stdlib.h>
+#include <cmath>
+#include <iterator>
+#include <utility>
 
 namespace eicrecon {
 
