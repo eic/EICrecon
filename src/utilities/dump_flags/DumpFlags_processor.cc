@@ -81,7 +81,7 @@ void DumpFlags_processor::Finish() {
   for (auto [name, param] : pm->GetAllParameters()) {
     // form python content string
     std::string python_escaped_descr = param->GetDescription();
-    std::replace(python_escaped_descr.begin(), python_escaped_descr.end(), '\'', '`');
+    std::ranges::replace(python_escaped_descr, '\'', '`');
     python_content += fmt::format(
         "    ({:{}} {:{}} '{}'),\n", fmt::format("'{}',", param->GetKey()), max_name_len + 3,
         fmt::format("'{}',", param->GetDefault()), max_default_val_len + 3, python_escaped_descr);
