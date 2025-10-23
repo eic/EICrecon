@@ -162,10 +162,8 @@ void PhotoMultiplierHitDigi::qe_init() {
   }
 
   // sort quantum efficiency data first
-  std::sort(qeff.begin(), qeff.end(),
-            [](const std::pair<double, double>& v1, const std::pair<double, double>& v2) {
-              return v1.first < v2.first;
-            });
+  std::ranges::sort(qeff, [](const std::pair<double, double>& v1,
+                             const std::pair<double, double>& v2) { return v1.first < v2.first; });
 
   // print the table
   debug("{:-^60}", " Quantum Efficiency vs. Energy ");

@@ -418,9 +418,9 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
   // ===============================================================================================
   hSamplingFractionEta->Fill(mceta,
                              sumActiveCaloEnergy / (sumActiveCaloEnergy + sumPassiveCaloEnergy));
-  std::sort(input_tower_rec.begin(), input_tower_rec.end(), &acompare);
-  std::sort(input_tower_recSav.begin(), input_tower_recSav.end(), &acompare);
-  std::sort(input_tower_sim.begin(), input_tower_sim.end(), &acompare);
+  std::ranges::sort(input_tower_rec, &acompare);
+  std::ranges::sort(input_tower_recSav, &acompare);
+  std::ranges::sort(input_tower_sim, &acompare);
 
   // ===============================================================================================
   // calculated summed hit energy for rec and sim hits
@@ -518,7 +518,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
     // -----------------------------------------------------------------------------------------------
     // --------------------------- Fill LFHCal MA clusters in tree and hists -------------------------
     // -----------------------------------------------------------------------------------------------
-    std::sort(clusters_calo.begin(), clusters_calo.end(), &acompareCl);
+    std::ranges::sort(clusters_calo, &acompareCl);
     m_log->info("-----> found {} clusters", clusters_calo.size());
     hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);
     int iCl = 0;
@@ -549,7 +549,7 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
       m_log->trace("MA cluster {}:\t {} \t {}", iCl, cluster.cluster_E, cluster.cluster_NTowers);
     }
     if (iCl < maxNCluster && enableTreeCluster) {
-      t_fEMC_clusters_N = (int)iCl;
+      t_fEMC_clusters_N = iCl;
     }
 
     clusters_calo.clear();
@@ -600,13 +600,13 @@ void femc_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event) 
                    input_tower_recSav.at(iCell).tower_clusterIDA,
                    input_tower_recSav.at(iCell).tower_clusterIDB);
 
-      t_fEMC_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
-      t_fEMC_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
+      t_fEMC_towers_cellE[iCell]      = input_tower_recSav.at(iCell).energy;
+      t_fEMC_towers_cellT[iCell]      = input_tower_recSav.at(iCell).time;
       t_fEMC_towers_cellIDx[iCell]    = (short)input_tower_recSav.at(iCell).cellIDx;
       t_fEMC_towers_cellIDy[iCell]    = (short)input_tower_recSav.at(iCell).cellIDy;
       t_fEMC_towers_clusterIDA[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDA;
       t_fEMC_towers_clusterIDB[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDB;
-      t_fEMC_towers_cellTrueID[iCell] = (int)input_tower_recSav.at(iCell).tower_trueID;
+      t_fEMC_towers_cellTrueID[iCell] = input_tower_recSav.at(iCell).tower_trueID;
     }
 
     event_tree->Fill();
