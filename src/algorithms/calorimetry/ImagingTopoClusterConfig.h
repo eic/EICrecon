@@ -19,7 +19,7 @@ struct ImagingTopoClusterConfig {
   std::vector<std::variant<std::string, double>> sameLayerDistXY = {1.0 * dd4hep::mm,
                                                                     1.0 * dd4hep::mm};
   // maximum distance of local (x, y,z) to be considered as neighbors at same layers (if samelayerMode==xyz)
-  std::vector<double> sameLayerDistXYZ = {1.0 * dd4hep::mm,1.0 * dd4hep::mm,20.0 * dd4hep::mm};
+  std::vector<double> sameLayerDistXYZ = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm, 20.0 * dd4hep::mm};
   // maximum distance of global (eta, phi) to be considered as neighbors at same layers (if samelayerMode==etaphi)
   std::vector<double> sameLayerDistEtaPhi = {0.01, 0.01};
   // maximum distance of global (t, z) to be considered as neighbors at same layers (if samelayerMode==tz)
@@ -28,7 +28,7 @@ struct ImagingTopoClusterConfig {
   std::vector<std::variant<std::string, double>> diffLayerDistXY = {1.0 * dd4hep::mm,
                                                                     1.0 * dd4hep::mm};
   // maximum distance of global (x, y,z) to be considered as neighbors at different layers (if difflayerMode==xyz)
-  std::vector<double> diffLayerDistXYZ = {1.0 * dd4hep::mm,1.0 * dd4hep::mm,20.0 * dd4hep::mm};
+  std::vector<double> diffLayerDistXYZ = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm, 20.0 * dd4hep::mm};
   // maximum distance of global (eta, phi) to be considered as neighbors at different layers (if samelayerMode==etaphi)
   std::vector<double> diffLayerDistEtaPhi = {0.01, 0.01};
   // maximum distance of global (t, z) to be considered as neighbors at different layers (if samelayerMode==tz)
