@@ -234,6 +234,7 @@ void InitPlugin(JApplication* app) {
                       0.2564, 0.2830, 0.3123, 0.3445, 0.3799, 0.4188},
 
       .azimuthal_binning        = {0., 2 * M_PI, 2 * M_PI}, // lower, upper, step
+      .momentum_bin_centers_in_lut  = true,
       .polar_bin_centers_in_lut = true,
       .use_radians              = true,
       .missing_electron_prob    = true,
