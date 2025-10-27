@@ -43,9 +43,9 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
       Form("%f", 1.0 / sampFrac);
   decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = Form("%f", sampFrac);
-  const double nPhotonPerGeV = 1500;
-  const double PhotonCollectionEff = 0.5;
-  const double totalPixel       = 4 * 159565;
+  const double nPhotonPerGeV                                        = 1500;
+  const double PhotonCollectionEff                                  = 0.5;
+  const double totalPixel                                           = 4 * 159565;
 
   int FEMCHomoScfi = 0;
   try {
@@ -62,51 +62,47 @@ void InitPlugin(JApplication* app) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
-        {
-            .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03,
-                     0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
-            .tRes = 0.0,
-            .threshold =
-                0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
-            .capADC        = EcalEndcapP_capADC,
-            .capTime       = 100, // given in ns, 4 samples in HGCROC
-            .dyRangeADC    = EcalEndcapP_dyRangeADC,
-            .pedMeanADC    = EcalEndcapP_pedMeanADC,
-            .pedSigmaADC   = EcalEndcapP_pedSigmaADC,
-            .resolutionTDC = EcalEndcapP_resolutionTDC,
-            .corrMeanScale = "1.0",
-	    .readout       = "EcalEndcapPHits",
-	    .readoutType   = "sipm",
-	    .lightYield    = nPhotonPerGeV/PhotonCollectionEff,
-	    .photonDetectionEfficiency = PhotonCollectionEff,
-	    .numEffectiveSipmPixels = EcaslEndcapP_totalPixel
-        },
+        {.eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03,
+                  0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
+         .tRes = 0.0,
+         .threshold =
+             0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
+         .capADC                    = EcalEndcapP_capADC,
+         .capTime                   = 100, // given in ns, 4 samples in HGCROC
+         .dyRangeADC                = EcalEndcapP_dyRangeADC,
+         .pedMeanADC                = EcalEndcapP_pedMeanADC,
+         .pedSigmaADC               = EcalEndcapP_pedSigmaADC,
+         .resolutionTDC             = EcalEndcapP_resolutionTDC,
+         .corrMeanScale             = "1.0",
+         .readout                   = "EcalEndcapPHits",
+         .readoutType               = "sipm",
+         .lightYield                = nPhotonPerGeV / PhotonCollectionEff,
+         .photonDetectionEfficiency = PhotonCollectionEff,
+         .numEffectiveSipmPixels    = EcaslEndcapP_totalPixel},
         app // TODO: Remove me once fixed
         ));
   } else if (FEMCHomoScfi == 2) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
-        {
-            //.eRes = {0.0, 0.0, 0.0}, // No smearing for ScFi
-            .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
-            .tRes = 0.0,
-            .threshold =
-                0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
-            .capADC        = EcalEndcapP_capADC,
-            .capTime       = 100, // given in ns, 4 samples in HGCROC
-            .dyRangeADC    = EcalEndcapP_dyRangeADC,
-            .pedMeanADC    = EcalEndcapP_pedMeanADC,
-            .pedSigmaADC   = EcalEndcapP_pedSigmaADC,
-            .resolutionTDC = EcalEndcapP_resolutionTDC,
-            .corrMeanScale = EcalEndcapP_corrMeanScale,
-            .readout       = "EcalEndcapPHits",
-            .fields        = {"fiberx", "fibery", "x", "y"},
-	    .readoutType   = "sipm",
-	    .lightYield    = nPhotonPerGeV/PhotonCollectionEff,
-	    .photonDetectionEfficiency = PhotonCollectionEff,
-	    .numEffectiveSipmPixels = totalPixel
-        },
+        {                           //.eRes = {0.0, 0.0, 0.0}, // No smearing for ScFi
+         .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
+         .tRes = 0.0,
+         .threshold =
+             0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
+         .capADC                    = EcalEndcapP_capADC,
+         .capTime                   = 100, // given in ns, 4 samples in HGCROC
+         .dyRangeADC                = EcalEndcapP_dyRangeADC,
+         .pedMeanADC                = EcalEndcapP_pedMeanADC,
+         .pedSigmaADC               = EcalEndcapP_pedSigmaADC,
+         .resolutionTDC             = EcalEndcapP_resolutionTDC,
+         .corrMeanScale             = EcalEndcapP_corrMeanScale,
+         .readout                   = "EcalEndcapPHits",
+         .fields                    = {"fiberx", "fibery", "x", "y"},
+         .readoutType               = "sipm",
+         .lightYield                = nPhotonPerGeV / PhotonCollectionEff,
+         .photonDetectionEfficiency = PhotonCollectionEff,
+         .numEffectiveSipmPixels    = totalPixel},
         app // TODO: Remove me once fixed
         ));
   }
