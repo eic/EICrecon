@@ -73,9 +73,6 @@ void InitPlugin(JApplication* app) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
-#else
-        {"EcalEndcapPRawHits"},
-#endif
         {
             .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03,
                      0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
