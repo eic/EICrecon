@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 - 2025, Simon Gardner
 
+#pragma once
+
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 // Event Model related classes
@@ -40,8 +42,6 @@ public:
     m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
 

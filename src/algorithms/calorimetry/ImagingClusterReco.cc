@@ -21,12 +21,12 @@
 #include <Eigen/Core>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
-#include <Eigen/QR>
 #include <Eigen/SVD>
 #include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
 #include <map>
+#include <new>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingClusterRecoConfig.h"
@@ -35,11 +35,7 @@ namespace eicrecon {
 
 void ImagingClusterReco::process(const Input& input, const Output& output) const {
 
-#if EDM4EIC_VERSION_MAJOR >= 7
   const auto [proto, mchitassociations] = input;
-#else
-  const auto [proto, mchits] = input;
-#endif
   auto [clusters, associations, layers] = output;
 
   for (const auto& pcl : *proto) {
@@ -65,23 +61,12 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
     clusters->push_back(cl);
 
     // If sim hits are available, associate cluster with MCParticle
-#if EDM4EIC_VERSION_MAJOR >= 7
-    if (mchitassociations->size() == 0) {
+    if (mchitassociations->empty()) {
       debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
             "will be performed.");
       continue;
-    } else {
-      associate_mc_particles(cl, mchitassociations, associations);
     }
-#else
-    if (mchits->size() == 0) {
-      debug("Provided SimCalorimeterHitCollection is empty. No truth association will be "
-            "performed.");
-      continue;
-    } else {
-      associate_mc_particles(cl, mchits, associations);
-    }
-#endif
+    associate_mc_particles(cl, mchitassociations, associations);
   }
 
   // debug output
@@ -105,7 +90,7 @@ ImagingClusterReco::reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl)
     //                std::vector<std::pair<const edm4eic::CalorimeterHit, float>> v;
     //                layer_map[lid] = {};
     //            }
-    layer_map[lid].push_back({hit, weights[i]});
+    layer_map[lid].emplace_back(hit, weights[i]);
   }
 
   // create layers
@@ -146,13 +131,7 @@ edm4eic::MutableCluster ImagingClusterReco::reconstruct_layer(
   // positionError not set
   // Intrinsic direction meaningless in a cluster layer --> not set
 
-  // Calculate radius as the standard deviation of the hits versus the cluster center
-  double radius = 0.;
-  for (const auto& [hit, weight] : hits) {
-    radius += std::pow(edm4hep::utils::magnitude(hit.getPosition() - layer.getPosition()), 2);
-  }
-  layer.addToShapeParameters(std::sqrt(radius / layer.getNhits()));
-  // TODO Skewedness
+  // Shape parameters are calculated separately by CalorimeterClusterShape algorithm
 
   return layer;
 }
@@ -194,17 +173,7 @@ ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const 
   cluster.setPosition(edm4hep::utils::sphericalToVector(
       r, edm4hep::utils::etaToAngle(meta / energy), mphi / energy));
 
-  // shower radius estimate (eta-phi plane)
-  double radius = 0.;
-  for (const auto& hit : hits) {
-    radius += std::pow(std::hypot((edm4hep::utils::eta(hit.getPosition()) -
-                                   edm4hep::utils::eta(cluster.getPosition())),
-                                  (edm4hep::utils::angleAzimuthal(hit.getPosition()) -
-                                   edm4hep::utils::angleAzimuthal(cluster.getPosition()))),
-                       2.0);
-  }
-  cluster.addToShapeParameters(std::sqrt(radius / cluster.getNhits()));
-  // Skewedness not calculated TODO
+  // Shape parameters are calculated separately by CalorimeterClusterShape algorithm
 
   // Optionally store the MC truth associated with the first hit in this cluster
   // FIXME no connection between cluster and truth in edm4hep
@@ -254,11 +223,7 @@ ImagingClusterReco::fit_track(const std::vector<edm4eic::MutableCluster>& layers
 
 void ImagingClusterReco::associate_mc_particles(
     const edm4eic::Cluster& cl,
-#if EDM4EIC_VERSION_MAJOR >= 7
     const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
-#else
-    const edm4hep::SimCalorimeterHitCollection* mchits,
-#endif
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
   // Association Logic
@@ -293,7 +258,6 @@ void ImagingClusterReco::associate_mc_particles(
     // vector to hold associated sim hits
     std::vector<edm4hep::SimCalorimeterHit> vecAssocSimHits;
 
-#if EDM4EIC_VERSION_MAJOR >= 7
     for (const auto& hitAssoc : *mchitassociations) {
       // if found corresponding raw hit, add sim hit to vector
       // and increment energy sum
@@ -302,22 +266,6 @@ void ImagingClusterReco::associate_mc_particles(
         eSimHitSum += vecAssocSimHits.back().getEnergy();
       }
     }
-#else
-    for (const auto& mchit : *mchits) {
-      if (mchit.getCellID() == clhit.getCellID()) {
-        vecAssocSimHits.push_back(mchit);
-        eSimHitSum += vecAssocSimHits.back().getEnergy();
-        break;
-      }
-    }
-
-    // if no matching cell ID found, continue
-    // otherwise increment sum
-    if (vecAssocSimHits.empty()) {
-      debug("No matching SimHit for hit {}", clhit.getCellID());
-      continue;
-    }
-#endif
     debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(),
           clhit.getCellID());
 

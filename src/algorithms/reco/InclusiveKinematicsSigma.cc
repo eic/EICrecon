@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Wouter Deconinck, Barak Schmookler
 
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 6
-
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/Vector4Dfwd.h>
@@ -13,6 +10,7 @@
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <vector>
 
 #include "Beam.h"
 #include "Boost.h"
@@ -93,4 +91,3 @@ void InclusiveKinematicsSigma::process(const InclusiveKinematicsSigma::Input& in
 }
 
 } // namespace eicrecon
-#endif

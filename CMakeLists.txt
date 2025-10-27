@@ -55,10 +55,10 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Minimal dependency versions
-set(Acts_VERSION_MIN 33.0.0)
+set(Acts_VERSION_MIN 34.0.0)
 set(algorithms_VERSION_MIN 1.0.0)
 set(DD4hep_VERSION_MIN 1.21)
-set(EDM4EIC_VERSION_MIN 5.0)
+set(EDM4EIC_VERSION_MIN 8.0)
 set(EDM4HEP_VERSION_MIN 0.7.1)
 set(Eigen3_VERSION_MIN 3.3)
 set(FastJet_VERSION_MIN 3)
@@ -220,15 +220,20 @@ find_package(DD4hep ${DD4hep_VERSION_MIN} REQUIRED)
 find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
 set(Acts_VERSION
     "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
-if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN} AND NOT "${Acts_VERSION}"
-                                                        STREQUAL "9.9.9")
+if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN})
   message(
     FATAL_ERROR
       "Acts version ${Acts_VERSION_MIN} or higher required, but ${Acts_VERSION} found"
   )
 endif()
-# ActsCore
-get_target_property(ACTS_COMPILE_FEATURES ActsCore INTERFACE_COMPILE_FEATURES)
+if(${Acts_VERSION} VERSION_GREATER_EQUAL "43.0.0")
+  set(Acts_NAMESPACE_PREFIX Acts::)
+else()
+  set(Acts_NAMESPACE_PREFIX Acts)
+endif()
+# Acts::Core
+get_target_property(ACTS_COMPILE_FEATURES ${Acts_NAMESPACE_PREFIX}Core
+                    INTERFACE_COMPILE_FEATURES)
 if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
   message(
     WARNING
@@ -248,11 +253,7 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ROOT_COMPILE_FEATURES)
 endif()
 
 # ONNX Runtime
-option(USE_ONNX "Compile with ONNX support" ON)
-if(${USE_ONNX})
-  find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
-  add_compile_definitions(USE_ONNX)
-endif()
+find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins

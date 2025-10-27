@@ -4,16 +4,14 @@
 
 #include "IterativeVertexFinder.h"
 
-#include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
-#include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#include <Acts/Utilities/detail/ContextType.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/IVertexFinder.hpp>
@@ -33,10 +31,13 @@
 #include <edm4eic/Trajectory.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector4f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <cmath>
+#include <string>
 #include <utility>
 
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -153,7 +154,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
     eicvertex.setPositionError(cov); // covariance
 
     for (const auto& t : vtx.tracks()) {
-      const auto& par = finderCfg.extractParameters(t.originalParams);
+      const auto& par = Acts::InputTrack::extractParameters(t.originalParams);
       m_log->trace("Track local position from vertex = {} mm, {} mm",
                    par.localPosition().x() / Acts::UnitConstants::mm,
                    par.localPosition().y() / Acts::UnitConstants::mm);
@@ -176,10 +177,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
                   par.getLoc().a / edm4eic::unit::mm, par.getLoc().b / edm4eic::unit::mm);
               eicvertex.addToAssociatedParticles(part);
             } // endif
-          }   // end for par
-        }     // end for trk
-      }       // end for part
-    }         // end for t
+          } // end for par
+        } // end for trk
+      } // end for part
+    } // end for t
     m_log->debug("One vertex found at (x,y,z) = ({}, {}, {}) mm.",
                  vtx.position().x() / Acts::UnitConstants::mm,
                  vtx.position().y() / Acts::UnitConstants::mm,

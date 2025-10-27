@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Simon Gardner
 
+#pragma once
+
 #include "extensions/jana/JOmniFactory.h"
 #include "algorithms/meta/CollectionCollector.h"
 
@@ -27,8 +29,6 @@ public:
     m_algo->level(static_cast<algorithms::LogLevel>(this->logger()->level()));
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     std::vector<gsl::not_null<const typename T::collection_type*>> in_collections;

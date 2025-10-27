@@ -19,11 +19,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::ProtoCluster> m_protos_input{this};
-#if EDM4EIC_VERSION_MAJOR >= 7
   PodioInput<edm4eic::MCRecoCalorimeterHitAssociation> m_mchitassocs_input{this};
-#else
-  PodioInput<edm4hep::SimCalorimeterHit> m_mchits_input{this};
-#endif
 
   PodioOutput<edm4eic::Cluster> m_clusters_output{this};
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assocs_output{this};
@@ -41,14 +37,8 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-#if EDM4EIC_VERSION_MAJOR >= 7
     m_algo->process({m_protos_input(), m_mchitassocs_input()},
-#else
-    m_algo->process({m_protos_input(), m_mchits_input()},
-#endif
                     {m_clusters_output().get(), m_assocs_output().get(), m_layers_output().get()});
   }
 };

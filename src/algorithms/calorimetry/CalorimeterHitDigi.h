@@ -12,51 +12,40 @@
 
 #pragma once
 
+#include <DD4hep/IDDescriptor.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <DD4hep/IDDescriptor.h>
-#include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#endif
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
-#include <random>
 #include <stdint.h>
+#include <functional>
 #include <string>
 #include <string_view>
-#include <functional>
 
 #include "CalorimeterHitDigiConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
 using CalorimeterHitDigiAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::SimCalorimeterHitCollection>,
-    algorithms::Output<
-#if EDM4EIC_VERSION_MAJOR >= 7
-        edm4hep::RawCalorimeterHitCollection, edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-        edm4hep::RawCalorimeterHitCollection
-#endif
-        >>;
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimCalorimeterHitCollection>,
+    algorithms::Output<edm4hep::RawCalorimeterHitCollection,
+                       edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
 
 class CalorimeterHitDigi : public CalorimeterHitDigiAlgorithm,
                            public WithPodConfig<CalorimeterHitDigiConfig> {
 
 public:
-  CalorimeterHitDigi(std::string_view name) : CalorimeterHitDigiAlgorithm {
-    name, {"inputHitCollection"},
-#if EDM4EIC_VERSION_MAJOR >= 7
-        {"outputRawHitCollection", "outputRawHitAssociationCollection"},
-#else
-        {"outputRawHitCollection"},
-#endif
-        "Smear energy deposit, digitize within ADC range, add pedestal, "
-        "convert time with smearing resolution, and sum signals."
-  }
-  {}
+  CalorimeterHitDigi(std::string_view name)
+      : CalorimeterHitDigiAlgorithm{
+            name,
+            {"eventHeader", "inputHitCollection"},
+            {"outputRawHitCollection", "outputRawHitAssociationCollection"},
+            "Smear energy deposit, digitize within ADC range, add pedestal, "
+            "convert time with smearing resolution, and sum signals."} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -71,11 +60,12 @@ private:
 
   dd4hep::IDDescriptor id_spec;
 
-private:
-  const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+  enum readout_enum { kSimpleReadout, kPoissonPhotonReadout, kSipmReadout };
+  enum readout_enum readoutType { kSimpleReadout };
 
-  mutable std::default_random_engine m_generator;
-  mutable std::normal_distribution<double> m_gaussian;
+private:
+  const algorithms::GeoSvc& m_geo         = algorithms::GeoSvc::instance();
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 };
 
 } // namespace eicrecon

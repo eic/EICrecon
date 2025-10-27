@@ -10,9 +10,9 @@
  * which might be changed by user parameters.
  */
 
-#include <JANA/CLI/JVersion.h>
-#include <JANA/JMultifactory.h>
 #include <JANA/JEvent.h>
+#include <JANA/JMultifactory.h>
+#include <JANA/JVersion.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
 #if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
@@ -539,7 +539,9 @@ public:
     static_cast<AlgoT*>(this)->ChangeRun(event->GetRunNumber());
   }
 
-  virtual void Process(int32_t /* run_number */, uint64_t /* event_number */){};
+  virtual void ChangeRun(int32_t /* run_number */) override {};
+
+  virtual void Process(int32_t /* run_number */, uint64_t /* event_number */) {};
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
     try {

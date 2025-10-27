@@ -4,12 +4,22 @@
 #include "CKFTracking.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/EventData/TrackStateProxy.hpp>
+#include <Acts/EventData/MeasurementHelpers.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/Types.hpp>
+#include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#if Acts_VERSION_MAJOR >= 39
+#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
+#endif
+#if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
+#include <Acts/Utilities/Iterator.hpp>
+#endif
+#include <Acts/Utilities/detail/ContextType.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
@@ -22,8 +32,6 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/Geometry/Layer.hpp>
-#if Acts_VERSION_MAJOR >= 34
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
 #else
@@ -33,27 +41,19 @@
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
-#endif
 #include <Acts/Propagator/Propagator.hpp>
 #if Acts_VERSION_MAJOR >= 36
 #include <Acts/Propagator/PropagatorOptions.hpp>
 #endif
-#if Acts_VERSION_MAJOR >= 34
 #include <Acts/Propagator/StandardAborters.hpp>
-#endif
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/TrackStateCreator.hpp>
 #endif
-#if Acts_VERSION_MAJOR < 34
-#include <Acts/TrackFitting/GainMatrixSmoother.hpp>
-#endif
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#if Acts_VERSION_MAJOR >= 34
 #include <Acts/Utilities/TrackHelpers.hpp>
-#endif
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
@@ -65,42 +65,31 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
+#include <any>
 #include <array>
-#include <cmath>
 #include <cstddef>
 #include <functional>
-#include <list>
 #include <optional>
 #include <ostream>
 #include <set>
+#include <stdexcept>
+#include <string>
 #include <system_error>
 #include <utility>
 
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
+#include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
 
 using namespace Acts::UnitLiterals;
-
-// This array relates the Acts and EDM4eic covariance matrices, including
-// the unit conversion to get from Acts units into EDM4eic units.
-//
-// Note: std::map is not constexpr, so we use a constexpr std::array
-// std::array initialization need double braces since arrays are aggregates
-// ref: https://en.cppreference.com/w/cpp/language/aggregate_initialization
-static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_indexed_units{
-    {{Acts::eBoundLoc0, Acts::UnitConstants::mm},
-     {Acts::eBoundLoc1, Acts::UnitConstants::mm},
-     {Acts::eBoundPhi, 1.},
-     {Acts::eBoundTheta, 1.},
-     {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
-     {Acts::eBoundTime, Acts::UnitConstants::ns}}};
 
 CKFTracking::CKFTracking() = default;
 
@@ -118,9 +107,10 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
   // eta bins, chi2 and #sourclinks per surface cutoffs
   m_sourcelinkSelectorCfg = {
       {Acts::GeometryIdentifier(),
-       {m_cfg.etaBins,
-        m_cfg.chi2CutOff,
-        {m_cfg.numMeasurementsCutOff.begin(), m_cfg.numMeasurementsCutOff.end()}}},
+       {.etaBins               = m_cfg.etaBins,
+        .chi2CutOff            = m_cfg.chi2CutOff,
+        .numMeasurementsCutOff = {m_cfg.numMeasurementsCutOff.begin(),
+                                  m_cfg.numMeasurementsCutOff.end()}}},
   };
   m_trackFinderFunc =
       CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
@@ -131,21 +121,35 @@ std::tuple<std::vector<ActsExamples::Trajectories*>,
 CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
                      const edm4eic::Measurement2DCollection& meas2Ds) {
 
+  // Create output collections
+  std::vector<ActsExamples::Trajectories*> acts_trajectories;
+  // Prepare the output data with MultiTrajectory, per seed
+  acts_trajectories.reserve(init_trk_params.size());
+  // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
+  //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
+  std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
+
+  // If measurements or initial track parameters are empty, return early
+  if (meas2Ds.empty() || init_trk_params.empty()) {
+    return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
+  }
+
   // create sourcelink and measurement containers
   auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
 
   // need list here for stable addresses
-  std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
 #if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
+  std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
   ActsExamples::IndexSourceLinkContainer src_links;
   src_links.reserve(meas2Ds.size());
-#endif
   std::size_t hit_index = 0;
+#endif
 
   for (const auto& meas2D : meas2Ds) {
 
     Acts::GeometryIdentifier geoId{meas2D.getSurface()};
 
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     // --follow example from ACTS to create source links
     sourceLinkStorage.emplace_back(geoId, hit_index);
     ActsExamples::IndexSourceLink& sourceLink = sourceLinkStorage.back();
@@ -153,7 +157,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     // index map and source link container are geometry-ordered.
     // since the input is also geometry-ordered, new items can
     // be added at the end.
-#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     src_links.insert(src_links.end(), sourceLink);
 #endif
     // ---
@@ -206,7 +209,9 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     measurements->emplace_back(std::move(measurement));
 #endif
 
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     hit_index++;
+#endif
   }
 
   ActsExamples::TrackParametersContainer acts_init_trk_params;
@@ -253,9 +258,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   ActsExamples::PassThroughCalibrator pcalibrator;
   ActsExamples::MeasurementCalibratorAdapter calibrator(pcalibrator, *measurements);
   Acts::GainMatrixUpdater kfUpdater;
-#if Acts_VERSION_MAJOR < 34
-  Acts::GainMatrixSmoother kfSmoother;
-#endif
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
 #if Acts_VERSION_MAJOR >= 36
@@ -273,10 +275,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 #else
   extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
       &kfUpdater);
-#endif
-#if Acts_VERSION_MAJOR < 34
-  extensions.smoother.connect<&Acts::GainMatrixSmoother::operator()<Acts::VectorMultiTrajectory>>(
-      &kfSmoother);
 #endif
 #if (Acts_VERSION_MAJOR >= 36) && (Acts_VERSION_MAJOR < 39)
   extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<
@@ -315,12 +313,9 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   // Set the CombinatorialKalmanFilter options
 #if Acts_VERSION_MAJOR >= 39
   CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, extensions, pOptions);
-#elif Acts_VERSION_MAJOR >= 34
-  CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
-                                          extensions, pOptions);
 #else
   CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
-                                          extensions, pOptions, &(*pSurface));
+                                          extensions, pOptions);
 #endif
 
 #if Acts_VERSION_MAJOR >= 36
@@ -333,12 +328,12 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
       Extrapolator::template Options<Acts::ActionList<Acts::MaterialInteractor>,
                                      Acts::AbortList<Acts::EndOfWorldReached>>;
 #endif
-  Extrapolator extrapolator(
-      Acts::EigenStepper<>(m_BField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
-      logger().cloneWithSuffix("Propagator"));
+  Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
+                            Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
+                                            logger().cloneWithSuffix("Navigator")),
+                            logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(m_geoctx, m_fieldctx);
-#elif Acts_VERSION_MAJOR >= 34
+#else
   Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> extrapolator(
       Acts::EigenStepper<>(m_BField),
       Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
@@ -370,7 +365,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     // Set seed number for all found tracks
     auto& tracksForSeed = result.value();
     for (auto& track : tracksForSeed) {
-#if Acts_VERSION_MAJOR >= 34
       auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
       if (!smoothingResult.ok()) {
         ACTS_ERROR("Smoothing for seed " << iseed << " and track " << track.index()
@@ -388,7 +382,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
                                              << extrapolationResult.error());
         continue;
       }
-#endif
 
       passed_tracks.insert(track.index());
       seedNumber(track) = iseed;
@@ -420,19 +413,12 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   auto constTrackContainer =
       std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*trackContainer));
 
-  // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
-  //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
-  std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
   constTracks_v.push_back(
       new ActsExamples::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
   auto& constTracks = *(constTracks_v.front());
 
   // Seed number column accessor
   const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
-
-  // Prepare the output data with MultiTrajectory, per seed
-  std::vector<ActsExamples::Trajectories*> acts_trajectories;
-  acts_trajectories.reserve(init_trk_params.size());
 
   ActsExamples::Trajectories::IndexedParameters parameters;
   std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;

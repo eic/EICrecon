@@ -2,6 +2,7 @@
 #include "TrackingTest_processor.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <JANA/Services/JParameterManager.h>
@@ -13,6 +14,7 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
 #include <cstddef>
@@ -26,11 +28,6 @@
 #include "services/rootfile/RootFile_service.h"
 
 using namespace fmt;
-
-//------------------
-// OccupancyAnalysis (Constructor)
-//------------------
-TrackingTest_processor::TrackingTest_processor(JApplication* app) : JEventProcessor(app) {}
 
 //------------------
 // Init

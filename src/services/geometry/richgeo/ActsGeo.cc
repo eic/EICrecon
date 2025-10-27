@@ -7,11 +7,13 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <algorithm>
-#include <cmath>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <algorithm>
+#include <cmath>
 #include <utility>
+#include <variant>
 
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "services/geometry/richgeo/RichGeo.h"
@@ -111,7 +113,8 @@ std::vector<eicrecon::SurfaceConfig> richgeo::ActsGeo::TrackingPlanes(int radiat
       auto z    = trackZmin + (i + 1) * trackZstep;
       auto rmin = trackRmin(z);
       auto rmax = trackRmax(z);
-      discs.emplace_back(eicrecon::DiscSurfaceConfig{"ForwardRICH_ID", z, rmin, rmax});
+      discs.emplace_back(eicrecon::DiscSurfaceConfig{
+          .id = "ForwardRICH_ID", .zmin = z, .rmin = rmin, .rmax = rmax});
       m_log->debug("  disk {}: z={} r=[ {}, {} ]", i, z, rmin, rmax);
     }
   }

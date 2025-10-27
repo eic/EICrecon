@@ -10,13 +10,11 @@
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <RtypesCore.h>
 #include <TMath.h>
-#include <algorithm>
-#include <cmath>
-#include <cstdint>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
@@ -25,11 +23,15 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
+#include <podio/RelationRange.h>
+#include <algorithm>
+#include <cmath>
+#include <cstdint>
 #include <gsl/pointers>
 #include <iostream>
 #include <limits>
 #include <map>
-#include <podio/RelationRange.h>
 #include <stdexcept>
 #include <vector>
 
@@ -357,9 +359,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     float energy    = caloHit.getEnergy();
     double time     = std::numeric_limits<double>::max();
     for (const auto& c : caloHit.getContributions()) {
-      if (c.getTime() <= time) {
-        time = c.getTime();
-      }
+      time = std::min<double>(c.getTime(), time);
     }
 
     auto detector_module_x = m_decoder->get(cellID, 1);
@@ -508,9 +508,9 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
   // ===============================================================================================
   hSamplingFractionEta->Fill(mceta,
                              sumActiveCaloEnergy / (sumActiveCaloEnergy + sumPassiveCaloEnergy));
-  std::sort(input_tower_rec.begin(), input_tower_rec.end(), &acompare);
-  std::sort(input_tower_recSav.begin(), input_tower_recSav.end(), &acompare);
-  std::sort(input_tower_sim.begin(), input_tower_sim.end(), &acompare);
+  std::ranges::sort(input_tower_rec, &acompare);
+  std::ranges::sort(input_tower_recSav, &acompare);
+  std::ranges::sort(input_tower_sim, &acompare);
 
   // ===============================================================================================
   // calculated summed hit energy for rec and sim hits
@@ -617,7 +617,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
     // -----------------------------------------------------------------------------------------------
     // --------------------------- Fill LFHCal MA clusters in tree and hists -------------------------
     // -----------------------------------------------------------------------------------------------
-    std::sort(clusters_calo.begin(), clusters_calo.end(), &acompareCl);
+    std::ranges::sort(clusters_calo, &acompareCl);
     m_log->info("-----> found {} clusters", clusters_calo.size());
     hRecNClusters_E_eta->Fill(mcenergy, clusters_calo.size(), mceta);
     int iCl = 0;
@@ -648,7 +648,7 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       m_log->trace("MA cluster {}:\t {} \t {}", iCl, cluster.cluster_E, cluster.cluster_NTowers);
     }
     if (iCl < maxNCluster && enableTreeCluster) {
-      t_lFHCal_clusters_N = (int)iCl;
+      t_lFHCal_clusters_N = iCl;
     }
 
     clusters_calo.clear();
@@ -700,11 +700,10 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
       m_log->info("-----> found fEMCClustersF:", fEMCClustersF.size());
       for (const auto cluster : fEMCClustersF) {
         if (iECl < maxNCluster && enableTreeCluster) {
-          t_fEMC_cluster_E[iECl]      = (float)cluster.getEnergy();
+          t_fEMC_cluster_E[iECl]      = cluster.getEnergy();
           t_fEMC_cluster_NCells[iECl] = (int)cluster.getNhits();
-          t_fEMC_cluster_Eta[iECl] =
-              (-1.) * std::log(std::tan((float)cluster.getIntrinsicTheta() / 2.));
-          t_fEMC_cluster_Phi[iECl] = (float)cluster.getIntrinsicPhi();
+          t_fEMC_cluster_Eta[iECl] = (-1.) * std::log(std::tan(cluster.getIntrinsicTheta() / 2.));
+          t_fEMC_cluster_Phi[iECl] = cluster.getIntrinsicPhi();
         }
 
         if (cluster.getEnergy() > highestEEmCl) {
@@ -742,14 +741,14 @@ void lfhcal_studiesProcessor::Process(const std::shared_ptr<const JEvent>& event
                    input_tower_recSav.at(iCell).tower_clusterIDA,
                    input_tower_recSav.at(iCell).tower_clusterIDB);
 
-      t_lFHCal_towers_cellE[iCell]      = (float)input_tower_recSav.at(iCell).energy;
-      t_lFHCal_towers_cellT[iCell]      = (float)input_tower_recSav.at(iCell).time;
+      t_lFHCal_towers_cellE[iCell]      = input_tower_recSav.at(iCell).energy;
+      t_lFHCal_towers_cellT[iCell]      = input_tower_recSav.at(iCell).time;
       t_lFHCal_towers_cellIDx[iCell]    = (short)input_tower_recSav.at(iCell).cellIDx;
       t_lFHCal_towers_cellIDy[iCell]    = (short)input_tower_recSav.at(iCell).cellIDy;
       t_lFHCal_towers_cellIDz[iCell]    = (short)input_tower_recSav.at(iCell).cellIDz;
       t_lFHCal_towers_clusterIDA[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDA;
       t_lFHCal_towers_clusterIDB[iCell] = (short)input_tower_recSav.at(iCell).tower_clusterIDB;
-      t_lFHCal_towers_cellTrueID[iCell] = (int)input_tower_recSav.at(iCell).tower_trueID;
+      t_lFHCal_towers_cellTrueID[iCell] = input_tower_recSav.at(iCell).tower_trueID;
     }
 
     event_tree->Fill();

@@ -3,9 +3,7 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#if Acts_VERSION_MAJOR >= 34
 #include <Acts/EventData/TransformationHelpers.hpp>
-#endif
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
@@ -15,13 +13,16 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <fmt/ostream.h>
+#include <any>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <cstdlib>
 #include <gsl/pointers>
 #include <iterator>
 
@@ -102,18 +103,11 @@ void TrackProjector::process(const Input& input, const Output& output) const {
           Acts::makeDirectionFromPhiTheta(boundParams[Acts::eBoundPhi],
                                           boundParams[Acts::eBoundTheta]));
 
-#if Acts_VERSION_MAJOR >= 34
       auto freeParams = Acts::transformBoundToFreeParameters(
           trackstate.referenceSurface(), m_geo_provider->getActsGeometryContext(), boundParams);
       auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
           m_geo_provider->getActsGeometryContext(), freeParams.template segment<3>(Acts::eFreePos0),
           freeParams.template segment<3>(Acts::eFreeDir0));
-#else
-                auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
-                        m_geo_provider->getActsGeometryContext(),
-                        boundParams
-                );
-#endif
       auto freeCov = jacobian * boundCov * jacobian.transpose();
 
       // global position
@@ -165,9 +159,19 @@ void TrackProjector::process(const Input& input, const Output& output) const {
       uint32_t system  = 0;
 
       // Store track point
-      track_segment.addToPoints({surface, system, position, positionError, momentum, momentumError,
-                                 time, timeError, theta, phi, directionError, pathLength,
-                                 pathLengthError});
+      track_segment.addToPoints({.surface         = surface,
+                                 .system          = system,
+                                 .position        = position,
+                                 .positionError   = positionError,
+                                 .momentum        = momentum,
+                                 .momentumError   = momentumError,
+                                 .time            = time,
+                                 .timeError       = timeError,
+                                 .theta           = theta,
+                                 .phi             = phi,
+                                 .directionError  = directionError,
+                                 .pathlength      = pathLength,
+                                 .pathlengthError = pathLengthError});
 
       debug("  ******************************");
       debug("    position: {}", position);

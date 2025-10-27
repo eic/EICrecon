@@ -8,6 +8,7 @@
 #include <Acts/Visualization/ViewConfig.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JException.h>
+#include <JANA/Services/JServiceLocator.h>
 #include <array>
 #include <exception>
 #include <gsl/pointers>
