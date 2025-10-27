@@ -29,4 +29,5 @@ struct CalorimeterHitDigiConfig {
   std::string readout{""};
   std::vector<std::string> fields{};
 };
+
 } // namespace eicrecon
