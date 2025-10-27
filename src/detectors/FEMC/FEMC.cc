@@ -72,7 +72,6 @@ void InitPlugin(JApplication* app) {
   if (FEMCHomoScfi <= 1) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
 #else
         {"EcalEndcapPRawHits"},
