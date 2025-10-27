@@ -179,7 +179,7 @@ struct TimeframeSplitter : public JEventUnfolder {
       for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simTracker) {
         auto tempSimTrackerHits = std::make_unique<edm4eic::TrackerHitCollection>();
         // Scan all hits in the collection until we find a hit that is later than the end of the time slice
-        bool bAllScan = true; 
+        bool bAllScan = true;
 
         if (detHitPtr != nullptr) {
           tempSimTrackerHits->setSubsetCollection(true);
