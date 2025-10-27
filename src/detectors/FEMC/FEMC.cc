@@ -101,9 +101,6 @@ void InitPlugin(JApplication* app) {
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
 #if EDM4EIC_VERSION_MAJOR >= 7
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
-#else
-        {"EcalEndcapPRawHits"},
-#endif
         {
             //.eRes = {0.0, 0.0, 0.0}, // No smearing for ScFi
             .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
