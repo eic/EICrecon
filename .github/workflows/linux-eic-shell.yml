@@ -42,7 +42,7 @@ env:
   clang-tidy-iwyu-CMAKE_BUILD_TYPE: Debug
   # FIXME: FOFFMTRK has only 130 GeV matrix
   JANA_OPTIONS: -PFOFFMTRK:ForwardOffMRecParticles:requireMatchingMatrix=false -Pjana:ticker_interval=60000 -Pjana:warmup_timeout=0 -Pjana:timeout=0
-  JANA_OPTIONS_GUN: -PFOFFMTRK:ForwardOffMRecParticles:requireBeamProton=false -PRPOTS:ForwardRomanPotRecParticles:requireBeamProton=false -PLOWQ2:TaggerTrackerTrajectories:requireBeamElectron=false -PLOWQ2:TaggerTrackerTransportationPreML:requireBeamElectron=false -PLOWQ2:TaggerTrackerTransportationPostML:requireBeamElectron=false
+  JANA_OPTIONS_GUN: -PFOFFMTRK:ForwardOffMRecParticles:requireBeamProton=false -PRPOTS:ForwardRomanPotRecParticles:requireBeamProton=false -PLOWQ2:TaggerTrackerTransportationPreML:requireBeamElectron=false -PLOWQ2:TaggerTrackerTransportationPostML:requireBeamElectron=false
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0:intercept_tls_get_addr=0
   LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
   UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1:silence_unsigned_overflow=1:report_error_type=1
@@ -1295,7 +1295,7 @@ jobs:
       - name: Find capybara comment
         if: ${{ github.event_name == 'pull_request' }}
         id: find_comment
-        uses: peter-evans/find-comment@v3
+        uses: peter-evans/find-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
           comment-author: 'github-actions[bot]'
@@ -1307,7 +1307,7 @@ jobs:
           name: capybara_${{ github.event.pull_request.number }}.md
       - name: Create or update capybara comment
         if: ${{ github.event_name == 'pull_request' }}
-        uses: peter-evans/create-or-update-comment@v4
+        uses: peter-evans/create-or-update-comment@v5
         with:
           comment-id: ${{ steps.find_comment.outputs.comment-id }}
           issue-number: ${{ github.event.pull_request.number }}

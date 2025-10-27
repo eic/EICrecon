@@ -13,7 +13,6 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Material/MaterialInteraction.hpp>
-#if Acts_VERSION_MAJOR >= 34
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
 #else
@@ -23,7 +22,6 @@
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
-#endif
 #include <Acts/Propagator/Propagator.hpp>
 #if Acts_VERSION_MAJOR >= 36
 #include <Acts/Propagator/PropagatorResult.hpp>
@@ -134,11 +132,9 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
     throw std::domain_error("Unknown surface type");
   };
   m_target_surfaces.resize(m_cfg.target_surfaces.size());
-  std::transform(m_cfg.target_surfaces.cbegin(), m_cfg.target_surfaces.cend(),
-                 m_target_surfaces.begin(), _toActsSurface);
+  std::ranges::transform(m_cfg.target_surfaces, m_target_surfaces.begin(), _toActsSurface);
   m_filter_surfaces.resize(m_cfg.filter_surfaces.size());
-  std::transform(m_cfg.filter_surfaces.cbegin(), m_cfg.filter_surfaces.cend(),
-                 m_filter_surfaces.begin(), _toActsSurface);
+  std::ranges::transform(m_cfg.filter_surfaces, m_filter_surfaces.begin(), _toActsSurface);
 
   m_log->trace("Initialized");
 }
@@ -292,12 +288,12 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   using PropagatorOptions =
       Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>>;
 #endif
-  Propagator propagator(
-      Acts::EigenStepper<>(magneticField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
-      logger().cloneWithSuffix("Propagator"));
+  Propagator propagator(Acts::EigenStepper<>(magneticField),
+                        Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
+                                        logger().cloneWithSuffix("Navigator")),
+                        logger().cloneWithSuffix("Propagator"));
   PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
-#elif Acts_VERSION_MAJOR >= 34
+#else
   Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> propagator(
       Acts::EigenStepper<>(magneticField),
       Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
@@ -382,8 +378,19 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   uint32_t system  = 0; // default value...will be set in TrackPropagation factory
 
   return std::make_unique<edm4eic::TrackPoint>(
-      edm4eic::TrackPoint{surface, system, position, positionError, momentum, momentumError, time,
-                          timeError, theta, phi, directionError, pathLength, pathLengthError});
+      edm4eic::TrackPoint{.surface         = surface,
+                          .system          = system,
+                          .position        = position,
+                          .positionError   = positionError,
+                          .momentum        = momentum,
+                          .momentumError   = momentumError,
+                          .time            = time,
+                          .timeError       = timeError,
+                          .theta           = theta,
+                          .phi             = phi,
+                          .directionError  = directionError,
+                          .pathlength      = pathLength,
+                          .pathlengthError = pathLengthError});
 }
 
 } // namespace eicrecon
