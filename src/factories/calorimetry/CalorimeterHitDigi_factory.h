@@ -36,8 +36,6 @@ private:
   ParameterRef<std::string> m_corrMeanScale{this, "scaleResponse", config().corrMeanScale};
   ParameterRef<std::vector<std::string>> m_fields{this, "signalSumFields", config().fields};
   ParameterRef<std::string> m_readout{this, "readoutClass", config().readout};
-  ParameterRef<double> m_nPhotonPerGeV{this, "numberOfPhotonPerGeV", config().nPhotonPerGeV};
-  ParameterRef<double> m_totalPixel{this, "totalNnumberOfPixel", config().totalPixel};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

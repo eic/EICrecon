@@ -209,17 +209,9 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
 
     double ped = m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC;
 
-    //SiPM Saturation
-    double saturation = 1.0;
-    if (m_cfg.totalPixel > 0) {
-      double nPhoton = edep * corrMeanScale_value * (1.0 + eResRel) * m_cfg.nPhotonPerGeV;
-      saturation     = (1.0 - exp(-nPhoton / m_cfg.totalPixel)) * m_cfg.totalPixel / nPhoton;
-      //printf("edep=%8.4f nPhoton=%8.2f totalPixel=%8.1f Saturation=%8.6f\n",edep,nPhoton,m_cfg.totalPixel,saturation);
-    }
-
     // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
     unsigned long long adc =
-        std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) * saturation /
+        std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) /
                                         m_cfg.dyRangeADC * m_cfg.capADC),
                  0LL);
     unsigned long long tdc = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
