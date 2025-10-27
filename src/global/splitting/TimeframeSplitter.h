@@ -174,14 +174,12 @@ struct TimeframeSplitter : public JEventUnfolder {
       eTimeSlice = m_timesplit_width * (child_idx + 1.0);
 
       std::vector<std::unique_ptr<edm4eic::TrackerHitCollection>> tempAllDetectorSimTrackerHits;
-      // std::vector<std::unique_ptr<edm4hep::SimTrackerHitCollection>> tempAllDetectorSimTrackerHits;
 
       // Loop through SimTrackerHit collections and split them into time slice
       for (auto& [detID, detHitPtr, start_index] : m_hitStartIndices_simTracker) {
-        // auto tempSimTrackerHits = std::make_unique<edm4hep::SimTrackerHitCollection>();
         auto tempSimTrackerHits = std::make_unique<edm4eic::TrackerHitCollection>();
-        bool bAllScan =
-            true; // Scan all hits in the collection until we find a hit that is later than the end of the time slice
+        // Scan all hits in the collection until we find a hit that is later than the end of the time slice
+        bool bAllScan = true; 
 
         if (detHitPtr != nullptr) {
           tempSimTrackerHits->setSubsetCollection(true);
@@ -226,7 +224,6 @@ struct TimeframeSplitter : public JEventUnfolder {
 
             auto& coll_out_contribution = m_calohitcontributions_out().at(detID);
             coll_out_contribution->setSubsetCollection(true);
-
             coll_out_contribution->push_back(contribution);
           }
           if (contributeFlag)
