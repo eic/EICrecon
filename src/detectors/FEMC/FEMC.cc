@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul
 
@@ -40,12 +39,13 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
       10 * dd4hep::picosecond;
   //const double sampFrac =  0.03;
-  const double sampFrac = 0.029043; //updated with ratio to ScFi model
+  const double sampFrac = 0.029043; //≈≈updated with ratio to ScFi model
   decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
       Form("%f", 1.0 / sampFrac);
   decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = Form("%f", sampFrac);
-  decltype(CalorimeterHitDigiConfig::nPhotonPerGeV) EcalEndcapP_nPhotonPerGeV = 1500;
-  decltype(CalorimeterHitDigiConfig::totalPixel) EcalEndcapP_totalPixel       = 4 * 159565;
+  const double nPhotonPerGeV = 1500;
+  const double PhotonCollectionEff = 0.5;
+  const double totalPixel       = 4 * 159565;
 
   int FEMCHomoScfi = 0;
   try {
@@ -75,9 +75,11 @@ void InitPlugin(JApplication* app) {
             .pedSigmaADC   = EcalEndcapP_pedSigmaADC,
             .resolutionTDC = EcalEndcapP_resolutionTDC,
             .corrMeanScale = "1.0",
-            .readout       = "EcalEndcapPHits",
-            //.totalPixel    = EcalEndcapP_totalPixel,
-            //.nPhotonPerGeV = EcalEndcapP_nPhotonPerGeV,
+	    .readout       = "EcalEndcapPHits",
+	    .readoutType   = "sipm",
+	    .lightYield    = nPhotonPerGeV/PhotonCollectionEff,
+	    .photonDetectionEfficiency = PhotonCollectionEff,
+	    .numEffectiveSipmPixels = EcaslEndcapP_totalPixel
         },
         app // TODO: Remove me once fixed
         ));
@@ -100,8 +102,10 @@ void InitPlugin(JApplication* app) {
             .corrMeanScale = EcalEndcapP_corrMeanScale,
             .readout       = "EcalEndcapPHits",
             .fields        = {"fiberx", "fibery", "x", "y"},
-            //.totalPixel    = EcalEndcapP_totalPixel,
-            //.nPhotonPerGeV = EcalEndcapP_nPhotonPerGeV,
+	    .readoutType   = "sipm",
+	    .lightYield    = nPhotonPerGeV/PhotonCollectionEff,
+	    .photonDetectionEfficiency = PhotonCollectionEff,
+	    .numEffectiveSipmPixels = totalPixel
         },
         app // TODO: Remove me once fixed
         ));
