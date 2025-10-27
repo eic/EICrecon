@@ -98,7 +98,6 @@ void InitPlugin(JApplication* app) {
   } else if (FEMCHomoScfi == 2) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
         {
             //.eRes = {0.0, 0.0, 0.0}, // No smearing for ScFi
