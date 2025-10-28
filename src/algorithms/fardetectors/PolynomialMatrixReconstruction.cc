@@ -144,11 +144,13 @@ void eicrecon::PolynomialMatrixReconstruction::process(
   thread_local std::string filename(
       std::format("calibrations/RP_60_xL_100_beamEnergy_{:.0f}.xL.lut", nomMomentum));
   thread_local std::unique_ptr<TGraph2D> xLGraph{nullptr};
-  if (not std::filesystem::exists(filename)) {
-    critical("Cannot find lookup xL table for {}", nomMomentum);
-    throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed");
-  } else {
-    xLGraph = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
+  if (xLGraph == nullptr) {
+    if (std::filesystem::exists(filename)) {
+      xLGraph = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
+    } else {
+      critical("Cannot find lookup xL table for {}", nomMomentum);
+      throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed");
+    }
   }
 
   trace("filename for lookup --> {}", filename);
