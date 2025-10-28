@@ -12,17 +12,16 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TGraph2D.h>
-#include <TString.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+#include <filesystem>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
 #include <vector>
-#include <filesystem>
 
 #include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"
 
@@ -141,17 +140,19 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
   //xL table filled here from LUT -- Graph2D used for nice interpolation functionality and simple loading of LUT file
 
-  if (not std::filesystem::exists(
-          Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum))) {
-    critical("Cannot find lookup xL table for {}", nomMomentum);
-    throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed");
+  thread_local std::string filename(
+      fmt::format("calibrations/RP_60_xL_100_beamEnergy_{:.0f}.xL.lut", nomMomentum));
+  thread_local std::unique_ptr<TGraph2D> xLGraph{nullptr};
+  if (xLGraph == nullptr) {
+    if (std::filesystem::exists(filename)) {
+      xLGraph = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
+    } else {
+      critical("Cannot find lookup xL table for {}", nomMomentum);
+      throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed");
+    }
   }
 
-  static std::unique_ptr<TGraph2D> xLGraph{new TGraph2D(
-      Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum), "%lf %lf %lf")};
-
-  trace("filename for lookup --> {}",
-        Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum));
+  trace("filename for lookup --> {}", filename);
 
   //important to ensure interoplation works correctly -- do not remove -- not available until ROOT v6.36, will need to add back in later
   //xLGraph->RemoveDuplicates();
