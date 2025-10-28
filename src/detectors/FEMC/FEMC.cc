@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul
+// Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul, Akio Ogawa
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
@@ -8,6 +8,7 @@
 #include <string>
 #include <variant>
 #include <vector>
+#include <fmt/base.h>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/CalorimeterHitRecoConfig.h"
@@ -38,11 +39,10 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalEndcapP_pedSigmaADC = 2.4576;
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
       10 * dd4hep::picosecond;
-  //const double sampFrac =  0.03;
-  const double sampFrac = 0.029043; //≈≈updated with ratio to ScFi model
+  const double sampFrac = 0.029043; // updated with ratio to ScFi model
   decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
-      Form("%f", 1.0 / sampFrac);
-  decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = Form("%f", sampFrac);
+      fmt::format("{}", 1.0 / sampFrac);
+  decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = fmt::format("{}", sampFrac);
   const double nPhotonPerGeV                                        = 1500;
   const double PhotonCollectionEff                                  = 0.5;
   const double totalPixel                                           = 4 * 159565;
@@ -85,7 +85,7 @@ void InitPlugin(JApplication* app) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
-        {                           //.eRes = {0.0, 0.0, 0.0}, // No smearing for ScFi
+        {
          .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
          .tRes = 0.0,
          .threshold =
