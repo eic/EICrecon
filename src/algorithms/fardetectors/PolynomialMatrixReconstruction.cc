@@ -12,17 +12,16 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <TGraph2D.h>
-#include <TString.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <cmath>
+#include <filesystem>
 #include <gsl/pointers>
 #include <memory>
 #include <stdexcept>
 #include <vector>
-#include <filesystem>
 
 #include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"
 
