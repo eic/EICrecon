@@ -45,7 +45,7 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = fmt::format("{}", sampFrac);
   const double EcalEndcapP_nPhotonPerGeV                            = 1500;
   const double EcalEndcapP_PhotonCollectionEff                      = 0.5;
-  const unsigned long long EcalEndcapP_totalPixel                               = 4 * 159565;
+  const unsigned long long EcalEndcapP_totalPixel                   = 4 * 159565;
 
   int FEMCHomoScfi = 0;
   try {
