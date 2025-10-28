@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 - 2025 Simon Gardner
 
-#include <edm4eic/EDM4eicVersion.h>
-
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
@@ -13,7 +10,7 @@
 #include <stdexcept>
 
 #include "FarDetectorTransportationPostML.h"
-#include "algorithms/interfaces/ParticleSvc.h"
+#include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
@@ -126,4 +123,3 @@ void FarDetectorTransportationPostML::process(
 }
 
 } // namespace eicrecon
-#endif

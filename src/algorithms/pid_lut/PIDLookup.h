@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
+#pragma once
+
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
@@ -14,8 +16,8 @@
 #include <string_view>
 
 #include "PIDLookupConfig.h"
-#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "services/pid_lut/PIDLookupTable.h"
 

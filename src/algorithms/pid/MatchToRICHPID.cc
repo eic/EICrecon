@@ -111,7 +111,7 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
     auto match_is_close = std::abs(in_part_eta - in_track_eta) < m_cfg.etaTolerance &&
                           std::abs(in_part_phi - in_track_phi) < m_cfg.phiTolerance;
     if (match_is_close) {
-      prox_match_list.push_back(ProxMatch{match_dist, in_pid_idx});
+      prox_match_list.push_back(ProxMatch{.match_dist = match_dist, .pid_idx = in_pid_idx});
     }
 
     // logging
@@ -127,9 +127,8 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
   }
 
   // choose the closest matching CherenkovParticleID object corresponding to this input reconstructed particle
-  auto closest_prox_match =
-      *std::min_element(prox_match_list.begin(), prox_match_list.end(),
-                        [](ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; });
+  auto closest_prox_match = *std::ranges::min_element(
+      prox_match_list, [](ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; });
   auto in_pid_matched = in_pids.at(closest_prox_match.pid_idx);
   trace("  => best match: match_dist = {:<5.4} at idx = {}", closest_prox_match.match_dist,
         closest_prox_match.pid_idx);
@@ -143,7 +142,7 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
 
   // relate matched ParticleID objects to output particle
   for (const auto& [out_pids_index, out_pids_id] : out_pid_index_map) {
-    const auto& out_pid = out_pids->at(out_pids_index);
+    const auto& out_pid = out_pids.at(out_pids_index);
     if (out_pid.getObjectID().index != static_cast<int>(out_pids_id)) { // sanity check
       error("indexing error in `edm4eic::ParticleID` collection");
       return false;

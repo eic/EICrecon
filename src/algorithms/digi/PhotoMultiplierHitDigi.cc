@@ -162,10 +162,8 @@ void PhotoMultiplierHitDigi::qe_init() {
   }
 
   // sort quantum efficiency data first
-  std::sort(qeff.begin(), qeff.end(),
-            [](const std::pair<double, double>& v1, const std::pair<double, double>& v2) {
-              return v1.first < v2.first;
-            });
+  std::ranges::sort(qeff, [](const std::pair<double, double>& v1,
+                             const std::pair<double, double>& v2) { return v1.first < v2.first; });
 
   // print the table
   debug("{:-^60}", " Quantum Efficiency vs. Energy ");
@@ -284,7 +282,8 @@ void PhotoMultiplierHitDigi::InsertHit(
     if (!is_noise_hit) {
       indices.push_back(sim_hit_index);
     }
-    hit_groups.insert({id, {HitData{1, sig, time, indices}}});
+    hit_groups.insert(
+        {id, {HitData{.npe = 1, .signal = sig, .time = time, .sim_hit_indices = indices}}});
     trace(" -> new group @ {:#018X}: signal={}", id, sig);
   }
 }

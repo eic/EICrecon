@@ -32,7 +32,6 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#if Acts_VERSION_MAJOR >= 34
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
 #else
@@ -42,32 +41,23 @@
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
-#endif
 #include <Acts/Propagator/Propagator.hpp>
 #if Acts_VERSION_MAJOR >= 36
 #include <Acts/Propagator/PropagatorOptions.hpp>
 #endif
-#if Acts_VERSION_MAJOR >= 34
 #include <Acts/Propagator/StandardAborters.hpp>
-#endif
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/TrackStateCreator.hpp>
 #endif
-#if Acts_VERSION_MAJOR < 34
-#include <Acts/TrackFitting/GainMatrixSmoother.hpp>
-#endif
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#if Acts_VERSION_MAJOR >= 34
 #include <Acts/Utilities/TrackHelpers.hpp>
-#endif
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <boost/container/detail/std_fwd.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
@@ -93,26 +83,13 @@
 
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
+#include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
 
 using namespace Acts::UnitLiterals;
-
-// This array relates the Acts and EDM4eic covariance matrices, including
-// the unit conversion to get from Acts units into EDM4eic units.
-//
-// Note: std::map is not constexpr, so we use a constexpr std::array
-// std::array initialization need double braces since arrays are aggregates
-// ref: https://en.cppreference.com/w/cpp/language/aggregate_initialization
-static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_indexed_units{
-    {{Acts::eBoundLoc0, Acts::UnitConstants::mm},
-     {Acts::eBoundLoc1, Acts::UnitConstants::mm},
-     {Acts::eBoundPhi, 1.},
-     {Acts::eBoundTheta, 1.},
-     {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
-     {Acts::eBoundTime, Acts::UnitConstants::ns}}};
 
 CKFTracking::CKFTracking() = default;
 
@@ -130,9 +107,10 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
   // eta bins, chi2 and #sourclinks per surface cutoffs
   m_sourcelinkSelectorCfg = {
       {Acts::GeometryIdentifier(),
-       {m_cfg.etaBins,
-        m_cfg.chi2CutOff,
-        {m_cfg.numMeasurementsCutOff.begin(), m_cfg.numMeasurementsCutOff.end()}}},
+       {.etaBins               = m_cfg.etaBins,
+        .chi2CutOff            = m_cfg.chi2CutOff,
+        .numMeasurementsCutOff = {m_cfg.numMeasurementsCutOff.begin(),
+                                  m_cfg.numMeasurementsCutOff.end()}}},
   };
   m_trackFinderFunc =
       CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
@@ -280,9 +258,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   ActsExamples::PassThroughCalibrator pcalibrator;
   ActsExamples::MeasurementCalibratorAdapter calibrator(pcalibrator, *measurements);
   Acts::GainMatrixUpdater kfUpdater;
-#if Acts_VERSION_MAJOR < 34
-  Acts::GainMatrixSmoother kfSmoother;
-#endif
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
 #if Acts_VERSION_MAJOR >= 36
@@ -300,10 +275,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 #else
   extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
       &kfUpdater);
-#endif
-#if Acts_VERSION_MAJOR < 34
-  extensions.smoother.connect<&Acts::GainMatrixSmoother::operator()<Acts::VectorMultiTrajectory>>(
-      &kfSmoother);
 #endif
 #if (Acts_VERSION_MAJOR >= 36) && (Acts_VERSION_MAJOR < 39)
   extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<
@@ -342,12 +313,9 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   // Set the CombinatorialKalmanFilter options
 #if Acts_VERSION_MAJOR >= 39
   CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, extensions, pOptions);
-#elif Acts_VERSION_MAJOR >= 34
-  CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
-                                          extensions, pOptions);
 #else
   CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
-                                          extensions, pOptions, &(*pSurface));
+                                          extensions, pOptions);
 #endif
 
 #if Acts_VERSION_MAJOR >= 36
@@ -360,12 +328,12 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
       Extrapolator::template Options<Acts::ActionList<Acts::MaterialInteractor>,
                                      Acts::AbortList<Acts::EndOfWorldReached>>;
 #endif
-  Extrapolator extrapolator(
-      Acts::EigenStepper<>(m_BField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
-      logger().cloneWithSuffix("Propagator"));
+  Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
+                            Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
+                                            logger().cloneWithSuffix("Navigator")),
+                            logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(m_geoctx, m_fieldctx);
-#elif Acts_VERSION_MAJOR >= 34
+#else
   Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> extrapolator(
       Acts::EigenStepper<>(m_BField),
       Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
@@ -397,7 +365,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     // Set seed number for all found tracks
     auto& tracksForSeed = result.value();
     for (auto& track : tracksForSeed) {
-#if Acts_VERSION_MAJOR >= 34
       auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
       if (!smoothingResult.ok()) {
         ACTS_ERROR("Smoothing for seed " << iseed << " and track " << track.index()
@@ -415,7 +382,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
                                              << extrapolationResult.error());
         continue;
       }
-#endif
 
       passed_tracks.insert(track.index());
       seedNumber(track) = iseed;
