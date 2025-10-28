@@ -52,20 +52,20 @@ void InitPlugin(JApplication* app) {
   const double EcalEndcapP_PhotonCollectionEff    = 0.5;
   const unsigned long long EcalEndcapP_totalPixel = 4 * 159565ULL;
 
-  int EcalEndcapP_homogeniousFlag = 0;
+  int EcalEndcapP_homogeneousFlag = 0;
   try {
     auto detector               = app->GetService<DD4hep_service>()->detector();
-    EcalEndcapP_homogeniousFlag = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
-    if (EcalEndcapP_homogeniousFlag <= 1) {
+    EcalEndcapP_homogeneousFlag = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
+    if (EcalEndcapP_homogeneousFlag <= 1) {
       mLog->info("Homogeneous geometry loaded");
     } else {
       mLog->info("ScFi geometry loaded");
     }
   } catch (...) {
-    EcalEndcapP_homogeniousFlag = 0;
+    EcalEndcapP_homogeneousFlag = 0;
   };
 
-  if (EcalEndcapP_homogeniousFlag <= 1) {
+  if (EcalEndcapP_homogeneousFlag <= 1) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
@@ -90,7 +90,7 @@ void InitPlugin(JApplication* app) {
         },
         app // TODO: Remove me once fixed
         ));
-  } else if (EcalEndcapP_homogeniousFlag == 2) {
+  } else if (EcalEndcapP_homogeneousFlag == 2) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
