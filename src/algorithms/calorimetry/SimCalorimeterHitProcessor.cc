@@ -23,6 +23,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
+#include <map>
 #include <variant>
 #include <vector>
 
@@ -170,8 +171,10 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   auto [out_hits, out_hit_contribs] = output;
 
   // Map for staging output information. We have 2 levels of structure:
-  //   - top level: (MCParticle, Merged Hit CellID)
+  //   - top level: (MCParticle, Merged Hit CellID, TimeID)
   //   - second level: (Merged Contributions)
+  // We use std::map instead of std::unordered_map to ensure deterministic ordering
+  // and reproducible results between single-threaded and multi-threaded execution.
   // Ideally we would want immediately create our output objects and modify the
   // contributions when needed. That could reduce the following code to a single loop
   // (instead of 2 consecutive loops). However, this is not possible as we may have to merge
@@ -179,9 +182,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   // reasonable contribution merging, at least the intermediary structure should be
   // quite a bit smaller than the original hit collection.
   using HitIndex = std::tuple<edm4hep::MCParticle, uint64_t /* cellID */, int /* timeID */>;
-  std::unordered_map<HitIndex,
-                     std::unordered_map<uint64_t /* cellID */, HitContributionAccumulator>>
-      hit_map;
+  std::map<HitIndex, std::map<uint64_t /* cellID */, HitContributionAccumulator>> hit_map;
 
   for (const auto& ih : *in_hits) {
     // the cell ID of the new superhit we are making
