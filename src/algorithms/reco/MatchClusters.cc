@@ -126,22 +126,21 @@ std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
 
   // temporary map: mcID -> (cluster, weight) so we can choose the cluster with highest weight per mcID
   std::map<int, std::pair<edm4eic::Cluster, float>> bestForMc;
-  
 
   // loop over clusters
   for (const auto cluster : *clusters) {
 
-    int bestMcID = -1;
+    int bestMcID     = -1;
     float bestWeight = -1.f;
 
     // find best associated MC particle for this cluster (largest association weight)
     for (const auto assoc : *associations) {
       if (assoc.getRec() == cluster) {
         const int candMcID = assoc.getSim().getObjectID().index;
-        const float w = assoc.getWeight();
+        const float w      = assoc.getWeight();
         if (w > bestWeight) {
           bestWeight = w;
-          bestMcID = candMcID;
+          bestMcID   = candMcID;
         }
       }
     }
