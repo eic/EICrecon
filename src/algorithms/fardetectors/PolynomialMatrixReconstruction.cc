@@ -147,7 +147,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
     throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed");
   }
 
-  static std::unique_ptr<TGraph2D> xLGraph{new TGraph2D(
+  thread_local std::unique_ptr<TGraph2D> xLGraph{new TGraph2D(
       Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum), "%lf %lf %lf")};
 
   trace("filename for lookup --> {}",
