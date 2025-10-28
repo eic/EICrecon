@@ -53,7 +53,7 @@ void InitPlugin(JApplication* app) {
   const double EcalEndcapP_PhotonCollectionEff    = 0.5;
   const unsigned long long EcalEndcapP_totalPixel = 4 * 159565ULL;
 
-  int FEMCHomoScFi;
+  int FEMCHomoScFi = 0;
   try {
     auto detector = app->GetService<DD4hep_service>()->detector();
     FEMCHomoScFi  = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
