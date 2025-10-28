@@ -132,7 +132,7 @@ std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
   for (const auto cluster : *clusters) {
 
     int bestMcID     = -1;
-    float bestWeight = -1.f;
+    float bestWeight = -1.F;
 
     // find best associated MC particle for this cluster (largest association weight)
     for (const auto assoc : *associations) {
