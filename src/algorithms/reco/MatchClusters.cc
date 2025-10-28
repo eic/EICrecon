@@ -17,7 +17,9 @@
 #include <podio/ObjectID.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <iterator>
 #include <map>
+#include <utility>
 
 #include "MatchClusters.h"
 
