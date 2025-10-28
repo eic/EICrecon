@@ -46,26 +46,27 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalEndcapP_pedSigmaADC = 2.4576;
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
       10 * dd4hep::picosecond;
-  const double sampFrac = 0.029043; // updated with ratio to ScFi model
+  const double EcalEndcapP_sampFrac = 0.029043; // updated with ratio to ScFi model
   decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
-      fmt::format("{}", 1.0 / sampFrac);
-  decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = fmt::format("{}", sampFrac);
+      fmt::format("{}", 1.0 / EcalEndcapP_sampFrac);
   const double EcalEndcapP_nPhotonPerGeV                            = 1500;
   const double EcalEndcapP_PhotonCollectionEff                      = 0.5;
-  const unsigned long long EcalEndcapP_totalPixel                   = 4 * 159565;
+  const unsigned long long EcalEndcapP_totalPixel                   = 4 * 159565ULL;
 
-  int FEMCHomoScfi = 0;
+  int FEMCHomoScFi;
   try {
     auto detector = app->GetService<DD4hep_service>()->detector();
-    FEMCHomoScfi  = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
-    if (FEMCHomoScfi <= 1)
+    FEMCHomoScFi  = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
+    if (FEMCHomoScFi <= 1) {
       mLog->info("Homogeneous geometry loaded");
-    else
+    } else {
       mLog->info("ScFi geometry loaded");
+    }
   } catch (...) {
+    FEMCHomoScFi = 0;
   };
 
-  if (FEMCHomoScfi <= 1) {
+  if (FEMCHomoScFi <= 1) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
@@ -90,7 +91,7 @@ void InitPlugin(JApplication* app) {
         },
         app // TODO: Remove me once fixed
         ));
-  } else if (FEMCHomoScfi == 2) {
+  } else if (FEMCHomoScFi == 2) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
