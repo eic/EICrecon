@@ -17,7 +17,6 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <format>
 #include <cmath>
 #include <gsl/pointers>
 #include <memory>
@@ -143,7 +142,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
   //xL table filled here from LUT -- Graph2D used for nice interpolation functionality and simple loading of LUT file
 
   thread_local std::string filename(
-      std::format("calibrations/RP_60_xL_100_beamEnergy_{:.0f}.xL.lut", nomMomentum));
+      fmt::format("calibrations/RP_60_xL_100_beamEnergy_{:.0f}.xL.lut", nomMomentum));
   thread_local std::unique_ptr<TGraph2D> xLGraph{nullptr};
   if (xLGraph == nullptr) {
     if (std::filesystem::exists(filename)) {
