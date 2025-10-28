@@ -43,9 +43,9 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
       fmt::format("{}", 1.0 / sampFrac);
   decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = fmt::format("{}", sampFrac);
-  const double EcalEndcapP_nPhotonPerGeV                                        = 1500;
-  const double EcalEndcapP_PhotonCollectionEff                                  = 0.5;
-  const double EcalEndcapP_totalPixel                                           = 4 * 159565;
+  const double EcalEndcapP_nPhotonPerGeV                            = 1500;
+  const double EcalEndcapP_PhotonCollectionEff                      = 0.5;
+  const double EcalEndcapP_totalPixel                               = 4 * 159565;
 
   int FEMCHomoScfi = 0;
   try {
