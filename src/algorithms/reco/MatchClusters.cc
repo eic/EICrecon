@@ -124,38 +124,55 @@ std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
     const edm4eic::ClusterCollection* clusters,
     const edm4eic::MCRecoClusterParticleAssociationCollection* associations) const {
 
-  std::map<int, edm4eic::Cluster> matched = {};
+  // temporary map: mcID -> (cluster, weight) so we can choose the cluster with highest weight per mcID
+  std::map<int, std::pair<edm4eic::Cluster, float>> bestForMc;
+  
 
   // loop over clusters
   for (const auto cluster : *clusters) {
 
-    int mcID = -1;
+    int bestMcID = -1;
+    float bestWeight = -1.f;
 
-    // find associated particle
+    // find best associated MC particle for this cluster (largest association weight)
     for (const auto assoc : *associations) {
       if (assoc.getRec() == cluster) {
-        mcID = assoc.getSim().getObjectID().index;
-        break;
+        const int candMcID = assoc.getSim().getObjectID().index;
+        const float w = assoc.getWeight();
+        if (w > bestWeight) {
+          bestWeight = w;
+          bestMcID = candMcID;
+        }
       }
     }
 
-    trace(" --> Found cluster with mcID {} and energy {}", mcID, cluster.getEnergy());
+    trace(" --> Found cluster with best mcID {} weight {} and energy {}", bestMcID, bestWeight,
+          cluster.getEnergy());
 
-    if (mcID < 0) {
+    if (bestMcID < 0) {
       trace("   --> WARNING: no valid MC truth link found, skipping cluster...");
       continue;
     }
 
-    const bool duplicate = matched.contains(mcID);
-    if (duplicate) {
-      trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
-
-      if (cluster.getEnergy() < matched[mcID].getEnergy()) {
-        continue;
+    // For this mcID, keep the cluster with the highest association weight (tie-break by energy).
+    auto it = bestForMc.find(bestMcID);
+    if (it == bestForMc.end()) {
+      bestForMc.emplace(bestMcID, std::make_pair(cluster, bestWeight));
+    } else {
+      const float existingWeight = it->second.second;
+      if (bestWeight > existingWeight ||
+          (bestWeight == existingWeight && cluster.getEnergy() > it->second.first.getEnergy())) {
+        it->second = std::make_pair(cluster, bestWeight);
       }
     }
-    matched[mcID] = cluster;
   }
+
+  // Convert to the old API: map<int, edm4eic::Cluster>
+  std::map<int, edm4eic::Cluster> matched;
+  for (const auto& kv : bestForMc) {
+    matched.emplace(kv.first, kv.second.first);
+  }
+
   return matched;
 }
 
