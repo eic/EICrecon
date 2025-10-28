@@ -96,7 +96,6 @@ void InitPlugin(JApplication* app) {
             .lightYield  = EcalEndcapP_nPhotonPerGeV / EcalEndcapP_PhotonCollectionEff,
             .photonDetectionEfficiency = EcalEndcapP_PhotonCollectionEff,
             .numEffectiveSipmPixels    = EcalEndcapP_totalPixel,
-            .fields                    = {"fiberx", "fibery", "x", "y"},
             .capADC                    = EcalEndcapP_capADC,
             .capTime                   = 100, // given in ns, 4 samples in HGCROC
             .dyRangeADC                = EcalEndcapP_dyRangeADC,
@@ -105,6 +104,7 @@ void InitPlugin(JApplication* app) {
             .resolutionTDC             = EcalEndcapP_resolutionTDC,
             .corrMeanScale             = EcalEndcapP_corrMeanScale,
             .readout                   = "EcalEndcapPHits",
+            .fields                    = {"fiberx", "fibery", "x", "y"},
         },
         app // TODO: Remove me once fixed
         ));
