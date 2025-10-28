@@ -141,17 +141,16 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
   //xL table filled here from LUT -- Graph2D used for nice interpolation functionality and simple loading of LUT file
 
-  if (not std::filesystem::exists(
-          Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum))) {
+  thread_local std::string filename(std::format("calibrations/RP_60_xL_100_beamEnergy_{:.0f}.xL.lut", nomMomentum));
+  thread_local std::unique_ptr<TGraph2D> xLGraph{nullptr};
+  if (not std::filesystem::exists(filename)) {
     critical("Cannot find lookup xL table for {}", nomMomentum);
     throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed");
+  } else {
+    xLGraph = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
   }
 
-  thread_local std::unique_ptr<TGraph2D> xLGraph{new TGraph2D(
-      Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum), "%lf %lf %lf")};
-
-  trace("filename for lookup --> {}",
-        Form("calibrations/RP_60_xL_100_beamEnergy_%.0f.xL.lut", nomMomentum));
+  trace("filename for lookup --> {}", filename);
 
   //important to ensure interoplation works correctly -- do not remove -- not available until ROOT v6.36, will need to add back in later
   //xLGraph->RemoveDuplicates();
