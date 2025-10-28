@@ -1,14 +1,19 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul, Akio Ogawa
 
+#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <fmt/core.h>
+#include <spdlog/logger.h>
 #include <cmath>
+#include <gsl/pointers>
+#include <memory>
 #include <string>
 #include <variant>
 #include <vector>
-#include <fmt/core.h>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/CalorimeterHitRecoConfig.h"
@@ -20,6 +25,8 @@
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/log/Log_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
