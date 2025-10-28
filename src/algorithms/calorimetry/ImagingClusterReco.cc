@@ -319,8 +319,9 @@ ImagingClusterReco::get_primary(const edm4hep::CaloHitContribution& contrib) con
   //     can be improved!!
   edm4hep::MCParticle primary = contributor;
   while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0)
+    if (primary.getGeneratorStatus() != 0) {
       break;
+    }
     primary = primary.getParents(0);
   }
   return primary;

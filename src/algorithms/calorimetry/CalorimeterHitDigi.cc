@@ -248,9 +248,10 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                      0LL);
     }
 
-    if (edep > 1.e-3)
+    if (edep > 1.e-3) {
       trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t corrMeanScale: {}", edep,
             adc, time, m_cfg.capTime, tdc, corrMeanScale_value);
+    }
 
     rawhit.setCellID(leading_hit.getCellID());
     rawhit.setAmplitude(adc > m_cfg.capADC ? m_cfg.capADC : adc);
