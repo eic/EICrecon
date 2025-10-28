@@ -43,9 +43,9 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
       fmt::format("{}", 1.0 / sampFrac);
   decltype(CalorimeterHitRecoConfig::sampFrac) EcalEndcapP_sampFrac = fmt::format("{}", sampFrac);
-  const double nPhotonPerGeV                                        = 1500;
-  const double PhotonCollectionEff                                  = 0.5;
-  const double totalPixel                                           = 4 * 159565;
+  const double EcalEndcapP_nPhotonPerGeV                                        = 1500;
+  const double EcalEndcapP_PhotonCollectionEff                                  = 0.5;
+  const double EcalEndcapP_totalPixel                                           = 4 * 159565;
 
   int FEMCHomoScfi = 0;
   try {
@@ -76,9 +76,9 @@ void InitPlugin(JApplication* app) {
          .corrMeanScale             = "1.0",
          .readout                   = "EcalEndcapPHits",
          .readoutType               = "sipm",
-         .lightYield                = nPhotonPerGeV / PhotonCollectionEff,
-         .photonDetectionEfficiency = PhotonCollectionEff,
-         .numEffectiveSipmPixels    = EcaslEndcapP_totalPixel},
+         .lightYield                = EcalEndcapP_nPhotonPerGeV / EcalEndcapP_PhotonCollectionEff,
+         .photonDetectionEfficiency = EcalEndcapP_PhotonCollectionEff,
+         .numEffectiveSipmPixels    = EcalEndcapP_totalPixel},
         app // TODO: Remove me once fixed
         ));
   } else if (FEMCHomoScfi == 2) {
@@ -99,9 +99,9 @@ void InitPlugin(JApplication* app) {
          .readout                   = "EcalEndcapPHits",
          .fields                    = {"fiberx", "fibery", "x", "y"},
          .readoutType               = "sipm",
-         .lightYield                = nPhotonPerGeV / PhotonCollectionEff,
-         .photonDetectionEfficiency = PhotonCollectionEff,
-         .numEffectiveSipmPixels    = totalPixel},
+         .lightYield                = EcalEndcapP_nPhotonPerGeV / EcalEndcapP_PhotonCollectionEff,
+         .photonDetectionEfficiency = EcalEndcapP_PhotonCollectionEff,
+         .numEffectiveSipmPixels    = EcalEndcapP_totalPixel},
         app // TODO: Remove me once fixed
         ));
   }
