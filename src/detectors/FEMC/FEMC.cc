@@ -85,8 +85,7 @@ void InitPlugin(JApplication* app) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
         "EcalEndcapPRawHits", {"EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
-        {
-         .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
+        {.eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
          .tRes = 0.0,
          .threshold =
              0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
