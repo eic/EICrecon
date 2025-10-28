@@ -67,7 +67,7 @@ void InitPlugin(JApplication* app) {
 
   if (EcalEndcapP_homogeniousFlag <= 1) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-        "EcalEndcapPRawHits", {"EcalEndcapPHits"},
+        "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
         {
             .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03,
@@ -92,7 +92,7 @@ void InitPlugin(JApplication* app) {
         ));
   } else if (EcalEndcapP_homogeniousFlag == 2) {
     app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-        "EcalEndcapPRawHits", {"EcalEndcapPHits"},
+        "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
         {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
         {
             .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
