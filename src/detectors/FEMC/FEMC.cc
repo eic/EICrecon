@@ -8,7 +8,7 @@
 #include <string>
 #include <variant>
 #include <vector>
-#include <fmt/base.h>
+#include <fmt/core.h>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/CalorimeterHitRecoConfig.h"
