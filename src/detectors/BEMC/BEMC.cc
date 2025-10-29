@@ -203,7 +203,7 @@ void InitPlugin(JApplication* app) {
           .readout         = "EcalBarrelScFiHits",
           .layerField      = "layer",
           .sectorField     = "sector",
-          .localDetFields  = {"system"},
+          .localDetFields  = {"system", "sector"},
           // here we want to use grid center position (XY) but keeps the z information from fiber-segment
           // TODO: a more realistic way to get z is to reconstruct it from timing
           .maskPos       = "xy",
@@ -217,9 +217,9 @@ void InitPlugin(JApplication* app) {
           .adjacencyMatrix{},
           .peakNeighbourhoodMatrix{},
           .readout{},
-          .sectorDist  = 50. * dd4hep::mm,
-          .localDistXY = {80 * dd4hep::mm, 80 * dd4hep::mm},
-          .localDistXZ{},
+          .sectorDist = 50. * dd4hep::mm,
+          .localDistXY{},
+          .localDistXZ = {80 * dd4hep::mm, 80 * dd4hep::mm},
           .localDistYZ{},
           .globalDistRPhi{},
           .globalDistEtaPhi{},
