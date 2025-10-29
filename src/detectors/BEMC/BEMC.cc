@@ -255,14 +255,14 @@ void InitPlugin(JApplication* app) {
       {
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
           .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
-                                   80.0 * dd4hep::mm}, //  # same layer
-          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 80.0 * dd4hep::mm},
+                                   40.0 * dd4hep::mm}, //  # same layer
+          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 40.0 * dd4hep::mm},
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
           .sectorDist           = 5.0 * dd4hep::cm,
           .minClusterHitEdep    = 0,
           .minClusterCenterEdep = 0,
-          .minClusterEdep       = 50 * dd4hep::MeV,
+          .minClusterEdep       = 100 * dd4hep::MeV,
           .minClusterNhits      = 10,
 
       },
