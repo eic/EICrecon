@@ -6,9 +6,11 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <fmt/core.h>
 #include <cmath>
-#include <map>
 #include <set>
 
 namespace eicrecon {

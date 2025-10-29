@@ -4,10 +4,9 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/MCRecoParticleAssociation.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <edm4hep/MCParticle.h>
-#include <edm4hep/utils/vector_utils.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
 #include <string>
 #include <string_view>
 
