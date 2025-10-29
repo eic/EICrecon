@@ -43,8 +43,8 @@
 #include "factories/reco/ScatteredElectronsTruth_factory.h"
 #include "factories/reco/TrackClusterMatch_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
-#include "factories/reco/Truthiness_factory.h"
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
+#include "global/reco/Truthiness_processor.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -272,8 +272,6 @@ void InitPlugin(JApplication* app) {
       {"SecondaryVerticesHelix"}, {}, app));
 
   // Truthiness metric for event quality assessment
-  app->Add(new JOmniFactoryGeneratorT<Truthiness_factory>(
-      "Truthiness", {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"},
-      {}, app));
+  app->Add(new Truthiness_processor());
 }
 } // extern "C"
