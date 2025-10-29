@@ -4,9 +4,15 @@
 #include "Truthiness_processor.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/JEvent.h>
+#include <algorithms/logger.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <fmt/core.h>
+#include <fmt/format.h>
+#include <map>
 #include <string>
 
 #include "services/log/Log_service.h"
