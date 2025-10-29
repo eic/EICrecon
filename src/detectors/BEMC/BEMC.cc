@@ -203,7 +203,7 @@ void InitPlugin(JApplication* app) {
           .readout         = "EcalBarrelScFiHits",
           .layerField      = "layer",
           .sectorField     = "sector",
-          .localDetFields  = {"system"},
+          .localDetFields  = {"system", "sector"},
           // here we want to use grid center position (XY) but keeps the z information from fiber-segment
           // TODO: a more realistic way to get z is to reconstruct it from timing
           .maskPos       = "xy",
@@ -246,6 +246,43 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelScFiClusters",
       {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations"},
+      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
+
+  // Imaging TopoClustering on ScFi
+  app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
+      "EcalBarrelScFiProtoClusters_Topo", {"EcalBarrelScFiRecHits"},
+      {"EcalBarrelScFiProtoClusters_Topo"},
+      {
+          .neighbourLayersRange = 2, //  # id diff for adjacent layer
+          .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
+                                   40.0 * dd4hep::mm}, //  # same layer
+          .diffLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm, 40.0 * dd4hep::mm},
+          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
+          .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xyz,
+          .sectorDist           = 5.0 * dd4hep::cm,
+          .minClusterHitEdep    = 0,
+          .minClusterCenterEdep = 0,
+          .minClusterEdep       = 100 * dd4hep::MeV,
+          .minClusterNhits      = 10,
+
+      },
+      app // TODO: Remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
+      "EcalBarrelScFiTopoClustersWithoutShapes",
+      {"EcalBarrelScFiProtoClusters_Topo",        // edm4eic::ProtoClusterCollection
+       "EcalBarrelScFiRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociation
+      {"EcalBarrelScFiTopoClustersWithoutShapes", // edm4eic::Cluster
+       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
+      "EcalBarrelScFiTopoClusters",
+      {"EcalBarrelScFiTopoClustersWithoutShapes",
+       "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"},
+      {"EcalBarrelScFiTopoClusters", "EcalBarrelScFiTopoClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
   // Make sure digi and reco use the same value
