@@ -7,6 +7,7 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <stdint.h>
 #include <string>
 #include <string_view>
 
