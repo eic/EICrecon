@@ -449,7 +449,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     for (const std::string& col : all_collections) {
       if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
         m_collections_to_write.push_back(col);
-        m_log->info("Persisting collection '{}'", col);
+        m_log->debug("Persisting collection '{}'", col);
       }
     }
   } else {
