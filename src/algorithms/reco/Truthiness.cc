@@ -58,11 +58,11 @@ void Truthiness::process(const Truthiness::Input& input,
 
     const double assoc_penalty = energy_penalty + momentum_penalty + pdg_penalty;
 
-    debug("Association: MC PDG={} (E={:.3f}, p=[{:.3f},{:.3f},{:.3f}]) <-> "
+    trace("Association: MC PDG={} (E={:.3f}, p=[{:.3f},{:.3f},{:.3f}]) <-> "
           "RC PDG={} (E={:.3f}, p=[{:.3f},{:.3f},{:.3f}])",
           mc_part.getPDG(), mc_energy, mc_momentum.x, mc_momentum.y, mc_momentum.z,
           rc_part.getPDG(), rc_energy, rc_momentum.x, rc_momentum.y, rc_momentum.z);
-    debug("  Energy penalty: {:.6f}, Momentum penalty: {:.6f}, PDG penalty: {:.0f}", energy_penalty,
+    trace("  Energy penalty: {:.6f}, Momentum penalty: {:.6f}, PDG penalty: {:.0f}", energy_penalty,
           momentum_penalty, pdg_penalty);
 
     truthiness += assoc_penalty;
@@ -74,13 +74,13 @@ void Truthiness::process(const Truthiness::Input& input,
     if (mc_part.getGeneratorStatus() == 2 && mc_part.getCharge() != 0.0) {
       if (associated_mc_particles.find(mc_part) == associated_mc_particles.end()) {
         unassociated_mc_count++;
-        debug("Unassociated MC particle: PDG={}, charge={:.1f}, status={}", mc_part.getPDG(),
+        trace("Unassociated MC particle: PDG={}, charge={:.1f}, status={}", mc_part.getPDG(),
               mc_part.getCharge(), mc_part.getGeneratorStatus());
       }
     }
   }
   const double mc_penalty = static_cast<double>(unassociated_mc_count);
-  debug("Unassociated charged MC particles (status 2): {} (penalty: {:.0f})", unassociated_mc_count,
+  trace("Unassociated charged MC particles (status 2): {} (penalty: {:.0f})", unassociated_mc_count,
         mc_penalty);
   truthiness += mc_penalty;
 
@@ -89,19 +89,24 @@ void Truthiness::process(const Truthiness::Input& input,
   for (const auto& rc_part : *rc_particles) {
     if (associated_rc_particles.find(rc_part) == associated_rc_particles.end()) {
       unassociated_rc_count++;
-      debug("Unassociated reconstructed particle: PDG={}, E={:.3f}, p=[{:.3f},{:.3f},{:.3f}]",
+      trace("Unassociated reconstructed particle: PDG={}, E={:.3f}, p=[{:.3f},{:.3f},{:.3f}]",
             rc_part.getPDG(), rc_part.getEnergy(), rc_part.getMomentum().x, rc_part.getMomentum().y,
             rc_part.getMomentum().z);
     }
   }
   const double rc_penalty = static_cast<double>(unassociated_rc_count);
-  debug("Unassociated reconstructed particles: {} (penalty: {:.0f})", unassociated_rc_count,
+  trace("Unassociated reconstructed particles: {} (penalty: {:.0f})", unassociated_rc_count,
         rc_penalty);
   truthiness += rc_penalty;
 
+  // Update statistics using online updating formula
+  // avg_n = avg_(n-1) + (x_n - avg_(n-1)) / n
+  m_event_count++;
+  m_average_truthiness += (truthiness - m_average_truthiness) / m_event_count;
+
   // Report final truthiness
-  info("Event truthiness: {:.6f} (from {} associations, {} unassociated MC, {} unassociated RC)",
-       truthiness, associations->size(), unassociated_mc_count, unassociated_rc_count);
+  debug("Event truthiness: {:.6f} (from {} associations, {} unassociated MC, {} unassociated RC)",
+        truthiness, associations->size(), unassociated_mc_count, unassociated_rc_count);
 }
 
 } // namespace eicrecon
