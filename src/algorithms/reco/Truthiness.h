@@ -22,6 +22,10 @@ using TruthinessAlgorithm = algorithms::Algorithm<
 
 class Truthiness : public TruthinessAlgorithm, public WithPodConfig<TruthinessConfig> {
 
+private:
+  mutable double m_average_truthiness{0.0};
+  mutable uint64_t m_event_count{0};
+
 public:
   Truthiness(std::string_view name)
       : TruthinessAlgorithm{
@@ -33,6 +37,10 @@ public:
 
   void init() final {};
   void process(const Input&, const Output&) const final;
+
+  // Accessors for statistics
+  double getAverageTruthiness() const { return m_average_truthiness; }
+  uint64_t getEventCount() const { return m_event_count; }
 };
 
 } // namespace eicrecon
