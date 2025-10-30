@@ -130,7 +130,7 @@ public:
     const double frac      = s - base_index; // constant across iterations
     const double v_floor_n = sampleNormalizedAtIndex(base_index);
     const double v_ceil_n  = sampleNormalizedAtIndex(base_index + 1);
-    return {.base_index=base_index, .frac=frac, .v_floor_n=v_floor_n, .v_ceil_n=v_ceil_n};
+    return {.base_index = base_index, .frac = frac, .v_floor_n = v_floor_n, .v_ceil_n = v_ceil_n};
   }
 
 protected:
@@ -162,11 +162,11 @@ private:
           "non-linear pulses, or override isLinearInCharge() to return true if appropriate.");
     }
     // Runtime verification
-    const double t_test = 1.0;
-    const double q1 = 1.0;
-    const double q2 = 2.0;
-    const double v1 = evaluate(t_test, q1);
-    const double v2 = evaluate(t_test, q2);
+    const double t_test         = 1.0;
+    const double q1             = 1.0;
+    const double q2             = 2.0;
+    const double v1             = evaluate(t_test, q1);
+    const double v2             = evaluate(t_test, q2);
     const double ratio          = std::abs(v2 / v1);
     const double expected_ratio = q2 / q1;
     if (std::abs(ratio - expected_ratio) > 0.01 * expected_ratio) {
