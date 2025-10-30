@@ -69,8 +69,7 @@ void InitPlugin(JApplication* app) {
   app->Add(
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackClusterMatch, false>>(
           "EndcapPInsertTrackClusterMatches",
-          {"EcalEndcapPTrackClusterMatches",
-           "HcalEndcapPInsertTrackClusterMatches"},
+          {"EcalEndcapPTrackClusterMatches", "HcalEndcapPInsertTrackClusterMatches"},
           {"EndcapPInsertTrackClusterMatches"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ChargedCandidateMaker_factory>(
