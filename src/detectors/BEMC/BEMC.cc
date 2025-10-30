@@ -18,6 +18,8 @@
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
 #include "algorithms/digi/PulseGenerationConfig.h"
+#include "algorithms/digi/PulseCombinerConfig.h"
+#include "algorithms/digi/PulseNoiseConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -30,6 +32,8 @@
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
 #include "factories/digi/PulseGeneration_factory.h"
+#include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseNoise_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -56,8 +60,17 @@ void InitPlugin(JApplication* app) {
       "LandauPulse"};
   decltype(PulseGenerationConfig::pulse_shape_params) EcalBarrelScFi_pulse_shape_params = {
       1.0, 2 * edm4eic::unit::ns};
-  decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {1.0e-5};
+  decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {5.0e-5};
   decltype(PulseGenerationConfig::timestep) EcalBarrelScFi_timestep = {0.5 * edm4eic::unit::ns};
+
+  decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field           = {"grid"};
+  decltype(PulseCombinerConfig::minimum_separation) EcalBarrelScFi_minimum_separation = {
+      100 * edm4eic::unit::ns};
+  decltype(PulseNoiseConfig::poles) EcalBarrelScFi_poles       = {2};
+  decltype(PulseNoiseConfig::variance) EcalBarrelScFi_variance = {0.5};
+  decltype(PulseNoiseConfig::alpha) EcalBarrelScFi_alpha       = {0};
+  decltype(PulseNoiseConfig::scale) EcalBarrelScFi_scale       = {5.4e-5};
+  decltype(PulseNoiseConfig::pedestal) EcalBarrelScFi_pedestal = {1.6e-4};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -72,7 +85,7 @@ void InitPlugin(JApplication* app) {
       {
           .attenuationParameters            = EcalBarrelScFi_attPars,
           .readout                          = "EcalBarrelScFiHits",
-          .attenuationReferencePositionName = "EcalBarrel_Readout_zmax",
+          .attenuationReferencePositionName = "EcalBarrel_LightGuide_PositivePosZ",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
@@ -87,7 +100,7 @@ void InitPlugin(JApplication* app) {
       {
           .attenuationParameters            = EcalBarrelScFi_attPars,
           .readout                          = "EcalBarrelScFiHits",
-          .attenuationReferencePositionName = "EcalBarrel_Readout_zmin",
+          .attenuationReferencePositionName = "EcalBarrel_LightGuide_NegativePosZ",
           .hitMergeFields                   = EcalBarrelScFi_hitMergeFields,
           .contributionMergeFields          = EcalBarrelScFi_contributionMergeFields,
           .inversePropagationSpeed          = EcalBarrelScFi_inversePropagationSpeed,
@@ -113,6 +126,48 @@ void InitPlugin(JApplication* app) {
           .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
           .ignore_thres         = EcalBarrelScFi_ignore_thres,
           .timestep             = EcalBarrelScFi_timestep,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+      "EcalBarrelScFiPCombinedPulses", {"EcalBarrelScFiPPulses"}, {"EcalBarrelScFiPCombinedPulses"},
+      {
+          .minimum_separation = EcalBarrelScFi_minimum_separation,
+          .readout            = "EcalBarrelScFiHits",
+          .combine_field      = EcalBarrelScFi_combine_field,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+      "EcalBarrelScFiNCombinedPulses", {"EcalBarrelScFiNPulses"}, {"EcalBarrelScFiNCombinedPulses"},
+      {
+          .minimum_separation = EcalBarrelScFi_minimum_separation,
+          .readout            = "EcalBarrelScFiHits",
+          .combine_field      = EcalBarrelScFi_combine_field,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "EcalBarrelScFiPCombinedPulsesWithNoise", {"EventHeader", "EcalBarrelScFiPCombinedPulses"},
+      {"EcalBarrelScFiPCombinedPulsesWithNoise"},
+      {
+          .poles    = EcalBarrelScFi_poles,
+          .variance = EcalBarrelScFi_variance,
+          .alpha    = EcalBarrelScFi_alpha,
+          .scale    = EcalBarrelScFi_scale,
+          .pedestal = EcalBarrelScFi_pedestal,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "EcalBarrelScFiNCombinedPulsesWithNoise", {"EventHeader", "EcalBarrelScFiNCombinedPulses"},
+      {"EcalBarrelScFiNCombinedPulsesWithNoise"},
+      {
+          .poles    = EcalBarrelScFi_poles,
+          .variance = EcalBarrelScFi_variance,
+          .alpha    = EcalBarrelScFi_alpha,
+          .scale    = EcalBarrelScFi_scale,
+          .pedestal = EcalBarrelScFi_pedestal,
       },
       app // TODO: Remove me once fixed
       ));
@@ -148,7 +203,7 @@ void InitPlugin(JApplication* app) {
           .readout         = "EcalBarrelScFiHits",
           .layerField      = "layer",
           .sectorField     = "sector",
-          .localDetFields  = {"system"},
+          .localDetFields  = {"system", "sector"},
           // here we want to use grid center position (XY) but keeps the z information from fiber-segment
           // TODO: a more realistic way to get z is to reconstruct it from timing
           .maskPos       = "xy",

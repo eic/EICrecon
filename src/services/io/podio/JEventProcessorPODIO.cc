@@ -5,7 +5,6 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
@@ -13,6 +12,7 @@
 #include <podio/ROOTWriter.h>
 #include <algorithm>
 #include <exception>
+#include <functional>
 #include <iterator>
 #include <regex>
 #include <sstream>
@@ -88,8 +88,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "TOFEndcapRawHits",
 
       "TOFBarrelHits",
+      "TOFBarrelClusterHits",
       "TOFBarrelADCTDC",
       "TOFEndcapHits",
+
+      "TOFEndcapSharedHits",
+      "TOFEndcapADCTDC",
 
       "TOFBarrelRawHitAssociations",
       "TOFEndcapRawHitAssociations",
@@ -172,6 +176,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ForwardOffMTrackerRecHits",
 
       "ForwardRomanPotRecParticles",
+      "ForwardRomanPotStaticRecParticles",
       "ForwardOffMRecParticles",
 
       "ForwardRomanPotRawHits",
@@ -293,6 +298,12 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiNAttenuatedHits",
       "EcalBarrelScFiNAttenuatedHitContributions",
       "EcalBarrelScFiRawHits",
+      "EcalBarrelScFiPPulses",
+      "EcalBarrelScFiNPulses",
+      "EcalBarrelScFiPCombinedPulses",
+      "EcalBarrelScFiNCombinedPulses",
+      "EcalBarrelScFiPCombinedPulsesWithNoise",
+      "EcalBarrelScFiNCombinedPulsesWithNoise",
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
       "EcalBarrelScFiClusterAssociations",
@@ -375,7 +386,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalLumiSpecRawHitAssociations",
       "EcalFarForwardZDCRawHitAssociations",
       "HcalFarForwardZDCRawHitAssociations",
-#if EDM4EIC_VERSION_MAJOR >= 8
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
       "HcalEndcapPInsertClusterMatches",
@@ -383,7 +393,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "HcalBarrelTrackClusterMatches",
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
-#endif
 
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
@@ -438,7 +447,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     for (const std::string& col : all_collections) {
       if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
         m_collections_to_write.push_back(col);
-        m_log->info("Persisting collection '{}'", col);
+        m_log->debug("Persisting collection '{}'", col);
       }
     }
   } else {
@@ -451,16 +460,16 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
     // Turn regexes among output collections into actual collection names
     std::set<std::string> matching_collections_set;
     std::vector<std::regex> output_collections_regex(m_output_collections.size());
-    std::transform(m_output_collections.begin(), m_output_collections.end(),
-                   output_collections_regex.begin(),
-                   [](const std::string& r) { return std::regex(r); });
-    std::copy_if(all_collections_set.begin(), all_collections_set.end(),
-                 std::inserter(matching_collections_set, matching_collections_set.end()),
-                 [&](const std::string& c) {
-                   return std::any_of(output_collections_regex.begin(),
-                                      output_collections_regex.end(),
-                                      [&](const std::regex& r) { return std::regex_match(c, r); });
-                 });
+    std::ranges::transform(m_output_collections, output_collections_regex.begin(),
+                           [](const std::string& r) { return std::regex(r); });
+    std::ranges::copy_if(all_collections_set,
+                         std::inserter(matching_collections_set, matching_collections_set.end()),
+                         [&](const std::string& c) {
+                           return std::ranges::any_of(
+                               output_collections_regex,
+
+                               [&](const std::regex& r) { return std::regex_match(c, r); });
+                         });
 
     for (const auto& col : matching_collections_set) {
       if (m_output_exclude_collections.find(col) == m_output_exclude_collections.end()) {
