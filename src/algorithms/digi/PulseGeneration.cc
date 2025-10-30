@@ -163,7 +163,8 @@ private:
     }
     // Runtime verification
     const double t_test = 1.0;
-    const double q1 = 1.0, q2 = 2.0;
+    const double q1 = 1.0;
+    const double q2 = 2.0;
     const double v1             = const_cast<SignalPulse*>(this)->evaluate(t_test, q1);
     const double v2             = const_cast<SignalPulse*>(this)->evaluate(t_test, q2);
     const double ratio          = std::abs(v2 / v1);
