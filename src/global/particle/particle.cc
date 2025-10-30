@@ -13,7 +13,6 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/particle/ChargedCandidateMaker_factory.h"
-#include "factories/particle/TrackClusterSubtractor_factory.h"
 
 extern "C" {
 
