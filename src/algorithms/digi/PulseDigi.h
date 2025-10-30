@@ -17,15 +17,19 @@
 
 namespace eicrecon {
 
-using PulseDigiAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::SimPulseCollection>,
-    algorithms::Output<edm4eic::RawHGCROCHitCollection>>;
+using PulseDigiAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::SimPulseCollection>,
+                          algorithms::Output<edm4eic::RawHGCROCHitCollection>>;
 
 class PulseDigi : public PulseDigiAlgorithm, public WithPodConfig<PulseDigiConfig> {
 
 public:
   PulseDigi(std::string_view name)
-      : PulseDigiAlgorithm{name, {"InputPulses"}, {"OutputRawHGCROCHits"}, {}} {}
+      : PulseDigiAlgorithm{name,
+                           {"InputPulses"},
+                           {"OutputDigiHits"},
+                           {"ADC, TOA, and TOT are measured referring to the"
+                            "working principle of the HGCROC."}} {}
   virtual void init() final;
   void process(const Input&, const Output&) const;
 
@@ -33,8 +37,7 @@ private:
   edm4eic::HGCROCSample sample;
 
 private:
-  double get_crossing_time(double thres, double dt, double t, 
-			   double amp1, double amp2) const;
+  double get_crossing_time(double thres, double dt, double t, double amp1, double amp2) const;
 };
 
 } // namespace eicrecon
