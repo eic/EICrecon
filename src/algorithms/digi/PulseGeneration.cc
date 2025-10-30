@@ -44,6 +44,12 @@ public:
 
   // Public capability query: caching is only valid for pulses linear in charge
   bool supportsCaching() const { return isLinearInCharge(); }
+  // Whether caching has been enabled (resolution > 0)
+  bool cachingEnabled() const { return m_cache_resolution > 0.0; }
+  // Whether linear interpolation between cached integer samples is safe.
+  // Default: true for smooth/continuous pulse shapes (e.g., LandauPulse).
+  // Pulses with discontinuities should override to return false.
+  virtual bool supportsLinearInterpolation() const { return true; }
 
   // Main interface - with caching and interpolation
   double operator()(double time, double charge) {
@@ -97,12 +103,31 @@ public:
     return slot;
   }
 
+  // Fetch normalized sample at an arbitrary (possibly fractional) time index.
+  // Uses exact evaluate() for fractional indices to avoid interpolation artifacts
+  // (important for discontinuous shapes, e.g., square pulses). For integral
+  // indices, reuses the integer-index cache for performance.
+  double sampleNormalizedAt(double time_index) const {
+    // If caching is disabled, evaluate directly using absolute time
+    if (m_cache_resolution <= 0.0) {
+      return const_cast<SignalPulse*>(this)->evaluate(time_index, 1.0);
+    }
+    const double rounded = std::round(time_index);
+    if (std::fabs(time_index - rounded) < 1e-12) {
+      return sampleNormalizedAtIndex(static_cast<int>(rounded));
+    }
+    return const_cast<SignalPulse*>(this)->evaluate(time_index * m_cache_resolution, 1.0);
+  }
+
   // Prepare streaming state for a pulse starting at signal_time with hit at time
   // Assumes cache resolution equals the timestep for O(1) index streaming.
   StreamState prepareStreaming(double signal_time, double time, double timestep) const {
+    // We sample the pulse at t_rel(i) = (i - nt0), i=0..N-1, where nt0 = (signal_time - time)/dt.
+    // Let s = -nt0; for i=0, t_rel = s. Each subsequent iteration advances by +1.
     const double nt0       = (signal_time - time) / timestep;
-    const int base_index   = static_cast<int>(std::floor(nt0));
-    const double frac      = nt0 - base_index; // constant across iterations
+    const double s         = -nt0;
+    const int base_index   = static_cast<int>(std::floor(s));
+    const double frac      = s - base_index; // constant across iterations
     const double v_floor_n = sampleNormalizedAtIndex(base_index);
     const double v_ceil_n  = sampleNormalizedAtIndex(base_index + 1);
     return {base_index, frac, v_floor_n, v_ceil_n};
@@ -234,6 +259,14 @@ public:
 
   double getMaximumTime() const override { return 0; }
 
+  // Evaluator expressions can be discontinuous; avoid linear interpolation between cached points
+  bool supportsLinearInterpolation() const override { return false; }
+
+protected:
+  // By default, consider evaluator-defined pulses as not guaranteed linear in charge
+  // to avoid enabling caching unless explicitly overridden by a specialized subclass.
+  bool isLinearInCharge() const override { return false; }
+
 protected:
   // EvaluatorPulse: Linearity depends on the expression provided by user
   // Most physical pulse shapes multiply by charge, making them linear
@@ -331,33 +364,88 @@ void PulseGeneration<HitT>::process(
     std::vector<float> pulse;
     pulse.reserve(m_cfg.max_time_bins);
 
-    // Streaming fast-path: cache resolution equals timestep, indices advance by +1 per bin
-    // Encapsulated precomputation for base_index, frac, and initial cached values
-    auto state = pulsePtr->prepareStreaming(signal_time, time, m_cfg.timestep);
-
-    for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
-      // One cached fetch per iteration after the first
-      double signal = charge * (state.v_floor_n + state.frac * (state.v_ceil_n - state.v_floor_n));
-      if (std::fabs(signal) < m_cfg.ignore_thres) {
-        if (!passed_threshold) {
-          skip_bins = i;
+    if (pulsePtr->cachingEnabled() && pulsePtr->supportsLinearInterpolation()) {
+      // High-performance streaming with cached integer samples + linear interpolation
+      auto state       = pulsePtr->prepareStreaming(signal_time, time, m_cfg.timestep);
+      const double nt0 = (signal_time - time) / m_cfg.timestep;
+      for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
+        double v_n    = state.v_floor_n + state.frac * (state.v_ceil_n - state.v_floor_n);
+        double signal = charge * v_n;
+        if (std::fabs(signal) < m_cfg.ignore_thres) {
+          if (!passed_threshold) {
+            skip_bins = i;
+            // advance state and continue skipping
+            state.base_index += 1;
+            state.v_floor_n = state.v_ceil_n;
+            state.v_ceil_n  = pulsePtr->sampleNormalizedAtIndex(state.base_index + 1);
+            continue;
+          }
+          const double t = (static_cast<double>(i) - nt0) * m_cfg.timestep;
+          if (t > m_min_sampling_time) {
+            break;
+          }
+          // Below threshold after start: advance and continue without appending
+          state.base_index += 1;
+          state.v_floor_n = state.v_ceil_n;
+          state.v_ceil_n  = pulsePtr->sampleNormalizedAtIndex(state.base_index + 1);
           continue;
         }
-        // t = (i * timestep) - (nt0 * timestep) = (i - nt0) * timestep
-        const double nt0 = (signal_time - time) / m_cfg.timestep;
-        const double t   = (static_cast<double>(i) - nt0) * m_cfg.timestep;
-        if (t > m_min_sampling_time) {
-          break;
-        }
-      }
-      passed_threshold = true;
-      pulse.push_back(signal);
-      integral += signal;
+        passed_threshold = true;
+        pulse.push_back(signal);
+        integral += signal;
 
-      // Advance streaming cache state for next iteration
-      state.base_index += 1;
-      state.v_floor_n = state.v_ceil_n;
-      state.v_ceil_n  = pulsePtr->sampleNormalizedAtIndex(state.base_index + 1);
+        // Advance streaming cache state for next iteration
+        state.base_index += 1;
+        state.v_floor_n = state.v_ceil_n;
+        state.v_ceil_n  = pulsePtr->sampleNormalizedAtIndex(state.base_index + 1);
+      }
+    } else if (pulsePtr->cachingEnabled()) {
+      // Caching is enabled, but interpolation is unsafe (e.g., discontinuities).
+      // Use exact sampling at fractional offsets (cache used only for integer indices).
+      auto state       = pulsePtr->prepareStreaming(signal_time, time, m_cfg.timestep);
+      const double nt0 = (signal_time - time) / m_cfg.timestep;
+      for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
+        const double v_n =
+            pulsePtr->sampleNormalizedAt(static_cast<double>(state.base_index) + state.frac);
+        double signal = charge * v_n;
+        if (std::fabs(signal) < m_cfg.ignore_thres) {
+          if (!passed_threshold) {
+            skip_bins = i;
+            state.base_index += 1;
+            continue;
+          }
+          const double t = (static_cast<double>(i) - nt0) * m_cfg.timestep;
+          if (t > m_min_sampling_time) {
+            break;
+          }
+          state.base_index += 1;
+          continue;
+        }
+        passed_threshold = true;
+        pulse.push_back(signal);
+        integral += signal;
+        state.base_index += 1;
+      }
+    } else {
+      // Fallback: exact evaluation per bin when caching/streaming is disabled
+      const double nt0 = (signal_time - time) / m_cfg.timestep;
+      for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
+        const double t_rel = (static_cast<double>(i) - nt0) * m_cfg.timestep;
+        double signal      = (*m_pulse)(t_rel, charge);
+        if (std::fabs(signal) < m_cfg.ignore_thres) {
+          if (!passed_threshold) {
+            skip_bins = i;
+            continue;
+          }
+          if (t_rel > m_min_sampling_time) {
+            break;
+          }
+          continue;
+        }
+        passed_threshold = true;
+        pulse.push_back(signal);
+        integral += signal;
+      }
     }
 
     if (!passed_threshold) {
