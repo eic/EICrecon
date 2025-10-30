@@ -35,11 +35,11 @@ public:
   // Explicit special members to satisfy clang-tidy's rule-of-five guidance for
   // a polymorphic base that owns non-copyable members.
   // We do not intend to copy or move pulse functors.
-  SignalPulse() = default;
-  SignalPulse(const SignalPulse&) = delete;
+  SignalPulse()                              = default;
+  SignalPulse(const SignalPulse&)            = delete;
   SignalPulse& operator=(const SignalPulse&) = delete;
-  SignalPulse(SignalPulse&&) = delete;
-  SignalPulse& operator=(SignalPulse&&) = delete;
+  SignalPulse(SignalPulse&&)                 = delete;
+  SignalPulse& operator=(SignalPulse&&)      = delete;
 
   // State for streaming fast-path iteration (when cache resolution == timestep)
   struct StreamState {
