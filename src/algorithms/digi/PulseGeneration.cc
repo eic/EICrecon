@@ -13,7 +13,6 @@
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
-#include <cstdlib>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -23,6 +22,7 @@
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "services/evaluator/EvaluatorSvc.h"
