@@ -130,7 +130,7 @@ public:
     const double frac      = s - base_index; // constant across iterations
     const double v_floor_n = sampleNormalizedAtIndex(base_index);
     const double v_ceil_n  = sampleNormalizedAtIndex(base_index + 1);
-    return {base_index, frac, v_floor_n, v_ceil_n};
+    return {.base_index=base_index, .frac=frac, .v_floor_n=v_floor_n, .v_ceil_n=v_ceil_n};
   }
 
 protected:
