@@ -93,7 +93,8 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
                                       edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
                                       edm4hep::Vector3f()  // edm4hep::Vector3f spin
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-                                      ,edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
+                                      ,
+                                      edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
 #endif
   );
 
@@ -110,7 +111,8 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentumAtEndpoint
       edm4hep::Vector3f()                                   // edm4hep::Vector3f spin
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-      ,edm4hep::Vector2i()                                  // edm4hep::Vector2i colorFlow
+      ,
+      edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
 #endif
   );
 
@@ -168,9 +170,10 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
       edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentum
       edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentumAtEndpoint
-      edm4hep::Vector3f()                                  // edm4hep::Vector3f spin
+      edm4hep::Vector3f()                                   // edm4hep::Vector3f spin
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
-      ,edm4hep::Vector2i()                                   // edm4hep::Vector2i colorFlow
+      ,
+      edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
 #endif
   );
 
