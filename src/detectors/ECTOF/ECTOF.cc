@@ -1,7 +1,5 @@
-// Copyright 2022, Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025, Dmitry Romanov,  Wouter Deconinck, Kolja Kauder, Barak Schmookler, Honey Khindri, Dmitry Kalinkin
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
@@ -54,9 +52,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFEndcapSharedHits", {"TOFEndcapHits"}, {"TOFEndcapSharedHits"},
       {
-          .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::abs,
-          .sigma_sharingx = 0.1 * dd4hep::cm,
-          .sigma_sharingy = 0.1 * dd4hep::cm,
+          .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
+          .sigma_sharingx = 1,
+          .sigma_sharingy = 1,
           .min_edep       = 0.0 * edm4eic::unit::GeV,
           .readout        = "TOFEndcapHits",
       },
