@@ -93,12 +93,12 @@ public:
   double sampleNormalizedAtIndex(int time_index) const {
     const int vec_idx = time_index + m_cache_offset;
     if (vec_idx < 0 || static_cast<std::size_t>(vec_idx) >= m_cache_size) {
-      return const_cast<SignalPulse*>(this)->evaluate(time_index * m_cache_resolution, 1.0);
+      return evaluate(time_index * m_cache_resolution, 1.0);
     }
     double& slot = m_cache_values[static_cast<std::size_t>(vec_idx)];
     if (std::isnan(slot)) {
       const double time = time_index * m_cache_resolution;
-      slot              = const_cast<SignalPulse*>(this)->evaluate(time, 1.0);
+      slot              = evaluate(time, 1.0);
     }
     return slot;
   }
@@ -110,13 +110,13 @@ public:
   double sampleNormalizedAt(double time_index) const {
     // If caching is disabled, evaluate directly using absolute time
     if (m_cache_resolution <= 0.0) {
-      return const_cast<SignalPulse*>(this)->evaluate(time_index, 1.0);
+      return evaluate(time_index, 1.0);
     }
     const double rounded = std::round(time_index);
     if (std::fabs(time_index - rounded) < 1e-12) {
       return sampleNormalizedAtIndex(static_cast<int>(rounded));
     }
-    return const_cast<SignalPulse*>(this)->evaluate(time_index * m_cache_resolution, 1.0);
+    return evaluate(time_index * m_cache_resolution, 1.0);
   }
 
   // Prepare streaming state for a pulse starting at signal_time with hit at time
@@ -138,7 +138,7 @@ protected:
   // IMPORTANT: evaluate() MUST be linear in charge for caching to work correctly!
   // That is: evaluate(t, a*q) must equal a * evaluate(t, q) for all t, q, a
   // The cache stores normalized values (charge=1) and scales by actual charge.
-  virtual double evaluate(double time, double charge) = 0;
+  virtual double evaluate(double time, double charge) const = 0;
 
   // Override this in derived classes if the pulse is NOT linear in charge
   // Default assumes linearity (which is true for LandauPulse and most physical pulses)
@@ -165,8 +165,8 @@ private:
     const double t_test = 1.0;
     const double q1 = 1.0;
     const double q2 = 2.0;
-    const double v1             = const_cast<SignalPulse*>(this)->evaluate(t_test, q1);
-    const double v2             = const_cast<SignalPulse*>(this)->evaluate(t_test, q2);
+    const double v1 = evaluate(t_test, q1);
+    const double v2 = evaluate(t_test, q2);
     const double ratio          = std::abs(v2 / v1);
     const double expected_ratio = q2 / q1;
     if (std::abs(ratio - expected_ratio) > 0.01 * expected_ratio) {
@@ -183,13 +183,13 @@ private:
     const int vec_idx = time_index + m_cache_offset;
     if (vec_idx < 0 || static_cast<std::size_t>(vec_idx) >= m_cache_size) {
       // Outside the preallocated cache span: fall back to direct evaluation (no caching).
-      return const_cast<SignalPulse*>(this)->evaluate(time_index * m_cache_resolution, charge);
+      return evaluate(time_index * m_cache_resolution, charge);
     }
     double& slot = m_cache_values[static_cast<std::size_t>(vec_idx)];
     if (std::isnan(slot)) {
       // Compute and cache normalized value (charge=1)
       const double time = time_index * m_cache_resolution;
-      slot              = const_cast<SignalPulse*>(this)->evaluate(time, 1.0);
+      slot              = evaluate(time, 1.0);
     }
     return slot * charge;
   }
@@ -219,7 +219,7 @@ public:
 
 protected:
   // LandauPulse is linear in charge: evaluate(t, a*q) = a*q*gain*Landau(...) = a*evaluate(t, q)
-  double evaluate(double time, double charge) override {
+  double evaluate(double time, double charge) const override {
     return charge * m_gain *
            TMath::Landau(time, m_hit_sigma_offset * m_sigma_analog, m_sigma_analog, kTRUE);
   }
@@ -271,9 +271,13 @@ protected:
 protected:
   // EvaluatorPulse: Linearity depends on the expression provided by user
   // Most physical pulse shapes multiply by charge, making them linear
-  double evaluate(double time, double charge) override {
-    param_map["time"]   = time;
-    param_map["charge"] = charge;
+  double evaluate(double time, double charge) const override {
+    // Note: We need to modify param_map, but it doesn't change the logical state
+    // of the pulse shape (same input -> same output), so this remains conceptually const
+    // NOLINTNEXTLINE(cppcoreguidelines-pro-type-const-cast)
+    auto& mutable_map     = const_cast<std::unordered_map<std::string, double>&>(param_map);
+    mutable_map["time"]   = time;
+    mutable_map["charge"] = charge;
     return m_evaluator(param_map);
   }
 
