@@ -53,9 +53,9 @@ void InitPlugin(JApplication* app) {
       "TOFEndcapSharedHits", {"TOFEndcapHits"}, {"TOFEndcapSharedHits"},
       {
           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
-          .sigma_sharingx = 1,
-          .sigma_sharingy = 1,
-          .min_edep       = 0.0 * edm4eic::unit::GeV,
+          .sigma_sharingx = 0.01 * edm4eic::unit::cm,
+          .sigma_sharingy = 0.01 * edm4eic::unit::cm,
+          .min_edep       = 0.01 * dd4hep::keV,
           .readout        = "TOFEndcapHits",
       },
       app));
