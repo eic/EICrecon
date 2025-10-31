@@ -127,9 +127,7 @@ void InitPlugin(JApplication* app) {
           .pedSigmaADC     = EcalEndcapP_pedSigmaADC,
           .resolutionTDC   = EcalEndcapP_resolutionTDC,
           .thresholdFactor = 0.0,
-          .thresholdValue =
-
-              3, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
+          .thresholdValue = 3, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
           // 15 MeV = 2.4576, but adc=llround(dE) and cut off is "<". So 3 here = 15.25MeV
           .sampFrac = "1.00", // already taken care in DIGI code above
           .readout  = "EcalEndcapPHits",
