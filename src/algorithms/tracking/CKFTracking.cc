@@ -92,8 +92,7 @@ namespace eicrecon {
 
 using namespace Acts::UnitLiterals;
 
-template <typename edm_t>
-CKFTracking<edm_t>::CKFTracking() = default;
+template <typename edm_t> CKFTracking<edm_t>::CKFTracking() = default;
 
 template <typename edm_t>
 void CKFTracking<edm_t>::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
