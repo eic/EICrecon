@@ -111,7 +111,7 @@ void InitPlugin(JApplication* app) {
             .resolutionTDC             = EcalEndcapP_resolutionTDC,
             .corrMeanScale             = EcalEndcapP_corrMeanScale,
             .readout                   = "EcalEndcapPHits",
-            .fields                    = {"fiberx", "fibery", "x", "y"},
+            .fields                    = {"fiber_x", "fiber_y", "x", "y"},
         },
         app // TODO: Remove me once fixed
         ));
