@@ -6,10 +6,13 @@
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
 #include <edm4hep/Vector2i.h>
+#endif
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <spdlog/common.h>
@@ -72,8 +75,11 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
                     edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
                     edm4hep::Vector3f(), // edm4hep::Vector3f momentum
                     edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-                    edm4hep::Vector3f(), // edm4hep::Vector3f spin
-                    edm4hep::Vector2i()  // edm4hep::Vector2i colorFlow
+                    edm4hep::Vector3f()  // edm4hep::Vector3f spin
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
+                    ,
+                    edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
+#endif
     );
 
     auto assoc_in = assocs_in->create();
