@@ -5,6 +5,7 @@
 #include "IterativeVertexFinder.h"
 
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
@@ -40,10 +41,14 @@
 #include <string>
 #include <utility>
 
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
-void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                                           std::shared_ptr<spdlog::logger> log) {
+namespace eicrecon {
+
+template <typename edm_t>
+void IterativeVertexFinder<edm_t>::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
+                                        std::shared_ptr<spdlog::logger> log) {
 
   m_log = log;
 
@@ -54,8 +59,9 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
-std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
-    std::vector<const ActsExamples::Trajectories*> trajectories,
+template <typename edm_t>
+std::unique_ptr<edm4eic::VertexCollection> IterativeVertexFinder<edm_t>::produce(
+    std::vector<const typename edm_t::Trajectories*> trajectories,
     const edm4eic::ReconstructedParticleCollection* reconParticles) {
 
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
@@ -190,3 +196,10 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 
   return outputVertices;
 }
+
+template class IterativeVertexFinder<ActsExamplesEdm>;
+#if Acts_VERSION_MAJOR >= 36
+template class IterativeVertexFinder<ActsPodioEdm>;
+#endif
+
+} // namespace eicrecon

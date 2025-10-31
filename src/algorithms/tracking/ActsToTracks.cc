@@ -6,6 +6,7 @@
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -27,14 +28,17 @@
 #include <numeric>
 #include <optional>
 
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "ActsToTracks.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 
 namespace eicrecon {
 
-void ActsToTracks::init() {}
+template <typename edm_t> void ActsToTracks<edm_t>::init() {}
 
-void ActsToTracks::process(const Input& input, const Output& output) const {
+template <typename edm_t>
+void ActsToTracks<edm_t>::process(const typename ActsToTracks<edm_t>::Input& input,
+                                  const typename ActsToTracks<edm_t>::Output& output) const {
   const auto [meas2Ds, acts_trajectories, raw_hit_assocs]     = input;
   auto [trajectories, track_parameters, tracks, tracks_assoc] = output;
 
@@ -44,7 +48,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     const auto& trackTips = traj->tips();
     const auto& mj        = traj->multiTrajectory();
     if (trackTips.empty()) {
-      warning("Empty multiTrajectory.");
+      this->warning("Empty multiTrajectory.");
       continue;
     }
 
@@ -55,7 +59,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 
       // Check if the reco track has fitted track parameters
       if (not traj->hasTrackParameters(trackTip)) {
-        warning("No fitted track parameters for trajectory with entry index = {}", trackTip);
+        this->warning("No fitted track parameters for trajectory with entry index = {}", trackTip);
         continue;
       }
 
@@ -67,8 +71,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       trajectory.setNHoles(trajectoryState.nHoles);
       trajectory.setNSharedHits(trajectoryState.nSharedHits);
 
-      debug("trajectory state, measurement, outlier, hole: {} {} {} {}", trajectoryState.nStates,
-            trajectoryState.nMeasurements, trajectoryState.nOutliers, trajectoryState.nHoles);
+      this->debug("trajectory state, measurement, outlier, hole: {} {} {} {}",
+                  trajectoryState.nStates, trajectoryState.nMeasurements, trajectoryState.nOutliers,
+                  trajectoryState.nHoles);
 
       for (const auto& measurementChi2 : trajectoryState.measurementChi2) {
         trajectory.addToMeasurementChi2(measurementChi2);
@@ -146,19 +151,19 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 
           // no hit on this state/surface, skip
           if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
-            debug("No hit found on geo id={}", geoID);
+            this->debug("No hit found on geo id={}", geoID);
 
           } else {
             auto meas2D = (*meas2Ds)[srclink_index];
             if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
               trajectory.addToOutliers_deprecated(meas2D);
-              debug("Outlier on geo id={}, index={}, loc={},{}", geoID, srclink_index,
-                    meas2D.getLoc().a, meas2D.getLoc().b);
+              this->debug("Outlier on geo id={}, index={}, loc={},{}", geoID, srclink_index,
+                          meas2D.getLoc().a, meas2D.getLoc().b);
             } else if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
               track.addToMeasurements(meas2D);
               trajectory.addToMeasurements_deprecated(meas2D);
-              debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
-                    meas2D.getLoc().a, meas2D.getLoc().b);
+              this->debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
+                          meas2D.getLoc().a, meas2D.getLoc().b);
 
               // Determine track associations if hit associations provided
               // FIXME: not able to check whether optional inputs were provided
@@ -195,12 +200,17 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         track_assoc.setSim(mcparticle);
         double normalized_weight = weight / total_weight;
         track_assoc.setWeight(normalized_weight);
-        debug("track {}: mcparticle {} weight {}", track.id().index, mcparticle.id().index,
-              normalized_weight);
+        this->debug("track {}: mcparticle {} weight {}", track.id().index, mcparticle.id().index,
+                    normalized_weight);
       }
       //}
     }
   }
 }
+
+template class ActsToTracks<ActsExamplesEdm>;
+#if Acts_VERSION_MAJOR >= 36
+template class ActsToTracks<ActsPodioEdm>;
+#endif
 
 } // namespace eicrecon

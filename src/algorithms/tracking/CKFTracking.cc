@@ -19,6 +19,7 @@
 #if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
 #include <Acts/Utilities/Iterator.hpp>
 #endif
+#include <Acts/TrackFitting/GainMatrixSmoother.hpp>
 #include <Acts/Utilities/detail/ContextType.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
@@ -57,7 +58,6 @@
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
-#include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
@@ -81,6 +81,7 @@
 #include <system_error>
 #include <utility>
 
+#include "algorithms/tracking/ActsExamplesEdm.h"
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
@@ -91,10 +92,11 @@ namespace eicrecon {
 
 using namespace Acts::UnitLiterals;
 
-CKFTracking::CKFTracking() = default;
+template <typename edm_t> CKFTracking<edm_t>::CKFTracking() = default;
 
-void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                       std::shared_ptr<spdlog::logger> log) {
+template <typename edm_t>
+void CKFTracking<edm_t>::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
+                              std::shared_ptr<spdlog::logger> log) {
   m_log         = log;
   m_acts_logger = eicrecon::getSpdlogLogger("CKF", m_log);
 
@@ -116,10 +118,11 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
       CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
 }
 
-std::tuple<std::vector<ActsExamples::Trajectories*>,
-           std::vector<ActsExamples::ConstTrackContainer*>>
-CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
-                     const edm4eic::Measurement2DCollection& meas2Ds) {
+template <typename edm_t>
+std::tuple<std::vector<typename edm_t::Trajectories*>,
+           std::vector<typename edm_t::ConstTrackContainer*>>
+CKFTracking<edm_t>::process(const edm4eic::TrackParametersCollection& init_trk_params,
+                            const edm4eic::Measurement2DCollection& meas2Ds) {
 
   // Create output collections
   std::vector<ActsExamples::Trajectories*> acts_trajectories;
@@ -214,7 +217,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 #endif
   }
 
-  ActsExamples::TrackParametersContainer acts_init_trk_params;
+  typename edm_t::TrackParametersContainer acts_init_trk_params;
   for (const auto& track_parameter : init_trk_params) {
 
     Acts::BoundVector params;
@@ -261,24 +264,24 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
 #if Acts_VERSION_MAJOR >= 36
-  Acts::CombinatorialKalmanFilterExtensions<ActsExamples::TrackContainer> extensions;
+  Acts::CombinatorialKalmanFilterExtensions<typename edm_t::TrackContainer> extensions;
 #else
   Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory> extensions;
 #endif
 #if Acts_VERSION_MAJOR < 39
-  extensions.calibrator.connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
+  extensions.calibrator.template connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
       &calibrator);
 #endif
 #if Acts_VERSION_MAJOR >= 36
-  extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<
-      typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&kfUpdater);
+  extensions.updater.template connect<
+      &Acts::GainMatrixUpdater::operator()<typename edm_t::TrackStateContainerBackend>>(&kfUpdater);
 #else
   extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
       &kfUpdater);
 #endif
 #if (Acts_VERSION_MAJOR >= 36) && (Acts_VERSION_MAJOR < 39)
-  extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<
-      typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&measSel);
+  extensions.measurementSelector.template connect<
+      &Acts::MeasurementSelector::select<typename edm_t::TrackStateContainerBackend>>(&measSel);
 #elif Acts_VERSION_MAJOR < 39
   extensions.measurementSelector
       .connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
@@ -293,7 +296,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 #if Acts_VERSION_MAJOR >= 39
   using TrackStateCreatorType =
       Acts::TrackStateCreator<ActsExamples::IndexSourceLinkAccessor::Iterator,
-                              ActsExamples::TrackContainer>;
+                              typename edm_t::TrackContainer>;
   TrackStateCreatorType trackStateCreator;
   trackStateCreator.sourceLinkAccessor
       .template connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
@@ -344,12 +347,12 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 #endif
 
   // Create track container
-  auto trackContainer      = std::make_shared<Acts::VectorTrackContainer>();
-  auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
-  ActsExamples::TrackContainer acts_tracks(trackContainer, trackStateContainer);
+  auto trackContainer      = std::make_shared<typename edm_t::TrackContainerBackend>();
+  auto trackStateContainer = std::make_shared<typename edm_t::TrackStateContainerBackend>();
+  typename edm_t::TrackContainer acts_tracks(trackContainer, trackStateContainer);
 
   // Add seed number column
-  acts_tracks.addColumn<unsigned int>("seed");
+  acts_tracks.template addColumn<unsigned int>("seed");
   Acts::ProxyAccessor<unsigned int> seedNumber("seed");
   std::set<Acts::TrackIndexType> passed_tracks;
 
@@ -407,20 +410,21 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   // Move track states and track container to const containers
   // NOTE Using the non-const containers leads to references to
   // implicitly converted temporaries inside the Trajectories.
-  auto constTrackStateContainer =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(*trackStateContainer));
+  auto constTrackStateContainer = std::make_shared<typename edm_t::ConstTrackStateContainerBackend>(
+      std::move(*trackStateContainer));
 
   auto constTrackContainer =
-      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*trackContainer));
+      std::make_shared<typename edm_t::ConstTrackContainerBackend>(std::move(*trackContainer));
 
+  typename edm_t::TrackCollection constTracks_v;
   constTracks_v.push_back(
-      new ActsExamples::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
+      new edm_t::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
   auto& constTracks = *(constTracks_v.front());
 
   // Seed number column accessor
   const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
 
-  ActsExamples::Trajectories::IndexedParameters parameters;
+  typename edm_t::Trajectories::IndexedParameters parameters;
   std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
 
   std::optional<unsigned int> lastSeed;
@@ -432,7 +436,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     if (constSeedNumber(track) != lastSeed.value()) {
       // make copies and clear vectors
       acts_trajectories.push_back(
-          new ActsExamples::Trajectories(constTracks.trackStateContainer(), tips, parameters));
+          new typename edm_t::Trajectories(constTracks.trackStateContainer(), tips, parameters));
 
       tips.clear();
       parameters.clear();
@@ -441,10 +445,10 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     lastSeed = constSeedNumber(track);
 
     tips.push_back(track.tipIndex());
-    parameters.emplace(std::pair{
+    parameters.emplace(std::make_pair(
         track.tipIndex(),
-        ActsExamples::TrackParameters{track.referenceSurface().getSharedPtr(), track.parameters(),
-                                      track.covariance(), track.particleHypothesis()}});
+        typename edm_t::TrackParameters(track.referenceSurface().getSharedPtr(), track.parameters(),
+                                        track.covariance(), track.particleHypothesis())));
   }
 
   if (tips.empty()) {
@@ -452,10 +456,12 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   }
 
   // last entry: move vectors
-  acts_trajectories.push_back(new ActsExamples::Trajectories(
-      constTracks.trackStateContainer(), std::move(tips), std::move(parameters)));
+  acts_trajectories.push_back(new edm_t::Trajectories(constTracks.trackStateContainer(),
+                                                      std::move(tips), std::move(parameters)));
 
   return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
 }
+
+template class CKFTracking<ActsExamplesEdm>;
 
 } // namespace eicrecon
