@@ -27,7 +27,9 @@ enum Flag {
   LoadConfigs,
   DumpConfigs,
   Benchmark,
-  ListFactories
+  ListFactories,
+  ListPluginFactories,
+  PrintFactoryInfo
 };
 
 struct UserOptions {
@@ -39,6 +41,7 @@ struct UserOptions {
   std::vector<std::string> eventSources;
   std::string load_config_file;
   std::string dump_config_file;
+  std::string plugin_name; // For --list-available-factories <plugin>
 };
 
 /// Read the user options from the command line and initialize @param options.
@@ -49,7 +52,8 @@ struct UserOptions {
 UserOptions GetCliOptions(int nargs, char* argv[], bool expect_extra = true);
 
 /// If the user option contains print only flags, print the info ann return true; otherwise return false.
-/// The print only flags include: "-v", "-h", "-L", "--list_default_plugins", "--list_available_plugins".
+/// The print only flags include: "-v", "-h", "-L", "--list_default_plugins", "--list_available_plugins",
+/// "--list-available-factories", "--print-factory-info".
 /// When the info is shown, the application will exit immediately.
 bool HasPrintOnlyCliOptions(UserOptions& options, std::vector<std::string> const& default_plugins);
 
@@ -75,6 +79,12 @@ void AddDefaultPluginsToJApplication(JApplication* app,
 
 void PrintFactories(JApplication* app);
 void PrintPodioCollections(JApplication* app);
+
+/// List all factories for a specific plugin
+void PrintPluginFactories(JApplication* app, const std::string& plugin_name);
+
+/// Print detailed factory information including input/output collections
+void ShowFactoryInfo(JApplication* app);
 
 /// Copy the @param options params (from the cli or the config file) to a JParameterManager @var para_mgr.
 /// Create an empty JApplication @var app.
