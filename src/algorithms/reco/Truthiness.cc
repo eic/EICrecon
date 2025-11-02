@@ -20,7 +20,8 @@
 
 namespace eicrecon {
 
-void Truthiness::process(const Truthiness::Input& input, const Truthiness::Output& output) const {
+void Truthiness::process(const Truthiness::Input& input,
+                         [[maybe_unused]] const Truthiness::Output& output) const {
 
   const auto [mc_particles, rc_particles, associations] = input;
 
