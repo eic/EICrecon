@@ -149,6 +149,9 @@ void Truthiness::process(const Truthiness::Input& input,
   // Report final truthiness
   debug("Event truthiness: {:.6f} (from {} associations, {} unassociated MC, {} unassociated RC)",
         truthiness, associations->size(), unassociated_mc_count, unassociated_rc_count);
+  trace("  Total PID contribution: {:.6f}", total_pid_contribution);
+  trace("  Total energy contribution: {:.6f}", total_energy_contribution);
+  trace("  Total momentum contribution: {:.6f}", total_momentum_contribution);
 
 #if __has_include(<edm4eic/Truthiness.h>)
   // Create output collection if available
