@@ -13,18 +13,37 @@
 #include <cmath>
 #include <set>
 
+#if __has_include(<edm4eic/Truthiness.h>)
+#include <edm4eic/Truthiness.h>
+#include <edm4eic/TruthinessCollection.h>
+#endif
+
 namespace eicrecon {
 
-void Truthiness::process(const Truthiness::Input& input,
-                         const Truthiness::Output& /* output */) const {
+void Truthiness::process(const Truthiness::Input& input, const Truthiness::Output& output) const {
 
   const auto [mc_particles, rc_particles, associations] = input;
 
-  double truthiness = 0.0;
+  double truthiness                  = 0.0;
+  double total_pid_contribution      = 0.0;
+  double total_energy_contribution   = 0.0;
+  double total_momentum_contribution = 0.0;
 
   // Track which MC particles and reconstructed particles are covered by associations
   std::set<edm4hep::MCParticle> associated_mc_particles;
   std::set<edm4eic::ReconstructedParticle> associated_rc_particles;
+
+#if __has_include(<edm4eic/Truthiness.h>)
+  // Vectors to store per-association contributions
+  std::vector<float> assoc_truthiness_vec;
+  std::vector<float> assoc_pid_vec;
+  std::vector<float> assoc_energy_vec;
+  std::vector<float> assoc_momentum_vec;
+  assoc_truthiness_vec.reserve(associations->size());
+  assoc_pid_vec.reserve(associations->size());
+  assoc_energy_vec.reserve(associations->size());
+  assoc_momentum_vec.reserve(associations->size());
+#endif
 
   // Process all associations
   for (const auto& assoc : *associations) {
@@ -66,14 +85,30 @@ void Truthiness::process(const Truthiness::Input& input,
           momentum_penalty, pdg_penalty);
 
     truthiness += assoc_penalty;
+    total_pid_contribution += pdg_penalty;
+    total_energy_contribution += energy_penalty;
+    total_momentum_contribution += momentum_penalty;
+
+#if __has_include(<edm4eic/Truthiness.h>)
+    assoc_truthiness_vec.push_back(static_cast<float>(assoc_penalty));
+    assoc_pid_vec.push_back(static_cast<float>(pdg_penalty));
+    assoc_energy_vec.push_back(static_cast<float>(energy_penalty));
+    assoc_momentum_vec.push_back(static_cast<float>(momentum_penalty));
+#endif
   }
 
   // Penalty for unassociated charged MC particles with generator status 2
   int unassociated_mc_count = 0;
+#if __has_include(<edm4eic/Truthiness.h>)
+  std::vector<edm4hep::MCParticle> unassociated_mc_vec;
+#endif
   for (const auto& mc_part : *mc_particles) {
     if (mc_part.getGeneratorStatus() == 2 && mc_part.getCharge() != 0.0) {
       if (associated_mc_particles.find(mc_part) == associated_mc_particles.end()) {
         unassociated_mc_count++;
+#if __has_include(<edm4eic/Truthiness.h>)
+        unassociated_mc_vec.push_back(mc_part);
+#endif
         trace("Unassociated MC particle: PDG={}, charge={:.1f}, status={}", mc_part.getPDG(),
               mc_part.getCharge(), mc_part.getGeneratorStatus());
       }
@@ -86,9 +121,15 @@ void Truthiness::process(const Truthiness::Input& input,
 
   // Penalty for unassociated reconstructed particles
   int unassociated_rc_count = 0;
+#if __has_include(<edm4eic/Truthiness.h>)
+  std::vector<edm4eic::ReconstructedParticle> unassociated_rc_vec;
+#endif
   for (const auto& rc_part : *rc_particles) {
     if (associated_rc_particles.find(rc_part) == associated_rc_particles.end()) {
       unassociated_rc_count++;
+#if __has_include(<edm4eic/Truthiness.h>)
+      unassociated_rc_vec.push_back(rc_part);
+#endif
       trace("Unassociated reconstructed particle: PDG={}, E={:.3f}, p=[{:.3f},{:.3f},{:.3f}]",
             rc_part.getPDG(), rc_part.getEnergy(), rc_part.getMomentum().x, rc_part.getMomentum().y,
             rc_part.getMomentum().z);
@@ -107,6 +148,45 @@ void Truthiness::process(const Truthiness::Input& input,
   // Report final truthiness
   debug("Event truthiness: {:.6f} (from {} associations, {} unassociated MC, {} unassociated RC)",
         truthiness, associations->size(), unassociated_mc_count, unassociated_rc_count);
+
+#if __has_include(<edm4eic/Truthiness.h>)
+  // Create output collection if available
+  const auto [truthiness_output] = output;
+  auto truthiness_obj            = truthiness_output->create();
+
+  // Set scalar values
+  truthiness_obj.setEvent_truthiness(static_cast<float>(truthiness));
+  truthiness_obj.setEvent_pid_contribution(static_cast<float>(total_pid_contribution));
+  truthiness_obj.setEvent_energy_contribution(static_cast<float>(total_energy_contribution));
+  truthiness_obj.setEvent_momentum_contribution(static_cast<float>(total_momentum_contribution));
+  truthiness_obj.setUnassociated_mc_particles_contribution(static_cast<float>(mc_penalty));
+  truthiness_obj.setUnassociated_rc_particles_contribution(static_cast<float>(rc_penalty));
+
+  // Add associations and their contributions
+  for (const auto& assoc : *associations) {
+    truthiness_obj.addToAssociations(assoc);
+  }
+  for (const auto& val : assoc_truthiness_vec) {
+    truthiness_obj.addToAssociation_truthiness(val);
+  }
+  for (const auto& val : assoc_pid_vec) {
+    truthiness_obj.addToAssociation_pid_contribution(val);
+  }
+  for (const auto& val : assoc_energy_vec) {
+    truthiness_obj.addToAssociation_energy_contribution(val);
+  }
+  for (const auto& val : assoc_momentum_vec) {
+    truthiness_obj.addToAssociation_momentum_contribution(val);
+  }
+
+  // Add unassociated particles
+  for (const auto& mc_part : unassociated_mc_vec) {
+    truthiness_obj.addToUnassociated_mc_particles(mc_part);
+  }
+  for (const auto& rc_part : unassociated_rc_vec) {
+    truthiness_obj.addToUnassociated_rc_particles(rc_part);
+  }
+#endif
 }
 
 } // namespace eicrecon
