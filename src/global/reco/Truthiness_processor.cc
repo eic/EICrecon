@@ -15,6 +15,10 @@
 #include <map>
 #include <string>
 
+#if __has_include(<edm4eic/Truthiness.h>)
+#include <edm4eic/TruthinessCollection.h>
+#endif
+
 #include "services/log/Log_service.h"
 
 namespace eicrecon {
@@ -64,7 +68,12 @@ void Truthiness_processor::Process(const std::shared_ptr<const JEvent>& event) {
 
   // Call the algorithm
   Truthiness::Input input{mc_particles, rc_particles, associations};
+#if __has_include(<edm4eic/Truthiness.h>)
+  auto truthiness_coll = std::make_unique<edm4eic::TruthinessCollection>();
+  Truthiness::Output output{truthiness_coll.get()};
+#else
   Truthiness::Output output{};
+#endif
   m_algo->process(input, output);
 }
 

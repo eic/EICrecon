@@ -10,16 +10,26 @@
 #include <stdint.h>
 #include <string>
 #include <string_view>
+#if __has_include(<edm4eic/Truthiness.h>)
+#include <edm4eic/TruthinessCollection.h>
+#endif
 
 #include "TruthinessConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
+#if __has_include(<edm4eic/Truthiness.h>)
+using TruthinessAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
+                      edm4eic::MCRecoParticleAssociationCollection>,
+    algorithms::Output<edm4eic::TruthinessCollection>>;
+#else
 using TruthinessAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
                       edm4eic::MCRecoParticleAssociationCollection>,
     algorithms::Output<>>;
+#endif
 
 class Truthiness : public TruthinessAlgorithm, public WithPodConfig<TruthinessConfig> {
 
@@ -32,9 +42,14 @@ public:
       : TruthinessAlgorithm{
             name,
             {"inputMCParticles", "inputReconstructedParticles", "inputAssociations"},
+#if __has_include(<edm4eic/Truthiness.h>)
+            {"outputTruthiness"},
+#else
             {},
+#endif
             "Calculate truthiness metric comparing reconstructed particles to MC "
-            "truth."} {}
+            "truth."} {
+  }
 
   void init() final {};
   void process(const Input&, const Output&) const final;
