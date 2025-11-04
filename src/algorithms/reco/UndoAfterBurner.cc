@@ -116,8 +116,15 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
                                       head_on_frame_boost.Pz() / head_on_frame_boost.E());
 
   // Now, loop through events and apply operations to the MCparticles
+  int maxGenStatus = m_cfg.m_max_gen_status;
+
   for (const auto& p : *mcparts) {
     if (p.isCreatedInSimulation()) {
+      continue;
+    }
+
+    // Filter by generator status to exclude background particles and conserve memory
+    if (maxGenStatus >= 0 && p.getGeneratorStatus() > maxGenStatus) {
       continue;
     }
 
