@@ -13,7 +13,7 @@ struct UndoAfterBurnerConfig {
   double m_pid_purity         = 0.51;
   bool m_correct_beam_FX      = true;
   bool m_pid_use_MC_truth     = true;
-  int m_max_gen_status        = -1;  // Upper limit on generator status to process (-1 = no limit)
+  int m_max_gen_status        = -1; // Upper limit on generator status to process (-1 = no limit)
 };
 
 } // namespace eicrecon
