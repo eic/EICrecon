@@ -52,7 +52,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
       "TOFEndcapSharedHits", {"TOFEndcapHits"}, {"TOFEndcapSharedHits"},
       {
-          
+
           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
           .sigma_sharingx = 1,
           .sigma_sharingy = 1,
