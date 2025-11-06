@@ -153,7 +153,7 @@ void MPGDTrackerDigi::init() {
   }
 
   // Ordering of SUBVOLUMES (based on "STRIP" FIELD)
-  m_stripRank = [=](CellID vID) {
+  m_stripRank = [=,this](CellID vID) {
     int rank;
     CellID sID = vID & m_stripBits;
     for (rank = 0; rank < 5; rank++)
@@ -161,7 +161,7 @@ void MPGDTrackerDigi::init() {
         return rank;
     return -1;
   };
-  m_orientation = [=](CellID vID, CellID vJD) {
+  m_orientation = [=,this](CellID vID, CellID vJD) {
     int ranki = m_stripRank(vID), rankj = m_stripRank(vJD);
     if (rankj > ranki)
       return +1;
@@ -557,7 +557,6 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
             }
           }
           // ij-Compatibility: close exit/entrance-distance
-          double zMin = -dZ - ref2j, zMax = dZ - ref2j;
           double dist            = outInDistance(1, orientation, ljns, louts, lmom, lmoj);
           const double tolerance = 25 * dd4hep::um;
           bool isCompatible      = dist > 0 && dist < tolerance;
@@ -1011,7 +1010,7 @@ unsigned int bTraversing(const double* lpos, const double* lmom, double ref2Cur,
                          double dX, double dY, // Module parameters
                          double lins[][3], double louts[][3], double* lpini, double* lpend) {
   unsigned int status = 0;
-  double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My}, M2 = Mx * Mx + My * My;
+  double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My};
   double Px = lmom[0], Py = lmom[1], Pxy[2] = {Px, Py};
   double Mz = lpos[2] + ref2Cur, Pz = lmom[2];
   // Intersection w/ the edge in X,Y
@@ -1019,7 +1018,7 @@ unsigned int bTraversing(const double* lpos, const double* lmom, double ref2Cur,
   double xyLow[2] = {-dX, +dX}, xyUp[2] = {-dY, +dY};
   for (int xy = 0; xy < 2; xy++) {
     int yx      = 1 - xy;
-    double aLow = xyLow[xy], aUp = xyUp[xy], Ma = Mxy[xy], Pa = Pxy[xy];
+    double aLow = xyLow[xy], aUp = xyUp[xy];
     double bLow = xyLow[yx], bUp = xyUp[yx], Mb = Mxy[yx], Pb = Pxy[yx];
     for (double A : {aLow, aUp}) {
       // Mz+t*Pz = A
@@ -1289,7 +1288,7 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
           if (t * direction < 0)
             continue;
           double Ix = Mx + t * Px, Iy = My + t * Py, Iz = Mz + t * Pz, phi = atan2(Iy, Ix);
-          if (fabs(Iz) > dZ && phi < startPhi || endPhi < phi)
+          if (fabs(Iz) > dZ || phi < startPhi || endPhi < phi)
             continue;
           if (!(status & 0x1) ||
               // Two intersects: let's retain the earliest one.
@@ -1313,7 +1312,7 @@ unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom,
                                          int direction, double dX, double dY, // Module parameters
                                          double* lext) const {
   unsigned int status = 0;
-  double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My}, M2 = Mx * Mx + My * My;
+  double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My};
   double Px = lmom[0], Py = lmom[1], Pxy[2] = {Px, Py};
   double Mz = lpos[2], Pz = lmom[2];
   double norm = sqrt(Px * Px + Py * Py + Pz * Pz);
@@ -1337,7 +1336,7 @@ unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom,
   double xyLow[2] = {-dX, +dX}, xyUp[2] = {-dY, +dY};
   for (int xy = 0; xy < 2; xy++) {
     int yx      = 1 - xy;
-    double aLow = xyLow[xy], aUp = xyUp[xy], Ma = Mxy[xy], Pa = Pxy[xy];
+    double aLow = xyLow[xy], aUp = xyUp[xy];
     double bLow = xyLow[yx], bUp = xyUp[yx], Mb = Mxy[yx], Pb = Pxy[yx];
     for (double A : {aLow, aUp}) {
       // Mz+t*Pz = A
@@ -1439,8 +1438,8 @@ bool MPGDTrackerDigi::samePMO(const edm4hep::SimTrackerHit& sim_hit,
   return sameParticle && sameModule && sameOrigin;
 }
 
-double outInDistance(int shape, int orientation, double lins[][3], double louts[][3], double* lmom,
-                     double* lmoj) {
+double outInDistance(int shape, int orientation, double lins[][3], double louts[][3],
+		     double* lmom, double* lmoj) {
   // Outgoing/incoming distance
   bool ok;
   double lext[3];
@@ -1505,7 +1504,6 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, int direction, double* lpi
       double dZ = tubE.dZ();
       status    = cExtension(lpoE, lmoE, R, direction, dZ, startPhi, endPhi, lext);
     } else if (!strcmp(shape.type(), "TGeoBBox")) {
-      const TGeoHMatrix& toRefVol = refVol.nominal().worldTransformation();
       double ref2E                = getRef2Cur(refVol, volE);
       const Box& boxE             = volE.solid();
       double Z                    = rankE == 0 ? -boxE.z() : +boxE.z();
@@ -1569,7 +1567,8 @@ void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shap
   bool isSecondary = sim_hit.isProducedBySecondary();
   bool isPrimary =
       !isSecondary && sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]) > .1 * GeV;
-  if (fabs(residual) > .000001 && isPrimary || sqrt(diff2) > .000001 && isSecondary) {
+  if ((fabs(residual) > .000001 && isPrimary) ||
+      (sqrt(diff2)    > .000001 && isSecondary)) {
     debug("Event {}#{}, SimHit 0x{:016x} origin {:d}: d{:x} = {:.5f} diff = {:.5f}",
           event.getRunNumber(), event.getEventNumber(), sim_hit.getCellID(), shape ? 'Z' : 'R',
           isSecondary, residual, sqrt(diff2));
