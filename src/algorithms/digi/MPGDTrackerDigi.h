@@ -12,7 +12,7 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 //#define MC_PARTICLE_ASSOCIATION
 #ifdef MC_PARTICLE_ASSOCIATION
-#  include <edm4hep/MCParticle.h>
+#include <edm4hep/MCParticle.h>
 #endif
 #include <string>
 #include <string_view>
@@ -25,7 +25,8 @@ namespace eicrecon {
 
 using MPGDTrackerDigiAlgorithm = algorithms::Algorithm<
 #ifdef MC_PARTICLE_ASSOCIATION
-    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection, podio::CollectionBase>,
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection,
+                      podio::CollectionBase>,
 #else
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
 #endif
@@ -51,47 +52,41 @@ private:
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
   // Member methods for checking the consistency of subHits to be accumulated
-  unsigned int extendHit(dd4hep::CellID modID, int direction,
-			 double *lpini, double *lmini, double *lpend, double *lmend) const;
-  unsigned int cExtension(double const *lpos, double const *lmom, // Input subHit
-			  double rT, // Target radius
-			  int direction,
-			  double dZ, double startPhi, double endPhi, // Module parameters
-			  double *lext) const;
-  unsigned int bExtension(const double *lpos, const double *lmom, // Input subHit
-			  double zT, // Target Z
-			  int direction,
-			  double dX, double dY, // Module parameters
-			  double *lext) const;
-  bool         samePMO(const edm4hep::SimTrackerHit&,
-		       const edm4hep::SimTrackerHit&,
-		       int unbroken) const;
-  bool         denyExtension(const edm4hep::SimTrackerHit &sim_hit,
-			     double depth) const;
-  void         flagUnexpected(const edm4hep::EventHeader &event,
-			      int shape, double expected,
-			      const edm4hep::SimTrackerHit &sim_hit,
-			      double *lpini, double *lpend,
-			      double *lpos, double *lmom) const;
+  unsigned int extendHit(dd4hep::CellID modID, int direction, double* lpini, double* lmini,
+                         double* lpend, double* lmend) const;
+  unsigned int cExtension(double const* lpos, double const* lmom, // Input subHit
+                          double rT,                              // Target radius
+                          int direction, double dZ, double startPhi,
+                          double endPhi, // Module parameters
+                          double* lext) const;
+  unsigned int bExtension(const double* lpos, const double* lmom, // Input subHit
+                          double zT,                              // Target Z
+                          int direction, double dX, double dY,    // Module parameters
+                          double* lext) const;
+  bool samePMO(const edm4hep::SimTrackerHit&, const edm4hep::SimTrackerHit&, int unbroken) const;
+  bool denyExtension(const edm4hep::SimTrackerHit& sim_hit, double depth) const;
+  void flagUnexpected(const edm4hep::EventHeader& event, int shape, double expected,
+                      const edm4hep::SimTrackerHit& sim_hit, double* lpini, double* lpend,
+                      double* lpos, double* lmom) const;
 
   /** Segmentation */
   const dd4hep::Detector* m_detector{nullptr};
   dd4hep::Segmentation m_seg;
   // Built-in constants specifying IDDescriptor fields.
   // The "init" should method double-check these are actually implemented in the XMLs of MPGDs.
-  static constexpr dd4hep::CellID m_volumeBits = 0xffffffff; // 32 least weight bits
-  static constexpr dd4hep::CellID m_stripBits =  ((dd4hep::CellID)0xf)<<28;
-  static constexpr dd4hep::CellID m_stripMask =  ~m_stripBits;
-  static constexpr dd4hep::CellID m_moduleBits = m_volumeBits & m_stripMask;
-  static constexpr dd4hep::CellID m_pStripBit =  ((dd4hep::CellID)0x1)<<28;
-  static constexpr dd4hep::CellID m_nStripBit =  ((dd4hep::CellID)0x2)<<28;
-  static constexpr dd4hep::CellID m_stripIDs[5] =
-      { ((dd4hep::CellID)0x3)<<28, m_pStripBit, 0, m_nStripBit, ((dd4hep::CellID)0x4)<<28 };
+  static constexpr dd4hep::CellID m_volumeBits  = 0xffffffff; // 32 least weight bits
+  static constexpr dd4hep::CellID m_stripBits   = ((dd4hep::CellID)0xf) << 28;
+  static constexpr dd4hep::CellID m_stripMask   = ~m_stripBits;
+  static constexpr dd4hep::CellID m_moduleBits  = m_volumeBits & m_stripMask;
+  static constexpr dd4hep::CellID m_pStripBit   = ((dd4hep::CellID)0x1) << 28;
+  static constexpr dd4hep::CellID m_nStripBit   = ((dd4hep::CellID)0x2) << 28;
+  static constexpr dd4hep::CellID m_stripIDs[5] = {((dd4hep::CellID)0x3) << 28, m_pStripBit, 0,
+                                                   m_nStripBit, ((dd4hep::CellID)0x4) << 28};
   /** Ordering of Multiple Sensitive Volumes */
   std::function<int(dd4hep::CellID)> m_stripRank;
-  std::function<int(dd4hep::CellID,dd4hep::CellID)> m_orientation;
-  std::function<bool(int,unsigned int)> m_isUpstream;
-  std::function<bool(int,unsigned int)> m_isDownstream;
+  std::function<int(dd4hep::CellID, dd4hep::CellID)> m_orientation;
+  std::function<bool(int, unsigned int)> m_isUpstream;
+  std::function<bool(int, unsigned int)> m_isDownstream;
 };
 
 } // namespace eicrecon
