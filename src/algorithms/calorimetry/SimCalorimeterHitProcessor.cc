@@ -70,17 +70,23 @@ template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
 
 // unnamed namespace for internal utility
 namespace {
-// Lookup primary MCParticle @TODO this should be a shared utiliy function in the edm4xxx
+// Lookup primary MCParticle
+// we stop looking if we find the parent has status 1 but with only 2 daughters
+// so we don't merge radiative photons with the primary electron as this prevents us
+// from properly linking the clusters back to the event geometry
+// @TODO this should be a shared utiliy function in the edm4xxx
 // libraries
 edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) {
   const auto contributor = contrib.getParticle();
 
   edm4hep::MCParticle primary = contributor;
   while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) {
+    auto parent = primary.getParents(0);
+    if (primary.getGeneratorStatus() != 0 ||
+        (parent.getGeneratorStatus() != 0 && parent.daughters_size() == 2)) {
       break;
     }
-    primary = primary.getParents(0);
+    primary = parent;
   }
   return primary;
 }
