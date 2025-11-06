@@ -153,7 +153,7 @@ void MPGDTrackerDigi::init() {
   }
 
   // Ordering of SUBVOLUMES (based on "STRIP" FIELD)
-  m_stripRank = [=,this](CellID vID) {
+  m_stripRank = [=, this](CellID vID) {
     int rank;
     CellID sID = vID & m_stripBits;
     for (rank = 0; rank < 5; rank++)
@@ -161,7 +161,7 @@ void MPGDTrackerDigi::init() {
         return rank;
     return -1;
   };
-  m_orientation = [=,this](CellID vID, CellID vJD) {
+  m_orientation = [=, this](CellID vID, CellID vJD) {
     int ranki = m_stripRank(vID), rankj = m_stripRank(vJD);
     if (rankj > ranki)
       return +1;
@@ -1438,8 +1438,8 @@ bool MPGDTrackerDigi::samePMO(const edm4hep::SimTrackerHit& sim_hit,
   return sameParticle && sameModule && sameOrigin;
 }
 
-double outInDistance(int shape, int orientation, double lins[][3], double louts[][3],
-		     double* lmom, double* lmoj) {
+double outInDistance(int shape, int orientation, double lins[][3], double louts[][3], double* lmom,
+                     double* lmoj) {
   // Outgoing/incoming distance
   bool ok;
   double lext[3];
@@ -1504,9 +1504,9 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, int direction, double* lpi
       double dZ = tubE.dZ();
       status    = cExtension(lpoE, lmoE, R, direction, dZ, startPhi, endPhi, lext);
     } else if (!strcmp(shape.type(), "TGeoBBox")) {
-      double ref2E                = getRef2Cur(refVol, volE);
-      const Box& boxE             = volE.solid();
-      double Z                    = rankE == 0 ? -boxE.z() : +boxE.z();
+      double ref2E    = getRef2Cur(refVol, volE);
+      const Box& boxE = volE.solid();
+      double Z        = rankE == 0 ? -boxE.z() : +boxE.z();
       Z -= ref2E;
       double dX = boxE.x(), dY = boxE.y();
       status = bExtension(lpoE, lmoE, Z, direction, dX, dY, lext);
@@ -1567,8 +1567,7 @@ void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shap
   bool isSecondary = sim_hit.isProducedBySecondary();
   bool isPrimary =
       !isSecondary && sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]) > .1 * GeV;
-  if ((fabs(residual) > .000001 && isPrimary) ||
-      (sqrt(diff2)    > .000001 && isSecondary)) {
+  if ((fabs(residual) > .000001 && isPrimary) || (sqrt(diff2) > .000001 && isSecondary)) {
     debug("Event {}#{}, SimHit 0x{:016x} origin {:d}: d{:x} = {:.5f} diff = {:.5f}",
           event.getRunNumber(), event.getEventNumber(), sim_hit.getCellID(), shape ? 'Z' : 'R',
           isSecondary, residual, sqrt(diff2));
