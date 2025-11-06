@@ -18,7 +18,7 @@
 #include "extensions/jana/JOmniFactory.h"
 
 // Factories;
-#include "EICrecon/factories/pid/RichTrack_factory.h"
+#include "factories/pid/RichTrack_factory.h"
 #include "global/pid/IrtInterface_factory.h"
 
 // DD4HEP geometry services;
