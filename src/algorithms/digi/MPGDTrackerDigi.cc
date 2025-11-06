@@ -213,8 +213,8 @@ std::string inconsistency(const edm4hep::EventHeader& event, unsigned int status
 std::string oddity(const edm4hep::EventHeader& event, unsigned int status, double dist, CellID cID,
                    const double* lpos, const double* lmom, CellID cJD, const double* lpoj,
                    const double* lmoj);
-double outInDistance(int shape, int orientation, double lintos[][3], double louts[][3], double* lmom,
-                     double* lmoj);
+double outInDistance(int shape, int orientation, double lintos[][3], double louts[][3],
+                     double* lmom, double* lmoj);
 void flagUnexpected(const edm4hep::EventHeader& event, int shape, double expected,
                     const edm4hep::SimTrackerHit& sim_hit, double* lpini, double* lpend,
                     double* lpos, double* lmom);
@@ -1017,7 +1017,7 @@ unsigned int bTraversing(const double* lpos, const double* lmom, double ref2Cur,
   double tIn = 0, tOut = 0;
   double xyLow[2] = {-dX, +dX}, xyUp[2] = {-dY, +dY};
   for (int xy = 0; xy < 2; xy++) {
-    int yx      = 1 - xy;
+    int yx       = 1 - xy;
     double a_Low = xyLow[xy], a_Up = xyUp[xy], Pa = Pxy[xy];
     double b_Low = xyLow[yx], b_Up = xyUp[yx], Mb = Mxy[yx], Pb = Pxy[yx];
     for (double A : {a_Low, a_Up}) {
@@ -1335,7 +1335,7 @@ unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom,
   double tF       = 0;
   double xyLow[2] = {-dX, +dX}, xyUp[2] = {-dY, +dY};
   for (int xy = 0; xy < 2; xy++) {
-    int yx      = 1 - xy;
+    int yx       = 1 - xy;
     double a_Low = xyLow[xy], a_Up = xyUp[xy], Pa = Pxy[xy];
     double b_Low = xyLow[yx], b_Up = xyUp[yx], Mb = Mxy[yx], Pb = Pxy[yx];
     for (double A : {a_Low, a_Up}) {
@@ -1438,8 +1438,8 @@ bool MPGDTrackerDigi::samePMO(const edm4hep::SimTrackerHit& sim_hit,
   return sameParticle && sameModule && sameOrigin;
 }
 
-double outInDistance(int shape, int orientation, double lintos[][3], double louts[][3], double* lmom,
-                     double* lmoj) {
+double outInDistance(int shape, int orientation, double lintos[][3], double louts[][3],
+                     double* lmom, double* lmoj) {
   // Outgoing/incoming distance
   bool ok;
   double lExt[3];
@@ -1448,14 +1448,14 @@ double outInDistance(int shape, int orientation, double lintos[][3], double lout
     lmOI[i] = (lmom[i] + lmoj[i]) / 2;
   double *lOut, *lInto;
   if (orientation > 0) {
-    lOut = louts[1];
-    lInto  = lintos[0];
+    lOut  = louts[1];
+    lInto = lintos[0];
   } else if (orientation < 0) {
-    lOut = louts[0];
-    lInto  = lintos[1];
+    lOut  = louts[0];
+    lInto = lintos[1];
   } else {
-    lOut = louts[0];
-    lInto  = lintos[0];
+    lOut  = louts[0];
+    lInto = lintos[0];
   }
   if (shape == 0) { // "TGeoTubeSeg"
     double rInto = sqrt(lInto[0] * lInto[0] + lInto[1] * lInto[1]);
