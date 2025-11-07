@@ -153,7 +153,7 @@ void MPGDTrackerDigi::init() {
   }
 
   // Ordering of SUBVOLUMES (based on "STRIP" FIELD)
-  m_stripRank = [=, this](CellID vID) {
+  m_stripRank = [&](CellID vID) {
     int rank;
     CellID sID = vID & m_stripBits;
     for (rank = 0; rank < 5; rank++)
@@ -161,7 +161,7 @@ void MPGDTrackerDigi::init() {
         return rank;
     return -1;
   };
-  m_orientation = [=, this](CellID vID, CellID vJD) {
+  m_orientation = [&](CellID vID, CellID vJD) {
     int ranki = m_stripRank(vID), rankj = m_stripRank(vJD);
     if (rankj > ranki)
       return +1;
