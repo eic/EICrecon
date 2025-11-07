@@ -36,14 +36,8 @@ void Truthiness::process(const Truthiness::Input& input,
 
 #if __has_include(<edm4eic/Truthiness.h>)
   // Vectors to store per-association contributions
-  std::vector<float> assoc_truthiness_vec;
-  std::vector<float> assoc_pid_vec;
-  std::vector<float> assoc_energy_vec;
-  std::vector<float> assoc_momentum_vec;
+  std::vector<edm4eic::TruthinessContribution> assoc_truthiness_vec;
   assoc_truthiness_vec.reserve(associations->size());
-  assoc_pid_vec.reserve(associations->size());
-  assoc_energy_vec.reserve(associations->size());
-  assoc_momentum_vec.reserve(associations->size());
 #endif
 
   // Process all associations
@@ -91,10 +85,9 @@ void Truthiness::process(const Truthiness::Input& input,
     total_momentum_contribution += momentum_penalty;
 
 #if __has_include(<edm4eic/Truthiness.h>)
-    assoc_truthiness_vec.push_back(static_cast<float>(assoc_penalty));
-    assoc_pid_vec.push_back(static_cast<float>(pdg_penalty));
-    assoc_energy_vec.push_back(static_cast<float>(energy_penalty));
-    assoc_momentum_vec.push_back(static_cast<float>(momentum_penalty));
+    assoc_truthiness_vec.push_back({.pid      = static_cast<float>(pdg_penalty),
+                                    .energy   = static_cast<float>(energy_penalty),
+                                    .momentum = static_cast<float>(momentum_penalty)});
 #endif
   }
 
@@ -159,36 +152,28 @@ void Truthiness::process(const Truthiness::Input& input,
   auto truthiness_obj            = truthiness_output->create();
 
   // Set scalar values
-  truthiness_obj.setEvent_truthiness(static_cast<float>(truthiness));
-  truthiness_obj.setEvent_pid_contribution(static_cast<float>(total_pid_contribution));
-  truthiness_obj.setEvent_energy_contribution(static_cast<float>(total_energy_contribution));
-  truthiness_obj.setEvent_momentum_contribution(static_cast<float>(total_momentum_contribution));
-  truthiness_obj.setUnassociated_mc_particles_contribution(static_cast<float>(mc_penalty));
-  truthiness_obj.setUnassociated_rc_particles_contribution(static_cast<float>(rc_penalty));
+  truthiness_obj.setTruthiness(static_cast<float>(truthiness));
+  truthiness_obj.setAssociationContribution(
+      {.pid      = static_cast<float>(total_pid_contribution),
+       .energy   = static_cast<float>(total_energy_contribution),
+       .momentum = static_cast<float>(total_momentum_contribution)});
+  truthiness_obj.setUnassociatedMCParticlesContribution(static_cast<float>(mc_penalty));
+  truthiness_obj.setUnassociatedRecoParticlesContribution(static_cast<float>(rc_penalty));
 
   // Add associations and their contributions
   for (const auto& assoc : *associations) {
     truthiness_obj.addToAssociations(assoc);
   }
   for (const auto& val : assoc_truthiness_vec) {
-    truthiness_obj.addToAssociation_truthiness(val);
-  }
-  for (const auto& val : assoc_pid_vec) {
-    truthiness_obj.addToAssociation_pid_contribution(val);
-  }
-  for (const auto& val : assoc_energy_vec) {
-    truthiness_obj.addToAssociation_energy_contribution(val);
-  }
-  for (const auto& val : assoc_momentum_vec) {
-    truthiness_obj.addToAssociation_momentum_contribution(val);
+    truthiness_obj.addToAssociationContributions(val);
   }
 
   // Add unassociated particles
   for (const auto& mc_part : unassociated_mc_vec) {
-    truthiness_obj.addToUnassociated_mc_particles(mc_part);
+    truthiness_obj.addToUnassociatedMCParticles(mc_part);
   }
   for (const auto& rc_part : unassociated_rc_vec) {
-    truthiness_obj.addToUnassociated_rc_particles(rc_part);
+    truthiness_obj.addToUnassociatedRecoParticles(rc_part);
   }
 #endif
 }
