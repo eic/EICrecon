@@ -1415,7 +1415,6 @@ bool MPGDTrackerDigi::samePMO(const edm4hep::SimTrackerHit& sim_hit,
   // 0: Same Particle, same Module, same Origin
   // 0x1: Not same
   // Particle
-  using MCParticle = edm4hep::MCParticle;
 #if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
   bool sameParticle = sim_hjt.getParticle() == sim_hit.getParticle();
 #else
