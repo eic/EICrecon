@@ -5,6 +5,7 @@
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/Segmentations.h>
+#include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
@@ -14,6 +15,7 @@
 #ifdef MC_PARTICLE_ASSOCIATION
 #include <edm4hep/MCParticle.h>
 #endif
+#include <functional>
 #include <string>
 #include <string_view>
 
