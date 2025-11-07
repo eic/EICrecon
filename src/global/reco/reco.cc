@@ -50,7 +50,9 @@
 #include "factories/reco/Truthiness_factory.h"
 #endif
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
+#if !__has_include(<edm4eic/Truthiness.h>)
 #include "global/reco/Truthiness_processor.h"
+#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
