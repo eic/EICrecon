@@ -73,9 +73,18 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
                     0.,                  // double mass
                     edm4hep::Vector3d(), // edm4hep::Vector3d vertex
                     edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 1)
                     edm4hep::Vector3f(), // edm4hep::Vector3f momentum
                     edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-                    edm4hep::Vector3f()  // edm4hep::Vector3f spin
+#else
+                    edm4hep::Vector3d(), // edm4hep::Vector3d momentum
+                    edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
+#endif
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
+                    edm4hep::Vector3f() // edm4hep::Vector3f spin
+#else
+                    int32_t() // edm4hep::Vector3f helicity
+#endif
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
                     ,
                     edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
