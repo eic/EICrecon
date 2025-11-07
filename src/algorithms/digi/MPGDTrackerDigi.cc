@@ -90,6 +90,7 @@
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
+#include <DD4hep/Shapes.h>
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
@@ -98,31 +99,32 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Parsers/Primitives.h>
+#include <TGeoMatrix.h>
+#include <TMath.h>
 // Access "algorithms:GeoSvc"
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
+#include <edm4eic/unit_system.h>
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <edm4eic/unit_system.h>
 #include <fmt/core.h>
+#include <stdio.h>
+#include <string.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <gsl/pointers>
 #include <initializer_list>
 #include <iterator>
+#include <map>
 #include <random>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "algorithms/digi/MPGDTrackerDigiConfig.h"
-
-#include "DDRec/SurfaceManager.h"
-#include "DDRec/SurfaceHelper.h"
-#include "DDRec/Surface.h"
 
 using namespace dd4hep;
 
