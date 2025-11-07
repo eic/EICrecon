@@ -83,7 +83,7 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
                     edm4hep::Vector3f() // edm4hep::Vector3f spin
 #else
-                    int32_t() // edm4hep::Vector3f helicity
+                    int32_t() // int32_t helicity
 #endif
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
                     ,
