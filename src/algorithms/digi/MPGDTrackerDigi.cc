@@ -282,9 +282,9 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     //  "CyMBaL") disregard the _global_ position argument to
     //  "dd4hep::Segmentation::cellID", we need the _local_ position and
     //  only that.
-    CellID vID                  = sim_hit.getCellID() & m_volumeBits;
-    CellID refID                = vID & m_moduleBits; // => the middle slice
-    DetElement refVol           = volman.lookupDetElement(refID);
+    CellID vID        = sim_hit.getCellID() & m_volumeBits;
+    CellID refID      = vID & m_moduleBits; // => the middle slice
+    DetElement refVol = volman.lookupDetElement(refID);
     // TGeoHMatrix: In order to avoid a "dangling-reference" warning,
     // let's take a copy of the matrix instead of a reference to it.
     const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
@@ -1377,8 +1377,8 @@ double getRef2Cur(DetElement refVol, DetElement curVol) {
   // let's take a copy of the matrix instead of a reference to it.
   const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
   const TGeoHMatrix toCurVol = curVol.nominal().worldTransformation();
-  const double* TRef          = toRefVol.GetTranslation();
-  const double* TCur          = toCurVol.GetTranslation();
+  const double* TRef         = toRefVol.GetTranslation();
+  const double* TCur         = toCurVol.GetTranslation();
   // For some reason, it has to be "Ref-Cur", while I (Y.B) would have expected the opposite...
   double gdT[3];
   for (int i = 0; i < 3; i++)
