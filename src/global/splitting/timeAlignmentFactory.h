@@ -23,27 +23,31 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
   JEventLevel m_factory_level;
 
   std::vector<std::string> m_trackerhit_collection_names = {
-      "TOFBarrelRecHits_TK", "TOFEndcapRecHits_TK",
-      "MPGDBarrelRecHits_TK", "OuterMPGDBarrelRecHits_TK",
-      "BackwardMPGDEndcapRecHits_TK", "ForwardMPGDEndcapRecHits_TK",
-      "SiBarrelVertexRecHits_TK", "SiBarrelTrackerRecHits_TK",
-      "SiEndcapTrackerRecHits_TK", "TaggerTrackerRecHits_TK",
-      "B0TrackerRecHits_TK", "DIRCBarRecHits_TK",
-      "DRICHRecHits_TK", "ForwardOffMTrackerRecHits_TK",
-      "ForwardRomanPotRecHits_TK", "LumiSpecTrackerRecHits_TK",
-      "RICHEndcapNRecHits_TK"};
+      "TOFBarrelRecHits_TK",       "TOFEndcapRecHits_TK",          "MPGDBarrelRecHits_TK",
+      "OuterMPGDBarrelRecHits_TK", "BackwardMPGDEndcapRecHits_TK", "ForwardMPGDEndcapRecHits_TK",
+      "SiBarrelVertexRecHits_TK",  "SiBarrelTrackerRecHits_TK",    "SiEndcapTrackerRecHits_TK",
+      "TaggerTrackerRecHits_TK",   "B0TrackerRecHits_TK",          "DIRCBarRecHits_TK",
+      "DRICHRecHits_TK",           "ForwardOffMTrackerRecHits_TK", "ForwardRomanPotRecHits_TK",
+      "LumiSpecTrackerRecHits_TK", "RICHEndcapNRecHits_TK"};
 
   std::vector<std::string> m_trackerhit_collection_names_aligned = {
-      "TOFBarrelRecHits_TK_aligned", "TOFEndcapRecHits_TK_aligned",
-      "MPGDBarrelRecHits_TK_aligned", "OuterMPGDBarrelRecHits_TK_aligned",
-      "BackwardMPGDEndcapRecHits_TK_aligned", "ForwardMPGDEndcapRecHits_TK_aligned",
-      "SiBarrelVertexRecHits_TK_aligned", "SiBarrelTrackerRecHits_TK_aligned",
-      "SiEndcapTrackerRecHits_TK_aligned", "TaggerTrackerRecHits_TK_aligned",
-      "B0TrackerRecHits_TK_aligned", "DIRCBarRecHits_TK_aligned",
-      "DRICHRecHits_TK_aligned", "ForwardOffMTrackerRecHits_TK_aligned",
-      "ForwardRomanPotRecHits_TK_aligned", "LumiSpecTrackerRecHits_TK_aligned",
+      "TOFBarrelRecHits_TK_aligned",
+      "TOFEndcapRecHits_TK_aligned",
+      "MPGDBarrelRecHits_TK_aligned",
+      "OuterMPGDBarrelRecHits_TK_aligned",
+      "BackwardMPGDEndcapRecHits_TK_aligned",
+      "ForwardMPGDEndcapRecHits_TK_aligned",
+      "SiBarrelVertexRecHits_TK_aligned",
+      "SiBarrelTrackerRecHits_TK_aligned",
+      "SiEndcapTrackerRecHits_TK_aligned",
+      "TaggerTrackerRecHits_TK_aligned",
+      "B0TrackerRecHits_TK_aligned",
+      "DIRCBarRecHits_TK_aligned",
+      "DRICHRecHits_TK_aligned",
+      "ForwardOffMTrackerRecHits_TK_aligned",
+      "ForwardRomanPotRecHits_TK_aligned",
+      "LumiSpecTrackerRecHits_TK_aligned",
       "RICHEndcapNRecHits_TK_aligned"};
-
 
   // VariadicPodioInput<edm4hep::SimTrackerHit> m_trackerhits_in{
   //     this, {.names = m_trackerhit_collection_names, .is_optional = true}};
@@ -71,10 +75,10 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
           // edm4hep::MutableSimTrackerHit copiedHit = hit.clone(); // for edm4hep (G4Hit level)
           edm4eic::MutableTrackerHit copiedHit = hit.clone(); // for edm4eic (After digitization)
 
-          Double_t hitR = std::sqrt(hit.getPosition()[0] * hit.getPosition()[0] +
-                                    hit.getPosition()[1] * hit.getPosition()[1] +
-                                    hit.getPosition()[2] * hit.getPosition()[2]);
-          Double_t calibTime = (hitR - 91.7)/279;
+          Double_t hitR      = std::sqrt(hit.getPosition()[0] * hit.getPosition()[0] +
+                                         hit.getPosition()[1] * hit.getPosition()[1] +
+                                         hit.getPosition()[2] * hit.getPosition()[2]);
+          Double_t calibTime = (hitR - 91.7) / 279;
           copiedHit.setTime(hit.getTime() - calibTime);
           sorted_hits.push_back(copiedHit);
 
