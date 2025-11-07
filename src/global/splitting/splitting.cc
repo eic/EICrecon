@@ -44,23 +44,26 @@ void InitPlugin(JApplication* app) {
   //     "VertexBarrelHits_aligned"};
 
   std::vector<std::vector<std::string>> m_simtrackerhit_collection_names_aligned = {
-      {"B0TrackerRecHits_TK_aligned", "BackwardMPGDEndcapRecHits_TK_aligned",
-       "DIRCBarRecHits_TK_aligned", "DRICHRecHits_TK_aligned",
-       "ForwardMPGDEndcapRecHits_TK_aligned", "ForwardOffMTrackerRecHits_TK_aligned",
-       "ForwardRomanPotRecHits_TK_aligned", "LumiSpecTrackerRecHits_TK_aligned",
-       "MPGDBarrelRecHits_TK_aligned", "OuterMPGDBarrelRecHits_TK_aligned",
-       "RICHEndcapNRecHits_TK_aligned", "SiBarrelTrackerRecHits_TK_aligned",
-       "TOFBarrelRecHits_TK_aligned", "TOFEndcapRecHits_TK_aligned",
-       "TaggerTrackerRecHits_TK_aligned", "SiEndcapTrackerRecHits_TK_aligned",
-       "SiBarrelVertexRecHits_TK_aligned"}};
+      {"TOFBarrelRecHits_TK_aligned", "TOFEndcapRecHits_TK_aligned",
+      "MPGDBarrelRecHits_TK_aligned", "OuterMPGDBarrelRecHits_TK_aligned",
+      "BackwardMPGDEndcapRecHits_TK_aligned", "ForwardMPGDEndcapRecHits_TK_aligned",
+      "SiBarrelVertexRecHits_TK_aligned", "SiBarrelTrackerRecHits_TK_aligned",
+      "SiEndcapTrackerRecHits_TK_aligned", "TaggerTrackerRecHits_TK_aligned",
+      "B0TrackerRecHits_TK_aligned", "DIRCBarRecHits_TK_aligned",
+      "DRICHRecHits_TK_aligned", "ForwardOffMTrackerRecHits_TK_aligned",
+      "ForwardRomanPotRecHits_TK_aligned", "LumiSpecTrackerRecHits_TK_aligned",
+      "RICHEndcapNRecHits_TK_aligned"}};
 
   std::vector<std::vector<std::string>> m_simtrackerhit_collection_names = {
-      {"B0TrackerRecHits_TK", "BackwardMPGDEndcapRecHits_TK", "DIRCBarRecHits_TK",
-       "DRICHRecHits_TK", "ForwardMPGDEndcapRecHits_TK", "ForwardOffMTrackerRecHits_TK",
-       "ForwardRomanPotRecHits_TK", "LumiSpecTrackerRecHits_TK", "MPGDBarrelRecHits_TK",
-       "OuterMPGDBarrelRecHits_TK", "RICHEndcapNRecHits_TK", "SiBarrelTrackerRecHits_TK",
-       "TOFBarrelRecHits_TK", "TOFEndcapRecHits_TK", "TaggerTrackerRecHits_TK",
-       "SiEndcapTrackerRecHits_TK", "SiBarrelVertexRecHits_TK"}};
+      {"TOFBarrelRecHits_TK", "TOFEndcapRecHits_TK",
+      "MPGDBarrelRecHits_TK", "OuterMPGDBarrelRecHits_TK",
+      "BackwardMPGDEndcapRecHits_TK", "ForwardMPGDEndcapRecHits_TK",
+      "SiBarrelVertexRecHits_TK", "SiBarrelTrackerRecHits_TK",
+      "SiEndcapTrackerRecHits_TK", "TaggerTrackerRecHits_TK",
+      "B0TrackerRecHits_TK", "DIRCBarRecHits_TK",
+      "DRICHRecHits_TK", "ForwardOffMTrackerRecHits_TK",
+      "ForwardRomanPotRecHits_TK", "LumiSpecTrackerRecHits_TK",
+      "RICHEndcapNRecHits_TK"}};
 
   InitJANAPlugin(app);
 
@@ -73,6 +76,19 @@ void InitPlugin(JApplication* app) {
 
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());
+
+  // app->Add(new JOmniFactoryGeneratorT<HitChecker>(
+  //     jana::components::JOmniFactoryGeneratorT<HitChecker>::TypedWiring{
+  //         .tag                   = "hitChecker",
+  //         .level                 = JEventLevel::Timeslice,
+  //         .variadic_input_names  = m_simtrackerhit_collection_names,
+  //         .variadic_output_names = m_simtrackerhit_collection_names_aligned}));
+  // app->Add(new JOmniFactoryGeneratorT<HitChecker>(jana::components::JOmniFactoryGeneratorT<HitChecker>::TypedWiring
+  // {.tag          = "timeslice_hit_checker",
+  //  .level        = JEventLevel::PhysicsEvent,
+  //  .input_names  = {"TOFBarrelRecHits"},
+  //  .output_names = {"hitChecker_TS"}}));
+
 
   InitPlugin_digiBTOF(app);
   InitPlugin_digiMPGD(app);
