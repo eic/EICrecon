@@ -220,6 +220,24 @@ struct TimeframeSplitter : public JEventUnfolder {
         const auto& baseHit = m_simtrackerhits_in().at(baseDetID)->at(baseHitID);
         auto baseHitTime = baseHit.getTime();
         m_vSameTSHitId.at(iBaseDet).push_back(baseHitID);
+        Double_t baseHitX = baseHit.getPosition()[0];
+        Double_t baseHitY = baseHit.getPosition()[1];
+        Double_t baseHitZ = baseHit.getPosition()[2];
+        Double_t baseHitR = TMath::Sqrt(baseHitX*baseHitX + baseHitY*baseHitY + baseHitZ*baseHitZ);
+        Double_t baseHit_Theta = 0.;
+        baseHit_Theta = TMath::ACos(baseHitZ/baseHitR);
+        if(baseHit_Theta >  1.0) baseHit_Theta = 1.0;
+        if(baseHit_Theta < -1.0) baseHit_Theta = -1.0;
+
+        Double_t hit_Phi = TMath::ATan2(baseHitY, baseHitX) + 2*TMath::Pi();
+        if(hit_Phi < 0) hit_Phi += 2*TMath::Pi();   // φ を 0〜2π にする
+        Int_t thetaID1 = baseHit_Theta / (TMath::Pi()/12.);
+        Int_t thetaID2 = (baseHit_Theta + TMath::Pi()/24.) / (TMath::Pi()/12.);
+        Int_t phiID1 = hit_Phi / (TMath::Pi()/8.);
+        Int_t phiID2 = (hit_Phi + TMath::Pi()/16.) / (TMath::Pi()/8.);
+        hitsCountsInTSDevInThetaPhi1[thetaID1][phiID1]++;
+        hitsCountsInTSDevInThetaPhi2[thetaID2][phiID2]++;
+
 
         // Own detectors loop
         Int_t iCompDet = iBaseDet;
