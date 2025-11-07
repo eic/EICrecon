@@ -181,9 +181,9 @@ void MPGDTrackerDigi::init() {
   m_isDownstream = [](int orientation, unsigned int status) {
     // Incoming particle enters...
     bool isDownstream =
-        (orientation > 0 && (status & 0x1)) ||          // ...lower wall
-        (orientation < 0 && (status & 0x4)) ||          // ...upper wall
-        (orientation == 0 && (status & 0101) == 0x101); // ...lower wall and can be reEntering
+        (orientation > 0 && (status & 0x1)) ||           // ...lower wall
+        (orientation < 0 && (status & 0x4)) ||           // ...upper wall
+        (orientation == 0 && (status & 0x101) == 0x101); // ...lower wall and can be reEntering
     return isDownstream;
   };
 }
@@ -285,7 +285,9 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     CellID vID                  = sim_hit.getCellID() & m_volumeBits;
     CellID refID                = vID & m_moduleBits; // => the middle slice
     DetElement refVol           = volman.lookupDetElement(refID);
-    const TGeoHMatrix& toRefVol = refVol.nominal().worldTransformation();
+    // TGeoHMatrix: In order to avoid a "dangling-reference" warning,
+    // let's take a copy of the matrix instead of a reference to it.
+    const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
     double lpos[3], lmom[3];
     getLocalPosMom(sim_hit, toRefVol, lpos, lmom);
     const double edmm = edm4eic::unit::mm, ed2dd = dd4hep::mm / edmm;
@@ -1371,8 +1373,10 @@ unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom,
 }
 
 double getRef2Cur(DetElement refVol, DetElement curVol) {
-  const TGeoHMatrix& toRefVol = refVol.nominal().worldTransformation();
-  const TGeoHMatrix& toCurVol = curVol.nominal().worldTransformation();
+  // TGeoHMatrix: In order to avoid a "dangling-reference" warning,
+  // let's take a copy of the matrix instead of a reference to it.
+  const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
+  const TGeoHMatrix toCurVol = curVol.nominal().worldTransformation();
   const double* TRef          = toRefVol.GetTranslation();
   const double* TCur          = toCurVol.GetTranslation();
   // For some reason, it has to be "Ref-Cur", while I (Y.B) would have expected the opposite...
