@@ -172,9 +172,8 @@ void MPGDTrackerDigi::init() {
     }
     if (rankj < ranki) {
       return -1;
-    } else {
-      return 0;
-    }
+    }       return 0;
+   
   };
   m_isUpstream = [](int orientation, unsigned int status) {
     // Outgoing particle exits...
