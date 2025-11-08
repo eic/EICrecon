@@ -110,8 +110,8 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
-#include <stdio.h>
-#include <string.h>
+#include <cstdio>
+#include <cstring>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -156,21 +156,26 @@ void MPGDTrackerDigi::init() {
 
   // Ordering of SUBVOLUMES (based on "STRIP" FIELD)
   m_stripRank = [&](CellID vID) {
-    int rank;
     CellID sID = vID & m_stripBits;
-    for (rank = 0; rank < 5; rank++)
-      if (sID == m_stripIDs[rank])
+    for (int rank = 0; rank < 5; rank++) {
+      if (sID == m_stripIDs[rank]) {
         return rank;
+      }
+    }
     return -1;
   };
   m_orientation = [&](CellID vID, CellID vJD) {
-    int ranki = m_stripRank(vID), rankj = m_stripRank(vJD);
-    if (rankj > ranki)
+    int ranki = m_stripRank(vID);
+    int rankj = m_stripRank(vJD);
+    if (rankj > ranki) {
       return +1;
-    else if (rankj < ranki)
+    }
+    else if (rankj < ranki) {
       return -1;
-    else
+    }
+    else {
       return 0;
+    }
   };
   m_isUpstream = [](int orientation, unsigned int status) {
     // Outgoing particle exits...
