@@ -169,7 +169,7 @@ void MPGDTrackerDigi::init() {
     int rankj = m_stripRank(vJD);
     if (rankj > ranki) {
       return +1;
-    } else if (rankj < ranki) {
+    } if (rankj < ranki) {
       return -1;
     } else {
       return 0;
