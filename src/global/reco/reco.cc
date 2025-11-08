@@ -10,6 +10,9 @@
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
+#if __has_include(<edm4eic/Truthiness.h>)
+#include <edm4eic/Truthiness.h>
+#endif
 #include <edm4hep/MCParticle.h>
 #include <fmt/core.h>
 #include <map>
@@ -42,7 +45,13 @@
 #include "factories/reco/ScatteredElectronsTruth_factory.h"
 #include "factories/reco/TrackClusterMatch_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
+#if __has_include(<edm4eic/Truthiness.h>)
+#include "factories/reco/Truthiness_factory.h"
+#endif
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
+#if !__has_include(<edm4eic/Truthiness.h>)
+#include "global/reco/Truthiness_processor.h"
+#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -267,5 +276,14 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<PrimaryVertices_factory>(
       "PrimaryVertices", {"CentralTrackVertices"}, {"PrimaryVertices"}, {}, app));
+
+#if __has_include(<edm4eic/Truthiness.h>)
+  app->Add(new JOmniFactoryGeneratorT<Truthiness_factory>(
+      "Truthiness", {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"},
+      {"Truthiness"}, {}, app));
+#else
+  // Include as processor if Truthiness output is not available
+  app->Add(new Truthiness_processor());
+#endif
 }
 } // extern "C"
