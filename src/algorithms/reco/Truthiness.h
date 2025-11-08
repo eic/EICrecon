@@ -7,6 +7,8 @@
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <atomic>
+#include <mutex>
 #include <stdint.h>
 #include <string>
 #include <string_view>
@@ -35,7 +37,8 @@ class Truthiness : public TruthinessAlgorithm, public WithPodConfig<TruthinessCo
 
 private:
   mutable double m_average_truthiness{0.0};
-  mutable uint64_t m_event_count{0};
+  mutable std::atomic<uint64_t> m_event_count{0};
+  mutable std::mutex m_stats_mutex;
 
 public:
   Truthiness(std::string_view name)
@@ -55,8 +58,11 @@ public:
   void process(const Input&, const Output&) const final;
 
   // Accessors for statistics
-  double getAverageTruthiness() const { return m_average_truthiness; }
-  uint64_t getEventCount() const { return m_event_count; }
+  double getAverageTruthiness() const {
+    std::lock_guard<std::mutex> lock(m_stats_mutex);
+    return m_average_truthiness;
+  }
+  uint64_t getEventCount() const { return m_event_count.load(); }
 };
 
 } // namespace eicrecon
