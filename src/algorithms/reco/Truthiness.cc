@@ -91,13 +91,13 @@ void Truthiness::process(const Truthiness::Input& input,
 #endif
   }
 
-  // Penalty for unassociated charged MC particles with generator status 2
+  // Penalty for unassociated charged MC particles with generator status 1 (final state)
   int unassociated_mc_count = 0;
 #if __has_include(<edm4eic/Truthiness.h>)
   std::vector<edm4hep::MCParticle> unassociated_mc_vec;
 #endif
   for (const auto& mc_part : *mc_particles) {
-    if (mc_part.getGeneratorStatus() == 2 && mc_part.getCharge() != 0.0) {
+    if (mc_part.getGeneratorStatus() == 1 && mc_part.getCharge() != 0.0) {
       if (associated_mc_particles.find(mc_part) == associated_mc_particles.end()) {
         unassociated_mc_count++;
 #if __has_include(<edm4eic/Truthiness.h>)
@@ -109,7 +109,7 @@ void Truthiness::process(const Truthiness::Input& input,
     }
   }
   const double mc_penalty = static_cast<double>(unassociated_mc_count);
-  trace("Unassociated charged MC particles (status 2): {} (penalty: {:.0f})", unassociated_mc_count,
+  trace("Unassociated charged MC particles (status 1): {} (penalty: {:.0f})", unassociated_mc_count,
         mc_penalty);
   truthiness += mc_penalty;
 
