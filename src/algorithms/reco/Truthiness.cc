@@ -136,8 +136,11 @@ void Truthiness::process(const Truthiness::Input& input,
 
   // Update statistics using online updating formula
   // avg_n = avg_(n-1) + (x_n - avg_(n-1)) / n
-  m_event_count++;
-  m_average_truthiness += (truthiness - m_average_truthiness) / m_event_count;
+  {
+    std::lock_guard<std::mutex> lock(m_stats_mutex);
+    m_event_count++;
+    m_average_truthiness += (truthiness - m_average_truthiness) / m_event_count;
+  }
 
   // Report final truthiness
   debug("Event truthiness: {:.6f} (from {} associations, {} unassociated MC, {} unassociated RC)",
