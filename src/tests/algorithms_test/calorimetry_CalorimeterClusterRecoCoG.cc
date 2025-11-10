@@ -89,9 +89,18 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
                                       0.,                  // double mass
                                       edm4hep::Vector3d(), // edm4hep::Vector3d vertex
                                       edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 1)
                                       edm4hep::Vector3f(), // edm4hep::Vector3f momentum
                                       edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-                                      edm4hep::Vector3f()  // edm4hep::Vector3f spin
+#else
+                                      edm4hep::Vector3d(), // edm4hep::Vector3d momentum
+                                      edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
+#endif
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
+                                      edm4hep::Vector3f() // edm4hep::Vector3f spin
+#else
+                                      9 // int32_t helicity (9 if unset)
+#endif
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
                                       ,
                                       edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
@@ -107,9 +116,18 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       0.,                                                   // double mass
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d vertex
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentum
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentumAtEndpoint
-      edm4hep::Vector3f()                                   // edm4hep::Vector3f spin
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 1)
+      edm4hep::Vector3f(), // edm4hep::Vector3f momentum
+      edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
+#else
+      edm4hep::Vector3d(), // edm4hep::Vector3d momentum
+      edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
+#endif
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
+      edm4hep::Vector3f() // edm4hep::Vector3f spin
+#else
+      9 // int32_t helicity (9 if unset)
+#endif
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
       ,
       edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
@@ -168,9 +186,18 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
       0.,                                                   // double mass
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d vertex
       edm4hep::Vector3d(),                                  // edm4hep::Vector3d endpoint
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentum
-      edm4hep::Vector3f(),                                  // edm4hep::Vector3f momentumAtEndpoint
-      edm4hep::Vector3f()                                   // edm4hep::Vector3f spin
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 1)
+      edm4hep::Vector3f(), // edm4hep::Vector3f momentum
+      edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
+#else
+      edm4hep::Vector3d(), // edm4hep::Vector3d momentum
+      edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
+#endif
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
+      edm4hep::Vector3f() // edm4hep::Vector3f spin
+#else
+      9 // int32_t helicity (9 if unset)
+#endif
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
       ,
       edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
