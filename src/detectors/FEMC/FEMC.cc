@@ -157,12 +157,10 @@ void InitPlugin(JApplication* app) {
             "EcalEndcapPTrackSplitMergeProtoClusterMatches"
       },
 #endif
-      {.idCalo                       = "EcalEndcapP_ID",
-       .minSigCut                    = -2.0,
+      {.minSigCut                    = -2.0,
        .avgEP                        = 1.0,
        .sigEP                        = 0.10,
        .drAdd                        = 0.30,
-       .sampFrac                     = 1.0,
        .surfaceToUse                 = 1,
        .transverseEnergyProfileScale = 1.0},
       app // TODO: remove me once fixed

@@ -162,12 +162,10 @@ void InitPlugin(JApplication* app) {
             "HcalEndcapNTrackSplitMergeProtoClusterMatches"
       },
 #endif
-      {.idCalo                       = "HcalEndcapN_ID",
-       .minSigCut                    = -2.0,
+      {.minSigCut                    = -2.0,
        .avgEP                        = 0.60,
        .sigEP                        = 0.40,
        .drAdd                        = 0.40,
-       .sampFrac                     = 1.0,
        .surfaceToUse                 = 1,
        .transverseEnergyProfileScale = 1.0},
       app // TODO: remove me once fixed

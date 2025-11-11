@@ -3,13 +3,9 @@
 
 #pragma once
 
-// c++ utilities
-#include <string>
-// dd4hep utilities
-#include <DD4hep/Detector.h>
-// edm utilities
 #include <edm4eic/EDM4eicVersion.h>
-// eicrecon components
+#include <string>
+
 #include "extensions/jana/JOmniFactory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
@@ -21,10 +17,11 @@ class TrackClusterMergeSplitter_factory
     : public JOmniFactory<TrackClusterMergeSplitter_factory, TrackClusterMergeSplitterConfig> {
 
 public:
+  ///! alias for algorithm name
   using AlgoT = eicrecon::TrackClusterMergeSplitter;
 
 private:
-  // algorithm to run
+  // pointer to algorithm
   std::unique_ptr<AlgoT> m_algo;
 
   // input collections
@@ -39,31 +36,27 @@ private:
 #endif
 
   // parameter bindings
-  ParameterRef<std::string> m_idCalo{this, "idCalo", config().idCalo};
   ParameterRef<double> m_minSigCut{this, "minSigCut", config().minSigCut};
   ParameterRef<double> m_avgEP{this, "avgEP", config().avgEP};
   ParameterRef<double> m_sigEP{this, "sigEP", config().sigEP};
   ParameterRef<double> m_drAdd{this, "drAdd", config().drAdd};
-  ParameterRef<double> m_sampFrac{this, "sampFrac", config().sampFrac};
   ParameterRef<uint64_t> m_surfaceToUse{this, "surfaceToUse", config().surfaceToUse};
   ParameterRef<double> m_transverseEnergyProfileScale{this, "transverseEnergyProfileScale",
                                                       config().transverseEnergyProfileScale};
 
   // services
-  Service<DD4hep_service> m_geoSvc{this};
   Service<AlgorithmsInit_service> m_algoInitSvc{this};
 
 public:
+  ///! Configures algorithm
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->applyConfig(config());
-    m_algo->init(m_geoSvc().detector());
+    m_algo->init();
   }
 
-  void ChangeRun(int64_t run_number) { /* nothing to do here */
-  }
-
-  void Process(int64_t run_number, uint64_t event_number) {
+  ///! Primary algorithm call
+  void Process(int64_t /*run_number*/, uint64_t /*event_number*/) {
     m_algo->process({m_track_cluster_matches_input(), m_clusters_input(), m_track_projections_input()},
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
                     {m_protoclusters_output().get(), m_track_protocluster_match_output().get()}

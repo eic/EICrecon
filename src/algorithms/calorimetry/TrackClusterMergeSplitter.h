@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4eic/ClusterCollection.h>
@@ -61,7 +60,6 @@ public:
    *  ID first, and second by decreasing index second.
    */
   template <typename T> struct CompareObjectID {
-
     bool operator()(const T& lhs, const T& rhs) const {
       if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
         return (lhs.getObjectID().index < rhs.getObjectID().index);
@@ -69,26 +67,37 @@ public:
         return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
       }
     }
-
   }; // end CompareObjectID
 
-  // specialization for clusters, hits
+  ///! Specialization of comparator for clusters
   using CompareClust = CompareObjectID<edm4eic::Cluster>;
-  using CompareHit   = CompareObjectID<edm4eic::CalorimeterHit>;
 
-  // --------------------------------------------------------------------------
-  //! Convenience types
-  // --------------------------------------------------------------------------
-  // FIXME clean up this list when ready
-  using VecTrk        = std::vector<edm4eic::Track>;
-  using VecProj       = std::vector<edm4eic::TrackSegment>;
-  using VecClust      = std::vector<edm4eic::Cluster>;
-  using SetClust      = std::set<edm4eic::Cluster, CompareClust>;
-  using MapToVecTrk   = std::map<edm4eic::Cluster, VecTrk, CompareClust>;
-  using MapToVecProj  = std::map<edm4eic::Cluster, VecProj, CompareClust>;
+  ///! Specialization of comparator for hits
+  using CompareHit = CompareObjectID<edm4eic::CalorimeterHit>;
+
+  ///! Alias for vectors of track segments
+  using VecSeg = std::vector<edm4eic::TrackSegment>;
+
+  ///! Alias for vectors of mutable protoclusters
+  using VecProto = std::vector<edm4eic::MutableProtoCluster>;
+
+  ///! Alias for vectors of clusters
+  using VecClust = std::vector<edm4eic::Cluster>;
+
+  ///! Alias for sets of clusters
+  using SetClust = std::set<edm4eic::Cluster, CompareClust>;
+
+  ///! Alias for a map of clusters to the segments of matched tracks
+  using MapToVecSeg = std::map<edm4eic::Cluster, VecSeg, CompareClust>;
+
+  ///! Alias for a map of clusters onto clusters to merge
   using MapToVecClust = std::map<edm4eic::Cluster, VecClust, CompareClust>;
-  using MapToWeight   = std::map<edm4eic::CalorimeterHit, double, CompareHit>;
-  using VecWeights    = std::vector<MapToWeight>;
+
+  ///! Alias for a map of hits onto their splitting weights
+  using MapToWeight = std::map<edm4eic::CalorimeterHit, double, CompareHit>;
+
+  ///! Alias for a vector of weight maps
+  using VecWeights = std::vector<MapToWeight>;
 
   ///! Algorithm constructor
   TrackClusterMergeSplitter(std::string_view name) : TrackClusterMergeSplitterAlgorithm {
@@ -98,23 +107,17 @@ public:
 #else
         {"OutputProtoClusterCollection"},
 #endif
-        "Merges or splits clusters based on tracks matched to them."
-  }
-  {}
+        "Merges or splits clusters based on tracks matched to them."} {}
 
-  // public methods
-  void init(const dd4hep::Detector* detector);
+  // public method
   void process(const Input&, const Output&) const final;
 
 private:
   // private methods
-  void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split,
-                                std::vector<edm4eic::MutableProtoCluster>& new_protos) const;
+  void merge_and_split_clusters(const VecClust& to_merge, const VecSeg& to_split,
+                                VecProto& new_protos) const;
   void add_cluster_to_proto(const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
                             std::optional<MapToWeight> split_weights = std::nullopt) const;
-
-  ///! System ID for calorimeter being processed
-  unsigned int m_idCalo{0};
 
 }; // end TrackClusterMergeSplitter
 
