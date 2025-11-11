@@ -323,7 +323,7 @@ void InitPlugin(JApplication* app) {
       "LFHCALSplitMergeProtoClusters", {"LFHCALClusters", "CalorimeterTrackProjections"},
       {
         "LFHCALSplitMergeProtoClusters",
-#if EDM4EIC_VERSION_MAJOR >= 8
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
             "LFHCALTrackSplitMergeProtoClusterMatches"
       },
 #endif

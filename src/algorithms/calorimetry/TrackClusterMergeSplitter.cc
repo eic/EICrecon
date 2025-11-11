@@ -59,7 +59,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
   // grab inputs/outputs
   const auto [in_clusters, in_projections] = input;
-#if EDM4EIC_VERSION_MAJOR >= 8
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
   auto [out_protos, out_matches] = output;
 #else
   auto [out_protos] = output;
@@ -192,12 +192,12 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     // merge & split as needed
     merge_and_split_clusters(vecClustToMerge, mapProjToSplit[clustSeed], new_protos);
 
-#if EDM4EIC_VERSION_MAJOR >= 8
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
     // and finally create a track-cluster match for each pair
     for (std::size_t iTrk = 0; const auto& trk : mapTrkToMatch[clustSeed]) {
       auto match = out_matches->create();
-      match.set<edm4eic::ProtoCluster>(new_protos[iTrk]);
-      match.set<edm4eic::Track>(trk);
+      match.setTo(new_protos[iTrk]);
+      match.setFrom(trk);
       match.setWeight(1.0); // FIXME placeholder, should encode goodness of match
       trace("Matched output cluster {} to track {}", new_protos[iTrk].getObjectID().index,
             trk.getObjectID().index);

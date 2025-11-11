@@ -157,7 +157,7 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapNSplitMergeProtoClusters", {"HcalEndcapNClusters", "CalorimeterTrackProjections"},
       {
         "HcalEndcapNSplitMergeProtoClusters",
-#if EDM4EIC_VERSION_MAJOR >= 8
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
             "HcalEndcapNTrackSplitMergeProtoClusterMatches"
       },
 #endif

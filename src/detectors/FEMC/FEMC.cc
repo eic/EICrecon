@@ -152,7 +152,7 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPSplitMergeProtoClusters", {"EcalEndcapPClusters", "CalorimeterTrackProjections"},
       {
         "EcalEndcapPSplitMergeProtoClusters",
-#if EDM4EIC_VERSION_MAJOR >= 8
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
             "EcalEndcapPTrackSplitMergeProtoClusterMatches"
       },
 #endif

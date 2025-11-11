@@ -10,8 +10,8 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
-#if EDM4EIC_VERSION_MAJOR >= 8
-#include <edm4eic/TrackProtoClusterLinkCollection.h>
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+#include <edm4eic/TrackProtoClusterMatchCollection.h>
 #endif
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
@@ -75,8 +75,8 @@ using VecWeights    = std::vector<MapToWeight>;
 using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackSegmentCollection>,
     algorithms::Output<edm4eic::ProtoClusterCollection,
-#if EDM4EIC_VERSION_MAJOR >= 8
-                       edm4eic::TrackProtoClusterLinkCollection
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+                       edm4eic::TrackProtoClusterMatchCollection
 #endif
                        >>;
 
