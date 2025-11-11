@@ -71,9 +71,8 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
       } else {
         mapProjToSplit[match.getCluster()].push_back(project);
       }
-
     }
-  }  // end track-cluster match loop
+  } // end track-cluster match loop
 
   // ------------------------------------------------------------------------
   // 2. Loop over projection-cluster pairs to check if merging is needed
@@ -91,7 +90,8 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
         project_seed = point;
       }
     }
-    if (!project_seed) continue;
+    if (!project_seed)
+      continue;
 
     // skip if cluster is already used
     if (setUsedClust.contains(clust_seed)) {
@@ -104,7 +104,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
     // grab cluster energy and projection momentum
     const float eClustSeed = clust_seed.getEnergy();
-    const float eProjSeed = m_cfg.avgEP * edm4hep::utils::magnitude(project_seed.value().momentum);
+    const float eProjSeed  = m_cfg.avgEP * edm4hep::utils::magnitude(project_seed.value().momentum);
 
     // ----------------------------------------------------------------------
     // 2(a). Calculate significance
@@ -127,7 +127,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
     // loop over other clusters
     float eClustSum = eClustSeed;
-    float sigSum = sigSeed;
+    float sigSum    = sigSeed;
     for (auto cluster : *in_cluster) {
 
       // ignore used clusters
@@ -225,9 +225,9 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
  *  protocluster is created for each track w/ hits weighted by
  *  its distance to the track and the track's momentum.
  */
-void TrackClusterMergeSplitter::merge_and_split_clusters(
-    const VecClust& to_merge, const VecSeg& to_split,
-    VecProto& new_protos) const {
+void TrackClusterMergeSplitter::merge_and_split_clusters(const VecClust& to_merge,
+                                                         const VecSeg& to_split,
+                                                         VecProto& new_protos) const {
 
   // if only 1 matched track, no need to split
   // otherwise split merged cluster for each
@@ -257,7 +257,8 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(
             proj = point;
           }
         }
-        if (!proj) continue;
+        if (!proj)
+          continue;
 
         // get track eta, phi
         const float etaProj = edm4hep::utils::eta(proj.value().position);

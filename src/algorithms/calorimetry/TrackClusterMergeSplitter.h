@@ -100,14 +100,17 @@ public:
   using VecWeights = std::vector<MapToWeight>;
 
   ///! Algorithm constructor
-  TrackClusterMergeSplitter(std::string_view name) : TrackClusterMergeSplitterAlgorithm {
-    name, {"InputTrackClusterMatches", "InputClusterCollection", "InputTrackProjections"},
+  TrackClusterMergeSplitter(std::string_view name)
+      : TrackClusterMergeSplitterAlgorithm{
+            name,
+            {"InputTrackClusterMatches", "InputClusterCollection", "InputTrackProjections"},
 #if EDM4EIC_VERSION_MAJOR >= 8
-        {"OutputProtoClusterCollection", "OutputTrackProtoClusterMatches"},
+            {"OutputProtoClusterCollection", "OutputTrackProtoClusterMatches"},
 #else
-        {"OutputProtoClusterCollection"},
+            {"OutputProtoClusterCollection"},
 #endif
-        "Merges or splits clusters based on tracks matched to them."} {}
+            "Merges or splits clusters based on tracks matched to them."} {
+  }
 
   // public method
   void process(const Input&, const Output&) const final;
