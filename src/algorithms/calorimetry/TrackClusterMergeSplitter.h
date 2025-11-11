@@ -8,7 +8,6 @@
 #include <edm4eic/CalorimeterHit.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
-#include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
 #include <edm4eic/TrackProtoClusterMatchCollection.h>
@@ -16,11 +15,6 @@
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#if EDM4EIC_VERSION_MAJOR >= 7
-#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#else
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#endif
 #include <algorithm>
 #include <map>
 #include <optional>
