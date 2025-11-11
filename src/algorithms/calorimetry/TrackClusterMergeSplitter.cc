@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Derek Anderson
+// Copyright (C) 2025 Derek Anderson, Dmitry Kalinkin
 
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
