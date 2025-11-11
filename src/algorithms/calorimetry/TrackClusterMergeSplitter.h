@@ -29,41 +29,6 @@
 namespace eicrecon {
 
 // --------------------------------------------------------------------------
-//! Comparator struct for object IDs
-// --------------------------------------------------------------------------
-/*! Organizes objects by their ObjectID's in decreasing collection
- *  ID first, and second by decreasing index second.
- */
-template <typename T> struct CompareObjectID {
-
-  bool operator()(const T& lhs, const T& rhs) const {
-    if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
-      return (lhs.getObjectID().index < rhs.getObjectID().index);
-    } else {
-      return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
-    }
-  }
-
-}; // end CompareObjectID
-
-// specialization for clusters, hits
-using CompareClust = CompareObjectID<edm4eic::Cluster>;
-using CompareHit   = CompareObjectID<edm4eic::CalorimeterHit>;
-
-// --------------------------------------------------------------------------
-//! Convenience types
-// --------------------------------------------------------------------------
-using VecTrk        = std::vector<edm4eic::Track>;
-using VecProj       = std::vector<edm4eic::TrackPoint>;
-using VecClust      = std::vector<edm4eic::Cluster>;
-using SetClust      = std::set<edm4eic::Cluster, CompareClust>;
-using MapToVecTrk   = std::map<edm4eic::Cluster, VecTrk, CompareClust>;
-using MapToVecProj  = std::map<edm4eic::Cluster, VecProj, CompareClust>;
-using MapToVecClust = std::map<edm4eic::Cluster, VecClust, CompareClust>;
-using MapToWeight   = std::map<edm4eic::CalorimeterHit, double, CompareHit>;
-using VecWeights    = std::vector<MapToWeight>;
-
-// --------------------------------------------------------------------------
 //! Algorithm input/output
 // --------------------------------------------------------------------------
 using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
@@ -87,7 +52,43 @@ class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm,
                                   public WithPodConfig<TrackClusterMergeSplitterConfig> {
 
 public:
-  // ctor
+  // --------------------------------------------------------------------------
+  //! Comparator struct for object IDs
+  // --------------------------------------------------------------------------
+  /*! Organizes objects by their ObjectID's in decreasing collection
+   *  ID first, and second by decreasing index second.
+   */
+  template <typename T> struct CompareObjectID {
+
+    bool operator()(const T& lhs, const T& rhs) const {
+      if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
+        return (lhs.getObjectID().index < rhs.getObjectID().index);
+      } else {
+        return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
+      }
+    }
+
+  }; // end CompareObjectID
+
+  // specialization for clusters, hits
+  using CompareClust = CompareObjectID<edm4eic::Cluster>;
+  using CompareHit   = CompareObjectID<edm4eic::CalorimeterHit>;
+
+  // --------------------------------------------------------------------------
+  //! Convenience types
+  // --------------------------------------------------------------------------
+  // FIXME clean up this list when ready
+  using VecTrk        = std::vector<edm4eic::Track>;
+  using VecProj       = std::vector<edm4eic::TrackPoint>;
+  using VecClust      = std::vector<edm4eic::Cluster>;
+  using SetClust      = std::set<edm4eic::Cluster, CompareClust>;
+  using MapToVecTrk   = std::map<edm4eic::Cluster, VecTrk, CompareClust>;
+  using MapToVecProj  = std::map<edm4eic::Cluster, VecProj, CompareClust>;
+  using MapToVecClust = std::map<edm4eic::Cluster, VecClust, CompareClust>;
+  using MapToWeight   = std::map<edm4eic::CalorimeterHit, double, CompareHit>;
+  using VecWeights    = std::vector<MapToWeight>;
+
+  ///! Algorithm constructor
   TrackClusterMergeSplitter(std::string_view name) : TrackClusterMergeSplitterAlgorithm {
     name, {"InputClusterCollection", "InputTrackProjections"},
 #if EDM4EIC_VERSION_MAJOR >= 8
@@ -115,7 +116,7 @@ private:
   void add_cluster_to_proto(const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
                             std::optional<MapToWeight> split_weights = std::nullopt) const;
 
-  // calorimeter id
+  ///! System ID for calorimeter being processed
   unsigned int m_idCalo{0};
 
 }; // end TrackClusterMergeSplitter
