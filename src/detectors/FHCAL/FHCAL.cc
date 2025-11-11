@@ -320,7 +320,8 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "LFHCALSplitMergeProtoClusters", {"LFHCALClusters", "CalorimeterTrackProjections"},
+      "LFHCALSplitMergeProtoClusters",
+      {"LFHCALTrackClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
       {
         "LFHCALSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
@@ -333,6 +334,7 @@ void InitPlugin(JApplication* app) {
        .sigEP                        = 0.25,
        .drAdd                        = 0.30,
        .sampFrac                     = 1.0,
+       .surfaceToUse                 = 1,
        .transverseEnergyProfileScale = 1.0},
       app // TODO: remove me once fixed
       ));

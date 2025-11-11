@@ -17,6 +17,9 @@ struct TrackClusterMergeSplitterConfig {
   double drAdd     = 0.4; // window to add clusters
   double sampFrac  = 1.0; // allows for sampling fraction correction
 
+  // index of surface to use for track projections
+  uint64_t surfaceToUse = 1;
+
   // scale for hit-track distance
   double transverseEnergyProfileScale = 1.0;
 

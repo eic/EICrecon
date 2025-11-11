@@ -28,13 +28,14 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   // input collections
+  PodioInput<edm4eic::TrackClusterMatch> m_track_cluster_matches_input{this};
   PodioInput<edm4eic::Cluster> m_clusters_input{this};
   PodioInput<edm4eic::TrackSegment> m_track_projections_input{this};
 
   // output collections
   PodioOutput<edm4eic::ProtoCluster> m_protoclusters_output{this};
-#if EDM4EIC_VERSION_MAJOR >= 8
-  PodioOutput<edm4eic::TrackProtoClusterLink> m_track_protocluster_match_output{this};
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+  PodioOutput<edm4eic::TrackProtoClusterMatch> m_track_protocluster_match_output{this};
 #endif
 
   // parameter bindings
@@ -44,6 +45,7 @@ private:
   ParameterRef<double> m_sigEP{this, "sigEP", config().sigEP};
   ParameterRef<double> m_drAdd{this, "drAdd", config().drAdd};
   ParameterRef<double> m_sampFrac{this, "sampFrac", config().sampFrac};
+  ParameterRef<uint64_t> m_surfaceToUse{this, "surfaceToUse", config().surfaceToUse};
   ParameterRef<double> m_transverseEnergyProfileScale{this, "transverseEnergyProfileScale",
                                                       config().transverseEnergyProfileScale};
 
@@ -62,8 +64,8 @@ public:
   }
 
   void Process(int64_t run_number, uint64_t event_number) {
-    m_algo->process({m_clusters_input(), m_track_projections_input()},
-#if EDM4EIC_VERSION_MAJOR >= 8
+    m_algo->process({m_track_cluster_matches_input(), m_clusters_input(), m_track_projections_input()},
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
                     {m_protoclusters_output().get(), m_track_protocluster_match_output().get()}
 #else
                     {m_protoclusters_output().get()}

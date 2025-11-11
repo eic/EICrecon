@@ -213,7 +213,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "EcalEndcapNSplitMergeProtoClusters",
-      {"EcalEndcapNClustersWithoutPID", "CalorimeterTrackProjections"},
+      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID", "CalorimeterTrackProjections"},
       {
         "EcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
@@ -226,6 +226,7 @@ void InitPlugin(JApplication* app) {
        .sigEP                        = 0.10,
        .drAdd                        = 0.08,
        .sampFrac                     = 1.0,
+       .surfaceToUse                 = 1,
        .transverseEnergyProfileScale = 1.0},
       app // TODO: remove me once fixed
       ));

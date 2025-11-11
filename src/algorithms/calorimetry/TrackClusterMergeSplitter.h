@@ -9,6 +9,7 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/ProtoClusterCollection.h>
+#include <edm4eic/TrackClusterMatchCollection.h>
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
 #include <edm4eic/TrackProtoClusterMatchCollection.h>
 #endif
@@ -32,7 +33,8 @@ namespace eicrecon {
 //! Algorithm input/output
 // --------------------------------------------------------------------------
 using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackSegmentCollection>,
+    algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
+                      edm4eic::TrackSegmentCollection>,
     algorithms::Output<edm4eic::ProtoClusterCollection,
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
                        edm4eic::TrackProtoClusterMatchCollection
@@ -79,7 +81,7 @@ public:
   // --------------------------------------------------------------------------
   // FIXME clean up this list when ready
   using VecTrk        = std::vector<edm4eic::Track>;
-  using VecProj       = std::vector<edm4eic::TrackPoint>;
+  using VecProj       = std::vector<edm4eic::TrackSegment>;
   using VecClust      = std::vector<edm4eic::Cluster>;
   using SetClust      = std::set<edm4eic::Cluster, CompareClust>;
   using MapToVecTrk   = std::map<edm4eic::Cluster, VecTrk, CompareClust>;
@@ -90,13 +92,13 @@ public:
 
   ///! Algorithm constructor
   TrackClusterMergeSplitter(std::string_view name) : TrackClusterMergeSplitterAlgorithm {
-    name, {"InputClusterCollection", "InputTrackProjections"},
+    name, {"InputTrackClusterMatches", "InputClusterCollection", "InputTrackProjections"},
 #if EDM4EIC_VERSION_MAJOR >= 8
         {"OutputProtoClusterCollection", "OutputTrackProtoClusterMatches"},
 #else
         {"OutputProtoClusterCollection"},
 #endif
-        "Merges or splits clusters based on tracks projected to them."
+        "Merges or splits clusters based on tracks matched to them."
   }
   {}
 
@@ -106,11 +108,6 @@ public:
 
 private:
   // private methods
-  void get_projections(const edm4eic::TrackSegmentCollection* projections,
-                       VecProj& relevant_projects, VecTrk& relevant_trks) const;
-  void match_clusters_to_tracks(const edm4eic::ClusterCollection* clusters,
-                                const VecProj& projections, const VecTrk& tracks,
-                                MapToVecProj& matched_projects, MapToVecTrk& matched_tracks) const;
   void merge_and_split_clusters(const VecClust& to_merge, const VecProj& to_split,
                                 std::vector<edm4eic::MutableProtoCluster>& new_protos) const;
   void add_cluster_to_proto(const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
