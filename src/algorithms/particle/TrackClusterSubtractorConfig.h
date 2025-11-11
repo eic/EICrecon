@@ -3,7 +3,6 @@
 
 #pragma once
 
-
 namespace eicrecon {
 
 struct TrackClusterSubtractorConfig {
