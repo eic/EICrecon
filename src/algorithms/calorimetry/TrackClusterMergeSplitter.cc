@@ -31,28 +31,24 @@ void TrackClusterMergeSplitter::init(const dd4hep::Detector* detector) {
 // --------------------------------------------------------------------------
 //! Process inputs
 // --------------------------------------------------------------------------
-/*! Primary algorithm call: algorithm ingests a collection
- *  clusters and a collection of track projections. It then
- *  decides to merge or split clusters according to the
- *  following algorithm:
- *    1. Identify all tracks projections pointing to the
- *       specified calorimeter.
- *    2. Match relevant track projections to clusters
- *       based on distance between projection and the energy-
- *       weighted barycenter of the cluster;
- *    3. For each cluster-track pair:
+/*! Merges and splits clusters based on matched tracks
+ *  according to the following algorithm:
+ *    1. Build map of clusters onto matched track
+         projections.
+ *    2. For each cluster-track pair:
  *       i.  Calculate the significance of the pair's
  *           E/p relative to the provided mean E/p and
  *           its RMS; and
  *       ii. If the significance is less than the
  *           significance specified by `minSigCut`,
  *           merge all clusters within `drAdd`.
- *    4. Create a cluster for each merged cluster
+ *    3. Create a protocluster for each merged cluster
  *       and copy all unused clusters into output.
  *       - If multiple tracks point to the same merged
- *         cluster, create a new cluster for each
- *         projection with hit weighted relative to
- *         the track momentum.
+ *         protocluster, create a new protocluster for
+ *         each projection with hit weighted relative
+ *         to the track momentum.
+ *    4. Convert any unmatched clusters into protoclusters.
  */
 void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& input,
                                         const TrackClusterMergeSplitter::Output& output) const {
@@ -95,7 +91,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   }  // end track-cluster match loop
 
   // ------------------------------------------------------------------------
-  // 3. Loop over projection-cluster pairs to check if merging is needed
+  // 2. Loop over projection-cluster pairs to check if merging is needed
   // ------------------------------------------------------------------------
   SetClust setUsedClust;
   MapToVecClust mapClustToMerge;
@@ -126,14 +122,14 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     const float eProjSeed = m_cfg.avgEP * edm4hep::utils::magnitude(projSeed.value().momentum);
 
     // ----------------------------------------------------------------------
-    // 3.i. Calculate significance
+    // 2.i. Calculate significance
     // ----------------------------------------------------------------------
     const float sigSeed = (eClustSeed - eProjSeed) / m_cfg.sigEP;
     trace("Seed energy = {}, expected energy = {}, significance = {}", eClustSeed, eProjSeed,
           sigSeed);
 
     // ----------------------------------------------------------------------
-    // 3.ii. If significance is above threshold, do nothing.
+    // 2.ii. If significance is above threshold, do nothing.
     //       Otherwise identify clusters to merge.
     // ----------------------------------------------------------------------
     if (sigSeed > m_cfg.minSigCut) {
@@ -189,7 +185,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   }   // end matched cluster-projection loop
 
   // ------------------------------------------------------------------------
-  // 4. Create an output protocluster for each merged cluster
+  // 3. Create an output protocluster for each merged cluster
   //    and for each track pointing to merged cluster
   // ------------------------------------------------------------------------
   for (auto& [clustSeed, vecClustToMerge] : mapClustToMerge) {
@@ -218,7 +214,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   } // end clusters to merge loop
 
   // ------------------------------------------------------------------------
-  // copy unused clusters to output
+  // 4. Convert unused clusters to protoclusters
   // ------------------------------------------------------------------------
   for (auto in_cluster : *in_clusters) {
 
@@ -229,7 +225,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
     // copy cluster and add to output collection
     edm4eic::MutableProtoCluster out_proto = out_protos->create();
-    /* TODO fill in hits here */
+    add_cluster_to_proto(in_cluster, out_proto);
     trace("Copied input cluster {} onto output cluster {}", in_cluster.getObjectID().index,
           out_proto.getObjectID().index);
 
