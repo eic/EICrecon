@@ -3,18 +3,20 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
-#include <edm4eic/EDM4eicVersion.h>
 #include <string>
+#include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
@@ -32,7 +34,7 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
       10 * dd4hep::picosecond;
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalEndcapPRawHits", {"EcalEndcapPHits"},
+      "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
       {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
       {
           .eRes      = {0.11333 * sqrt(dd4hep::GeV), 0.03,
@@ -95,8 +97,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPTruthClustersWithoutShapes",
-      {"EcalEndcapPTruthProtoClusters", // edm4eic::ProtoClusterCollection
-       "EcalEndcapPRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      {
+          "EcalEndcapPTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalEndcapPRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"EcalEndcapPTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapPTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = true},
@@ -111,8 +115,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPClustersWithoutShapes",
-      {"EcalEndcapPIslandProtoClusters", // edm4eic::ProtoClusterCollection
-       "EcalEndcapPRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      {
+          "EcalEndcapPIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalEndcapPRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"EcalEndcapPClustersWithoutShapes",             // edm4eic::Cluster
        "EcalEndcapPClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {

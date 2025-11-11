@@ -5,6 +5,8 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <string>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
@@ -20,7 +22,7 @@ void InitPlugin(JApplication* app) {
 
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "ForwardOffMTrackerRawHits", {"ForwardOffMTrackerHits"},
+      "ForwardOffMTrackerRawHits", {"EventHeader", "ForwardOffMTrackerHits"},
       {"ForwardOffMTrackerRawHits", "ForwardOffMTrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
@@ -44,27 +46,27 @@ void InitPlugin(JApplication* app) {
 
               .aX =
                   {
-                      {1.61591, 12.6786},
-                      {0.184206, -2.907},
+                      {2.08344, 5.37571},
+                      {0.188756, -2.90941},
                   },
 
               .aY =
                   {
-                      {-0.789385, -28.5578},
-                      {-0.0721796, -2.8763},
+                      {-0.977013, -35.7785},
+                      {-0.0812252, -2.86315},
                   },
 
-              .local_x_offset       = -881.631,
-              .local_y_offset       = -0.00552173,
-              .local_x_slope_offset = -59.7386,
-              .local_y_slope_offset = -0.00360656,
+              .local_x_offset       = -1032.2,
+              .local_y_offset       = 0.00462829,
+              .local_x_slope_offset = -59.7363,
+              .local_y_slope_offset = -0.0030213,
 
           }},
 
-          .hit1minZ = 22490.0,
-          .hit1maxZ = 22512.0,
-          .hit2minZ = 24512.0,
-          .hit2maxZ = 24535.0,
+          .hit1minZ = 25490.0,
+          .hit1maxZ = 25512.0,
+          .hit2minZ = 27012.0,
+          .hit2maxZ = 27035.0,
 
           .readout = "ForwardOffMTrackerRecHits",
       },

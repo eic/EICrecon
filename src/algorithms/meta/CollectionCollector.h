@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Simon Gardner
 
+#pragma once
+
 #include <spdlog/spdlog.h>
 #include <algorithms/algorithm.h>
 #include <string>
@@ -26,7 +28,7 @@ public:
                                         "Merge content of collections into one subset collection"} {
   }
 
-  void init() final{};
+  void init() final {};
 
   void process(const typename CollectionCollector::Input& input,
                const typename CollectionCollector::Output& output) const final {

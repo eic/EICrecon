@@ -3,11 +3,12 @@
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
-#include <DD4hep/Objects.h>
 #include <algorithms/geo.h>
-#include <algorithms/interfaces/ParticleSvc.h>
+#include <algorithms/interfaces/UniqueIDGenSvc.h>
+#include <services/particle/ParticleSvc.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
 #include <catch2/generators/catch_generators_random.hpp>
@@ -18,6 +19,7 @@
 #include <services/pid_lut/PIDLookupTableSvc.h>
 #include <cstddef>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
@@ -80,6 +82,9 @@ public:
 
     auto& particleSvc = algorithms::ParticleSvc::instance();
     serviceSvc.add<algorithms::ParticleSvc>(&particleSvc);
+
+    auto& uniqueIDSvc = algorithms::UniqueIDGenSvc::instance();
+    serviceSvc.add<algorithms::UniqueIDGenSvc>(&uniqueIDSvc);
 
     serviceSvc.init();
   }

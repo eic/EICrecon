@@ -1,22 +1,22 @@
-// Copyright 2023, Friederike Bock
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, David Lawrence, Friederike Bock, Nathan Brei, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <string>
+#include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterHitsMerger_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 
 extern "C" {
@@ -36,7 +36,7 @@ void InitPlugin(JApplication* app) {
       10 * dd4hep::picosecond;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalEndcapNRawHits", {"HcalEndcapNHits"},
+      "HcalEndcapNRawHits", {"EventHeader", "HcalEndcapNHits"},
       {"HcalEndcapNRawHits", "HcalEndcapNRawHitAssociations"},
       {
           .eRes{},
@@ -104,8 +104,10 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNTruthClustersWithoutShapes",
-      {"HcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
-       "HcalEndcapNRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      {
+          "HcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapNRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalEndcapNTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
@@ -118,8 +120,10 @@ void InitPlugin(JApplication* app) {
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapNClustersWithoutShapes",
-      {"HcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
-       "HcalEndcapNRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      {
+          "HcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapNRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalEndcapNClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapNClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {

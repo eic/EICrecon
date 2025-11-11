@@ -2,13 +2,11 @@
 // Copyright (C) 2024 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
 #include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <edm4eic/Cov6f.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4hep/EDM4hepVersion.h>
@@ -20,6 +18,7 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
+#include <any>
 #include <array>
 #include <cmath>
 #include <cstddef>
@@ -27,25 +26,11 @@
 #include <map>
 #include <numeric>
 #include <optional>
-#include <utility>
 
 #include "ActsToTracks.h"
+#include "extensions/edm4eic/EDM4eicToActs.h"
 
 namespace eicrecon {
-
-// This array relates the Acts and EDM4eic covariance matrices, including
-// the unit conversion to get from Acts units into EDM4eic units.
-//
-// Note: std::map is not constexpr, so we use a constexpr std::array
-// std::array initialization need double braces since arrays are aggregates
-// ref: https://en.cppreference.com/w/cpp/language/aggregate_initialization
-static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_indexed_units{
-    {{Acts::eBoundLoc0, Acts::UnitConstants::mm},
-     {Acts::eBoundLoc1, Acts::UnitConstants::mm},
-     {Acts::eBoundPhi, 1.},
-     {Acts::eBoundTheta, 1.},
-     {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
-     {Acts::eBoundTime, Acts::UnitConstants::ns}}};
 
 void ActsToTracks::init() {}
 
@@ -175,10 +160,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
               debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
                     meas2D.getLoc().a, meas2D.getLoc().b);
 
-// Determine track associations if hit associations provided
-// FIXME: not able to check whether optional inputs were provided
-//if (raw_hit_assocs->has_value()) {
-#if EDM4EIC_VERSION_MAJOR >= 7
+              // Determine track associations if hit associations provided
+              // FIXME: not able to check whether optional inputs were provided
+              //if (raw_hit_assocs->has_value()) {
               for (const auto& hit : meas2D.getHits()) {
                 auto raw_hit = hit.getRawHit();
                 for (const auto raw_hit_assoc : *raw_hit_assocs) {
@@ -193,7 +177,6 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                   }
                 }
               }
-#endif
               //}
             }
           }

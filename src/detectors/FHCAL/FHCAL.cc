@@ -3,10 +3,11 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <TString.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <string>
 #include <variant>
+#include <vector>
 
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
@@ -38,7 +39,7 @@ void InitPlugin(JApplication* app) {
       10 * dd4hep::picosecond;
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "HcalEndcapPInsertRawHits", {"HcalEndcapPInsertHits"},
+      "HcalEndcapPInsertRawHits", {"EventHeader", "HcalEndcapPInsertHits"},
       {"HcalEndcapPInsertRawHits", "HcalEndcapPInsertRawHitAssociations"},
       {
           .eRes          = {},
@@ -98,15 +99,16 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapPInsertImagingProtoClusters"},
       {
           .neighbourLayersRange = 1,
-          .localDistXY =
+          .sameLayerDistXY =
               {"0.5 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
                "0.5 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
                "sin(pi / 3)"},
-          .layerDistXY =
+          .diffLayerDistXY =
               {"0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft)",
                "0.25 * max(HcalEndcapPInsertCellSizeLGRight, HcalEndcapPInsertCellSizeLGLeft) * "
                "sin(pi / 3)"},
-          .layerMode            = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
+
+          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .sectorDist           = 10.0 * dd4hep::cm,
           .minClusterHitEdep    = 5.0 * dd4hep::keV,
           .minClusterCenterEdep = 3.0 * dd4hep::MeV,
@@ -118,8 +120,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapPInsertTruthClustersWithoutShapes",
-      {"HcalEndcapPInsertTruthProtoClusters", // edm4eic::ProtoClusterCollection
-       "HcalEndcapPInsertRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      {
+          "HcalEndcapPInsertTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalEndcapPInsertTruthClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapPInsertTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 0.0257, .logWeightBase = 3.6, .enableEtaBounds = true},
@@ -135,8 +139,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalEndcapPInsertClustersWithoutShapes",
-      {"HcalEndcapPInsertImagingProtoClusters", // edm4eic::ProtoClusterCollection
-       "HcalEndcapPInsertRawHitAssociations"},  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      {
+          "HcalEndcapPInsertImagingProtoClusters", // edm4eic::ProtoClusterCollection
+          "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalEndcapPInsertClustersWithoutShapes",             // edm4eic::Cluster
        "HcalEndcapPInsertClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
@@ -169,6 +175,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "LFHCALRawHits", {"LFHCALHits"},
       {"LFHCALRawHits", "LFHCALRawHitAssociations"},
+      "LFHCALRawHits", {"EventHeader", "LFHCALHits"}, {"LFHCALRawHits", "LFHCALRawHitAssociations"},
       {
           .eRes          = {},
           .tRes          = 0.0 * dd4hep::ns,
@@ -249,8 +256,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALTruthClustersWithoutShapes",
-      {"LFHCALTruthProtoClusters", // edm4eic::ProtoClusterCollection
-       "LFHCALRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      {
+          "LFHCALTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "LFHCALRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"LFHCALTruthClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
@@ -265,8 +274,10 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALClustersWithoutShapes",
-      {"LFHCALIslandProtoClusters", // edm4eic::ProtoClusterCollection
-       "LFHCALRawHitAssociations"}, // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      {
+          "LFHCALIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "LFHCALRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"LFHCALClustersWithoutShapes",             // edm4eic::Cluster
        "LFHCALClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {

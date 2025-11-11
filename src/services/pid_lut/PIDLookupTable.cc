@@ -3,18 +3,16 @@
 
 #include "services/pid_lut/PIDLookupTable.h"
 
-#include <algorithm>
 #include <boost/histogram.hpp>
-#include <boost/iostreams/categories.hpp>
 #include <boost/iostreams/close.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
+#include <fmt/core.h>
+#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <cstdlib>
-#include <fmt/core.h>
 #include <fstream> // IWYU pragma: keep
-#include <iterator>
 #include <sstream> // IWYU pragma: keep
 #include <stdexcept>
 // IWYU pragma: no_include <boost/mp11/detail/mp_defer.hpp>
@@ -81,8 +79,7 @@ void PIDLookupTable::load_file(const std::string& filename,
   while (std::getline(in, line)) {
     Entry entry;
     if (line.empty() || line[0] == '#' ||
-        std::all_of(std::begin(line), std::end(line),
-                    [](unsigned char c) { return std::isspace(c); })) {
+        std::ranges::all_of(line, [](unsigned char c) { return std::isspace(c); })) {
       continue;
     }
 
@@ -101,6 +98,12 @@ void PIDLookupTable::load_file(const std::string& filename,
     if ((bool)(iss >> pdg >> charge >> momentum >> eta >> phi) &&
         (binning.missing_electron_prob || (bool)(iss >> prob_electron)) &&
         (bool)(iss >> prob_pion >> prob_kaon >> prob_proton)) {
+
+      if (eta * angle_fudge < polar_bins.bin(0).lower() ||
+          eta * angle_fudge > polar_bins.bin(polar_bins.size() - 1).upper()) {
+        debug("Out of bounds: eta");
+        continue; // out of bounds
+      }
 
       if (m_symmetrizing_charges) {
         charge = std::abs(charge);

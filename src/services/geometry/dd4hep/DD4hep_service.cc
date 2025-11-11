@@ -2,13 +2,14 @@
 // Copyright (C) 2022, 2023 Whitney Armstrong, Wouter Deconinck, David Lawrence
 //
 
+#include <JANA/JApplication.h>
 #include <JANA/JException.h>
+#include <JANA/Services/JServiceLocator.h>
 #include <Parsers/Printout.h>
 #include <TGeoManager.h>
 #include <fmt/color.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
-#include <algorithm>
 #include <cstdlib>
 #include <exception>
 #include <filesystem>

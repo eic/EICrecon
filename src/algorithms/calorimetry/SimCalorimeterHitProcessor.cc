@@ -6,19 +6,18 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
-#include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/unit_system.h>
-#include <edm4hep/utils/vector_utils.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
-#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/podioVersion.h>
 #include <cmath>
 #include <cstddef>
+#include <functional>
 #include <gsl/pointers>
 #include <limits>
 #include <stdexcept>
@@ -57,12 +56,13 @@ template <> struct hash<edm4hep::MCParticle> {
 
 // Hash for tuple<edm4hep::MCParticle, uint64_t>
 // --> not yet supported by any compiler at the moment
-template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t>> {
-  size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t>& key) const noexcept {
-    const auto& [particle, cellID] = key;
-    size_t h1                      = hash<edm4hep::MCParticle>{}(particle);
-    size_t h2                      = hash<uint64_t>{}(cellID);
-    return h1 ^ (h2 << 1);
+template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
+  size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t, int>& key) const noexcept {
+    const auto& [particle, cellID, timeID] = key;
+    size_t h1                              = hash<edm4hep::MCParticle>{}(particle);
+    size_t h2                              = hash<uint64_t>{}(cellID);
+    size_t h3                              = hash<int>{}(timeID);
+    return ((h1 ^ (h2 << 1)) >> 1) ^ (h3 << 1);
   }
 };
 
@@ -77,8 +77,9 @@ edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) 
 
   edm4hep::MCParticle primary = contributor;
   while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0)
+    if (primary.getGeneratorStatus() != 0) {
       break;
+    }
     primary = primary.getParents(0);
   }
   return primary;
@@ -173,7 +174,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   // (hence modify) contributions which is not supported for PodIO VectorMembers. Using
   // reasonable contribution merging, at least the intermediary structure should be
   // quite a bit smaller than the original hit collection.
-  using HitIndex = std::tuple<edm4hep::MCParticle, uint64_t /* cellID */>;
+  using HitIndex = std::tuple<edm4hep::MCParticle, uint64_t /* cellID */, int /* timeID */>;
   std::unordered_map<HitIndex,
                      std::unordered_map<uint64_t /* cellID */, HitContributionAccumulator>>
       hit_map;
@@ -184,15 +185,22 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
         (ih.getCellID() & m_hit_id_mask.value() & m_contribution_id_mask.value());
     // the cell ID of this particular contribution (we are using contributions to store
     // the hits making up this "superhit" with more segmentation)
-    const uint64_t newcontrib_cellID = (ih.getCellID() & m_hit_id_mask.value());
+    const uint64_t newcontrib_cellID = (ih.getCellID() & m_contribution_id_mask.value());
     // Optional attenuation
     const double attFactor =
         m_attenuationReferencePosition ? get_attenuation(ih.getPosition().z) : 1.;
     // Use primary particle (traced back through parents) to group contributions
     for (const auto& contrib : ih.getContributions()) {
       edm4hep::MCParticle primary = lookup_primary(contrib);
-      auto& hit_accum             = hit_map[{primary, newhit_cellID}][newcontrib_cellID];
-      hit_accum.add(contrib.getEnergy() * attFactor, contrib.getTime(), ih.getPosition());
+      const double propagationTime =
+          m_attenuationReferencePosition
+              ? std::abs(m_attenuationReferencePosition.value() - ih.getPosition().z) *
+                    m_cfg.inversePropagationSpeed
+              : 0.;
+      const double totalTime  = contrib.getTime() + propagationTime + m_cfg.fixedTimeDelay;
+      const int newhit_timeID = std::floor(totalTime / m_cfg.timeWindow);
+      auto& hit_accum         = hit_map[{primary, newhit_cellID, newhit_timeID}][newcontrib_cellID];
+      hit_accum.add(contrib.getEnergy() * attFactor, totalTime, ih.getPosition());
     }
   }
 
@@ -202,23 +210,21 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
 
     auto out_hit = out_hits->create();
 
-    const auto& [particle, cellID] = hit_idx;
+    const auto& [particle, cellID, timeID] = hit_idx;
     HitContributionAccumulator new_hit;
     for (const auto& [contrib_idx, contrib] : contribs) {
       // Aggregate contributions to for the global hit
       new_hit.add(contrib.getEnergy(), contrib.getMinTime(), contrib.getAvgPosition());
       // Now store the contribution itself
       auto out_hit_contrib = out_hit_contribs->create();
-      out_hit_contrib.setPDG(particle.getPDG());
-      out_hit_contrib.setEnergy(contrib.getEnergy());
       out_hit_contrib.setTime(contrib.getMinTime());
-      out_hit_contrib.setStepPosition(contrib.getAvgPosition());
+      out_hit_contrib.setStepPosition(edm4hep::Vector3f{0, 0, contrib.getAvgPosition().z});
       out_hit_contrib.setParticle(particle);
       out_hit.addToContributions(out_hit_contrib);
     }
     out_hit.setCellID(cellID);
     out_hit.setEnergy(new_hit.getEnergy());
-    out_hit.setPosition(new_hit.getAvgPosition());
+    out_hit.setPosition(edm4hep::Vector3f{0, 0, new_hit.getAvgPosition().z});
   }
 }
 

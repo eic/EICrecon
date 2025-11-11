@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024, Derek Anderson
+// Copyright (C) 2024 - 2025 Derek Anderson, Wouter Deconinck
 
 #pragma once
 
@@ -10,10 +10,12 @@ namespace eicrecon {
 
 class ChargedReconstructedParticleSelector_factory
     : public JOmniFactory<ChargedReconstructedParticleSelector_factory, NoConfig> {
+public:
+  using AlgoT = eicrecon::ChargedReconstructedParticleSelector;
 
 private:
   // algorithm
-  std::unique_ptr<eicrecon::ChargedReconstructedParticleSelector> m_algo;
+  std::unique_ptr<AlgoT> m_algo;
 
   // input collection
   PodioInput<edm4eic::ReconstructedParticle> m_pars_in{this, "GeneratedParticles"};
@@ -23,15 +25,12 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<eicrecon::ChargedReconstructedParticleSelector>();
-    m_algo->init(logger());
-  }
-
-  void ChangeRun(int32_t /* run_number */) { /* nothing to do */
+    m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->init();
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_pars_out() = m_algo->process(m_pars_in());
+    m_algo->process({m_pars_in()}, {m_pars_out().get()});
   }
 };
 

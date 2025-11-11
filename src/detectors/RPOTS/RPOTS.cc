@@ -5,12 +5,16 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <string>
 #include <vector>
 
 #include "algorithms/fardetectors/MatrixTransferStaticConfig.h"
+#include "algorithms/fardetectors/PolynomialMatrixReconstructionConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/MatrixTransferStatic_factory.h"
+#include "factories/fardetectors/PolynomialMatrixReconstruction_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
@@ -19,10 +23,11 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   MatrixTransferStaticConfig recon_cfg;
+  PolynomialMatrixReconstructionConfig recon_poly_cfg;
 
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "ForwardRomanPotRawHits", {"ForwardRomanPotHits"},
+      "ForwardRomanPotRawHits", {"EventHeader", "ForwardRomanPotHits"},
       {"ForwardRomanPotRawHits", "ForwardRomanPotRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
@@ -38,13 +43,13 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<MatrixTransferStatic_factory>(
-      "ForwardRomanPotRecParticles",
+      "ForwardRomanPotStaticRecParticles",
       {
           "MCParticles",
           "ForwardRomanPotRecHits",
       },
       {
-          "ForwardRomanPotRecParticles",
+          "ForwardRomanPotStaticRecParticles",
       },
       {
           .matrix_configs =
@@ -130,6 +135,38 @@ void InitPlugin(JApplication* app) {
           .hit1maxZ = 32554.0,
           .hit2minZ = 34239.0,
           .hit2maxZ = 34252.0,
+
+          .readout = "ForwardRomanPotRecHits",
+      },
+      app));
+
+  app->Add(new JOmniFactoryGeneratorT<PolynomialMatrixReconstruction_factory>(
+      "ForwardRomanPotRecParticles",
+      {
+          "MCParticles",
+          "ForwardRomanPotRecHits",
+      },
+      {
+          "ForwardRomanPotRecParticles",
+      },
+      {
+          .poly_matrix_configs = {{
+                                      .nomMomentum = 275.0,
+                                  },
+                                  {
+                                      .nomMomentum = 130.0,
+                                  },
+                                  {
+                                      .nomMomentum = 100.0,
+                                  },
+                                  {
+                                      .nomMomentum = 41.0,
+
+                                  }},
+          .hit1minZ            = 32541.0,
+          .hit1maxZ            = 32554.0,
+          .hit2minZ            = 34239.0,
+          .hit2maxZ            = 34252.0,
 
           .readout = "ForwardRomanPotRecHits",
       },

@@ -16,10 +16,12 @@
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <cstddef>
 #include <memory>
 #include <tuple>
+#include <variant>
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"

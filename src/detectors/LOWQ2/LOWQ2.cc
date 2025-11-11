@@ -5,41 +5,38 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <cmath>
-#include <cstddef>
-#include <edm4eic/EDM4eicVersion.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
+#include <edm4hep/SimTrackerHit.h>
 #include <fmt/core.h>
+#include <fmt/format.h> // IWYU pragma: keep
+#include <cmath>
+#include <cstddef>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
 #include "factories/digi/SiliconChargeSharing_factory.h"
-#include "factories/digi/SiliconPulseGeneration_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/fardetectors/FarDetectorLinearProjection_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/fardetectors/FarDetectorTransportationPostML_factory.h"
 #include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
-#endif
-#include "factories/fardetectors/FarDetectorMLReconstruction_factory.h"
 #include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
-#include "factories/meta/SubDivideCollection_factory.h"
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/meta/ONNXInference_factory.h"
-#endif
+#include "factories/meta/SubDivideCollection_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -59,7 +56,7 @@ void InitPlugin(JApplication* app) {
       },
       app));
   //  Generate signal pulse from hits
-  app->Add(new JOmniFactoryGeneratorT<SiliconPulseGeneration_factory>(
+  app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimTrackerHit>>(
       "TaggerTrackerPulseGeneration", {"TaggerTrackerSharedHits"}, {"TaggerTrackerHitPulses"},
       {
           .pulse_shape_function = "LandauPulse",
@@ -78,20 +75,20 @@ void InitPlugin(JApplication* app) {
       app));
 
   // Add noise to pulses
-  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>("TaggerTrackerPulseNoise",
-                                                          {"TaggerTrackerCombinedPulses"},
-                                                          {"TaggerTrackerCombinedPulsesWithNoise"},
-                                                          {
-                                                              .poles    = 5,
-                                                              .variance = 1.0,
-                                                              .alpha    = 0.5,
-                                                              .scale    = 0.000002,
-                                                          },
-                                                          app));
+  app->Add(new JOmniFactoryGeneratorT<PulseNoise_factory>(
+      "TaggerTrackerPulseNoise", {"EventHeader", "TaggerTrackerCombinedPulses"},
+      {"TaggerTrackerCombinedPulsesWithNoise"},
+      {
+          .poles    = 5,
+          .variance = 1.0,
+          .alpha    = 0.5,
+          .scale    = 0.000002,
+      },
+      app));
 
   // Digitization of silicon hits
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "TaggerTrackerRawHits", {"TaggerTrackerHits"},
+      "TaggerTrackerRawHits", {"EventHeader", "TaggerTrackerHits"},
       {"TaggerTrackerRawHits", "TaggerTrackerRawHitAssociations"},
       {
           .threshold      = 1.5 * edm4eic::unit::keV,
@@ -183,21 +180,9 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerLocalTrackAssociations", outputTrackAssociationTags,
       {"TaggerTrackerLocalTrackAssociations"}, app));
 
-  // Project tracks onto a plane
-  app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearProjection_factory>(
-      "TaggerTrackerProjectedTracks", {"TaggerTrackerLocalTracks"},
-      {"TaggerTrackerProjectedTracks"},
-      {
-          .plane_position = {0.0, 0.0, 0.0},
-          .plane_a        = {0.0, 1.0, 0.0},
-          .plane_b        = {0.0, 0.0, 1.0},
-      },
-      app));
-
-#if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPreML_factory>(
       "TaggerTrackerTransportationPreML",
-      {"TaggerTrackerProjectedTracks", "MCScatteredElectrons", "MCBeamElectrons"},
+      {"TaggerTrackerLocalTracks", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
       {"TaggerTrackerFeatureTensor", "TaggerTrackerTargetTensor"},
       {
           .beamE = 10.0,
@@ -207,28 +192,15 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerTransportationInference", {"TaggerTrackerFeatureTensor"},
       {"TaggerTrackerPredictionTensor"},
       {
-          .modelPath = "calibrations/onnx/TaggerTrackerTransportation.onnx",
+          .modelPath = "calibrations/onnx/Low-Q2_Steering_Reconstruction.onnx",
       },
       app));
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
-      "TaggerTrackerTransportationPostML", {"TaggerTrackerPredictionTensor", "MCBeamElectrons"},
-      {"TaggerTrackerReconstructedParticles"},
+      "TaggerTrackerTransportationPostML",
+      {"TaggerTrackerPredictionTensor", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
+      {"TaggerTrackerReconstructedParticles", "TaggerTrackerReconstructedParticleAssociations"},
       {
           .beamE = 10.0,
-      },
-      app));
-#endif
-
-  // Vector reconstruction at origin
-  app->Add(new JOmniFactoryGeneratorT<FarDetectorMLReconstruction_factory>(
-      "TaggerTrackerTrajectories",
-      {"TaggerTrackerProjectedTracks", "MCBeamElectrons", "TaggerTrackerLocalTracks",
-       "TaggerTrackerLocalTrackAssociations"},
-      {"TaggerTrackerTrajectories", "TaggerTrackerTrackParameters", "TaggerTrackerTracks",
-       "TaggerTrackerTrackAssociations"},
-      {
-          .modelPath  = "calibrations/tmva/LowQ2_DNN_CPU.weights.xml",
-          .methodName = "DNN_CPU",
       },
       app));
 }

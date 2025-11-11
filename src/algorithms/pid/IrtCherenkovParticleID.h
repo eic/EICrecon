@@ -19,8 +19,8 @@
 #include <unordered_map>
 
 // EICrecon
-#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 
 namespace eicrecon {
@@ -59,17 +59,17 @@ public:
   void process(const Input&, const Output&) const;
 
 private:
+  // any access (R or W) to m_irt_det_coll, m_irt_det, m_pid_radiators must be locked
+  inline static std::mutex m_irt_det_mutex;
   CherenkovDetectorCollection* m_irt_det_coll;
   CherenkovDetector* m_irt_det;
+  std::map<std::string, CherenkovRadiator*> m_pid_radiators;
 
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
 
   uint64_t m_cell_mask;
   std::string m_det_name;
   std::unordered_map<int, double> m_pdg_mass;
-
-  inline static std::mutex m_pid_radiators_mutex;
-  std::map<std::string, CherenkovRadiator*> m_pid_radiators;
 };
 
 } // namespace eicrecon

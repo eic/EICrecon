@@ -15,4 +15,4 @@ plugin_add_eigen3(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_cern_root(${PLUGIN_NAME})
 
-plugin_link_libraries(${PLUGIN_NAME} ROOT::TMVA)
+plugin_link_libraries(${PLUGIN_NAME} ROOT::TMVA particle_service_library)

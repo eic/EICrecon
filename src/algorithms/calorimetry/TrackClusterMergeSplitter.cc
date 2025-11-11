@@ -167,7 +167,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
             "pointing to merged cluster",
             mapClustToMerge[clust_seed].size(), eClustSum, sigSum, vecMatchProj.size());
     } // end cluster loop
-  }   // end matched cluster-projection loop
+  } // end matched cluster-projection loop
 
   // ------------------------------------------------------------------------
   // 3. Create an output protocluster for each merged cluster
