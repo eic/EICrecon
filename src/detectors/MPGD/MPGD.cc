@@ -60,7 +60,7 @@ void InitPlugin(JApplication* app) {
         app));
   } else {
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-        "MPGDBarrelRawHits", {"MPGDBarrelHits"},
+        "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
         {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"},
         {
             .readout        = "MPGDBarrelHits",
@@ -92,7 +92,7 @@ void InitPlugin(JApplication* app) {
         app));
   } else {
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-        "OuterMPGDBarrelRawHits", {"OuterMPGDBarrelHits"},
+        "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
         {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"},
         {
             .readout        = "OuterMPGDBarrelHits",

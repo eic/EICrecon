@@ -9,9 +9,11 @@
  */
 
 #include <Evaluator/DD4hepUnits.h>
+#include <algorithm>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/Cov3f.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
@@ -38,7 +40,7 @@ void CalorimeterClusterRecoCoG::init() {
   // select weighting method
   std::string ew = m_cfg.energyWeight;
   // make it case-insensitive
-  std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
+  std::ranges::transform(ew, ew.begin(), [](char s) { return std::tolower(s); });
   auto it = weightMethods.find(ew);
   if (it == weightMethods.end()) {
     error("Cannot find energy weighting method {}, choose one from [{}]", m_cfg.energyWeight,
@@ -109,12 +111,8 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
     cl.addToHits(hit);
     cl.addToHitContributions(energy);
     const float eta = edm4hep::utils::eta(hit.getPosition());
-    if (eta < minHitEta) {
-      minHitEta = eta;
-    }
-    if (eta > maxHitEta) {
-      maxHitEta = eta;
-    }
+    minHitEta       = std::min(eta, minHitEta);
+    maxHitEta       = std::max(eta, maxHitEta);
   }
   cl.setEnergy(totalE / m_cfg.sampFrac);
   cl.setEnergyError(0.);

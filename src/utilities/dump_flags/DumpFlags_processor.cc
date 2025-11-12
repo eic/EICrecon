@@ -2,19 +2,22 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
-#include <JANA/JEvent.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
 #include <fmt/core.h>
+#include <fmt/format.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <algorithm>
 #include <cstddef>
 #include <cstring>
 #include <exception>
 #include <fstream>
 #include <map>
+#include <memory>
 #include <regex>
+#include <utility>
 
 using namespace fmt;
 
@@ -60,13 +63,9 @@ void DumpFlags_processor::Finish() {
   std::size_t max_name_len        = 0;
   std::size_t max_default_val_len = 0;
   for (auto [name, param] : pm->GetAllParameters()) {
-    if (max_name_len < strlen(name.c_str())) {
-      max_name_len = strlen(name.c_str());
-    }
+    max_name_len = std::max(max_name_len, strlen(name.c_str()));
 
-    if (max_default_val_len < strlen(param->GetDefault().c_str())) {
-      max_default_val_len = strlen(param->GetDefault().c_str());
-    }
+    max_default_val_len = std::max(max_default_val_len, strlen(param->GetDefault().c_str()));
   }
 
   // Found longest values?
@@ -82,7 +81,7 @@ void DumpFlags_processor::Finish() {
   for (auto [name, param] : pm->GetAllParameters()) {
     // form python content string
     std::string python_escaped_descr = param->GetDescription();
-    std::replace(python_escaped_descr.begin(), python_escaped_descr.end(), '\'', '`');
+    std::ranges::replace(python_escaped_descr, '\'', '`');
     python_content += fmt::format(
         "    ({:{}} {:{}} '{}'),\n", fmt::format("'{}',", param->GetKey()), max_name_len + 3,
         fmt::format("'{}',", param->GetDefault()), max_default_val_len + 3, python_escaped_descr);

@@ -2,6 +2,8 @@
 // Copyright (C) 2024 Alex Jentsch, Jihee Kim, Brian Page
 //
 
+#pragma once
+
 #include "algorithms/reco/UndoAfterBurner.h"
 #include "algorithms/reco/UndoAfterBurnerConfig.h"
 
@@ -32,6 +34,9 @@ private:
   ParameterRef<double> m_pid_purity{this, "m_pid_purity", config().m_pid_purity};
   ParameterRef<bool> m_correct_beam_FX{this, "m_correct_beam_FX", config().m_correct_beam_FX};
   ParameterRef<bool> m_pid_use_MC_truth{this, "m_pid_use_MC_truth", config().m_pid_use_MC_truth};
+  ParameterRef<int> m_max_gen_status{this, "m_max_gen_status", config().m_max_gen_status,
+                                     "Upper limit on generator status to process (-1 = no limit). "
+                                     "Use to filter out background particles and conserve memory."};
 
 public:
   void Configure() {

@@ -1,22 +1,26 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024-2025 Simon Gardner, Chun Yuen Tsang, Prithwish Tribedy
+// Copyright (C) 2024-2025 Simon Gardner, Chun Yuen Tsang, Prithwish Tribedy,
+//                         Minho Kim, Sylvester Joosten, Wouter Deconinck, Dmitry Kalinkin
 //
 // Convert energy deposition into ADC pulses
 // ADC pulses are assumed to follow the shape of landau function
 
-#include "SiliconPulseGeneration.h"
+#include "PulseGeneration.h"
 
 #include <RtypesCore.h>
 #include <TMath.h>
 #include <algorithms/service.h>
-#include <edm4hep/Vector3d.h>
+#include <edm4hep/CaloHitContribution.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
+#include <cstdlib>
+#include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <gsl/pointers>
 #include <stdexcept>
+#include <string>
 #include <unordered_map>
 #include <vector>
 
@@ -127,27 +131,52 @@ public:
   }
 };
 
-void SiliconPulseGeneration::init() {
+std::tuple<double, double>
+HitAdapter<edm4hep::SimTrackerHit>::getPulseSources(const edm4hep::SimTrackerHit& hit) {
+  return {hit.getTime(), hit.getEDep()};
+}
+
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+void HitAdapter<edm4hep::SimTrackerHit>::addRelations(MutablePulseType& pulse,
+                                                      const edm4hep::SimTrackerHit& hit) {
+  pulse.addToTrackerHits(hit);
+  pulse.addToParticles(hit.getParticle());
+}
+#endif
+
+std::tuple<double, double>
+HitAdapter<edm4hep::SimCalorimeterHit>::getPulseSources(const edm4hep::SimCalorimeterHit& hit) {
+  const auto& contribs  = hit.getContributions();
+  auto earliest_contrib = std::ranges::min_element(
+      contribs, [](const auto& a, const auto& b) { return a.getTime() < b.getTime(); });
+  return {earliest_contrib->getTime(), hit.getEnergy()};
+}
+
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+void HitAdapter<edm4hep::SimCalorimeterHit>::addRelations(MutablePulseType& pulse,
+                                                          const edm4hep::SimCalorimeterHit& hit) {
+  pulse.addToCalorimeterHits(hit);
+  pulse.addToParticles(hit.getContributions(0).getParticle());
+}
+#endif
+
+template <typename HitT> void PulseGeneration<HitT>::init() {
   m_pulse =
       PulseShapeFactory::createPulseShape(m_cfg.pulse_shape_function, m_cfg.pulse_shape_params);
   m_min_sampling_time = m_cfg.min_sampling_time;
 
-  if (m_pulse->getMaximumTime() > m_min_sampling_time) {
-    m_min_sampling_time = m_pulse->getMaximumTime();
-  }
+  m_min_sampling_time = std::max<double>(m_pulse->getMaximumTime(), m_min_sampling_time);
 }
 
-void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
-                                     const SiliconPulseGeneration::Output& output) const {
+template <typename HitT>
+void PulseGeneration<HitT>::process(
+    const typename PulseGenerationAlgorithm<HitT>::Input& input,
+    const typename PulseGenerationAlgorithm<HitT>::Output& output) const {
   const auto [simhits] = input;
   auto [rawPulses]     = output;
 
   for (const auto& hit : *simhits) {
-
-    auto cellID   = hit.getCellID();
-    double time   = hit.getTime();
-    double charge = hit.getEDep();
-
+    const auto [time, charge] = HitAdapter<HitT>::getPulseSources(hit);
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
     double signal_time = m_cfg.timestep * std::floor(time / m_cfg.timestep);
 
@@ -178,7 +207,7 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     }
 
     auto time_series = rawPulses->create();
-    time_series.setCellID(cellID);
+    time_series.setCellID(hit.getCellID());
     time_series.setInterval(m_cfg.timestep);
     time_series.setTime(signal_time + skip_bins * m_cfg.timestep);
 
@@ -190,11 +219,13 @@ void SiliconPulseGeneration::process(const SiliconPulseGeneration::Input& input,
     time_series.setIntegral(integral);
     time_series.setPosition(
         edm4hep::Vector3f(hit.getPosition().x, hit.getPosition().y, hit.getPosition().z));
-    time_series.addToTrackerHits(hit);
-    time_series.addToParticles(hit.getParticle());
+    HitAdapter<HitT>::addRelations(time_series, hit);
 #endif
   }
 
-} // SiliconPulseGeneration:process
+} // PulseGeneration:process
+
+template class PulseGeneration<edm4hep::SimTrackerHit>;
+template class PulseGeneration<edm4hep::SimCalorimeterHit>;
 
 } // namespace eicrecon

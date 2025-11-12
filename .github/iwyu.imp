@@ -9,9 +9,7 @@
   { ref: '/opt/local/share/include-what-you-use/libcxx.imp' },
 
   # STL
-  # FIXME conflicting visibility for debug/safe_iterator.h, fixed in 0.23, llvm-19
-  # https://github.com/include-what-you-use/include-what-you-use/pull/1491
-  #{ ref: '/opt/local/share/include-what-you-use/gcc.stl.headers.imp' },
+  { ref: '/opt/local/share/include-what-you-use/gcc.stl.headers.imp' },
   { symbol: ['std::vector', private, '<vector>', public] },
 
   # Acts

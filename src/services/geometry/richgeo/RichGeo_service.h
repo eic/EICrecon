@@ -8,7 +8,6 @@
 // JANA
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JServiceFwd.h>
-#include <JANA/Services/JServiceLocator.h>
 #include <spdlog/logger.h>
 #include <map>
 #include <memory>

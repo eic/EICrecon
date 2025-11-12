@@ -9,6 +9,7 @@
 #include <algorithms/geo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
+#include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/Vector2f.h>
 #include <array>
 #include <cstddef>

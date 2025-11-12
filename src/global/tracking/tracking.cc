@@ -209,37 +209,57 @@ void InitPlugin(JApplication* app) {
       {"CalorimeterTrackProjections"},
       {.target_surfaces{
           // Ecal
-          eicrecon::DiscSurfaceConfig{"EcalEndcapN_ID", "- EcalEndcapN_zmin", 0.,
-                                      "1.1*EcalEndcapN_rmax"},
-          eicrecon::DiscSurfaceConfig{"EcalEndcapN_ID", "- EcalEndcapN_zmin - 50*mm", 0.,
-                                      "1.1*EcalEndcapN_rmax"},
+          eicrecon::DiscSurfaceConfig{.id   = "EcalEndcapN_ID",
+                                      .zmin = "- EcalEndcapN_zmin",
+                                      .rmin = 0.,
+                                      .rmax = "1.1*EcalEndcapN_rmax"},
+          eicrecon::DiscSurfaceConfig{.id   = "EcalEndcapN_ID",
+                                      .zmin = "- EcalEndcapN_zmin - 50*mm",
+                                      .rmin = 0.,
+                                      .rmax = "1.1*EcalEndcapN_rmax"},
           eicrecon::CylinderSurfaceConfig{
-              "EcalBarrel_ID", "EcalBarrel_rmin",
-              "- 1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)",
-              "1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)"},
+              .id   = "EcalBarrel_ID",
+              .rmin = "EcalBarrel_rmin",
+              .zmin = "- 1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)",
+              .zmax = "1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)"},
           eicrecon::CylinderSurfaceConfig{
-              "EcalBarrel_ID", "EcalBarrel_rmin + 50*mm",
-              "- 1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)",
-              "1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)"},
-          eicrecon::DiscSurfaceConfig{"EcalEndcapP_ID", "EcalEndcapP_zmin", 0.,
-                                      "1.1*EcalEndcapP_rmax"},
-          eicrecon::DiscSurfaceConfig{"EcalEndcapP_ID", "EcalEndcapP_zmin + 50*mm", 0.,
-                                      "1.1*EcalEndcapP_rmax"},
+              .id   = "EcalBarrel_ID",
+              .rmin = "EcalBarrel_rmin + 50*mm",
+              .zmin = "- 1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)",
+              .zmax = "1.1*max(EcalBarrelBackward_zmax,EcalBarrelForward_zmax)"},
+          eicrecon::DiscSurfaceConfig{.id   = "EcalEndcapP_ID",
+                                      .zmin = "EcalEndcapP_zmin",
+                                      .rmin = 0.,
+                                      .rmax = "1.1*EcalEndcapP_rmax"},
+          eicrecon::DiscSurfaceConfig{.id   = "EcalEndcapP_ID",
+                                      .zmin = "EcalEndcapP_zmin + 50*mm",
+                                      .rmin = 0.,
+                                      .rmax = "1.1*EcalEndcapP_rmax"},
           // Hcal
-          eicrecon::DiscSurfaceConfig{"HcalEndcapN_ID", "- HcalEndcapN_zmin", 0.,
-                                      "1.1*HcalEndcapN_rmax"},
-          eicrecon::DiscSurfaceConfig{"HcalEndcapN_ID", "- HcalEndcapN_zmin - 150*mm", 0.,
-                                      "1.1*HcalEndcapN_rmax"},
+          eicrecon::DiscSurfaceConfig{.id   = "HcalEndcapN_ID",
+                                      .zmin = "- HcalEndcapN_zmin",
+                                      .rmin = 0.,
+                                      .rmax = "1.1*HcalEndcapN_rmax"},
+          eicrecon::DiscSurfaceConfig{.id   = "HcalEndcapN_ID",
+                                      .zmin = "- HcalEndcapN_zmin - 150*mm",
+                                      .rmin = 0.,
+                                      .rmax = "1.1*HcalEndcapN_rmax"},
           eicrecon::CylinderSurfaceConfig{
-              "HcalBarrel_ID", "HcalBarrel_rmin",
-              "- 1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)",
-              "1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)"},
+              .id   = "HcalBarrel_ID",
+              .rmin = "HcalBarrel_rmin",
+              .zmin = "- 1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)",
+              .zmax = "1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)"},
           eicrecon::CylinderSurfaceConfig{
-              "HcalBarrel_ID", "HcalBarrel_rmin + 150*mm",
-              "- 1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)",
-              "1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)"},
-          eicrecon::DiscSurfaceConfig{"LFHCAL_ID", "LFHCAL_zmin", 0., "1.1*LFHCAL_rmax"},
-          eicrecon::DiscSurfaceConfig{"LFHCAL_ID", "LFHCAL_zmin + 150*mm", 0., "1.1*LFHCAL_rmax"},
+              .id   = "HcalBarrel_ID",
+              .rmin = "HcalBarrel_rmin + 150*mm",
+              .zmin = "- 1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)",
+              .zmax = "1.1*max(HcalBarrelBackward_zmax,HcalBarrelForward_zmax)"},
+          eicrecon::DiscSurfaceConfig{
+              .id = "LFHCAL_ID", .zmin = "LFHCAL_zmin", .rmin = 0., .rmax = "1.1*LFHCAL_rmax"},
+          eicrecon::DiscSurfaceConfig{.id   = "LFHCAL_ID",
+                                      .zmin = "LFHCAL_zmin + 150*mm",
+                                      .rmin = 0.,
+                                      .rmax = "1.1*LFHCAL_rmax"},
       }},
       app));
 
@@ -369,10 +389,9 @@ void InitPlugin(JApplication* app) {
       },
       {}, app));
 
-  // Add Low-Q2, central and B0 tracks
+  // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks", "TaggerTrackerTracks"},
-      {"CombinedTracks"}, app));
+      "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
       "SecondaryTrackVerticesAMVF", {"ReconstructedParticles", "CentralCKFActsTrajectories"},
@@ -384,21 +403,17 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
-      "CombinedTrackAssociations",
-      {"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations",
-       "TaggerTrackerTrackAssociations"},
+      "CombinedTrackAssociations", {"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations"},
       {"CombinedTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
-      "CombinedTruthSeededTracks",
-      {"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks", "TaggerTrackerTracks"},
+      "CombinedTruthSeededTracks", {"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks"},
       {"CombinedTruthSeededTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
       "CombinedTruthSeededTrackAssociations",
-      {"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations",
-       "TaggerTrackerTrackAssociations"},
+      {"CentralCKFTruthSeededTrackAssociations", "B0TrackerCKFTruthSeededTrackAssociations"},
       {"CombinedTruthSeededTrackAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
