@@ -17,6 +17,8 @@
 #include "algorithms/reco/SecondaryVerticesHelix.h"
 #include "algorithms/reco/SecondaryVerticesHelixConfig.h"
 #include "services/particle/ParticleSvc.h"
+#include <DD4hep/Fields.h>
+#include <DD4hep/Objects.h>
 
 namespace eicrecon {
 
@@ -48,8 +50,15 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   edm4hep::Vector3f pVtxPos(pVtxPos4f.x * edm4eic::unit::mm / edm4eic::unit::cm,
                             pVtxPos4f.y * edm4eic::unit::mm / edm4eic::unit::cm,
                             pVtxPos4f.z * edm4eic::unit::mm / edm4eic::unit::cm);
+                            
+  auto fieldObj = m_det->field();
+  auto field    = fieldObj.magneticField({pVtxPos4f.x / edm4eic::unit::mm * dd4hep::mm,
+                                          pVtxPos4f.y / edm4eic::unit::mm * dd4hep::mm,
+                                          pVtxPos4f.z / edm4eic::unit::mm * dd4hep::mm});  // in unit of dd4hep::tesla
+  float b_field = field.z();
+                            
   info("\t Primary vertex = ({},{},{})cm \t b field = {} tesla", pVtxPos.x, pVtxPos.y, pVtxPos.z,
-       m_cfg.b_field / dd4hep::tesla);
+       b_field / dd4hep::tesla);
 
   std::vector<Helix> hVec;
   hVec.clear();
@@ -58,7 +67,7 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   for (unsigned int i = 0; const auto& p : *rcparts) {
     if (p.getCharge() == 0)
       continue;
-    Helix h(p, m_cfg.b_field);
+    Helix h(p, b_field);
     double dca = h.distance(pVtxPos) * edm4eic::unit::cm;
     if (dca < m_cfg.minDca)
       continue;
@@ -101,8 +110,8 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
         continue;
       edm4hep::Vector3f pairPos = 0.5 * (h1AtDcaTo2 + h2AtDcaTo1);
 
-      edm4hep::Vector3f h1MomAtDca = h1.momentumAt(ss.first, m_cfg.b_field);
-      edm4hep::Vector3f h2MomAtDca = h2.momentumAt(ss.second, m_cfg.b_field);
+      edm4hep::Vector3f h1MomAtDca = h1.momentumAt(ss.first, b_field);
+      edm4hep::Vector3f h2MomAtDca = h2.momentumAt(ss.second, b_field);
       edm4hep::Vector3f pairMom    = h1MomAtDca + h2MomAtDca;
 
       double e1 =

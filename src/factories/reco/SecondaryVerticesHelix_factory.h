@@ -31,6 +31,13 @@ private:
   // Declare outputs
   PodioOutput<edm4eic::Vertex> m_secondary_vertices_output{this};
 
+  // Declare parameters
+  ParameterRef<bool> m_unlikesign{this, "unlikesign", config().unlikesign};
+  ParameterRef<float> m_minDca{this, "minDca", config().minDca};
+  ParameterRef<float> m_maxDca12{this, "maxDca12", config().maxDca12};
+  ParameterRef<float> m_maxDca{this, "maxDca", config().maxDca};
+  ParameterRef<float> m_minCostheta{this, "minCostheta", config().minCostheta};
+
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:

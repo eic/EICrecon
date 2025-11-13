@@ -3,7 +3,9 @@
 
 #pragma once
 
+#include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/VertexCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <string>      // for basic_string
@@ -33,6 +35,9 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+  const dd4hep::Detector* m_det{algorithms::GeoSvc::instance().detector()};
+
   SecondaryVerticesHelixConfig m_cfg;
 };
+
 } // namespace eicrecon
