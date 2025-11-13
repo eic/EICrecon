@@ -30,14 +30,14 @@ private:
   PodioOutput<edm4eic::Vertex> m_prm_vertices_output{this};
   PodioOutput<edm4eic::Vertex> m_sec_vertices_output{this};
 
-  ParameterRef<int> m_maxVertices{this, "maxVertices", config().maxVertices,
+  ParameterRef<unsigned int> m_maxVertices{this, "maxVertices", config().maxVertices,
                                   "Maximum num vertices that can be found"};
   ParameterRef<bool> m_reassignTracksAfterFirstFit{
       this, "reassignTracksAfterFirstFit", config().reassignTracksAfterFirstFit,
       "Whether or not to reassign tracks after first fit"};
-  ParameterRef<float> m_tracksMaxZinterval{this, "tracksMaxZinterval", config().tracksMaxZinterval,
+  ParameterRef<unsigned int> m_tracksMaxZinterval{this, "tracksMaxZinterval", config().tracksMaxZinterval,
                                            "Max z interval for Acts::AdaptiveMultiVertexFinder."};
-  ParameterRef<float> m_maxIterations{this, "maxIterations", config().maxIterations,
+  ParameterRef<unsigned int> m_maxIterations{this, "maxIterations", config().maxIterations,
                                       "Max iterations for Acts::AdaptiveMultivertexFinder"};
   ParameterRef<float> m_maxDistToLinPoint{
       this, "maxDistToLinPoint", config().maxDistToLinPoint,
