@@ -33,10 +33,9 @@
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <cmath>
-#include <iostream>
 #include <limits>
-#include <string>
 #include <memory>
+#include <string>
 #include <utility>
 
 #include "algorithms/interfaces/ActsSvc.h"
