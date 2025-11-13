@@ -16,7 +16,7 @@ namespace eicrecon {
 /*! Construct a candidate charged particle via the
  *  following algorithm.
  *    1. Build map of tracks onto vectors of their
- *       matched tracks
+ *       matched clusters
  *    2. For each track, create a Reconstructed
  *       Particle with track and cluster relations
  *       filled

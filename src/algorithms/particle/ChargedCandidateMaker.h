@@ -28,10 +28,9 @@ using ChargedCandidateMakerAlgorithm =
 // ==========================================================================
 //! Candidate Charged Particle Maker
 // ==========================================================================
-/*! An algorithm which takes a collection of clusters and their matched
- *  tracks, subtracts the sum of all tracks pointing to the cluster,
- *  and outputs the remnant clusters, expected clusters, and their matched
- *  tracks.
+/*! An algorithm which takes a collection of track-cluster matches
+ *  and converts them into charged-particle candidates, one for
+ *  each track.
  */
 class ChargedCandidateMaker : public ChargedCandidateMakerAlgorithm,
                               public WithPodConfig<NoConfig> {
