@@ -1,23 +1,28 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Derek Anderson
+// Copyright (C) 2025 Derek Anderson, Dmitry Kalinkin
 
 #pragma once
-
-#include <string>
 
 namespace eicrecon {
 
 struct TrackClusterMergeSplitterConfig {
 
-  std::string idCalo = "HcalBarrel_ID"; // id of calorimeter to match projections to
+  ///! any clusters below this will be merged
+  double minSigCut = -1.0;
 
-  double minSigCut = -1.; // min significance
-  double avgEP     = 1.0; // mean E/p
-  double sigEP     = 1.0; // rms of E/p
-  double drAdd     = 0.4; // window to add clusters
-  double sampFrac  = 1.0; // allows for sampling fraction correction
+  ///! average of E/p distribution
+  double avgEP = 1.0;
 
-  // scale for hit-track distance
+  ///! RMS of E/p distribution
+  double sigEP = 1.0;
+
+  ///! window to merge clusters
+  double drAdd = 0.4;
+
+  ///! index of surface to use for track projections
+  uint64_t surfaceToUse = 1;
+
+  ///! scale for hit-track distance
   double transverseEnergyProfileScale = 1.0;
 
 }; // end TrackClusterMergeSplitterConfig
