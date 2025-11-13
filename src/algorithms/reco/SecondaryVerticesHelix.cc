@@ -50,13 +50,13 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   edm4hep::Vector3f pVtxPos(pVtxPos4f.x * edm4eic::unit::mm / edm4eic::unit::cm,
                             pVtxPos4f.y * edm4eic::unit::mm / edm4eic::unit::cm,
                             pVtxPos4f.z * edm4eic::unit::mm / edm4eic::unit::cm);
-                            
+
   auto fieldObj = m_det->field();
-  auto field    = fieldObj.magneticField({pVtxPos4f.x / edm4eic::unit::mm * dd4hep::mm,
-                                          pVtxPos4f.y / edm4eic::unit::mm * dd4hep::mm,
-                                          pVtxPos4f.z / edm4eic::unit::mm * dd4hep::mm});  // in unit of dd4hep::tesla
+  auto field    = fieldObj.magneticField(
+      {pVtxPos4f.x / edm4eic::unit::mm * dd4hep::mm, pVtxPos4f.y / edm4eic::unit::mm * dd4hep::mm,
+          pVtxPos4f.z / edm4eic::unit::mm * dd4hep::mm}); // in unit of dd4hep::tesla
   float b_field = field.z();
-                            
+
   info("\t Primary vertex = ({},{},{})cm \t b field = {} tesla", pVtxPos.x, pVtxPos.y, pVtxPos.z,
        b_field / dd4hep::tesla);
 
