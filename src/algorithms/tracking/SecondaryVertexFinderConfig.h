@@ -5,9 +5,9 @@
 namespace eicrecon {
 
 struct SecondaryVertexFinderConfig {
-  int maxVertices        = 20;
-  float maxIterations    = 500;
-  float maxSecIterations = 1000;
+  unsigned int maxVertices        = 20;
+  unsigned int maxIterations    = 500;
+  unsigned int maxSecIterations = 1000;
   //Max z interval used for adding tracks to fit: when adding a new vertex to the multi vertex fit,
   //only the tracks whose z at PCA is closer to the seeded vertex than tracksMaxZinterval
   //are added to this new vertex
