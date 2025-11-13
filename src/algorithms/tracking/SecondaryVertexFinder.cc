@@ -146,7 +146,6 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
   }
 
   vertexfinderConfigSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
-  vertexFitterConfigSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(&linearizerSec);
 
 #if Acts_VERSION_MAJOR >= 36
   vertexfinderConfigSec.bField = m_BField;
@@ -262,9 +261,9 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   // Setup the track linearizer
   LinearizerSec::Config linearizerConfigSec(m_BField, propagatorSec);
   // make sure you use a std::unique_ptr as needed
-  std::unique_ptr<const Acts::Logger> unique_log =
-      Acts::getDefaultLogger("MyLogger", Acts::Logging::VERBOSE, &std::cerr);
-  LinearizerSec linearizerSec(linearizerConfigSec, std::move(unique_log));
+  std::unique_ptr<const Acts::Logger> linearizer_log =
+      logger().cloneWithSuffix("Linearizer");
+  LinearizerSec linearizerSec(linearizerConfigSec, std::move(linearizer_log));
 
   //Staring multivertex fitter
   // Set up deterministic annealing with user-defined temperatures
