@@ -35,7 +35,7 @@ private:
   ParameterRef<bool> m_reassignTracksAfterFirstFit{
       this, "reassignTracksAfterFirstFit", config().reassignTracksAfterFirstFit,
       "Whether or not to reassign tracks after first fit"};
-  ParameterRef<unsigned int> m_tracksMaxZinterval{
+  ParameterRef<float> m_tracksMaxZinterval{
       this, "tracksMaxZinterval", config().tracksMaxZinterval,
       "Max z interval for Acts::AdaptiveMultiVertexFinder."};
   ParameterRef<unsigned int> m_maxIterations{this, "maxIterations", config().maxIterations,
