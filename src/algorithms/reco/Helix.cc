@@ -522,22 +522,6 @@ void Helix::moveOrigin(double s) {
     setPhase(newPhase);
   }
 }
-/*
-int operator== (const Helix& a, const Helix& b)
-{
-    //
-    // Checks for numerical identity only !
-    //
-    return (a.origin()    == b.origin()    &&
-            a.dipAngle()  == b.dipAngle()  &&
-            a.curvature() == b.curvature() &&
-            a.phase()     == b.phase()     &&
-            a.h()         == b.h());
-}
-
-int operator!= (const Helix& a, const Helix& b) {return !(a == b);}
-*/
-//std::ostream& operator<<(std::ostream& os, const Helix& h)
 void Helix::Print() const {
   std::cout << "("
             << "curvature = " << mCurvature << ", "
