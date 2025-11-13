@@ -261,8 +261,7 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   // Setup the track linearizer
   LinearizerSec::Config linearizerConfigSec(m_BField, propagatorSec);
   // make sure you use a std::unique_ptr as needed
-  std::unique_ptr<const Acts::Logger> linearizer_log =
-      logger().cloneWithSuffix("Linearizer");
+  std::unique_ptr<const Acts::Logger> linearizer_log = logger().cloneWithSuffix("Linearizer");
   LinearizerSec linearizerSec(linearizerConfigSec, std::move(linearizer_log));
 
   //Staring multivertex fitter
