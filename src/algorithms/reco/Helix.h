@@ -131,13 +131,6 @@ public:
 }; // end class Helix
 
 //
-//     Non-member functions
-//
-//int operator== (const Helix&, const Helix&);
-//int operator!= (const Helix&, const Helix&);
-//std::ostream& operator<<(std::ostream&, const Helix&);
-
-//
 //     Inline functions
 //
 inline int Helix::h() const { return mH; }
