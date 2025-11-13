@@ -314,7 +314,6 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   }
 
   vertexfinderConfigSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
-  vertexfinderConfigSec.trackLinearizer.connect<&LinearizerSec::linearizeTrack>(&linearizerSec);
 
 #if Acts_VERSION_MAJOR >= 36
   vertexfinderConfigSec.bField = m_BField;
