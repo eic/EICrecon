@@ -11,7 +11,6 @@ namespace eicrecon {
 
 struct SecondaryVerticesHelixConfig {
 
-  float b_field     = -1.7 * dd4hep::tesla;
   bool unlikesign   = true;
   float minDca      = 0.03 * edm4eic::unit::mm; // mm, daughter to pVtx
   float maxDca12    = 1. * edm4eic::unit::mm;   // mm, dca between daughter 1 and 2
