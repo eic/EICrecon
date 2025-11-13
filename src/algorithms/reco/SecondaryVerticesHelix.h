@@ -6,8 +6,9 @@
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <edm4eic/VertexCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/VertexCollection.h>
+#include <gsl/pointers>
 #include <string>      // for basic_string
 #include <string_view> // for string_view
 

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Daniel Brandenburg, Xin Dong
 
+#include <DD4hep/Fields.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <Math/GenVector/Cartesian3D.h>
+#include <Math/GenVector/DisplacementVector3D.h>
 #include <edm4eic/VertexCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector3f.h>
@@ -17,8 +20,6 @@
 #include "algorithms/reco/SecondaryVerticesHelix.h"
 #include "algorithms/reco/SecondaryVerticesHelixConfig.h"
 #include "services/particle/ParticleSvc.h"
-#include <DD4hep/Fields.h>
-#include <DD4hep/Objects.h>
 
 namespace eicrecon {
 
