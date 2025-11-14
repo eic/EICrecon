@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Xin Dong, Rongrong Ma
+// SPDX-License-Identifier: MIT
+// Copyright (C) 2020-2024 The STAR Collaboration, Xin Dong, Rongrong Ma
 
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/Track.h>
