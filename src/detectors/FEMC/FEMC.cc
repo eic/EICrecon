@@ -55,7 +55,7 @@ void InitPlugin(JApplication* app) {
   int EcalEndcapP_homogeneousFlag = 0;
   try {
     auto detector               = app->GetService<DD4hep_service>()->detector();
-    EcalEndcapP_homogeneousFlag = detector->constant<int>("ForwardEcal_Homogeneous_Scfi");
+    EcalEndcapP_homogeneousFlag = detector->constant<int>("EcalEndcapP_Homogeneous_ScFi");
     if (EcalEndcapP_homogeneousFlag <= 1) {
       mLog->info("Homogeneous geometry loaded");
     } else {
