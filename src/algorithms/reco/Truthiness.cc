@@ -57,27 +57,61 @@ void Truthiness::process(const Truthiness::Input& input,
     const double mc_energy = std::sqrt(mc_p * mc_p + mc_part.getMass() * mc_part.getMass());
     const double rc_energy = rc_part.getEnergy();
 
-    // Calculate energy difference squared
-    const double energy_diff    = mc_energy - rc_energy;
-    const double energy_penalty = energy_diff * energy_diff;
+    // Get covariance matrix elements for uncertainties
+    const auto rc_cov = rc_part.getCovMatrix();
 
-    // Calculate momentum component differences squared
+    // Energy uncertainty (from time-time covariance tt, or use configured default)
+    const bool energy_has_cov = (rc_cov.tt > 0.0);
+    const double energy_error =
+        energy_has_cov ? std::sqrt(rc_cov.tt) : m_cfg.defaultEnergyResolution;
+    if (!energy_has_cov) {
+      trace("  Energy uncertainty using default: {:.3f} GeV (covMatrix.tt = {})",
+            m_cfg.defaultEnergyResolution, rc_cov.tt);
+    }
+
+    // Momentum component uncertainties (from spatial covariance, or use configured default)
+    const bool px_has_cov = (rc_cov.xx > 0.0);
+    const bool py_has_cov = (rc_cov.yy > 0.0);
+    const bool pz_has_cov = (rc_cov.zz > 0.0);
+    const double px_error = px_has_cov ? std::sqrt(rc_cov.xx) : m_cfg.defaultMomentumResolution;
+    const double py_error = py_has_cov ? std::sqrt(rc_cov.yy) : m_cfg.defaultMomentumResolution;
+    const double pz_error = pz_has_cov ? std::sqrt(rc_cov.zz) : m_cfg.defaultMomentumResolution;
+    if (!px_has_cov || !py_has_cov || !pz_has_cov) {
+      trace("  Momentum uncertainty using default for [{},{},{}]: {:.3f} GeV (covMatrix: xx={}, "
+            "yy={}, zz={})",
+            px_has_cov ? "cov" : "def", py_has_cov ? "cov" : "def", pz_has_cov ? "cov" : "def",
+            m_cfg.defaultMomentumResolution, rc_cov.xx, rc_cov.yy, rc_cov.zz);
+    }
+
+    // Calculate energy penalty: sqrt of normalized squared difference
+    const double energy_diff    = mc_energy - rc_energy;
+    const double energy_chi2    = (energy_diff * energy_diff) / (energy_error * energy_error);
+    const double energy_penalty = std::sqrt(energy_chi2);
+
+    // Calculate momentum component penalties: sqrt of sum of normalized squared differences
     const double px_diff          = mc_momentum.x - rc_momentum.x;
     const double py_diff          = mc_momentum.y - rc_momentum.y;
     const double pz_diff          = mc_momentum.z - rc_momentum.z;
-    const double momentum_penalty = px_diff * px_diff + py_diff * py_diff + pz_diff * pz_diff;
+    const double px_chi2          = (px_diff * px_diff) / (px_error * px_error);
+    const double py_chi2          = (py_diff * py_diff) / (py_error * py_error);
+    const double pz_chi2          = (pz_diff * pz_diff) / (pz_error * pz_error);
+    const double momentum_chi2    = px_chi2 + py_chi2 + pz_chi2;
+    const double momentum_penalty = std::sqrt(momentum_chi2);
 
-    // PDG code mismatch penalty
-    const double pdg_penalty = (mc_part.getPDG() != rc_part.getPDG()) ? 1.0 : 0.0;
+    // PDG code mismatch penalty (weighted by configuration)
+    const double pdg_penalty_base = (mc_part.getPDG() != rc_part.getPDG()) ? 1.0 : 0.0;
+    const double pdg_penalty      = m_cfg.pidPenaltyWeight * pdg_penalty_base;
 
     const double assoc_penalty = energy_penalty + momentum_penalty + pdg_penalty;
 
     trace("Association: MC PDG={} (E={:.3f}, p=[{:.3f},{:.3f},{:.3f}]) <-> "
-          "RC PDG={} (E={:.3f}, p=[{:.3f},{:.3f},{:.3f}])",
+          "RC PDG={} (E={:.3f}±{:.3f}, p=[{:.3f}±{:.3f},{:.3f}±{:.3f},{:.3f}±{:.3f}])",
           mc_part.getPDG(), mc_energy, mc_momentum.x, mc_momentum.y, mc_momentum.z,
-          rc_part.getPDG(), rc_energy, rc_momentum.x, rc_momentum.y, rc_momentum.z);
-    trace("  Energy penalty: {:.6f}, Momentum penalty: {:.6f}, PDG penalty: {:.0f}", energy_penalty,
-          momentum_penalty, pdg_penalty);
+          rc_part.getPDG(), rc_energy, energy_error, rc_momentum.x, px_error, rc_momentum.y,
+          py_error, rc_momentum.z, pz_error);
+    trace("  Energy penalty: {:.6f} (χ²={:.3f}), Momentum penalty: {:.6f} (χ²={:.3f}), PDG "
+          "penalty: {:.3f}",
+          energy_penalty, energy_chi2, momentum_penalty, momentum_chi2, pdg_penalty);
 
     truthiness += assoc_penalty;
     total_pid_contribution += pdg_penalty;
@@ -108,9 +142,10 @@ void Truthiness::process(const Truthiness::Input& input,
       }
     }
   }
-  const double mc_penalty = static_cast<double>(unassociated_mc_count);
-  trace("Unassociated charged MC particles (status 1): {} (penalty: {:.0f})", unassociated_mc_count,
-        mc_penalty);
+  const double mc_penalty =
+      m_cfg.unassociatedMCPenaltyWeight * static_cast<double>(unassociated_mc_count);
+  trace("Unassociated charged MC particles (status 1): {} (penalty: {:.2f}, weight: {:.2f})",
+        unassociated_mc_count, mc_penalty, m_cfg.unassociatedMCPenaltyWeight);
   truthiness += mc_penalty;
 
   // Penalty for unassociated reconstructed particles
@@ -129,9 +164,10 @@ void Truthiness::process(const Truthiness::Input& input,
             rc_part.getMomentum().z);
     }
   }
-  const double rc_penalty = static_cast<double>(unassociated_rc_count);
-  trace("Unassociated reconstructed particles: {} (penalty: {:.0f})", unassociated_rc_count,
-        rc_penalty);
+  const double rc_penalty =
+      m_cfg.unassociatedRecoPenaltyWeight * static_cast<double>(unassociated_rc_count);
+  trace("Unassociated reconstructed particles: {} (penalty: {:.2f}, weight: {:.2f})",
+        unassociated_rc_count, rc_penalty, m_cfg.unassociatedRecoPenaltyWeight);
   truthiness += rc_penalty;
 
   // Update statistics using online updating formula
