@@ -47,8 +47,8 @@ void TrackerMeasurementFromHits::init() {
   // i) Determine whether "CartesianGridUV", possibly embedded in a
   //   MultiSegmentation (discriminating on a "strip" IDDescriptor field).
   // ii) If indeed, set "m_detid_OuterMPGD" to single out corresponding hits.
-  unsigned int required = 0;
-  unsigned int fulfilled = 0;
+  unsigned int required            = 0;
+  unsigned int fulfilled           = 0;
   const dd4hep::Detector* detector = algorithms::GeoSvc::instance().detector();
   ;
   dd4hep::Segmentation seg;
