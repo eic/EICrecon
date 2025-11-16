@@ -13,10 +13,16 @@
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/VolumeManager.h>
+#include <DD4hep/Segmentations.h>
+#include <DDSegmentation/MultiSegmentation.h>
+#include <DDSegmentation/CartesianGridUV.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+// Access "algorithms:GeoSvc"
+#include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
@@ -34,6 +40,44 @@ namespace eicrecon {
 
 void TrackerMeasurementFromHits::init() {
   m_detid_b0tracker = m_dd4hepGeo->constant<unsigned long>("B0Tracker_Station_1_ID");
+  // OuterMPGDBarrel:
+  std::string readout = "OuterMPGDBarrelHits";
+    //  If "CartesianGridUV" segmentation, we need to rotate the cov. matrix.
+  // Particularly when 2D-strip readout, with large uncertainty along strips.
+  // i) Determine whether "CartesianGridUV", possibly embedded in a
+  //   MultiSegmentation (discriminating on a "strip" IDDescriptor field).
+  // ii) If indeed, set "m_detid_OuterMPGD" to single out corresponding hits.
+  unsigned int required = 0, fulfilled = 0;
+  const dd4hep::Detector* detector = algorithms::GeoSvc::instance().detector();;
+  dd4hep::Segmentation seg;
+  try {
+    seg =    detector->readout(readout).segmentation();
+  } catch (...) {
+    critical("Failed to load Segmentation for \"{}\" readout.", readout);
+    throw JException("Failed to load ID Segmentation");
+  }
+  using Segmentation = dd4hep::DDSegmentation::Segmentation;
+  const Segmentation *segmentation = seg->segmentation;
+  if (segmentation->type() == "MultiSegmentation"){
+    required = m_pStripBit | m_nStripBit;
+    using MultiSegmentation = dd4hep::DDSegmentation::MultiSegmentation;
+    const auto* multiSeg =
+      dynamic_cast<const MultiSegmentation*>(segmentation);
+    for (dd4hep::CellID stripID : {m_pStripBit,m_nStripBit}) {
+      const Segmentation& stripSeg = multiSeg->subsegmentation(stripID);
+      if (stripSeg.type() == "CartesianGridUV") fulfilled |= stripID;
+    }
+  }
+  else {
+    required = 0x1;
+    if (segmentation->type() == "CartesianGridUV") fulfilled = 0x1;
+  }
+  if (required == fulfilled) {
+    m_detid_OuterMPGD = m_dd4hepGeo->constant<unsigned long>("TrackerBarrel_5_ID");
+  }
+  else {
+    m_detid_OuterMPGD = 0;
+  }
 }
 
 void TrackerMeasurementFromHits::process(const Input& input, const Output& output) const {
@@ -50,10 +94,24 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
   // For now, one hit = one measurement.
   for (const auto& hit : *trk_hits) {
 
+    auto hit_det = hit.getCellID() & 0xFF;
+
     Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
     cov(0, 0)               = hit.getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
     cov(1, 1)               = hit.getPositionError().yy * mm_acts * mm_acts;
     cov(0, 1) = cov(1, 0) = 0.0;
+    if (hit_det==m_detid_OuterMPGD){
+      const double sqrt2o2 = sqrt(2)/2;
+      const Acts::RotationMatrix2 rot {
+				       { sqrt2o2, sqrt2o2},
+				       {-sqrt2o2, sqrt2o2}
+      };
+      const Acts::RotationMatrix2 inv {
+				       { sqrt2o2,-sqrt2o2},
+				       { sqrt2o2, sqrt2o2}
+      };
+      cov = rot*cov*inv;
+    }
 
     const auto* vol_ctx = m_converter->findContext(hit.getCellID());
     auto vol_id         = vol_ctx->identifier;
@@ -75,7 +133,6 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
     const auto& hit_pos = hit.getPosition(); // 3d position
 
     Acts::Vector2 pos;
-    auto hit_det = hit.getCellID() & 0xFF;
     auto onSurfaceTolerance =
         0.1 *
         Acts::UnitConstants::um; // By default, ACTS uses 0.1 micron as the on surface tolerance
