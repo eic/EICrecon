@@ -76,7 +76,7 @@ void TrackerMeasurementFromHits::init() {
     }
   } else {
     required = 0x1;
-    if (segmentation->type() == "CartesianGridUV")
+    if (segmentation->type() == "CartesianGridUV") {
       fulfilled = 0x1;
   }
   if (required == fulfilled) {
