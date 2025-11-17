@@ -78,6 +78,7 @@ void TrackerMeasurementFromHits::init() {
     required = 0x1;
     if (segmentation->type() == "CartesianGridUV") {
       fulfilled = 0x1;
+}
   }
   if (required == fulfilled) {
     m_detid_OuterMPGD = m_dd4hepGeo->constant<unsigned long>("TrackerBarrel_5_ID");
