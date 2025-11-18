@@ -461,11 +461,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
         if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation))
           continue;
         int direction = io ? +1 : -1;
-        status        = extendHit(refID, direction, lpini, lmom, lpend, lmend);
-        if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
-          critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
-          continue;
-        }
+        extendHit(refID, direction, lpini, lmom, lpend, lmend);
       }
       // ***** FLAG CASES W/ UNEXPECTED OUTCOME
       flagUnexpected(header, 0, (tRef.rMin() + tRef.rMax()) / 2, sim_hit, lpini, lpend, lpos, lmom);
@@ -613,11 +609,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
         if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation))
           continue;
         int direction = io ? +1 : -1;
-        status        = extendHit(refID, direction, lpini, lmom, lpend, lmend);
-        if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
-          critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
-          continue;
-        }
+        extendHit(refID, direction, lpini, lmom, lpend, lmend);
       }
       // ***** FLAG CASES W/ UNEXPECTED OUTCOME
       flagUnexpected(header, 1, 0, sim_hit, lpini, lpend, lpos, lmom);
@@ -634,7 +626,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       time += ((dir > 0) ? 1 : ((dir < 0) ? -1 : 0)) * sqrt(DoF2) / dd4hep::c_light;
     } else {
       critical("Bad input data: CellID {:x} has invalid shape (=\"{}\")", refID, shape.type());
-      throw JException("Bad input data: invalid geometry");
+      throw JException("Inconsistency: Inappropriate Sim_hits fed to \"MPGDTRackerDigi\".");
     }
     // ***** CELLIDS of (p|n)-STRIP HITS
     Position locPos(lpos[0], lpos[1], lpos[2]); // Simplification: strip surface = REFERENCE surface
@@ -1518,10 +1510,9 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, int direction, double* lpi
       Z -= ref2E;
       double dX = bExt.x(), dY = bExt.y();
       status = bExtension(lpoE, lmoE, Z, direction, dX, dY, lext);
-    } else
-      status = 0x10000;
-    if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
-      return status;
+    } else {
+      critical("Bad input data: CellID {:x} has invalid shape (=\"{}\")", refID, shape.type());
+      throw JException("Inconsistency: Inappropriate Sim_hits fed to \"MPGDTRackerDigi\".");
     }
     if (status != 0x1)
       continue;
