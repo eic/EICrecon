@@ -51,7 +51,7 @@ void InitPlugin(JApplication* app) {
       10 * dd4hep::picosecond;
   const double EcalEndcapP_sampFrac = 0.029043; // updated with ratio to ScFi model
   decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
-    fmt::format("{}", 1.0 / EcalEndcapP_sampFrac);  //only used for ScFi model
+      fmt::format("{}", 1.0 / EcalEndcapP_sampFrac); //only used for ScFi model
   const double EcalEndcapP_nPhotonPerGeV          = 1500;
   const double EcalEndcapP_PhotonCollectionEff    = 0.285;
   const unsigned long long EcalEndcapP_totalPixel = 4 * 159565ULL;
