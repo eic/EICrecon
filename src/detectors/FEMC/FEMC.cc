@@ -1,3 +1,5 @@
+
+
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul, Akio Ogawa
 
@@ -48,8 +50,8 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
       10 * dd4hep::picosecond;
   const double EcalEndcapP_sampFrac = 0.029043; // updated with ratio to ScFi model
-  decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale = "1.0";
-  //      fmt::format("{}", 1.0 / EcalEndcapP_sampFrac);
+  decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
+    fmt::format("{}", 1.0 / EcalEndcapP_sampFrac);  //only used for ScFi model
   const double EcalEndcapP_nPhotonPerGeV          = 1500;
   const double EcalEndcapP_PhotonCollectionEff    = 0.285;
   const unsigned long long EcalEndcapP_totalPixel = 4 * 159565ULL;
@@ -97,7 +99,7 @@ void InitPlugin(JApplication* app) {
             .pedMeanADC                = EcalEndcapP_pedMeanADC,
             .pedSigmaADC               = EcalEndcapP_pedSigmaADC,
             .resolutionTDC             = EcalEndcapP_resolutionTDC,
-            .corrMeanScale             = EcalEndcapP_corrMeanScale,
+            .corrMeanScale             = "1.0",
             .readout                   = "EcalEndcapPHits",
         },
         app // TODO: Remove me once fixed
