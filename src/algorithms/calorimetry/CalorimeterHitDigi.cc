@@ -244,9 +244,9 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
           m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
       trace("n_photons_detected {}, n_pixels_fired {}, n_max_photons {}", n_photons_detected,
             n_pixels_fired, n_max_photons);
-      adc = std::max(std::llround(ped + n_pixels_fired * corrMeanScale_value /
-                                            n_max_photons * m_cfg.capADC),
-                     0LL);
+      adc = std::max(
+          std::llround(ped + n_pixels_fired * corrMeanScale_value / n_max_photons * m_cfg.capADC),
+          0LL);
     }
 
     if (edep > 1.e-3) {
