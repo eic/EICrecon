@@ -10,6 +10,7 @@
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TString.h>
+#include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <cmath>
 #include <gsl/pointers>
