@@ -150,18 +150,17 @@ void MPGDTrackerDigi::init() {
   // "volume": excluding channel specfication.
   debug("(Retrieve volume mask in IDDescriptor for \"{}\" readout.)", m_cfg.readout);
   m_volumeBits = 0;
-  for (const char *fieldName : m_fieldNames){
+  for (const char* fieldName : m_fieldNames) {
     CellID fieldID = 0;
     try {
       fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
-    }
-    catch (const std::runtime_error& error) {
-      critical("No field \"{}\" in IDDescriptor of readout \"{}\".",
-	       fieldName, m_cfg.readout.c_str());
+    } catch (const std::runtime_error& error) {
+      critical("No field \"{}\" in IDDescriptor of readout \"{}\".", fieldName,
+               m_cfg.readout.c_str());
       throw JException("Invalid IDDescriptor");
     }
     const BitFieldElement& field = (*m_id_dec)[fieldName];
-    unsigned int offset = field.offset();
+    unsigned int offset          = field.offset();
     m_volumeBits |= fieldID << field.offset();
   }
   //  MPGDTrackerDigi relies on a number of assumptions on the strip field of
