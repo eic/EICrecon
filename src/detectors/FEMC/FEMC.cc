@@ -7,9 +7,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
-#include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <TString.h>
 #include <fmt/core.h>
 #include <spdlog/logger.h>
 #include <cmath>
