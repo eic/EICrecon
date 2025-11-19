@@ -58,13 +58,6 @@ void InitPlugin(JApplication* app) {
   const unsigned long long EcalEndcapP_totalPixel = 4 * 159565ULL;
 
   decltype(CalorimeterHitRecoConfig::thresholdValue) EcalEndcapP_thresholdValue = 3;
-  auto* param =
-      app->GetJParameterManager()->FindParameter("FEMC:EcalEndcapPRecHits:thresholdValue");
-  if (param != nullptr) {
-    double thr = std::stod(param->GetValue());
-    mLog->info(Form("Overwriting threshold value %6.2f -> %6.2f", EcalEndcapP_thresholdValue, thr));
-    EcalEndcapP_thresholdValue = thr;
-  }
 
   int EcalEndcapP_homogeneousFlag = 0;
   try {

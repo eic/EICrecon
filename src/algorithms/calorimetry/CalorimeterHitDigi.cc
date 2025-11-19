@@ -216,8 +216,11 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     unsigned long long adc;
     unsigned long long tdc = std::llround((time + gaussian(generator) * tRes) * stepTDC);
 
+    //smear edep by resolution function before photon and SiPM simulation
+    edep *= (1.0 + eResRel); 
+
     if (readoutType == kSimpleReadout) {
-      adc = std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) /
+      adc = std::max(std::llround(ped + edep * corrMeanScale_value /
                                             m_cfg.dyRangeADC * m_cfg.capADC),
                      0LL);
     } else if (readoutType == kPoissonPhotonReadout) {
@@ -228,11 +231,10 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       const long long int n_max_photons =
           m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
       trace("n_photons_detected {}", n_photons_detected);
-      adc = std::max(std::llround(ped + n_photons_detected * corrMeanScale_value * (1.0 + eResRel) /
+      adc = std::max(std::llround(ped + n_photons_detected * corrMeanScale_value /
                                             n_max_photons * m_cfg.capADC),
                      0LL);
     } else if (readoutType == kSipmReadout) {
-      edep *= (1.0 + eResRel);
       const long long int n_photons = edep * m_cfg.lightYield;
       std::binomial_distribution<> n_photons_detected_dist(n_photons,
                                                            m_cfg.photonDetectionEfficiency);
