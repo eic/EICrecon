@@ -66,7 +66,7 @@ private:
   const dd4hep::Detector* m_detector{nullptr};
   dd4hep::Segmentation m_seg;
   // IDDescriptor
-  static constexpr const char* m_fieldNames[5] = // "volume": excluding channel specfication
+  static constexpr const char* m_fieldNames[5] = // "volume": excluding channel specification
     {"system","layer","module","sensor","strip"};
   dd4hep::CellID m_volumeBits; // "volume" bits, as opposed to channel# bits
   dd4hep::CellID m_moduleBits; // "volume" cleared of its "strip" bits.

@@ -147,7 +147,7 @@ void MPGDTrackerDigi::init() {
   }
 
   // IDDescriptor
-  // "volume": excluding channel specfication.
+  // "volume": excluding channel specification.
   debug("(Retrieve volume mask in IDDescriptor for \"{}\" readout.)", m_cfg.readout);
   m_volumeBits = 0;
   for (const char *fieldName : m_fieldNames){
