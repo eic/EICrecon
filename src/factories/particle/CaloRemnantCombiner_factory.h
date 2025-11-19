@@ -15,10 +15,10 @@
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
-
 namespace eicrecon {
 
-class CaloRemnantCombiner_factory : public JOmniFactory<CaloRemnantCombiner_factory, CaloRemnantCombinerConfig> {
+class CaloRemnantCombiner_factory
+    : public JOmniFactory<CaloRemnantCombiner_factory, CaloRemnantCombinerConfig> {
 private:
   // Underlying algorithm
   std::unique_ptr<eicrecon::CaloRemnantCombiner> m_algo;
@@ -58,7 +58,8 @@ public:
     std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
     m_algo->process({in2}, {m_out_neutral_candidates().get()});
 
-    logger()->debug("Found {} reconstructed neutral candidates", m_out_neutral_candidates()->size());
+    logger()->debug("Found {} reconstructed neutral candidates",
+                    m_out_neutral_candidates()->size());
   }
 };
 } // namespace eicrecon

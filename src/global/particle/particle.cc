@@ -80,7 +80,8 @@ void InitPlugin(JApplication* app) {
   /* TODO add PFA2 EEEMCal here */
   /* TODO add PFA2 EHCal here */
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
-      "ReconstructedNeutralCandidates", {"EcalEndcapNClusters","HcalEndcapNClusters"}, {"ReconstructedNeutralCandidates"}, {}, app));
+      "ReconstructedNeutralCandidates", {"EcalEndcapNClusters", "HcalEndcapNClusters"},
+      {"ReconstructedNeutralCandidates"}, {}, app));
 
   // central ------------------------------------------------------------
 
@@ -114,6 +115,5 @@ void InitPlugin(JApplication* app) {
   /* TODO add PFA3 FHCal insert here */
 
   /* TODO collect reconstructed particles here */
-
 }
 } // extern "C"
