@@ -27,6 +27,7 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
+#include "factories/reco/FarForwardSigma0Reconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
@@ -194,14 +195,12 @@ void InitPlugin(JApplication* app) {
 
   // Backward
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "EcalEndcapNBarrelTrackClusterMatches",
-      {"CalorimeterTrackProjections", "EcalEndcapNClusters"}, {"EcalEndcapNTrackClusterMatches"},
-      {.calo_id = "EcalEndcapN_ID"}, app));
+      "EcalEndcapNTrackClusterMatches", {"CalorimeterTrackProjections", "EcalEndcapNClusters"},
+      {"EcalEndcapNTrackClusterMatches"}, {.calo_id = "EcalEndcapN_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMatch_factory>(
-      "HcalEndcapNBarrelTrackClusterMatches",
-      {"CalorimeterTrackProjections", "HcalEndcapNClusters"}, {"HcalEndcapNTrackClusterMatches"},
-      {.calo_id = "HcalEndcapN_ID"}, app));
+      "HcalEndcapNTrackClusterMatches", {"CalorimeterTrackProjections", "HcalEndcapNClusters"},
+      {"HcalEndcapNTrackClusterMatches"}, {.calo_id = "HcalEndcapN_ID"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
       "ReconstructedBreitFrameParticles",
@@ -231,6 +230,15 @@ void InitPlugin(JApplication* app) {
        .globalToProtonRotation = -0.025,
        .lambdaMaxMassDev       = 0.030 * dd4hep::GeV,
        .iterations             = 10},
+      app // TODO: Remove me once fixed
+      ));
+
+  app->Add(new JOmniFactoryGeneratorT<FarForwardSigma0Reconstruction_factory>(
+      "ReconstructedFarForwardZDCSigma0s",
+      {"ReconstructedFarForwardZDCNeutrals","ReconstructedFarForwardZDCLambdas"}, // edm4eic::ReconstrutedParticleCollection,
+      {"ReconstructedFarForwardZDCSigma0s", "ReconstructedFarForwardZDCSigma0DecayProductsC"
+                                            "M"}, // edm4eic::ReconstrutedParticleCollection,
+      {.sigma0MaxMassDev       = 0.070 * dd4hep::GeV},
       app // TODO: Remove me once fixed
       ));
 
