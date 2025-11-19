@@ -213,7 +213,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     double ped = m_cfg.pedMeanADC + gaussian(generator) * m_cfg.pedSigmaADC;
 
     // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
-    unsigned long long adc;
+    unsigned long long adc = 0;
     unsigned long long tdc = std::llround((time + gaussian(generator) * tRes) * stepTDC);
 
     //smear edep by resolution function before photon and SiPM simulation
