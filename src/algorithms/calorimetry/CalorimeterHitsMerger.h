@@ -21,6 +21,7 @@
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
+#include <iterator>
 #include <map>
 #include <string>
 #include <string_view>
@@ -33,49 +34,43 @@
 
 namespace eicrecon {
 
-  // aliases for convenience
-  using MergeMap = std::unordered_map<uint64_t, std::vector<std::size_t>>;
-  using RefField = std::pair<std::string, int>;
-  using MapFunc = std::function<int(const edm4eic::CalorimeterHit&)>;
+// aliases for convenience
+using MergeMap = std::unordered_map<uint64_t, std::vector<std::size_t>>;
+using RefField = std::pair<std::string, int>;
+using MapFunc  = std::function<int(const edm4eic::CalorimeterHit&)>;
 
-  using CalorimeterHitsMergerAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4eic::CalorimeterHitCollection
-    >,
-    algorithms::Output<
-      edm4eic::CalorimeterHitCollection
-    >
-  >;
+using CalorimeterHitsMergerAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::CalorimeterHitCollection>,
+                          algorithms::Output<edm4eic::CalorimeterHitCollection>>;
 
-  class CalorimeterHitsMerger
-  : public CalorimeterHitsMergerAlgorithm,
-    public WithPodConfig<CalorimeterHitsMergerConfig> {
+class CalorimeterHitsMerger : public CalorimeterHitsMergerAlgorithm,
+                              public WithPodConfig<CalorimeterHitsMergerConfig> {
 
-  public:
-    CalorimeterHitsMerger(std::string_view name)
+public:
+  CalorimeterHitsMerger(std::string_view name)
       : CalorimeterHitsMergerAlgorithm{name,
-                            {"inputHitCollection"},
-                            {"outputHitCollection"},
-                            "Group readout hits from a calorimeter."} {}
+                                       {"inputHitCollection"},
+                                       {"outputHitCollection"},
+                                       "Group readout hits from a calorimeter."} {}
 
-    void init() final;
-    void process(const Input&, const Output&) const final;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
-    uint64_t ref_mask{0};
+private:
+  uint64_t ref_mask{0};
 
-  private:
-    mutable std::map<std::string, MapFunc> ref_maps;
-    dd4hep::IDDescriptor id_desc;
-    dd4hep::BitFieldCoder* id_decoder;
+private:
+  mutable std::map<std::string, MapFunc> ref_maps;
+  dd4hep::IDDescriptor id_desc;
+  dd4hep::BitFieldCoder* id_decoder;
 
-  private:
-    const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
-    const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
+private:
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+  const dd4hep::rec::CellIDPositionConverter* m_converter{
+      algorithms::GeoSvc::instance().cellIDPositionConverter()};
 
-  private:
-    void build_merge_map(const edm4eic::CalorimeterHitCollection* in_hits, MergeMap& merge_map) const;
-
-  };
+private:
+  void build_merge_map(const edm4eic::CalorimeterHitCollection* in_hits, MergeMap& merge_map) const;
+};
 
 } // namespace eicrecon

@@ -1,15 +1,15 @@
 {
-    "problemMatcher": [
+  "problemMatcher": [
+    {
+      "owner": "eicrecon",
+      "pattern": [
         {
-            "owner": "eicrecon",
-            "pattern": [
-                {
-                    "regexp": "^\\[(.*)\\]\\s\\[(error)\\]\\s*(.*)$",
-                    "file": 1,
-                    "severity": 2,
-                    "message": 3
-                }
-            ]
+          "regexp": "^\\[(.*)\\]\\s\\[(error)\\]\\s*(.*)$",
+          "file": 1,
+          "severity": 2,
+          "message": 3
         }
-    ]
+      ]
+    }
+  ]
 }

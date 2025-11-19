@@ -6,14 +6,14 @@
 
 namespace eicrecon {
 
-    struct UndoAfterBurnerConfig {
+struct UndoAfterBurnerConfig {
 
-        bool      m_pid_assume_pion_mass = false;
-        double    m_crossing_angle       = -0.025;
-        double    m_pid_purity           = 0.51;
-        bool      m_correct_beam_FX      = true;
-        bool      m_pid_use_MC_truth     = true;
+  bool m_pid_assume_pion_mass = false;
+  double m_crossing_angle     = -0.025;
+  double m_pid_purity         = 0.51;
+  bool m_correct_beam_FX      = true;
+  bool m_pid_use_MC_truth     = true;
+  int m_max_gen_status        = 1000; // Upper limit on generator status to process (-1 = no limit)
+};
 
-    };
-
-}
+} // namespace eicrecon

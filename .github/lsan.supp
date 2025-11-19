@@ -1,8 +1,10 @@
 leak:CherenkovPID::AddMassHypothesis
 leak:dd4hep::DetElement::DetElement
+leak:dd4hep::DetElementObject::clone
 leak:dd4hep::detail::VolumeManager_Populator::scanPhysicalVolume
 leak:dd4hep::Header::Header
-leak:edm4hep::*::createBuffers
+leak:dd4hep::VisAttr::VisAttr
+leak:edm4hep::*::create*Buffers
 leak:libActsCore.so
 leak:libCling.so
 leak:libCore.so

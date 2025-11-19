@@ -4,14 +4,14 @@
 //
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <memory>
 
 #include "RootFile_service.h"
 
-
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
-    app->ProvideService(std::make_shared<RootFile_service>(app) );
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->ProvideService(std::make_shared<RootFile_service>(app));
 }
 }

@@ -12,8 +12,8 @@ add_executable(
   calorimetry_CalorimeterClusterRecoCoG.cc
   calorimetry_CalorimeterClusterShape.cc
   calorimetry_HEXPLIT.cc
-  digi_LGADPulseGeneration.cc
-  digi_LGADPulseDigitization.cc
+  digi_EICROCDigitization.cc
+  digi_PulseGeneration.cc
   pid_MergeTracks.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc)
@@ -25,11 +25,12 @@ target_link_libraries(
   PRIVATE Catch2::Catch2WithMain
           algorithms_calorimetry_library
           algorithms_fardetectors_library
-          algorithms_interfaces_library # for ParticleSvc
           algorithms_pid_library
           algorithms_pid_lut_library
           algorithms_reco_library
+          algorithms_digi_library
           evaluator_library
+          particle_service_library
           pid_lut_library
           podio::podio
           podio::podioRootIO)

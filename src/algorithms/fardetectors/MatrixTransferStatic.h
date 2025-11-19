@@ -3,6 +3,8 @@
 //
 // This converted from: https://eicweb.phy.anl.gov/EIC/juggler/-/blob/master/JugReco/src/components/FarForwardParticles.cpp
 
+#pragma once
+
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
 #include <algorithms/algorithm.h>
@@ -19,33 +21,26 @@
 
 namespace eicrecon {
 
-  using MatrixTransferStaticAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      edm4hep::MCParticleCollection,
-      edm4eic::TrackerHitCollection
-    >,
-    algorithms::Output<
-      edm4eic::ReconstructedParticleCollection
-    >
-  >;
+using MatrixTransferStaticAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::TrackerHitCollection>,
+    algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-  class MatrixTransferStatic
-  : public MatrixTransferStaticAlgorithm,
-    public WithPodConfig<MatrixTransferStaticConfig> {
+class MatrixTransferStatic : public MatrixTransferStaticAlgorithm,
+                             public WithPodConfig<MatrixTransferStaticConfig> {
 
-  public:
-    MatrixTransferStatic(std::string_view name)
+public:
+  MatrixTransferStatic(std::string_view name)
       : MatrixTransferStaticAlgorithm{name,
-                            {"mcParticles", "inputHitCollection"},
-                            {"outputParticleCollection"},
-                            "Apply matrix method reconstruction to hits."} {}
+                                      {"mcParticles", "inputHitCollection"},
+                                      {"outputParticleCollection"},
+                                      "Apply matrix method reconstruction to hits."} {}
 
-    void init() final;
-    void process(const Input&, const Output&) const final;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-  private:
-    const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
-    const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
-
-  };
-}
+private:
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+  const dd4hep::rec::CellIDPositionConverter* m_converter{
+      algorithms::GeoSvc::instance().cellIDPositionConverter()};
+};
+} // namespace eicrecon

@@ -10,8 +10,8 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
@@ -31,7 +31,7 @@ public:
             "Transforms a set of particles from the lab frame to the Breit frame"} {}
 
   // algorithm initialization
-  void init() final{};
+  void init() final {};
 
   // run algorithm
   void process(const Input&, const Output&) const final;

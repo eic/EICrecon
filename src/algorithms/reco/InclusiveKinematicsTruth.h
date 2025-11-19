@@ -9,7 +9,7 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/interfaces/ParticleSvc.h"
+#include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
@@ -32,7 +32,6 @@ public:
 
 private:
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
-  double m_crossingAngle{-0.025};
 };
 
 } // namespace eicrecon

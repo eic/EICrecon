@@ -1,13 +1,13 @@
 {
-    "image": "ghcr.io/eic/jug_prod:master-nightly",
-    "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
-    "customizations": {
-        "vscode": {
-            "extensions": [
-                "ms-vscode.cmake-tools",
-                "ms-vscode.cpptools",
-                "ms-vscode.cpptools-extension-pack"
-            ]
-        }
+  "image": "ghcr.io/eic/eic_ci:nightly",
+  "postCreateCommand": "./.devcontainer/postCreateCommand.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cmake-tools",
+        "ms-vscode.cpptools",
+        "ms-vscode.cpptools-extension-pack"
+      ]
     }
+  }
 }

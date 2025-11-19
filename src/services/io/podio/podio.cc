@@ -3,27 +3,26 @@
 //
 //
 
-#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSourceGeneratorT.h>
 
 #include "JEventProcessorPODIO.h"
 #include "JEventSourcePODIO.h"
 
-
 // Make this a JANA plugin
 extern "C" {
-void InitPlugin(JApplication *app) {
-    InitJANAPlugin(app);
-    app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
+void InitPlugin(JApplication* app) {
+  InitJANAPlugin(app);
+  app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
 
-    // Disable this behavior for now so one can run eicrecon with only the
-    // input file as an argument.
-    // Only add a EICRootWriter if the user has specified a configuration parameter relevant to writing
-//    if( app->GetJParameterManager()->Exists("podio:output_file")
-//        ||  app->GetJParameterManager()->Exists("podio:output_file_copy_dir")
-//        ||  app->GetJParameterManager()->Exists("podio:output_include_collections")
-//        ||  app->GetJParameterManager()->Exists("podio:output_exclude_collections")        ){
-        app->Add(new JEventProcessorPODIO());
-//    }
+  // Disable this behavior for now so one can run eicrecon with only the
+  // input file as an argument.
+  // Only add a EICRootWriter if the user has specified a configuration parameter relevant to writing
+  //    if( app->GetJParameterManager()->Exists("podio:output_file")
+  //        ||  app->GetJParameterManager()->Exists("podio:output_file_copy_dir")
+  //        ||  app->GetJParameterManager()->Exists("podio:output_include_collections")
+  //        ||  app->GetJParameterManager()->Exists("podio:output_exclude_collections")        ){
+  app->Add(new JEventProcessorPODIO());
+  //    }
 }
 }

@@ -5,34 +5,31 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/VertexCollection.h>
-#include <string>                                 // for basic_string
-#include <string_view>                            // for string_view
+#include <string>      // for basic_string
+#include <string_view> // for string_view
 
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/reco/PrimaryVerticesConfig.h"
 
-
 namespace eicrecon {
 
-using PrimaryVerticesAlgorithm = algorithms::Algorithm<
-   algorithms::Input<edm4eic::VertexCollection>,
-   algorithms::Output<edm4eic::VertexCollection>>;
+using PrimaryVerticesAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::VertexCollection>,
+                          algorithms::Output<edm4eic::VertexCollection>>;
 
-    class PrimaryVertices :
-       public PrimaryVerticesAlgorithm,
-       public WithPodConfig<PrimaryVerticesConfig>{
+class PrimaryVertices : public PrimaryVerticesAlgorithm,
+                        public WithPodConfig<PrimaryVerticesConfig> {
 
-       public:
-         PrimaryVertices(std::string_view name)
-              : PrimaryVerticesAlgorithm{name,
-                             {"inputVertices"},
-                             {"outputPrimaryVertices"},
-                             "Sort reconstructed vertices in PrimaryVertices collection"} {}
+public:
+  PrimaryVertices(std::string_view name)
+      : PrimaryVerticesAlgorithm{name,
+                                 {"inputVertices"},
+                                 {"outputPrimaryVertices"},
+                                 "Sort reconstructed vertices in PrimaryVertices collection"} {}
 
-         void init() final;
-         void process(const Input&, const Output&) const final;
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
-    private:
-
-    };
+private:
+};
 } // namespace eicrecon

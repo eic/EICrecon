@@ -7,10 +7,9 @@
 
 namespace eicrecon {
 
-  struct ONNXInferenceConfig {
+struct ONNXInferenceConfig {
 
-    std::string modelPath;
+  std::string modelPath;
+};
 
-  };
-
-} // eicrecon
+} // namespace eicrecon
