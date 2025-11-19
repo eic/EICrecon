@@ -1,5 +1,3 @@
-
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul, Akio Ogawa
 
@@ -54,8 +52,6 @@ void InitPlugin(JApplication* app) {
   const double EcalEndcapP_nPhotonPerGeV          = 1500;
   const double EcalEndcapP_PhotonCollectionEff    = 0.285;
   const unsigned long long EcalEndcapP_totalPixel = 4 * 159565ULL;
-
-  decltype(CalorimeterHitRecoConfig::thresholdValue) EcalEndcapP_thresholdValue = 3;
 
   int EcalEndcapP_homogeneousFlag = 0;
   try {
@@ -133,8 +129,8 @@ void InitPlugin(JApplication* app) {
           .pedSigmaADC     = EcalEndcapP_pedSigmaADC,
           .resolutionTDC   = EcalEndcapP_resolutionTDC,
           .thresholdFactor = 0.0,
-          .thresholdValue  = EcalEndcapP_thresholdValue,
-          //   3, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
+          .thresholdValue  =
+             3, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
           // 15 MeV = 2.4576, but adc=llround(dE) and cut off is "<". So 3 here = 15.25MeV
           .sampFrac = "1.00", // already taken care in DIGI code above
           .readout  = "EcalEndcapPHits",
