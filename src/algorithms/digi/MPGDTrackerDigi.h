@@ -11,10 +11,6 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
-//#define MC_PARTICLE_ASSOCIATION
-#ifdef MC_PARTICLE_ASSOCIATION
-#include <edm4hep/MCParticle.h>
-#endif
 #include <functional>
 #include <string>
 #include <string_view>
@@ -26,12 +22,7 @@
 namespace eicrecon {
 
 using MPGDTrackerDigiAlgorithm = algorithms::Algorithm<
-#ifdef MC_PARTICLE_ASSOCIATION
-    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection,
-                      podio::CollectionBase>,
-#else
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
-#endif
     algorithms::Output<edm4eic::RawTrackerHitCollection,
                        edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
@@ -74,12 +65,15 @@ private:
   /** Segmentation */
   const dd4hep::Detector* m_detector{nullptr};
   dd4hep::Segmentation m_seg;
+  // IDDescriptor
+  static constexpr const char* m_fieldNames[5] = // "volume": excluding channel specfication
+    {"system","layer","module","sensor","strip"};
+  dd4hep::CellID m_volumeBits; // "volume" bits, as opposed to channel# bits
+  dd4hep::CellID m_moduleBits; // "volume" cleared of its "strip" bits.
   // Built-in constants specifying IDDescriptor fields.
   // The "init" should method double-check these are actually implemented in the XMLs of MPGDs.
-  static constexpr dd4hep::CellID m_volumeBits  = 0xffffffff; // 32 least weight bits
   static constexpr dd4hep::CellID m_stripBits   = ((dd4hep::CellID)0xf) << 28;
   static constexpr dd4hep::CellID m_stripMask   = ~m_stripBits;
-  static constexpr dd4hep::CellID m_moduleBits  = m_volumeBits & m_stripMask;
   static constexpr dd4hep::CellID m_pStripBit   = ((dd4hep::CellID)0x1) << 28;
   static constexpr dd4hep::CellID m_nStripBit   = ((dd4hep::CellID)0x2) << 28;
   static constexpr dd4hep::CellID m_stripIDs[5] = {((dd4hep::CellID)0x3) << 28, m_pStripBit, 0,
