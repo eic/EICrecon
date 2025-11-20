@@ -278,7 +278,7 @@ struct TimeframeSplitter : public JEventUnfolder {
 
           float compDetTimeRes = m_timeResolution_TOF();
           if (iCompDet > 5) compDetTimeRes = m_timeResolution_Silicon();
-          else if (iCompDet > 1) compDetTimeRes = m_timeResolution_MPGD()¨;
+          else if (iCompDet > 1) compDetTimeRes = m_timeResolution_MPGD();
 
           unsigned int bInTS = 1;
           // == s == Check if the hit is in the current time slice ==========================
