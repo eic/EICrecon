@@ -152,7 +152,7 @@ void MPGDTrackerDigi::init() {
   m_volumeBits = 0;
   for (int field = 0; field < 5; field++) {
     const char* fieldName = m_fieldNames[field];
-    CellID fieldID = 0;
+    CellID fieldID        = 0;
     try {
       fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
     } catch (const std::runtime_error& error) {
