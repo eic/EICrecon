@@ -160,7 +160,6 @@ void MPGDTrackerDigi::init() {
       throw JException("Invalid IDDescriptor");
     }
     const BitFieldElement& field = (*m_id_dec)[fieldName];
-    unsigned int offset          = field.offset();
     m_volumeBits |= fieldID << field.offset();
   }
   //  MPGDTrackerDigi relies on a number of assumptions on the strip field of
