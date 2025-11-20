@@ -34,7 +34,7 @@ void FarDetectorTransportationPostML::process(
       // Check if beam electrons are present
       if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.NullDereference)
         if (m_cfg.requireBeamElectron) {
-          critical("No beam electrons found");
+          error("No beam electrons found");
           throw std::runtime_error("No beam electrons found");
         }
         return;
