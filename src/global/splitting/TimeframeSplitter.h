@@ -28,11 +28,11 @@ struct TimeframeSplitter : public JEventUnfolder {
   Parameter<float> timesplit_width{this, "timesplit_width", 2000.0,
                                    "Width of each timeslice in ns"};
   Parameter<float> m_timeResolution_Silicon{this, "m_timeResolution_Silicon", 2000.0,
-                                   "time resolution of Silicon detector in ns"};
+                                            "time resolution of Silicon detector in ns"};
   Parameter<float> m_timeResolution_MPGD{this, "m_timeResolution_MPGD = 10.0", 10.0,
-                                   "time resolution of MPGD detector in ns"};
+                                         "time resolution of MPGD detector in ns"};
   Parameter<float> m_timeResolution_TOF{this, "m_timeResolution_TOF = 1.0", 1.0,
-                                   "time resolution of TOF detector in ns"};
+                                        "time resolution of TOF detector in ns"};
   // float m_timeframe_width = 2000.0; // ns
   // float m_timesplit_width = 2000.0; // ns
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
@@ -68,25 +68,40 @@ struct TimeframeSplitter : public JEventUnfolder {
       "LumiSpecTrackerRecHits", "RICHEndcapNRecHits"};
 
   std::vector<std::string> m_simtrackerhitAsso_collection_names = {
-      "TOFBarrelRawHitAssociations_TK", "TOFEndcapRawHitAssociations_TK",
-      "MPGDBarrelRawHitAssociations_TK", "OuterMPGDBarrelRawHitAssociations_TK",
-      "BackwardMPGDEndcapRawHitAssociations_TK", "ForwardMPGDEndcapRawHitAssociations_TK",
-      "SiBarrelVertexRawHitAssociations_TK", "SiBarrelRawHitAssociations_TK",
-      "SiEndcapTrackerRawHitAssociations_TK", "TaggerTrackerRawHitAssociations_TK",
-      "B0TrackerRawHitAssociations_TK", "DIRCBarRawHitAssociations_TK",
-      "DRICHRawHitAssociations_TK", "ForwardOffMTrackerRawHitAssociations_TK",
-      "ForwardRomanPotRawHitAssociations_TK", "LumiSpecTrackerRawHitAssociations_TK",
-      "RICHEndcapNRawHitAssociations_TK"
-      };
+      "TOFBarrelRawHitAssociations_TK",
+      "TOFEndcapRawHitAssociations_TK",
+      "MPGDBarrelRawHitAssociations_TK",
+      "OuterMPGDBarrelRawHitAssociations_TK",
+      "BackwardMPGDEndcapRawHitAssociations_TK",
+      "ForwardMPGDEndcapRawHitAssociations_TK",
+      "SiBarrelVertexRawHitAssociations_TK",
+      "SiBarrelRawHitAssociations_TK",
+      "SiEndcapTrackerRawHitAssociations_TK",
+      "TaggerTrackerRawHitAssociations_TK",
+      "B0TrackerRawHitAssociations_TK",
+      "DIRCBarRawHitAssociations_TK",
+      "DRICHRawHitAssociations_TK",
+      "ForwardOffMTrackerRawHitAssociations_TK",
+      "ForwardRomanPotRawHitAssociations_TK",
+      "LumiSpecTrackerRawHitAssociations_TK",
+      "RICHEndcapNRawHitAssociations_TK"};
   std::vector<std::string> m_simtrackerhitAsso_collection_names_out = {
-      "TOFBarrelRawHitAssociations", "TOFEndcapRawHitAssociations",
-      "MPGDBarrelRawHitAssociations", "OuterMPGDBarrelRawHitAssociations",
-      "BackwardMPGDEndcapRawHitAssociations", "ForwardMPGDEndcapRawHitAssociations",
-      "SiBarrelVertexRawHitAssociations", "SiBarrelRawHitAssociations",
-      "SiEndcapTrackerRawHitAssociations", "TaggerTrackerRawHitAssociations",
-      "B0TrackerRawHitAssociations", "DIRCBarRawHitAssociations",
-      "DRICHRawHitAssociations", "ForwardOffMTrackerRawHitAssociations",
-      "ForwardRomanPotRawHitAssociations", "LumiSpecTrackerRawHitAssociations",
+      "TOFBarrelRawHitAssociations",
+      "TOFEndcapRawHitAssociations",
+      "MPGDBarrelRawHitAssociations",
+      "OuterMPGDBarrelRawHitAssociations",
+      "BackwardMPGDEndcapRawHitAssociations",
+      "ForwardMPGDEndcapRawHitAssociations",
+      "SiBarrelVertexRawHitAssociations",
+      "SiBarrelRawHitAssociations",
+      "SiEndcapTrackerRawHitAssociations",
+      "TaggerTrackerRawHitAssociations",
+      "B0TrackerRawHitAssociations",
+      "DIRCBarRawHitAssociations",
+      "DRICHRawHitAssociations",
+      "ForwardOffMTrackerRawHitAssociations",
+      "ForwardRomanPotRawHitAssociations",
+      "LumiSpecTrackerRawHitAssociations",
       "RICHEndcapNRawHitAssociations"};
 
   // std::vector<std::string> m_simtrackerhit_collection_names = {"SiBarrelRecHits_TK"};
@@ -241,17 +256,20 @@ struct TimeframeSplitter : public JEventUnfolder {
         break;
       }
 
-      Int_t baseDetID = m_detId[iBaseDet];
+      Int_t baseDetID      = m_detId[iBaseDet];
       float baseDetTimeRes = m_timeResolution_TOF();
-      if (iBaseDet > 5) baseDetTimeRes = m_timeResolution_Silicon();
-      else if (iBaseDet > 1) baseDetTimeRes = m_timeResolution_MPGD();
+      if (iBaseDet > 5)
+        baseDetTimeRes = m_timeResolution_Silicon();
+      else if (iBaseDet > 1)
+        baseDetTimeRes = m_timeResolution_MPGD();
 
       // == s == Time-slice base detector hits loop =======================================
       Int_t baseDetNumOfHits = m_vOrigHitId.at(iBaseDet).size();
       if (startHitPoint[iBaseDet] >= baseDetNumOfHits) {
         m_bDetLastHits[iBaseDet] = true;
         targetDetId++;
-        if(targetDetId >= m_triggerDetSize) m_bScanedAllTimeWindows = true;
+        if (targetDetId >= m_triggerDetSize)
+          m_bScanedAllTimeWindows = true;
         continue;
       }
 
@@ -262,8 +280,8 @@ struct TimeframeSplitter : public JEventUnfolder {
         m_vSameTSHitId.at(iBaseDet).push_back(baseHitID);
         Int_t baseThetaID1 = 999;
         Int_t baseThetaID2 = 999;
-        Int_t basePhiID1 = 999;
-        Int_t basePhiID2 = 999;
+        Int_t basePhiID1   = 999;
+        Int_t basePhiID2   = 999;
         thetaPhiBinCalc(baseHit, baseThetaID1, basePhiID1, baseThetaID2, basePhiID2);
         hitsCountsInTSDevInThetaPhi1[baseThetaID1][basePhiID1]++;
         hitsCountsInTSDevInThetaPhi2[baseThetaID2][basePhiID2]++;
@@ -282,21 +300,23 @@ struct TimeframeSplitter : public JEventUnfolder {
 
           unsigned int bInTS = 1;
           // == s == Check if the hit is in the current time slice ==========================
-          if(compHitTime - compDetTimeRes < baseHitTime + baseDetTimeRes){
-            if(compHitTime + compDetTimeRes > baseHitTime - baseDetTimeRes){
+          if (compHitTime - compDetTimeRes < baseHitTime + baseDetTimeRes) {
+            if (compHitTime + compDetTimeRes > baseHitTime - baseDetTimeRes) {
               Int_t thetaID1 = 999;
               Int_t thetaID2 = 999;
-              Int_t phiID1 = 999;
-              Int_t phiID2 = 999;
+              Int_t phiID1   = 999;
+              Int_t phiID2   = 999;
               thetaPhiBinCalc(compHit, thetaID1, phiID1, thetaID2, phiID2);
               hitsCountsInTSDevInThetaPhi1[thetaID1][phiID1]++;
               hitsCountsInTSDevInThetaPhi2[thetaID2][phiID2]++;
               bInTS = 0;
-            }else bInTS = 2;
+            } else
+              bInTS = 2;
           }
 
-          if(bInTS==0) m_vSameTSHitId.at(iCompDet).push_back(compHitID);
-          else if(bInTS==1) {
+          if (bInTS == 0)
+            m_vSameTSHitId.at(iCompDet).push_back(compHitID);
+          else if (bInTS == 1) {
             // Update the start point for the next iteration
             startHitPoint[iBaseDet] = iCompHit;
             break; // Break if the hit time exceeds the current time slice
@@ -311,28 +331,33 @@ struct TimeframeSplitter : public JEventUnfolder {
 
           for (size_t iCompHit = 0; iCompHit < compDetNumOfHits; ++iCompHit) {
             unsigned int compHitID = m_vOrigHitId.at(iCompDet).at(iCompHit);
-            const auto& compHit = m_simtrackerhits_in().at(compDetID)->at(compHitID);
-            Double_t compHitTime = compHit.getTime();
-            float compDetTimeRes = m_timeResolution_TOF();
-            if (iCompDet > 5) compDetTimeRes = m_timeResolution_Silicon();
-            else if (iCompDet > 1) compDetTimeRes = m_timeResolution_MPGD();
+            const auto& compHit    = m_simtrackerhits_in().at(compDetID)->at(compHitID);
+            Double_t compHitTime   = compHit.getTime();
+            float compDetTimeRes   = m_timeResolution_TOF();
+            if (iCompDet > 5)
+              compDetTimeRes = m_timeResolution_Silicon();
+            else if (iCompDet > 1)
+              compDetTimeRes = m_timeResolution_MPGD();
 
             // == s == Check if the hit is in the current time slice ==========================
             unsigned int bInTS = 1;
-            if(compHitTime - compDetTimeRes < baseHitTime + baseDetTimeRes){
-              if(compHitTime + compDetTimeRes > baseHitTime - baseDetTimeRes){
+            if (compHitTime - compDetTimeRes < baseHitTime + baseDetTimeRes) {
+              if (compHitTime + compDetTimeRes > baseHitTime - baseDetTimeRes) {
                 Int_t thetaID1 = 999;
                 Int_t thetaID2 = 999;
-                Int_t phiID1 = 999;
-                Int_t phiID2 = 999;
+                Int_t phiID1   = 999;
+                Int_t phiID2   = 999;
                 thetaPhiBinCalc(compHit, thetaID1, phiID1, thetaID2, phiID2);
                 hitsCountsInTSDevInThetaPhi1[thetaID1][phiID1]++;
                 bInTS = 0;
-              }else bInTS = 2;
+              } else
+                bInTS = 2;
             }
 
-            if(bInTS==0) m_vSameTSHitId.at(iCompDet).push_back(compHitID);
-            else if(bInTS==1) break;
+            if (bInTS == 0)
+              m_vSameTSHitId.at(iCompDet).push_back(compHitID);
+            else if (bInTS == 1)
+              break;
 
             // == e == Check if the hit is in the current time slice ==========================
           }
@@ -341,7 +366,8 @@ struct TimeframeSplitter : public JEventUnfolder {
         if (iBaseHit == baseDetNumOfHits - 1 || startHitPoint[iBaseDet] == baseDetNumOfHits - 1) {
           m_bDetLastHits[iBaseDet] = true;
           targetDetId++;
-          if(targetDetId >= m_triggerDetSize) m_bScanedAllTimeWindows = true;
+          if (targetDetId >= m_triggerDetSize)
+            m_bScanedAllTimeWindows = true;
         }
 
         // == s ==  Trigger Judgement ==================================================
@@ -416,8 +442,8 @@ struct TimeframeSplitter : public JEventUnfolder {
           // == s == For MC Trigger Efficiency Estimation ~~~~~~~~
           Int_t physEventWeight = 2;
           for (const auto& physCollTime : m_vPhysCooTimes) {
-            if(physCollTime > baseHitTime - baseDetTimeRes
-              && physCollTime < baseHitTime + baseDetTimeRes){
+            if (physCollTime > baseHitTime - baseDetTimeRes &&
+                physCollTime < baseHitTime + baseDetTimeRes) {
               physEventWeight = 1;
               m_vPhysCooTimes.erase(m_vPhysCooTimes.begin() + physCollTime);
               break;
@@ -445,26 +471,27 @@ struct TimeframeSplitter : public JEventUnfolder {
             m_mcparticles_out()->push_back(mcparticle.clone(true));
           }
 
-
-          auto& asso_in_vec  = m_simtrackerhitsAsso_in(); 
+          auto& asso_in_vec  = m_simtrackerhitsAsso_in();
           auto& asso_out_vec = m_simtrackerhitsAsso_out();
           for (size_t iDet = 0; iDet < asso_in_vec.size(); ++iDet) {
             const auto* inAsso_coll = asso_in_vec[iDet];
-            auto&       outAsso_coll  = asso_out_vec[iDet];
+            auto& outAsso_coll      = asso_out_vec[iDet];
             outAsso_coll->setSubsetCollection();
 
             if (inAsso_coll == nullptr) {
-              if (!outAsso_coll) outAsso_coll = \
-                std::make_unique<edm4eic::MCRecoTrackerHitAssociationCollection>();
-              else outAsso_coll->clear();
+              if (!outAsso_coll)
+                outAsso_coll = std::make_unique<edm4eic::MCRecoTrackerHitAssociationCollection>();
+              else
+                outAsso_coll->clear();
               continue;
             }
-            
+
             // if (!outAsso_coll) outAsso_coll = \
             //   std::make_unique<edm4eic::MCRecoTrackerHitAssociationCollection>();
             // else outAsso_coll->clear();
 
-            for (const auto& asso : *inAsso_coll) outAsso_coll->push_back(asso);
+            for (const auto& asso : *inAsso_coll)
+              outAsso_coll->push_back(asso);
           }
 
           // == e == Basic container for simulatin data (but not related to data)  =========
@@ -520,21 +547,25 @@ struct TimeframeSplitter : public JEventUnfolder {
     return Result::KeepChildNextParent;
   }
 
-  inline void thetaPhiBinCalc(edm4eic::TrackerHit hit, Int_t& thetaID1, Int_t& phiID1, Int_t& thetaID2, Int_t& phiID2){
-    Double_t hitX = hit.getPosition()[0];
-    Double_t hitY = hit.getPosition()[1];
-    Double_t hitZ = hit.getPosition()[2];
-    Double_t hitR = TMath::Sqrt(hitX*hitX + hitY*hitY + hitZ*hitZ);
+  inline void thetaPhiBinCalc(edm4eic::TrackerHit hit, Int_t& thetaID1, Int_t& phiID1,
+                              Int_t& thetaID2, Int_t& phiID2) {
+    Double_t hitX     = hit.getPosition()[0];
+    Double_t hitY     = hit.getPosition()[1];
+    Double_t hitZ     = hit.getPosition()[2];
+    Double_t hitR     = TMath::Sqrt(hitX * hitX + hitY * hitY + hitZ * hitZ);
     Double_t hitTheta = 0.;
-    hitTheta = TMath::ACos(hitZ/hitR);
-    if(hitTheta >  1.0) hitTheta = 1.0;
-    if(hitTheta < -1.0) hitTheta = -1.0;
+    hitTheta          = TMath::ACos(hitZ / hitR);
+    if (hitTheta > 1.0)
+      hitTheta = 1.0;
+    if (hitTheta < -1.0)
+      hitTheta = -1.0;
 
-    Double_t hitPhi = TMath::ATan2(hitY, hitX) + 2*TMath::Pi();
-    if(hitPhi < 0) hitPhi += 2*TMath::Pi();
-    thetaID1 = hitTheta / (TMath::Pi()/12.);
-    thetaID2 = (hitTheta + TMath::Pi()/24.) / (TMath::Pi()/12.);
-    phiID1 = hitPhi / (TMath::Pi()/8.);
-    phiID2 = (hitPhi + TMath::Pi()/16.) / (TMath::Pi()/8.);
+    Double_t hitPhi = TMath::ATan2(hitY, hitX) + 2 * TMath::Pi();
+    if (hitPhi < 0)
+      hitPhi += 2 * TMath::Pi();
+    thetaID1 = hitTheta / (TMath::Pi() / 12.);
+    thetaID2 = (hitTheta + TMath::Pi() / 24.) / (TMath::Pi() / 12.);
+    phiID1   = hitPhi / (TMath::Pi() / 8.);
+    phiID2   = (hitPhi + TMath::Pi() / 16.) / (TMath::Pi() / 8.);
   }
 };
