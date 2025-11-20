@@ -82,7 +82,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
 
   if (numBeamProtons == 0) {
     if (m_cfg.requireBeamProton) {
-      critical("No beam protons found");
+      error("No beam protons found");
       throw std::runtime_error("No beam protons found");
     }
     return;
@@ -132,7 +132,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
   }
   if (not valid_energy_found) {
     if (m_cfg.requireValidBeamEnergy) {
-      critical("No tune beam energy found - cannot acquire lookup table");
+      error("No tune beam energy found - cannot acquire lookup table");
       throw std::runtime_error("No valid beam energy found, cannot reconstruct momentum");
     }
     return;
@@ -147,7 +147,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
     if (std::filesystem::exists(filename)) {
       xLGraph = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
     } else {
-      critical("Cannot find lookup xL table for {}", nomMomentum);
+      error("Cannot find lookup xL table for {}", nomMomentum);
       throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed");
     }
   }
