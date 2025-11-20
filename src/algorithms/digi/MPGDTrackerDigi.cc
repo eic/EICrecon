@@ -155,7 +155,7 @@ void MPGDTrackerDigi::init() {
     try {
       fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
     } catch (const std::runtime_error& error) {
-      critical("No field \"{}\" in IDDescriptor of readout \"{}\".", fieldName,
+      critical(R"(No field "{}" in IDDescriptor of readout "{}".)", fieldName,
                m_cfg.readout.c_str());
       throw JException("Invalid IDDescriptor");
     }
