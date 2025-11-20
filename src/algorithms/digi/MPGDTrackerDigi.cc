@@ -167,7 +167,7 @@ void MPGDTrackerDigi::init() {
   //  As an illustration, here is the IDDescriptor of CyMBaL (as of 2025/11):
   // //<id>system:8,layer:4,module:12,sensor:2,strip:28:4,phi:-16,z:-16</id>
   //  Let's double-check part of the assumptions, viz.:"m_stripBits".
-  debug("(Find valid \"strip\" field in IDDescriptor for \"{}\" readout.)", m_cfg.readout);
+  debug(R"((Find valid "strip" field in IDDescriptor for "{}" readout.))", m_cfg.readout);
   if (m_id_dec->get(m_stripBits, "strip") != 0xf) {
     critical("Missing or invalid \"strip\" field in IDDescriptor for \"{}\" readout.",
              m_cfg.readout);
