@@ -169,7 +169,7 @@ void MPGDTrackerDigi::init() {
   //  Let's double-check part of the assumptions, viz.:"m_stripBits".
   debug(R"((Find valid "strip" field in IDDescriptor for "{}" readout.))", m_cfg.readout);
   if (m_id_dec->get(m_stripBits, "strip") != 0xf) {
-    critical("Missing or invalid \"strip\" field in IDDescriptor for \"{}\" readout.",
+    critical(R"(Missing or invalid "strip" field in IDDescriptor for "{}" readout.)",
              m_cfg.readout);
     throw JException("Invalid IDDescriptor");
   }
