@@ -37,8 +37,6 @@ public:
 
 private:
   const dd4hep::Detector* m_det{algorithms::GeoSvc::instance().detector()};
-
-  SecondaryVerticesHelixConfig m_cfg;
 };
 
 } // namespace eicrecon
