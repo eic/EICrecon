@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Xin Dong, Rongrong Ma
+// FIXME SPDX-License-Identifier: TBD
+// Copyright (C) 1997 - 2025 The STAR Collaboration, Xin Dong, Rongrong Ma
 
 #pragma once
 

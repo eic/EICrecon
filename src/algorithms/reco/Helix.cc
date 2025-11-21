@@ -1,5 +1,5 @@
-// SPDX-License-Identifier: MIT
-// Copyright (C) 2020-2024 The STAR Collaboration, Xin Dong, Rongrong Ma
+// FIXME SPDX-License-Identifier: TBD
+// Copyright (C) 1997 - 2025 The STAR Collaboration, Xin Dong, Rongrong Ma
 
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/Track.h>
