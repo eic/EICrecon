@@ -293,7 +293,6 @@ struct TimeframeSplitter : public JEventUnfolder {
           unsigned int compHitID = m_vOrigHitId.at(iCompDet).at(iCompHit);
           const auto& compHit    = m_simtrackerhits_in().at(compDetID)->at(compHitID);
           Double_t compHitTime   = compHit.getTime();
-
           float compDetTimeRes = timeResolution_TOF();
           if (iCompDet > 5) compDetTimeRes = timeResolution_Silicon();
           else if (iCompDet > 1) compDetTimeRes = timeResolution_MPGD();
