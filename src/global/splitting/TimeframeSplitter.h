@@ -28,11 +28,11 @@ struct TimeframeSplitter : public JEventUnfolder {
   Parameter<float> timesplit_width{this, "timesplit_width", 2000.0,
                                    "Width of each timeslice in ns"};
   Parameter<float> timeResolution_Silicon{this, "timeResolution_Silicon", 2000.0,
-                                            "time resolution of Silicon detector in ns"};
+                                          "time resolution of Silicon detector in ns"};
   Parameter<float> timeResolution_MPGD{this, "timeResolution_MPGD = 10.0", 10.0,
-                                         "time resolution of MPGD detector in ns"};
+                                       "time resolution of MPGD detector in ns"};
   Parameter<float> timeResolution_TOF{this, "timeResolution_TOF = 1.0", 1.0,
-                                        "time resolution of TOF detector in ns"};
+                                      "time resolution of TOF detector in ns"};
   // float m_timeframe_width = 2000.0; // ns
   // float m_timesplit_width = 2000.0; // ns
   bool m_use_timeframe = false; // Use timeframes to split events, or use timeslices
@@ -293,9 +293,11 @@ struct TimeframeSplitter : public JEventUnfolder {
           unsigned int compHitID = m_vOrigHitId.at(iCompDet).at(iCompHit);
           const auto& compHit    = m_simtrackerhits_in().at(compDetID)->at(compHitID);
           Double_t compHitTime   = compHit.getTime();
-          float compDetTimeRes = timeResolution_TOF();
-          if (iCompDet > 5) compDetTimeRes = timeResolution_Silicon();
-          else if (iCompDet > 1) compDetTimeRes = timeResolution_MPGD();
+          float compDetTimeRes   = timeResolution_TOF();
+          if (iCompDet > 5)
+            compDetTimeRes = timeResolution_Silicon();
+          else if (iCompDet > 1)
+            compDetTimeRes = timeResolution_MPGD();
 
           unsigned int bInTS = 1;
           // == s == Check if the hit is in the current time slice ==========================
