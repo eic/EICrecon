@@ -27,11 +27,11 @@ struct TimeframeSplitter : public JEventUnfolder {
                                    "Width of each timeframe in ns"};
   Parameter<float> timesplit_width{this, "timesplit_width", 2000.0,
                                    "Width of each timeslice in ns"};
-  Parameter<float> m_timeResolution_Silicon{this, "m_timeResolution_Silicon", 2000.0,
+  Parameter<float> timeResolution_Silicon{this, "timeResolution_Silicon", 2000.0,
                                             "time resolution of Silicon detector in ns"};
-  Parameter<float> m_timeResolution_MPGD{this, "m_timeResolution_MPGD = 10.0", 10.0,
+  Parameter<float> timeResolution_MPGD{this, "timeResolution_MPGD = 10.0", 10.0,
                                          "time resolution of MPGD detector in ns"};
-  Parameter<float> m_timeResolution_TOF{this, "m_timeResolution_TOF = 1.0", 1.0,
+  Parameter<float> timeResolution_TOF{this, "timeResolution_TOF = 1.0", 1.0,
                                         "time resolution of TOF detector in ns"};
   // float m_timeframe_width = 2000.0; // ns
   // float m_timesplit_width = 2000.0; // ns
@@ -182,10 +182,10 @@ struct TimeframeSplitter : public JEventUnfolder {
   // Int_t m_detId[10] = {12, 13, 1, 4, 8, 9, 11, 14, 15, 16}; // TOF and MPGD, Silicon excluded
   Int_t m_detId[9] = {0, 1, 2, 3, 4, 5, 6, 7, 8}; // TOF and MPGD, Silicon excluded
 
-  // float m_timeResolution_Silicon = 2000.0; // time resolution [ns]
-  // float m_timeResolution_MPGD = 10.0; // time resolution [ns]
-  // float m_timeResolution_TOF = 0.030; // time resolution [ns]
-  // float m_timeResolution_TOF = 1.0; // time resolution [ns]
+  // float timeResolution_Silicon = 2000.0; // time resolution [ns]
+  // float timeResolution_MPGD = 10.0; // time resolution [ns]
+  // float timeResolution_TOF = 0.030; // time resolution [ns]
+  // float timeResolution_TOF = 1.0; // time resolution [ns]
 
   bool bInitialLoop = true;
   std::vector<std::vector<unsigned int>> m_vOrigHitId;
@@ -257,11 +257,11 @@ struct TimeframeSplitter : public JEventUnfolder {
       }
 
       Int_t baseDetID      = m_detId[iBaseDet];
-      float baseDetTimeRes = m_timeResolution_TOF();
+      float baseDetTimeRes = timeResolution_TOF();
       if (iBaseDet > 5)
-        baseDetTimeRes = m_timeResolution_Silicon();
+        baseDetTimeRes = timeResolution_Silicon();
       else if (iBaseDet > 1)
-        baseDetTimeRes = m_timeResolution_MPGD();
+        baseDetTimeRes = timeResolution_MPGD();
 
       // == s == Time-slice base detector hits loop =======================================
       Int_t baseDetNumOfHits = m_vOrigHitId.at(iBaseDet).size();
@@ -294,9 +294,9 @@ struct TimeframeSplitter : public JEventUnfolder {
           const auto& compHit    = m_simtrackerhits_in().at(compDetID)->at(compHitID);
           Double_t compHitTime   = compHit.getTime();
 
-          float compDetTimeRes = m_timeResolution_TOF();
-          if (iCompDet > 5) compDetTimeRes = m_timeResolution_Silicon();
-          else if (iCompDet > 1) compDetTimeRes = m_timeResolution_MPGD();
+          float compDetTimeRes = timeResolution_TOF();
+          if (iCompDet > 5) compDetTimeRes = timeResolution_Silicon();
+          else if (iCompDet > 1) compDetTimeRes = timeResolution_MPGD();
 
           unsigned int bInTS = 1;
           // == s == Check if the hit is in the current time slice ==========================
@@ -333,11 +333,11 @@ struct TimeframeSplitter : public JEventUnfolder {
             unsigned int compHitID = m_vOrigHitId.at(iCompDet).at(iCompHit);
             const auto& compHit    = m_simtrackerhits_in().at(compDetID)->at(compHitID);
             Double_t compHitTime   = compHit.getTime();
-            float compDetTimeRes   = m_timeResolution_TOF();
+            float compDetTimeRes   = timeResolution_TOF();
             if (iCompDet > 5)
-              compDetTimeRes = m_timeResolution_Silicon();
+              compDetTimeRes = timeResolution_Silicon();
             else if (iCompDet > 1)
-              compDetTimeRes = m_timeResolution_MPGD();
+              compDetTimeRes = timeResolution_MPGD();
 
             // == s == Check if the hit is in the current time slice ==========================
             unsigned int bInTS = 1;
