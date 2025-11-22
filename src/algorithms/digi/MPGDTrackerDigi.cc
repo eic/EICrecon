@@ -96,6 +96,7 @@
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <DDSegmentation/MultiSegmentation.h>
+#include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>

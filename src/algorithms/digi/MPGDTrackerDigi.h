@@ -11,9 +11,11 @@
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #include "MPGDTrackerDigiConfig.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
