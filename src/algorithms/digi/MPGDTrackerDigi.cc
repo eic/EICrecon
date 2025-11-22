@@ -285,13 +285,13 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     const auto& shape = refVol.solid();
     if (!strcmp(shape.type(), "TGeoTubeSeg")) {
       // ********** TUBE GEOMETRY
-      if (!cCoalesceExtend(input,idx,usedHits,cIDs,lpos,eDep,time)) continue;
-    }
-    else if (!strcmp(shape.type(), "TGeoBBox")) {
+      if (!cCoalesceExtend(input, idx, usedHits, cIDs, lpos, eDep, time))
+        continue;
+    } else if (!strcmp(shape.type(), "TGeoBBox")) {
       // ********** BOX GEOMETRY
-      if (!bCoalesceExtend(input,idx,usedHits,cIDs,lpos,eDep,time)) continue;
-    }
-    else {
+      if (!bCoalesceExtend(input, idx, usedHits, cIDs, lpos, eDep, time))
+        continue;
+    } else {
       critical(R"(Bad input data: CellID {:x} has invalid shape (="{}"))", refID, shape.type());
       throw JException("Inconsistency: Inappropriate Sim_hits fed to \"MPGDTRackerDigi\".");
     }
@@ -353,9 +353,8 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 
         // sum deposited energy
         auto charge = hit.getCharge();
-	// Accumulate charge: shouldn't it be 'float' instead of 'int'?
-        hit.setCharge(charge + (std::int32_t)std::llround(
-                                   eDep * 1e6));
+        // Accumulate charge: shouldn't it be 'float' instead of 'int'?
+        hit.setCharge(charge + (std::int32_t)std::llround(eDep * 1e6));
       }
     }
   }
@@ -384,8 +383,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   }
 }
 
-void MPGDTrackerDigi::parseIDDescriptor()
-{
+void MPGDTrackerDigi::parseIDDescriptor() {
   // Parse IDDescriptor => Retrieve volume mask; check "strip" field.
 
   // "volume" mask: excluding channel specification.
@@ -418,8 +416,7 @@ void MPGDTrackerDigi::parseIDDescriptor()
   //  "volume" cleared of its "strip" bits.
   m_moduleBits = m_volumeBits & m_stripMask;
 }
-void MPGDTrackerDigi::parseSegmentation()
-{
+void MPGDTrackerDigi::parseSegmentation() {
   //  MPGDTrackerDigi relies on a number of assumptions concerning the
   // structure of the MPGD detector and its subdivision into SUBVOLUMES. These
   // assumptions imply in turn a particular segmentation scheme. In particular,
@@ -428,32 +425,33 @@ void MPGDTrackerDigi::parseSegmentation()
   //  It may itself be embedded in a super MultiSegmentation: case of CyMBaL.
   //  Let's check (limiting ourselves to main features..).
   debug(R"(Find valid "MultiSegmentation" for "{}" readout.)", m_cfg.readout);
-  bool ok = false;
+  bool ok                          = false;
   using Segmentation               = dd4hep::DDSegmentation::Segmentation;
   const Segmentation* segmentation = m_seg->segmentation;
   if (segmentation->type() == "MultiSegmentation") {
     using MultiSegmentation = dd4hep::DDSegmentation::MultiSegmentation;
     const auto* multiSeg    = dynamic_cast<const MultiSegmentation*>(segmentation);
-    if (multiSeg->discriminatorName() == "strip") ok = true;
+    if (multiSeg->discriminatorName() == "strip")
+      ok = true;
     if (!ok) {
-      for (const auto entry : multiSeg->subSegmentations()){
-	const Segmentation* subSegmentation = entry.segmentation;
-	if (subSegmentation->type() == "MultiSegmentation") {
-	  const auto* subMultiSeg
-	    = dynamic_cast<const MultiSegmentation*>(subSegmentation);
-	  if (subMultiSeg->discriminatorName() == "strip") {
-	    ok = true;
-	  }
-	  else {
-	    ok = false;
-	    break;
-	  }
-	}
+      for (const auto entry : multiSeg->subSegmentations()) {
+        const Segmentation* subSegmentation = entry.segmentation;
+        if (subSegmentation->type() == "MultiSegmentation") {
+          const auto* subMultiSeg = dynamic_cast<const MultiSegmentation*>(subSegmentation);
+          if (subMultiSeg->discriminatorName() == "strip") {
+            ok = true;
+          } else {
+            ok = false;
+            break;
+          }
+        }
       }
     }
   }
   if (!ok) {
-    critical(R"(Segmentation for readout "{}" is not, or is not embedding, a MultiSegmentation discriminating on a "strip" field.)", m_cfg.readout.c_str());
+    critical(
+        R"(Segmentation for readout "{}" is not, or is not embedding, a MultiSegmentation discriminating on a "strip" field.)",
+        m_cfg.readout.c_str());
     throw JException("Invalid Segmentation");
   }
 }
@@ -471,17 +469,16 @@ void MPGDTrackerDigi::parseSegmentation()
 //  _global_ position argument to "dd4hep::Segmentation::cellID", we need
 //  the _local_ position and only that.
 // - Also returned: updated index, vector of used subHits.
-bool MPGDTrackerDigi::cCoalesceExtend(const Input& input,
-				      int& idx, std::vector<int>& usedHits,
-				      std::vector<std::uint64_t> &cIDs, double *lpos, double& eDep, double& time) const
-{
-  const auto [headers, sim_hits] = input;
-  const edm4hep::EventHeader& header = headers->at(0);
+bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<int>& usedHits,
+                                      std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
+                                      double& time) const {
+  const auto [headers, sim_hits]        = input;
+  const edm4hep::EventHeader& header    = headers->at(0);
   const edm4hep::SimTrackerHit& sim_hit = sim_hits->at(idx);
-  CellID vID        = sim_hit.getCellID() & m_volumeBits;
-  CellID refID      = vID & m_moduleBits; // => The REFERENCE SUBVOLUME
-  const VolumeManager& volman = m_detector->volumeManager();
-  DetElement refVol = volman.lookupDetElement(refID);
+  CellID vID                            = sim_hit.getCellID() & m_volumeBits;
+  CellID refID                          = vID & m_moduleBits; // => The REFERENCE SUBVOLUME
+  const VolumeManager& volman           = m_detector->volumeManager();
+  DetElement refVol                     = volman.lookupDetElement(refID);
   // TGeoHMatrix: In order to avoid a "dangling-reference" warning, let's take
   // a copy of the matrix instead of a reference to it.
   const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
@@ -491,7 +488,8 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input,
   using dd4hep::mm;
   using edm4eic::unit::eV, edm4eic::unit::GeV;
   // Hit in progress
-  eDep = sim_hit.getEDep(); time = sim_hit.getTime();
+  eDep = sim_hit.getEDep();
+  time = sim_hit.getTime();
   // Get VOLUME parameters
   const Tube& tRef = refVol.solid();
   double dZ        = tRef.dZ();
@@ -512,8 +510,8 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input,
   double lintos[2][3], louts[2][3], lpini[3], lpend[3], lmend[3];
   std::copy(std::begin(lmom), std::end(lmom), std::begin(lmend));
   unsigned int status =
-    cTraversing(lpos, lmom, sim_hit.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
-		rMin, rMax, dZ, startPhi, endPhi, lintos, louts, lpini, lpend);
+      cTraversing(lpos, lmom, sim_hit.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
+                  rMin, rMax, dZ, startPhi, endPhi, lintos, louts, lpini, lpend);
   if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
     critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
     return false;
@@ -541,7 +539,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input,
   if (hasContinuation) {
     // ***** LOOP OVER HITS
     int jdx, unbroken /* unbroken succession of indices */;
-    CellID vIDPrv = vID;
+    CellID vIDPrv   = vID;
     size_t sim_size = sim_hits->size();
     for (jdx = idx + 1, unbroken = 1; jdx < (int)sim_size; jdx++) {
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
@@ -554,13 +552,13 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input,
       bool isUpstream = m_isUpstream(orientation, status);
       bool pmoStatus  = samePMO(sim_hit, sim_hjt, unbroken);
       if (!pmoStatus || !isUpstream) {
-	if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary())
-	  // Bizarre: let's flag the case while debugging
-	  debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
-	if (unbroken)
-	  idx = jdx - 1;
-	unbroken = 0;
-	continue;
+        if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary())
+          // Bizarre: let's flag the case while debugging
+          debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
+        if (unbroken)
+          idx = jdx - 1;
+        unbroken = 0;
+        continue;
       }
       // Get 'j' radii
       curVol           = volman.lookupDetElement(vJD);
@@ -571,67 +569,67 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input,
       getLocalPosMom(sim_hjt, toRefVol, lpoj, lmoj);
       // Is TRAVERSING through the (quasi-)common wall?
       double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
-      status = cTraversing(lpoj, lmoj, sim_hjt.getPathLength() * ed2dd,
-			   sim_hit.isProducedBySecondary(), rMin, rMax, dZ, startPhi, endPhi,
-			   ljns, lovts, lpjni, lpfnd);
+      status =
+          cTraversing(lpoj, lmoj, sim_hjt.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
+                      rMin, rMax, dZ, startPhi, endPhi, ljns, lovts, lpjni, lpfnd);
       if (status & 0xff000) { // Inconsistency => Drop current "sim_hjt"
-	critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
-	if (unbroken)
-	  idx = jdx - 1;
-	unbroken = 0;
-	continue;
+        critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
+        if (unbroken)
+          idx = jdx - 1;
+        unbroken = 0;
+        continue;
       }
       // ij-Compatibility: status
       bool jsDownstream = m_isDownstream(orientation, status);
       if (!jsDownstream) {
-	if (sim_hit.isProducedBySecondary())
-	  break;
-	else { // Allow for primary hits to not come in unbroken sequence
-	  if (unbroken)
-	    idx = jdx - 1;
-	  unbroken = 0;
-	  continue;
-	}
+        if (sim_hit.isProducedBySecondary())
+          break;
+        else { // Allow for primary hits to not come in unbroken sequence
+          if (unbroken)
+            idx = jdx - 1;
+          unbroken = 0;
+          continue;
+        }
       }
       // ij-Compatibility: close exit/entrance-distance
       double dist            = outInDistance(0, orientation, ljns, louts, lmom, lmoj);
       const double tolerance = 25 * dd4hep::um;
       bool isCompatible      = dist > 0 && dist < tolerance;
       if (!isCompatible) {
-	if (!sim_hit.isProducedBySecondary())
-	  debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
-		       /* */ sim_hjt.getCellID(), lpoj, lmoj));
-	if (unbroken)
-	  idx = jdx - 1;
-	unbroken = 0;
-	continue;
+        if (!sim_hit.isProducedBySecondary())
+          debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
+                       /* */ sim_hjt.getCellID(), lpoj, lmoj));
+        if (unbroken)
+          idx = jdx - 1;
+        unbroken = 0;
+        continue;
       }
       // ***** UPDATE
       vIDPrv = vJD;
       eDep += sim_hjt.getEDep();
       for (int i = 0; i < 3; i++) { // Update end point position/momentum.
-	lpend[i] = lpfnd[i];
-	lmend[i] = lmoj[i];
+        lpend[i] = lpfnd[i];
+        lmend[i] = lmoj[i];
       }
       // ***** BOOK-KEEPING
       usedHits.push_back(jdx);
       cIDs.push_back(sim_hjt.getCellID());
       if (level() >= algorithms::LogLevel::kDebug) {
-	subHitList.push_back(&sim_hjt);
+        subHitList.push_back(&sim_hjt);
       }
       // ***** CONTINUATION?
       hasContinuation = status & 0xa;
       canReEnter      = status & 0x100;
       if (!canReEnter && m_stripRank(vJD) == 4)
-	hasContinuation = false;
+        hasContinuation = false;
       if (!hasContinuation) {
-	jdx++;
-	break;
+        jdx++;
+        break;
       } else { // Update outgoing position/momentum for next iteration.
-	for (int i = 0; i < 3; i++) {
-	  louts[0][i] = lovts[0][i];
-	  louts[1][i] = lovts[1][i];
-	}
+        for (int i = 0; i < 3; i++) {
+          louts[0][i] = lovts[0][i];
+          louts[1][i] = lovts[1][i];
+        }
       }
     }
     if (unbroken)
@@ -667,17 +665,16 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input,
   }
   return true;
 }
-bool MPGDTrackerDigi::bCoalesceExtend(const Input& input,
-				      int& idx, std::vector<int>& usedHits,
-				      std::vector<std::uint64_t> &cIDs, double *lpos, double& eDep, double& time) const
-{
-  const auto [headers, sim_hits] = input;
-  const edm4hep::EventHeader& header = headers->at(0);
+bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<int>& usedHits,
+                                      std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
+                                      double& time) const {
+  const auto [headers, sim_hits]        = input;
+  const edm4hep::EventHeader& header    = headers->at(0);
   const edm4hep::SimTrackerHit& sim_hit = sim_hits->at(idx);
-  CellID vID        = sim_hit.getCellID() & m_volumeBits;
-  CellID refID      = vID & m_moduleBits; // => The REFERENCE SUBVOLUME
-  const VolumeManager& volman = m_detector->volumeManager();
-  DetElement refVol = volman.lookupDetElement(refID);
+  CellID vID                            = sim_hit.getCellID() & m_volumeBits;
+  CellID refID                          = vID & m_moduleBits; // => The REFERENCE SUBVOLUME
+  const VolumeManager& volman           = m_detector->volumeManager();
+  DetElement refVol                     = volman.lookupDetElement(refID);
   // TGeoHMatrix: In order to avoid a "dangling-reference" warning, let's take
   // a copy of the matrix instead of a reference to it.
   const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
@@ -687,7 +684,8 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input,
   using dd4hep::mm;
   using edm4eic::unit::eV, edm4eic::unit::GeV;
   // Hit in progress
-  eDep = sim_hit.getEDep(); time = sim_hit.getTime();
+  eDep = sim_hit.getEDep();
+  time = sim_hit.getTime();
   // Get VOLUME parameters
   const Box& bRef = refVol.solid(); // REFERENCE SUBVOLUME
   double dX = bRef.x(), dY = bRef.y();
@@ -700,8 +698,8 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input,
   double lintos[2][3], louts[2][3], lpini[3], lpend[3], lmend[3];
   std::copy(std::begin(lmom), std::end(lmom), std::begin(lmend));
   unsigned int status =
-    bTraversing(lpos, lmom, ref2Cur, sim_hit.getPathLength() * ed2dd,
-		sim_hit.isProducedBySecondary(), dZ, dX, dY, lintos, louts, lpini, lpend);
+      bTraversing(lpos, lmom, ref2Cur, sim_hit.getPathLength() * ed2dd,
+                  sim_hit.isProducedBySecondary(), dZ, dX, dY, lintos, louts, lpini, lpend);
   if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
     critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
     return false;
@@ -722,7 +720,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input,
   if (hasContinuation) {
     // ***** LOOP OVER SUBHITS
     int jdx, unbroken /* unbroken succession of indices */;
-    CellID vIDPrv = vID;
+    CellID vIDPrv   = vID;
     size_t sim_size = sim_hits->size();
     for (jdx = idx + 1, unbroken = 1; jdx < (int)sim_size; jdx++) {
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
@@ -733,13 +731,13 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input,
       bool isUpstream = m_isUpstream(orientation, status);
       bool pmoStatus  = samePMO(sim_hit, sim_hjt, unbroken);
       if (!pmoStatus || !isUpstream) {
-	if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary())
-	  // Bizarre: let's flag the case while debugging
-	  debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
-	if (unbroken)
-	  idx = jdx - 1;
-	unbroken = 0;
-	continue;
+        if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary())
+          // Bizarre: let's flag the case while debugging
+          debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
+        if (unbroken)
+          idx = jdx - 1;
+        unbroken = 0;
+        continue;
       }
       // Get 'j' Z
       curVol          = volman.lookupDetElement(vJD); // 'j' SUBVOLUME
@@ -750,64 +748,63 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input,
       double lpoj[3], lmoj[3];
       getLocalPosMom(sim_hjt, toRefVol, lpoj, lmoj);
       double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
-      status =
-	bTraversing(lpoj, lmoj, ref2j, sim_hjt.getPathLength() * ed2dd,
-		    sim_hit.isProducedBySecondary(), dZ, dX, dY, ljns, lovts, lpjni, lpfnd);
+      status = bTraversing(lpoj, lmoj, ref2j, sim_hjt.getPathLength() * ed2dd,
+                           sim_hit.isProducedBySecondary(), dZ, dX, dY, ljns, lovts, lpjni, lpfnd);
       if (status & 0xff000) { // Inconsistency => Drop current "sim_hjt"
-	critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
-	if (unbroken)
-	  idx = jdx - 1;
-	unbroken = 0;
-	continue;
+        critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
+        if (unbroken)
+          idx = jdx - 1;
+        unbroken = 0;
+        continue;
       }
       // ij-Compatibility: status
       bool jsDownstream = m_isDownstream(orientation, status);
       if (!jsDownstream) {
-	if (sim_hit.isProducedBySecondary())
-	  break;
-	else {
-	  if (unbroken)
-	    idx = jdx - 1;
-	  unbroken = 0;
-	  continue;
-	}
+        if (sim_hit.isProducedBySecondary())
+          break;
+        else {
+          if (unbroken)
+            idx = jdx - 1;
+          unbroken = 0;
+          continue;
+        }
       }
       // ij-Compatibility: close exit/entrance-distance
       double dist            = outInDistance(1, orientation, ljns, louts, lmom, lmoj);
       const double tolerance = 25 * dd4hep::um;
       bool isCompatible      = dist > 0 && dist < tolerance;
       if (!isCompatible) {
-	if (!sim_hit.isProducedBySecondary())
-	  debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
-		       /* */ sim_hjt.getCellID(), lpoj, lmoj));
-	if (unbroken)
-	  idx = jdx - 1;
-	unbroken = 0;
-	continue;
+        if (!sim_hit.isProducedBySecondary())
+          debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
+                       /* */ sim_hjt.getCellID(), lpoj, lmoj));
+        if (unbroken)
+          idx = jdx - 1;
+        unbroken = 0;
+        continue;
       }
       // ***** UPDATE
       vIDPrv = vJD;
       eDep += sim_hjt.getEDep();
       for (int i = 0; i < 3; i++) { // Update end point position/momentum.
-	lpend[i] = lpfnd[i];
-	lmend[i] = lmoj[i];
+        lpend[i] = lpfnd[i];
+        lmend[i] = lmoj[i];
       }
       // ***** BOOK-KEEPING
       usedHits.push_back(jdx);
       cIDs.push_back(sim_hjt.getCellID());
       if (level() >= algorithms::LogLevel::kDebug) {
-	subHitList.push_back(&sim_hjt);
+        subHitList.push_back(&sim_hjt);
       }
       // ***** CONTINUATION?
       hasContinuation = status & 0xa;
       if (!hasContinuation) {
-	jdx++;
-	break;
+        jdx++;
+        break;
       } else { // Update outgoing position/momentum for next iteration.
-	for (int i = 0; i < 3; i++) {
-	  louts[0][i] = lovts[0][i];
-	  louts[1][i] = lovts[1][i];
-	}
+        for (int i = 0; i < 3; i++) {
+          louts[0][i] = lovts[0][i];
+          louts[1][i] = lovts[1][i];
+        }
       }
     }
     if (unbroken)
@@ -843,21 +840,21 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input,
   }
   return true;
 }
-void  MPGDTrackerDigi::printSubHitList(std::vector<const edm4hep::SimTrackerHit*> &subHitList) const
-{
+void MPGDTrackerDigi::printSubHitList(
+    std::vector<const edm4hep::SimTrackerHit*>& subHitList) const {
   const double edmm = edm4eic::unit::mm;
   using edm4eic::unit::eV, edm4eic::unit::GeV;
   int ldx = 0;
   for (const edm4hep::SimTrackerHit* sim_hp : subHitList) {
-    CellID cIDk                           = sim_hp->getCellID();
+    CellID cIDk = sim_hp->getCellID();
     CellID hIDk = cIDk >> 32, vIDk = cIDk & m_volumeBits, sIDk = vIDk >> 28 & 0xff;
     debug("Hit cellID{:d} = 0x{:08x}, 0x{:08x} 0x{:02x}", ldx++, hIDk, vIDk, sIDk);
     debug("  position  = ({:7.2f},{:7.2f},{:7.2f}) [mm]", sim_hp->getPosition().x / edmm,
-	  sim_hp->getPosition().y / edmm, sim_hp->getPosition().z / edmm);
+          sim_hp->getPosition().y / edmm, sim_hp->getPosition().z / edmm);
     debug("  xy_radius = {:.2f}",
-	  std::hypot(sim_hp->getPosition().x, sim_hp->getPosition().y) / edmm);
+          std::hypot(sim_hp->getPosition().x, sim_hp->getPosition().y) / edmm);
     debug("  momentum  = ({:.2f}, {:.2f}, {:.2f}) [GeV]", sim_hp->getMomentum().x / GeV,
-	  sim_hp->getMomentum().y / GeV, sim_hp->getMomentum().z / GeV);
+          sim_hp->getMomentum().y / GeV, sim_hp->getMomentum().z / GeV);
     debug("  edep = {:.0f} [eV]", sim_hp->getEDep() / eV);
     debug("  time = {:.2f} [ns]", sim_hp->getTime());
   }

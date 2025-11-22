@@ -49,13 +49,13 @@ private:
   void parseSegmentation();
 
   // COALESCE and EXTEND
-  bool cCoalesceExtend(const Input& input,
-		       int& idx, std::vector<int>& usedHits,
-		       std::vector<std::uint64_t> &cIDs, double *lpos, double& eDep, double& time) const;
-  bool bCoalesceExtend(const Input& input,
-		       int& idx, std::vector<int>& usedHits,
-		       std::vector<std::uint64_t> &cIDs, double *lpos, double& eDep, double& time) const;
-  void printSubHitList(std::vector<const edm4hep::SimTrackerHit*> &subHitList) const;
+  bool cCoalesceExtend(const Input& input, int& idx, std::vector<int>& usedHits,
+                       std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
+                       double& time) const;
+  bool bCoalesceExtend(const Input& input, int& idx, std::vector<int>& usedHits,
+                       std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
+                       double& time) const;
+  void printSubHitList(std::vector<const edm4hep::SimTrackerHit*>& subHitList) const;
   unsigned int extendHit(dd4hep::CellID modID, int direction, double* lpini, double* lmini,
                          double* lpend, double* lmend) const;
   unsigned int cExtension(double const* lpos, double const* lmom, // Input subHit
