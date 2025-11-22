@@ -5,6 +5,7 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/Measurement2DCollection.h>
@@ -46,6 +47,9 @@ private:
 
   /// Detector-specific information
   unsigned long m_detid_b0tracker;
+  unsigned long m_detid_OuterMPGD;
+  static constexpr dd4hep::CellID m_pStripBit = ((dd4hep::CellID)0x1) << 28;
+  static constexpr dd4hep::CellID m_nStripBit = ((dd4hep::CellID)0x2) << 28;
 };
 
 } // namespace eicrecon
