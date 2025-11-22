@@ -55,7 +55,6 @@ void TrackerMeasurementFromHits::init() {
   unsigned int required            = 0;
   unsigned int fulfilled           = 0;
   const dd4hep::Detector* detector = algorithms::GeoSvc::instance().detector();
-  ;
   dd4hep::Segmentation seg;
   try {
     seg = detector->readout(readout).segmentation();

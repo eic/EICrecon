@@ -24,9 +24,10 @@
   - Several subHits are created (up to five, one per individual SUBVOLUME)
    corresponding to a SINGLE I[ONISATION]+A[MPLIFICATION] process, inducing in
    turn CORRELATED SIGNALS ON TWO COORDINATES.
-  - These subHits are extrapolated to the REFERENCE SUBVOLUME (its mid-plane),
-   so as to reconstitute the proper hit position of the TRAVERSING particle.
-   This, for particles that are determined to be indeed traversing.
+  - These subHits are EXTENDED so as to span the full sensitive volume and be
+   on the sensitive surface of the REFERENCE SUBVOLUME (its mid-plane), and
+   hence reconstitute the proper hit position of the TRAVERSING particle.
+    This, for particles that are determined to be indeed traversing.
   - We then want to preserve the I+A correlation when accumulating hits on the
    readout channels. This cannot be obtained by accumulating directly subHits (
    as is done in "SiliconTrackerDigi", as of commit #151496af). We have to
@@ -94,6 +95,7 @@
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
+#include <DDSegmentation/MultiSegmentation.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
@@ -135,7 +137,6 @@ void MPGDTrackerDigi::init() {
   // Access id decoder
   m_detector = algorithms::GeoSvc::instance().detector();
 
-  const dd4hep::BitFieldCoder* m_id_dec = nullptr;
   if (m_cfg.readout.empty()) {
     throw JException("Readout is empty");
   }
@@ -143,40 +144,13 @@ void MPGDTrackerDigi::init() {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
     m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
   } catch (...) {
-    critical("Failed to load ID decoder for \"{}\" readout.", m_cfg.readout);
+    critical(R"(Failed to load ID decoder for "{}" readout.)", m_cfg.readout);
     throw JException("Failed to load ID decoder");
   }
 
-  // IDDescriptor
-  // "volume": excluding channel specification.
-  debug("(Retrieve volume mask in IDDescriptor for \"{}\" readout.)", m_cfg.readout);
-  m_volumeBits = 0;
-  for (int field = 0; field < 5; field++) {
-    const char* fieldName = m_fieldNames[field];
-    CellID fieldID        = 0;
-    try {
-      fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
-    } catch (const std::runtime_error& error) {
-      critical(R"(No field "{}" in IDDescriptor of readout "{}".)", fieldName,
-               m_cfg.readout.c_str());
-      throw JException("Invalid IDDescriptor");
-    }
-    const BitFieldElement& fieldElement = (*m_id_dec)[fieldName];
-    m_volumeBits |= fieldID << fieldElement.offset();
-  }
-  //  MPGDTrackerDigi relies on a number of assumptions on the strip field of
-  // the IDDescriptor, encoded in the /** Segmentation */ block of the header.
-  //  As an illustration, here is the IDDescriptor of CyMBaL (as of 2025/11):
-  // //<id>system:8,layer:4,module:12,sensor:2,strip:28:4,phi:-16,z:-16</id>
-  //  Let's double-check part of the assumptions, viz.:"m_stripBits".
-  debug(R"((Find valid "strip" field in IDDescriptor for "{}" readout.))", m_cfg.readout);
-  if (m_id_dec->get(m_stripBits, "strip") != 0xf) {
-    critical(R"(Missing or invalid "strip" field in IDDescriptor for "{}" readout.)",
-             m_cfg.readout);
-    throw JException("Invalid IDDescriptor");
-  }
-  //  "volume" cleared of its "strip" bits.
-  m_moduleBits = m_volumeBits & m_stripMask;
+  // IDDescriptor and Segmentation
+  parseIDDescriptor();
+  parseSegmentation();
 
   // Ordering of SUBVOLUMES (based on "STRIP" FIELD)
   m_stripRank = [&](CellID vID) {
@@ -298,358 +272,27 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     else
       usedHits.push_back(idx); // useful?...
 
-    // ***** SEGMENTATION
-    // - The two cellIDs are encoded via a "dd4hep::MultiSegmentation"
-    //  discriminating on the strip field, w/ "strip" setting of 0x1 (
-    //  called 'p') or 0x2 (called 'n') and 0x3/0x4 for the inner/outer
-    //  RADIATORS, and 0x0 for the REFERENCE SUBVOLUME.
-    // - They are evaluated based on "sim_hit" Cartesian position and momentum.
-    //   + Extrapolating to REFERENCE SUBVOLUME.
-    //   + COALESCING all subHits with SAME PMO.
-    //   Given that all the segmentation classes foreseen for MPGDs (
-    //  "CartesianGrid.." for Outer and EndCaps, "CylindricalGridPhiZ" for
-    //  "CyMBaL") disregard the _global_ position argument to
-    //  "dd4hep::Segmentation::cellID", we need the _local_ position and
-    //  only that.
-    CellID vID        = sim_hit.getCellID() & m_volumeBits;
-    CellID refID      = vID & m_moduleBits; // REFERENCE SUBVOLUME
+    // ***** REFERENCE SUBVOLUME
+    CellID refID      = sim_hit.getCellID() & m_moduleBits;
     DetElement refVol = volman.lookupDetElement(refID);
-    // TGeoHMatrix: In order to avoid a "dangling-reference" warning,
-    // let's take a copy of the matrix instead of a reference to it.
-    const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
-    double lpos[3], lmom[3];
-    getLocalPosMom(sim_hit, toRefVol, lpos, lmom);
-    const double edmm = edm4eic::unit::mm, ed2dd = dd4hep::mm / edmm;
-    using dd4hep::mm;
-    using edm4eic::unit::eV, edm4eic::unit::GeV;
-    // Hit in progress
-    double eDep = sim_hit.getEDep(), time = sim_hit.getTime();
     // ***** COALESCE ALL MUTUALLY CONSISTENT SUBHITS
     //       EXTEND TRAVERSING SUBHITS
     // - Needed because we want to preserve the correlation between 'p' and
     //  'n' strip hits resulting from a given I+A process (which is lost when
-    //  one accumulates hits based on cellID).
-    std::vector<int> same_idcs;
+    //  one accumulates hits independently based on cellID).
+    double lpos[3], eDep, time;
     std::vector<std::uint64_t> cIDs;
     const auto& shape = refVol.solid();
     if (!strcmp(shape.type(), "TGeoTubeSeg")) {
       // ********** TUBE GEOMETRY
-      const Tube& tRef = refVol.solid(); // REFERENCE SUBVOLUME
-      double dZ        = tRef.dZ();
-      // phi?
-      // In "https://root.cern.ch/root/html534/guides/users-guide/Geometry.html"
-      // TGeoTubeSeg: "phi1 is converted to [0,360] (but still expressed in
-      // radian, as far as I can tell) and phi2 > phi1."
-      // => Convert it to [-pi,+pi].
-      double startPhi = tRef.startPhi() * radian;
-      startPhi -= 2 * TMath::Pi();
-      double endPhi = tRef.endPhi() * radian;
-      endPhi -= 2 * TMath::Pi();
-      // Get current SUBVOLUME
-      DetElement curVol = volman.lookupDetElement(vID);
-      const Tube& tCur  = curVol.solid();
-      double rMin = tCur.rMin(), rMax = tCur.rMax();
-      // Is TRAVERSING?
-      double lintos[2][3], louts[2][3], lpini[3], lpend[3], lmend[3];
-      std::copy(std::begin(lmom), std::end(lmom), std::begin(lmend));
-      unsigned int status =
-          cTraversing(lpos, lmom, sim_hit.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
-                      rMin, rMax, dZ, startPhi, endPhi, lintos, louts, lpini, lpend);
-      if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
-        critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
-        continue;
-      }
-      cIDs.push_back(sim_hit.getCellID());
-      if (level() >= algorithms::LogLevel::kDebug) {
-        same_idcs.push_back(idx);
-      }
-      // Continuations. Particle may exit and then re-enter through "rMin".
-      bool isContinuation  = status & 0x5;
-      bool hasContinuation = status & 0xa;
-      bool canReEnter      = status & 0x100;
-      int rank             = m_stripRank(vID);
-      if (!canReEnter) {
-        if (rank == 0 && (status & 0x1))
-          isContinuation = false;
-        if (rank == 0 && (status & 0x2))
-          hasContinuation = false;
-      }
-      if (rank == 4 && (status & 0x4))
-        isContinuation = false;
-      if (rank == 4 && (status & 0x8))
-        hasContinuation = false;
-      if (hasContinuation) {
-        // ***** LOOP OVER HITS
-        int jdx, unbroken /* unbroken succession of indices */;
-        CellID vIDPrv = vID;
-        for (jdx = idx + 1, unbroken = 1; jdx < (int)sim_size; jdx++) {
-          const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
-          // Used hit? If indeed, it's going to be discarded anyway in the
-          // following: current "sim_hit" is by construction at variance to it.
-          CellID vJD = sim_hjt.getCellID() & m_volumeBits;
-          // Particle may start inward and re-enter, being then outward-going.
-          // => Orientation has to be evaluated w.r.t. previous vID.
-          int orientation = m_orientation(vIDPrv, vJD);
-          bool isUpstream = m_isUpstream(orientation, status);
-          bool pmoStatus  = samePMO(sim_hit, sim_hjt, unbroken);
-          if (!pmoStatus || !isUpstream) {
-            if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary())
-              // Bizarre: let's flag the case while debugging
-              debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
-            if (unbroken)
-              idx = jdx - 1;
-            unbroken = 0;
-            continue;
-          }
-          // Get 'j' radii
-          curVol           = volman.lookupDetElement(vJD);
-          const Tube& tubj = curVol.solid();
-          rMin             = tubj.rMin();
-          rMax             = tubj.rMax();
-          double lpoj[3], lmoj[3];
-          getLocalPosMom(sim_hjt, toRefVol, lpoj, lmoj);
-          // Is TRAVERSING through the (quasi-)common wall?
-          double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
-          status = cTraversing(lpoj, lmoj, sim_hjt.getPathLength() * ed2dd,
-                               sim_hit.isProducedBySecondary(), rMin, rMax, dZ, startPhi, endPhi,
-                               ljns, lovts, lpjni, lpfnd);
-          if (status & 0xff000) { // Inconsistency => Drop current "sim_hjt"
-            critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
-            if (unbroken)
-              idx = jdx - 1;
-            unbroken = 0;
-            continue;
-          }
-          // ij-Compatibility: status
-          bool jsDownstream = m_isDownstream(orientation, status);
-          if (!jsDownstream) {
-            if (sim_hit.isProducedBySecondary())
-              break;
-            else { // Allow for primary hits to not come in unbroken sequence
-              if (unbroken)
-                idx = jdx - 1;
-              unbroken = 0;
-              continue;
-            }
-          }
-          // ij-Compatibility: close exit/entrance-distance
-          double dist            = outInDistance(0, orientation, ljns, louts, lmom, lmoj);
-          const double tolerance = 25 * dd4hep::um;
-          bool isCompatible      = dist > 0 && dist < tolerance;
-          if (!isCompatible) {
-            if (!sim_hit.isProducedBySecondary())
-              debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
-                           /* */ sim_hjt.getCellID(), lpoj, lmoj));
-            if (unbroken)
-              idx = jdx - 1;
-            unbroken = 0;
-            continue;
-          }
-          // ***** UPDATE
-          vIDPrv = vJD;
-          eDep += sim_hjt.getEDep();
-          for (int i = 0; i < 3; i++) { // Update end point position/momentum.
-            lpend[i] = lpfnd[i];
-            lmend[i] = lmoj[i];
-          }
-          // ***** BOOK-KEEPING
-          usedHits.push_back(jdx);
-          cIDs.push_back(sim_hjt.getCellID());
-          if (level() >= algorithms::LogLevel::kDebug) {
-            same_idcs.push_back(jdx);
-          }
-          // ***** CONTINUATION?
-          hasContinuation = status & 0xa;
-          canReEnter      = status & 0x100;
-          if (!canReEnter && m_stripRank(vJD) == 4)
-            hasContinuation = false;
-          if (!hasContinuation) {
-            jdx++;
-            break;
-          } else { // Update outgoing position/momentum for next iteration.
-            for (int i = 0; i < 3; i++) {
-              louts[0][i] = lovts[0][i];
-              louts[1][i] = lovts[1][i];
-            }
-          }
-        }
-        if (unbroken)
-          idx = jdx - 1;
-      }
-      // ***** EXTENSION?...
-      if (sim_hit.isProducedBySecondary() && cIDs.size() < 2)
-        if (denyExtension(sim_hit, tCur.rMax() - tCur.rMin())) {
-          isContinuation = hasContinuation = false;
-        }
-      for (int io = 0; io < 2; io++) { // ...into/out-of
-        if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation))
-          continue;
-        int direction = io ? +1 : -1;
-        extendHit(refID, direction, lpini, lmom, lpend, lmend);
-      }
-      // ***** FLAG CASES W/ UNEXPECTED OUTCOME
-      flagUnexpected(header, 0, (tRef.rMin() + tRef.rMax()) / 2, sim_hit, lpini, lpend, lpos, lmom);
-      // ***** UPDATE (local position <lpos>, DoF
-      double DoF2 = 0, dir = 0;
-      for (int i = 0; i < 3; i++) {
-        double neu = (lpini[i] + lpend[i]) / 2, alt = lpos[i];
-        lpos[i]  = neu;
-        double d = neu - alt;
-        dir += d * lmom[i];
-        DoF2 += d * d;
-      }
-      // Update time by ToF from original subHit to extended/COALESCED.
-      time += ((dir > 0) ? 1 : ((dir < 0) ? -1 : 0)) * sqrt(DoF2) / dd4hep::c_light;
-    } else if (!strcmp(shape.type(), "TGeoBBox")) {
+      if (!cCoalesceExtend(input,idx,usedHits,cIDs,lpos,eDep,time)) continue;
+    }
+    else if (!strcmp(shape.type(), "TGeoBBox")) {
       // ********** BOX GEOMETRY
-      const Box& bRef = refVol.solid(); // REFERENCE SUBVOLUME
-      double dX = bRef.x(), dY = bRef.y();
-      // Get current SUBVOLUME
-      DetElement curVol = volman.lookupDetElement(vID);
-      const Box& bCur   = curVol.solid();
-      double dZ         = bCur.z();
-      double ref2Cur    = getRef2Cur(refVol, curVol);
-      // Is TRAVERSING?
-      double lintos[2][3], louts[2][3], lpini[3], lpend[3], lmend[3];
-      std::copy(std::begin(lmom), std::end(lmom), std::begin(lmend));
-      unsigned int status =
-          bTraversing(lpos, lmom, ref2Cur, sim_hit.getPathLength() * ed2dd,
-                      sim_hit.isProducedBySecondary(), dZ, dX, dY, lintos, louts, lpini, lpend);
-      if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
-        critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
-        continue;
-      }
-      cIDs.push_back(sim_hit.getCellID());
-      if (level() >= algorithms::LogLevel::kDebug) {
-        same_idcs.push_back(idx);
-      }
-      // Continuations.
-      int rank             = m_stripRank(vID);
-      bool isContinuation  = status & 0x5;
-      bool hasContinuation = status & 0xa;
-      if ((rank == 0 && (status & 0x1)) || (rank == 4 && (status & 0x4)))
-        isContinuation = false;
-      if ((rank == 0 && (status & 0x2)) || (rank == 4 && (status & 0x8)))
-        hasContinuation = false;
-      if (hasContinuation) {
-        // ***** LOOP OVER SUBHITS
-        int jdx, unbroken /* unbroken succession of indices */;
-        CellID vIDPrv = vID;
-        for (jdx = idx + 1, unbroken = 1; jdx < (int)sim_size; jdx++) {
-          const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
-          // Used hit? If indeed, it's going to be discarded anyway in the
-          // following: current "sim_hit" is by construction at variance to it.
-          CellID vJD      = sim_hjt.getCellID() & m_volumeBits;
-          int orientation = m_orientation(vIDPrv, vJD);
-          bool isUpstream = m_isUpstream(orientation, status);
-          bool pmoStatus  = samePMO(sim_hit, sim_hjt, unbroken);
-          if (!pmoStatus || !isUpstream) {
-            if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary())
-              // Bizarre: let's flag the case while debugging
-              debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
-            if (unbroken)
-              idx = jdx - 1;
-            unbroken = 0;
-            continue;
-          }
-          // Get 'j' Z
-          curVol          = volman.lookupDetElement(vJD); // 'j' SUBVOLUME
-          const Box& boxj = curVol.solid();
-          dZ              = boxj.z();
-          double ref2j    = getRef2Cur(refVol, curVol);
-          // Is TRAVERSING through the (quasi)-common border?
-          double lpoj[3], lmoj[3];
-          getLocalPosMom(sim_hjt, toRefVol, lpoj, lmoj);
-          double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
-          status =
-              bTraversing(lpoj, lmoj, ref2j, sim_hjt.getPathLength() * ed2dd,
-                          sim_hit.isProducedBySecondary(), dZ, dX, dY, ljns, lovts, lpjni, lpfnd);
-          if (status & 0xff000) { // Inconsistency => Drop current "sim_hjt"
-            critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
-            if (unbroken)
-              idx = jdx - 1;
-            unbroken = 0;
-            continue;
-          }
-          // ij-Compatibility: status
-          bool jsDownstream = m_isDownstream(orientation, status);
-          if (!jsDownstream) {
-            if (sim_hit.isProducedBySecondary())
-              break;
-            else {
-              if (unbroken)
-                idx = jdx - 1;
-              unbroken = 0;
-              continue;
-            }
-          }
-          // ij-Compatibility: close exit/entrance-distance
-          double dist            = outInDistance(1, orientation, ljns, louts, lmom, lmoj);
-          const double tolerance = 25 * dd4hep::um;
-          bool isCompatible      = dist > 0 && dist < tolerance;
-          if (!isCompatible) {
-            if (!sim_hit.isProducedBySecondary())
-              debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
-                           /* */ sim_hjt.getCellID(), lpoj, lmoj));
-            if (unbroken)
-              idx = jdx - 1;
-            unbroken = 0;
-            continue;
-          }
-          // ***** UPDATE
-          vIDPrv = vJD;
-          eDep += sim_hjt.getEDep();
-          for (int i = 0; i < 3; i++) { // Update end point position/momentum.
-            lpend[i] = lpfnd[i];
-            lmend[i] = lmoj[i];
-          }
-          // ***** BOOK-KEEPING
-          usedHits.push_back(jdx);
-          cIDs.push_back(sim_hjt.getCellID());
-          if (level() >= algorithms::LogLevel::kDebug) {
-            same_idcs.push_back(jdx);
-          }
-          // ***** CONTINUATION?
-          hasContinuation = status & 0xa;
-          if (!hasContinuation) {
-            jdx++;
-            break;
-          } else { // Update outgoing position/momentum for next iteration.
-            for (int i = 0; i < 3; i++) {
-              louts[0][i] = lovts[0][i];
-              louts[1][i] = lovts[1][i];
-            }
-          }
-        }
-        if (unbroken)
-          idx = jdx - 1;
-      }
-      // ***** EXTENSION?...
-      if (sim_hit.isProducedBySecondary() && cIDs.size() < 2)
-        if (denyExtension(sim_hit, bCur.z())) {
-          isContinuation = hasContinuation = false;
-        }
-      for (int io = 0; io < 2; io++) { // ...into/out-of
-        if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation))
-          continue;
-        int direction = io ? +1 : -1;
-        extendHit(refID, direction, lpini, lmom, lpend, lmend);
-      }
-      // ***** FLAG CASES W/ UNEXPECTED OUTCOME
-      flagUnexpected(header, 1, 0, sim_hit, lpini, lpend, lpos, lmom);
-      // ***** UPDATE (local position <lpos>, DoF)
-      double DoF2 = 0, dir = 0;
-      for (int i = 0; i < 3; i++) {
-        double neu = (lpini[i] + lpend[i]) / 2, alt = lpos[i];
-        lpos[i]  = neu;
-        double d = neu - alt;
-        dir += d * lmom[i];
-        DoF2 += d * d;
-      }
-      // Update time by ToF from original subHit to extended/COALESCED.
-      time += ((dir > 0) ? 1 : ((dir < 0) ? -1 : 0)) * sqrt(DoF2) / dd4hep::c_light;
-    } else {
-      critical("Bad input data: CellID {:x} has invalid shape (=\"{}\")", refID, shape.type());
+      if (!bCoalesceExtend(input,idx,usedHits,cIDs,lpos,eDep,time)) continue;
+    }
+    else {
+      critical(R"(Bad input data: CellID {:x} has invalid shape (="{}"))", refID, shape.type());
       throw JException("Inconsistency: Inappropriate Sim_hits fed to \"MPGDTRackerDigi\".");
     }
     // ***** CELLIDS of (p|n)-STRIP HITS
@@ -665,7 +308,6 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 
     // ***** DEBUGGING INFO
     if (level() >= algorithms::LogLevel::kDebug) {
-      debug("--------------------");
       for (CellID cID : {cIDp, cIDn}) {
         std::string sCellID = cID == cIDp ? "cellIDp" : "cellIDn";
         CellID hID = cID >> 32, vID = cID & m_volumeBits, sID = vID >> 28 & 0xff;
@@ -684,21 +326,6 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 #endif
       debug("  time smearing: {:.2f}, resulting time = {:.2f} [ns]", time_smearing, result_time);
       debug("  hit_time_stamp: {} [~ps]", hit_time_stamp);
-      for (int ldx = 0; ldx < (int)same_idcs.size(); ldx++) {
-        int jdx                               = same_idcs[ldx];
-        const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
-        CellID cIDk                           = sim_hjt.getCellID();
-        CellID hIDk = cIDk >> 32, vIDk = cIDk & m_volumeBits, sIDk = vIDk >> 28 & 0xff;
-        debug("Hit cellID{:d} = 0x{:08x}, 0x{:08x} 0x{:02x}", ldx, hIDk, vIDk, sIDk);
-        debug("  position  = ({:7.2f},{:7.2f},{:7.2f}) [mm]", sim_hjt.getPosition().x / edmm,
-              sim_hjt.getPosition().y / edmm, sim_hjt.getPosition().z / edmm);
-        debug("  xy_radius = {:.2f}",
-              std::hypot(sim_hjt.getPosition().x, sim_hjt.getPosition().y) / edmm);
-        debug("  momentum  = ({:.2f}, {:.2f}, {:.2f}) [GeV]", sim_hjt.getMomentum().x / GeV,
-              sim_hjt.getMomentum().y / GeV, sim_hjt.getMomentum().z / GeV);
-        debug("  edep = {:.0f} [eV]", sim_hjt.getEDep() / eV);
-        debug("  time = {:.2f} [ns]", sim_hjt.getTime());
-      }
     }
 
     // ***** APPLY THRESHOLD
@@ -726,8 +353,9 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 
         // sum deposited energy
         auto charge = hit.getCharge();
+	// Accumulate charge: shouldn't it be 'float' instead of 'int'?
         hit.setCharge(charge + (std::int32_t)std::llround(
-                                   eDep * 1e6)); // TODO: accumulate charge: shouldn't it be float?
+                                   eDep * 1e6));
       }
     }
   }
@@ -738,7 +366,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     CellID stripID = item.first;
     const auto is  = stripID2cIDs.find(stripID);
     if (is == stripID2cIDs.end()) {
-      critical("Inconsistency: CellID {:x} not found in \"stripID2cIDs\" map", stripID);
+      critical(R"(Inconsistency: CellID {:x} not found in "stripID2cIDs" map)", stripID);
       throw JException("Inconsistency in the handling of \"stripID2cIDs\" map");
     }
     std::vector<std::uint64_t> cIDs = is->second;
@@ -753,6 +381,485 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
         }
       }
     }
+  }
+}
+
+void MPGDTrackerDigi::parseIDDescriptor()
+{
+  // Parse IDDescriptor => Retrieve volume mask; check "strip" field.
+
+  // "volume" mask: excluding channel specification.
+  debug(R"(Retrieve volume mask in IDDescriptor for "{}" readout.)", m_cfg.readout);
+  m_volumeBits = 0;
+  for (int field = 0; field < 5; field++) {
+    const char* fieldName = m_fieldNames[field];
+    CellID fieldID        = 0;
+    try {
+      fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
+    } catch (const std::runtime_error& error) {
+      critical(R"(No field "{}" in IDDescriptor of readout "{}".)", fieldName,
+               m_cfg.readout.c_str());
+      throw JException("Invalid IDDescriptor");
+    }
+    const BitFieldElement& fieldElement = (*m_id_dec)[fieldName];
+    m_volumeBits |= fieldID << fieldElement.offset();
+  }
+  //  MPGDTrackerDigi relies on a number of assumptions on the "strip" field of
+  // the IDDescriptor, encoded in the /** Segmentation */ block of the header.
+  //  Let's double-check part of the assumptions, viz.: "m_stripBits".
+  // (As an illustration, here is the IDDescriptor of CyMBaL (as of 2025/11):
+  // <id>system:8,layer:4,module:12,sensor:2,strip:28:4,phi:-16,z:-16</id>.)
+  debug(R"(Find valid "strip" field in IDDescriptor for "{}" readout.)", m_cfg.readout);
+  if (m_id_dec->get(m_stripBits, "strip") != 0xf) {
+    critical(R"(Missing or invalid "strip" field in IDDescriptor for "{}" readout.)",
+             m_cfg.readout);
+    throw JException("Invalid IDDescriptor");
+  }
+  //  "volume" cleared of its "strip" bits.
+  m_moduleBits = m_volumeBits & m_stripMask;
+}
+void MPGDTrackerDigi::parseSegmentation()
+{
+  //  MPGDTrackerDigi relies on a number of assumptions concerning the
+  // structure of the MPGD detector and its subdivision into SUBVOLUMES. These
+  // assumptions imply in turn a particular segmentation scheme. In particular,
+  // a MultiSegmentation allowing to navigate among the SUBVOLUMES.
+  //  The MultiSegmentation has a discriminator named "strip", see IDDescriptor.
+  //  It may itself be embedded in a super MultiSegmentation: case of CyMBaL.
+  //  Let's check (limiting ourselves to main features..).
+  debug(R"(Find valid "MultiSegmentation" for "{}" readout.)", m_cfg.readout);
+  bool ok = false;
+  using Segmentation               = dd4hep::DDSegmentation::Segmentation;
+  const Segmentation* segmentation = m_seg->segmentation;
+  if (segmentation->type() == "MultiSegmentation") {
+    using MultiSegmentation = dd4hep::DDSegmentation::MultiSegmentation;
+    const auto* multiSeg    = dynamic_cast<const MultiSegmentation*>(segmentation);
+    if (multiSeg->discriminatorName() == "strip") ok = true;
+    if (!ok) {
+      for (const auto entry : multiSeg->subSegmentations()){
+	const Segmentation* subSegmentation = entry.segmentation;
+	if (subSegmentation->type() == "MultiSegmentation") {
+	  const auto* subMultiSeg
+	    = dynamic_cast<const MultiSegmentation*>(subSegmentation);
+	  if (subMultiSeg->discriminatorName() == "strip") {
+	    ok = true;
+	  }
+	  else {
+	    ok = false;
+	    break;
+	  }
+	}
+      }
+    }
+  }
+  if (!ok) {
+    critical(R"(Segmentation for readout "{}" is not, or is not embedding, a MultiSegmentation discriminating on a "strip" field.)", m_cfg.readout.c_str());
+    throw JException("Invalid Segmentation");
+  }
+}
+
+// ***** COALESCE subHits with same PMO
+//       EXTEND hits (subHits or coalesced subHits) to full sensitive volume
+// - Input = Elementary subHit, specified as index into collection of SimHits.
+// - Output = Coalesced/extended hit, specified by:
+//  + list of cellIDs of elementary subHits contributiong,
+//  + local position,
+//  + EDep,
+//  + time.
+//   Given that all segmentation classes foreseen for MPGDs ("CartesianGrid.."
+//  for Outer and EndCaps, "CylindricalGridPhiZ" for "CyMBaL") disregard the
+//  _global_ position argument to "dd4hep::Segmentation::cellID", we need
+//  the _local_ position and only that.
+// - Also returned: updated index, vector of used subHits.
+bool MPGDTrackerDigi::cCoalesceExtend(const Input& input,
+				      int& idx, std::vector<int>& usedHits,
+				      std::vector<std::uint64_t> &cIDs, double *lpos, double& eDep, double& time) const
+{
+  const auto [headers, sim_hits] = input;
+  const edm4hep::EventHeader& header = headers->at(0);
+  const edm4hep::SimTrackerHit& sim_hit = sim_hits->at(idx);
+  CellID vID        = sim_hit.getCellID() & m_volumeBits;
+  CellID refID      = vID & m_moduleBits; // => The REFERENCE SUBVOLUME
+  const VolumeManager& volman = m_detector->volumeManager();
+  DetElement refVol = volman.lookupDetElement(refID);
+  // TGeoHMatrix: In order to avoid a "dangling-reference" warning, let's take
+  // a copy of the matrix instead of a reference to it.
+  const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
+  double lmom[3];
+  getLocalPosMom(sim_hit, toRefVol, lpos, lmom);
+  const double edmm = edm4eic::unit::mm, ed2dd = dd4hep::mm / edmm;
+  using dd4hep::mm;
+  using edm4eic::unit::eV, edm4eic::unit::GeV;
+  // Hit in progress
+  eDep = sim_hit.getEDep(); time = sim_hit.getTime();
+  // Get VOLUME parameters
+  const Tube& tRef = refVol.solid();
+  double dZ        = tRef.dZ();
+  // phi?
+  // In "https://root.cern.ch/root/html534/guides/users-guide/Geometry.html"
+  // TGeoTubeSeg: "phi1 is converted to [0,360] (but still expressed in
+  // radian, as far as I can tell) and phi2 > phi1."
+  // => Convert it to [-pi,+pi].
+  double startPhi = tRef.startPhi() * radian;
+  startPhi -= 2 * TMath::Pi();
+  double endPhi = tRef.endPhi() * radian;
+  endPhi -= 2 * TMath::Pi();
+  // Get current SUBVOLUME
+  DetElement curVol = volman.lookupDetElement(vID);
+  const Tube& tCur  = curVol.solid();
+  double rMin = tCur.rMin(), rMax = tCur.rMax();
+  // Is TRAVERSING?
+  double lintos[2][3], louts[2][3], lpini[3], lpend[3], lmend[3];
+  std::copy(std::begin(lmom), std::end(lmom), std::begin(lmend));
+  unsigned int status =
+    cTraversing(lpos, lmom, sim_hit.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
+		rMin, rMax, dZ, startPhi, endPhi, lintos, louts, lpini, lpend);
+  if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
+    critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
+    return false;
+  }
+  cIDs.push_back(sim_hit.getCellID());
+  std::vector<const edm4hep::SimTrackerHit*> subHitList;
+  if (level() >= algorithms::LogLevel::kDebug) {
+    subHitList.push_back(&sim_hit);
+  }
+  // Continuations. Particle may exit and then re-enter through "rMin".
+  bool isContinuation  = status & 0x5;
+  bool hasContinuation = status & 0xa;
+  bool canReEnter      = status & 0x100;
+  int rank             = m_stripRank(vID);
+  if (!canReEnter) {
+    if (rank == 0 && (status & 0x1))
+      isContinuation = false;
+    if (rank == 0 && (status & 0x2))
+      hasContinuation = false;
+  }
+  if (rank == 4 && (status & 0x4))
+    isContinuation = false;
+  if (rank == 4 && (status & 0x8))
+    hasContinuation = false;
+  if (hasContinuation) {
+    // ***** LOOP OVER HITS
+    int jdx, unbroken /* unbroken succession of indices */;
+    CellID vIDPrv = vID;
+    size_t sim_size = sim_hits->size();
+    for (jdx = idx + 1, unbroken = 1; jdx < (int)sim_size; jdx++) {
+      const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
+      // Used hit? If indeed, it's going to be discarded anyway in the
+      // following: current "sim_hit" is by construction at variance to it.
+      CellID vJD = sim_hjt.getCellID() & m_volumeBits;
+      // Particle may start inward and re-enter, being then outward-going.
+      // => Orientation has to be evaluated w.r.t. previous vID.
+      int orientation = m_orientation(vIDPrv, vJD);
+      bool isUpstream = m_isUpstream(orientation, status);
+      bool pmoStatus  = samePMO(sim_hit, sim_hjt, unbroken);
+      if (!pmoStatus || !isUpstream) {
+	if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary())
+	  // Bizarre: let's flag the case while debugging
+	  debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
+	if (unbroken)
+	  idx = jdx - 1;
+	unbroken = 0;
+	continue;
+      }
+      // Get 'j' radii
+      curVol           = volman.lookupDetElement(vJD);
+      const Tube& tubj = curVol.solid();
+      rMin             = tubj.rMin();
+      rMax             = tubj.rMax();
+      double lpoj[3], lmoj[3];
+      getLocalPosMom(sim_hjt, toRefVol, lpoj, lmoj);
+      // Is TRAVERSING through the (quasi-)common wall?
+      double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
+      status = cTraversing(lpoj, lmoj, sim_hjt.getPathLength() * ed2dd,
+			   sim_hit.isProducedBySecondary(), rMin, rMax, dZ, startPhi, endPhi,
+			   ljns, lovts, lpjni, lpfnd);
+      if (status & 0xff000) { // Inconsistency => Drop current "sim_hjt"
+	critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
+	if (unbroken)
+	  idx = jdx - 1;
+	unbroken = 0;
+	continue;
+      }
+      // ij-Compatibility: status
+      bool jsDownstream = m_isDownstream(orientation, status);
+      if (!jsDownstream) {
+	if (sim_hit.isProducedBySecondary())
+	  break;
+	else { // Allow for primary hits to not come in unbroken sequence
+	  if (unbroken)
+	    idx = jdx - 1;
+	  unbroken = 0;
+	  continue;
+	}
+      }
+      // ij-Compatibility: close exit/entrance-distance
+      double dist            = outInDistance(0, orientation, ljns, louts, lmom, lmoj);
+      const double tolerance = 25 * dd4hep::um;
+      bool isCompatible      = dist > 0 && dist < tolerance;
+      if (!isCompatible) {
+	if (!sim_hit.isProducedBySecondary())
+	  debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
+		       /* */ sim_hjt.getCellID(), lpoj, lmoj));
+	if (unbroken)
+	  idx = jdx - 1;
+	unbroken = 0;
+	continue;
+      }
+      // ***** UPDATE
+      vIDPrv = vJD;
+      eDep += sim_hjt.getEDep();
+      for (int i = 0; i < 3; i++) { // Update end point position/momentum.
+	lpend[i] = lpfnd[i];
+	lmend[i] = lmoj[i];
+      }
+      // ***** BOOK-KEEPING
+      usedHits.push_back(jdx);
+      cIDs.push_back(sim_hjt.getCellID());
+      if (level() >= algorithms::LogLevel::kDebug) {
+	subHitList.push_back(&sim_hjt);
+      }
+      // ***** CONTINUATION?
+      hasContinuation = status & 0xa;
+      canReEnter      = status & 0x100;
+      if (!canReEnter && m_stripRank(vJD) == 4)
+	hasContinuation = false;
+      if (!hasContinuation) {
+	jdx++;
+	break;
+      } else { // Update outgoing position/momentum for next iteration.
+	for (int i = 0; i < 3; i++) {
+	  louts[0][i] = lovts[0][i];
+	  louts[1][i] = lovts[1][i];
+	}
+      }
+    }
+    if (unbroken)
+      idx = jdx - 1;
+  }
+  // ***** EXTENSION?...
+  if (sim_hit.isProducedBySecondary() && cIDs.size() < 2)
+    if (denyExtension(sim_hit, tCur.rMax() - tCur.rMin())) {
+      isContinuation = hasContinuation = false;
+    }
+  for (int io = 0; io < 2; io++) { // ...into/out-of
+    if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation))
+      continue;
+    int direction = io ? +1 : -1;
+    extendHit(refID, direction, lpini, lmom, lpend, lmend);
+  }
+  // ***** FLAG CASES W/ UNEXPECTED OUTCOME
+  flagUnexpected(header, 0, (tRef.rMin() + tRef.rMax()) / 2, sim_hit, lpini, lpend, lpos, lmom);
+  // ***** UPDATE (local position <lpos>, DoF)
+  double DoF2 = 0, dir = 0;
+  for (int i = 0; i < 3; i++) {
+    double neu = (lpini[i] + lpend[i]) / 2, alt = lpos[i];
+    lpos[i]  = neu;
+    double d = neu - alt;
+    dir += d * lmom[i];
+    DoF2 += d * d;
+  }
+  // Update time by ToF from original subHit to extended/COALESCED.
+  time += ((dir > 0) ? 1 : ((dir < 0) ? -1 : 0)) * sqrt(DoF2) / dd4hep::c_light;
+  if (level() >= algorithms::LogLevel::kDebug) {
+    debug("--------------------");
+    printSubHitList(subHitList);
+  }
+  return true;
+}
+bool MPGDTrackerDigi::bCoalesceExtend(const Input& input,
+				      int& idx, std::vector<int>& usedHits,
+				      std::vector<std::uint64_t> &cIDs, double *lpos, double& eDep, double& time) const
+{
+  const auto [headers, sim_hits] = input;
+  const edm4hep::EventHeader& header = headers->at(0);
+  const edm4hep::SimTrackerHit& sim_hit = sim_hits->at(idx);
+  CellID vID        = sim_hit.getCellID() & m_volumeBits;
+  CellID refID      = vID & m_moduleBits; // => The REFERENCE SUBVOLUME
+  const VolumeManager& volman = m_detector->volumeManager();
+  DetElement refVol = volman.lookupDetElement(refID);
+  // TGeoHMatrix: In order to avoid a "dangling-reference" warning, let's take
+  // a copy of the matrix instead of a reference to it.
+  const TGeoHMatrix toRefVol = refVol.nominal().worldTransformation();
+  double lmom[3];
+  getLocalPosMom(sim_hit, toRefVol, lpos, lmom);
+  const double edmm = edm4eic::unit::mm, ed2dd = dd4hep::mm / edmm;
+  using dd4hep::mm;
+  using edm4eic::unit::eV, edm4eic::unit::GeV;
+  // Hit in progress
+  eDep = sim_hit.getEDep(); time = sim_hit.getTime();
+  // Get VOLUME parameters
+  const Box& bRef = refVol.solid(); // REFERENCE SUBVOLUME
+  double dX = bRef.x(), dY = bRef.y();
+  // Get current SUBVOLUME
+  DetElement curVol = volman.lookupDetElement(vID);
+  const Box& bCur   = curVol.solid();
+  double dZ         = bCur.z();
+  double ref2Cur    = getRef2Cur(refVol, curVol);
+  // Is TRAVERSING?
+  double lintos[2][3], louts[2][3], lpini[3], lpend[3], lmend[3];
+  std::copy(std::begin(lmom), std::end(lmom), std::begin(lmend));
+  unsigned int status =
+    bTraversing(lpos, lmom, ref2Cur, sim_hit.getPathLength() * ed2dd,
+		sim_hit.isProducedBySecondary(), dZ, dX, dY, lintos, louts, lpini, lpend);
+  if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
+    critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
+    return false;
+  }
+  cIDs.push_back(sim_hit.getCellID());
+  std::vector<const edm4hep::SimTrackerHit*> subHitList;
+  if (level() >= algorithms::LogLevel::kDebug) {
+    subHitList.push_back(&sim_hit);
+  }
+  // Continuations.
+  int rank             = m_stripRank(vID);
+  bool isContinuation  = status & 0x5;
+  bool hasContinuation = status & 0xa;
+  if ((rank == 0 && (status & 0x1)) || (rank == 4 && (status & 0x4)))
+    isContinuation = false;
+  if ((rank == 0 && (status & 0x2)) || (rank == 4 && (status & 0x8)))
+    hasContinuation = false;
+  if (hasContinuation) {
+    // ***** LOOP OVER SUBHITS
+    int jdx, unbroken /* unbroken succession of indices */;
+    CellID vIDPrv = vID;
+    size_t sim_size = sim_hits->size();
+    for (jdx = idx + 1, unbroken = 1; jdx < (int)sim_size; jdx++) {
+      const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
+      // Used hit? If indeed, it's going to be discarded anyway in the
+      // following: current "sim_hit" is by construction at variance to it.
+      CellID vJD      = sim_hjt.getCellID() & m_volumeBits;
+      int orientation = m_orientation(vIDPrv, vJD);
+      bool isUpstream = m_isUpstream(orientation, status);
+      bool pmoStatus  = samePMO(sim_hit, sim_hjt, unbroken);
+      if (!pmoStatus || !isUpstream) {
+	if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary())
+	  // Bizarre: let's flag the case while debugging
+	  debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
+	if (unbroken)
+	  idx = jdx - 1;
+	unbroken = 0;
+	continue;
+      }
+      // Get 'j' Z
+      curVol          = volman.lookupDetElement(vJD); // 'j' SUBVOLUME
+      const Box& boxj = curVol.solid();
+      dZ              = boxj.z();
+      double ref2j    = getRef2Cur(refVol, curVol);
+      // Is TRAVERSING through the (quasi)-common border?
+      double lpoj[3], lmoj[3];
+      getLocalPosMom(sim_hjt, toRefVol, lpoj, lmoj);
+      double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
+      status =
+	bTraversing(lpoj, lmoj, ref2j, sim_hjt.getPathLength() * ed2dd,
+		    sim_hit.isProducedBySecondary(), dZ, dX, dY, ljns, lovts, lpjni, lpfnd);
+      if (status & 0xff000) { // Inconsistency => Drop current "sim_hjt"
+	critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
+	if (unbroken)
+	  idx = jdx - 1;
+	unbroken = 0;
+	continue;
+      }
+      // ij-Compatibility: status
+      bool jsDownstream = m_isDownstream(orientation, status);
+      if (!jsDownstream) {
+	if (sim_hit.isProducedBySecondary())
+	  break;
+	else {
+	  if (unbroken)
+	    idx = jdx - 1;
+	  unbroken = 0;
+	  continue;
+	}
+      }
+      // ij-Compatibility: close exit/entrance-distance
+      double dist            = outInDistance(1, orientation, ljns, louts, lmom, lmoj);
+      const double tolerance = 25 * dd4hep::um;
+      bool isCompatible      = dist > 0 && dist < tolerance;
+      if (!isCompatible) {
+	if (!sim_hit.isProducedBySecondary())
+	  debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
+		       /* */ sim_hjt.getCellID(), lpoj, lmoj));
+	if (unbroken)
+	  idx = jdx - 1;
+	unbroken = 0;
+	continue;
+      }
+      // ***** UPDATE
+      vIDPrv = vJD;
+      eDep += sim_hjt.getEDep();
+      for (int i = 0; i < 3; i++) { // Update end point position/momentum.
+	lpend[i] = lpfnd[i];
+	lmend[i] = lmoj[i];
+      }
+      // ***** BOOK-KEEPING
+      usedHits.push_back(jdx);
+      cIDs.push_back(sim_hjt.getCellID());
+      if (level() >= algorithms::LogLevel::kDebug) {
+	subHitList.push_back(&sim_hjt);
+      }
+      // ***** CONTINUATION?
+      hasContinuation = status & 0xa;
+      if (!hasContinuation) {
+	jdx++;
+	break;
+      } else { // Update outgoing position/momentum for next iteration.
+	for (int i = 0; i < 3; i++) {
+	  louts[0][i] = lovts[0][i];
+	  louts[1][i] = lovts[1][i];
+	}
+      }
+    }
+    if (unbroken)
+      idx = jdx - 1;
+  }
+  // ***** EXTENSION?...
+  if (sim_hit.isProducedBySecondary() && cIDs.size() < 2)
+    if (denyExtension(sim_hit, bCur.z())) {
+      isContinuation = hasContinuation = false;
+    }
+  for (int io = 0; io < 2; io++) { // ...into/out-of
+    if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation))
+      continue;
+    int direction = io ? +1 : -1;
+    extendHit(refID, direction, lpini, lmom, lpend, lmend);
+  }
+  // ***** FLAG CASES W/ UNEXPECTED OUTCOME
+  flagUnexpected(header, 1, 0, sim_hit, lpini, lpend, lpos, lmom);
+  // ***** UPDATE (local position <lpos>, DoF)
+  double DoF2 = 0, dir = 0;
+  for (int i = 0; i < 3; i++) {
+    double neu = (lpini[i] + lpend[i]) / 2, alt = lpos[i];
+    lpos[i]  = neu;
+    double d = neu - alt;
+    dir += d * lmom[i];
+    DoF2 += d * d;
+  }
+  // Update time by ToF from original subHit to extended/COALESCED.
+  time += ((dir > 0) ? 1 : ((dir < 0) ? -1 : 0)) * sqrt(DoF2) / dd4hep::c_light;
+  if (level() >= algorithms::LogLevel::kDebug) {
+    debug("--------------------");
+    printSubHitList(subHitList);
+  }
+  return true;
+}
+void  MPGDTrackerDigi::printSubHitList(std::vector<const edm4hep::SimTrackerHit*> &subHitList) const
+{
+  const double edmm = edm4eic::unit::mm;
+  using edm4eic::unit::eV, edm4eic::unit::GeV;
+  int ldx = 0;
+  for (const edm4hep::SimTrackerHit* sim_hp : subHitList) {
+    CellID cIDk                           = sim_hp->getCellID();
+    CellID hIDk = cIDk >> 32, vIDk = cIDk & m_volumeBits, sIDk = vIDk >> 28 & 0xff;
+    debug("Hit cellID{:d} = 0x{:08x}, 0x{:08x} 0x{:02x}", ldx++, hIDk, vIDk, sIDk);
+    debug("  position  = ({:7.2f},{:7.2f},{:7.2f}) [mm]", sim_hp->getPosition().x / edmm,
+	  sim_hp->getPosition().y / edmm, sim_hp->getPosition().z / edmm);
+    debug("  xy_radius = {:.2f}",
+	  std::hypot(sim_hp->getPosition().x, sim_hp->getPosition().y) / edmm);
+    debug("  momentum  = ({:.2f}, {:.2f}, {:.2f}) [GeV]", sim_hp->getMomentum().x / GeV,
+	  sim_hp->getMomentum().y / GeV, sim_hp->getMomentum().z / GeV);
+    debug("  edep = {:.0f} [eV]", sim_hp->getEDep() / eV);
+    debug("  time = {:.2f} [ns]", sim_hp->getTime());
   }
 }
 

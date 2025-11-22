@@ -44,7 +44,18 @@ public:
 private:
   const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
-  // Member methods for checking the consistency of subHits to be accumulated
+  // IDDESCRIPTOR and SEGMENTATION
+  void parseIDDescriptor();
+  void parseSegmentation();
+
+  // COALESCE and EXTEND
+  bool cCoalesceExtend(const Input& input,
+		       int& idx, std::vector<int>& usedHits,
+		       std::vector<std::uint64_t> &cIDs, double *lpos, double& eDep, double& time) const;
+  bool bCoalesceExtend(const Input& input,
+		       int& idx, std::vector<int>& usedHits,
+		       std::vector<std::uint64_t> &cIDs, double *lpos, double& eDep, double& time) const;
+  void printSubHitList(std::vector<const edm4hep::SimTrackerHit*> &subHitList) const;
   unsigned int extendHit(dd4hep::CellID modID, int direction, double* lpini, double* lmini,
                          double* lpend, double* lmend) const;
   unsigned int cExtension(double const* lpos, double const* lmom, // Input subHit
@@ -66,6 +77,7 @@ private:
   const dd4hep::Detector* m_detector{nullptr};
   dd4hep::Segmentation m_seg;
   // IDDescriptor
+  const dd4hep::BitFieldCoder* m_id_dec{nullptr};
   static constexpr const char* m_fieldNames[5] = // "volume": excluding channel specification
       {"system", "layer", "module", "sensor", "strip"};
   dd4hep::CellID m_volumeBits; // "volume" bits, as opposed to channel# bits
