@@ -460,7 +460,7 @@ void MPGDTrackerDigi::parseSegmentation() {
 //       EXTEND hits (subHits or coalesced subHits) to full sensitive volume
 // - Input = Elementary subHit, specified as index into collection of SimHits.
 // - Output = Coalesced/extended hit, specified by:
-//  + list of cellIDs of elementary subHits contributiong,
+//  + list of cellIDs of elementary subHits contributing,
 //  + local position,
 //  + EDep,
 //  + time.
