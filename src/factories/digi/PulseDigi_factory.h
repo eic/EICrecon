@@ -20,10 +20,10 @@ private:
   PodioInput<edm4eic::SimPulse> m_pulse_input{this};
   PodioOutput<edm4eic::RawHGCROCHit> m_digi_output{this};
 
-  ParameterRef<double> m_time_window{this, "time_window", config().time_window};
-  ParameterRef<double> m_adc_phase{this, "adc_phase", config().adc_phase};
-  ParameterRef<double> m_toa_thres{this, "toa_thres", config().toa_thres};
-  ParameterRef<double> m_tot_thres{this, "tot_thres", config().tot_thres};
+  ParameterRef<double> m_time_window{this, "timeWindow", config().time_window};
+  ParameterRef<double> m_adc_phase{this, "adcPhase", config().adc_phase};
+  ParameterRef<double> m_toa_thres{this, "toaThres", config().toa_thres};
+  ParameterRef<double> m_tot_thres{this, "totThres", config().tot_thres};
   ParameterRef<unsigned int> m_capADC{this, "capADC", config().capADC};
   ParameterRef<double> m_dyRangeADC{this, "dyRangeADC", config().dyRangeADC};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().capTOA};
