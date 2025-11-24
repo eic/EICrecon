@@ -11,13 +11,15 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/WithPodConfig.h"
+
 namespace eicrecon {
 
 using CalorimeterTruthClusteringAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::CalorimeterHitCollection, edm4hep::SimCalorimeterHitCollection>,
     algorithms::Output<edm4eic::ProtoClusterCollection>>;
 
-class CalorimeterTruthClustering : public CalorimeterTruthClusteringAlgorithm {
+class CalorimeterTruthClustering : public CalorimeterTruthClusteringAlgorithm, public WithPodConfig<NoConfig> {
 
 public:
   CalorimeterTruthClustering(std::string_view name)

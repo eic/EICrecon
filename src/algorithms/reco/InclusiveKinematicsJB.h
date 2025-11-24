@@ -11,6 +11,7 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
@@ -20,7 +21,7 @@ using InclusiveKinematicsJBAlgorithm = algorithms::Algorithm<
                       edm4eic::HadronicFinalStateCollection>,
     algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-class InclusiveKinematicsJB : public InclusiveKinematicsJBAlgorithm {
+class InclusiveKinematicsJB : public InclusiveKinematicsJBAlgorithm, public WithPodConfig<NoConfig> {
 
 public:
   InclusiveKinematicsJB(std::string_view name)

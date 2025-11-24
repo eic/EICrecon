@@ -10,6 +10,7 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
@@ -19,7 +20,7 @@ using ScatteredElectronsTruthAlgorithm = algorithms::Algorithm<
                       edm4eic::MCRecoParticleAssociationCollection>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-class ScatteredElectronsTruth : public ScatteredElectronsTruthAlgorithm {
+class ScatteredElectronsTruth : public ScatteredElectronsTruthAlgorithm, public WithPodConfig<NoConfig> {
 
 public:
   ScatteredElectronsTruth(std::string_view name)
