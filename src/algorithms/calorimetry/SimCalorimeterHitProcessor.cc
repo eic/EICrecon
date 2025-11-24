@@ -27,6 +27,7 @@
 #include <vector>
 
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
+#include "MCTools.h"
 
 using namespace dd4hep;
 
@@ -70,35 +71,6 @@ template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
 
 // unnamed namespace for internal utility
 namespace {
-// Lookup primary MCParticle
-// we stop looking if we find the parent has status 1 but with only 2 daughters
-// so we don't merge radiative photons with the primary electron as this prevents us
-// from properly linking the clusters back to the event geometry. Note that we also
-// enforce for this case that no steps back towards the primary were taken to avoid
-// storing the first pair of calorimetric showers that start inside the tracking volume.
-// Hence, this algorithm will return:
-//  - Contribution came from primary: primary
-//  - Contribution came from immediate daughter of primary and has no childern -> daughter
-//  - All other cases (i.e. early showers, multi-radiation): primary
-//
-// @TODO this should be a shared utiliy function in the edm4xxx
-// libraries
-edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) {
-  const auto contributor = contrib.getParticle();
-
-  edm4hep::MCParticle primary = contributor;
-  size_t steps_taken          = 0; // The number of steps taken looking for the primary
-  while (primary.parents_size() > 0) {
-    auto parent = primary.getParents(0);
-    if (primary.getGeneratorStatus() != 0 ||
-        (parent.getGeneratorStatus() != 0 && parent.daughters_size() == 2 && steps_taken == 0)) {
-      break;
-    }
-    primary = parent;
-    steps_taken += 1;
-  }
-  return primary;
-}
 class HitContributionAccumulator {
 private:
   float m_energy{0};
@@ -206,7 +178,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
         m_attenuationReferencePosition ? get_attenuation(ih.getPosition().z) : 1.;
     // Use primary particle (traced back through parents) to group contributions
     for (const auto& contrib : ih.getContributions()) {
-      edm4hep::MCParticle primary = lookup_primary(contrib);
+      edm4hep::MCParticle primary = MCTools::lookup_primary(contrib);
       const double propagationTime =
           m_attenuationReferencePosition
               ? std::abs(m_attenuationReferencePosition.value() - ih.getPosition().z) *
