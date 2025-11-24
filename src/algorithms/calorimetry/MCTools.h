@@ -3,7 +3,7 @@
 #pragma once
 
 //
-// @TODO should be migrated to a shared utiliy function in edm4xxx
+// @TODO should be migrated to a shared utility function in edm4xxx
 //
 
 #include <edm4hep/MCParticleCollection.h>
@@ -19,7 +19,7 @@ namespace eicrecon::MCTools {
 // storing the first pair of calorimetric showers that start inside the tracking volume.
 // Hence, this algorithm will return:
 //  - Contribution came from primary: primary
-//  - Contribution came from immediate daughter of primary and has no childern -> daughter
+//  - Contribution came from immediate daughter of primary which has no children -> daughter
 //  - All other cases (i.e. early showers, multi-radiation): primary
 // libraries
 inline edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) {
