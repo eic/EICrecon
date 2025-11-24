@@ -16,7 +16,7 @@
 
 namespace eicrecon {
 
-class TrackProjector_factory : public JOmniFactory<TrackProjector_factory> {
+class TrackProjector_factory : public JOmniFactory<TrackProjector_factory, NoConfig> {
 
 private:
   using AlgoT = eicrecon::TrackProjector;

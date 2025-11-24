@@ -16,7 +16,7 @@
 
 namespace eicrecon {
 
-class InclusiveKinematicsTruth_factory : public JOmniFactory<InclusiveKinematicsTruth_factory> {
+class InclusiveKinematicsTruth_factory : public JOmniFactory<InclusiveKinematicsTruth_factory, NoConfig> {
 
 public:
   using AlgoT = eicrecon::InclusiveKinematicsTruth;

@@ -10,7 +10,7 @@
 namespace eicrecon {
 
 class TruthEnergyPositionClusterMerger_factory
-    : public JOmniFactory<TruthEnergyPositionClusterMerger_factory> {
+    : public JOmniFactory<TruthEnergyPositionClusterMerger_factory, NoConfig> {
 public:
   using AlgoT = eicrecon::TruthEnergyPositionClusterMerger;
 

@@ -15,7 +15,7 @@
 
 namespace eicrecon {
 
-class ScatteredElectronsTruth_factory : public JOmniFactory<ScatteredElectronsTruth_factory> {
+class ScatteredElectronsTruth_factory : public JOmniFactory<ScatteredElectronsTruth_factory, NoConfig> {
 
 public:
   using AlgoT = eicrecon::ScatteredElectronsTruth;

@@ -17,10 +17,10 @@ namespace eicrecon {
 
 template <typename AlgoT>
 class InclusiveKinematicsReconstructed_factory
-    : public JOmniFactory<InclusiveKinematicsReconstructed_factory<AlgoT>> {
+    : public JOmniFactory<InclusiveKinematicsReconstructed_factory<AlgoT>, NoConfig> {
 
 public:
-  using FactoryT = JOmniFactory<InclusiveKinematicsReconstructed_factory<AlgoT>>;
+  using FactoryT = JOmniFactory<InclusiveKinematicsReconstructed_factory<AlgoT>, NoConfig>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;

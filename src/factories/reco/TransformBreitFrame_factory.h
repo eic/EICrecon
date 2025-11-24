@@ -18,7 +18,7 @@
 
 namespace eicrecon {
 
-class TransformBreitFrame_factory : public JOmniFactory<TransformBreitFrame_factory> {
+class TransformBreitFrame_factory : public JOmniFactory<TransformBreitFrame_factory, NoConfig> {
 
 public:
   // algorithm to run

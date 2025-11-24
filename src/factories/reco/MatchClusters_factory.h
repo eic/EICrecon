@@ -20,7 +20,7 @@
 
 namespace eicrecon {
 
-class MatchClusters_factory : public JOmniFactory<MatchClusters_factory> {
+class MatchClusters_factory : public JOmniFactory<MatchClusters_factory, NoConfig> {
 private:
   // Underlying algorithm
   std::unique_ptr<eicrecon::MatchClusters> m_algo;

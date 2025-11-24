@@ -10,7 +10,7 @@
 
 namespace eicrecon {
 
-class ActsToTracks_factory : public JOmniFactory<ActsToTracks_factory> {
+class ActsToTracks_factory : public JOmniFactory<ActsToTracks_factory, NoConfig> {
 public:
   using AlgoT = eicrecon::ActsToTracks;
 

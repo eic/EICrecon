@@ -10,17 +10,17 @@ namespace eicrecon {
 
 template <class T, bool IsOptional = false>
 class CollectionCollector_factory
-    : public JOmniFactory<CollectionCollector_factory<T, IsOptional>> {
+    : public JOmniFactory<CollectionCollector_factory<T, IsOptional>, NoConfig> {
 public:
   using AlgoT = eicrecon::CollectionCollector<typename T::collection_type>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>>::template VariadicPodioInput<
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>, NoConfig>::template VariadicPodioInput<
       T, IsOptional>
       m_inputs{this};
-  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>>::template PodioOutput<T>
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>, NoConfig>::template PodioOutput<T>
       m_output{this};
 
 public:

@@ -17,7 +17,7 @@
 
 namespace eicrecon {
 
-class MergeTrack_factory : public JOmniFactory<MergeTrack_factory> {
+class MergeTrack_factory : public JOmniFactory<MergeTrack_factory, NoConfig> {
 private:
   // Underlying algorithm
   std::unique_ptr<eicrecon::MergeTracks> m_algo;

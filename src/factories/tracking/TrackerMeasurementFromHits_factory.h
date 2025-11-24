@@ -19,7 +19,7 @@
 
 namespace eicrecon {
 
-class TrackerMeasurementFromHits_factory : public JOmniFactory<TrackerMeasurementFromHits_factory> {
+class TrackerMeasurementFromHits_factory : public JOmniFactory<TrackerMeasurementFromHits_factory, NoConfig> {
 
 private:
   using AlgoT = eicrecon::TrackerMeasurementFromHits;
