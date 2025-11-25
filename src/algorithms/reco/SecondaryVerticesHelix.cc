@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Daniel Brandenburg, Xin Dong
+// Copyright (C) 2025 Daniel Brandenburg, Xin Dong
 
 #include <DD4hep/Fields.h>
 #include <Evaluator/DD4hepUnits.h>
