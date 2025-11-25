@@ -43,7 +43,7 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   auto& particleSvc = algorithms::ParticleSvc::instance();
 
   if ((*rcvtx).size() == 0) {
-    info(" No primary vertex in this event! Skip secondary vertex finder!");
+    info("No primary vertex in this event! Skip secondary vertex finder!");
     return;
   }
   const auto pVtxPos4f = (*rcvtx)[0].getPosition();
@@ -58,7 +58,7 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
           pVtxPos4f.z / edm4eic::unit::mm * dd4hep::mm}); // in unit of dd4hep::tesla
   float b_field = field.z();
 
-  info("\t Primary vertex = ({},{},{})cm \t b field = {} tesla", pVtxPos.x, pVtxPos.y, pVtxPos.z,
+  info("\tPrimary vertex = ({},{},{})cm \t b field = {} tesla", pVtxPos.x, pVtxPos.y, pVtxPos.z,
        b_field / dd4hep::tesla);
 
   std::vector<Helix> hVec;
@@ -81,7 +81,7 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   if (hVec.size() != indexVec.size())
     return;
 
-  debug("\t Vector size {}, {}", hVec.size(), indexVec.size());
+  debug("\tVector size {}, {}", hVec.size(), indexVec.size());
 
   for (unsigned int i1 = 0; i1 < hVec.size(); ++i1) {
     for (unsigned int i2 = i1 + 1; i2 < hVec.size(); ++i2) {
