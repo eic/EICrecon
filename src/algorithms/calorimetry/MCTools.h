@@ -21,7 +21,6 @@ namespace eicrecon::MCTools {
 //  - Contribution came from primary: primary
 //  - Contribution came from immediate daughter of primary which has no children -> daughter
 //  - All other cases (i.e. early showers, multi-radiation): primary
-// libraries
 inline edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) {
   const auto contributor = contrib.getParticle();
 
