@@ -16,11 +16,12 @@
 #include "factories/digi/MPGDTrackerDigi_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "services/log/Log_service.h"
 
-// 2D-STRIP DIGITIZATION = DEFAULT
+// 2D-STRIP DIGITIZATION
 // - Is produced by "MPGDTrackerDigi".
-// - Relies on "MultiSegmentation" <readout> in "compact" geometry file.
-// PIXEL DIGITIZATION = BROUGHT INTO PLAY BY OPTION "MPGD:SiFactoryPattern".
+// - Relies on 2DStrip version of "compact" geometry file.
+// PIXEL DIGITIZATION
 // - Is produced by "SiliconTrackerDigi".
 
 extern "C" {
@@ -29,10 +30,40 @@ void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
 
-  // PIXEL DIGITIZATION?
-  // It's encoded in bit pattern "SiFactoryPattern": 0x1=CyMBaL, 0x2=OuterBarrel, ...
-  // unsigned int SiFactoryPattern = 0x0; // no SiliconTrackerDigi
-  unsigned int SiFactoryPattern = 0x3; // using SiliconTrackerDigi
+  // ***** PIXEL or 2DSTRIP DIGITIZATION?
+  // - This determines which of the MPGDTrackerDigi or SiliconTrackerDigi
+  //  factory is used.
+  // - It's encoded in XML constants "<detector>_2DStrip", which can be
+  //  conveniently set in the XMLs of the MPGDs.
+  // - It can be reset from command line via the "MPGD:SiFactoryPattern" option,
+  //  which is a bit pattern: 0x1=CyMBaL, 0x2=OuterBarrel, ...
+  // - It defaults (when neither XML constant nor command line option) to
+  //  SiliconTrackerDigi.
+  // Default
+  unsigned int SiFactoryPattern = 0x3; // Full-scale SiliconTrackerDigi
+  // XML constant
+  auto log_service = app->GetService<Log_service>();
+  auto mLog        = log_service->logger("tracking");
+  const char *MPGD_names[] = {"InnerMPGDBarrel","MPGDOuterBarrel"};
+  int nMPGDs = sizeof(MPGD_names)/sizeof(char*);
+  for (int mpgd = 0; mpgd < nMPGDs; mpgd++){
+    std::string MPGD_name(MPGD_names[mpgd]);
+    std::string constant_name = MPGD_name + std::string("_2DStrip");
+    try {
+      auto detector = app->GetService<DD4hep_service>()->detector();
+      int constant = detector->constant<int>(constant_name);
+      if (constant == 1) {
+	SiFactoryPattern &= ~(0x1 << mpgd);
+	mLog->info(R"(2DStrip XML loaded for "{}")",MPGD_name);
+      }
+      else {
+	mLog->info(R"(pixel XML loaded for "{}")",MPGD_name);
+      }
+    } catch (...) {
+      // Variable not present apply legacy pixel readout
+    }
+  }
+  // Command line option
   std::string SiFactoryPattern_str;
   app->SetDefaultParameter("MPGD:SiFactoryPattern", SiFactoryPattern_str,
                            "Hexadecimal Pattern of MPGDs digitized via \"SiliconTrackerDigi\"");
@@ -44,6 +75,14 @@ void InitPlugin(JApplication* app) {
           R"(Option "MPGD:SiFactoryPattern": Error ("%s") parsing input
         string: '%s')",
           e.what(), SiFactoryPattern_str.c_str());
+    }
+  }
+  for (int mpgd = 0; mpgd < nMPGDs; mpgd++){
+    std::string MPGD_name(MPGD_names[mpgd]);
+    if (SiFactoryPattern & (0x1 << mpgd)) {
+      mLog->info(R"(2DStrip digitization will be applied to "{}")",MPGD_name);
+    } else {
+      mLog->info(R"(pixel digitization will be applied to "{}")",MPGD_name);
     }
   }
 

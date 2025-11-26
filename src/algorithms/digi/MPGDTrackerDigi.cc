@@ -54,8 +54,9 @@
    hinging on (III), should be sufficient. But there are so many cases to take
    into account that it's difficult to settle on a minimal subset.
   - Evaluation:
-    + With 3 mm overall sensitive volume (=> ~1.5 mm SUBVOLUME), MIPs turn out
-     firing most of the time only one SUBVOLUME.
+    + With 3 mm overall sensitive volume (=> ~1.5 mm SUBVOLUME) and a cutoff
+     on deposited energy of 1 keV, MIPs turn out firing most of the time only
+     one SUBVOLUME.
     + MIPs are found to be properly handled: hits are assigned to mid-plane,
      are COALESCED when needed...
      ...Except for few cases, see "flagUnexpected".
