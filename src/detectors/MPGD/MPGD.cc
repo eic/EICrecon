@@ -42,9 +42,9 @@ void InitPlugin(JApplication* app) {
   // Default
   unsigned int SiFactoryPattern = 0x3; // Full-scale SiliconTrackerDigi
   // XML constant
-  auto log_service         = app->GetService<Log_service>();
-  auto mLog                = log_service->logger("tracking");
-  const int nMPGDs = 2;
+  auto log_service               = app->GetService<Log_service>();
+  auto mLog                      = log_service->logger("tracking");
+  const int nMPGDs               = 2;
   const char* MPGD_names[nMPGDs] = {"InnerMPGDBarrel", "MPGDOuterBarrel"};
   for (int mpgd = 0; mpgd < nMPGDs; mpgd++) {
     std::string MPGD_name(MPGD_names[mpgd]);
