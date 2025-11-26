@@ -3,11 +3,17 @@
 //
 //
 
+#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <fmt/core.h>
+#include <fmt/format.h>
+#include <spdlog/logger.h>
+#include <gsl/pointers>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
@@ -16,6 +22,7 @@
 #include "factories/digi/MPGDTrackerDigi_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 
 // 2D-STRIP DIGITIZATION
