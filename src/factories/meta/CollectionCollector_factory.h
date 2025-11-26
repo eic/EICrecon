@@ -17,10 +17,11 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>, NoConfig>::template VariadicPodioInput<
-      T, IsOptional>
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>,
+                        NoConfig>::template VariadicPodioInput<T, IsOptional>
       m_inputs{this};
-  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>, NoConfig>::template PodioOutput<T>
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>,
+                        NoConfig>::template PodioOutput<T>
       m_output{this};
 
 public:

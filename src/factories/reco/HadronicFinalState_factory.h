@@ -16,7 +16,8 @@
 namespace eicrecon {
 
 template <typename AlgoT>
-class HadronicFinalState_factory : public JOmniFactory<HadronicFinalState_factory<AlgoT>, NoConfig> {
+class HadronicFinalState_factory
+    : public JOmniFactory<HadronicFinalState_factory<AlgoT>, NoConfig> {
 
 public:
   using FactoryT = JOmniFactory<HadronicFinalState_factory<AlgoT>, NoConfig>;

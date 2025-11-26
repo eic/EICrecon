@@ -27,7 +27,8 @@ using FilterMatchingAlgorithm =
 /// These functions are envisioned to link the objectIDs of the collection/associations but could be anything
 template <typename ToFilterObjectT, auto ToFilterFunction, typename FilterByObjectT,
           auto FilterByFunction>
-class FilterMatching : public FilterMatchingAlgorithm<ToFilterObjectT, FilterByObjectT>, public WithPodConfig<NoConfig> {
+class FilterMatching : public FilterMatchingAlgorithm<ToFilterObjectT, FilterByObjectT>,
+                       public WithPodConfig<NoConfig> {
 
 public:
   FilterMatching(std::string_view name)

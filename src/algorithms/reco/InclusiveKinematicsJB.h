@@ -21,7 +21,8 @@ using InclusiveKinematicsJBAlgorithm = algorithms::Algorithm<
                       edm4eic::HadronicFinalStateCollection>,
     algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-class InclusiveKinematicsJB : public InclusiveKinematicsJBAlgorithm, public WithPodConfig<NoConfig> {
+class InclusiveKinematicsJB : public InclusiveKinematicsJBAlgorithm,
+                              public WithPodConfig<NoConfig> {
 
 public:
   InclusiveKinematicsJB(std::string_view name)

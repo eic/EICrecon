@@ -18,8 +18,8 @@ using CollectionCollectorAlgorithm =
     algorithms::Algorithm<typename algorithms::Input<std::vector<const T>>,
                           typename algorithms::Output<T>>;
 
-template <class T> class CollectionCollector : public CollectionCollectorAlgorithm<T>,
-                                               public WithPodConfig<NoConfig> {
+template <class T>
+class CollectionCollector : public CollectionCollectorAlgorithm<T>, public WithPodConfig<NoConfig> {
 
 public:
   CollectionCollector(std::string_view name)

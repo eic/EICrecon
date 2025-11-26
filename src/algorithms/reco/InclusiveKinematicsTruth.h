@@ -18,7 +18,8 @@ using InclusiveKinematicsTruthAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::MCParticleCollection>,
                           algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-class InclusiveKinematicsTruth : public InclusiveKinematicsTruthAlgorithm, public WithPodConfig<NoConfig> {
+class InclusiveKinematicsTruth : public InclusiveKinematicsTruthAlgorithm,
+                                 public WithPodConfig<NoConfig> {
 
 public:
   InclusiveKinematicsTruth(std::string_view name)

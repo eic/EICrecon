@@ -21,7 +21,8 @@ using InclusiveKinematicsElectronAlgorithm = algorithms::Algorithm<
                       edm4eic::HadronicFinalStateCollection>,
     algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-class InclusiveKinematicsElectron : public InclusiveKinematicsElectronAlgorithm, public WithPodConfig<NoConfig> {
+class InclusiveKinematicsElectron : public InclusiveKinematicsElectronAlgorithm,
+                                    public WithPodConfig<NoConfig> {
 
 public:
   InclusiveKinematicsElectron(std::string_view name)

@@ -31,7 +31,8 @@ using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
    *
    * \ingroup reco
    */
-class TruthEnergyPositionClusterMerger : public TruthEnergyPositionClusterMergerAlgorithm, public WithPodConfig<NoConfig> {
+class TruthEnergyPositionClusterMerger : public TruthEnergyPositionClusterMergerAlgorithm,
+                                         public WithPodConfig<NoConfig> {
 
 public:
   TruthEnergyPositionClusterMerger(std::string_view name)

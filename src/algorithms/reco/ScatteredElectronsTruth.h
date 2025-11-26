@@ -20,7 +20,8 @@ using ScatteredElectronsTruthAlgorithm = algorithms::Algorithm<
                       edm4eic::MCRecoParticleAssociationCollection>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-class ScatteredElectronsTruth : public ScatteredElectronsTruthAlgorithm, public WithPodConfig<NoConfig> {
+class ScatteredElectronsTruth : public ScatteredElectronsTruthAlgorithm,
+                                public WithPodConfig<NoConfig> {
 
 public:
   ScatteredElectronsTruth(std::string_view name)

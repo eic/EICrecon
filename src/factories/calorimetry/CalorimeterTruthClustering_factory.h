@@ -10,7 +10,8 @@
 
 namespace eicrecon {
 
-class CalorimeterTruthClustering_factory : public JOmniFactory<CalorimeterTruthClustering_factory, NoConfig> {
+class CalorimeterTruthClustering_factory
+    : public JOmniFactory<CalorimeterTruthClustering_factory, NoConfig> {
 public:
   using AlgoT = eicrecon::CalorimeterTruthClustering;
 

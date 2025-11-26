@@ -19,7 +19,8 @@ using CalorimeterTruthClusteringAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::CalorimeterHitCollection, edm4hep::SimCalorimeterHitCollection>,
     algorithms::Output<edm4eic::ProtoClusterCollection>>;
 
-class CalorimeterTruthClustering : public CalorimeterTruthClusteringAlgorithm, public WithPodConfig<NoConfig> {
+class CalorimeterTruthClustering : public CalorimeterTruthClusteringAlgorithm,
+                                   public WithPodConfig<NoConfig> {
 
 public:
   CalorimeterTruthClustering(std::string_view name)

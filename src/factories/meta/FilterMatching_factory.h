@@ -12,13 +12,15 @@ template <typename ToFilterObjectT, auto ToFilterMemberFunctionPtr, typename Fil
           auto FilterByMemberFunctionPtr>
 class FilterMatching_factory
     : public JOmniFactory<FilterMatching_factory<ToFilterObjectT, ToFilterMemberFunctionPtr,
-                                                 FilterByObjectT, FilterByMemberFunctionPtr>, NoConfig> {
+                                                 FilterByObjectT, FilterByMemberFunctionPtr>,
+                          NoConfig> {
 
 public:
   using AlgoT    = eicrecon::FilterMatching<ToFilterObjectT, ToFilterMemberFunctionPtr,
                                             FilterByObjectT, FilterByMemberFunctionPtr>;
   using FactoryT = JOmniFactory<FilterMatching_factory<ToFilterObjectT, ToFilterMemberFunctionPtr,
-                                                       FilterByObjectT, FilterByMemberFunctionPtr>, NoConfig>;
+                                                       FilterByObjectT, FilterByMemberFunctionPtr>,
+                                NoConfig>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
