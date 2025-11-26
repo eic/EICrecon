@@ -205,11 +205,9 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "EcalEndcapPSplitMergeProtoClusters",
       {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters", "CalorimeterTrackProjections"},
-      {
-        "EcalEndcapPSplitMergeProtoClusters",
+      {"EcalEndcapPSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
-        "EcalEndcapPTrackSplitMergeProtoClusterMatches"
-      },
+       "EcalEndcapPTrackSplitMergeProtoClusterMatches"},
 #endif
       {.minSigCut                    = -2.0,
        .avgEP                        = 1.0,
@@ -222,8 +220,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPSplitMergeClustersWithoutShapes",
-      {"EcalEndcapPSplitMergeProtoClusters",
-       "EcalEndcapPRawHitAssociations"},
+      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPRawHitAssociations"},
       {"EcalEndcapPSplitMergeClustersWithoutShapes",
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
       {

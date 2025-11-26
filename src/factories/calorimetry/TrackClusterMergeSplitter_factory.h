@@ -58,11 +58,12 @@ public:
 
   ///! Primary algorithm call
   void Process(int64_t /*run_number*/, uint64_t /*event_number*/) {
-    m_algo->process({m_track_cluster_matches_input(), m_clusters_input(), m_track_projections_input()},
+    m_algo->process(
+        {m_track_cluster_matches_input(), m_clusters_input(), m_track_projections_input()},
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
-                    {m_protoclusters_output().get(), m_track_protocluster_match_output().get()}
+        { m_protoclusters_output().get(), m_track_protocluster_match_output().get() }
 #else
-                    {m_protoclusters_output().get()}
+        {m_protoclusters_output().get()}
 #endif
     );
   }
