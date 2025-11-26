@@ -26,6 +26,8 @@ private:
   // output collection
   PodioOutput<edm4eic::ReconstructedParticle> m_charged_candidate_output{this};
 
+  // services
+  Service<AlgorithmsInit_service> m_algoInitSvc{this};
 public:
   ///! Configures algorithm
   void Configure() {
