@@ -11,6 +11,7 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
@@ -20,7 +21,7 @@ using HadronicFinalStateAlgorithm = algorithms::Algorithm<
                       edm4eic::MCRecoParticleAssociationCollection>,
     algorithms::Output<edm4eic::HadronicFinalStateCollection>>;
 
-class HadronicFinalState : public HadronicFinalStateAlgorithm {
+class HadronicFinalState : public HadronicFinalStateAlgorithm, public WithPodConfig<NoConfig> {
 
 public:
   HadronicFinalState(std::string_view name)

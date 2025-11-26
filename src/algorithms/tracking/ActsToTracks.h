@@ -16,6 +16,8 @@
 #include <string_view>
 #include <vector>
 
+#include "algorithms/interfaces/WithPodConfig.h"
+
 namespace eicrecon {
 
 using ActsToTracksAlgorithm = algorithms::Algorithm<
@@ -25,7 +27,7 @@ using ActsToTracksAlgorithm = algorithms::Algorithm<
                        edm4eic::TrackCollection,
                        std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>>>;
 
-class ActsToTracks : public ActsToTracksAlgorithm {
+class ActsToTracks : public ActsToTracksAlgorithm, public WithPodConfig<NoConfig> {
 public:
   ActsToTracks(std::string_view name)
       : ActsToTracksAlgorithm{name,

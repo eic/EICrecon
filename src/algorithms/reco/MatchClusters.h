@@ -18,6 +18,8 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/WithPodConfig.h"
+
 namespace eicrecon {
 
 using MatchClustersAlgorithm = algorithms::Algorithm<
@@ -27,7 +29,7 @@ using MatchClustersAlgorithm = algorithms::Algorithm<
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
                        edm4eic::MCRecoParticleAssociationCollection>>;
 
-class MatchClusters : public MatchClustersAlgorithm {
+class MatchClusters : public MatchClustersAlgorithm, public WithPodConfig<NoConfig> {
 
 public:
   MatchClusters(std::string_view name)

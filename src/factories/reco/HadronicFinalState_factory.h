@@ -16,10 +16,11 @@
 namespace eicrecon {
 
 template <typename AlgoT>
-class HadronicFinalState_factory : public JOmniFactory<HadronicFinalState_factory<AlgoT>> {
+class HadronicFinalState_factory
+    : public JOmniFactory<HadronicFinalState_factory<AlgoT>, NoConfig> {
 
 public:
-  using FactoryT = JOmniFactory<HadronicFinalState_factory<AlgoT>>;
+  using FactoryT = JOmniFactory<HadronicFinalState_factory<AlgoT>, NoConfig>;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
@@ -37,6 +38,7 @@ public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(this->logger()->level()));
+    m_algo->applyConfig(this->config());
     m_algo->init();
   }
 

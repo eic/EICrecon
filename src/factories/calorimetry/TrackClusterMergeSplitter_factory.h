@@ -49,6 +49,7 @@ private:
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();
   }

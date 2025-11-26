@@ -11,6 +11,8 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/WithPodConfig.h"
+
 namespace eicrecon {
 
 using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
@@ -29,7 +31,8 @@ using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
    *
    * \ingroup reco
    */
-class TruthEnergyPositionClusterMerger : public TruthEnergyPositionClusterMergerAlgorithm {
+class TruthEnergyPositionClusterMerger : public TruthEnergyPositionClusterMergerAlgorithm,
+                                         public WithPodConfig<NoConfig> {
 
 public:
   TruthEnergyPositionClusterMerger(std::string_view name)

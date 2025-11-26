@@ -14,7 +14,8 @@
 
 namespace eicrecon {
 
-class ActsTrajectoriesMerger_factory : public JOmniFactory<ActsTrajectoriesMerger_factory> {
+class ActsTrajectoriesMerger_factory
+    : public JOmniFactory<ActsTrajectoriesMerger_factory, NoConfig> {
 private:
   Input<ActsExamples::Trajectories> m_acts_trajectories1_input{this};
   Input<ActsExamples::Trajectories> m_acts_trajectories2_input{this};
