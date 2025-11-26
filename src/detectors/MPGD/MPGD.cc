@@ -42,22 +42,21 @@ void InitPlugin(JApplication* app) {
   // Default
   unsigned int SiFactoryPattern = 0x3; // Full-scale SiliconTrackerDigi
   // XML constant
-  auto log_service = app->GetService<Log_service>();
-  auto mLog        = log_service->logger("tracking");
-  const char *MPGD_names[] = {"InnerMPGDBarrel","MPGDOuterBarrel"};
-  int nMPGDs = sizeof(MPGD_names)/sizeof(char*);
-  for (int mpgd = 0; mpgd < nMPGDs; mpgd++){
+  auto log_service         = app->GetService<Log_service>();
+  auto mLog                = log_service->logger("tracking");
+  const char* MPGD_names[] = {"InnerMPGDBarrel", "MPGDOuterBarrel"};
+  int nMPGDs               = sizeof(MPGD_names) / sizeof(char*);
+  for (int mpgd = 0; mpgd < nMPGDs; mpgd++) {
     std::string MPGD_name(MPGD_names[mpgd]);
     std::string constant_name = MPGD_name + std::string("_2DStrip");
     try {
       auto detector = app->GetService<DD4hep_service>()->detector();
-      int constant = detector->constant<int>(constant_name);
+      int constant  = detector->constant<int>(constant_name);
       if (constant == 1) {
-	SiFactoryPattern &= ~(0x1 << mpgd);
-	mLog->info(R"(2DStrip XML loaded for "{}")",MPGD_name);
-      }
-      else {
-	mLog->info(R"(pixel XML loaded for "{}")",MPGD_name);
+        SiFactoryPattern &= ~(0x1 << mpgd);
+        mLog->info(R"(2DStrip XML loaded for "{}")", MPGD_name);
+      } else {
+        mLog->info(R"(pixel XML loaded for "{}")", MPGD_name);
       }
     } catch (...) {
       // Variable not present apply legacy pixel readout
@@ -77,12 +76,12 @@ void InitPlugin(JApplication* app) {
           e.what(), SiFactoryPattern_str.c_str());
     }
   }
-  for (int mpgd = 0; mpgd < nMPGDs; mpgd++){
+  for (int mpgd = 0; mpgd < nMPGDs; mpgd++) {
     std::string MPGD_name(MPGD_names[mpgd]);
     if (SiFactoryPattern & (0x1 << mpgd)) {
-      mLog->info(R"(2DStrip digitization will be applied to "{}")",MPGD_name);
+      mLog->info(R"(2DStrip digitization will be applied to "{}")", MPGD_name);
     } else {
-      mLog->info(R"(pixel digitization will be applied to "{}")",MPGD_name);
+      mLog->info(R"(pixel digitization will be applied to "{}")", MPGD_name);
     }
   }
 
