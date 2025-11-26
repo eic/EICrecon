@@ -44,8 +44,8 @@ void InitPlugin(JApplication* app) {
   // XML constant
   auto log_service         = app->GetService<Log_service>();
   auto mLog                = log_service->logger("tracking");
-  const char* MPGD_names[] = {"InnerMPGDBarrel", "MPGDOuterBarrel"};
-  int nMPGDs               = sizeof(MPGD_names) / sizeof(char*);
+  const int nMPGDs = 2;
+  const char* MPGD_names[nMPGDs] = {"InnerMPGDBarrel", "MPGDOuterBarrel"};
   for (int mpgd = 0; mpgd < nMPGDs; mpgd++) {
     std::string MPGD_name(MPGD_names[mpgd]);
     std::string constant_name = MPGD_name + std::string("_2DStrip");
