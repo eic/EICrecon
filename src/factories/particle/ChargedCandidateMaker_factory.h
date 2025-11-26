@@ -28,6 +28,7 @@ private:
 
   // services
   Service<AlgorithmsInit_service> m_algoInitSvc{this};
+
 public:
   ///! Configures algorithm
   void Configure() {
