@@ -270,6 +270,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ScatteredElectronsTruth",
       "ScatteredElectronsEMinusPz",
       "PrimaryVertices",
+      "SecondaryVerticesHelix",
       "BarrelClusters",
       "HadronicFinalState",
 
