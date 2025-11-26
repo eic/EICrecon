@@ -34,11 +34,13 @@ namespace eicrecon {
 using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
                       edm4eic::TrackSegmentCollection>,
-    algorithms::Output<edm4eic::ProtoClusterCollection,
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+    algorithms::Output<edm4eic::ProtoClusterCollection,
                        edm4eic::TrackProtoClusterMatchCollection
-#endif
                        >>;
+#else
+    algorithms::Output<edm4eic::ProtoClusterCollection>>;
+#endif
 
 // --------------------------------------------------------------------------
 //! Track-Based Cluster Merger/Splitter
