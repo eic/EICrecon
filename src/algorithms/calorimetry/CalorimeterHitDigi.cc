@@ -217,7 +217,7 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     unsigned long long tdc = std::llround((time + gaussian(generator) * tRes) * stepTDC);
 
     //smear edep by resolution function before photon and SiPM simulation
-    edep *= (1.0 + eResRel);
+    edep *= std::max(0.0, 1.0 + eResRel);
 
     if (readoutType == kSimpleReadout) {
       adc = std::max(
