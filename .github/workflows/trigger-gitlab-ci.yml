@@ -1,0 +1,84 @@
+name: Trigger GitLab CI
+
+on:
+  workflow_run:
+    workflows: ["Build against eic-shell"]
+    types: [completed]
+
+jobs:
+  trigger-container:
+    runs-on: ubuntu-24.04
+    # Only trigger GitLab CI when:
+    # 1. The triggering workflow succeeded
+    # 2. It was triggered by a pull request
+    # 3. PR author is from the repository OR is an org member/collaborator
+    if: |
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.pull_requests[0] != null && (
+        github.event.workflow_run.pull_requests[0].head.repo.full_name == github.repository ||
+        github.event.workflow_run.pull_requests[0].author_association == 'MEMBER' ||
+        github.event.workflow_run.pull_requests[0].author_association == 'OWNER' ||
+        github.event.workflow_run.pull_requests[0].author_association == 'COLLABORATOR'
+      )
+    outputs:
+      json: ${{ steps.trigger.outputs.json }}
+    steps:
+    - name: Get PR details
+      id: pr
+      run: |
+        echo "number=${{ github.event.workflow_run.pull_requests[0].number }}" >> $GITHUB_OUTPUT
+        echo "head_sha=${{ github.event.workflow_run.pull_requests[0].head.sha }}" >> $GITHUB_OUTPUT
+        echo "head_ref=${{ github.event.workflow_run.pull_requests[0].head.ref }}" >> $GITHUB_OUTPUT
+        echo "title=${{ github.event.workflow_run.pull_requests[0].title }}" >> $GITHUB_OUTPUT
+        echo "repo=${{ github.event.workflow_run.pull_requests[0].head.repo.full_name }}" >> $GITHUB_OUTPUT
+        echo "author=${{ github.event.workflow_run.pull_requests[0].user.login }}" >> $GITHUB_OUTPUT
+        echo "author_association=${{ github.event.workflow_run.pull_requests[0].author_association }}" >> $GITHUB_OUTPUT
+
+    - name: Log PR source and authorization
+      run: |
+        echo "PR #${{ steps.pr.outputs.number }} from: ${{ steps.pr.outputs.repo }}"
+        echo "Author: ${{ steps.pr.outputs.author }} (association: ${{ steps.pr.outputs.author_association }})"
+        if [ "${{ steps.pr.outputs.repo }}" != "${{ github.repository }}" ]; then
+          echo "::notice::PR from fork by trusted contributor (organization member/collaborator)"
+        fi
+
+    - uses: eic/trigger-gitlab-ci@v3
+      id: trigger
+      with:
+        url: https://eicweb.phy.anl.gov
+        project_id: 290
+        token: ${{ secrets.EICWEB_CONTAINER_TRIGGER }}
+        ref_name: master
+        variables: |
+          GITHUB_REPOSITORY=${{ github.repository }}
+          GITHUB_SHA=${{ steps.pr.outputs.head_sha }}
+          GITHUB_PR=${{ steps.pr.outputs.number }}
+          EICRECON_VERSION="${{ steps.pr.outputs.head_ref }}"
+          PIPELINE_NAME=${{ github.repository }}: ${{ steps.pr.outputs.title }}
+
+    - name: Post a GitHub CI status
+      run: |
+        gh api \
+           --method POST \
+          -H "Accept: application/vnd.github+json" \
+          /repos/${{ github.repository }}/statuses/${{ steps.pr.outputs.head_sha }} \
+          -f state="pending" \
+          -f target_url="${{ steps.trigger.outputs.web_url }}" \
+          -f description="Triggered... $(TZ=America/New_York date)" \
+          -f context="eicweb/eic_container"
+      env:
+        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Save GitLab pipeline ID for cancellation
+      run: |
+        mkdir -p gitlab-pipeline-info
+        echo "${{ steps.trigger.outputs.json }}" > gitlab-pipeline-info/pipeline-info.json
+        echo "GitLab pipeline ID saved for potential cancellation"
+
+    - name: Upload GitLab pipeline info as artifact
+      uses: actions/upload-artifact@v5
+      with:
+        name: gitlab-pipeline-${{ github.event.workflow_run.id }}
+        path: gitlab-pipeline-info/
+        retention-days: 1
