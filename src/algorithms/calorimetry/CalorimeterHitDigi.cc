@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten, Barak Schmookler, David Lawrence
+// Copyright (C) 2022 - 2025 Chao Peng, Wouter Deconinck, Sylvester Joosten, Barak Schmookler, David Lawrence, Akio Ogawa
 
 // A general digitization for CalorimeterHit from simulation
 // 1. Smear energy deposit with a/sqrt(E/GeV) + b + c/E or a/sqrt(E/GeV) (relative value)
