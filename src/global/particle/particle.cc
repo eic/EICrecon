@@ -36,14 +36,8 @@ void InitPlugin(JApplication* app) {
   // backward -----------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
-      "EndcapNNeutralCandidateParticlesAlpha",
-      {"EcalEndcapNClusters", "HcalEndcapNClusters"},
-      {"EndcapNNeutralCandidateParticlesAlpha"},
-      {
-          .deltaRAddEM = 0.03,
-          .deltaRAddH = 0.15
-      },
-      app));
+      "EndcapNNeutralCandidateParticlesAlpha", {"EcalEndcapNClusters", "HcalEndcapNClusters"},
+      {"EndcapNNeutralCandidateParticlesAlpha"}, {.deltaRAddEM = 0.03, .deltaRAddH = 0.15}, app));
 
   // central ------------------------------------------------------------
 
@@ -55,6 +49,5 @@ void InitPlugin(JApplication* app) {
   /* TODO add PFA2 FEMC here */
   /* TODO add PFA2 LFHCAL here */
   /* TODO add PFA2 FHCal insert here */
-
 }
 } // extern "C"

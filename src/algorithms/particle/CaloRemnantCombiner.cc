@@ -118,12 +118,12 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
 // ----------------------------------------------------------------------------
 //! Find seed cluster
 // ----------------------------------------------------------------------------
-/*! Identifies a seed (highest energy) cluster in a collection 
+/*! Identifies a seed (highest energy) cluster in a collection
  *  which sets the center of the cone in which clusters are
  *  combined.
  */
 std::size_t CaloRemnantCombiner::find_seed_cluster_index(const edm4eic::ClusterCollection& clusters,
-                                                       std::vector<bool>& visits) {
+                                                         std::vector<bool>& visits) {
   double max_cluster_energy      = -1.0;
   std::size_t seed_cluster_index = -1;
   for (std::size_t i = 0; i < clusters.size(); ++i) {
