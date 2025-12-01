@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten, Barak Schmookler, David Lawrence
+// Copyright (C) 2022 - 2025 Chao Peng, Wouter Deconinck, Sylvester Joosten, Barak Schmookler, David Lawrence, Akio Ogawa
 
 // A general digitization for CalorimeterHit from simulation
 // 1. Smear energy deposit with a/sqrt(E/GeV) + b + c/E or a/sqrt(E/GeV) (relative value)
@@ -213,13 +213,15 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     double ped = m_cfg.pedMeanADC + gaussian(generator) * m_cfg.pedSigmaADC;
 
     // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
-    unsigned long long adc;
+    unsigned long long adc = 0;
     unsigned long long tdc = std::llround((time + gaussian(generator) * tRes) * stepTDC);
 
+    //smear edep by resolution function before photon and SiPM simulation
+    edep *= std::max(0.0, 1.0 + eResRel);
+
     if (readoutType == kSimpleReadout) {
-      adc = std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) /
-                                            m_cfg.dyRangeADC * m_cfg.capADC),
-                     0LL);
+      adc = std::max(
+          std::llround(ped + edep * corrMeanScale_value / m_cfg.dyRangeADC * m_cfg.capADC), 0LL);
     } else if (readoutType == kPoissonPhotonReadout) {
       const long long int n_photons_mean =
           edep * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
@@ -228,8 +230,8 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       const long long int n_max_photons =
           m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
       trace("n_photons_detected {}", n_photons_detected);
-      adc = std::max(std::llround(ped + n_photons_detected * corrMeanScale_value * (1.0 + eResRel) /
-                                            n_max_photons * m_cfg.capADC),
+      adc = std::max(std::llround(ped + n_photons_detected * corrMeanScale_value / n_max_photons *
+                                            m_cfg.capADC),
                      0LL);
     } else if (readoutType == kSipmReadout) {
       const long long int n_photons = edep * m_cfg.lightYield;
@@ -243,9 +245,9 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
           m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
       trace("n_photons_detected {}, n_pixels_fired {}, n_max_photons {}", n_photons_detected,
             n_pixels_fired, n_max_photons);
-      adc = std::max(std::llround(ped + n_pixels_fired * corrMeanScale_value * (1.0 + eResRel) /
-                                            n_max_photons * m_cfg.capADC),
-                     0LL);
+      adc = std::max(
+          std::llround(ped + n_pixels_fired * corrMeanScale_value / n_max_photons * m_cfg.capADC),
+          0LL);
     }
 
     if (edep > 1.e-3) {
