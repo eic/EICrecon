@@ -47,7 +47,7 @@ void InitPlugin(JApplication* app) {
       10 * dd4hep::picosecond;
   const double EcalEndcapP_sampFrac = 0.029043; // updated with ratio to ScFi model
   decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
-      fmt::format("{}", 1.0 / EcalEndcapP_sampFrac);
+      fmt::format("{}", 1.0 / EcalEndcapP_sampFrac); //only used for ScFi model
   const double EcalEndcapP_nPhotonPerGeV          = 1500;
   const double EcalEndcapP_PhotonCollectionEff    = 0.285;
   const unsigned long long EcalEndcapP_totalPixel = 4 * 159565ULL;
@@ -101,7 +101,8 @@ void InitPlugin(JApplication* app) {
             .threshold =
                 0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
             .readoutType = "sipm",
-            .lightYield  = EcalEndcapP_nPhotonPerGeV / EcalEndcapP_PhotonCollectionEff,
+            .lightYield =
+                EcalEndcapP_nPhotonPerGeV / EcalEndcapP_PhotonCollectionEff / EcalEndcapP_sampFrac,
             .photonDetectionEfficiency = EcalEndcapP_PhotonCollectionEff,
             .numEffectiveSipmPixels    = EcalEndcapP_totalPixel,
             .capADC                    = EcalEndcapP_capADC,
