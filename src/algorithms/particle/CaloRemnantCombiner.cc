@@ -100,9 +100,8 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
 
       std::set<std::size_t> rem_hcalcluster_indices;
 
-      rem_hcalcluster_indices =
-          get_cluster_indices_for_merging(*calo_clusters[1], visits_hcal, seed_rem_hcal_index,
-                                         m_cfg.deltaRAddH, *calo_clusters[1]);
+      rem_hcalcluster_indices = get_cluster_indices_for_merging(
+          *calo_clusters[1], visits_hcal, seed_rem_hcal_index, m_cfg.deltaRAddH, *calo_clusters[1]);
 
       for (const auto& idx : rem_hcalcluster_indices) {
         neutral_candidate_h.addToClusters((*calo_clusters[1])[idx]);

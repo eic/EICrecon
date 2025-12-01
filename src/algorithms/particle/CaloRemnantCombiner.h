@@ -44,11 +44,11 @@ public:
 
   void process(const Input&, const Output&) const final;
   static std::size_t find_seed_cluster_index(const edm4eic::ClusterCollection& clusters,
-                                           std::vector<bool>& visits);
+                                             std::vector<bool>& visits);
   static std::set<std::size_t>
   get_cluster_indices_for_merging(const edm4eic::ClusterCollection& clusters,
-                                 std::vector<bool>& visits, std::size_t seed_cluster_index,
-                                 double delta_r, const edm4eic::ClusterCollection& seed);
+                                  std::vector<bool>& visits, std::size_t seed_cluster_index,
+                                  double delta_r, const edm4eic::ClusterCollection& seed);
 };
 
 } // namespace eicrecon
