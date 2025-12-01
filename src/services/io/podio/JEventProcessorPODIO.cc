@@ -308,6 +308,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
       "EcalBarrelScFiClusterAssociations",
+      "EcalBarrelScFiTopoClusters", // ScFi clusters based in Topological Clustering
+      "EcalBarrelScFiTopoClusterAssociations",
       "EcalLumiSpecRawHits",
       "EcalLumiSpecRecHits",
       "EcalLumiSpecTruthClusters",
