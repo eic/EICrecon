@@ -20,6 +20,28 @@
 
 namespace eicrecon {
 
+// ----------------------------------------------------------------------------
+//! Process inputs
+// ----------------------------------------------------------------------------
+/*! Construct a candidate neutral particle via the
+ *  following algorithm.
+ *    1. Repeat the following the steps until every EMCal
+ *       cluster has been used:
+ *       a. Identify seed EMCal cluster
+ *       b. Identify all EMCal clusters and HCal clusters which
+ *          lie within a radius of deltaRAddEM and deltaRAddH
+ *          around seed EMCal cluster respectively
+ *       c. Combine all identified clusters into a neutral particle
+ *          candidate
+ *    2. Repeat the following steps until every HCal
+ *       cluster has been used:
+ *       a. Identify seed HCal cluster
+ *       b. Identify all HCal clusters which lie within a
+ *          radius of deltaRAddH around seed HCal
+ *          cluster
+ *       c. Combine all identified clusters into a neutral particle
+ *          candidate
+ */
 void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
                                   const CaloRemnantCombiner::Output& output) const {
 
@@ -40,7 +62,7 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
     std::size_t seed_ecal_index = findSeedCluster_index(*calo_clusters[0], visits_ecal);
 
     if (seed_ecal_index == -1) {
-      info("No Seed Ecal cluster found for remnant combination.");
+      debug("No Seed Ecal cluster found for remnant combination");
     }
 
     if (seed_ecal_index != -1) {
@@ -93,7 +115,14 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
 
 } // end of process
 
-std::size_t CaloRemnantCombiner::findSeedCluster_index(const edm4eic::ClusterCollection& clusters,
+// ----------------------------------------------------------------------------
+//! Find seed cluster
+// ----------------------------------------------------------------------------
+/*! Identifies a seed (highest energy) cluster in a collection 
+ *  which sets the center of the cone in which clusters are
+ *  combined.
+ */
+std::size_t CaloRemnantCombiner::find_seed_cluster_index(const edm4eic::ClusterCollection& clusters,
                                                        std::vector<bool>& visits) {
   double max_cluster_energy      = -1.0;
   std::size_t seed_cluster_index = -1;
@@ -111,9 +140,16 @@ std::size_t CaloRemnantCombiner::findSeedCluster_index(const edm4eic::ClusterCol
   return seed_cluster_index;
 }
 
-std::set<std::size_t> CaloRemnantCombiner::getcluster_indices_for_merging(
+// ----------------------------------------------------------------------------
+//! Find cluster indices for merging
+// ----------------------------------------------------------------------------
+/*! Creates a set of indices corresponding to clusters which lie within
+ *  a radius of `delta_r_add` around the seed cluster with index
+ *  `seed_cluster_index`.
+ */
+std::set<std::size_t> CaloRemnantCombiner::get_cluster_indices_for_merging(
     const edm4eic::ClusterCollection& clusters, std::vector<bool>& visits,
-    std::size_t seed_cluster_index, double delta_r, const edm4eic::ClusterCollection& seed) {
+    std::size_t seed_cluster_index, double delta_r_add, const edm4eic::ClusterCollection& seed) {
   std::set<std::size_t> cluster_indices;
 
   for (std::size_t i = 0; i < clusters.size(); ++i) {
@@ -121,16 +157,8 @@ std::set<std::size_t> CaloRemnantCombiner::getcluster_indices_for_merging(
       continue;
     }
     // get the distance between current cluster and seed cluster
-
-    // Using simple Euclidean distance in 3D space
-    ///double distance = edm4hep::utils::magnitude(clusters[i].getPosition() - seed[seed_cluster_index].getPosition());
-
-    // Using delta R in the transverse plane (x-y plane)
-    /*double dx = clusters[i].getPosition().x - seed[seed_cluster_index].getPosition().x;
-    double dy = clusters[i].getPosition().y - seed[seed_cluster_index].getPosition().y;
-    double distance = std::sqrt(dx * dx + dy * dy);*/
-
-    // Using angular distance (delta R) in eta-phi space
+    // using angular distance (delta R) in eta-phi space
+    //   - FIXME expand to allow for other distance metrics
     edm4hep::Vector3f seed_pos    = seed[seed_cluster_index].getPosition();
     edm4hep::Vector3f cluster_pos = clusters[i].getPosition();
 
@@ -143,7 +171,7 @@ std::set<std::size_t> CaloRemnantCombiner::getcluster_indices_for_merging(
     float deta     = eta_cluster - eta_seed;
     float distance = std::sqrt(deta * deta + dphi * dphi);
 
-    if (distance < delta_r) { // distance threshold for merging
+    if (distance < delta_r_add) {
       cluster_indices.insert(i);
       visits[i] = true;
     }

@@ -9,8 +9,8 @@ namespace eicrecon {
 
 struct CaloRemnantCombinerConfig {
 
-  double delta_r_add_em = 0.03;
-  double delta_r_add_h  = 0.15;
+  double deltaRAddEM = 0.03;
+  double deltaRAddH  = 0.15;
 };
 
 } // namespace eicrecon

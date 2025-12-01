@@ -30,36 +30,24 @@ private:
   PodioOutput<edm4eic::ReconstructedParticle> m_out_neutral_candidates{this};
 
   // Declare parameters
-  /*ParameterRef<double> m_min_energy_over_momentum{this, "minEnergyOverMomentum",
-                                                  config().min_energy_over_momentum};
-  ParameterRef<double> m_max_energy_over_momentum{this, "maxEnergyOverMomentum",
-                                                  config().max_energy_over_momentum};*/
+  ParameterRef<double> m_deltaRAddEM{this, "deltaRAddEM", config().deltaRAddEM};
+  ParameterRef<double> m_deltaRAddH{this, "deltaRAddH", config().deltaRAddH};
+  // services
+  Service<AlgorithmsInit_service> m_algoInitSvc{this};
 
 public:
   void Configure() {
-    // This is called when the factory is instantiated.
-    // Use this callback to make sure the algorithm is configured.
-    // The logger, parameters, and services have all been fetched before this is called
     m_algo = std::make_unique<CaloRemnantCombiner>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-    // Pass config object to algorithm
     m_algo->applyConfig(config());
-
     m_algo->init();
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    // This is called on every event.
-    // Use this callback to call your Algorithm using all inputs and outputs
-    // The inputs will have already been fetched for you at this point.
-    auto in1 = m_in_calo_clusters();
-    std::vector<gsl::not_null<const edm4eic::ClusterCollection*>> in2;
-
-    std::copy(in1.cbegin(), in1.cend(), std::back_inserter(in2));
-    m_algo->process({in2}, {m_out_neutral_candidates().get()});
-
-    logger()->debug("Found {} reconstructed neutral candidates",
-                    m_out_neutral_candidates()->size());
+    auto in_clusters = m_in_calo_clusters();
+    std::vector<gsl::not_null<const edm4eic::ClusterCollection*>> in_algo;
+    std::copy(in_clusters.cbegin(), in_clusters.cend(), std::back_inserter(in_algo));
+    m_algo->process({in_algo}, {m_out_neutral_candidates().get()});
   }
 };
 } // namespace eicrecon
