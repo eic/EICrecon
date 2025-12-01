@@ -1,0 +1,77 @@
+name: Cancel GitLab CI
+
+on:
+  workflow_run:
+    workflows: ["Build against eic-shell"]
+    types: [completed]
+
+jobs:
+  cancel-container:
+    runs-on: ubuntu-24.04
+    # Only cancel GitLab CI when:
+    # 1. The triggering workflow failed or was cancelled
+    # 2. It was triggered by a pull request
+    # 3. PR author is from the repository OR is an org member/collaborator
+    if: |
+      (github.event.workflow_run.conclusion == 'failure' ||
+       github.event.workflow_run.conclusion == 'cancelled') &&
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.pull_requests[0] != null && (
+        github.event.workflow_run.pull_requests[0].head.repo.full_name == github.repository ||
+        github.event.workflow_run.pull_requests[0].author_association == 'MEMBER' ||
+        github.event.workflow_run.pull_requests[0].author_association == 'OWNER' ||
+        github.event.workflow_run.pull_requests[0].author_association == 'COLLABORATOR'
+      )
+    steps:
+    - name: Get PR details
+      id: pr
+      run: |
+        echo "number=${{ github.event.workflow_run.pull_requests[0].number }}" >> $GITHUB_OUTPUT
+        echo "head_sha=${{ github.event.workflow_run.pull_requests[0].head.sha }}" >> $GITHUB_OUTPUT
+        echo "repo=${{ github.event.workflow_run.pull_requests[0].head.repo.full_name }}" >> $GITHUB_OUTPUT
+        echo "author=${{ github.event.workflow_run.pull_requests[0].user.login }}" >> $GITHUB_OUTPUT
+
+    - name: Log cancellation
+      run: |
+        echo "Workflow conclusion: ${{ github.event.workflow_run.conclusion }}"
+        echo "PR #${{ steps.pr.outputs.number }} from: ${{ steps.pr.outputs.repo }}"
+        echo "Author: ${{ steps.pr.outputs.author }}"
+        echo "Triggering workflow run ID: ${{ github.event.workflow_run.id }}"
+        echo "::notice::Cancelling GitLab CI pipeline for failed/cancelled workflow"
+
+    - name: Download GitLab pipeline info artifact
+      id: download
+      uses: dawidd6/action-download-artifact@v6
+      continue-on-error: true
+      with:
+        name: gitlab-pipeline-${{ github.event.workflow_run.id }}
+        path: gitlab-pipeline-info/
+        run_id: ${{ github.event.workflow_run.id }}
+        # Allow searching in other workflows since trigger-gitlab-ci created the artifact
+        search_artifacts: true
+
+    - name: Extract GitLab pipeline ID
+      id: extract-pipeline
+      if: steps.download.outcome == 'success'
+      run: |
+        if [ -f gitlab-pipeline-info/pipeline-info.json ]; then
+          PIPELINE_ID=$(jq -r '.id' gitlab-pipeline-info/pipeline-info.json)
+          if [ -n "$PIPELINE_ID" ] && [ "$PIPELINE_ID" != "null" ]; then
+            echo "pipeline_id=$PIPELINE_ID" >> $GITHUB_OUTPUT
+            echo "Found GitLab pipeline ID from artifact: $PIPELINE_ID"
+          else
+            echo "Could not extract pipeline ID from artifact"
+            exit 1
+          fi
+        else
+          echo "Pipeline info file not found in artifact"
+          exit 1
+        fi
+
+    - name: Cancel GitLab pipeline
+      if: steps.extract-pipeline.outputs.pipeline_id != ''
+      run: |
+        curl --request POST \
+           --header "PRIVATE-TOKEN: ${{ secrets.EICWEB_CONTAINER_CANCEL }}" \
+           "https://eicweb.phy.anl.gov/api/v4/projects/290/pipelines/${{ steps.extract-pipeline.outputs.pipeline_id }}/cancel"
+        echo "::notice::Cancelled GitLab pipeline ${{ steps.extract-pipeline.outputs.pipeline_id }}"
