@@ -6,9 +6,12 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <cstddef>
+#include <optional>
+#include <set>
 #include <string>
 #include <string_view>
-#include <optional>
+#include <vector>
 
 #include "CaloRemnantCombinerConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
