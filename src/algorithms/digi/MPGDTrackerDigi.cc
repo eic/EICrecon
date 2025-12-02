@@ -911,7 +911,7 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
   for (double phi : {startPhi, endPhi}) {
     // M+t*P = 0 + t'*U. t = (My*Ux-Mx*Uy)/(Px*Uy-Py*Ux);
     double Ux = cos(phi), Uy = sin(phi);
-    double D = Px * Uy - Px * Ux;
+    double D = Px * Uy - Py * Ux;
     if (D) { // If P not // to U
       double t  = (My * Ux - Mx * Uy) / D;
       double Ex = Mx + t * Px, Ey = My + t * Py, rE = sqrt(Ex * Ex + Ey * Ey), Ez = Mz + t * Pz;
