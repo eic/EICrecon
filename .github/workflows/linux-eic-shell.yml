@@ -33,6 +33,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
   # inputs doesn't always exist, so we make sure env does
   platform: ${{ inputs.platform || 'eic_xl' }}
@@ -205,6 +208,9 @@ jobs:
   clang-tidy-iwyu:
     runs-on: ubuntu-24.04
     needs: build
+    permissions:
+      contents: write  # for peter-evans/create-pull-request to push fixes
+      pull-requests: write  # for commenting and creating PRs
     steps:
     - uses: actions/checkout@v6
       with:
@@ -1046,6 +1052,8 @@ jobs:
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}
     needs:
     - build
+    permissions:
+      statuses: write  # for posting commit status via gh api
     outputs:
       json: ${{ steps.trigger.outputs.json }}
     steps:
