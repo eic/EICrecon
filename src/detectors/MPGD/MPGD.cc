@@ -65,7 +65,7 @@ void InitPlugin(JApplication* app) {
       } else {
         mLog->info(R"(pixel XML loaded for "{}")", MPGD_name);
       }
-    } catch (...) {
+    } catch (const std::runtime_exception&) {
       // Variable not present apply legacy pixel readout
     }
   }
