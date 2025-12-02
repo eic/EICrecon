@@ -3,14 +3,6 @@
 
 #pragma once
 
-#include <algorithms/logger.h>
-#include <edm4eic/ClusterCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-
-#include <spdlog/logger.h>
-#include <stdint.h>
-#include <memory>
-
 #include "algorithms/particle/CaloRemnantCombiner.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
