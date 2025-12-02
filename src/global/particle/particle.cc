@@ -39,22 +39,19 @@ void InitPlugin(JApplication* app) {
       {"EndcapNNeutralCandidateParticlesAlpha"}, {.deltaRAddEM = 0.03, .deltaRAddH = 0.15}, app));
 
   // central ------------------------------------------------------------
-  
+
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
       "BarrelNeutralCandidateParticlesAlpha", {"EcalBarrelClusters", "HcalBarrelClusters"},
       {"BarrelNeutralCandidateParticlesAlpha"}, {.deltaRAddEM = 0.03, .deltaRAddH = 0.15}, app));
 
-
   // forward ------------------------------------------------------------
 
-  app->Add(
-      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, false>>(
-          "HcalEndcapPClusters",
-          {"LFHCALClusters", "HcalEndcapPInsertClusters"},
-          {"HcalEndcapPClusters"}, app));
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, false>>(
+      "HcalEndcapPClusters", {"LFHCALClusters", "HcalEndcapPInsertClusters"},
+      {"HcalEndcapPClusters"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
-      "EndcapPNeutralCandidateParticlesAlpha", {"EcalEndcapPClusters","HcalEndcapPClusters"},
+      "EndcapPNeutralCandidateParticlesAlpha", {"EcalEndcapPClusters", "HcalEndcapPClusters"},
       {"EndcapPNeutralCandidateParticlesAlpha"}, {.deltaRAddEM = 0.03, .deltaRAddH = 0.15}, app));
 }
 } // extern "C"
