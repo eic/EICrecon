@@ -1041,40 +1041,6 @@ jobs:
           rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT/
         if-no-files-found: error
 
-  trigger-container:
-    runs-on: ubuntu-24.04
-    if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}
-    needs:
-    - build
-    outputs:
-      json: ${{ steps.trigger.outputs.json }}
-    steps:
-    - uses: eic/trigger-gitlab-ci@v3
-      id: trigger
-      with:
-        url: https://eicweb.phy.anl.gov
-        project_id: 290
-        token: ${{ secrets.EICWEB_CONTAINER_TRIGGER }}
-        ref_name: master
-        variables: |
-          GITHUB_REPOSITORY=${{ github.repository }}
-          GITHUB_SHA=${{ github.event.pull_request.head.sha || github.sha }}
-          GITHUB_PR=${{ github.event.pull_request.number }}
-          EICRECON_VERSION="${{ github.event.pull_request.head.ref || github.ref_name }}"
-          PIPELINE_NAME=${{ github.repository }}: ${{ github.event.pull_request.title || github.ref_name }}
-    - name: Post a GitHub CI status
-      run: |
-        gh api \
-           --method POST \
-          -H "Accept: application/vnd.github+json" \
-          /repos/${{ github.repository }}/statuses/${{ github.event.pull_request.head.sha || github.sha }} \
-          -f state="pending" \
-          -f target_url="${{ steps.trigger.outputs.web_url }}" \
-          -f description="Triggered... $(TZ=America/New_York date)" \
-          -f context="eicweb/eic_container"
-      env:
-        GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   build-docs:
     runs-on: ubuntu-24.04
     needs:
@@ -1314,16 +1280,3 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body-file: capybara_${{ github.event.pull_request.number }}.md
           edit-mode: replace
-
-  cancel-container:
-    if: cancelled() || failure()
-    needs:
-    - trigger-container
-    - deploy-docs
-    runs-on: ubuntu-24.04
-    steps:
-      - name: Cancel container
-        run: |
-          curl --request POST \
-             --header "PRIVATE-TOKEN: ${{ secrets.EICWEB_CONTAINER_CANCEL }}" \
-             https://eicweb.phy.anl.gov/api/v4/projects/290/pipelines/$(echo '${{ needs.trigger-container.outputs.json }}' | jq --raw-output .id)/cancel
