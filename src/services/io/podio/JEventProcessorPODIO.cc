@@ -395,6 +395,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
 
+      // particle flow
+      "EndcapNChargedCandidateParticlesAlpha",
+      "BarrelChargedCandidateParticlesAlpha",
+      "EndcapPChargedCandidateParticlesAlpha",
+      "EndcapPInsertChargedCandidateParticlesAlpha",
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   std::string output_include_collections = "DEPRECATED";
