@@ -13,6 +13,7 @@
 #include <cmath>
 #include <gsl/pointers>
 #include <set>
+#include <optional>
 
 #include "algorithms/particle/CaloRemnantCombinerConfig.h"
 
@@ -59,23 +60,23 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
     edm4eic::MutableReconstructedParticle neutral_candidate_eh;
 
     // Step 1: Find the seed Ecal cluster with highest energy
-    std::size_t seed_ecal_index = find_seed_cluster_index(*calo_clusters[0], visits_ecal);
+    auto seed_ecal_index = find_seed_cluster_index(*calo_clusters[0], visits_ecal);
 
-    if (seed_ecal_index == -1) {
+    if (!seed_ecal_index.has_value()) {
       debug("No Seed Ecal cluster found for remnant combination");
     }
 
-    if (seed_ecal_index != -1) {
+    if (seed_ecal_index.has_value()) {
       // Get the cluster indices for merging
       std::set<std::size_t> ecalcluster_indices = get_cluster_indices_for_merging(
-          *calo_clusters[0], visits_ecal, seed_ecal_index, m_cfg.deltaRAddEM, *calo_clusters[0]);
+          *calo_clusters[0], visits_ecal, seed_ecal_index.value(), m_cfg.deltaRAddEM, *calo_clusters[0]);
 
       for (const auto& idx : ecalcluster_indices) {
         neutral_candidate_eh.addToClusters((*calo_clusters[0])[idx]);
       }
 
       std::set<std::size_t> e_hcalcluster_indices = get_cluster_indices_for_merging(
-          *calo_clusters[1], visits_hcal, seed_ecal_index, m_cfg.deltaRAddH, *calo_clusters[0]);
+          *calo_clusters[1], visits_hcal, seed_ecal_index.value(), m_cfg.deltaRAddH, *calo_clusters[0]);
 
       for (const auto& idx : e_hcalcluster_indices) {
         neutral_candidate_eh.addToClusters((*calo_clusters[1])[idx]);
@@ -83,32 +84,32 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
 
       out_neutral_candidates->push_back(neutral_candidate_eh);
 
-    } // end of if (seed_ecal_index != -1)
+    } // end of if (seed_ecal_index.has_value())
 
   } // end of while (visits_ecal != visits_ecal_true)
 
   while (visits_hcal != visits_hcal_true) {
 
     edm4eic::MutableReconstructedParticle neutral_candidate_h;
-    std::size_t seed_rem_hcal_index = find_seed_cluster_index(*calo_clusters[1], visits_hcal);
+    auto seed_rem_hcal_index = find_seed_cluster_index(*calo_clusters[1], visits_hcal);
 
-    if (seed_rem_hcal_index == -1) {
-      info("No Seed Hcal cluster found for remnant combination.");
+    if (!seed_rem_hcal_index.has_value()) {
+      debug("No Seed Hcal cluster found for remnant combination");
     }
 
-    if (seed_rem_hcal_index != -1) {
+    if (seed_rem_hcal_index.has_value()) {
 
       std::set<std::size_t> rem_hcalcluster_indices;
 
       rem_hcalcluster_indices = get_cluster_indices_for_merging(
-          *calo_clusters[1], visits_hcal, seed_rem_hcal_index, m_cfg.deltaRAddH, *calo_clusters[1]);
+          *calo_clusters[1], visits_hcal, seed_rem_hcal_index.value(), m_cfg.deltaRAddH, *calo_clusters[1]);
 
       for (const auto& idx : rem_hcalcluster_indices) {
         neutral_candidate_h.addToClusters((*calo_clusters[1])[idx]);
       }
       out_neutral_candidates->push_back(neutral_candidate_h);
 
-    } // end of if (seed_rem_hcal_index != -1)
+    } // end of if (seed_rem_hcal_index.has_value())
 
   } // end of while (visits_hcal != visits_hcal_true)
 
@@ -121,10 +122,10 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
  *  which sets the center of the cone in which clusters are
  *  combined.
  */
-std::size_t CaloRemnantCombiner::find_seed_cluster_index(const edm4eic::ClusterCollection& clusters,
+std::optional<std::size_t> CaloRemnantCombiner::find_seed_cluster_index(const edm4eic::ClusterCollection& clusters,
                                                          std::vector<bool>& visits) {
   double max_cluster_energy      = -1.0;
-  std::size_t seed_cluster_index = -1;
+  std::optional<std::size_t> seed_cluster_index;
   for (std::size_t i = 0; i < clusters.size(); ++i) {
 
     if (visits[i]) {

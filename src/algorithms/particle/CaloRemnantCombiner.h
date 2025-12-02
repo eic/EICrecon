@@ -8,6 +8,7 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <string>
 #include <string_view>
+#include <optional>
 
 #include "CaloRemnantCombinerConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -43,7 +44,7 @@ public:
                                      "make neutral candidates from remnant clusters"} {}
 
   void process(const Input&, const Output&) const final;
-  static std::size_t find_seed_cluster_index(const edm4eic::ClusterCollection& clusters,
+  static std::optional<std::size_t> find_seed_cluster_index(const edm4eic::ClusterCollection& clusters,
                                              std::vector<bool>& visits);
   static std::set<std::size_t>
   get_cluster_indices_for_merging(const edm4eic::ClusterCollection& clusters,
