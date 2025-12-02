@@ -3,12 +3,10 @@
 
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <string>
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-
 #include "factories/particle/CaloRemnantCombiner_factory.h"
 
 extern "C" {
