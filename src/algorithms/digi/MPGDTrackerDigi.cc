@@ -1362,7 +1362,7 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
   for (double phi : {startPhi, endPhi}) {
     // M+t*P = 0 + t'*U. t = (My*Ux-Mx*Uy)/(Px*Uy-Py*Ux);
     double Ux = cos(phi), Uy = sin(phi);
-    double D = Px * Uy - Px * Ux;
+    double D = Px * Uy - Py * Ux;
     if (D) { // If P not // to U
       double t = (My * Ux - Mx * Uy) / D;
       if (t * direction < 0)
