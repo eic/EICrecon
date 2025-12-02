@@ -145,7 +145,7 @@ void MPGDTrackerDigi::init() {
   try {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
     m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
-  } catch (...) {
+  } catch (const std::runtime_error&) {
     critical(R"(Failed to load ID decoder for "{}" readout.)", m_cfg.readout);
     throw JException("Failed to load ID decoder");
   }
