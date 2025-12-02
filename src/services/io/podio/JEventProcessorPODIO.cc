@@ -396,6 +396,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
       // particle flow
       "EndcapNNeutralCandidateParticlesAlpha",
+      "BarrelNeutralCandidateParticlesAlpha",
+      "EndcapPNeutralCandidateParticlesAlpha",
 
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
