@@ -26,14 +26,22 @@ jobs:
     steps:
     - name: Get PR details
       id: pr
+      env:
+        NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
+        HEAD_SHA: ${{ github.event.workflow_run.pull_requests[0].head.sha }}
+        HEAD_REF: ${{ github.event.workflow_run.pull_requests[0].head.ref }}
+        TITLE: ${{ github.event.workflow_run.pull_requests[0].title }}
+        REPO: ${{ github.event.workflow_run.pull_requests[0].head.repo.full_name }}
+        AUTHOR: ${{ github.event.workflow_run.pull_requests[0].user.login }}
+        AUTHOR_ASSOCIATION: ${{ github.event.workflow_run.pull_requests[0].author_association }}
       run: |
-        echo "number=${{ github.event.workflow_run.pull_requests[0].number }}" >> $GITHUB_OUTPUT
-        echo "head_sha=${{ github.event.workflow_run.pull_requests[0].head.sha }}" >> $GITHUB_OUTPUT
-        echo "head_ref=${{ github.event.workflow_run.pull_requests[0].head.ref }}" >> $GITHUB_OUTPUT
-        echo "title=${{ github.event.workflow_run.pull_requests[0].title }}" >> $GITHUB_OUTPUT
-        echo "repo=${{ github.event.workflow_run.pull_requests[0].head.repo.full_name }}" >> $GITHUB_OUTPUT
-        echo "author=${{ github.event.workflow_run.pull_requests[0].user.login }}" >> $GITHUB_OUTPUT
-        echo "author_association=${{ github.event.workflow_run.pull_requests[0].author_association }}" >> $GITHUB_OUTPUT
+        echo "number=$NUMBER" >> $GITHUB_OUTPUT
+        echo "head_sha=$HEAD_SHA" >> $GITHUB_OUTPUT
+        echo "head_ref=$HEAD_REF" >> $GITHUB_OUTPUT
+        echo "title=$TITLE" >> $GITHUB_OUTPUT
+        echo "repo=$REPO" >> $GITHUB_OUTPUT
+        echo "author=$AUTHOR" >> $GITHUB_OUTPUT
+        echo "author_association=$AUTHOR_ASSOCIATION" >> $GITHUB_OUTPUT
 
     - name: Log PR source and authorization
       run: |
