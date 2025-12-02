@@ -68,15 +68,17 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
 
     if (seed_ecal_index.has_value()) {
       // Get the cluster indices for merging
-      std::set<std::size_t> ecalcluster_indices = get_cluster_indices_for_merging(
-          *calo_clusters[0], visits_ecal, seed_ecal_index.value(), m_cfg.deltaRAddEM, *calo_clusters[0]);
+      std::set<std::size_t> ecalcluster_indices =
+          get_cluster_indices_for_merging(*calo_clusters[0], visits_ecal, seed_ecal_index.value(),
+                                          m_cfg.deltaRAddEM, *calo_clusters[0]);
 
       for (const auto& idx : ecalcluster_indices) {
         neutral_candidate_eh.addToClusters((*calo_clusters[0])[idx]);
       }
 
-      std::set<std::size_t> e_hcalcluster_indices = get_cluster_indices_for_merging(
-          *calo_clusters[1], visits_hcal, seed_ecal_index.value(), m_cfg.deltaRAddH, *calo_clusters[0]);
+      std::set<std::size_t> e_hcalcluster_indices =
+          get_cluster_indices_for_merging(*calo_clusters[1], visits_hcal, seed_ecal_index.value(),
+                                          m_cfg.deltaRAddH, *calo_clusters[0]);
 
       for (const auto& idx : e_hcalcluster_indices) {
         neutral_candidate_eh.addToClusters((*calo_clusters[1])[idx]);
@@ -102,7 +104,8 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
       std::set<std::size_t> rem_hcalcluster_indices;
 
       rem_hcalcluster_indices = get_cluster_indices_for_merging(
-          *calo_clusters[1], visits_hcal, seed_rem_hcal_index.value(), m_cfg.deltaRAddH, *calo_clusters[1]);
+          *calo_clusters[1], visits_hcal, seed_rem_hcal_index.value(), m_cfg.deltaRAddH,
+          *calo_clusters[1]);
 
       for (const auto& idx : rem_hcalcluster_indices) {
         neutral_candidate_h.addToClusters((*calo_clusters[1])[idx]);
@@ -122,9 +125,10 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
  *  which sets the center of the cone in which clusters are
  *  combined.
  */
-std::optional<std::size_t> CaloRemnantCombiner::find_seed_cluster_index(const edm4eic::ClusterCollection& clusters,
-                                                         std::vector<bool>& visits) {
-  double max_cluster_energy      = -1.0;
+std::optional<std::size_t>
+CaloRemnantCombiner::find_seed_cluster_index(const edm4eic::ClusterCollection& clusters,
+                                             std::vector<bool>& visits) {
+  double max_cluster_energy = -1.0;
   std::optional<std::size_t> seed_cluster_index;
   for (std::size_t i = 0; i < clusters.size(); ++i) {
 
