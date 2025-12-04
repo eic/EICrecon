@@ -58,7 +58,7 @@ void TrackerMeasurementFromHits::init() {
   dd4hep::Segmentation seg;
   try {
     seg = detector->readout(readout).segmentation();
-  } catch (const std::runtime_exception&) {
+  } catch (const std::runtime_error&) {
     critical("Failed to load Segmentation for \"{}\" readout.", readout);
     throw JException("Failed to load ID Segmentation");
   }
