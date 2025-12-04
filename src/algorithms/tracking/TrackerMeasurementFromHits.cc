@@ -36,6 +36,7 @@
 #include <cmath>
 #include <exception>
 #include <initializer_list>
+#include <stdexcept>
 #include <unordered_map>
 #include <utility>
 
