@@ -169,3 +169,4 @@ src/tools/default_flags_table/fieldmaps/
 src/examples/test_data_generator/__pycache__/
 
 .run/
+_codeql_detected_source_root
