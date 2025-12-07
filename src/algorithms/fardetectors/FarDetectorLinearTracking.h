@@ -48,19 +48,18 @@ public:
 
 private:
   const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
-  Eigen::VectorXd m_layerWeights;
-
-  Eigen::Vector3d m_optimumDirection;
 
   void checkHitCombination(
       Eigen::MatrixXd* hitMatrix, edm4eic::TrackCollection* outputTracks,
       edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
       const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
       const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
-      const std::vector<std::size_t>& layerHitIndex) const;
+      const std::vector<std::size_t>& layerHitIndex,
+      const Eigen::VectorXd& layerWeights) const;
 
   /** Check if the last two hits are within a certain angle of the optimum direction **/
-  bool checkHitPair(const Eigen::Vector3d& hit1, const Eigen::Vector3d& hit2) const;
+  bool checkHitPair(const Eigen::Vector3d& hit1, const Eigen::Vector3d& hit2,
+                    const Eigen::Vector3d& optimumDirection) const;
 
   /** Convert 2D clusters to 3D coordinates and match associated particle **/
   void ConvertClusters(const edm4eic::Measurement2DCollection& clusters,

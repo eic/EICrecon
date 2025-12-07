@@ -40,17 +40,6 @@
 namespace eicrecon {
 
 void FarDetectorLinearTracking::init() {
-
-  // For changing how strongly each layer hit is in contributing to the fit
-  m_layerWeights = Eigen::VectorXd::Constant(m_cfg.n_layer, 1);
-
-  // For checking the direction of the track from theta and phi angles
-  m_optimumDirection = Eigen::Vector3d::UnitZ();
-  m_optimumDirection =
-      Eigen::AngleAxisd(m_cfg.optimum_theta, Eigen::Vector3d::UnitY()) * m_optimumDirection;
-  m_optimumDirection =
-      Eigen::AngleAxisd(m_cfg.optimum_phi, Eigen::Vector3d::UnitZ()) * m_optimumDirection;
-
   m_cellid_converter = algorithms::GeoSvc::instance().cellIDPositionConverter();
 }
 
@@ -59,6 +48,17 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
 
   const auto [inputhits, assocHits] = input;
   auto [outputTracks, assocTracks]  = output;
+
+  // For changing how strongly each layer hit is in contributing to the fit
+  // FIXME could go into init
+  const Eigen::VectorXd layerWeights = Eigen::VectorXd::Constant(m_cfg.n_layer, 1);
+
+  // For checking the direction of the track from theta and phi angles
+  const Eigen::Vector3d optimumDirection = Eigen::Vector3d::UnitZ();
+  optimumDirection =
+      Eigen::AngleAxisd(m_cfg.optimum_theta, Eigen::Vector3d::UnitY()) * optimumDirection;
+  optimumDirection =
+      Eigen::AngleAxisd(m_cfg.optimum_phi, Eigen::Vector3d::UnitZ()) * optimumDirection;
 
   // Check the number of input collections is correct
   std::size_t nCollections = inputhits.size();
@@ -100,7 +100,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
     bool isValid = true;
     // Check the last two hits are within a certain angle of the optimum direction
     if (layer > 0 && m_cfg.restrict_direction) {
-      isValid = checkHitPair(hitMatrix.col(layer - 1), hitMatrix.col(layer));
+      isValid = checkHitPair(hitMatrix.col(layer - 1), hitMatrix.col(layer), optimumDirection);
     }
 
     // If valid hit combination, move to the next layer or check the combination
@@ -108,7 +108,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
       if (layer == static_cast<long>(m_cfg.n_layer) - 1) {
         // Check the combination, if chi2 limit is passed, add the track to the output
         checkHitCombination(&hitMatrix, outputTracks, assocTracks, inputhits, assocParts,
-                            layerHitIndex);
+                            layerHitIndex, layerWeights);
       } else {
         layer++;
         continue;
@@ -141,9 +141,10 @@ void FarDetectorLinearTracking::checkHitCombination(
     edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
     const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
     const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
-    const std::vector<std::size_t>& layerHitIndex) const {
+    const std::vector<std::size_t>& layerHitIndex,
+    const Eigen::VectorXd& layerWeights) const {
 
-  Eigen::Vector3d weightedAnchor = (*hitMatrix) * m_layerWeights / (m_layerWeights.sum());
+  Eigen::Vector3d weightedAnchor = (*hitMatrix) * layerWeights / (layerWeights.sum());
 
   auto localMatrix = (*hitMatrix).colwise() - weightedAnchor;
 
@@ -203,16 +204,17 @@ void FarDetectorLinearTracking::checkHitCombination(
 
 // Check if a pair of hits lies close to the optimum direction
 bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
-                                             const Eigen::Vector3d& hit2) const {
+                                             const Eigen::Vector3d& hit2,
+                                             const Eigen::Vector3d& optimumDirection) const {
 
   Eigen::Vector3d hitDiff = hit2 - hit1;
   hitDiff.normalize();
 
-  double angle = std::acos(hitDiff.dot(m_optimumDirection));
+  double angle = std::acos(hitDiff.dot(optimumDirection));
 
   debug("Vector: x={}, y={}, z={}", hitDiff.x(), hitDiff.y(), hitDiff.z());
-  debug("Optimum: x={}, y={}, z={}", m_optimumDirection.x(), m_optimumDirection.y(),
-        m_optimumDirection.z());
+  debug("Optimum: x={}, y={}, z={}", optimumDirection.x(), optimumDirection.y(),
+        optimumDirection.z());
   debug("Angle: {}, Tolerance {}", angle, m_cfg.step_angle_tolerance);
 
   return angle <= m_cfg.step_angle_tolerance;
