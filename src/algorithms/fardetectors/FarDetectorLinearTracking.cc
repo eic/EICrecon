@@ -25,7 +25,6 @@
 #include <Eigen/Geometry>
 #include <Eigen/Householder>
 #include <Eigen/Jacobi>
-#include <Eigen/StdVector>
 #include <Eigen/SVD>
 #include <algorithm>
 #include <cmath>
