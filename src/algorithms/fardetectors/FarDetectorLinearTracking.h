@@ -63,7 +63,7 @@ private:
   /** Convert 2D clusters to 3D coordinates and match associated particle **/
   void ConvertClusters(const edm4eic::Measurement2DCollection& clusters,
                        const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
-                       std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
+                       std::vector<std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>>& pointPositions,
                        std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const;
 };
 
