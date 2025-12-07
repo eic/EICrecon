@@ -141,8 +141,7 @@ void FarDetectorLinearTracking::checkHitCombination(
     edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
     const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
     const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
-    const std::vector<std::size_t>& layerHitIndex,
-    const Eigen::VectorXd& layerWeights) const {
+    const std::vector<std::size_t>& layerHitIndex, const Eigen::VectorXd& layerWeights) const {
 
   Eigen::Vector3d weightedAnchor = (*hitMatrix) * layerWeights / (layerWeights.sum());
 
