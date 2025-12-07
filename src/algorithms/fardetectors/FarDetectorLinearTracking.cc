@@ -68,7 +68,8 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
     return;
   }
 
-  std::vector<std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>> convertedHits;
+  std::vector<std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>>
+      convertedHits;
   std::vector<std::vector<edm4hep::MCParticle>> assocParts;
 
   // Check there aren't too many hits in any layer to handle
@@ -224,7 +225,8 @@ bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
 void FarDetectorLinearTracking::ConvertClusters(
     const edm4eic::Measurement2DCollection& clusters,
     const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
-    std::vector<std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>>& pointPositions,
+    std::vector<std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>>&
+        pointPositions,
     std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const {
 
   // Get context of first hit
