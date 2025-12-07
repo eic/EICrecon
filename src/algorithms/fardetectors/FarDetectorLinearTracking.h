@@ -47,6 +47,8 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+  using AlignedVector3d = std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>;
+
   const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
 
   void checkHitCombination(
@@ -64,8 +66,7 @@ private:
   void ConvertClusters(
       const edm4eic::Measurement2DCollection& clusters,
       const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
-      std::vector<std::vector<Eigen::Vector3d, Eigen::aligned_allocator<Eigen::Vector3d>>>&
-          pointPositions,
+      std::vector<AlignedVector3d, Eigen::aligned_allocator<AlignedVector3d>>& pointPositions,
       std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const;
 };
 
