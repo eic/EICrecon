@@ -54,7 +54,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
   const Eigen::VectorXd layerWeights = Eigen::VectorXd::Constant(m_cfg.n_layer, 1);
 
   // For checking the direction of the track from theta and phi angles
-  const Eigen::Vector3d optimumDirection = Eigen::Vector3d::UnitZ();
+  Eigen::Vector3d optimumDirection = Eigen::Vector3d::UnitZ();
   optimumDirection =
       Eigen::AngleAxisd(m_cfg.optimum_theta, Eigen::Vector3d::UnitY()) * optimumDirection;
   optimumDirection =
