@@ -48,6 +48,9 @@ public:
 
 private:
   const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
+  // Use DontAlign to avoid alignment mismatch with Acts library's Eigen memory allocation.
+  // Acts uses Eigen::internal::aligned_malloc, and mismatched alignment expectations during
+  // destruction cause AddressSanitizer heap-buffer-overflow errors.
   Eigen::Matrix<double, 3, 1, Eigen::DontAlign> m_optimumDirection;
   Eigen::VectorXd m_layerWeights;
 
