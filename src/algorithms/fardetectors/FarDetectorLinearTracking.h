@@ -33,8 +33,6 @@ class FarDetectorLinearTracking : public FarDetectorLinearTrackingAlgorithm,
                                   public WithPodConfig<FarDetectorLinearTrackingConfig> {
 
 public:
-  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-
   FarDetectorLinearTracking(std::string_view name)
       : FarDetectorLinearTrackingAlgorithm{
             name,
@@ -50,9 +48,8 @@ public:
 
 private:
   const dd4hep::rec::CellIDPositionConverter* m_cellid_converter{nullptr};
+  Eigen::Matrix<double, 3, 1, Eigen::DontAlign> m_optimumDirection;
   Eigen::VectorXd m_layerWeights;
-
-  Eigen::Vector3d m_optimumDirection;
 
   void checkHitCombination(
       Eigen::MatrixXd* hitMatrix, edm4eic::TrackCollection* outputTracks,
