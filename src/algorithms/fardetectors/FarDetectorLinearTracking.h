@@ -33,6 +33,8 @@ class FarDetectorLinearTracking : public FarDetectorLinearTrackingAlgorithm,
                                   public WithPodConfig<FarDetectorLinearTrackingConfig> {
 
 public:
+  EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+
   FarDetectorLinearTracking(std::string_view name)
       : FarDetectorLinearTrackingAlgorithm{
             name,
