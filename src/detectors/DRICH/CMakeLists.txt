@@ -20,4 +20,4 @@ plugin_add_acts(${PLUGIN_NAME})
 
 # Add libraries
 plugin_link_libraries(${PLUGIN_NAME} log_library algorithms_tracking_library
-                      particle_library algorithms_pid_lut_library)
+                      particle_service_library algorithms_pid_lut_library)
