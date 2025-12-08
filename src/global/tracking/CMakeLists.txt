@@ -22,7 +22,7 @@ plugin_add_event_model(${PLUGIN_NAME})
 # library)
 plugin_link_libraries(
   ${PLUGIN_NAME} algorithms_digi_library algorithms_tracking_library
-  dd4hep_library acts_library evaluator_library)
+  dd4hep_library evaluator_library)
 #
 # plugin_add_acts(${PLUGIN_NAME})
 #

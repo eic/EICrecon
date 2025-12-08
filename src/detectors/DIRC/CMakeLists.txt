@@ -18,5 +18,4 @@ plugin_add_dd4hep(${PLUGIN_NAME})
 
 # Add libraries (same as target_include_directories but for both plugin and
 # library)
-plugin_link_libraries(${PLUGIN_NAME} richgeo_library log_library
-                      algorithms_tracking_library)
+plugin_link_libraries(${PLUGIN_NAME} log_library algorithms_tracking_library)

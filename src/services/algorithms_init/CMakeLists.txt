@@ -17,4 +17,4 @@ plugin_add_algorithms(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 plugin_link_libraries(${PLUGIN_NAME} particle_service_library dd4hep_library
-                      log_library acts_library)
+                      log_library)
