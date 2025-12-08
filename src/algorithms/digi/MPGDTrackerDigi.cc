@@ -23,22 +23,27 @@
    "STRIP" FIELD.
   - Several subHits are created (up to five, one per individual SUBVOLUME)
    corresponding to a SINGLE I[ONISATION]+A[MPLIFICATION] process, inducing in
-   turn CORRELATED SIGNALS ON TWO COORDINATES.
+   turn CORRELATED signals on two coordinates.
   - These subHits are EXTENDED so as to span the full sensitive volume and be
    on the sensitive surface of the REFERENCE SUBVOLUME (its mid-plane), and
    hence reconstitute the proper hit position of the TRAVERSING particle.
     This, for particles that are determined to be indeed traversing.
   - We then want to preserve the I+A correlation when accumulating hits on the
-   readout channels. This cannot be obtained by accumulating directly subHits (
-   as is done in "SiliconTrackerDigi", as of commit #151496af). We have to
-   first COALESCE separately subHits into hits corresponding to a given I+A.
-   Then apply a common smearing simulating I+A, then apply independent
-   smearings simulating CHARGE SHARING and CHARGE SPREADING. Then accumulate
-   channel by channel. Then, possibly, apply smearing simulating FE electronics.
-  - Therefore we have a DOUBLE LOOP ON INPUT SimTrackerHits, to collect those
-   subHits deemed to arise from the same I+A. I.e. SAME P[ARTICLE], M[ODULE] (a
-   particle can fire two overlapping modules, not to be mixed) and O[RIGIN] (
-   direct or via secondary).
+   readout channels. This could be obtained by accumulating directly subHits (
+   as is done in "SiliconTrackerDigi", as of commit #151496af). For such a
+   scheme to preserve CORRELATION, we would have to collect all related subHits
+   (i.e. those deemed to originate from a given I+A) and apply to them a common
+   smearing (in amplitude and time). Here, we go one step further and COALESCE
+   the related subHits. Our guideline can be formulated as: reproduce what we
+   would get had there been a single volume. This comes with a cost of extra
+   complication in the source code, but a limited one. This should go on w/
+   the common smearing simulating I+A, independent smearings simulating CHARGE
+   SHARING and CHARGE SPREADING. Then accumulation channel by channel. Then,
+   possibly, apply smearing simulating FE electronics.
+  - In any case, we therefore have a DOUBLE LOOP ON INPUT SimTrackerHits, to
+   collect those subHits arising from the same I+A. I.e. SAME P[ARTICLE],
+   M[ODULE] (a particle can fire two overlapping modules, not to be mixed) and
+   O[RIGIN] (direct or via secondary).
   - The double loop is optimized for speed (by keeping track of the start index
    of the second loop) in order to not waste time on high multiplicity events.
   - A priori, subHits with same PMO should come in sequence. We nevertheless
@@ -293,8 +298,8 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       if (!bCoalesceExtend(input, idx, usedHits, cIDs, lpos, eDep, time))
         continue;
     } else {
-      critical(R"(Bad input data: CellID {:x} has invalid shape (="{}"))", refID, shape.type());
-      throw JException("Inconsistency: Inappropriate Sim_hits fed to \"MPGDTRackerDigi\".");
+      critical(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
+      throw std::runtime_error(R"(Inconsistency: Inappropriate SimHits fed to "MPGDTRackerDigi".)");
     }
     // ***** CELLIDS of (p|n)-STRIP HITS
     Position locPos(lpos[0], lpos[1], lpos[2]); // Simplification: strip surface = REFERENCE surface
@@ -385,11 +390,13 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 }
 
 void MPGDTrackerDigi::parseIDDescriptor() {
-  // Parse IDDescriptor => Retrieve volume mask; check "strip" field.
+  // Parse IDDescriptor: Retrieve CellIDs of relevant fields.
+  // (As an illustration, here is the IDDescriptor of CyMBaL (as of 2025/11):
+  // <id>system:8,layer:4,module:12,sensor:2,strip:28:4,phi:-16,z:-16</id>.)
 
-  // "volume" mask: excluding channel specification.
-  debug(R"(Retrieve volume mask in IDDescriptor for "{}" readout.)", m_cfg.readout);
-  m_volumeBits = 0;
+  // - "m_volumeBits" (Volume = CellID excluding channel specification)
+  // - "m_stripBits".
+  debug(R"(Parsing IDDescriptor for "{}" readout)", m_cfg.readout);
   for (int field = 0; field < 5; field++) {
     const char* fieldName = m_fieldNames[field];
     CellID fieldID        = 0;
@@ -397,25 +404,26 @@ void MPGDTrackerDigi::parseIDDescriptor() {
       fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
     } catch (const std::runtime_error& error) {
       critical(R"(No field "{}" in IDDescriptor of readout "{}".)", fieldName,
-               m_cfg.readout.c_str());
-      throw JException("Invalid IDDescriptor");
+               m_cfg.readout);
+      throw std::runtime_error("Invalid IDDescriptor");
     }
     const BitFieldElement& fieldElement = (*m_id_dec)[fieldName];
-    m_volumeBits |= fieldID << fieldElement.offset();
+    CellID fieldBits = fieldID << fieldElement.offset();
+    m_volumeBits |= fieldBits;
+    if (!strcmp(fieldName, "strip")) {
+      m_stripBits = fieldBits;
+      // SUBVOLUMES are assigned specific bits by convention
+      CellID bits[5] = {0x3,0x1,0,0x2,0x4};
+      for (int subVolume = 0; subVolume < 5; subVolume++) {
+	m_stripIDs[subVolume] = bits[subVolume] << fieldElement.offset();
+      }
+    }
   }
-  //  MPGDTrackerDigi relies on a number of assumptions on the "strip" field of
-  // the IDDescriptor, encoded in the /** Segmentation */ block of the header.
-  //  Let's double-check part of the assumptions, viz.: "m_stripBits".
-  // (As an illustration, here is the IDDescriptor of CyMBaL (as of 2025/11):
-  // <id>system:8,layer:4,module:12,sensor:2,strip:28:4,phi:-16,z:-16</id>.)
-  debug(R"(Find valid "strip" field in IDDescriptor for "{}" readout.)", m_cfg.readout);
-  if (m_id_dec->get(m_stripBits, "strip") != 0xf) {
-    critical(R"(Missing or invalid "strip" field in IDDescriptor for "{}" readout.)",
-             m_cfg.readout);
-    throw JException("Invalid IDDescriptor");
-  }
-  //  "volume" cleared of its "strip" bits.
+  // CellIDs derived from above
+  m_stripMask = ~m_stripBits;
   m_moduleBits = m_volumeBits & m_stripMask;
+  m_pStripBit = m_stripIDs[1];
+  m_nStripBit = m_stripIDs[3];
 }
 void MPGDTrackerDigi::parseSegmentation() {
   //  MPGDTrackerDigi relies on a number of assumptions concerning the
@@ -513,7 +521,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
   unsigned int status =
       cTraversing(lpos, lmom, sim_hit.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
                   rMin, rMax, dZ, startPhi, endPhi, lintos, louts, lpini, lpend);
-  if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
+  if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hit"
     critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
     return false;
   }
@@ -522,20 +530,20 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
   if (level() >= algorithms::LogLevel::kDebug) {
     subHitList.push_back(&sim_hit);
   }
-  // Continuations. Particle may exit and then re-enter through "rMin".
-  bool isContinuation  = status & 0x5;
-  bool hasContinuation = status & 0xa;
-  bool canReEnter      = status & 0x100;
+  // Continuations?
+  bool isContinuation  = status & (m_intoLower|m_intoUpper);
+  bool hasContinuation = status & (m_outLower |m_outUpper);
+  bool canReEnter      = status & m_canReEnter;
   int rank             = m_stripRank(vID);
   if (!canReEnter) {
-    if (rank == 0 && (status & 0x1))
+    if (rank == 0 && (status & m_intoLower))
       isContinuation = false;
-    if (rank == 0 && (status & 0x2))
+    if (rank == 0 && (status & m_outLower))
       hasContinuation = false;
   }
-  if (rank == 4 && (status & 0x4))
+  if (rank == 4 && (status & m_intoUpper))
     isContinuation = false;
-  if (rank == 4 && (status & 0x8))
+  if (rank == 4 && (status & m_outUpper))
     hasContinuation = false;
   if (hasContinuation) {
     // ***** LOOP OVER HITS
@@ -573,7 +581,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
       status =
           cTraversing(lpoj, lmoj, sim_hjt.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
                       rMin, rMax, dZ, startPhi, endPhi, ljns, lovts, lpjni, lpfnd);
-      if (status & 0xff000) { // Inconsistency => Drop current "sim_hjt"
+      if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
         critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
         if (unbroken)
           idx = jdx - 1;
@@ -701,7 +709,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
   unsigned int status =
       bTraversing(lpos, lmom, ref2Cur, sim_hit.getPathLength() * ed2dd,
                   sim_hit.isProducedBySecondary(), dZ, dX, dY, lintos, louts, lpini, lpend);
-  if (status & 0xff000) { // Inconsistency => Drop current "sim_hit"
+  if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hit"
     critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
     return false;
   }
@@ -710,13 +718,13 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
   if (level() >= algorithms::LogLevel::kDebug) {
     subHitList.push_back(&sim_hit);
   }
-  // Continuations.
+  // Continuations?
   int rank             = m_stripRank(vID);
-  bool isContinuation  = status & 0x5;
-  bool hasContinuation = status & 0xa;
-  if ((rank == 0 && (status & 0x1)) || (rank == 4 && (status & 0x4)))
+  bool isContinuation  = status & (m_intoLower|m_intoUpper);
+  bool hasContinuation = status & (m_outLower |m_outUpper);
+  if ((rank == 0 && (status & m_intoLower)) || (rank == 4 && (status & m_intoUpper)))
     isContinuation = false;
-  if ((rank == 0 && (status & 0x2)) || (rank == 4 && (status & 0x8)))
+  if ((rank == 0 && (status & m_outLower))  || (rank == 4 && (status & m_outUpper)))
     hasContinuation = false;
   if (hasContinuation) {
     // ***** LOOP OVER SUBHITS
@@ -751,7 +759,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
       double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
       status = bTraversing(lpoj, lmoj, ref2j, sim_hjt.getPathLength() * ed2dd,
                            sim_hit.isProducedBySecondary(), dZ, dX, dY, ljns, lovts, lpjni, lpfnd);
-      if (status & 0xff000) { // Inconsistency => Drop current "sim_hjt"
+      if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
         critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
         if (unbroken)
           idx = jdx - 1;
@@ -876,16 +884,10 @@ void getLocalPosMom(const edm4hep::SimTrackerHit& sim_hit, const TGeoHMatrix& to
 // ******************** TRAVERSING?
 // Particle can be born/dead (then its position is not (entrance+exit)/2).
 // Or it can exit through the edge.
-// - Returned bit pattern:
-//   0x1: Enters through lower wall
-//   0x2: Exits  through lower wall
-//   0x4: Enters through upper wall
-//   0x8: Exits  through upper wall
-//   0x100: Can reEnter (in a cylindrical volume)
+// - Returned Status code, see header.
 //     Also, for internal use:
 //     0x10: Enters through edge
 //     0x20: Exits  through edge
-//   0xff000: Inconsistency...
 // - <lintos>/<louts>: Positions @ lower/upper wall upon Enter-/Exit-ing (when endorsed by <status>)
 // - <lpini>/<lpend>: Positions of extrema
 // - Tolerance? For MIPs, a tolerance of 1 µM works fine. But for lower energy,
@@ -1169,9 +1171,6 @@ unsigned int bTraversing(const double* lpos, const double* lmom, double ref2Cur,
       }
     }
   }
-  if (status) {
-    printf("DEBUG: Edge 0x%x\n", status);
-  }
   // Intersection w/ box walls
   for (int lu = 0; lu < 2; lu++) {
     int s                 = 2 * lu - 1;
@@ -1331,7 +1330,7 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
 //   - within edge limits,
 //   - along momentum <lmom>,
 //   - in direction <direction>.
-// - Returns something in the 0xff000: Inconsistency...
+// - Else returns something in the "m_inconsistency" range
 // - <lext> contains the position of farthest extension.
 unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom, // Input subHit
                                          double rT,                              // Target radius
@@ -1401,11 +1400,10 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
   // Else intersection w/ target radius
   if (!status) {
     double a = Px * Px + Py * Py, b = Px * Mx + Py * My, c = M2 - rT * rT;
-    if (!a) { // P is // to Z
-      if (!status)
-        status |= 0x1000; // Inconsistency
-    } else if (!c) {      // Hit is on target
-      status |= 0x2000;   // Inconsistency
+    if (!a) { // P is // to Z (while it did no intersect the edge in Z)
+      status |= 0x1000; // Inconsistency
+    } else if (!c) { // Hit is on target (while we've moved away from it)
+      status |= 0x2000; // Inconsistency
     } else {
       double det = b * b - a * c;
       if (det >= 0) {
@@ -1640,8 +1638,8 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, int direction, double* lpi
       double dX = bExt.x(), dY = bExt.y();
       status = bExtension(lpoE, lmoE, Z, direction, dX, dY, lext);
     } else {
-      critical("Bad input data: CellID {:x} has invalid shape (=\"{}\")", refID, shape.type());
-      throw JException("Inconsistency: Inappropriate Sim_hits fed to \"MPGDTRackerDigi\".");
+      critical(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
+      throw std::runtime_error(R"(Inconsistency: Inappropriate SimHits fed to "MPGDTRackerDigi".)");
     }
     if (status != 0x1)
       continue;

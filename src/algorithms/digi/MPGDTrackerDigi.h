@@ -82,21 +82,28 @@ private:
   const dd4hep::BitFieldCoder* m_id_dec{nullptr};
   static constexpr const char* m_fieldNames[5] = // "volume": excluding channel specification
       {"system", "layer", "module", "sensor", "strip"};
-  dd4hep::CellID m_volumeBits; // "volume" bits, as opposed to channel# bits
-  dd4hep::CellID m_moduleBits; // "volume" cleared of its "strip" bits.
-  // Built-in constants specifying IDDescriptor fields.
-  // The "init" should method double-check these are actually implemented in the XMLs of MPGDs.
-  static constexpr dd4hep::CellID m_stripBits   = ((dd4hep::CellID)0xf) << 28;
-  static constexpr dd4hep::CellID m_stripMask   = ~m_stripBits;
-  static constexpr dd4hep::CellID m_pStripBit   = ((dd4hep::CellID)0x1) << 28;
-  static constexpr dd4hep::CellID m_nStripBit   = ((dd4hep::CellID)0x2) << 28;
-  static constexpr dd4hep::CellID m_stripIDs[5] = {((dd4hep::CellID)0x3) << 28, m_pStripBit, 0,
-                                                   m_nStripBit, ((dd4hep::CellID)0x4) << 28};
+  // CellIDs specifying IDDescriptor fields.
+  dd4hep::CellID m_volumeBits{0}; // "volume" bits, as opposed to channel# bits
+  dd4hep::CellID m_moduleBits{0}; // "volume" cleared of its "strip" bits.
+  // Strip (standing here for "SUBVOLUME") related fields.
+  dd4hep::CellID m_stripBits{0}; // "strip" field  
+  dd4hep::CellID m_stripMask{0}; //  = ~m_stripBits;
+  dd4hep::CellID m_pStripBit{0}; // 'p' strip
+  dd4hep::CellID m_nStripBit{0}; // 'n' strip
+  dd4hep::CellID m_stripIDs[5];  // Ordered from inner to outer
   /** Ordering of Multiple Sensitive Volumes */
   std::function<int(dd4hep::CellID)> m_stripRank;
   std::function<int(dd4hep::CellID, dd4hep::CellID)> m_orientation;
   std::function<bool(int, unsigned int)> m_isUpstream;
   std::function<bool(int, unsigned int)> m_isDownstream;
+
+  /** Status code */
+  static constexpr unsigned int m_intoLower = 0x1;
+  static constexpr unsigned int m_outLower  = 0x2;
+  static constexpr unsigned int m_intoUpper = 0x4;
+  static constexpr unsigned int m_outUpper  = 0x8;
+  static constexpr unsigned int m_canReEnter = 0x100;
+  static constexpr unsigned int m_inconsistency = 0xff000;
 };
 
 } // namespace eicrecon

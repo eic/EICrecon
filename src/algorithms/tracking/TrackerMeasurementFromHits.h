@@ -47,9 +47,10 @@ private:
 
   /// Detector-specific information
   unsigned long m_detid_b0tracker;
-  unsigned long m_detid_OuterMPGD;
-  static constexpr dd4hep::CellID m_pStripBit = ((dd4hep::CellID)0x1) << 28;
-  static constexpr dd4hep::CellID m_nStripBit = ((dd4hep::CellID)0x2) << 28;
+  // Special case of "OuterMPGDBarrel" with UV segmentation
+  bool m_outermpgd_UVsegmentation_mode{false};
+  unsigned long m_detid_OuterMPGD{0}; // SystemID of "OuterMPGDBarrel"
+  double m_gridAngle{0};
 };
 
 } // namespace eicrecon
