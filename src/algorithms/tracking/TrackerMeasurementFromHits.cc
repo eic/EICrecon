@@ -80,34 +80,35 @@ void TrackerMeasurementFromHits::init() {
       //  rotated by a subSegmentation-dependent angle, possibly null. But for
       //  the time being, let's keep things simple: throw an exception upon any
       //  inconsistency.
-      using MultiSegmentation = dd4hep::DDSegmentation::MultiSegmentation;
-      const auto* multiSeg    = dynamic_cast<const MultiSegmentation*>(segmentation);
+      using MultiSegmentation    = dd4hep::DDSegmentation::MultiSegmentation;
+      const auto* multiSeg       = dynamic_cast<const MultiSegmentation*>(segmentation);
       unsigned int subSegPattern = 0;
       for (const auto entry : multiSeg->subSegmentations()) {
         const Segmentation* subSegmentation = entry.segmentation;
         if (subSegmentation->type() == "CartesianGridUV") {
-	  const dd4hep::DDSegmentation::CartesianGridUV *gridUV =
-	    dynamic_cast<const dd4hep::DDSegmentation::CartesianGridUV*>(subSegmentation);
-	  double gridAngle = gridUV->gridAngle();
-	  if ((subSegPattern & 0x1) && fabs(gridAngle-m_gridAngle) > 1e-6) {
-	    critical(R"(Inconsistent Segmentation for "{}" readout: UV gridAngle not unique.)", readout);
-	    throw std::runtime_error("Inconsistent MultiSegmentation");
-	  }
-	  subSegPattern |= 0x1; m_gridAngle = gridAngle;
-	}
-	else {
-	  subSegPattern |= 0x2;
-	}
+          const dd4hep::DDSegmentation::CartesianGridUV* gridUV =
+              dynamic_cast<const dd4hep::DDSegmentation::CartesianGridUV*>(subSegmentation);
+          double gridAngle = gridUV->gridAngle();
+          if ((subSegPattern & 0x1) && fabs(gridAngle - m_gridAngle) > 1e-6) {
+            critical(R"(Inconsistent Segmentation for "{}" readout: UV gridAngle not unique.)",
+                     readout);
+            throw std::runtime_error("Inconsistent MultiSegmentation");
+          }
+          subSegPattern |= 0x1;
+          m_gridAngle = gridAngle;
+        } else {
+          subSegPattern |= 0x2;
+        }
       }
       if (subSegPattern == 0x3) {
-	critical(R"(Inconsistent Segmentation for "{}" readout: only partially UV.)", readout);
-	throw std::runtime_error("Inconsistent MultiSegmentation");
+        critical(R"(Inconsistent Segmentation for "{}" readout: only partially UV.)", readout);
+        throw std::runtime_error("Inconsistent MultiSegmentation");
       } else if (subSegPattern == 0x2) {
-	m_outermpgd_UVsegmentation_mode = false;
+        m_outermpgd_UVsegmentation_mode = false;
       }
     } else {
       if (segmentation->type() != "CartesianGridUV") {
-	m_outermpgd_UVsegmentation_mode = false;
+        m_outermpgd_UVsegmentation_mode = false;
       }
     }
     if (m_outermpgd_UVsegmentation_mode) {
@@ -142,7 +143,7 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
       // const Acts::RotationMatrix2 rot2(m_gridAngle);
       const double sA = sin(m_gridAngle), cA = cos(m_gridAngle);
       const Acts::RotationMatrix2 rot2{{cA, sA}, {-sA, cA}};
-      const Acts::RotationMatrix2 inv2{{cA,-sA}, { sA, cA}};
+      const Acts::RotationMatrix2 inv2{{cA, -sA}, {sA, cA}};
       cov = rot2 * cov * inv2;
     }
 

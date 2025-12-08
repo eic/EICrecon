@@ -86,7 +86,7 @@ private:
   dd4hep::CellID m_volumeBits{0}; // "volume" bits, as opposed to channel# bits
   dd4hep::CellID m_moduleBits{0}; // "volume" cleared of its "strip" bits.
   // Strip (standing here for "SUBVOLUME") related fields.
-  dd4hep::CellID m_stripBits{0}; // "strip" field  
+  dd4hep::CellID m_stripBits{0}; // "strip" field
   dd4hep::CellID m_stripMask{0}; //  = ~m_stripBits;
   dd4hep::CellID m_pStripBit{0}; // 'p' strip
   dd4hep::CellID m_nStripBit{0}; // 'n' strip
@@ -98,11 +98,11 @@ private:
   std::function<bool(int, unsigned int)> m_isDownstream;
 
   /** Status code */
-  static constexpr unsigned int m_intoLower = 0x1;
-  static constexpr unsigned int m_outLower  = 0x2;
-  static constexpr unsigned int m_intoUpper = 0x4;
-  static constexpr unsigned int m_outUpper  = 0x8;
-  static constexpr unsigned int m_canReEnter = 0x100;
+  static constexpr unsigned int m_intoLower     = 0x1;
+  static constexpr unsigned int m_outLower      = 0x2;
+  static constexpr unsigned int m_intoUpper     = 0x4;
+  static constexpr unsigned int m_outUpper      = 0x8;
+  static constexpr unsigned int m_canReEnter    = 0x100;
   static constexpr unsigned int m_inconsistency = 0xff000;
 };
 

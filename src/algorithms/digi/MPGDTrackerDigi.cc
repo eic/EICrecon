@@ -403,27 +403,26 @@ void MPGDTrackerDigi::parseIDDescriptor() {
     try {
       fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
     } catch (const std::runtime_error& error) {
-      critical(R"(No field "{}" in IDDescriptor of readout "{}".)", fieldName,
-               m_cfg.readout);
+      critical(R"(No field "{}" in IDDescriptor of readout "{}".)", fieldName, m_cfg.readout);
       throw std::runtime_error("Invalid IDDescriptor");
     }
     const BitFieldElement& fieldElement = (*m_id_dec)[fieldName];
-    CellID fieldBits = fieldID << fieldElement.offset();
+    CellID fieldBits                    = fieldID << fieldElement.offset();
     m_volumeBits |= fieldBits;
     if (!strcmp(fieldName, "strip")) {
       m_stripBits = fieldBits;
       // SUBVOLUMES are assigned specific bits by convention
-      CellID bits[5] = {0x3,0x1,0,0x2,0x4};
+      CellID bits[5] = {0x3, 0x1, 0, 0x2, 0x4};
       for (int subVolume = 0; subVolume < 5; subVolume++) {
-	m_stripIDs[subVolume] = bits[subVolume] << fieldElement.offset();
+        m_stripIDs[subVolume] = bits[subVolume] << fieldElement.offset();
       }
     }
   }
   // CellIDs derived from above
-  m_stripMask = ~m_stripBits;
+  m_stripMask  = ~m_stripBits;
   m_moduleBits = m_volumeBits & m_stripMask;
-  m_pStripBit = m_stripIDs[1];
-  m_nStripBit = m_stripIDs[3];
+  m_pStripBit  = m_stripIDs[1];
+  m_nStripBit  = m_stripIDs[3];
 }
 void MPGDTrackerDigi::parseSegmentation() {
   //  MPGDTrackerDigi relies on a number of assumptions concerning the
@@ -531,8 +530,8 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
     subHitList.push_back(&sim_hit);
   }
   // Continuations?
-  bool isContinuation  = status & (m_intoLower|m_intoUpper);
-  bool hasContinuation = status & (m_outLower |m_outUpper);
+  bool isContinuation  = status & (m_intoLower | m_intoUpper);
+  bool hasContinuation = status & (m_outLower | m_outUpper);
   bool canReEnter      = status & m_canReEnter;
   int rank             = m_stripRank(vID);
   if (!canReEnter) {
@@ -720,11 +719,11 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
   }
   // Continuations?
   int rank             = m_stripRank(vID);
-  bool isContinuation  = status & (m_intoLower|m_intoUpper);
-  bool hasContinuation = status & (m_outLower |m_outUpper);
+  bool isContinuation  = status & (m_intoLower | m_intoUpper);
+  bool hasContinuation = status & (m_outLower | m_outUpper);
   if ((rank == 0 && (status & m_intoLower)) || (rank == 4 && (status & m_intoUpper)))
     isContinuation = false;
-  if ((rank == 0 && (status & m_outLower))  || (rank == 4 && (status & m_outUpper)))
+  if ((rank == 0 && (status & m_outLower)) || (rank == 4 && (status & m_outUpper)))
     hasContinuation = false;
   if (hasContinuation) {
     // ***** LOOP OVER SUBHITS
@@ -1400,9 +1399,9 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
   // Else intersection w/ target radius
   if (!status) {
     double a = Px * Px + Py * Py, b = Px * Mx + Py * My, c = M2 - rT * rT;
-    if (!a) { // P is // to Z (while it did no intersect the edge in Z)
+    if (!a) {           // P is // to Z (while it did no intersect the edge in Z)
       status |= 0x1000; // Inconsistency
-    } else if (!c) { // Hit is on target (while we've moved away from it)
+    } else if (!c) {    // Hit is on target (while we've moved away from it)
       status |= 0x2000; // Inconsistency
     } else {
       double det = b * b - a * c;
