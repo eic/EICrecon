@@ -20,4 +20,5 @@ plugin_add_event_model(${PLUGIN_NAME})
 # plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_calorimetry_library)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_calorimetry_library
+                      dd4hep_library)

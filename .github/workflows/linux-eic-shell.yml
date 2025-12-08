@@ -164,11 +164,22 @@ jobs:
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          FAILED=0
           for lib in install/lib/*.so install/lib/EICrecon/plugins/*.so ; do
+            echo "Checking $lib..."
             readelf -d $lib
-            # Hide intentionally undefined symbols for asan and ubsan
-            ldd -r $lib | grep -v __asan | grep -v __ubsan
+            # Check for undefined symbols (hide intentionally undefined symbols for asan and ubsan)
+            if ldd -r $lib 2>&1 | grep -v __asan | grep -v __ubsan | grep -q "undefined symbol"; then
+              echo "ERROR: Found undefined symbols in $lib:"
+              ldd -r $lib 2>&1 | grep -v __asan | grep -v __ubsan | grep "undefined symbol"
+              FAILED=1
+            fi
           done
+          if [ $FAILED -eq 1 ]; then
+            echo "FAILED: One or more libraries have undefined symbols"
+            exit 1
+          fi
+          echo "SUCCESS: All libraries have properly resolved symbols"
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
