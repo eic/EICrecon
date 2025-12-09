@@ -26,4 +26,5 @@ plugin_link_libraries(
   particle_service_library
   algorithms_pid_lut_library
   algorithms_digi_library
-  algorithms_pid_library)
+  algorithms_pid_library
+  richgeo_library)
