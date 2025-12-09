@@ -106,14 +106,14 @@ void TrackSeeding::init() {
 
   m_seedFinderConfig = m_seedFinderConfig
 #if Acts_VERSION_MAJOR < 42
-      .toInternalUnits()
+                           .toInternalUnits()
 #endif
-      .calculateDerivedQuantities();
+                           .calculateDerivedQuantities();
   m_seedFinderOptions = m_seedFinderOptions
 #if Acts_VERSION_MAJOR < 42
-      .toInternalUnits()
+                            .toInternalUnits()
 #endif
-      .calculateDerivedQuantities(m_seedFinderConfig);
+                            .calculateDerivedQuantities(m_seedFinderConfig);
 }
 
 void TrackSeeding::process(const Input& input, const Output& output) const {
