@@ -170,7 +170,7 @@ jobs:
             readelf -d $lib
             # Check for undefined symbols (hide intentionally undefined symbols for asan and ubsan)
             # Also filter service typeinfo symbols (_ZTI*_service) which are resolved at plugin load time
-            UNDEFINED=$(ldd -r $lib 2>&1 | grep -v __asan | grep -v __ubsan | grep -v "_ZTI.*_service" | grep "undefined symbol" || true)
+            UNDEFINED=$(ldd -r $lib 2>&1 | grep -v __asan | grep -v __ubsan | grep -v __tsan | grep -v "_ZTI.*_service" | grep "undefined symbol" || true)
             if [ -n "$UNDEFINED" ]; then
               echo "ERROR: Found undefined symbols in $lib:"
               echo "$UNDEFINED"
