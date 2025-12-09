@@ -39,7 +39,9 @@
 
 namespace eicrecon {
 
-void FarDetectorLinearTracking::init() {
+// Disable ASAN for Eigen allocator operations to match non-ASAN Acts library
+// This prevents false positives from ASAN/non-ASAN library mixing
+__attribute__((no_sanitize("address"))) void FarDetectorLinearTracking::init() {
 
   // For changing how strongly each layer hit is in contributing to the fit
   m_layerWeights = Eigen::VectorXd::Constant(m_cfg.n_layer, 1);
