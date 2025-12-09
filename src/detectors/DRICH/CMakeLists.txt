@@ -19,6 +19,11 @@ plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
 
 # Add libraries
-plugin_link_libraries(${PLUGIN_NAME} log_library algorithms_tracking_library
-                      particle_service_library algorithms_pid_lut_library
-                      algorithms_digi_library algorithms_pid_library)
+plugin_link_libraries(
+  ${PLUGIN_NAME}
+  log_library
+  algorithms_tracking_library
+  particle_service_library
+  algorithms_pid_lut_library
+  algorithms_digi_library
+  algorithms_pid_library)

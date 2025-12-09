@@ -19,6 +19,10 @@ plugin_add_onnxruntime(${PLUGIN_NAME})
 
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(
-  ${PLUGIN_NAME} algorithms_digi_library algorithms_fardetectors_library
-  algorithms_onnx_library dd4hep_library log_library
+  ${PLUGIN_NAME}
+  algorithms_digi_library
+  algorithms_fardetectors_library
+  algorithms_onnx_library
+  dd4hep_library
+  log_library
   algorithms_tracking_library)

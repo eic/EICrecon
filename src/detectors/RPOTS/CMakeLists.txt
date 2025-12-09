@@ -21,6 +21,6 @@ plugin_add_event_model(${PLUGIN_NAME})
 # ${EDM4EIC_INCLUDE_DIR})
 
 # Add libraries (works same as target_include_directories)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_fardetectors_library
-                      dd4hep_library log_library algorithms_digi_library
-                      algorithms_tracking_library)
+plugin_link_libraries(
+  ${PLUGIN_NAME} algorithms_fardetectors_library dd4hep_library log_library
+  algorithms_digi_library algorithms_tracking_library)

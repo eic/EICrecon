@@ -20,6 +20,6 @@ plugin_glob_all(${PLUGIN_NAME})
 
 # Add libraries (same as target_include_directories but for both plugin and
 # library)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_fardetectors_library
-                      dd4hep_library log_library algorithms_digi_library
-                      algorithms_tracking_library)
+plugin_link_libraries(
+  ${PLUGIN_NAME} algorithms_fardetectors_library dd4hep_library log_library
+  algorithms_digi_library algorithms_tracking_library)
