@@ -164,7 +164,7 @@ jobs:
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-          FAILED=0
+          FAILED=""
           for lib in install/lib/*.so install/lib/EICrecon/plugins/*.so ; do
             echo "Checking $lib..."
             readelf -d $lib
@@ -174,7 +174,7 @@ jobs:
             if [ -n "$UNDEFINED" ]; then
               echo "ERROR: Found undefined symbols in $lib:"
               echo "$UNDEFINED"
-              FAILED="$FAILED\n$UNDEFINED"
+              FAILED="${FAILED:+$FAILED$'\n'}$UNDEFINED"
             fi
           done
           if [ -n "$FAILED" ]; then
