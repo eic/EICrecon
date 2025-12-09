@@ -9,8 +9,12 @@ namespace eicrecon {
 
 struct CaloRemnantCombinerConfig {
 
+  ///! radius around seed to add EMCal clusters
   double deltaRAddEM = 0.03;
+
+  ///! radius around see to add HCal clusters
   double deltaRAddH  = 0.15;
+
 };
 
 } // namespace eicrecon
