@@ -13,8 +13,7 @@ struct CaloRemnantCombinerConfig {
   double deltaRAddEM = 0.03;
 
   ///! radius around see to add HCal clusters
-  double deltaRAddH  = 0.15;
-
+  double deltaRAddH = 0.15;
 };
 
 } // namespace eicrecon
