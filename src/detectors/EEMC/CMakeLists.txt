@@ -23,4 +23,4 @@ plugin_add_onnxruntime(${PLUGIN_NAME})
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(
   ${PLUGIN_NAME} algorithms_calorimetry_library dd4hep_library log_library
-  algorithms_pid_library algorithms_onnx_library)
+  algorithms_onnx_library)
