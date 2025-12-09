@@ -265,7 +265,7 @@ enable_testing()
 # Address sanitizer
 option(USE_ASAN "Compile with address sanitizer" OFF)
 if(${USE_ASAN})
-  add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O0)
+  add_compile_options(-fsanitize=address -fno-omit-frame-pointer -g -O2)
   add_link_options(-fsanitize=address)
   install(FILES .github/asan.supp .github/lsan.supp
           DESTINATION ${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME})
