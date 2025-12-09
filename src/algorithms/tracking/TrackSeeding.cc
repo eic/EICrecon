@@ -69,7 +69,9 @@ void TrackSeeding::init() {
       .seedConfMaxZOrigin      = m_cfg.seedConfMaxZOriginForward,
       .minImpactSeedConf       = m_cfg.minImpactSeedConfForward};
 
+#if Acts_VERSION_MAJOR < 42
   m_seedFilterConfig = m_seedFilterConfig.toInternalUnits();
+#endif
 
   // Finder parameters
 #if Acts_VERSION_MAJOR >= 37
@@ -102,9 +104,16 @@ void TrackSeeding::init() {
   m_seedFinderOptions.beamPos   = Acts::Vector2(m_cfg.beamPosX, m_cfg.beamPosY);
   m_seedFinderOptions.bFieldInZ = m_cfg.bFieldInZ;
 
-  m_seedFinderConfig = m_seedFinderConfig.toInternalUnits().calculateDerivedQuantities();
-  m_seedFinderOptions =
-      m_seedFinderOptions.toInternalUnits().calculateDerivedQuantities(m_seedFinderConfig);
+  m_seedFinderConfig = m_seedFinderConfig
+#if Acts_VERSION_MAJOR < 42
+      .toInternalUnits()
+#endif
+      .calculateDerivedQuantities();
+  m_seedFinderOptions = m_seedFinderOptions
+#if Acts_VERSION_MAJOR < 42
+      .toInternalUnits()
+#endif
+      .calculateDerivedQuantities(m_seedFinderConfig);
 }
 
 void TrackSeeding::process(const Input& input, const Output& output) const {
