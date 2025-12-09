@@ -174,11 +174,12 @@ jobs:
             if [ -n "$UNDEFINED" ]; then
               echo "ERROR: Found undefined symbols in $lib:"
               echo "$UNDEFINED"
-              FAILED=1
+              FAILED="$FAILED\n$UNDEFINED"
             fi
           done
-          if [ $FAILED -eq 1 ]; then
-            echo "FAILED: One or more libraries have undefined symbols"
+          if [ -n "$FAILED" ]; then
+            echo "FAILED: One or more libraries have undefined symbols:"
+            echo "$FAILED"
             exit 1
           fi
           echo "SUCCESS: All libraries have properly resolved symbols"
