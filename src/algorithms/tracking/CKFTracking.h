@@ -32,6 +32,13 @@
 #include "CKFTrackingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
+// Compatibility alias for different Acts versions
+#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
+using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
+#else
+using DD4hepFieldAdapter = Acts::DD4hepFieldAdapter;
+#endif
+
 class ActsGeometryProvider;
 
 namespace eicrecon {
@@ -90,7 +97,7 @@ private:
   std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-  std::shared_ptr<const ActsPlugins::DD4hepFieldAdapter> m_BField = nullptr;
+  std::shared_ptr<const DD4hepFieldAdapter> m_BField = nullptr;
   Acts::GeometryContext m_geoctx;
   Acts::CalibrationContext m_calibctx;
   Acts::MagneticFieldContext m_fieldctx;

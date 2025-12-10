@@ -49,8 +49,7 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 
   m_geoSvc = geo_svc;
 
-  m_BField = std::dynamic_pointer_cast<const ActsPlugins::DD4hepFieldAdapter>(
-      m_geoSvc->getFieldProvider());
+  m_BField   = std::dynamic_pointer_cast<const DD4hepFieldAdapter>(m_geoSvc->getFieldProvider());
   m_fieldctx = Acts::MagneticFieldContext{};
 }
 
