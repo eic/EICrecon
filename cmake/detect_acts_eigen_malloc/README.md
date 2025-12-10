@@ -35,20 +35,17 @@ This gives us the **actual** configuration used when Acts was compiled, not a gu
 
 This utility is automatically built as part of the EICrecon CMake configuration.
 
-### Run the detection test:
-```bash
-./build/detect_acts_eigen_malloc
-```
-
-Or using the custom target:
+### Manual verification:
 ```bash
 cmake --build build --target check_eigen_malloc
 ```
 
-Or as a CMake test:
+Or run directly (requires Acts library path):
 ```bash
-ctest --test-dir build -R detect_acts_eigen_malloc -V
+./build/detect_acts_eigen_malloc /path/to/libActsCore.so
 ```
+
+**Note**: This is not a CTest test. The exit code (0 or 1) represents the detected `EIGEN_MALLOC_ALREADY_ALIGNED` value, not a pass/fail status.
 
 ## Output
 

@@ -62,11 +62,8 @@ if(TARGET ${Acts_NAMESPACE_PREFIX}Core)
                  ${CMAKE_CURRENT_LIST_DIR}/detect_acts_eigen_malloc.cpp)
   target_link_libraries(detect_acts_eigen_malloc PRIVATE ${CMAKE_DL_LIBS})
 
-  # Add as a test - pass Acts library location as argument
-  add_test(NAME detect_acts_eigen_malloc COMMAND detect_acts_eigen_malloc
-                                                 "${ACTS_CORE_LOCATION}")
-
-  # Make it easy to run manually
+  # Make it easy to run manually Note: Not registered as a CTest test because
+  # the exit code (0 or 1) represents the detected value, not a pass/fail status
   add_custom_target(
     check_eigen_malloc
     COMMAND detect_acts_eigen_malloc "${ACTS_CORE_LOCATION}"
