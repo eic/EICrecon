@@ -26,9 +26,19 @@
 namespace dd4hep::rec {
 class Surface;
 }
+
+// Forward declare and alias DD4hepFieldAdapter for different Acts versions
+#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
 namespace ActsPlugins {
 class DD4hepFieldAdapter;
 }
+using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
+#else
+namespace Acts {
+class DD4hepFieldAdapter;
+}
+using DD4hepFieldAdapter = Acts::DD4hepFieldAdapter;
+#endif
 
 /** Draw the surfaces and save to obj file.
  *  This is useful for debugging the ACTS geometry. The obj file can
@@ -95,7 +105,7 @@ private:
   VolumeSurfaceMap m_surfaces;
 
   /// Acts magnetic field
-  std::shared_ptr<const ActsPlugins::DD4hepFieldAdapter> m_magneticField = nullptr;
+  std::shared_ptr<const DD4hepFieldAdapter> m_magneticField = nullptr;
 
   ///  ACTS general logger that is used for running ACTS
   std::shared_ptr<spdlog::logger> m_log;
