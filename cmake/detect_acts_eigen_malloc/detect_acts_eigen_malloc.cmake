@@ -12,7 +12,7 @@ if(TARGET ${Acts_NAMESPACE_PREFIX}Core)
   # Get Acts library location to pass to the detector
   get_target_property(ACTS_CORE_LOCATION ${Acts_NAMESPACE_PREFIX}Core LOCATION)
 
-  # Use try_run to compile and run the detector at configure time We use
+  # Use try_run to compile and run the detector at configure time. We use
   # dlopen/dlsym so we don't link against Acts or include Eigen headers
   try_run(
     EIGEN_MALLOC_RUN_RESULT
@@ -62,7 +62,7 @@ if(TARGET ${Acts_NAMESPACE_PREFIX}Core)
                  ${CMAKE_CURRENT_LIST_DIR}/detect_acts_eigen_malloc.cpp)
   target_link_libraries(detect_acts_eigen_malloc PRIVATE ${CMAKE_DL_LIBS})
 
-  # Make it easy to run manually Note: Not registered as a CTest test because
+  # Make it easy to run manually. Note: Not registered as a CTest test because
   # the exit code (0 or 1) represents the detected value, not a pass/fail status
   add_custom_target(
     check_eigen_malloc
