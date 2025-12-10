@@ -10,6 +10,7 @@
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 #include <ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <ActsPlugins/DD4hep/DD4hepDetectorElement.hpp>
+#include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
 #include <ActsPlugins/Json/JsonMaterialDecorator.hpp>
 #include <ActsPlugins/Json/MaterialMapJsonConverter.hpp>
 #else
@@ -17,6 +18,7 @@
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
+#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
 #endif
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/BinningType.hpp>
@@ -39,7 +41,6 @@
 #include <type_traits>
 
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 // Formatter for Eigen matrices
@@ -193,8 +194,8 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
 
   // Load ACTS magnetic field
   m_init_log->info("Loading magnetic field...");
-  m_magneticField = std::make_shared<const eicrecon::BField::DD4hepBField>(m_dd4hepDetector);
-  Acts::MagneticFieldContext m_fieldctx{eicrecon::BField::BFieldVariant(m_magneticField)};
+  m_magneticField = std::make_shared<ActsPlugins::DD4hepFieldAdapter>(m_dd4hepDetector->field());
+  Acts::MagneticFieldContext m_fieldctx{};
   auto bCache = m_magneticField->makeCache(m_fieldctx);
   for (int z : {0, 500, 1000, 1500, 2000, 3000, 4000}) {
     auto b = m_magneticField->getField({0.0, 0.0, double(z)}, bCache).value();

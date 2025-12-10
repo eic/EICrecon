@@ -49,9 +49,9 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 
   m_geoSvc = geo_svc;
 
-  m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-  m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
+  m_BField = std::dynamic_pointer_cast<const ActsPlugins::DD4hepFieldAdapter>(
+      m_geoSvc->getFieldProvider());
+  m_fieldctx = Acts::MagneticFieldContext{};
 }
 
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
@@ -104,8 +104,7 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 #if Acts_VERSION_MAJOR >= 36
   finderCfg.field = m_BField;
 #else
-  finderCfg.field = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
-      std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
+  finderCfg.field = std::const_pointer_cast<ActsPlugins::DD4hepFieldAdapter>(m_BField);
 #endif
   VertexFinder finder(std::move(finderCfg));
   Acts::IVertexFinder::State state(std::in_place_type<VertexFinder::State>, *m_BField, m_fieldctx);
