@@ -8,6 +8,7 @@
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Visualization/ViewConfig.hpp>
 #include <DD4hep/Detector.h>
@@ -34,9 +35,6 @@ class DD4hepFieldAdapter;
 }
 using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
 #else
-namespace Acts {
-class DD4hepFieldAdapter;
-}
 using DD4hepFieldAdapter = Acts::DD4hepFieldAdapter;
 #endif
 
