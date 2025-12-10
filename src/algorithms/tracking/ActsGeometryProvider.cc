@@ -57,11 +57,13 @@ struct fmt::formatter<T, std::enable_if_t<std::is_base_of_v<Eigen::MatrixBase<T>
 // Acts_MAJOR_VERSION >= 44
 using DD4hepDetectorElement = ActsPlugins::DD4hepDetectorElement;
 using ActsPlugins::convertDD4hepDetector;
+using ActsPlugins::DD4hepFieldAdapter;
 using ActsPlugins::sortDetElementsByID;
 #else
 // Acts_MAJOR_VERSION < 44
 using DD4hepDetectorElement = Acts::DD4hepDetectorElement;
 using Acts::convertDD4hepDetector;
+using Acts::DD4hepFieldAdapter;
 using Acts::sortDetElementsByID;
 #endif
 
@@ -194,7 +196,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
 
   // Load ACTS magnetic field
   m_init_log->info("Loading magnetic field...");
-  m_magneticField = std::make_shared<ActsPlugins::DD4hepFieldAdapter>(m_dd4hepDetector->field());
+  m_magneticField = std::make_shared<DD4hepFieldAdapter>(m_dd4hepDetector->field());
   Acts::MagneticFieldContext m_fieldctx{};
   auto bCache = m_magneticField->makeCache(m_fieldctx);
   for (int z : {0, 500, 1000, 1500, 2000, 3000, 4000}) {
