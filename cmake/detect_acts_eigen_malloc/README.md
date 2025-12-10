@@ -14,18 +14,20 @@ When `EIGEN_MALLOC_ALREADY_ALIGNED=1`, Eigen uses system `malloc/free`.
 
 **The issue**: If EICrecon is compiled with different settings than Acts, you can get allocation/deallocation mismatches leading to crashes or ASan errors.
 
-## How This Detection Works
+## How This Detector Works
 
-This detection test actually calls `Eigen::internal::aligned_malloc` from the Acts library and examines the runtime behavior:
+This detector uses `dlopen`/`dlsym` to dynamically load `Eigen::internal::aligned_malloc` from the Acts library and examines the runtime behavior:
 
-1. Allocates memory using Acts' compiled `aligned_malloc` function
-2. Examines the memory layout to detect the allocation strategy
-3. `handmade_aligned_malloc` stores metadata before the aligned address:
+1. Uses `dlopen` to load the Acts library (avoids compiling with Eigen headers)
+2. Uses `dlsym` to get the `aligned_malloc` function pointer from Acts
+3. Calls the Acts-compiled function to allocate memory
+4. Examines the memory layout to detect the allocation strategy:
    - **Eigen 3.x**: Stores absolute pointer at `ptr[-sizeof(void*)]`
    - **Eigen 5.x+**: Stores 1-byte offset at `ptr[-1]`
-4. System malloc does not have this metadata pattern
+   - **System malloc**: No metadata pattern
+5. Tests for both old and new metadata formats
 
-The detection tests for both old and new metadata formats, making it robust across Eigen versions.
+**Why dlopen?** This approach ensures we test Acts' actual compiled code, not our own Eigen settings. If we included `Eigen/Core` headers, the detector would use its own compilation settings instead of Acts'.
 
 This gives us the **actual** configuration used when Acts was compiled, not a guess.
 

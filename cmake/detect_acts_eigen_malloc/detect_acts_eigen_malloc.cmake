@@ -9,20 +9,22 @@ if(TARGET ${Acts_NAMESPACE_PREFIX}Core)
 
   message(STATUS "Detecting Eigen malloc configuration used by Acts...")
 
-  # Get Acts library location for linking
+  # Get Acts library location to pass to the detector
   get_target_property(ACTS_CORE_LOCATION ${Acts_NAMESPACE_PREFIX}Core LOCATION)
-  get_target_property(ACTS_INCLUDE_DIRS ${Acts_NAMESPACE_PREFIX}Core
-                      INTERFACE_INCLUDE_DIRECTORIES)
 
-  # Use try_run to compile and run the detection test at configure time
+  # Use try_run to compile and run the detector at configure time We use
+  # dlopen/dlsym so we don't link against Acts or include Eigen headers
   try_run(
-    EIGEN_MALLOC_RUN_RESULT EIGEN_MALLOC_COMPILE_RESULT
-    ${CMAKE_BINARY_DIR}/cmake/detect_acts_eigen_malloc SOURCES
+    EIGEN_MALLOC_RUN_RESULT
+    EIGEN_MALLOC_COMPILE_RESULT
+    ${CMAKE_BINARY_DIR}/cmake/detect_acts_eigen_malloc
+    SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/detect_acts_eigen_malloc.cpp
-    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${ACTS_INCLUDE_DIRS}" LINK_LIBRARIES
-                ${Acts_NAMESPACE_PREFIX}Core
+    LINK_LIBRARIES
+    ${CMAKE_DL_LIBS}
     RUN_OUTPUT_VARIABLE EIGEN_MALLOC_OUTPUT
-    COMPILE_OUTPUT_VARIABLE EIGEN_MALLOC_COMPILE_OUTPUT)
+    COMPILE_OUTPUT_VARIABLE EIGEN_MALLOC_COMPILE_OUTPUT
+    ARGS "${ACTS_CORE_LOCATION}")
 
   if(NOT EIGEN_MALLOC_COMPILE_RESULT)
     message(WARNING "Failed to compile Eigen malloc detection test")
@@ -55,20 +57,19 @@ if(TARGET ${Acts_NAMESPACE_PREFIX}Core)
       "Set EIGEN_MALLOC_ALREADY_ALIGNED=${ACTS_EIGEN_MALLOC_VALUE} globally to match Acts"
   )
 
-  # Also build the detection test as a standalone executable for manual
-  # verification
+  # Also build the detector as a standalone executable for manual verification
   add_executable(detect_acts_eigen_malloc
                  ${CMAKE_CURRENT_LIST_DIR}/detect_acts_eigen_malloc.cpp)
-  target_link_libraries(detect_acts_eigen_malloc
-                        PRIVATE ${Acts_NAMESPACE_PREFIX}Core)
+  target_link_libraries(detect_acts_eigen_malloc PRIVATE ${CMAKE_DL_LIBS})
 
-  # Add as a test
-  add_test(NAME detect_acts_eigen_malloc COMMAND detect_acts_eigen_malloc)
+  # Add as a test - pass Acts library location as argument
+  add_test(NAME detect_acts_eigen_malloc COMMAND detect_acts_eigen_malloc
+                                                 "${ACTS_CORE_LOCATION}")
 
   # Make it easy to run manually
   add_custom_target(
     check_eigen_malloc
-    COMMAND detect_acts_eigen_malloc
+    COMMAND detect_acts_eigen_malloc "${ACTS_CORE_LOCATION}"
     DEPENDS detect_acts_eigen_malloc
     COMMENT "Verifying Eigen malloc configuration matches Acts..."
     VERBATIM)
