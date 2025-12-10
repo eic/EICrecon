@@ -16,6 +16,11 @@
 #include <Acts/Utilities/Result.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
+#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
+#include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
+#else
+#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
+#endif
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <spdlog/logger.h>
@@ -25,7 +30,6 @@
 #include <vector>
 
 #include "CKFTrackingConfig.h"
-#include "DD4hepBField.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 class ActsGeometryProvider;
@@ -86,7 +90,7 @@ private:
   std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-  std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
+  std::shared_ptr<const ActsPlugins::DD4hepFieldAdapter> m_BField = nullptr;
   Acts::GeometryContext m_geoctx;
   Acts::CalibrationContext m_calibctx;
   Acts::MagneticFieldContext m_fieldctx;
