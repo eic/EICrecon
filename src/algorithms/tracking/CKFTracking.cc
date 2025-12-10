@@ -64,6 +64,11 @@
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
+#include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
+#else
+#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
+#endif
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
@@ -78,7 +83,6 @@
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -96,9 +100,9 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
 
   m_geoSvc = geo_svc;
 
-  m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-  m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
+  m_BField = std::dynamic_pointer_cast<const ActsPlugins::DD4hepFieldAdapter>(
+      m_geoSvc->getFieldProvider());
+  m_fieldctx = Acts::MagneticFieldContext{};
 
   // eta bins, chi2 and #sourclinks per surface cutoffs
   m_sourcelinkSelectorCfg = {
