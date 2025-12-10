@@ -33,6 +33,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
   # inputs doesn't always exist, so we make sure env does
   platform: ${{ inputs.platform || 'eic_xl' }}
@@ -115,7 +118,7 @@ jobs:
             CMAKE_BUILD_TYPE: Release
             release: 25.05.0-stable
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         filter: "tree:0"
     - name: Prepare ccache timestamp
@@ -205,8 +208,11 @@ jobs:
   clang-tidy-iwyu:
     runs-on: ubuntu-24.04
     needs: build
+    permissions:
+      contents: write  # for peter-evans/create-pull-request to push fixes
+      pull-requests: write  # for commenting and creating PRs
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         filter: "tree:0"
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -321,7 +327,7 @@ jobs:
     permissions:
       statuses: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         filter: "tree:0"
     - name: Download build artifact
@@ -429,7 +435,7 @@ jobs:
         particle: [e]
         detector_config: [ip6_extended]
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         filter: "tree:0"
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -538,7 +544,7 @@ jobs:
         detector_config: [craterlake]
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -602,7 +608,7 @@ jobs:
         - track_propagation_test
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -648,7 +654,7 @@ jobs:
         - tracking_occupancy
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -689,7 +695,7 @@ jobs:
         detector_config: [craterlake]
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -799,7 +805,7 @@ jobs:
         detector_config: [ip6_extended]
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -899,7 +905,7 @@ jobs:
           nthreads: 4
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
@@ -1046,6 +1052,8 @@ jobs:
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}
     needs:
     - build
+    permissions:
+      statuses: write  # for posting commit status via gh api
     outputs:
       json: ${{ steps.trigger.outputs.json }}
     steps:
@@ -1082,7 +1090,7 @@ jobs:
       - eicrecon-dis
       - compare-single-multi-threaded
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Copy docs
         run: |
           cp -r docs publishing_docs

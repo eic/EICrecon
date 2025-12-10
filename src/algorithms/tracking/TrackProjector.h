@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "ActsGeometryProvider.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
@@ -20,7 +21,7 @@ using TrackProjectorAlgorithm = algorithms::Algorithm<
     algorithms::Input<std::vector<ActsExamples::Trajectories>, edm4eic::TrackCollection>,
     algorithms::Output<edm4eic::TrackSegmentCollection>>;
 
-class TrackProjector : public TrackProjectorAlgorithm {
+class TrackProjector : public TrackProjectorAlgorithm, public WithPodConfig<NoConfig> {
 public:
   TrackProjector(std::string_view name)
       : TrackProjectorAlgorithm{name,
