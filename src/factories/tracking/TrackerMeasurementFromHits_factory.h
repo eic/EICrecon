@@ -14,7 +14,6 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/TrackerMeasurementFromHits.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 namespace eicrecon {
@@ -30,7 +29,6 @@ private:
   PodioOutput<edm4eic::Measurement2D> m_measurements_output{this};
 
   Service<DD4hep_service> m_DD4hepSvc{this};
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
 public:
   void Configure() {

@@ -2,6 +2,8 @@
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
 #include "CKFTracking.h"
+#include "ActsDD4hepDetector.h"
+#include "algorithms/interfaces/ActsSvc.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
@@ -75,7 +77,6 @@
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
-#include "ActsGeometryProvider.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -243,7 +244,7 @@ void CKFTracking::init() {
   // system ID, so detectors are resolved to the (volume, layer) identifiers of their surfaces.
   std::vector<const SurfaceCuts*> surface_cuts;
   std::vector<std::uint8_t> surface_cuts_system_ids;
-  const auto& dd4hep_detectors = m_geoSvc->dd4hepDetector()->detectors();
+  const auto& dd4hep_detectors = m_acts_detector->dd4hepDetector().detectors();
   for (const auto& cuts : m_cfg.surfaceCuts) {
     const auto detector = dd4hep_detectors.find(cuts.detector);
     if (detector == dd4hep_detectors.end()) {
@@ -256,7 +257,7 @@ void CKFTracking::init() {
 
   std::map<Acts::GeometryIdentifier, std::size_t> layer_cuts_index;
   std::vector<std::size_t> num_layers(surface_cuts.size(), 0);
-  m_geoSvc->trackingGeometry()->visitSurfaces([&](const Acts::Surface* surface) {
+  m_acts_detector->trackingGeometry()->visitSurfaces([&](const Acts::Surface* surface) {
     const auto geo_id = surface->geometryId();
     for (std::size_t i = 0; i < surface_cuts.size(); ++i) {
       if (geo_id.extra() != surface_cuts_system_ids[i] ||
@@ -304,8 +305,8 @@ void CKFTracking::init() {
   }
   m_measurementSelector.emplace(Acts::MeasurementSelector::Config(selector_cuts));
 
-  m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(
-      m_geoSvc->trackingGeometry(), m_geoSvc->getFieldProvider(), acts_logger());
+  m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_acts_detector->trackingGeometry(),
+                                                           m_BField, acts_logger());
 }
 
 void CKFTracking::process(const Input& input, const Output& output) const {
@@ -390,9 +391,9 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKF", acts_level));
 
   // Get run-scoped contexts from service
-  const auto& gctx = m_geoSvc->getActsGeometryContext();
-  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
-  const auto& cctx = m_geoSvc->getActsCalibrationContext();
+  const auto& gctx = m_acts_detector->getActsGeometryContext();
+  const auto& mctx = m_acts_detector->getActsMagneticFieldContext();
+  const auto& cctx = m_acts_detector->getActsCalibrationContext();
 
   Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
@@ -431,10 +432,11 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   using Extrapolator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using ExtrapolatorOptions = Extrapolator::template Options<
       Acts::ActorList<Acts::MaterialInteractor, Acts::EndOfWorldReached>>;
-  Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
-                            Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
-                                            acts_logger().cloneWithSuffix("Navigator")),
-                            acts_logger().cloneWithSuffix("Propagator"));
+  Extrapolator extrapolator(
+      Acts::EigenStepper<>(m_BField),
+      Acts::Navigator({.trackingGeometry = m_acts_detector->trackingGeometry()},
+                      acts_logger().cloneWithSuffix("Navigator")),
+      acts_logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(gctx, mctx);
 
   // Create track container
