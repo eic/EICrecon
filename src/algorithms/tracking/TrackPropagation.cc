@@ -56,9 +56,11 @@
 #include <utility>
 #include <variant>
 
-#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
+#include "algorithms/interfaces/ActsSvc.h"
+#include <algorithms/geo.h>
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
@@ -68,11 +70,11 @@ template <typename... L> struct multilambda : L... {
   constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
 };
 
-void TrackPropagation::init(const dd4hep::Detector* detector,
-                            std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                            std::shared_ptr<spdlog::logger> logger) {
-  m_geoSvc = geo_svc;
-  m_log    = logger;
+void TrackPropagation::init(std::shared_ptr<spdlog::logger> logger) {
+  m_acts_detector = algorithms::ActsSvc::instance().detector();
+  m_log           = logger;
+
+  const dd4hep::Detector* detector = algorithms::GeoSvc::instance().detector();
 
   std::map<uint32_t, std::size_t> system_id_layers;
 
@@ -275,8 +277,9 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   m_log->trace("    TrackPropagation. Propagating to surface # {}",
                typeid(targetSurf->type()).name());
 
-  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry   = m_geoSvc->trackingGeometry();
-  std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_geoSvc->getFieldProvider();
+  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry =
+      m_acts_detector->trackingGeometry();
+  std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_acts_detector->field();
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("PROP", m_log));
 
@@ -289,14 +292,14 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
       Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>>;
 #endif
   Propagator propagator(Acts::EigenStepper<>(magneticField),
-                        Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
+                        Acts::Navigator({.trackingGeometry = m_acts_detector->trackingGeometry()},
                                         logger().cloneWithSuffix("Navigator")),
                         logger().cloneWithSuffix("Propagator"));
   PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
 #else
   Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> propagator(
       Acts::EigenStepper<>(magneticField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
+      Acts::Navigator({m_acts_detector->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
       logger().cloneWithSuffix("Propagator"));
   Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>> propagationOptions(
       m_geoContext, m_fieldContext);

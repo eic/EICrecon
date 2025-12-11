@@ -25,7 +25,7 @@
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 
 namespace eicrecon {
@@ -40,8 +40,7 @@ class TrackPropagation : public eicrecon::WithPodConfig<TrackPropagationConfig> 
 
 public:
   /** Initialize algorithm */
-  void init(const dd4hep::Detector* detector, std::shared_ptr<const ActsGeometryProvider> geo_svc,
-            std::shared_ptr<spdlog::logger> logger);
+  void init(std::shared_ptr<spdlog::logger> logger);
 
   void process(const std::tuple<const edm4eic::TrackCollection&,
                                 const std::vector<const ActsExamples::Trajectories*>,
@@ -90,7 +89,7 @@ public:
 private:
   Acts::GeometryContext m_geoContext;
   Acts::MagneticFieldContext m_fieldContext;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector;
   std::shared_ptr<spdlog::logger> m_log;
 
   std::vector<std::shared_ptr<Acts::Surface>> m_filter_surfaces;

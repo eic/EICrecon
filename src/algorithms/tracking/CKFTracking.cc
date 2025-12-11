@@ -2,6 +2,8 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li
 
 #include "CKFTracking.h"
+#include "ActsDD4hepDetector.h"
+#include "algorithms/interfaces/ActsSvc.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Common.hpp>
@@ -81,7 +83,6 @@
 #include <system_error>
 #include <utility>
 
-#include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
@@ -93,15 +94,13 @@ using namespace Acts::UnitLiterals;
 
 CKFTracking::CKFTracking() = default;
 
-void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                       std::shared_ptr<spdlog::logger> log) {
-  m_log         = log;
-  m_acts_logger = eicrecon::getSpdlogLogger("CKF", m_log);
-
-  m_geoSvc = geo_svc;
+void CKFTracking::init(std::shared_ptr<spdlog::logger> log) {
+  m_acts_detector = algorithms::ActsSvc::instance().detector();
+  m_log           = log;
+  m_acts_logger   = eicrecon::getSpdlogLogger("CKF", m_log);
 
   m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
+      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_acts_detector->field());
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 
   // eta bins, chi2 and #sourclinks per surface cutoffs
@@ -113,7 +112,7 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
                                   m_cfg.numMeasurementsCutOff.end()}}},
   };
   m_trackFinderFunc =
-      CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
+      CKFTracking::makeCKFTrackingFunction(m_acts_detector->trackingGeometry(), m_BField, logger());
 }
 
 std::tuple<std::vector<ActsExamples::Trajectories*>,
@@ -328,15 +327,16 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
       Extrapolator::template Options<Acts::ActionList<Acts::MaterialInteractor>,
                                      Acts::AbortList<Acts::EndOfWorldReached>>;
 #endif
-  Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
-                            Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
-                                            logger().cloneWithSuffix("Navigator")),
-                            logger().cloneWithSuffix("Propagator"));
+  Extrapolator extrapolator(
+      Acts::EigenStepper<>(m_BField),
+      Acts::Navigator({.trackingGeometry = m_acts_detector->trackingGeometry()},
+                      logger().cloneWithSuffix("Navigator")),
+      logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(m_geoctx, m_fieldctx);
 #else
   Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> extrapolator(
       Acts::EigenStepper<>(m_BField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
+      Acts::Navigator({m_acts_detector->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
       logger().cloneWithSuffix("Propagator"));
   Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>,
                           Acts::AbortList<Acts::EndOfWorldReached>>

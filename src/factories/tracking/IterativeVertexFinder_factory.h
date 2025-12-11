@@ -16,6 +16,7 @@
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "algorithms/tracking/IterativeVertexFinder.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -36,7 +37,7 @@ private:
       this, "reassignTracksAfterFirstFit", config().reassignTracksAfterFirstFit,
       "Whether or not to reassign tracks after first fit"};
 
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {
@@ -44,7 +45,7 @@ public:
     // TODO: convert IterativeVertexFinder to inherit from algorithm::Algorithm
     // m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
-    m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+    m_algo->init(logger());
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {

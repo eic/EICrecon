@@ -312,6 +312,8 @@ macro(plugin_add_acts _name)
     ${Acts_NAMESPACE_PREFIX}Core
     ${Acts_NAMESPACE_PREFIX}PluginDD4hep
     ${Acts_NAMESPACE_PREFIX}PluginJson
+    ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesDetectorsCommon${CMAKE_SHARED_LIBRARY_SUFFIX}
+    ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesDetectorDD4hep${CMAKE_SHARED_LIBRARY_SUFFIX}
     ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
   if(${_name}_WITH_LIBRARY)
