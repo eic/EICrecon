@@ -2,6 +2,7 @@
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
 #include "TrackParamTruthInit.h"
+#include "ActsDD4hepDetector.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
@@ -125,7 +126,8 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
     auto perigee = Acts::Surface::makeShared<Acts::PerigeeSurface>(perigee_center);
 
     // convert from global to local coordinates using the defined line surface
-    auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
+    auto local =
+        perigee->globalToLocal(m_acts_detector->getActsGeometryContext(), global, direction);
 
     if (!local.ok()) {
       error("skipping the track because globaltoLocal function failed");
