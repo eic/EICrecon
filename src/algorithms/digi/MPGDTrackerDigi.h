@@ -87,7 +87,6 @@ private:
   dd4hep::CellID m_moduleBits{0}; // "volume" cleared of its "strip" bits.
   // Strip (standing here for "SUBVOLUME") related fields.
   dd4hep::CellID m_stripBits{0}; // "strip" field
-  dd4hep::CellID m_stripMask{0}; //  = ~m_stripBits;
   dd4hep::CellID m_pStripBit{0}; // 'p' strip
   dd4hep::CellID m_nStripBit{0}; // 'n' strip
   dd4hep::CellID m_stripIDs[5];  // Ordered from inner to outer

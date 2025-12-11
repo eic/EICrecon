@@ -316,8 +316,8 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     if (level() >= algorithms::LogLevel::kDebug) {
       for (CellID cID : {cIDp, cIDn}) {
         std::string sCellID = cID == cIDp ? "cellIDp" : "cellIDn";
-        CellID hID = cID >> 32, vID = cID & m_volumeBits, sID = vID >> 28 & 0xff;
-        debug("Hit {} = 0x{:08x}, 0x{:08x} 0x{:02x}", sCellID, hID, vID, sID);
+        CellID hID = cID >> 32, vID = cID & m_volumeBits;
+        debug("Hit {} = 0x{:08x}, 0x{:08x}", sCellID, hID, vID);
         Position stripPos = m_seg->position(cID);
         Position globPos  = refVol.nominal().localToWorld(stripPos);
         debug("  position  = ({:7.2f},{:7.2f},{:7.2f}) [mm]", globPos.X() / mm, globPos.Y() / mm,
@@ -419,8 +419,7 @@ void MPGDTrackerDigi::parseIDDescriptor() {
     }
   }
   // CellIDs derived from above
-  m_stripMask  = ~m_stripBits;
-  m_moduleBits = m_volumeBits & m_stripMask;
+  m_moduleBits = m_volumeBits & ~m_stripBits;
   m_pStripBit  = m_stripIDs[1];
   m_nStripBit  = m_stripIDs[3];
 }
@@ -855,8 +854,8 @@ void MPGDTrackerDigi::printSubHitList(
   int ldx = 0;
   for (const edm4hep::SimTrackerHit* sim_hp : subHitList) {
     CellID cIDk = sim_hp->getCellID();
-    CellID hIDk = cIDk >> 32, vIDk = cIDk & m_volumeBits, sIDk = vIDk >> 28 & 0xff;
-    debug("Hit cellID{:d} = 0x{:08x}, 0x{:08x} 0x{:02x}", ldx++, hIDk, vIDk, sIDk);
+    CellID hIDk = cIDk >> 32, vIDk = cIDk & m_volumeBits;
+    debug("Hit cellID{:d} = 0x{:08x}, 0x{:08x}", ldx++, hIDk, vIDk);
     debug("  position  = ({:7.2f},{:7.2f},{:7.2f}) [mm]", sim_hp->getPosition().x / edmm,
           sim_hp->getPosition().y / edmm, sim_hp->getPosition().z / edmm);
     debug("  xy_radius = {:.2f}",
