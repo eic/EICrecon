@@ -20,7 +20,11 @@
 
 #include "LGADHitClusteringConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
+
+// Forward declaration
+namespace eicrecon {
+class ActsDD4hepDetector;
+}
 
 namespace eicrecon {
 
@@ -54,7 +58,7 @@ private:
 
   dd4hep::Segmentation m_seg;
 
-  std::shared_ptr<const ActsGeometryProvider> m_acts_context;
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector;
 
   // neighbor finding algorithm copied from SiliconChargeSharing
   const dd4hep::DDSegmentation::CartesianGridXY*

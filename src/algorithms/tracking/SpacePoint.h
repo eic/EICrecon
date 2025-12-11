@@ -3,7 +3,8 @@
 #include <Acts/EventData/Seed.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include "ActsGeometryProvider.h"
+#include "ActsDD4hepDetector.h"
+
 namespace eicrecon {
 
 class SpacePoint : public edm4eic::TrackerHit {
@@ -12,9 +13,9 @@ public:
 
   SpacePoint(const TrackerHit& hit) : TrackerHit(hit) {}
 
-  void setSurface(std::shared_ptr<const ActsGeometryProvider> m_geoSvc) {
-    const auto its = m_geoSvc->surfaceMap().find(getCellID());
-    if (its == m_geoSvc->surfaceMap().end()) {
+  void setSurface(std::shared_ptr<const eicrecon::ActsDD4hepDetector> acts_detector) {
+    const auto its = acts_detector->surfaceMap().find(getCellID());
+    if (its == acts_detector->surfaceMap().end()) {
       m_surface = nullptr;
     } else {
       m_surface = its->second;

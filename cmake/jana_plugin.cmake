@@ -306,6 +306,8 @@ macro(plugin_add_acts _name)
     Acts::PluginJson
     $<TARGET_NAME_IF_EXISTS:Acts::PluginEDM4hep>
     $<TARGET_NAME_IF_EXISTS:Acts::PluginPodio>
+    ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesDetectorsCommon${CMAKE_SHARED_LIBRARY_SUFFIX}
+    ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesDetectorDD4hep${CMAKE_SHARED_LIBRARY_SUFFIX}
     ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
   if(${_name}_WITH_LIBRARY)

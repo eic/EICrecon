@@ -14,7 +14,6 @@
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 #include "services/particle/ParticleSvc.h"
@@ -31,9 +30,9 @@ public:
     auto& serviceSvc = algorithms::ServiceSvc::instance();
 
     // Get services
-    m_log_service     = srv_locator->get<Log_service>();
-    m_dd4hep_service  = srv_locator->get<DD4hep_service>();
-    m_actsgeo_service = srv_locator->get<ACTSGeo_service>();
+    m_log_service    = srv_locator->get<Log_service>();
+    m_dd4hep_service = srv_locator->get<DD4hep_service>();
+    // Note: ACTSGeo_service no longer needed!
 
     // Logger for ServiceSvc
     m_log = m_log_service->logger("AlgorithmsInit");
@@ -45,12 +44,26 @@ public:
       g.init(const_cast<dd4hep::Detector*>(this->m_dd4hep_service->detector().get()));
     });
 
-    // Register DD4hep_service as algorithms::ActsSvc
+    // Register algorithms::ActsSvc with properties
     [[maybe_unused]] auto& actsSvc = algorithms::ActsSvc::instance();
+
+    // Configure properties from JANA parameters
+    for (const auto& [key, prop] : actsSvc.getProperties()) {
+      std::visit(
+          [this, &actsSvc, key = key](auto&& val) {
+            // Map algorithms::ActsSvc property names to acts: namespace
+            std::string jana_key = "acts:" + std::string(key);
+            this->GetApplication()->SetDefaultParameter(jana_key, val);
+            actsSvc.setProperty(key, val);
+          },
+          prop.get());
+    }
+
+    // Set up lazy initialization - ActsSvc creates detector internally
     serviceSvc.setInit<algorithms::ActsSvc>([this](auto&& g) {
       this->m_log->debug("Initializing algorithms::ActsSvc");
       try {
-        g.init(this->m_actsgeo_service->actsGeoProvider());
+        g.init(this->m_dd4hep_service->detector().get());
       } catch (...) {
         g.init(std::move(std::current_exception()));
       }
@@ -108,6 +121,5 @@ private:
   AlgorithmsInit_service() = default;
   std::shared_ptr<Log_service> m_log_service;
   std::shared_ptr<DD4hep_service> m_dd4hep_service;
-  std::shared_ptr<ACTSGeo_service> m_actsgeo_service;
   std::shared_ptr<spdlog::logger> m_log;
 };
