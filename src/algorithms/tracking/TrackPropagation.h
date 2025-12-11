@@ -31,7 +31,7 @@
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 
 namespace eicrecon {
@@ -103,8 +103,8 @@ public:
   void propagateToSurfaceList(const Input& input, const Output& output) const;
 
 private:
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
-      algorithms::ActsSvc::instance().acts_geometry_provider()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{
+      algorithms::ActsSvc::instance().detector()};
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
   std::vector<std::shared_ptr<Acts::Surface>> m_filter_surfaces;

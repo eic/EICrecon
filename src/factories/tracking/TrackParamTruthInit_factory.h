@@ -11,7 +11,6 @@
 #include <utility>
 #include <vector>
 
-#include "services/geometry/acts/ACTSGeo_service.h"
 #include "algorithms/tracking/TrackParamTruthInit.h"
 #include "algorithms/tracking/TrackParamTruthInitConfig.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -52,7 +51,6 @@ private:
       this, "UseVertexAsPerigee", config().useVertexAsPerigee,
       "Anchor the seed perigee at the MCParticle vertex (for displaced tracks)"};
 
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
