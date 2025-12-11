@@ -13,7 +13,6 @@
 #include "algorithms/tracking/TrackSeedingConfig.h"
 #include "algorithms/tracking/TrackSeeding.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
 
@@ -97,8 +96,6 @@ private:
   ParameterRef<TrackSeedingConfig::SeedingMethod> m_seedingMethod{
       this, "seedingMethod", config().seedingMethod,
       "Seeding method: 'auto', 'seeding2', 'orthogonal'"};
-
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
 public:
   void Configure() {

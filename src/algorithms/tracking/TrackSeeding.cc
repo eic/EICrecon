@@ -491,7 +491,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
       // Estimate track parameters from seed
       auto trackParams =
           estimateTrackParamsFromSeed(positions, actsSeed.vertexZ(), m_cfg.beamPosX, m_cfg.beamPosY,
-                                      m_cfg.bFieldInZ, m_geoSvc, m_cfg);
+                                      m_cfg.bFieldInZ, m_acts_detector, m_cfg);
       if (!trackParams.has_value()) {
         debug("Failed to estimate track parameters from seed");
         continue;
@@ -583,7 +583,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParametersFromFit(
     const std::vector<std::pair<float, float>>& xyPositions,
     const std::vector<std::pair<float, float>>& rzPositions, float vertexZ, float bFieldInZ,
-    const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg) {
+    const std::shared_ptr<const ActsDD4hepDetector>& detector, const TrackSeedingConfig& cfg) {
   // Make mutable copies for fitting functions
   auto xyPosCopy = xyPositions;
   auto rzPosCopy = rzPositions;
@@ -630,7 +630,7 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
   // Compute local position at PCA
   Acts::Vector3 direction(std::sin(theta) * std::cos(phi), std::sin(theta) * std::sin(phi),
                           std::cos(theta));
-  auto local = perigee->globalToLocal(geoSvc->getActsGeometryContext(), global, direction);
+  auto local = perigee->globalToLocal(detector->getActsGeometryContext(), global, direction);
   if (!local.ok()) {
     return {};
   }
@@ -660,7 +660,7 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::computeTrackParamet
 std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParamsFromSeed(
     const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ,
     float beamPosX [[maybe_unused]], float beamPosY [[maybe_unused]], float bFieldInZ,
-    const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg) {
+    const std::shared_ptr<const ActsDD4hepDetector>& detector, const TrackSeedingConfig& cfg) {
   // Note: beamPosX/beamPosY not currently used in track parameter estimation
   // but passed through for potential future improvements
   std::vector<std::pair<float, float>> xyPositions;
@@ -672,7 +672,7 @@ std::optional<edm4eic::MutableTrackParameters> TrackSeeding::estimateTrackParams
     rzPositions.emplace_back(std::hypot(pos[0], pos[1]), pos[2]);
   }
 
-  return computeTrackParametersFromFit(xyPositions, rzPositions, vertexZ, bFieldInZ, geoSvc, cfg);
+  return computeTrackParametersFromFit(xyPositions, rzPositions, vertexZ, bFieldInZ, detector, cfg);
 }
 #endif
 
@@ -699,7 +699,7 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   }
 
   return computeTrackParametersFromFit(xyHitPositions, rzHitPositions, seed.z(), m_cfg.bFieldInZ,
-                                       m_geoSvc, m_cfg);
+                                       m_acts_detector, m_cfg);
 }
 #endif
 
