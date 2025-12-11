@@ -12,12 +12,16 @@
 #include <string>
 #include <string_view>
 
-#include "ActsGeometryProvider.h"
 #include "TrackParamTruthInitConfig.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+// Forward declaration
+namespace eicrecon {
+class ActsDD4hepDetector;
+}
 
 namespace eicrecon {
 
@@ -41,7 +45,7 @@ public:
 
 private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{m_actsSvc.detector()};
 
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const algorithms::UniqueIDGenSvc& m_uid      = algorithms::UniqueIDGenSvc::instance();
