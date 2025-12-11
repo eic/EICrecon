@@ -16,7 +16,6 @@
 
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
 
 namespace eicrecon {
 
@@ -42,7 +41,7 @@ private:
   const dd4hep::rec::CellIDPositionConverter* m_converter{m_geo.cellIDPositionConverter()};
 
   const algorithms::ActsSvc& m_acts{algorithms::ActsSvc::instance()};
-  std::shared_ptr<const ActsGeometryProvider> m_acts_context{m_acts.acts_geometry_provider()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{m_acts.detector()};
 
   /// Detector-specific information
   unsigned long m_detid_b0tracker;

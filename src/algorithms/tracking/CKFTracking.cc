@@ -2,6 +2,8 @@
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
 #include "CKFTracking.h"
+#include "ActsDD4hepDetector.h"
+#include "algorithms/interfaces/ActsSvc.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Common.hpp>
@@ -65,7 +67,6 @@
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
-#include "ActsGeometryProvider.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -86,8 +87,8 @@ void CKFTracking::init() {
         .numMeasurementsCutOff = {m_cfg.numMeasurementsCutOff.begin(),
                                   m_cfg.numMeasurementsCutOff.end()}}},
   };
-  m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(
-      m_geoSvc->trackingGeometry(), m_geoSvc->getFieldProvider(), acts_logger());
+  m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(m_acts_detector->trackingGeometry(),
+                                                           m_BField, acts_logger());
 }
 
 void CKFTracking::process(const Input& input, const Output& output) const {
@@ -180,9 +181,9 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKF", acts_level));
 
   // Get run-scoped contexts from service
-  const auto& gctx = m_geoSvc->getActsGeometryContext();
-  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
-  const auto& cctx = m_geoSvc->getActsCalibrationContext();
+  const auto& gctx = m_acts_detector->getActsGeometryContext();
+  const auto& mctx = m_acts_detector->getActsMagneticFieldContext();
+  const auto& cctx = m_acts_detector->getActsCalibrationContext();
 
   Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
@@ -218,10 +219,11 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   using Extrapolator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using ExtrapolatorOptions = Extrapolator::template Options<
       Acts::ActorList<Acts::MaterialInteractor, Acts::EndOfWorldReached>>;
-  Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
-                            Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
-                                            acts_logger().cloneWithSuffix("Navigator")),
-                            acts_logger().cloneWithSuffix("Propagator"));
+  Extrapolator extrapolator(
+      Acts::EigenStepper<>(m_BField),
+      Acts::Navigator({.trackingGeometry = m_acts_detector->trackingGeometry()},
+                      acts_logger().cloneWithSuffix("Navigator")),
+      acts_logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(gctx, mctx);
 
   // Create track container

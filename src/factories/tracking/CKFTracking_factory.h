@@ -16,7 +16,7 @@
 #include "algorithms/tracking/CKFTracking.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -42,7 +42,7 @@ private:
       this, "NumMeasurementsMin", config().numMeasurementsMin,
       "Minimum number of measurements for ACTS CKF tracking"};
 
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {

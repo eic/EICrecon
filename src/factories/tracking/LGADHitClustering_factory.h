@@ -5,6 +5,7 @@
 
 #include "algorithms/tracking/LGADHitClustering.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 namespace eicrecon {
@@ -20,6 +21,8 @@ private:
   ParameterRef<std::string> m_readout{this, "readout", config().readout};
   ParameterRef<double> m_deltaT{this, "deltaT", config().deltaT};
   ParameterRef<bool> m_useAve{this, "useAve", config().useAve};
+
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {
