@@ -170,7 +170,7 @@ public:
 
 private:
   const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
-  const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
+  const std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{m_actsSvc.detector()};
 
 #if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   using SeedingData = trackseeding_detail::SeedingData;
@@ -217,14 +217,14 @@ private:
   static std::optional<edm4eic::MutableTrackParameters> computeTrackParametersFromFit(
       const std::vector<std::pair<float, float>>& xyPositions,
       const std::vector<std::pair<float, float>>& rzPositions, float vertexZ, float bFieldInZ,
-      const std::shared_ptr<const ActsGeometryProvider>& geoSvc, const TrackSeedingConfig& cfg);
+      const std::shared_ptr<const ActsDD4hepDetector>& detector, const TrackSeedingConfig& cfg);
 
 #if TRACKSEEDING_HAS_SEEDING2 || TRACKSEEDING_HAS_SEEDING
   // Seeding2-specific: track parameter estimation from space point positions
   static std::optional<edm4eic::MutableTrackParameters>
   estimateTrackParamsFromSeed(const std::array<std::array<float, 3>, 3>& spPositions, float vertexZ,
                               float beamPosX, float beamPosY, float bFieldInZ,
-                              const std::shared_ptr<const ActsGeometryProvider>& geoSvc,
+                              const std::shared_ptr<const ActsDD4hepDetector>& detector,
                               const TrackSeedingConfig& cfg);
 #endif
 
