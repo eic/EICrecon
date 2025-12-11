@@ -27,6 +27,7 @@
 #include "TrackPropagation.h"
 #include "TrackPropagationTest_processor.h"
 #include "services/rootfile/RootFile_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 //------------------
 // Init
@@ -36,6 +37,9 @@ void TrackPropagationTest_processor::Init() {
 
   // Get JANA application
   auto* app = GetApplication();
+
+  // Ensure algorithms services are initialized (including ActsSvc)
+  app->GetService<AlgorithmsInit_service>();
 
   // Ask service locator a file to write histograms to
   auto root_file_service = app->GetService<RootFile_service>();
