@@ -13,7 +13,6 @@
 #include "algorithms/tracking/OrthogonalTrackSeedingConfig.h"
 #include "algorithms/tracking/TrackSeeding.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
 
 namespace eicrecon {
 
@@ -98,8 +97,6 @@ private:
                                     "Error on q/p for Acts::OrthogonalSeedFinder"};
   ParameterRef<float> m_timeError{this, "time_Error", config().timeError,
                                   "Error on time for Acts::OrthogonalSeedFinder"};
-
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
 public:
   void Configure() {

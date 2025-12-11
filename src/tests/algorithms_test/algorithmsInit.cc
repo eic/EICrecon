@@ -20,6 +20,7 @@
 #include <TGeoMaterial.h>
 #include <TGeoMedium.h>
 #include <algorithms/geo.h>
+#include <algorithms/interfaces/ActsSvc.h>
 #include <algorithms/interfaces/UniqueIDGenSvc.h>
 #include <algorithms/random.h>
 #include <algorithms/service.h>
@@ -215,6 +216,9 @@ public:
     auto& serviceSvc              = algorithms::ServiceSvc::instance();
     [[maybe_unused]] auto& geoSvc = algorithms::GeoSvc::instance();
     serviceSvc.setInit<algorithms::GeoSvc>([this](auto&& g) { g.init(this->m_detector.get()); });
+
+    [[maybe_unused]] auto& actsSvc = algorithms::ActsSvc::instance();
+    serviceSvc.setInit<algorithms::ActsSvc>([](auto&& a) { a.init(); });
 
     [[maybe_unused]] auto& randomSvc = algorithms::RandomSvc::instance();
     auto seed                        = Catch::Generators::Detail::getSeed();
