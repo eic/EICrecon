@@ -8,6 +8,7 @@
 #include <algorithms/geo.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
+#include <edm4eic/SecondaryVertexCollection.h>
 #include <gsl/pointers>
 #include <string>      // for basic_string
 #include <string_view> // for string_view
@@ -19,7 +20,8 @@ namespace eicrecon {
 
 using SecondaryVerticesHelixAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::VertexCollection, edm4eic::ReconstructedParticleCollection>,
-    algorithms::Output<edm4eic::VertexCollection>>;
+    algorithms::Output<edm4eic::SecondaryVertexCollection>>;
+//    algorithms::Output<edm4eic::VertexCollection>>;
 
 class SecondaryVerticesHelix : public SecondaryVerticesHelixAlgorithm,
                                public WithPodConfig<SecondaryVerticesHelixConfig> {

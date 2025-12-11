@@ -1,0 +1,22 @@
+0) build your local edm4eic following the instruction on
+https://github.com/eic/EDM4eic
+
+1) modify edm4eic cmake file:  ~/local/lib/cmake/EDM4EIC/EDM4EICConfig.cmake
+get_filename_component(PACKAGE_PREFIX_DIR "${CMAKE_CURRENT_LIST_DIR}/../../../" ABSOLUTE)
+
+2) build EICrecon
+source /opt/detector/epic-main/bin/thisepic.sh
+
+cmake -S EICrecon -B build -DCMAKE_PREFIX_PATH="~/local" 
+
+cmake --build build --target install -- -j8
+
+source EICrecon/bin/eicrecon-this.sh
+
+3) check links
+ldd $(which eicrecon) | grep podioRootIO
+ldd $(which eicrecon) | grep edm4eic   (no output is OK)
+
+4) run with RunTime dynamic load
+export LD_LIBRARY_PATH="~/local/lib:${LD_LIBRARY_PATH}"
+LD_PRELOAD="/eic/u/xdong/local/lib/libedm4eicDict.so" eicrecon test_20.edm4hep.root

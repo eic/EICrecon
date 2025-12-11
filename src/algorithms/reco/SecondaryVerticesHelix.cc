@@ -124,7 +124,11 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
       if (cos(angle) < m_cfg.minCostheta)
         continue;
 
-      double beta = edm4hep::utils::magnitude(pairMom) / pairE;
+      double pairP = edm4hep::utils::magnitude(pairMom);
+      double m_inv2 = pairE*pairE - pairP*pairP;
+      double m_inv = (m_inv2>0) ? sqrt(m_inv2) : 0.;
+      
+      double beta = pairP / pairE;
       double time = edm4hep::utils::magnitude(pairPos - pVtxPos) / (beta * dd4hep::c_light);
       edm4hep::Vector3f dL = pairPos - pVtxPos; // in cm
       edm4hep::Vector3f decayL(dL.x * edm4eic::unit::cm, dL.y * edm4eic::unit::cm,
@@ -133,11 +137,26 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
       if (dca2pv > m_cfg.maxDca)
         continue;
 
+
       auto v0 = out_secondary_vertices->create();
       v0.setType(2); // 2 for secondary
       v0.setPosition({(float)(pairPos.x * edm4eic::unit::cm / edm4eic::unit::mm),
                       (float)(pairPos.y * edm4eic::unit::cm / edm4eic::unit::mm),
                       (float)(pairPos.z * edm4eic::unit::cm / edm4eic::unit::mm), (float)time});
+      v0.setParentMomentum(pairMom);
+      v0.setParentDecayLength(edm4hep::utils::magnitude(decayL));
+      v0.setParentInvariantMass(m_inv);
+      v0.setParentDca2PV(dca2pv);
+      v0.addToDaughterMomentum(h1MomAtDca);
+      v0.addToDaughterMomentum(h2MomAtDca);
+      v0.addToDaughterPDG(p1.getPDG());
+      v0.addToDaughterPDG(p2.getPDG());
+      v0.addToDaughterDca2PV(dca1);
+      v0.addToDaughterDca2PV(dca2);
+      v0.addToDaughterPairIndices(i1*1000+i2);
+      v0.addToDaughterPairDca(dca12);
+
+      v0.setPrimaryVertex((*rcvtx)[0]);
       v0.addToAssociatedParticles(p1);
       v0.addToAssociatedParticles(p2);
 

@@ -29,7 +29,8 @@ private:
   PodioInput<edm4eic::ReconstructedParticle> m_rc_parts_input{this};
 
   // Declare outputs
-  PodioOutput<edm4eic::Vertex> m_secondary_vertices_output{this};
+//  PodioOutput<edm4eic::Vertex> m_secondary_vertices_output{this};
+  PodioOutput<edm4eic::SecondaryVertex> m_secondary_vertices_output{this};
 
   // Declare parameters
   ParameterRef<bool> m_unlikesign{this, "unlikesign", config().unlikesign};
