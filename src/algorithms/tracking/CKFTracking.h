@@ -20,10 +20,15 @@
 #include <string_view>
 #include <vector>
 
-#include "CKFTrackingConfig.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
+#include "algorithms/tracking/CKFTrackingConfig.h"
+
+// Forward declaration
+namespace eicrecon {
+class ActsDD4hepDetector;
+}
 
 namespace eicrecon {
 
@@ -75,9 +80,9 @@ public:
 private:
   std::shared_ptr<const Acts::Logger> m_acts_logger{nullptr};
   std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
-      algorithms::ActsSvc::instance().acts_geometry_provider()};
-  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector{
+      algorithms::ActsSvc::instance().detector()};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_acts_detector->field()};
 
   Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
 

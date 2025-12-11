@@ -1,4 +1,3 @@
-
 #include "TrackingTest_processor.h"
 
 #include <JANA/JApplication.h>
@@ -24,6 +23,7 @@
 #include "services/io/podio/datamodel_glue_compat.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 using namespace fmt;
 
@@ -35,6 +35,9 @@ void TrackingTest_processor::Init() {
 
   // Get JANA application
   auto* app = GetApplication();
+
+  // Ensure algorithms services are initialized (including ActsSvc)
+  app->GetService<AlgorithmsInit_service>();
 
   // Ask service locator a file to write histograms to
   auto root_file_service = app->GetService<RootFile_service>();

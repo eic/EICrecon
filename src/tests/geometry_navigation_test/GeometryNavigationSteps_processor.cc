@@ -5,14 +5,17 @@
 #include <JANA/Services/JGlobalRootLock.h>
 #include <string>
 
-#include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/rootfile/RootFile_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 void GeometryNavigationSteps_processor::Init() {
   std::string plugin_name = ("geometry_navigation_test");
 
   // Get JANA application
   auto* app = GetApplication();
+
+  // Ensure algorithms services are initialized (including ActsSvc)
+  app->GetService<AlgorithmsInit_service>();
 
   // Ask service locator a file to write histograms to
   auto root_file_service = app->GetService<RootFile_service>();
@@ -29,7 +32,7 @@ void GeometryNavigationSteps_processor::Init() {
   // Get log level from user parameter or default
   InitLogger(app, plugin_name);
 
-  auto acts_service = GetApplication()->GetService<ACTSGeo_service>();
+  // Note: ACTSGeo_service removed - Acts geometry accessed via algorithms::ActsSvc if needed
 }
 
 void GeometryNavigationSteps_processor::Process(const std::shared_ptr<const JEvent>& /* event */) {}

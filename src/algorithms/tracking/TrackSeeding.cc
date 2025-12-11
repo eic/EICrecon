@@ -233,7 +233,7 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   Acts::Vector2 localpos;
   Acts::Vector3 direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 
-  auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
+  auto local = perigee->globalToLocal(m_acts_detector->getActsGeometryContext(), global, direction);
 
   if (!local.ok()) {
     return {};

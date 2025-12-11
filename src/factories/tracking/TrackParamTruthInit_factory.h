@@ -11,7 +11,6 @@
 #include <utility>
 #include <vector>
 
-#include "services/geometry/acts/ACTSGeo_service.h"
 #include "algorithms/tracking/TrackParamTruthInit.h"
 #include "algorithms/tracking/TrackParamTruthInitConfig.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -49,7 +48,6 @@ private:
       this, "MomentumSmear", config().momentumSmear,
       "Momentum magnitude fraction to use as width of gaussian smearing"};
 
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:

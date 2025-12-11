@@ -2,6 +2,7 @@
 // Copyright (C) 2025 Chun Yuen Tsang
 
 #include "LGADHitClustering.h"
+#include "ActsDD4hepDetector.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
@@ -32,7 +33,6 @@
 #include <utility>
 #include <vector>
 
-#include "ActsGeometryProvider.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/tracking/LGADHitClusteringConfig.h"
 
@@ -40,12 +40,12 @@ namespace eicrecon {
 
 void LGADHitClustering::init() {
 
-  m_converter    = algorithms::GeoSvc::instance().cellIDPositionConverter();
-  m_detector     = algorithms::GeoSvc::instance().detector();
-  m_seg          = m_detector->readout(m_cfg.readout).segmentation();
-  auto type      = m_seg.type();
-  m_decoder      = m_seg.decoder();
-  m_acts_context = algorithms::ActsSvc::instance().acts_geometry_provider();
+  m_converter     = algorithms::GeoSvc::instance().cellIDPositionConverter();
+  m_detector      = algorithms::GeoSvc::instance().detector();
+  m_seg           = m_detector->readout(m_cfg.readout).segmentation();
+  auto type       = m_seg.type();
+  m_decoder       = m_seg.decoder();
+  m_acts_detector = algorithms::ActsSvc::instance().detector();
 }
 
 void LGADHitClustering::_calcCluster(const Output& output,
@@ -138,7 +138,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
 
   const auto* context    = m_converter->findContext(cellID);
   auto volID             = context->identifier;
-  const auto& surfaceMap = m_acts_context->surfaceMap();
+  const auto& surfaceMap = m_acts_detector->surfaceMap();
   const auto is          = surfaceMap.find(volID);
   if (is == surfaceMap.end()) {
     error("vol_id ({})  not found in m_surfaces.", volID);
