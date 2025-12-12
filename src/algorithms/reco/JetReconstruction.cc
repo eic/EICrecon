@@ -64,7 +64,7 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
     } else {
       this->error(" Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo);
       throw std::runtime_error(fmt::format(
-          "Invalid contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo));
+          "Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo));
     }
     break;
 
