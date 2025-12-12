@@ -57,10 +57,6 @@
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
-#include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
-#else
-#endif
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
