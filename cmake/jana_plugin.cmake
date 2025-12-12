@@ -330,7 +330,7 @@ endmacro()
 # Adds IRT PID reconstruction package for a plugin
 macro(plugin_add_irt _name)
 
-  if(NOT IRT_FOUND)
+   if(NOT IRT2_FOUND)
     find_package(IRT2 ${IRT_VERSION_MIN} REQUIRED)
   endif()
 
