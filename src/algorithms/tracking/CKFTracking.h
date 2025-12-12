@@ -32,13 +32,6 @@
 #include "CKFTrackingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-// Compatibility alias for different Acts versions
-#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
-using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
-#else
-using DD4hepFieldAdapter = Acts::DD4hepFieldAdapter;
-#endif
-
 class ActsGeometryProvider;
 
 namespace eicrecon {
