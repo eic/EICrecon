@@ -1,9 +1,9 @@
-# Custom LINK_WHAT_YOU_USE check script for EICrecon
-# This script wraps the default ldd -u -r check to log output to a file
+# Custom LINK_WHAT_YOU_USE check script for EICrecon This script wraps the
+# default ldd -u -r check to log output to a file
 
-# Arguments passed by CMake:
-# CMAKE invokes: cmake -DOUTPUT_DIR=... -P script.cmake <binary_file>
-# The binary file is the last argument after all -D flags
+# Arguments passed by CMake: CMAKE invokes: cmake -DOUTPUT_DIR=... -P
+# script.cmake <binary_file> The binary file is the last argument after all -D
+# flags
 
 # Find the last argument (the binary file) using CMAKE_ARGC
 if(CMAKE_ARGC GREATER 0)
@@ -13,7 +13,9 @@ else()
   set(BINARY_FILE "")
 endif()
 
-if(NOT BINARY_FILE OR BINARY_FILE STREQUAL "" OR BINARY_FILE MATCHES "^-")
+if(NOT BINARY_FILE
+   OR BINARY_FILE STREQUAL ""
+   OR BINARY_FILE MATCHES "^-")
   message(FATAL_ERROR "No binary file specified or malformed arguments")
 endif()
 
@@ -39,9 +41,7 @@ execute_process(
   RESULT_VARIABLE LDD_RESULT
   OUTPUT_VARIABLE LDD_OUTPUT
   ERROR_VARIABLE LDD_ERROR
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  ERROR_STRIP_TRAILING_WHITESPACE
-)
+  OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_STRIP_TRAILING_WHITESPACE)
 
 # Write output to log file
 file(WRITE "${LOG_FILE}" "LINK_WHAT_YOU_USE check for: ${BINARY_FILE}\n")
