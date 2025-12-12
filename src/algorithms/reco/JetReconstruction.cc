@@ -40,7 +40,8 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
     m_mapRecombScheme.at(m_cfg.recombScheme);
   } catch (std::out_of_range& out) {
     this->error(" Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme);
-    throw std::runtime_error(fmt::format("Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme));
+    throw std::runtime_error(
+        fmt::format("Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme));
   }
 
   try {
