@@ -33,21 +33,21 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
     m_mapJetAlgo.at(m_cfg.jetAlgo);
   } catch (std::out_of_range& out) {
     this->error(" Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo);
-    throw std::runtime_error(out.what());
+    throw std::runtime_error(fmt::format("Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo));
   }
 
   try {
     m_mapRecombScheme.at(m_cfg.recombScheme);
   } catch (std::out_of_range& out) {
     this->error(" Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme);
-    throw std::runtime_error(out.what());
+    throw std::runtime_error(fmt::format("Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme));
   }
 
   try {
     m_mapAreaType.at(m_cfg.areaType);
   } catch (std::out_of_range& out) {
     this->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
-    throw std::runtime_error(out.what());
+    throw std::runtime_error(fmt::format("Unknown area type \"{}\" specified!", m_cfg.areaType));
   }
 
   // Choose jet definition based on no. of parameters
