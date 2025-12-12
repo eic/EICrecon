@@ -19,7 +19,6 @@
 #if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
 #include <Acts/Utilities/Iterator.hpp>
 #endif
-#include <Acts/Utilities/detail/ContextType.hpp>
 #if Acts_VERSION_MAJOR < 36
 #include <Acts/EventData/Measurement.hpp>
 #endif
@@ -58,11 +57,6 @@
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
-#include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
-#else
-#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
-#endif
 #include <boost/container/vector.hpp>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/Cov6f.h>
