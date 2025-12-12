@@ -56,3 +56,8 @@ endif()
 if(LDD_ERROR)
   file(APPEND "${LOG_FILE}" "${LDD_ERROR}\n")
 endif()
+
+# Check ldd exit status and report error if failed
+if(NOT LDD_RESULT EQUAL 0)
+  message(FATAL_ERROR "ldd -u -r failed for '${BINARY_FILE}' with exit code ${LDD_RESULT}. See log file: ${LOG_FILE}\nError output:\n${LDD_ERROR}")
+endif()
