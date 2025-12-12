@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <IRT/CherenkovDetectorCollection.h>
+#include <IRT2/CherenkovDetectorCollection.h>
 #include <JANA/JEvent.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <algorithm>

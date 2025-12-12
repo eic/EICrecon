@@ -331,20 +331,20 @@ endmacro()
 macro(plugin_add_irt _name)
 
   if(NOT IRT_FOUND)
-    find_package(IRT ${IRT_VERSION_MIN} REQUIRED)
+    find_package(IRT2 ${IRT_VERSION_MIN} REQUIRED)
   endif()
 
   # FIXME: IRTConfig.cmake sets INTERFACE_INCLUDE_DIRECTORIES to
   # <prefix>/include/IRT instead of <prefix>/include, allowing for short-form
   # #include <CherenkovDetector.h>
-  get_target_property(IRT_INTERFACE_INCLUDE_DIRECTORIES IRT
+  get_target_property(IRT_INTERFACE_INCLUDE_DIRECTORIES IRT2
                       INTERFACE_INCLUDE_DIRECTORIES)
-  list(TRANSFORM IRT_INTERFACE_INCLUDE_DIRECTORIES REPLACE "/IRT$" "")
+  list(TRANSFORM IRT_INTERFACE_INCLUDE_DIRECTORIES REPLACE "/IRT2$" "")
   list(REMOVE_DUPLICATES IRT_INTERFACE_INCLUDE_DIRECTORIES)
-  set_target_properties(IRT PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
+  set_target_properties(IRT2 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
                                        "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
 
-  plugin_link_libraries(${PLUGIN_NAME} IRT)
+  plugin_link_libraries(${PLUGIN_NAME} IRT2)
 
 endmacro()
 

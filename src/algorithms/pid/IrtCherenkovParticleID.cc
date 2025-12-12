@@ -3,11 +3,11 @@
 
 #include "IrtCherenkovParticleID.h"
 
-#include <IRT/ChargedParticle.h>
-#include <IRT/CherenkovPID.h>
-#include <IRT/OpticalPhoton.h>
-#include <IRT/RadiatorHistory.h>
-#include <IRT/SinglePDF.h>
+#include <IRT2/ChargedParticle.h>
+#include <IRT2/CherenkovPID.h>
+#include <IRT2/OpticalPhoton.h>
+#include <IRT2/RadiatorHistory.h>
+#include <IRT2/SinglePDF.h>
 #include <TString.h>
 #include <TVector3.h>
 #include <algorithms/logger.h>
@@ -39,7 +39,7 @@
 
 namespace eicrecon {
 
-void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
+void IrtCherenkovParticleID::init(IRT2::CherenkovDetectorCollection* irt_det_coll) {
 #if _OBSOLETE_
   // members
   m_irt_det_coll = irt_det_coll;

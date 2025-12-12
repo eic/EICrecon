@@ -3,9 +3,9 @@
 
 #pragma once
 
-#include <IRT/CherenkovDetector.h>
-#include <IRT/CherenkovDetectorCollection.h>
-#include <IRT/CherenkovRadiator.h>
+#include <IRT2/CherenkovDetector.h>
+#include <IRT2/CherenkovDetectorCollection.h>
+#include <IRT2/CherenkovRadiator.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/CherenkovParticleIDCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
@@ -53,7 +53,7 @@ public:
   // FIXME: init() must not take arguments
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Woverloaded-virtual"
-  void init(CherenkovDetectorCollection* irt_det_coll);
+  void init(IRT2::CherenkovDetectorCollection* irt_det_coll);
 #pragma GCC diagnostic pop
 
   void process(const Input&, const Output&) const;
@@ -61,9 +61,9 @@ public:
 private:
   // any access (R or W) to m_irt_det_coll, m_irt_det, m_pid_radiators must be locked
   inline static std::mutex m_irt_det_mutex;
-  CherenkovDetectorCollection* m_irt_det_coll;
-  CherenkovDetector* m_irt_det;
-  std::map<std::string, CherenkovRadiator*> m_pid_radiators;
+  IRT2::CherenkovDetectorCollection* m_irt_det_coll;
+  IRT2::CherenkovDetector* m_irt_det;
+  std::map<std::string, IRT2::CherenkovRadiator*> m_pid_radiators;
 
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
 

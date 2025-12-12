@@ -38,22 +38,25 @@ using json = nlohmann::json;
 //
 static const char *RICHes[] = {"PFRICH", "DRICH", "BRICH", "FRICH"};
 
-#include "IRT/CherenkovDetectorCollection.h"
+#include "IRT2/CherenkovDetectorCollection.h"
 
 using namespace eicrecon;
+using namespace IRT2;
 
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
 
-    //printf("@@@ RICH-IRT InitPlugin()\n");
+    printf("@@@ RICH-IRT InitPlugin()\n");
 
     auto dd4hep_service = app->GetService<DD4hep_service>();
     auto det = dd4hep_service->detector();
       
     // Loop through all known RICH detectors handled by IRT 2.0 algorithm through this plugin;
     for(const auto *RICH: RICHes) {
-      // First a sanity cross-check: detector with this name should be present in the geometry;
+
+	  // printf("@@@for loop on RICHes \n");
+          // First a sanity cross-check: detector with this name should be present in the geometry;
       {
 	bool exists = false;
 	
@@ -84,15 +87,23 @@ extern "C" {
 	// Import JSON configuration file; sanity checks for several keys which are supposed
 	// to be present; FIXME: add warning / error printouts;
 	{
+	  //printf("@@@ debugging 2.1 \n");
 	  std::ifstream fcfg(kstring[0].c_str());
-	  if (!fcfg) continue;
+	  if (!fcfg){ 
+                continue;
+          }
+	  //printf("@@@ debugging 2.2 \n");
+	  //print
 	  config.m_json_config = json::parse(fcfg);
 	  // For less typing;
 	  /*const*/ json *jptr = &config.m_json_config;
 	  
+	  //printf("@@@ path to json is known\n");
+
 	  // An entry describing optics file should be present;
 	  if (jptr->find("Optics") == jptr->end()) continue;
-	  
+	  //printf("@@@ I found Optics file \n");
+
 	  // An entry describing a nominal acceptance should be present;
 	  if (jptr->find("Acceptance") == jptr->end()) continue;
 	  {
@@ -116,8 +127,9 @@ extern "C" {
 	  {
 	    auto foptics = new TFile((*jptr)["Optics"].template get<std::string>().c_str());
 	    if (!foptics) continue;
+	    //printf("@@@Optics file imported\n");
 	    
-	    config.m_irt_geometry = dynamic_cast<CherenkovDetectorCollection*>(foptics->Get("CherenkovDetectorCollection"));
+	    config.m_irt_geometry = dynamic_cast<IRT2::CherenkovDetectorCollection*>(foptics->Get("IRT2::CherenkovDetectorCollection"));
 	    if (!config.m_irt_geometry) continue;
 	    
 	    auto cdet = config.m_irt_geometry->GetDetector(RICH);
@@ -218,6 +230,7 @@ extern "C" {
 			));
 
 	      // A unified IRT 2.1 algorithm; FIXME: split digitization step off later;
+
 	      app->Add(new JOmniFactoryGeneratorT<IrtInterface_factory>
 		       (
 			(RICHstr + "IrtInterface").Data(),

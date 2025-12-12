@@ -20,10 +20,10 @@
 #include <edm4eic/MutableIrtParticle.h>
 #include <edm4eic/MutableIrtRadiatorInfo.h>
 
-#include <IRT/ChargedParticle.h>
-#include "IRT/CherenkovEvent.h"
-#include "IRT/CherenkovDetectorCollection.h"
-#include "IRT/ReconstructionFactory.h"
+#include <IRT2/ChargedParticle.h>
+#include "IRT2/CherenkovEvent.h"
+#include "IRT2/CherenkovDetectorCollection.h"
+#include "IRT2/ReconstructionFactory.h"
 
 #include "G4DataInterpolation.h"
 #include "IrtInterface.h"
@@ -48,8 +48,8 @@ namespace eicrecon {
   {
     std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
       
-    //printf("@@@ IrtInterface::~IrtInterface() ... %s %2d %2d\n", m_OutputFileName.c_str(), m_Instance,
-    //	   m_InstanceCounters[m_OutputFileName]);
+    printf("@@@ IrtInterface::~IrtInterface() ... %s %2d %2d\n", m_OutputFileName.c_str(), m_Instance,
+    	   m_InstanceCounters[m_OutputFileName]);
     m_InstanceCounters[m_OutputFileName]--;
     
     if (!m_InstanceCounters[m_OutputFileName]) {
@@ -73,7 +73,7 @@ namespace eicrecon {
   void IrtInterface::init(DD4hep_service &dd4hep_service, IrtConfig &config,
 			  std::shared_ptr<spdlog::logger>& logger)
   {
-    //printf("@R@ IrtInterface::init() ...\n");
+    printf("@R@ IrtInterface::init() ...\n");
     
     // FIXME: is this all thread safe?;
     m_config = config;
@@ -92,7 +92,7 @@ namespace eicrecon {
     {
       std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
     
-      m_Event = new CherenkovEvent();
+      m_Event = new IRT2::CherenkovEvent();
       m_EventPtr = &m_Event;
       
       /*const*/ json *jptr = &config.m_json_config;
@@ -105,7 +105,7 @@ namespace eicrecon {
       // FIXME: this is a hack, for the time being;
       if (jptr->find("IntegratedReconstruction") != jptr->end() &&
 	  !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
-	m_ReconstructionFactory = new ReconstructionFactory(config.m_irt_geometry, m_irt_det, m_Event);
+	m_ReconstructionFactory = new IRT2::ReconstructionFactory(config.m_irt_geometry, m_irt_det, m_Event);
 	JsonParser();//jptr);
       } //if
     
@@ -117,7 +117,7 @@ namespace eicrecon {
 	
 	m_EventTrees[m_OutputFileName] = new TTree("t", "My tree");
 	m_EventBranches[m_OutputFileName] =
-	  m_EventTrees[m_OutputFileName]->Branch("e", "CherenkovEvent", 0/*&m_Event*/, 16000, 2);
+	  m_EventTrees[m_OutputFileName]->Branch("e", "IRT2::CherenkovEvent", 0/*&m_Event*/, 16000, 2);
       } //if
 
       m_Instance = m_InstanceCounters[m_OutputFileName]++;
@@ -249,7 +249,7 @@ namespace eicrecon {
     } //for particle
     
     // Help optical photons to find their parents;
-    std::map<unsigned, ChargedParticle*> MCParticle_to_ChargedParticle;
+    std::map<unsigned, IRT2::ChargedParticle*> MCParticle_to_ChargedParticle;
         
     // Create event structure a la standalone pfRICH/IRT code; use MC particles (in_mc_particles)
     // in this first iteration (and only select primary ones); later on should do it probably
@@ -276,7 +276,7 @@ namespace eicrecon {
       }
 
       // Now add a charged particle to the event structure; 'true': primary;
-      auto particle = new ChargedParticle(mcparticle.getPDG(), true);
+      auto particle = new IRT2::ChargedParticle(mcparticle.getPDG(), true);
       
       // For now, just record a reference to EICrecon track; the actual loop with assignments
       // will be at the end of processing;
@@ -292,7 +292,7 @@ namespace eicrecon {
 
       // Create history records for all known radiators; FIXME: may want to optimize a bit;
       for(auto [name,rad] : m_irt_det->Radiators()) {
-	auto history = new RadiatorHistory();
+	auto history = new IRT2::RadiatorHistory();
 	particle->StartRadiatorHistory(std::make_pair(rad, history));
       } //for radiator
 
@@ -318,7 +318,7 @@ namespace eicrecon {
 
 	    // FIXME: this check is redundant?;
 	    if (history) {
-	      auto step = new ChargedParticleStep(position, momentum);
+	      auto step = new IRT2::ChargedParticleStep(position, momentum);
 	      history->AddStep(step);
 	    } //if
 	  } //if
@@ -345,7 +345,7 @@ namespace eicrecon {
       //counter++;
       
       // Create an optical photon class instance and populate it; units: [mm], [ns], [eV];
-      auto photon = new OpticalPhoton();
+      auto photon = new IRT2::OpticalPhoton();
 
       // Information provided by the hit itself: detection position and time;
       photon->SetDetectionPosition(Tools::PodioVector3_to_TVector3(mchit.getPosition()));

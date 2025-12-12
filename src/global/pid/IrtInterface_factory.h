@@ -15,8 +15,9 @@
 #include "algorithms/pid/IrtInterface.h"
 #include "extensions/jana/JOmniFactory.h"
 
-class CherenkovDetector;
-
+namespace IRT2{
+	class CherenkovDetector;
+};
 #include <edm4eic/RawTrackerHitCollection.h>
 
 namespace eicrecon {

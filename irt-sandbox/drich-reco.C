@@ -9,9 +9,17 @@
 #define _USE_AEROGEL_RADIATOR_
 #define _USE_GAS_RADIATOR_
 
+namespace IRT2{
+	class ReconstructionFactory;
+        class CherenkovEvent;
+	class CherenkovDetectorCollection;       
+};
+
+
+
 void drich_reco(const char *dfname, const char *cfname = 0)
 {
-  auto *reco = new ReconstructionFactory(dfname, cfname, "DRICH");
+  auto *reco = new IRT2::ReconstructionFactory(dfname, cfname, "DRICH");
 
   // Factory configuration part; may want to uncomments some of the options;
   {
@@ -75,7 +83,7 @@ void drich_reco(const char *dfname, const char *cfname = 0)
 
   // Run a bare IRT reconstruction engine loop; ring finder launched in GetNextEvent();
   {
-    CherenkovEvent *event;
+	IRT2::CherenkovEvent *event;
 
     while((event = reco->GetNextEvent())) {     
       // Here a user may want to perform a custom output analysis;

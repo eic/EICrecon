@@ -8,11 +8,18 @@
 
 void drich_hit_map(const char *dfname, const char *cfname = 0)
 {
+
+  // Create output directory if it doesn't exist
+  if (gSystem->AccessPathName("out")) {
+    gSystem->mkdir("out", kTRUE);
+  }
+
+
   auto fcfg  = new TFile(cfname ? cfname : dfname);
-  auto geometry = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
+  auto geometry = dynamic_cast<IRT2::CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
   auto fdata = new TFile(dfname);
   TTree *t = dynamic_cast<TTree*>(fdata->Get("t")); 
-  auto event = new CherenkovEvent();
+  auto event = new IRT2::CherenkovEvent();
   t->SetBranchAddress("e", &event);
 
   int nEvents = t->GetEntries();
@@ -46,4 +53,10 @@ void drich_hit_map(const char *dfname, const char *cfname = 0)
   hxy->GetXaxis()->SetTitleOffset(1.20);
   hxy->GetYaxis()->SetTitleOffset(1.40);
   hxy->Draw("COL");
+
+  cv->SaveAs("out/drich-01_hit-map.pdf");
+  cv->SaveAs("out/drich-01_hit-map.png"); 
+  cv->SaveAs("out/drich-01_hit-map.C");
+  cv->SaveAs("out/drich-01_hit-map.root");
+
 } // drich_hit_map()
