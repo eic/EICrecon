@@ -31,7 +31,6 @@
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Parsers/Primitives.h>
@@ -64,14 +63,14 @@ void MPGDTrackerDigi::init() {
   m_detector                            = algorithms::GeoSvc::instance().detector();
   const dd4hep::BitFieldCoder* m_id_dec = nullptr;
   if (m_cfg.readout.empty()) {
-    throw JException("Readout is empty");
+    throw std::runtime_error("Readout is empty");
   }
   try {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
     m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
   } catch (...) {
     critical("Failed to load ID decoder for \"{}\" readout.", m_cfg.readout);
-    throw JException("Failed to load ID decoder");
+    throw std::runtime_error("Failed to load ID decoder");
   }
   // Method "process" relies on a strict assumption on the IDDescriptor:
   // - Must have a "strip" field.
@@ -81,7 +80,7 @@ void MPGDTrackerDigi::init() {
     critical(R"(Missing or invalid "strip" field in IDDescriptor for "{}"
         readout.)",
              m_cfg.readout);
-    throw JException("Invalid IDDescriptor");
+    throw std::runtime_error("Invalid IDDescriptor");
   }
   debug(R"(Find valid "strip" field in IDDescriptor for "{}" readout.)", m_cfg.readout);
 }

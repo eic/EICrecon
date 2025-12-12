@@ -7,7 +7,6 @@
 #include <DD4hep/Readout.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <ROOT/RVec.hxx>
@@ -28,7 +27,7 @@ void FarDetectorTrackerCluster::init() {
   m_detector = algorithms::GeoSvc::instance().detector();
 
   if (m_cfg.readout.empty()) {
-    throw JException("Readout is empty");
+    throw std::runtime_error("Readout is empty");
   }
   try {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
@@ -43,7 +42,7 @@ void FarDetectorTrackerCluster::init() {
     }
   } catch (...) {
     error("Failed to load ID decoder for {}", m_cfg.readout);
-    throw JException("Failed to load ID decoder");
+    throw std::runtime_error("Failed to load ID decoder");
   }
 }
 
