@@ -36,6 +36,7 @@
 #include <filesystem>
 #include <functional>
 #include <initializer_list>
+#include <stdexcept>
 #include <type_traits>
 
 #include "ActsGeometryProvider.h"
