@@ -18,11 +18,10 @@
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDRec/CellIDPositionConverter.h>
-#include <DDSegmentation/Segmentation.h>
-#include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/CartesianGridUV.h>
+#include <DDSegmentation/MultiSegmentation.h>
+#include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 // Access "algorithms:GeoSvc"
@@ -36,9 +35,10 @@
 #include <Eigen/Core>
 #include <cmath>
 #include <exception>
-#include <initializer_list>
+#include <stdexcept>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "ActsGeometryProvider.h"
 
