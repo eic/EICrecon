@@ -49,6 +49,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <random>
+#include <stdexcept>
 #include <unordered_map>
 #include <utility>
 #include <vector>
