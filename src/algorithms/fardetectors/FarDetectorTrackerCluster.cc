@@ -43,7 +43,7 @@ void FarDetectorTrackerCluster::init() {
     }
   } catch (...) {
     error("Failed to load ID decoder for {}", m_cfg.readout);
-    throw std::runtime_error("Failed to load ID decoder");
+    throw std::runtime_error(fmt::format("Failed to load ID decoder for {}", m_cfg.readout));
   }
 }
 
