@@ -72,7 +72,7 @@ void MPGDTrackerDigi::init() {
     m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
   } catch (...) {
     critical("Failed to load ID decoder for \"{}\" readout.", m_cfg.readout);
-    throw std::runtime_error("Failed to load ID decoder");
+    throw std::runtime_error(fmt::format("Failed to load ID decoder for \"{}\" readout.", m_cfg.readout));
   }
   // Method "process" relies on a strict assumption on the IDDescriptor:
   // - Must have a "strip" field.
@@ -82,7 +82,7 @@ void MPGDTrackerDigi::init() {
     critical(R"(Missing or invalid "strip" field in IDDescriptor for "{}"
         readout.)",
              m_cfg.readout);
-    throw std::runtime_error("Invalid IDDescriptor");
+    throw std::runtime_error(fmt::format("Invalid IDDescriptor for \"{}\" readout.", m_cfg.readout));
   }
   debug(R"(Find valid "strip" field in IDDescriptor for "{}" readout.)", m_cfg.readout);
 }
