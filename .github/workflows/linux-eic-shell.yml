@@ -69,6 +69,8 @@ jobs:
     runs-on: ubuntu-24.04
     needs: env
     strategy:
+      # continue testing builds even if one fails
+      fail-fast: false
       # include multiple compilers for one release version,
       # and one compiler for a range of release versions
       matrix:
