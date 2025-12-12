@@ -342,7 +342,7 @@ macro(plugin_add_irt _name)
   list(TRANSFORM IRT_INTERFACE_INCLUDE_DIRECTORIES REPLACE "/IRT2$" "")
   list(REMOVE_DUPLICATES IRT_INTERFACE_INCLUDE_DIRECTORIES)
   set_target_properties(IRT2 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
-                                       "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
+                                        "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
 
   plugin_link_libraries(${PLUGIN_NAME} IRT2)
 

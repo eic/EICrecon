@@ -304,7 +304,8 @@ if(CXX_COMPILER_HAS_gz)
   set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -gz")
 endif()
 
-set( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-c++11-narrowing -Wno-error=c++11-narrowing")
+set(CMAKE_CXX_FLAGS
+    "${CMAKE_CXX_FLAGS} -Wno-c++11-narrowing -Wno-error=c++11-narrowing")
 include_directories($ENV{EIC_SHELL_PREFIX}/include BEFORE)
 
 add_subdirectory(src/services)
@@ -315,7 +316,7 @@ add_subdirectory(src/extensions)
 add_subdirectory(src/factories)
 add_subdirectory(src/global)
 add_subdirectory(src/scripts)
-#add_subdirectory(src/tests)
+# add_subdirectory(src/tests)
 add_subdirectory(src/utilities)
 
 # Install all cmake helpers

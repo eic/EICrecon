@@ -90,7 +90,7 @@ root -l './frich-hit-map.C("frich-events.root")'
 root -l './frich-reco.C("frich-events.root")'
 ```
 
-The last command also produced 'frich-optics-with-calibrations.root' file, which contains a copy of the IRT optics dump, yet with the calibrations appended. This file can be used as an input to 'eicrecon', which can also be instructed to run thje IRT reconstruction engine internally (see the first few lines in 
+The last command also produced 'frich-optics-with-calibrations.root' file, which contains a copy of the IRT optics dump, yet with the calibrations appended. This file can be used as an input to 'eicrecon', which can also be instructed to run thje IRT reconstruction engine internally (see the first few lines in
 frich-reco-integrated.json).
 
 ```
