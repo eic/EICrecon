@@ -556,6 +556,4 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   }
 }
 
-void JEventProcessorPODIO::Finish() {
-  m_writer->finish();
-}
+void JEventProcessorPODIO::Finish() { m_writer->finish(); }
