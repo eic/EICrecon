@@ -16,6 +16,7 @@
 #include <fmt/core.h>
 #include <cstddef>
 #include <gsl/pointers>
+#include <stdexcept>
 
 #include "algorithms/fardetectors/FarDetectorTrackerCluster.h"
 #include "algorithms/fardetectors/FarDetectorTrackerClusterConfig.h"
