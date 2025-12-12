@@ -1,9 +1,9 @@
-# Custom LINK_WHAT_YOU_USE check script for EICrecon This script wraps the
-# default ldd -u -r check to log output to a file
+# Custom LINK_WHAT_YOU_USE check script for EICrecon which wraps the
+# default `ldd -u -r` check to log output to a file
 
-# Arguments passed by CMake: CMAKE invokes: cmake -DOUTPUT_DIR=... -P
-# script.cmake <binary_file> The binary file is the last argument after all -D
-# flags
+# Arguments passed by CMake: cmake -D OUTPUT_DIR=... -P script.cmake <binary_file>
+#
+# The binary file is the last argument after all -D flags
 
 # Find the last argument (the binary file) using CMAKE_ARGC
 if(CMAKE_ARGC GREATER 0)

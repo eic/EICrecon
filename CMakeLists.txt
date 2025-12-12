@@ -126,7 +126,7 @@ if(ENABLE_LINK_WHAT_YOU_USE)
   # Set output directory for LINK_WHAT_YOU_USE logs
   set(LINK_WHAT_YOU_USE_OUTPUT_DIR "${CMAKE_BINARY_DIR}/link_what_you_use_logs")
 
-  # Set up custom check script for better output control CMake will append the
+  # Set up custom check script for better output control; CMake will append the
   # binary file path as the last argument
   set(CMAKE_LINK_WHAT_YOU_USE_CHECK
       "${CMAKE_COMMAND}" "-DOUTPUT_DIR=${LINK_WHAT_YOU_USE_OUTPUT_DIR}" -P
