@@ -8,7 +8,11 @@
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
+#include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
+#else
 #include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
+#endif
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Visualization/ViewConfig.hpp>
 #include <DD4hep/Detector.h>
