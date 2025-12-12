@@ -52,9 +52,8 @@ Or run directly (requires Acts library path):
 The utility prints one line showing the `EIGEN_MALLOC_ALREADY_ALIGNED` value:
 - `EIGEN_MALLOC_ALREADY_ALIGNED=0` - Uses handmade_aligned_malloc/handmade_aligned_free
 - `EIGEN_MALLOC_ALREADY_ALIGNED=1` - Uses system malloc/free
-- `EIGEN_MALLOC_ALREADY_ALIGNED=<not set>` - Auto-detection mode
 
-The exit code equals the value (0 or 1), or 255 if not explicitly set.
+The exit code equals the detected value (0 or 1). If an error occurs (e.g., allocation failure), the exit code is 255.
 
 ## Automatic Configuration
 
