@@ -397,14 +397,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
-  std::string output_include_collections = "DEPRECATED";
-  japp->SetDefaultParameter("podio:output_include_collections", output_include_collections,
-                            "DEPRECATED. Use podio:output_collections instead.");
-  if (output_include_collections != "DEPRECATED") {
-    output_collections.clear();
-    JParameterManager::Parse(output_include_collections, output_collections);
-    m_output_include_collections_set = true;
-  }
   japp->SetDefaultParameter(
       "podio:output_collections", output_collections,
       "Comma separated list of collection names to write out. If not set, all collections will be "
@@ -427,15 +419,6 @@ void JEventProcessorPODIO::Init() {
   auto* app = GetApplication();
   m_log     = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
   m_writer  = std::make_unique<podio::ROOTWriter>(m_output_file);
-  // TODO: NWB: Verify that output file is writable NOW, rather than after event processing completes.
-  //       I definitely don't trust PODIO to do this for me.
-
-  if (m_output_include_collections_set) {
-    m_log->error("The podio:output_include_collections was provided, but is deprecated. Use "
-                 "podio:output_collections instead.");
-    throw std::runtime_error("The podio:output_include_collections was provided, but is "
-                             "deprecated. Use podio:output_collections instead.");
-  }
 }
 
 void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JEvent>& event) {
@@ -574,12 +557,5 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
 }
 
 void JEventProcessorPODIO::Finish() {
-  if (m_output_include_collections_set) {
-    m_log->error("The podio:output_include_collections was provided, but is deprecated. Use "
-                 "podio:output_collections instead.");
-    throw std::runtime_error("The podio:output_include_collections was provided, but is "
-                             "deprecated. Use podio:output_collections instead.");
-  }
-
   m_writer->finish();
 }
