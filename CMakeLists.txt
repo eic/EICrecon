@@ -116,6 +116,26 @@ if(ENABLE_CLANG_TIDY)
   endif()
 endif()
 
+# LINK_WHAT_YOU_USE support
+option(ENABLE_LINK_WHAT_YOU_USE "Enable LINK_WHAT_YOU_USE to detect unnecessary link dependencies" OFF)
+if(ENABLE_LINK_WHAT_YOU_USE)
+  message(STATUS "LINK_WHAT_YOU_USE enabled")
+  set(CMAKE_LINK_WHAT_YOU_USE TRUE)
+  
+  # Set output directory for LINK_WHAT_YOU_USE logs
+  set(LINK_WHAT_YOU_USE_OUTPUT_DIR "${CMAKE_BINARY_DIR}/link_what_you_use_logs")
+  
+  # Set up custom check script for better output control
+  # CMake will append the binary file path as the last argument
+  set(CMAKE_LINK_WHAT_YOU_USE_CHECK
+      "${CMAKE_COMMAND}"
+      "-DOUTPUT_DIR=${LINK_WHAT_YOU_USE_OUTPUT_DIR}"
+      -P
+      "${CMAKE_SOURCE_DIR}/cmake/link_what_you_use_check.cmake")
+  
+  message(STATUS "LINK_WHAT_YOU_USE logs will be written to: ${LINK_WHAT_YOU_USE_OUTPUT_DIR}")
+endif()
+
 # Enable -fPIC for all targets
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
