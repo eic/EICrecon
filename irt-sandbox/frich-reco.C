@@ -62,7 +62,7 @@ void frich_reco(const char* dfname, const char* cfname = 0) {
 
   // Perform pre-calibration; second argument: statistics to use (default: all events);
   reco->PerformCalibration(200);
-  // Export a modifed optics file, with the newly created calibrations included;
+  // Export a modified optics file, with the newly created calibrations included;
   reco->ExportModifiedOpticsFile("frich-optics-with-calibrations.root");
 
   // Run a bare IRT reconstruction engine loop; ring finder launched in GetNextEvent();
