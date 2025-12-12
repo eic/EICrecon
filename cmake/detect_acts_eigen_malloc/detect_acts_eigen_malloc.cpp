@@ -24,14 +24,14 @@
 typedef void* (*aligned_malloc_func)(std::size_t);
 
 int main(int argc, char** argv) {
-  // We need the Acts library path to be passed or we find it
+  // Require the Acts library path to be passed as an argument
   const char* acts_lib = nullptr;
 
   if (argc > 1) {
     acts_lib = argv[1];
   } else {
-    // Try to find it through environment or default paths
-    acts_lib = "libActsCore.so";
+    std::cerr << "Usage: " << argv[0] << " /full/path/to/libActsCore.so" << std::endl;
+    return 254;
   }
 
   // Load Acts library
