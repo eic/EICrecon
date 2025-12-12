@@ -23,6 +23,10 @@ endif()
 # Get absolute path of binary
 get_filename_component(BINARY_FILE "${BINARY_FILE}" ABSOLUTE)
 
+# Check that the binary file exists before proceeding
+if(NOT EXISTS "${BINARY_FILE}")
+  message(FATAL_ERROR "Binary file does not exist: ${BINARY_FILE}")
+endif()
 # Use the passed output directory
 if(NOT DEFINED OUTPUT_DIR OR OUTPUT_DIR STREQUAL "")
   get_filename_component(OUTPUT_DIR "${BINARY_FILE}" DIRECTORY)
