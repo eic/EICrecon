@@ -9,7 +9,7 @@ Eigen's memory allocation behavior changes based on:
 2. Platform characteristics (64-bit, glibc version, etc.)
 3. Explicit configuration via `-DEIGEN_MALLOC_ALREADY_ALIGNED=X`
 
-When `EIGEN_MALLOC_ALREADY_ALIGNED=0`, Eigen uses `handmade_aligned_malloc/free`.
+When `EIGEN_MALLOC_ALREADY_ALIGNED=0`, Eigen uses `handmade_aligned_malloc/handmade_aligned_free`.
 When `EIGEN_MALLOC_ALREADY_ALIGNED=1`, Eigen uses system `malloc/free`.
 
 **The issue**: If EICrecon is compiled with different settings than Acts, you can get allocation/deallocation mismatches leading to crashes or ASan errors.
@@ -50,7 +50,7 @@ Or run directly (requires Acts library path):
 ## Output
 
 The utility prints one line showing the `EIGEN_MALLOC_ALREADY_ALIGNED` value:
-- `EIGEN_MALLOC_ALREADY_ALIGNED=0` - Uses handmade_aligned_malloc/free
+- `EIGEN_MALLOC_ALREADY_ALIGNED=0` - Uses handmade_aligned_malloc/handmade_aligned_free
 - `EIGEN_MALLOC_ALREADY_ALIGNED=1` - Uses system malloc/free
 - `EIGEN_MALLOC_ALREADY_ALIGNED=<not set>` - Auto-detection mode
 
