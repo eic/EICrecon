@@ -14,8 +14,7 @@ plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
 plugin_add_dd4hep(${PLUGIN_NAME})
-plugin_add_event_model(${PLUGIN_NAME})
-plugin_add_onnxruntime(${PLUGIN_NAME})
+plugin_add_jana(${PLUGIN_NAME})
 
 # Add include directories (works same as target_include_directories)
 # plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC ... )
