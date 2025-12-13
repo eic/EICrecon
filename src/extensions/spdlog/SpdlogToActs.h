@@ -20,7 +20,6 @@
 #include <spdlog/fmt/fmt.h>
 
 #include <Acts/Utilities/Logger.hpp>
-#include <JANA/JException.h>
 
 namespace eicrecon {
 
@@ -39,7 +38,7 @@ inline Acts::Logging::Level SpdlogToActsLevel(spdlog::level::level_enum input) {
   } catch (...) {
     auto err_msg =
         fmt::format("SpdlogToActsLevel don't know this log level: '{}'", fmt::underlying(input));
-    throw JException(err_msg);
+    throw std::runtime_error(err_msg);
   }
 }
 
@@ -49,7 +48,7 @@ inline spdlog::level::level_enum ActsToSpdlogLevel(Acts::Logging::Level input) {
   } catch (...) {
     auto err_msg =
         fmt::format("ActsToSpdlogLevel don't know this log level: '{}'", fmt::underlying(input));
-    throw JException(err_msg);
+    throw std::runtime_error(err_msg);
   }
 }
 
