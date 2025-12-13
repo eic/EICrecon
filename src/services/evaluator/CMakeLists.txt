@@ -9,6 +9,7 @@ plugin_add(${PLUGIN_NAME} WITH_SHARED_LIBRARY)
 
 # Find dependencies
 plugin_add_cern_root(${PLUGIN_NAME})
+plugin_add_jana(${PLUGIN_NAME})
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp Then
 # correctly sets sources for ${_name}_plugin and ${_name}_library targets Adds
