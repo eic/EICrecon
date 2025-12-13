@@ -1,6 +1,8 @@
 # For podio < 1.3, generate datamodel files with Python script
 if(podio_VERSION VERSION_LESS "1.3")
-  message(STATUS "Using legacy Python-based datamodel glue for podio ${podio_VERSION}")
+  message(
+    STATUS "Using legacy Python-based datamodel glue for podio ${podio_VERSION}"
+  )
 
   # Get properties at configuration evaluation time. The `$<TARGET_PROPERTY`
   # generator expression would include multiple additional paths from transitive
@@ -15,12 +17,12 @@ if(podio_VERSION VERSION_LESS "1.3")
       ${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}/edm4eic/EDM4eicVersion.h)
   if(${EDM4HEP_VERSION} VERSION_GREATER_EQUAL "0.9")
     list(APPEND EDM_VERSION_INCLUDES
-        ${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}/edm4hep/EDM4hepVersion.h)
+         ${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}/edm4hep/EDM4hepVersion.h)
   endif()
 
   # Get relative source dir
   file(RELATIVE_PATH DATAMODEL_RELATIVE_PATH ${PROJECT_SOURCE_DIR}/src
-      ${CMAKE_CURRENT_SOURCE_DIR})
+       ${CMAKE_CURRENT_SOURCE_DIR})
 
   # Generate the datamodel header files.
   add_custom_command(
@@ -53,9 +55,8 @@ else()
   message(STATUS "Using modern C++ datamodel glue for podio ${podio_VERSION}")
 
   # Just create an interface target
-  add_custom_target(
-    podio_datamodel_glue
-    COMMENT "Using modern datamodel glue headers")
+  add_custom_target(podio_datamodel_glue
+                    COMMENT "Using modern datamodel glue headers")
 
 endif()
 

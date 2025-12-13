@@ -10,9 +10,9 @@
 #include <podio/podioVersion.h>
 
 #if defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
-#  if (podio_VERSION_MAJOR > 1) || (podio_VERSION_MAJOR == 1 && podio_VERSION_MINOR >= 3)
-#    define USE_MODERN_PODIO_GLUE 1
-#  endif
+#if (podio_VERSION_MAJOR > 1) || (podio_VERSION_MAJOR == 1 && podio_VERSION_MINOR >= 3)
+#define USE_MODERN_PODIO_GLUE 1
+#endif
 #endif
 
 #ifdef USE_MODERN_PODIO_GLUE
