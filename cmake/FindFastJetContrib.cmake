@@ -4,6 +4,16 @@
 # FJCONTRIB_LIBRARY FJCONTRIB_LIBRARIES (not cached) FJCONTRIB_LIBRARY_DIRS (not
 # cached)
 
+# Allow user to specify FASTJET_ROOT as a hint
+if(NOT DEFINED FASTJET_ROOT)
+  set(FASTJET_ROOT "")
+endif()
+
+# Allow user to specify FASTJET_ROOT_DIR as a hint
+if(NOT DEFINED FASTJET_ROOT_DIR)
+  set(FASTJET_ROOT_DIR "")
+endif()
+
 find_path(FJCONTRIB_INCLUDE_DIR fastjet/contrib/Centauro.hh
           HINTS $ENV{FASTJET_ROOT}/include ${FASTJET_ROOT_DIR}/include)
 
@@ -20,6 +30,7 @@ find_package_handle_standard_args(FastJetContrib DEFAULT_MSG
 
 mark_as_advanced(FJCONTRIB_FOUND FJCONTRIB_INCLUDE_DIR FJCONTRIB_LIBRARY)
 
-set(FJCONTRIB_INCLUDE_DIRS ${FJCONTRIB_INCLUDE_DIR})
-set(FJCONTRIB_LIBRARIES ${FJCONTRIB_LIBRARY})
+set(FJCONTRIB_INCLUDE_DIRS ${FJCONTRIB_INCLUDE_DIR} CACHE STRING "FastJet Contrib include directories")
+set(FJCONTRIB_LIBRARIES ${FJCONTRIB_LIBRARY} CACHE STRING "FastJet Contrib libraries")
 get_filename_component(FJCONTRIB_LIBRARY_DIRS ${FJCONTRIB_LIBRARY} PATH)
+mark_as_advanced(FJCONTRIB_INCLUDE_DIRS FJCONTRIB_LIBRARIES)

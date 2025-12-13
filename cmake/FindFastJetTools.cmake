@@ -4,6 +4,16 @@
 # FJTOOLS_LIBRARY FJTOOLS_LIBRARIES (not cached) FJTOOLS_LIBRARY_DIRS (not
 # cached)
 
+# Allow user to specify FASTJET_ROOT as a hint
+if(NOT DEFINED FASTJET_ROOT)
+  set(FASTJET_ROOT "")
+endif()
+
+# Allow user to specify FASTJET_ROOT_DIR as a hint
+if(NOT DEFINED FASTJET_ROOT_DIR)
+  set(FASTJET_ROOT_DIR "")
+endif()
+
 find_path(FJTOOLS_INCLUDE_DIR fastjet/tools/BackgroundEstimatorBase.hh
           HINTS $ENV{FASTJET_ROOT}/include ${FASTJET_ROOT_DIR}/include)
 
@@ -20,6 +30,7 @@ find_package_handle_standard_args(FastJetTools DEFAULT_MSG FJTOOLS_INCLUDE_DIR
 
 mark_as_advanced(FJTOOLS_FOUND FJTOOLS_INCLUDE_DIR FJTOOLS_LIBRARY)
 
-set(FJTOOLS_INCLUDE_DIRS ${FJTOOLS_INCLUDE_DIR})
-set(FJTOOLS_LIBRARIES ${FJTOOLS_LIBRARY})
+set(FJTOOLS_INCLUDE_DIRS ${FJTOOLS_INCLUDE_DIR} CACHE STRING "FastJet Tools include directories")
+set(FJTOOLS_LIBRARIES ${FJTOOLS_LIBRARY} CACHE STRING "FastJet Tools libraries")
 get_filename_component(FJTOOLS_LIBRARY_DIRS ${FJTOOLS_LIBRARY} PATH)
+mark_as_advanced(FJTOOLS_INCLUDE_DIRS FJTOOLS_LIBRARIES)
