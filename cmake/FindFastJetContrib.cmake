@@ -30,7 +30,11 @@ find_package_handle_standard_args(FastJetContrib DEFAULT_MSG
 
 mark_as_advanced(FJCONTRIB_FOUND FJCONTRIB_INCLUDE_DIR FJCONTRIB_LIBRARY)
 
-set(FJCONTRIB_INCLUDE_DIRS ${FJCONTRIB_INCLUDE_DIR} CACHE STRING "FastJet Contrib include directories")
-set(FJCONTRIB_LIBRARIES ${FJCONTRIB_LIBRARY} CACHE STRING "FastJet Contrib libraries")
+set(FJCONTRIB_INCLUDE_DIRS
+    ${FJCONTRIB_INCLUDE_DIR}
+    CACHE STRING "FastJet Contrib include directories")
+set(FJCONTRIB_LIBRARIES
+    ${FJCONTRIB_LIBRARY}
+    CACHE STRING "FastJet Contrib libraries")
 get_filename_component(FJCONTRIB_LIBRARY_DIRS ${FJCONTRIB_LIBRARY} PATH)
 mark_as_advanced(FJCONTRIB_INCLUDE_DIRS FJCONTRIB_LIBRARIES)
