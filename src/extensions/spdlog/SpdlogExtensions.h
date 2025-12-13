@@ -59,7 +59,7 @@ inline std::string LogLevelToString(spdlog::level::level_enum input) {
   }
 
   auto err_msg =
-      fmt::format("ParseLogLevel don't know this log level: '{}'", fmt::underlying(input));
+      fmt::format("LogLevelToString doesn't know this log level: '{}'", fmt::underlying(input));
   throw std::runtime_error(err_msg);
 }
 } // namespace eicrecon
