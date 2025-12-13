@@ -1,48 +1,63 @@
-# Get properties at configuration evaluation time. The `$<TARGET_PROPERTY`
-# generator expression would include multiple additional paths from transitive
-# dependencies such as PODIO and ROOT.
-get_target_property(EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES EDM4HEP::edm4hep
-                    INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES EDM4EIC::edm4eic
-                    INTERFACE_INCLUDE_DIRECTORIES)
+# For podio < 1.3, generate datamodel files with Python script
+if(podio_VERSION VERSION_LESS "1.3")
+  message(STATUS "Using legacy Python-based datamodel glue for podio ${podio_VERSION}")
 
-# Get the datamodel version headers
-set(EDM_VERSION_INCLUDES
-    ${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}/edm4eic/EDM4eicVersion.h)
-if(${EDM4HEP_VERSION} VERSION_GREATER_EQUAL "0.9")
-  list(APPEND EDM_VERSION_INCLUDES
-       ${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}/edm4hep/EDM4hepVersion.h)
+  # Get properties at configuration evaluation time. The `$<TARGET_PROPERTY`
+  # generator expression would include multiple additional paths from transitive
+  # dependencies such as PODIO and ROOT.
+  get_target_property(EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES EDM4HEP::edm4hep
+                      INTERFACE_INCLUDE_DIRECTORIES)
+  get_target_property(EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES EDM4EIC::edm4eic
+                      INTERFACE_INCLUDE_DIRECTORIES)
+
+  # Get the datamodel version headers
+  set(EDM_VERSION_INCLUDES
+      ${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}/edm4eic/EDM4eicVersion.h)
+  if(${EDM4HEP_VERSION} VERSION_GREATER_EQUAL "0.9")
+    list(APPEND EDM_VERSION_INCLUDES
+        ${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}/edm4hep/EDM4hepVersion.h)
+  endif()
+
+  # Get relative source dir
+  file(RELATIVE_PATH DATAMODEL_RELATIVE_PATH ${PROJECT_SOURCE_DIR}/src
+      ${CMAKE_CURRENT_SOURCE_DIR})
+
+  # Generate the datamodel header files.
+  add_custom_command(
+    OUTPUT
+      ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue_legacy.h
+      ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_includes_legacy.h
+    COMMAND
+      python3 ${CMAKE_CURRENT_SOURCE_DIR}/make_datamodel_glue.py
+      WORKING_DIR=${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}
+      EDM4HEP_INCLUDE_DIR=${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}
+      EDM4EIC_INCLUDE_DIR=${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}
+    MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/make_datamodel_glue.py
+    DEPENDS ${EDM_VERSION_INCLUDES}
+    COMMENT "Create legacy datamodel glue headers")
+  add_custom_target(
+    podio_datamodel_glue
+    DEPENDS
+      ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
+    COMMENT "Create legacy datamodel glue headers")
+
+  # Install datamodel_glue headers
+  install(
+    FILES
+      ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue_legacy.h
+      ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_includes_legacy.h
+    DESTINATION
+      ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${DATAMODEL_RELATIVE_PATH})
+
+else()
+  message(STATUS "Using modern C++ datamodel glue for podio ${podio_VERSION}")
+
+  # Just create an interface target
+  add_custom_target(
+    podio_datamodel_glue
+    COMMENT "Using modern datamodel glue headers")
+
 endif()
-
-# Get relative source dir
-file(RELATIVE_PATH DATAMODEL_RELATIVE_PATH ${PROJECT_SOURCE_DIR}/src
-     ${CMAKE_CURRENT_SOURCE_DIR})
-
-# Generate the datamodel header files.
-add_custom_command(
-  OUTPUT
-    ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
-    ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_includes.h
-  COMMAND
-    python3 ${CMAKE_CURRENT_SOURCE_DIR}/make_datamodel_glue.py
-    WORKING_DIR=${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}
-    EDM4HEP_INCLUDE_DIR=${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}
-    EDM4EIC_INCLUDE_DIR=${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}
-  MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/make_datamodel_glue.py
-  DEPENDS ${EDM_VERSION_INCLUDES}
-  COMMENT "Create datamodel glue headers")
-add_custom_target(
-  podio_datamodel_glue
-  DEPENDS
-    ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
-  COMMENT "Create datamodel glue headers")
-
-# Install datamodel_glue header
-install(
-  FILES
-    ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
-  DESTINATION
-    ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${DATAMODEL_RELATIVE_PATH})
 
 # Automatically set plugin name the same as the directory name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
