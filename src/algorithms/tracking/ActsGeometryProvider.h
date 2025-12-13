@@ -32,7 +32,7 @@ namespace dd4hep::rec {
 class Surface;
 }
 
-// Forward declare and alias DD4hepFieldAdapter for different Acts versions
+// Alias DD4hepFieldAdapter for different Acts versions
 #if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
 using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
 #else
