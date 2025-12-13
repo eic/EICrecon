@@ -32,12 +32,14 @@ namespace dd4hep::rec {
 class Surface;
 }
 
-// Alias DD4hepFieldAdapter for different Acts versions
+// Alias DD4hepFieldAdapter for different Acts versions, placed in eicrecon namespace to avoid global conflicts
+namespace eicrecon {
 #if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
 using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
 #else
 using DD4hepFieldAdapter = Acts::DD4hepFieldAdapter;
 #endif
+} // namespace eicrecon
 
 /** Draw the surfaces and save to obj file.
  *  This is useful for debugging the ACTS geometry. The obj file can
