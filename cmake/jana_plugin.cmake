@@ -11,11 +11,6 @@ macro(_plugin_common_target_properties _target)
     ${_target}
     PUBLIC spdlog::spdlog
     PRIVATE fmt::fmt Microsoft.GSL::GSL)
-
-  # Ensure datamodel headers are available
-  if(TARGET podio_datamodel_glue)
-    add_dependencies(${_target} podio_datamodel_glue)
-  endif()
 endmacro()
 
 # Common macro to add plugins
@@ -241,6 +236,13 @@ macro(plugin_add_jana _name)
       PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
               "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
               "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
+  endif(${_name}_WITH_PLUGIN)
+
+  # Ensure datamodel headers are available (only plugins)
+  if(${_name}_WITH_PLUGIN)
+    if(TARGET podio_datamodel_glue)
+      add_dependencies(${_name}_plugin podio_datamodel_glue)
+    endif()
   endif(${_name}_WITH_PLUGIN)
 
   plugin_link_libraries(${_name} ${JANA_LIB})
