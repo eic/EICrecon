@@ -11,6 +11,7 @@ plugin_add(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
+plugin_add_jana(${PLUGIN_NAME})
 
 # The macro grabs sources as *.cc *.cpp *.c and headers as *.h *.hh *.hpp Then
 # correctly sets sources for ${_name}_plugin and ${_name}_library targets Adds
