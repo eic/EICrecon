@@ -29,7 +29,7 @@
 #include <utility>
 #include <vector>
 
-#include "services/io/podio/datamodel_glue_compat.h" // IWYU pragma: keep
+#include "services/io/podio/datamodel_glue_compat.h"     // IWYU pragma: keep
 #include "services/io/podio/datamodel_includes_compat.h" // IWYU pragma: keep
 #include "services/log/Log_service.h"
 
