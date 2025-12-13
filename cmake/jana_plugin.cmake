@@ -372,19 +372,19 @@ macro(plugin_add_irt2 _name)
     if(IRT2_FOUND)
       if(${_name}_WITH_LIBRARY)
         target_compile_definitions(
-          ${PLUGIN_NAME}_library
+          ${_name}_library
           PRIVATE "IRT2_VERSION_MAJOR=${IRT2_VERSION_MAJOR}"
                   "IRT2_VERSION_MINOR=${IRT2_VERSION_MINOR}"
                   "IRT2_VERSION_PATCH=${IRT2_VERSION_PATCH}")
       endif()
       if(${_name}_WITH_PLUGIN)
         target_compile_definitions(
-          ${PLUGIN_NAME}_plugin
+          ${_name}_plugin
           PRIVATE "IRT2_VERSION_MAJOR=${IRT2_VERSION_MAJOR}"
                   "IRT2_VERSION_MINOR=${IRT2_VERSION_MINOR}"
                   "IRT2_VERSION_PATCH=${IRT2_VERSION_PATCH}")
       endif()
-      plugin_link_libraries(${PLUGIN_NAME} IRT2)
+      plugin_link_libraries(${_name} IRT2)
     endif()
   endif()
 
