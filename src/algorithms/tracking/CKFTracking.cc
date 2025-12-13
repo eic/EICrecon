@@ -13,7 +13,6 @@
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
-// IWYU pragma: no_include "Acts/Utilities/detail/ContainerIterator.hpp"
 #if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #endif
@@ -85,6 +84,8 @@
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
+
+// IWYU pragma: no_include "Acts/Utilities/detail/ContainerIterator.hpp"
 
 namespace eicrecon {
 
