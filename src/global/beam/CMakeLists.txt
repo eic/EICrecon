@@ -14,6 +14,7 @@ plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
 plugin_add_algorithms(${PLUGIN_NAME})
+plugin_add_cern_root(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 
 # Add libraries
