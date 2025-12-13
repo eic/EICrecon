@@ -106,7 +106,7 @@ private:
   VolumeSurfaceMap m_surfaces;
 
   /// Acts magnetic field
-  std::shared_ptr<const DD4hepFieldAdapter> m_magneticField = nullptr;
+  std::shared_ptr<const eicrecon::DD4hepFieldAdapter> m_magneticField = nullptr;
 
   ///  ACTS general logger that is used for running ACTS
   std::shared_ptr<spdlog::logger> m_log;
