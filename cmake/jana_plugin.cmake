@@ -115,7 +115,9 @@ macro(plugin_add_dependencies _name)
   endif(${_name}_WITH_LIBRARY)
 endmacro()
 
-# target_link_libraries for both a plugin and a library
+# target_link_libraries for both a plugin and a library (PRIVATE visibility for
+# plugins and PUBLIC visibility for libraries). Do not include visibility
+# keywords (PUBLIC/PRIVATE/INTERFACE) in the arguments
 macro(plugin_link_libraries _name)
   if(${_name}_WITH_PLUGIN)
     target_link_libraries(${_name}_plugin PRIVATE ${ARGN})
