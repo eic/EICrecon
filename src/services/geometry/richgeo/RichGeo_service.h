@@ -26,7 +26,6 @@ public:
   virtual const dd4hep::Detector* GetDD4hepGeo() { return m_dd4hepGeo; };
 
   // return pointers to geometry bindings; initializes the bindings upon the first time called
-  //virtual richgeo::IrtGeo* GetIrtGeo(std::string detector_name);
   virtual const richgeo::ActsGeo* GetActsGeo(std::string detector_name);
   virtual std::shared_ptr<richgeo::ReadoutGeo> GetReadoutGeo(std::string detector_name,
                                                              std::string readout_class);
