@@ -15,7 +15,6 @@
 #include <string>
 
 #include "ActsGeo.h"
-//#include "IrtGeo.h"
 #include "ReadoutGeo.h"
 
 class RichGeo_service : public JService {
