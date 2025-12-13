@@ -40,7 +40,7 @@ if(podio_VERSION VERSION_LESS "1.3")
   add_custom_target(
     podio_datamodel_glue
     DEPENDS
-      ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue.h
+      ${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}/datamodel_glue_legacy.h
     COMMENT "Create legacy datamodel glue headers")
 
   # Install datamodel_glue headers
