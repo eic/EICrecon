@@ -6,6 +6,7 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
+#include <stdexcept>
 
 namespace eicrecon {
 inline spdlog::level::level_enum ParseLogLevel(const std::string& input) {
