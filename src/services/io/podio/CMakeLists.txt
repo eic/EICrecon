@@ -59,7 +59,7 @@ else()
                     COMMENT "Using modern datamodel glue headers")
 
 endif()
-
+# Note that compatibility and modern datamodel glue headers are installed by the logic in plugin_glob_all.
 # Automatically set plugin name the same as the directory name
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
