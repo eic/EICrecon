@@ -101,7 +101,6 @@ std::shared_ptr<richgeo::ReadoutGeo> RichGeo_service::GetReadoutGeo(std::string 
 // Destructor --------------------------------------------------------
 RichGeo_service::~RichGeo_service() {
   try {
-    //delete m_irtGeo;
     delete m_actsGeo;
   } catch (...) {
   }
