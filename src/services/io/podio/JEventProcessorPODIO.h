@@ -27,7 +27,6 @@ public:
   std::mutex m_mutex;
   std::once_flag m_is_first_event;
   std::shared_ptr<spdlog::logger> m_log;
-  bool m_output_include_collections_set = false;
 
   std::string m_output_file          = "podio_output.root";
   std::string m_output_file_copy_dir = "";
