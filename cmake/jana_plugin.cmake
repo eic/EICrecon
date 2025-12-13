@@ -10,10 +10,12 @@ macro(_plugin_common_target_properties _target)
   target_include_directories(${_target} SYSTEM PUBLIC ${JANA_INCLUDE_DIR})
   target_link_libraries(
     ${_target}
+    PUBLIC
     ${JANA_LIB}
     podio::podio
     podio::podioRootIO
     spdlog::spdlog
+    PRIVATE
     fmt::fmt
     Microsoft.GSL::GSL)
 
@@ -100,10 +102,10 @@ macro(plugin_add _name)
   if(${_name}_WITH_LIBRARY AND ${_name}_WITH_PLUGIN)
     # Ensure that whenever a plugin is loaded its library is loaded as well
     if(CXX_LINKER_HAS_no_as_needed)
-      target_link_libraries(${_name}_plugin
+      target_link_libraries(${_name}_plugin PRIVATE
                             $<LINK_LIBRARY:NO_AS_NEEDED,${_name}_library>)
     else()
-      target_link_libraries(${_name}_plugin ${_name}_library)
+      target_link_libraries(${_name}_plugin PRIVATE ${_name}_library)
     endif()
   endif()
 endmacro()
@@ -122,11 +124,11 @@ endmacro()
 # target_link_libraries for both a plugin and a library
 macro(plugin_link_libraries _name)
   if(${_name}_WITH_PLUGIN)
-    target_link_libraries(${_name}_plugin ${ARGN})
+    target_link_libraries(${_name}_plugin PRIVATE ${ARGN})
   endif(${_name}_WITH_PLUGIN)
 
   if(${_name}_WITH_LIBRARY)
-    target_link_libraries(${_name}_library ${ARGN})
+    target_link_libraries(${_name}_library PUBLIC ${ARGN})
   endif(${_name}_WITH_LIBRARY)
 endmacro()
 
