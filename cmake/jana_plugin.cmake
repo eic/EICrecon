@@ -7,17 +7,10 @@ macro(_plugin_common_target_properties _target)
     ${_target}
     PUBLIC $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
-  target_include_directories(${_target} SYSTEM PUBLIC ${JANA_INCLUDE_DIR})
   target_link_libraries(
     ${_target}
-    PUBLIC ${JANA_LIB} podio::podio podio::podioRootIO spdlog::spdlog
+    PUBLIC spdlog::spdlog
     PRIVATE fmt::fmt Microsoft.GSL::GSL)
-
-  target_compile_definitions(
-    ${_target}
-    PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
-            "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
-            "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
 
   # Ensure datamodel headers are available
   if(TARGET podio_datamodel_glue)
@@ -233,6 +226,23 @@ macro(plugin_glob_all _name)
   message(VERBOSE
           "plugin_glob_all:${_name}: PLUGIN_RLTV_PATH ${PLUGIN_RELATIVE_PATH}")
 
+endmacro()
+
+# Adds JANA for a plugin
+macro(plugin_add_jana _name)
+  if(NOT JANA_FOUND)
+    find_package(JANA ${JANA_VERSION_MIN} REQUIRED)
+  endif()
+
+  if(${_name}_WITH_PLUGIN)
+    target_compile_definitions(
+      ${_name}_plugin
+      PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
+              "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
+              "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
+  endif(${_name}_WITH_PLUGIN)
+
+  plugin_link_libraries(${_name} ${JANA_LIBRARIES})
 endmacro()
 
 # Adds algorithms for a plugin
