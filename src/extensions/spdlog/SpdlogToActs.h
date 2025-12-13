@@ -37,7 +37,7 @@ inline Acts::Logging::Level SpdlogToActsLevel(spdlog::level::level_enum input) {
     return kSpdlogToActsLevel.left.at(input);
   } catch (...) {
     auto err_msg =
-        fmt::format("SpdlogToActsLevel don't know this log level: '{}'", fmt::underlying(input));
+        fmt::format("SpdlogToActsLevel doesn't know this log level: '{}'", fmt::underlying(input));
     throw std::runtime_error(err_msg);
   }
 }
@@ -47,7 +47,7 @@ inline spdlog::level::level_enum ActsToSpdlogLevel(Acts::Logging::Level input) {
     return kSpdlogToActsLevel.right.at(input);
   } catch (...) {
     auto err_msg =
-        fmt::format("ActsToSpdlogLevel don't know this log level: '{}'", fmt::underlying(input));
+        fmt::format("ActsToSpdlogLevel doesn't know this log level: '{}'", fmt::underlying(input));
     throw std::runtime_error(err_msg);
   }
 }
