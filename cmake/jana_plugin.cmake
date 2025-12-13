@@ -243,7 +243,7 @@ macro(plugin_add_jana _name)
               "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
   endif(${_name}_WITH_PLUGIN)
 
-  plugin_link_libraries(${_name} ${JANA_LIBRARIES})
+  plugin_link_libraries(${_name} ${JANA_LIB})
 endmacro()
 
 # Adds algorithms for a plugin
