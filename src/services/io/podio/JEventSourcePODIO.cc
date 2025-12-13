@@ -13,6 +13,7 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <TObject.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
@@ -28,7 +29,7 @@
 #include <utility>
 #include <vector>
 
-#include "services/io/podio/datamodel_glue_compat.h"
+#include "services/io/podio/datamodel_glue_compat.h"     // IWYU pragma: keep
 #include "services/io/podio/datamodel_includes_compat.h" // IWYU pragma: keep
 #include "services/log/Log_service.h"
 
