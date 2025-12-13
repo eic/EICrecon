@@ -9,6 +9,7 @@
 #include <stdexcept>
 #include <string_view>
 #include <map>
+#include <type_traits>
 #include <podio/CollectionBase.h>
 #include <podio/utilities/TypeHelpers.h>
 
@@ -31,6 +32,8 @@ private:
 
   template <typename CollectionT>
   static void visitCollection(Visitor& visitor, const podio::CollectionBase& collection) {
+    static_assert(std::is_base_of_v<podio::CollectionBase, CollectionT>,
+                  "CollectionT must be derived from podio::CollectionBase");
     visitor(*static_cast<const CollectionT*>(&collection));
   }
 
