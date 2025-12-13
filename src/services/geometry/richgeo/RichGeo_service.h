@@ -41,7 +41,7 @@ private:
 
   const dd4hep::Detector* m_dd4hepGeo                     = nullptr;
   const dd4hep::rec::CellIDPositionConverter* m_converter = nullptr;
-  richgeo::ActsGeo* m_actsGeo = nullptr;
+  richgeo::ActsGeo* m_actsGeo                             = nullptr;
   std::shared_ptr<richgeo::ReadoutGeo> m_readoutGeo;
 
   std::shared_ptr<spdlog::logger> m_log;
