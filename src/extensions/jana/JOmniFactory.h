@@ -19,7 +19,7 @@
 #include <spdlog/mdc.h>
 #endif
 
-#include "services/io/podio/datamodel_glue.h"
+#include "services/io/podio/datamodel_glue_compat.h"
 #include "services/log/Log_service.h"
 
 #include <string>
