@@ -15,6 +15,7 @@
 #include <boost/bimap.hpp>
 
 #include <regex>
+#include <stdexcept>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
