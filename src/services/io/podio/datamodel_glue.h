@@ -79,8 +79,15 @@ template <typename Visitor> struct VisitPodioCollection {
     if (it != visitorMap.getMap().end()) {
       it->second(visitor, collection);
     } else {
-      throw std::runtime_error(std::string("Unrecognized podio typename: ") +
-                               std::string(typeName));
+      throw std::runtime_error(
+        std::string("Unrecognized podio typename: ") + std::string(typeName) +
+        ".\nThis type was not found in the supported datamodels (EDM4hep, EDM4eic).\n"
+        "Possible causes:\n"
+        "  - The type is not defined in EDM4hep or EDM4eic datamodels.\n"
+        "  - You may be using an incompatible or outdated version of the datamodels.\n"
+        "  - There may be a typo in the type name.\n"
+        "Please check your datamodel installation and ensure you are using compatible versions."
+      );
     }
   }
 };
