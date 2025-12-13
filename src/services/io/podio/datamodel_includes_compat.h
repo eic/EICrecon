@@ -17,8 +17,8 @@
 
 #ifdef USE_MODERN_PODIO_GLUE
 // Use umbrella headers for modern podio
-#include "services/io/podio/datamodel_includes.h"
+#include "services/io/podio/datamodel_includes.h" // IWYU pragma: export
 #else
 // Legacy Python-generated includes
-#include "services/io/podio/datamodel_includes_legacy.h"
+#include "services/io/podio/datamodel_includes_legacy.h" // IWYU pragma: export
 #endif
