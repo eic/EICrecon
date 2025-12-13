@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
