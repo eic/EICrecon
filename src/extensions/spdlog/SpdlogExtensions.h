@@ -6,7 +6,6 @@
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
-#include <JANA/JException.h>
 
 namespace eicrecon {
 inline spdlog::level::level_enum ParseLogLevel(const std::string& input) {
@@ -32,7 +31,7 @@ inline spdlog::level::level_enum ParseLogLevel(const std::string& input) {
     return spdlog::level::off;
 
   auto err_msg = fmt::format("ParseLogLevel can't parse input string: '{}'", input);
-  throw JException(err_msg);
+  throw std::runtime_error(err_msg);
 }
 
 inline std::string LogLevelToString(spdlog::level::level_enum input) {
@@ -61,6 +60,6 @@ inline std::string LogLevelToString(spdlog::level::level_enum input) {
 
   auto err_msg =
       fmt::format("ParseLogLevel don't know this log level: '{}'", fmt::underlying(input));
-  throw JException(err_msg);
+  throw std::runtime_error(err_msg);
 }
 } // namespace eicrecon
