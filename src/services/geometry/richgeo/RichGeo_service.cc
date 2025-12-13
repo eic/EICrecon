@@ -11,9 +11,6 @@
 
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/geometry/richgeo/ActsGeo.h"
-//#include "services/geometry/richgeo/IrtGeo.h"
-//#include "services/geometry/richgeo/IrtGeoDRICH.h"
-//#include "services/geometry/richgeo/IrtGeoPFRICH.h"
 #include "services/geometry/richgeo/ReadoutGeo.h"
 #include "services/log/Log_service.h"
 
