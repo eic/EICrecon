@@ -328,12 +328,12 @@ macro(plugin_add_acts _name)
   if(${_name}_WITH_LIBRARY)
     target_compile_definitions(
       ${_name}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
-                                     "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
+                               "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
   endif()
   if(${_name}_WITH_PLUGIN)
     target_compile_definitions(
       ${_name}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
-                                    "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
+                              "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
   endif()
 
 endmacro()
@@ -384,8 +384,7 @@ macro(plugin_add_event_model _name)
 
   # Add libraries (same as target_include_directories but for both plugin and
   # library)
-  plugin_link_libraries(${_name} podio::podio EDM4EIC::edm4eic
-                        EDM4HEP::edm4hep)
+  plugin_link_libraries(${_name} podio::podio EDM4EIC::edm4eic EDM4HEP::edm4hep)
 
 endmacro()
 
@@ -409,8 +408,7 @@ macro(plugin_add_fastjet _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${_name} SYSTEM PUBLIC
-                             ${FASTJET_INCLUDE_DIRS})
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${FASTJET_INCLUDE_DIRS})
 
   # Add libraries
   plugin_link_libraries(${_name} ${FASTJET_LIBRARIES})
@@ -425,8 +423,7 @@ macro(plugin_add_fastjettools _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${_name} SYSTEM PUBLIC
-                             ${FJTOOLS_INCLUDE_DIRS})
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${FJTOOLS_INCLUDE_DIRS})
 
   # Add libraries
   plugin_link_libraries(${_name} ${FJTOOLS_LIBRARIES})
@@ -441,8 +438,7 @@ macro(plugin_add_fastjetcontrib _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${_name} SYSTEM PUBLIC
-                             ${FJCONTRIB_INCLUDE_DIRS})
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${FJCONTRIB_INCLUDE_DIRS})
 
   # Add libraries
   plugin_link_libraries(${_name} ${FJCONTRIB_LIBRARIES})
