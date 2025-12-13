@@ -21,6 +21,7 @@ plugin_link_libraries(
   EDM4HEP::edm4hepDict
   EDM4EIC::edm4eic
   EDM4EIC::edm4eic_utils
+  podio::podio
   podio::podioIO
   $<TARGET_NAME_IF_EXISTS:Acts::PluginPodio>
   $<TARGET_NAME_IF_EXISTS:ActsPodioEdm>
