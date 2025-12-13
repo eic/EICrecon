@@ -28,7 +28,10 @@
 #include "DD4hepBField.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-class ActsGeometryProvider;
+// Forward declaration
+namespace eicrecon {
+class ActsDD4hepDetector;
+}
 
 namespace eicrecon {
 
@@ -76,8 +79,7 @@ public:
 
   CKFTracking();
 
-  void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-            std::shared_ptr<spdlog::logger> log);
+  void init(std::shared_ptr<spdlog::logger> log);
 
   std::tuple<std::vector<ActsExamples::Trajectories*>,
              std::vector<ActsExamples::ConstTrackContainer*>>
@@ -88,7 +90,7 @@ private:
   std::shared_ptr<spdlog::logger> m_log;
   std::shared_ptr<const Acts::Logger> m_acts_logger{nullptr};
   std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector;
 
   std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
   Acts::GeometryContext m_geoctx;

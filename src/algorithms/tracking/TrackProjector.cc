@@ -36,10 +36,7 @@ template <> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_forma
 
 namespace eicrecon {
 
-void TrackProjector::init() {
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
-  m_geo_provider   = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
-}
+void TrackProjector::init() { m_acts_detector = algorithms::ActsSvc::instance().detector(); }
 
 void TrackProjector::process(const Input& input, const Output& output) const {
   const auto [acts_trajectories, tracks] = input;
@@ -98,15 +95,15 @@ void TrackProjector::process(const Input& input, const Output& output) const {
 
       // convert local to global
       auto global = trackstate.referenceSurface().localToGlobal(
-          m_geo_provider->getActsGeometryContext(),
+          m_acts_detector->geometryContext(),
           {boundParams[Acts::eBoundLoc0], boundParams[Acts::eBoundLoc1]},
           Acts::makeDirectionFromPhiTheta(boundParams[Acts::eBoundPhi],
                                           boundParams[Acts::eBoundTheta]));
 
       auto freeParams = Acts::transformBoundToFreeParameters(
-          trackstate.referenceSurface(), m_geo_provider->getActsGeometryContext(), boundParams);
+          trackstate.referenceSurface(), m_acts_detector->geometryContext(), boundParams);
       auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
-          m_geo_provider->getActsGeometryContext(), freeParams.template segment<3>(Acts::eFreePos0),
+          m_acts_detector->geometryContext(), freeParams.template segment<3>(Acts::eFreePos0),
           freeParams.template segment<3>(Acts::eFreeDir0));
       auto freeCov = jacobian * boundCov * jacobian.transpose();
 

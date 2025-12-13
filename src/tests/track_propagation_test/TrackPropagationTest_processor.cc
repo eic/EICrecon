@@ -24,9 +24,8 @@
 #include <vector>
 
 #include "TrackPropagationTest_processor.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 //------------------
 // Init
@@ -36,6 +35,9 @@ void TrackPropagationTest_processor::Init() {
 
   // Get JANA application
   auto* app = GetApplication();
+
+  // Ensure algorithms services are initialized (including ActsSvc)
+  app->GetService<AlgorithmsInit_service>();
 
   // Ask service locator a file to write histograms to
   auto root_file_service = app->GetService<RootFile_service>();
@@ -52,10 +54,8 @@ void TrackPropagationTest_processor::Init() {
   // Get log level from user parameter or default
   InitLogger(app, plugin_name);
 
-  auto dd4hep_service = GetApplication()->GetService<DD4hep_service>();
-  auto acts_service   = GetApplication()->GetService<ACTSGeo_service>();
-
-  m_propagation_algo.init(dd4hep_service->detector(), acts_service->actsGeoProvider(), logger());
+  // Note: TrackPropagation gets DD4hep geometry via algorithms::GeoSvc internally
+  m_propagation_algo.init(logger());
 
   // Create HCal surface that will be used for propagation
   auto transform = Acts::Transform3::Identity();

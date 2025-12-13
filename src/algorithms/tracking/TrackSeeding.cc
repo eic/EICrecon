@@ -250,7 +250,7 @@ void TrackSeeding::addToTrackParams(edm4eic::TrackParametersCollection& trackpar
     Acts::Vector2 localpos;
     Acts::Vector3 direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 
-    auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
+    auto local = perigee->globalToLocal(m_acts_detector->geometryContext(), global, direction);
 
     if (!local.ok()) {
       continue;

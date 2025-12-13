@@ -13,24 +13,27 @@
 #include <vector>
 
 #include "ActsExamples/EventData/Trajectories.hpp"
-#include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
 #include "IterativeVertexFinderConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+// Forward declaration
+namespace eicrecon {
+class ActsDD4hepDetector;
+}
 
 namespace eicrecon {
 class IterativeVertexFinder
     : public eicrecon::WithPodConfig<eicrecon::IterativeVertexFinderConfig> {
 public:
-  void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-            std::shared_ptr<spdlog::logger> log);
+  void init(std::shared_ptr<spdlog::logger> log);
   std::unique_ptr<edm4eic::VertexCollection>
   produce(std::vector<const ActsExamples::Trajectories*> trajectories,
           const edm4eic::ReconstructedParticleCollection* reconParticles);
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector;
 
   std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
   Acts::GeometryContext m_geoctx;

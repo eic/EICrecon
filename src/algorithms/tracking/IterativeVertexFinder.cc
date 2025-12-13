@@ -3,6 +3,8 @@
 //
 
 #include "IterativeVertexFinder.h"
+#include "ActsDD4hepDetector.h"
+#include "algorithms/interfaces/ActsSvc.h"
 
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
@@ -42,15 +44,13 @@
 
 #include "extensions/spdlog/SpdlogToActs.h"
 
-void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                                           std::shared_ptr<spdlog::logger> log) {
+void eicrecon::IterativeVertexFinder::init(std::shared_ptr<spdlog::logger> log) {
 
-  m_log = log;
-
-  m_geoSvc = geo_svc;
+  m_log           = log;
+  m_acts_detector = algorithms::ActsSvc::instance().detector();
 
   m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
+      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_acts_detector->field());
   m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
 }
 
