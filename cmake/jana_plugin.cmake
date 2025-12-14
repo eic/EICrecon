@@ -238,12 +238,15 @@ macro(plugin_add_jana _name)
               "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
   endif(${_name}_WITH_PLUGIN)
 
-  # Ensure datamodel headers are available (only plugins)
-  if(${_name}_WITH_PLUGIN)
-    if(TARGET podio_datamodel_glue)
+  # Ensure datamodel headers are available
+  if(TARGET podio_datamodel_glue)
+    if(${_name}_WITH_PLUGIN)
       add_dependencies(${_name}_plugin podio_datamodel_glue)
     endif()
-  endif(${_name}_WITH_PLUGIN)
+    if(${_name}_WITH_LIBRARY)
+      add_dependencies(${_name}_library podio_datamodel_glue)
+    endif()
+  endif()
 
   plugin_link_libraries(${_name} ${JANA_LIB})
 endmacro()
@@ -383,6 +386,16 @@ macro(plugin_add_event_model _name)
   plugin_include_directories(
     ${_name} PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
+
+  # Ensure datamodel headers are available
+  if(TARGET podio_datamodel_glue)
+    if(${_name}_WITH_PLUGIN)
+      add_dependencies(${_name}_plugin podio_datamodel_glue)
+    endif()
+    if(${_name}_WITH_LIBRARY)
+      add_dependencies(${_name}_library podio_datamodel_glue)
+    endif()
+  endif()
 
   # Add libraries (same as target_include_directories but for both plugin and
   # library)
