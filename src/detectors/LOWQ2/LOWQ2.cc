@@ -162,6 +162,7 @@ void InitPlugin(JApplication* app) {
             .layer_hits_max       = 200,
             .chi2_max             = 0.001,
             .n_layer              = 4,
+            .layer_weights        = {1.0, 1.0, 1.0, 1.0},
             .restrict_direction   = true,
             .optimum_theta        = -M_PI + 0.026,
             .optimum_phi          = 0,
