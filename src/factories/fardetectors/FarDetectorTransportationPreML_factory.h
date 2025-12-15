@@ -5,6 +5,7 @@
 
 #include "algorithms/fardetectors/FarDetectorTransportationPreML.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
+#include "services/io/podio/PodioRunFrame_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
@@ -30,8 +31,16 @@ private:
   ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron",
                                            config().requireBeamElectron};
 
+  Service<PodioRunFrame_service> m_runFrameService{this};
+
 public:
   void Configure() {
+    // Try to get electron_beam_energy from run metadata
+    if (auto beamEnergy = m_runFrameService().GetParameter<double>("electron_beam_energy")) {
+      config().beamE = static_cast<float>(*beamEnergy);
+      logger()->info("Using electron_beam_energy from run metadata: {} GeV", config().beamE);
+    }
+
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());

@@ -8,11 +8,13 @@
 
 #include "JEventProcessorPODIO.h"
 #include "JEventSourcePODIO.h"
+#include "PodioRunFrame_service.h"
 
 // Make this a JANA plugin
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
+  app->ProvideService(std::make_shared<PodioRunFrame_service>(app));
   app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
 
   // Disable this behavior for now so one can run eicrecon with only the

@@ -31,6 +31,7 @@
 // These files are generated automatically by make_datamodel_glue.py
 #include "services/io/podio/datamodel_glue.h"
 #include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
+#include "PodioRunFrame_service.h"
 #include "services/log/Log_service.h"
 
 // Formatter for podio::version::Version
@@ -79,6 +80,9 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
 
   // Get Logger
   m_log = GetApplication()->GetService<Log_service>()->logger("JEventSourcePODIO");
+
+  // Make the run-frame service available to downstream factories
+  m_run_frame_service = GetApplication()->GetService<PodioRunFrame_service>();
 
   // Tell JANA that we want it to call the FinishEvent() method.
   // EnableFinishEvent();
@@ -153,6 +157,14 @@ void JEventSourcePODIO::Open() {
 
     if (print_type_table) {
       PrintCollectionTypeTable();
+    }
+
+    // Cache run metadata once and publish it through the service for factory use
+    if (!m_cached_run_frame) {
+      m_cached_run_frame = GetRunMetadataFrame();
+    }
+    if (m_run_frame_service && m_cached_run_frame) {
+      m_run_frame_service->SetRunFrame(m_cached_run_frame);
     }
 
   } catch (std::exception& e) {
