@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2025 Dongwi H. Dongwi (Bishoy)
+
 #pragma once
 
 #include <Acts/Definitions/Units.hpp>
