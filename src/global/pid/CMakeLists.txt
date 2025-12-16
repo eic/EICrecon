@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
 # Automatically set plugin name the same as the directory name Don't forget
 # string(REPLACE " " "_" PLUGIN_NAME ${PLUGIN_NAME}) if this dir has spaces in
 # its name
