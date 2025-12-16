@@ -33,6 +33,9 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+
 env:
   # inputs doesn't always exist, so we make sure env does
   platform: ${{ inputs.platform || 'eic_xl' }}
@@ -115,7 +118,7 @@ jobs:
             CMAKE_BUILD_TYPE: Release
             release: 25.05.0-stable
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         filter: "tree:0"
     - name: Prepare ccache timestamp
@@ -123,7 +126,7 @@ jobs:
       run: |
         echo "timestamp=$(date --iso-8601=minutes)" >> $GITHUB_OUTPUT
     - name: Retrieve ccache cache files
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: .ccache
         key: ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.head_ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
@@ -178,14 +181,14 @@ jobs:
       run: tar -caf install.tar.zst install/
     - name: Upload install directory (ASAN)
       if: ${{ matrix.USE_ASAN == 'ON' && matrix.USE_TSAN == 'OFF' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-ASAN
         path: install.tar.zst
         if-no-files-found: error
     - name: Upload install directory (TSAN)
       if: ${{ matrix.USE_ASAN == 'OFF' && matrix.USE_TSAN == 'ON' }}
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-TSAN
         path: install.tar.zst
@@ -196,7 +199,7 @@ jobs:
       run: tar -caf build.tar.zst build/
     - name: Upload build directory
       if: matrix.CXX == env.clang-tidy-iwyu-CXX && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: build-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
         path: build.tar.zst
@@ -205,13 +208,16 @@ jobs:
   clang-tidy-iwyu:
     runs-on: ubuntu-24.04
     needs: build
+    permissions:
+      contents: write  # for peter-evans/create-pull-request to push fixes
+      pull-requests: write  # for commenting and creating PRs
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         filter: "tree:0"
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Download build artifact
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: build-${{ env.clang-tidy-iwyu-CXX }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
         path: .
@@ -242,7 +248,7 @@ jobs:
         run: |
           run-clang-tidy -p build -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20'
     - name: Upload clang-tidy fixes as artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: clang-tidy-fixes.yaml
         path: clang_tidy_fixes.yaml
@@ -281,7 +287,7 @@ jobs:
           git diff | tee iwyu_fixes.patch
     - name: Create Pull Request
       id: create-pull-request
-      uses: peter-evans/create-pull-request@v7
+      uses: peter-evans/create-pull-request@v8
       if: ${{ github.event_name == 'pull_request' && github.actor != 'dependabot[bot]' }}
       with:
         token: ${{ secrets.EIC_EICRECON_PULL_REQUESTS_READ_WRITE }}
@@ -304,7 +310,7 @@ jobs:
           [1]: https://github.com/peter-evans/create-pull-request
         assignees: ${{ github.event.pull_request.user.login }}
     - name: Upload iwyu patch as artifact
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: iwyu_fixes.patch
         path: iwyu_fixes.patch
@@ -321,11 +327,11 @@ jobs:
     permissions:
       statuses: write
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         filter: "tree:0"
     - name: Download build artifact
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: build-${{ env.clang-tidy-iwyu-CXX }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
         path: .
@@ -369,7 +375,7 @@ jobs:
           -instr-profile=src/tests/algorithms_test/algorithms_test.profdata \
           -output-dir=codecov_report -format=html \
           "${COV_OPTIONS[@]}"
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: codecov_report
         path: build/codecov_report/
@@ -402,7 +408,7 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         key: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root-${{ needs.detector-info.outputs.hash }}
@@ -414,7 +420,7 @@ jobs:
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -G --random.seed 1 --gun.particle "${{ matrix.particle }}-" --gun.momentumMin "1*GeV" --gun.momentumMax "20*GeV" --gun.distribution "uniform" -N 100 --outputFile sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -v WARNING
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
@@ -429,13 +435,13 @@ jobs:
         particle: [e]
         detector_config: [ip6_extended]
     steps:
-    - uses: actions/checkout@v5
+    - uses: actions/checkout@v6
       with:
         filter: "tree:0"
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
         key: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root-${{ needs.detector-info.outputs.hash }}
@@ -448,7 +454,7 @@ jobs:
         run: |
           python src/tests/LUMISPECCAL_test/TwoElectronsTopCAL.py genParticles.hepmc
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml --inputFiles genParticles.hepmc --random.seed 1 --outputFile sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -N 100 -v WARNING
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
         path: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
@@ -471,7 +477,7 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
         key: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root-${{ needs.detector-info.outputs.hash }}
@@ -484,7 +490,7 @@ jobs:
         run: |
           url=root://dtn-eic.jlab.org//volatile/eic/EPIC/EVGEN/DIS/NC/${{matrix.beam}}/minQ2=${{matrix.minq2}}/pythia8NCDIS_${{matrix.beam}}_minQ2=${{matrix.minq2}}_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -v WARNING
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
         path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
@@ -507,7 +513,7 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root
         key: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root-${{ needs.detector-info.outputs.hash }}
@@ -520,7 +526,7 @@ jobs:
         run: |
           url=root://dtn-eic.jlab.org//volatile/eic/EPIC/EVGEN/SIDIS/pythia6-eic/1.0.0/${{matrix.beam}}/q2_0to1/pythia_ep_noradcor_${{matrix.beam}}_q2_0.000000001_1.0_run1.ab.hepmc3.tree.root
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root -v WARNING
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root
         path: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root
@@ -533,22 +539,22 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [g++]
+        CXX: [clang++]
         particle: [e]
         detector_config: [craterlake]
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - name: Download simulation input
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - name: Setup cvmfs
@@ -564,7 +570,7 @@ jobs:
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EventHeader,MCParticles,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload digitization output
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -580,7 +586,7 @@ jobs:
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EcalBarrelClusters,EcalBarrelClusterAssociations -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload reconstruction output
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -593,7 +599,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [g++]
+        CXX: [clang++]
         particle: [e]
         detector_config: [craterlake]
         test_plugins:
@@ -602,16 +608,16 @@ jobs:
         - track_propagation_test
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -625,7 +631,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Pplugins=${{ matrix.test_plugins }} -Phistsfile=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.test_plugins }}.hists.root
@@ -638,7 +644,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [g++]
+        CXX: [clang++]
         particle: [e]
         detector_config: [craterlake]
         benchmark_plugins:
@@ -648,16 +654,16 @@ jobs:
         - tracking_occupancy
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -671,7 +677,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Pplugins=${{ matrix.benchmark_plugins }} -Phistsfile=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.benchmark_plugins }}.hists.root -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.benchmark_plugins }}.hists.root
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}_${{ matrix.benchmark_plugins }}.hists.root
@@ -689,16 +695,16 @@ jobs:
         detector_config: [craterlake]
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -723,12 +729,12 @@ jobs:
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           prmon --json-summary rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json -- \
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups) -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json
         path: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json
@@ -743,12 +749,12 @@ jobs:
           sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' *.dot | dot -Tsvg > jana.svg
           mv jana.svg rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.svg
       continue-on-error: true
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
         path: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
         if-no-files-found: error
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
         path: |
@@ -779,7 +785,7 @@ jobs:
           capybara bara ref/*rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new/rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
           mv capybara-reports rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
           touch .rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.capy
         path: |
@@ -799,16 +805,16 @@ jobs:
         detector_config: [ip6_extended]
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -822,7 +828,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups) -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
         path: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
@@ -837,12 +843,12 @@ jobs:
           sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' *.dot | dot -Tsvg > jana.svg
           mv jana.svg rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.svg
       continue-on-error: true
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
         path: ${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
         if-no-files-found: error
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
         path: |
@@ -899,16 +905,16 @@ jobs:
           nthreads: 4
     steps:
     - name: Checkout .github
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-${{ matrix.sanitizer }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: sim_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -925,12 +931,12 @@ jobs:
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           prmon --json-summary rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json -- \
           $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{matrix.nthreads > 1 && format('-Pnthreads={0}', matrix.nthreads) || ''}} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups)
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
         path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
         if-no-files-found: error
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json
         path: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json
@@ -945,21 +951,21 @@ jobs:
           sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' *.dot | dot -Tsvg > jana.svg
           mv jana.svg rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.svg
       continue-on-error: true
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
         path: |
           *.dot
           *.svg
         if-no-files-found: error
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: obj_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
         path: |
           *.mtl
           *.obj
         if-no-files-found: error
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: ply_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
         path: |
@@ -989,7 +995,7 @@ jobs:
           capybara bara ref/*rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root new/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
           mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
           touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.capy
         path: |
@@ -1013,12 +1019,12 @@ jobs:
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Download single-threaded artifact
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         path: single/
     - name: Download multi-threaded artifact
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_MT.edm4eic.root
         path: multi/
@@ -1033,7 +1039,7 @@ jobs:
                         multi/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_MT.edm4eic.root
           mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT
           touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT
-    - uses: actions/upload-artifact@v5
+    - uses: actions/upload-artifact@v6
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT.capy
         path: |
@@ -1046,6 +1052,8 @@ jobs:
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}
     needs:
     - build
+    permissions:
+      statuses: write  # for posting commit status via gh api
     outputs:
       json: ${{ steps.trigger.outputs.json }}
     steps:
@@ -1082,7 +1090,7 @@ jobs:
       - eicrecon-dis
       - compare-single-multi-threaded
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
       - name: Copy docs
         run: |
           cp -r docs publishing_docs
@@ -1092,27 +1100,27 @@ jobs:
           sudo apt install doxygen graphviz
           doxygen Doxyfile
           mv html publishing_docs/doxygen
-      - uses: actions/upload-artifact/merge@v5
+      - uses: actions/upload-artifact/merge@v6
         with:
           name: jana.dot
           pattern: |
             *.dot
           delete-merged: true
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: jana.dot
           path: publishing_docs/dot/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: e_craterlake_flags.json
           path: publishing_docs/
-      - uses: actions/upload-artifact/merge@v5
+      - uses: actions/upload-artifact/merge@v6
         with:
           name: capybara
           pattern: |
             *.capy
           delete-merged: true
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: docs
           path: publishing_docs/
@@ -1142,7 +1150,7 @@ jobs:
           workflow_conclusion: "completed"
           if_no_artifact_found: ignore
       - name: Download docs artifact (this PR)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         if: github.event.pull_request.number == matrix.pr
         with:
           name: docs
@@ -1159,14 +1167,14 @@ jobs:
           workflow_conclusion: "completed"
           if_no_artifact_found: ignore
       - name: Download capybara artifact (this PR)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         if: github.event.pull_request.number == matrix.pr
         with:
           name: capybara
           path: publishing_docs/pr/${{ matrix.pr }}/capybara/
       - name: Remove doxygen in PR
         run: rm -rf publishing_docs/pr/*/doxygen
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: github-pages-staging-pr-${{ matrix.pr }}
           path: publishing_docs/
@@ -1191,7 +1199,7 @@ jobs:
           workflow_conclusion: "completed"
           if_no_artifact_found: fail
       - name: Download docs artifact (on main)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         if: github.ref_name == 'main'
         with:
           name: docs
@@ -1208,7 +1216,7 @@ jobs:
           workflow_conclusion: "completed"
           if_no_artifact_found: ignore
       - name: Download capybara artifact (on main)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         if: github.ref_name == 'main'
         with:
           name: capybara
@@ -1223,7 +1231,7 @@ jobs:
         if: github.ref_name == 'main'
         run: |
           cat publishing_docs/capybara/index.md >> $GITHUB_STEP_SUMMARY
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v6
         with:
           name: github-pages-staging-main
           path: publishing_docs/
@@ -1236,14 +1244,14 @@ jobs:
       - get-docs-from-open-prs
     steps:
       - name: Merge GitHub Pages staging artifact
-        uses: actions/upload-artifact/merge@v5
+        uses: actions/upload-artifact/merge@v6
         with:
           name: github-pages-staging
           pattern: |
             github-pages-staging-*
           delete-merged: true
       - name: Download GitHub Pages staging artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: github-pages-staging
           path: publishing_docs/
@@ -1273,7 +1281,7 @@ jobs:
           cat capybara_${{ github.event.pull_request.number }}.md >> $GITHUB_STEP_SUMMARY
       - name: Upload capybara summary
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: capybara_${{ github.event.pull_request.number }}.md
           path: capybara_${{ github.event.pull_request.number }}.md
@@ -1303,7 +1311,7 @@ jobs:
           body-includes: Capybara summary
       - name: Fetch capybara summary
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: capybara_${{ github.event.pull_request.number }}.md
       - name: Create or update capybara comment
