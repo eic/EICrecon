@@ -126,7 +126,7 @@ jobs:
       run: |
         echo "timestamp=$(date --iso-8601=minutes)" >> $GITHUB_OUTPUT
     - name: Retrieve ccache cache files
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: .ccache
         key: ccache-${{ matrix.CXX }}-${{ matrix.release }}-${{ matrix.CMAKE_BUILD_TYPE }}-${{matrix.USE_ASAN}}-${{matrix.USE_TSAN}}-${{ github.head_ref || github.ref_name }}-${{ steps.ccache_cache_timestamp.outputs.timestamp }}
@@ -408,7 +408,7 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
         key: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root-${{ needs.detector-info.outputs.hash }}
@@ -441,7 +441,7 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
         key: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root-${{ needs.detector-info.outputs.hash }}
@@ -477,7 +477,7 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
         key: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root-${{ needs.detector-info.outputs.hash }}
@@ -513,7 +513,7 @@ jobs:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Retrieve simulation files
       id: retrieve_simulation_files
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         path: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root
         key: sim_dis_${{matrix.beam}}_minQ2=0_${{ matrix.detector_config }}.edm4hep.root-${{ needs.detector-info.outputs.hash }}
