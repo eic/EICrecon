@@ -73,11 +73,11 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
     const edm4eic::ReconstructedParticleCollection& reconParticles,
     const std::vector<gsl::not_null<const ActsExamples::Trajectories*>>& trajectories,
     Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& prmVertices) const {
+  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF", m_log));
 
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF_Prim", m_log));
   // Set up propagator with void navigator
   auto propagatorSec = std::make_shared<PropagatorSec>(stepperSec, Acts::VoidNavigator{},
                                                        logger().cloneWithSuffix("Prop"));
@@ -93,7 +93,8 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
 
   // Setup the track linearizer
   LinearizerSec::Config linearizerConfigSec(m_BField, propagatorSec);
-  LinearizerSec linearizerSec(linearizerConfigSec); //,m_log);
+  std::unique_ptr<const Acts::Logger> linearizer_log = logger().cloneWithSuffix("Linearizer");
+  LinearizerSec linearizerSec(linearizerConfigSec, std::move(linearizer_log));
 
   //Staring multivertex fitter
   // Set up deterministic annealing with user-defined temperatures
@@ -239,8 +240,8 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
     const edm4eic::ReconstructedParticleCollection& reconParticles,
     const std::vector<gsl::not_null<const ActsExamples::Trajectories*>>& trajectories,
     Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& secVertices) const {
+  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF", m_log));
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("SVF", m_log));
   // Set-up the propagator
   using PropagatorSec = Acts::Propagator<Acts::EigenStepper<>>;
 
@@ -259,7 +260,6 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
 
   // Setup the track linearizer
   LinearizerSec::Config linearizerConfigSec(m_BField, propagatorSec);
-  // make sure you use a std::unique_ptr as needed
   std::unique_ptr<const Acts::Logger> linearizer_log = logger().cloneWithSuffix("Linearizer");
   LinearizerSec linearizerSec(linearizerConfigSec, std::move(linearizer_log));
 
@@ -283,6 +283,7 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   VertexFitterSec vertexFitterSec(std::move(vertexFitterConfigSec));
 
   // Set up vertex seeder and finder
+  using seedFinder = Acts::AdaptiveGridDensityVertexFinder;
   std::shared_ptr<const Acts::IVertexFinder> seeder;
   seedFinder::Config seederConfig(trkDensity);
   seederConfig.extractParameters.connect<&Acts::InputTrack::extractParameters>();
@@ -320,9 +321,9 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   vertexfinderConfigSec.bField = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
       std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
 #endif
-  VertexFinderSec vertexfinderSec(std::move(vertexfinderConfigSec));
+  VertexFinderSec finder(std::move(vertexfinderConfigSec));
   // Instantiate the finder
-  auto stateSec = vertexfinderSec.makeState(m_fieldctx);
+  auto stateSec = finder.makeState(m_fieldctx);
 
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
 
@@ -348,7 +349,7 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
       }
       // run the vertex finder for both tracks
       std::vector<Acts::Vertex> verticesSec;
-      auto resultSecondary = vertexfinderSec.find(inputTracks, vfOptions, stateSec);
+      auto resultSecondary = finder.find(inputTracks, vfOptions, stateSec);
       if (resultSecondary.ok()) {
         verticesSec = std::move(resultSecondary.value());
       }
