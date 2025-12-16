@@ -32,6 +32,7 @@ private:
   PodioOutput<edm4eic::MCRecoTrackParticleAssociation> m_tracks_association_output{this};
 
   ParameterRef<std::size_t> n_layer{this, "numLayers", config().n_layer};
+  ParameterRef<std::vector<double>> layer_weights{this, "layerWeights", config().layer_weights};
   ParameterRef<std::size_t> layer_hits_max{this, "layerHitsMax", config().layer_hits_max};
   ParameterRef<float> chi2_max{this, "chi2Max", config().chi2_max};
 
