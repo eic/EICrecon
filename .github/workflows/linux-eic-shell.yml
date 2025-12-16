@@ -217,7 +217,7 @@ jobs:
         filter: "tree:0"
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Download build artifact
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: build-${{ env.clang-tidy-iwyu-CXX }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
         path: .
@@ -331,7 +331,7 @@ jobs:
       with:
         filter: "tree:0"
     - name: Download build artifact
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: build-${{ env.clang-tidy-iwyu-CXX }}-eic-shell-${{ env.clang-tidy-iwyu-CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ env.release }}
         path: .
@@ -548,13 +548,13 @@ jobs:
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - name: Download simulation input
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - name: Setup cvmfs
@@ -612,12 +612,12 @@ jobs:
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -658,12 +658,12 @@ jobs:
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -699,12 +699,12 @@ jobs:
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Uncompress install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -809,12 +809,12 @@ jobs:
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -909,12 +909,12 @@ jobs:
       with:
         sparse-checkout: .github
     - name: Download install directory
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-${{ matrix.sanitizer }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
-    - uses: actions/download-artifact@v6
+    - uses: actions/download-artifact@v7
       with:
         name: sim_dis_${{ matrix.beam }}_minQ2=${{ matrix.minq2 }}_${{ matrix.detector_config }}.edm4hep.root
     - uses: cvmfs-contrib/github-action-cvmfs@v5
@@ -1019,12 +1019,12 @@ jobs:
     steps:
     - uses: cvmfs-contrib/github-action-cvmfs@v5
     - name: Download single-threaded artifact
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root
         path: single/
     - name: Download multi-threaded artifact
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_MT.edm4eic.root
         path: multi/
@@ -1106,11 +1106,11 @@ jobs:
           pattern: |
             *.dot
           delete-merged: true
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: jana.dot
           path: publishing_docs/dot/
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v7
         with:
           name: e_craterlake_flags.json
           path: publishing_docs/
@@ -1150,7 +1150,7 @@ jobs:
           workflow_conclusion: "completed"
           if_no_artifact_found: ignore
       - name: Download docs artifact (this PR)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         if: github.event.pull_request.number == matrix.pr
         with:
           name: docs
@@ -1167,7 +1167,7 @@ jobs:
           workflow_conclusion: "completed"
           if_no_artifact_found: ignore
       - name: Download capybara artifact (this PR)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         if: github.event.pull_request.number == matrix.pr
         with:
           name: capybara
@@ -1199,7 +1199,7 @@ jobs:
           workflow_conclusion: "completed"
           if_no_artifact_found: fail
       - name: Download docs artifact (on main)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         if: github.ref_name == 'main'
         with:
           name: docs
@@ -1216,7 +1216,7 @@ jobs:
           workflow_conclusion: "completed"
           if_no_artifact_found: ignore
       - name: Download capybara artifact (on main)
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         if: github.ref_name == 'main'
         with:
           name: capybara
@@ -1251,7 +1251,7 @@ jobs:
             github-pages-staging-*
           delete-merged: true
       - name: Download GitHub Pages staging artifact
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: github-pages-staging
           path: publishing_docs/
@@ -1311,7 +1311,7 @@ jobs:
           body-includes: Capybara summary
       - name: Fetch capybara summary
         if: ${{ github.event_name == 'pull_request' }}
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           name: capybara_${{ github.event.pull_request.number }}.md
       - name: Create or update capybara comment
