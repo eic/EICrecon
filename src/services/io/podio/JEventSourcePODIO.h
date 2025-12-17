@@ -59,7 +59,6 @@ protected:
 private:
   std::shared_ptr<spdlog::logger> m_log;
   std::shared_ptr<PodioRunFrame_service> m_run_frame_service;
-  
 };
 
 template <> double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);
