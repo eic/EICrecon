@@ -38,8 +38,7 @@ public:
   std::shared_ptr<const podio::Frame> GetRunFrame() const;
 
   /// Get a specific collection from the run frame by type and name
-  template <typename CollT>
-  const CollT* GetCollection(const std::string& name) const {
+  template <typename CollT> const CollT* GetCollection(const std::string& name) const {
     auto frame = m_frame;
     if (!frame) {
       return nullptr;
@@ -48,8 +47,7 @@ public:
   }
 
   /// Get a parameter value from the run frame. Returns std::nullopt if frame or parameter not found.
-  template <typename T>
-  std::optional<T> GetParameter(const std::string& key) const {
+  template <typename T> std::optional<T> GetParameter(const std::string& key) const {
     if (!m_frame) {
       return std::nullopt;
     }

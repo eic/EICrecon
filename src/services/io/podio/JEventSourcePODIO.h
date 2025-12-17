@@ -59,7 +59,7 @@ protected:
 private:
   std::shared_ptr<spdlog::logger> m_log;
   std::shared_ptr<PodioRunFrame_service> m_run_frame_service;
-  
+
   // Helper method to load run metadata from the "runs" frame
   std::shared_ptr<podio::Frame> GetRunMetadataFrame();
 };

@@ -96,8 +96,9 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
                                         "Print list of collection names and their types");
 
   std::string metadata_file = "";
-  GetApplication()->SetDefaultParameter("podio:metadata_file", metadata_file,
-                                        "PODIO file to read run metadata from (default: use primary input file)");
+  GetApplication()->SetDefaultParameter(
+      "podio:metadata_file", metadata_file,
+      "PODIO file to read run metadata from (default: use primary input file)");
 
   // Hopefully we won't need to reimplement background event merging. Using podio frames, it looks like we would
   // have to do a deep copy of all data in order to insert it into the same frame, which would probably be
@@ -263,7 +264,7 @@ std::shared_ptr<podio::Frame> JEventSourcePODIO::GetRunMetadataFrame() {
 
     // Read entry 0 from the "runs" branch
     auto run_frame_data = m_reader.readEntry("runs", 0);
-    auto run_frame = std::make_shared<podio::Frame>(std::move(run_frame_data));
+    auto run_frame      = std::make_shared<podio::Frame>(std::move(run_frame_data));
 
     m_log->debug("Successfully loaded run metadata frame");
     return run_frame;
