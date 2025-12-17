@@ -8,12 +8,10 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JServiceFwd.h>
 #include <podio/Frame.h>
-#include <memory>
-#include <string>
-#include <iostream>
-#include <optional>
-#include <vector>
 #include <spdlog/logger.h>
+#include <memory>
+#include <optional>
+#include <string>
 
 /// Service that caches and shares the PODIO run metadata frame
 /// from the input file with downstream factories.
