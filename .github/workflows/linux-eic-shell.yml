@@ -113,10 +113,10 @@ jobs:
             USE_TSAN: ON
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: 25.01.1-stable
+            release: 25.05.0-stable
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: 25.05.0-stable
+            release: 25.11.2-stable
     steps:
     - uses: actions/checkout@v6
       with:
