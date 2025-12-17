@@ -20,9 +20,6 @@
 #include <Acts/Utilities/Iterator.hpp>
 #endif
 #include <Acts/Utilities/detail/ContextType.hpp>
-#if Acts_VERSION_MAJOR < 36
-#include <Acts/EventData/Measurement.hpp>
-#endif
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>
@@ -42,9 +39,7 @@
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
-#if Acts_VERSION_MAJOR >= 36
 #include <Acts/Propagator/PropagatorOptions.hpp>
-#endif
 #include <Acts/Propagator/StandardAborters.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
@@ -203,10 +198,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     auto measurement = ActsExamples::makeFixedSizeMeasurement(
         Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
     measurements->emplace_back(std::move(measurement));
-#else
-    auto measurement = Acts::makeMeasurement(Acts::SourceLink{sourceLink}, loc, cov,
-                                             Acts::eBoundLoc0, Acts::eBoundLoc1);
-    measurements->emplace_back(std::move(measurement));
 #endif
 
 #if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
@@ -248,11 +239,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("CKF", m_log, {"^No tracks found$"}));
 
-#if Acts_VERSION_MAJOR >= 36
   Acts::PropagatorPlainOptions pOptions(m_geoctx, m_fieldctx);
-#else
-  Acts::PropagatorPlainOptions pOptions;
-#endif
   pOptions.maxSteps = 10000;
 
   ActsExamples::PassThroughCalibrator pcalibrator;
@@ -260,23 +247,14 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   Acts::GainMatrixUpdater kfUpdater;
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
-#if Acts_VERSION_MAJOR >= 36
   Acts::CombinatorialKalmanFilterExtensions<ActsExamples::TrackContainer> extensions;
-#else
-  Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory> extensions;
-#endif
 #if Acts_VERSION_MAJOR < 39
   extensions.calibrator.connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
       &calibrator);
 #endif
-#if Acts_VERSION_MAJOR >= 36
   extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<
       typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&kfUpdater);
-#else
-  extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
-      &kfUpdater);
-#endif
-#if (Acts_VERSION_MAJOR >= 36) && (Acts_VERSION_MAJOR < 39)
+#if Acts_VERSION_MAJOR < 39
   extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<
       typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&measSel);
 #elif Acts_VERSION_MAJOR < 39
@@ -318,7 +296,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
                                           extensions, pOptions);
 #endif
 
-#if Acts_VERSION_MAJOR >= 36
   using Extrapolator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
 #if Acts_VERSION_MAJOR >= 37
   using ExtrapolatorOptions = Extrapolator::template Options<
@@ -333,15 +310,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
                                             logger().cloneWithSuffix("Navigator")),
                             logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(m_geoctx, m_fieldctx);
-#else
-  Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> extrapolator(
-      Acts::EigenStepper<>(m_BField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
-      logger().cloneWithSuffix("Propagator"));
-  Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>,
-                          Acts::AbortList<Acts::EndOfWorldReached>>
-      extrapolationOptions(m_geoctx, m_fieldctx);
-#endif
 
   // Create track container
   auto trackContainer      = std::make_shared<Acts::VectorTrackContainer>();
@@ -395,7 +363,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
       // collection. We'll just assume no algorithm will access them
       // directly.
       acts_tracks.removeTrack(track_index);
-#if Acts_VERSION_MAJOR < 36 || (Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR < 1)
+#if Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR < 1
       // Workaround an upstream bug in Acts::VectorTrackContainer::removeTrack_impl()
       // https://github.com/acts-project/acts/commit/94cf81f3f1109210b963977e0904516b949b1154
       trackContainer->m_particleHypothesis.erase(trackContainer->m_particleHypothesis.begin() +
