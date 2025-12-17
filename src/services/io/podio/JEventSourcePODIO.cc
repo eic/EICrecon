@@ -155,6 +155,25 @@ void JEventSourcePODIO::Open() {
       PrintCollectionTypeTable();
     }
 
+    // Try to read the run-level metadata frame from the "runs" tree (if present)
+    try {
+      auto n_runs = m_reader.getEntries("runs");
+      if (n_runs > 0) {
+        auto run_frame_data = m_reader.readEntry("runs", 0);
+        auto run_frame      = std::make_unique<podio::Frame>(std::move(run_frame_data));
+        m_run_event         = std::make_shared<JEvent>();
+        // Mark this parent as a Run-level event so clients can fetch it by level
+        m_run_event->SetLevel(JEventLevel::Run);
+        // Insert the run frame into the parent event; JEvent takes ownership
+        m_run_event->Insert(run_frame.release());
+        m_log->info("Loaded run metadata frame (runs tree) and set as parent template");
+      } else {
+        m_log->info("No 'runs' tree found; continuing without a parent run event");
+      }
+    } catch (std::exception& e) {
+      m_log->warn("Failed to read 'runs' frame: {}", e.what());
+    }
+
   } catch (std::exception& e) {
     m_log->error(e.what());
     throw JException(fmt::format("Problem opening file \"{}\"", GetResourceName()));
@@ -215,8 +234,16 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
       m_use_event_headers = false;
     } else {
       event.SetEventNumber(event_headers[0].getEventNumber());
-      event.SetRunNumber(event_headers[0].getRunNumber());
+      int32_t run_number = event_headers[0].getRunNumber();
+      if( run_number != event.GetRunNumber()){
+        event.SetRunNumber(run_number);
+      }
     }
+  }
+
+  // Attach the run-level parent event (if available) only if not already set
+  if (m_run_event && !event.HasParent(JEventLevel::Run)) {
+    event.SetParent(m_run_event.get());
   }
 
   // Insert contents odf frame into JFactories

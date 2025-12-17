@@ -17,6 +17,8 @@
 #include <sstream>
 
 #include "services/log/Log_service.h"
+#include "JEventSourcePODIO.h"
+#include <JANA/Services/JComponentManager.h>
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
   SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
@@ -546,4 +548,31 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   }
 }
 
-void JEventProcessorPODIO::Finish() { m_writer->finish(); }
+void JEventProcessorPODIO::Finish() {
+  // Attempt to write the run-level metadata frame under the 'runs' category
+  try {
+    auto* app    = GetApplication();
+    auto sources = app->GetService<JComponentManager>()->get_evt_srces();
+    const podio::Frame* runs_frame_ptr = nullptr;
+    for (auto* src : sources) {
+      if (auto* podio_src = dynamic_cast<JEventSourcePODIO*>(src)) {
+        auto run_evt = podio_src->GetRunEvent();
+        if (run_evt) {
+          runs_frame_ptr = run_evt->GetSingle<podio::Frame>();
+        }
+        break;
+      }
+    }
+    if (runs_frame_ptr != nullptr) {
+      std::lock_guard<std::mutex> lock(m_mutex);
+      m_writer->writeFrame(*runs_frame_ptr, "runs");
+      m_log->info("Wrote run metadata frame to output ('runs' tree)");
+    } else {
+      m_log->info("No run metadata frame available to write");
+    }
+  } catch (std::exception& e) {
+    m_log->warn("Failed to write runs frame: {}", e.what());
+  }
+
+  m_writer->finish();
+}
