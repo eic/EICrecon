@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <gsl/pointers>
 #include <iterator>
+#include <valarray>
 
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
