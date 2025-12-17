@@ -7,9 +7,10 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
-#include <podio/ROOTReader.h>
 #include <podio/Frame.h>
+#include <podio/ROOTReader.h>
 #include <spdlog/logger.h>
+#include <stdint.h>
 #include <cstddef>
 #include <memory>
 #include <string>
