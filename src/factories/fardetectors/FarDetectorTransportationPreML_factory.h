@@ -35,9 +35,11 @@ private:
 
 public:
   void Configure() {
+
     // Try to get electron_beam_energy from run metadata
-    if (auto beamEnergy = m_runFrameService().GetParameter<double>("electron_beam_energy")) {
+    if (auto beamEnergy = m_runFrameService().GetParameterAsDouble("electron_beam_energy")) {
       config().beamE = static_cast<float>(*beamEnergy);
+      config().set_from_metadata = true;
       logger()->info("Using electron_beam_energy from run metadata: {} GeV", config().beamE);
     }
 

@@ -95,6 +95,10 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
   GetApplication()->SetDefaultParameter("podio:print_type_table", print_type_table,
                                         "Print list of collection names and their types");
 
+  std::string metadata_file = "";
+  GetApplication()->SetDefaultParameter("podio:metadata_file", metadata_file,
+                                        "PODIO file to read run metadata from (default: use primary input file)");
+
   // Hopefully we won't need to reimplement background event merging. Using podio frames, it looks like we would
   // have to do a deep copy of all data in order to insert it into the same frame, which would probably be
   // quite inefficient.
@@ -157,14 +161,6 @@ void JEventSourcePODIO::Open() {
 
     if (print_type_table) {
       PrintCollectionTypeTable();
-    }
-
-    // Cache run metadata once and publish it through the service for factory use
-    if (!m_cached_run_frame) {
-      m_cached_run_frame = GetRunMetadataFrame();
-    }
-    if (m_run_frame_service && m_cached_run_frame) {
-      m_run_frame_service->SetRunFrame(m_cached_run_frame);
     }
 
   } catch (std::exception& e) {
@@ -244,6 +240,38 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
 #if JANA_NEW_CALLBACK_STYLE
   return Result::Success;
 #endif
+}
+
+//------------------------------------------------------------------------------
+// GetRunMetadataFrame
+//
+/// Attempt to load run-level metadata from the "runs" frame in the PODIO file.
+/// This reads the first entry of the "runs" branch and returns a frame containing
+/// GenericParameters (beam energy, detector config, etc). The result is cached
+/// and reused for the same run number to avoid re-reading.
+///
+/// \return shared_ptr to podio::Frame containing run metadata, or nullptr if unavailable
+//------------------------------------------------------------------------------
+std::shared_ptr<podio::Frame> JEventSourcePODIO::GetRunMetadataFrame() {
+  try {
+    // Try to read the first entry from the "runs" branch
+    auto runs_entries = m_reader.getEntries("runs");
+    if (runs_entries == 0) {
+      m_log->debug("No 'runs' frame found in PODIO file");
+      return nullptr;
+    }
+
+    // Read entry 0 from the "runs" branch
+    auto run_frame_data = m_reader.readEntry("runs", 0);
+    auto run_frame = std::make_shared<podio::Frame>(std::move(run_frame_data));
+
+    m_log->debug("Successfully loaded run metadata frame");
+    return run_frame;
+
+  } catch (const std::exception& e) {
+    m_log->debug("Failed to load run metadata frame: {}", e.what());
+    return nullptr;
+  }
 }
 
 //------------------------------------------------------------------------------

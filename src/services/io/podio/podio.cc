@@ -14,8 +14,8 @@
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
-  app->ProvideService(std::make_shared<PodioRunFrame_service>(app));
   app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
+  app->ProvideService(std::make_shared<PodioRunFrame_service>(app));
 
   // Disable this behavior for now so one can run eicrecon with only the
   // input file as an argument.
