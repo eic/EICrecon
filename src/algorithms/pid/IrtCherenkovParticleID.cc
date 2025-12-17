@@ -230,7 +230,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
           for (const auto& hit_assoc : *in_hit_assocs) {
             if (hit_assoc.getRawHit().isAvailable()) {
               if (hit_assoc.getRawHit().id() == raw_hit.id()) {
-                mc_photon = hit_assoc.getSimHit().getParticle();
+                mc_photon       = hit_assoc.getSimHit().getParticle();
                 mc_photon_found = true;
                 if (mc_photon.getPDG() != -22) {
                   warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());

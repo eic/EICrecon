@@ -166,7 +166,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                 auto raw_hit = hit.getRawHit();
                 for (const auto raw_hit_assoc : *raw_hit_assocs) {
                   if (raw_hit_assoc.getRawHit() == raw_hit) {
-                    auto sim_hit = raw_hit_assoc.getSimHit();
+                    auto sim_hit     = raw_hit_assoc.getSimHit();
                     auto mc_particle = sim_hit.getParticle();
                     mcparticle_weight_by_hit_count[mc_particle]++;
                   }
