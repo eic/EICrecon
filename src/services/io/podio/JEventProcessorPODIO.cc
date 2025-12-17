@@ -551,8 +551,8 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
 void JEventProcessorPODIO::Finish() {
   // Attempt to write the run-level metadata frame under the 'runs' category
   try {
-    auto* app    = GetApplication();
-    auto sources = app->GetService<JComponentManager>()->get_evt_srces();
+    auto* app                          = GetApplication();
+    auto sources                       = app->GetService<JComponentManager>()->get_evt_srces();
     const podio::Frame* runs_frame_ptr = nullptr;
     for (auto* src : sources) {
       if (auto* podio_src = dynamic_cast<JEventSourcePODIO*>(src)) {
