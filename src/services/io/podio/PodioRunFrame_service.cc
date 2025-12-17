@@ -85,7 +85,7 @@ void PodioRunFrame_service::ReadRunFrame() const {
 
     // Read the first entry from the "runs" branch
     auto run_frame_data = reader.readEntry("runs", 0);
-    m_frame = std::make_shared<podio::Frame>(std::move(run_frame_data));
+    m_frame             = std::make_shared<podio::Frame>(std::move(run_frame_data));
 
     m_log->debug("Successfully read PODIO run metadata from: {}", filename);
   } catch (const std::exception& e) {
@@ -95,10 +95,13 @@ void PodioRunFrame_service::ReadRunFrame() const {
 
 std::optional<double> PodioRunFrame_service::GetParameterAsDouble(const std::string& key) const {
   auto frame = GetRunFrame();
-  if (!frame) return std::nullopt;
+  if (!frame)
+    return std::nullopt;
 
-  if (auto d = frame->getParameter<double>(key)) return d;
-  if (auto f = frame->getParameter<float>(key)) return static_cast<double>(*f);
+  if (auto d = frame->getParameter<double>(key))
+    return d;
+  if (auto f = frame->getParameter<float>(key))
+    return static_cast<double>(*f);
   if (auto s = frame->getParameter<std::string>(key)) {
     try {
       return std::stod(*s);
@@ -107,10 +110,12 @@ std::optional<double> PodioRunFrame_service::GetParameterAsDouble(const std::str
     }
   }
   if (auto dv = frame->getParameter<std::vector<double>>(key)) {
-    if (!dv->empty()) return (*dv)[0];
+    if (!dv->empty())
+      return (*dv)[0];
   }
   if (auto fv = frame->getParameter<std::vector<float>>(key)) {
-    if (!fv->empty()) return static_cast<double>((*fv)[0]);
+    if (!fv->empty())
+      return static_cast<double>((*fv)[0]);
   }
   if (auto sv = frame->getParameter<std::vector<std::string>>(key)) {
     if (!sv->empty()) {
@@ -148,7 +153,8 @@ void PodioRunFrame_service::PrintParameters() const {
         } else {
           std::cout << "[ ";
           for (size_t j = 0; j < values[i].size(); ++j) {
-            if (j > 0) std::cout << ", ";
+            if (j > 0)
+              std::cout << ", ";
             std::cout << values[i][j];
           }
           std::cout << " ]\n";
@@ -170,7 +176,8 @@ void PodioRunFrame_service::PrintParameters() const {
         } else {
           std::cout << "[ ";
           for (size_t j = 0; j < values[i].size(); ++j) {
-            if (j > 0) std::cout << ", ";
+            if (j > 0)
+              std::cout << ", ";
             std::cout << values[i][j];
           }
           std::cout << " ]\n";
@@ -192,7 +199,8 @@ void PodioRunFrame_service::PrintParameters() const {
         } else {
           std::cout << "[ ";
           for (size_t j = 0; j < values[i].size(); ++j) {
-            if (j > 0) std::cout << ", ";
+            if (j > 0)
+              std::cout << ", ";
             std::cout << values[i][j];
           }
           std::cout << " ]\n";
@@ -214,7 +222,8 @@ void PodioRunFrame_service::PrintParameters() const {
         } else {
           std::cout << "[ ";
           for (size_t j = 0; j < values[i].size(); ++j) {
-            if (j > 0) std::cout << ", ";
+            if (j > 0)
+              std::cout << ", ";
             std::cout << '"' << values[i][j] << '"';
           }
           std::cout << " ]\n";
