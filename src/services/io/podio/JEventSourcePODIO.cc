@@ -235,7 +235,7 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
     } else {
       event.SetEventNumber(event_headers[0].getEventNumber());
       int32_t run_number = event_headers[0].getRunNumber();
-      if( run_number != event.GetRunNumber()){
+      if (run_number != event.GetRunNumber()) {
         event.SetRunNumber(run_number);
       }
     }
