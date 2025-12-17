@@ -243,38 +243,6 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
 }
 
 //------------------------------------------------------------------------------
-// GetRunMetadataFrame
-//
-/// Attempt to load run-level metadata from the "runs" frame in the PODIO file.
-/// This reads the first entry of the "runs" branch and returns a frame containing
-/// GenericParameters (beam energy, detector config, etc). The result is cached
-/// and reused for the same run number to avoid re-reading.
-///
-/// \return shared_ptr to podio::Frame containing run metadata, or nullptr if unavailable
-//------------------------------------------------------------------------------
-std::shared_ptr<podio::Frame> JEventSourcePODIO::GetRunMetadataFrame() {
-  try {
-    // Try to read the first entry from the "runs" branch
-    auto runs_entries = m_reader.getEntries("runs");
-    if (runs_entries == 0) {
-      m_log->debug("No 'runs' frame found in PODIO file");
-      return nullptr;
-    }
-
-    // Read entry 0 from the "runs" branch
-    auto run_frame_data = m_reader.readEntry("runs", 0);
-    auto run_frame = std::make_shared<podio::Frame>(std::move(run_frame_data));
-
-    m_log->debug("Successfully loaded run metadata frame");
-    return run_frame;
-
-  } catch (const std::exception& e) {
-    m_log->debug("Failed to load run metadata frame: {}", e.what());
-    return nullptr;
-  }
-}
-
-//------------------------------------------------------------------------------
 // GetDescription
 //------------------------------------------------------------------------------
 std::string JEventSourcePODIO::GetDescription() {
