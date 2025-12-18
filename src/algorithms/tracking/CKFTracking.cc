@@ -3,6 +3,19 @@
 
 #include "CKFTracking.h"
 
+#include <algorithm>
+#include <any>
+#include <array>
+#include <cstddef>
+#include <functional>
+#include <optional>
+#include <ostream>
+#include <set>
+#include <stdexcept>
+#include <string>
+#include <system_error>
+#include <utility>
+
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
@@ -63,18 +76,8 @@
 #include <fmt/format.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <algorithm>
-#include <any>
-#include <array>
-#include <cstddef>
-#include <functional>
-#include <optional>
-#include <ostream>
-#include <set>
-#include <stdexcept>
-#include <string>
-#include <system_error>
-#include <utility>
+// IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
+// IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
 #include "ActsGeometryProvider.h"
 #include "DD4hepBField.h"
