@@ -159,7 +159,7 @@ jobs:
           ccache --evict-older-than 7d
     - name: Print LINK_WHAT_YOU_USE logs
       run: |
-        for i in build/link_what_you_use_logs/ ; do
+        for i in build/link_what_you_use_logs/*.log ; do
           echo $i
           cat $i
         done
