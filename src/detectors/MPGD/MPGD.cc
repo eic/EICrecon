@@ -22,6 +22,7 @@
 #include "factories/digi/MPGDTrackerDigi_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "factories/tracking/MPGDHitReconstruction_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 
@@ -55,17 +56,17 @@ void InitPlugin(JApplication* app) {
   const char* MPGD_names[nMPGDs] = {"InnerMPGDBarrel", "MPGDOuterBarrel"};
   for (int mpgd = 0; mpgd < nMPGDs; mpgd++) {
     std::string MPGD_name(MPGD_names[mpgd]);
-    std::string constant_name = MPGD_name + std::string("_2DStrip");
+    std::string constantName = MPGD_name + std::string("_2DStrip");
     try {
       auto detector = app->GetService<DD4hep_service>()->detector();
-      int constant  = detector->constant<int>(constant_name);
+      int constant  = detector->constant<int>(constantName);
       if (constant == 1) {
         SiFactoryPattern &= ~(0x1 << mpgd);
         mLog->info(R"(2DStrip XML loaded for "{}")", MPGD_name);
       } else {
         mLog->info(R"(pixel XML loaded for "{}")", MPGD_name);
       }
-    } catch (const std::runtime_error&) {
+    } catch (...) {
       // Variable not present apply legacy pixel readout
     }
   }
@@ -79,16 +80,16 @@ void InitPlugin(JApplication* app) {
     } catch (const std::invalid_argument& e) {
       throw JException(
           R"(Option "MPGD:SiFactoryPattern": Error ("%s") parsing input
-        string: '%s')",
+        string: '%s'.)",
           e.what(), SiFactoryPattern_str.c_str());
     }
   }
   for (int mpgd = 0; mpgd < nMPGDs; mpgd++) {
     std::string MPGD_name(MPGD_names[mpgd]);
     if (SiFactoryPattern & (0x1 << mpgd)) {
-      mLog->info(R"(pixel digitization will be applied to "{}")", MPGD_name);
-    } else {
       mLog->info(R"(2DStrip digitization will be applied to "{}")", MPGD_name);
+    } else {
+      mLog->info(R"(pixel digitization will be applied to "{}")", MPGD_name);
     }
   }
 
@@ -104,25 +105,52 @@ void InitPlugin(JApplication* app) {
         },
         app));
   } else {
+    // Configuration parameters
+    MPGDTrackerDigiConfig digi_cfg;
+    digi_cfg.readout = "MPGDBarrelHits";
+    digi_cfg.threshold = 100 * dd4hep::eV;
+    digi_cfg.timeResolution = 10;
+    digi_cfg.gain = 10000;
+    digi_cfg.stripResolutions[0]=digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    // Get #channels from XML
+    const char *constantNames[] = {"MMnStripsPhi","MMnStripsZ"};
+    for (int phiZ = 0; phiZ < 2; phiZ++) {
+      std::string constantName = std::string(constantNames[phiZ]);
+      try {
+	auto detector = app->GetService<DD4hep_service>()->detector();
+	digi_cfg.stripNumbers[phiZ] = detector->constant<int>(constantName);
+      } catch (...) {
+	throw JException(R"(MPGD "%s": Error retrieving #channels from XML: no "%s" constant found.)",
+			 digi_cfg.readout.c_str(), constantName.c_str());
+      }
+    }
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
         {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"},
-        {
-            .readout        = "MPGDBarrelHits",
-            .threshold      = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
+        digi_cfg,
         app));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
-      {"MPGDBarrelRecHits"},                      // Output data tag
-      {
-          .timeResolution = 10,
-      },
-      app));
+  if ((SiFactoryPattern & 0x1) != 0U) {
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+        "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
+	{"MPGDBarrelRecHits"},                      // Output data tag
+	{
+	  .timeResolution = 10,
+	},
+	app));
+  } else {
+    MPGDHitReconstructionConfig digi_cfg;
+    digi_cfg.readout = "MPGDBarrelHits";
+    digi_cfg.timeResolution = 10;
+    digi_cfg.stripResolutions[0]=digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
+        "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
+	{"MPGDBarrelRecHits"},                      // Output data tag
+	digi_cfg,
+	app));
+  }
 
   // ***** OuterMPGDBarrel
   // Digitization
@@ -136,25 +164,48 @@ void InitPlugin(JApplication* app) {
         },
         app));
   } else {
+    MPGDTrackerDigiConfig digi_cfg;
+    digi_cfg.readout = "OuterMPGDBarrelHits";
+    digi_cfg.threshold = 100 * dd4hep::eV;
+    digi_cfg.timeResolution = 5;
+    digi_cfg.gain = 10000;
+    digi_cfg.stripResolutions[0]=digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    // Get #channels from XML
+    std::string constantName = std::string("MPGDOuterBarrelnStrips");
+    try {
+      auto detector = app->GetService<DD4hep_service>()->detector();
+      digi_cfg.stripNumbers[0]=digi_cfg.stripNumbers[1] = detector->constant<int>(constantName);
+    } catch (...) {
+      throw JException(R"(MPGD "%s": Error retrieving #channels from XML: no "%s" constant found.)",
+		       digi_cfg.readout.c_str(), constantName.c_str());
+    }
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
         {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"},
-        {
-            .readout        = "OuterMPGDBarrelHits",
-            .threshold      = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
+        digi_cfg,
         app));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
-  app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
-      {"OuterMPGDBarrelRecHits"},                           // Output data tag
-      {
+  if ((SiFactoryPattern & 0x2) != 0U) {
+    app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
+        "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
+	{"OuterMPGDBarrelRecHits"},                           // Output data tag
+	{
           .timeResolution = 10,
-      },
-      app));
+	},
+	app));
+  } else  {
+    MPGDHitReconstructionConfig digi_cfg;
+    digi_cfg.readout = "OuterMPGDBarrelHits";
+    digi_cfg.timeResolution = 10;
+    digi_cfg.stripResolutions[0]=digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
+        "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
+	{"OuterMPGDBarrelRecHits"},                           // Output data tag
+	digi_cfg,
+	app));
+  }
 
   // ***** "BackwardMPGDEndcap"
   // Digitization
