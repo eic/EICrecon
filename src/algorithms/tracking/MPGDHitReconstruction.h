@@ -26,12 +26,12 @@ using MPGDHitReconstructionAlgorithm =
  Specific to MPGDs.
 */
 class MPGDHitReconstruction : public MPGDHitReconstructionAlgorithm,
-			      public WithPodConfig<MPGDHitReconstructionConfig> {
+                              public WithPodConfig<MPGDHitReconstructionConfig> {
 
 public:
   MPGDHitReconstruction(std::string_view name)
       : MPGDHitReconstructionAlgorithm{
-           name, {"inputRawHits"}, {"outputHits"}, "reconstruct raw hits into tracker hits."} {}
+            name, {"inputRawHits"}, {"outputHits"}, "reconstruct raw hits into tracker hits."} {}
 
   /// Once in a lifetime initialization
   void init() final;

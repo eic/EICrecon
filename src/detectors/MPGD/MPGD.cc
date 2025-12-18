@@ -107,49 +107,47 @@ void InitPlugin(JApplication* app) {
   } else {
     // Configuration parameters
     MPGDTrackerDigiConfig digi_cfg;
-    digi_cfg.readout = "MPGDBarrelHits";
-    digi_cfg.threshold = 100 * dd4hep::eV;
-    digi_cfg.timeResolution = 10;
-    digi_cfg.gain = 10000;
-    digi_cfg.stripResolutions[0]=digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    digi_cfg.readout             = "MPGDBarrelHits";
+    digi_cfg.threshold           = 100 * dd4hep::eV;
+    digi_cfg.timeResolution      = 10;
+    digi_cfg.gain                = 10000;
+    digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
     // Get #channels from XML
-    const char *constantNames[] = {"MMnStripsPhi","MMnStripsZ"};
+    const char* constantNames[] = {"MMnStripsPhi", "MMnStripsZ"};
     for (int phiZ = 0; phiZ < 2; phiZ++) {
       std::string constantName = std::string(constantNames[phiZ]);
       try {
-	auto detector = app->GetService<DD4hep_service>()->detector();
-	digi_cfg.stripNumbers[phiZ] = detector->constant<int>(constantName);
+        auto detector               = app->GetService<DD4hep_service>()->detector();
+        digi_cfg.stripNumbers[phiZ] = detector->constant<int>(constantName);
       } catch (...) {
-	throw JException(R"(MPGD "%s": Error retrieving #channels from XML: no "%s" constant found.)",
-			 digi_cfg.readout.c_str(), constantName.c_str());
+        throw JException(
+            R"(MPGD "%s": Error retrieving #channels from XML: no "%s" constant found.)",
+            digi_cfg.readout.c_str(), constantName.c_str());
       }
     }
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
-        {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"},
-        digi_cfg,
-        app));
+        {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"}, digi_cfg, app));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   if ((SiFactoryPattern & 0x1) != 0U) {
     app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
-	{"MPGDBarrelRecHits"},                      // Output data tag
-	{
-	  .timeResolution = 10,
-	},
-	app));
+        {"MPGDBarrelRecHits"},                      // Output data tag
+        {
+            .timeResolution = 10,
+        },
+        app));
   } else {
     MPGDHitReconstructionConfig digi_cfg;
-    digi_cfg.readout = "MPGDBarrelHits";
-    digi_cfg.timeResolution = 10;
-    digi_cfg.stripResolutions[0]=digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    digi_cfg.readout             = "MPGDBarrelHits";
+    digi_cfg.timeResolution      = 10;
+    digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "MPGDBarrelRecHits", {"MPGDBarrelRawHits"}, // Input data collection tags
-	{"MPGDBarrelRecHits"},                      // Output data tag
-	digi_cfg,
-	app));
+        {"MPGDBarrelRecHits"},                      // Output data tag
+        digi_cfg, app));
   }
 
   // ***** OuterMPGDBarrel
@@ -165,46 +163,43 @@ void InitPlugin(JApplication* app) {
         app));
   } else {
     MPGDTrackerDigiConfig digi_cfg;
-    digi_cfg.readout = "OuterMPGDBarrelHits";
-    digi_cfg.threshold = 100 * dd4hep::eV;
-    digi_cfg.timeResolution = 5;
-    digi_cfg.gain = 10000;
-    digi_cfg.stripResolutions[0]=digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    digi_cfg.readout             = "OuterMPGDBarrelHits";
+    digi_cfg.threshold           = 100 * dd4hep::eV;
+    digi_cfg.timeResolution      = 5;
+    digi_cfg.gain                = 10000;
+    digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
     // Get #channels from XML
     std::string constantName = std::string("MPGDOuterBarrelnStrips");
     try {
-      auto detector = app->GetService<DD4hep_service>()->detector();
-      digi_cfg.stripNumbers[0]=digi_cfg.stripNumbers[1] = detector->constant<int>(constantName);
+      auto detector            = app->GetService<DD4hep_service>()->detector();
+      digi_cfg.stripNumbers[0] = digi_cfg.stripNumbers[1] = detector->constant<int>(constantName);
     } catch (...) {
       throw JException(R"(MPGD "%s": Error retrieving #channels from XML: no "%s" constant found.)",
-		       digi_cfg.readout.c_str(), constantName.c_str());
+                       digi_cfg.readout.c_str(), constantName.c_str());
     }
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
-        {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"},
-        digi_cfg,
-        app));
+        {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"}, digi_cfg, app));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   if ((SiFactoryPattern & 0x2) != 0U) {
     app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
         "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
-	{"OuterMPGDBarrelRecHits"},                           // Output data tag
-	{
-          .timeResolution = 10,
-	},
-	app));
-  } else  {
+        {"OuterMPGDBarrelRecHits"},                           // Output data tag
+        {
+            .timeResolution = 10,
+        },
+        app));
+  } else {
     MPGDHitReconstructionConfig digi_cfg;
-    digi_cfg.readout = "OuterMPGDBarrelHits";
-    digi_cfg.timeResolution = 10;
-    digi_cfg.stripResolutions[0]=digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
+    digi_cfg.readout             = "OuterMPGDBarrelHits";
+    digi_cfg.timeResolution      = 10;
+    digi_cfg.stripResolutions[0] = digi_cfg.stripResolutions[1] = 150 * dd4hep::um;
     app->Add(new JOmniFactoryGeneratorT<MPGDHitReconstruction_factory>(
         "OuterMPGDBarrelRecHits", {"OuterMPGDBarrelRawHits"}, // Input data collection tags
-	{"OuterMPGDBarrelRecHits"},                           // Output data tag
-	digi_cfg,
-	app));
+        {"OuterMPGDBarrelRecHits"},                           // Output data tag
+        digi_cfg, app));
   }
 
   // ***** "BackwardMPGDEndcap"

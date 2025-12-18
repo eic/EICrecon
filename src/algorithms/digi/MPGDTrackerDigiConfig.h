@@ -30,9 +30,9 @@ struct MPGDTrackerDigiConfig {
   //  dominated by primary electron => To first approximation, one and same
   //  "timeResolution" for both coordinates..
 
-  double gain = 10000;
-  std::array<double,2> stripResolutions = {150 * dd4hep::um, 150 * dd4hep::um};
-  std::array<int,2>    stripNumbers = {1024, 1024}; // per module
+  double gain                            = 10000;
+  std::array<double, 2> stripResolutions = {150 * dd4hep::um, 150 * dd4hep::um};
+  std::array<int, 2> stripNumbers        = {1024, 1024}; // per module
   // NB: be aware of thresholds in npsim! E.g. https://github.com/eic/npsim/pull/9/files
   double threshold      = 0 * dd4hep::keV;
   double timeResolution = 8; // what units???

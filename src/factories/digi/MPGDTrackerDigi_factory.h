@@ -25,12 +25,14 @@ private:
   PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output{this};
   PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_assoc_output{this};
 
-  Service<ACTSGeo_service> m_ACTSGeoSvc {this};
+  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 
   ParameterRef<double> m_threshold{this, "threshold", config().threshold};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().timeResolution};
-  ParameterRef<std::array<double,2>> m_stripResolutions {this, "stripResolutions", config().stripResolutions, "Space resolutions for p/n strips"};
-  ParameterRef<std::array<int,2>>    m_stripNumbers {this, "stripNumbers", config().stripNumbers, "Number of p/n strips per module"};
+  ParameterRef<std::array<double, 2>> m_stripResolutions{
+      this, "stripResolutions", config().stripResolutions, "Space resolutions for p/n strips"};
+  ParameterRef<std::array<int, 2>> m_stripNumbers{this, "stripNumbers", config().stripNumbers,
+                                                  "Number of p/n strips per module"};
   ParameterRef<std::string> m_readout{this, "readoutClass", config().readout};
 
 public:
