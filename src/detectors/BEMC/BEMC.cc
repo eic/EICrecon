@@ -271,7 +271,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiTopoClustersWithoutShapes",
-      {"EcalBarrelScFiProtoTopoClusters",        // edm4eic::ProtoClusterCollection
+      {"EcalBarrelScFiProtoTopoClusters",         // edm4eic::ProtoClusterCollection
        "EcalBarrelScFiRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociation
       {"EcalBarrelScFiTopoClustersWithoutShapes", // edm4eic::Cluster
        "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
