@@ -26,4 +26,4 @@ plugin_glob_all(${PLUGIN_NAME})
 # library)
 plugin_link_libraries(
   ${PLUGIN_NAME} algorithms_digi_library algorithms_tracking_library
-  algorithms_reco_library algorithms_onnx_library)
+  algorithms_reco_library algorithms_onnx_library log_library)
