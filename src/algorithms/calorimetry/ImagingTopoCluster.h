@@ -69,6 +69,11 @@ public:
   void process(const Input& input, const Output& output) const final;
 
 private:
+  template <typename... L> struct multilambda : L... {
+    using L::operator()...;
+    constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
+  };
+
   // helper function to group hits
   bool is_neighbour(const edm4eic::CalorimeterHit& h1, const edm4eic::CalorimeterHit& h2) const;
 
