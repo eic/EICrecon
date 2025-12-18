@@ -3,6 +3,16 @@
 
 #include "CKFTracking.h"
 
+#include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Common.hpp>
+#include <Acts/Definitions/Direction.hpp>
+#include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#include <Acts/EventData/MeasurementHelpers.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
+#include <Acts/EventData/Types.hpp>
+#include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <algorithm>
 #include <any>
 #include <array>
@@ -15,24 +25,12 @@
 #include <string>
 #include <system_error>
 #include <utility>
-
-#include <Acts/Definitions/Algebra.hpp>
-#include <Acts/Definitions/Common.hpp>
-#include <Acts/Definitions/Direction.hpp>
-#include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/EventData/MeasurementHelpers.hpp>
-#include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/EventData/Types.hpp>
-#include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #endif
 #if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
 #include <Acts/Utilities/Iterator.hpp>
 #endif
-#include <Acts/Utilities/detail/ContextType.hpp>
 #include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>
