@@ -159,9 +159,10 @@ jobs:
           ccache --evict-older-than 7d
     - name: Print LINK_WHAT_YOU_USE logs
       run: |
+        shopt -s nullglob
         for i in build/link_what_you_use_logs/*.log ; do
-          echo $i
-          cat $i
+          echo "$i"
+          cat "$i"
         done
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
