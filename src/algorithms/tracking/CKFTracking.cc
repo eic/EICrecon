@@ -82,8 +82,6 @@
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
 
-// IWYU pragma: no_include "Acts/Utilities/detail/ContainerIterator.hpp"
-
 namespace eicrecon {
 
 using namespace Acts::UnitLiterals;
