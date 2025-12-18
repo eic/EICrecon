@@ -256,6 +256,8 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
     }
 
     const auto pos = local.nominal().worldToLocal(gpos);
+    debug("local position: x = {}, y = {}, z = {}", pos.x(), pos.y(), pos.z());
+    
     std::vector<double> cdim;
     // get segmentation dimensions
 

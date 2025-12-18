@@ -147,6 +147,21 @@ flycheck_*.el
 # /EMACS
 #--------------
 
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# ROOT outputs
+*.root
+
+# Graph / visualization outputs
+*.dot
+
+# Local event data
+bemc_events/
+
+# Editor / backup files
+*.save
+*.bak
 
 *.bck
 
@@ -169,3 +184,20 @@ src/tools/default_flags_table/fieldmaps/
 src/examples/test_data_generator/__pycache__/
 
 .run/
+
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# ROOT outputs
+*.root
+
+# Graph / visualization outputs
+*.dot
+
+# Local event data
+bemc_events/
+
+# Editor / backup files
+*.save
+*.bak

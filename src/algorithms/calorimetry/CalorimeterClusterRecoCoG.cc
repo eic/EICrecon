@@ -1,3 +1,4 @@
+
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Dhevan Gangadharan, Derek Anderson
 
@@ -29,14 +30,24 @@
 #include <optional>
 #include <vector>
 
+#include <DD4hep/Readout.h>
+#include <DD4hep/IDDescriptor.h>
+#include <algorithms/service.h>
+
 #include "CalorimeterClusterRecoCoG.h"
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
+#include "services/evaluator/EvaluatorSvc.h"
+
 
 namespace eicrecon {
 
 using namespace dd4hep;
 
 void CalorimeterClusterRecoCoG::init() {
+    
+  // get IDDescriptor
+  m_idSpec = m_detector->readout(m_cfg.readout).idSpec();
+    
   // select weighting method
   std::string ew = m_cfg.energyWeight;
   // make it case-insensitive
@@ -55,6 +66,7 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
   const auto [proto, mchitassociations] = input;
   auto [clusters, associations]         = output;
 
+  
   for (const auto& pcl : *proto) {
     // skip protoclusters with no hits
     if (pcl.hits_size() == 0) {
@@ -82,6 +94,32 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
   }
 }
 
+
+// System ID from cell ID
+
+static const int SYSID_SCIFI    = 105;   
+static const int SYSID_IMAGING  = 101;   
+
+inline int getSystemID(const edm4eic::CalorimeterHit& hit,
+                       const dd4hep::IDDescriptor& m_idSpec)
+{
+    auto* sys_field = m_idSpec.field("system");
+    return sys_field->value(hit.getCellID());
+}
+
+inline bool isSciFiHit(const edm4eic::CalorimeterHit& hit,
+                       const dd4hep::IDDescriptor& m_idSpec)
+{
+    return getSystemID(hit, m_idSpec) == SYSID_SCIFI;
+}
+
+inline bool isImagingHit(const edm4eic::CalorimeterHit& hit,
+                         const dd4hep::IDDescriptor& m_idSpec)
+{
+    return getSystemID(hit, m_idSpec) == SYSID_IMAGING;
+}
+
+
 std::optional<edm4eic::MutableCluster>
 CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   edm4eic::MutableCluster cl;
@@ -101,6 +139,18 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   float maxHitEta = std::numeric_limits<float>::min();
   auto time       = 0;
   auto timeError  = 0;
+
+  bool hasSciFi    = false;
+  bool hasImaging  = false;
+
+  for (auto& hit : pcl.getHits()) {
+        if (isSciFiHit(hit, m_idSpec))    hasSciFi = true;
+        if (isImagingHit(hit, m_idSpec))  hasImaging = true;
+
+  }
+    
+  bool specialMode = hasSciFi && hasImaging;
+    
   for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
     const auto& hit   = pcl.getHits()[i];
     const auto weight = pcl.getWeights()[i];
@@ -113,7 +163,65 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
     const float eta = edm4hep::utils::eta(hit.getPosition());
     minHitEta       = std::min(eta, minHitEta);
     maxHitEta       = std::max(eta, maxHitEta);
+
+
+
+
+  
+    
+  // for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
+  //   const auto& hit   = pcl.getHits()[i];
+  //   const auto weight = pcl.getWeights()[i];
+  //   debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
+  //   auto energy = hit.getEnergy() * weight;
+  //   totalE += energy;
+  //   time += (hit.getTime() - time) * energy / totalE;
+  //   cl.addToHits(hit);
+  //   cl.addToHitContributions(energy);
+  //   const float eta = edm4hep::utils::eta(hit.getPosition());
+  //   if (eta < minHitEta) {
+  //     minHitEta = eta;
+  //   }
+  //   if (eta > maxHitEta) {
+  //     maxHitEta = eta;
+  //   }
+  // }
+
+  // -----------------------------------------------------------------------------------
+  //   ScFi hit alone contributes to energy weight & for Img hit energy weight = 0
+  // -----------------------------------------------------------------------------------
+    
+  for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
+      
+      const auto& hit   = pcl.getHits()[i];
+      const auto weight = pcl.getWeights()[i];
+
+      float energy = 0.0f;
+
+      if (specialMode) {
+          
+          if (isSciFiHit(hit, m_idSpec)) {
+              energy = hit.getEnergy() * weight;
+          } else if (isImagingHit(hit, m_idSpec)) {
+              energy = 0.0f;  // Imaging has no energy weight contribution
+          }
+      }
+      else{
+            energy = hit.getEnergy() * weight;
+      }
+
+      totalE += energy;
+      time += (hit.getTime() - time) * energy / totalE;
+
+      cl.addToHits(hit);
+      cl.addToHitContributions(energy);
+
+      float eta = edm4hep::utils::eta(hit.getPosition());
+      minHitEta = std::min(minHitEta, eta);
+      maxHitEta = std::max(maxHitEta, eta);
   }
+  
+  
   cl.setEnergy(totalE / m_cfg.sampFrac);
   cl.setEnergyError(0.);
   cl.setTime(time);
@@ -132,13 +240,45 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
     }
   }
 
+  // for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
+  //   const auto& hit   = pcl.getHits()[i];
+  //   const auto weight = pcl.getWeights()[i];
+  //   //      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
+  //   float w = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);
+  //   tw += w;
+  //   v = v + (hit.getPosition() * w);
+  // }
+
+
+
+
+  // --------------------------------------------------------------------------------------
+  //   Imaging hit alone contributes to Position weight & for ScFi hit position weight = 0
+  // --------------------------------------------------------------------------------------
   for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
-    const auto& hit   = pcl.getHits()[i];
-    const auto weight = pcl.getWeights()[i];
-    //      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
-    float w = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);
-    tw += w;
-    v = v + (hit.getPosition() * w);
+      const auto& hit = pcl.getHits()[i];
+      float w = 0.0f;
+
+      if (specialMode){
+      
+          if (isImagingHit(hit, m_idSpec)) {
+              const auto weight = pcl.getWeights()[i];
+              w = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);   
+          } else if (isSciFiHit(hit, m_idSpec)) {
+              w = 0.0f;   // ScFi has no position weight
+          }
+    
+          tw += w;
+          v = v + hit.getPosition() * w;
+      }
+      else{
+            const auto weight = pcl.getWeights()[i];
+            //      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
+            float w = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);
+            tw += w;
+            v = v + (hit.getPosition() * w);
+      
+     }  
   }
   if (tw == 0.) {
     warning("zero total weights encountered, you may want to adjust your weighting parameter.");
@@ -197,17 +337,20 @@ void CalorimeterClusterRecoCoG::associate(
   // --------------------------------------------------------------------------
   double eSimHitSum = 0.;
   for (auto clhit : cl.getHits()) {
-    // vector to hold associated sim hits
+    // vector to hold associated sim hits (for Combined hits it will be Imaging Hits)
     std::vector<edm4hep::SimCalorimeterHit> vecAssocSimHits;
+      
+    if (!isImagingHit(clhit, m_idSpec)) continue;
 
-    for (const auto& hitAssoc : *mchitassociations) {
-      // if found corresponding raw hit, add sim hit to vector
-      // and increment energy sum
-      if (clhit.getRawHit() == hitAssoc.getRawHit()) {
-        vecAssocSimHits.push_back(hitAssoc.getSimHit());
-        eSimHitSum += vecAssocSimHits.back().getEnergy();
-      }
-    }
+        for (const auto& hitAssoc : *mchitassociations) {
+          // if found corresponding raw hit, add sim hit to vector
+          // and increment energy sum
+          if (clhit.getRawHit() == hitAssoc.getRawHit()) {
+            vecAssocSimHits.push_back(hitAssoc.getSimHit());
+            eSimHitSum += vecAssocSimHits.back().getEnergy();
+          }
+        }
+    
     debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(),
           clhit.getCellID());
 
@@ -270,3 +413,9 @@ CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contr
 }
 
 } // namespace eicrecon
+
+
+
+
+
+
