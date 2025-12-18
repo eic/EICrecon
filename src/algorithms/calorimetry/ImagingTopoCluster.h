@@ -19,8 +19,6 @@
  *
  */
 
-
-
 #pragma once
 
 #include <algorithms/algorithm.h>
@@ -58,7 +56,6 @@ public:
             {"outputProtoClusterCollection"},
             "Topological cell clustering algorithm for imaging calorimetry."} {}
 
-
 private:
   // unitless counterparts of the input parameters
   std::array<double, 2> sameLayerDistXY{0, 0};
@@ -67,12 +64,12 @@ private:
   std::array<double, 2> ScFi_diffLayerDistXY{0, 0};
   std::array<double, 2> Img_sameLayerDistXY{0, 0};
   std::array<double, 2> Img_diffLayerDistXY{0, 0};
-  std::array<double, 3> sameLayerDistXYZ{0, 0,0};
-  std::array<double, 3> diffLayerDistXYZ{0, 0,0};
-  std::array<double, 3> ScFi_sameLayerDistXYZ{0, 0,0};
-  std::array<double, 3> ScFi_diffLayerDistXYZ{0, 0,0};
-  std::array<double, 3> Img_sameLayerDistXYZ{0, 0,0};
-  std::array<double, 3> Img_diffLayerDistXYZ{0, 0,0};
+  std::array<double, 3> sameLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> diffLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> ScFi_sameLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> ScFi_diffLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> Img_sameLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> Img_diffLayerDistXYZ{0, 0, 0};
   std::array<double, 2> sameLayerDistEtaPhi{0, 0};
   std::array<double, 2> diffLayerDistEtaPhi{0, 0};
   std::array<double, 2> sameLayerDistTZ{0, 0};
@@ -86,7 +83,7 @@ private:
   std::array<double, 2> Img_sameLayerDistTZ{0, 0};
   std::array<double, 2> Img_diffLayerDistTZ{0, 0};
 
-  std::array<double, 3> cross_system_DistXYZ{0, 0,0};
+  std::array<double, 3> cross_system_DistXYZ{0, 0, 0};
 
   double sectorDist{0};
   double cross_system_sectorDist{0};
@@ -100,20 +97,20 @@ public:
   void init();
   void process(const Input& input, const Output& output) const final;
 
-// +++++++++++++++++++++++++++++++ based on sytem Id and across the system neighbouring ++++
-  
+  // +++++++++++++++++++++++++++++++ based on sytem Id and across the system neighbouring ++++
 
 private:
   // helper function to group hits
 
-  // std::vector<std::vector<size_t>> mergeCrossSystemClusters(const std::map<int, 
+  // std::vector<std::vector<size_t>> mergeCrossSystemClusters(const std::map<int,
   //  std::vector<size_t>>& clusters_by_system,
   //  const std::vector<std::vector<size_t>>& all_clusters,
   //  const edm4eic::CalorimeterHitCollection& hits) const;
 
-  bool cross_system_is_neighbour(const edm4eic::CalorimeterHit& h1, const edm4eic::CalorimeterHit& h2) const;
+  bool cross_system_is_neighbour(const edm4eic::CalorimeterHit& h1,
+                                 const edm4eic::CalorimeterHit& h2) const;
   bool is_neighbour(const edm4eic::CalorimeterHit& h1, const edm4eic::CalorimeterHit& h2) const;
-  
+
   // Pointer to the geometry service
   dd4hep::IDDescriptor m_idSpec;
 
@@ -123,15 +120,13 @@ private:
   // note: template to allow Compare only known in local scope of caller
   template <typename Compare>
   void bfs_group(const edm4eic::CalorimeterHitCollection& hits,
-               std::set<std::size_t, Compare>& indices,
-               std::list<std::size_t>& group,
-               std::vector<std::pair<size_t,size_t>>& edges,
-               const std::size_t idx) const {
+                 std::set<std::size_t, Compare>& indices, std::list<std::size_t>& group,
+                 std::vector<std::pair<size_t, size_t>>& edges, const std::size_t idx) const {
 
     auto* sys_field = m_idSpec.field("system");
     if (!sys_field) {
-        error("Field 'system' not found in IDSpec for BFS grouping");
-        return;
+      error("Field 'system' not found in IDSpec for BFS grouping");
+      return;
     }
 
     int sys = sys_field->value(hits[idx].getCellID());
@@ -154,9 +149,9 @@ private:
 
         // skip hits form other system
         if (sys_field->value(hits[*idx2].getCellID()) != sys) {
-                debug("  Skipping hit {}: different system", *idx2);
-                ++idx2;
-                continue;
+          debug("  Skipping hit {}: different system", *idx2);
+          ++idx2;
+          continue;
         }
 
         // skip rest of list of hits when we're past relevant layers
@@ -170,9 +165,8 @@ private:
           continue;
         }
 
-        
         if (is_neighbour(hits[*idx1], hits[*idx2])) {
-           edges.emplace_back(*idx1, *idx2);
+          edges.emplace_back(*idx1, *idx2);
           // debug("hit {} and {} are neighbors", *idx1, *idx2);
           group.push_back(*idx2);
           idx2 = indices.erase(idx2); // takes role of idx2++
@@ -182,17 +176,12 @@ private:
         }
       }
     }
-   }
-  };
+  }
+};
 
 } // namespace eicrecon
 
-
-
-
-
 // --------- Version 1 based on system Id but without cross sytem clustering -------------
-
 
 // #pragma once
 
@@ -230,7 +219,6 @@ private:
 //             {"inputHitCollection"},
 //             {"outputProtoClusterCollection"},
 //             "Topological cell clustering algorithm for imaging calorimetry."} {}
-
 
 // private:
 //   // unitless counterparts of the input parameters
@@ -270,7 +258,6 @@ private:
 //   void process(const Input& input, const Output& output) const final;
 
 // // +++++++++++++++++++++++++++++++ V1 : Without cross system neighbouring +++++++++++++++++++++++++++++++++
-  
 
 // private:
 //   // helper function to group hits
@@ -330,7 +317,6 @@ private:
 //           continue;
 //         }
 
-        
 //         if (is_neighbour(hits[*idx1], hits[*idx2])) {
 //           // debug("hit {} and {} are neighbors", *idx1, *idx2);
 //           group.push_back(*idx2);
@@ -346,15 +332,7 @@ private:
 
 // } // namespace eicrecon
 
-
-
-
-
-
 // ++++++++++++++++++++++++++++++ Version 2: Cross system Clustering ++++++++++++++++++++++++++++++++++
-
-
-
 
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Chao Peng, Sylvester Joosten, Whitney Armstrong, Wouter Deconinck
@@ -412,7 +390,6 @@ private:
 //             {"outputProtoClusterCollection"},
 //             "Topological cell clustering algorithm for imaging calorimetry."} {}
 
-
 // private:
 //   // unitless counterparts of the input parameters
 //   std::array<double, 2> sameLayerDistXY{0, 0};
@@ -449,9 +426,6 @@ private:
 // public:
 //   void init();
 //   void process(const Input& input, const Output& output) const final;
-
-  
-  
 
 // private:
 //   // helper function to group hits

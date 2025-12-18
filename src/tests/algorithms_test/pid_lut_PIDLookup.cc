@@ -107,17 +107,6 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
 // old version till Dec 1, 2025
 
 // // SPDX-License-Identifier: LGPL-3.0-or-later

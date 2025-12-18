@@ -119,7 +119,7 @@ void CalorimeterIslandCluster::init() {
     }
     hitsDist = method;
     info("Clustering uses {} with distances <= [{}]", uprop.first, fmt::join(neighbourDist, ","));
-    
+
     return true;
   };
 
@@ -234,10 +234,11 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
 
     {
       const auto& hit = (*hits)[i];
-      debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f},{:.4f}) mm, global=({:.4f}, {:.4f}, "
+      debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f},{:.4f}) mm, global=({:.4f}, "
+            "{:.4f}, "
             "{:.4f}) mm",
-            i, hit.getEnergy() * 1000., hit.getLocal().x, hit.getLocal().y, hit.getLocal().z, hit.getPosition().x,
-            hit.getPosition().y, hit.getPosition().z);
+            i, hit.getEnergy() * 1000., hit.getLocal().x, hit.getLocal().y, hit.getLocal().z,
+            hit.getPosition().x, hit.getPosition().y, hit.getPosition().z);
     }
     // already in a group
     if (visits[i]) {
@@ -254,25 +255,25 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
     }
     double group_energy = 0.0;
     for (auto idx : group) {
-        group_energy += (*hits)[idx].getEnergy();
+      group_energy += (*hits)[idx].getEnergy();
     }
-    debug("Group of {} hits has total energy = {:.4f} GeV", group.size(), group_energy);  
+    debug("Group of {} hits has total energy = {:.4f} GeV", group.size(), group_energy);
     for (auto idx : group) {
-        const auto& hit = (*hits)[idx];
-        // debug("  -> Hit {:d}: energy = {:.4f} MeV, local = ({:.2f}, {:.2f},{:.2f}) mm, global = ({:.2f}, {:.2f}, {:.2f}) mm",
-        //       idx,
-        //       hit.getEnergy() * 1000.0,
-        //       hit.getLocal().x, hit.getLocal().y,hit.getLocal().z,
-        //       hit.getPosition().x, hit.getPosition().y, hit.getPosition().z);
+      const auto& hit = (*hits)[idx];
+      // debug("  -> Hit {:d}: energy = {:.4f} MeV, local = ({:.2f}, {:.2f},{:.2f}) mm, global = ({:.2f}, {:.2f}, {:.2f}) mm",
+      //       idx,
+      //       hit.getEnergy() * 1000.0,
+      //       hit.getLocal().x, hit.getLocal().y,hit.getLocal().z,
+      //       hit.getPosition().x, hit.getPosition().y, hit.getPosition().z);
     }
-  
+
     auto maxima = find_maxima(*hits, group, !m_cfg.splitCluster);
     split_group(*hits, group, maxima, proto_clusters);
 
     debug("hits in a group: {}, local maxima: {}", group.size(), maxima.size());
   }
 }
-          
+
 // grouping function with Breadth-First Search
 void CalorimeterIslandCluster::bfs_group(const edm4eic::CalorimeterHitCollection& hits,
                                          std::set<std::size_t>& group, std::size_t idx,

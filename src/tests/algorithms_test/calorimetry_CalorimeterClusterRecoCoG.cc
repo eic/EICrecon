@@ -243,13 +243,6 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   REQUIRE((*assoc_coll)[1].getSim() == mcpart2);
 }
 
-
-
-
-
-
-
-
 // old version till Dec 1, 2025
 
 // // SPDX-License-Identifier: LGPL-3.0-or-later

@@ -30,7 +30,6 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 
-
 #include "CalorimeterClusterRecoCoGConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
