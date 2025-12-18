@@ -61,7 +61,8 @@ macro(plugin_add _name)
       ${_name}_plugin
       PROPERTIES PREFIX ""
                  OUTPUT_NAME "${_name}"
-                 SUFFIX ".so")
+                 SUFFIX ".so"
+                 LINK_WHAT_YOU_USE "${CMAKE_LINK_WHAT_YOU_USE}")
 
     # Install plugin
     install(
@@ -86,7 +87,8 @@ macro(plugin_add _name)
       ${_name}_library
       PROPERTIES PREFIX "lib"
                  OUTPUT_NAME "${_name}"
-                 SUFFIX ${suffix})
+                 SUFFIX ${suffix}
+                 LINK_WHAT_YOU_USE "${CMAKE_LINK_WHAT_YOU_USE}")
 
     # Install library
     install(
