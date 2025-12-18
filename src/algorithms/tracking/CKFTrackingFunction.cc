@@ -2,8 +2,6 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
 #include <Acts/Definitions/Direction.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
@@ -14,12 +12,12 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <Eigen/LU>
 #include <algorithm>
 #include <any>
 #include <cmath>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "ActsExamples/EventData/Track.hpp"
