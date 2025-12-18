@@ -250,8 +250,8 @@ void InitPlugin(JApplication* app) {
 
   // Imaging TopoClustering on ScFi
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
-      "EcalBarrelScFiProtoClusters_Topo", {"EcalBarrelScFiRecHits"},
-      {"EcalBarrelScFiProtoClusters_Topo"},
+      "EcalBarrelScFiProtoTopoClusters", {"EcalBarrelScFiRecHits"},
+      {"EcalBarrelScFiProtoTopoClusters"},
       {
           .neighbourLayersRange = 2, //  # id diff for adjacent layer
           .sameLayerDistXYZ     = {80.0 * dd4hep::mm, 80.0 * dd4hep::mm,
@@ -271,7 +271,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiTopoClustersWithoutShapes",
-      {"EcalBarrelScFiProtoClusters_Topo",        // edm4eic::ProtoClusterCollection
+      {"EcalBarrelScFiProtoTopoClusters",        // edm4eic::ProtoClusterCollection
        "EcalBarrelScFiRawHitAssociations"},       // edm4eic::MCRecoCalorimeterHitAssociation
       {"EcalBarrelScFiTopoClustersWithoutShapes", // edm4eic::Cluster
        "EcalBarrelScFiTopoClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
