@@ -53,7 +53,7 @@ if(podio_VERSION VERSION_LESS "1.3" OR JANA_VERSION VERSION_LESS "2.4.3")
       ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}/${DATAMODEL_RELATIVE_PATH})
 
 else()
-  message(STATUS "Using modern C++ datamodel glue for podio ${podio_VERSION}")
+  message(STATUS "Using modern C++ datamodel glue for podio ${podio_VERSION} and JANA2 ${JANA_VERSION}")
 
   # Just create an interface target
   add_custom_target(podio_datamodel_glue
