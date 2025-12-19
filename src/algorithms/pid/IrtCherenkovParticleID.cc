@@ -13,7 +13,6 @@
 #include <algorithms/logger.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/TrackPoint.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
@@ -231,11 +230,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
           for (const auto& hit_assoc : *in_hit_assocs) {
             if (hit_assoc.getRawHit().isAvailable()) {
               if (hit_assoc.getRawHit().id() == raw_hit.id()) {
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
-                mc_photon = hit_assoc.getSimHit().getParticle();
-#else
-                mc_photon = hit_assoc.getSimHit().getMCParticle();
-#endif
+                mc_photon       = hit_assoc.getSimHit().getParticle();
                 mc_photon_found = true;
                 if (mc_photon.getPDG() != -22) {
                   warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());
