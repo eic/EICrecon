@@ -10,12 +10,8 @@ macro(_plugin_common_target_properties _target)
   target_include_directories(${_target} SYSTEM PUBLIC ${JANA_INCLUDE_DIR})
   target_link_libraries(
     ${_target}
-    ${JANA_LIB}
-    podio::podio
-    podio::podioRootIO
-    spdlog::spdlog
-    fmt::fmt
-    Microsoft.GSL::GSL)
+    PUBLIC ${JANA_LIB} podio::podio podio::podioRootIO spdlog::spdlog
+    PRIVATE fmt::fmt Microsoft.GSL::GSL)
 
   target_compile_definitions(
     ${_target}
@@ -61,7 +57,8 @@ macro(plugin_add _name)
       ${_name}_plugin
       PROPERTIES PREFIX ""
                  OUTPUT_NAME "${_name}"
-                 SUFFIX ".so")
+                 SUFFIX ".so"
+                 LINK_WHAT_YOU_USE "${CMAKE_LINK_WHAT_YOU_USE}")
 
     # Install plugin
     install(
@@ -86,7 +83,8 @@ macro(plugin_add _name)
       ${_name}_library
       PROPERTIES PREFIX "lib"
                  OUTPUT_NAME "${_name}"
-                 SUFFIX ${suffix})
+                 SUFFIX ${suffix}
+                 LINK_WHAT_YOU_USE "${CMAKE_LINK_WHAT_YOU_USE}")
 
     # Install library
     install(
@@ -98,10 +96,10 @@ macro(plugin_add _name)
   if(${_name}_WITH_LIBRARY AND ${_name}_WITH_PLUGIN)
     # Ensure that whenever a plugin is loaded its library is loaded as well
     if(CXX_LINKER_HAS_no_as_needed)
-      target_link_libraries(${_name}_plugin
-                            $<LINK_LIBRARY:NO_AS_NEEDED,${_name}_library>)
+      target_link_libraries(
+        ${_name}_plugin PRIVATE $<LINK_LIBRARY:NO_AS_NEEDED,${_name}_library>)
     else()
-      target_link_libraries(${_name}_plugin ${_name}_library)
+      target_link_libraries(${_name}_plugin PRIVATE ${_name}_library)
     endif()
   endif()
 endmacro()
@@ -117,14 +115,16 @@ macro(plugin_add_dependencies _name)
   endif(${_name}_WITH_LIBRARY)
 endmacro()
 
-# target_link_libraries for both a plugin and a library
+# target_link_libraries for both a plugin and a library (PRIVATE visibility for
+# plugins and PUBLIC visibility for libraries). Do not include visibility
+# keywords (PUBLIC/PRIVATE/INTERFACE) in the arguments
 macro(plugin_link_libraries _name)
   if(${_name}_WITH_PLUGIN)
-    target_link_libraries(${_name}_plugin ${ARGN})
+    target_link_libraries(${_name}_plugin PRIVATE ${ARGN})
   endif(${_name}_WITH_PLUGIN)
 
   if(${_name}_WITH_LIBRARY)
-    target_link_libraries(${_name}_library ${ARGN})
+    target_link_libraries(${_name}_library PUBLIC ${ARGN})
   endif(${_name}_WITH_LIBRARY)
 endmacro()
 

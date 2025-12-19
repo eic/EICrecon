@@ -113,10 +113,10 @@ jobs:
             USE_TSAN: ON
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: 25.01.1-stable
+            release: 25.07.0-stable
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: 25.05.0-stable
+            release: 25.11.2-stable
     steps:
     - uses: actions/checkout@v6
       with:
@@ -153,10 +153,17 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
-          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=${{matrix.USE_ASAN}} -DUSE_TSAN=${{matrix.USE_TSAN}} -DUSE_UBSAN=${{matrix.USE_UBSAN}}
+          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=${{matrix.USE_ASAN}} -DUSE_TSAN=${{matrix.USE_TSAN}} -DUSE_UBSAN=${{matrix.USE_UBSAN}} -DENABLE_LINK_WHAT_YOU_USE=ON
           cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target install
           ccache --show-stats --verbose
           ccache --evict-older-than 7d
+    - name: Print LINK_WHAT_YOU_USE logs
+      run: |
+        shopt -s nullglob
+        for i in build/link_what_you_use_logs/*.log ; do
+          echo "$i"
+          cat "$i"
+        done
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -164,11 +171,25 @@ jobs:
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          FAILED=""
           for lib in install/lib/*.so install/lib/EICrecon/plugins/*.so ; do
+            echo "Checking $lib..."
             readelf -d $lib
-            # Hide intentionally undefined symbols for asan and ubsan
-            ldd -r $lib | grep -v __asan | grep -v __ubsan
+            # Check for undefined symbols (hide intentionally undefined symbols for asan and ubsan)
+            # Also filter service typeinfo symbols (_ZTI*_service) which are resolved at plugin load time
+            UNDEFINED=$(ldd -r $lib 2>&1 | grep -v __asan | grep -v __ubsan | grep -v __tsan | grep -v "_ZTI.*_service" | grep "undefined symbol" || true)
+            if [ -n "$UNDEFINED" ]; then
+              echo "ERROR: Found undefined symbols in $lib:"
+              echo "$UNDEFINED"
+              FAILED="${FAILED:+$FAILED$'\n'}$UNDEFINED"
+            fi
           done
+          if [ -n "$FAILED" ]; then
+            echo "FAILED: One or more libraries have undefined symbols:"
+            echo "$FAILED"
+            exit 1
+          fi
+          echo "SUCCESS: All libraries have properly resolved symbols"
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
