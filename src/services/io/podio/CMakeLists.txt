@@ -1,5 +1,5 @@
 # For podio < 1.3, generate datamodel files with Python script
-if(podio_VERSION VERSION_LESS "1.3")
+if(podio_VERSION VERSION_LESS "1.3" OR JANA_VERSION VERSION_LESS "2.4.3")
   message(
     STATUS "Using legacy Python-based datamodel glue for podio ${podio_VERSION}"
   )
