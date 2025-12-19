@@ -11,7 +11,6 @@
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <fmt/core.h>
-#include <cmath>
 #include <functional>
 #include <map>
 #include <memory>
@@ -30,6 +29,7 @@
 #include "factories/tracking/AmbiguitySolver_factory.h"
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
+#include "factories/tracking/SecondaryVertexFinder_factory.h"
 #include "factories/tracking/TrackParamTruthInit_factory.h"
 #include "factories/tracking/TrackProjector_factory.h"
 #include "factories/tracking/TrackPropagation_factory.h"
@@ -391,6 +391,14 @@ void InitPlugin(JApplication* app) {
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
       "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
+      "SecondaryTrackVerticesAMVF", {"ReconstructedParticles", "CentralCKFActsTrajectories"},
+      {
+          "PrimaryVerticesAMVF",
+          "SecondaryVerticesAMVF",
+      },
+      {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(

@@ -25,6 +25,7 @@
 #include <cstdlib>
 #include <gsl/pointers>
 #include <iterator>
+#include <valarray>
 
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
@@ -43,7 +44,7 @@ void TrackProjector::init() {
 
 void TrackProjector::process(const Input& input, const Output& output) const {
   const auto [acts_trajectories, tracks] = input;
-  auto [track_segments]                  = output;
+  const auto [track_segments]            = output;
 
   debug("Track projector event process. Num of input trajectories: {}",
         std::size(acts_trajectories));
