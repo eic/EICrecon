@@ -4,7 +4,6 @@
 #include "SiliconTrackerDigi.h"
 
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -53,11 +52,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
           sim_hit.getMomentum().y, sim_hit.getMomentum().z);
     debug("   edep = {:.2f}", sim_hit.getEDep());
     debug("   time = {:.4f}[ns]", sim_hit.getTime());
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
     debug("   particle time = {}[ns]", sim_hit.getParticle().getTime());
-#else
-    debug("   particle time = {}[ns]", sim_hit.getMCParticle().getTime());
-#endif
     debug("   time smearing: {:.4f}, resulting time = {:.4f} [ns]", time_smearing, result_time);
     debug("   hit_time_stamp: {} [~ps]", hit_time_stamp);
 
