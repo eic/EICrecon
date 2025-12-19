@@ -1190,7 +1190,7 @@ jobs:
         uses: actions/download-artifact@v7
         continue-on-error: true
         with:
-          pattern: cmake_graphviz-*
+          pattern: cmake-graphviz-*
           path: cmake_graphviz_artifacts/
           merge-multiple: true
       - name: Copy CMake graphviz to docs
