@@ -16,7 +16,7 @@ if(NOT JANA_VERSION VERSION_GREATER "2.4.2")
   # https://github.com/JeffersonLab/JANA2/issues/151
   target_include_directories(
     ${TEST_NAME}
-    PRIVATE ${PROJECT_BINARY_DIR} ${EICRECON_SOURCE_DIR}/src
+    PRIVATE ${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR}/src
             ${PROJECT_SOURCE_DIR} ${JANA_INCLUDE_DIR} ${ROOT_INCLUDE_DIRS}
             ${PROJECT_BINARY_DIR}/include)
 
