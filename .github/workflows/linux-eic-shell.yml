@@ -1179,6 +1179,24 @@ jobs:
         with:
           name: jana.dot
           path: publishing_docs/dot/
+      - name: Download CMake graphviz artifacts
+        if: github.ref_name == 'main'
+        uses: actions/download-artifact@v7
+        continue-on-error: true
+        with:
+          pattern: graphviz-*
+          path: graphviz_artifacts/
+          merge-multiple: true
+      - name: Copy CMake graphviz to docs
+        if: github.ref_name == 'main'
+        run: |
+          mkdir -p publishing_docs/design/cmake_graphs
+          if [ -f graphviz_artifacts/dependencies.svg ]; then
+            cp graphviz_artifacts/dependencies.svg publishing_docs/design/cmake_graphs/
+          fi
+          if [ -f graphviz_artifacts/dependencies.dot ]; then
+            cp graphviz_artifacts/dependencies.dot publishing_docs/design/cmake_graphs/
+          fi
       - uses: actions/download-artifact@v7
         with:
           name: e_craterlake_flags.json
