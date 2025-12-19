@@ -1503,6 +1503,7 @@ jobs:
     # Documentation only; skipped in the merge queue (but run on schedule)
     if: github.event_name != 'merge_group'
     needs:
+      - build
       - eicrecon-gun
       - eicrecon-dis
       - eicrecon-two-stage-running
