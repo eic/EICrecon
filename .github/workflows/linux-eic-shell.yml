@@ -1160,6 +1160,7 @@ jobs:
   build-docs:
     runs-on: ubuntu-24.04
     needs:
+      - build
       - eicrecon-gun
       - eicrecon-dis
       - compare-single-multi-threaded
