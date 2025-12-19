@@ -184,7 +184,7 @@ jobs:
       with:
         name: cmake-graphviz-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
         path: |
-          build/graphviz/dependencies.dot
+          build/graphviz/dependencies.dot*
           build/graphviz/dependencies.svg
         if-no-files-found: error
     - name: Check dynamic library loader paths
