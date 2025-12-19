@@ -31,6 +31,7 @@
 // These files are generated automatically by make_datamodel_glue.py
 #include "services/io/podio/datamodel_glue.h"
 #include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
+#include "PodioRunFrame_service.h"
 #include "services/log/Log_service.h"
 
 // Formatter for podio::version::Version
@@ -80,6 +81,9 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
   // Get Logger
   m_log = GetApplication()->GetService<Log_service>()->logger("JEventSourcePODIO");
 
+  // Make the run-frame service available to downstream factories
+  m_run_frame_service = GetApplication()->GetService<PodioRunFrame_service>();
+
   // Tell JANA that we want it to call the FinishEvent() method.
   // EnableFinishEvent();
 
@@ -90,6 +94,11 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
   bool print_type_table = false;
   GetApplication()->SetDefaultParameter("podio:print_type_table", print_type_table,
                                         "Print list of collection names and their types");
+
+  std::string metadata_file = "";
+  GetApplication()->SetDefaultParameter(
+      "podio:metadata_file", metadata_file,
+      "PODIO file to read run metadata from (default: use primary input file)");
 
   // Hopefully we won't need to reimplement background event merging. Using podio frames, it looks like we would
   // have to do a deep copy of all data in order to insert it into the same frame, which would probably be
