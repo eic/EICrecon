@@ -92,6 +92,7 @@ jobs:
         USE_TSAN: [OFF]
         USE_UBSAN: [ON]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
+        graphviz: ""
         # note that entries that overwrite matrix values require a full specification
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#expanding-or-adding-matrix-configurations
         exclude:
@@ -108,6 +109,7 @@ jobs:
             # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
             # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
             CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations -Wno-error=maybe-uninitialized
+            graphviz: --graphviz=build/graphviz/dependencies.dot
           - CXX: clang++
             # TODO(#2524): remove -Wno-error=deprecated-declarations once seeding migrates to Acts Seeding2 (Acts v46 deprecations)
             CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=deprecated-declarations${{ needs.env.outputs.clang_build_analyzer == 'true' && ' -ftime-trace' || '' }}
@@ -171,13 +173,15 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
-          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=${{matrix.USE_ASAN}} -DUSE_TSAN=${{matrix.USE_TSAN}} -DUSE_UBSAN=${{matrix.USE_UBSAN}} -DENABLE_LINK_WHAT_YOU_USE=ON --graphviz=build/graphviz/dependencies.dot
+          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=${{matrix.USE_ASAN}} -DUSE_TSAN=${{matrix.USE_TSAN}} -DUSE_UBSAN=${{matrix.USE_UBSAN}} -DENABLE_LINK_WHAT_YOU_USE=ON ${{ matrix.graphviz }}
           if command -v ClangBuildAnalyzer >/dev/null 2>&1 && echo "${{ matrix.CXXFLAGS }}" | grep -q -- '-ftime-trace' ; then ClangBuildAnalyzer --start build ; fi
           cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target install
           ccache --show-stats --verbose
           ccache --evict-older-than 7d
-          # convert graphviz to SVG
-          dot -Tsvg build/graphviz/dependencies.dot -o build/graphviz/dependencies.svg
+          # convert graphviz to SVG if generated
+          if [ -f build/graphviz/dependencies.dot ] ; then
+            dot -Tsvg build/graphviz/dependencies.dot -o build/graphviz/dependencies.svg
+          fi
     - name: Analyze build
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{contains(matrix.CXXFLAGS, '-ftime-trace')}}
@@ -210,8 +214,9 @@ jobs:
         done
     - name: Upload graphviz artifacts
       uses: actions/upload-artifact@v6
+      if: matrix.graphviz != ''
       with:
-        name: graphviz-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
+        name: cmake-graphviz-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
         path: |
           build/graphviz/dependencies.dot
           build/graphviz/dependencies.svg
@@ -1523,18 +1528,18 @@ jobs:
         uses: actions/download-artifact@v8
         continue-on-error: true
         with:
-          pattern: graphviz-*
-          path: graphviz_artifacts/
+          pattern: cmake_graphviz-*
+          path: cmake_graphviz_artifacts/
           merge-multiple: true
       - name: Copy CMake graphviz to docs
         if: github.ref_name == 'main'
         run: |
           mkdir -p publishing_docs/design/cmake_graphs
-          if [ -f graphviz_artifacts/dependencies.svg ]; then
-            cp graphviz_artifacts/dependencies.svg publishing_docs/design/cmake_graphs/
+          if [ -f cmake_graphviz_artifacts/dependencies.svg ]; then
+            cp cmake_graphviz_artifacts/dependencies.svg publishing_docs/design/cmake_graphs/
           fi
-          if [ -f graphviz_artifacts/dependencies.dot ]; then
-            cp graphviz_artifacts/dependencies.dot publishing_docs/design/cmake_graphs/
+          if [ -f cmake_graphviz_artifacts/dependencies.dot ]; then
+            cp cmake_graphviz_artifacts/dependencies.dot publishing_docs/design/cmake_graphs/
           fi
       - uses: actions/download-artifact@v8
         with:
