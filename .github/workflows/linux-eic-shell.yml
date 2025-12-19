@@ -1195,6 +1195,7 @@ jobs:
           merge-multiple: true
       - name: Copy CMake graphviz to docs
         if: github.ref_name == 'main'
+        continue-on-error: true
         run: |
           mkdir -p publishing_docs/design/cmake_graphs
           if [ -f cmake_graphviz_artifacts/dependencies.svg ]; then
