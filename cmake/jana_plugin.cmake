@@ -386,7 +386,7 @@ macro(plugin_add_cern_root _name)
   endif()
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} ROOT::Core ROOT::EG)
+  plugin_link_libraries(${PLUGIN_NAME} ROOT::Core)
 
 endmacro()
 
