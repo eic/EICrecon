@@ -19,8 +19,6 @@
  *
  */
 
-
-
 #include "algorithms/calorimetry/ImagingTopoCluster.h"
 
 #include <DD4hep/Handle.h>
@@ -45,8 +43,6 @@
 #include <sstream>
 #include <ctime>
 #include <unistd.h>
-
-
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterSVG.h"
@@ -78,35 +74,35 @@ void ImagingTopoCluster::init() {
   }
 
   // using juggler internal units (GeV, dd4hep::mm, dd4hep::ns, dd4hep::rad)
-  sameLayerDistXY[0]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[0]) / dd4hep::mm;
-  sameLayerDistXY[1]     = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
-  diffLayerDistXY[0]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
-  diffLayerDistXY[1]     = std::visit(_toDouble, m_cfg.diffLayerDistXY[1]) / dd4hep::mm;
+  sameLayerDistXY[0] = std::visit(_toDouble, m_cfg.sameLayerDistXY[0]) / dd4hep::mm;
+  sameLayerDistXY[1] = std::visit(_toDouble, m_cfg.sameLayerDistXY[1]) / dd4hep::mm;
+  diffLayerDistXY[0] = std::visit(_toDouble, m_cfg.diffLayerDistXY[0]) / dd4hep::mm;
+  diffLayerDistXY[1] = std::visit(_toDouble, m_cfg.diffLayerDistXY[1]) / dd4hep::mm;
 
-  ScFi_sameLayerDistXY[0]     = std::visit(_toDouble, m_cfg.ScFi_sameLayerDistXY[0]) / dd4hep::mm;
-  ScFi_sameLayerDistXY[1]     = std::visit(_toDouble, m_cfg.ScFi_sameLayerDistXY[1]) / dd4hep::mm;
-  ScFi_diffLayerDistXY[0]     = std::visit(_toDouble, m_cfg.ScFi_diffLayerDistXY[0]) / dd4hep::mm;
-  ScFi_diffLayerDistXY[1]     = std::visit(_toDouble, m_cfg.ScFi_diffLayerDistXY[1]) / dd4hep::mm;
+  ScFi_sameLayerDistXY[0] = std::visit(_toDouble, m_cfg.ScFi_sameLayerDistXY[0]) / dd4hep::mm;
+  ScFi_sameLayerDistXY[1] = std::visit(_toDouble, m_cfg.ScFi_sameLayerDistXY[1]) / dd4hep::mm;
+  ScFi_diffLayerDistXY[0] = std::visit(_toDouble, m_cfg.ScFi_diffLayerDistXY[0]) / dd4hep::mm;
+  ScFi_diffLayerDistXY[1] = std::visit(_toDouble, m_cfg.ScFi_diffLayerDistXY[1]) / dd4hep::mm;
 
-  Img_sameLayerDistXY[0]     = std::visit(_toDouble, m_cfg.Img_sameLayerDistXY[0]) / dd4hep::mm;
-  Img_sameLayerDistXY[1]     = std::visit(_toDouble, m_cfg.Img_sameLayerDistXY[1]) / dd4hep::mm;
-  Img_diffLayerDistXY[0]     = std::visit(_toDouble, m_cfg.Img_diffLayerDistXY[0]) / dd4hep::mm;
-  Img_diffLayerDistXY[1]     = std::visit(_toDouble, m_cfg.Img_diffLayerDistXY[1]) / dd4hep::mm;
-    
-  sameLayerDistXYZ[0]    = m_cfg.sameLayerDistXYZ[0] / dd4hep::mm;
-  sameLayerDistXYZ[1]    = m_cfg.sameLayerDistXYZ[1] / dd4hep::mm;
-  sameLayerDistXYZ[2]    = m_cfg.sameLayerDistXYZ[2] / dd4hep::mm;
-  diffLayerDistXYZ[0]    = m_cfg.diffLayerDistXYZ[0] / dd4hep::mm;
-  diffLayerDistXYZ[1]    = m_cfg.diffLayerDistXYZ[1] / dd4hep::mm;
-  diffLayerDistXYZ[2]    = m_cfg.diffLayerDistXYZ[2] / dd4hep::mm;
+  Img_sameLayerDistXY[0] = std::visit(_toDouble, m_cfg.Img_sameLayerDistXY[0]) / dd4hep::mm;
+  Img_sameLayerDistXY[1] = std::visit(_toDouble, m_cfg.Img_sameLayerDistXY[1]) / dd4hep::mm;
+  Img_diffLayerDistXY[0] = std::visit(_toDouble, m_cfg.Img_diffLayerDistXY[0]) / dd4hep::mm;
+  Img_diffLayerDistXY[1] = std::visit(_toDouble, m_cfg.Img_diffLayerDistXY[1]) / dd4hep::mm;
 
-  ScFi_sameLayerDistXYZ[0]    = m_cfg.ScFi_sameLayerDistXYZ[0] / dd4hep::mm;
-  ScFi_sameLayerDistXYZ[1]    = m_cfg.ScFi_sameLayerDistXYZ[1] / dd4hep::mm;
-  ScFi_sameLayerDistXYZ[2]    = m_cfg.ScFi_sameLayerDistXYZ[2] / dd4hep::mm;
-  ScFi_diffLayerDistXYZ[0]    = m_cfg.ScFi_diffLayerDistXYZ[0] / dd4hep::mm;
-  ScFi_diffLayerDistXYZ[1]    = m_cfg.ScFi_diffLayerDistXYZ[1] / dd4hep::mm;
-  ScFi_diffLayerDistXYZ[2]    = m_cfg.ScFi_diffLayerDistXYZ[2] / dd4hep::mm;
-  
+  sameLayerDistXYZ[0] = m_cfg.sameLayerDistXYZ[0] / dd4hep::mm;
+  sameLayerDistXYZ[1] = m_cfg.sameLayerDistXYZ[1] / dd4hep::mm;
+  sameLayerDistXYZ[2] = m_cfg.sameLayerDistXYZ[2] / dd4hep::mm;
+  diffLayerDistXYZ[0] = m_cfg.diffLayerDistXYZ[0] / dd4hep::mm;
+  diffLayerDistXYZ[1] = m_cfg.diffLayerDistXYZ[1] / dd4hep::mm;
+  diffLayerDistXYZ[2] = m_cfg.diffLayerDistXYZ[2] / dd4hep::mm;
+
+  ScFi_sameLayerDistXYZ[0] = m_cfg.ScFi_sameLayerDistXYZ[0] / dd4hep::mm;
+  ScFi_sameLayerDistXYZ[1] = m_cfg.ScFi_sameLayerDistXYZ[1] / dd4hep::mm;
+  ScFi_sameLayerDistXYZ[2] = m_cfg.ScFi_sameLayerDistXYZ[2] / dd4hep::mm;
+  ScFi_diffLayerDistXYZ[0] = m_cfg.ScFi_diffLayerDistXYZ[0] / dd4hep::mm;
+  ScFi_diffLayerDistXYZ[1] = m_cfg.ScFi_diffLayerDistXYZ[1] / dd4hep::mm;
+  ScFi_diffLayerDistXYZ[2] = m_cfg.ScFi_diffLayerDistXYZ[2] / dd4hep::mm;
+
   sameLayerDistEtaPhi[0] = m_cfg.sameLayerDistEtaPhi[0];
   sameLayerDistEtaPhi[1] = m_cfg.sameLayerDistEtaPhi[1] / dd4hep::rad;
   diffLayerDistEtaPhi[0] = m_cfg.diffLayerDistEtaPhi[0];
@@ -125,17 +121,17 @@ void ImagingTopoCluster::init() {
   Img_diffLayerDistTZ[0]     = m_cfg.Img_diffLayerDistTZ[0] / dd4hep::mm;
   Img_diffLayerDistTZ[1]     = m_cfg.Img_diffLayerDistTZ[1] / dd4hep::mm;
 
-  cross_system_DistXYZ[0]    = m_cfg.cross_system_DistXYZ[0] / dd4hep::mm;
-  cross_system_DistXYZ[1]    = m_cfg.cross_system_DistXYZ[1] / dd4hep::mm;
-  cross_system_DistXYZ[2]    = m_cfg.cross_system_DistXYZ[2] / dd4hep::mm;
-  
-  sectorDist                = m_cfg.sectorDist / dd4hep::mm;
-  cross_system_sectorDist   = m_cfg.sectorDist / dd4hep::mm;
-  ScFi_sectorDist           = m_cfg.ScFi_sectorDist / dd4hep::mm;
-  Img_sectorDist            = m_cfg.Img_sectorDist / dd4hep::mm;
-  minClusterHitEdep         = m_cfg.minClusterHitEdep / dd4hep::GeV;
-  minClusterCenterEdep      = m_cfg.minClusterCenterEdep / dd4hep::GeV;
-  minClusterEdep            = m_cfg.minClusterEdep / dd4hep::GeV;
+  cross_system_DistXYZ[0] = m_cfg.cross_system_DistXYZ[0] / dd4hep::mm;
+  cross_system_DistXYZ[1] = m_cfg.cross_system_DistXYZ[1] / dd4hep::mm;
+  cross_system_DistXYZ[2] = m_cfg.cross_system_DistXYZ[2] / dd4hep::mm;
+
+  sectorDist              = m_cfg.sectorDist / dd4hep::mm;
+  cross_system_sectorDist = m_cfg.sectorDist / dd4hep::mm;
+  ScFi_sectorDist         = m_cfg.ScFi_sectorDist / dd4hep::mm;
+  Img_sectorDist          = m_cfg.Img_sectorDist / dd4hep::mm;
+  minClusterHitEdep       = m_cfg.minClusterHitEdep / dd4hep::GeV;
+  minClusterCenterEdep    = m_cfg.minClusterCenterEdep / dd4hep::GeV;
+  minClusterEdep          = m_cfg.minClusterEdep / dd4hep::GeV;
 
   // same layer clustering parameters
   switch (m_cfg.sameLayerMode) {
@@ -168,7 +164,7 @@ void ImagingTopoCluster::init() {
     info("Same-layer clustering (same sector and same layer): "
          "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
          sameLayerDistEtaPhi[0], sameLayerDistEtaPhi[1]);
-    break;    
+    break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
     if (m_cfg.sameLayerDistTZ.size() != 2) {
       const std::string msg = "Expected 2 values (t_dist, z_dist) for sameLayerDistTZ";
@@ -232,8 +228,8 @@ void ImagingTopoCluster::init() {
   info("Neighbour sectors clustering (different sector): "
        "Global distance between hits <= {:.4f} mm.",
        sectorDist);
-    
-//+++++++++++++ScFi_layer mode+++++++++++++++++
+
+  //+++++++++++++ScFi_layer mode+++++++++++++++++
   switch (m_cfg.ScFi_sameLayerMode) {
   case ImagingTopoClusterConfig::ELayerMode::xy:
     if (m_cfg.ScFi_sameLayerDistXY.size() != 2) {
@@ -247,7 +243,8 @@ void ImagingTopoCluster::init() {
     break;
   case ImagingTopoClusterConfig::ELayerMode::xyz:
     if (m_cfg.ScFi_sameLayerDistXYZ.size() != 3) {
-      const std::string msg = "Expected 3 values (x_dist, y_dist, z_dist) for ScFi_sameLayerDistXYZ";
+      const std::string msg =
+          "Expected 3 values (x_dist, y_dist, z_dist) for ScFi_sameLayerDistXYZ";
       error(msg);
       throw std::runtime_error(msg);
     }
@@ -264,7 +261,7 @@ void ImagingTopoCluster::init() {
     info("ScFi_Same-layer clustering (same sector and same layer): "
          "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
          ScFi_sameLayerDistEtaPhi[0], ScFi_sameLayerDistEtaPhi[1]);
-    break;    
+    break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
     if (m_cfg.ScFi_sameLayerDistTZ.size() != 2) {
       const std::string msg = "Expected 2 values (t_dist, z_dist) for ScFi_sameLayerDistTZ";
@@ -278,7 +275,7 @@ void ImagingTopoCluster::init() {
   default:
     throw std::runtime_error("Unknown same-layer mode.");
   }
-  
+
   switch (m_cfg.ScFi_diffLayerMode) {
   case ImagingTopoClusterConfig::ELayerMode::etaphi:
     if (m_cfg.ScFi_diffLayerDistEtaPhi.size() != 2) {
@@ -302,13 +299,15 @@ void ImagingTopoCluster::init() {
     break;
   case ImagingTopoClusterConfig::ELayerMode::xyz:
     if (m_cfg.ScFi_diffLayerDistXYZ.size() != 3) {
-      const std::string msg = "Expected 3 values (x_dist, y_dist, y_dist) for ScFi_diffLayerDistXYZ";
+      const std::string msg =
+          "Expected 3 values (x_dist, y_dist, y_dist) for ScFi_diffLayerDistXYZ";
       error(msg);
       throw std::runtime_error(msg);
     }
     info("ScFi_Neighbour layers clustering (same sector and layer id within +- {:d}): "
          "Global [x, y, z] distance between hits <= [{:.4f} mm, {:.4f} mm, {:.4f} mm].",
-         m_cfg.neighbourLayersRange, ScFi_diffLayerDistXYZ[0], ScFi_diffLayerDistXYZ[1], ScFi_diffLayerDistXYZ[2]);
+         m_cfg.neighbourLayersRange, ScFi_diffLayerDistXYZ[0], ScFi_diffLayerDistXYZ[1],
+         ScFi_diffLayerDistXYZ[2]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
     if (m_cfg.ScFi_diffLayerDistTZ.size() != 2) {
@@ -327,9 +326,8 @@ void ImagingTopoCluster::init() {
   info("ScFi_Neighbour sectors clustering (different sector): "
        "Global distance between hits <= {:.4f} mm.",
        ScFi_sectorDist);
-    
-  
-//+++++++++++++Img_layer mode+++++++++++++++++
+
+  //+++++++++++++Img_layer mode+++++++++++++++++
 
   switch (m_cfg.Img_sameLayerMode) {
   case ImagingTopoClusterConfig::ELayerMode::xy:
@@ -361,7 +359,7 @@ void ImagingTopoCluster::init() {
     info("Img_Same-layer clustering (same sector and same layer): "
          "Global [eta, phi] distance between hits <= [{:.4f}, {:.4f} rad].",
          Img_sameLayerDistEtaPhi[0], Img_sameLayerDistEtaPhi[1]);
-    break;    
+    break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
     if (m_cfg.Img_sameLayerDistTZ.size() != 2) {
       const std::string msg = "Expected 2 values (t_dist, z_dist) for Img_sameLayerDistTZ";
@@ -375,7 +373,7 @@ void ImagingTopoCluster::init() {
   default:
     throw std::runtime_error("Unknown same-layer mode.");
   }
-  
+
   switch (m_cfg.Img_diffLayerMode) {
   case ImagingTopoClusterConfig::ELayerMode::etaphi:
     if (m_cfg.Img_diffLayerDistEtaPhi.size() != 2) {
@@ -405,7 +403,8 @@ void ImagingTopoCluster::init() {
     }
     info("Img_Neighbour layers clustering (same sector and layer id within +- {:d}): "
          "Global [x, y, z] distance between hits <= [{:.4f} mm, {:.4f} mm, {:.4f} mm].",
-         m_cfg.neighbourLayersRange, Img_diffLayerDistXYZ[0], Img_diffLayerDistXYZ[1], Img_diffLayerDistXYZ[2]);
+         m_cfg.neighbourLayersRange, Img_diffLayerDistXYZ[0], Img_diffLayerDistXYZ[1],
+         Img_diffLayerDistXYZ[2]);
     break;
   case ImagingTopoClusterConfig::ELayerMode::tz:
     if (m_cfg.Img_diffLayerDistTZ.size() != 2) {
@@ -451,13 +450,13 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
 
   // Loop over systems
   for (auto& [sys, hit_indices] : hits_by_system) {
-      
-     debug("Processing system {} with {} hits", sys, hit_indices.size());   
+
+    debug("Processing system {} with {} hits", sys, hit_indices.size());
 
     // Sort hit indices (podio collections do not support std::sort)
     auto compare = [&hits](const auto& a, const auto& b) {
       // if !(a < b) and !(b < a), then a and b are equivalent
-      // and only one of them will be allowed in a set  
+      // and only one of them will be allowed in a set
       const auto& ha = (*hits)[a];
       const auto& hb = (*hits)[b];
 
@@ -469,46 +468,44 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
     };
 
     // indices contains the remaining hit indices that have not
-    // been assigned to a group yet  
+    // been assigned to a group yet
     std::set<size_t, decltype(compare)> indices(compare);
-      
-    // set does not have a size yet, so cannot fill with iota  
+
+    // set does not have a size yet, so cannot fill with iota
     for (auto i : hit_indices) {
       indices.insert(i);
     }
-      
+
     if (hit_indices.size() != indices.size()) {
-      error("System {}: equivalent hits were dropped: #hits {:d}, #indices {:d}",
-            sys, hit_indices.size(), indices.size());
-          for (auto i : hit_indices) {
-            const auto& h = (*hits)[i];
-            error("  dropped hit {}: cellID=0x{:x}, layer={}, index={}",
-                  i, h.getCellID(), h.getLayer(), h.getObjectID().index);
-          }
+      error("System {}: equivalent hits were dropped: #hits {:d}, #indices {:d}", sys,
+            hit_indices.size(), indices.size());
+      for (auto i : hit_indices) {
+        const auto& h = (*hits)[i];
+        error("  dropped hit {}: cellID=0x{:x}, layer={}, index={}", i, h.getCellID(), h.getLayer(),
+              h.getObjectID().index);
+      }
     }
 
     // Group neighboring hits
     std::vector<std::list<size_t>> groups;
-    std::vector<std::vector<std::pair<size_t,size_t>>> group_edges;  //for is_neighbour
-    
-
+    std::vector<std::vector<std::pair<size_t, size_t>>> group_edges; //for is_neighbour
 
     // because indices changes, the loop over indices requires some care:
     // - we must use iterators instead of range-for
     // - erase returns an incremented iterator and therefore acts as idx++
     // - when the set becomes empty on erase, idx is invalid and idx++ will be too
     // (also applies to loop in bfs_group below)
-      
+
     for (auto idx = indices.begin(); idx != indices.end();
          indices.empty() ? idx = indices.end() : idx) {
 
-         trace("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {}), energy = {}",
-          *idx, (*hits)[*idx].getLocal().x, (*hits)[*idx].getLocal().y, (*hits)[*idx].getLocal().z,
-          (*hits)[*idx].getPosition().x, (*hits)[*idx].getPosition().y,
-          (*hits)[*idx].getPosition().z, (*hits)[*idx].getEnergy());
+      trace("hit {:d}: local position = ({}, {}, {}), global position = ({}, {}, {}), energy = {}",
+            *idx, (*hits)[*idx].getLocal().x, (*hits)[*idx].getLocal().y,
+            (*hits)[*idx].getLocal().z, (*hits)[*idx].getPosition().x,
+            (*hits)[*idx].getPosition().y, (*hits)[*idx].getPosition().z,
+            (*hits)[*idx].getEnergy());
 
-             
-      // not energetic enough for cluster center, but could still be cluster hit  
+      // not energetic enough for cluster center, but could still be cluster hit
       if ((*hits)[*idx].getEnergy() < minClusterCenterEdep) {
         idx++;
         continue;
@@ -516,29 +513,28 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
 
       // create a new group, and group all the neighbouring hits
       groups.emplace_back(std::list{*idx});
-      group_edges.emplace_back();  // create matching edges vector
+      group_edges.emplace_back(); // create matching edges vector
       bfs_group(*hits, indices, groups.back(), group_edges.back(), *idx);
 
-           
-      // wait with erasing until after bfs_group to ensure iterator is not invalidated in bfs_group       
-      idx = indices.erase(idx);  // takes role of idx++
+      // wait with erasing until after bfs_group to ensure iterator is not invalidated in bfs_group
+      idx = indices.erase(idx); // takes role of idx++
     }
 
     debug("found {} potential clusters (groups of hits)", groups.size());
     for (std::size_t i = 0; i < groups.size(); ++i) {
-        debug("group {}: {} hits", i, groups[i].size());
-        for (auto idx : groups[i]) {
-          const auto& hit = (*hits)[idx];
-          // debug("  hit {} -> energy = {:.6f}, layer = {}, sector = {}, local = ({:.2f}, {:.2f}, "
-          //       "{:.2f}), global = ({:.2f}, {:.2f}, {:.2f})",
-          //       idx, hit.getEnergy(), hit.getLayer(), hit.getSector(), hit.getLocal().x,
-          //       hit.getLocal().y, hit.getLocal().z, hit.getPosition().x, hit.getPosition().y,
-          //       hit.getPosition().z);
-          debug("T{}_{} [label=\"hit {}\", fillcolor=lightcoral, group=T{}];", i, idx, idx, i);
-        }
-        for (auto& e : group_edges[i]) {
-              debug("T{}_{} -- T{}_{};", i, e.first, i, e.second);
-          }
+      debug("group {}: {} hits", i, groups[i].size());
+      for (auto idx : groups[i]) {
+        const auto& hit = (*hits)[idx];
+        // debug("  hit {} -> energy = {:.6f}, layer = {}, sector = {}, local = ({:.2f}, {:.2f}, "
+        //       "{:.2f}), global = ({:.2f}, {:.2f}, {:.2f})",
+        //       idx, hit.getEnergy(), hit.getLayer(), hit.getSector(), hit.getLocal().x,
+        //       hit.getLocal().y, hit.getLocal().z, hit.getPosition().x, hit.getPosition().y,
+        //       hit.getPosition().z);
+        debug("T{}_{} [label=\"hit {}\", fillcolor=lightcoral, group=T{}];", i, idx, idx, i);
+      }
+      for (auto& e : group_edges[i]) {
+        debug("T{}_{} -- T{}_{};", i, e.first, i, e.second);
+      }
     }
 
     // form clusters
@@ -556,14 +552,12 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
       all_clusters.emplace_back(group.begin(), group.end());
     }
   }
-    
 
-  
-// mergeCrossSystemClusters
+  // mergeCrossSystemClusters
   std::vector<std::vector<size_t>> final_clusters;
   std::set<size_t> used_Img;
   std::set<size_t> used_ScFi;
-  
+
   // Track cross-system neighbor pairs for visualization
   std::set<std::pair<size_t, size_t>> cross_system_neighbor_pairs;
 
@@ -575,15 +569,16 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
     const auto& Img  = clusters_by_system.at(101);
     const auto& ScFi = clusters_by_system.at(105);
 
-    debug("Performing simple cross-system merging: {} Img clusters, {} ScFi clusters",
-          Img.size(), ScFi.size());
+    debug("Performing simple cross-system merging: {} Img clusters, {} ScFi clusters", Img.size(),
+          ScFi.size());
 
     // Loop over Imaging clusters
     for (size_t idx_Img : Img) {
 
-      if (used_Img.count(idx_Img)) continue;
+      if (used_Img.count(idx_Img))
+        continue;
 
-      const auto& cl_Img = all_clusters[idx_Img];
+      const auto& cl_Img         = all_clusters[idx_Img];
       std::vector<size_t> merged = cl_Img;
       used_Img.insert(idx_Img);
 
@@ -596,7 +591,8 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
         for (auto h1 : cl_Img) {
           for (auto h2 : cl_ScFi) {
             if (cross_system_is_neighbour((*hits)[h1], (*hits)[h2])) {
-              debug("  Cross system neighbour: Img cluster {} hit {}  <->  ScFi cluster {} hit {}", idx_Img, h1, idx_ScFi, h2);
+              debug("  Cross system neighbour: Img cluster {} hit {}  <->  ScFi cluster {} hit {}",
+                    idx_Img, h1, idx_ScFi, h2);
               // Track this cross-system neighbor pair
               size_t min_h = std::min(h1, h2);
               size_t max_h = std::max(h1, h2);
@@ -605,7 +601,8 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
               break;
             }
           }
-          if (neighbor_found) break;
+          if (neighbor_found)
+            break;
         }
 
         if (neighbor_found) {
@@ -614,16 +611,18 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
 
           // merge any other Imaging clusters neighbour to ScFi
           for (size_t idx2_Img : Img) {
-            if (used_Img.count(idx2_Img)) continue;
+            if (used_Img.count(idx2_Img))
+              continue;
 
-            const auto& cl2_Img = all_clusters[idx2_Img];
+            const auto& cl2_Img   = all_clusters[idx2_Img];
             bool second_neighbour = false;
 
             for (auto h1 : cl2_Img) {
               for (auto h2 : cl_ScFi) {
                 if (cross_system_is_neighbour((*hits)[h1], (*hits)[h2])) {
-                  debug("  second Neighbour: Img cluster {} hit {} is neighbour to same ScFi cluster {} via hit {}",
-        idx2_Img, h1, idx_ScFi, h2);
+                  debug("  second Neighbour: Img cluster {} hit {} is neighbour to same ScFi "
+                        "cluster {} via hit {}",
+                        idx2_Img, h1, idx_ScFi, h2);
                   // Track this cross-system neighbor pair
                   size_t min_h = std::min(h1, h2);
                   size_t max_h = std::max(h1, h2);
@@ -632,7 +631,8 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
                   break;
                 }
               }
-              if (second_neighbour) break;
+              if (second_neighbour)
+                break;
             }
 
             if (second_neighbour) {
@@ -652,8 +652,7 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
         final_clusters.push_back(all_clusters[idx_ScFi]);
       }
     }
-  }
-  else {
+  } else {
     // If only one subsystem exists : no merging
     final_clusters = all_clusters;
   }
@@ -664,12 +663,12 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
   if (m_cfg.enableSVGOutput) {
     try {
       SVGVisualizationConfig svg_cfg;
-      svg_cfg.svg_width = m_cfg.svgWidth;
-      svg_cfg.svg_height = m_cfg.svgHeight;
-      svg_cfg.margin = m_cfg.svgMargin;
+      svg_cfg.svg_width              = m_cfg.svgWidth;
+      svg_cfg.svg_height             = m_cfg.svgHeight;
+      svg_cfg.margin                 = m_cfg.svgMargin;
       svg_cfg.enable_energy_coloring = m_cfg.svgEnergyColoring;
-      svg_cfg.energy_min = m_cfg.svgEnergyMin;
-      svg_cfg.energy_max = m_cfg.svgEnergyMax;
+      svg_cfg.energy_min             = m_cfg.svgEnergyMin;
+      svg_cfg.energy_max             = m_cfg.svgEnergyMax;
 
       // Convert final_clusters to groups format (vector of lists)
       std::vector<std::list<std::size_t>> groups;
@@ -683,15 +682,19 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
       std::ostringstream filename;
       // Use a counter to distinguish events processed in the same second
       static std::atomic<unsigned int> event_counter = 0;
-      unsigned int evt_seq = event_counter++;
-      filename << m_cfg.svgOutputDirectory << "bemc_event_" << now << "_" << getpid() << "_" << evt_seq;
-      
+      unsigned int evt_seq                           = event_counter++;
+      filename << m_cfg.svgOutputDirectory << "bemc_event_" << now << "_" << getpid() << "_"
+               << evt_seq;
+
       // Create lambda for is_neighbour function using the current method
-      auto is_neighbour_lambda = [this](const edm4eic::CalorimeterHit& h1, const edm4eic::CalorimeterHit& h2) -> bool {
+      auto is_neighbour_lambda = [this](const edm4eic::CalorimeterHit& h1,
+                                        const edm4eic::CalorimeterHit& h2) -> bool {
         return this->is_neighbour(h1, h2);
       };
-      
-      auto svg_path = write_clusters_svg_enhanced(filename.str(), hits, groups, evt_seq, &is_neighbour_lambda, &m_idSpec, svg_cfg, &cross_system_neighbor_pairs);
+
+      auto svg_path =
+          write_clusters_svg_enhanced(filename.str(), hits, groups, evt_seq, &is_neighbour_lambda,
+                                      &m_idSpec, svg_cfg, &cross_system_neighbor_pairs);
       info("Enhanced SVG visualization written to: {}", svg_path.string());
     } catch (const std::exception& e) {
       warning("Failed to generate SVG visualization: {}", e.what());
@@ -708,10 +711,9 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
   }
 }
 
-
 bool ImagingTopoCluster::cross_system_is_neighbour(const edm4eic::CalorimeterHit& h1,
-                                      const edm4eic::CalorimeterHit& h2) const {
-    
+                                                   const edm4eic::CalorimeterHit& h2) const {
+
   // Get the "system" field from the ID specification
   auto* sys_field = m_idSpec.field("system");
   if (!sys_field) {
@@ -724,20 +726,18 @@ bool ImagingTopoCluster::cross_system_is_neighbour(const edm4eic::CalorimeterHit
 
   // If different systems, allow Imaging(101) <-> ScFi(105) cross-linking
   if (sys1 != sys2) {
-      if (h1.getSector() != h2.getSector()) {
+    if (h1.getSector() != h2.getSector()) {
       return std::hypot((h1.getPosition().x - h2.getPosition().x),
                         (h1.getPosition().y - h2.getPosition().y),
                         (h1.getPosition().z - h2.getPosition().z)) <= cross_system_sectorDist;
-      }
-      else{
-          return (std::abs(h1.getPosition().x - h2.getPosition().x) <= cross_system_DistXYZ[0]) &&
-                 (std::abs(h1.getPosition().y - h2.getPosition().y) <= cross_system_DistXYZ[1]) &&
-                 (std::abs(h1.getPosition().z - h2.getPosition().z) <= cross_system_DistXYZ[2]);
-      }
-  }  
- return false;
+    } else {
+      return (std::abs(h1.getPosition().x - h2.getPosition().x) <= cross_system_DistXYZ[0]) &&
+             (std::abs(h1.getPosition().y - h2.getPosition().y) <= cross_system_DistXYZ[1]) &&
+             (std::abs(h1.getPosition().z - h2.getPosition().z) <= cross_system_DistXYZ[2]);
+    }
+  }
+  return false;
 }
-
 
 // helper function to group hits
 bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
@@ -753,11 +753,11 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
   int sys1 = sys_field->value(h1.getCellID());
   int sys2 = sys_field->value(h2.getCellID());
 
-  if (sys1 != sys2) {  
+  if (sys1 != sys2) {
     return false;
   }
 
-  // Same-system logic 
+  // Same-system logic
 
   //ScFi
   if (sys1 == 105) {
@@ -788,7 +788,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
         return (std::abs(eta1 - eta2) <= ScFi_sameLayerDistEtaPhi[0]) &&
                (std::abs(phi1 - phi2) <= ScFi_sameLayerDistEtaPhi[1]);
       case ImagingTopoClusterConfig::ELayerMode::tz: {
-        auto phi = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
+        auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
         auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
         auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
@@ -814,7 +814,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
                (std::abs(h1.getPosition().y - h2.getPosition().y) <= ScFi_diffLayerDistXYZ[1]) &&
                (std::abs(h1.getPosition().z - h2.getPosition().z) <= ScFi_diffLayerDistXYZ[2]);
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::tz: {
-        auto phi = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
+        auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
         auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
         auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
@@ -859,7 +859,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
         return (std::abs(eta1 - eta2) <= Img_sameLayerDistEtaPhi[0]) &&
                (std::abs(phi1 - phi2) <= Img_sameLayerDistEtaPhi[1]);
       case ImagingTopoClusterConfig::ELayerMode::tz: {
-        auto phi = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
+        auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
         auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
         auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
@@ -885,7 +885,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
                (std::abs(h1.getPosition().y - h2.getPosition().y) <= Img_diffLayerDistXYZ[1]) &&
                (std::abs(h1.getPosition().z - h2.getPosition().z) <= Img_diffLayerDistXYZ[2]);
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::tz: {
-        auto phi = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
+        auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
         auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
         auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
@@ -933,9 +933,10 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
         return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
                          edm4hep::utils::eta(h2.getPosition())) <= sameLayerDistEtaPhi[0]) &&
                (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -
-                         edm4hep::utils::angleAzimuthal(h2.getPosition())) <= sameLayerDistEtaPhi[1]);
+                         edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
+                sameLayerDistEtaPhi[1]);
       case ImagingTopoClusterConfig::ELayerMode::tz: {
-        auto phi = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
+        auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
         auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
         auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
@@ -954,7 +955,8 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
         return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
                          edm4hep::utils::eta(h2.getPosition())) <= diffLayerDistEtaPhi[0]) &&
                (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -
-                         edm4hep::utils::angleAzimuthal(h2.getPosition())) <= diffLayerDistEtaPhi[1]);
+                         edm4hep::utils::angleAzimuthal(h2.getPosition())) <=
+                diffLayerDistEtaPhi[1]);
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
         return (std::abs(h1.getPosition().x - h2.getPosition().x) <= diffLayerDistXY[0]) &&
                (std::abs(h1.getPosition().y - h2.getPosition().y) <= diffLayerDistXY[1]);
@@ -963,7 +965,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
                (std::abs(h1.getPosition().y - h2.getPosition().y) <= diffLayerDistXYZ[1]) &&
                (std::abs(h1.getPosition().z - h2.getPosition().z) <= diffLayerDistXYZ[2]);
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::tz: {
-        auto phi = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
+        auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
         auto h1_t = (h1.getPosition().x * sin(phi)) - (h1.getPosition().y * cos(phi));
         auto h2_t = (h2.getPosition().x * sin(phi)) - (h2.getPosition().y * cos(phi));
@@ -983,24 +985,3 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
 }
 
 } // namespace eicrecon
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
