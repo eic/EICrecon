@@ -274,8 +274,7 @@ find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
-list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake) # Find
-                                                           # Find<Modules>.cmake
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake) # Find Find<Modules>.cmake
 
 enable_testing()
 
