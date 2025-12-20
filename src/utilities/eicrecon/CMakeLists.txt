@@ -7,7 +7,7 @@ add_executable(eicrecon ${SOURCES})
 # Set include directories
 target_include_directories(eicrecon PRIVATE ${PROJECT_SOURCE_DIR}/src)
 target_include_directories(eicrecon SYSTEM PRIVATE ${JANA_INCLUDE_DIR}
-                                                  ${ROOT_INCLUDE_DIRS})
+                                                   ${ROOT_INCLUDE_DIRS})
 
 # Link libraries
 target_link_libraries(eicrecon PRIVATE ${JANA_LIB} ROOT::Core)
