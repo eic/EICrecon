@@ -30,31 +30,3 @@ plugin_glob_all(${PLUGIN_NAME})
 plugin_link_libraries(
   ${PLUGIN_NAME} podio::podio podio::podioRootIO algorithms_digi_library
   algorithms_tracking_library dd4hep_library)
-
-#
-# Add include directories (works same as target_include_directories)
-# plugin_include_directories(${PLUGIN_NAME} PUBLIC ${CMAKE_CURRENT_LIST_DIR}
-# SYSTEM PUBLIC ${podio_INCLUDE_DIR} ${EDM4HEP_INCLUDE_DIR}
-# ${DD4hep_INCLUDE_DIRS} ${ROOT_INCLUDE_DIRS} ${EDM4EIC_INCLUDE_DIRS})
-#
-# Add libraries (works same as target_include_directories)
-# plugin_link_libraries(${PLUGIN_NAME} EDM4HEP::edm4hep  EDM4EIC::edm4eic
-# ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo spdlog::spdlog
-# algorithms_tracking_library)
-#
-# target_link_libraries(${PLUGIN_NAME}_plugin EDM4HEP::edm4hep  EDM4EIC::edm4eic
-# ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo spdlog::spdlog
-# algorithms_tracking_library)
-#
-# get_target_property(ACTSPLUGINLIBS ${PLUGIN_NAME}_plugin LINK_LIBRARIES)
-# message(STATUS "LINK_LIBRARIES = ${ACTSPLUGINLIBS}")
-#
-# LINK_LIBRARIES =
-# JANA::jana2;spdlog::spdlog;EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
-# LINK_LIBRARIES =
-# JANA::jana2;spdlog::spdlog;EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library;
-# EDM4HEP::edm4hep;;EDM4EIC::edm4eic;ActsCore;ActsPluginDD4hep;ActsPluginJson;ActsPluginTGeo;spdlog::spdlog;algorithms_tracking_library
-# target_link_libraries(${PLUGIN_NAME}_plugin Eigen3::Eigen EDM4HEP::edm4hep
-#
-# EDM4EIC::edm4eic ActsCore ActsPluginDD4hep ActsPluginJson ActsPluginTGeo
-# spdlog::spdlog algorithms_tracking_library)

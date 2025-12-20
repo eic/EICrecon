@@ -23,9 +23,7 @@
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
 #include <Acts/Propagator/Propagator.hpp>
-#if Acts_VERSION_MAJOR >= 36
 #include <Acts/Propagator/PropagatorResult.hpp>
-#endif
 #include <Acts/Surfaces/CylinderBounds.hpp>
 #include <Acts/Surfaces/CylinderSurface.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
@@ -280,7 +278,6 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("PROP", m_log));
 
-#if Acts_VERSION_MAJOR >= 36
   using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
 #if Acts_VERSION_MAJOR >= 37
   using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
@@ -293,14 +290,6 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
                                         logger().cloneWithSuffix("Navigator")),
                         logger().cloneWithSuffix("Propagator"));
   PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
-#else
-  Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> propagator(
-      Acts::EigenStepper<>(magneticField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
-      logger().cloneWithSuffix("Propagator"));
-  Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>> propagationOptions(
-      m_geoContext, m_fieldContext);
-#endif
 
   auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
 
