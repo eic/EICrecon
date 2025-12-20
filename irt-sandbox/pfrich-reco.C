@@ -1,17 +1,14 @@
 //
-//   root -l './drich-reco.C("drich-events.root", "drich-optics.root")'
+//   root -l './pfrich-reco.C("pfrich-events.root", "pfrich-optics.root")'
 //
 //      or
 //
-//   root -l './drich-reco.C("drich-events.root")'
+//   root -l './pfrich-reco.C("pfrich-events.root")'
 //
 
-#define _USE_AEROGEL_RADIATOR_
-#define _USE_GAS_RADIATOR_
-
-void drich_reco(const char *dfname, const char *cfname = 0)
+void pfrich_reco(const char *dfname, const char *cfname = 0)
 {
-  auto *reco = new ReconstructionFactory(dfname, cfname, "DRICH");
+  auto *reco = new ReconstructionFactory(dfname, cfname, "PFRICH");
 
   // Factory configuration part; may want to uncomments some of the options;
   {
@@ -26,9 +23,9 @@ void drich_reco(const char *dfname, const char *cfname = 0)
     //reco->RemoveAmbiguousHits();
     
     // Should be close enough to the real one; this only affects the calibration stage;
-    reco->SetDefaultSinglePhotonThetaResolution(0.002);
-    // Sensor active area will be pixellated NxN in digitization; '32': SiPM panels;
-    reco->SetSensorActiveAreaPixellation(8);
+    reco->SetDefaultSinglePhotonThetaResolution(0.005);
+    // Sensor active area will be pixellated NxN in digitization; '32': HRPPD sensors;
+    reco->SetSensorActiveAreaPixellation(32);
     
     //reco->SetSinglePhotonTimingResolution(0.030); // default: 0.050 (50ps);
 
@@ -37,7 +34,7 @@ void drich_reco(const char *dfname, const char *cfname = 0)
     reco->AddHypothesis(321);
     
     // Comment out if want to cheat a bit (feed IRT with true photon direction vectors);
-    reco->IgnoreMcTruthPhotonDirectionSeed();
+    //+reco->IgnoreMcTruthPhotonDirectionSeed();
 
     // Require at least that many associated hits; populate 0-th bin of a PID match
     // histogram otherwise; default: 1; 
@@ -45,33 +42,21 @@ void drich_reco(const char *dfname, const char *cfname = 0)
   }
     
   // Comment either aerogel or gas part out if want to work with a single radiator only;
-#ifdef _USE_AEROGEL_RADIATOR_
   auto *ra = reco->GetMyRICH()->GetRadiator("Aerogel");
   ra->UseInRingImaging()->InitializePlots("a");
   if (ra->Plots()) {
     // Initialize aerogel QA plots; 
-    ra->Plots()->SetRefractiveIndexRange(1.015, 1.025);
-    ra->Plots()->SetPhotonVertexRange(1970, 2030);
-    ra->Plots()->SetCherenkovAngleRange(200, 250);
+    ra->Plots()->SetRefractiveIndexRange(1.035, 1.045);
+    ra->Plots()->SetPhotonVertexRange(-1275, -1240);
+    ra->Plots()->SetCherenkovAngleRange(270, 290);
   } //if
-#endif
-#ifdef _USE_GAS_RADIATOR_
-  auto *rg = reco->GetMyRICH()->GetRadiator("GasVolume");
-  rg->UseInRingImaging()->InitializePlots("g");
-  if (rg->Plots()) {
-    // Initialize gas radiator QA plots; 
-    rg->Plots()->SetRefractiveIndexRange(1.00050, 1.00100);
-    rg->Plots()->SetPhotonVertexRange(1900, 3200);
-    rg->Plots()->SetCherenkovAngleRange(30, 50);
-  } //if
-#endif
   // Initialize combined PID QA plots;
   reco->InitializePlots();
   
   // Perform pre-calibration; second argument: statistics to use (default: all events);
   reco->PerformCalibration(200);
   // Export a modifed optics file, with the newly created calibrations included;
-  reco->ExportModifiedOpticsFile("drich-optics-with-calibrations.root");
+  reco->ExportModifiedOpticsFile("pfrich-optics-with-calibrations.root");
 
   // Run a bare IRT reconstruction engine loop; ring finder launched in GetNextEvent();
   {
@@ -93,14 +78,7 @@ void drich_reco(const char *dfname, const char *cfname = 0)
 
   // Output 1D histograms; canvas sizes / offsets are tuned for a 1920 x 1200 pixel display;
   {
-#ifdef _USE_AEROGEL_RADIATOR_
     ra  ->DisplayStandardPlots("Aerogel radiator",            -10,  10, 1250, 540);
-    //+ra  ->BookHistograms("aerogel_histo.root");
-#endif
-#ifdef _USE_GAS_RADIATOR_
-    rg  ->DisplayStandardPlots("Gas radiator",                -10, 600, 1250, 540);
-    //+rg  ->BookHistograms("gas_histo.root");
-#endif
     reco->DisplayStandardPlots("Track / event level plots", -1265,  10,  625,1115);
   }
-} // drich_reco()
+} // pfrich_reco()
