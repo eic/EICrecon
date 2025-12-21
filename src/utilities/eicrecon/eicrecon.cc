@@ -37,10 +37,8 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "ZDC",
     "BTRK",
     "BVTX",
-    //"PFRICH",
     "DIRC",
-    //"DRICH",
-    // A unified IRT 2.0 plugin for testbed BRICH/FRICH an "real" PFRCIH/DRICH detectors;
+    // A unified IRT 2.1 plugin for pfRICH & dRICH detectors;
     "RICH-IRT",
     "ECTRK",
     "MPGD",

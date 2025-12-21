@@ -18,7 +18,6 @@
 #include "extensions/jana/JOmniFactory.h"
 
 // Factories;
-//-#include "EICrecon/factories/pid/RichTrack_factory.h"
 #include "factories/pid/RichTrack_factory.h"
 #include "global/pid/IrtInterface_factory.h"
 
@@ -37,7 +36,7 @@ using json = nlohmann::json;
 // PFRICH: ePIC backward proximity focusing RICH
 //  DRICH: ePIC forward dual radiator RICH
 //
-static const char *RICHes[] = {"PFRICH", "DRICH", "BRICH", "FRICH"};
+static const char *RICHes[] = {"PFRICH", "DRICH"};
 
 #include "IRT/CherenkovDetectorCollection.h"
 
@@ -46,8 +45,6 @@ using namespace eicrecon;
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-
-    //printf("@@@ RICH-IRT InitPlugin()\n");
 
     auto dd4hep_service = app->GetService<DD4hep_service>();
     auto det = dd4hep_service->detector();
@@ -155,21 +152,14 @@ extern "C" {
 	      unsigned numPlanes = rrconfig["acts-planes"].template get<int>();
 	      if (!numPlanes) continue;
 
-#if 1
 	      double theta_min = 2*std::atan(exp(-config.m_eta_min));
 	      double theta_max = 2*std::atan(exp(-config.m_eta_max));
-#else
-	      double theta_min = 2*std::atan(exp(-fabs(config.m_eta_min)));
-	      double theta_max = 2*std::atan(exp(-fabs(config.m_eta_max)));
-	      if (theta_max < theta_min) std::swap(theta_min, theta_max);
-#endif
 	      
 	      // Estimate a required Z-range;
 	      double zmin = 0.0, zmax = 0.0;
 	      for(unsigned iq=0; iq<2; iq++) {
 		double theta = iq ? theta_max : theta_min;
 		TVector3 x0(0,0,0), n0(0.0, sin(theta), cos(theta)), from, to;
-		//printf("@A@ %d -> %f %f %f\n", iq, n0.x(), n0.y(), n0.z());
 		unsigned isec = cdet->GetSector(n0);
 		
 		auto sf = radiator->GetFrontSide(isec);
@@ -178,18 +168,11 @@ extern "C" {
 		// FIXME: may want to check return codes?;
 		bool bf = sf->GetCrossing(x0, n0, &from, false);
 		bool br = sr->GetCrossing(x0, n0, &to,   false);
-#if 1
+		
 		double zf = from.Z(), zr = to.Z();
-		//printf("@A@ %d -> %d %d %f %f\n", iq, bf, br, zf, zr);
 		if (!iq || fabs(zf) < fabs(zmin)) zmin = zf;
 		if (!iq || fabs(zr) > fabs(zmax)) zmax = zr;
-#else
-		double zf = fabs(from.Z()), zr = fabs(to.Z());
-		if (!iq || zf < zmin) zmin = zf;
-		if (!iq || zr > zmax) zmax = zr;
-#endif
 	      } //for iq
-	      //printf("@A@ %f %f\n", zmin, zmax);
 		
 	      // "+1": avoid a "coordinate at the boundary condition"; essentially make 'numPlanes'
 	      // bins and use bin centers;
@@ -197,13 +180,8 @@ extern "C" {
 
 	      for(int i=0; i<numPlanes; i++) {
 		auto zCoord = zmid + step*(i - (numPlanes-1)/2.);
-#if 1
 		double rmin = fabs(zCoord*tan(theta_min)), rmax = fabs(zCoord*tan(theta_max));
 		if (rmax < rmin) std::swap(rmin, rmax);
-#else
-		double rmin = fabs(zCoord)*tan(theta_min), rmax = fabs(zCoord)*tan(theta_max);
-#endif
-		//printf("@A@ %f %f %f\n", zCoord, rmin, rmax);
 		
 		// Yes, prefer to order in ascending fabs(z) order in both endcaps; FIXME: implicitly assume
 		// all these coordinates are >0 in the hadron-going endcap and <0 in the electron-going one;
