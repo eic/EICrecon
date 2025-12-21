@@ -164,6 +164,7 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapNParticleIDPreML",
       {
           "EcalEndcapNClustersWithoutPID",
+          "EcalEndcapNTrackClusterWithoutPIDMatches",
           "EcalEndcapNClusterAssociationsWithoutPID",
       },
       {
@@ -188,11 +189,13 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapNParticleIDPostML",
       {
           "EcalEndcapNClustersWithoutPID",
+          "EcalEndcapNTrackClusterWithoutPIDMatches",
           "EcalEndcapNClusterAssociationsWithoutPID",
           "EcalEndcapNParticleIDOutput_probability_tensor",
       },
       {
           "EcalEndcapNClusters",
+          "EcalEndcapNTrackClusterMatches",
           "EcalEndcapNClusterAssociations",
           "EcalEndcapNClusterParticleIDs",
       },
