@@ -24,8 +24,8 @@ private:
   ParameterRef<double> m_adc_phase{this, "adcPhase", config().adc_phase};
   ParameterRef<double> m_toa_thres{this, "toaThres", config().toa_thres};
   ParameterRef<double> m_tot_thres{this, "totThres", config().tot_thres};
-  ParameterRef<unsigned int> m_capADC{this, "capADC", config().capADC};
-  ParameterRef<double> m_dyRangeADC{this, "dyRangeADC", config().dyRangeADC};
+  ParameterRef<unsigned int> m_capHighGainADC{this, "capHighGainADC", config().capHighGainADC};
+  ParameterRef<double> m_dyRangeHighGainADC{this, "dyRangeHighGainADC", config().dyRangeHighGainADC};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().capTOA};
   ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().dyRangeTOA};
   ParameterRef<unsigned int> m_capTOT{this, "capTOT", config().capTOT};

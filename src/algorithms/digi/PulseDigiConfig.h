@@ -7,21 +7,21 @@
 
 namespace eicrecon {
 
-struct PulseDigiConfig {
+	struct PulseDigiConfig {
 
-  // Variables for HGCROC measurement
-  double time_window{25 * edm4eic::unit::ns};
-  double adc_phase{10 * edm4eic::unit::ns};
-  double toa_thres{1};
-  double tot_thres{1};
+		// Variables for CALOROC measurement
+		double time_window{25 * edm4eic::unit::ns};
+		double adc_phase{0 * edm4eic::unit::ns};
+		double toa_thres{1};
+		double tot_thres{1};
 
-  // Variables for digitization
-  unsigned int capADC{1024};
-  double dyRangeADC{1};
-  unsigned int capTOA{1024};
-  double dyRangeTOA{1 * edm4eic::unit::ns};
-  unsigned int capTOT{1024};
-  double dyRangeTOT{1 * edm4eic::unit::ns};
-};
+		// Variables for digitization
+		unsigned int capHighGainADC{1024};
+		double dyRangeHighGainADC{1};
+		unsigned int capTOA{1024};
+		double dyRangeTOA{25 * edm4eic::unit::ns};
+		unsigned int capTOT{4096};
+		double dyRangeTOT{200 * edm4eic::unit::ns};
+	};
 
 } // namespace eicrecon
