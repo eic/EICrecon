@@ -1,7 +1,20 @@
 {
-    "Optics": "pfrich-optics.root",
+    "IntegratedReconstruction": "yes",
+    "Comment#1": "Calibration file imported only if IntegratedReconstruction=yes",
+    "Calibration": "pfrich-calibration.json",
+    "OutputRootFile": "pfrich-events.root",
+    "WriteOutputTree": "yes",
+
+    "UsePoissonTermInChiSquare": "no",
+    "UseTimingInChiSquare": "yes",
+    "DefaultSinglePhotonThetaResolution": 0.005,
+    "SensorActiveAreaPixellation": 32,
+    "UseMcTruthPhotonDirectionSeed": "no",
+    "MinHitCountCutoff": 5,
+    "IdentifiedParticles": ["pi+", "K+"], 
     
-    "OutputTree": "pfrich-events.root",
+    "CombinedEvaluationPlots": "display",
+    "CombinedEvaluationPlotsGeometry": [1265,  10,  625, 800],
 	
     "Acceptance": {
 	"comment": "Nominal values, used to calculate ACTS DiscSurfaceConfig parameters",
@@ -12,7 +25,13 @@
     "Radiators": {
 	"Aerogel": {
 	    "imaging": "yes",
-	    "acts-planes": 5
+	    "acts-planes": 5,
+	    
+	    "evaluation-plots": "store",
+	    "evaluation-plots-geometry": [-10,  10, 1250, 540],
+	    "refractive-index-range": [1.035, 1.045],
+	    "photon-vertex-range": [-1275, -1240],
+	    "cherenkov-angle-range": [270, 290]
 	},
 	"Acrylic": {
 	    "imaging": "no",
