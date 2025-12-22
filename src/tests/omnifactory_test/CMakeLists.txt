@@ -22,7 +22,7 @@ if(NOT JANA_VERSION VERSION_GREATER "2.4.2")
 
   target_link_libraries(
     ${TEST_NAME}
-    PRIVATE log_plugin
+    PRIVATE log_library
             EDM4EIC::edm4eic
             EDM4HEP::edm4hep
             ${JANA_LIB}

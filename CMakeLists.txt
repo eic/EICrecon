@@ -55,11 +55,11 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Minimal dependency versions
-set(Acts_VERSION_MIN 34.0.0)
+set(Acts_VERSION_MIN 36.0.0)
 set(algorithms_VERSION_MIN 1.0.0)
 set(DD4hep_VERSION_MIN 1.21)
 set(EDM4EIC_VERSION_MIN 8.0)
-set(EDM4HEP_VERSION_MIN 0.7.1)
+set(EDM4HEP_VERSION_MIN 0.99.0)
 set(Eigen3_VERSION_MIN 3.3)
 set(FastJet_VERSION_MIN 3)
 set(FastJetContrib_VERSION_MIN 1.46)
@@ -114,6 +114,28 @@ if(ENABLE_CLANG_TIDY)
         ""
         CACHE STRING "" FORCE)
   endif()
+endif()
+
+# LINK_WHAT_YOU_USE support
+option(ENABLE_LINK_WHAT_YOU_USE
+       "Enable LINK_WHAT_YOU_USE to detect unnecessary link dependencies" OFF)
+if(ENABLE_LINK_WHAT_YOU_USE)
+  message(STATUS "LINK_WHAT_YOU_USE enabled")
+  set(CMAKE_LINK_WHAT_YOU_USE TRUE)
+
+  # Set output directory for LINK_WHAT_YOU_USE logs
+  set(LINK_WHAT_YOU_USE_OUTPUT_DIR "${CMAKE_BINARY_DIR}/link_what_you_use_logs")
+
+  # Set up custom check script for better output control; CMake will append the
+  # binary file path as the last argument
+  set(CMAKE_LINK_WHAT_YOU_USE_CHECK
+      "${CMAKE_COMMAND}" "-DOUTPUT_DIR=${LINK_WHAT_YOU_USE_OUTPUT_DIR}" -P
+      "${CMAKE_SOURCE_DIR}/cmake/link_what_you_use_check.cmake")
+
+  message(
+    STATUS
+      "LINK_WHAT_YOU_USE logs will be written to: ${LINK_WHAT_YOU_USE_OUTPUT_DIR}"
+  )
 endif()
 
 # Enable -fPIC for all targets
