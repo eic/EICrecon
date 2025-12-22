@@ -3,11 +3,11 @@
 
 #include "IrtCherenkovParticleID.h"
 
-#include <IRT/ChargedParticle.h>
-#include <IRT/CherenkovPID.h>
-#include <IRT/OpticalPhoton.h>
-#include <IRT/RadiatorHistory.h>
-#include <IRT/SinglePDF.h>
+#include <IRT2/ChargedParticle.h>
+#include <IRT2/CherenkovPID.h>
+#include <IRT2/OpticalPhoton.h>
+#include <IRT2/RadiatorHistory.h>
+#include <IRT2/SinglePDF.h>
 #include <TString.h>
 #include <TVector3.h>
 #include <algorithms/logger.h>
@@ -38,7 +38,8 @@
 
 namespace eicrecon {
 
-void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
+void IrtCherenkovParticleID::init(IRT2::CherenkovDetectorCollection* irt_det_coll) {
+#if _OBSOLETE_
   // members
   m_irt_det_coll = irt_det_coll;
 
@@ -130,10 +131,12 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
     m_pdg_mass.insert({pdg, mass});
     debug("  {:>8}  M={} GeV", pdg, mass);
   }
+#endif
 }
 
 void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
                                      const IrtCherenkovParticleID::Output& output) const {
+#if _OBSOLETE_
   const auto [in_aerogel_tracks, in_gas_tracks, in_merged_tracks, in_raw_hits, in_hit_assocs] =
       input;
   auto [out_aerogel_particleIDs, out_gas_particleIDs] = output;
@@ -471,6 +474,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
      */
 
   } // end `in_charged_particles` loop
+#endif
 }
 
 } // namespace eicrecon
