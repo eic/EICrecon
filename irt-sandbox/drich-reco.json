@@ -1,7 +1,20 @@
 {
-    "Optics": "drich-optics.root",
+    "IntegratedReconstruction": "no",
+    "Comment#1": "Calibration file imported only if IntegratedReconstruction=yes",
+    "Calibration": "drich-calibration.json",
+    "OutputRootFile": "drich-events.root",
+    "WriteOutputTree": "yes",
+
+    "UsePoissonTermInChiSquare": "no",
+    "UseTimingInChiSquare": "yes",
+    "DefaultSinglePhotonThetaResolution": 0.002,
+    "SensorActiveAreaPixellation": 8,
+    "UseMcTruthPhotonDirectionSeed": "no",
+    "MinHitCountCutoff": 5,
+    "IdentifiedParticles": ["pi+", "K+"], 
     
-    "OutputTree": "drich-events.root",
+    "CombinedEvaluationPlots": "display",
+    "CombinedEvaluationPlotsGeometry": [1265,  10,  625, 800],
 	
     "Acceptance": {
 	"comment": "Nominal values, used to calculate ACTS DiscSurfaceConfig parameters",
@@ -12,7 +25,13 @@
     "Radiators": {
 	"Aerogel": {
 	    "imaging": "yes",
-	    "acts-planes": 5
+	    "acts-planes": 5,
+	    
+	    "evaluation-plots": "store",
+	    "evaluation-plots-geometry": [-10,  10, 1250, 540],
+	    "refractive-index-range": [1.015, 1.025],
+	    "photon-vertex-range": [1970, 2030],
+	    "cherenkov-angle-range": [200, 250]
 	},
 	"Acrylic": {
 	    "imaging": "no",
@@ -20,7 +39,13 @@
 	},
 	"GasVolume": {
 	    "imaging": "yes",
-	    "acts-planes": 10
+	    "acts-planes": 10,
+	    
+	    "evaluation-plots": "display",
+	    "evaluation-plots-geometry": [-10, 600, 1250, 540],
+	    "refractive-index-range": [1.00050, 1.00100],
+	    "photon-vertex-range": [1900, 3200],
+	    "cherenkov-angle-range": [30, 50]
 	}
     },
     

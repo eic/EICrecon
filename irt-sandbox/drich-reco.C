@@ -1,17 +1,13 @@
 //
-//   root -l './drich-reco.C("drich-events.root", "drich-optics.root")'
-//
-//      or
-//
-//   root -l './drich-reco.C("drich-events.root")'
+//   root -l './drich-reco.C("drich-events.root" [, "drich-calibration.json"])'
 //
 
 #define _USE_AEROGEL_RADIATOR_
 #define _USE_GAS_RADIATOR_
 
-void drich_reco(const char *dfname, const char *cfname = 0)
+void drich_reco(const char *dfname, const char *jfname = 0)
 {
-  auto *reco = new ReconstructionFactory(dfname, cfname, "DRICH");
+  auto *reco = new ReconstructionFactory(dfname, dfname, "DRICH");
 
   // Factory configuration part; may want to uncomments some of the options;
   {
@@ -27,7 +23,7 @@ void drich_reco(const char *dfname, const char *cfname = 0)
     
     // Should be close enough to the real one; this only affects the calibration stage;
     reco->SetDefaultSinglePhotonThetaResolution(0.002);
-    // Sensor active area will be pixellated NxN in digitization; '32': SiPM panels;
+    // Sensor active area will be pixellated NxN in digitization; '8': SiPM panels;
     reco->SetSensorActiveAreaPixellation(8);
     
     //reco->SetSinglePhotonTimingResolution(0.030); // default: 0.050 (50ps);
@@ -69,9 +65,9 @@ void drich_reco(const char *dfname, const char *cfname = 0)
   reco->InitializePlots();
   
   // Perform pre-calibration; second argument: statistics to use (default: all events);
-  reco->PerformCalibration(200);
-  // Export a modifed optics file, with the newly created calibrations included;
-  reco->ExportModifiedOpticsFile("drich-optics-with-calibrations.root");
+  reco->PerformCalibration();//200);
+  // Export a JSON file with these calibrations;
+  if (jfname) reco->GetMyRICH()->ExportJsonFormatCalibrations(jfname);
 
   // Run a bare IRT reconstruction engine loop; ring finder launched in GetNextEvent();
   {
@@ -93,6 +89,7 @@ void drich_reco(const char *dfname, const char *cfname = 0)
 
   // Output 1D histograms; canvas sizes / offsets are tuned for a 1920 x 1200 pixel display;
   {
+#if 1//_BACK_
 #ifdef _USE_AEROGEL_RADIATOR_
     ra  ->DisplayStandardPlots("Aerogel radiator",            -10,  10, 1250, 540);
     //+ra  ->BookHistograms("aerogel_histo.root");
@@ -101,6 +98,7 @@ void drich_reco(const char *dfname, const char *cfname = 0)
     rg  ->DisplayStandardPlots("Gas radiator",                -10, 600, 1250, 540);
     //+rg  ->BookHistograms("gas_histo.root");
 #endif
-    reco->DisplayStandardPlots("Track / event level plots", -1265,  10,  625,1115);
+    reco->DisplayStandardPlots("Track / event level plots",  1265,  10,  625,1115);
+#endif
   }
 } // drich_reco()

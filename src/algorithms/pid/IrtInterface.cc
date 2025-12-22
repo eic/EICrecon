@@ -43,6 +43,9 @@ using json = nlohmann::json;
 
 // -------------------------------------------------------------------------------------
 
+#include <TApplication.h>
+#include <TCanvas.h>
+
 namespace eicrecon {
   IrtInterface::~IrtInterface()
   {
@@ -53,12 +56,52 @@ namespace eicrecon {
     m_InstanceCounters[m_OutputFileName]--;
     
     if (!m_InstanceCounters[m_OutputFileName]) {
-      // FIXME: hardcoded;
-      if (m_ReconstructionFactory)
-	m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots", -1265,  10,  625,1115);
-      
       m_OutputFiles[m_OutputFileName]->cd();
-      m_EventTrees[m_OutputFileName]->Write();
+      if (m_EventTreeOutputEnabled) m_EventTrees[m_OutputFileName]->Write();
+      
+      if (m_ReconstructionFactory) {
+	// Avoid calling this stuff from a dummy IrtInterface instantiation upon eicrecon startup;
+	if (m_ReconstructionFactory->GetProcessedEventCount()) {
+	  int argc = 1;
+	  char *argv[1] = {(char*)""};
+	  bool display = m_CombinedPlotVisualizationEnabled;
+	  for(auto [name,rad] : m_irt_det->Radiators())
+	    if (rad->UsedInRingImaging() && rad->m_OutputPlotVisualizationEnabled)
+	      display = true;
+
+	  // FIXME: well, if at least one is "display", all "store" will be shown as well; 
+	  auto *app = display ? new TApplication("", &argc, argv) : 0;
+
+	  // std::vector<std::pair<TCanvas*, bool>> canvases;
+	  std::vector<TCanvas*> canvases;
+	  auto cv = m_ReconstructionFactory->DisplayStandardPlots("Track / event level plots",
+							  m_wtopx, m_wtopy, m_wx, m_wy);
+	  if (cv) canvases.push_back(cv);
+	  
+	  for(auto [name,rad] : m_irt_det->Radiators())
+	    if (rad->UsedInRingImaging()) {
+	      TString cname, wname;
+	      // FIXME: won't work for Acrylic and Aerogel;
+	      cname.Form("c%c", std::tolower(name.Data()[0]));
+	      wname.Form("%s radiator", name.Data());
+	      
+	      auto cv = rad->DisplayStandardPlots(cname.Data(), wname.Data(),
+						  // FIXME: may want to improve the API here;
+						  rad->m_wtopx, rad->m_wtopy, rad->m_wx, rad->m_wy);// : 0;
+	      if (cv) canvases.push_back(cv);
+	    } //for rad..if
+	  
+	  // 'true': do not call exit() in the end;
+	  if (app && canvases.size()) app->Run(true);
+	  // FIXME: crashes;
+	  //delete app;
+
+	  for(auto cv: canvases) 
+	    cv->Write();
+	} //if
+	  
+	delete m_ReconstructionFactory;
+      } //if      
 
       // Write an optics configuration copy into the output event tree; this modified version
       // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
@@ -97,8 +140,8 @@ namespace eicrecon {
       
       /*const*/ json *jptr = &config.m_json_config;
       // FIXME: do it better;
-      assert(jptr->find("OutputTree") != jptr->end());
-      m_OutputFileName = (*jptr)["OutputTree"].template get<std::string>().c_str();
+      assert(jptr->find("OutputRootFile") != jptr->end());
+      m_OutputFileName = (*jptr)["OutputRootFile"].template get<std::string>().c_str();
 
       //+printf("@@@ IrtInterface::init() ... %2d\n", m_InstanceCounters[m_OutputFileName.Data()]);
             
@@ -106,18 +149,27 @@ namespace eicrecon {
       if (jptr->find("IntegratedReconstruction") != jptr->end() &&
 	  !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
 	m_ReconstructionFactory = new ReconstructionFactory(config.m_irt_geometry, m_irt_det, m_Event);
-	JsonParser();//jptr);
+	// JANA2 prints out event progress; the rest is kind of irrelevant;
+	m_ReconstructionFactory->SetQuietMode();
+	// FIXME: add syntax check and return value;
+	JsonParser();
       } //if
+      
+      if (jptr->find("WriteOutputTree") != jptr->end() &&
+	  !strcmp((*jptr)["WriteOutputTree"].template get<std::string>().c_str(), "no"))
+	m_EventTreeOutputEnabled = false;
     
       if (!m_InstanceCounters[m_OutputFileName]) {
 	//printf("@R@ Here %d!\n", m_InstanceCounters[m_OutputFileName]);
 
 	// FIXME: sanity check;
 	m_OutputFiles[m_OutputFileName] = new TFile(m_OutputFileName.c_str(), "RECREATE");
-	
-	m_EventTrees[m_OutputFileName] = new TTree("t", "My tree");
-	m_EventBranches[m_OutputFileName] =
-	  m_EventTrees[m_OutputFileName]->Branch("e", "CherenkovEvent", 0/*&m_Event*/, 16000, 2);
+
+	if (m_EventTreeOutputEnabled) {
+	  m_EventTrees[m_OutputFileName] = new TTree("t", "IRT2 output tree");
+	  m_EventBranches[m_OutputFileName] =
+	    m_EventTrees[m_OutputFileName]->Branch("e", "CherenkovEvent", 0/*&m_Event*/, 16000, 2);
+	} //if
       } //if
 
       m_Instance = m_InstanceCounters[m_OutputFileName]++;
@@ -214,7 +266,7 @@ namespace eicrecon {
 
     // Reset output event structure;
     m_Event->Reset();
-
+	
     // Intermediate variables, for less typing;
     const auto [in_mc_particles,
 		in_reco_particles,
@@ -448,7 +500,7 @@ namespace eicrecon {
     } //for mcparticle
 #endif
 	    
-    {
+    if (m_EventTreeOutputEnabled) {
       std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
       
       m_EventBranches[m_OutputFileName]->SetAddress(m_EventPtr);

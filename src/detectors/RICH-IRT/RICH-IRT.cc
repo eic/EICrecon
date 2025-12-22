@@ -89,7 +89,8 @@ extern "C" {
 	  /*const*/ json *jptr = &config.m_json_config;
 	  
 	  // An entry describing optics file should be present;
-	  if (jptr->find("Optics") == jptr->end()) continue;
+	  //if (jptr->find("Optics") == jptr->end()) continue;
+	  //if (jptr->find("Calibration") == jptr->end()) continue;
 	  
 	  // An entry describing a nominal acceptance should be present;
 	  if (jptr->find("Acceptance") == jptr->end()) continue;
@@ -112,14 +113,14 @@ extern "C" {
 	  
 	  // Import Cherenkov detector optics configuration file;
 	  {
-#if 1
+	    //#if 1
 	    config.m_irt_geometry = CherenkovDetectorCollection::Instance();
-#else
-	    auto foptics = new TFile((*jptr)["Optics"].template get<std::string>().c_str());
-	    if (!foptics) continue;
+	    //#else
+	    //auto foptics = new TFile((*jptr)["Optics"].template get<std::string>().c_str());
+	    //if (!foptics) continue;
 	    
-	    config.m_irt_geometry = dynamic_cast<CherenkovDetectorCollection*>(foptics->Get("CherenkovDetectorCollection"));
-#endif
+	    //config.m_irt_geometry = dynamic_cast<CherenkovDetectorCollection*>(foptics->Get("CherenkovDetectorCollection"));
+	    //#endif
 	    if (!config.m_irt_geometry) continue;
 	    
 	    auto cdet = config.m_irt_geometry->GetDetector(RICH);
