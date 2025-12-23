@@ -417,6 +417,40 @@ jobs:
         hash=$(grep ' epic@' $(basename ${file}) | sha256sum)
         echo "hash=${hash%% *}" | tee $GITHUB_OUTPUT
 
+  test-factory-cli:
+    runs-on: ubuntu-24.04
+    needs:
+    - build
+    strategy:
+      matrix:
+        CXX: [g++]
+    steps:
+    - name: Checkout .github
+      uses: actions/checkout@v5
+      with:
+        sparse-checkout: .github
+    - name: Download install directory
+      uses: actions/download-artifact@v5
+      with:
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
+    - name: Unarchive install directory
+      run: tar -xaf install.tar.zst
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+    - name: Test factory CLI commands
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
+          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
+
+          echo "Testing --list-available-factories command..."
+          $PWD/install/bin/eicrecon --list-available-factories EEMC
+
+          echo "Testing --print-factory-info command..."
+          $PWD/install/bin/eicrecon --print-factory-info
+
   npsim-gun:
     runs-on: ubuntu-24.04
     needs:
