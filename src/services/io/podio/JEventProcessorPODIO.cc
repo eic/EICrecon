@@ -551,7 +551,7 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   const auto* frame = event->GetSingle<podio::Frame>();
   {
     std::lock_guard<std::mutex> lock(m_mutex);
-    m_writer->writeFrame(*frame, "events", m_collections_to_write);
+    m_writer->writeFrame(*frame, "events", successful_collections);
   }
 }
 
