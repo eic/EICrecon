@@ -5,7 +5,7 @@ include(GNUInstallDirs)
 macro(_plugin_common_target_properties _target)
   target_include_directories(
     ${_target}
-    PUBLIC $<BUILD_INTERFACE:${EICRECON_SOURCE_DIR}/src>
+    PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
   target_include_directories(${_target} SYSTEM PUBLIC ${JANA_INCLUDE_DIR})
   target_link_libraries(
