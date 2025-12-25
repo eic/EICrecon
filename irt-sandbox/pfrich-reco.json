@@ -1,5 +1,5 @@
 {
-    "IntegratedReconstruction": "yes",
+    "IntegratedReconstruction": "no",
     "Comment#1": "Calibration file imported only if IntegratedReconstruction=yes",
     "Calibration": "pfrich-calibration.json",
     "OutputRootFile": "pfrich-events.root",
@@ -17,9 +17,9 @@
     "CombinedEvaluationPlotsGeometry": [1265,  10,  625, 800],
 	
     "Acceptance": {
-	"comment": "Nominal values, used to calculate ACTS DiscSurfaceConfig parameters",
-	"eta-min": -3.5,
-	"eta-max": -1.5
+	"comment": "Nominal values, also used to calculate ACTS DiscSurfaceConfig parameters",
+	"eta-min": -3.51,
+	"eta-max": -1.49
     },
     
     "Radiators": {

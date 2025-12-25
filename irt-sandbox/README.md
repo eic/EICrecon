@@ -80,8 +80,8 @@ npsim --runType run --macroFile check-geometry.mac --compactFile $EIC_SHELL_PREF
 ```
 
 ```
-# Generate another HEPMC file (here: 10000 events, pions, p=7 GeV/c, eta=[-1.5 .. -3.5], phi=pi/2);
-root -l 'hepmc-writer-single-track.C("electron-going-endcap.calibration.hepmc", 10000, 211, 7.0, 7.0, -3.5, -1.5, M_PI/2, M_PI/2)'
+# Generate another HEPMC file (here: 10000 events, pions, p=7 GeV/c, eta=[-3.5 .. -1.6], phi=pi/2);
+root -l 'hepmc-writer-single-track.C("electron-going-endcap.calibration.hepmc", 10000, 211, 7.0, 7.0, -3.5, -1.6, M_PI/2, M_PI/2)'
 
 # Run npsim on 10000 events in a batch mode (with pfRICH and ePIC tracking detectors);
 npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_pfrich.xml --outputFile ./sim.edm4hep.pfrich.calibration.root --part.userParticleHandler= --inputFiles ./electron-going-endcap.calibration.hepmc -N 10000

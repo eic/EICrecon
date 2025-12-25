@@ -34,7 +34,7 @@ void pfrich_reco(const char *dfname, const char *cfname = 0)
     reco->AddHypothesis(321);
     
     // Comment out if want to cheat a bit (feed IRT with true photon direction vectors);
-    //+reco->IgnoreMcTruthPhotonDirectionSeed();
+    reco->IgnoreMcTruthPhotonDirectionSeed();
 
     // Require at least that many associated hits; populate 0-th bin of a PID match
     // histogram otherwise; default: 1; 
@@ -56,7 +56,7 @@ void pfrich_reco(const char *dfname, const char *cfname = 0)
   // Perform pre-calibration; second argument: statistics to use (default: all events);
   reco->PerformCalibration(200);
   // Export a modifed optics file, with the newly created calibrations included;
-  reco->ExportModifiedOpticsFile("pfrich-optics-with-calibrations.root");
+  //reco->ExportModifiedOpticsFile("pfrich-optics-with-calibrations.root");
 
   // Run a bare IRT reconstruction engine loop; ring finder launched in GetNextEvent();
   {
@@ -78,7 +78,7 @@ void pfrich_reco(const char *dfname, const char *cfname = 0)
 
   // Output 1D histograms; canvas sizes / offsets are tuned for a 1920 x 1200 pixel display;
   {
-    ra  ->DisplayStandardPlots("Aerogel radiator",            -10,  10, 1250, 540);
-    reco->DisplayStandardPlots("Track / event level plots", -1265,  10,  625,1115);
+    ra  ->DisplayStandardPlots("wa", "Aerogel radiator",     -10,  10, 1250, 540);
+    reco->DisplayStandardPlots("Track / event level plots", 1265,  10,  625, 800);
   }
 } // pfrich_reco()

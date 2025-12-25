@@ -59,6 +59,7 @@ namespace eicrecon {
     //"IdentifiedParticles": ["pi+", "K+"], 
     if (jptr->find("IdentifiedParticles") != jptr->end()) {
       const auto &pconfig = (*jptr)["IdentifiedParticles"];
+      
       for(auto &pdg: pconfig)
 	reco->AddHypothesis(pdg.template get<std::string>().c_str());
     } //if
