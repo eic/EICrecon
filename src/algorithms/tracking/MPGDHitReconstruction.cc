@@ -49,26 +49,29 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
   auto [rec_hits]       = output;
 
   // Reorder input raw_hits
+  // Sort them in ascending order of channel# on a per SUBVOLUME basis.
   int nRawHits = raw_hits->size();
   std::vector<size_t> idcs(nRawHits);
   size_t idx(0);
-  std::generate(idcs.begin(), idcs.end(), [&] { return idx++; });
-  std::sort(idcs.begin(), idcs.end(), [&](int idxa, int idxb) {
-    return raw_hits->at(idxa).getCellID() < raw_hits->at(idxb).getCellID();
-  });
+  std::generate(idcs.begin(), idcs.end(), [&]{ return idx++; });
+  std::sort(idcs.begin(), idcs.end(),
+	    [&](int idxa, int idxb) {
+	      CellID cIDa = raw_hits->at(idxa).getCellID(), vIDa = cIDa&m_subVolBits, hIDa = cIDa >> m_coordOffset;
+	      CellID cIDb = raw_hits->at(idxb).getCellID(), vIDb = cIDb&m_subVolBits, hIDb = cIDb >> m_coordOffset;
+	      return vIDa < vIDb || (vIDa == vIDb && hIDa < hIDb); });
 
   CellID prvID; // CellID of previous
   // Current cluster (cc): in the making or to be stored
   int currentPN;
   size_t currentNDims;
-  Position clusPos; // cc: weighted position
+  Position clusPos;  // cc: weighted position
   std::vector<double> clusDim(
       3);            // cc: uncertainty = resolution along measurement axis, else weighted dimension
   double clusCharge; // cc: sum of charges
-  double sW;         // cc: sum of Weights (= "clusCharge", as of 3025/11)
+  double sW;         // cc: sum of Weights (= "clusCharge", as of 2025/12)
   double clusChMx;
-  int clusChMxIdx;  // cc: Max. charge and index of: determine timing
-  int clusFirstIdx; // cc: Index of 1st rawHit contributing
+  int clusChMxIdx;   // cc: Max. charge and index of: determine timing
+  int clusFirstIdx;  // cc: Index of 1st RawHit contributing
   // Loop on ordered raw_hits + a last iteration to store last cluster
   int jdx;
   for (jdx = 0, prvID = 0, currentPN = -1, sW = 0; jdx <= nRawHits; jdx++) {
@@ -89,10 +92,12 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
         throw std::runtime_error("Invalid cellID");
       }
       CellID inc = m_stripIncs[pn];
-      // Cluster continuation? Require channel#+1.
+      // Cluster continuation? Require channel#+1... or channel#-1
       // - Accumulation in digitization forbids cID == prvID.
-      // - Reordering forbids cID == prvID-inc.
-      newCluster = cID != prvID + inc;
+      // - Reordering forbids cID == prvID-inc...
+      //  ...except for prvID,cID = 0,-1 = 0x0,0xffff because 0xffff is not
+      //  understood as meaning -1 when variable is not of type "signed short".
+      newCluster = cID != prvID + inc && cID != prvID - inc;
       if (prvID && !newCluster) {
         // ***** ADD HIT TO CURRENT CLUSTER
         double weight = raw_hit.getCharge();
@@ -184,7 +189,7 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
       // ********** REC <- RAW ASSOCIATION
       // - In EDM4eic, there's room for ONLY ONE ASSOCIATED RAW.
       // - Here we NEED MORE.
-      // - Temporarily, simply put the earliest one. So that subsequent rawHits
+      // - Temporarily, simply put the earliest one. So that subsequent RawHits
       //  that should also be associated can easily be guessed.
       // - But imho(Y.B), "EDM4eic::TrackerHit" should be modified.
       const auto& firstHit = raw_hits->at(clusFirstIdx);
@@ -236,9 +241,9 @@ void MPGDHitReconstruction::parseIDDescriptor() {
   m_pStripBit = stripBits[0];
   m_nStripBit = stripBits[1];
   // Get coordinate increment ("m_stripIncs").
-  // Require coordinate fields to start @ bit 32 (this is taken advantage of by
-  // debug messages to cleanly separate coordinate from the rest of CellID).
-  int coordOffset = 64;
+  // Require coordinate fields to start @ bit 32: this is taken advantage of by
+  // debug messages to cleanly separate coordinates from the rest of CellID.
+  m_coordOffset = 64;
   for (int pn = 0; pn < 2; pn++) {
     std::string coordName;
     if (m_cfg.readout == "MPGDBarrelHits") {
@@ -257,10 +262,11 @@ void MPGDHitReconstruction::parseIDDescriptor() {
     const BitFieldElement& fieldElement = (*m_id_dec)[coordName];
     int offset                          = fieldElement.offset();
     m_stripIncs[pn]                     = ((CellID)0x1) << offset;
-    if (offset < coordOffset)
-      coordOffset = offset;
+    if (offset < m_coordOffset)
+      m_coordOffset = offset;
   }
-  if (coordOffset != 32) {
+  for (int i = 0; i < m_coordOffset; i++) m_subVolBits |= ((CellID)0x1)<<i;
+  if (m_coordOffset != 32) {
     critical(R"(Coordinate fields in IDDescriptor of readout "{}" do not start @ bit 32)",
              m_cfg.readout);
     throw std::runtime_error("Invalid IDDescriptor");
