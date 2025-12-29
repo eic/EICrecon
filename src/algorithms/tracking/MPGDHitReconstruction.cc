@@ -53,25 +53,27 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
   int nRawHits = raw_hits->size();
   std::vector<size_t> idcs(nRawHits);
   size_t idx(0);
-  std::generate(idcs.begin(), idcs.end(), [&]{ return idx++; });
-  std::sort(idcs.begin(), idcs.end(),
-	    [&](int idxa, int idxb) {
-	      CellID cIDa = raw_hits->at(idxa).getCellID(), vIDa = cIDa&m_subVolBits, hIDa = cIDa >> m_coordOffset;
-	      CellID cIDb = raw_hits->at(idxb).getCellID(), vIDb = cIDb&m_subVolBits, hIDb = cIDb >> m_coordOffset;
-	      return vIDa < vIDb || (vIDa == vIDb && hIDa < hIDb); });
+  std::generate(idcs.begin(), idcs.end(), [&] { return idx++; });
+  std::sort(idcs.begin(), idcs.end(), [&](int idxa, int idxb) {
+    CellID cIDa = raw_hits->at(idxa).getCellID(), vIDa = cIDa & m_subVolBits,
+           hIDa = cIDa >> m_coordOffset;
+    CellID cIDb = raw_hits->at(idxb).getCellID(), vIDb = cIDb & m_subVolBits,
+           hIDb = cIDb >> m_coordOffset;
+    return vIDa < vIDb || (vIDa == vIDb && hIDa < hIDb);
+  });
 
   CellID prvID; // CellID of previous
   // Current cluster (cc): in the making or to be stored
   int currentPN;
   size_t currentNDims;
-  Position clusPos;  // cc: weighted position
+  Position clusPos; // cc: weighted position
   std::vector<double> clusDim(
       3);            // cc: uncertainty = resolution along measurement axis, else weighted dimension
   double clusCharge; // cc: sum of charges
   double sW;         // cc: sum of Weights (= "clusCharge", as of 2025/12)
   double clusChMx;
-  int clusChMxIdx;   // cc: Max. charge and index of: determine timing
-  int clusFirstIdx;  // cc: Index of 1st RawHit contributing
+  int clusChMxIdx;  // cc: Max. charge and index of: determine timing
+  int clusFirstIdx; // cc: Index of 1st RawHit contributing
   // Loop on ordered raw_hits + a last iteration to store last cluster
   int jdx;
   for (jdx = 0, prvID = 0, currentPN = -1, sW = 0; jdx <= nRawHits; jdx++) {
@@ -265,7 +267,8 @@ void MPGDHitReconstruction::parseIDDescriptor() {
     if (offset < m_coordOffset)
       m_coordOffset = offset;
   }
-  for (int i = 0; i < m_coordOffset; i++) m_subVolBits |= ((CellID)0x1)<<i;
+  for (int i = 0; i < m_coordOffset; i++)
+    m_subVolBits |= ((CellID)0x1) << i;
   if (m_coordOffset != 32) {
     critical(R"(Coordinate fields in IDDescriptor of readout "{}" do not start @ bit 32)",
              m_cfg.readout);
