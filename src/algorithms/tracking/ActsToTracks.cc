@@ -9,7 +9,6 @@
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
@@ -167,12 +166,8 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                 auto raw_hit = hit.getRawHit();
                 for (const auto raw_hit_assoc : *raw_hit_assocs) {
                   if (raw_hit_assoc.getRawHit() == raw_hit) {
-                    auto sim_hit = raw_hit_assoc.getSimHit();
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
+                    auto sim_hit     = raw_hit_assoc.getSimHit();
                     auto mc_particle = sim_hit.getParticle();
-#else
-                            auto mc_particle = sim_hit.getMCParticle();
-#endif
                     mcparticle_weight_by_hit_count[mc_particle]++;
                   }
                 }

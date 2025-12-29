@@ -9,6 +9,7 @@ struct FarDetectorLinearTrackingConfig {
   std::size_t layer_hits_max{10};
   float chi2_max{0.001};
   std::size_t n_layer{4};
+  std::vector<double> layer_weights{1.0, 1.0, 1.0, 1.0};
 
   // Restrict hit direction
   bool restrict_direction{true};
