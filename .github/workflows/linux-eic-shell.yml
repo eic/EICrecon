@@ -84,7 +84,7 @@ jobs:
         USE_TSAN: [OFF]
         USE_UBSAN: [ON]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
-        graphviz: ""
+        graphviz: ''
         # note that entries that overwrite matrix values require a full specification
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#expanding-or-adding-matrix-configurations
         exclude:
