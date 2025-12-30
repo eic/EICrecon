@@ -13,6 +13,7 @@
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#include <fmt/base.h>
 #include <algorithm>
 #include <any>
 #include <array>
@@ -70,7 +71,6 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
