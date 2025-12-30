@@ -178,7 +178,7 @@ jobs:
           cat "$i"
         done
     - name: Upload graphviz artifacts
-      uses: actions/upload-artifact@v7
+      uses: actions/upload-artifact@v6
       if: matrix.graphviz != ''
       with:
         name: cmake-graphviz-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
