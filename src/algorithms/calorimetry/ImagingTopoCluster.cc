@@ -45,9 +45,6 @@
 #include <unistd.h>
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
-#include "algorithms/calorimetry/ImagingTopoClusterSVG.h"
-#include "services/evaluator/EvaluatorSvc.h"
-#include "algorithms/calorimetry/writeDotClusters.h"
 
 namespace eicrecon {
 template <typename... L> struct multilambda : L... {
@@ -659,47 +656,6 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
 
   debug("Outputting {} final proto-clusters", final_clusters.size());
 
-  // Generate SVG visualization if enabled
-  if (m_cfg.enableSVGOutput) {
-    try {
-      SVGVisualizationConfig svg_cfg;
-      svg_cfg.svg_width              = m_cfg.svgWidth;
-      svg_cfg.svg_height             = m_cfg.svgHeight;
-      svg_cfg.margin                 = m_cfg.svgMargin;
-      svg_cfg.enable_energy_coloring = m_cfg.svgEnergyColoring;
-      svg_cfg.energy_min             = m_cfg.svgEnergyMin;
-      svg_cfg.energy_max             = m_cfg.svgEnergyMax;
-
-      // Convert final_clusters to groups format (vector of lists)
-      std::vector<std::list<std::size_t>> groups;
-      for (const auto& cluster : final_clusters) {
-        std::list<std::size_t> group(cluster.begin(), cluster.end());
-        groups.push_back(group);
-      }
-
-      // Generate unique filename with timestamp and event sequence number
-      auto now = std::time(nullptr);
-      std::ostringstream filename;
-      // Use a counter to distinguish events processed in the same second
-      static std::atomic<unsigned int> event_counter = 0;
-      unsigned int evt_seq                           = event_counter++;
-      filename << m_cfg.svgOutputDirectory << "bemc_event_" << now << "_" << getpid() << "_"
-               << evt_seq;
-
-      // Create lambda for is_neighbour function using the current method
-      auto is_neighbour_lambda = [this](const edm4eic::CalorimeterHit& h1,
-                                        const edm4eic::CalorimeterHit& h2) -> bool {
-        return this->is_neighbour(h1, h2);
-      };
-
-      auto svg_path =
-          write_clusters_svg_enhanced(filename.str(), hits, groups, evt_seq, &is_neighbour_lambda,
-                                      &m_idSpec, svg_cfg, &cross_system_neighbor_pairs);
-      info("Enhanced SVG visualization written to: {}", svg_path.string());
-    } catch (const std::exception& e) {
-      warning("Failed to generate SVG visualization: {}", e.what());
-    }
-  }
 
   // Write output
   for (auto& cl : final_clusters) {
