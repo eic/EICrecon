@@ -10,6 +10,7 @@
 #include <string_view>
 #include <map>
 #include <type_traits>
+#include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/utilities/TypeHelpers.h>
 
