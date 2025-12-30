@@ -22,7 +22,26 @@ template <typename T> struct PodioTypeMap {
   using mutable_t    = typename T::mutable_type;
 };
 
-// Helper to build a map of typename -> visitor function
+// CollectionVisitorMap builds a dispatch table from podio collection type names
+// to type-safe visitor functions for a given Visitor type.
+//
+// The Visitor template parameter is expected to be a callable type (e.g. a
+// functor, lambda, or class with operator()) that can be invoked for each
+// supported concrete collection type:
+//
+//   void operator()(const ConcreteCollectionType&);
+//
+// CollectionVisitorMap is instantiated once per Visitor (see VisitPodioCollection
+// below). At construction time it registers all EDM4hep and EDM4eic data and
+// link collection types by mapping their static typeName to a function that
+// will:
+//   1. downcast the generic podio::CollectionBase reference to the concrete
+//      collection type, and
+//   2. call the Visitor with that concrete collection.
+//
+// This map is then used by VisitPodioCollection to look up the correct
+// handler at runtime based on collection.getTypeName(), providing a
+// type-safe implementation of the visitor pattern over podio collections.
 template <typename Visitor> class CollectionVisitorMap {
 public:
   using FunctionType = void (*)(Visitor&, const podio::CollectionBase&);
