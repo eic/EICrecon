@@ -656,7 +656,6 @@ void ImagingTopoCluster::process(const Input& input, const Output& output) const
 
   debug("Outputting {} final proto-clusters", final_clusters.size());
 
-
   // Write output
   for (auto& cl : final_clusters) {
     auto pcl = proto->create();
