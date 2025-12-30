@@ -5,6 +5,10 @@
 
 #include <podio/podioVersion.h>
 
+// Note that the JANA version components are defined by the build system,
+// since they are not available for use in preprocessor directives when include
+// from JANA/JVersion.h.
+
 // Use modern implementation for podio >= 1.3
 #if defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
 #if (podio_VERSION_MAJOR > 1) || (podio_VERSION_MAJOR == 1 && podio_VERSION_MINOR >= 3)
