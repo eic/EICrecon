@@ -95,11 +95,6 @@ set(CMAKE_CXX_LINK_LIBRARY_USING_NO_AS_NEEDED
 # Export compile commands as json for run-clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-# This PROJECT_SOURCE_DIR at this point corresponds to repository root. Saving
-# it as EICRECON_SOURCE_DIR so can be used for jana_plugin.cmake to correctly
-# set plugin includes (and in other places as needed)
-set(EICRECON_SOURCE_DIR ${PROJECT_SOURCE_DIR})
-
 # Also use clang-tidy integration in CMake
 option(ENABLE_CLANG_TIDY "Enable clang-tidy integration in cmake" OFF)
 if(ENABLE_CLANG_TIDY)
@@ -279,8 +274,8 @@ find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
-list(APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake
-)# Find Find<Modules>.cmake
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake) # Find
+                                                           # Find<Modules>.cmake
 
 enable_testing()
 
