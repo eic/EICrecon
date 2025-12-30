@@ -86,7 +86,37 @@ public:
   const auto& getMap() const { return m_map; }
 };
 
-// VisitPodioCollection: visitor pattern for type-safe collection processing
+// VisitPodioCollection is a visitor adaptor for type-safe processing of podio collections.
+//
+// This template implements a runtime-dispatch visitor pattern for
+// podio::CollectionBase instances. It uses the collection's
+// runtime type name together with CollectionVisitorMap to look up the
+// concrete collection type and call the provided @p Visitor on it.
+//
+// template parameter Visitor
+//   A type that models a callable taking a const reference to each
+//   supported concrete podio collection type. In practice, this means
+//   that for every collection type CollectionT registered in
+//   CollectionVisitorMap, the following expression must be well-formed:
+//
+//     visitor(const CollectionT&);
+//
+//   This can be satisfied either by giving Visitor a suitable
+//   operator() overload, or by providing free / member functions
+//   that are invocable with const CollectionT&.
+//
+// Usage:
+//   - Construct or obtain a Visitor instance.
+//   - Call VisitPodioCollection<Visitor>::operator() with the visitor
+//     and a podio::CollectionBase reference. The adaptor will:
+//       1. Look up the collection's concrete type by getTypeName().
+//       2. Cast the podio::CollectionBase to the matching concrete
+//          collection type.
+//       3. Invoke the visitor with a const CollectionT& argument.
+//
+// If the collection type name is not known to the registered EDM4hep or
+// EDM4eic datamodels, operator() throws std::runtime_error with a
+// descriptive error message.
 template <typename Visitor> struct VisitPodioCollection {
   void operator()(Visitor& visitor, const podio::CollectionBase& collection) {
     // Build the map once (static initialization)
