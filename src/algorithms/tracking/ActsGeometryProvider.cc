@@ -7,6 +7,7 @@
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
+#include <fmt/base.h>
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 #include <ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <ActsPlugins/DD4hep/DD4hepDetectorElement.hpp>
@@ -16,9 +17,9 @@
 #else
 #include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
+#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
-#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
 #endif
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/BinningType.hpp>
@@ -30,7 +31,6 @@
 #include <DD4hep/VolumeManager.h>
 #include <JANA/JException.h>
 #include <TGeoManager.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <spdlog/common.h>
