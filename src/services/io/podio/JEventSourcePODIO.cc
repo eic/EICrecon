@@ -14,7 +14,7 @@
 #include <TFile.h>
 #include <TObject.h>
 #include <edm4hep/EventHeaderCollection.h>
-#include <fmt/core.h>
+#include <fmt/base.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <podio/CollectionBase.h>
