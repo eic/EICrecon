@@ -6,7 +6,7 @@
 #include <podio/podioVersion.h>
 
 // Note that the JANA version components are defined by the build system,
-// since they are not available for use in preprocessor directives when include
+// since they are not available for use in preprocessor directives when included
 // from JANA/JVersion.h.
 
 // Use modern implementation for podio >= 1.3
