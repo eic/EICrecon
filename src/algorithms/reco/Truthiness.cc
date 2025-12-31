@@ -18,6 +18,7 @@
 #include "algorithms/reco/TruthinessConfig.h"
 
 #if __has_include(<edm4eic/Truthiness.h>)
+#include <edm4eic/Truthiness.h>
 #include <edm4eic/TruthinessCollection.h>
 #endif
 
