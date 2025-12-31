@@ -8,7 +8,7 @@
 
 #include <stdexcept>
 #include <string_view>
-#include <map>
+#include <unordered_map>
 #include <type_traits>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
@@ -50,7 +50,7 @@ public:
   using FunctionType = void (*)(Visitor&, const podio::CollectionBase&);
 
 private:
-  std::map<std::string_view, FunctionType> m_map;
+  std::unordered_map<std::string_view, FunctionType> m_map;
 
   template <typename CollectionT>
   static void visitCollection(Visitor& visitor, const podio::CollectionBase& collection) {
