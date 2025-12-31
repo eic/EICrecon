@@ -174,8 +174,8 @@ void Truthiness::process(const Truthiness::Input& input,
   // avg_n = avg_(n-1) + (x_n - avg_(n-1)) / n
   {
     std::lock_guard<std::mutex> lock(m_stats_mutex);
-    m_event_count++;
-    m_average_truthiness += (truthiness - m_average_truthiness) / m_event_count;
+    const auto event_count = ++m_event_count;
+    m_average_truthiness += (truthiness - m_average_truthiness) / event_count;
   }
 
   // Report final truthiness
