@@ -9,3 +9,4 @@ leak:libActsCore.so
 leak:libCling.so
 leak:libCore.so
 leak:libJANA.so
+leak:libonnxruntime.so
