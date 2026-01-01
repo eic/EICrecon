@@ -10,9 +10,6 @@
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
-#if __has_include(<edm4eic/Truthiness.h>)
-#include <edm4eic/Truthiness.h>
-#endif
 #include <edm4hep/MCParticle.h>
 #include <map>
 #include <memory>
