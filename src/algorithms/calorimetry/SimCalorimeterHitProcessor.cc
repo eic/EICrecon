@@ -59,7 +59,7 @@ template <> struct hash<edm4hep::MCParticle> {
 template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
   size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t, int>& key) const noexcept {
     const auto& [particle, cellID, timeID] = key;
-    size_t h1                              = hash<edm4hep::MCParticle>{}(particle);
+    size_t h1                              = hash<podio::ObjectID>{}(particle.getObjectID());
     size_t h2                              = hash<uint64_t>{}(cellID);
     size_t h3                              = hash<int>{}(timeID);
     return ((h1 ^ (h2 << 1)) >> 1) ^ (h3 << 1);
