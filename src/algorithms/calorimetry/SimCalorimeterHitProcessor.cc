@@ -175,15 +175,16 @@ namespace {
       // Compare particles by ObjectID for deterministic ordering
       auto id_a = p_a.getObjectID();
       auto id_b = p_b.getObjectID();
-      if (id_a.collectionID != id_b.collectionID)
+      if (id_a.collectionID != id_b.collectionID) {
         return id_a.collectionID < id_b.collectionID;
-      if (id_a.index != id_b.index)
+      }
+      if (id_a.index != id_b.index) {
         return id_a.index < id_b.index;
-
+      }
       // If particles are equal, compare cellID
-      if (cell_a != cell_b)
+      if (cell_a != cell_b) {
         return cell_a < cell_b;
-
+      }
       // Finally compare timeID
       return time_a < time_b;
     }
