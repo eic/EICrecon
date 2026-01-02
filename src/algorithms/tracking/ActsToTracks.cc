@@ -35,8 +35,7 @@ namespace eicrecon {
 // instead of podio's default memory-address-based comparison
 namespace {
   struct MCParticleCompare {
-    bool operator()(const edm4hep::MCParticle& p_a,
-                    const edm4hep::MCParticle& p_b) const {
+    bool operator()(const edm4hep::MCParticle& p_a, const edm4hep::MCParticle& p_b) const {
       // Compare particles by ObjectID for deterministic ordering
       auto id_a = p_a.getObjectID();
       auto id_b = p_b.getObjectID();
@@ -46,7 +45,7 @@ namespace {
       return id_a.index < id_b.index;
     }
   };
-}
+} // namespace
 
 void ActsToTracks::init() {}
 
