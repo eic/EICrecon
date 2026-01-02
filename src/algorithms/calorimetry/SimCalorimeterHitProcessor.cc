@@ -205,7 +205,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   // and reproducible results between single-threaded and multi-threaded execution.
   // The custom comparator uses ObjectID instead of podio's default memory-address-based
   // comparison which is non-deterministic in multi-threaded execution.
-  // Ideally we would want immediately create our output objects and modify the
+  // Ideally we would want to immediately create our output objects and modify the
   // contributions when needed. That could reduce the following code to a single loop
   // (instead of 2 consecutive loops). However, this is not possible as we may have to merge
   // (hence modify) contributions which is not supported for PodIO VectorMembers. Using
