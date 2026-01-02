@@ -30,7 +30,7 @@
 
 namespace eicrecon {
 
-// Custom comparator for HitIndex that uses deterministic MCParticle comparison
+// Custom comparator for MCParticle that uses deterministic ObjectID-based comparison
 // instead of podio's default memory-address-based comparison
 namespace {
   struct MCParticleCompare {
