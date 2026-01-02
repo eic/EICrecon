@@ -11,7 +11,6 @@
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
-#include <fmt/core.h>
 #include <map>
 #include <memory>
 #include <string>
@@ -26,24 +25,30 @@
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
+#include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
-#include "factories/reco/InclusiveKinematicsML_factory.h"
-#include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
+#include "factories/reco/InclusiveKinematicsML_factory.h"
 #include "factories/reco/InclusiveKinematicsReconstructed_factory.h"
 #include "factories/reco/InclusiveKinematicsTruth_factory.h"
 #include "factories/reco/JetReconstruction_factory.h"
 #include "factories/reco/MC2ReconstructedParticle_factory.h"
 #include "factories/reco/MatchClusters_factory.h"
 #include "factories/reco/PrimaryVertices_factory.h"
-#include "factories/reco/SecondaryVerticesHelix_factory.h"
 #include "factories/reco/ReconstructedElectrons_factory.h"
 #include "factories/reco/ScatteredElectronsEMinusPz_factory.h"
 #include "factories/reco/ScatteredElectronsTruth_factory.h"
+#include "factories/reco/SecondaryVerticesHelix_factory.h"
 #include "factories/reco/TrackClusterMatch_factory.h"
 #include "factories/reco/TransformBreitFrame_factory.h"
+#if __has_include(<edm4eic/Truthiness.h>)
+#include "factories/reco/Truthiness_factory.h"
+#endif
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
+#if !__has_include(<edm4eic/Truthiness.h>)
+#include "global/reco/Truthiness_processor.h"
+#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -269,5 +274,15 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<SecondaryVerticesHelix_factory>(
       "SecondaryVerticesHelix", {"PrimaryVertices", "ReconstructedParticles"},
       {"SecondaryVerticesHelix"}, {}, app));
+
+  // Truthiness metric for event quality assessment
+#if __has_include(<edm4eic/Truthiness.h>)
+  app->Add(new JOmniFactoryGeneratorT<Truthiness_factory>(
+      "Truthiness", {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"},
+      {"Truthiness"}, {}, app));
+#else
+  // Include as processor if Truthiness output is not available
+  app->Add(new Truthiness_processor());
+#endif
 }
 } // extern "C"
