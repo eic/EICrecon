@@ -3,18 +3,21 @@
 
 #include "Truthiness.h"
 
+#include <edm4eic/Cov4f.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/TruthinessContribution.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <cmath>
 #include <set>
+#include <vector>
+
+#include "algorithms/reco/TruthinessConfig.h"
 
 #if __has_include(<edm4eic/Truthiness.h>)
-#include <edm4eic/Truthiness.h>
 #include <edm4eic/TruthinessCollection.h>
 #endif
 
