@@ -162,6 +162,33 @@ void SimCalorimeterHitProcessor::init() {
   }
 }
 
+// Custom comparator for HitIndex that uses deterministic MCParticle comparison
+// instead of podio's default memory-address-based comparison
+namespace {
+  struct HitIndexCompare {
+    bool operator()(const std::tuple<edm4hep::MCParticle, uint64_t, int>& a,
+                    const std::tuple<edm4hep::MCParticle, uint64_t, int>& b) const {
+      const auto& [p_a, cell_a, time_a] = a;
+      const auto& [p_b, cell_b, time_b] = b;
+
+      // Compare particles by ObjectID for deterministic ordering
+      auto id_a = p_a.getObjectID();
+      auto id_b = p_b.getObjectID();
+      if (id_a.collectionID != id_b.collectionID)
+        return id_a.collectionID < id_b.collectionID;
+      if (id_a.index != id_b.index)
+        return id_a.index < id_b.index;
+
+      // If particles are equal, compare cellID
+      if (cell_a != cell_b)
+        return cell_a < cell_b;
+
+      // Finally compare timeID
+      return time_a < time_b;
+    }
+  };
+} // namespace
+
 // Group contributions by (primary particle, cell ID), apply optional attenuation, and optionally merge into superhits
 void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input& input,
                                          const SimCalorimeterHitProcessor::Output& output) const {
@@ -172,8 +199,10 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   // Map for staging output information. We have 2 levels of structure:
   //   - top level: (MCParticle, Merged Hit CellID, TimeID)
   //   - second level: (Merged Contributions)
-  // We use std::map instead of std::unordered_map to ensure deterministic ordering
+  // We use std::map with a custom comparator to ensure deterministic ordering
   // and reproducible results between single-threaded and multi-threaded execution.
+  // The custom comparator uses ObjectID instead of podio's default memory-address-based
+  // comparison which is non-deterministic in multi-threaded execution.
   // Ideally we would want immediately create our output objects and modify the
   // contributions when needed. That could reduce the following code to a single loop
   // (instead of 2 consecutive loops). However, this is not possible as we may have to merge
@@ -181,7 +210,8 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   // reasonable contribution merging, at least the intermediary structure should be
   // quite a bit smaller than the original hit collection.
   using HitIndex = std::tuple<edm4hep::MCParticle, uint64_t /* cellID */, int /* timeID */>;
-  std::map<HitIndex, std::map<uint64_t /* cellID */, HitContributionAccumulator>> hit_map;
+  std::map<HitIndex, std::map<uint64_t /* cellID */, HitContributionAccumulator>, HitIndexCompare>
+      hit_map;
 
   for (const auto& ih : *in_hits) {
     // the cell ID of the new superhit we are making
