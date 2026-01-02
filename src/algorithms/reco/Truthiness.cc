@@ -19,6 +19,7 @@
 
 #if __has_include(<edm4eic/Truthiness.h>)
 #include <edm4eic/TruthinessCollection.h>
+#include <edm4eic/TruthinessContribution.h>
 #endif
 
 namespace eicrecon {
