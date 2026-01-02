@@ -199,8 +199,8 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
   auto [out_hits, out_hit_contribs] = output;
 
   // Map for staging output information. We have 2 levels of structure:
-  //   - top level: (MCParticle, Merged Hit CellID, TimeID)
-  //   - second level: (Merged Contributions)
+  //   - top level: (MCParticle, Merged Hit CellID, TimeID) -> contributions map
+  //   - second level: maps from contribution cellID to HitContributionAccumulator
   // We use std::map with a custom comparator to ensure deterministic ordering
   // and reproducible results between single-threaded and multi-threaded execution.
   // The custom comparator uses ObjectID instead of podio's default memory-address-based
