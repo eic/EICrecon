@@ -268,7 +268,8 @@ if(Acts_VERSION VERSION_LESS "40.0.0")
       ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/main.cc
       ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/a.cc
       ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/b.cc
-    LINK_LIBRARIES podio::podio ${Acts_NAMESPACE_PREFIX}Core ${Acts_NAMESPACE_PREFIX}PluginPodio)
+    LINK_LIBRARIES podio::podio ${Acts_NAMESPACE_PREFIX}Core
+                   ${Acts_NAMESPACE_PREFIX}PluginPodio)
   if(NOT Acts_needs_allow_multiple_definition)
     message(WARNING "This Acts version requires --allow-multiple-definition. "
                     "This may mask other multiple definition issues. "
