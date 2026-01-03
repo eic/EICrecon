@@ -13,7 +13,6 @@
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
@@ -30,6 +29,22 @@
 #include "extensions/edm4eic/EDM4eicToActs.h"
 
 namespace eicrecon {
+
+// Custom comparator for MCParticle that uses deterministic ObjectID-based comparison
+// instead of podio's default memory-address-based comparison
+namespace {
+  struct MCParticleCompare {
+    bool operator()(const edm4hep::MCParticle& p_a, const edm4hep::MCParticle& p_b) const {
+      // Compare particles by ObjectID for deterministic ordering
+      auto id_a = p_a.getObjectID();
+      auto id_b = p_b.getObjectID();
+      if (id_a.collectionID != id_b.collectionID) {
+        return id_a.collectionID < id_b.collectionID;
+      }
+      return id_a.index < id_b.index;
+    }
+  };
+} // namespace
 
 void ActsToTracks::init() {}
 
@@ -126,7 +141,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
       track.setTrajectory(trajectory); // Trajectory of this track
 
       // Determine track association with MCParticle, weighted by number of used measurements
-      std::map<edm4hep::MCParticle, double> mcparticle_weight_by_hit_count;
+      std::map<edm4hep::MCParticle, double, MCParticleCompare> mcparticle_weight_by_hit_count;
 
       // save measurement2d to good measurements or outliers according to srclink index
       // fix me: ideally, this should be integrated into multitrajectoryhelper
