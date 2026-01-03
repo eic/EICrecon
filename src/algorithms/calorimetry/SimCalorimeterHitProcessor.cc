@@ -12,7 +12,8 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
+#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/podioVersion.h>
 #include <cmath>
@@ -43,14 +44,6 @@ template <> struct hash<podio::ObjectID> {
     return h1 ^ (h2 << 1);
   }
 };
-
-// Necessary to make MCParticle hashable
-template <> struct hash<edm4hep::MCParticle> {
-  size_t operator()(const edm4hep::MCParticle& p) const noexcept {
-    const auto& id = p.getObjectID();
-    return std::hash<podio::ObjectID>()(id);
-  }
-};
 #endif // podio version check
 #endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
 
@@ -59,7 +52,7 @@ template <> struct hash<edm4hep::MCParticle> {
 template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
   size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t, int>& key) const noexcept {
     const auto& [particle, cellID, timeID] = key;
-    size_t h1                              = hash<edm4hep::MCParticle>{}(particle);
+    size_t h1                              = hash<podio::ObjectID>{}(particle.getObjectID());
     size_t h2                              = hash<uint64_t>{}(cellID);
     size_t h3                              = hash<int>{}(timeID);
     return ((h1 ^ (h2 << 1)) >> 1) ^ (h3 << 1);
