@@ -5,6 +5,10 @@
   { ref: '/opt/local/share/include-what-you-use/boost-all.imp' },
   { include: ['@<boost/histogram/.*\.hpp>', private, '<boost/histogram.hpp>', public] },
 
+  # Avoid fmt/base.h which only exists as of fmt-11
+  # FIXME this can be removed when all test systems have fmt-11
+  { include: ['<fmt/base.h>', private, '<fmt/format.h>', public] },
+
   # libc++
   { ref: '/opt/local/share/include-what-you-use/libcxx.imp' },
 
