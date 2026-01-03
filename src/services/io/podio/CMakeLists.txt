@@ -5,9 +5,13 @@ if(podio_VERSION VERSION_LESS "1.3" OR JANA_VERSION VERSION_LESS "2.4.3")
       "Using legacy Python-based datamodel glue for podio ${podio_VERSION} and JANA2 ${JANA_VERSION}"
   )
 
-  # Get properties at configuration evaluation time. The `$<TARGET_PROPERTY`
+  # Get properties at configuration evaluation time. The `$<TARGET_PROPERTY>`
   # generator expression would include multiple additional paths from transitive
   # dependencies such as PODIO and ROOT.
+  if(TARGET ActsCore)
+    get_target_property(ACTS_INTERFACE_INCLUDE_DIRECTORIES ActsCore
+                        INTERFACE_INCLUDE_DIRECTORIES)
+  endif()
   get_target_property(EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES EDM4HEP::edm4hep
                       INTERFACE_INCLUDE_DIRECTORIES)
   get_target_property(EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES EDM4EIC::edm4eic
@@ -33,6 +37,7 @@ if(podio_VERSION VERSION_LESS "1.3" OR JANA_VERSION VERSION_LESS "2.4.3")
     COMMAND
       python3 ${CMAKE_CURRENT_SOURCE_DIR}/make_datamodel_glue.py
       WORKING_DIR=${PROJECT_BINARY_DIR}/include/${DATAMODEL_RELATIVE_PATH}
+      ACTS_INCLUDE_DIR=${ACTS_INTERFACE_INCLUDE_DIRECTORIES}
       EDM4HEP_INCLUDE_DIR=${EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES}
       EDM4EIC_INCLUDE_DIR=${EDM4EIC_INTERFACE_INCLUDE_DIRECTORIES}
     MAIN_DEPENDENCY ${CMAKE_CURRENT_SOURCE_DIR}/make_datamodel_glue.py

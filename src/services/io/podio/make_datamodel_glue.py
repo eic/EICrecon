@@ -19,11 +19,16 @@ print('Generating datamodel_glue.h ...')
 
 # Default to "not found"
 WORKING_DIR = None
+ACTS_INCLUDE_DIR = None
 EDM4HEP_INCLUDE_DIR = None
 EDM4EIC_INCLUDE_DIR = None
 
 # Try getting from environment first so we can overwrite
 # with command line below if available.
+ACTS_ROOT = os.environ.get("ACTS_ROOT")
+if ACTS_ROOT :
+    ACTS_INCLUDE_DIR=ACTS_ROOT+'/include'
+
 EDM4HEP_ROOT = os.environ.get("EDM4HEP_ROOT")
 if EDM4HEP_ROOT :
     EDM4HEP_INCLUDE_DIR=EDM4HEP_ROOT+'/include'
@@ -37,10 +42,18 @@ if EDM4EIC_ROOT :
 for arg in sys.argv:
     if arg.startswith('WORKING_DIR'):
         if '=' in arg: WORKING_DIR = arg.split('=',1)[1]
+    if arg.startswith('ACTS_INCLUDE_DIR'):
+        if '=' in arg: ACTS_INCLUDE_DIR = arg.split('=',1)[1]
     if arg.startswith('EDM4HEP_INCLUDE_DIR'):
         if '=' in arg: EDM4HEP_INCLUDE_DIR = arg.split('=',1)[1]
     if arg.startswith('EDM4EIC_INCLUDE_DIR'):
         if '=' in arg: EDM4EIC_INCLUDE_DIR = arg.split('=',1)[1]
+
+# Check if ACTS_INCLUDE_DIR is set (optional - only needed for Acts >= 36 with PODIO plugin)
+# We don't exit with error if not set, just skip Acts collections
+if not ACTS_INCLUDE_DIR:
+    print("WARNING: ACTS_INCLUDE_DIR not specified. ActsPodioEdm collections will not be included.")
+    print("         This is expected if Acts < 36 or Acts PODIO plugin is not available.")
 
 # Check if EDM4HEP_ROOT is set
 if not EDM4HEP_INCLUDE_DIR:
@@ -89,13 +102,16 @@ def AddCollections(datamodelName, collectionfiles):
         visitor.append('        }')
 
 
+collectionfiles_acts = glob.glob(ACTS_INCLUDE_DIR+'/ActsPodioEdm/*Collection.h') if ACTS_INCLUDE_DIR else []
 collectionfiles_edm4hep = glob.glob(EDM4HEP_INCLUDE_DIR+'/edm4hep/*Collection.h')
-collectionfiles_edm4eic    = glob.glob(EDM4EIC_INCLUDE_DIR+'/edm4eic/*Collection.h')
+collectionfiles_edm4eic = glob.glob(EDM4EIC_INCLUDE_DIR+'/edm4eic/*Collection.h')
 header_lines      = []
 type_map = []
 visitor = []
+if collectionfiles_acts:
+    AddCollections('ActsPodioEdm', collectionfiles_acts)
 AddCollections('edm4hep', collectionfiles_edm4hep)
-AddCollections('edm4eic'   , collectionfiles_edm4eic   )
+AddCollections('edm4eic', collectionfiles_edm4eic)
 
 
 if WORKING_DIR:
