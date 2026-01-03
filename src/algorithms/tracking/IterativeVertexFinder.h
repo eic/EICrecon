@@ -6,6 +6,11 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
+#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
+#include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
+#else
+#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
+#endif
 #include <edm4eic/VertexCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <spdlog/logger.h>
@@ -14,11 +19,16 @@
 
 #include "ActsExamples/EventData/Trajectories.hpp"
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "IterativeVertexFinderConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
+// Alias DD4hepFieldAdapter for different Acts versions
 namespace eicrecon {
+#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
+using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
+#else
+using DD4hepFieldAdapter = Acts::DD4hepFieldAdapter;
+#endif
 class IterativeVertexFinder
     : public eicrecon::WithPodConfig<eicrecon::IterativeVertexFinderConfig> {
 public:
@@ -32,7 +42,7 @@ private:
   std::shared_ptr<spdlog::logger> m_log;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-  std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
+  std::shared_ptr<const DD4hepFieldAdapter> m_BField = nullptr;
   Acts::GeometryContext m_geoctx;
   Acts::MagneticFieldContext m_fieldctx;
   IterativeVertexFinderConfig m_cfg;
