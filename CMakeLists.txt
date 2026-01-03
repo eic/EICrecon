@@ -258,6 +258,25 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
   )
 endif()
 
+# Allow multiple definitions (https://github.com/acts-project/acts/pull/4380)
+if(Acts_VERSION VERSION_LESS "40.0.0")
+  message(STATUS "Checking if older Acts version needs linker flags...")
+  try_compile(
+    Acts_needs_allow_multiple_definition
+    ${CMAKE_BINARY_DIR}/Acts_needs_allow_multiple_definition
+    SOURCES
+      ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/main.cc
+      ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/a.cc
+      ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/b.cc
+    LINK_LIBRARIES podio::podio ActsCore ActsPluginPodio)
+  if(NOT Acts_needs_allow_multiple_definition)
+    message(WARNING "This Acts version requires --allow-multiple-definition. "
+                    "This may mask other multiple definition issues. "
+                    "Ref: https://github.com/acts-project/acts/pull/4380.")
+    add_link_options("LINKER:--allow-multiple-definition")
+  endif()
+endif()
+
 # ROOT
 find_package(ROOT ${ROOT_VERSION_MIN} REQUIRED)
 # Check that ROOT is compiled with a modern enough c++ standard
