@@ -285,7 +285,10 @@ endmacro()
 macro(plugin_add_acts _name)
 
   if(NOT Acts_FOUND)
-    find_package(Acts REQUIRED COMPONENTS Core PluginDD4hep PluginJson)
+    find_package(
+      Acts REQUIRED
+      COMPONENTS Core PluginDD4hep PluginJson
+      OPTIONAL_COMPONENTS PluginPodio)
     set(Acts_VERSION
         "${Acts_VERSION_MAJOR}.${Acts_VERSION_MINOR}.${Acts_VERSION_PATCH}")
     if(${Acts_VERSION} VERSION_LESS ${Acts_VERSION_MIN})
@@ -312,6 +315,7 @@ macro(plugin_add_acts _name)
     ${Acts_NAMESPACE_PREFIX}Core
     ${Acts_NAMESPACE_PREFIX}PluginDD4hep
     ${Acts_NAMESPACE_PREFIX}PluginJson
+    $<TARGET_NAME_IF_EXISTS:${Acts_NAMESPACE_PREFIX}ActsPluginPodio>
     ${ActsCore_PATH}/${CMAKE_SHARED_LIBRARY_PREFIX}ActsExamplesFramework${CMAKE_SHARED_LIBRARY_SUFFIX}
   )
   if(${_name}_WITH_LIBRARY)
