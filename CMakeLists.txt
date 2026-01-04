@@ -275,7 +275,11 @@ if(Acts_VERSION VERSION_LESS "40.0.0")
       message(WARNING "This Acts version requires --allow-multiple-definition. "
                       "This may mask other multiple definition issues. "
                       "Ref: https://github.com/acts-project/acts/pull/4380.")
-      add_link_options("LINKER:--allow-multiple-definition")
+      check_linker_flag(CXX "LINKER:--allow-multiple-definition"
+                        CXX_LINKER_HAS_allow_multiple_definition)
+      if(CXX_LINKER_HAS_allow_multiple_definition)
+        add_link_options("LINKER:--allow-multiple-definition")
+      endif()
     endif()
   endif()
 endif()
