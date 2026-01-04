@@ -7,13 +7,13 @@
 #include <JANA/JEventSourceGeneratorT.h>
 
 #include "JEventProcessorPODIO.h"
-#include "JEventSourcePODIO.h"
+#include "JEventSourcePODIO_generator.h"
 
 // Make this a JANA plugin
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
-  app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
+  app->Add(new JEventSourcePODIO_generator);
 
   // Disable this behavior for now so one can run eicrecon with only the
   // input file as an argument.
