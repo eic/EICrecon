@@ -1107,7 +1107,7 @@ jobs:
           .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT
           rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT/
         if-no-files-found: error
-    - name: Fail when single- and multi-threaded are significantly different (p < 1.000)
+    - name: Fail when single- and multi-threaded are significantly different (p != 1.000)
       run: |
         if [ -s capybara-bad.log ] ; then
           echo "Disagreements found between single- and multi-threaded running:"
