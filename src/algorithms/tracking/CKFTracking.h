@@ -41,9 +41,6 @@ using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
 #else
 using DD4hepFieldAdapter = Acts::DD4hepFieldAdapter;
 #endif
-} // namespace eicrecon
-
-namespace eicrecon {
 
 /** Fitting algorithm implementation .
  *
