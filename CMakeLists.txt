@@ -258,7 +258,7 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
   )
 endif()
 
-# Allow multiple definitions (https://github.com/acts-project/acts/pull/4380)
+# Workaround for multiple definition bug in Acts < 40 (https://github.com/acts-project/acts/pull/4380)
 if(Acts_VERSION VERSION_LESS "40.0.0")
   if(TARGET ${Acts_NAMESPACE_PREFIX}PluginPodio)
     message(STATUS "Checking if older Acts version needs linker flags...")
