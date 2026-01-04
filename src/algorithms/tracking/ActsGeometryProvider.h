@@ -8,11 +8,6 @@
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
-#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
-#include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
-#else
-#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
-#endif
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Visualization/ViewConfig.hpp>
 #include <DD4hep/Detector.h>
@@ -32,14 +27,6 @@ namespace dd4hep::rec {
 class Surface;
 }
 
-// Alias DD4hepFieldAdapter for different Acts versions, placed in eicrecon namespace to avoid global conflicts
-namespace eicrecon {
-#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
-using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
-#else
-using DD4hepFieldAdapter = Acts::DD4hepFieldAdapter;
-#endif
-} // namespace eicrecon
 
 /** Draw the surfaces and save to obj file.
  *  This is useful for debugging the ACTS geometry. The obj file can
@@ -106,7 +93,7 @@ private:
   VolumeSurfaceMap m_surfaces;
 
   /// Acts magnetic field
-  std::shared_ptr<const eicrecon::DD4hepFieldAdapter> m_magneticField = nullptr;
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_magneticField = nullptr;
 
   ///  ACTS general logger that is used for running ACTS
   std::shared_ptr<spdlog::logger> m_log;

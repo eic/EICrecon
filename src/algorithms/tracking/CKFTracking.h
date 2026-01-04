@@ -16,11 +16,6 @@
 #include <Acts/Utilities/Result.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <ActsExamples/EventData/Trajectories.hpp>
-#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
-#include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
-#else
-#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
-#endif
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <spdlog/logger.h>
@@ -35,12 +30,6 @@
 class ActsGeometryProvider;
 
 namespace eicrecon {
-// Alias DD4hepFieldAdapter for different Acts versions, placed in eicrecon namespace to avoid global conflicts
-#if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
-using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
-#else
-using DD4hepFieldAdapter = Acts::DD4hepFieldAdapter;
-#endif
 
 /** Fitting algorithm implementation .
  *
@@ -96,7 +85,7 @@ private:
   std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-  std::shared_ptr<const DD4hepFieldAdapter> m_BField = nullptr;
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField = nullptr;
   Acts::GeometryContext m_geoctx;
   Acts::CalibrationContext m_calibctx;
   Acts::MagneticFieldContext m_fieldctx;
