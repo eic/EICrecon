@@ -31,7 +31,6 @@
 #include <DD4hep/VolumeManager.h>
 #include <JANA/JException.h>
 #include <TGeoManager.h>
-#include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <spdlog/common.h>
 #include <exception>
