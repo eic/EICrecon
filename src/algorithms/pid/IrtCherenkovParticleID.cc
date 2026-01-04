@@ -408,6 +408,11 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         auto hyp_weight      = irt_hypothesis->GetWeight(irt_rad);
         auto hyp_npe         = irt_hypothesis->GetNpe(irt_rad);
 
+        // Skip hypotheses with nan weight
+        if (std::isnan(hyp_weight)) {
+          continue;
+        }
+
         // fill `ParticleID` output collection
         edm4eic::CherenkovParticleIDHypothesis out_hypothesis;
         out_hypothesis.PDG =
