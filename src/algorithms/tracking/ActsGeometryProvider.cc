@@ -7,7 +7,7 @@
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
-#include <fmt/base.h>
+#include <fmt/format.h>
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 #include <ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <ActsPlugins/DD4hep/DD4hepDetectorElement.hpp>
