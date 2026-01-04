@@ -6,8 +6,9 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <edm4eic/VertexCollection.h>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <vector>

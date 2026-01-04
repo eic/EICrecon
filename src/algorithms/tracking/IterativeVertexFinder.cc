@@ -5,7 +5,6 @@
 #include "IterativeVertexFinder.h"
 
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
