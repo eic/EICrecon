@@ -34,8 +34,8 @@
 
 class ActsGeometryProvider;
 
-// Alias DD4hepFieldAdapter for different Acts versions, placed in eicrecon namespace to avoid global conflicts
 namespace eicrecon {
+// Alias DD4hepFieldAdapter for different Acts versions, placed in eicrecon namespace to avoid global conflicts
 #if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
 using DD4hepFieldAdapter = ActsPlugins::DD4hepFieldAdapter;
 #else
