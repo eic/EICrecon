@@ -27,7 +27,6 @@ namespace dd4hep::rec {
 class Surface;
 }
 
-
 /** Draw the surfaces and save to obj file.
  *  This is useful for debugging the ACTS geometry. The obj file can
  *  be loaded into various tools, such as FreeCAD, for inspection.
