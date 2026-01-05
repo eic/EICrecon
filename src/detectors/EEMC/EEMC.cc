@@ -21,6 +21,7 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "factories/meta/ONNXInference_factory.h"
+#include "factories/particle/TrackProtoClusterMatchPromoter_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -186,11 +187,12 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "EcalEndcapNSplitMergeProtoClusters",
-      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID",
-       "CalorimeterTrackProjections"},
-      {"EcalEndcapNSplitMergeProtoClusters",
+      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID", "CalorimeterTrackProjections"},
+      {
+        "EcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
-       "EcalEndcapNTrackSplitMergeProtoClusterMatches"},
+        "EcalEndcapNTrackSplitMergeProtoClusterMatches"
+      },
 #endif
       {.minSigCut                    = -1.0,
        .avgEP                        = 1.0,
@@ -202,7 +204,8 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNSplitMergeClustersWithoutShapes",
-      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNRawHitAssociations"},
+      {"EcalEndcapNSplitMergeProtoClusters",
+       "EcalEndcapNRawHitAssociations"},
       {"EcalEndcapNSplitMergeClustersWithoutShapes",
        "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
       {
@@ -219,5 +222,12 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
       {"EcalEndcapNSplitMergeClusters", "EcalEndcapNSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "EcalEndcapNTrackSplitMergeClusterMatches",
+      {"EcalEndcapNTrackSplitMergeProtoClusterMatches",
+       "EcalEndcapNSplitMergeProtoClusters",
+       "EcalEndcapNSplitMergeClusters"},
+      {"EcalEndcapNTrackSplitMergeClusterMatches"},
+      {}, app));
 }
 }
