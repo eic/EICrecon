@@ -18,8 +18,8 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
@@ -407,6 +407,11 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         auto* irt_hypothesis = pdg_to_hyp.at(pdg);
         auto hyp_weight      = irt_hypothesis->GetWeight(irt_rad);
         auto hyp_npe         = irt_hypothesis->GetNpe(irt_rad);
+
+        // Skip hypotheses with nan weight
+        if (std::isnan(hyp_weight)) {
+          continue;
+        }
 
         // fill `ParticleID` output collection
         edm4eic::CherenkovParticleIDHypothesis out_hypothesis;
