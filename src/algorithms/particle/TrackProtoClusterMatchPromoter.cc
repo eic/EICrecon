@@ -10,10 +10,12 @@ namespace eicrecon {
 // ----------------------------------------------------------------------------
 //! Process inputs
 // ----------------------------------------------------------------------------
-/*! Promotes track-protocluster matches to track-cluster
- *  matches by <COPYING STUFF>
- *  ssuming the input cluster and protocluster
- *  collections are 1-to-1
+/*! For each track-protocluster match, algorithm
+ *  will create a corresponding track-cluster match.
+ *  Input protocluster and cluster collections are
+ *  assumed to be 1-to-1, i.e. assuming that the Nth 
+ *  cluster was reconstructed from the Nth
+ *  protocluster.
  */
 void TrackProtoClusterMatchPromoter::process(const TrackProtoClusterMatchPromoter::Input& input,
                                              const TrackProtoClusterMatchPromoter::Output& output) const {
