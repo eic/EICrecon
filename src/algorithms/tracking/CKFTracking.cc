@@ -332,6 +332,15 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     // Set seed number for all found tracks
     auto& tracksForSeed = result.value();
     for (auto& track : tracksForSeed) {
+      // Check if track has at least one valid (non-outlier) measurement
+      // (this check avoid errors inside smoothing and extrapolation)
+      auto lastMeasurement = Acts::findLastMeasurementState(track);
+      if (!lastMeasurement.ok()) {
+        m_log->debug("Track {} for seed {} has no valid measurements, skipping", 
+                     track.index(), iseed);
+        continue;
+      }
+
       auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
       if (!smoothingResult.ok()) {
         m_log->debug("Smoothing for seed {} and track {} failed with error {}", iseed,
