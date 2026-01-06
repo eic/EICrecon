@@ -244,169 +244,24 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
 }
 
 void JEventProcessorJANADOT::WriteSplitDotFiles() {
-  std::vector<std::set<std::string>> node_groups;
-  std::map<std::string, std::set<std::string>> plugin_groups;
+  std::map<std::string, std::set<std::string>> groups;
 
-  // Use switch/case for better structure
-  enum SplitMethod { PLUGIN, GROUPS } method = PLUGIN;
-
-  if (split_criteria == "plugin") {
-    method = PLUGIN;
-  } else if (split_criteria == "groups") {
-    method = GROUPS;
+  if (split_criteria == "groups") {
+    groups = SplitGraphByGroups();
+    WriteGroupGraphs(groups);
+    WriteOverallDotFile(groups);
+  } else if (split_criteria == "plugin") {
+    groups = SplitGraphByPlugin();
+    WritePluginGraphs(groups);
+    WriteOverallDotFile(groups);
   } else {
     // Default to plugin if unknown
-    method = PLUGIN;
     std::cout << "Unknown split criteria '" << split_criteria << "', defaulting to plugin"
               << std::endl;
+    groups = SplitGraphByPlugin();
+    WritePluginGraphs(groups);
+    WriteOverallDotFile(groups);
   }
-
-  switch (method) {
-  case PLUGIN:
-    plugin_groups = SplitGraphByPlugin();
-    WritePluginGraphs(plugin_groups);
-    WriteOverallDotFile(plugin_groups);
-    return;
-
-  case GROUPS:
-    plugin_groups = SplitGraphByGroups();
-    WriteGroupGraphs(plugin_groups);
-    WriteOverallDotFile(plugin_groups);
-    return;
-  }
-}
-
-void JEventProcessorJANADOT::WriteSplitDotFile(const std::string& filename,
-                                               const std::set<std::string>& nodes) {
-  std::ofstream ofs(filename);
-  if (!ofs.is_open()) {
-    std::cerr << "Error: Unable to open file " << filename << " for writing!" << std::endl;
-    return;
-  }
-
-  // Calculate total time for this subgraph
-  double total_ms = 0.0;
-  for (auto& [link, stats] : call_links) {
-    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-    if (nodes.find(caller) != nodes.end()) {
-      total_ms += stats.from_factory_ms + stats.from_source_ms + stats.from_cache_ms +
-                  stats.data_not_available_ms;
-    }
-  }
-  if (total_ms == 0.0)
-    total_ms = 1.0;
-
-  // Write DOT file header
-  ofs << "digraph G {" << std::endl;
-  ofs << "  rankdir=TB;" << std::endl;
-  ofs << "  node [fontname=\"Arial\", fontsize=10];" << std::endl;
-  ofs << "  edge [fontname=\"Arial\", fontsize=8];" << std::endl;
-  ofs << "  label=\"EICrecon Call Graph (Part " << filename.substr(filename.find("part")) << ")\";"
-      << std::endl;
-  ofs << "  labelloc=\"t\";" << std::endl;
-  ofs << std::endl;
-
-  // Write nodes (only those in this group)
-  for (const std::string& nametag : nodes) {
-    auto fstats_it = factory_stats.find(nametag);
-    if (fstats_it == factory_stats.end())
-      continue;
-
-    const FactoryCallStats& fstats = fstats_it->second;
-    double time_in_factory         = fstats.time_waited_on - fstats.time_waiting;
-    double percent                 = 100.0 * time_in_factory / total_ms;
-
-    std::string color = GetNodeColor(fstats.type);
-    std::string shape = GetNodeShape(fstats.type);
-
-    ofs << "  \"" << nametag << "\" [";
-    ofs << "fillcolor=" << color << ", ";
-    ofs << "style=filled, ";
-    ofs << "shape=" << shape << ", ";
-    ofs << "label=\"" << nametag << "\\n";
-    ofs << MakeTimeString(time_in_factory) << " (" << std::fixed << std::setprecision(1) << percent
-        << "%)\"";
-    ofs << "];" << std::endl;
-  }
-
-  ofs << std::endl;
-
-  // Write edges (only those within this group)
-  for (auto& [link, stats] : call_links) {
-    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-    std::string callee = MakeNametag(link.callee_name, link.callee_tag);
-
-    // Only include edges where both nodes are in this group
-    if (nodes.find(caller) == nodes.end() || nodes.find(callee) == nodes.end()) {
-      continue;
-    }
-
-    unsigned int total_calls =
-        stats.Nfrom_cache + stats.Nfrom_source + stats.Nfrom_factory + stats.Ndata_not_available;
-    double total_time = stats.from_cache_ms + stats.from_source_ms + stats.from_factory_ms +
-                        stats.data_not_available_ms;
-    double percent = 100.0 * total_time / total_ms;
-
-    ofs << "  \"" << caller << "\" -> \"" << callee << "\" [";
-    ofs << "label=\"" << total_calls << " calls\\n";
-    ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
-        << "%)\"";
-    ofs << "];" << std::endl;
-  }
-
-  ofs << "}" << std::endl;
-  ofs.close();
-}
-
-void JEventProcessorJANADOT::WriteIndexFile(int num_parts) {
-  std::string base_filename = output_filename;
-  size_t dot_pos            = base_filename.find_last_of('.');
-  if (dot_pos != std::string::npos) {
-    base_filename = base_filename.substr(0, dot_pos);
-  }
-
-  std::string index_filename = base_filename + "_index.txt";
-  std::ofstream ofs(index_filename);
-  if (!ofs.is_open()) {
-    std::cerr << "Error: Unable to open index file " << index_filename << " for writing!"
-              << std::endl;
-    return;
-  }
-
-  ofs << "EICrecon Call Graph Split Information" << std::endl;
-  ofs << "=====================================" << std::endl;
-  ofs << std::endl;
-  ofs << "The call graph was too large for efficient processing by graphviz," << std::endl;
-  ofs << "so it has been split into " << num_parts << " separate DOT files:" << std::endl;
-  ofs << std::endl;
-
-  for (int i = 1; i <= num_parts; i++) {
-    std::stringstream ss;
-    ss << base_filename << "_part" << std::setfill('0') << std::setw(3) << i << ".dot";
-    ofs << "  " << ss.str() << std::endl;
-  }
-
-  ofs << std::endl;
-  ofs << "To generate PDF files from each part:" << std::endl;
-  ofs << std::endl;
-
-  for (int i = 1; i <= num_parts; i++) {
-    std::stringstream ss_dot, ss_pdf;
-    ss_dot << base_filename << "_part" << std::setfill('0') << std::setw(3) << i << ".dot";
-    ss_pdf << base_filename << "_part" << std::setfill('0') << std::setw(3) << i << ".pdf";
-    ofs << "  dot -Tpdf " << ss_dot.str() << " -o " << ss_pdf.str() << std::endl;
-  }
-
-  ofs << std::endl;
-  ofs << "Configuration used:" << std::endl;
-  ofs << "  Split criteria: " << split_criteria << std::endl;
-
-  ofs.close();
-
-  std::cout << std::endl;
-  std::cout << "Factory calling information written to " << num_parts << " files." << std::endl;
-  std::cout << "See \"" << index_filename << "\" for details on processing the files." << std::endl;
-  std::cout << std::endl;
 }
 
 std::string JEventProcessorJANADOT::MakeTimeString(double time_in_ms) {
@@ -701,63 +556,6 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     ofs << "];" << std::endl;
   }
 
-  ofs << "}" << std::endl;
-  ofs.close();
-}
-
-// Overloaded WriteOverallDotFile for non-plugin splitting methods
-void JEventProcessorJANADOT::WriteOverallDotFile(
-    const std::vector<std::set<std::string>>& node_groups) {
-  std::ofstream ofs(output_filename);
-  if (!ofs.is_open()) {
-    std::cerr << "Error: Unable to open file " << output_filename << " for writing!" << std::endl;
-    return;
-  }
-
-  // Calculate total time for percentages
-  double total_ms = 0.0;
-  for (auto& [link, stats] : call_links) {
-    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-    // Only count top-level callers (those not called by others)
-    bool is_top_level = true;
-    for (auto& [other_link, other_stats] : call_links) {
-      std::string other_callee = MakeNametag(other_link.callee_name, other_link.callee_tag);
-      if (other_callee == caller) {
-        is_top_level = false;
-        break;
-      }
-    }
-    if (is_top_level) {
-      total_ms += stats.from_factory_ms + stats.from_source_ms + stats.from_cache_ms +
-                  stats.data_not_available_ms;
-    }
-  }
-  if (total_ms == 0.0)
-    total_ms = 1.0;
-
-  // Write DOT file header
-  ofs << "digraph G {" << std::endl;
-  ofs << "  rankdir=TB;" << std::endl;
-  ofs << "  node [fontname=\"Arial\", fontsize=12];" << std::endl;
-  ofs << "  edge [fontname=\"Arial\", fontsize=10];" << std::endl;
-  ofs << "  label=\"EICrecon Overall Call Graph - " << split_criteria << " splitting summary\";"
-      << std::endl;
-  ofs << "  labelloc=\"t\";" << std::endl;
-  ofs << std::endl;
-
-  // Create summary nodes for each group
-  for (size_t i = 0; i < node_groups.size(); i++) {
-    std::string group_name = "Group_" + std::to_string(i + 1);
-    ofs << "  \"" << group_name << "\" [";
-    ofs << "shape=box, ";
-    ofs << "style=filled, ";
-    ofs << "fillcolor=lightblue, ";
-    ofs << "label=\"" << group_name << "\\n(" << node_groups[i].size() << " nodes)\"";
-    ofs << "];" << std::endl;
-  }
-
-  ofs << std::endl;
-  ofs << "  // Note: Individual group details are in separate _partXXX.dot files" << std::endl;
   ofs << "}" << std::endl;
   ofs.close();
 }
