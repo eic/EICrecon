@@ -70,7 +70,6 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
