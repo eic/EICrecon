@@ -59,7 +59,7 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   float b_field = field.z();
 
   debug("Primary vertex = ({},{},{})cm \t b field = {} tesla", pVtxPos.x, pVtxPos.y, pVtxPos.z,
-      b_field / dd4hep::tesla);
+        b_field / dd4hep::tesla);
 
   std::vector<Helix> hVec;
   hVec.clear();
@@ -142,9 +142,9 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
       v0.addToAssociatedParticles(p2);
 
       debug("One secondary vertex found at (x,y,z) = ({}, {}, {}) mm.",
-           pairPos.x * edm4eic::unit::cm / edm4eic::unit::mm,
-           pairPos.y * edm4eic::unit::cm / edm4eic::unit::mm,
-           pairPos.x * edm4eic::unit::cm / edm4eic::unit::mm);
+            pairPos.x * edm4eic::unit::cm / edm4eic::unit::mm,
+            pairPos.y * edm4eic::unit::cm / edm4eic::unit::mm,
+            pairPos.x * edm4eic::unit::cm / edm4eic::unit::mm);
 
     } // end i2
   } // end i1
