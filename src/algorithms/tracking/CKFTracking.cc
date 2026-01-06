@@ -336,8 +336,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
       // (this check avoid errors inside smoothing and extrapolation)
       auto lastMeasurement = Acts::findLastMeasurementState(track);
       if (!lastMeasurement.ok()) {
-        m_log->debug("Track {} for seed {} has no valid measurements, skipping", 
-                     track.index(), iseed);
+        m_log->debug("Track {} for seed {} has no valid measurements, skipping", track.index(),
+                     iseed);
         continue;
       }
 
