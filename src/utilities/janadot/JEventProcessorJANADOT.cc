@@ -31,13 +31,10 @@ void JEventProcessorJANADOT::Init() {
 
   enable_splitting = true;
   params->SetDefaultParameter("janadot:enable_splitting", enable_splitting,
-                              "Enable splitting large graphs into multiple files");
-
-  split_criteria = "plugin";
-  params->SetDefaultParameter("janadot:split_criteria", split_criteria,
-                              "Criteria for splitting graphs: plugin, groups");
+                              "Enable splitting graphs into multiple files by plugin");
 
   // Check for janadot:group parameters (command line group definitions)
+  // These override the default plugin-based group assignment
   std::map<std::string, std::string> parameter_keys;
   params->FilterParameters(parameter_keys, "janadot:group:");
   for (const auto& [group_name, group_definition] : parameter_keys) {
@@ -58,7 +55,7 @@ void JEventProcessorJANADOT::Init() {
     user_groups[group_name]       = factories;
     user_group_colors[group_name] = color;
 
-    // Build nametag to group mapping
+    // Build nametag to group mapping (overrides plugin-based assignment)
     for (const auto& factory : factories) {
       nametag_to_group[factory] = group_name;
     }
@@ -244,24 +241,10 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
 }
 
 void JEventProcessorJANADOT::WriteSplitDotFiles() {
-  std::map<std::string, std::set<std::string>> groups;
-
-  if (split_criteria == "groups") {
-    groups = SplitGraphByGroups();
-    WriteGroupGraphs(groups);
-    WriteOverallDotFile(groups);
-  } else if (split_criteria == "plugin") {
-    groups = SplitGraphByPlugin();
-    WritePluginGraphs(groups);
-    WriteOverallDotFile(groups);
-  } else {
-    // Default to plugin if unknown
-    std::cout << "Unknown split criteria '" << split_criteria << "', defaulting to plugin"
-              << std::endl;
-    groups = SplitGraphByPlugin();
-    WritePluginGraphs(groups);
-    WriteOverallDotFile(groups);
-  }
+  // Always use plugin-based splitting with optional user group overrides
+  std::map<std::string, std::set<std::string>> groups = SplitGraphByPlugin();
+  WritePluginGraphs(groups);
+  WriteOverallDotFile(groups);
 }
 
 std::string JEventProcessorJANADOT::MakeTimeString(double time_in_ms) {
@@ -564,19 +547,27 @@ std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphB
   std::map<std::string, std::set<std::string>> plugin_groups;
 
   // Group nodes by their actual plugin (from factory information)
+  // with optional user group overrides
   for (auto& [nametag, fstats] : factory_stats) {
-    std::string plugin;
+    std::string group_name;
 
-    // Try to get plugin from our mapping first
-    auto it = nametag_to_plugin.find(nametag);
-    if (it != nametag_to_plugin.end()) {
-      plugin = it->second;
+    // Check if this factory has a user-defined group override
+    auto override_it = nametag_to_group.find(nametag);
+    if (override_it != nametag_to_group.end()) {
+      // Use user-defined group
+      group_name = override_it->second;
     } else {
-      // Fall back to heuristic extraction for items not in factory set
-      plugin = ExtractPluginName(nametag);
+      // Use plugin-based grouping
+      auto it = nametag_to_plugin.find(nametag);
+      if (it != nametag_to_plugin.end()) {
+        group_name = it->second;
+      } else {
+        // Fall back to heuristic extraction for items not in factory set
+        group_name = ExtractPluginName(nametag);
+      }
     }
 
-    plugin_groups[plugin].insert(nametag);
+    plugin_groups[group_name].insert(nametag);
   }
 
   return plugin_groups;
@@ -678,100 +669,4 @@ std::string JEventProcessorJANADOT::ExtractPluginName(const std::string& nametag
 
   // Final fallback
   return "misc";
-}
-
-std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphByGroups() {
-  std::map<std::string, std::set<std::string>> groups;
-
-  // Group nodes based on user-defined groups
-  for (auto& [nametag, fstats] : factory_stats) {
-    std::string group_name = "Ungrouped";
-
-    // Check if this factory is in any user-defined group
-    if (nametag_to_group.find(nametag) != nametag_to_group.end()) {
-      group_name = nametag_to_group[nametag];
-    }
-
-    groups[group_name].insert(nametag);
-  }
-
-  return groups;
-}
-
-void JEventProcessorJANADOT::WriteGroupGraphs(
-    const std::map<std::string, std::set<std::string>>& groups) {
-  std::cout << "Splitting graph into " << groups.size() << " group-based subgraphs" << std::endl;
-
-  for (auto& [group_name, nodes] : groups) {
-    WriteGroupDotFile(group_name, nodes);
-  }
-
-  std::cout << "Factory calling information written to " << groups.size()
-            << " group-based dot files. Use graphviz to convert to images." << std::endl;
-}
-
-void JEventProcessorJANADOT::WriteGroupDotFile(const std::string& group_name,
-                                               const std::set<std::string>& nodes) {
-  // Create filename like jana.GroupName.dot
-  std::string base_filename = output_filename;
-  size_t dot_pos            = base_filename.find_last_of('.');
-  if (dot_pos != std::string::npos) {
-    base_filename = base_filename.substr(0, dot_pos);
-  }
-
-  std::string filename = base_filename + "." + group_name + ".dot";
-  std::ofstream ofs(filename);
-
-  ofs << "digraph G {" << std::endl;
-  ofs << "  rankdir=LR;" << std::endl;
-  ofs << "  node [fontsize=10,style=filled];" << std::endl;
-  ofs << "  edge [fontsize=8];" << std::endl;
-  ofs << std::endl;
-
-  // Get group color
-  std::string color = "lightblue";
-  if (user_group_colors.find(group_name) != user_group_colors.end()) {
-    color = user_group_colors[group_name];
-  }
-
-  ofs << "  label=\"EICrecon Call Graph - " << group_name << " Group\";" << std::endl;
-  ofs << "  labeljust=c;" << std::endl;
-  ofs << std::endl;
-
-  // Write nodes (only those in this group)
-  for (const std::string& nametag : nodes) {
-    if (factory_stats.find(nametag) != factory_stats.end()) {
-      FactoryCallStats& fstats = factory_stats[nametag];
-
-      ofs << "  \"" << nametag << "\" [";
-      ofs << "color=" << color;
-      ofs << ",shape=" << GetNodeShape(fstats.type);
-
-      // Add timing information to label
-      double total_time    = fstats.time_waited_on + fstats.time_waiting;
-      std::string time_str = MakeTimeString(total_time);
-      ofs << ",label=\"" << nametag << "\\n" << time_str << "\"";
-      ofs << "];" << std::endl;
-    }
-  }
-  ofs << std::endl;
-
-  // Write edges (only those within this group)
-  for (auto& [link, stats] : call_links) {
-    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-    std::string callee = MakeNametag(link.callee_name, link.callee_tag);
-
-    // Only include edges where both nodes are in this group
-    if (nodes.find(caller) != nodes.end() && nodes.find(callee) != nodes.end()) {
-      double total_time = stats.from_cache_ms + stats.from_source_ms + stats.from_factory_ms +
-                          stats.data_not_available_ms;
-      std::string time_str = MakeTimeString(total_time);
-
-      ofs << "  \"" << caller << "\" -> \"" << callee << "\"";
-      ofs << " [label=\"" << time_str << "\"];" << std::endl;
-    }
-  }
-
-  ofs << "}" << std::endl;
-  ofs.close();
 }
