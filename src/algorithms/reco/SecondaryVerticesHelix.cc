@@ -143,7 +143,7 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
       debug("One secondary vertex found at (x,y,z) = ({}, {}, {}) mm.",
             pairPos.x * edm4eic::unit::cm / edm4eic::unit::mm,
             pairPos.y * edm4eic::unit::cm / edm4eic::unit::mm,
-            pairPos.x * edm4eic::unit::cm / edm4eic::unit::mm);
+            pairPos.z * edm4eic::unit::cm / edm4eic::unit::mm);
 
     } // end i2
   } // end i1
