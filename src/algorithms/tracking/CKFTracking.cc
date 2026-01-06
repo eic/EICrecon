@@ -337,7 +337,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
       auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
       if (!smoothingResult.ok()) {
         m_log->debug() << "Smoothing for seed " << iseed << " and track " << track.index()
-                                                << " failed with error " << smoothingResult.error();
+                       << " failed with error " << smoothingResult.error();
         continue;
       }
 
@@ -347,8 +347,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 
       if (!extrapolationResult.ok()) {
         m_log->debug() << "Extrapolation for seed " << iseed << " and track " << track.index()
-                                                    << " failed with error "
-                                                    << extrapolationResult.error();
+                       << " failed with error " << extrapolationResult.error();
         continue;
       }
 
