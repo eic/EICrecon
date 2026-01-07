@@ -113,5 +113,4 @@ private:
   void WritePluginDotFile(const std::string& plugin_name, const std::set<std::string>& nodes);
   void WriteOverallDotFile(const std::map<std::string, std::set<std::string>>& plugin_groups);
   std::map<std::string, std::set<std::string>> SplitGraphByPlugin();
-  std::string ExtractPluginName(const std::string& nametag);
 };

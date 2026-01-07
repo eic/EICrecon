@@ -557,13 +557,14 @@ std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphB
       // Use user-defined group
       group_name = override_it->second;
     } else {
-      // Use plugin-based grouping
+      // Use plugin name from factory
       auto it = nametag_to_plugin.find(nametag);
       if (it != nametag_to_plugin.end()) {
         group_name = it->second;
       } else {
-        // Fall back to heuristic extraction for items not in factory set
-        group_name = ExtractPluginName(nametag);
+        // Should not happen - all factories should have plugin names
+        // Use "unknown" as fallback
+        group_name = "unknown";
       }
     }
 
@@ -571,102 +572,4 @@ std::map<std::string, std::set<std::string>> JEventProcessorJANADOT::SplitGraphB
   }
 
   return plugin_groups;
-}
-
-std::string JEventProcessorJANADOT::ExtractPluginName(const std::string& nametag) {
-  // Try to extract meaningful plugin names from component names
-
-  // Common EIC patterns
-  if (nametag.find("Ecal") != std::string::npos) {
-    if (nametag.find("Barrel") != std::string::npos)
-      return "ecal_barrel";
-    if (nametag.find("Endcap") != std::string::npos)
-      return "ecal_endcap";
-    if (nametag.find("Insert") != std::string::npos)
-      return "ecal_insert";
-    if (nametag.find("LumiSpec") != std::string::npos)
-      return "ecal_lumispec";
-    return "ecal";
-  }
-
-  if (nametag.find("Hcal") != std::string::npos) {
-    if (nametag.find("Barrel") != std::string::npos)
-      return "hcal_barrel";
-    if (nametag.find("Endcap") != std::string::npos)
-      return "hcal_endcap";
-    if (nametag.find("Insert") != std::string::npos)
-      return "hcal_insert";
-    return "hcal";
-  }
-
-  if (nametag.find("Track") != std::string::npos || nametag.find("track") != std::string::npos) {
-    if (nametag.find("CKF") != std::string::npos)
-      return "tracking_ckf";
-    if (nametag.find("Seed") != std::string::npos)
-      return "tracking_seeding";
-    if (nametag.find("Vertex") != std::string::npos)
-      return "tracking_vertex";
-    return "tracking";
-  }
-
-  if (nametag.find("Cluster") != std::string::npos ||
-      nametag.find("cluster") != std::string::npos) {
-    return "clustering";
-  }
-
-  if (nametag.find("PID") != std::string::npos || nametag.find("Pid") != std::string::npos) {
-    return "pid";
-  }
-
-  if (nametag.find("Jet") != std::string::npos || nametag.find("jet") != std::string::npos) {
-    return "jets";
-  }
-
-  if (nametag.find("Truth") != std::string::npos || nametag.find("MC") != std::string::npos) {
-    return "truth";
-  }
-
-  if (nametag.find("B0") != std::string::npos || nametag.find("ZDC") != std::string::npos) {
-    return "far_detectors";
-  }
-
-  if (nametag.find("RICH") != std::string::npos) {
-    return "rich";
-  }
-
-  if (nametag.find("TOF") != std::string::npos) {
-    return "tof";
-  }
-
-  if (nametag.find("DIRC") != std::string::npos) {
-    return "dirc";
-  }
-
-  if (nametag.find("GEM") != std::string::npos || nametag.find("MPGD") != std::string::npos) {
-    return "gem_tracking";
-  }
-
-  if (nametag.find("Silicon") != std::string::npos || nametag.find("Pixel") != std::string::npos) {
-    return "silicon_tracking";
-  }
-
-  if (nametag.find("Processor") != std::string::npos) {
-    return "processors";
-  }
-
-  if (nametag.find("Source") != std::string::npos) {
-    return "io";
-  }
-
-  // Default fallback - try to use first part of name
-  size_t colon_pos = nametag.find(':');
-  if (colon_pos != std::string::npos) {
-    std::string base_name = nametag.substr(0, colon_pos);
-    // Convert to lowercase for consistency
-    std::transform(base_name.begin(), base_name.end(), base_name.begin(), ::tolower);
-    return base_name;
-  }
-
-  // Final fallback
-  return "misc";
 }
