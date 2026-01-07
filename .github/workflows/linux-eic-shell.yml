@@ -883,7 +883,6 @@ jobs:
     - build
     - npsim-dis
     - npsim-minbias
-    continue-on-error: ${{ matrix.nthreads > 1 }}
     strategy:
       matrix:
         include:
@@ -897,6 +896,7 @@ jobs:
           minq2: 0
           detector_config: craterlake_10x100
           sanitizer: TSAN
+          nthreads: 4
         - CXX: clang++
           beam: 18x275
           minq2: 0
