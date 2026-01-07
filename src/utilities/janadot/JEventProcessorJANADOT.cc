@@ -506,8 +506,19 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     std::string caller = MakeNametag(link.caller_name, link.caller_tag);
     std::string callee = MakeNametag(link.callee_name, link.callee_tag);
 
-    std::string caller_plugin = ExtractPluginName(caller);
-    std::string callee_plugin = ExtractPluginName(callee);
+    // Look up plugin names from the mapping
+    std::string caller_plugin = "unknown";
+    std::string callee_plugin = "unknown";
+
+    auto caller_it = nametag_to_plugin.find(caller);
+    if (caller_it != nametag_to_plugin.end()) {
+      caller_plugin = caller_it->second;
+    }
+
+    auto callee_it = nametag_to_plugin.find(callee);
+    if (callee_it != nametag_to_plugin.end()) {
+      callee_plugin = callee_it->second;
+    }
 
     // Only show inter-plugin connections
     if (caller_plugin != callee_plugin && !caller_plugin.empty() && !callee_plugin.empty()) {
