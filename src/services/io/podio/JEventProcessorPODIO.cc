@@ -5,7 +5,6 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
@@ -197,6 +196,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCScatteredElectronAssociations",    // Remove if/when used internally
       "MCNonScatteredElectronAssociations", // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
+
+  // Truthiness (reconstructed <-> truth comparisons)
+#if __has_include(<edm4eic/Truthiness.h>)
+      "Truthiness",
+#endif
 
       // Central tracking
       "CentralTrackSegments",
