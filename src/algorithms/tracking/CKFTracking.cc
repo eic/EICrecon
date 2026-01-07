@@ -70,7 +70,6 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -399,9 +398,11 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     }
 
     if (constSeedNumber(track) != lastSeed.value()) {
-      // make copies and clear vectors
-      acts_trajectories.push_back(
-          new ActsExamples::Trajectories(constTracks.trackStateContainer(), tips, parameters));
+      // make copies and clear vectors, only if not empty
+      if (!tips.empty()) {
+        acts_trajectories.push_back(
+            new ActsExamples::Trajectories(constTracks.trackStateContainer(), tips, parameters));
+      }
 
       tips.clear();
       parameters.clear();
@@ -416,13 +417,11 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
                                       track.covariance(), track.particleHypothesis()}});
   }
 
-  if (tips.empty()) {
-    m_log->info("Last trajectory is empty");
+  // last entry: move vectors, only if not empty
+  if (!tips.empty()) {
+    acts_trajectories.push_back(new ActsExamples::Trajectories(
+        constTracks.trackStateContainer(), std::move(tips), std::move(parameters)));
   }
-
-  // last entry: move vectors
-  acts_trajectories.push_back(new ActsExamples::Trajectories(
-      constTracks.trackStateContainer(), std::move(tips), std::move(parameters)));
 
   return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
 }
