@@ -13,6 +13,7 @@
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#include <fmt/format.h>
 #include <algorithm>
 #include <any>
 #include <array>
@@ -69,14 +70,12 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/format.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -94,9 +93,8 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
 
   m_geoSvc = geo_svc;
 
-  m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-  m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
+  m_BField   = m_geoSvc->getFieldProvider();
+  m_fieldctx = Acts::MagneticFieldContext{};
 
   // eta bins, chi2 and #sourclinks per surface cutoffs
   m_sourcelinkSelectorCfg = {

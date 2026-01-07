@@ -25,7 +25,6 @@
 #include <vector>
 
 #include "CKFTrackingConfig.h"
-#include "DD4hepBField.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 class ActsGeometryProvider;
@@ -86,7 +85,7 @@ private:
   std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-  std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField = nullptr;
   Acts::GeometryContext m_geoctx;
   Acts::CalibrationContext m_calibctx;
   Acts::MagneticFieldContext m_fieldctx;

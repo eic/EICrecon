@@ -26,9 +26,6 @@
 namespace dd4hep::rec {
 class Surface;
 }
-namespace eicrecon::BField {
-class DD4hepBField;
-}
 
 /** Draw the surfaces and save to obj file.
  *  This is useful for debugging the ACTS geometry. The obj file can
@@ -95,7 +92,7 @@ private:
   VolumeSurfaceMap m_surfaces;
 
   /// Acts magnetic field
-  std::shared_ptr<const eicrecon::BField::DD4hepBField> m_magneticField = nullptr;
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_magneticField = nullptr;
 
   ///  ACTS general logger that is used for running ACTS
   std::shared_ptr<spdlog::logger> m_log;
