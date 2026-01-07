@@ -68,12 +68,12 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
   size_t currentNDims;
   Position clusPos; // cc: weighted position
   std::vector<double> clusDim(
-      3);            // cc: uncertainty = resolution along measurement axis, else weighted dimension
-  double clusCharge; // cc: sum of charges
-  double sW;         // cc: sum of Weights (= "clusCharge", as of 2025/12)
-  double clusChMx;
-  int clusChMxIdx;  // cc: Max. charge and index of: determine timing
-  int clusFirstIdx; // cc: Index of 1st RawHit contributing
+      3);               // cc: uncertainty = resolution along measurement axis, else weighted dimension
+  double clusCharge(0); // cc: sum of charges
+  double sW(0);         // cc: sum of Weights (= "clusCharge", as of 2025/12)
+  double clusChMx(0);
+  int clusChMxIdx(-1);  // cc: Max. charge and index of: determine timing
+  int clusFirstIdx(-1); // cc: Index of 1st RawHit contributing
   // Loop on ordered raw_hits + a last iteration to store last cluster
   int jdx;
   for (jdx = 0, prvID = 0, currentPN = -1, sW = 0; jdx <= nRawHits; jdx++) {
@@ -138,7 +138,7 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
       // Averaging
       clusPos /= sW * mm;
       // Variance
-      for (size_t i = 0; i < currentNDims; i++) {
+      for (int i = 0; i < currentNDims; i++) {
         if (i == currentPN) { // Measurement axis
           clusDim[i] = m_cfg.stripResolutions[currentPN];
         } else {
@@ -233,7 +233,6 @@ void MPGDHitReconstruction::parseIDDescriptor() {
     throw std::runtime_error("Invalid IDDescriptor");
   }
   const BitFieldElement& fieldElement = (*m_id_dec)[fieldName];
-  CellID fieldBits                    = fieldID << fieldElement.offset();
   // Coordinates are assigned specific bits by convention
   FieldID bits[2] = {0x1, 0x2};
   for (int coord = 0; coord < 2; coord++) {
