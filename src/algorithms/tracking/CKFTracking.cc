@@ -325,7 +325,7 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks);
 
     if (!result.ok()) {
-      m_log->debug("Track finding failed for seed {} with error {}", iseed, result.error());
+      m_log->debug("Track finding failed for seed {} with error {}", iseed, result.error().message());
       continue;
     }
 
