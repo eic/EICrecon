@@ -9,9 +9,7 @@
 #include <JANA/JFactorySet.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JCallGraphRecorder.h>
-#include <ctype.h>
 #include <stddef.h>
-#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <fstream>
