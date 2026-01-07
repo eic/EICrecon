@@ -1941,8 +1941,8 @@ void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shap
       !isSecondary && sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]) > .1 * GeV;
   if ((fabs(residual) > .000001 && isPrimary) || (sqrt(diff2) > .000001 && isSecondary)) {
     debug("Event {}#{}, SimHit 0x{:016x} origin {:d}: d{:c} = {:.5f} diff = {:.5f}",
-          event.getRunNumber(), event.getEventNumber(), sim_hit.getCellID(),
-          isSecondary, shape ? 'Z' : 'R', residual, sqrt(diff2));
+          event.getRunNumber(), event.getEventNumber(), sim_hit.getCellID(), isSecondary,
+          shape ? 'Z' : 'R', residual, sqrt(diff2));
   }
 }
 

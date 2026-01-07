@@ -68,7 +68,7 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
   size_t currentNDims;
   Position clusPos; // cc: weighted position
   std::vector<double> clusDim(
-      3);               // cc: uncertainty = resolution along measurement axis, else weighted dimension
+      3); // cc: uncertainty = resolution along measurement axis, else weighted dimension
   double clusCharge(0); // cc: sum of charges
   double sW(0);         // cc: sum of Weights (= "clusCharge", as of 2025/12)
   double clusChMx(0);
