@@ -19,7 +19,6 @@
 #include <cstddef>
 #include <functional>
 #include <optional>
-#include <ostream>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -326,17 +325,27 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks);
 
     if (!result.ok()) {
-      m_log->debug("Track finding failed for seed {} with error {}", iseed, result.error());
+      m_log->debug("Track finding failed for seed {} with error {}", iseed,
+                   result.error().message());
       continue;
     }
 
     // Set seed number for all found tracks
     auto& tracksForSeed = result.value();
     for (auto& track : tracksForSeed) {
+      // Check if track has at least one valid (non-outlier) measurement
+      // (this check avoids errors inside smoothing and extrapolation)
+      auto lastMeasurement = Acts::findLastMeasurementState(track);
+      if (!lastMeasurement.ok()) {
+        m_log->debug("Track {} for seed {} has no valid measurements, skipping", track.index(),
+                     iseed);
+        continue;
+      }
+
       auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
       if (!smoothingResult.ok()) {
-        ACTS_ERROR("Smoothing for seed " << iseed << " and track " << track.index()
-                                         << " failed with error " << smoothingResult.error());
+        m_log->debug("Smoothing for seed {} and track {} failed with error {}", iseed,
+                     track.index(), smoothingResult.error().message());
         continue;
       }
 
@@ -345,9 +354,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
           Acts::TrackExtrapolationStrategy::firstOrLast, logger());
 
       if (!extrapolationResult.ok()) {
-        ACTS_ERROR("Extrapolation for seed " << iseed << " and track " << track.index()
-                                             << " failed with error "
-                                             << extrapolationResult.error());
+        m_log->debug("Extrapolation for seed {} and track {} failed with error {}", iseed,
+                     track.index(), extrapolationResult.error().message());
         continue;
       }
 
