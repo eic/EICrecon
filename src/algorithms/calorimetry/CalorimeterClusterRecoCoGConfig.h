@@ -10,7 +10,7 @@
 namespace eicrecon {
 
 struct CalorimeterClusterRecoCoGConfig {
-
+  std::string readout;
   std::string energyWeight;
 
   double sampFrac      = 1.;
