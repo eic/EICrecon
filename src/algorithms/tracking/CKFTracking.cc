@@ -313,14 +313,24 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
   ActsExamples::TrackContainer acts_tracks(trackContainer, trackStateContainer);
 
+  // Create temporary track container
+  auto trackContainerTemp      = std::make_shared<Acts::VectorTrackContainer>();
+  auto trackStateContainerTemp = std::make_shared<Acts::VectorMultiTrajectory>();
+  ActsExamples::TrackContainer acts_tracks_temp(trackContainerTemp, trackStateContainerTemp);
+
   // Add seed number column
   acts_tracks.addColumn<unsigned int>("seed");
+  acts_tracks_temp.addColumn<unsigned int>("seed");
   Acts::ProxyAccessor<unsigned int> seedNumber("seed");
-  std::set<Acts::TrackIndexType> passed_tracks;
 
   // Loop over seeds
   for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
-    auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks);
+
+    // Clear trackContainerTemp and trackStateContainerTemp
+    acts_tracks_temp.clear();
+
+    // Run track finding for this seed
+    auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks_temp);
 
     if (!result.ok()) {
       m_log->debug("Track finding failed for seed {} with error {}", iseed,
@@ -340,10 +350,23 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
         continue;
       }
 
+      if (track.nMeasurements() <= 2) {
+        m_log->trace(
+            "Track {} for seed {} has two measurements or less after track finding, skipping",
+            track.index(), iseed);
+        continue;
+      }
+
       auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
       if (!smoothingResult.ok()) {
         m_log->debug("Smoothing for seed {} and track {} failed with error {}", iseed,
                      track.index(), smoothingResult.error().message());
+        continue;
+      }
+
+      if (track.nMeasurements() <= 2) {
+        m_log->debug("Track {} for seed {} has two measurements or less after smoothing, skipping",
+                     track.index(), iseed);
         continue;
       }
 
@@ -357,24 +380,18 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
         continue;
       }
 
-      passed_tracks.insert(track.index());
-      seedNumber(track) = iseed;
-    }
-  }
+      if (track.nMeasurements() <= 2) {
+        m_log->debug(
+            "Track {} for seed {} has two measurements or less after extrapolation, skipping",
+            track.index(), iseed);
+        continue;
+      }
 
-  for (std::size_t track_index = acts_tracks.size(); (track_index--) != 0U;) {
-    if (!passed_tracks.contains(track_index)) {
-      // NOTE This does not remove track states corresponding to the
-      // removed tracks. Doing so would require implementing some garbage
-      // collection. We'll just assume no algorithm will access them
-      // directly.
-      acts_tracks.removeTrack(track_index);
-#if Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR < 1
-      // Workaround an upstream bug in Acts::VectorTrackContainer::removeTrack_impl()
-      // https://github.com/acts-project/acts/commit/94cf81f3f1109210b963977e0904516b949b1154
-      trackContainer->m_particleHypothesis.erase(trackContainer->m_particleHypothesis.begin() +
-                                                 track_index);
-#endif
+      seedNumber(track) = iseed;
+
+      // Copy accepted track into main track container
+      auto acts_tracks_proxy = acts_tracks.makeTrack();
+      acts_tracks_proxy.copyFrom(track);
     }
   }
 
