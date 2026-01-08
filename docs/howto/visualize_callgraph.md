@@ -48,24 +48,25 @@ dot -Tpng jana.dot -o jana.png
 ~~~
 
 ### Graph Splitting for Large Call Graphs
-When processing complex reconstructions with many algorithms, the resulting call graph can become too large for graphviz to handle efficiently. The janadot plugin can automatically split graphs by plugin or by user-defined groups.
+When processing complex reconstructions with many algorithms, the janadot plugin automatically splits graphs by plugin/detector subsystem for better organization.
 
-To control the splitting behavior, you can use these parameters:
+To control the splitting behavior:
 
 ~~~bash
-# Enable/disable splitting (enabled by default)
+# Disable splitting (generate single monolithic graph)
 eicrecon -Pplugins=janadot -Pjanadot:enable_splitting=false sim_file.edm4hep.root
 
-# Change splitting method (plugin or groups)
-eicrecon -Pplugins=janadot -Pjanadot:split_criteria=groups sim_file.edm4hep.root
+# Override default plugin-based grouping for specific factories
+eicrecon -Pplugins=janadot \
+  -Pjanadot:group:MyGroup="Factory1:Tag1,Factory2:Tag2,color_blue" \
+  sim_file.edm4hep.root
 ~~~
 
 #### Plugin-based Splitting (Default)
-The default splitting method groups components by detector subsystem plugins, providing both detailed subsystem views and high-level architectural overview:
+By default, components are grouped by detector subsystem plugins:
 
 ~~~bash
-# Plugin-based splitting for system architecture analysis
-eicrecon -Pplugins=janadot -Pjanadot:split_criteria=plugin sim_file.edm4hep.root
+eicrecon -Pplugins=janadot sim_file.edm4hep.root
 ~~~
 
 This generates:
@@ -74,14 +75,12 @@ This generates:
 - `jana.hcal_endcap.dot` - HCAL endcap subsystem components
 - `jana.dot` - Overall inter-plugin connection summary
 
-#### Group-based Splitting
-User-defined groups allow custom organization of components. Groups can be defined in a file or on the command line:
+#### Custom Group Overrides
+You can override the default plugin-based grouping using the `-Pjanadot:group:` parameter. The workflow uses a `.github/janadot.groups` file with predefined overrides:
 
 ~~~bash
-# Using groups from command line
-eicrecon -Pplugins=janadot -Pjanadot:split_criteria=groups \
-  -Pjanadot:group:MyGroup="Factory1:Tag1,Factory2:Tag2,color_blue" \
-  sim_file.edm4hep.root
+# Use group definitions from file
+eicrecon -Pplugins=janadot $(<.github/janadot.groups) sim_file.edm4hep.root
 ~~~
 
 ### Running for a single detector

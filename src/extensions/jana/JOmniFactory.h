@@ -412,9 +412,6 @@ private:
   // App belongs on JMultifactory, it is just missing temporarily
   JApplication* m_app;
 
-  // Plugin name belongs on JMultifactory, it is just missing temporarily
-  std::string m_plugin_name;
-
   // Prefix for parameters and loggers, derived from plugin name and tag in PreInit().
   std::string m_prefix;
 
@@ -569,9 +566,7 @@ public:
 
   JApplication* GetApplication() { return m_app; }
 
-  void SetPluginName(std::string plugin_name) { m_plugin_name = plugin_name; }
-
-  std::string GetPluginName() { return m_plugin_name; }
+  // GetPluginName() and SetPluginName() are inherited from JComponent
 
   inline std::string GetPrefix() { return m_prefix; }
 

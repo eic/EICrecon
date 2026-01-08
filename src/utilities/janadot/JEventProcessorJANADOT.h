@@ -92,7 +92,6 @@ private:
   // Configuration parameters
   std::string output_filename;
   bool enable_splitting;
-  std::string split_criteria;
 
   // Group-related parameters
   std::map<std::string, std::vector<std::string>> user_groups; // Group name -> list of factories
@@ -114,8 +113,4 @@ private:
   void WritePluginDotFile(const std::string& plugin_name, const std::set<std::string>& nodes);
   void WriteOverallDotFile(const std::map<std::string, std::set<std::string>>& plugin_groups);
   std::map<std::string, std::set<std::string>> SplitGraphByPlugin();
-  std::map<std::string, std::set<std::string>> SplitGraphByGroups();
-  void WriteGroupGraphs(const std::map<std::string, std::set<std::string>>& groups);
-  void WriteGroupDotFile(const std::string& group_name, const std::set<std::string>& nodes);
-  std::string ExtractPluginName(const std::string& nametag);
 };
