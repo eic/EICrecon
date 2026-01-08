@@ -512,8 +512,10 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
 
     double percent = 100.0 * plugin_time / total_ms;
 
+    std::string color = GetNodeColorFromPercent(percent);
+
     ofs << "  \"" << plugin_name << "\" [";
-    ofs << "fillcolor=lightsteelblue, ";
+    ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     ofs << "shape=box, ";
     ofs << "label=\"" << plugin_name << "\\n";
