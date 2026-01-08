@@ -518,6 +518,7 @@ void JEventProcessorJANADOT::WriteOverallDotFile(
     ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     ofs << "shape=box, ";
+    ofs << "URL=\"jana." << plugin_name << ".svg\", ";
     ofs << "label=\"" << plugin_name << "\\n";
     ofs << node_count << " components\\n";
     ofs << MakeTimeString(plugin_time) << " (" << std::fixed << std::setprecision(1) << percent
