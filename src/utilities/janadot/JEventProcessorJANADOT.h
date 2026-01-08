@@ -103,6 +103,7 @@ private:
   std::string MakeNametag(const std::string& name, const std::string& tag);
   node_type GetNodeType(const std::string& name, const std::string& tag);
   std::string GetNodeColor(node_type type);
+  std::string GetNodeColorFromPercent(double percent);
   std::string GetNodeShape(node_type type);
 
   // DOT file generation methods

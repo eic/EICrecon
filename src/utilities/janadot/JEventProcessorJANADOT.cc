@@ -205,11 +205,11 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
     double time_in_factory = fstats.time_waited_on - fstats.time_waiting;
     double percent         = 100.0 * time_in_factory / total_ms;
 
-    std::string color = GetNodeColor(fstats.type);
+    std::string color = GetNodeColorFromPercent(percent);
     std::string shape = GetNodeShape(fstats.type);
 
     ofs << "  \"" << nametag << "\" [";
-    ofs << "fillcolor=" << color << ", ";
+    ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     ofs << "shape=" << shape << ", ";
     ofs << "label=\"" << nametag << "\\n";
@@ -304,6 +304,30 @@ std::string JEventProcessorJANADOT::GetNodeColor(node_type type) {
   }
 }
 
+std::string JEventProcessorJANADOT::GetNodeColorFromPercent(double percent) {
+  // Clamp percent to [0, 100]
+  if (percent < 0.0)
+    percent = 0.0;
+  if (percent > 100.0)
+    percent = 100.0;
+
+  // Convert to [0, 1] range
+  double t = percent / 100.0;
+
+  // White (low/optimal) to Red (high) gradient
+  // White: RGB(255, 255, 255) -> #FFFFFF at 0%
+  // Red:   RGB(255, 0, 0) -> #FF0000 at 100%
+
+  int r = 255;
+  int g = (int)((1.0 - t) * 255);
+  int b = (int)((1.0 - t) * 255);
+
+  // Convert to hex color string
+  char color_str[8];
+  snprintf(color_str, sizeof(color_str), "#%02X%02X%02X", r, g, b);
+  return std::string(color_str);
+}
+
 std::string JEventProcessorJANADOT::GetNodeShape(node_type type) {
   switch (type) {
   case kProcessor:
@@ -386,11 +410,11 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
     double time_in_factory         = fstats.time_waited_on - fstats.time_waiting;
     double percent                 = 100.0 * time_in_factory / total_ms;
 
-    std::string color = GetNodeColor(fstats.type);
+    std::string color = GetNodeColorFromPercent(percent);
     std::string shape = GetNodeShape(fstats.type);
 
     ofs << "  \"" << nametag << "\" [";
-    ofs << "fillcolor=" << color << ", ";
+    ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     ofs << "shape=" << shape << ", ";
     ofs << "label=\"" << nametag << "\\n";
