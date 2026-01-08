@@ -54,6 +54,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCScatteredElectrons",
       "MCScatteredProtons",
       "MCParticlesHeadOnFrameNoBeamFX",
+      
+      //Sensitive solenoid
+      "SolenoidBarrelHits"
 
       // Central tracking hits combined
       "CentralTrackerTruthSeeds",
