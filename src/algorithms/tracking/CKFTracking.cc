@@ -254,9 +254,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 #if Acts_VERSION_MAJOR < 39
   extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<
       typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&measSel);
-#elif Acts_VERSION_MAJOR < 39
-  extensions.measurementSelector
-      .connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
 #endif
 
   ActsExamples::IndexSourceLinkAccessor slAccessor;
