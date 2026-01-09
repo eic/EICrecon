@@ -118,8 +118,8 @@ void TrackSeeding::init() {
 
 void TrackSeeding::process(const Input& input, const Output& output) const {
 
-  const auto [trk_hits] = input;
-  auto [trackparams]    = output;
+  const auto [trk_hits]        = input;
+  auto [trk_seeds, trk_params] = output;
 
   std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(*trk_hits);
 
@@ -145,17 +145,31 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   std::vector<Acts::Seed<proxy_type>> seeds = finder.createSeeds(m_seedFinderOptions, spContainer);
 
   // need to convert here from seed of proxies to seed of sps
-  eicrecon::SeedContainer seedsToAdd;
-  seedsToAdd.reserve(seeds.size());
   for (const auto& seed : seeds) {
     const auto& sps = seed.sp();
-    seedsToAdd.emplace_back(*sps[0]->externalSpacePoint(), *sps[1]->externalSpacePoint(),
-                            *sps[2]->externalSpacePoint());
-    seedsToAdd.back().setVertexZ(seed.z());
-    seedsToAdd.back().setQuality(seed.seedQuality());
-  }
 
-  addToTrackParams(*trackparams, seedsToAdd);
+    auto seedToAdd = Acts::Seed<eicrecon::SpacePoint>(*sps[0]->externalSpacePoint(),
+                                                      *sps[1]->externalSpacePoint(),
+                                                      *sps[2]->externalSpacePoint());
+    seedToAdd.setVertexZ(seed.z());
+    seedToAdd.setQuality(seed.seedQuality());
+
+    // Estimate track parameters
+    auto trackParams = estimateTrackParamsFromSeed(seedToAdd);
+    if (!trackParams.has_value()) {
+      debug("Failed to estimate track parameters from seed");
+      continue;
+    }
+    trk_params->push_back(trackParams.value());
+
+    // Add seed to collection
+    auto trk_seed = trk_seeds->create();
+    trk_seed.setPerigee({0.f, 0.f, 0.f});
+    trk_seed.setParams(trackParams.value());
+    trk_seed.addToHits(*sps[0]->externalSpacePoint());
+    trk_seed.addToHits(*sps[1]->externalSpacePoint());
+    trk_seed.addToHits(*sps[2]->externalSpacePoint());
+  }
 
 #else
 
@@ -170,7 +184,23 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   eicrecon::SeedContainer seeds =
       finder.createSeeds(m_seedFinderOptions, spacePoints, create_coordinates);
 
-  addToTrackParams(*trackparams, seeds);
+  for (const auto& seed : seeds) {
+    // Estimate track parameters
+    auto trackParams = estimateTrackParamsFromSeed(seed);
+    if (!trackParams.has_value()) {
+      debug("Failed to estimate track parameters from seed");
+      continue;
+    }
+    trk_params->push_back(trackParams.value());
+
+    // Add seed to collection
+    auto trk_seed = trk_seeds->create();
+    trk_seed.setPerigee({0.f, 0.f, 0.f});
+    trk_seed.setParams(trackParams);
+    trk_seed.addToHits(*sps[0]->externalSpacePoint());
+    trk_seed.addToHits(*sps[1]->externalSpacePoint());
+    trk_seed.addToHits(*sps[2]->externalSpacePoint());
+  }
 
 #endif
 
@@ -191,90 +221,89 @@ TrackSeeding::getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits) {
   return spacepoints;
 }
 
-void TrackSeeding::addToTrackParams(edm4eic::TrackParametersCollection& trackparams,
-                                    SeedContainer& seeds) const {
-
-  for (auto& seed : seeds) {
-    std::vector<std::pair<float, float>> xyHitPositions;
-    std::vector<std::pair<float, float>> rzHitPositions;
-    for (const auto& spptr : seed.sp()) {
-      xyHitPositions.emplace_back(spptr->x(), spptr->y());
-      rzHitPositions.emplace_back(spptr->r(), spptr->z());
-    }
-
-    auto RX0Y0 = circleFit(xyHitPositions);
-    float R    = std::get<0>(RX0Y0);
-    float X0   = std::get<1>(RX0Y0);
-    float Y0   = std::get<2>(RX0Y0);
-    if (!(std::isfinite(R) && std::isfinite(std::abs(X0)) && std::isfinite(std::abs(Y0)))) {
-      // avoid float overflow for hits on a line
-      continue;
-    }
-    if (std::hypot(X0, Y0) < std::numeric_limits<decltype(std::hypot(X0, Y0))>::epsilon() ||
-        !std::isfinite(std::hypot(X0, Y0))) {
-      //Avoid center of circle at origin, where there is no point-of-closest approach
-      //Also, avoid float overfloat on circle center
-      continue;
-    }
-
-    auto slopeZ0     = lineFit(rzHitPositions);
-    const auto xypos = findPCA(RX0Y0);
-
-    //Determine charge
-    int charge = determineCharge(xyHitPositions, xypos, RX0Y0);
-
-    float theta = atan(1. / std::get<0>(slopeZ0));
-    // normalize to 0<theta<pi
-    if (theta < 0) {
-      theta += M_PI;
-    }
-    float eta    = -log(tan(theta / 2.));
-    float pt     = R * m_cfg.bFieldInZ; // pt[GeV] = R[mm] * B[GeV/mm]
-    float p      = pt * cosh(eta);
-    float qOverP = charge / p;
-
-    //Calculate phi at xypos
-    auto xpos = xypos.first;
-    auto ypos = xypos.second;
-
-    auto vxpos = -1. * charge * (ypos - Y0);
-    auto vypos = charge * (xpos - X0);
-
-    auto phi = atan2(vypos, vxpos);
-
-    const float z0 = seed.z();
-    auto perigee   = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
-    Acts::Vector3 global(xypos.first, xypos.second, z0);
-
-    //Compute local position at PCA
-    Acts::Vector2 localpos;
-    Acts::Vector3 direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
-
-    auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
-
-    if (!local.ok()) {
-      continue;
-    }
-
-    localpos = local.value();
-
-    auto trackparam = trackparams.create();
-    trackparam.setType(-1); // type --> seed(-1)
-    trackparam.setLoc({static_cast<float>(localpos(0)),
-                       static_cast<float>(localpos(1))}); // 2d location on surface
-    trackparam.setPhi(static_cast<float>(phi));           // phi [rad]
-    trackparam.setTheta(theta);                           //theta [rad]
-    trackparam.setQOverP(qOverP);                         // Q/p [e/GeV]
-    trackparam.setTime(10);                               // time in ns
-    edm4eic::Cov6f cov;
-    cov(0, 0) = m_cfg.locaError / Acts::UnitConstants::mm;    // loc0
-    cov(1, 1) = m_cfg.locbError / Acts::UnitConstants::mm;    // loc1
-    cov(2, 2) = m_cfg.phiError / Acts::UnitConstants::rad;    // phi
-    cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad;  // theta
-    cov(4, 4) = m_cfg.qOverPError * Acts::UnitConstants::GeV; // qOverP
-    cov(5, 5) = m_cfg.timeError / Acts::UnitConstants::ns;    // time
-    trackparam.setCovariance(cov);
+std::optional<edm4eic::MutableTrackParameters>
+TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) const {
+  std::vector<std::pair<float, float>> xyHitPositions;
+  std::vector<std::pair<float, float>> rzHitPositions;
+  for (const auto& spptr : seed.sp()) {
+    xyHitPositions.emplace_back(spptr->x(), spptr->y());
+    rzHitPositions.emplace_back(spptr->r(), spptr->z());
   }
+
+  auto RX0Y0 = circleFit(xyHitPositions);
+  float R    = std::get<0>(RX0Y0);
+  float X0   = std::get<1>(RX0Y0);
+  float Y0   = std::get<2>(RX0Y0);
+  if (!(std::isfinite(R) && std::isfinite(std::abs(X0)) && std::isfinite(std::abs(Y0)))) {
+    // avoid float overflow for hits on a line
+    return {};
+  }
+  if (std::hypot(X0, Y0) < std::numeric_limits<decltype(std::hypot(X0, Y0))>::epsilon() ||
+      !std::isfinite(std::hypot(X0, Y0))) {
+    //Avoid center of circle at origin, where there is no point-of-closest approach
+    //Also, avoid float overfloat on circle center
+    return {};
+  }
+
+  auto slopeZ0     = lineFit(rzHitPositions);
+  const auto xypos = findPCA(RX0Y0);
+
+  //Determine charge
+  int charge = determineCharge(xyHitPositions, xypos, RX0Y0);
+
+  float theta = atan(1. / std::get<0>(slopeZ0));
+  // normalize to 0<theta<pi
+  if (theta < 0) {
+    theta += M_PI;
+  }
+  float eta    = -log(tan(theta / 2.));
+  float pt     = R * m_cfg.bFieldInZ; // pt[GeV] = R[mm] * B[GeV/mm]
+  float p      = pt * cosh(eta);
+  float qOverP = charge / p;
+
+  //Calculate phi at xypos
+  auto xpos = xypos.first;
+  auto ypos = xypos.second;
+
+  auto vxpos = -1. * charge * (ypos - Y0);
+  auto vypos = charge * (xpos - X0);
+
+  auto phi = atan2(vypos, vxpos);
+
+  const float z0 = seed.z();
+  auto perigee   = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3(0, 0, 0));
+  Acts::Vector3 global(xypos.first, xypos.second, z0);
+
+  //Compute local position at PCA
+  Acts::Vector2 localpos;
+  Acts::Vector3 direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
+
+  auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
+
+  if (!local.ok()) {
+    return {};
+  }
+
+  localpos = local.value();
+
+  auto trackparam = edm4eic::MutableTrackParameters();
+  trackparam.setType(-1); // type --> seed(-1)
+  trackparam.setLoc(
+      {static_cast<float>(localpos(0)), static_cast<float>(localpos(1))}); // 2d location on surface
+  trackparam.setPhi(static_cast<float>(phi));                              // phi [rad]
+  trackparam.setTheta(theta);                                              //theta [rad]
+  trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
+  trackparam.setTime(10);                                                  // time in ns
+  edm4eic::Cov6f cov;
+  cov(0, 0) = m_cfg.locaError / Acts::UnitConstants::mm;    // loc0
+  cov(1, 1) = m_cfg.locbError / Acts::UnitConstants::mm;    // loc1
+  cov(2, 2) = m_cfg.phiError / Acts::UnitConstants::rad;    // phi
+  cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad;  // theta
+  cov(4, 4) = m_cfg.qOverPError * Acts::UnitConstants::GeV; // qOverP
+  cov(5, 5) = m_cfg.timeError / Acts::UnitConstants::ns;    // time
+  trackparam.setCovariance(cov);
+
+  return trackparam;
 }
 
 std::pair<float, float> TrackSeeding::findPCA(std::tuple<float, float, float>& circleParams) {

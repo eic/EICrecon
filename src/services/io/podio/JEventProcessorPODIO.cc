@@ -59,7 +59,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
       "CentralTrackingRawHitAssociations",
-      "CentralTrackSeedingResults",
+      "CentralTrackSeeds",
+      "CentralTrackSeedParameters",
       "CentralTrackerMeasurements",
 
       // Si tracker hits
