@@ -241,7 +241,7 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   if (std::hypot(X0, Y0) < std::numeric_limits<decltype(std::hypot(X0, Y0))>::epsilon() ||
       !std::isfinite(std::hypot(X0, Y0))) {
     //Avoid center of circle at origin, where there is no point-of-closest approach
-    //Also, avoid float overfloat on circle center
+    //Also, avoid float overflow on circle center
     return {};
   }
 
