@@ -87,7 +87,10 @@ private:
 
   std::map<CallLink, CallStats> call_links;
   std::map<std::string, FactoryCallStats> factory_stats;
-  std::map<std::string, std::string> nametag_to_plugin; // Maps nametag to plugin name
+  std::map<std::string, std::string> nametag_to_plugin;       // Maps nametag to plugin name
+  std::map<std::string, std::string> nametag_to_factory_name; // Maps nametag to factory name
+  std::map<std::string, std::vector<std::string>>
+      factory_outputs; // Maps factory name to output tags
 
   // Configuration parameters
   std::string output_filename;
@@ -101,6 +104,7 @@ private:
   // Helper methods
   std::string MakeTimeString(double time_in_ms);
   std::string MakeNametag(const std::string& name, const std::string& tag);
+  std::string GetFactoryNodeName(const std::string& nametag);
   node_type GetNodeType(const std::string& name, const std::string& tag);
   std::string GetNodeColor(node_type type);
   std::string GetNodeColorFromPercent(double percent);

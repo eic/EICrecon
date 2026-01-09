@@ -10,6 +10,7 @@
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JCallGraphRecorder.h>
 #include <stddef.h>
+#include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <fstream>
@@ -76,15 +77,29 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
   if (!factory_mapping_built) {
     auto factories = event->GetFactorySet()->GetAllFactories();
     for (auto* factory : factories) {
-      std::string nametag     = MakeNametag(factory->GetObjectName(), factory->GetTag());
-      std::string plugin_name = factory->GetPluginName();
+      std::string nametag      = MakeNametag(factory->GetObjectName(), factory->GetTag());
+      std::string plugin_name  = factory->GetPluginName();
+      std::string factory_name = factory->GetFactoryName();
 
       // If plugin name is empty, use "core" as default
       if (plugin_name.empty()) {
         plugin_name = "core";
       }
 
-      nametag_to_plugin[nametag] = plugin_name;
+      nametag_to_plugin[nametag]       = plugin_name;
+      nametag_to_factory_name[nametag] = factory_name;
+
+      // Track all outputs for this factory (identified by factory name + first tag)
+      // Use the first tag as the canonical factory identifier
+      if (factory_outputs.find(factory_name) == factory_outputs.end()) {
+        factory_outputs[factory_name] = {factory->GetTag()};
+      } else {
+        // Add this tag if not already present
+        auto& tags = factory_outputs[factory_name];
+        if (std::find(tags.begin(), tags.end(), factory->GetTag()) == tags.end()) {
+          tags.push_back(factory->GetTag());
+        }
+      }
     }
     factory_mapping_built = true;
   }
@@ -200,41 +215,94 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
   ofs << "  edge [fontname=\"Arial\", fontsize=8];" << std::endl;
   ofs << std::endl;
 
-  // Write nodes
+  // Aggregate factory stats by factory name
+  std::map<std::string, double> factory_times;
+  std::map<std::string, std::vector<std::string>> factory_tags;
+  std::map<std::string, node_type> factory_types;
+
   for (auto& [nametag, fstats] : factory_stats) {
-    double time_in_factory = fstats.time_waited_on - fstats.time_waiting;
-    double percent         = 100.0 * time_in_factory / total_ms;
+    std::string factory_name = GetFactoryNodeName(nametag);
+    double time_in_factory   = fstats.time_waited_on - fstats.time_waiting;
+
+    factory_times[factory_name] += time_in_factory;
+    factory_types[factory_name] = fstats.type;
+
+    // Extract just the tag part (before the typename in parentheses)
+    std::string tag  = nametag;
+    size_t paren_pos = nametag.find(" (");
+    if (paren_pos != std::string::npos) {
+      tag = nametag.substr(0, paren_pos);
+    }
+
+    // Only add tag if it's different from factory_name and not already in list
+    if (tag != factory_name &&
+        std::find(factory_tags[factory_name].begin(), factory_tags[factory_name].end(), tag) ==
+            factory_tags[factory_name].end()) {
+      factory_tags[factory_name].push_back(tag);
+    }
+  }
+
+  // Write nodes (one per factory, listing all outputs)
+  for (auto& [factory_name, time_in_factory] : factory_times) {
+    double percent = 100.0 * time_in_factory / total_ms;
 
     std::string color = GetNodeColorFromPercent(percent);
-    std::string shape = GetNodeShape(fstats.type);
+    std::string shape = GetNodeShape(factory_types[factory_name]);
 
-    ofs << "  \"" << nametag << "\" [";
+    ofs << "  \"" << factory_name << "\" [";
     ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     ofs << "shape=" << shape << ", ";
-    ofs << "label=\"" << nametag << "\\n";
-    ofs << MakeTimeString(time_in_factory) << " (" << std::fixed << std::setprecision(1) << percent
+    ofs << "label=\"" << factory_name;
+
+    // List output tags if there are multiple or if tag differs from factory name
+    auto& tags = factory_tags[factory_name];
+    if (!tags.empty()) {
+      ofs << "\\nOutputs:";
+      for (const auto& tag : tags) {
+        ofs << "\\n  " << tag;
+      }
+    }
+
+    ofs << "\\n"
+        << MakeTimeString(time_in_factory) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\"";
     ofs << "];" << std::endl;
   }
 
   ofs << std::endl;
 
-  // Write edges
+  // Write edges (grouped by factory names)
+  std::map<std::pair<std::string, std::string>, std::pair<unsigned int, double>> aggregated_links;
+
   for (auto& [link, stats] : call_links) {
-    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-    std::string callee = MakeNametag(link.callee_name, link.callee_tag);
+    std::string caller_nametag = MakeNametag(link.caller_name, link.caller_tag);
+    std::string callee_nametag = MakeNametag(link.callee_name, link.callee_tag);
+    std::string caller         = GetFactoryNodeName(caller_nametag);
+    std::string callee         = GetFactoryNodeName(callee_nametag);
 
     unsigned int total_calls =
         stats.Nfrom_cache + stats.Nfrom_source + stats.Nfrom_factory + stats.Ndata_not_available;
     double total_time = stats.from_cache_ms + stats.from_source_ms + stats.from_factory_ms +
                         stats.data_not_available_ms;
-    double percent = 100.0 * total_time / total_ms;
 
-    ofs << "  \"" << caller << "\" -> \"" << callee << "\" [";
+    auto key = std::make_pair(caller, callee);
+    aggregated_links[key].first += total_calls;
+    aggregated_links[key].second += total_time;
+  }
+
+  for (auto& [link_pair, call_data] : aggregated_links) {
+    unsigned int total_calls = call_data.first;
+    double total_time        = call_data.second;
+    double percent           = 100.0 * total_time / total_ms;
+
+    ofs << "  \"" << link_pair.first << "\" -> \"" << link_pair.second << "\" [";
     ofs << "label=\"" << total_calls << " calls\\n";
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
-        << "%)\"";
+        << "%)\", ";
+    // Scale penwidth linearly from 1 (0%) to 8 (100%)
+    double penwidth = 1.0 + (percent / 100.0) * 7.0;
+    ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
     ofs << "];" << std::endl;
   }
 
@@ -270,6 +338,16 @@ std::string JEventProcessorJANADOT::MakeNametag(const std::string& name, const s
   } else if (name.size() > 0) {
     nametag = name;
   }
+  return nametag;
+}
+
+std::string JEventProcessorJANADOT::GetFactoryNodeName(const std::string& nametag) {
+  // Return the factory name for this nametag, which groups multi-output factories
+  auto it = nametag_to_factory_name.find(nametag);
+  if (it != nametag_to_factory_name.end()) {
+    return it->second;
+  }
+  // Fallback to nametag if not found
   return nametag;
 }
 
@@ -400,51 +478,107 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
   ofs << "  labelloc=\"t\";" << std::endl;
   ofs << std::endl;
 
-  // Write nodes (only those in this plugin)
+  // Aggregate factory stats by factory name for nodes in this plugin
+  std::map<std::string, double> factory_times;
+  std::map<std::string, std::vector<std::string>> factory_tags;
+  std::map<std::string, node_type> factory_types;
+  std::set<std::string> factory_nodes; // Set of factory names in this plugin
+
   for (const std::string& nametag : nodes) {
     auto fstats_it = factory_stats.find(nametag);
     if (fstats_it == factory_stats.end())
       continue;
 
     const FactoryCallStats& fstats = fstats_it->second;
+    std::string factory_name       = GetFactoryNodeName(nametag);
     double time_in_factory         = fstats.time_waited_on - fstats.time_waiting;
-    double percent                 = 100.0 * time_in_factory / total_ms;
+
+    factory_times[factory_name] += time_in_factory;
+    factory_types[factory_name] = fstats.type;
+    factory_nodes.insert(factory_name);
+
+    // Extract just the tag part (before the typename in parentheses)
+    std::string tag  = nametag;
+    size_t paren_pos = nametag.find(" (");
+    if (paren_pos != std::string::npos) {
+      tag = nametag.substr(0, paren_pos);
+    }
+
+    // Only add tag if it's different from factory_name and not already in list
+    if (tag != factory_name &&
+        std::find(factory_tags[factory_name].begin(), factory_tags[factory_name].end(), tag) ==
+            factory_tags[factory_name].end()) {
+      factory_tags[factory_name].push_back(tag);
+    }
+  }
+
+  // Write nodes (one per factory in this plugin, listing all outputs)
+  for (auto& [factory_name, time_in_factory] : factory_times) {
+    double percent = 100.0 * time_in_factory / total_ms;
 
     std::string color = GetNodeColorFromPercent(percent);
-    std::string shape = GetNodeShape(fstats.type);
+    std::string shape = GetNodeShape(factory_types[factory_name]);
 
-    ofs << "  \"" << nametag << "\" [";
+    ofs << "  \"" << factory_name << "\" [";
     ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     ofs << "shape=" << shape << ", ";
-    ofs << "label=\"" << nametag << "\\n";
-    ofs << MakeTimeString(time_in_factory) << " (" << std::fixed << std::setprecision(1) << percent
+    ofs << "label=\"" << factory_name;
+
+    // List output tags if there are multiple or if tag differs from factory name
+    auto& tags = factory_tags[factory_name];
+    if (!tags.empty()) {
+      ofs << "\\nOutputs:";
+      for (const auto& tag : tags) {
+        ofs << "\\n  " << tag;
+      }
+    }
+
+    ofs << "\\n"
+        << MakeTimeString(time_in_factory) << " (" << std::fixed << std::setprecision(1) << percent
         << "%)\"";
     ofs << "];" << std::endl;
   }
 
   ofs << std::endl;
 
-  // Write edges (only those within this plugin)
+  // Write edges (aggregated by factory names, only within this plugin)
+  std::map<std::pair<std::string, std::string>, std::pair<unsigned int, double>> aggregated_links;
+
   for (auto& [link, stats] : call_links) {
-    std::string caller = MakeNametag(link.caller_name, link.caller_tag);
-    std::string callee = MakeNametag(link.callee_name, link.callee_tag);
+    std::string caller_nametag = MakeNametag(link.caller_name, link.caller_tag);
+    std::string callee_nametag = MakeNametag(link.callee_name, link.callee_tag);
 
     // Only include edges where both nodes are in this plugin
-    if (nodes.find(caller) == nodes.end() || nodes.find(callee) == nodes.end()) {
+    if (nodes.find(caller_nametag) == nodes.end() || nodes.find(callee_nametag) == nodes.end()) {
       continue;
     }
+
+    std::string caller = GetFactoryNodeName(caller_nametag);
+    std::string callee = GetFactoryNodeName(callee_nametag);
 
     unsigned int total_calls =
         stats.Nfrom_cache + stats.Nfrom_source + stats.Nfrom_factory + stats.Ndata_not_available;
     double total_time = stats.from_cache_ms + stats.from_source_ms + stats.from_factory_ms +
                         stats.data_not_available_ms;
-    double percent = 100.0 * total_time / total_ms;
 
-    ofs << "  \"" << caller << "\" -> \"" << callee << "\" [";
+    auto key = std::make_pair(caller, callee);
+    aggregated_links[key].first += total_calls;
+    aggregated_links[key].second += total_time;
+  }
+
+  for (auto& [link_pair, call_data] : aggregated_links) {
+    unsigned int total_calls = call_data.first;
+    double total_time        = call_data.second;
+    double percent           = 100.0 * total_time / total_ms;
+
+    ofs << "  \"" << link_pair.first << "\" -> \"" << link_pair.second << "\" [";
     ofs << "label=\"" << total_calls << " calls\\n";
     ofs << MakeTimeString(total_time) << " (" << std::fixed << std::setprecision(1) << percent
-        << "%)\"";
+        << "%)\", ";
+    // Scale penwidth linearly from 1 (0%) to 8 (100%)
+    double penwidth = 1.0 + (percent / 100.0) * 7.0;
+    ofs << "penwidth=" << std::fixed << std::setprecision(1) << penwidth;
     ofs << "];" << std::endl;
   }
 
