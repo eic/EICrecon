@@ -350,10 +350,9 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
         continue;
       }
 
-      if (track.nMeasurements() <= 2) {
-        m_log->trace(
-            "Track {} for seed {} has two measurements or less after track finding, skipping",
-            track.index(), iseed);
+      if (track.nMeasurements() < m_cfg.numMeasurementsMin) {
+        m_log->trace("Track {} for seed {} has fewer measurements than minimum of {}, skipping",
+                     track.index(), iseed, m_cfg.numMeasurementsMin);
         continue;
       }
 
@@ -364,12 +363,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
         continue;
       }
 
-      if (track.nMeasurements() <= 2) {
-        m_log->debug("Track {} for seed {} has two measurements or less after smoothing, skipping",
-                     track.index(), iseed);
-        continue;
-      }
-
       auto extrapolationResult = Acts::extrapolateTrackToReferenceSurface(
           track, *pSurface, extrapolator, extrapolationOptions,
           Acts::TrackExtrapolationStrategy::firstOrLast, logger());
@@ -377,13 +370,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
       if (!extrapolationResult.ok()) {
         m_log->debug("Extrapolation for seed {} and track {} failed with error {}", iseed,
                      track.index(), extrapolationResult.error().message());
-        continue;
-      }
-
-      if (track.nMeasurements() <= 2) {
-        m_log->debug(
-            "Track {} for seed {} has two measurements or less after extrapolation, skipping",
-            track.index(), iseed);
         continue;
       }
 
