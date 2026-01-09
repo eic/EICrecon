@@ -2,8 +2,9 @@
 # generator expression would include multiple additional paths from transitive
 # dependencies such as PODIO and ROOT.
 if(TARGET ${Acts_NAMESPACE_PREFIX}Core)
-  get_target_property(ACTS_INTERFACE_INCLUDE_DIRECTORIES ${Acts_NAMESPACE_PREFIX}Core
-                      INTERFACE_INCLUDE_DIRECTORIES)
+  get_target_property(
+    ACTS_INTERFACE_INCLUDE_DIRECTORIES ${Acts_NAMESPACE_PREFIX}Core
+    INTERFACE_INCLUDE_DIRECTORIES)
 endif()
 get_target_property(EDM4HEP_INTERFACE_INCLUDE_DIRECTORIES EDM4HEP::edm4hep
                     INTERFACE_INCLUDE_DIRECTORIES)
