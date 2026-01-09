@@ -187,12 +187,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
             throw std::runtime_error("Dimension not supported in measurement creation");
           }
         });
-#elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR >= 1
+#else
     auto measurement = ActsExamples::makeVariableSizeMeasurement(
-        Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-    measurements->emplace_back(std::move(measurement));
-#elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR == 0
-    auto measurement = ActsExamples::makeFixedSizeMeasurement(
         Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
     measurements->emplace_back(std::move(measurement));
 #endif
