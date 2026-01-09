@@ -7,6 +7,7 @@
 #include <JANA/JEvent.h>
 #include <JANA/JFactory.h>
 #include <JANA/JFactorySet.h>
+#include <JANA/JMultifactory.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JCallGraphRecorder.h>
 #include <stddef.h>
@@ -19,6 +20,8 @@
 #include <memory>
 #include <sstream>
 #include <utility>
+
+#include "extensions/jana/JOmniFactory.h"
 
 void JEventProcessorJANADOT::Init() {
   // Get parameter manager
@@ -76,6 +79,18 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
   static bool factory_mapping_built = false;
   if (!factory_mapping_built) {
     auto factories = event->GetFactorySet()->GetAllFactories();
+
+    // First pass: identify multifactories and their prefixes
+    std::map<JMultifactory*, std::string> multifactory_to_prefix;
+    for (auto* factory : factories) {
+      // Check if this factory is a JOmniFactory (which extends JMultifactory)
+      auto* omnifactory = dynamic_cast<JOmniFactory*>(factory);
+      if (omnifactory) {
+        multifactory_to_prefix[omnifactory] = omnifactory->GetPrefix();
+      }
+    }
+
+    // Second pass: map all factories
     for (auto* factory : factories) {
       std::string nametag      = MakeNametag(factory->GetObjectName(), factory->GetTag());
       std::string plugin_name  = factory->GetPluginName();
@@ -89,17 +104,53 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
       nametag_to_plugin[nametag]       = plugin_name;
       nametag_to_factory_name[nametag] = factory_name;
 
-      // Track all outputs for this factory (identified by factory name + first tag)
-      // Use the first tag as the canonical factory identifier
-      if (factory_outputs.find(factory_name) == factory_outputs.end()) {
-        factory_outputs[factory_name] = {factory->GetTag()};
+      // Determine the unique factory identifier for grouping multi-output factories
+      // For JMultifactoryHelper, use the parent multifactory's prefix
+      // Otherwise, use the factory tag
+      std::string factory_id = factory->GetTag();
+
+      // Check if this is a JMultifactoryHelper by examining the factory type name
+      if (factory_name.find("::Helper<") != std::string::npos) {
+        // This is a helper factory - find its parent multifactory
+        // Unfortunately we can't directly access GetMultifactory() without knowing the template type
+        // But we can use the fact that all helpers from the same multifactory share the same prefix
+        // We'll use a heuristic: the factory tag should match one of the multifactory prefixes
+        bool found_parent = false;
+        for (const auto& [mf, prefix] : multifactory_to_prefix) {
+          // Check if this helper belongs to this multifactory
+          // The prefix pattern is "plugin:tag" or just "tag"
+          // The helper's tag will be one of the output collection names
+          // We need to check if any helpers from this multifactory match
+          auto* test_omnifactory = dynamic_cast<JOmniFactory*>(mf);
+          if (test_omnifactory) {
+            // Get all helper factories from this multifactory
+            const auto& helpers = test_omnifactory->GetHelpers();
+            for (auto* helper : helpers.GetAllFactories()) {
+              if (helper == factory) {
+                factory_id   = prefix;
+                found_parent = true;
+                break;
+              }
+            }
+            if (found_parent)
+              break;
+          }
+        }
+      }
+
+      // Track all output tags for this factory (identified by factory_id)
+      if (factory_outputs.find(factory_id) == factory_outputs.end()) {
+        factory_outputs[factory_id] = {factory->GetTag()};
       } else {
         // Add this tag if not already present
-        auto& tags = factory_outputs[factory_name];
+        auto& tags = factory_outputs[factory_id];
         if (std::find(tags.begin(), tags.end(), factory->GetTag()) == tags.end()) {
           tags.push_back(factory->GetTag());
         }
       }
+
+      // Map this nametag to the factory_id for grouping
+      nametag_to_factory_id[nametag] = factory_id;
     }
     factory_mapping_built = true;
   }
@@ -342,9 +393,9 @@ std::string JEventProcessorJANADOT::MakeNametag(const std::string& name, const s
 }
 
 std::string JEventProcessorJANADOT::GetFactoryNodeName(const std::string& nametag) {
-  // Return the factory name for this nametag, which groups multi-output factories
-  auto it = nametag_to_factory_name.find(nametag);
-  if (it != nametag_to_factory_name.end()) {
+  // Return the factory ID for this nametag, which groups multi-output factories
+  auto it = nametag_to_factory_id.find(nametag);
+  if (it != nametag_to_factory_id.end()) {
     return it->second;
   }
   // Fallback to nametag if not found

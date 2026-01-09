@@ -88,9 +88,10 @@ private:
   std::map<CallLink, CallStats> call_links;
   std::map<std::string, FactoryCallStats> factory_stats;
   std::map<std::string, std::string> nametag_to_plugin;       // Maps nametag to plugin name
-  std::map<std::string, std::string> nametag_to_factory_name; // Maps nametag to factory name
-  std::map<std::string, std::vector<std::string>>
-      factory_outputs; // Maps factory name to output tags
+  std::map<std::string, std::string> nametag_to_factory_name; // Maps nametag to factory type name
+  std::map<std::string, std::string>
+      nametag_to_factory_id; // Maps nametag to factory ID (for grouping)
+  std::map<std::string, std::vector<std::string>> factory_outputs; // Maps factory ID to output tags
 
   // Configuration parameters
   std::string output_filename;
