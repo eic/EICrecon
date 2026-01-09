@@ -197,9 +197,9 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     auto trk_seed = trk_seeds->create();
     trk_seed.setPerigee({0.f, 0.f, 0.f});
     trk_seed.setParams(trackParams.value());
-    trk_seed.addToHits(*sps[0]->externalSpacePoint());
-    trk_seed.addToHits(*sps[1]->externalSpacePoint());
-    trk_seed.addToHits(*sps[2]->externalSpacePoint());
+    trk_seed.addToHits(*seed.sp()[0]->externalSpacePoint());
+    trk_seed.addToHits(*seed.sp()[1]->externalSpacePoint());
+    trk_seed.addToHits(*seed.sp()[2]->externalSpacePoint());
   }
 
 #endif
