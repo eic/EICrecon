@@ -11,7 +11,6 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <fmt/format.h>
 #include <algorithm>
@@ -19,7 +18,7 @@
 #include <array>
 #include <cstddef>
 #include <functional>
-#include <set>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <system_error>
