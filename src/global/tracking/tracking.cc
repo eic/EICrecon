@@ -9,6 +9,7 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
+#include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <functional>
 #include <map>
