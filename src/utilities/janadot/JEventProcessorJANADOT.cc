@@ -80,21 +80,15 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
   if (!factory_mapping_built) {
     auto factories = event->GetFactorySet()->GetAllFactories();
 
-    // First pass: identify multifactories and their prefixes
-    std::map<JMultifactory*, std::string> multifactory_to_prefix;
-    for (auto* factory : factories) {
-      // Check if this factory is a JOmniFactory (which extends JMultifactory)
-      auto* omnifactory = dynamic_cast<JOmniFactory*>(factory);
-      if (omnifactory) {
-        multifactory_to_prefix[omnifactory] = omnifactory->GetPrefix();
-      }
-    }
+    // Map to track which factory class names produce multiple outputs
+    // Key: factory_class#common_prefix to distinguish different instances
+    std::map<std::string, std::vector<std::string>> factory_instance_to_tags;
 
-    // Second pass: map all factories
     for (auto* factory : factories) {
       std::string nametag      = MakeNametag(factory->GetObjectName(), factory->GetTag());
       std::string plugin_name  = factory->GetPluginName();
       std::string factory_name = factory->GetFactoryName();
+      std::string factory_tag  = factory->GetTag();
 
       // If plugin name is empty, use "core" as default
       if (plugin_name.empty()) {
@@ -104,54 +98,124 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
       nametag_to_plugin[nametag]       = plugin_name;
       nametag_to_factory_name[nametag] = factory_name;
 
-      // Determine the unique factory identifier for grouping multi-output factories
-      // For JMultifactoryHelper, use the parent multifactory's prefix
-      // Otherwise, use the factory tag
-      std::string factory_id = factory->GetTag();
+      // Extract factory class name for grouping multi-output factories
+      // For JMultifactoryHelper, the factory name is like "ClassName::Helper<Type>"
+      size_t helper_pos = factory_name.find("::Helper<");
+      if (helper_pos != std::string::npos) {
+        // Extract the class name before "::Helper<"
+        std::string factory_class = factory_name.substr(0, helper_pos);
+        
+        // Track all tags produced by this factory class, keyed by class#plugin#tag
+        // This ensures we don't mix tags from different factory instances
+        std::string instance_key = factory_class + "#" + plugin_name + "#" + factory_tag;
+        factory_instance_to_tags[instance_key].push_back(factory_tag);
+      }
+    }
 
-      // Check if this is a JMultifactoryHelper by examining the factory type name
+    // Group tags by finding sets of tags that share a common prefix
+    // where the common prefix exactly matches one of the tags in the set
+    std::map<std::string, std::vector<std::string>> prefix_to_tags;
+    std::vector<std::string> all_helper_tags;
+    std::set<std::string> processed_tags;
+    
+    for (auto* factory : factories) {
+      std::string factory_name = factory->GetFactoryName();
+      std::string factory_tag  = factory->GetTag();
+      
       if (factory_name.find("::Helper<") != std::string::npos) {
-        // This is a helper factory - find its parent multifactory
-        // Unfortunately we can't directly access GetMultifactory() without knowing the template type
-        // But we can use the fact that all helpers from the same multifactory share the same prefix
-        // We'll use a heuristic: the factory tag should match one of the multifactory prefixes
-        bool found_parent = false;
-        for (const auto& [mf, prefix] : multifactory_to_prefix) {
-          // Check if this helper belongs to this multifactory
-          // The prefix pattern is "plugin:tag" or just "tag"
-          // The helper's tag will be one of the output collection names
-          // We need to check if any helpers from this multifactory match
-          auto* test_omnifactory = dynamic_cast<JOmniFactory*>(mf);
-          if (test_omnifactory) {
-            // Get all helper factories from this multifactory
-            const auto& helpers = test_omnifactory->GetHelpers();
-            for (auto* helper : helpers.GetAllFactories()) {
-              if (helper == factory) {
-                factory_id   = prefix;
-                found_parent = true;
-                break;
-              }
-            }
-            if (found_parent)
-              break;
+        all_helper_tags.push_back(factory_tag);
+      }
+    }
+    
+    // Sort tags by length (shortest first) to ensure prefixes come before their extensions
+    std::sort(all_helper_tags.begin(), all_helper_tags.end(),
+              [](const std::string& a, const std::string& b) {
+                return a.length() < b.length();
+              });
+    
+    // Group tags by finding their longest common prefix
+    // For each pair/group of tags that share a common prefix, group them together
+    for (size_t i = 0; i < all_helper_tags.size(); ++i) {
+      if (processed_tags.count(all_helper_tags[i])) continue;
+      
+      std::vector<std::string> group;
+      group.push_back(all_helper_tags[i]);
+      
+      // Find all tags that differ from all_helper_tags[i] only in a suffix
+      for (size_t j = i + 1; j < all_helper_tags.size(); ++j) {
+        if (processed_tags.count(all_helper_tags[j])) continue;
+        
+        // Check if one tag is a prefix of the other, OR they share all but the last word
+        // Strategy: one should start with the other, OR they should be identical except for a suffix
+        bool should_group = false;
+        
+        // Case 1: tag j starts with tag i (tag i is a prefix)
+        if (all_helper_tags[j].find(all_helper_tags[i]) == 0) {
+          should_group = true;
+        }
+        // Case 2: they share a common prefix and differ only at the end
+        else {
+          // Find common prefix
+          size_t k = 0;
+          while (k < all_helper_tags[i].length() && k < all_helper_tags[j].length() &&
+                 all_helper_tags[i][k] == all_helper_tags[j][k]) {
+            ++k;
+          }
+          
+          // They should share at least 90% of the shorter tag's length
+          size_t min_len = std::min(all_helper_tags[i].length(), all_helper_tags[j].length());
+          if (k >= min_len * 0.9 && k >= 15) {
+            should_group = true;
           }
         }
+        
+        if (should_group) {
+          group.push_back(all_helper_tags[j]);
+          processed_tags.insert(all_helper_tags[j]);
+        }
+      }
+      
+      if (group.size() > 1) {
+        // Use the first tag (shortest) as the factory_id
+        prefix_to_tags[all_helper_tags[i]] = group;
+        processed_tags.insert(all_helper_tags[i]);
+      }
+    }
+    
+    // Build tag_to_factory_id mapping
+    std::map<std::string, std::string> tag_to_factory_id;
+    for (const auto& [prefix, tags] : prefix_to_tags) {
+      for (const auto& tag : tags) {
+        tag_to_factory_id[tag] = prefix;
+      }
+    }
+
+    // Map each nametag to its factory_id
+    for (auto* factory : factories) {
+      std::string nametag      = MakeNametag(factory->GetObjectName(), factory->GetTag());
+      std::string factory_tag  = factory->GetTag();
+      std::string factory_id   = factory_tag; // Default to tag
+
+      // Check if this tag has a factory_id mapping (from prefix grouping)
+      auto it = tag_to_factory_id.find(factory_tag);
+      if (it != tag_to_factory_id.end()) {
+        factory_id = it->second;
       }
 
-      // Track all output tags for this factory (identified by factory_id)
+      // Track all output tags for this factory_id
       if (factory_outputs.find(factory_id) == factory_outputs.end()) {
-        factory_outputs[factory_id] = {factory->GetTag()};
+        factory_outputs[factory_id] = {factory_tag};
       } else {
-        // Add this tag if not already present
         auto& tags = factory_outputs[factory_id];
-        if (std::find(tags.begin(), tags.end(), factory->GetTag()) == tags.end()) {
-          tags.push_back(factory->GetTag());
+        if (std::find(tags.begin(), tags.end(), factory_tag) == tags.end()) {
+          tags.push_back(factory_tag);
         }
       }
 
       // Map this nametag to the factory_id for grouping
       nametag_to_factory_id[nametag] = factory_id;
     }
+
     factory_mapping_built = true;
   }
 
@@ -266,51 +330,64 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
   ofs << "  edge [fontname=\"Arial\", fontsize=8];" << std::endl;
   ofs << std::endl;
 
-  // Aggregate factory stats by factory name
+  // Aggregate factory stats by factory ID (groups multi-output factories together)
   std::map<std::string, double> factory_times;
-  std::map<std::string, std::vector<std::string>> factory_tags;
+  std::map<std::string, std::vector<std::string>> factory_output_tags;
   std::map<std::string, node_type> factory_types;
 
   for (auto& [nametag, fstats] : factory_stats) {
-    std::string factory_name = GetFactoryNodeName(nametag);
+    std::string factory_id   = GetFactoryNodeName(nametag);
     double time_in_factory   = fstats.time_waited_on - fstats.time_waiting;
 
-    factory_times[factory_name] += time_in_factory;
-    factory_types[factory_name] = fstats.type;
-
-    // Extract just the tag part (before the typename in parentheses)
-    std::string tag  = nametag;
-    size_t paren_pos = nametag.find(" (");
-    if (paren_pos != std::string::npos) {
-      tag = nametag.substr(0, paren_pos);
-    }
-
-    // Only add tag if it's different from factory_name and not already in list
-    if (tag != factory_name &&
-        std::find(factory_tags[factory_name].begin(), factory_tags[factory_name].end(), tag) ==
-            factory_tags[factory_name].end()) {
-      factory_tags[factory_name].push_back(tag);
-    }
+    factory_times[factory_id] += time_in_factory;
+    factory_types[factory_id] = fstats.type;
   }
 
-  // Write nodes (one per factory, listing all outputs)
-  for (auto& [factory_name, time_in_factory] : factory_times) {
+  // Populate output tags for each factory ID using the factory_outputs map
+  for (auto& [factory_id, output_tags] : factory_outputs) {
+    factory_output_tags[factory_id] = output_tags;
+  }
+  
+  // Build input tags for each factory ID by examining call links
+  std::map<std::string, std::set<std::string>> factory_input_tags;
+  for (auto& [link, stats] : call_links) {
+    std::string caller_nametag = MakeNametag(link.caller_name, link.caller_tag);
+    std::string callee_nametag = MakeNametag(link.callee_name, link.callee_tag);
+    std::string caller_id      = GetFactoryNodeName(caller_nametag);
+    std::string callee_id      = GetFactoryNodeName(callee_nametag);
+    
+    // The caller depends on the callee, so callee is an input to caller
+    factory_input_tags[caller_id].insert(callee_id);
+  }
+
+  // Write nodes (one per factory, listing all outputs and inputs)
+  for (auto& [factory_id, time_in_factory] : factory_times) {
     double percent = 100.0 * time_in_factory / total_ms;
 
     std::string color = GetNodeColorFromPercent(percent);
-    std::string shape = GetNodeShape(factory_types[factory_name]);
+    std::string shape = GetNodeShape(factory_types[factory_id]);
 
-    ofs << "  \"" << factory_name << "\" [";
+    ofs << "  \"" << factory_id << "\" [";
     ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     ofs << "shape=" << shape << ", ";
-    ofs << "label=\"" << factory_name;
+    ofs << "labeljust=l, ";
+    ofs << "label=\"" << factory_id;
 
-    // List output tags if there are multiple or if tag differs from factory name
-    auto& tags = factory_tags[factory_name];
-    if (!tags.empty()) {
+    // List output collections
+    auto& output_tags = factory_output_tags[factory_id];
+    if (!output_tags.empty() && (output_tags.size() > 1 || output_tags[0] != factory_id)) {
       ofs << "\\nOutputs:";
-      for (const auto& tag : tags) {
+      for (const auto& tag : output_tags) {
+        ofs << "\\n  " << tag;
+      }
+    }
+    
+    // List input collections
+    auto it = factory_input_tags.find(factory_id);
+    if (it != factory_input_tags.end() && !it->second.empty()) {
+      ofs << "\\nInputs:";
+      for (const auto& tag : it->second) {
         ofs << "\\n  " << tag;
       }
     }
@@ -529,11 +606,11 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
   ofs << "  labelloc=\"t\";" << std::endl;
   ofs << std::endl;
 
-  // Aggregate factory stats by factory name for nodes in this plugin
+  // Aggregate factory stats by factory ID for nodes in this plugin
   std::map<std::string, double> factory_times;
-  std::map<std::string, std::vector<std::string>> factory_tags;
+  std::map<std::string, std::vector<std::string>> factory_output_tags;
   std::map<std::string, node_type> factory_types;
-  std::set<std::string> factory_nodes; // Set of factory names in this plugin
+  std::set<std::string> factory_nodes; // Set of factory IDs in this plugin
 
   for (const std::string& nametag : nodes) {
     auto fstats_it = factory_stats.find(nametag);
@@ -541,46 +618,64 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
       continue;
 
     const FactoryCallStats& fstats = fstats_it->second;
-    std::string factory_name       = GetFactoryNodeName(nametag);
+    std::string factory_id         = GetFactoryNodeName(nametag);
     double time_in_factory         = fstats.time_waited_on - fstats.time_waiting;
 
-    factory_times[factory_name] += time_in_factory;
-    factory_types[factory_name] = fstats.type;
-    factory_nodes.insert(factory_name);
+    factory_times[factory_id] += time_in_factory;
+    factory_types[factory_id] = fstats.type;
+    factory_nodes.insert(factory_id);
+  }
 
-    // Extract just the tag part (before the typename in parentheses)
-    std::string tag  = nametag;
-    size_t paren_pos = nametag.find(" (");
-    if (paren_pos != std::string::npos) {
-      tag = nametag.substr(0, paren_pos);
+  // Populate output tags for each factory ID in this plugin
+  for (const auto& factory_id : factory_nodes) {
+    auto it = factory_outputs.find(factory_id);
+    if (it != factory_outputs.end()) {
+      factory_output_tags[factory_id] = it->second;
     }
-
-    // Only add tag if it's different from factory_name and not already in list
-    if (tag != factory_name &&
-        std::find(factory_tags[factory_name].begin(), factory_tags[factory_name].end(), tag) ==
-            factory_tags[factory_name].end()) {
-      factory_tags[factory_name].push_back(tag);
+  }
+  
+  // Build input tags for each factory ID in this plugin
+  std::map<std::string, std::set<std::string>> factory_input_tags;
+  for (auto& [link, stats] : call_links) {
+    std::string caller_nametag = MakeNametag(link.caller_name, link.caller_tag);
+    std::string callee_nametag = MakeNametag(link.callee_name, link.callee_tag);
+    
+    // Only consider links where the caller is in this plugin
+    if (nodes.find(caller_nametag) != nodes.end()) {
+      std::string caller_id = GetFactoryNodeName(caller_nametag);
+      std::string callee_id = GetFactoryNodeName(callee_nametag);
+      factory_input_tags[caller_id].insert(callee_id);
     }
   }
 
-  // Write nodes (one per factory in this plugin, listing all outputs)
-  for (auto& [factory_name, time_in_factory] : factory_times) {
+  // Write nodes (one per factory in this plugin, listing all outputs and inputs)
+  for (auto& [factory_id, time_in_factory] : factory_times) {
     double percent = 100.0 * time_in_factory / total_ms;
 
     std::string color = GetNodeColorFromPercent(percent);
-    std::string shape = GetNodeShape(factory_types[factory_name]);
+    std::string shape = GetNodeShape(factory_types[factory_id]);
 
-    ofs << "  \"" << factory_name << "\" [";
+    ofs << "  \"" << factory_id << "\" [";
     ofs << "fillcolor=\"" << color << "\", ";
     ofs << "style=filled, ";
     ofs << "shape=" << shape << ", ";
-    ofs << "label=\"" << factory_name;
+    ofs << "labeljust=l, ";
+    ofs << "label=\"" << factory_id;
 
-    // List output tags if there are multiple or if tag differs from factory name
-    auto& tags = factory_tags[factory_name];
-    if (!tags.empty()) {
+    // List output collections
+    auto& output_tags = factory_output_tags[factory_id];
+    if (!output_tags.empty() && (output_tags.size() > 1 || output_tags[0] != factory_id)) {
       ofs << "\\nOutputs:";
-      for (const auto& tag : tags) {
+      for (const auto& tag : output_tags) {
+        ofs << "\\n  " << tag;
+      }
+    }
+    
+    // List input collections
+    auto input_it = factory_input_tags.find(factory_id);
+    if (input_it != factory_input_tags.end() && !input_it->second.empty()) {
+      ofs << "\\nInputs:";
+      for (const auto& tag : input_it->second) {
         ofs << "\\n  " << tag;
       }
     }

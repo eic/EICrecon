@@ -11,3 +11,7 @@ plugin_add(${PLUGIN_NAME})
 # correctly sets sources for ${_name}_plugin and ${_name}_library targets Adds
 # headers to the correct installation directory
 plugin_glob_all(${PLUGIN_NAME})
+
+target_include_directories(
+  ${PLUGIN_NAME}_plugin
+  PRIVATE ${PROJECT_BINARY_DIR} ${PROJECT_BINARY_DIR}/include)
