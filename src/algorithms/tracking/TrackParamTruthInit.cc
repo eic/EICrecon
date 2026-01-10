@@ -29,8 +29,8 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
   // MCParticles uses numerical values in its specified units,
   // while m_cfg is in the DD4hep unit system
 
-  const auto [headers, mcparticles] = input;
-  auto [track_parameters]           = output;
+  const auto [headers, mcparticles]    = input;
+  auto [track_seeds, track_parameters] = output;
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, "TrackParamTruthInit");
@@ -127,6 +127,11 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
     cov(4, 4) = 0.1;  // qOverP
     cov(5, 5) = 10e9; // time
     track_parameter.setCovariance(cov);
+
+    // Insert into edm4eic::TrackSeeds
+    auto track_seed = track_seeds->create();
+    track_seed.setParams(track_parameter);
+    // There are no hits to store to the seed
 
     // Debug output
     if (level() <= algorithms::LogLevel::kDebug) {
