@@ -6,6 +6,7 @@
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/SpacePointContainer.hpp>
 #endif
+#include <Acts/EventData/Seed.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
@@ -20,6 +21,7 @@
 #include <cmath>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <tuple>
