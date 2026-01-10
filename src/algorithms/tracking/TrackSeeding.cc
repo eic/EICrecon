@@ -5,7 +5,6 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <edm4hep/Vector3f.h>
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/SpacePointProxy.hpp>
 #endif
@@ -27,6 +26,7 @@
 #include <Acts/Utilities/Result.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4hep/Vector2f.h>
+#include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <array>
