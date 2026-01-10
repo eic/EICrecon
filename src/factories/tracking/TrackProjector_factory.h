@@ -3,7 +3,7 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <memory>
@@ -23,7 +23,7 @@ private:
 
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioInput<edm4eic::Track> m_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_segments_output{this};
 
@@ -38,18 +38,17 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    std::vector<gsl::not_null<const ActsExamples::Trajectories*>> acts_trajectories_input;
-    for (auto acts_traj : m_acts_trajectories_input()) {
-      acts_trajectories_input.push_back(acts_traj);
+    auto tracks_vec = m_acts_tracks_input();
+    if (!tracks_vec.empty()) {
+      m_algo->process(
+          {
+              tracks_vec.front(),
+              m_tracks_input(),
+          },
+          {
+              m_segments_output().get(),
+          });
     }
-    m_algo->process(
-        {
-            acts_trajectories_input,
-            m_tracks_input(),
-        },
-        {
-            m_segments_output().get(),
-        });
   }
 };
 

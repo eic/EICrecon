@@ -18,7 +18,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_raw_hit_assocs_input{this};
   PodioOutput<edm4eic::Trajectory> m_trajectories_output{this};
   PodioOutput<edm4eic::TrackParameters> m_parameters_output{this};
@@ -34,22 +34,21 @@ public:
   };
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    std::vector<gsl::not_null<const ActsExamples::Trajectories*>> acts_trajectories_input;
-    for (auto acts_traj : m_acts_trajectories_input()) {
-      acts_trajectories_input.push_back(acts_traj);
+    auto tracks_vec = m_acts_tracks_input();
+    if (!tracks_vec.empty()) {
+      m_algo->process(
+          {
+              m_measurements_input(),
+              tracks_vec.front(),
+              m_raw_hit_assocs_input(),
+          },
+          {
+              m_trajectories_output().get(),
+              m_parameters_output().get(),
+              m_tracks_output().get(),
+              m_track_assocs_output().get(),
+          });
     }
-    m_algo->process(
-        {
-            m_measurements_input(),
-            acts_trajectories_input,
-            m_raw_hit_assocs_input(),
-        },
-        {
-            m_trajectories_output().get(),
-            m_parameters_output().get(),
-            m_tracks_output().get(),
-            m_track_assocs_output().get(),
-        });
   }
 };
 

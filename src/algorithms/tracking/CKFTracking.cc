@@ -108,22 +108,18 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
       CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
 }
 
-std::tuple<std::vector<ActsExamples::Trajectories*>,
-           std::vector<ActsExamples::ConstTrackContainer*>>
+std::vector<ActsExamples::ConstTrackContainer*>
 CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
                      const edm4eic::Measurement2DCollection& meas2Ds) {
 
   // Create output collections
-  std::vector<ActsExamples::Trajectories*> acts_trajectories;
-  // Prepare the output data with MultiTrajectory, per seed
-  acts_trajectories.reserve(init_trk_params.size());
   // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
   //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
   std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
 
   // If measurements or initial track parameters are empty, return early
   if (meas2Ds.empty() || init_trk_params.empty()) {
-    return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
+    return constTracks_v;
   }
 
   // create sourcelink and measurement containers
@@ -386,47 +382,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 
   constTracks_v.push_back(
       new ActsExamples::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
-  auto& constTracks = *(constTracks_v.front());
 
-  // Seed number column accessor
-  const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
-
-  ActsExamples::Trajectories::IndexedParameters parameters;
-  std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
-
-  std::optional<unsigned int> lastSeed;
-  for (const auto& track : constTracks) {
-    if (!lastSeed) {
-      lastSeed = constSeedNumber(track);
-    }
-
-    if (constSeedNumber(track) != lastSeed.value()) {
-      // make copies and clear vectors, only if not empty
-      if (!tips.empty()) {
-        acts_trajectories.push_back(
-            new ActsExamples::Trajectories(constTracks.trackStateContainer(), tips, parameters));
-      }
-
-      tips.clear();
-      parameters.clear();
-    }
-
-    lastSeed = constSeedNumber(track);
-
-    tips.push_back(track.tipIndex());
-    parameters.emplace(std::pair{
-        track.tipIndex(),
-        ActsExamples::TrackParameters{track.referenceSurface().getSharedPtr(), track.parameters(),
-                                      track.covariance(), track.particleHypothesis()}});
-  }
-
-  // last entry: move vectors, only if not empty
-  if (!tips.empty()) {
-    acts_trajectories.push_back(new ActsExamples::Trajectories(
-        constTracks.trackStateContainer(), std::move(tips), std::move(parameters)));
-  }
-
-  return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
+  return constTracks_v;
 }
 
 } // namespace eicrecon

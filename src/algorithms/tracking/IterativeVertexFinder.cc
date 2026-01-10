@@ -51,7 +51,7 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 }
 
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
-    std::vector<const ActsExamples::Trajectories*> trajectories,
+    const ActsExamples::ConstTrackContainer* constTracks,
     const edm4eic::ReconstructedParticleCollection* reconParticles) {
 
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
@@ -103,21 +103,18 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
   VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
 
   std::vector<Acts::InputTrack> inputTracks;
+  std::vector<Acts::BoundTrackParameters> trackParameters;
+  trackParameters.reserve(constTracks->size());
 
-  for (const auto& trajectory : trajectories) {
-    auto tips = trajectory->tips();
-    if (tips.empty()) {
-      continue;
-    }
-    /// CKF can provide multiple track trajectories for a single input seed
-    for (auto& tip : tips) {
-      ActsExamples::TrackParameters par = trajectory->trackParameters(tip);
-
-      inputTracks.emplace_back(&(trajectory->trackParameters(tip)));
-      m_log->trace("Track local position at input = {} mm, {} mm",
-                   par.localPosition().x() / Acts::UnitConstants::mm,
-                   par.localPosition().y() / Acts::UnitConstants::mm);
-    }
+  for (const auto& track : *constTracks) {
+    // Create BoundTrackParameters and store it
+    trackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
+                                 track.covariance(), track.particleHypothesis());
+    // Create InputTrack from stored parameters
+    inputTracks.emplace_back(&trackParameters.back());
+    m_log->trace("Track local position at input = {} mm, {} mm",
+                 track.parameters()[Acts::eBoundLoc0] / Acts::UnitConstants::mm,
+                 track.parameters()[Acts::eBoundLoc1] / Acts::UnitConstants::mm);
   }
 
   std::vector<Acts::Vertex> vertices;

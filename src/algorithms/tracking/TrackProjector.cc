@@ -42,30 +42,21 @@ void TrackProjector::init() {
 }
 
 void TrackProjector::process(const Input& input, const Output& output) const {
-  const auto [acts_trajectories, tracks] = input;
-  auto [track_segments]                  = output;
+  const auto [acts_tracks, tracks] = input;
+  auto [track_segments]            = output;
 
-  debug("Track projector event process. Num of input trajectories: {}",
-        std::size(acts_trajectories));
+  debug("Track projector event process. Num of input tracks: {}", acts_tracks->size());
 
-  // Loop over the trajectories
-  for (std::size_t i = 0; const auto& traj : acts_trajectories) {
-    // Get the entry index for the single trajectory
-    // The trajectory entry indices and the multiTrajectory
-    const auto& mj        = traj->multiTrajectory();
-    const auto& trackTips = traj->tips();
-    debug("------ Trajectory ------");
-    debug("  Num of elements in trackTips {}", trackTips.size());
-
-    // Skip empty
-    if (trackTips.empty()) {
-      debug("  Empty multiTrajectory.");
-      continue;
-    }
-    const auto& trackTip = trackTips.front();
+  // Loop over the tracks
+  std::size_t i = 0;
+  for (const auto& track : *acts_tracks) {
+    auto tipIndex = track.tipIndex();
+    debug("------ Track ------");
+    debug("  Tip index {}", tipIndex);
 
     // Collect the trajectory summary info
-    auto trajState      = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
+    auto trajState =
+        Acts::MultiTrajectoryHelpers::trajectoryState(acts_tracks->trackStateContainer(), tipIndex);
     int m_nMeasurements = trajState.nMeasurements;
     int m_nStates       = trajState.nStates;
     int m_nCalibrated   = 0;
@@ -75,14 +66,14 @@ void TrackProjector::process(const Input& input, const Output& output) const {
     auto track_segment = track_segments->create();
 
     // corresponding track
-    if (tracks->size() == acts_trajectories.size()) {
+    if (tracks->size() == acts_tracks->size()) {
       trace("track segment connected to track {}", i);
       track_segment.setTrack((*tracks)[i]);
       ++i;
     }
 
     // visit the track points
-    mj.visitBackwards(trackTip, [&](auto&& trackstate) {
+    for (const auto& trackstate : track.trackStatesReversed()) {
       // get volume info
       auto geoID  = trackstate.referenceSurface().geometryId();
       auto volume = geoID.volume();
@@ -199,7 +190,7 @@ void TrackProjector::process(const Input& input, const Output& output) const {
       //debug("boundParams[eBoundQOverP] = {}", boundParams[Acts::eBoundQOverP]);
       //debug("boundParams[eBoundTime] = {}", boundParams[Acts::eBoundTime]);
       //debug("predicted variables: {}", trackstate.predicted());
-    });
+    }
 
     debug("  Num calibrated state in trajectory {}", m_nCalibrated);
     debug("------ end of trajectory process ------");
