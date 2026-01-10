@@ -136,7 +136,7 @@ void InitPlugin(JApplication* app) {
       {"CentralTrackSeeds", "CentralTrackSeedParameters"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralCKFTrajectories", {"CentralTrackSeedParameters", "CentralTrackerMeasurements"},
+      "CentralCKFTrajectories", {"CentralTrackSeeds", "CentralTrackerMeasurements"},
       {
           "CentralCKFActsTracksUnfiltered",
       },
@@ -313,7 +313,7 @@ void InitPlugin(JApplication* app) {
       {"B0TrackerSeeds", "B0TrackerSeedParameters"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "B0TrackerCKFTrajectories", {"B0TrackerSeedParameters", "B0TrackerMeasurements"},
+      "B0TrackerCKFTrajectories", {"B0TrackerSeeds", "B0TrackerMeasurements"},
       {
           "B0TrackerCKFActsTracksUnfiltered",
       },

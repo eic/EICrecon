@@ -68,6 +68,7 @@
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
@@ -109,16 +110,17 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
 }
 
 std::vector<ActsExamples::ConstTrackContainer*>
-CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
+CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
                      const edm4eic::Measurement2DCollection& meas2Ds) {
 
   // Create output collections
+  std::vector<ActsExamples::Trajectories*> acts_trajectories;
   // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
   //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
   std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
 
   // If measurements or initial track parameters are empty, return early with empty container
-  if (meas2Ds.empty() || init_trk_params.empty()) {
+  if (meas2Ds.empty() || init_trk_seeds.empty()) {
     auto emptyTrackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>();
     auto emptyTrackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>();
     constTracks_v.push_back(
@@ -203,7 +205,9 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   }
 
   ActsExamples::TrackParametersContainer acts_init_trk_params;
-  for (const auto& track_parameter : init_trk_params) {
+  for (const auto& track_seed : init_trk_seeds) {
+
+    const auto& track_parameter = track_seed.getParams();
 
     Acts::BoundVector params;
     params(Acts::eBoundLoc0) =

@@ -20,6 +20,7 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <vector>
@@ -75,7 +76,7 @@ public:
             std::shared_ptr<spdlog::logger> log);
 
   std::vector<ActsExamples::ConstTrackContainer*>
-  process(const edm4eic::TrackParametersCollection& init_trk_params,
+  process(const edm4eic::TrackSeedCollection& init_trk_seeds,
           const edm4eic::Measurement2DCollection& meas2Ds);
 
 private:
