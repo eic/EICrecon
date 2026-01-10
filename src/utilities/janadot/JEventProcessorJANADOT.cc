@@ -104,7 +104,7 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
       if (helper_pos != std::string::npos) {
         // Extract the class name before "::Helper<"
         std::string factory_class = factory_name.substr(0, helper_pos);
-        
+
         // Track all tags produced by this factory class, keyed by class#plugin#tag
         // This ensures we don't mix tags from different factory instances
         std::string instance_key = factory_class + "#" + plugin_name + "#" + factory_tag;
@@ -117,38 +117,38 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
     std::map<std::string, std::vector<std::string>> prefix_to_tags;
     std::vector<std::string> all_helper_tags;
     std::set<std::string> processed_tags;
-    
+
     for (auto* factory : factories) {
       std::string factory_name = factory->GetFactoryName();
       std::string factory_tag  = factory->GetTag();
-      
+
       if (factory_name.find("::Helper<") != std::string::npos) {
         all_helper_tags.push_back(factory_tag);
       }
     }
-    
+
     // Sort tags by length (shortest first) to ensure prefixes come before their extensions
     std::sort(all_helper_tags.begin(), all_helper_tags.end(),
-              [](const std::string& a, const std::string& b) {
-                return a.length() < b.length();
-              });
-    
+              [](const std::string& a, const std::string& b) { return a.length() < b.length(); });
+
     // Group tags by finding their longest common prefix
     // For each pair/group of tags that share a common prefix, group them together
     for (size_t i = 0; i < all_helper_tags.size(); ++i) {
-      if (processed_tags.count(all_helper_tags[i])) continue;
-      
+      if (processed_tags.count(all_helper_tags[i]))
+        continue;
+
       std::vector<std::string> group;
       group.push_back(all_helper_tags[i]);
-      
+
       // Find all tags that differ from all_helper_tags[i] only in a suffix
       for (size_t j = i + 1; j < all_helper_tags.size(); ++j) {
-        if (processed_tags.count(all_helper_tags[j])) continue;
-        
+        if (processed_tags.count(all_helper_tags[j]))
+          continue;
+
         // Check if one tag is a prefix of the other, OR they share all but the last word
         // Strategy: one should start with the other, OR they should be identical except for a suffix
         bool should_group = false;
-        
+
         // Case 1: tag j starts with tag i (tag i is a prefix)
         if (all_helper_tags[j].find(all_helper_tags[i]) == 0) {
           should_group = true;
@@ -161,27 +161,27 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
                  all_helper_tags[i][k] == all_helper_tags[j][k]) {
             ++k;
           }
-          
+
           // They should share at least 90% of the shorter tag's length
           size_t min_len = std::min(all_helper_tags[i].length(), all_helper_tags[j].length());
           if (k >= min_len * 0.9 && k >= 15) {
             should_group = true;
           }
         }
-        
+
         if (should_group) {
           group.push_back(all_helper_tags[j]);
           processed_tags.insert(all_helper_tags[j]);
         }
       }
-      
+
       if (group.size() > 1) {
         // Use the first tag (shortest) as the factory_id
         prefix_to_tags[all_helper_tags[i]] = group;
         processed_tags.insert(all_helper_tags[i]);
       }
     }
-    
+
     // Build tag_to_factory_id mapping
     std::map<std::string, std::string> tag_to_factory_id;
     for (const auto& [prefix, tags] : prefix_to_tags) {
@@ -192,9 +192,9 @@ void JEventProcessorJANADOT::Process(const std::shared_ptr<const JEvent>& event)
 
     // Map each nametag to its factory_id
     for (auto* factory : factories) {
-      std::string nametag      = MakeNametag(factory->GetObjectName(), factory->GetTag());
-      std::string factory_tag  = factory->GetTag();
-      std::string factory_id   = factory_tag; // Default to tag
+      std::string nametag     = MakeNametag(factory->GetObjectName(), factory->GetTag());
+      std::string factory_tag = factory->GetTag();
+      std::string factory_id  = factory_tag; // Default to tag
 
       // Check if this tag has a factory_id mapping (from prefix grouping)
       auto it = tag_to_factory_id.find(factory_tag);
@@ -336,8 +336,8 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
   std::map<std::string, node_type> factory_types;
 
   for (auto& [nametag, fstats] : factory_stats) {
-    std::string factory_id   = GetFactoryNodeName(nametag);
-    double time_in_factory   = fstats.time_waited_on - fstats.time_waiting;
+    std::string factory_id = GetFactoryNodeName(nametag);
+    double time_in_factory = fstats.time_waited_on - fstats.time_waiting;
 
     factory_times[factory_id] += time_in_factory;
     factory_types[factory_id] = fstats.type;
@@ -347,7 +347,7 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
   for (auto& [factory_id, output_tags] : factory_outputs) {
     factory_output_tags[factory_id] = output_tags;
   }
-  
+
   // Build input tags for each factory ID by examining call links
   std::map<std::string, std::set<std::string>> factory_input_tags;
   for (auto& [link, stats] : call_links) {
@@ -355,7 +355,7 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
     std::string callee_nametag = MakeNametag(link.callee_name, link.callee_tag);
     std::string caller_id      = GetFactoryNodeName(caller_nametag);
     std::string callee_id      = GetFactoryNodeName(callee_nametag);
-    
+
     // The caller depends on the callee, so callee is an input to caller
     factory_input_tags[caller_id].insert(callee_id);
   }
@@ -382,7 +382,7 @@ void JEventProcessorJANADOT::WriteSingleDotFile(const std::string& filename) {
         ofs << "\\n  " << tag;
       }
     }
-    
+
     // List input collections
     auto it = factory_input_tags.find(factory_id);
     if (it != factory_input_tags.end() && !it->second.empty()) {
@@ -633,13 +633,13 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
       factory_output_tags[factory_id] = it->second;
     }
   }
-  
+
   // Build input tags for each factory ID in this plugin
   std::map<std::string, std::set<std::string>> factory_input_tags;
   for (auto& [link, stats] : call_links) {
     std::string caller_nametag = MakeNametag(link.caller_name, link.caller_tag);
     std::string callee_nametag = MakeNametag(link.callee_name, link.callee_tag);
-    
+
     // Only consider links where the caller is in this plugin
     if (nodes.find(caller_nametag) != nodes.end()) {
       std::string caller_id = GetFactoryNodeName(caller_nametag);
@@ -670,7 +670,7 @@ void JEventProcessorJANADOT::WritePluginDotFile(const std::string& plugin_name,
         ofs << "\\n  " << tag;
       }
     }
-    
+
     // List input collections
     auto input_it = factory_input_tags.find(factory_id);
     if (input_it != factory_input_tags.end() && !input_it->second.empty()) {

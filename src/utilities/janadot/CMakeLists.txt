@@ -13,5 +13,5 @@ plugin_add(${PLUGIN_NAME})
 plugin_glob_all(${PLUGIN_NAME})
 
 target_include_directories(
-  ${PLUGIN_NAME}_plugin
-  PRIVATE ${PROJECT_BINARY_DIR} ${PROJECT_BINARY_DIR}/include)
+  ${PLUGIN_NAME}_plugin PRIVATE ${PROJECT_BINARY_DIR}
+                                ${PROJECT_BINARY_DIR}/include)
