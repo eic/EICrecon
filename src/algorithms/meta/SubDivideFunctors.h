@@ -11,29 +11,22 @@ namespace eicrecon {
 // Chain wrapper type for explicit member function call chaining
 // Usage: Chain<&A::getB, &B::getC> chains A->getB()->getC()
 // ----------------------------------------------------------------------------
-template <auto... MemberFunctionPtrs>
-struct Chain {};
+template <auto... MemberFunctionPtrs> struct Chain {};
 
 // ----------------------------------------------------------------------------
 // Helper to invoke a chain of member function calls
 // ----------------------------------------------------------------------------
-template <auto... MemberFunctionPtrs>
-struct ChainInvoker;
+template <auto... MemberFunctionPtrs> struct ChainInvoker;
 
 // Base case: single member function
-template <auto MemberFunctionPtr>
-struct ChainInvoker<MemberFunctionPtr> {
-  template <typename T>
-  static auto invoke(T& instance) {
-    return (instance.*MemberFunctionPtr)();
-  }
+template <auto MemberFunctionPtr> struct ChainInvoker<MemberFunctionPtr> {
+  template <typename T> static auto invoke(T& instance) { return (instance.*MemberFunctionPtr)(); }
 };
 
 // Recursive case: chain multiple member functions
 template <auto FirstMemberFunctionPtr, auto... RestMemberFunctionPtrs>
 struct ChainInvoker<FirstMemberFunctionPtr, RestMemberFunctionPtrs...> {
-  template <typename T>
-  static auto invoke(T& instance) {
+  template <typename T> static auto invoke(T& instance) {
     auto nested = (instance.*FirstMemberFunctionPtr)();
     return ChainInvoker<RestMemberFunctionPtrs...>::invoke(nested);
   }
@@ -42,12 +35,10 @@ struct ChainInvoker<FirstMemberFunctionPtr, RestMemberFunctionPtrs...> {
 // ----------------------------------------------------------------------------
 // Functor to split collection based on a range of values
 // ----------------------------------------------------------------------------
-template <typename... Chains>
-class RangeSplit;
+template <typename... Chains> class RangeSplit;
 
 // Specialization: single Chain
-template <auto... MemberFunctionPtrs>
-class RangeSplit<Chain<MemberFunctionPtrs...>> {
+template <auto... MemberFunctionPtrs> class RangeSplit<Chain<MemberFunctionPtrs...>> {
 public:
   RangeSplit(std::vector<std::pair<double, double>> ranges) : m_ranges(ranges) {};
 
@@ -122,8 +113,7 @@ private:
 // ----------------------------------------------------------------------------
 // Functor to split collection based on any number of collection values
 // ----------------------------------------------------------------------------
-template <auto... MemberFunctionPtrs>
-class ValueSplit {
+template <auto... MemberFunctionPtrs> class ValueSplit {
 public:
   ValueSplit(std::vector<std::vector<int>> ids) : m_ids(ids) {};
 
