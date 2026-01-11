@@ -21,7 +21,7 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
-#include <stddef.h>
+#include <cstddef>
 #include <Eigen/Core>
 #include <cmath>
 #include <gsl/pointers>
