@@ -85,9 +85,9 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
   // This gets access to more direct ACTS results from CKFTracking
   auto acts_results = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
   m_log->debug("ACTS Tracks( size: {} )", acts_results.size());
-  m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}", "[loc 0]",
+  m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8} {:>8}", "[loc 0]",
                "[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]",
-               "[chi2]");
+               "[chi2]", "[ndf]");
 
   // Loop over the tracks
   if (!acts_results.empty()) {
