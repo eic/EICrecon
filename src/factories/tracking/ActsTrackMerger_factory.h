@@ -42,7 +42,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    assert(m_acts_tracks_output().size() == 0 ||
+    assert(m_acts_tracks_output().size() == 0 &&
            "ActsTrackMerger_factory: m_acts_tracks_output not cleared from previous event");
 
     // Use helper merge method
