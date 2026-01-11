@@ -5,6 +5,7 @@
 
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <memory>
 #include <string>
@@ -39,16 +40,16 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     auto tracks_vec = m_acts_tracks_input();
-    if (!tracks_vec.empty()) {
-      m_algo->process(
-          {
-              tracks_vec.front(),
-              m_tracks_input(),
-          },
-          {
-              m_segments_output().get(),
-          });
-    }
+    assert(!tracks_vec.empty() && "ConstTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstTrackContainer pointer should not be null");
+    m_algo->process(
+        {
+            tracks_vec.front(),
+            m_tracks_input(),
+        },
+        {
+            m_segments_output().get(),
+        });
   }
 };
 

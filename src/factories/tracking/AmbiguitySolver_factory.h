@@ -8,6 +8,7 @@
 #include "extensions/spdlog/SpdlogMixin.h"
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <memory>
 #include <string>
 #include <utility>
@@ -49,7 +50,10 @@ public:
     // See https://github.com/eic/EICrecon/issues/1961
     m_acts_tracks_output().clear();
 
-    m_acts_tracks_output() = m_algo->process(m_acts_tracks_input(), *m_measurements_input());
+    auto tracks_vec = m_acts_tracks_input();
+    assert(!tracks_vec.empty() && "ConstTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstTrackContainer pointer should not be null");
+    m_acts_tracks_output() = m_algo->process(tracks_vec, *m_measurements_input());
   }
 };
 

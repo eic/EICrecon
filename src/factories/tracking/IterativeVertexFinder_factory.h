@@ -6,6 +6,7 @@
 
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <edm4eic/VertexCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <memory>
@@ -49,9 +50,9 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     auto tracks_vec = m_acts_tracks_input();
-    if (!tracks_vec.empty()) {
-      m_vertices_output() = m_algo->produce(tracks_vec.front(), m_edm4eic_reconParticles_input());
-    }
+    assert(!tracks_vec.empty() && "ConstTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstTrackContainer pointer should not be null");
+    m_vertices_output() = m_algo->produce(tracks_vec.front(), m_edm4eic_reconParticles_input());
   }
 };
 

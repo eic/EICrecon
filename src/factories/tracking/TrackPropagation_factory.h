@@ -5,6 +5,7 @@
 
 #include <Acts/Surfaces/Surface.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <memory>
 #include <string>
@@ -44,6 +45,9 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+    assert(!m_acts_tracks_input().empty() && "ConstTrackContainer vector should not be empty");
+    assert(m_acts_tracks_input().front() != nullptr &&
+           "ConstTrackContainer pointer should not be null");
     m_algo->process({*m_tracks_input(), m_acts_tracks_input()}, {m_track_segments_output().get()});
   }
 };

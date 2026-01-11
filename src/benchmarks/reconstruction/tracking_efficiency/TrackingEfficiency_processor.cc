@@ -17,6 +17,7 @@
 #include <spdlog/logger.h>
 #include <Eigen/Core>
 #include <any>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
 #include <iterator>
@@ -89,8 +90,10 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
                "[chi2]");
 
   // Loop over the tracks
-  for (const auto* track_container : acts_results) {
-    // Loop over each track in the container
+  if (!acts_results.empty()) {
+    const auto* track_container = acts_results.front();
+    assert(track_container != nullptr && "ConstTrackContainer pointer should not be null");
+
     for (const auto& track : *track_container) {
       // Get the track parameters
       const auto& parameter  = track.parameters();
