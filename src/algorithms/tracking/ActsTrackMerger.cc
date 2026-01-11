@@ -47,7 +47,11 @@ ActsTrackMerger::merge(const std::vector<const ActsExamples::ConstTrackContainer
     // Copy each track
     for (const auto& srcTrack : *inputContainer) {
       auto destTrack = mergedTracks.getTrack(mergedTracks.addTrack());
+#if Acts_VERSION_MAJOR < 43 || (Acts_VERSION_MAJOR == 43 && Acts_VERSION_MINOR < 2)
       destTrack.copyFrom(srcTrack, true); // true = copy track states
+#else
+      destTrack.copyFrom(srcTrack);
+#endif
     }
   }
 
