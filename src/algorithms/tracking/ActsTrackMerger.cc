@@ -33,11 +33,7 @@ ActsTrackMerger::merge(const std::vector<const ActsExamples::ConstTrackContainer
   inputs.insert(inputs.end(), input1.begin(), input1.end());
   inputs.insert(inputs.end(), input2.begin(), input2.end());
 
-  if (inputs.empty()) {
-    return result;
-  }
-
-  // Create new mutable containers for merging
+  // Create new mutable containers for merging (even if inputs are empty)
   auto mergedTrackContainer      = std::make_shared<Acts::VectorTrackContainer>();
   auto mergedTrackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
   ActsExamples::TrackContainer mergedTracks(mergedTrackContainer, mergedTrackStateContainer);

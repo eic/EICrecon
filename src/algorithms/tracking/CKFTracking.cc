@@ -116,8 +116,12 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
   std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
 
-  // If measurements or initial track parameters are empty, return early
+  // If measurements or initial track parameters are empty, return early with empty container
   if (meas2Ds.empty() || init_trk_params.empty()) {
+    auto emptyTrackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>();
+    auto emptyTrackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>();
+    constTracks_v.push_back(
+        new ActsExamples::ConstTrackContainer(emptyTrackContainer, emptyTrackStateContainer));
     return constTracks_v;
   }
 
