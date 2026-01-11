@@ -150,8 +150,9 @@ void TrackPropagation::propagateToSurfaceList(
   m_log->trace("number of tracks: {}", tracks.size());
   m_log->trace("number of acts_tracks: {}", acts_tracks.size());
 
-  if (acts_tracks.empty())
+  if (acts_tracks.empty()) {
     return;
+}
 
   const auto& constTracks = *acts_tracks.front();
 
