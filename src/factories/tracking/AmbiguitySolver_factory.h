@@ -45,7 +45,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    // FIXME clear output since it may not have been initialized or reset
+    // FIXME clear tracks output since it may not have been initialized or reset
     // See https://github.com/eic/EICrecon/issues/1961
     m_acts_tracks_output().clear();
 

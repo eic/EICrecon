@@ -146,7 +146,7 @@ void TrackPropagation::propagateToSurfaceList(
   auto [track_segments]            = output;
 
   // logging
-  m_log->trace("Propagate trajectories: --------------------");
+  m_log->trace("Propagate tracks: --------------------");
   m_log->trace("number of tracks: {}", tracks.size());
   m_log->trace("number of acts_tracks: {}", acts_tracks.size());
 
@@ -159,7 +159,7 @@ void TrackPropagation::propagateToSurfaceList(
   std::size_t i = 0;
   for (const auto& track : constTracks) {
 
-    // check if this trajectory can be propagated to any filter surface
+    // check if this track can be propagated to any filter surface
     bool trajectory_reaches_filter_surface{false};
     for (const auto& filter_surface : m_filter_surfaces) {
       auto point = propagate(edm4eic::Track{}, track, constTracks, filter_surface);
@@ -190,10 +190,10 @@ void TrackPropagation::propagateToSurfaceList(
     // loop over projection-target surfaces
     for (const auto& target_surface : m_target_surfaces) {
 
-      // project the trajectory to this surface
+      // project the track to this surface
       auto point = propagate(edm4eic::Track{}, track, constTracks, target_surface);
       if (!point) {
-        m_log->trace("<> Failed to propagate trajectory to this plane");
+        m_log->trace("<> Failed to propagate track to this plane");
         continue;
       }
 

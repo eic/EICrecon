@@ -75,7 +75,7 @@ public:
     }
   }
 
-  /** Propagates a single trajectory to a given surface */
+  /** Propagates a single track to a given surface */
   std::unique_ptr<edm4eic::TrackPoint>
   propagate(const edm4eic::Track&, const ActsExamples::ConstTrackProxy&,
             const ActsExamples::ConstTrackContainer&,

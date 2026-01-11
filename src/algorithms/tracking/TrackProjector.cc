@@ -192,8 +192,8 @@ void TrackProjector::process(const Input& input, const Output& output) const {
       //debug("predicted variables: {}", trackstate.predicted());
     }
 
-    debug("  Num calibrated state in trajectory {}", m_nCalibrated);
-    debug("------ end of trajectory process ------");
+    debug("  Num calibrated state in track {}", m_nCalibrated);
+    debug("------ end of track process ------");
   }
 
   debug("END OF Track projector event process");
