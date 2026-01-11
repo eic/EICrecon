@@ -102,13 +102,13 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
       auto ndf               = track.nDoF();
 
       m_log->debug("{:>10.2f} {:>10.2f}  {:>10.2f} {:>10.3f} {:>10.4f} {:>10.3f} {:>12.4e} "
-                   "{:>12.4e} {:>12.4e} {:>8.2f}",
+                   "{:>12.4e} {:>12.4e} {:>8.2f} {:>8.2f}",
                    parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1],
                    parameter[Acts::eBoundPhi], parameter[Acts::eBoundTheta],
                    parameter[Acts::eBoundQOverP], 1.0 / parameter[Acts::eBoundQOverP],
                    sqrt(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
                    sqrt(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                   sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)), chi2);
+                   sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)), chi2, ndf);
     }
   }
 
