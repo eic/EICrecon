@@ -14,6 +14,9 @@
 #include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#if Acts_VERSION_MAJOR < 39
+#include <ActsExamples/EventData/IndexSourceLink.hpp>
+#endif
 #include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
