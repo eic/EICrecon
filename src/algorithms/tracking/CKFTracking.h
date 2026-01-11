@@ -14,14 +14,11 @@
 #include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
-#include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <tuple>
-#include <variant>
 #include <vector>
 
 #include "CKFTrackingConfig.h"

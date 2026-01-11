@@ -10,7 +10,6 @@
 #include <memory>
 #include <string>
 #include <string_view>
-#include <vector>
 
 #include "ActsGeometryProvider.h"
 #include "algorithms/interfaces/WithPodConfig.h"

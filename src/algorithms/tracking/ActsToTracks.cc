@@ -4,7 +4,13 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/SourceLink.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
@@ -23,7 +29,7 @@
 #include <gsl/pointers>
 #include <map>
 #include <numeric>
-#include <optional>
+#include <vector>
 
 #include "ActsToTracks.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
