@@ -91,8 +91,7 @@ jobs:
             release: nightly
         include:
           - CXX: g++
-            # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=maybe-uninitialized
+            CXXFLAGS: -Werror -Wall -Wextra -Wundef
           - CXX: clang++
             CXXFLAGS: -Werror -Wall -Wextra -Wundef
           # include clang++ Debug with profile CXXFLAGS
