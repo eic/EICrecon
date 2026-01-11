@@ -7,14 +7,17 @@
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <memory>
+#include <stdexcept>
 #include <vector>
 
 namespace eicrecon {
 
-void ActsTrackMerger::process(const Input& /* input */, const Output& /* output */) const {
-  // Note: Output type is const std::tuple<const std::vector<gsl::not_null<T**>>>& which cannot be modified.
-  // The factory calls merge() directly instead of using this method.
-  // This stub exists only to satisfy the Algorithm interface requirement.
+void ActsTrackMerger::process(const Input& input, const Output& output) const {
+  // This algorithm is intentionally not wired through the standard Algorithm::process
+  // mechanism. The factory calls merge() directly with concrete input/output types.
+  // If process() is ever invoked, treat it as a misuse and fail fast.
+  throw std::logic_error(
+      "ActsTrackMerger::process() is not implemented; the factory must call merge() directly.");
 }
 
 std::vector<ActsExamples::ConstTrackContainer*>
