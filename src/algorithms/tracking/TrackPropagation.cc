@@ -152,7 +152,7 @@ void TrackPropagation::propagateToSurfaceList(
 
   if (acts_tracks.empty()) {
     return;
-}
+  }
 
   const auto& constTracks = *acts_tracks.front();
 
