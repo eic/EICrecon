@@ -1,9 +1,12 @@
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <Acts/Utilities/detail/ContainerIterator.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
@@ -12,17 +15,16 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
-#include <cstddef>
 #include <exception>
 #include <gsl/pointers>
 #include <map>
 #include <string>
 #include <vector>
 
+#include "TrackPropagation.h"
 #include "TrackPropagationTest_processor.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"

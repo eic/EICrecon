@@ -10,12 +10,10 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
-#include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <optional>
 #include <string>
 #include <string_view>
-#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 

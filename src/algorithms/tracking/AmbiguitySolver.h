@@ -7,8 +7,6 @@
 #include <edm4eic/Measurement2D.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <tuple>
-#include <variant>
 #include <vector>
 
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"

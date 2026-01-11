@@ -10,8 +10,6 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <fmt/core.h>
-#include <cmath>
 #include <functional>
 #include <map>
 #include <memory>

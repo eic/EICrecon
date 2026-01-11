@@ -11,7 +11,6 @@
 #include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <vector>
 
 #include "ActsExamples/EventData/Track.hpp"
 #include "ActsGeometryProvider.h"
