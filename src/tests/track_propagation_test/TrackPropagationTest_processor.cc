@@ -84,7 +84,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
     return;
   }
 
-  auto& track_container = *track_containers[0];
+  const auto& track_container = *track_containers[0];
 
   // Iterate over tracks
   m_log->debug("Propagating through {} tracks", track_container.size());
