@@ -358,7 +358,7 @@ void InitPlugin(JApplication* app) {
 
   // Use both central and B0 tracks for vertexing
   app->Add(
-      new JOmniFactoryGeneratorT<ActsTrackMerger_factory>("CentralB0CKFActsTracks",
+      new JOmniFactoryGeneratorT<ActsTrackMerger_factory>("CentralAndB0TrackerCKFActsTracks",
                                                           {
                                                               "CentralCKFActsTracks",
                                                               "B0TrackerCKFActsTracks",
