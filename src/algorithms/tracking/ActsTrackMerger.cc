@@ -12,7 +12,7 @@
 
 namespace eicrecon {
 
-void ActsTrackMerger::process(const Input& input, const Output& output) const {
+void ActsTrackMerger::process(const Input& /* input */, const Output& /* output */) const {
   // This algorithm is intentionally not wired through the standard Algorithm::process
   // mechanism. The factory calls merge() directly with concrete input/output types.
   // If process() is ever invoked, treat it as a misuse and fail fast.
