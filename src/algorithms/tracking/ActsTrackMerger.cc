@@ -11,7 +11,7 @@
 
 namespace eicrecon {
 
-void ActsTrackMerger::process(const Input& input, const Output& output) const {
+void ActsTrackMerger::process(const Input& /* input */, const Output& /* output */) const {
   // Note: Output type is const std::tuple<const std::vector<gsl::not_null<T**>>>& which cannot be modified.
   // The factory calls merge() directly instead of using this method.
   // This stub exists only to satisfy the Algorithm interface requirement.
