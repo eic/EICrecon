@@ -71,11 +71,11 @@ void LGADHitClustering::_calcCluster(const Output& output,
   dd4hep::rec::CellID cellID;
   auto max_charge    = std::numeric_limits<float>::min();
   auto earliest_time = std::numeric_limits<float>::max();
-  float time_err;
-  float max_charge_x;
-  float max_charge_y;
-  float max_charge_sigma2_x;
-  float max_charge_sigma2_y;
+  float time_err{0};
+  float max_charge_x{0};
+  float max_charge_y{0};
+  float max_charge_sigma2_x{0};
+  float max_charge_sigma2_y{0};
 
   ROOT::VecOps::RVec<double> weights;
 
