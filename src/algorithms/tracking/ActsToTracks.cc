@@ -11,7 +11,6 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Utilities/detail/ContainerIterator.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>

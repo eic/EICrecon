@@ -10,7 +10,6 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
-#include <Acts/Utilities/detail/ContainerIterator.hpp>
 #include <algorithms/service.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>

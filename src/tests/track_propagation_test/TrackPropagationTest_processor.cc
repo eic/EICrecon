@@ -5,7 +5,6 @@
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <Acts/Utilities/detail/ContainerIterator.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>

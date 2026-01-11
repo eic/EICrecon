@@ -14,7 +14,6 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
-#include <Acts/Utilities/detail/ContainerIterator.hpp>
 #include <Acts/Vertexing/FullBilloirVertexFitter.hpp>
 #include <Acts/Vertexing/HelicalTrackLinearizer.hpp>
 #include <Acts/Vertexing/IVertexFinder.hpp>

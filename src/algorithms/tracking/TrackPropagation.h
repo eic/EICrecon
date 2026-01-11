@@ -11,7 +11,6 @@
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
-#include <Acts/Utilities/detail/ContainerIterator.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <DD4hep/Detector.h>
 #include <edm4eic/TrackCollection.h>
