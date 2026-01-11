@@ -161,15 +161,15 @@ void TrackPropagation::propagateToSurfaceList(
   for (const auto& track : constTracks) {
 
     // check if this track can be propagated to any filter surface
-    bool trajectory_reaches_filter_surface{false};
+    bool track_reaches_filter_surface{false};
     for (const auto& filter_surface : m_filter_surfaces) {
       auto point = propagate(edm4eic::Track{}, track, constTracks, filter_surface);
       if (point) {
-        trajectory_reaches_filter_surface = true;
+        track_reaches_filter_surface = true;
         break;
       }
     }
-    if (!trajectory_reaches_filter_surface) {
+    if (!track_reaches_filter_surface) {
       ++i;
       continue;
     }
@@ -199,7 +199,7 @@ void TrackPropagation::propagateToSurfaceList(
       }
 
       // logging
-      m_log->trace("<> trajectory: x=( {:>10.2f} {:>10.2f} {:>10.2f} )", point->position.x,
+      m_log->trace("<> track: x=( {:>10.2f} {:>10.2f} {:>10.2f} )", point->position.x,
                    point->position.y, point->position.z);
       m_log->trace("               p=( {:>10.2f} {:>10.2f} {:>10.2f} )", point->momentum.x,
                    point->momentum.y, point->momentum.z);
@@ -232,7 +232,7 @@ void TrackPropagation::propagateToSurfaceList(
     track_segment.setLength(length);
     track_segment.setLengthError(length_error);
 
-  } // end loop over input trajectories
+  } // end loop over input tracks
 }
 
 std::unique_ptr<edm4eic::TrackPoint>

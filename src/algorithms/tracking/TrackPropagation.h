@@ -31,7 +31,7 @@ namespace eicrecon {
 
 using ActsTrackPropagationResult = Acts::Result<std::unique_ptr<const Acts::BoundTrackParameters>>;
 
-/** Extract the particles form fit trajectories.
+/** Extract the particles from fit tracks.
      *
      * \ingroup tracking
      */
@@ -81,8 +81,8 @@ public:
             const ActsExamples::ConstTrackContainer&,
             const std::shared_ptr<const Acts::Surface>& targetSurf) const;
 
-  /** Propagates a collection of trajectories to a list of surfaces, and returns the full `TrackSegment`;
-         * @param trajectories the input collection of trajectories
+  /** Propagates a collection of tracks to a list of surfaces, and returns the full `TrackSegment`;
+         * @param tracks the input collection of tracks
          * @return the resulting collection of propagated tracks
          */
   void propagateToSurfaceList(
