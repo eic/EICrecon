@@ -15,6 +15,13 @@
 
 namespace eicrecon {
 
+/// Factory that merges Acts track containers from multiple sources into a single output.
+///
+/// Typical use is to combine tracks reconstructed in different subsystems
+/// (e.g. central tracker and B0 tracker) into one unified collection for
+/// downstream reconstruction or analysis. The current implementation simply
+/// concatenates the input ConstTrackContainer collections in the order they
+/// are provided.
 class ActsTrackMerger_factory : public JOmniFactory<ActsTrackMerger_factory, NoConfig> {
 public:
   using AlgoT = eicrecon::ActsTrackMerger;
