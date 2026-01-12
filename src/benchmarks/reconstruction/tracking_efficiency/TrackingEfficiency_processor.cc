@@ -83,18 +83,29 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
   // EXAMPLE II
   // This gets access to more direct ACTS results from CKFTracking
-  auto acts_results = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
-  m_log->debug("ACTS Tracks( size: {} )", acts_results.size());
+  auto acts_track_states =
+      event->Get<Acts::ConstVectorMultiTrajectory>("CentralCKFActsTrackStates");
+  auto acts_tracks = event->Get<Acts::ConstVectorTrackContainer>("CentralCKFActsTracks");
+  m_log->debug("ACTS Tracks( track states size: {}, tracks size: {} )", acts_track_states.size(),
+               acts_tracks.size());
   m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8} {:>8}",
                "[loc 0]", "[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]",
                "[err q/p]", "[chi2]", "[ndf]");
 
   // Loop over the tracks
-  if (!acts_results.empty()) {
-    const auto* track_container = acts_results.front();
-    assert(track_container != nullptr && "ConstTrackContainer pointer should not be null");
+  if (!acts_track_states.empty() && !acts_tracks.empty()) {
+    assert(acts_track_states.front() != nullptr &&
+           "ConstVectorMultiTrajectory pointer should not be null");
+    assert(acts_tracks.front() != nullptr &&
+           "ConstVectorTrackContainer pointer should not be null");
 
-    for (const auto& track : *track_container) {
+    // Construct ConstTrackContainer from underlying containers
+    auto trackStateContainer =
+        std::make_shared<Acts::ConstVectorMultiTrajectory>(*acts_track_states.front());
+    auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*acts_tracks.front());
+    ActsExamples::ConstTrackContainer track_container(trackContainer, trackStateContainer);
+
+    for (const auto& track : track_container) {
       // Get the track parameters
       const auto& parameter  = track.parameters();
       const auto& covariance = track.covariance();
