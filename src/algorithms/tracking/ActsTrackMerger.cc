@@ -3,12 +3,18 @@
 
 #include "ActsTrackMerger.h"
 
+#include <Acts/EventData/MeasurementHelpers.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <Eigen/LU> // IWYU pragma: keep
+#include <any>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 namespace eicrecon {

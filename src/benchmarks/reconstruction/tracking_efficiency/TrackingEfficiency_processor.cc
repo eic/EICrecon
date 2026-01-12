@@ -1,6 +1,8 @@
 #include "TrackingEfficiency_processor.h"
 
 #include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
@@ -12,17 +14,13 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <Eigen/Core>
-#include <any>
 #include <cassert>
 #include <cmath>
 #include <cstddef>
-#include <iterator>
 #include <map>
-#include <optional>
 #include <string>
 #include <vector>
 
