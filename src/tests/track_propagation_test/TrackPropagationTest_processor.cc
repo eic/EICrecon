@@ -58,7 +58,9 @@ void TrackPropagationTest_processor::Init() {
   auto dd4hep_service = GetApplication()->GetService<DD4hep_service>();
   auto acts_service   = GetApplication()->GetService<ACTSGeo_service>();
 
-  m_propagation_algo.init(dd4hep_service->detector(), acts_service->actsGeoProvider(), logger());
+  m_propagation_algo.setDetector(dd4hep_service->detector());
+  m_propagation_algo.setGeometryService(acts_service->actsGeoProvider());
+  m_propagation_algo.init();
 
   // Create HCal surface that will be used for propagation
   auto transform = Acts::Transform3::Identity();
