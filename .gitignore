@@ -5,6 +5,7 @@ include/*
 plugins/*
 build/*
 install/*
+share/*
 
 # Artifacts
 calibrations/*
