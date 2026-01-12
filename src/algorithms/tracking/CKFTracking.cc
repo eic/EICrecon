@@ -83,17 +83,14 @@ namespace eicrecon {
 
 using namespace Acts::UnitLiterals;
 
-CKFTracking::CKFTracking() = default;
+void CKFTracking::init() {
+  m_acts_logger = Acts::getDefaultLogger(
+      "CKF", eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(this->level())));
 
-void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                       std::shared_ptr<spdlog::logger> log) {
-  m_log         = log;
-  m_acts_logger = eicrecon::getSpdlogLogger("CKF", m_log);
-
-  m_geoSvc = geo_svc;
-
-  m_BField   = m_geoSvc->getFieldProvider();
-  m_fieldctx = Acts::MagneticFieldContext{};
+  auto m_BField   = m_geoSvc->getFieldProvider();
+  auto m_fieldctx = Acts::MagneticFieldContext{};
+  auto m_geoctx   = Acts::GeometryContext{};
+  auto m_calibctx = Acts::CalibrationContext{};
 
   // eta bins, chi2 and #sourclinks per surface cutoffs
   m_sourcelinkSelectorCfg = {
@@ -104,23 +101,22 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
                                   m_cfg.numMeasurementsCutOff.end()}}},
   };
   m_trackFinderFunc =
-      CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
+      CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, acts_logger());
 }
 
-std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
-           std::vector<Acts::ConstVectorTrackContainer*>>
-CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
-                     const edm4eic::Measurement2DCollection& meas2Ds) {
+void CKFTracking::process(const Input& input, const Output& output) const {
+  const auto [init_trk_seeds, meas2Ds]      = input;
+  auto [output_track_states, output_tracks] = output;
 
-  // Create output collections
-  std::vector<Acts::ConstVectorMultiTrajectory*> trajectories_v;
-  std::vector<Acts::ConstVectorTrackContainer*> tracks_v;
+  // Get contexts and field from member variables set in init()
+  auto m_BField   = m_geoSvc->getFieldProvider();
+  auto m_fieldctx = Acts::MagneticFieldContext{};
+  auto m_geoctx   = Acts::GeometryContext{};
+  auto m_calibctx = Acts::CalibrationContext{};
 
-  // If measurements or initial track parameters are empty, return early with empty container
-  if (meas2Ds.empty() || init_trk_seeds.empty()) {
-    trajectories_v.push_back(new Acts::ConstVectorMultiTrajectory());
-    tracks_v.push_back(new Acts::ConstVectorTrackContainer());
-    return {trajectories_v, tracks_v};
+  // If measurements or initial track parameters are empty, return early
+  if (meas2Ds->empty() || init_trk_seeds->empty()) {
+    return;
   }
 
   // create sourcelink and measurement containers
@@ -134,7 +130,7 @@ CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
   std::size_t hit_index = 0;
 #endif
 
-  for (const auto& meas2D : meas2Ds) {
+  for (const auto& meas2D : *meas2Ds) {
 
     Acts::GeometryIdentifier geoId{meas2D.getSurface()};
 
@@ -229,7 +225,10 @@ CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
   //// Construct a perigee surface as the target surface
   auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("CKF", m_log, {"^No tracks found$"}));
+  // Convert algorithm log level to Acts log level for local logger
+  const auto spdlog_level = static_cast<spdlog::level::level_enum>(this->level());
+  const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
+  ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKF", acts_level));
 
   Acts::PropagatorPlainOptions pOptions(m_geoctx, m_fieldctx);
   pOptions.maxSteps = 10000;
@@ -296,8 +295,8 @@ CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
 #endif
   Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
                             Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
-                                            logger().cloneWithSuffix("Navigator")),
-                            logger().cloneWithSuffix("Propagator"));
+                                            acts_logger().cloneWithSuffix("Navigator")),
+                            acts_logger().cloneWithSuffix("Propagator"));
   ExtrapolatorOptions extrapolationOptions(m_geoctx, m_fieldctx);
 
   // Create track container
@@ -325,8 +324,7 @@ CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
     auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks_temp);
 
     if (!result.ok()) {
-      m_log->debug("Track finding failed for seed {} with error {}", iseed,
-                   result.error().message());
+      debug("Track finding failed for seed {} with error {}", iseed, result.error().message());
       continue;
     }
 
@@ -337,8 +335,7 @@ CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
       // (this check avoids errors inside smoothing and extrapolation)
       auto lastMeasurement = Acts::findLastMeasurementState(track);
       if (!lastMeasurement.ok()) {
-        m_log->debug("Track {} for seed {} has no valid measurements, skipping", track.index(),
-                     iseed);
+        debug("Track {} for seed {} has no valid measurements, skipping", track.index(), iseed);
         continue;
       }
 
@@ -348,20 +345,20 @@ CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
         continue;
       }
 
-      auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
+      auto smoothingResult = Acts::smoothTrack(m_geoctx, track, acts_logger());
       if (!smoothingResult.ok()) {
-        m_log->debug("Smoothing for seed {} and track {} failed with error {}", iseed,
-                     track.index(), smoothingResult.error().message());
+        debug("Smoothing for seed {} and track {} failed with error {}", iseed, track.index(),
+              smoothingResult.error().message());
         continue;
       }
 
       auto extrapolationResult = Acts::extrapolateTrackToReferenceSurface(
           track, *pSurface, extrapolator, extrapolationOptions,
-          Acts::TrackExtrapolationStrategy::firstOrLast, logger());
+          Acts::TrackExtrapolationStrategy::firstOrLast, acts_logger());
 
       if (!extrapolationResult.ok()) {
-        m_log->debug("Extrapolation for seed {} and track {} failed with error {}", iseed,
-                     track.index(), extrapolationResult.error().message());
+        debug("Extrapolation for seed {} and track {} failed with error {}", iseed, track.index(),
+              extrapolationResult.error().message());
         continue;
       }
 
@@ -374,10 +371,15 @@ CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
   }
 
   // Move track states and track container to const containers as naked pointers
-  trajectories_v.push_back(new Acts::ConstVectorMultiTrajectory(std::move(*trackStateContainer)));
-  tracks_v.push_back(new Acts::ConstVectorTrackContainer(std::move(*trackContainer)));
+  auto constTrackStateContainer =
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(*trackStateContainer));
 
-  return {trajectories_v, tracks_v};
+  auto constTrackContainer =
+      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*trackContainer));
+
+  // Output pointers are double-pointers, dereference once and use placement new
+  new (*output_track_states) Acts::ConstVectorMultiTrajectory(*constTrackStateContainer);
+  new (*output_tracks) Acts::ConstVectorTrackContainer(*constTrackContainer);
 }
 
 } // namespace eicrecon

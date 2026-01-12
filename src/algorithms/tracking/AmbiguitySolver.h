@@ -6,7 +6,11 @@
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <spdlog/logger.h>
+#include <ActsExamples/EventData/Track.hpp>
+#include <algorithms/algorithm.h>
+#include <edm4eic/Measurement2D.h>
 #include <memory>
+#include <string_view>
 #include <tuple>
 #include <variant>
 #include <vector>
@@ -17,25 +21,29 @@
 
 namespace eicrecon {
 
+using AmbiguitySolverAlgorithm = algorithms::Algorithm<
+    algorithms::Input<Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer>,
+    algorithms::Output<Acts::ConstVectorMultiTrajectory*, Acts::ConstVectorTrackContainer*>>;
+
 /*Reco Track Filtering Based on Greedy ambiguity resolution solver adopted from ACTS*/
-class AmbiguitySolver : public WithPodConfig<eicrecon::AmbiguitySolverConfig> {
+class AmbiguitySolver : public AmbiguitySolverAlgorithm,
+                        public WithPodConfig<eicrecon::AmbiguitySolverConfig> {
 public:
-  AmbiguitySolver();
+  AmbiguitySolver(std::string_view name)
+      : AmbiguitySolverAlgorithm{name,
+                                 {"inputActsTrackStates", "inputActsTracks"},
+                                 {"outputActsTrackStates", "outputActsTracks"},
+                                 "Greedy ambiguity resolution for tracks"} {}
 
-  void init(std::shared_ptr<spdlog::logger> log);
-
-  std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
-             std::vector<Acts::ConstVectorTrackContainer*>>
-  process(std::vector<const Acts::ConstVectorMultiTrajectory*> input_track_states,
-          std::vector<const Acts::ConstVectorTrackContainer*> input_tracks);
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
 private:
-  std::shared_ptr<spdlog::logger> m_log;
   Acts::GreedyAmbiguityResolution::Config m_acts_cfg;
   std::unique_ptr<Acts::GreedyAmbiguityResolution> m_core;
   /// Private access to the logging instance
   std::shared_ptr<const Acts::Logger> m_acts_logger{nullptr};
-  const Acts::Logger& logger() const { return *m_acts_logger; }
+  const Acts::Logger& acts_logger() const { return *m_acts_logger; }
 };
 
 } // namespace eicrecon
