@@ -10,9 +10,10 @@
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <algorithms/algorithm.h>
-#include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
 #include <memory>
+#include <string>
 #include <string_view>
 
 #include "ActsGeometryProvider.h"
