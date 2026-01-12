@@ -94,4 +94,6 @@ plugin_link_libraries(
   EDM4EIC::edm4eic
   EDM4EIC::edm4eic_utils
   podio::podioRootIO
+  $<TARGET_NAME_IF_EXISTS:${Acts_NAMESPACE_PREFIX}PluginPodio>
+  $<TARGET_NAME_IF_EXISTS:ActsPodioEdm>
   log_library)
