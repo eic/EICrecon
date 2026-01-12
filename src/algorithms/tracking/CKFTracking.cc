@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
+        // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
 #include "CKFTracking.h"
@@ -11,13 +11,20 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
+#include <Acts/EventData/Types.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
-#include <fmt/format.h>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/Utilities/CalibrationContext.hpp>
+#include <spdlog/common.h>
 #include <algorithm>
 #include <any>
 #include <array>
 #include <cstddef>
 #include <functional>
+#include <gsl/pointers>
+#include <new>
+#include <set>
 #include <stdexcept>
 #include <string>
 #include <system_error>

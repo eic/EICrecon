@@ -44,6 +44,7 @@
 #include <iterator>
 #include <map>
 #include <optional>
+#include <spdlog/common.h>
 #include <stdexcept>
 #include <string>
 #include <tuple>
