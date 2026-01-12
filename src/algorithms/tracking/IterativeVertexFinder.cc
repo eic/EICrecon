@@ -34,10 +34,11 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector4f.h>
-#include <fmt/format.h>
 #include <podio/RelationRange.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <cmath>
+#include <gsl/pointers>
 #include <string>
 #include <utility>
 #include <vector>

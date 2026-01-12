@@ -13,11 +13,14 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
-#include <edm4eic/Measurement2DCollection.h>
 #include <any>
 #include <cstddef>
+#include <gsl/pointers>
+#include <new>
+#include <spdlog/common.h>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Acts/Utilities/Logger.hpp"
 #include "AmbiguitySolverConfig.h"
