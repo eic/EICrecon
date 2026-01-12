@@ -41,12 +41,12 @@ public:
   void process(const Input&, const Output&) const final;
 
   // Helper method that returns the merged result
-  std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
+  static std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
              std::vector<Acts::ConstVectorTrackContainer*>>
   merge(const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states1,
         const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks1,
         const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states2,
-        const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks2) const;
+        const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks2) ;
 };
 
 } // namespace eicrecon
