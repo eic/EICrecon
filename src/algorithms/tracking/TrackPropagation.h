@@ -19,7 +19,10 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <cstddef>
+#include <gsl/pointers>
 #include <memory>
+#include <string>
 #include <string_view>
 #include <vector>
 

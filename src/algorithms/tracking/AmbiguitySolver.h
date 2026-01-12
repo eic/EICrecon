@@ -5,11 +5,10 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <spdlog/logger.h>
-#include <ActsExamples/EventData/Track.hpp>
 #include <algorithms/algorithm.h>
-#include <edm4eic/Measurement2D.h>
+#include <edm4eic/Measurement2DCollection.h>
 #include <memory>
+#include <string>
 #include <string_view>
 #include <tuple>
 #include <variant>
