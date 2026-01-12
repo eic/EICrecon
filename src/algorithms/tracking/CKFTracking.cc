@@ -126,7 +126,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
 #if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
   std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
   ActsExamples::IndexSourceLinkContainer src_links;
-  src_links.reserve(meas2Ds.size());
+  src_links.reserve(meas2Ds->size());
   std::size_t hit_index = 0;
 #endif
 
