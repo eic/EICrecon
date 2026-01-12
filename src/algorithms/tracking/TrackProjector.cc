@@ -44,21 +44,26 @@ void TrackProjector::init() {
 }
 
 void TrackProjector::process(const Input& input, const Output& output) const {
-  const auto [acts_tracks, tracks] = input;
-  auto [track_segments]            = output;
+  const auto [track_states, tracks_container, tracks] = input;
+  auto [track_segments]                               = output;
 
-  debug("Track projector event process. Num of input tracks: {}", acts_tracks->size());
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states);
+  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks_container);
+  ActsExamples::ConstTrackContainer acts_tracks(trackContainer, trackStateContainer);
+
+  debug("Track projector event process. Num of input tracks: {}", acts_tracks.size());
 
   // Loop over the tracks
   std::size_t i = 0;
-  for (const auto& track : *acts_tracks) {
+  for (const auto& track : acts_tracks) {
     auto tipIndex = track.tipIndex();
     debug("------ Track ------");
     debug("  Tip index {}", tipIndex);
 
     // Collect the trajectory summary info
     auto trajState =
-        Acts::MultiTrajectoryHelpers::trajectoryState(acts_tracks->trackStateContainer(), tipIndex);
+        Acts::MultiTrajectoryHelpers::trajectoryState(acts_tracks.trackStateContainer(), tipIndex);
     int m_nMeasurements = trajState.nMeasurements;
     int m_nStates       = trajState.nStates;
     int m_nCalibrated   = 0;
@@ -68,7 +73,7 @@ void TrackProjector::process(const Input& input, const Output& output) const {
     auto track_segment = track_segments->create();
 
     // corresponding track
-    if (tracks->size() == acts_tracks->size()) {
+    if (tracks->size() == acts_tracks.size()) {
       trace("track segment connected to track {}", i);
       track_segment.setTrack((*tracks)[i]);
       ++i;

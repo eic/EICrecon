@@ -44,18 +44,24 @@ public:
             std::shared_ptr<spdlog::logger> logger);
 
   void process(const std::tuple<const edm4eic::TrackCollection&,
-                                const std::vector<const ActsExamples::ConstTrackContainer*>>
+                                const std::vector<const Acts::ConstVectorMultiTrajectory*>,
+                                const std::vector<const Acts::ConstVectorTrackContainer*>>
                    input,
                const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
 
-    const auto [tracks, acts_tracks] = input;
-    auto [propagated_tracks]         = output;
+    const auto [tracks, track_states_vec, tracks_vec] = input;
+    auto [propagated_tracks]                          = output;
 
-    if (acts_tracks.empty())
+    if (track_states_vec.empty() || tracks_vec.empty())
       return;
 
-    const auto& constTracks = *acts_tracks.front();
-    std::size_t i           = 0;
+    // Construct ConstTrackContainer from underlying containers
+    auto trackStateContainer =
+        std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states_vec.front());
+    auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks_vec.front());
+    ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
+
+    std::size_t i = 0;
     for (const auto& track : constTracks) {
       auto this_propagated_track = propagated_tracks->create();
       if (tracks.size() == constTracks.size()) {
@@ -88,7 +94,8 @@ public:
          */
   void propagateToSurfaceList(
       const std::tuple<const edm4eic::TrackCollection&,
-                       const std::vector<const ActsExamples::ConstTrackContainer*>>
+                       const std::vector<const Acts::ConstVectorMultiTrajectory*>,
+                       const std::vector<const Acts::ConstVectorTrackContainer*>>
           input,
       const std::tuple<edm4eic::TrackSegmentCollection*> output) const;
 

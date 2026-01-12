@@ -29,9 +29,12 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<ActsExamples::ConstTrackContainer> m_acts_tracks1_input{this};
-  Input<ActsExamples::ConstTrackContainer> m_acts_tracks2_input{this};
-  Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output{this};
+  Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states1_input{this};
+  Input<Acts::ConstVectorTrackContainer> m_acts_tracks1_input{this};
+  Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states2_input{this};
+  Input<Acts::ConstVectorTrackContainer> m_acts_tracks2_input{this};
+  Output<Acts::ConstVectorMultiTrajectory> m_acts_track_states_output{this};
+  Output<Acts::ConstVectorTrackContainer> m_acts_tracks_output{this};
 
 public:
   void Configure() {
@@ -42,11 +45,17 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+    assert(m_acts_track_states_output().size() == 0 &&
+           "ActsTrackMerger_factory: m_acts_track_states_output not cleared from previous event");
     assert(m_acts_tracks_output().size() == 0 &&
            "ActsTrackMerger_factory: m_acts_tracks_output not cleared from previous event");
 
     // Use helper merge method
-    m_acts_tracks_output() = m_algo->merge(m_acts_tracks1_input(), m_acts_tracks2_input());
+    auto [track_states, tracks] =
+        m_algo->merge(m_acts_track_states1_input(), m_acts_tracks1_input(),
+                      m_acts_track_states2_input(), m_acts_tracks2_input());
+    m_acts_track_states_output() = track_states;
+    m_acts_tracks_output()       = tracks;
   }
 };
 
