@@ -81,7 +81,6 @@ private:
   void associate(const edm4eic::Cluster& cl,
                  const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
                  edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
-  static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
 };
 
 } // namespace eicrecon
