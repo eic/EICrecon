@@ -17,14 +17,15 @@
 namespace eicrecon {
 
 using TrackProjectorAlgorithm = algorithms::Algorithm<
-    algorithms::Input<ActsExamples::ConstTrackContainer, edm4eic::TrackCollection>,
+    algorithms::Input<Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer,
+                      edm4eic::TrackCollection>,
     algorithms::Output<edm4eic::TrackSegmentCollection>>;
 
 class TrackProjector : public TrackProjectorAlgorithm, public WithPodConfig<NoConfig> {
 public:
   TrackProjector(std::string_view name)
       : TrackProjectorAlgorithm{name,
-                                {"inputActsTracks", "inputTracks"},
+                                {"inputActsTrackStates", "inputActsTracks", "inputTracks"},
                                 {"outputTrackSegments"},
                                 "Exports track states as segments"} {}
 
