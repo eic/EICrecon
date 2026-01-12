@@ -13,6 +13,7 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Material/MaterialInteraction.hpp>
+#include <spdlog/common.h>
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
 #else
@@ -38,7 +39,6 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
-#include <any>
 #include <cmath>
 #include <cstdint>
 #include <functional>

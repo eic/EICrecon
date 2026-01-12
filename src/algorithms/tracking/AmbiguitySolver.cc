@@ -4,9 +4,9 @@
 
 #include <Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp>
 #include <Acts/EventData/SourceLink.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
+#include <spdlog/common.h>
 #if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
 #include <Acts/Utilities/Iterator.hpp>
 #endif
@@ -14,11 +14,13 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
-#include <edm4eic/Measurement2DCollection.h>
 #include <any>
 #include <cstddef>
+#include <gsl/pointers>
+#include <new>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "Acts/Utilities/Logger.hpp"
 #include "AmbiguitySolverConfig.h"
