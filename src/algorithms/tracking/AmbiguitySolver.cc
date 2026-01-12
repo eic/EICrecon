@@ -6,7 +6,6 @@
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
-#include <spdlog/common.h>
 #if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
 #include <Acts/Utilities/Iterator.hpp>
 #endif
@@ -18,6 +17,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <new>
+#include <spdlog/common.h>
 #include <string>
 #include <utility>
 #include <vector>
