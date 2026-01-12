@@ -42,11 +42,11 @@ public:
 
   // Helper method that returns the merged result
   static std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
-             std::vector<Acts::ConstVectorTrackContainer*>>
+                    std::vector<Acts::ConstVectorTrackContainer*>>
   merge(const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states1,
         const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks1,
         const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states2,
-        const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks2) ;
+        const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks2);
 };
 
 } // namespace eicrecon
