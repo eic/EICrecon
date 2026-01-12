@@ -32,7 +32,7 @@ namespace eicrecon {
 
 using ActsTrackPropagationResult = Acts::Result<std::unique_ptr<const Acts::BoundTrackParameters>>;
 
-/** Extract the particles from fit tracks.
+/** Extract the particles from fitted tracks.
      *
      * \ingroup tracking
      */
