@@ -6,6 +6,9 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <stddef.h>
+#include <Eigen/LU> // IWYU pragma: keep
+#include <any>
 #include <memory>
 #include <stdexcept>
 #include <vector>

@@ -22,6 +22,8 @@
 #include <edm4eic/TrackParametersCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <tuple>
+#include <variant>
 #include <vector>
 
 #include "CKFTrackingConfig.h"
