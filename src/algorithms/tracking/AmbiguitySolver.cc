@@ -4,7 +4,6 @@
 
 #include <Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp>
 #include <Acts/EventData/SourceLink.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)

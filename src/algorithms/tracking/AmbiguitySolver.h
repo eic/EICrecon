@@ -2,11 +2,14 @@
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #pragma once
 
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Measurement2D.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <tuple>
+#include <variant>
 #include <vector>
 
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"
