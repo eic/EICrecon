@@ -13,6 +13,7 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -29,6 +30,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <vector>
 
