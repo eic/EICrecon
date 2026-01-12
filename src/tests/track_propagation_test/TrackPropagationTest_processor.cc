@@ -78,14 +78,19 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
   m_log->trace("TrackPropagationTest_processor event");
 
   // Get track containers from tracking
-  auto track_containers = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
+  auto track_states = event->Get<Acts::ConstVectorMultiTrajectory>("CentralCKFActsTrackStates");
+  auto tracks       = event->Get<Acts::ConstVectorTrackContainer>("CentralCKFActsTracks");
 
-  if (track_containers.empty()) {
+  if (track_states.empty() || tracks.empty()) {
     m_log->debug("No track containers found");
     return;
   }
 
-  const auto& track_container = *track_containers[0];
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer =
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states.front());
+  auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks.front());
+  ActsExamples::ConstTrackContainer track_container(trackContainer, trackStateContainer);
 
   // Iterate over tracks
   m_log->debug("Propagating through {} tracks", track_container.size());
