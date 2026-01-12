@@ -25,7 +25,8 @@ public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
   std::unique_ptr<edm4eic::VertexCollection>
-  produce(const ActsExamples::ConstTrackContainer* constTracks,
+  produce(const Acts::ConstVectorMultiTrajectory* trackStates,
+          const Acts::ConstVectorTrackContainer* tracks,
           const edm4eic::ReconstructedParticleCollection* reconParticles);
 
 private:

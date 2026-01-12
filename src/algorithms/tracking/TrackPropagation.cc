@@ -137,22 +137,28 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
 
 void TrackPropagation::propagateToSurfaceList(
     const std::tuple<const edm4eic::TrackCollection&,
-                     const std::vector<const ActsExamples::ConstTrackContainer*>>
+                     const std::vector<const Acts::ConstVectorMultiTrajectory*>,
+                     const std::vector<const Acts::ConstVectorTrackContainer*>>
         input,
     const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
-  const auto [tracks, acts_tracks] = input;
-  auto [track_segments]            = output;
+  const auto [tracks, track_states_vec, tracks_vec] = input;
+  auto [track_segments]                             = output;
 
   // logging
   m_log->trace("Propagate tracks: --------------------");
   m_log->trace("number of tracks: {}", tracks.size());
-  m_log->trace("number of acts_tracks: {}", acts_tracks.size());
+  m_log->trace("number of track states: {}", track_states_vec.size());
+  m_log->trace("number of track containers: {}", tracks_vec.size());
 
-  if (acts_tracks.empty()) {
+  if (track_states_vec.empty() || tracks_vec.empty()) {
     return;
   }
 
-  const auto& constTracks = *acts_tracks.front();
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer =
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states_vec.front());
+  auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks_vec.front());
+  ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
 
   // loop over input tracks
   std::size_t i = 0;

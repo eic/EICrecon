@@ -55,10 +55,16 @@ void eicrecon::IterativeVertexFinder::init(std::shared_ptr<const ActsGeometryPro
 }
 
 std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::produce(
-    const ActsExamples::ConstTrackContainer* constTracks,
+    const Acts::ConstVectorMultiTrajectory* trackStates,
+    const Acts::ConstVectorTrackContainer* tracks,
     const edm4eic::ReconstructedParticleCollection* reconParticles) {
 
   auto outputVertices = std::make_unique<edm4eic::VertexCollection>();
+
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*trackStates);
+  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks);
+  ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
 
   using Propagator           = Acts::Propagator<Acts::EigenStepper<>>;
   using Linearizer           = Acts::HelicalTrackLinearizer;
@@ -108,9 +114,9 @@ std::unique_ptr<edm4eic::VertexCollection> eicrecon::IterativeVertexFinder::prod
 
   std::vector<Acts::InputTrack> inputTracks;
   std::vector<Acts::BoundTrackParameters> trackParameters;
-  trackParameters.reserve(constTracks->size());
+  trackParameters.reserve(constTracks.size());
 
-  for (const auto& track : *constTracks) {
+  for (const auto& track : constTracks) {
     // Create BoundTrackParameters and store it
     trackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
                                  track.covariance(), track.particleHypothesis());

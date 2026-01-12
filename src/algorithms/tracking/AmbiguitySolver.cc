@@ -55,30 +55,38 @@ void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
   m_core        = std::make_unique<Acts::GreedyAmbiguityResolution>(m_acts_cfg, logger().clone());
 }
 
-std::vector<ActsExamples::ConstTrackContainer*>
-AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,
+std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
+           std::vector<Acts::ConstVectorTrackContainer*>>
+AmbiguitySolver::process(std::vector<const Acts::ConstVectorMultiTrajectory*> input_track_states,
+                         std::vector<const Acts::ConstVectorTrackContainer*> input_tracks,
                          const edm4eic::Measurement2DCollection& /* meas2Ds */) {
 
-  // Create track container
-  std::vector<ActsExamples::ConstTrackContainer*> output_tracks;
+  // Create output vectors
+  std::vector<Acts::ConstVectorMultiTrajectory*> output_track_states;
+  std::vector<Acts::ConstVectorTrackContainer*> output_tracks;
 
-  if (input_container.empty()) {
-    return output_tracks;
+  if (input_track_states.empty() || input_tracks.empty()) {
+    return {output_track_states, output_tracks};
   }
 
-  auto& input_trks = input_container.front();
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer =
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states.front());
+  auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks.front());
+  ActsExamples::ConstTrackContainer input_trks(trackContainer, trackStateContainer);
+
   Acts::GreedyAmbiguityResolution::State state;
-  m_core->computeInitialState(*input_trks, state, &sourceLinkHash, &sourceLinkEquality);
+  m_core->computeInitialState(input_trks, state, &sourceLinkHash, &sourceLinkEquality);
   m_core->resolve(state);
 
   ActsExamples::TrackContainer solvedTracks{std::make_shared<Acts::VectorTrackContainer>(),
                                             std::make_shared<Acts::VectorMultiTrajectory>()};
-  solvedTracks.ensureDynamicColumns(*input_trks);
+  solvedTracks.ensureDynamicColumns(input_trks);
 
   for (auto iTrack : state.selectedTracks) {
 
     auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
-    auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
+    auto srcProxy  = input_trks.getTrack(state.trackTips.at(iTrack));
 #if Acts_VERSION_MAJOR >= 44
     destProxy.copyFromWithoutStates(srcProxy);
 #else
@@ -87,11 +95,11 @@ AmbiguitySolver::process(std::vector<const ActsExamples::ConstTrackContainer*> i
     destProxy.tipIndex() = srcProxy.tipIndex();
   }
 
-  output_tracks.push_back(new ActsExamples::ConstTrackContainer(
-      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
-      input_trks->trackStateContainerHolder()));
+  // Move track states and track container to const containers and return as separate vectors
+  output_track_states.push_back(new Acts::ConstVectorMultiTrajectory(*input_track_states.front()));
+  output_tracks.push_back(new Acts::ConstVectorTrackContainer(std::move(solvedTracks.container())));
 
-  return output_tracks;
+  return {output_track_states, output_tracks};
 }
 
 } // namespace eicrecon

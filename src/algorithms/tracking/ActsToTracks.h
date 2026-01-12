@@ -20,7 +20,8 @@
 namespace eicrecon {
 
 using ActsToTracksAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::Measurement2DCollection, ActsExamples::ConstTrackContainer,
+    algorithms::Input<edm4eic::Measurement2DCollection, Acts::ConstVectorMultiTrajectory,
+                      Acts::ConstVectorTrackContainer,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
@@ -32,6 +33,7 @@ public:
       : ActsToTracksAlgorithm{name,
                               {
                                   "inputMeasurements",
+                                  "inputActsTrackStates",
                                   "inputActsTracks",
                                   "inputRawTrackerHitAssociations",
                               },
