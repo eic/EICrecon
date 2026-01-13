@@ -65,8 +65,7 @@ template <typename... L> struct multilambda : L... {
 };
 
 void TrackPropagation::init() {
-  const auto *detector       = m_detector;
-
+  const auto* detector = m_detector;
 
   std::map<uint32_t, std::size_t> system_id_layers;
 
