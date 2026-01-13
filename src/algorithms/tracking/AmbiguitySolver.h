@@ -10,9 +10,6 @@
 #include <memory>
 #include <string>
 #include <string_view>
-#include <tuple>
-#include <variant>
-#include <vector>
 
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"
 #include "AmbiguitySolverConfig.h"
