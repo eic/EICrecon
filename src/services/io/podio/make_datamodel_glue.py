@@ -53,7 +53,7 @@ for arg in sys.argv:
 # We don't exit with error if not set, just skip Acts collections
 if not ACTS_INCLUDE_DIR:
     print("WARNING: ACTS_INCLUDE_DIR not specified. ActsPodioEdm collections will not be included.")
-    print("         This is expected if Acts < 36 or Acts PODIO plugin is not available.")
+    print("         This is expected if Acts < 36 or if Acts PODIO plugin is not available.")
 
 # Check if EDM4HEP_ROOT is set
 if not EDM4HEP_INCLUDE_DIR:
