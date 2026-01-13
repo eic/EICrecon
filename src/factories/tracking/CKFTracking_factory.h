@@ -37,6 +37,9 @@ private:
   ParameterRef<std::vector<std::size_t>> m_numMeasurementsCutOff{
       this, "NumMeasurementsCutOff", config().numMeasurementsCutOff,
       "Number of measurements Cut Off for ACTS CKF tracking"};
+  ParameterRef<std::size_t> m_numMeasurementsMin{
+      this, "NumMeasurementsMin", config().numMeasurementsMin,
+      "Minimum number of measurements for ACTS CKF tracking"};
 
   Service<ACTSGeo_service> m_ACTSGeoSvc{this};
 

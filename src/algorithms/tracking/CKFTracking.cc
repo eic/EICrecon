@@ -11,7 +11,6 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <fmt/format.h>
 #include <algorithm>
@@ -19,7 +18,6 @@
 #include <array>
 #include <cstddef>
 #include <functional>
-#include <set>
 #include <stdexcept>
 #include <string>
 #include <system_error>
@@ -187,12 +185,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
             throw std::runtime_error("Dimension not supported in measurement creation");
           }
         });
-#elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR >= 1
+#else
     auto measurement = ActsExamples::makeVariableSizeMeasurement(
-        Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-    measurements->emplace_back(std::move(measurement));
-#elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR == 0
-    auto measurement = ActsExamples::makeFixedSizeMeasurement(
         Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
     measurements->emplace_back(std::move(measurement));
 #endif
@@ -310,14 +304,24 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
   ActsExamples::TrackContainer acts_tracks(trackContainer, trackStateContainer);
 
+  // Create temporary track container
+  auto trackContainerTemp      = std::make_shared<Acts::VectorTrackContainer>();
+  auto trackStateContainerTemp = std::make_shared<Acts::VectorMultiTrajectory>();
+  ActsExamples::TrackContainer acts_tracks_temp(trackContainerTemp, trackStateContainerTemp);
+
   // Add seed number column
   acts_tracks.addColumn<unsigned int>("seed");
+  acts_tracks_temp.addColumn<unsigned int>("seed");
   Acts::ProxyAccessor<unsigned int> seedNumber("seed");
-  std::set<Acts::TrackIndexType> passed_tracks;
 
   // Loop over seeds
   for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
-    auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks);
+
+    // Clear trackContainerTemp and trackStateContainerTemp
+    acts_tracks_temp.clear();
+
+    // Run track finding for this seed
+    auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks_temp);
 
     if (!result.ok()) {
       m_log->debug("Track finding failed for seed {} with error {}", iseed,
@@ -334,6 +338,12 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
       if (!lastMeasurement.ok()) {
         m_log->debug("Track {} for seed {} has no valid measurements, skipping", track.index(),
                      iseed);
+        continue;
+      }
+
+      if (track.nMeasurements() < m_cfg.numMeasurementsMin) {
+        m_log->trace("Track {} for seed {} has fewer measurements than minimum of {}, skipping",
+                     track.index(), iseed, m_cfg.numMeasurementsMin);
         continue;
       }
 
@@ -354,24 +364,11 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
         continue;
       }
 
-      passed_tracks.insert(track.index());
       seedNumber(track) = iseed;
-    }
-  }
 
-  for (std::size_t track_index = acts_tracks.size(); (track_index--) != 0U;) {
-    if (!passed_tracks.contains(track_index)) {
-      // NOTE This does not remove track states corresponding to the
-      // removed tracks. Doing so would require implementing some garbage
-      // collection. We'll just assume no algorithm will access them
-      // directly.
-      acts_tracks.removeTrack(track_index);
-#if Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR < 1
-      // Workaround an upstream bug in Acts::VectorTrackContainer::removeTrack_impl()
-      // https://github.com/acts-project/acts/commit/94cf81f3f1109210b963977e0904516b949b1154
-      trackContainer->m_particleHypothesis.erase(trackContainer->m_particleHypothesis.begin() +
-                                                 track_index);
-#endif
+      // Copy accepted track into main track container
+      auto acts_tracks_proxy = acts_tracks.makeTrack();
+      acts_tracks_proxy.copyFrom(track);
     }
   }
 
