@@ -18,7 +18,7 @@
 #include "extensions/jana/JOmniFactory.h"
 
 // Factories;
-#include "EICrecon/factories/pid/RichTrack_factory.h"
+#include "factories/pid/RichTrack_factory.h"
 #include "global/pid/IrtInterface_factory.h"
 
 // DD4HEP geometry services;
@@ -36,7 +36,7 @@ using json = nlohmann::json;
 // PFRICH: ePIC backward proximity focusing RICH
 //  DRICH: ePIC forward dual radiator RICH
 //
-static const char *RICHes[] = {"PFRICH", "DRICH", "BRICH", "FRICH"};
+static const char *RICHes[] = {"PFRICH", "DRICH"};
 
 #include "IRT/CherenkovDetectorCollection.h"
 
@@ -45,8 +45,6 @@ using namespace eicrecon;
 extern "C" {
   void InitPlugin(JApplication *app) {
     InitJANAPlugin(app);
-
-    //printf("@@@ RICH-IRT InitPlugin()\n");
 
     auto dd4hep_service = app->GetService<DD4hep_service>();
     auto det = dd4hep_service->detector();
@@ -91,7 +89,8 @@ extern "C" {
 	  /*const*/ json *jptr = &config.m_json_config;
 	  
 	  // An entry describing optics file should be present;
-	  if (jptr->find("Optics") == jptr->end()) continue;
+	  //if (jptr->find("Optics") == jptr->end()) continue;
+	  //if (jptr->find("Calibration") == jptr->end()) continue;
 	  
 	  // An entry describing a nominal acceptance should be present;
 	  if (jptr->find("Acceptance") == jptr->end()) continue;
@@ -114,10 +113,14 @@ extern "C" {
 	  
 	  // Import Cherenkov detector optics configuration file;
 	  {
-	    auto foptics = new TFile((*jptr)["Optics"].template get<std::string>().c_str());
-	    if (!foptics) continue;
+	    //#if 1
+	    config.m_irt_geometry = CherenkovDetectorCollection::Instance();
+	    //#else
+	    //auto foptics = new TFile((*jptr)["Optics"].template get<std::string>().c_str());
+	    //if (!foptics) continue;
 	    
-	    config.m_irt_geometry = dynamic_cast<CherenkovDetectorCollection*>(foptics->Get("CherenkovDetectorCollection"));
+	    //config.m_irt_geometry = dynamic_cast<CherenkovDetectorCollection*>(foptics->Get("CherenkovDetectorCollection"));
+	    //#endif
 	    if (!config.m_irt_geometry) continue;
 	    
 	    auto cdet = config.m_irt_geometry->GetDetector(RICH);
@@ -149,11 +152,10 @@ extern "C" {
 
 	      unsigned numPlanes = rrconfig["acts-planes"].template get<int>();
 	      if (!numPlanes) continue;
-	      
-	      double theta_min = 2*std::atan(exp(-fabs(config.m_eta_min)));
-	      double theta_max = 2*std::atan(exp(-fabs(config.m_eta_max)));
-	      if (theta_max < theta_min) std::swap(theta_min, theta_max);
 
+	      double theta_min = 2*std::atan(exp(-config.m_eta_min));
+	      double theta_max = 2*std::atan(exp(-config.m_eta_max));
+	      
 	      // Estimate a required Z-range;
 	      double zmin = 0.0, zmax = 0.0;
 	      for(unsigned iq=0; iq<2; iq++) {
@@ -167,9 +169,10 @@ extern "C" {
 		// FIXME: may want to check return codes?;
 		bool bf = sf->GetCrossing(x0, n0, &from, false);
 		bool br = sr->GetCrossing(x0, n0, &to,   false);
-		double zf = fabs(from.Z()), zr = fabs(to.Z());
-		if (!iq || zf < zmin) zmin = zf;
-		if (!iq || zr > zmax) zmax = zr;
+		
+		double zf = from.Z(), zr = to.Z();
+		if (!iq || fabs(zf) < fabs(zmin)) zmin = zf;
+		if (!iq || fabs(zr) > fabs(zmax)) zmax = zr;
 	      } //for iq
 		
 	      // "+1": avoid a "coordinate at the boundary condition"; essentially make 'numPlanes'
@@ -178,8 +181,9 @@ extern "C" {
 
 	      for(int i=0; i<numPlanes; i++) {
 		auto zCoord = zmid + step*(i - (numPlanes-1)/2.);
-		double rmin = fabs(zCoord)*tan(theta_min), rmax = fabs(zCoord)*tan(theta_max);
-
+		double rmin = fabs(zCoord*tan(theta_min)), rmax = fabs(zCoord*tan(theta_max));
+		if (rmax < rmin) std::swap(rmin, rmax);
+		
 		// Yes, prefer to order in ascending fabs(z) order in both endcaps; FIXME: implicitly assume
 		// all these coordinates are >0 in the hadron-going endcap and <0 in the electron-going one;
 		disks[fabs(zCoord)] = std::make_pair(rmin, rmax);

@@ -1,12 +1,14 @@
 //
-//   root -l './frich-hit-map.C("frich-events.root", "frich-optics.root")'
+//   export ROOT_LIBRARY_PATH=/DATA00/ayk/ePIC/prefix/lib:${ROOT_LIBRARY_PATH}
+//
+//   root -l './pfrich-hit-map.C("pfrich-events.root", "pfrich-optics.root")'
 //
 //    or
 //
-//   root -l './frich-hit-map.C("frich-events.root")'
+//   root -l './pfrich-hit-map.C("pfrich-events.root")'
 //
 
-void frich_hit_map(const char *dfname, const char *cfname = 0)
+void pfrich_hit_map(const char *dfname, const char *cfname = 0)
 {
   auto fcfg  = new TFile(cfname ? cfname : dfname);
   auto geometry = dynamic_cast<CherenkovDetectorCollection*>(fcfg->Get("CherenkovDetectorCollection"));
@@ -18,14 +20,14 @@ void frich_hit_map(const char *dfname, const char *cfname = 0)
   int nEvents = t->GetEntries();
   printf("%d event(s) total\n", nEvents);
 
-  //+auto hxy = new TH2D("hxy", "", 1200, -1200., 1200., 1200, -1200.0, 1200.);
-  auto hxy = new TH2D("hxy", "", 500, -500., 500., 500, -500.0, 500.);
-
+  auto hxy = new TH2D("hxy", "", 650, -650., 650., 650, -650.0, 650.);
+  //auto hxy = new TH2D("hxy", "", 325, -650., 650., 325, -650.0, 650.);
+  //auto hxy = new TH2D("hxy", "", 1300, -650., 650., 1300, -650.0, 650.);
   for(unsigned ev=0; ev<nEvents; ev++) {
     t->GetEntry(ev);
 
+    // printf("Here! %ld\n", event->ChargedParticles().size());
     for(auto particle: event->ChargedParticles()) {
-
       for(auto rhistory: particle->GetRadiatorHistory()) {
 	auto history  = particle->GetHistory (rhistory);
 
@@ -38,7 +40,7 @@ void frich_hit_map(const char *dfname, const char *cfname = 0)
       } //for rhistory
     } //for particle
   } //for ev
-
+  
   gStyle->SetOptStat(0);
   auto cv = new TCanvas("cv", "", 1000, 1000);
   hxy->GetXaxis()->SetTitle("Sensor plane X, [mm]");
@@ -46,4 +48,4 @@ void frich_hit_map(const char *dfname, const char *cfname = 0)
   hxy->GetXaxis()->SetTitleOffset(1.20);
   hxy->GetYaxis()->SetTitleOffset(1.40);
   hxy->Draw("COL");
-} // frich_hit_map()
+} // pfrich_hit_map()

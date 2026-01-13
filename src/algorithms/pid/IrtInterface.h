@@ -69,7 +69,10 @@ namespace eicrecon {
 
   public:
     IrtInterface(std::string_view name)
-      : m_Event(0), m_EventPtr(0), m_Instance(0), m_ReconstructionFactory(0), IrtInterfaceAlgorithm {
+      : m_Event(0), m_EventPtr(0), m_Instance(0), m_ReconstructionFactory(0),
+	m_EventTreeOutputEnabled(true), m_CombinedPlotVisualizationEnabled(false),
+	m_wtopx(0), m_wtopy(0), m_wx(0), m_wy(0),
+	IrtInterfaceAlgorithm {
 	  name,
 	  {
 	    "inputMCParticles",
@@ -107,5 +110,8 @@ namespace eicrecon {
     IrtConfig m_config;
 
     ReconstructionFactory *m_ReconstructionFactory;
+    bool m_EventTreeOutputEnabled, m_CombinedPlotVisualizationEnabled;
+    int m_wtopx;
+    unsigned m_wtopy, m_wx, m_wy;
   };
 }

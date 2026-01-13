@@ -1,15 +1,18 @@
 
-
 #include "IRT/CherenkovDetector.h"
 #include "IRT/ReconstructionFactory.h"
 
 #include "IrtInterface.h"
+
+using json = nlohmann::json;
 
 // -------------------------------------------------------------------------------------
 
 namespace eicrecon {
   void IrtInterface::JsonParser( void )
   {
+    //printf("@R@ IrtInterface::JsonParser()\n");
+    
     // For less typing;
     auto reco = m_ReconstructionFactory;
     /*const*/ nlohmann::json *jptr = &m_config.m_json_config;
@@ -50,9 +53,16 @@ namespace eicrecon {
     if (jptr->find("SinglePhotonTimingResolution") != jptr->end())
       reco->SetSinglePhotonTimingResolution((*jptr)["SinglePhotonTimingResolution"].template get<double>());
 
-    // PID hypotheses to consider;
-    reco->AddHypothesis("pi+");
-    reco->AddHypothesis(321);
+    // PID hypotheses to consider; FIXME: make configurable;
+    //reco->AddHypothesis("pi+");
+    //reco->AddHypothesis(321);"pi+"
+    //"IdentifiedParticles": ["pi+", "K+"], 
+    if (jptr->find("IdentifiedParticles") != jptr->end()) {
+      const auto &pconfig = (*jptr)["IdentifiedParticles"];
+      
+      for(auto &pdg: pconfig)
+	reco->AddHypothesis(pdg.template get<std::string>().c_str());
+    } //if
     
     // Comment out if want to cheat a bit (feed IRT with true photon direction vectors);
     //+reco->IgnoreMcTruthPhotonDirectionSeed();
@@ -65,8 +75,59 @@ namespace eicrecon {
     //+reco->SetHitCountCutoff(5);
     if (jptr->find("MinHitCountCutoff") != jptr->end())
       reco->SetHitCountCutoff((*jptr)["MinHitCountCutoff"].template get<int>());
+    
+    // FIXME: this field should be mandatory (add a try-catch or such);
+    if (jptr->find("Calibration") != jptr->end()) {
+      std::ifstream fcalib((*jptr)["Calibration"].template get<std::string>().c_str());
+      if (fcalib.is_open()) {
+	auto jcalib = json::parse(fcalib);
+	
+	if (jcalib.find("Radiators") != jcalib.end()) {
+	  const auto &rconfig = jcalib["Radiators"];
+	  
+	  for(auto [name,radiator] : reco->GetMyRICH()->Radiators()) {
+	    // There should be an entry in JSON file; skip otherwise;
+	    if (rconfig.find(name.Data()) == rconfig.end()) continue;
+	    const auto &rrconfig = rconfig[name.Data()];
 
-#if 1
+	    // Prefer to initialize in a separate loop; clear() is not really needed (?);
+	    radiator->m_Calibrations.clear();
+	    for(unsigned iq=0; iq<_THETA_BIN_COUNT_; iq++)
+	      radiator->m_Calibrations.push_back(CherenkovRadiatorCalibration());
+      
+	    if (rrconfig.find("theta-bins") != rrconfig.end()) {
+	      const auto &tconfig = rrconfig["theta-bins"];
+	      for(unsigned iq=0; iq<_THETA_BIN_COUNT_; iq++) {
+		TString bin; bin.Form("%02d", iq);
+		
+		if (tconfig.find(bin.Data()) != tconfig.end()) {
+		  const auto &tarray = tconfig[bin.Data()];
+
+		  auto *calib = &radiator->m_Calibrations[iq];
+
+		  int rnum = (int)tarray.size() - 4;
+		  //for(auto ip=0; ip<tarray.size(); ip++)
+		  //printf("@R@ %s\n", tarray[ip].template get<std::string>().c_str());
+
+		  if (rnum == reco->GetMyRICH()->Radiators().size()) {
+		    calib->m_Stat        = atoi(tarray[0].template get<std::string>().c_str());
+		    calib->m_AverageZvtx = atof(tarray[1].template get<std::string>().c_str());
+		    // Convert back to [rad];
+		    calib->m_Coffset     = atof(tarray[2].template get<std::string>().c_str())/1000.;
+		    calib->m_Csigma      = atof(tarray[3].template get<std::string>().c_str())/1000.;
+		    for(unsigned ir=0; ir<rnum; ir++)
+		      calib->m_AverageRefractiveIndices.push_back(atof(tarray[4+ir].template get<std::string>().c_str()));
+		  } //if
+		} //if
+	      } //for iq
+	    } //if
+	  } //for radiator
+	} //if
+	  
+	fcalib.close();
+      } //if
+    } //if
+    
     if (jptr->find("Radiators") != jptr->end()) {
       const auto &rconfig = (*jptr)["Radiators"];
       
@@ -79,10 +140,27 @@ namespace eicrecon {
 	    !strcmp(rrconfig["imaging"].template get<std::string>().c_str(), "yes"))
 	  radiator->UseInRingImaging();
 	  
-	if (rrconfig.find("evaluation-plots") != rrconfig.end() &&
-	    !strcmp(rrconfig["evaluation-plots"].template get<std::string>().c_str(), "yes")) {
-	  TString tag(tolower(name.Data()[0]));
-	  radiator->InitializePlots(tag);
+	if (rrconfig.find("evaluation-plots") != rrconfig.end()) {
+	  const auto &tag = rrconfig["evaluation-plots"];
+	  
+	  if (!strcmp(tag.template get<std::string>().c_str(), "store"))
+	    radiator->InitializePlots(TString(name.Data()[0]).Data());
+	  else
+	    if (!strcmp(tag.template get<std::string>().c_str(), "display")) {
+	      radiator->InitializePlots(TString(name.Data()[0]).Data());
+	      radiator->m_OutputPlotVisualizationEnabled = true;
+	    } //if
+	  	  
+	  if (rrconfig.find("evaluation-plots-geometry") != rrconfig.end()) {
+	    const auto &gconfig = rrconfig["evaluation-plots-geometry"];
+	    
+	    if (gconfig.size() == 4) {
+	      radiator->m_wtopx = gconfig[0].template get<int>();
+	      radiator->m_wtopy = gconfig[1].template get<int>();
+	      radiator->m_wx    = gconfig[2].template get<int>();
+	      radiator->m_wy    = gconfig[3].template get<int>();
+	    } //if
+	  } //if
 
 	  {
 	    auto plots = radiator->Plots();
@@ -102,30 +180,30 @@ namespace eicrecon {
 	} //if
       } //for radiator
     }
-#else
-    auto *ra = reco->GetMyRICH()->GetRadiator("Aerogel");
-    ra->UseInRingImaging()->InitializePlots("a");
-    if (ra->Plots()) {
-      // Initialize aerogel QA plots; 
-      ra->Plots()->SetRefractiveIndexRange(1.015, 1.025);
-      ra->Plots()->SetPhotonVertexRange(2500, 2650);
-      ra->Plots()->SetCherenkovAngleRange(180, 200);
-    } //if
-    auto *rg = reco->GetMyRICH()->GetRadiator("GasVolume");
-    rg->UseInRingImaging()->InitializePlots("g");
-    if (rg->Plots()) {
-      // Initialize gas radiator QA plots; 
-      rg->Plots()->SetRefractiveIndexRange(1.00050, 1.00100);
-      rg->Plots()->SetPhotonVertexRange(2400, 4000);
-      rg->Plots()->SetCherenkovAngleRange(30, 50);
-    } //if
-#endif
     
     // Initialize combined PID QA plots;
     //+reco->InitializePlots();
-    if (jptr->find("BuildCombinedEvaluationPlots") != jptr->end() &&
-	  !strcmp((*jptr)["BuildCombinedEvaluationPlots"].template get<std::string>().c_str(), "yes"))
-      reco->InitializePlots();
+    if (jptr->find("CombinedEvaluationPlots") != jptr->end()) {
+      const auto &tag = (*jptr)["CombinedEvaluationPlots"];
+
+      if (!strcmp(tag.template get<std::string>().c_str(), "store"))
+	reco->InitializePlots();
+      else
+	if (!strcmp(tag.template get<std::string>().c_str(), "display")) {
+	  reco->InitializePlots();
+	  m_CombinedPlotVisualizationEnabled = true;
+	} //if
+    } //if
+    if (jptr->find("CombinedEvaluationPlotsGeometry") != jptr->end()) {
+      const auto &gconfig = (*jptr)["CombinedEvaluationPlotsGeometry"];
+
+      if (gconfig.size() == 4) {
+	m_wtopx = gconfig[0].template get<int>();
+	m_wtopy = gconfig[1].template get<int>();
+	m_wx    = gconfig[2].template get<int>();
+	m_wy    = gconfig[3].template get<int>();
+      } //if
+    } //if
   } // IrtInterface::JsonParser()
 } // namespace eicrecon
 

@@ -1,14 +1,14 @@
 //
-//   root -l './frich-reco.C("frich-events.root", "frich-optics.root")'
+//   root -l './pfrich-reco.C("pfrich-events.root", "pfrich-optics.root")'
 //
 //      or
 //
-//   root -l './frich-reco.C("frich-events.root")'
+//   root -l './pfrich-reco.C("pfrich-events.root")'
 //
 
-void frich_reco(const char *dfname, const char *cfname = 0)
+void pfrich_reco(const char *dfname, const char *cfname = 0)
 {
-  auto *reco = new ReconstructionFactory(dfname, cfname, "FRICH");
+  auto *reco = new ReconstructionFactory(dfname, cfname, "PFRICH");
 
   // Factory configuration part; may want to uncomments some of the options;
   {
@@ -23,8 +23,8 @@ void frich_reco(const char *dfname, const char *cfname = 0)
     //reco->RemoveAmbiguousHits();
     
     // Should be close enough to the real one; this only affects the calibration stage;
-    reco->SetDefaultSinglePhotonThetaResolution(0.002);
-    // Sensor active area will be pixellated NxN in digitization; '32': HRPPD-like "sensors";
+    reco->SetDefaultSinglePhotonThetaResolution(0.005);
+    // Sensor active area will be pixellated NxN in digitization; '32': HRPPD sensors;
     reco->SetSensorActiveAreaPixellation(32);
     
     //reco->SetSinglePhotonTimingResolution(0.030); // default: 0.050 (50ps);
@@ -46,17 +46,9 @@ void frich_reco(const char *dfname, const char *cfname = 0)
   ra->UseInRingImaging()->InitializePlots("a");
   if (ra->Plots()) {
     // Initialize aerogel QA plots; 
-    ra->Plots()->SetRefractiveIndexRange(1.015, 1.025);
-    ra->Plots()->SetPhotonVertexRange(2500, 2650);
-    ra->Plots()->SetCherenkovAngleRange(180, 200);
-  } //if
-  auto *rg = reco->GetMyRICH()->GetRadiator("GasVolume");
-  rg->UseInRingImaging()->InitializePlots("g");
-  if (rg->Plots()) {
-    // Initialize gas radiator QA plots; 
-    rg->Plots()->SetRefractiveIndexRange(1.00050, 1.00100);
-    rg->Plots()->SetPhotonVertexRange(2400, 4000);
-    rg->Plots()->SetCherenkovAngleRange(30, 50);
+    ra->Plots()->SetRefractiveIndexRange(1.035, 1.045);
+    ra->Plots()->SetPhotonVertexRange(-1275, -1240);
+    ra->Plots()->SetCherenkovAngleRange(270, 290);
   } //if
   // Initialize combined PID QA plots;
   reco->InitializePlots();
@@ -64,7 +56,7 @@ void frich_reco(const char *dfname, const char *cfname = 0)
   // Perform pre-calibration; second argument: statistics to use (default: all events);
   reco->PerformCalibration(200);
   // Export a modifed optics file, with the newly created calibrations included;
-  reco->ExportModifiedOpticsFile("frich-optics-with-calibrations.root");
+  //reco->ExportModifiedOpticsFile("pfrich-optics-with-calibrations.root");
 
   // Run a bare IRT reconstruction engine loop; ring finder launched in GetNextEvent();
   {
@@ -86,8 +78,7 @@ void frich_reco(const char *dfname, const char *cfname = 0)
 
   // Output 1D histograms; canvas sizes / offsets are tuned for a 1920 x 1200 pixel display;
   {
-    ra  ->DisplayStandardPlots("Aerogel radiator",            -10,  10, 1250, 540);
-    rg  ->DisplayStandardPlots("Gas radiator",                -10, 600, 1250, 540);
-    reco->DisplayStandardPlots("Track / event level plots", -1265,  10,  625,1115);
+    ra  ->DisplayStandardPlots("wa", "Aerogel radiator",     -10,  10, 1250, 540);
+    reco->DisplayStandardPlots("Track / event level plots", 1265,  10,  625, 800);
   }
-} // frich_reco()
+} // pfrich_reco()

@@ -4,9 +4,7 @@
 #include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"
 
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector3d.h>
-#include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
@@ -25,7 +23,7 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
 
   debug("Merging energy and position clusters for new event");
 
-  if (energy_clus->size() == 0 && pos_clus->size() == 0) {
+  if (energy_clus->empty() && pos_clus->empty()) {
     debug("Nothing to do for this event, returning...");
     return;
   }

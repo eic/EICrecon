@@ -4,7 +4,6 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <cmath>
 #include <string>
 #include <variant>
@@ -16,16 +15,12 @@
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/calorimetry/CalorimeterParticleIDPostML_factory.h"
 #include "factories/calorimetry/CalorimeterParticleIDPreML_factory.h"
-#endif
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
-#if EDM4EIC_VERSION_MAJOR >= 8
 #include "factories/meta/ONNXInference_factory.h"
-#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -49,12 +44,13 @@ void InitPlugin(JApplication* app) {
           .tRes        = 0.0 * dd4hep::ns,
           .threshold   = 0.0 * dd4hep::MeV, // Use ADC cut instead
           .readoutType = "sipm",
-          .lightYield  = 300. / dd4hep::MeV,
-          // See simulation study by A. Hoghmrtsyan https://indico.bnl.gov/event/20415/
-          // This includes quantum efficiency of the SiPM
-          .photonDetectionEfficiency = 17. / 300.,
-          // S14160-6015PS, 4 sensors per cell
-          .numEffectiveSipmPixels = 159565 * 4,
+          // 18. pe/MeV is measured with PMT at 25% QE
+          .lightYield = 18. / 0.25 / dd4hep::MeV,
+          // Based on slide 6 of https://indico.bnl.gov/event/29076/contributions/110749/attachments/63706/109457/Calo_meeting_Jun25_Updated.pdf
+          // Geometric factor for 16 of 3x3 mm^2 sensors covering 20x20 mm^2 area for sensor with 28% QE
+          .photonDetectionEfficiency = (16 * (3. * 3.) / (20. * 20.)) * 0.28,
+          // S14160-3015PS, 16 sensors per cell
+          .numEffectiveSipmPixels = 39984ULL * 16,
           .capADC                 = EcalEndcapN_capADC,
           .dyRangeADC             = EcalEndcapN_dyRangeADC,
           .pedMeanADC             = EcalEndcapN_pedMeanADC,
@@ -127,22 +123,13 @@ void InitPlugin(JApplication* app) {
       {.energyWeight = "log", .logWeightBase = 4.6}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
-#if EDM4EIC_VERSION_MAJOR >= 8
       "EcalEndcapNClustersWithoutPIDAndShapes",
-#else
-      "EcalEndcapNClustersWithoutShapes",
-#endif
       {
           "EcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
           "EcalEndcapNRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-#if EDM4EIC_VERSION_MAJOR >= 8
       {"EcalEndcapNClustersWithoutPIDAndShapes",             // edm4eic::Cluster
        "EcalEndcapNClusterAssociationsWithoutPIDAndShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-#else
-      {"EcalEndcapNClustersWithoutShapes",             // edm4eic::Cluster
-       "EcalEndcapNClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-#endif
       {
           .energyWeight    = "log",
           .sampFrac        = 1.0,
@@ -153,16 +140,10 @@ void InitPlugin(JApplication* app) {
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
-#if EDM4EIC_VERSION_MAJOR >= 8
       "EcalEndcapNClustersWithoutPID",
       {"EcalEndcapNClustersWithoutPIDAndShapes",
        "EcalEndcapNClusterAssociationsWithoutPIDAndShapes"},
       {"EcalEndcapNClustersWithoutPID", "EcalEndcapNClusterAssociationsWithoutPID"},
-#else
-      "EcalEndcapNClusters",
-      {"EcalEndcapNClustersWithoutShapes", "EcalEndcapNClusterAssociationsWithoutShapes"},
-      {"EcalEndcapNClusters", "EcalEndcapNClusterAssociations"},
-#endif
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
@@ -179,7 +160,6 @@ void InitPlugin(JApplication* app) {
       app // TODO: remove me once fixed
       ));
 
-#if EDM4EIC_VERSION_MAJOR >= 8
   app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPreML_factory>(
       "EcalEndcapNParticleIDPreML",
       {
@@ -217,7 +197,6 @@ void InitPlugin(JApplication* app) {
           "EcalEndcapNClusterParticleIDs",
       },
       app));
-#endif
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNSplitMergeClustersWithoutShapes",
