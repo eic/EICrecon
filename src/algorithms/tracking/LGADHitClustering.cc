@@ -21,8 +21,7 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
-#include <stddef.h>
+#include <cstddef>
 #include <Eigen/Core>
 #include <cmath>
 #include <gsl/pointers>
@@ -68,14 +67,14 @@ void LGADHitClustering::_calcCluster(const Output& output,
   float sigma2_x = 0, sigma2_y = 0;
   double tot_charge = 0;
   // find cellID for the cell with maximum ADC value within a sensor
-  dd4hep::rec::CellID cellID;
-  auto max_charge    = std::numeric_limits<float>::min();
-  auto earliest_time = std::numeric_limits<float>::max();
-  float time_err;
-  float max_charge_x;
-  float max_charge_y;
-  float max_charge_sigma2_x;
-  float max_charge_sigma2_y;
+  dd4hep::rec::CellID cellID = 0;
+  auto max_charge            = std::numeric_limits<float>::min();
+  auto earliest_time         = std::numeric_limits<float>::max();
+  float time_err{0};
+  float max_charge_x{0};
+  float max_charge_y{0};
+  float max_charge_sigma2_x{0};
+  float max_charge_sigma2_y{0};
 
   ROOT::VecOps::RVec<double> weights;
 
