@@ -5,6 +5,7 @@
 
 #include <Acts/Surfaces/Surface.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <functional>
@@ -30,7 +31,6 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Track> m_tracks_input{this};
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
   Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_track_segments_output{this};
 
@@ -51,9 +51,11 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->propagateToSurfaceList(
-        {*m_tracks_input(), m_acts_trajectories_input(), m_acts_tracks_input()},
-        {m_track_segments_output().get()});
+    assert(!m_acts_tracks_input().empty() && "ConstTrackContainer vector should not be empty");
+    assert(m_acts_tracks_input().front() != nullptr &&
+           "ConstTrackContainer pointer should not be null");
+    m_algo->propagateToSurfaceList({*m_tracks_input(), m_acts_tracks_input()},
+                                   {m_track_segments_output().get()});
   }
 };
 

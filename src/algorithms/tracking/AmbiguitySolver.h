@@ -4,12 +4,9 @@
 
 #include <Acts/Utilities/Logger.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Measurement2D.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <tuple>
-#include <variant>
 #include <vector>
 
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"
@@ -25,8 +22,7 @@ public:
 
   void init(std::shared_ptr<spdlog::logger> log);
 
-  std::tuple<std::vector<ActsExamples::ConstTrackContainer*>,
-             std::vector<ActsExamples::Trajectories*>>
+  std::vector<ActsExamples::ConstTrackContainer*>
   process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,
           const edm4eic::Measurement2DCollection& meas2Ds);
 
