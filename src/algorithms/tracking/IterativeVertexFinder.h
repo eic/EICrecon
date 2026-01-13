@@ -11,9 +11,8 @@
 #include <edm4eic/VertexCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <vector>
 
-#include "ActsExamples/EventData/Trajectories.hpp"
+#include "ActsExamples/EventData/Track.hpp"
 #include "ActsGeometryProvider.h"
 #include "IterativeVertexFinderConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -26,7 +25,7 @@ public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
   std::unique_ptr<edm4eic::VertexCollection>
-  produce(std::vector<const ActsExamples::Trajectories*> trajectories,
+  produce(const ActsExamples::ConstTrackContainer* constTracks,
           const edm4eic::ReconstructedParticleCollection* reconParticles);
 
 private:

@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <edm4eic/VertexCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <memory>
@@ -26,7 +27,7 @@ private:
   using AlgoT = eicrecon::IterativeVertexFinder;
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioInput<edm4eic::ReconstructedParticle> m_edm4eic_reconParticles_input{this};
   PodioOutput<edm4eic::Vertex> m_vertices_output{this};
 
@@ -48,8 +49,10 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_vertices_output() =
-        m_algo->produce(m_acts_trajectories_input(), m_edm4eic_reconParticles_input());
+    auto tracks_vec = m_acts_tracks_input();
+    assert(!tracks_vec.empty() && "ConstTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstTrackContainer pointer should not be null");
+    m_vertices_output() = m_algo->produce(tracks_vec.front(), m_edm4eic_reconParticles_input());
   }
 };
 

@@ -117,6 +117,7 @@ jobs:
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 25.11.2-stable
+      fail-fast: false
     steps:
     - uses: actions/checkout@v6
       with:
