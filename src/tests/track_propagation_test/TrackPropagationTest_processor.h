@@ -44,7 +44,7 @@ private:
   TDirectory* m_dir_main{};
 
   /// Tracking propagation algorithm
-  eicrecon::TrackPropagation m_propagation_algo;
+  eicrecon::TrackPropagation m_propagation_algo{"TrackPropagationTest"};
 
   /// A surface to propagate to
   std::shared_ptr<Acts::DiscSurface> m_hcal_surface;

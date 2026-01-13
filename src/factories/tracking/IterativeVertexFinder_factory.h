@@ -42,11 +42,11 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<AlgoT>();
-    // TODO: convert IterativeVertexFinder to inherit from algorithm::Algorithm
-    // m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
-    m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+    m_algo->setGeometryService(m_ACTSGeoSvc().actsGeoProvider());
+    m_algo->init();
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
@@ -58,8 +58,9 @@ public:
     assert(!tracks_vec.empty() && "ConstVectorTrackContainer vector should not be empty");
     assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
 
-    m_vertices_output() = m_algo->produce(track_states_vec.front(), tracks_vec.front(),
-                                          m_edm4eic_reconParticles_input());
+    m_algo->process(AlgoT::Input{track_states_vec.front(), tracks_vec.front(),
+                                 m_edm4eic_reconParticles_input()},
+                    AlgoT::Output{m_vertices_output().get()});
   }
 };
 
