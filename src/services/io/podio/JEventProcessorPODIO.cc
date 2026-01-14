@@ -5,7 +5,6 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
@@ -374,18 +373,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DIRCTruthSeededParticleIDs",
       "DIRCParticleIDs",
 
-      "B0ECalRawHitAssociations",
-      "EcalBarrelScFiRawHitAssociations",
-      "EcalBarrelImagingRawHitAssociations",
-      "HcalBarrelRawHitAssociations",
-      "EcalEndcapNRawHitAssociations",
-      "HcalEndcapNRawHitAssociations",
-      "EcalEndcapPRawHitAssociations",
-      "HcalEndcapPInsertRawHitAssociations",
-      "LFHCALRawHitAssociations",
-      "EcalLumiSpecRawHitAssociations",
-      "EcalFarForwardZDCRawHitAssociations",
-      "HcalFarForwardZDCRawHitAssociations",
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
       "HcalEndcapPInsertClusterMatches",
