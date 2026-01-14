@@ -561,7 +561,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
     steps:
@@ -621,7 +621,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
         test_plugins:
@@ -666,7 +666,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
         benchmark_plugins:
