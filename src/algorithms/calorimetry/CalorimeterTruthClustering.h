@@ -16,10 +16,10 @@
 
 namespace eicrecon {
 
-using CalorimeterTruthClusteringAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::CalorimeterHitCollection,
-                      edm4eic::MCRecoCalorimeterHitAssociationCollection>,
-    algorithms::Output<edm4eic::ProtoClusterCollection>>;
+using CalorimeterTruthClusteringAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::CalorimeterHitCollection,
+                                            edm4eic::MCRecoCalorimeterHitAssociationCollection>,
+                          algorithms::Output<edm4eic::ProtoClusterCollection>>;
 
 class CalorimeterTruthClustering : public CalorimeterTruthClusteringAlgorithm,
                                    public WithPodConfig<NoConfig> {

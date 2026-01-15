@@ -230,7 +230,8 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALRawHitAssociations"}, {"LFHCALTruthProtoClusters"},
+      "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALRawHitAssociations"},
+      {"LFHCALTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
 
