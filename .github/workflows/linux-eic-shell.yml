@@ -85,31 +85,31 @@ jobs:
           - CXX: g++
             CMAKE_BUILD_TYPE: Debug
             release: nightly
-          # exclude clang++ Debug with default CXXFLAGS since overridden
-          - CXX: clang++
+          # exclude g++ Debug with default CXXFLAGS since overridden
+          - CXX: g++
             CMAKE_BUILD_TYPE: Debug
             release: nightly
         include:
           - CXX: g++
             # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
             CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=maybe-uninitialized
-          - CXX: clang++
+          - CXX: g++
             CXXFLAGS: -Werror -Wall -Wextra -Wundef
-          # include clang++ Debug with profile CXXFLAGS
-          - CXX: clang++
+          # include g++ Debug with profile CXXFLAGS
+          - CXX: g++
             CMAKE_BUILD_TYPE: Debug
             CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
             release: nightly
           # include some configs explicitly (if not yet included)
-          - CXX: clang++
+          - CXX: g++
             CMAKE_BUILD_TYPE: Release
             release: nightly
-          - CXX: clang++
+          - CXX: g++
           # thread sanitizer build
-          - CXX: clang++
+          - CXX: g++
             CMAKE_BUILD_TYPE: Release
             release: 25.07.0-stable
-          - CXX: clang++
+          - CXX: g++
             CMAKE_BUILD_TYPE: Release
             release: 25.11.2-stable
       fail-fast: false
