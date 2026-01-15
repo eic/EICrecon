@@ -15,7 +15,7 @@ on:
     inputs:
       platform:
         description: 'eic-shell platform'
-        default: 'eic_xl'
+        default: 'eic_xl'fcla
         required: false
         type: string
       release:
@@ -562,7 +562,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
     steps:
@@ -622,7 +622,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
         test_plugins:
@@ -667,7 +667,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
         benchmark_plugins:
@@ -713,7 +713,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [pi, e]
         detector_config: [craterlake]
     steps:
@@ -823,7 +823,7 @@ jobs:
     - npsim-gun-EcalLumiSpec
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [ip6_extended]
     steps:
@@ -889,38 +889,38 @@ jobs:
     strategy:
       matrix:
         include:
-        - CXX: clang++
+        - CXX: g++
           beam: 5x41
           minq2: 0
           detector_config: craterlake_5x41
           sanitizer: ASAN
-        - CXX: clang++
+        - CXX: g++
           beam: 10x100
           minq2: 0
           detector_config: craterlake_10x100
           sanitizer: TSAN
-        - CXX: clang++
+        - CXX: g++
           beam: 18x275
           minq2: 0
           detector_config: craterlake_18x275
           sanitizer: ASAN
-        - CXX: clang++
+        - CXX: g++
           beam: 18x275
           minq2: 0
           detector_config: craterlake_18x275
           sanitizer: TSAN
           nthreads: 4
-        - CXX: clang++
+        - CXX: g++
           beam: 10x100
           minq2: 1000
           detector_config: craterlake_tracking_only
           sanitizer: ASAN
-        - CXX: clang++
+        - CXX: g++
           beam: 18x275
           minq2: 1000
           detector_config: craterlake_18x275
           sanitizer: ASAN
-        - CXX: clang++
+        - CXX: g++
           beam: 18x275
           minq2: 1000
           detector_config: craterlake_18x275
