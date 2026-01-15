@@ -15,7 +15,7 @@ on:
     inputs:
       platform:
         description: 'eic-shell platform'
-        default: 'eic_xl'fcla
+        default: 'eic_xl'
         required: false
         type: string
       release:
