@@ -37,17 +37,17 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
 
       // Get the sim hit and its contributions
       const auto& simHit = assoc.getSim();
-      
+
       // Process contributions to find the primary particle
       for (const auto& contrib : simHit.getContributions()) {
         const auto& trackID = contrib.getParticle().getObjectID().index;
-        
+
         // Create a new protocluster if we don't have one for this trackID
         if (!protoIndex.contains(trackID)) {
           clusters->create();
           protoIndex[trackID] = clusters->size() - 1;
         }
-        
+
         // Add hit to the appropriate protocluster
         (*clusters)[protoIndex[trackID]].addToHits(hit);
         (*clusters)[protoIndex[trackID]].addToWeights(1);

@@ -56,8 +56,8 @@ void InitPlugin(JApplication* app) {
       },
       app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "B0ECalTruthProtoClusters", {"B0ECalRecHits", "B0ECalRawHitAssociations"}, {"B0ECalTruthProtoClusters"},
-      app));
+      "B0ECalTruthProtoClusters", {"B0ECalRecHits", "B0ECalRawHitAssociations"},
+      {"B0ECalTruthProtoClusters"}, app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "B0ECalIslandProtoClusters", {"B0ECalRecHits"}, {"B0ECalIslandProtoClusters"},
       {
