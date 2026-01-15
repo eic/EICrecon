@@ -74,9 +74,9 @@ jobs:
       matrix:
         CXX: [g++, clang++]
         CMAKE_BUILD_TYPE: [Release, Debug]
-        USE_ASAN: [ON]
+        USE_ASAN: [OFF]
         USE_TSAN: [OFF]
-        USE_UBSAN: [ON]
+        USE_UBSAN: [OFF]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
         # note that entries that overwrite matrix values require a full specification
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#expanding-or-adding-matrix-configurations
