@@ -12,6 +12,8 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -28,6 +30,9 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <map>
+
+#include "ActsGeometryProvider.h"
+#include "PodioGeometryIdConversionHelper.h"
 #include <numeric>
 #include <vector>
 
@@ -55,13 +60,23 @@ namespace {
 void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
-  const auto [meas2Ds, acts_track_states, acts_tracks, raw_hit_assocs] = input;
-  auto [trajectories, track_parameters, tracks, tracks_assoc]          = output;
+  const auto [meas2Ds, acts_track_states, acts_track_parameters, acts_track_jacobians, acts_tracks,
+              raw_hit_assocs]                                 = input;
+  auto [trajectories, track_parameters, tracks, tracks_assoc] = output;
 
-  // Construct ActsExamples::ConstTrackContainer from underlying containers
-  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*acts_track_states);
-  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*acts_tracks);
-  ActsExamples::ConstTrackContainer acts_track_container(trackContainer, trackStateContainer);
+  // Create conversion helper for Podio backend
+  PodioGeometryIdConversionHelper helper;
+  helper.geoCtx           = Acts::GeometryContext{};
+  helper.trackingGeometry = m_geoSvc->trackingGeometry();
+
+  // Construct Podio track container from underlying collections
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*acts_track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*acts_track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*acts_track_jacobians});
+  ActsPlugins::ConstPodioTrackContainer<> trackContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*acts_tracks});
+  Acts::TrackContainer acts_track_container(trackContainer, trackStateContainer);
 
   // Loop over tracks
   for (const auto& track : acts_track_container) {

@@ -3,85 +3,50 @@
 
 #include "ActsTrackMerger.h"
 
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
-#include <ActsExamples/EventData/Track.hpp>
-#include <memory>
-#include <stdexcept>
-#include <vector>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
 
 namespace eicrecon {
 
-void ActsTrackMerger::process(const Input& /* input */, const Output& /* output */) const {
-  // This algorithm is intentionally not wired through the standard Algorithm::process
-  // mechanism. The factory calls merge() directly with concrete input/output types.
-  // If process() is ever invoked, treat it as a misuse and fail fast.
-  throw std::logic_error(
-      "ActsTrackMerger::process() is not implemented; the factory must call merge() directly.");
-}
+void ActsTrackMerger::process(const Input& input, const Output& output) const {
+  const auto [track_states1, track_params1, track_jac1, tracks1, track_states2, track_params2,
+              track_jac2, tracks2]                                     = input;
+  auto [out_track_states, out_track_params, out_track_jac, out_tracks] = output;
 
-std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
-           std::vector<Acts::ConstVectorTrackContainer*>>
-ActsTrackMerger::merge(
-    const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states1,
-    const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks1,
-    const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states2,
-    const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks2) const {
-
-  std::vector<Acts::ConstVectorMultiTrajectory*> result_track_states;
-  std::vector<Acts::ConstVectorTrackContainer*> result_tracks;
-
-  // Collect all input track containers by reconstructing ConstTrackContainer wrappers
-  std::vector<ActsExamples::ConstTrackContainer> input_containers;
-
-  // Process first input set
-  for (size_t i = 0; i < input_track_states1.size() && i < input_tracks1.size(); ++i) {
-    auto trackStateContainer =
-        std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states1[i]);
-    auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks1[i]);
-    input_containers.emplace_back(trackContainer, trackStateContainer);
+  // Simply copy all objects from both input collections to the output
+  // Track states
+  for (const auto& ts : *track_states1) {
+    out_track_states->push_back(ts.clone());
+  }
+  for (const auto& ts : *track_states2) {
+    out_track_states->push_back(ts.clone());
   }
 
-  // Process second input set
-  for (size_t i = 0; i < input_track_states2.size() && i < input_tracks2.size(); ++i) {
-    auto trackStateContainer =
-        std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states2[i]);
-    auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks2[i]);
-    input_containers.emplace_back(trackContainer, trackStateContainer);
+  // Track parameters
+  for (const auto& tp : *track_params1) {
+    out_track_params->push_back(tp.clone());
+  }
+  for (const auto& tp : *track_params2) {
+    out_track_params->push_back(tp.clone());
   }
 
-  // Create new mutable containers for merging (even if inputs are empty)
-  auto mergedTrackContainer      = std::make_shared<Acts::VectorTrackContainer>();
-  auto mergedTrackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
-  ActsExamples::TrackContainer mergedTracks(mergedTrackContainer, mergedTrackStateContainer);
-
-  // Copy all tracks from all input containers
-  for (const auto& inputContainer : input_containers) {
-    // Ensure dynamic columns exist in merged container
-    mergedTracks.ensureDynamicColumns(inputContainer);
-
-    // Copy each track
-    for (const auto& srcTrack : inputContainer) {
-      auto destTrack = mergedTracks.getTrack(mergedTracks.addTrack());
-#if Acts_VERSION_MAJOR < 43 || (Acts_VERSION_MAJOR == 43 && Acts_VERSION_MINOR < 2)
-      destTrack.copyFrom(srcTrack, true); // true = copy track states
-#else
-      destTrack.copyFrom(srcTrack);
-#endif
-    }
+  // Track jacobians
+  for (const auto& tj : *track_jac1) {
+    out_track_jac->push_back(tj.clone());
+  }
+  for (const auto& tj : *track_jac2) {
+    out_track_jac->push_back(tj.clone());
   }
 
-  // Convert to const containers
-  auto constTrackStateContainer =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(*mergedTrackStateContainer));
-  auto constTrackContainer =
-      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*mergedTrackContainer));
-
-  // Create and store the merged containers
-  result_track_states.push_back(new Acts::ConstVectorMultiTrajectory(*constTrackStateContainer));
-  result_tracks.push_back(new Acts::ConstVectorTrackContainer(*constTrackContainer));
-
-  return {result_track_states, result_tracks};
+  // Tracks
+  for (const auto& t : *tracks1) {
+    out_tracks->push_back(t.clone());
+  }
+  for (const auto& t : *tracks2) {
+    out_tracks->push_back(t.clone());
+  }
 }
 
 } // namespace eicrecon

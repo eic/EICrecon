@@ -23,11 +23,15 @@ private:
   using AlgoT = eicrecon::AmbiguitySolver;
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states_input{this};
-  Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
+  PodioInput<ActsPodioEdm::TrackState> m_acts_track_states_input{this};
+  PodioInput<ActsPodioEdm::BoundParameters> m_acts_track_parameters_input{this};
+  PodioInput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_input{this};
+  PodioInput<ActsPodioEdm::Track> m_acts_tracks_input{this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
-  Output<Acts::ConstVectorMultiTrajectory> m_acts_track_states_output{this};
-  Output<Acts::ConstVectorTrackContainer> m_acts_tracks_output{this};
+  PodioOutput<ActsPodioEdm::TrackState> m_acts_track_states_output{this};
+  PodioOutput<ActsPodioEdm::BoundParameters> m_acts_track_parameters_output{this};
+  PodioOutput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_output{this};
+  PodioOutput<ActsPodioEdm::Track> m_acts_tracks_output{this};
 
   ParameterRef<std::uint32_t> m_maximumSharedHits{this, "maximumSharedHits",
                                                   config().maximum_shared_hits,
@@ -47,18 +51,11 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    auto track_states_vec = m_acts_track_states_input();
-    auto tracks_vec       = m_acts_tracks_input();
-    assert(!track_states_vec.empty() && "ConstVectorMultiTrajectory vector should not be empty");
-    assert(track_states_vec.front() != nullptr &&
-           "ConstVectorMultiTrajectory pointer should not be null");
-    assert(!tracks_vec.empty() && "ConstVectorTrackContainer vector should not be empty");
-    assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
-
     m_algo->process(
-        AlgoT::Input{track_states_vec.front(), tracks_vec.front(), m_measurements_input()},
-        AlgoT::Output{gsl::not_null{&m_acts_track_states_output().front()},
-                      gsl::not_null{&m_acts_tracks_output().front()}});
+        AlgoT::Input{m_acts_track_states_input(), m_acts_track_parameters_input(),
+                     m_acts_track_jacobians_input(), m_acts_tracks_input(), m_measurements_input()},
+        AlgoT::Output{m_acts_track_states_output().get(), m_acts_track_parameters_output().get(),
+                      m_acts_track_jacobians_output().get(), m_acts_tracks_output().get()});
   }
 };
 

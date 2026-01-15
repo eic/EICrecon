@@ -18,6 +18,11 @@
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #endif
 #include <ActsExamples/EventData/Track.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioUtil.hpp>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
@@ -25,7 +30,9 @@
 #include <string_view>
 
 #include "CKFTrackingConfig.h"
+#include "PodioGeometryIdConversionHelper.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/interfaces/ActsSvc.h"
 
 class ActsGeometryProvider;
 
@@ -33,7 +40,8 @@ namespace eicrecon {
 
 using CKFTrackingAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackParametersCollection, edm4eic::Measurement2DCollection>,
-    algorithms::Output<Acts::ConstVectorMultiTrajectory*, Acts::ConstVectorTrackContainer*>>;
+    algorithms::Output<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
+                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection>>;
 
 /** Fitting algorithm implementation .
  *
@@ -42,16 +50,22 @@ using CKFTrackingAlgorithm = algorithms::Algorithm<
 
 class CKFTracking : public CKFTrackingAlgorithm, public WithPodConfig<eicrecon::CKFTrackingConfig> {
 public:
+  // Use Podio track container type
+  using PodioTrackContainer =
+      Acts::TrackContainer<ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder>,
+                           ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>,
+                           std::shared_ptr>;
+
   /// Track finder function that takes input measurements, initial trackstate
   /// and track finder options and returns some track-finder-specific result.
 #if Acts_VERSION_MAJOR >= 39
-  using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<ActsExamples::TrackContainer>;
+  using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<PodioTrackContainer>;
 #else
   using TrackFinderOptions =
       Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
-                                             ActsExamples::TrackContainer>;
+                                             PodioTrackContainer>;
 #endif
-  using TrackFinderResult = Acts::Result<std::vector<ActsExamples::TrackContainer::TrackProxy>>;
+  using TrackFinderResult = Acts::Result<std::vector<PodioTrackContainer::TrackProxy>>;
 
   /// Find function that takes the above parameters
   /// @note This is separated into a virtual interface to keep compilation units
@@ -61,8 +75,7 @@ public:
     virtual ~CKFTrackingFunction() = default;
 
     virtual TrackFinderResult operator()(const ActsExamples::TrackParameters&,
-                                         const TrackFinderOptions&,
-                                         ActsExamples::TrackContainer&) const = 0;
+                                         const TrackFinderOptions&, PodioTrackContainer&) const = 0;
   };
 
   /// Create the track finder function implementation.
@@ -79,17 +92,14 @@ public:
                              {"outputActsTrackStates", "outputActsTracks"},
                              "Combinatorial Kalman Filter track finding"} {}
 
-  void setGeometryService(std::shared_ptr<const ActsGeometryProvider> geo_svc) {
-    m_geoSvc = geo_svc;
-  }
-
   void init() final;
   void process(const Input&, const Output&) const final;
 
 private:
   std::shared_ptr<const Acts::Logger> m_acts_logger{nullptr};
   std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
   Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
 

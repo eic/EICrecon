@@ -12,6 +12,12 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackCollection.h>
@@ -22,7 +28,9 @@
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 
 namespace eicrecon {
@@ -30,9 +38,18 @@ namespace eicrecon {
 using ActsTrackPropagationResult = Acts::Result<std::unique_ptr<const Acts::BoundTrackParameters>>;
 
 using TrackPropagationAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TrackCollection, Acts::ConstVectorMultiTrajectory,
-                      Acts::ConstVectorTrackContainer>,
+    algorithms::Input<edm4eic::TrackCollection, ActsPodioEdm::TrackStateCollection,
+                      ActsPodioEdm::BoundParametersCollection, ActsPodioEdm::JacobianCollection,
+                      ActsPodioEdm::TrackCollection>,
     algorithms::Output<edm4eic::TrackSegmentCollection>>;
+
+// Define Podio track container types
+using PodioTrackContainer =
+    Acts::TrackContainer<ActsPlugins::ConstPodioTrackContainer<>,
+                         ActsPlugins::ConstPodioTrackStateContainer<>, Acts::RefHolder>;
+using PodioTrackProxy =
+    Acts::TrackProxy<ActsPlugins::ConstPodioTrackContainer<>,
+                     ActsPlugins::ConstPodioTrackStateContainer<>, Acts::RefHolder>;
 
 /** Extract the particles from fit tracks.
      *
@@ -44,26 +61,34 @@ class TrackPropagation : public TrackPropagationAlgorithm,
 public:
   TrackPropagation(std::string_view name)
       : TrackPropagationAlgorithm{name,
-                                  {"inputTracks", "inputActsTrackStates", "inputActsTracks"},
+                                  {"inputTracks", "inputActsTrackStates",
+                                   "inputActsTrackParameters", "inputActsTrackJacobians",
+                                   "inputActsTracks"},
                                   {"outputTrackSegments"},
                                   "Track propagation to surfaces"} {}
 
   /** Initialize algorithm */
   void init() final;
 
-  void setGeometryService(std::shared_ptr<const ActsGeometryProvider> geo_svc) {
-    m_geoSvc = geo_svc;
-  }
   void setDetector(const dd4hep::Detector* detector) { m_detector = detector; }
 
   void process(const Input& input, const Output& output) const final {
-    const auto [tracks, track_states, tracks_acts] = input;
-    auto [propagated_tracks]                       = output;
+    const auto [tracks, track_states, track_parameters, track_jacobians, tracks_acts] = input;
+    auto [propagated_tracks]                                                          = output;
 
-    // Construct ConstTrackContainer from underlying containers
-    auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states);
-    auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks_acts);
-    ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
+    // Create conversion helper for Podio backend
+    PodioGeometryIdConversionHelper helper;
+    helper.geoCtx           = Acts::GeometryContext{};
+    helper.trackingGeometry = m_geoSvc->trackingGeometry();
+
+    // Construct ConstPodioTrackContainer from Podio collections
+    ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+        helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
+        Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
+        Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians});
+    ActsPlugins::ConstPodioTrackContainer<> trackContainer(
+        helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks_acts});
+    PodioTrackContainer constTracks(trackContainer, trackStateContainer);
 
     std::size_t i = 0;
     for (const auto& track : constTracks) {
@@ -88,8 +113,7 @@ public:
 
   /** Propagates a single track to a given surface */
   std::unique_ptr<edm4eic::TrackPoint>
-  propagate(const edm4eic::Track&, const ActsExamples::ConstTrackProxy&,
-            const ActsExamples::ConstTrackContainer&,
+  propagate(const edm4eic::Track&, const PodioTrackProxy&, const PodioTrackContainer&,
             const std::shared_ptr<const Acts::Surface>& targetSurf) const;
 
   /** Propagates a collection of tracks to a list of surfaces, and returns the full `TrackSegment`;
@@ -101,7 +125,8 @@ public:
 private:
   Acts::GeometryContext m_geoContext;
   Acts::MagneticFieldContext m_fieldContext;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
   const dd4hep::Detector* m_detector = nullptr;
 
   std::vector<std::shared_ptr<Acts::Surface>> m_filter_surfaces;

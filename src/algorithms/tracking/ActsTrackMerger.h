@@ -3,23 +3,26 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Track.hpp>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
 #include <algorithms/algorithm.h>
+#include <gsl/pointers>
 #include <string>
 #include <string_view>
-#include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using ActsTrackMergerAlgorithm =
-    algorithms::Algorithm<algorithms::Input<std::vector<const Acts::ConstVectorMultiTrajectory*>,
-                                            std::vector<const Acts::ConstVectorTrackContainer*>,
-                                            std::vector<const Acts::ConstVectorMultiTrajectory*>,
-                                            std::vector<const Acts::ConstVectorTrackContainer*>>,
-                          algorithms::Output<std::vector<Acts::ConstVectorMultiTrajectory*>,
-                                             std::vector<Acts::ConstVectorTrackContainer*>>>;
+using ActsTrackMergerAlgorithm = algorithms::Algorithm<
+    algorithms::Input<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection,
+                      ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection>,
+    algorithms::Output<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
+                       ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection>>;
 
 class ActsTrackMerger : public ActsTrackMergerAlgorithm, public WithPodConfig<NoConfig> {
 public:
@@ -27,26 +30,24 @@ public:
       : ActsTrackMergerAlgorithm{name,
                                  {
                                      "inputActsTrackStates1",
+                                     "inputActsTrackParameters1",
+                                     "inputActsTrackJacobians1",
                                      "inputActsTracks1",
                                      "inputActsTrackStates2",
+                                     "inputActsTrackParameters2",
+                                     "inputActsTrackJacobians2",
                                      "inputActsTracks2",
                                  },
                                  {
                                      "outputActsTrackStates",
+                                     "outputActsTrackParameters",
+                                     "outputActsTrackJacobians",
                                      "outputActsTracks",
                                  },
                                  "Merges two Acts track container inputs into one"} {};
 
   void init() final {};
   void process(const Input&, const Output&) const final;
-
-  // Helper method that returns the merged result
-  std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
-             std::vector<Acts::ConstVectorTrackContainer*>>
-  merge(const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states1,
-        const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks1,
-        const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states2,
-        const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks2) const;
 };
 
 } // namespace eicrecon

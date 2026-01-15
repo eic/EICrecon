@@ -5,7 +5,12 @@
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <ActsExamples/EventData/Track.hpp>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
@@ -25,7 +30,8 @@
 
 #include "TrackPropagation.h"
 #include "TrackPropagationTest_processor.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
+#include "algorithms/interfaces/ActsSvc.h"
+#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
 
@@ -54,10 +60,8 @@ void TrackPropagationTest_processor::Init() {
   InitLogger(app, plugin_name);
 
   auto dd4hep_service = GetApplication()->GetService<DD4hep_service>();
-  auto acts_service   = GetApplication()->GetService<ACTSGeo_service>();
 
   m_propagation_algo.setDetector(dd4hep_service->detector());
-  m_propagation_algo.setGeometryService(acts_service->actsGeoProvider());
   m_propagation_algo.init();
 
   // Create HCal surface that will be used for propagation
@@ -80,19 +84,32 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
   m_log->trace("TrackPropagationTest_processor event");
 
   // Get track containers from tracking
-  auto track_states = event->Get<Acts::ConstVectorMultiTrajectory>("CentralCKFActsTrackStates");
-  auto tracks       = event->Get<Acts::ConstVectorTrackContainer>("CentralCKFActsTracks");
+  auto track_states = event->GetCollection<ActsPodioEdm::TrackState>("CentralCKFActsTrackStates");
+  auto track_parameters =
+      event->GetCollection<ActsPodioEdm::BoundParameters>("CentralCKFActsTrackParameters");
+  auto track_jacobians =
+      event->GetCollection<ActsPodioEdm::Jacobian>("CentralCKFActsTrackJacobians");
+  auto tracks = event->GetCollection<ActsPodioEdm::Track>("CentralCKFActsTracks");
 
-  if (track_states.empty() || tracks.empty()) {
-    m_log->debug("No track containers found");
+  if (!track_states || !track_parameters || !track_jacobians || !tracks) {
+    m_log->debug("No track collections found");
     return;
   }
 
-  // Construct ConstTrackContainer from underlying containers
-  auto trackStateContainer =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states.front());
-  auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks.front());
-  ActsExamples::ConstTrackContainer track_container(trackContainer, trackStateContainer);
+  // Create conversion helper for Podio backend
+  eicrecon::PodioGeometryIdConversionHelper helper;
+  helper.geoCtx = Acts::GeometryContext{};
+  helper.trackingGeometry =
+      algorithms::ActsSvc::instance().acts_geometry_provider()->trackingGeometry();
+
+  // Construct ConstPodioTrackContainer from Podio collections
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians});
+  ActsPlugins::ConstPodioTrackContainer<> trackContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks});
+  Acts::TrackContainer track_container(trackContainer, trackStateContainer);
 
   // Iterate over tracks
   m_log->debug("Propagating through {} tracks", track_container.size());
