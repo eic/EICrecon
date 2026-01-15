@@ -11,6 +11,8 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <algorithms/service.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
@@ -29,8 +31,10 @@
 #include <cstdint>
 #include <gsl/pointers>
 
-#include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
+#include "algorithms/tracking/TrackProjector.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 template <> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_formatter {};
@@ -38,18 +42,25 @@ template <> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_forma
 namespace eicrecon {
 
 void TrackProjector::init() {
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
-  m_geo_provider   = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
+  // No initialization needed
 }
 
 void TrackProjector::process(const Input& input, const Output& output) const {
-  const auto [track_states, tracks_container, tracks] = input;
-  auto [track_segments]                               = output;
+  const auto [track_states, track_parameters, track_jacobians, tracks_container, tracks] = input;
+  auto [track_segments]                                                                  = output;
 
-  // Construct ConstTrackContainer from underlying containers
-  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states);
-  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks_container);
-  ActsExamples::ConstTrackContainer acts_tracks(trackContainer, trackStateContainer);
+  // Create conversion helper for Podio backend
+  PodioGeometryIdConversionHelper helper(m_geo_provider->getActsGeometryContext(),
+                                         m_geo_provider->trackingGeometry());
+
+  // Construct ConstPodioTrackContainer from Podio collections
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians});
+  ActsPlugins::ConstPodioTrackContainer<> trackContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks_container});
+  Acts::TrackContainer acts_tracks(trackContainer, trackStateContainer);
 
   debug("Track projector event process. Num of input tracks: {}", acts_tracks.size());
 
