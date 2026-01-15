@@ -80,7 +80,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "HcalEndcapNTruthProtoClusters", {"HcalEndcapNMergedHits", "HcalEndcapNHits"},
+      "HcalEndcapNTruthProtoClusters", {"HcalEndcapNMergedHits", "HcalEndcapNRawHitAssociations"},
       {"HcalEndcapNTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));

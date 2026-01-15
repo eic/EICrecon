@@ -83,7 +83,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
       "HcalEndcapPInsertTruthProtoClusters",
-      {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertHits"},
+      {"HcalEndcapPInsertMergedHits", "HcalEndcapPInsertRawHitAssociations"},
       {"HcalEndcapPInsertTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
@@ -230,7 +230,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
-      "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALHits"}, {"LFHCALTruthProtoClusters"},
+      "LFHCALTruthProtoClusters", {"LFHCALRecHits", "LFHCALRawHitAssociations"}, {"LFHCALTruthProtoClusters"},
       app // TODO: Remove me once fixed
       ));
 
