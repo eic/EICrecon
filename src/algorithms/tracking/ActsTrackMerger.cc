@@ -10,6 +10,12 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
 #include <Eigen/LU> // IWYU pragma: keep
 #include <any>
 #include <gsl/pointers>
@@ -17,49 +23,71 @@
 #include <utility>
 #include <vector>
 
+#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
+
 namespace eicrecon {
 
+using ConstPodioTrackContainer =
+    Acts::TrackContainer<ActsPlugins::ConstPodioTrackContainer<>,
+                         ActsPlugins::ConstPodioTrackStateContainer<>, std::shared_ptr>;
+using MutablePodioTrackContainer =
+    Acts::TrackContainer<ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder>,
+                         ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>,
+                         std::shared_ptr>;
+
 void ActsTrackMerger::process(const Input& input, const Output& output) const {
-  const auto [input_track_states1, input_tracks1, input_track_states2, input_tracks2] = input;
-  auto [output_track_states, output_tracks]                                           = output;
+  const auto [track_states1, track_params1, track_jac1, tracks1, track_states2, track_params2,
+              track_jac2, tracks2]                                     = input;
+  auto [out_track_states, out_track_params, out_track_jac, out_tracks] = output;
+
+  // Create conversion helper for Podio backend
+  PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
+                                         m_geoSvc->trackingGeometry());
 
   // Collect all input track containers by reconstructing ConstTrackContainer wrappers
-  std::vector<ActsExamples::ConstTrackContainer> input_containers;
+  std::vector<ConstPodioTrackContainer> input_containers;
 
-  // Process first input set
-  auto trackStateContainer1 =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states1);
-  auto trackContainer1 = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks1);
+  // Process first input set (const inputs) - use default ConstRefHolder template parameter
+  // ConstRefHolder<const T> wraps a const collection reference
+  // Input collections are gsl::not_null pointers, so we dereference them
+  // The holders need to be explicitly constructed
+  auto trackStateContainer1 = std::make_shared<ActsPlugins::ConstPodioTrackStateContainer<>>(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states1},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_params1},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jac1});
+  auto trackContainer1 = std::make_shared<ActsPlugins::ConstPodioTrackContainer<>>(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks1});
   input_containers.emplace_back(trackContainer1, trackStateContainer1);
 
-  // Process second input set
-  auto trackStateContainer2 =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states2);
-  auto trackContainer2 = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks2);
+  // Process second input set (const inputs) - use default ConstRefHolder template parameter
+  auto trackStateContainer2 = std::make_shared<ActsPlugins::ConstPodioTrackStateContainer<>>(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states2},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_params2},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jac2});
+  auto trackContainer2 = std::make_shared<ActsPlugins::ConstPodioTrackContainer<>>(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks2});
   input_containers.emplace_back(trackContainer2, trackStateContainer2);
 
-  // Create new mutable containers for merging
-  auto mergedTrackContainer      = std::make_shared<Acts::VectorTrackContainer>();
-  auto mergedTrackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
-  ActsExamples::TrackContainer mergedTracks(mergedTrackContainer, mergedTrackStateContainer);
+  // Create new mutable containers for merging (mutable outputs)
+  // RefHolder<T> wraps a non-const collection reference
+  auto mergedTrackStateContainer =
+      std::make_shared<ActsPlugins::MutablePodioTrackStateContainer<Acts::RefHolder>>(
+          helper, Acts::RefHolder<ActsPodioEdm::TrackStateCollection>{*out_track_states},
+          Acts::RefHolder<ActsPodioEdm::BoundParametersCollection>{*out_track_params},
+          Acts::RefHolder<ActsPodioEdm::JacobianCollection>{*out_track_jac});
+  auto mergedTrackContainer =
+      std::make_shared<ActsPlugins::MutablePodioTrackContainer<Acts::RefHolder>>(
+          helper, Acts::RefHolder<ActsPodioEdm::TrackCollection>{*out_tracks});
+  MutablePodioTrackContainer mergedTracks(mergedTrackContainer, mergedTrackStateContainer);
 
   // Copy all tracks from all input containers
   for (const auto& inputContainer : input_containers) {
-    // Ensure dynamic columns exist in merged container
-    mergedTracks.ensureDynamicColumns(inputContainer);
-
-    // Copy each track
+    // Copy each track (copyFrom handles dynamic columns internally)
     for (const auto& srcTrack : inputContainer) {
       auto destTrack = mergedTracks.makeTrack();
       destTrack.copyFrom(srcTrack);
     }
   }
-
-  // Allocate new const containers and assign pointers to outputs
-  // (Cannot use placement new because Output<T>::Reset() clears the vector)
-  *output_track_states =
-      new Acts::ConstVectorMultiTrajectory(std::move(*mergedTrackStateContainer));
-  *output_tracks = new Acts::ConstVectorTrackContainer(std::move(*mergedTrackContainer));
 }
 
 } // namespace eicrecon
