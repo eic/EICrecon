@@ -26,6 +26,8 @@
 #include <Acts/Vertexing/VertexingOptions.hpp>
 #include <Acts/Vertexing/ZScanVertexFinder.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/Track.h>
@@ -45,16 +47,25 @@
 
 #include "ActsGeometryProvider.h"
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
+#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& output) const {
-  const auto [trackStates, tracks, reconParticles] = input;
-  auto [outputVertices]                            = output;
+  const auto [trackStates, trackParameters, trackJacobians, tracks, reconParticles] = input;
+  auto [outputVertices]                                                             = output;
 
-  // Construct ConstTrackContainer from underlying containers
-  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*trackStates);
-  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks);
-  ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
+  // Create conversion helper for Podio backend
+  PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
+                                         m_geoSvc->trackingGeometry());
+
+  // Construct ConstPodioTrackContainer from Podio collections
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*trackStates},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*trackParameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*trackJacobians});
+  ActsPlugins::ConstPodioTrackContainer<> trackContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks});
+  Acts::TrackContainer constTracks(trackContainer, trackStateContainer);
 
   using Propagator           = Acts::Propagator<Acts::EigenStepper<>>;
   using Linearizer           = Acts::HelicalTrackLinearizer;
@@ -112,15 +123,15 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
   VertexFinderOptions finderOpts(gctx, mctx);
 
   std::vector<Acts::InputTrack> inputTracks;
-  std::vector<Acts::BoundTrackParameters> trackParameters;
-  trackParameters.reserve(constTracks.size());
+  std::vector<Acts::BoundTrackParameters> boundTrackParameters;
+  boundTrackParameters.reserve(constTracks.size());
 
   for (const auto& track : constTracks) {
     // Create BoundTrackParameters and store it
-    trackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
-                                 track.covariance(), track.particleHypothesis());
+    boundTrackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
+                                      track.covariance(), track.particleHypothesis());
     // Create InputTrack from stored parameters
-    inputTracks.emplace_back(&trackParameters.back());
+    inputTracks.emplace_back(&boundTrackParameters.back());
     trace("Track local position at input = {} mm, {} mm",
           track.parameters()[Acts::eBoundLoc0] / Acts::UnitConstants::mm,
           track.parameters()[Acts::eBoundLoc1] / Acts::UnitConstants::mm);
