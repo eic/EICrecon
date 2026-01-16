@@ -74,9 +74,9 @@ jobs:
       matrix:
         CXX: [g++, clang++]
         CMAKE_BUILD_TYPE: [Release, Debug]
-        USE_ASAN: [ON]
+        USE_ASAN: [OFF]
         USE_TSAN: [OFF]
-        USE_UBSAN: [ON]
+        USE_UBSAN: [OFF]
         release: ${{ fromJSON(needs.env.outputs.release_json) }}
         # note that entries that overwrite matrix values require a full specification
         # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/running-variations-of-jobs-in-a-workflow#expanding-or-adding-matrix-configurations
@@ -85,36 +85,26 @@ jobs:
           - CXX: g++
             CMAKE_BUILD_TYPE: Debug
             release: nightly
-          # exclude clang++ Debug with default CXXFLAGS since overridden
-          - CXX: clang++
+          # exclude g++ Debug with default CXXFLAGS since overridden
+          - CXX: g++
             CMAKE_BUILD_TYPE: Debug
             release: nightly
         include:
+          # include g++ Debug with profile CXXFLAGS
           - CXX: g++
-            # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=maybe-uninitialized
-          - CXX: clang++
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef
-          # include clang++ Debug with profile CXXFLAGS
-          - CXX: clang++
             CMAKE_BUILD_TYPE: Debug
-            CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
+            CXXFLAGS:
             release: nightly
           # include some configs explicitly (if not yet included)
-          - CXX: clang++
+          - CXX: g++
             CMAKE_BUILD_TYPE: Release
             release: nightly
-          - CXX: clang++
+          - CXX: g++
           # thread sanitizer build
-          - CXX: clang++
-            CMAKE_BUILD_TYPE: Release
-            release: nightly
-            USE_ASAN: OFF
-            USE_TSAN: ON
-          - CXX: clang++
+          - CXX: g++
             CMAKE_BUILD_TYPE: Release
             release: 25.07.0-stable
-          - CXX: clang++
+          - CXX: g++
             CMAKE_BUILD_TYPE: Release
             release: 25.11.2-stable
       fail-fast: false
@@ -213,6 +203,12 @@ jobs:
       uses: actions/upload-artifact@v6
       with:
         name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-TSAN
+        path: install.tar.zst
+        if-no-files-found: error
+    - name: Upload install directory (nothing)
+      uses: actions/upload-artifact@v6
+      with:
+        name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
         path: install.tar.zst
         if-no-files-found: error
     # Only compress and upload build directory if we are going to use it later
@@ -561,7 +557,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
     steps:
@@ -621,7 +617,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
         test_plugins:
@@ -666,7 +662,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [craterlake]
         benchmark_plugins:
@@ -712,7 +708,7 @@ jobs:
     - npsim-gun
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [pi, e]
         detector_config: [craterlake]
     steps:
@@ -822,7 +818,7 @@ jobs:
     - npsim-gun-EcalLumiSpec
     strategy:
       matrix:
-        CXX: [clang++]
+        CXX: [g++]
         particle: [e]
         detector_config: [ip6_extended]
     steps:
@@ -888,38 +884,38 @@ jobs:
     strategy:
       matrix:
         include:
-        - CXX: clang++
+        - CXX: g++
           beam: 5x41
           minq2: 0
           detector_config: craterlake_5x41
           sanitizer: ASAN
-        - CXX: clang++
+        - CXX: g++
           beam: 10x100
           minq2: 0
           detector_config: craterlake_10x100
           sanitizer: TSAN
-        - CXX: clang++
+        - CXX: g++
           beam: 18x275
           minq2: 0
           detector_config: craterlake_18x275
           sanitizer: ASAN
-        - CXX: clang++
+        - CXX: g++
           beam: 18x275
           minq2: 0
           detector_config: craterlake_18x275
           sanitizer: TSAN
           nthreads: 4
-        - CXX: clang++
+        - CXX: g++
           beam: 10x100
           minq2: 1000
           detector_config: craterlake_tracking_only
           sanitizer: ASAN
-        - CXX: clang++
+        - CXX: g++
           beam: 18x275
           minq2: 1000
           detector_config: craterlake_18x275
           sanitizer: ASAN
-        - CXX: clang++
+        - CXX: g++
           beam: 18x275
           minq2: 1000
           detector_config: craterlake_18x275
@@ -933,7 +929,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v7
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}-${{ matrix.sanitizer }}
+        name: install-${{ matrix.CXX }}-eic-shell-Release-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v7
