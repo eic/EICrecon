@@ -375,15 +375,9 @@ CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
     }
   }
 
-  // Move track states and track container to const containers
-  auto constTrackStateContainer =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(*trackStateContainer));
-
-  auto constTrackContainer =
-      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*trackContainer));
-
-  trajectories_v.push_back(new Acts::ConstVectorMultiTrajectory(*constTrackStateContainer));
-  tracks_v.push_back(new Acts::ConstVectorTrackContainer(*constTrackContainer));
+  // Move track states and track container to const containers as naked pointers
+  trajectories_v.push_back(new Acts::ConstVectorMultiTrajectory(std::move(*trackStateContainer)));
+  tracks_v.push_back(new Acts::ConstVectorTrackContainer(std::move(*trackContainer)));
 
   return {trajectories_v, tracks_v};
 }
