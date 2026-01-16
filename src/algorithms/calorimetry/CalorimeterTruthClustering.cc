@@ -6,11 +6,14 @@
 #include <DD4hep/config.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/RawCalorimeterHit.h>
+#include <edm4hep/SimCalorimeterHit.h>
 #include <podio/ObjectID.h>
-#include <cstddef>
+#include <podio/RelationRange.h>
 #include <cstdint>
 #include <gsl/pointers>
 #include <map>
+#include <vector>
 
 using namespace dd4hep;
 
