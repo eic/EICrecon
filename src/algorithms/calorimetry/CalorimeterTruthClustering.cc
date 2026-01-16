@@ -36,7 +36,7 @@ void CalorimeterTruthClustering::process(const CalorimeterTruthClustering::Input
       }
 
       // Get the sim hit and its contributions
-      const auto& simHit = assoc.getSim();
+      const auto& simHit = assoc.getSimHit();
 
       // Process contributions to find the primary particle
       for (const auto& contrib : simHit.getContributions()) {
