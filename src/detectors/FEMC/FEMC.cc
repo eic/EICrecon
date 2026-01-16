@@ -6,7 +6,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <cmath>
 #include <gsl/pointers>
