@@ -90,11 +90,6 @@ jobs:
             CMAKE_BUILD_TYPE: Debug
             release: nightly
         include:
-          - CXX: g++
-            # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=maybe-uninitialized
-          - CXX: g++
-            CXXFLAGS: -Werror -Wall -Wextra -Wundef
           # include g++ Debug with profile CXXFLAGS
           - CXX: g++
             CMAKE_BUILD_TYPE: Debug
