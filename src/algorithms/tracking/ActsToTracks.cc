@@ -12,6 +12,7 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
@@ -28,6 +29,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <vector>
 
@@ -55,14 +57,19 @@ namespace {
 void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
-  const auto [meas2Ds, acts_tracks, raw_hit_assocs]           = input;
-  auto [trajectories, track_parameters, tracks, tracks_assoc] = output;
+  const auto [meas2Ds, acts_track_states, acts_tracks, raw_hit_assocs] = input;
+  auto [trajectories, track_parameters, tracks, tracks_assoc]          = output;
+
+  // Construct ActsExamples::ConstTrackContainer from underlying containers
+  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*acts_track_states);
+  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*acts_tracks);
+  ActsExamples::ConstTrackContainer acts_track_container(trackContainer, trackStateContainer);
 
   // Loop over tracks
-  for (const auto& track : *acts_tracks) {
+  for (const auto& track : acts_track_container) {
     // Collect the trajectory summary info
     auto trajectoryState = Acts::MultiTrajectoryHelpers::trajectoryState(
-        acts_tracks->trackStateContainer(), track.tipIndex());
+        acts_track_container.trackStateContainer(), track.tipIndex());
 
     // Create trajectory
     auto trajectory = trajectories->create();

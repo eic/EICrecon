@@ -4,6 +4,8 @@
 
 #pragma once
 
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
@@ -12,7 +14,6 @@
 #include <spdlog/logger.h>
 #include <memory>
 
-#include "ActsExamples/EventData/Track.hpp"
 #include "ActsGeometryProvider.h"
 #include "IterativeVertexFinderConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -25,7 +26,8 @@ public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
   std::unique_ptr<edm4eic::VertexCollection>
-  produce(const ActsExamples::ConstTrackContainer* constTracks,
+  produce(const Acts::ConstVectorMultiTrajectory* trackStates,
+          const Acts::ConstVectorTrackContainer* tracks,
           const edm4eic::ReconstructedParticleCollection* reconParticles);
 
 private:
