@@ -98,7 +98,7 @@ jobs:
           # include g++ Debug with profile CXXFLAGS
           - CXX: g++
             CMAKE_BUILD_TYPE: Debug
-            CXXFLAGS: -fprofile-instr-generate -fcoverage-mapping
+            CXXFLAGS: 
             release: nightly
           # include some configs explicitly (if not yet included)
           - CXX: g++
