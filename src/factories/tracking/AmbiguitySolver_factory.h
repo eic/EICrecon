@@ -64,13 +64,9 @@ public:
     auto [output_track_states, output_tracks] =
         m_algo->process(track_states_vec, tracks_vec, *m_measurements_input());
 
-    // Transfer ownership to output collections
-    for (auto* ts : output_track_states) {
-      m_acts_track_states_output().push_back(ts);
-    }
-    for (auto* t : output_tracks) {
-      m_acts_tracks_output().push_back(t);
-    }
+    // Transfer ownership to output collections in a single, exception-safe operation
+    m_acts_track_states_output() = std::move(output_track_states);
+    m_acts_tracks_output()       = std::move(output_tracks);
   }
 };
 
