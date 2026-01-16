@@ -79,15 +79,10 @@ ActsTrackMerger::merge(
     }
   }
 
-  // Convert to const containers
-  auto constTrackStateContainer =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(*mergedTrackStateContainer));
-  auto constTrackContainer =
-      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*mergedTrackContainer));
-
-  // Create and store the merged containers
-  result_track_states.push_back(new Acts::ConstVectorMultiTrajectory(*constTrackStateContainer));
-  result_tracks.push_back(new Acts::ConstVectorTrackContainer(*constTrackContainer));
+  // Create and store the merged containers as naked pointers
+  result_track_states.push_back(
+      new Acts::ConstVectorMultiTrajectory(std::move(*mergedTrackStateContainer)));
+  result_tracks.push_back(new Acts::ConstVectorTrackContainer(std::move(*mergedTrackContainer)));
 
   return {result_track_states, result_tracks};
 }
