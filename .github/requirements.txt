@@ -2,3 +2,4 @@ awkward
 deepdiff
 scipy
 uproot
+numpy
