@@ -1070,7 +1070,7 @@ jobs:
         if-no-files-found: error
 
   trigger-container:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}
     needs:
     - build
@@ -1106,7 +1106,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-docs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - eicrecon-gun
       - eicrecon-dis
@@ -1152,7 +1152,7 @@ jobs:
     uses: eic/actions/.github/workflows/list-open-prs.yml@main
 
   get-docs-from-open-prs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - build-docs
       - list-open-prs
@@ -1203,7 +1203,7 @@ jobs:
           if-no-files-found: ignore
 
   get-docs-from-main:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - build-docs
     steps:
@@ -1260,7 +1260,7 @@ jobs:
           if-no-files-found: error
 
   collect-docs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - get-docs-from-main
       - get-docs-from-open-prs
@@ -1318,7 +1318,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
@@ -1350,7 +1350,7 @@ jobs:
     needs:
     - trigger-container
     - deploy-docs
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     steps:
       - name: Cancel container
         run: |
