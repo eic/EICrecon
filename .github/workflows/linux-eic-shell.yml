@@ -55,7 +55,7 @@ jobs:
   env:
     # env cannot be used in matrix, but outputs can
     # so this job turns env into outputs
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     outputs:
       platform_json: ${{ steps.define.outputs.platform_json }}
       release_json: ${{ steps.define.outputs.release_json }}
