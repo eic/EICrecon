@@ -56,7 +56,6 @@ export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${
 ctest --test-dir build -V
 ```
 
-**Test plugin loading (basic validation):**
 ### Manual Validation Scenarios
 
 **ALWAYS perform these validation steps after making changes:**
