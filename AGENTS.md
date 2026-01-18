@@ -1,6 +1,6 @@
 # EICrecon Development Instructions
 
-EICrecon is a JANA-based reconstruction software for the ePIC detector. This is a complex high-energy physics reconstruction software requiring specialized dependencies and extensive build times.
+EICrecon is a JANA2-based reconstruction software for the ePIC detector.
 
 **ALWAYS follow these instructions first and fallback to additional search and context gathering only if the information in these instructions is incomplete or found to be in error.**
 
@@ -244,7 +244,14 @@ export DETECTOR_CONFIG=${DETECTOR}_craterlake
 eicrecon -Ppodio:output_file=output.edm4eic.root input_simulation.edm4hep.root
 ```
 
-**For physics validation, you need appropriate simulation files. The CI system generates these automatically.**
+For physics validation, you need appropriate simulation files. Generate one for single particles using:
+
+    ddsim --compactFile $DETECTOR_PATH/$DETECTOR_CONFIG.xml --numberOfEvents 10 --enableGun --gun.thetaMin 'pi/2' --gun.thetaMax 'pi/2' --gun.distribution uniform --gun.phiMin '0*deg' --gun.phiMax '0*deg' --gun.energy '1*GeV' --gun.particle 'e-' --outputFile sim.edm4hep.root
+
+or using full physics events with multiple particles:
+
+    ddsim --compactFile $DETECTOR_PATH/$DETECTOR_CONFIG.xml --numberOfEvents 10 --inputFiles root://dtn-eic.jlab.org//volatile/eic/EPIC/EVGEN/DIS/NC/10x100/minQ2=10/pythia8NCDIS_10x100_minQ2=10_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root --outputFile sim.edm4hep.root
+
 
 ## Code Style and Header Organization
 
@@ -295,7 +302,7 @@ eicrecon -Ppodio:output_file=output.edm4eic.root input_simulation.edm4hep.root
 
 ### Commit Message Format
 
-**CRITICAL: All pull requests must follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) to clearly highlight breaking changes.**
+It is acceptable to use [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/)
 
 **Standard commit message format:**
 ```
