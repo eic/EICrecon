@@ -8,12 +8,8 @@ EICrecon is a JANA2-based reconstruction software for the ePIC detector.
 
 ### Essential Setup: Use eic-shell Environment
 
-**CRITICAL: This is the ONLY recommended approach for development. Manual dependency installation is complex and strongly discouraged.**
-
 **Bootstrap the eic-shell environment:**
 ```bash
-mkdir ~/eic
-cd ~/eic
 curl --location https://get.epic-eic.org | bash
 ./eic-shell
 ```
@@ -21,19 +17,6 @@ curl --location https://get.epic-eic.org | bash
 **Alternative if /cvmfs is available:**
 ```bash
 singularity exec /cvmfs/singularity.opensciencegrid.org/eicweb/eic_xl:nightly eic-shell
-```
-
-This approach is achieved by the following GitHub Actions snippet (inside a workflow):
-```yaml
-    steps:
-    - name: Ensure CernVM-FS is available
-      uses: cvmfs-contrib/github-action-cvmfs@v5
-    - name: Run inside the eic_xl:nightly environment
-      uses: eic/run-cvmfs-osg-eic-shell@main
-      with:
-        platform-release: "eic_xl:nightly"
-        run: |
-          echo
 ```
 
 **Setup geometry and clone EICrecon:**
@@ -73,18 +56,7 @@ export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${
 ctest --test-dir build -V
 ```
 
-**Test basic functionality:**
-```bash
-eicrecon --help
-```
-
-Expected output shows usage information with options like `-h`, `-v`, `-c`, `-Pkey=value`, etc.
-
 **Test plugin loading (basic validation):**
-```bash
-eicrecon -Pplugins=podio,dd4hep
-```
-
 ### Manual Validation Scenarios
 
 **ALWAYS perform these validation steps after making changes:**
@@ -157,8 +129,6 @@ ctest --test-dir build -V
 ### Important Test Suites
 - `src/tests/algorithms_test/` - Algorithm unit tests (uses Catch2)
 - `src/tests/omnifactory_test/` - Factory framework tests
-- `src/tests/tracking_test/` - Tracking algorithm tests
-- `src/tests/geometry_navigation_test/` - Geometry tests
 
 ### Commonly Modified Files
 When making physics algorithm changes:
@@ -166,29 +136,6 @@ When making physics algorithm changes:
 2. Look for corresponding factory in `src/factories/`
 3. Check for tests in `src/tests/algorithms_test/`
 4. Update documentation in `docs/` if needed
-
-## Manual Build (NOT RECOMMENDED)
-
-**WARNING: Manual dependency installation is extremely complex and time-consuming. Only attempt if eic-shell is absolutely unavailable.**
-
-Manual build requires installing these dependencies in order:
-- C++20 compiler (GCC 10+ or Clang 10+)
-- CMake 3.24+
-- Python 3.8+ with pyyaml, jinja2
-- boost 1.70+
-- ROOT 6.26+ (with C++17)
-- JANA 2.2.0+
-- fmt 9.0.0+
-- spdlog 1.11.0+
-- PODIO 0.17+
-- EDM4hep 0.7.1+
-- DD4hep 1.21+
-- ACTS 33.0.0+
-- Eigen 3.3+
-
-**Each dependency build can take 15-60 minutes. Total time: 4-8 hours.**
-
-See `docs/get-started/manual-build.md` for complete manual build instructions, but expect significant complexity and troubleshooting.
 
 ## Timing Expectations and Critical Warnings
 
@@ -216,22 +163,6 @@ See `docs/get-started/manual-build.md` for complete manual build instructions, b
 - Check library paths are correct
 - Run individual failing tests for detailed output
 
-**Performance issues:**
-- Use `-j8` for parallel builds (adjust number based on available cores)
-- Consider using ccache for repeated builds
-- Debug builds are significantly slower than Release builds
-
-## CI/CD Integration
-
-The project uses GitHub Actions with the following key checks:
-- Builds on multiple compilers (GCC, Clang)
-- Multiple build types (Release, Debug)
-- Address, Thread, and UB sanitizers
-- clang-tidy and include-what-you-use checks
-- Extensive physics simulation and reconstruction tests
-
-**All commits must pass these checks. Run local builds and tests before pushing.**
-
 ## Data Files and Physics Validation
 
 **Physics reconstruction requires specific input data formats:**
@@ -252,51 +183,6 @@ or using full physics events with multiple particles:
 
     ddsim --compactFile $DETECTOR_PATH/$DETECTOR_CONFIG.xml --numberOfEvents 10 --inputFiles root://dtn-eic.jlab.org//volatile/eic/EPIC/EVGEN/DIS/NC/10x100/minQ2=10/pythia8NCDIS_10x100_minQ2=10_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root --outputFile sim.edm4hep.root
 
-
-## Code Style and Header Organization
-
-### Header Include Order and Alphabetization
-
-**CRITICAL: Headers must be sorted alphabetically within each blank-line delimited header block to pass include-what-you-use (IWYU) checks.**
-
-**Header organization rules:**
-1. **Always sort headers alphabetically within each group** separated by blank lines
-2. **Use correct include syntax:**
-   - **Angle brackets `<>`** for system/standard library headers and external dependencies
-   - **Quotes `""`** for project-specific/local headers
-3. **Group headers in this order:**
-   - System/standard library headers (e.g., `<algorithm>`, `<cmath>`, `<memory>`, `<vector>`)
-   - Third-party library headers (e.g., `<DD4hep/...>`, `<JANA/...>`, `<edm4eic/...>`, `<fmt/...>`)
-   - Project-specific headers (e.g., `"algorithms/..."`, `"services/..."`, `"utilities/..."`)
-
-**Example correct header ordering:**
-```cpp
-#include <algorithm>
-#include <cmath>
-#include <memory>
-#include <vector>
-
-#include <DD4hep/Detector.h>
-#include <JANA/JApplication.h>
-#include <edm4eic/ClusterCollection.h>
-#include <fmt/core.h>
-
-#include "algorithms/calorimetry/CalorimeterHitDigi.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
-#include "services/log/Log_service.h"
-```
-
-**IWYU enforcement:** The CI system runs include-what-you-use with `--reorder` and `fix_includes.py --reorder` to automatically detect and fix header ordering violations. If headers are not properly sorted:
-- CI will fail with IWYU violations
-- An automatic PR may be created with header fixes
-- Manual fixes must sort headers alphabetically within each group
-
-**When editing existing code:**
-- Always maintain alphabetical ordering when adding new headers
-- **Use angle brackets `<>` for system and third-party headers, quotes `""` for project headers**
-- Check that new headers are placed in the correct group (system, third-party, or project)
-- Respect existing blank line separations between header groups
-- Use the IWYU mapping file (`.github/iwyu.imp`) rules for header substitutions
 
 ## Conventional Commits and Breaking Changes
 
@@ -323,15 +209,6 @@ It is acceptable to use [Conventional Commits specification](https://www.convent
 - `chore:` - Maintenance tasks, build changes
 - `perf:` - Performance improvements
 
-**Examples of conventional commit messages:**
-```
-feat(tracking): add silicon tracker hit reconstruction
-fix(calorimetry): correct energy calibration for ECAL clusters
-docs(readme): update build instructions for new dependencies
-refactor(algorithms): simplify cluster formation algorithm
-test(tracking): add unit tests for track fitting
-```
-
 ### Breaking Changes in EICrecon Context
 
 **CRITICAL: Use `BREAKING CHANGE:` footer or `!` suffix for any changes that affect user workflows.**
@@ -339,7 +216,6 @@ test(tracking): add unit tests for track fitting
 **Consider as breaking changes:**
 
 1. **Command-line interface changes:**
-   - Removal or renaming of `eicrecon` command-line options
    - Changes to argument parsing that affect existing scripts
    - Modifications to configuration parameter names or behavior
    - Changes to plugin loading syntax or requirements
@@ -350,39 +226,9 @@ test(tracking): add unit tests for track fitting
    - Significant changes to collection content structure or data members
    - Changes to default output file naming conventions
 
-**Examples of breaking change commits:**
-```
-feat!: change ECAL cluster collection name for consistency
-
-BREAKING CHANGE: EcalBarrelClusters collection renamed to ECALBarrelClusters
-to match naming convention. Update analysis scripts to use new name.
-
-feat(cli): add new reconstruction mode option
-
-BREAKING CHANGE: --mode argument now required for eicrecon execution.
-Add --mode=default to existing scripts to maintain current behavior.
-
-refactor(algorithms): restructure tracking output collections
-
-BREAKING CHANGE: TrackCandidates collection split into ReconstructedTracks
-and TrackParameters. Analysis code must be updated to use new collections.
-```
-
 **Non-breaking changes (safe to implement without `BREAKING CHANGE`):**
 - Algorithm improvements that produce better but compatible results
 - Addition of new optional command-line arguments
 - Addition of new output collections alongside existing ones
 - Performance optimizations that don't change interfaces
 - Internal refactoring that doesn't affect user-facing APIs
-
-**Validation before marking as breaking:**
-```bash
-# Test command-line compatibility
-eicrecon --help  # Verify existing options still work
-eicrecon -Pkey=value input.edm4hep.root  # Test parameter syntax
-
-# Test output collection compatibility
-# Run reconstruction and verify expected collections exist
-eicrecon -Ppodio:output_file=test.root input.edm4hep.root
-# Check collection names match expectations
-```
