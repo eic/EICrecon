@@ -1,6 +1,6 @@
 # EICrecon Development Instructions
 
-EICrecon is a JANA2-based reconstruction software for the ePIC detector. This is a complex high-energy physics reconstruction software requiring specialized dependencies and extensive build times.
+EICrecon is a JANA2-based reconstruction software for the ePIC detector.
 
 **ALWAYS follow these instructions first and fallback to additional search and context gathering only if the information in these instructions is incomplete or found to be in error.**
 
