@@ -11,7 +11,6 @@
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <functional>
-#include <map>
 #include <memory>
 #include <string>
 #include <utility>
