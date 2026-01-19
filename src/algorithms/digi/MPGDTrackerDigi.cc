@@ -1277,20 +1277,22 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
   //    - If doesReEnter, reEntrance is a mere transient trip outside the
   //     SUBVOLUME. => Cancel it.
   //    - Else disregard edge, possibly raising an inconsistency status bit.
-  //  
+  //
   // Can reEnter: does reEnter?
   bool canReEnter = (status & 0x3) == 0x3;
-  double norm = sqrt(a + Pz * Pz);
+  double norm     = sqrt(a + Pz * Pz);
   if (canReEnter) {
     bool doesReEnter = true;
     for (int i12 = 0; i12 < 2; i12++) {
       double t               = ts[0][i12];
       int s                  = t > 0 ? +1 : -1;
       const double tolerance = 20 * dd4hep::um;
-      if (path/2 - s * t * norm < tolerance) doesReEnter = false; 
+      if (path / 2 - s * t * norm < tolerance)
+        doesReEnter = false;
     }
     if (doesReEnter) {
-      status &= ~0x3; canReEnter = false;
+      status &= ~0x3;
+      canReEnter = false;
     }
   }
   for (int lu = 0; lu < 2; lu++) { // rMin/rMax
@@ -1299,23 +1301,23 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
       double t = ts[lu][0];
       if (t < 0) {
         if (status & 0x10) {
-	  if (lu == 1 || !canReEnter) { // No reEntrance:
-	    status |= 0x10000;            // Inconsistency
-	    status &= ~statGene;          // Cancel wall crossing
-	  } else {                      // ReEntrance: disregard edge crossing
-	    if (t < tIn)
-	      status |= 0x10000;          // Inconsistency
-	  }
+          if (lu == 1 || !canReEnter) { // No reEntrance:
+            status |= 0x10000;          // Inconsistency
+            status &= ~statGene;        // Cancel wall crossing
+          } else {                      // ReEntrance: disregard edge crossing
+            if (t < tIn)
+              status |= 0x10000; // Inconsistency
+          }
         }
       } else { // if (t > 0)
         if (status & 0x20) {
-	  if (lu == 1 || !canReEnter) {
-	    status |= 0x20000;
-	    status &= ~statGene;
-	  } else {
-	    if (t > tOut)
-	      status |= 0x20000;
-	  }
+          if (lu == 1 || !canReEnter) {
+            status |= 0x20000;
+            status &= ~statGene;
+          } else {
+            if (t > tOut)
+              status |= 0x20000;
+          }
         }
       }
     }
@@ -1323,23 +1325,23 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
       double t = ts[lu][1];
       if (t < 0) {
         if (status & 0x10) {
-	  if (lu == 1 || !canReEnter) {
-	    status |= 0x40000;
-	    status &= ~(statGene << 1);
-	  } else {
-	    if (t < tIn)
-	      status |= 0x40000;
-	  }
+          if (lu == 1 || !canReEnter) {
+            status |= 0x40000;
+            status &= ~(statGene << 1);
+          } else {
+            if (t < tIn)
+              status |= 0x40000;
+          }
         }
       } else { // if (t > 0)
         if (status & 0x20) {
-	  if (lu == 1 || !canReEnter) {
-	    status |= 0x80000;
-	    status &= ~(statGene << 1);
-	  } else {
-	    if (t > tOut)
-	      status |= 0x80000;
-	  }
+          if (lu == 1 || !canReEnter) {
+            status |= 0x80000;
+            status &= ~(statGene << 1);
+          } else {
+            if (t > tOut)
+              status |= 0x80000;
+          }
         }
       }
     }
@@ -1354,7 +1356,7 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
   //  that it matches exactly distances to entrance/exit.
   if (canReEnter)
     status |= 0x100; // Remember that particle can re-enter.
-  double at = path / 2 / norm;
+  double at           = path / 2 / norm;
   unsigned int statws = 0;
   for (int is = 0; is < 2; is++) {
     int s     = 1 - 2 * is;
@@ -1713,7 +1715,7 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
       }
     }
   }
-  if (status&0x1) {
+  if (status & 0x1) {
     lext[0] = Mx + tF * Px;
     lext[1] = My + tF * Py;
     lext[2] = Mz + tF * Pz;
