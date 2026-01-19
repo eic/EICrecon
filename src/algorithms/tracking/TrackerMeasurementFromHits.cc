@@ -32,7 +32,7 @@
 
 namespace eicrecon {
 
-void TrackerMeasurementFromHits::init() { }
+void TrackerMeasurementFromHits::init() {}
 
 void TrackerMeasurementFromHits::process(const Input& input, const Output& output) const {
   const auto [trk_hits] = input;
@@ -76,10 +76,10 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
     try {
       // transform global position into local coordinates
       // geometry context contains nothing here
-      pos = surface
-                ->globalToLocal(Acts::GeometryContext(), {hit_pos.x, hit_pos.y, hit_pos.z},
-                                {0, 0, 0})
-                .value();
+      pos =
+          surface
+              ->globalToLocal(Acts::GeometryContext(), {hit_pos.x, hit_pos.y, hit_pos.z}, {0, 0, 0})
+              .value();
 
     } catch (std::exception& ex) {
       warning("Can't convert globalToLocal for hit: vol_id={} det_id={} CellID={} x={} y={} z={}",
