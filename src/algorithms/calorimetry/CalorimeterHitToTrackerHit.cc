@@ -6,7 +6,6 @@
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
-#include <DD4hep/config.h>
 #include <edm4eic/CovDiag3f.h>
 #include <cmath>
 #include <gsl/pointers>
