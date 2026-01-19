@@ -87,9 +87,9 @@ void InitPlugin(JApplication* app) {
   for (int mpgd = 0; mpgd < nMPGDs; mpgd++) {
     std::string MPGD_name(MPGD_names[mpgd]);
     if (SiFactoryPattern & (0x1 << mpgd)) {
-      mLog->info(R"(2DStrip digitization will be applied to "{}")", MPGD_name);
-    } else {
       mLog->info(R"(pixel digitization will be applied to "{}")", MPGD_name);
+    } else {
+      mLog->info(R"(2DStrip digitization will be applied to "{}")", MPGD_name);
     }
   }
 
