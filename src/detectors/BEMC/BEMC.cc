@@ -6,10 +6,10 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <cmath>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
@@ -19,8 +19,8 @@
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "algorithms/calorimetry/SimCalorimeterHitProcessorConfig.h"
-#include "algorithms/digi/PulseGenerationConfig.h"
 #include "algorithms/digi/PulseCombinerConfig.h"
+#include "algorithms/digi/PulseGenerationConfig.h"
 #include "algorithms/digi/PulseNoiseConfig.h"
 #include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
@@ -35,8 +35,8 @@
 #include "factories/calorimetry/ImagingTopoCluster_factory.h"
 #include "factories/calorimetry/SimCalorimeterHitProcessor_factory.h"
 #include "factories/calorimetry/TruthEnergyPositionClusterMerger_factory.h"
-#include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
+#include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 

@@ -22,7 +22,6 @@
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <Eigen/Core>
 #include <exception>
 #include <unordered_map>
