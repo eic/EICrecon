@@ -9,6 +9,7 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <cmath>
+#include <functional>
 #include <map>
 #include <memory>
 #include <string>
