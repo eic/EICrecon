@@ -310,7 +310,7 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
-      "B0TrackerTrackSeedingResults", {"B0TrackerRecHits"},
+      "B0TrackerSeeds", {"B0TrackerRecHits"},
       {"B0TrackerSeeds", "B0TrackerSeedParameters"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
