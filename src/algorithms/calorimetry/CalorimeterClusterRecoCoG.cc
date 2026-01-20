@@ -9,7 +9,6 @@
  */
 
 #include <Evaluator/DD4hepUnits.h>
-#include <algorithm>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
@@ -18,9 +17,9 @@
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <algorithm>
 #include <cctype>
 #include <cstddef>
 #include <gsl/pointers>
