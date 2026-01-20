@@ -115,45 +115,38 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
         // we must write an association
         if (ea != energy_assoc->end() && pa != pos_assoc->end()) {
           // we have two associations
-          if (pa->getSimID() == ea->getSimID()) {
+          if (pa->getSim() == ea->getSim()) {
             // both associations agree on the MCParticles entry
             auto clusterassoc = merged_assoc->create();
-            clusterassoc.setRecID(new_clus.getObjectID().index);
-            clusterassoc.setSimID(ea->getSimID());
             clusterassoc.setWeight(1.0);
             clusterassoc.setRec(new_clus);
             clusterassoc.setSim(ea->getSim());
           } else {
             // both associations disagree on the MCParticles entry
-            debug("   --> Two associations added to {} and {}", ea->getSimID(), pa->getSimID());
+            debug("   --> Two associations added to {} and {}", ea->getSim().getObjectID().index,
+                  pa->getSim().getObjectID().index);
             auto clusterassoc1 = merged_assoc->create();
-            clusterassoc1.setRecID(new_clus.getObjectID().index);
-            clusterassoc1.setSimID(ea->getSimID());
             clusterassoc1.setWeight(0.5);
             clusterassoc1.setRec(new_clus);
             clusterassoc1.setSim(ea->getSim());
             auto clusterassoc2 = merged_assoc->create();
-            clusterassoc2.setRecID(new_clus.getObjectID().index);
-            clusterassoc2.setSimID(pa->getSimID());
             clusterassoc2.setWeight(0.5);
             clusterassoc2.setRec(new_clus);
             clusterassoc2.setSim(pa->getSim());
           }
         } else if (ea != energy_assoc->end()) {
           // no position association
-          debug("   --> Only added energy cluster association to {}", ea->getSimID());
+          debug("   --> Only added energy cluster association to {}",
+                ea->getSim().getObjectID().index);
           auto clusterassoc = merged_assoc->create();
-          clusterassoc.setRecID(new_clus.getObjectID().index);
-          clusterassoc.setSimID(ea->getSimID());
           clusterassoc.setWeight(1.0);
           clusterassoc.setRec(new_clus);
           clusterassoc.setSim(ea->getSim());
         } else if (pa != pos_assoc->end()) {
           // no energy association
-          debug("   --> Only added position cluster association to {}", pa->getSimID());
+          debug("   --> Only added position cluster association to {}",
+                pa->getSim().getObjectID().index);
           auto clusterassoc = merged_assoc->create();
-          clusterassoc.setRecID(new_clus.getObjectID().index);
-          clusterassoc.setSimID(pa->getSimID());
           clusterassoc.setWeight(1.0);
           clusterassoc.setRec(new_clus);
           clusterassoc.setSim(pa->getSim());

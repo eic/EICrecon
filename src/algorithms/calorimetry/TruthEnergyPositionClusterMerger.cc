@@ -81,8 +81,6 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
 
       // set association
       auto clusterassoc = merged_assoc->create();
-      clusterassoc.setRecID(new_clus.getObjectID().index);
-      clusterassoc.setSimID(mcID);
       clusterassoc.setWeight(1.0);
       clusterassoc.setRec(new_clus);
       clusterassoc.setSim((*mcparticles)[mcID]);
@@ -98,8 +96,6 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
 
       // set association
       auto clusterassoc = merged_assoc->create();
-      clusterassoc.setRecID(new_clus.getObjectID().index);
-      clusterassoc.setSimID(mcID);
       clusterassoc.setWeight(1.0);
       clusterassoc.setRec(new_clus);
       clusterassoc.setSim((*mcparticles)[mcID]);
@@ -132,8 +128,6 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
 
     // set association
     auto clusterassoc = merged_assoc->create();
-    clusterassoc.setRecID(new_clus.getObjectID().index);
-    clusterassoc.setSimID(mcID);
     clusterassoc.setWeight(1.0);
     clusterassoc.setRec(new_clus);
     clusterassoc.setSim(mc);
@@ -154,7 +148,7 @@ std::map<int, edm4eic::Cluster> TruthEnergyPositionClusterMerger::indexedCluster
     // find associated particle
     for (const auto& assoc : associations) {
       if (assoc.getRec() == cluster) {
-        mcID = assoc.getSimID();
+        mcID = assoc.getSim().getObjectID().index;
         break;
       }
     }

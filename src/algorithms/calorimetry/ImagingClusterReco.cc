@@ -297,8 +297,6 @@ void ImagingClusterReco::associate_mc_particles(
 
     // set association
     auto assoc = assocs->create();
-    assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-    assoc.setSimID(part.getObjectID().index);
     assoc.setWeight(weight);
     assoc.setRec(cl);
     assoc.setSim(part);
