@@ -24,6 +24,7 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Utilities/Result.hpp>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
