@@ -13,7 +13,6 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <cmath>
 #include <gsl/pointers>
@@ -76,8 +75,6 @@ void MatchClusters::process(const MatchClusters::Input& input,
 
     // create truth associations
     auto assoc = outpartsassoc->create();
-    assoc.setRecID(outpart.getObjectID().index);
-    assoc.setSimID(mcID);
     assoc.setWeight(1.0);
     assoc.setRec(outpart);
     assoc.setSim((*mcparticles)[mcID]);
@@ -112,8 +109,6 @@ void MatchClusters::process(const MatchClusters::Input& input,
 
     // Create truth associations
     auto assoc = outpartsassoc->create();
-    assoc.setRecID(outpart.getObjectID().index);
-    assoc.setSimID(mcID);
     assoc.setWeight(1.0);
     assoc.setRec(outpart);
     assoc.setSim((*mcparticles)[mcID]);
