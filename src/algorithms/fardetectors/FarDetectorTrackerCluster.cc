@@ -13,7 +13,7 @@
 #include <algorithms/geo.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <cstddef>
 #include <gsl/pointers>
 #include <stdexcept>
