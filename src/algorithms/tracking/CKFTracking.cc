@@ -114,7 +114,6 @@ CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
                      const edm4eic::Measurement2DCollection& meas2Ds) {
 
   // Create output collections
-  std::vector<ActsExamples::Trajectories*> acts_trajectories;
   // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
   //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
   std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
