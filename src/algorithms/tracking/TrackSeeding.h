@@ -82,7 +82,7 @@ private:
   static std::vector<const eicrecon::SpacePoint*>
   getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits);
   std::optional<edm4eic::MutableTrackParameters>
-  estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seeds) const;
+  estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) const;
 
   static std::tuple<float, float, float> circleFit(std::vector<std::pair<float, float>>& positions);
   static std::tuple<float, float> lineFit(std::vector<std::pair<float, float>>& positions);
