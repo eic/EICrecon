@@ -13,6 +13,11 @@ on:
   merge_group:
   workflow_dispatch:
     inputs:
+      organization:
+        description: 'eic-shell organization'
+        default: 'eicweb'
+        required: false
+        type: string
       platform:
         description: 'eic-shell platform'
         default: 'eic_xl'
@@ -38,6 +43,7 @@ permissions:
 
 env:
   # inputs doesn't always exist, so we make sure env does
+  organization: ${{ inputs.organization || vars.organization || 'eicweb' }}
   platform: ${{ inputs.platform || 'eic_xl' }}
   release: ${{ inputs.release || 'nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
@@ -55,7 +61,7 @@ jobs:
   env:
     # env cannot be used in matrix, but outputs can
     # so this job turns env into outputs
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     outputs:
       platform_json: ${{ steps.define.outputs.platform_json }}
       release_json: ${{ steps.define.outputs.release_json }}
@@ -151,6 +157,7 @@ jobs:
     - name: Build and install
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
@@ -168,6 +175,7 @@ jobs:
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -194,6 +202,7 @@ jobs:
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
@@ -259,6 +268,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           git diff ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20' -clang-tidy-binary run-clang-tidy
@@ -266,6 +276,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           run-clang-tidy -p build -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20'
@@ -287,6 +298,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           # reduce headers until diff is stable
@@ -301,6 +313,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           # don't aim for stability for all files
@@ -438,6 +451,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -471,6 +485,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -507,6 +522,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -543,6 +559,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -584,6 +601,7 @@ jobs:
     - name: Run EICrecon (digitization)
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -600,6 +618,7 @@ jobs:
     - name: Run EICrecon (reconstruction)
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -646,6 +665,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -692,6 +712,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -733,6 +754,7 @@ jobs:
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -741,6 +763,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -764,6 +787,7 @@ jobs:
     - name: Convert execution graphs
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -796,6 +820,7 @@ jobs:
     - name: Compare to previous artifacts
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -843,6 +868,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -858,6 +884,7 @@ jobs:
     - name: Convert execution graphs
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -943,6 +970,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -966,6 +994,7 @@ jobs:
     - name: Convert execution graphs
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -1006,6 +1035,7 @@ jobs:
     - name: Compare to previous artifacts
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -1053,6 +1083,7 @@ jobs:
     - name: Compare single- and multi-threaded artifacts
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -1070,7 +1101,7 @@ jobs:
         if-no-files-found: error
 
   trigger-container:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}
     needs:
     - build
@@ -1106,7 +1137,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-docs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - eicrecon-gun
       - eicrecon-dis
@@ -1152,7 +1183,7 @@ jobs:
     uses: eic/actions/.github/workflows/list-open-prs.yml@main
 
   get-docs-from-open-prs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - build-docs
       - list-open-prs
@@ -1203,7 +1234,7 @@ jobs:
           if-no-files-found: ignore
 
   get-docs-from-main:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - build-docs
     steps:
@@ -1260,7 +1291,7 @@ jobs:
           if-no-files-found: error
 
   collect-docs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - get-docs-from-main
       - get-docs-from-open-prs
@@ -1318,7 +1349,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
@@ -1350,7 +1381,7 @@ jobs:
     needs:
     - trigger-container
     - deploy-docs
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     steps:
       - name: Cancel container
         run: |
