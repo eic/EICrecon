@@ -1137,7 +1137,7 @@ jobs:
         GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-docs:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04
     needs:
       - eicrecon-gun
       - eicrecon-dis
