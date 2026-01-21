@@ -1111,7 +1111,7 @@ jobs:
     - name: Fail when single- and multi-threaded are significantly different (p != 1.000)
       run: |
         if [ -s capybara-bad.log ] ; then
-          echo "Disagreements found between single- and multi-threaded running:"
+          echo "Disagreements found between single- and multi-threaded running. This indicates potential non-deterministic behavior between single-threaded and multi-threaded execution. Please investigate the failing tests, review the differences below, and ensure all relevant operations are thread-safe."
           cat capybara-bad.log
           exit 1
         fi
