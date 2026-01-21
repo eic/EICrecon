@@ -1,0 +1,68 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2025 Wouter Deconinck
+
+#pragma once
+
+#include <algorithms/algorithm.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <atomic>
+#include <mutex>
+#include <stdint.h>
+#include <string>
+#include <string_view>
+#if __has_include(<edm4eic/Truthiness.h>)
+#include <edm4eic/TruthinessCollection.h>
+#endif
+
+#include "TruthinessConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+
+namespace eicrecon {
+
+#if __has_include(<edm4eic/Truthiness.h>)
+using TruthinessAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
+                      edm4eic::MCRecoParticleAssociationCollection>,
+    algorithms::Output<edm4eic::TruthinessCollection>>;
+#else
+using TruthinessAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
+                      edm4eic::MCRecoParticleAssociationCollection>,
+    algorithms::Output<>>;
+#endif
+
+class Truthiness : public TruthinessAlgorithm, public WithPodConfig<TruthinessConfig> {
+
+private:
+  mutable double m_average_truthiness{0.0};
+  mutable std::atomic<uint64_t> m_event_count{0};
+  mutable std::mutex m_stats_mutex;
+
+public:
+  Truthiness(std::string_view name)
+      : TruthinessAlgorithm{
+            name,
+            {"inputMCParticles", "inputReconstructedParticles", "inputAssociations"},
+#if __has_include(<edm4eic/Truthiness.h>)
+            {"outputTruthiness"},
+#else
+            {},
+#endif
+            "Calculate truthiness metric comparing reconstructed particles to MC "
+            "truth."} {
+  }
+
+  void init() final {};
+  void process(const Input&, const Output&) const final;
+
+  // Accessors for statistics
+  double getAverageTruthiness() const {
+    std::lock_guard<std::mutex> lock(m_stats_mutex);
+    return m_average_truthiness;
+  }
+  uint64_t getEventCount() const { return m_event_count.load(); }
+};
+
+} // namespace eicrecon
