@@ -752,9 +752,9 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
     return false;
   }
   cIDs.push_back(sim_hit.getCellID());
-  std::vector<const edm4hep::SimTrackerHit*> subHitList;
+  std::vector<int> subHitList;
   if (level() >= algorithms::LogLevel::kDebug) {
-    subHitList.push_back(&sim_hit);
+    subHitList.push_back(idx);
   }
   // Continuations?
   bool isContinuation  = status & (m_intoLower | m_intoUpper);
@@ -850,7 +850,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
       usedHits.push_back(jdx);
       cIDs.push_back(sim_hjt.getCellID());
       if (level() >= algorithms::LogLevel::kDebug) {
-        subHitList.push_back(&sim_hjt);
+        subHitList.push_back(jdx);
       }
       // ***** CONTINUATION?
       hasContinuation = status & 0xa;
@@ -896,7 +896,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
   time += ((dir > 0) ? 1 : ((dir < 0) ? -1 : 0)) * sqrt(DoF2) / dd4hep::c_light;
   if (level() >= algorithms::LogLevel::kDebug) {
     debug("--------------------");
-    printSubHitList(subHitList);
+    printSubHitList(input, subHitList);
     debug("  =");
     // Print position, eDep and time of coalesced/extended hit
     Position locPos(lpos[0], lpos[1], lpos[2]); // Simplification: strip surface = REFERENCE surface
@@ -948,9 +948,9 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
     return false;
   }
   cIDs.push_back(sim_hit.getCellID());
-  std::vector<const edm4hep::SimTrackerHit*> subHitList;
+  std::vector<int> subHitList;
   if (level() >= algorithms::LogLevel::kDebug) {
-    subHitList.push_back(&sim_hit);
+    subHitList.push_back(idx);
   }
   // Continuations?
   int rank             = m_stripRank(vID);
@@ -1036,7 +1036,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
       usedHits.push_back(jdx);
       cIDs.push_back(sim_hjt.getCellID());
       if (level() >= algorithms::LogLevel::kDebug) {
-        subHitList.push_back(&sim_hjt);
+        subHitList.push_back(jdx);
       }
       // ***** CONTINUATION?
       hasContinuation = status & 0xa;
@@ -1079,7 +1079,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
   time += ((dir > 0) ? 1 : ((dir < 0) ? -1 : 0)) * sqrt(DoF2) / dd4hep::c_light;
   if (level() >= algorithms::LogLevel::kDebug) {
     debug("--------------------");
-    printSubHitList(subHitList);
+    printSubHitList(input, subHitList);
     debug("  =");
     // Print position, eDep and time of coalesced/extended hit
     Position locPos(lpos[0], lpos[1], lpos[2]); // Simplification: strip surface = REFERENCE surface
@@ -1091,27 +1091,28 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
   }
   return true;
 }
-void MPGDTrackerDigi::printSubHitList(
-    std::vector<const edm4hep::SimTrackerHit*>& subHitList) const {
-  const double edmm = edm4eic::unit::mm;
+void MPGDTrackerDigi::printSubHitList(const Input& input, std::vector<int>& subHitList) const {
+  const auto [headers, sim_hits] = input;
+  const double edmm              = edm4eic::unit::mm;
   using edm4eic::unit::eV, edm4eic::unit::GeV;
   int ldx = 0;
-  for (const edm4hep::SimTrackerHit* sim_hp : subHitList) {
-    CellID cIDk = sim_hp->getCellID();
+  for (int kdx : subHitList) {
+    const edm4hep::SimTrackerHit& sim_hp = sim_hits->at(kdx);
+    CellID cIDk = sim_hp.getCellID();
     CellID hIDk = cIDk >> 32, vIDk = cIDk & m_volumeBits;
     if (ldx == 0) {
       debug("Hit cellID{:d} = 0x{:08x}, 0x{:08x}", ldx++, hIDk, vIDk);
     } else {
       debug("  + cellID{:d} = 0x{:08x}, 0x{:08x}", ldx++, hIDk, vIDk);
     }
-    debug("  position  = ({:7.2f},{:7.2f},{:7.2f}) [mm]", sim_hp->getPosition().x / edmm,
-          sim_hp->getPosition().y / edmm, sim_hp->getPosition().z / edmm);
+    debug("  position  = ({:7.2f},{:7.2f},{:7.2f}) [mm]", sim_hp.getPosition().x / edmm,
+          sim_hp.getPosition().y / edmm, sim_hp.getPosition().z / edmm);
     debug("  xy_radius = {:.2f}",
-          std::hypot(sim_hp->getPosition().x, sim_hp->getPosition().y) / edmm);
-    debug("  momentum  = ({:.2f}, {:.2f}, {:.2f}) [GeV]", sim_hp->getMomentum().x / GeV,
-          sim_hp->getMomentum().y / GeV, sim_hp->getMomentum().z / GeV);
-    debug("  edep = {:.0f} [eV]", sim_hp->getEDep() / eV);
-    debug("  time = {:.2f} [ns]", sim_hp->getTime());
+          std::hypot(sim_hp.getPosition().x, sim_hp.getPosition().y) / edmm);
+    debug("  momentum  = ({:.2f}, {:.2f}, {:.2f}) [GeV]", sim_hp.getMomentum().x / GeV,
+          sim_hp.getMomentum().y / GeV, sim_hp.getMomentum().z / GeV);
+    debug("  edep = {:.0f} [eV]", sim_hp.getEDep() / eV);
+    debug("  time = {:.2f} [ns]", sim_hp.getTime());
   }
 }
 
@@ -1302,8 +1303,8 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
       if (t < 0) {
         if (status & 0x10) {
           if (lu == 1 || !canReEnter) { // No reEntrance:
-            status |= 0x10000;          // Inconsistency
-            status &= ~statGene;        // Cancel wall crossing
+            status |= 0x10000;          //   Inconsistency
+            status &= ~statGene;        //   Cancel wall crossing
           } else {                      // ReEntrance: disregard edge crossing
             if (t < tIn)
               status |= 0x10000; // Inconsistency
