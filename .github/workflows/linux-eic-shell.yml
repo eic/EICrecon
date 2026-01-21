@@ -1097,7 +1097,7 @@ jobs:
           set -o pipefail
           capybara bara single/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4eic.root \
                         multi/rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_MT.edm4eic.root | tee capybara.log
-          grep -v -E 'p = 1\.000$' capybara.log | grep -E 'p = \S*$' > capybara-bad.log
+          grep -v -E 'p = 1\.000$' capybara.log | grep -E 'p = \S*$' > capybara-bad.log || true
           cat capybara.log
           mv capybara-reports rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT
           touch .rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}_ST_MT
