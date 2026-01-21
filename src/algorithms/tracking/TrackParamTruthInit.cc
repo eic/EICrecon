@@ -12,6 +12,7 @@
 #include <edm4eic/Cov6f.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
 #include <cmath>
 #include <cstdlib>
