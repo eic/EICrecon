@@ -168,7 +168,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     auto trk_seed = trk_seeds->create();
     trk_seed.setPerigee({0.f, 0.f, 0.f});
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR > 5)
-    trk_seed.setQuality(seedToAdd.getQuality());
+    trk_seed.setQuality(seedToAdd.seedQuality());
 #endif
     trk_seed.setParams(trackParams.value());
     trk_seed.addToHits(*sps[0]->externalSpacePoint());
