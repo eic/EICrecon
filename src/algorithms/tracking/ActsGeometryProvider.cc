@@ -29,7 +29,6 @@
 #include <Acts/Visualization/PlyVisualization3D.hpp>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/VolumeManager.h>
-#include <JANA/JException.h>
 #include <TGeoManager.h>
 #include <fmt/ostream.h>
 #include <spdlog/common.h>
@@ -135,7 +134,7 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
     m_init_log->error("Error during DD4Hep -> ACTS geometry conversion: {}", ex.what());
     m_init_log->info("Set parameter acts::InitLogLevel=trace to see conversion info and possibly "
                      "identify failing geometry");
-    throw JException(ex.what());
+    throw;
   }
 
   m_init_log->info("DD4Hep geometry converted!");
