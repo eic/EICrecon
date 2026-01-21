@@ -130,7 +130,7 @@ void TrackParamTruthInit::process(const Input& input, const Output& output) cons
 
     // Insert into edm4eic::TrackSeeds
     auto track_seed = track_seeds->create();
-    track_seed.setPerigee({0.f, 0.f, 0.f});
+    track_seed.setPerigee({0.F, 0.F, 0.F});
     track_seed.setParams(track_parameter);
     // There are no hits to store to the seed
 
