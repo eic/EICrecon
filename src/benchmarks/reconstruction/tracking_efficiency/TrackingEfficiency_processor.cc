@@ -60,15 +60,15 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
   // EXAMPLE I
   // This is access to for final result of the calculation/data transformation of central detector CFKTracking:
-  const auto reco_particles =
-      event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
+  const auto* reco_particles =
+      event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
 
-  m_log->debug("Tracking reconstructed particles N={}: ", reco_particles.size());
+  m_log->debug("Tracking reconstructed particles N={}: ", reco_particles->size());
   m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}", "[i]", "[px]", "[py]", "[pz]", "[P]",
                "[P*3]");
 
-  for (std::size_t i = 0; i < reco_particles.size(); i++) {
-    const auto& particle = *(reco_particles[i]);
+  for (std::size_t i = 0; i < reco_particles->size(); i++) {
+    const auto& particle = (*reco_particles)[i];
 
     double px = particle.getMomentum().x;
     double py = particle.getMomentum().y;
@@ -112,29 +112,29 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
   // EXAMPLE III
   // Loop over MC particles
-  auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
-  m_log->debug("MC particles N={}: ", mc_particles.size());
+  auto* mc_particles = event->GetCollection<edm4hep::MCParticle>("MCParticles");
+  m_log->debug("MC particles N={}: ", mc_particles->size());
   m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}", "[i]", "status", "[PDG]", "[px]",
                "[py]", "[pz]", "[P]");
-  for (std::size_t i = 0; i < mc_particles.size(); i++) {
-    const auto* particle = mc_particles[i];
+  for (std::size_t i = 0; i < mc_particles->size(); i++) {
+    const auto& particle = (*mc_particles)[i];
 
     // GeneratorStatus() == 1 - stable particles from MC generator. 0 - might be added by Geant4
-    if (particle->getGeneratorStatus() != 1) {
+    if (particle.getGeneratorStatus() != 1) {
       continue;
     }
 
-    double px = particle->getMomentum().x;
-    double py = particle->getMomentum().y;
-    double pz = particle->getMomentum().z;
-    ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
+    double px = particle.getMomentum().x;
+    double py = particle.getMomentum().y;
+    double pz = particle.getMomentum().z;
+    ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle.getMass());
     ROOT::Math::Cartesian3D p(px, py, pz);
     if (p.R() < 1) {
       continue;
     }
 
     m_log->debug("   {:<5} {:<6} {:<7} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i,
-                 particle->getGeneratorStatus(), particle->getPDG(), px, py, pz, p.R());
+                 particle.getGeneratorStatus(), particle.getPDG(), px, py, pz, p.R());
   }
 }
 
