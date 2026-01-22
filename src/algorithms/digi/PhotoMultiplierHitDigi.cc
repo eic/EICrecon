@@ -54,7 +54,7 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
   std::uniform_real_distribution<double> uniform;
 
   trace("{:=^70}", " call PhotoMultiplierHitDigi::process ");
-  std::unordered_map<CellIDType, std::vector<HitData>> hit_groups;
+  std::map<CellIDType, std::vector<HitData>> hit_groups;
   // collect the photon hit in the same cell
   // calculate signal
   trace("{:-<70}", "Loop over simulated hits ");
