@@ -15,14 +15,13 @@
 #include "PhotoMultiplierHitDigi.h"
 
 #include <Evaluator/DD4hepUnits.h>
-#include <algorithm>
 #include <algorithms/logger.h>
-#include <cmath>
 #include <edm4hep/Vector3d.h>
-#include <fmt/core.h>
+#include <podio/ObjectID.h>
+#include <algorithm>
+#include <cmath>
 #include <gsl/pointers>
 #include <iterator>
-#include <podio/ObjectID.h>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 
