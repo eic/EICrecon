@@ -22,7 +22,6 @@
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <Eigen/Core>
 #include <exception>
 #include <unordered_map>
@@ -66,7 +65,7 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
 
     const auto is = surfaceMap.find(vol_id);
     if (is == surfaceMap.end()) {
-      warning(" WARNING: vol_id ({})  not found in m_surfaces.", vol_id);
+      warning(" WARNING: vol_id ({:#x})  not found in m_surfaces.", vol_id);
       continue;
     }
     const Acts::Surface* surface = is->second;
