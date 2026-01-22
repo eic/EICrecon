@@ -48,7 +48,7 @@ void TrackingOccupancyAnalysis::process(const std::shared_ptr<const JEvent>& eve
     auto& occup_hist      = m_hits_occup_hists[name_index];
 
     try {
-      auto* hits = event->GetCollection<edm4hep::SimTrackerHit>(data_name);
+      const auto* hits = event->GetCollection<edm4hep::SimTrackerHit>(data_name);
       count_hist->Fill(hits->size());
       for (const auto& hit : *hits) {
         float x = hit.getPosition().x;

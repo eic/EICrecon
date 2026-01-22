@@ -91,7 +91,7 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
                  p.R() * 3);
   }
 
-  auto* mc_particles = event->GetCollection<edm4hep::MCParticle>("MCParticles");
+  const auto* mc_particles = event->GetCollection<edm4hep::MCParticle>("MCParticles");
 
   m_log->debug("MC particles N={}: ", mc_particles->size());
   m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}", "[i]", "status", "[PDG]", "[px]",
@@ -154,7 +154,7 @@ void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const
 void TrackingTest_processor::ProcessGloablMatching(const std::shared_ptr<const JEvent>& event) {
 
   m_log->debug("ReconstructedParticles (FINAL) [objID] [PDG] [charge] [energy]");
-  auto* final_reco_particles =
+  const auto* final_reco_particles =
       event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedParticlesWithAssoc");
   for (const auto& part : *final_reco_particles) {
     m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part.getObjectID().index, part.getPDG(),
