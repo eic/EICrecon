@@ -13,7 +13,6 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
@@ -21,7 +20,6 @@
 #include <map>
 #include <string>
 #include <utility>
-#include <vector>
 
 #include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
 #include "services/log/Log_service.h"
