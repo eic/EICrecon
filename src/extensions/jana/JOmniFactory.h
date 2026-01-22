@@ -533,7 +533,7 @@ public:
       static_cast<AlgoT*>(this)->Configure();
     } catch (std::exception& e) {
       logger()->error("Factory initialization failed: {}", e.what());
-      SetCreationStatus(CreationStatus::NeverCreated);
+      SetCreationStatus(JFactory::CreationStatus::NeverCreated);
       // Don't rethrow: factory exists but never produces data
     }
   }
@@ -550,7 +550,7 @@ public:
   virtual void Process(int32_t /* run_number */, uint64_t /* event_number */) {};
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
-    if (GetCreationStatus() == CreationStatus::NeverCreated) {
+    if (GetCreationStatus() == JFactory::CreationStatus::NeverCreated) {
       for (auto* output : m_outputs) {
         output->Reset();
         output->SetCollection(*this);
