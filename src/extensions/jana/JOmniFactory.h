@@ -539,11 +539,12 @@ public:
 
   void Process(const std::shared_ptr<const JEvent>& event) override {
     try {
-      for (auto* input : m_inputs) {
-        input->GetCollection(*event);
-      }
+      // Reset outputs first to create empty collections
       for (auto* output : m_outputs) {
         output->Reset();
+      }
+      for (auto* input : m_inputs) {
+        input->GetCollection(*event);
       }
 #if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
       spdlog::mdc::put("e", std::to_string(event->GetEventNumber()));
@@ -553,6 +554,15 @@ public:
         output->SetCollection(*this);
       }
     } catch (std::exception& e) {
+      // On exception, still set empty collections for any outputs that were Reset()
+      // This ensures podio frames have consistent collections across all events
+      for (auto* output : m_outputs) {
+        try {
+          output->SetCollection(*this);
+        } catch (...) {
+          // Ignore errors setting empty collections
+        }
+      }
       throw JException(e.what());
     }
   }
