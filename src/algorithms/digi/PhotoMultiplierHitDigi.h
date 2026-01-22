@@ -105,7 +105,7 @@ protected:
 
 private:
   // add a hit to local `hit_groups` data structure
-  void InsertHit(std::unordered_map<CellIDType, std::vector<HitData>>& hit_groups, CellIDType id,
+  void InsertHit(std::map<CellIDType, std::vector<HitData>>& hit_groups, CellIDType id,
                  double amp, TimeType time, std::size_t sim_hit_index,
                  std::default_random_engine& generator, std::normal_distribution<double>& gaussian,
                  bool is_noise_hit = false) const;
