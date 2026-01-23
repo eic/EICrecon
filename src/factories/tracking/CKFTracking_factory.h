@@ -26,7 +26,7 @@ private:
   using AlgoT = eicrecon::CKFTracking;
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4eic::TrackParameters> m_parameters_input{this};
+  PodioInput<edm4eic::TrackSeed> m_seeds_input{this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
   Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output{this};
 
@@ -57,7 +57,7 @@ public:
     // See https://github.com/eic/EICrecon/issues/1961
     m_acts_tracks_output().clear();
 
-    m_acts_tracks_output() = m_algo->process(*m_parameters_input(), *m_measurements_input());
+    m_acts_tracks_output() = m_algo->process(*m_seeds_input(), *m_measurements_input());
   }
 };
 
