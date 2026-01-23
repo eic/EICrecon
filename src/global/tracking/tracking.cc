@@ -9,6 +9,7 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
+#include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <functional>
 #include <map>
@@ -43,15 +44,18 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "TrackTruthSeeds", {"EventHeader", "MCParticles"}, {"TrackTruthSeeds"}, {}, app));
+      "TrackTruthSeeds", {"EventHeader", "MCParticles"},
+      {"TrackTruthSeeds", "TrackTruthSeedParameters"}, {}, app));
 
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>(
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
       "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
       {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
       {
-          .function = RangeSplit<&edm4eic::TrackParameters::getTheta>(thetaRanges),
+          .function = RangeSplit<
+              Chain<&edm4eic::TrackSeed::getParams, &edm4eic::TrackParameters::getTheta>>(
+              thetaRanges),
       },
       app));
 
@@ -129,11 +133,11 @@ void InitPlugin(JApplication* app) {
                                                        app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
-      "CentralTrackSeedingResults", {"CentralTrackingRecHits"}, {"CentralTrackSeedingResults"}, {},
-      app));
+      "CentralTrackSeeds", {"CentralTrackingRecHits"},
+      {"CentralTrackSeeds", "CentralTrackSeedParameters"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralCKFTrajectories", {"CentralTrackSeedingResults", "CentralTrackerMeasurements"},
+      "CentralCKFTrajectories", {"CentralTrackSeeds", "CentralTrackerMeasurements"},
       {
           "CentralCKFActsTracksUnfiltered",
       },
@@ -306,10 +310,11 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
-      "B0TrackerTrackSeedingResults", {"B0TrackerRecHits"}, {"B0TrackerSeedingResults"}, {}, app));
+      "B0TrackerSeeds", {"B0TrackerRecHits"}, {"B0TrackerSeeds", "B0TrackerSeedParameters"}, {},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "B0TrackerCKFTrajectories", {"B0TrackerSeedingResults", "B0TrackerMeasurements"},
+      "B0TrackerCKFTrajectories", {"B0TrackerSeeds", "B0TrackerMeasurements"},
       {
           "B0TrackerCKFActsTracksUnfiltered",
       },

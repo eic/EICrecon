@@ -6,6 +6,11 @@
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/SpacePointContainer.hpp>
 #endif
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/EventData/Seed.hpp>
+#else
+#include <Acts/Seeding/Seed.hpp>
+#endif
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
@@ -15,10 +20,12 @@
 #endif
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 #include <cmath>
 #include <iterator>
 #include <memory>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <tuple>
@@ -34,9 +41,9 @@
 
 namespace eicrecon {
 
-using TrackSeedingAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::TrackerHitCollection>,
-                          algorithms::Output<edm4eic::TrackParametersCollection>>;
+using TrackSeedingAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::TrackerHitCollection>,
+    algorithms::Output<edm4eic::TrackSeedCollection, edm4eic::TrackParametersCollection>>;
 
 class TrackSeeding : public TrackSeedingAlgorithm,
                      public WithPodConfig<OrthogonalTrackSeedingConfig> {
@@ -74,8 +81,8 @@ private:
   static std::pair<float, float> findPCA(std::tuple<float, float, float>& circleParams);
   static std::vector<const eicrecon::SpacePoint*>
   getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits);
-  void addToTrackParams(edm4eic::TrackParametersCollection& trackparams,
-                        SeedContainer& seeds) const;
+  std::optional<edm4eic::MutableTrackParameters>
+  estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) const;
 
   static std::tuple<float, float, float> circleFit(std::vector<std::pair<float, float>>& positions);
   static std::tuple<float, float> lineFit(std::vector<std::pair<float, float>>& positions);
