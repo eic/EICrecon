@@ -3,17 +3,21 @@
 //
 //
 
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSourceGeneratorT.h>
+#include <memory>
 
 #include "JEventProcessorPODIO.h"
 #include "JEventSourcePODIO.h"
+#include "PodioRunFrame_service.h"
 
 // Make this a JANA plugin
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
   app->Add(new JEventSourceGeneratorT<JEventSourcePODIO>());
+  app->ProvideService(std::make_shared<PodioRunFrame_service>(app));
 
   // Disable this behavior for now so one can run eicrecon with only the
   // input file as an argument.

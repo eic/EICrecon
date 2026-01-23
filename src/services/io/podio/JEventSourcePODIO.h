@@ -7,8 +7,10 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
+#include <podio/Frame.h>
 #include <podio/ROOTReader.h>
 #include <spdlog/logger.h>
+#include <stdint.h>
 #include <cstddef>
 #include <memory>
 #include <string>
@@ -18,6 +20,8 @@
 #else
 #define JANA_NEW_CALLBACK_STYLE 0
 #endif
+
+class PodioRunFrame_service;
 
 class JEventSourcePODIO : public JEventSource {
 
@@ -49,8 +53,13 @@ protected:
   bool m_run_forever       = false;
   bool m_use_event_headers = true;
 
+  // Run metadata handling
+  int32_t m_last_emitted_run_number = -1;
+  std::shared_ptr<podio::Frame> m_cached_run_frame;
+
 private:
   std::shared_ptr<spdlog::logger> m_log;
+  std::shared_ptr<PodioRunFrame_service> m_run_frame_service;
 };
 
 template <> double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);
