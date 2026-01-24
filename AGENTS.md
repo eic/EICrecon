@@ -144,7 +144,7 @@ When making physics algorithm changes:
 
 **When reviewing or writing code, pay special attention to:**
 
-1. **Map iteration ordering:** Maps with pointer keys (e.g., `std::map<T*, V>`) produce non-deterministic iteration order that varies with memory allocation across different thread counts. Use ordered keys or `std::unordered_map` when iteration order doesn't affect output.
+1. **Map iteration ordering:** Maps with pointer keys (e.g., `std::map<T*, V>`) produce iteration order that depends on memory allocation and can vary across runs with different thread counts. For maps that are iterated and whose iteration affects output, avoid pointer keys and instead use stable, non-pointer keys or an ordered container with an explicit comparator that does not depend on memory addresses. `std::unordered_map` is only appropriate when the map is not iterated in a way that affects output, and this should be verified.
 
 2. **PODIO object keys:** Maps with PODIO objects (edm4hep, edm4eic) as keys use pointer-based default ordering. When iterating such maps, provide explicit ordering (e.g., by object ID or physics properties) to ensure reproducible results.
 
