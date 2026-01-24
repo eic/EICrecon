@@ -5,6 +5,7 @@
 #pragma once
 
 #include <JANA/JApplicationFwd.h>
+#include <JANA/JEvent.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 #include <podio/ROOTReader.h>
@@ -18,8 +19,6 @@
 #else
 #define JANA_NEW_CALLBACK_STYLE 0
 #endif
-
-class JEvent; // forward declaration
 
 class JEventSourcePODIO : public JEventSource {
 

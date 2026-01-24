@@ -3,6 +3,8 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/JEventSource.h>
+#include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/format.h>
@@ -16,9 +18,8 @@
 #include <regex>
 #include <sstream>
 
-#include "services/log/Log_service.h"
 #include "JEventSourcePODIO.h"
-#include <JANA/Services/JComponentManager.h>
+#include "services/log/Log_service.h"
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
   SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
