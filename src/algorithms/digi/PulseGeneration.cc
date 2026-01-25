@@ -13,7 +13,6 @@
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
-#include <cstdlib>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
@@ -177,26 +176,42 @@ void PulseGeneration<HitT>::process(
 
   for (const auto& hit : *simhits) {
     const auto [time, charge] = HitAdapter<HitT>::getPulseSources(hit);
+
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
     double signal_time = m_cfg.timestep * std::floor(time / m_cfg.timestep);
 
     bool passed_threshold   = false;
     std::uint32_t skip_bins = 0;
+    float previous          = 0;
     float integral          = 0;
     std::vector<float> pulse;
 
     for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
       double t    = signal_time + i * m_cfg.timestep - time;
       auto signal = (*m_pulse)(t, charge);
+
+      // Early exit conditions: below threshold and falling, or min sampling time after threshold
       if (std::abs(signal) < m_cfg.ignore_thres) {
         if (!passed_threshold) {
-          skip_bins = i;
-          continue;
-        }
-        if (t > m_min_sampling_time) {
-          break;
+          // Before threshold crossed
+          auto diff = std::abs(signal) - std::abs(previous);
+          previous  = signal;
+          if (diff >= 0) {
+            // Rising before threshold crossed
+            skip_bins = i;
+            continue;
+          } else {
+            // Falling without threshold ever crossed
+            break;
+          }
+        } else {
+          // After threshold crossed, stop after min sampling time
+          if (t > m_min_sampling_time) {
+            break;
+          }
         }
       }
+
       passed_threshold = true;
       pulse.push_back(signal);
       integral += signal;
