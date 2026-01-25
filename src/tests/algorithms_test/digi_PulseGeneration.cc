@@ -193,8 +193,10 @@ TEST_CASE("Test Landau pulse crossing threshold is not prematurely terminated",
 
   // Check that the pulse was not prematurely terminated
   // It should sample at least until min_sampling_time after crossing threshold
-  // With timestep=0.1ns and min_sampling_time=2.0ns, we expect at least 20 samples
-  REQUIRE(amplitudes.size() >= 20);
+  // Derive expected minimum samples from cfg to avoid hard-coding
+  const auto expected_min_samples =
+      static_cast<std::size_t>(std::ceil(cfg.min_sampling_time / cfg.timestep));
+  REQUIRE(amplitudes.size() >= expected_min_samples);
 
   // Verify that some amplitudes are above threshold
   bool has_above_threshold = false;
