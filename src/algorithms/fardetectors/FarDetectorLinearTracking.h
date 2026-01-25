@@ -9,6 +9,9 @@
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#endif
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4hep/MCParticle.h>
@@ -30,6 +33,9 @@ namespace eicrecon {
 
 using FarDetectorLinearTrackingAlgorithm = algorithms::Algorithm<
     algorithms::Input<std::vector<edm4eic::Measurement2DCollection>,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                      std::optional<edm4eic::MCRecoTrackerHitLinkCollection>,
+#endif
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrackCollection,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -42,15 +48,18 @@ class FarDetectorLinearTracking : public FarDetectorLinearTrackingAlgorithm,
 
 public:
   FarDetectorLinearTracking(std::string_view name)
-      : FarDetectorLinearTrackingAlgorithm{
-            name,
-            {"inputHitCollections", "inputMCRecoTrackerHitAssociations"},
-            {"outputTrackCollection",
+      : FarDetectorLinearTrackingAlgorithm{name,
+                                           {"inputHitCollections",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-             "outputMCRecoTrackLinks",
+                                            "inputMCRecoTrackerHitLinks",
 #endif
-             "outputMCRecoTrackAssociations"},
-            "Fit track segments from hits in the tracker layers"} {
+                                            "inputMCRecoTrackerHitAssociations"},
+                                           {"outputTrackCollection",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                            "outputMCRecoTrackLinks",
+#endif
+                                            "outputMCRecoTrackAssociations"},
+                                           "Fit track segments from hits in the tracker layers"} {
   }
 
   /** One time initialization **/
@@ -80,6 +89,9 @@ private:
 
   /** Convert 2D clusters to 3D coordinates and match associated particle **/
   void ConvertClusters(const edm4eic::Measurement2DCollection& clusters,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       const edm4eic::MCRecoTrackerHitLinkCollection& hit_links,
+#endif
                        const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
                        std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
                        std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const;
