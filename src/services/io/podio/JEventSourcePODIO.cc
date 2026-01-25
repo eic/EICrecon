@@ -19,7 +19,7 @@
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/podioVersion.h>
-#include <stdint.h>
+#include <cstdint>
 #include <algorithm>
 #include <exception>
 #include <iostream>

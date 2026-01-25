@@ -48,7 +48,7 @@ public:
   // Initialize beam energy from parent run frame if available
   void BeginRun(const std::shared_ptr<const JEvent>& event) override {
 
-    // std::cout << this->GetPreviousRunNumber() << " " << this->GetPreviousEventNumber() << std::endl;
+
     // Try to access parent run event and extract electron_beam_energy
     float beamE = config().beamE;
     try {
