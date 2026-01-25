@@ -183,17 +183,17 @@ TEST_CASE("Test Landau pulse crossing threshold is not prematurely terminated", 
   // Pulse should be generated since it crosses threshold
   REQUIRE(pulses->size() == 1);
   REQUIRE((*pulses)[0].getCellID() == 12345);
-  
+
   auto amplitudes = (*pulses)[0].getAmplitude();
-  
+
   // Should have non-zero amplitude samples
   REQUIRE(amplitudes.size() > 0);
-  
+
   // Check that the pulse was not prematurely terminated
   // It should sample at least until min_sampling_time after crossing threshold
   // With timestep=0.1ns and min_sampling_time=2.0ns, we expect at least 20 samples
   REQUIRE(amplitudes.size() >= 20);
-  
+
   // Verify that some amplitudes are above threshold
   bool has_above_threshold = false;
   for (auto amplitude : amplitudes) {
