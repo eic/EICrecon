@@ -31,6 +31,7 @@
 #include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingClusterReco.h"
 #include "algorithms/calorimetry/ImagingClusterRecoConfig.h"
+#include <edm4eic/association_utils.h>
 
 namespace eicrecon {
 
@@ -262,22 +263,24 @@ void ImagingClusterReco::associate_mc_particles(
   // bookkeeping maps for associated primaries
   std::map<edm4hep::MCParticle, double, decltype(compare)> mapMCParToContrib(compare);
 
+  // Build fast lookup map for RawHit -> SimHit associations (O(N) instead of O(N²))
+  auto assoc_lookup = edm4eic::make_association_lookup(
+      mchitassociations, [](const auto& a) { return a.getRawHit(); }, // from: raw hit
+      [](const auto& a) { return a.getSimHit(); }                     // to: sim hit
+  );
+
   // --------------------------------------------------------------------------
   // 1. get associated sim hits and sum energy
   // --------------------------------------------------------------------------
   double eSimHitSum = 0.;
   for (auto clhit : cl.getHits()) {
-    // vector to hold associated sim hits
-    std::vector<edm4hep::SimCalorimeterHit> vecAssocSimHits;
+    // O(1) lookup with natural operator[] syntax (returns const reference)
+    const auto& vecAssocSimHits = assoc_lookup[clhit.getRawHit()];
 
-    for (const auto& hitAssoc : *mchitassociations) {
-      // if found corresponding raw hit, add sim hit to vector
-      // and increment energy sum
-      if (clhit.getRawHit() == hitAssoc.getRawHit()) {
-        vecAssocSimHits.push_back(hitAssoc.getSimHit());
-        eSimHitSum += vecAssocSimHits.back().getEnergy();
-      }
+    for (const auto& simHit : vecAssocSimHits) {
+      eSimHitSum += simHit.getEnergy();
     }
+
     debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(),
           clhit.getCellID());
 

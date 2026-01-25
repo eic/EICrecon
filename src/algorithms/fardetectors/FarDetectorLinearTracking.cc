@@ -37,6 +37,7 @@
 
 #include "FarDetectorLinearTracking.h"
 #include "algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
+#include <edm4eic/association_utils.h>
 
 namespace eicrecon {
 
@@ -250,6 +251,11 @@ void FarDetectorLinearTracking::ConvertClusters(
   const dd4hep::VolumeManagerContext* context =
       m_cellid_converter->findContext(clusters[0].getSurface());
 
+  // Build fast lookup map for RawHit -> SimHit associations (O(1) instead of O(N))
+  auto assoc_lookup = edm4eic::make_association_lookup(
+      &assoc_hits, [](const auto& a) { return a.getRawHit(); },
+      [](const auto& a) { return a.getSimHit(); });
+
   std::vector<Eigen::Vector3d> layerPositions;
   std::vector<edm4hep::MCParticle> assocParticles;
 
@@ -277,13 +283,11 @@ void FarDetectorLinearTracking::ConvertClusters(
     // Get associated raw hit
     auto rawHit = maxHit.getRawHit();
 
-    // Loop over the hit associations to find the associated MCParticle
-    for (const auto& hit_assoc : assoc_hits) {
-      if (hit_assoc.getRawHit() == rawHit) {
-        auto particle = hit_assoc.getSimHit().getParticle();
-        assocParticles.push_back(particle);
-        break;
-      }
+    // O(1) lookup instead of O(N) linear search (returns const reference)
+    const auto& sim_hits = assoc_lookup[rawHit];
+    if (!sim_hits.empty()) {
+      auto particle = sim_hits[0].getParticle();
+      assocParticles.push_back(particle);
     }
   }
 
