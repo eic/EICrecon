@@ -29,7 +29,7 @@
 
 #include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingClusterRecoConfig.h"
-#include <edm4eic/association_utils.h>
+#include "algorithms/calorimetry/association_utils.h"
 
 namespace eicrecon {
 

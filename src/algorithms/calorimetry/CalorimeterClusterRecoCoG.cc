@@ -30,7 +30,7 @@
 
 #include "CalorimeterClusterRecoCoG.h"
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
-#include <edm4eic/association_utils.h>
+#include "algorithms/calorimetry/association_utils.h"
 
 namespace eicrecon {
 

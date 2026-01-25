@@ -35,7 +35,7 @@
 
 #include "FarDetectorLinearTracking.h"
 #include "algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
-#include <edm4eic/association_utils.h>
+#include "algorithms/calorimetry/association_utils.h"
 
 namespace eicrecon {
 
