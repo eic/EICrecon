@@ -13,6 +13,7 @@
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
+#include <stdlib.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
