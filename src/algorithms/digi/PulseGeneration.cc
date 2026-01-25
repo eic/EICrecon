@@ -24,8 +24,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "services/evaluator/EvaluatorSvc.h"
-
 namespace eicrecon {
 
 class SignalPulse {
@@ -71,47 +69,6 @@ private:
   double m_hit_sigma_offset = 3.5;
 };
 
-// EvaluatorSvc Pulse
-class EvaluatorPulse : public SignalPulse {
-public:
-  EvaluatorPulse(const std::string& expression, const std::vector<double>& params) {
-
-    std::vector<std::string> keys = {"time", "charge"};
-    for (std::size_t i = 0; i < params.size(); i++) {
-      std::string p = "param" + std::to_string(i);
-      //Check the expression contains the parameter
-      if (expression.find(p) == std::string::npos) {
-        throw std::runtime_error("Parameter " + p + " not found in expression");
-      }
-      keys.push_back(p);
-      param_map[p] = params[i];
-    }
-
-    // Check the expression is contains time and charge
-    if (expression.find("time") == std::string::npos) {
-      throw std::runtime_error("Parameter [time] not found in expression");
-    }
-    if (expression.find("charge") == std::string::npos) {
-      throw std::runtime_error("Parameter [charge] not found in expression");
-    }
-
-    auto& serviceSvc = algorithms::ServiceSvc::instance();
-    m_evaluator      = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->_compile(expression, keys);
-  };
-
-  double operator()(double time, double charge) override {
-    param_map["time"]   = time;
-    param_map["charge"] = charge;
-    return m_evaluator(param_map);
-  }
-
-  double getMaximumTime() const override { return 0; }
-
-private:
-  std::unordered_map<std::string, double> param_map;
-  std::function<double(const std::unordered_map<std::string, double>&)> m_evaluator;
-};
-
 class PulseShapeFactory {
 public:
   static std::unique_ptr<SignalPulse> createPulseShape(const std::string& type,
@@ -122,12 +79,8 @@ public:
     //
     // Add more pulse shape variants here as needed
 
-    // If type not found, try and make a function using the ElavulatorSvc
-    try {
-      return std::make_unique<EvaluatorPulse>(type, params);
-    } catch (...) {
-      throw std::invalid_argument("Unable to make pulse shape type: " + type);
-    }
+    // If type not found, throw
+    throw std::invalid_argument("Unable to make pulse shape type: " + type);
   }
 };
 
