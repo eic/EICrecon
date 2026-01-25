@@ -9,7 +9,6 @@
 #include <algorithms/logger.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <cstddef>
 #include <iterator>
 #include <vector>

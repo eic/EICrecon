@@ -12,7 +12,6 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>

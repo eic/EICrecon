@@ -16,7 +16,6 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <RtypesCore.h>
 #include <TGeoMatrix.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <cmath>
 #include <map>

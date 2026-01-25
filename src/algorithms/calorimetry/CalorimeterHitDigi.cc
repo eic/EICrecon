@@ -20,7 +20,7 @@
 #include <algorithms/service.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>

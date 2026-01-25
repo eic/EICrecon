@@ -16,7 +16,6 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Parsers/Primitives.h>
 #include <TRef.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <cstdint>
 #include <map>

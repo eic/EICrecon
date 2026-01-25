@@ -4,7 +4,6 @@
 #include <edm4eic/VertexCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector4f.h>
-#include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <functional>

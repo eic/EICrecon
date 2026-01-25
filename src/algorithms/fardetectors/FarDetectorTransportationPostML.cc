@@ -2,7 +2,7 @@
 // Copyright (C) 2024 - 2025 Simon Gardner
 
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>

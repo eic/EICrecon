@@ -7,7 +7,6 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <gsl/pointers>
 
 namespace eicrecon {

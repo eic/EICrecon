@@ -25,8 +25,7 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
-#include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <algorithm>
 #include <cctype>
 #include <gsl/pointers>

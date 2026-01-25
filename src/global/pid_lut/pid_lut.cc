@@ -5,7 +5,6 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
-#include <fmt/core.h>
 #include <cmath>
 #include <map>
 #include <memory>

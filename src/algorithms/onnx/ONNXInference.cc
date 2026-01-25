@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 Wouter Deconinck, Tooba Ali, Dmitry Kalinkin
 
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <onnxruntime_c_api.h>
 #include <onnxruntime_cxx_api.h>
 #include <algorithm>

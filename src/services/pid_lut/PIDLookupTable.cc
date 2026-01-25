@@ -7,7 +7,6 @@
 #include <boost/iostreams/close.hpp>
 #include <boost/iostreams/filter/gzip.hpp>
 #include <boost/iostreams/filtering_stream.hpp>
-#include <fmt/core.h>
 #include <algorithm>
 #include <cctype>
 #include <cmath>

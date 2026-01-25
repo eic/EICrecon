@@ -4,7 +4,6 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
 #include <JANA/Services/JParameterManager.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>

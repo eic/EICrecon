@@ -22,7 +22,7 @@
 #include <algorithms/service.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>

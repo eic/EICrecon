@@ -7,7 +7,6 @@
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cstddef>
