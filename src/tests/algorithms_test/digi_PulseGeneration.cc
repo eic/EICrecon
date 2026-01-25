@@ -112,15 +112,16 @@ TEST_CASE("Test the EvaluatorSvc pulse generation with a square pulse", "[PulseG
   }
 }
 
-TEST_CASE("Test early exit for Landau pulse never reaching threshold", "[PulseGeneration][EarlyExit]") {
+TEST_CASE("Test early exit for Landau pulse never reaching threshold",
+          "[PulseGeneration][EarlyExit]") {
 
   eicrecon::PulseGeneration<edm4hep::SimTrackerHit> algo("PulseGeneration");
   eicrecon::PulseGenerationConfig cfg;
 
   // Configure Landau pulse with parameters
   cfg.pulse_shape_function = "LandauPulse";
-  cfg.pulse_shape_params   = {1.0, 1.0};  // gain=1.0, sigma_analog=1.0
-  cfg.ignore_thres         = 10.0;        // Set threshold high enough that pulse won't reach it
+  cfg.pulse_shape_params   = {1.0, 1.0}; // gain=1.0, sigma_analog=1.0
+  cfg.ignore_thres         = 10.0;       // Set threshold high enough that pulse won't reach it
   cfg.timestep             = 0.1 * edm4eic::unit::ns;
   cfg.min_sampling_time    = 0.0 * edm4eic::unit::ns;
   cfg.max_time_bins        = 1000;
@@ -148,17 +149,18 @@ TEST_CASE("Test early exit for Landau pulse never reaching threshold", "[PulseGe
   REQUIRE(pulses->size() == 0);
 }
 
-TEST_CASE("Test Landau pulse crossing threshold is not prematurely terminated", "[PulseGeneration][EarlyExit]") {
+TEST_CASE("Test Landau pulse crossing threshold is not prematurely terminated",
+          "[PulseGeneration][EarlyExit]") {
 
   eicrecon::PulseGeneration<edm4hep::SimTrackerHit> algo("PulseGeneration");
   eicrecon::PulseGenerationConfig cfg;
 
   // Configure Landau pulse
   cfg.pulse_shape_function = "LandauPulse";
-  cfg.pulse_shape_params   = {1.0, 1.0};  // gain=1.0, sigma_analog=1.0
-  cfg.ignore_thres         = 1.0;         // Set threshold low so pulse will cross it
+  cfg.pulse_shape_params   = {1.0, 1.0}; // gain=1.0, sigma_analog=1.0
+  cfg.ignore_thres         = 1.0;        // Set threshold low so pulse will cross it
   cfg.timestep             = 0.1 * edm4eic::unit::ns;
-  cfg.min_sampling_time    = 2.0 * edm4eic::unit::ns;  // Minimum sampling time
+  cfg.min_sampling_time    = 2.0 * edm4eic::unit::ns; // Minimum sampling time
   cfg.max_time_bins        = 1000;
 
   algo.applyConfig(cfg);
