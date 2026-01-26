@@ -171,7 +171,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTracks",
                                                             {
                                                                 "CentralTrackerMeasurements",
-                                                                "CentralTrackerSeeds",
+                                                                "CentralTrackSeeds",
                                                                 "CentralCKFActsTracks",
                                                                 "CentralTrackingRawHitAssociations",
                                                             },
