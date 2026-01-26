@@ -17,6 +17,7 @@
 // Note: Using local fallback - edm4eic version not found in include path
 
 #include <podio/ObjectID.h>
+#include <podio/podioVersion.h>
 #include <unordered_map>
 #include <vector>
 #include <ranges>
