@@ -4,6 +4,7 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
@@ -55,8 +56,11 @@ namespace {
 void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
-  const auto [meas2Ds, acts_tracks, raw_hit_assocs]           = input;
-  auto [trajectories, track_parameters, tracks, tracks_assoc] = output;
+  const auto [meas2Ds, track_seeds, acts_tracks, raw_hit_assocs] = input;
+  auto [trajectories, track_parameters, tracks, tracks_assoc]    = output;
+
+  // Create accessor for seed number dynamic column
+  Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
 
   // Loop over tracks
   for (const auto& track : *acts_tracks) {
@@ -71,6 +75,12 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     trajectory.setNOutliers(trajectoryState.nOutliers);
     trajectory.setNHoles(trajectoryState.nHoles);
     trajectory.setNSharedHits(trajectoryState.nSharedHits);
+
+    // Set the seed that was used to obtain this track
+    unsigned int iseed = seedNumber(track);
+    if (iseed < track_seeds->size()) {
+      trajectory.setSeed((*track_seeds)[iseed]);
+    }
 
     debug("trajectory state, measurement, outlier, hole: {} {} {} {}", trajectoryState.nStates,
           trajectoryState.nMeasurements, trajectoryState.nOutliers, trajectoryState.nHoles);
