@@ -81,7 +81,8 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     if (iseed < track_seeds->size()) {
       trajectory.setSeed((*track_seeds)[iseed]);
     } else {
-      warning("ActsToTracks: seed index {} is out of bounds (track_seeds size = {}), seed will not be set for this trajectory",
+      warning("ActsToTracks: seed index {} is out of bounds (track_seeds size = {}), seed will not "
+              "be set for this trajectory",
               iseed, track_seeds->size());
     }
 
