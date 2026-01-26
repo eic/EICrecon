@@ -4,6 +4,10 @@ EICrecon is a JANA2-based reconstruction software for the ePIC detector.
 
 **ALWAYS follow these instructions first and fallback to additional search and context gathering only if the information in these instructions is incomplete or found to be in error.**
 
+## Design Philosophy
+
+**Reproducibility in Multi-threaded Execution:** EICrecon is designed to produce identical physics results regardless of the number of threads used. This is critical for physics validation and debugging.
+
 ## Working Effectively with EICrecon
 
 ### Essential Setup: Use eic-shell Environment
@@ -135,6 +139,14 @@ When making physics algorithm changes:
 2. Look for corresponding factory in `src/factories/`
 3. Check for tests in `src/tests/algorithms_test/`
 4. Update documentation in `docs/` if needed
+
+## Code Review Guidelines for Reproducibility
+
+**When reviewing or writing code, pay special attention to:**
+
+1. **Map iteration ordering:** Maps with pointer keys (e.g., `std::map<T*, V>`) produce iteration order that depends on memory allocation and can vary across runs with different thread counts. For maps that are iterated and whose iteration affects output, avoid pointer keys and instead use stable, non-pointer keys or an ordered container with an explicit comparator that does not depend on memory addresses. `std::unordered_map` is only appropriate when the map is not iterated in a way that affects output, and this should be verified.
+
+2. **PODIO object keys:** Maps with PODIO objects (edm4hep, edm4eic) as keys use pointer-based default ordering. When iterating such maps, provide explicit ordering (e.g., by object ID or physics properties) to ensure reproducible results.
 
 ## Timing Expectations and Critical Warnings
 
