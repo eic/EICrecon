@@ -2,11 +2,14 @@
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #pragma once
 
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Measurement2D.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <tuple>
+#include <variant>
 #include <vector>
 
 #include "Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp"
@@ -22,8 +25,10 @@ public:
 
   void init(std::shared_ptr<spdlog::logger> log);
 
-  std::vector<ActsExamples::ConstTrackContainer*>
-  process(std::vector<const ActsExamples::ConstTrackContainer*> input_container,
+  std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
+             std::vector<Acts::ConstVectorTrackContainer*>>
+  process(std::vector<const Acts::ConstVectorMultiTrajectory*> input_track_states,
+          std::vector<const Acts::ConstVectorTrackContainer*> input_tracks,
           const edm4eic::Measurement2DCollection& meas2Ds);
 
 private:

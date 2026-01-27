@@ -107,22 +107,20 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
       CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
 }
 
-std::vector<ActsExamples::ConstTrackContainer*>
+std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
+           std::vector<Acts::ConstVectorTrackContainer*>>
 CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
                      const edm4eic::Measurement2DCollection& meas2Ds) {
 
   // Create output collections
-  // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
-  //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
-  std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
+  std::vector<Acts::ConstVectorMultiTrajectory*> trajectories_v;
+  std::vector<Acts::ConstVectorTrackContainer*> tracks_v;
 
   // If measurements or initial track parameters are empty, return early with empty container
   if (meas2Ds.empty() || init_trk_seeds.empty()) {
-    auto emptyTrackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>();
-    auto emptyTrackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>();
-    constTracks_v.push_back(
-        new ActsExamples::ConstTrackContainer(emptyTrackContainer, emptyTrackStateContainer));
-    return constTracks_v;
+    trajectories_v.push_back(new Acts::ConstVectorMultiTrajectory());
+    tracks_v.push_back(new Acts::ConstVectorTrackContainer());
+    return {trajectories_v, tracks_v};
   }
 
   // create sourcelink and measurement containers
@@ -375,19 +373,11 @@ CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
     }
   }
 
-  // Move track states and track container to const containers
-  // NOTE Using the non-const containers leads to references to
-  // implicitly converted temporaries inside the Trajectories.
-  auto constTrackStateContainer =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(*trackStateContainer));
+  // Move track states and track container to const containers as naked pointers
+  trajectories_v.push_back(new Acts::ConstVectorMultiTrajectory(std::move(*trackStateContainer)));
+  tracks_v.push_back(new Acts::ConstVectorTrackContainer(std::move(*trackContainer)));
 
-  auto constTrackContainer =
-      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*trackContainer));
-
-  constTracks_v.push_back(
-      new ActsExamples::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
-
-  return constTracks_v;
+  return {trajectories_v, tracks_v};
 }
 
 } // namespace eicrecon
