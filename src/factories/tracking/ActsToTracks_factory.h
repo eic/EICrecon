@@ -19,6 +19,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
+  PodioInput<edm4eic::TrackSeed> m_seeds_input{this};
   Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_raw_hit_assocs_input{this};
   PodioOutput<edm4eic::Trajectory> m_trajectories_output{this};
@@ -41,6 +42,7 @@ public:
     m_algo->process(
         {
             m_measurements_input(),
+            m_seeds_input(),
             tracks_vec.front(),
             m_raw_hit_assocs_input(),
         },
