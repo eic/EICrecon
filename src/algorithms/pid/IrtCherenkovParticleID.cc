@@ -222,7 +222,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
       // start a new IRT `RadiatorHistory`
       // - must be a raw pointer for `irt` compatibility
       // - it will be destroyed when `irt_particle` is destroyed
-      RadiatorHistory* irt_rad_history = new RadiatorHistory();
+      auto* irt_rad_history = new RadiatorHistory();
 
       // For new IRT: use RadiatorHistory methods; for old IRT: use CherenkovRadiator methods
       auto set_trajectory_bins = [&](unsigned bins) {
