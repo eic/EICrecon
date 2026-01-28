@@ -58,8 +58,7 @@ template <> struct IrtHelpers<true> {
     rad_history->SetTrajectoryBinCount(bins);
   }
 
-  template <typename RH, typename CR>
-  static void ResetLocations(RH* rad_history, CR* /*rad*/) {
+  template <typename RH, typename CR> static void ResetLocations(RH* rad_history, CR* /*rad*/) {
     rad_history->ResetLocations();
   }
 
@@ -76,8 +75,7 @@ template <> struct IrtHelpers<false> {
     rad->SetTrajectoryBinCount(bins);
   }
 
-  template <typename RH, typename CR>
-  static void ResetLocations(RH* /*rad_history*/, CR* rad) {
+  template <typename RH, typename CR> static void ResetLocations(RH* /*rad_history*/, CR* rad) {
     rad->ResetLocations();
   }
 
