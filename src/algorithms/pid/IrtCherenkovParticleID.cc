@@ -45,6 +45,45 @@ concept HasGetLocations = requires(const T& t) {
 };
 
 constexpr bool IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS = HasGetLocations<RadiatorHistory>;
+
+// Helper classes using template specialization to call appropriate methods
+template <bool UseRadiatorHistory> struct IrtHelpers;
+
+// Specialization for new IRT (RadiatorHistory has the methods)
+template <> struct IrtHelpers<true> {
+  static void SetTrajectoryBinCount(RadiatorHistory* rad_history, CherenkovRadiator* /*rad*/,
+                                    unsigned bins) {
+    rad_history->SetTrajectoryBinCount(bins);
+  }
+
+  static void ResetLocations(RadiatorHistory* rad_history, CherenkovRadiator* /*rad*/) {
+    rad_history->ResetLocations();
+  }
+
+  static void AddLocation(RadiatorHistory* rad_history, CherenkovRadiator* /*rad*/,
+                          const TVector3& x, const TVector3& n) {
+    rad_history->AddLocation(x, n);
+  }
+};
+
+// Specialization for old IRT (CherenkovRadiator has the methods)
+template <> struct IrtHelpers<false> {
+  static void SetTrajectoryBinCount(RadiatorHistory* /*rad_history*/, CherenkovRadiator* rad,
+                                    unsigned bins) {
+    rad->SetTrajectoryBinCount(bins);
+  }
+
+  static void ResetLocations(RadiatorHistory* /*rad_history*/, CherenkovRadiator* rad) {
+    rad->ResetLocations();
+  }
+
+  static void AddLocation(RadiatorHistory* /*rad_history*/, CherenkovRadiator* rad,
+                          const TVector3& x, const TVector3& n) {
+    rad->AddLocation(x, n);
+  }
+};
+
+using IrtHelper = IrtHelpers<IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS>;
 } // namespace
 
 namespace eicrecon {
@@ -223,39 +262,17 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
       // - it will be destroyed when `irt_particle` is destroyed
       auto* irt_rad_history = new RadiatorHistory();
 
-      // For new IRT: use RadiatorHistory methods; for old IRT: use CherenkovRadiator methods
-      auto set_trajectory_bins = [&](unsigned bins) {
-        if constexpr (IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS) {
-          irt_rad_history->SetTrajectoryBinCount(bins);
-        } else {
-          irt_rad->SetTrajectoryBinCount(bins);
-        }
-      };
-      auto reset_locations = [&]() {
-        if constexpr (IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS) {
-          irt_rad_history->ResetLocations();
-        } else {
-          irt_rad->ResetLocations();
-        }
-      };
-      auto add_location = [&](const TVector3& x, const TVector3& n) {
-        if constexpr (IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS) {
-          irt_rad_history->AddLocation(x, n);
-        } else {
-          irt_rad->AddLocation(x, n);
-        }
-      };
-
-      set_trajectory_bins(charged_particle.points_size() - 1);
+      IrtHelper::SetTrajectoryBinCount(irt_rad_history, irt_rad,
+                                       charged_particle.points_size() - 1);
       irt_particle->StartRadiatorHistory({irt_rad, irt_rad_history});
 
       // loop over `TrackPoint`s of this `charged_particle`, adding each to the IRT radiator
-      reset_locations();
+      IrtHelper::ResetLocations(irt_rad_history, irt_rad);
       trace("TrackPoints in '{}' radiator:", rad_name);
       for (const auto& point : charged_particle.getPoints()) {
         TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
         TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
-        add_location(position, momentum);
+        IrtHelper::AddLocation(irt_rad_history, irt_rad, position, momentum);
         trace(Tools::PrintTVector3(" point: x", position));
         trace(Tools::PrintTVector3("        p", momentum));
       }
