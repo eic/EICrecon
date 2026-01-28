@@ -47,38 +47,42 @@ concept HasGetLocations = requires(const T& t) {
 constexpr bool IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS = HasGetLocations<RadiatorHistory>;
 
 // Helper classes using template specialization to call appropriate methods
+// We use templated methods with auto types to delay name lookup and avoid
+// compilation errors when methods don't exist in the unused specialization
 template <bool UseRadiatorHistory> struct IrtHelpers;
 
 // Specialization for new IRT (RadiatorHistory has the methods)
 template <> struct IrtHelpers<true> {
-  static void SetTrajectoryBinCount(RadiatorHistory* rad_history, CherenkovRadiator* /*rad*/,
-                                    unsigned bins) {
+  template <typename RH, typename CR>
+  static void SetTrajectoryBinCount(RH* rad_history, CR* /*rad*/, unsigned bins) {
     rad_history->SetTrajectoryBinCount(bins);
   }
 
-  static void ResetLocations(RadiatorHistory* rad_history, CherenkovRadiator* /*rad*/) {
+  template <typename RH, typename CR>
+  static void ResetLocations(RH* rad_history, CR* /*rad*/) {
     rad_history->ResetLocations();
   }
 
-  static void AddLocation(RadiatorHistory* rad_history, CherenkovRadiator* /*rad*/,
-                          const TVector3& x, const TVector3& n) {
+  template <typename RH, typename CR>
+  static void AddLocation(RH* rad_history, CR* /*rad*/, const TVector3& x, const TVector3& n) {
     rad_history->AddLocation(x, n);
   }
 };
 
 // Specialization for old IRT (CherenkovRadiator has the methods)
 template <> struct IrtHelpers<false> {
-  static void SetTrajectoryBinCount(RadiatorHistory* /*rad_history*/, CherenkovRadiator* rad,
-                                    unsigned bins) {
+  template <typename RH, typename CR>
+  static void SetTrajectoryBinCount(RH* /*rad_history*/, CR* rad, unsigned bins) {
     rad->SetTrajectoryBinCount(bins);
   }
 
-  static void ResetLocations(RadiatorHistory* /*rad_history*/, CherenkovRadiator* rad) {
+  template <typename RH, typename CR>
+  static void ResetLocations(RH* /*rad_history*/, CR* rad) {
     rad->ResetLocations();
   }
 
-  static void AddLocation(RadiatorHistory* /*rad_history*/, CherenkovRadiator* rad,
-                          const TVector3& x, const TVector3& n) {
+  template <typename RH, typename CR>
+  static void AddLocation(RH* /*rad_history*/, CR* rad, const TVector3& x, const TVector3& n) {
     rad->AddLocation(x, n);
   }
 };
