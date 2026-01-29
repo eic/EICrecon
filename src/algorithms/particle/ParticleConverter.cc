@@ -11,31 +11,39 @@ namespace eicrecon {
                 const auto [in_particles] = input;
                 auto      [out_particles] = output;
 
-                // setSubsetCollection it restricts the branches of the output (that is what I see!)
                 // out_particles->setSubsetCollection(); // CHECK: IN THIS REALLY NECESSARY ? (ASK)
 
                 trace("----------------------------------------------------------------");
                 trace("                                                                ");
                 trace("We have {} particles as input", in_particles->size());
 
-                // Now we check particles and their current information
                 for (const auto particle : *in_particles) {
                         bool   isTrack = false;
                         bool   isHCal  = false;
                         bool   isECal  = false;
 
-                        double prelim_pid;
+                        double prelim_pid   = 0;
                         
+                        double track_energy = 0;
+                        double track_mass   = 0;
+                        
+                        double calo_energy  = 0;
+                        double ecal_energy  = 0;
+                        double hcal_energy  = 0;
+                        
+                        edm4hep::Vector3f track_momentum_vector;
+
                         for (auto track : particle.getTracks()) {
                                 isTrack = true;
+                                
                                 prelim_pid = particle.getPDG();
-
-                                if (!particle.getPDG())
-                                        trace("Particle with associated track PDG == 0");
+                                track_mass = particle.getMass();
+                                track_momentum_vector = track.getMomentum();
+                                
+                                // if (!particle.getPDG())
+                                //         trace("Particle with associated track PDG = {}, Energy = ", track.getPdg(), particle.getEnergy());
                         }
 
-                        // NOTE : be careful the cluster selected is NOT associated to a track
-                        // NOTE1: prelim, just go through the clusters
                         if (!isTrack) {
                                 for (auto cluster : particle.getClusters()) {
                                         for (auto calo_hit : cluster.getHits()) {
@@ -49,11 +57,15 @@ namespace eicrecon {
 
                                                         std::string det_element_type = det_element.type();
 
-                                                        if (det_element_type.find(ecal_string) != std::string::npos) {
+                                                        if (det_element_type.find(ecal_string) != std::string::npos){
                                                                 isECal = true;
+
+                                                                ecal_energy += calo_hit.getEnergy();
                                                         }
-                                                        if (det_element_type.find(hcal_string) != std::string::npos) {
+                                                        if (det_element_type.find(hcal_string) != std::string::npos){
                                                                 isHCal = true;
+
+                                                                hcal_energy += calo_hit.getEnergy();
                                                         }
                                                 }
 
@@ -63,12 +75,44 @@ namespace eicrecon {
                                 }
                         }
 
-                        if (isECal) 
+                        if (isECal && !isHCal) 
                                 prelim_pid = 22; //photon
-                        if (isHCal)
+                        if (isHCal && !isECal)
                                 prelim_pid = 2112; // neutron
 
-                        trace("Found particle with PID = {}", prelim_pid);
+                        // Step 2
+                        //      Calculate energy for the track
+                        double track_momentum_mag = 0;
+
+                        if (isTrack) {
+                                track_momentum_mag = std::sqrt(std::pow(track_momentum_vector.x, 2) + 
+                                                               std::pow(track_momentum_vector.y, 2) + 
+                                                               std::pow(track_momentum_vector.z, 2));
+
+                                track_energy = std::sqrt(std::pow(track_momentum_mag, 2) + std::pow(track_mass, 2));
+                        }
+
+                        trace(" This particle energy is E = {}", track_energy);
+
+                        // Step 3 (PRELIMINARY IMPLEMENTATION)
+                        //      Calculate calo energy
+                        if (ecal_energy > 0)
+                                calo_energy += ecal_energy;
+                        if (hcal_energy > 0)
+                                calo_energy += hcal_energy;
+
+                        calo_energy *= m_calo_energy_norm;
+
+                        // Step 4 (PRELIMINARY IMPLEMENTATION)
+                        //      Calculate the average energy. One resolution for the whole cal system?
+                        double weight_tracking_resolution = 1. / std::pow(m_tracking_resolution, 2);
+                        double weight_calo_resolution     = 1. / std::pow(m_ecal_resolution, 2); // USING ECAL RESOLUTION AS PLACEHOLDER!
+                        
+                        double normalization = weight_calo_resolution + weight_calo_resolution;
+
+                        double avge_energy = (weight_calo_resolution * calo_energy + weight_tracking_resolution * track_energy) / normalization;
+
+                        trace("Total energy of the particle is E = {} GeV", avge_energy);
                         
                         trace("                                                                ");
                 }
