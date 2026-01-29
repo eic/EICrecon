@@ -5,15 +5,14 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/SimTrackerHit.h>
-#include <fmt/core.h>
 #include <fmt/format.h> // IWYU pragma: keep
 #include <cmath>
 #include <cstddef>
@@ -31,13 +30,13 @@
 #include "factories/digi/SiliconChargeSharing_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/fardetectors/FarDetectorLinearTracking_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
+#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/fardetectors/FarDetectorTransportationPostML_factory.h"
 #include "factories/fardetectors/FarDetectorTransportationPreML_factory.h"
-#include "factories/fardetectors/FarDetectorTrackerCluster_factory.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/ONNXInference_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {

@@ -2,8 +2,8 @@
 // Copyright (C) 2024 Dmitry Kalinkin
 
 #include <edm4eic/EDM4eicVersion.h>
+#include <fmt/format.h>
 #include <cstddef>
-#include <fmt/core.h>
 #include <gsl/pointers>
 #include <stdexcept>
 

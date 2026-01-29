@@ -4,6 +4,7 @@
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
 #include <edm4eic/Cov4f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/EDM4hepVersion.h>

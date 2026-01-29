@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
-#include <edm4eic/EDM4eicVersion.h>
-#include "SiliconTrackerDigi.h"
-
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
@@ -16,6 +14,7 @@
 #include <unordered_map>
 #include <utility>
 
+#include "SiliconTrackerDigi.h"
 #include "algorithms/digi/SiliconTrackerDigiConfig.h"
 
 namespace eicrecon {

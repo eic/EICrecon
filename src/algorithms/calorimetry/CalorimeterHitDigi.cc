@@ -18,10 +18,10 @@
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/service.h>
-#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
