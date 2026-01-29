@@ -12,6 +12,7 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -52,7 +53,11 @@ void CalorimeterClusterRecoCoG::init() {
 void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& input,
                                         const CalorimeterClusterRecoCoG::Output& output) const {
   const auto [proto, mchitassociations] = input;
-  auto [clusters, associations]         = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [clusters, links, associations] = output;
+#else
+  auto [clusters, associations] = output;
+#endif
 
   for (const auto& pcl : *proto) {
     // skip protoclusters with no hits
@@ -77,7 +82,11 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
             "will be performed.");
       continue;
     }
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    associate(cl, mchitassociations, links, associations);
+#else
     associate(cl, mchitassociations, associations);
+#endif
   }
 }
 
@@ -166,6 +175,9 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
 void CalorimeterClusterRecoCoG::associate(
     const edm4eic::Cluster& cl,
     const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    edm4eic::MCRecoClusterParticleLinkCollection* links,
+#endif
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
   // Association Logic
@@ -236,6 +248,13 @@ void CalorimeterClusterRecoCoG::associate(
     // calculate weight
     const double weight = contribution / eSimHitSum;
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    // create link
+    auto link = links->create();
+    link.setWeight(weight);
+    link.setFrom(cl);
+    link.setTo(part);
+#endif
     // set association
     auto assoc = assocs->create();
     assoc.setWeight(weight);

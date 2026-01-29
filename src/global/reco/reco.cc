@@ -6,6 +6,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/Cluster.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/InclusiveKinematics.h>
 #include <edm4eic/MCRecoClusterParticleAssociation.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
@@ -84,7 +85,10 @@ void InitPlugin(JApplication* app) {
           "EcalClusterAssociations",
       },
       {
-          "ReconstructedParticles",           // edm4eic::ReconstructedParticle
+          "ReconstructedParticles", // edm4eic::ReconstructedParticle
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "ReconstructedParticleLinks", // edm4eic::MCRecoParticleLink
+#endif
           "ReconstructedParticleAssociations" // edm4eic::MCRecoParticleAssociation
       },
       app));

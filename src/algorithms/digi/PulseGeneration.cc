@@ -5,6 +5,7 @@
 // Convert energy deposition into ADC pulses
 // ADC pulses are assumed to follow the shape of landau function
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "PulseGeneration.h"
 
 #include <RtypesCore.h>
