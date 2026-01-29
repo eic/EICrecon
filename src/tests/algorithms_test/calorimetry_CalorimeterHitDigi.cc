@@ -110,11 +110,11 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
     // Validate links collection
     REQUIRE(rawlinks.size() == 1);
     REQUIRE(rawlinks.size() == (*rawassocs).size());
-    
+
     // Check link from/to relationships match association sim/raw hits
     REQUIRE(rawlinks[0].getFrom() == (*rawhits)[0]);
     REQUIRE(rawlinks[0].getTo() == (*simhits)[0]);
-    
+
     // Verify weights are normalized (should be 1.0 for single hit)
     REQUIRE_THAT(rawlinks[0].getWeight(), Catch::Matchers::WithinAbs(1.0, EPSILON));
 #endif
