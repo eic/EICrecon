@@ -94,7 +94,7 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
     edm4eic::MCRecoCalorimeterHitLinkCollection rawlinks;
     algo.process({headers.get(), simhits.get()}, {rawhits.get(), &rawlinks, rawassocs.get()});
 #else
-    algo.process({headers.get(), simhits.get()}, {rawhits.get(), nullptr, rawassocs.get()});
+    algo.process({headers.get(), simhits.get()}, {rawhits.get(), rawassocs.get()});
 #endif
 
     REQUIRE((*rawhits).size() == 1);
