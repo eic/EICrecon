@@ -27,12 +27,12 @@ namespace eicrecon {
 			PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output {this};
 
 			// Parameters
-			ParameterRef<double> m_tracking_resolution {this, "tracking_resolution", config().tracking_resolution};
-			ParameterRef<double> m_ecal_resolution     {this, "ecal_resolution", config().ecal_resolution};
-			ParameterRef<double> m_hcal_resolution     {this, "hcal_resolution", config().hcal_resolution};
-			ParameterRef<double> m_calo_energy_norm    {this, "calo_energy_norm", config().calo_energy_norm};
+			// ParameterRef<double> m_tracking_resolution {this, "tracking_resolution", config().tracking_resolution};
+			// ParameterRef<double> m_ecal_resolution     {this, "ecal_resolution", config().ecal_resolution};
+			// ParameterRef<double> m_hcal_resolution     {this, "hcal_resolution", config().hcal_resolution};
+			// ParameterRef<double> m_calo_energy_norm    {this, "calo_energy_norm", config().calo_energy_norm};
 
-			ParameterRef<bool> m_use_resolution_in_ecalc {this, "use_resolution_in_ecalc", config().use_resolution_in_ecalc};
+			// ParameterRef<bool> m_use_resolution_in_ecalc {this, "use_resolution_in_ecalc", config().use_resolution_in_ecalc};
 
 		public:
 			void Configure() {
