@@ -42,10 +42,8 @@ void InitPlugin(JApplication* app) {
       "TOFBarrelRawHits", {"EventHeader", "TOFBarrelHits"},
       {"TOFBarrelRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
        "TOFBarrelRawHitLinks",
 #endif
-
        "TOFBarrelRawHitAssociations"},
       {
           .threshold      = 6.0 * dd4hep::keV,

@@ -31,10 +31,8 @@ void InitPlugin(JApplication* app) {
       "ForwardRomanPotRawHits", {"EventHeader", "ForwardRomanPotHits"},
       {"ForwardRomanPotRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
        "ForwardRomanPotRawHitLinks",
 #endif
-
        "ForwardRomanPotRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,

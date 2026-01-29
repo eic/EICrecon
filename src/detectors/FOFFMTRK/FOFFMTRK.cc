@@ -26,10 +26,8 @@ void InitPlugin(JApplication* app) {
       "ForwardOffMTrackerRawHits", {"EventHeader", "ForwardOffMTrackerHits"},
       {"ForwardOffMTrackerRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
        "ForwardOffMTrackerRawHitLinks",
 #endif
-
        "ForwardOffMTrackerRawHitAssociations"},
       {
           .threshold      = 10.0 * dd4hep::keV,
