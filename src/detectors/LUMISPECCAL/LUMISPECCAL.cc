@@ -29,10 +29,8 @@ void InitPlugin(JApplication* app) {
       "EcalLumiSpecRawHits", {"EventHeader", "EcalLumiSpecHits"},
       {"EcalLumiSpecRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
        "EcalLumiSpecRawHitLinks",
 #endif
-
        "EcalLumiSpecRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}, // flat 2%
@@ -112,10 +110,8 @@ void InitPlugin(JApplication* app) {
       {"EcalLumiSpecClustersWithoutShapes", "EcalLumiSpecClusterAssociationsWithoutShapes"},
       {"EcalLumiSpecClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
        "EcalLumiSpecClusterLinks",
 #endif
-
        "EcalLumiSpecClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
