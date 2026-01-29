@@ -174,7 +174,11 @@ void InitPlugin(JApplication* app) {
 
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
         outputTrackTag, {inputClusterTags},
-        {outputTrackTag, outputTrackLinkTag, outputTrackAssociationTag},
+        {outputTrackTag,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+         outputTrackLinkTag,
+#endif
+         outputTrackAssociationTag},
         {
             .layer_hits_max       = 200,
             .chi2_max             = 0.001,
