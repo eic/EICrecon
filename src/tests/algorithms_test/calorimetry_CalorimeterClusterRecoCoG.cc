@@ -6,6 +6,7 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
