@@ -86,7 +86,7 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
   edm4eic::MCRecoClusterParticleLinkCollection link_out_coll;
   auto output = std::make_tuple(clust_out_coll.get(), &link_out_coll, assoc_out_coll.get());
 #else
-  auto output = std::make_tuple(clust_out_coll.get(), nullptr, assoc_out_coll.get());
+  auto output = std::make_tuple(clust_out_coll.get(), assoc_out_coll.get());
 #endif
 
   algo.process(input, output);
