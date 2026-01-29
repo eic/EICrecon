@@ -144,7 +144,7 @@ void InitPlugin(JApplication* app) {
       },
       {"EcalEndcapNClustersWithoutPIDAndShapes", // edm4eic::Cluster
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalEndcapNClusterLinkssWithoutPIDAndShapes", // edm4eic::MCRecoClusterParticleLink
+       "EcalEndcapNClusterLinksWithoutPIDAndShapes", // edm4eic::MCRecoClusterParticleLink
 #endif
        "EcalEndcapNClusterAssociationsWithoutPIDAndShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
