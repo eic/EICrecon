@@ -43,8 +43,8 @@ inline LorentzRotation determine_boost(PxPyPzEVector ei, PxPyPzEVector pi) {
   // Step 3: Construct "ideal" head-on configuration (same energies, back-to-back along z)
   double e_energy = eo.E();
   double p_energy = po.E();
-  double e_pz     = -sqrt(e_energy * e_energy - eo.M() * eo.M());
-  double p_pz     = +sqrt(p_energy * p_energy - po.M() * po.M());
+  double e_pz     = -eo.P();
+  double p_pz     = +po.P();
 
   PxPyPzEVector eh(0, 0, e_pz, e_energy);
   PxPyPzEVector ph(0, 0, p_pz, p_energy);
