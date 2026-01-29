@@ -8,7 +8,12 @@
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#endif
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
@@ -31,6 +36,8 @@ using eicrecon::CalorimeterHitDigi;
 using eicrecon::CalorimeterHitDigiConfig;
 
 TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
+  const float EPSILON = 1e-5;
+
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterHitDigi");
   logger->set_level(spdlog::level::trace);
 
@@ -98,5 +105,18 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
     REQUIRE((*rawassocs).size() == 1);
     REQUIRE((*rawassocs)[0].getSimHit() == (*simhits)[0]);
     REQUIRE((*rawassocs)[0].getRawHit() == (*rawhits)[0]);
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    // Validate links collection
+    REQUIRE(rawlinks.size() == 1);
+    REQUIRE(rawlinks.size() == (*rawassocs).size());
+    
+    // Check link from/to relationships match association sim/raw hits
+    REQUIRE(rawlinks[0].getFrom() == (*rawhits)[0]);
+    REQUIRE(rawlinks[0].getTo() == (*simhits)[0]);
+    
+    // Verify weights are normalized (should be 1.0 for single hit)
+    REQUIRE_THAT(rawlinks[0].getWeight(), Catch::Matchers::WithinAbs(1.0, EPSILON));
+#endif
   }
 }
