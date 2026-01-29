@@ -101,12 +101,12 @@ npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_pfri
 
 # Run 'eicrecon' with IRT2 engine activated; NB: make sure "IntegratedReconstruction": "yes" in pfrich-reco.json file;
 # "WriteOutputTree" may be changed to "no" to save disk space; either tune "CombinedEvaluationPlotsGeometry" and "evaluation-plots-geometry" to fit on your
-# screen or disable graphics output at the end of processing (change all "display" keys to "store" in pfrich-reco.json) in case of problems; 
+# screen or disable graphics output at the end of processing (change all "display" keys to "store" in pfrich-reco.json) in case of problems;
 $EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_pfrich.xml -Ppodio:output_collections="PFRICHHits,MCParticles,PFRICHTracks,PFRICHIrtRadiatorInfo,PFRICHIrtParticles,PFRICHIrtEvent" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,PFRICH,DIRC -Ppodio:output_file="rec.edm4hep.pfrich.root" sim.edm4hep.pfrich.root -PPFRICH:config=pfrich-reco.json
 
 # Re-read the output canvases by hand from the produced tree;
 root -l pfrich-events.root
-root [2] cx->Draw(); ca->Draw(); 
+root [2] cx->Draw(); ca->Draw();
 
 # PODIO output parser is not available as of yet;
 ```
@@ -155,7 +155,7 @@ npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_dric
 
 # Run 'eicrecon' with IRT2 engine activated; NB: make sure "IntegratedReconstruction": "yes" in drich-reco.json file;
 # "WriteOutputTree" may be changed to "no" to save disk space; either tune "CombinedEvaluationPlotsGeometry" and "evaluation-plots-geometry" to fit on your
-# screen or disable graphics output at the end of processing (change all "display" keys to "store" in drich-reco.json) in case of problems; 
+# screen or disable graphics output at the end of processing (change all "display" keys to "store" in drich-reco.json) in case of problems;
 $EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_drich.xml -Ppodio:output_collections="DRICHHits,MCParticles,DRICHTracks,DRICHIrtRadiatorInfo,DRICHIrtParticles,DRICHIrtEvent" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,DRICH,DIRC -Ppodio:output_file="rec.edm4hep.drich.root" sim.edm4hep.drich.root -PDRICH:config=drich-reco.json
 
 # Re-read the output canvases by hand from the produced tree;

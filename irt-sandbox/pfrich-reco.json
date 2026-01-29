@@ -1,74 +1,96 @@
 {
-    "IntegratedReconstruction": "no",
-    "Comment#1": "Calibration file imported only if IntegratedReconstruction=yes",
-    "Calibration": "pfrich-calibration.json",
-    "OutputRootFile": "pfrich-events.root",
-    "WriteOutputTree": "yes",
+  "IntegratedReconstruction": "no",
+  "Comment#1": "Calibration file imported only if IntegratedReconstruction=yes",
+  "Calibration": "pfrich-calibration.json",
+  "OutputRootFile": "pfrich-events.root",
+  "WriteOutputTree": "yes",
 
-    "UsePoissonTermInChiSquare": "no",
-    "UseTimingInChiSquare": "yes",
-    "DefaultSinglePhotonThetaResolution": 0.005,
-    "SensorActiveAreaPixellation": 32,
-    "UseMcTruthPhotonDirectionSeed": "no",
-    "MinHitCountCutoff": 5,
-    "IdentifiedParticles": ["pi+", "K+"], 
-    
-    "CombinedEvaluationPlots": "display",
-    "CombinedEvaluationPlotsGeometry": [1265,  10,  625, 800],
-	
-    "Acceptance": {
-	"comment": "Nominal values, also used to calculate ACTS DiscSurfaceConfig parameters",
-	"eta-min": -3.51,
-	"eta-max": -1.49
+  "UsePoissonTermInChiSquare": "no",
+  "UseTimingInChiSquare": "yes",
+  "DefaultSinglePhotonThetaResolution": 0.005,
+  "SensorActiveAreaPixellation": 32,
+  "UseMcTruthPhotonDirectionSeed": "no",
+  "MinHitCountCutoff": 5,
+  "IdentifiedParticles": [
+    "pi+",
+    "K+"
+  ],
+
+  "CombinedEvaluationPlots": "display",
+  "CombinedEvaluationPlotsGeometry": [
+    1265,
+    10,
+    625,
+    800
+  ],
+
+  "Acceptance": {
+    "comment": "Nominal values, also used to calculate ACTS DiscSurfaceConfig parameters",
+    "eta-min": -3.51,
+    "eta-max": -1.49
+  },
+
+  "Radiators": {
+    "Aerogel": {
+      "imaging": "yes",
+      "acts-planes": 5,
+
+      "evaluation-plots": "store",
+      "evaluation-plots-geometry": [
+        -10,
+        10,
+        1250,
+        540
+      ],
+      "refractive-index-range": [
+        1.035,
+        1.045
+      ],
+      "photon-vertex-range": [
+        -1275,
+        -1240
+      ],
+      "cherenkov-angle-range": [
+        270,
+        290
+      ]
     },
-    
-    "Radiators": {
-	"Aerogel": {
-	    "imaging": "yes",
-	    "acts-planes": 5,
-	    
-	    "evaluation-plots": "store",
-	    "evaluation-plots-geometry": [-10,  10, 1250, 540],
-	    "refractive-index-range": [1.035, 1.045],
-	    "photon-vertex-range": [-1275, -1240],
-	    "cherenkov-angle-range": [270, 290]
-	},
-	"Acrylic": {
-	    "imaging": "no",
-	    "acts-planes": 5
-	}
-    },
-    
-    "Photosensor": {
-	"quantum-efficiency": {
-	    "160*nm": 0.25,
-	    "180*nm": 0.26,
-	    "200*nm": 0.27,
-	    "220*nm": 0.30,
-	    "240*nm": 0.32,
-	    "260*nm": 0.35,
-	    "280*nm": 0.36,
-	    "300*nm": 0.36,
-	    "320*nm": 0.36,
-	    "340*nm": 0.36,
-	    "360*nm": 0.37,
-	    "380*nm": 0.35,
-	    "400*nm": 0.30,
-	    "420*nm": 0.27,
-	    "440*nm": 0.24,
-	    "460*nm": 0.20,
-	    "480*nm": 0.18,
-	    "500*nm": 0.15,
-	    "520*nm": 0.13,
-	    "540*nm": 0.11,
-	    "560*nm": 0.10,
-	    "580*nm": 0.09,
-	    "600*nm": 0.08,
-	    "620*nm": 0.07,
-	    "640*nm": 0.05,
-	    "660*nm": 0.05
-	},
-	"comment": "Rescale this QE table by a factor of ~30/37 to have a peak QE of ~30%",
-	"quantum-efficiency-rescaling-factor": 0.81
+    "Acrylic": {
+      "imaging": "no",
+      "acts-planes": 5
     }
+  },
+
+  "Photosensor": {
+    "quantum-efficiency": {
+      "160*nm": 0.25,
+      "180*nm": 0.26,
+      "200*nm": 0.27,
+      "220*nm": 0.30,
+      "240*nm": 0.32,
+      "260*nm": 0.35,
+      "280*nm": 0.36,
+      "300*nm": 0.36,
+      "320*nm": 0.36,
+      "340*nm": 0.36,
+      "360*nm": 0.37,
+      "380*nm": 0.35,
+      "400*nm": 0.30,
+      "420*nm": 0.27,
+      "440*nm": 0.24,
+      "460*nm": 0.20,
+      "480*nm": 0.18,
+      "500*nm": 0.15,
+      "520*nm": 0.13,
+      "540*nm": 0.11,
+      "560*nm": 0.10,
+      "580*nm": 0.09,
+      "600*nm": 0.08,
+      "620*nm": 0.07,
+      "640*nm": 0.05,
+      "660*nm": 0.05
+    },
+    "comment": "Rescale this QE table by a factor of ~30/37 to have a peak QE of ~30%",
+    "quantum-efficiency-rescaling-factor": 0.81
+  }
 }
