@@ -4,10 +4,10 @@
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <fmt/core.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <cmath>
 #include <gsl/pointers>

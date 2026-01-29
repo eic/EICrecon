@@ -3,12 +3,11 @@
 
 #include "MatchToRICHPID.h"
 
-#include <edm4eic/TrackPoint.h>
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <algorithm>

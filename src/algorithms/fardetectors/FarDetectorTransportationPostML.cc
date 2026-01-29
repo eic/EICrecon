@@ -3,7 +3,7 @@
 
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
