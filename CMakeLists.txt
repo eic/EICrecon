@@ -55,7 +55,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Minimal dependency versions
-set(Acts_VERSION_MIN 36.0.0)
+set(Acts_VERSION_MIN 36.1.0)
 set(algorithms_VERSION_MIN 1.0.0)
 set(DD4hep_VERSION_MIN 1.21)
 set(EDM4EIC_VERSION_MIN 8.0)
@@ -94,11 +94,6 @@ set(CMAKE_CXX_LINK_LIBRARY_USING_NO_AS_NEEDED
 
 # Export compile commands as json for run-clang-tidy
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# This PROJECT_SOURCE_DIR at this point corresponds to repository root. Saving
-# it as EICRECON_SOURCE_DIR so can be used for jana_plugin.cmake to correctly
-# set plugin includes (and in other places as needed)
-set(EICRECON_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 
 # Also use clang-tidy integration in CMake
 option(ENABLE_CLANG_TIDY "Enable clang-tidy integration in cmake" OFF)
@@ -263,6 +258,33 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
   )
 endif()
 
+# Workaround for multiple definition bug in Acts < 40
+# (https://github.com/acts-project/acts/pull/4380)
+if(Acts_VERSION VERSION_LESS "40.0.0")
+  if(TARGET ${Acts_NAMESPACE_PREFIX}PluginPodio)
+    message(STATUS "Checking if older Acts version needs linker flags...")
+    try_compile(
+      Acts_needs_allow_multiple_definition
+      ${CMAKE_BINARY_DIR}/Acts_needs_allow_multiple_definition
+      SOURCES
+        ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/main.cc
+        ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/a.cc
+        ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/b.cc
+      LINK_LIBRARIES podio::podio ${Acts_NAMESPACE_PREFIX}Core
+                     ${Acts_NAMESPACE_PREFIX}PluginPodio)
+    if(NOT Acts_needs_allow_multiple_definition)
+      message(WARNING "This Acts version requires --allow-multiple-definition. "
+                      "This may mask other multiple definition issues. "
+                      "Ref: https://github.com/acts-project/acts/pull/4380.")
+      check_linker_flag(CXX "LINKER:--allow-multiple-definition"
+                        CXX_LINKER_HAS_allow_multiple_definition)
+      if(CXX_LINKER_HAS_allow_multiple_definition)
+        add_link_options("LINKER:--allow-multiple-definition")
+      endif()
+    endif()
+  endif()
+endif()
+
 # ROOT
 find_package(ROOT ${ROOT_VERSION_MIN} REQUIRED)
 # Check that ROOT is compiled with a modern enough c++ standard
@@ -279,8 +301,8 @@ find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
-list(APPEND CMAKE_MODULE_PATH ${EICRECON_SOURCE_DIR}/cmake
-)# Find Find<Modules>.cmake
+list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake) # Find
+                                                           # Find<Modules>.cmake
 
 enable_testing()
 

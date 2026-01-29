@@ -8,7 +8,7 @@
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/ParticleHypothesis.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
@@ -29,18 +29,15 @@
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <DD4hep/Handle.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
-#include <any>
 #include <cmath>
 #include <cstdint>
 #include <functional>
@@ -139,32 +136,37 @@ void TrackPropagation::init(const dd4hep::Detector* detector,
 
 void TrackPropagation::propagateToSurfaceList(
     const std::tuple<const edm4eic::TrackCollection&,
-                     const std::vector<const ActsExamples::Trajectories*>,
                      const std::vector<const ActsExamples::ConstTrackContainer*>>
         input,
     const std::tuple<edm4eic::TrackSegmentCollection*> output) const {
-  const auto [tracks, acts_trajectories, acts_tracks] = input;
-  auto [track_segments]                               = output;
+  const auto [tracks, acts_tracks] = input;
+  auto [track_segments]            = output;
 
   // logging
-  m_log->trace("Propagate trajectories: --------------------");
+  m_log->trace("Propagate tracks: --------------------");
   m_log->trace("number of tracks: {}", tracks.size());
-  m_log->trace("number of acts_trajectories: {}", acts_trajectories.size());
   m_log->trace("number of acts_tracks: {}", acts_tracks.size());
 
-  // loop over input trajectories
-  for (std::size_t i = 0; const auto& traj : acts_trajectories) {
+  if (acts_tracks.empty()) {
+    return;
+  }
 
-    // check if this trajectory can be propagated to any filter surface
-    bool trajectory_reaches_filter_surface{false};
+  const auto& constTracks = *acts_tracks.front();
+
+  // loop over input tracks
+  std::size_t i = 0;
+  for (const auto& track : constTracks) {
+
+    // check if this track can be propagated to any filter surface
+    bool track_reaches_filter_surface{false};
     for (const auto& filter_surface : m_filter_surfaces) {
-      auto point = propagate(edm4eic::Track{}, traj, filter_surface);
+      auto point = propagate(edm4eic::Track{}, track, constTracks, filter_surface);
       if (point) {
-        trajectory_reaches_filter_surface = true;
+        track_reaches_filter_surface = true;
         break;
       }
     }
-    if (!trajectory_reaches_filter_surface) {
+    if (!track_reaches_filter_surface) {
       ++i;
       continue;
     }
@@ -173,7 +175,7 @@ void TrackPropagation::propagateToSurfaceList(
     auto track_segment = track_segments->create();
 
     // corresponding track
-    if (tracks.size() == acts_trajectories.size()) {
+    if (tracks.size() == constTracks.size()) {
       m_log->trace("track segment connected to track {}", i);
       track_segment.setTrack(tracks[i]);
       ++i;
@@ -186,15 +188,15 @@ void TrackPropagation::propagateToSurfaceList(
     // loop over projection-target surfaces
     for (const auto& target_surface : m_target_surfaces) {
 
-      // project the trajectory `traj` to this surface
-      auto point = propagate(edm4eic::Track{}, traj, target_surface);
+      // project the track to this surface
+      auto point = propagate(edm4eic::Track{}, track, constTracks, target_surface);
       if (!point) {
-        m_log->trace("<> Failed to propagate trajectory to this plane");
+        m_log->trace("<> Failed to propagate track to this plane");
         continue;
       }
 
       // logging
-      m_log->trace("<> trajectory: x=( {:>10.2f} {:>10.2f} {:>10.2f} )", point->position.x,
+      m_log->trace("<> track: x=( {:>10.2f} {:>10.2f} {:>10.2f} )", point->position.x,
                    point->position.y, point->position.z);
       m_log->trace("               p=( {:>10.2f} {:>10.2f} {:>10.2f} )", point->momentum.x,
                    point->momentum.y, point->momentum.z);
@@ -227,30 +229,22 @@ void TrackPropagation::propagateToSurfaceList(
     track_segment.setLength(length);
     track_segment.setLengthError(length_error);
 
-  } // end loop over input trajectories
+  } // end loop over input tracks
 }
 
 std::unique_ptr<edm4eic::TrackPoint>
 TrackPropagation::propagate(const edm4eic::Track& /* track */,
-                            const ActsExamples::Trajectories* acts_trajectory,
+                            const ActsExamples::ConstTrackProxy& acts_track,
+                            const ActsExamples::ConstTrackContainer& trackContainer,
                             const std::shared_ptr<const Acts::Surface>& targetSurf) const {
 
-  // Get the entry index for the single trajectory
-  // The trajectory entry indices and the multiTrajectory
-  const auto& mj        = acts_trajectory->multiTrajectory();
-  const auto& trackTips = acts_trajectory->tips();
+  auto tipIndex = acts_track.tipIndex();
 
-  m_log->trace("  Number of elements in trackTips {}", trackTips.size());
-
-  // Skip empty
-  if (trackTips.empty()) {
-    m_log->trace("  Empty multiTrajectory.");
-    return nullptr;
-  }
-  const auto& trackTip = trackTips.front();
+  m_log->trace("  Propagating track with tip index {}", tipIndex);
 
   // Collect the trajectory summary info
-  auto trajState      = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
+  auto trajState =
+      Acts::MultiTrajectoryHelpers::trajectoryState(trackContainer.trackStateContainer(), tipIndex);
   int m_nMeasurements = trajState.nMeasurements;
   int m_nStates       = trajState.nStates;
 
@@ -259,13 +253,13 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   // Get track state at last measurement surface
   // For last measurement surface, filtered and smoothed results are equivalent
-  auto trackState        = mj.getTrackState(trackTip);
+  auto trackState        = trackContainer.trackStateContainer().getTrackState(tipIndex);
   auto initSurface       = trackState.referenceSurface().getSharedPtr();
   const auto& initParams = trackState.filtered();
   const auto& initCov    = trackState.filteredCovariance();
 
   Acts::BoundTrackParameters initBoundParams(initSurface, initParams, initCov,
-                                             Acts::ParticleHypothesis::pion());
+                                             acts_track.particleHypothesis());
 
   // Get pathlength of last track state with respect to perigee surface
   const auto initPathLength = trackState.pathLength();

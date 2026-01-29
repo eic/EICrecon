@@ -11,19 +11,17 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#include <fmt/format.h>
 #include <algorithm>
 #include <any>
 #include <array>
 #include <cstddef>
 #include <functional>
-#include <optional>
-#include <ostream>
-#include <set>
 #include <stdexcept>
 #include <string>
 #include <system_error>
+#include <tuple>
 #include <utility>
 #if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
@@ -31,7 +29,6 @@
 #if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
 #include <Acts/Utilities/Iterator.hpp>
 #endif
-#include <Acts/EventData/MultiTrajectory.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
@@ -69,16 +66,15 @@
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
-#include <fmt/format.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
+#include <Eigen/LU> // IWYU pragma: keep
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -96,9 +92,8 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
 
   m_geoSvc = geo_svc;
 
-  m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-  m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
+  m_BField   = m_geoSvc->getFieldProvider();
+  m_fieldctx = Acts::MagneticFieldContext{};
 
   // eta bins, chi2 and #sourclinks per surface cutoffs
   m_sourcelinkSelectorCfg = {
@@ -112,22 +107,22 @@ void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
       CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
 }
 
-std::tuple<std::vector<ActsExamples::Trajectories*>,
-           std::vector<ActsExamples::ConstTrackContainer*>>
-CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
+std::vector<ActsExamples::ConstTrackContainer*>
+CKFTracking::process(const edm4eic::TrackSeedCollection& init_trk_seeds,
                      const edm4eic::Measurement2DCollection& meas2Ds) {
 
   // Create output collections
-  std::vector<ActsExamples::Trajectories*> acts_trajectories;
-  // Prepare the output data with MultiTrajectory, per seed
-  acts_trajectories.reserve(init_trk_params.size());
   // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
   //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
   std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
 
-  // If measurements or initial track parameters are empty, return early
-  if (meas2Ds.empty() || init_trk_params.empty()) {
-    return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
+  // If measurements or initial track parameters are empty, return early with empty container
+  if (meas2Ds.empty() || init_trk_seeds.empty()) {
+    auto emptyTrackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>();
+    auto emptyTrackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>();
+    constTracks_v.push_back(
+        new ActsExamples::ConstTrackContainer(emptyTrackContainer, emptyTrackStateContainer));
+    return constTracks_v;
   }
 
   // create sourcelink and measurement containers
@@ -191,12 +186,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
             throw std::runtime_error("Dimension not supported in measurement creation");
           }
         });
-#elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR >= 1
+#else
     auto measurement = ActsExamples::makeVariableSizeMeasurement(
-        Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-    measurements->emplace_back(std::move(measurement));
-#elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR == 0
-    auto measurement = ActsExamples::makeFixedSizeMeasurement(
         Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
     measurements->emplace_back(std::move(measurement));
 #endif
@@ -207,7 +198,9 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   }
 
   ActsExamples::TrackParametersContainer acts_init_trk_params;
-  for (const auto& track_parameter : init_trk_params) {
+  for (const auto& track_seed : init_trk_seeds) {
+
+    const auto& track_parameter = track_seed.getParams();
 
     Acts::BoundVector params;
     params(Acts::eBoundLoc0) =
@@ -258,9 +251,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 #if Acts_VERSION_MAJOR < 39
   extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<
       typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&measSel);
-#elif Acts_VERSION_MAJOR < 39
-  extensions.measurementSelector
-      .connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
 #endif
 
   ActsExamples::IndexSourceLinkAccessor slAccessor;
@@ -317,27 +307,53 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
   ActsExamples::TrackContainer acts_tracks(trackContainer, trackStateContainer);
 
+  // Create temporary track container
+  auto trackContainerTemp      = std::make_shared<Acts::VectorTrackContainer>();
+  auto trackStateContainerTemp = std::make_shared<Acts::VectorMultiTrajectory>();
+  ActsExamples::TrackContainer acts_tracks_temp(trackContainerTemp, trackStateContainerTemp);
+
   // Add seed number column
   acts_tracks.addColumn<unsigned int>("seed");
+  acts_tracks_temp.addColumn<unsigned int>("seed");
   Acts::ProxyAccessor<unsigned int> seedNumber("seed");
-  std::set<Acts::TrackIndexType> passed_tracks;
 
   // Loop over seeds
   for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
-    auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks);
+
+    // Clear trackContainerTemp and trackStateContainerTemp
+    acts_tracks_temp.clear();
+
+    // Run track finding for this seed
+    auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks_temp);
 
     if (!result.ok()) {
-      m_log->debug("Track finding failed for seed {} with error {}", iseed, result.error());
+      m_log->debug("Track finding failed for seed {} with error {}", iseed,
+                   result.error().message());
       continue;
     }
 
     // Set seed number for all found tracks
     auto& tracksForSeed = result.value();
     for (auto& track : tracksForSeed) {
+      // Check if track has at least one valid (non-outlier) measurement
+      // (this check avoids errors inside smoothing and extrapolation)
+      auto lastMeasurement = Acts::findLastMeasurementState(track);
+      if (!lastMeasurement.ok()) {
+        m_log->debug("Track {} for seed {} has no valid measurements, skipping", track.index(),
+                     iseed);
+        continue;
+      }
+
+      if (track.nMeasurements() < m_cfg.numMeasurementsMin) {
+        m_log->trace("Track {} for seed {} has fewer measurements than minimum of {}, skipping",
+                     track.index(), iseed, m_cfg.numMeasurementsMin);
+        continue;
+      }
+
       auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
       if (!smoothingResult.ok()) {
-        ACTS_ERROR("Smoothing for seed " << iseed << " and track " << track.index()
-                                         << " failed with error " << smoothingResult.error());
+        m_log->debug("Smoothing for seed {} and track {} failed with error {}", iseed,
+                     track.index(), smoothingResult.error().message());
         continue;
       }
 
@@ -346,30 +362,16 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
           Acts::TrackExtrapolationStrategy::firstOrLast, logger());
 
       if (!extrapolationResult.ok()) {
-        ACTS_ERROR("Extrapolation for seed " << iseed << " and track " << track.index()
-                                             << " failed with error "
-                                             << extrapolationResult.error());
+        m_log->debug("Extrapolation for seed {} and track {} failed with error {}", iseed,
+                     track.index(), extrapolationResult.error().message());
         continue;
       }
 
-      passed_tracks.insert(track.index());
       seedNumber(track) = iseed;
-    }
-  }
 
-  for (std::size_t track_index = acts_tracks.size(); (track_index--) != 0U;) {
-    if (!passed_tracks.contains(track_index)) {
-      // NOTE This does not remove track states corresponding to the
-      // removed tracks. Doing so would require implementing some garbage
-      // collection. We'll just assume no algorithm will access them
-      // directly.
-      acts_tracks.removeTrack(track_index);
-#if Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR < 1
-      // Workaround an upstream bug in Acts::VectorTrackContainer::removeTrack_impl()
-      // https://github.com/acts-project/acts/commit/94cf81f3f1109210b963977e0904516b949b1154
-      trackContainer->m_particleHypothesis.erase(trackContainer->m_particleHypothesis.begin() +
-                                                 track_index);
-#endif
+      // Copy accepted track into main track container
+      auto acts_tracks_proxy = acts_tracks.makeTrack();
+      acts_tracks_proxy.copyFrom(track);
     }
   }
 
@@ -384,47 +386,8 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 
   constTracks_v.push_back(
       new ActsExamples::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
-  auto& constTracks = *(constTracks_v.front());
 
-  // Seed number column accessor
-  const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
-
-  ActsExamples::Trajectories::IndexedParameters parameters;
-  std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
-
-  std::optional<unsigned int> lastSeed;
-  for (const auto& track : constTracks) {
-    if (!lastSeed) {
-      lastSeed = constSeedNumber(track);
-    }
-
-    if (constSeedNumber(track) != lastSeed.value()) {
-      // make copies and clear vectors
-      acts_trajectories.push_back(
-          new ActsExamples::Trajectories(constTracks.trackStateContainer(), tips, parameters));
-
-      tips.clear();
-      parameters.clear();
-    }
-
-    lastSeed = constSeedNumber(track);
-
-    tips.push_back(track.tipIndex());
-    parameters.emplace(std::pair{
-        track.tipIndex(),
-        ActsExamples::TrackParameters{track.referenceSurface().getSharedPtr(), track.parameters(),
-                                      track.covariance(), track.particleHypothesis()}});
-  }
-
-  if (tips.empty()) {
-    m_log->info("Last trajectory is empty");
-  }
-
-  // last entry: move vectors
-  acts_trajectories.push_back(new ActsExamples::Trajectories(
-      constTracks.trackStateContainer(), std::move(tips), std::move(parameters)));
-
-  return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
+  return constTracks_v;
 }
 
 } // namespace eicrecon

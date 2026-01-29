@@ -13,6 +13,11 @@ on:
   merge_group:
   workflow_dispatch:
     inputs:
+      organization:
+        description: 'eic-shell organization'
+        default: 'eicweb'
+        required: false
+        type: string
       platform:
         description: 'eic-shell platform'
         default: 'eic_xl'
@@ -38,6 +43,7 @@ permissions:
 
 env:
   # inputs doesn't always exist, so we make sure env does
+  organization: ${{ inputs.organization || vars.organization || 'eicweb' }}
   platform: ${{ inputs.platform || 'eic_xl' }}
   release: ${{ inputs.release || 'nightly' }}
   detector-version: ${{ inputs.detector-version || 'main' }}
@@ -45,7 +51,7 @@ env:
   clang-tidy-iwyu-CMAKE_BUILD_TYPE: Debug
   # FIXME: FOFFMTRK has only 130 GeV matrix
   JANA_OPTIONS: -PFOFFMTRK:ForwardOffMRecParticles:requireMatchingMatrix=false -Pjana:ticker_interval=60000 -Pjana:warmup_timeout=0 -Pjana:timeout=0
-  JANA_OPTIONS_GUN: -PFOFFMTRK:ForwardOffMRecParticles:requireBeamProton=false -PRPOTS:ForwardRomanPotRecParticles:requireBeamProton=false -PLOWQ2:TaggerTrackerTransportationPreML:requireBeamElectron=false -PLOWQ2:TaggerTrackerTransportationPostML:requireBeamElectron=false
+  JANA_OPTIONS_GUN: -PFOFFMTRK:ForwardOffMRecParticles:requireBeamProton=false -PRPOTS:ForwardRomanPotStaticRecParticles:requireBeamProton=false -PRPOTS:ForwardRomanPotRecParticles:requireBeamProton=false -PLOWQ2:TaggerTrackerTransportationPreML:requireBeamElectron=false -PLOWQ2:TaggerTrackerTransportationPostML:requireBeamElectron=false
   ASAN_OPTIONS: suppressions=${{ github.workspace }}/.github/asan.supp:malloc_context_size=20:detect_leaks=1:verify_asan_link_order=0:detect_stack_use_after_return=1:detect_odr_violation=1:new_delete_type_mismatch=0:intercept_tls_get_addr=0
   LSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/lsan.supp
   UBSAN_OPTIONS: suppressions=${{ github.workspace }}/.github/ubsan.supp:print_stacktrace=1:silence_unsigned_overflow=1:report_error_type=1
@@ -55,7 +61,7 @@ jobs:
   env:
     # env cannot be used in matrix, but outputs can
     # so this job turns env into outputs
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     outputs:
       platform_json: ${{ steps.define.outputs.platform_json }}
       release_json: ${{ steps.define.outputs.release_json }}
@@ -119,6 +125,7 @@ jobs:
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 25.11.2-stable
+      fail-fast: false
     steps:
     - uses: actions/checkout@v6
       with:
@@ -152,6 +159,7 @@ jobs:
     - name: Build and install
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
@@ -169,6 +177,7 @@ jobs:
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -195,6 +204,7 @@ jobs:
     - name: Run testsuite
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
@@ -260,6 +270,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           git diff ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} | clang-tidy-diff -p 1 -path build -quiet -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20' -clang-tidy-binary run-clang-tidy
@@ -267,6 +278,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' || github.event_name == 'schedule' }}
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           run-clang-tidy -p build -export-fixes clang_tidy_fixes.yaml -extra-arg='-std=c++20'
@@ -288,6 +300,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'pull_request' }}
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           # reduce headers until diff is stable
@@ -302,6 +315,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           # don't aim for stability for all files
@@ -439,6 +453,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -472,6 +487,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -508,6 +524,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -544,6 +561,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -585,6 +603,7 @@ jobs:
     - name: Run EICrecon (digitization)
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -601,6 +620,7 @@ jobs:
     - name: Run EICrecon (reconstruction)
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -647,6 +667,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -693,6 +714,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -734,6 +756,7 @@ jobs:
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -742,6 +765,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -765,6 +789,7 @@ jobs:
     - name: Convert execution graphs
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -786,7 +811,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v11
+      uses: dawidd6/action-download-artifact@v12
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -797,6 +822,7 @@ jobs:
     - name: Compare to previous artifacts
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -844,6 +870,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -859,6 +886,7 @@ jobs:
     - name: Convert execution graphs
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -885,7 +913,6 @@ jobs:
     - build
     - npsim-dis
     - npsim-minbias
-    continue-on-error: ${{ matrix.nthreads > 1 }}
     strategy:
       matrix:
         include:
@@ -899,6 +926,7 @@ jobs:
           minq2: 0
           detector_config: craterlake_10x100
           sanitizer: TSAN
+          nthreads: 4
         - CXX: clang++
           beam: 18x275
           minq2: 0
@@ -944,6 +972,7 @@ jobs:
     - name: Run EICrecon
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -967,6 +996,7 @@ jobs:
     - name: Convert execution graphs
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -996,7 +1026,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v11
+      uses: dawidd6/action-download-artifact@v12
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -1007,6 +1037,7 @@ jobs:
     - name: Compare to previous artifacts
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -1054,6 +1085,7 @@ jobs:
     - name: Compare single- and multi-threaded artifacts
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
@@ -1071,7 +1103,7 @@ jobs:
         if-no-files-found: error
 
   trigger-container:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     if: ${{ github.event_name != 'merge_group' && github.event_name != 'schedule' && github.actor != 'dependabot[bot]' && github.ref != 'refs/heads/main' }}
     needs:
     - build
@@ -1153,7 +1185,7 @@ jobs:
     uses: eic/actions/.github/workflows/list-open-prs.yml@main
 
   get-docs-from-open-prs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - build-docs
       - list-open-prs
@@ -1163,7 +1195,7 @@ jobs:
       max-parallel: 4
     steps:
       - name: Download docs artifact (other PRs)
-        uses: dawidd6/action-download-artifact@v11
+        uses: dawidd6/action-download-artifact@v12
         if: github.event.pull_request.number != matrix.pr
         with:
           commit: ${{ matrix.head_sha }}
@@ -1180,7 +1212,7 @@ jobs:
           path: publishing_docs/pr/${{ matrix.pr }}/
       - name: Download capybara artifact (other PRs)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v11
+        uses: dawidd6/action-download-artifact@v12
         if: github.event.pull_request.number != matrix.pr
         with:
           commit: ${{ matrix.head_sha }}
@@ -1204,7 +1236,7 @@ jobs:
           if-no-files-found: ignore
 
   get-docs-from-main:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - build-docs
     steps:
@@ -1212,7 +1244,7 @@ jobs:
       # - If we run this on a non-main branch, we download from main with action-download-artifact.
       # - If we run this on the main branch, we have to download from this pipeline with download-artifact.
       - name: Download docs artifact (in PR)
-        uses: dawidd6/action-download-artifact@v11
+        uses: dawidd6/action-download-artifact@v12
         if: github.ref_name != 'main'
         with:
           branch: main
@@ -1229,7 +1261,7 @@ jobs:
           path: publishing_docs/
       - name: Download capybara artifact (in PR)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v11
+        uses: dawidd6/action-download-artifact@v12
         if: github.ref_name != 'main'
         with:
           commit: ${{ matrix.head_sha }}
@@ -1261,7 +1293,7 @@ jobs:
           if-no-files-found: error
 
   collect-docs:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     needs:
       - get-docs-from-main
       - get-docs-from-open-prs
@@ -1319,7 +1351,7 @@ jobs:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
@@ -1351,7 +1383,7 @@ jobs:
     needs:
     - trigger-container
     - deploy-docs
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-slim
     steps:
       - name: Cancel container
         run: |
