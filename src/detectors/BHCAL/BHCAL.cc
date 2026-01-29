@@ -53,10 +53,8 @@ void InitPlugin(JApplication* app) {
       "HcalBarrelRawHits", {"EventHeader", "HcalBarrelHits"},
       {"HcalBarrelRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
        "HcalBarrelRawHitLinks",
 #endif
-
        "HcalBarrelRawHitAssociations"},
       {
           .eRes          = {},
