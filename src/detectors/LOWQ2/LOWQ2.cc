@@ -5,6 +5,7 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
@@ -89,7 +90,13 @@ void InitPlugin(JApplication* app) {
   // Digitization of silicon hits
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "TaggerTrackerRawHits", {"EventHeader", "TaggerTrackerHits"},
-      {"TaggerTrackerRawHits", "TaggerTrackerRawHitAssociations"},
+      {"TaggerTrackerRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+
+       "TaggerTrackerRawHitLinks",
+#endif
+
+       "TaggerTrackerRawHitAssociations"},
       {
           .threshold      = 1.5 * edm4eic::unit::keV,
           .timeResolution = 2 * edm4eic::unit::ns,
@@ -113,11 +120,17 @@ void InitPlugin(JApplication* app) {
   std::vector<std::string> geometryDivisionCollectionNames;
   std::vector<std::string> outputClusterCollectionNames;
   std::vector<std::string> outputTrackTags;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  std::vector<std::string> outputTrackLinkTags;
+#endif
   std::vector<std::string> outputTrackAssociationTags;
   std::vector<std::vector<std::string>> moduleClusterTags;
 
   for (int mod_id : moduleIDs) {
     outputTrackTags.push_back(fmt::format("TaggerTrackerM{}LocalTracks", mod_id));
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    outputTrackLinkTags.push_back(fmt::format("TaggerTrackerM{}LocalTrackLinks", mod_id));
+#endif
     outputTrackAssociationTags.push_back(
         fmt::format("TaggerTrackerM{}LocalTrackAssociations", mod_id));
     moduleClusterTags.emplace_back();
@@ -150,14 +163,18 @@ void InitPlugin(JApplication* app) {
 
   // Linear tracking for each module, loop over modules
   for (std::size_t i = 0; i < moduleIDs.size(); i++) {
-    std::string outputTrackTag                = outputTrackTags[i];
+    std::string outputTrackTag = outputTrackTags[i];
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    std::string outputTrackLinkTag = outputTrackLinkTags[i];
+#endif
     std::string outputTrackAssociationTag     = outputTrackAssociationTags[i];
     std::vector<std::string> inputClusterTags = moduleClusterTags[i];
 
     inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
 
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
-        outputTrackTag, {inputClusterTags}, {outputTrackTag, outputTrackAssociationTag},
+        outputTrackTag, {inputClusterTags},
+        {outputTrackTag, outputTrackLinkTag, outputTrackAssociationTag},
         {
             .layer_hits_max       = 200,
             .chi2_max             = 0.001,
@@ -174,6 +191,13 @@ void InitPlugin(JApplication* app) {
   // Combine the tracks from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
       "TaggerTrackerLocalTracks", outputTrackTags, {"TaggerTrackerLocalTracks"}, app));
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Combine the track links from each module into one collection
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleLink, true>>(
+      "TaggerTrackerLocalTrackLinks", outputTrackLinkTags, {"TaggerTrackerLocalTrackLinks"}, app));
+#endif
 
   // Combine the associations from each module into one collection
   app->Add(new JOmniFactoryGeneratorT<
@@ -199,7 +223,11 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<FarDetectorTransportationPostML_factory>(
       "TaggerTrackerTransportationPostML",
       {"TaggerTrackerPredictionTensor", "TaggerTrackerLocalTrackAssociations", "MCBeamElectrons"},
-      {"TaggerTrackerReconstructedParticles", "TaggerTrackerReconstructedParticleAssociations"},
+      {"TaggerTrackerReconstructedParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "TaggerTrackerReconstructedParticleLinks",
+#endif
+       "TaggerTrackerReconstructedParticleAssociations"},
       {
           .beamE = 10.0,
       },

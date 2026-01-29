@@ -98,8 +98,14 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
     auto parts_out   = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     auto assocs_out  = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
     auto partids_out = std::make_unique<edm4hep::ParticleIDCollection>();
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    edm4eic::MCRecoParticleLinkCollection links_out;
     algo.process({headers.get(), parts_in.get(), assocs_in.get()},
-                 {parts_out.get(), assocs_out.get(), partids_out.get()});
+                 {parts_out.get(), &links_out, assocs_out.get(), partids_out.get()});
+#else
+    algo.process({headers.get(), parts_in.get(), assocs_in.get()},
+                 {parts_out.get(), nullptr, assocs_out.get(), partids_out.get()});
+#endif
 
     REQUIRE((*parts_in).size() == (*parts_out).size());
     REQUIRE((*assocs_in).size() == (*assocs_out).size());

@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"
 
 #include <Evaluator/DD4hepUnits.h>
@@ -18,7 +19,11 @@ namespace eicrecon {
 void TruthEnergyPositionClusterMerger::process(const Input& input, const Output& output) const {
 
   const auto [mcparticles, energy_clus, energy_assoc, pos_clus, pos_assoc] = input;
-  auto [merged_clus, merged_assoc]                                         = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [merged_clus, merged_links, merged_assoc] = output;
+#else
+  auto [merged_clus, merged_assoc] = output;
+#endif
 
   debug("Merging energy and position clusters for new event");
 
@@ -79,6 +84,12 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
             new_clus.getEnergy());
 
       // set association
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      auto clusterlink = merged_links->create();
+      clusterlink.setWeight(1.0);
+      clusterlink.setFrom(new_clus);
+      clusterlink.setTo((*mcparticles)[mcID]);
+#endif
       auto clusterassoc = merged_assoc->create();
       clusterassoc.setWeight(1.0);
       clusterassoc.setRec(new_clus);
@@ -94,6 +105,12 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
       merged_clus->push_back(new_clus);
 
       // set association
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      auto clusterlink = merged_links->create();
+      clusterlink.setWeight(1.0);
+      clusterlink.setFrom(new_clus);
+      clusterlink.setTo((*mcparticles)[mcID]);
+#endif
       auto clusterassoc = merged_assoc->create();
       clusterassoc.setWeight(1.0);
       clusterassoc.setRec(new_clus);
@@ -126,6 +143,12 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
           new_clus.getEnergy());
 
     // set association
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    auto clusterlink = merged_links->create();
+    clusterlink.setWeight(1.0);
+    clusterlink.setFrom(new_clus);
+    clusterlink.setTo(mc);
+#endif
     auto clusterassoc = merged_assoc->create();
     clusterassoc.setWeight(1.0);
     clusterassoc.setRec(new_clus);

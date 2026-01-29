@@ -83,7 +83,12 @@ TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
 
     auto rawhits   = std::make_unique<edm4hep::RawCalorimeterHitCollection>();
     auto rawassocs = std::make_unique<edm4eic::MCRecoCalorimeterHitAssociationCollection>();
-    algo.process({headers.get(), simhits.get()}, {rawhits.get(), rawassocs.get()});
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    edm4eic::MCRecoCalorimeterHitLinkCollection rawlinks;
+    algo.process({headers.get(), simhits.get()}, {rawhits.get(), &rawlinks, rawassocs.get()});
+#else
+    algo.process({headers.get(), simhits.get()}, {rawhits.get(), nullptr, rawassocs.get()});
+#endif
 
     REQUIRE((*rawhits).size() == 1);
     REQUIRE((*rawhits)[0].getCellID() == id_desc.encode({{"system", 255}, {"x", 0}, {"y", 0}}));
