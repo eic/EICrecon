@@ -112,5 +112,15 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
     REQUIRE(
         0 ==
         (*partids_out).size()); // Since our table is empty, there will not be a successful lookup
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    // Verify that links were created and match the associations
+    REQUIRE(links_out.size() == (*assocs_out).size());
+    for (size_t i = 0; i < links_out.size(); ++i) {
+      REQUIRE(links_out[i].getFrom() == (*assocs_out)[i].getRec());
+      REQUIRE(links_out[i].getTo() == (*assocs_out)[i].getSim());
+      REQUIRE(links_out[i].getWeight() == (*assocs_out)[i].getWeight());
+    }
+#endif
   }
 }
