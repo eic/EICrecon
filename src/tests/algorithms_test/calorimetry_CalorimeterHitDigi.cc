@@ -36,7 +36,7 @@ using eicrecon::CalorimeterHitDigi;
 using eicrecon::CalorimeterHitDigiConfig;
 
 TEST_CASE("the clustering algorithm runs", "[CalorimeterHitDigi]") {
-  const float EPSILON = 1e-5;
+  [[maybe_unused]] const float EPSILON = 1e-5;
 
   std::shared_ptr<spdlog::logger> logger = spdlog::default_logger()->clone("CalorimeterHitDigi");
   logger->set_level(spdlog::level::trace);
