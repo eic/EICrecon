@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Wouter Deconinck, Barak Schmookler, 2026 Stephen Maple
+// Copyright (C) 2026 Wouter Deconinck, Barak Schmookler, Stephen Maple
 
 #pragma once
 
