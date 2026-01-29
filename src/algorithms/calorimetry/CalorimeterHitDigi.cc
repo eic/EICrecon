@@ -19,6 +19,7 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/service.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
@@ -134,7 +135,11 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                                  const CalorimeterHitDigi::Output& output) const {
 
   const auto [headers, simhits] = input;
-  auto [rawhits, rawassocs]     = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [rawhits, links, rawassocs] = output;
+#else
+  auto [rawhits, rawassocs] = output;
+#endif
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
@@ -161,6 +166,9 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
 
     // create hit and association in advance
     edm4hep::MutableRawCalorimeterHit rawhit;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    std::vector<edm4eic::MutableMCRecoCalorimeterHitLink> links_staging;
+#endif
     std::vector<edm4eic::MutableMCRecoCalorimeterHitAssociation> rawassocs_staging;
 
     double edep      = 0;
@@ -194,6 +202,13 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       assoc.setSimHit(hit);
       assoc.setWeight(hit.getEnergy());
       rawassocs_staging.push_back(assoc);
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      edm4eic::MutableMCRecoCalorimeterHitLink link;
+      link.setFrom(rawhit);
+      link.setTo(hit);
+      link.setWeight(hit.getEnergy());
+      links_staging.push_back(link);
+#endif
     }
     if (time > m_cfg.capTime) {
       debug("retaining hit, even though time %f ns > %f ns", time / dd4hep::ns,
@@ -260,6 +275,12 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     rawhit.setTimeStamp(tdc);
     rawhits->push_back(rawhit);
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    for (auto& link : links_staging) {
+      link.setWeight(link.getWeight() / edep);
+      links->push_back(link);
+    }
+#endif
     for (auto& assoc : rawassocs_staging) {
       assoc.setWeight(assoc.getWeight() / edep);
       rawassocs->push_back(assoc);

@@ -7,6 +7,7 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/interfaces/WithPodConfig.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
@@ -21,12 +22,19 @@
 
 #include "FarDetectorLinearTrackingConfig.h"
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
+#endif
+
 namespace eicrecon {
 
 using FarDetectorLinearTrackingAlgorithm = algorithms::Algorithm<
     algorithms::Input<std::vector<edm4eic::Measurement2DCollection>,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrackCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       std::optional<edm4eic::MCRecoTrackParticleLinkCollection>,
+#endif
                        std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>>>;
 
 class FarDetectorLinearTracking : public FarDetectorLinearTrackingAlgorithm,
@@ -37,8 +45,13 @@ public:
       : FarDetectorLinearTrackingAlgorithm{
             name,
             {"inputHitCollections", "inputMCRecoTrackerHitAssociations"},
-            {"outputTrackCollection", "outputMCRecoTrackAssociations"},
-            "Fit track segments from hits in the tracker layers"} {}
+            {"outputTrackCollection",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+             "outputMCRecoTrackLinks",
+#endif
+             "outputMCRecoTrackAssociations"},
+            "Fit track segments from hits in the tracker layers"} {
+  }
 
   /** One time initialization **/
   void init() final;
@@ -54,6 +67,9 @@ private:
 
   void checkHitCombination(
       Eigen::MatrixXd* hitMatrix, edm4eic::TrackCollection* outputTracks,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      edm4eic::MCRecoTrackParticleLinkCollection* trackLinks,
+#endif
       edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
       const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
       const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
