@@ -1,73 +1,79 @@
+#include <DD4hep/Detector.h>
+#include <DD4hep/DetType.h>
+#include <DDRec/CellIDPositionConverter.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/ReconstructedParticle.h>
 
 #include "ParticleConverter.h"
 
 namespace eicrecon {
         void ParticleConverter::process(const Input& input, const Output& output) const {
-                // - Here I have to write all the necessary instructions to output a ReconstructedParticlesCollection
-                // Check Derek's PR where he conveyed the way to loop through clusters
-                // How to associate tracks to clusters?
-                //      Check the track cluster associators
-                //      Should I just follow the same guidelines as there?
-                
                 const auto [in_particles] = input;
-                auto [out_particles]      = output;
+                auto      [out_particles] = output;
 
+                // setSubsetCollection it restricts the branches of the output (that is what I see!)
                 // out_particles->setSubsetCollection(); // CHECK: IN THIS REALLY NECESSARY ? (ASK)
-
-                // 1 - Assign prelim PID
-                //      a - If there is an associated track assign PDG from track bank
-                //      b - Loop through Clusters
-                //              b.1 - If ECal and !HCal -> Photon
-                //              b.2 - If !Ecal and Hcal -> Neutron
 
                 trace("----------------------------------------------------------------");
                 trace("                                                                ");
                 trace("We have {} particles as input", in_particles->size());
 
-                for (auto particle : *in_particles) {
-                        double prelim_pid = -9999;
+                // Now we check particles and their current information
+                for (const auto particle : *in_particles) {
+                        bool   isTrack = false;
+                        bool   isHCal  = false;
+                        bool   isECal  = false;
 
-                        // std::cout<<"This particle PID="<<particle.getPDG()<<std::endl;
-                        trace("Particle PID     = {}", particle.getPDG());
-                        trace("Particle charge  = {}", particle.getCharge());
-                        trace("Particle mass    = {}", particle.getMass());
-                        trace("Particle energy  = {}", particle.getEnergy());
-                        trace("Particle goodPID = {}", particle.getGoodnessOfPID());
-
-
-                        // Check if there are associated tracks to this particle
+                        double prelim_pid;
+                        
                         for (auto track : particle.getTracks()) {
-                                trace("         AssocTrack PID    ={}", track.getPdg());
-                                trace("         AssocTrack charge ={}", track.getCharge());
-                        }                
-                                // std::cout<<"The associated tracks PIDs="<<track.getPdg()<<std::endl; // prelim_pid = track.getPdg();
+                                isTrack = true;
+                                prelim_pid = particle.getPDG();
 
-                        // // If there was no associated track
-                        // if (prelim_pid == -9999) {
-                        //         // Check clusters ...
-                        // }
+                                if (!particle.getPDG())
+                                        trace("Particle with associated track PDG == 0");
+                        }
 
-                        // double energy = -9999;
+                        // NOTE : be careful the cluster selected is NOT associated to a track
+                        // NOTE1: prelim, just go through the clusters
+                        if (!isTrack) {
+                                for (auto cluster : particle.getClusters()) {
+                                        for (auto calo_hit : cluster.getHits()) {
+                                                const auto cell_id = calo_hit.getCellID();
 
-                        // if
+                                                const dd4hep::VolumeManagerContext* context = m_converter->findContext(cell_id);
+
+                                                if (context) {
+                                                        const dd4hep::DetElement det_element = context->element;
+                                                        const dd4hep::DetType    type(det_element.typeFlag());
+
+                                                        std::string det_element_type = det_element.type();
+
+                                                        if (det_element_type.find(ecal_string) != std::string::npos) {
+                                                                isECal = true;
+                                                        }
+                                                        if (det_element_type.find(hcal_string) != std::string::npos) {
+                                                                isHCal = true;
+                                                        }
+                                                }
+
+                                                if (isHCal)
+                                                        trace("For cellid={} , hcal is {} , ecal is {}", cell_id, isHCal, isECal);
+                                        }
+                                }
+                        }
+
+                        if (isECal) 
+                                prelim_pid = 22; //photon
+                        if (isHCal)
+                                prelim_pid = 2112; // neutron
+
+                        trace("Found particle with PID = {}", prelim_pid);
+                        
                         trace("                                                                ");
                 }
 
                 trace("                                                                ");
                 trace("----------------------------------------------------------------");
-                // 2 - Calculate track energy
-
-
-                // 3 - Calculate calo energy
-
-
-                // (OPT) - If true, use energy resolution
-
-
-                // 4 - Calculate remaining kinematics and output a reco particle
-
         };
-
-        // void ParticleConverter::init() {};
 }
