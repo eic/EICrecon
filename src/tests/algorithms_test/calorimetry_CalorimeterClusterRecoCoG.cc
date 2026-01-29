@@ -222,8 +222,13 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   hitassoc2.setSimHit(simhit2);
 
   // Constructing input and output as per the algorithm's expected signature
-  auto input  = std::make_tuple(&pclust_coll, &hitassocs_coll);
-  auto output = std::make_tuple(clust_coll.get(), assoc_coll.get());
+  auto input = std::make_tuple(&pclust_coll, &hitassocs_coll);
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  edm4eic::MCRecoClusterParticleLinkCollection link_coll;
+  auto output = std::make_tuple(clust_coll.get(), &link_coll, assoc_coll.get());
+#else
+  auto output = std::make_tuple(clust_coll.get(), nullptr, assoc_coll.get());
+#endif
 
   algo.process(input, output);
 
