@@ -92,10 +92,8 @@ void InitPlugin(JApplication* app) {
       "TaggerTrackerRawHits", {"EventHeader", "TaggerTrackerHits"},
       {"TaggerTrackerRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
        "TaggerTrackerRawHitLinks",
 #endif
-
        "TaggerTrackerRawHitAssociations"},
       {
           .threshold      = 1.5 * edm4eic::unit::keV,

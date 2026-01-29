@@ -40,10 +40,8 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapNRawHits", {"EventHeader", "HcalEndcapNHits"},
       {"HcalEndcapNRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
        "HcalEndcapNRawHitLinks",
 #endif
-
        "HcalEndcapNRawHitAssociations"},
       {
           .eRes{},
@@ -130,7 +128,6 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalEndcapNTruthClusterLinks",
 #endif
-
        "HcalEndcapNTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(

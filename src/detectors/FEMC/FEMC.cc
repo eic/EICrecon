@@ -72,10 +72,8 @@ void InitPlugin(JApplication* app) {
         "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
         {"EcalEndcapPRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
          "EcalEndcapPRawHitLinks",
 #endif
-
          "EcalEndcapPRawHitAssociations"},
         {
             .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03,
@@ -103,10 +101,8 @@ void InitPlugin(JApplication* app) {
         "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
         {"EcalEndcapPRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
          "EcalEndcapPRawHitLinks",
 #endif
-
          "EcalEndcapPRawHitAssociations"},
         {
             .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
@@ -195,10 +191,8 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPTruthClustersWithoutShapes", "EcalEndcapPTruthClusterAssociationsWithoutShapes"},
       {"EcalEndcapPTruthClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
        "EcalEndcapPTruthClusterLinks",
 #endif
-
        "EcalEndcapPTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
 

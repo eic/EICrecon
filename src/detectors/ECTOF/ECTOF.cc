@@ -36,10 +36,8 @@ void InitPlugin(JApplication* app) {
       "TOFEndcapRawHits", {"EventHeader", "TOFEndcapHits"},
       {"TOFEndcapRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-
        "TOFEndcapRawHitLinks",
 #endif
-
        "TOFEndcapRawHitAssociations"},
       {
           .threshold      = 6.0 * dd4hep::keV,
