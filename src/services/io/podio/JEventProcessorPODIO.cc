@@ -5,7 +5,6 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
@@ -59,7 +58,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
       "CentralTrackingRawHitAssociations",
-      "CentralTrackSeedingResults",
+      "CentralTrackSeeds",
+      "CentralTrackSeedParameters",
       "CentralTrackerMeasurements",
 
       // Si tracker hits
@@ -168,7 +168,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerRawHits",
       "B0TrackerHits",
       "B0TrackerRawHitAssociations",
-      "B0TrackerSeedingResults",
+      "B0TrackerSeeds",
+      "B0TrackerSeedParameters",
       "B0TrackerMeasurements",
 
       "ForwardRomanPotRecHits",
@@ -178,8 +179,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ForwardRomanPotStaticRecParticles",
       "ForwardOffMRecParticles",
 
+      "ForwardRomanPotHits",
       "ForwardRomanPotRawHits",
       "ForwardRomanPotRawHitAssociations",
+      "ForwardOffMTrackerHits",
       "ForwardOffMTrackerRawHits",
       "ForwardOffMTrackerRawHitAssociations",
 
@@ -374,18 +377,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DIRCTruthSeededParticleIDs",
       "DIRCParticleIDs",
 
-      "B0ECalRawHitAssociations",
-      "EcalBarrelScFiRawHitAssociations",
-      "EcalBarrelImagingRawHitAssociations",
-      "HcalBarrelRawHitAssociations",
-      "EcalEndcapNRawHitAssociations",
-      "HcalEndcapNRawHitAssociations",
-      "EcalEndcapPRawHitAssociations",
-      "HcalEndcapPInsertRawHitAssociations",
-      "LFHCALRawHitAssociations",
-      "EcalLumiSpecRawHitAssociations",
-      "EcalFarForwardZDCRawHitAssociations",
-      "HcalFarForwardZDCRawHitAssociations",
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
       "HcalEndcapPInsertClusterMatches",

@@ -13,7 +13,7 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <TObject.h>
-#include <fmt/core.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <podio/CollectionBase.h>
@@ -28,9 +28,8 @@
 #include <utility>
 #include <vector>
 
-// These files are generated automatically by make_datamodel_glue.py
-#include "services/io/podio/datamodel_glue.h"
-#include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
+#include "services/io/podio/datamodel_glue_compat.h"     // IWYU pragma: keep
+#include "services/io/podio/datamodel_includes_compat.h" // IWYU pragma: keep
 #include "services/log/Log_service.h"
 
 // Formatter for podio::version::Version

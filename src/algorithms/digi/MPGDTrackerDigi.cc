@@ -31,18 +31,16 @@
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Parsers/Primitives.h>
 // Access "algorithms:GeoSvc"
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -50,6 +48,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <random>
+#include <stdexcept>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -65,14 +64,15 @@ void MPGDTrackerDigi::init() {
   m_detector                            = algorithms::GeoSvc::instance().detector();
   const dd4hep::BitFieldCoder* m_id_dec = nullptr;
   if (m_cfg.readout.empty()) {
-    throw JException("Readout is empty");
+    throw std::runtime_error("Readout is empty");
   }
   try {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
     m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
   } catch (...) {
     critical("Failed to load ID decoder for \"{}\" readout.", m_cfg.readout);
-    throw JException("Failed to load ID decoder");
+    throw std::runtime_error(
+        fmt::format("Failed to load ID decoder for \"{}\" readout.", m_cfg.readout));
   }
   // Method "process" relies on a strict assumption on the IDDescriptor:
   // - Must have a "strip" field.
@@ -82,7 +82,8 @@ void MPGDTrackerDigi::init() {
     critical(R"(Missing or invalid "strip" field in IDDescriptor for "{}"
         readout.)",
              m_cfg.readout);
-    throw JException("Invalid IDDescriptor");
+    throw std::runtime_error(
+        fmt::format("Invalid IDDescriptor for \"{}\" readout.", m_cfg.readout));
   }
   debug(R"(Find valid "strip" field in IDDescriptor for "{}" readout.)", m_cfg.readout);
 }
@@ -176,11 +177,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
             sim_hit.getMomentum().y, sim_hit.getMomentum().z);
       debug("   edep = {:.2f}", sim_hit.getEDep());
       debug("   time = {:.4f}[ns]", sim_hit.getTime());
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
       debug("   particle time = {}[ns]", sim_hit.getParticle().getTime());
-#else
-      debug("   particle time = {}[ns]", sim_hit.getMCParticle().getTime());
-#endif
       debug("   time smearing: {:.4f}, resulting time = {:.4f} [ns]", time_smearing, result_time);
       debug("   hit_time_stamp: {} [~ps]", hit_time_stamp);
     }

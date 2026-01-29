@@ -1,9 +1,11 @@
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
@@ -12,17 +14,16 @@
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
-#include <cstddef>
 #include <exception>
 #include <gsl/pointers>
 #include <map>
 #include <string>
 #include <vector>
 
+#include "TrackPropagation.h"
 #include "TrackPropagationTest_processor.h"
 #include "services/geometry/acts/ACTSGeo_service.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
@@ -76,25 +77,32 @@ void TrackPropagationTest_processor::Init() {
 void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>& event) {
   m_log->trace("TrackPropagationTest_processor event");
 
-  // Get trajectories from tracking
-  auto trajectories = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
+  // Get track containers from tracking
+  auto track_containers = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
 
-  // Iterate over trajectories
-  m_log->debug("Propagating through {} trajectories", trajectories.size());
-  for (std::size_t traj_index = 0; traj_index < trajectories.size(); traj_index++) {
-    auto& trajectory = trajectories[traj_index];
-    m_log->trace(" -- trajectory {} --", traj_index);
+  if (track_containers.empty()) {
+    m_log->debug("No track containers found");
+    return;
+  }
+
+  const auto& track_container = *track_containers[0];
+
+  // Iterate over tracks
+  m_log->debug("Propagating through {} tracks", track_container.size());
+  for (const auto& track : track_container) {
+    m_log->trace(" -- track {} --", track.index());
 
     std::unique_ptr<edm4eic::TrackPoint> projection_point;
     try {
       // >>> try to propagate to surface <<<
-      projection_point = m_propagation_algo.propagate(edm4eic::Track{}, trajectory, m_hcal_surface);
+      projection_point =
+          m_propagation_algo.propagate(edm4eic::Track{}, track, track_container, m_hcal_surface);
     } catch (std::exception& e) {
       throw JException(e.what());
     }
 
     if (!projection_point) {
-      m_log->trace("   could not propagate!", traj_index);
+      m_log->trace("   could not propagate track {}!", track.index());
       continue;
     }
 
@@ -102,7 +110,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
 
     auto pos    = projection_point->position;
     auto length = projection_point->pathlength;
-    m_log->trace("   {:>10} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", traj_index, pos.x, pos.y,
+    m_log->trace("   {:>10} {:>10.2f} {:>10.2f} {:>10.2f} {:>10.2f}", track.index(), pos.x, pos.y,
                  pos.z, length);
   }
 }
