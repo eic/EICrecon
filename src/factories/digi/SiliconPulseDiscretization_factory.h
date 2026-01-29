@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "algorithms/digi/SiliconPulseDiscretization.h"
 #include "extensions/jana/JOmniFactory.h"

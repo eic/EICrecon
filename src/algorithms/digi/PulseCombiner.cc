@@ -3,6 +3,7 @@
 //
 // Combine pulses into a larger pulse if they are within a certain time of each other
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
