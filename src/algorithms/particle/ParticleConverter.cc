@@ -3,6 +3,7 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/MutableReconstructedParticle.h>
 
 #include "ParticleConverter.h"
 
@@ -32,6 +33,8 @@ namespace eicrecon {
                         double avge_energy = 0;
                         
                         edm4hep::Vector3f track_momentum_vector;
+
+                        // Step 1 : Assign preliminary PID
 
                         // Looking for tracks
                         for (auto track : particle.getTracks()) {
@@ -80,8 +83,7 @@ namespace eicrecon {
                         if (!isECal && isHCal)
                                 prelim_pid = 2112; // neutron
 
-                        // Step 2
-                        //      Calculate energy for the track
+                        // Step 2 : Calculate track energy
                         double track_momentum_mag = 0;
 
                         if (isTrack) {
@@ -94,11 +96,7 @@ namespace eicrecon {
                                 track_energy = std::sqrt(std::pow(track_momentum_mag, 2) + std::pow(track_mass, 2));
                         }
 
-                        // if (!particle.getPDG())
-                        //         trace(" This particle track.Energy = {}, track.Mass = {}", track_energy, track_mass);
-
-                        // Step 3 (PRELIMINARY IMPLEMENTATION)
-                        //      Calculate calo energy
+                        // Step 3 : Calculate calo energy (PRELIMINARY IMPLEMENTATION)
                         if (ecal_energy > 0)
                                 calo_energy += ecal_energy;
                         if (hcal_energy > 0)
@@ -106,8 +104,7 @@ namespace eicrecon {
 
                         calo_energy *= m_cfg.calo_energy_norm;
 
-                        // Step 4 (PRELIMINARY IMPLEMENTATION)
-                        //      Calculate the average energy. One resolution for the whole cal system?
+                        // Step 4 : Calculate avge energy (PRELIMINARY IMPLEMENTATION)
                         double weight_tracking_resolution = 1. / std::pow(m_cfg.tracking_resolution, 2);
                         double weight_calo_resolution     = 1. / std::pow(m_cfg.ecal_resolution, 2); // USING ECAL RESOLUTION AS PLACEHOLDER!
 
@@ -126,6 +123,20 @@ namespace eicrecon {
 
                         trace(" Total energy of the particle is E = {} GeV, calo.Energy = {}, track.Energy = {}", avge_energy, calo_energy, track_energy);
                         
+                        // Step 5 : Store information on a mutable collection
+
+                        double mass_calculated = 
+
+
+
+                        edm4eic::MutableReconstructedParticle out_reco_particle;
+
+                        out_reco_particle.setEnergy(avge_energy);
+                        out_reco_particle.setCharge(particle.getCharge());
+                        // out_reco_particle.
+
+                        out_particles->push_back(out_reco_particle);
+
                         trace("                                                                ");
                 }
 
