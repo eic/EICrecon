@@ -1172,7 +1172,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs:
       - eicrecon-gun
-      - eicrecon-two-stage
+      - eicrecon-two-stage-running
       - eicrecon-dis
       - compare-single-multi-threaded
     steps:
