@@ -103,6 +103,6 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
 
     REQUIRE((*parts_in).size() == (*parts_out).size());
     REQUIRE((*assocs_in).size() == (*assocs_out).size());
-    REQUIRE((*partids_in).size() == (*partids_out).size());
+    REQUIRE((*parts_in).size() * cfg.pdg_values.size() == (*partids_out).size());
   }
 }
