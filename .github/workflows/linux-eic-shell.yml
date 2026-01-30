@@ -608,7 +608,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EventHeader,MCParticles,EcalBarrelScFiRawHits,EcalBarrelImagingRawHits -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EventHeader,.*RawHits,.*PulsesWithNoise -Ppodio:output_file=two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload digitization output
       uses: actions/upload-artifact@v6
       with:
@@ -625,12 +625,44 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_collections=EcalBarrelClusters,EcalBarrelClusterAssociations -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root two_stage_raw_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root -Pplugins=dump_flags,janadot -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - name: Upload reconstruction output
       uses: actions/upload-artifact@v6
       with:
         name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        if-no-files-found: error
+    - name: Download previous artifact
+      id: download_previous_artifact_two_stage
+      uses: dawidd6/action-download-artifact@v12
+      with:
+        branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
+        path: ref/
+        name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        workflow: ".github/workflows/linux-eic-shell.yml"
+        workflow_conclusion: "completed"
+        if_no_artifact_found: warn
+    - name: Compare to previous artifacts
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          mkdir capybara-reports
+          mkdir new
+          ln -sf ../two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new/
+          # using nullglob to ensure ref/* does not fail
+          shopt -s nullglob
+          capybara bara ref/*two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new/two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+          mv capybara-reports two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
+          touch .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
+    - uses: actions/upload-artifact@v6
+      with:
+        name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.capy
+        path: |
+          .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
+          two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}/
         if-no-files-found: error
 
   eicrecon-test-plugins:
@@ -1140,6 +1172,7 @@ jobs:
     runs-on: ubuntu-24.04
     needs:
       - eicrecon-gun
+      - eicrecon-two-stage
       - eicrecon-dis
       - compare-single-multi-threaded
     steps:
