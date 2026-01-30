@@ -72,8 +72,9 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
     clusters->push_back(cl);
 
     // If sim hits are available, associate cluster with MCParticle
-    if (mchitassociations->empty()) {
-      debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
+    if (!mchitassociations || mchitassociations->empty()) {
+      debug("Provided MCRecoCalorimeterHitAssociation collection is not available or empty. No "
+            "truth associations "
             "will be performed.");
       continue;
     }
