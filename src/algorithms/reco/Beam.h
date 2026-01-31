@@ -6,6 +6,7 @@
 #include <Math/Vector4D.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <algorithm>
 #include <set>
 
 using ROOT::Math::PxPyPzEVector;
@@ -15,11 +16,10 @@ namespace eicrecon {
 template <class T> auto find_first_with_pdg(const T* parts, const std::set<int32_t>& pdg) {
   T c;
   c.setSubsetCollection();
-  for (const auto& p : *parts) {
-    if (pdg.count(p.getPDG()) > 0) {
-      c.push_back(p);
-      break;
-    }
+  const auto it = std::find_if(parts->begin(), parts->end(),
+                               [&pdg](const auto& p) { return pdg.count(p.getPDG()) > 0; });
+  if (it != parts->end()) {
+    c.push_back(*it);
   }
   return c;
 }
@@ -29,11 +29,11 @@ auto find_first_with_status_pdg(const T* parts, const std::set<int32_t>& status,
                                 const std::set<int32_t>& pdg) {
   T c;
   c.setSubsetCollection();
-  for (const auto& p : *parts) {
-    if (status.count(p.getGeneratorStatus()) > 0 && pdg.count(p.getPDG()) > 0) {
-      c.push_back(p);
-      break;
-    }
+  const auto it = std::find_if(parts->begin(), parts->end(), [&status, &pdg](const auto& p) {
+    return status.count(p.getGeneratorStatus()) > 0 && pdg.count(p.getPDG()) > 0;
+  });
+  if (it != parts->end()) {
+    c.push_back(*it);
   }
   return c;
 }
