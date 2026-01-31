@@ -68,21 +68,15 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
   }
 
   // Associate first scattered electron with reconstructed electrons
-  //const auto ef_assoc = std::find_if(
-  //  rcassoc->begin(),
-  //  rcassoc->end(),
-  //  [&ef_coll](const auto& a){ return a.getSim().getObjectID() == ef_coll[0].getObjectID(); });
-  auto ef_assoc = rcassoc->begin();
-  for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
-    if (ef_assoc->getSim().getObjectID() == ef_coll[0].getObjectID()) {
-      break;
-    }
-  }
-  if (!(ef_assoc != rcassoc->end())) {
+  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_coll](const auto& a) {
+    return a.getSim().getObjectID() == ef_coll[0].getObjectID();
+  });
+
+  if (ef_assoc == rcassoc->end()) {
     debug("Truth scattered electron not in reconstructed particles");
     return;
   }
-  const auto ef_rc{ef_assoc->getRec()};
+  const auto ef_rc{(*ef_assoc).getRec()};
   const auto ef_rc_id{ef_rc.getObjectID().index};
 
   // Sums in colinear frame
