@@ -20,6 +20,7 @@
 // Event Model related classes
 #include <edm4hep/MCParticleCollection.h>
 #include <iterator>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <utility>
