@@ -32,9 +32,9 @@ namespace eicrecon {
 
 using ImagingClusterRecoAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ProtoClusterCollection,
-                                            edm4eic::MCRecoCalorimeterHitAssociationCollection>,
+                                            std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>>,
                           algorithms::Output<edm4eic::ClusterCollection,
-                                             edm4eic::MCRecoClusterParticleAssociationCollection,
+                                             std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>,
                                              edm4eic::ClusterCollection>>;
 
 /** Imaging cluster reconstruction.

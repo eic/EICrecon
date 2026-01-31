@@ -202,15 +202,17 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     // ----------------------------------------------------------------------
     // if provided, copy associations
     // ----------------------------------------------------------------------
-    for (auto in_assoc : *in_associations) {
-      if (in_assoc.getRec() == in_clust) {
-        auto mc_par    = in_assoc.getSim();
-        auto out_assoc = out_associations->create();
-        out_assoc.setRec(out_clust);
-        out_assoc.setSim(mc_par);
-        out_assoc.setWeight(in_assoc.getWeight());
-      }
-    } // end input association loop
+    if (in_associations && !in_associations->empty()) {
+      for (auto in_assoc : *in_associations) {
+        if (in_assoc.getRec() == in_clust) {
+          auto mc_par    = in_assoc.getSim();
+          auto out_assoc = out_associations->create();
+          out_assoc.setRec(out_clust);
+          out_assoc.setSim(mc_par);
+          out_assoc.setWeight(in_assoc.getWeight());
+        }
+      } // end input association loop
+    }
   } // end input cluster loop
   debug("Completed processing input clusters");
 
