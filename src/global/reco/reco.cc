@@ -95,22 +95,29 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsElectron>>(
       "InclusiveKinematicsElectron",
-      {"MCParticles", "ScatteredElectronsTruth", "HadronicFinalState"},
+      {"MCBeamElectronsCloned", "MCBeamProtonsCloned", "ScatteredElectronsTruth",
+       "HadronicFinalState"},
       {"InclusiveKinematicsElectron"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsJB>>(
-          "InclusiveKinematicsJB", {"MCParticles", "ScatteredElectronsTruth", "HadronicFinalState"},
+          "InclusiveKinematicsJB",
+          {"MCBeamElectronsCloned", "MCBeamProtonsCloned", "ScatteredElectronsTruth",
+           "HadronicFinalState"},
           {"InclusiveKinematicsJB"}, app));
 
   app->Add(
       new JOmniFactoryGeneratorT<InclusiveKinematicsReconstructed_factory<InclusiveKinematicsDA>>(
-          "InclusiveKinematicsDA", {"MCParticles", "ScatteredElectronsTruth", "HadronicFinalState"},
+          "InclusiveKinematicsDA",
+          {"MCBeamElectronsCloned", "MCBeamProtonsCloned", "ScatteredElectronsTruth",
+           "HadronicFinalState"},
           {"InclusiveKinematicsDA"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsESigma>>(
-      "InclusiveKinematicsESigma", {"MCParticles", "ScatteredElectronsTruth", "HadronicFinalState"},
+      "InclusiveKinematicsESigma",
+      {"MCBeamElectronsCloned", "MCBeamProtonsCloned", "ScatteredElectronsTruth",
+       "HadronicFinalState"},
       {"InclusiveKinematicsESigma"}, app));
 
   // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
@@ -120,7 +127,9 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(
-      "InclusiveKinematicsSigma", {"MCParticles", "ScatteredElectronsTruth", "HadronicFinalState"},
+      "InclusiveKinematicsSigma",
+      {"MCBeamElectronsCloned", "MCBeamProtonsCloned", "ScatteredElectronsTruth",
+       "HadronicFinalState"},
       {"InclusiveKinematicsSigma"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<InclusiveKinematicsML_factory>(
@@ -234,7 +243,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<HadronicFinalState_factory<HadronicFinalState>>(
       "HadronicFinalState",
-      {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"},
+      {"MCBeamElectronsCloned", "MCBeamProtonsCloned", "MCParticles", "ReconstructedParticles",
+       "ReconstructedParticleAssociations"},
       {"HadronicFinalState"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TransformBreitFrame_factory>(
