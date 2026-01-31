@@ -66,7 +66,7 @@ void ScatteredElectronsTruth::process(const ScatteredElectronsTruth::Input& inpu
   }
 
   // Get the reconstructed electron object
-  const auto ef_rc{(*ef_assoc).getRec()};
+  const auto ef_rc{ef_assoc->getRec()};
   const auto ef_rc_id{ef_rc.getObjectID()};
 
   // Use these to compute the E-Pz
