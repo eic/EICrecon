@@ -28,54 +28,6 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
   const auto [mc_beam_electrons, mc_beam_protons, escat, hfs] = input;
   auto [kinematics]                                           = output;
 
-  // 1. find_if
-  //const auto mc_first_electron = std::find_if(
-  //  mcparts.begin(),
-  //  mcparts.end(),
-  //  [](const auto& p){ return p.getPDG() == 11; });
-
-  // 2a. simple loop over iterator (post-increment)
-  //auto mc_first_electron = mcparts.end();
-  //for (auto p = mcparts.begin(); p != mcparts.end(); p++) {
-  //  if (p.getPDG() == 11) {
-  //    mc_first_electron = p;
-  //    break;
-  //  }
-  //}
-  // 2b. simple loop over iterator (pre-increment)
-  //auto mc_first_electron = mcparts.end();
-  //for (auto p = mcparts.begin(); p != mcparts.end(); ++p) {
-  //  if (p.getPDG() == 11) {
-  //    mc_first_electron = p;
-  //    break;
-  //  }
-  //}
-
-  // 3. pre-initialized simple loop
-  //auto mc_first_electron = mcparts.begin();
-  //for (; mc_first_electron != mcparts.end(); ++mc_first_electron) {
-  //  if (mc_first_electron.getPDG() == 11) {
-  //    break;
-  //  }
-  //}
-
-  // 4a. iterator equality
-  //if (mc_first_electron == mcparts.end()) {
-  //  debug() << "No electron found" << endmsg;
-  //  return StatusCode::FAILURE;
-  //}
-  // 4b. iterator inequality
-  //if (!(mc_first_electron != mcparts.end())) {
-  //  debug() << "No electron found" << endmsg;
-  //  return StatusCode::FAILURE;
-  //}
-
-  // 5. ranges and views
-  //auto is_electron = [](const auto& p){ return p.getPDG() == 11; };
-  //for (const auto& e: mcparts | std::views::filter(is_electron)) {
-  //  break;
-  //}
-
   // Get first (should be only) beam electron
   if (mc_beam_electrons->empty()) {
     debug("No beam electron found");
