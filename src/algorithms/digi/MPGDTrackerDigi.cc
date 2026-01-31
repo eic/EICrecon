@@ -274,17 +274,9 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     double time_smearing = gaussian(generator) * m_cfg.timeResolution;
 
     // ***** USED HIT?
-    int usedHit = 0;
-    for (int jdx : usedHits) {
-      if (jdx == idx) {
-        usedHit = 1;
-        break;
-      }
-    }
-    if (usedHit)
+    if (std::find(usedHits.begin(), usedHits.end(), idx) != usedHits.end())
       continue;
-    else
-      usedHits.push_back(idx); // useful?...
+    usedHits.push_back(idx);
 
     // ***** REFERENCE SUBVOLUME
     CellID refID      = sim_hit.getCellID() & m_moduleBits;
@@ -778,8 +770,15 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
     size_t sim_size = sim_hits->size();
     for (jdx = idx + 1, unbroken = 1; jdx < (int)sim_size; jdx++) {
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
-      // Used hit? If indeed, it's going to be discarded anyway in the
-      // following: current "sim_hit" is by construction at variance to it.
+      // Used hit?  If indeed, it's bound to be discarded in the following (
+      // because incompatible w/ current "sim_hit"). But it may happen that one
+      // hit in a sequence of connected hits fails to pass compatibility checks
+      // w/ its predecessor and is then reprocessed in the main loop where it
+      // may turn out to be compatible w/ one of its succesors, which latter hit
+      // would then be double counted. => Let's reject used hits explicitly.
+      if (std::find(usedHits.begin(), usedHits.end(), jdx) != usedHits.end())
+	continue;
+
       CellID vJD = sim_hjt.getCellID() & m_volumeBits;
       // Particle may start inward and re-enter, being then outward-going.
       // => Orientation has to be evaluated w.r.t. previous vID.
@@ -938,6 +937,23 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
   double dZ         = bCur.z();
   double ref2Cur    = getRef2Cur(refVol, curVol);
   // Is TRAVERSING?
+#define DEBUG_PATHDEPTH
+#ifdef DEBUG_PATHDEPTH
+  {
+    int module = (sim_hit.getCellID()>>12)&0xfff;
+    const edm4hep::Vector3d& gpos = sim_hit.getPosition();
+    double Mx = lpos[0], My = lpos[1], Mz = lpos[2];
+    double Px = lmom[0], Py = lmom[1], Pz = lmom[2], P = sqrt(Px*Px+Py*Py+Pz*Pz);
+    double cTheta = (Pz*Mz)/P/sqrt(Mz*Mz);
+    double pathDepth = sim_hit.getPathLength()*cTheta;
+    double diff = module%2 ? lpos[1]-gpos.z/10 : -lpos[1]-gpos.z/10;
+    printf("==== #%5d %d 0x%08lx %2d %.6f,%.6f,%.6f  %.6f,%.6f,%.6f\n %.4f  %.4f %.4f    %.6f,%.6f,%.6f %.6f\n",
+	   header.getEventNumber(),idx,sim_hit.getCellID()&0xffffffff,module,
+	   gpos.x/10,gpos.y/10,gpos.z/10,lpos[0],lpos[1],lpos[2],
+	   diff,sim_hit.getPathLength(),pathDepth,lmom[0],lmom[1],lmom[2],P);
+    printf("\n");
+  }
+#endif
   double lintos[2][3], louts[2][3], lpini[3], lpend[3], lmend[3];
   std::copy(std::begin(lmom), std::end(lmom), std::begin(lmend));
   unsigned int status =
@@ -967,8 +983,9 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
     size_t sim_size = sim_hits->size();
     for (jdx = idx + 1, unbroken = 1; jdx < (int)sim_size; jdx++) {
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
-      // Used hit? If indeed, it's going to be discarded anyway in the
-      // following: current "sim_hit" is by construction at variance to it.
+      // Used hit? (See comment in "cTraversing").
+      if (std::find(usedHits.begin(), usedHits.end(), jdx) != usedHits.end())
+	continue;
       CellID vJD      = sim_hjt.getCellID() & m_volumeBits;
       int orientation = m_orientation(vIDPrv, vJD);
       bool isUpstream = m_isUpstream(orientation, status);
@@ -990,6 +1007,22 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
       // Is TRAVERSING through the (quasi)-common border?
       double lpoj[3], lmoj[3];
       getLocalPosMom(sim_hjt, toRefVol, lpoj, lmoj);
+#ifdef DEBUG_PATHDEPTH
+      {
+	int module = (sim_hjt.getCellID()>>12)&0xfff;
+	const edm4hep::Vector3d& gpos = sim_hjt.getPosition();
+	double Mx = lpoj[0], My = lpoj[1], Mz = lpoj[2];
+	double Px = lmoj[0], Py = lmoj[1], Pz = lmoj[2], P = sqrt(Px*Px+Py*Py+Pz*Pz);
+	double cTheta = (Pz*Mz)/P/sqrt(Mz*Mz);
+	double pathDepth = sim_hjt.getPathLength()*cTheta;
+	double diff = module%2 ? lpoj[1]-gpos.z/10 : -lpoj[1]-gpos.z/10;
+	printf("==== #%5d %d 0x%08lx %2d %.6f,%.6f,%.6f  %.6f,%.6f,%.6f\n %.4f  %.4f %.4f    %.6f,%.6f,%.6f %.6f\n",
+	       header.getEventNumber(),jdx,sim_hjt.getCellID()&0xffffffff,module,
+	       gpos.x/10,gpos.y/10,gpos.z/10,lpoj[0],lpoj[1],lpoj[2],
+	       diff,sim_hjt.getPathLength(),pathDepth,lmoj[0],lmoj[1],lmoj[2],P);
+	printf("\n");
+      }
+#endif
       double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
       status = bTraversing(lpoj, lmoj, ref2j, sim_hjt.getPathLength() * ed2dd,
                            sim_hit.isProducedBySecondary(), dZ, dX, dY, ljns, lovts, lpjni, lpfnd);
@@ -1574,8 +1607,9 @@ bool cExtrapolate(const double* lpos, const double* lmom, // Input subHit
       double sqdet = sqrt(det);
       for (int is = 0; is < 2; is++) {
         int s    = 1 - 2 * is;
-        double t = (-b + s * sqdet) / a;
-        if (t < 0)
+        double t = (-b + s * sqdet) / a, norm = sqrt(a + Pz * Pz);
+	// "t" may happen to be slightly <0, because of limited precision
+        if (t * norm < -dd4hep::nm)
           continue;
         if (!ok ||
             // Two intersects: let's retain the earliest one.
@@ -1599,11 +1633,12 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
 {
   bool ok   = false;
   double Mx = lpos[0], My = lpos[1], Mz = lpos[2];
-  double Px = lmom[0], Py = lmom[1], Pz = lmom[2];
+  double Px = lmom[0], Py = lmom[1], Pz = lmom[2], norm = sqrt(Px*Px+Py*Py+Pz*Pz);
   double tF = 0;
   if (Pz) {
     tF = (zT - Mz) / Pz;
-    ok = tF > 0;
+    // "t" may happen to be slightly <0, because of limited precision
+    ok = tF * norm > -dd4hep::nm;
   }
   if (ok) {
     lext[0] = Mx + tF * Px;
