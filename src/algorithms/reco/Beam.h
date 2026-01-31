@@ -8,6 +8,8 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <algorithm>
 #include <set>
+#include <vector>
+#include <cmath>
 
 using ROOT::Math::PxPyPzEVector;
 
