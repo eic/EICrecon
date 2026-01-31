@@ -6,7 +6,6 @@
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/HadronicFinalStateCollection.h>
 #include <edm4eic/InclusiveKinematicsCollection.h>
-#include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <vector>
