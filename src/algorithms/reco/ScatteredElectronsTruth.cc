@@ -11,6 +11,7 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
+#include <algorithm>
 #include <gsl/pointers>
 #include <vector>
 
@@ -53,24 +54,19 @@ void ScatteredElectronsTruth::process(const ScatteredElectronsTruth::Input& inpu
     return;
   }
 
-  // Associate first scattered electron
-  // with reconstructed electron
-  auto ef_assoc = rcassoc->begin();
-  for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
-    if (ef_assoc->getSim().getObjectID() == ef_coll[0].getObjectID()) {
-      break;
-    }
-  }
+  // Associate first scattered electron with reconstructed electron
+  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_coll](const auto& a) {
+    return a.getSim().getObjectID() == ef_coll[0].getObjectID();
+  });
 
-  // Check to see if the associated reconstructed
-  // particle is available
-  if (!(ef_assoc != rcassoc->end())) {
+  // Check to see if the associated reconstructed particle is available
+  if (ef_assoc == rcassoc->end()) {
     trace("Truth scattered electron not in reconstructed particles");
     return;
   }
 
   // Get the reconstructed electron object
-  const auto ef_rc{ef_assoc->getRec()};
+  const auto ef_rc{(*ef_assoc).getRec()};
   const auto ef_rc_id{ef_rc.getObjectID()};
 
   // Use these to compute the E-Pz
