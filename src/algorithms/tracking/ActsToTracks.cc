@@ -59,7 +59,7 @@ void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
   const auto [meas2Ds, track_seeds, acts_track_states, acts_tracks, raw_hit_assocs] = input;
-  auto [trajectories, track_parameters, tracks, tracks_assoc]          = output;
+  auto [trajectories, track_parameters, tracks, tracks_assoc]                       = output;
 
   // Create accessor for seed number dynamic column
   Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
