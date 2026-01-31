@@ -27,7 +27,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   VariadicPodioInput<edm4eic::Measurement2D> m_hits_input{this};
-  PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_hits_association_input{this};
+  PodioInput<edm4eic::MCRecoTrackerHitAssociation, true> m_hits_association_input{this};
   PodioOutput<edm4eic::Track> m_tracks_output{this};
   PodioOutput<edm4eic::MCRecoTrackParticleAssociation> m_tracks_association_output{this};
 

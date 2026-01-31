@@ -23,7 +23,7 @@ private:
 
   PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
   PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input{this};
-  PodioInput<edm4eic::MCRecoParticleAssociation> m_recoparticle_assocs_input{this};
+  PodioInput<edm4eic::MCRecoParticleAssociation, true> m_recoparticle_assocs_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_recoparticle_assocs_output{this};
   PodioOutput<edm4hep::ParticleID> m_particleids_output{this};

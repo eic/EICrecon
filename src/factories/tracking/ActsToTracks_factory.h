@@ -21,7 +21,7 @@ private:
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
   PodioInput<edm4eic::TrackSeed> m_seeds_input{this};
   Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
-  PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_raw_hit_assocs_input{this};
+  PodioInput<edm4eic::MCRecoTrackerHitAssociation, true> m_raw_hit_assocs_input{this};
   PodioOutput<edm4eic::Trajectory> m_trajectories_output{this};
   PodioOutput<edm4eic::TrackParameters> m_parameters_output{this};
   PodioOutput<edm4eic::Track> m_tracks_output{this};

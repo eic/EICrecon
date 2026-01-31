@@ -31,7 +31,7 @@ private:
   PodioInput<edm4eic::TrackSegment> m_gas_tracks_input{this};
   PodioInput<edm4eic::TrackSegment> m_merged_tracks_input{this};
   PodioInput<edm4eic::RawTrackerHit> m_raw_hits_input{this};
-  PodioInput<edm4eic::MCRecoTrackerHitAssociation> m_raw_hit_assoc_input{this};
+  PodioInput<edm4eic::MCRecoTrackerHitAssociation, true> m_raw_hit_assoc_input{this};
   PodioOutput<edm4eic::CherenkovParticleID> m_aerogel_particleIDs_output{this};
   PodioOutput<edm4eic::CherenkovParticleID> m_gas_particleIDs_output{this};
 

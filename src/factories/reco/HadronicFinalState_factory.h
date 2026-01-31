@@ -25,9 +25,9 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename FactoryT::template PodioInput<edm4hep::MCParticle> m_mc_particles_input{this};
+  typename FactoryT::template PodioInput<edm4hep::MCParticle, true> m_mc_particles_input{this};
   typename FactoryT::template PodioInput<edm4eic::ReconstructedParticle> m_rc_particles_input{this};
-  typename FactoryT::template PodioInput<edm4eic::MCRecoParticleAssociation>
+  typename FactoryT::template PodioInput<edm4eic::MCRecoParticleAssociation, true>
       m_rc_particles_assoc_input{this};
   typename FactoryT::template PodioOutput<edm4eic::HadronicFinalState>
       m_hadronic_final_state_output{this};
