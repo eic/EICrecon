@@ -10,6 +10,7 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
+#include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
 #include <vector>
