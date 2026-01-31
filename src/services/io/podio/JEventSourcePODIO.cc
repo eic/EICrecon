@@ -71,7 +71,7 @@ struct InsertingVisitor {
 //------------------------------------------------------------------------------
 JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* app)
     : JEventSource(resource_name, app) {
-  SetTypeName(NAME_OF_THIS); // Provide JANA with class name
+  SetTypeName(NAME_OF_THIS);                   // Provide JANA with class name
   SetCallbackStyle(CallbackStyle::ExpertMode); // Use new, exception-free Emit() callback
 
   // Get Logger
