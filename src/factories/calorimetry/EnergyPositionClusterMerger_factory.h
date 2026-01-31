@@ -19,9 +19,9 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Cluster> m_energy_cluster_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_energy_assoc_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleAssociation, true> m_energy_assoc_input{this};
   PodioInput<edm4eic::Cluster> m_position_cluster_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_position_assoc_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleAssociation, true> m_position_assoc_input{this};
 
   PodioOutput<edm4eic::Cluster> m_cluster_output{this};
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_output{this};

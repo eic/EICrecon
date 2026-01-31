@@ -65,14 +65,16 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
     // Find MCParticle from associations and propagate the relevant ones further
     auto best_assoc = edm4eic::MCRecoParticleAssociation::makeEmpty();
-    for (auto assoc_in : *partassocs_in) {
-      if (assoc_in.getRec() == recopart_without_pid) {
-        if ((not best_assoc.isAvailable()) || (best_assoc.getWeight() < assoc_in.getWeight())) {
-          best_assoc = assoc_in;
+    if (partassocs_in) {
+      for (auto assoc_in : *partassocs_in) {
+        if (assoc_in.getRec() == recopart_without_pid) {
+          if ((not best_assoc.isAvailable()) || (best_assoc.getWeight() < assoc_in.getWeight())) {
+            best_assoc = assoc_in;
+          }
+          auto assoc_out = assoc_in.clone();
+          assoc_out.setRec(recopart);
+          partassocs_out->push_back(assoc_out);
         }
-        auto assoc_out = assoc_in.clone();
-        assoc_out.setRec(recopart);
-        partassocs_out->push_back(assoc_out);
       }
     }
     if (not best_assoc.isAvailable()) {

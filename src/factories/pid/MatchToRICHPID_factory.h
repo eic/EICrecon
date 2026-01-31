@@ -21,7 +21,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input{this};
-  PodioInput<edm4eic::MCRecoParticleAssociation> m_assocs_input{this};
+  PodioInput<edm4eic::MCRecoParticleAssociation, true> m_assocs_input{this};
   PodioInput<edm4eic::CherenkovParticleID> m_cherenkov_particle_ids_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_assocs_output{this};

@@ -25,9 +25,11 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename FactoryT::template PodioInput<edm4hep::MCParticle> m_mc_particles_input{this};
+  typename FactoryT::template PodioInput<edm4hep::MCParticle> m_mc_beam_electrons_input{this};
+  typename FactoryT::template PodioInput<edm4hep::MCParticle> m_mc_beam_protons_input{this};
+  typename FactoryT::template PodioInput<edm4hep::MCParticle, true> m_mc_particles_input{this};
   typename FactoryT::template PodioInput<edm4eic::ReconstructedParticle> m_rc_particles_input{this};
-  typename FactoryT::template PodioInput<edm4eic::MCRecoParticleAssociation>
+  typename FactoryT::template PodioInput<edm4eic::MCRecoParticleAssociation, true>
       m_rc_particles_assoc_input{this};
   typename FactoryT::template PodioOutput<edm4eic::HadronicFinalState>
       m_hadronic_final_state_output{this};
@@ -43,7 +45,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_mc_particles_input(), m_rc_particles_input(), m_rc_particles_assoc_input()},
+    m_algo->process({m_mc_beam_electrons_input(), m_mc_beam_protons_input(), m_mc_particles_input(),
+                     m_rc_particles_input(), m_rc_particles_assoc_input()},
                     {m_hadronic_final_state_output().get()});
   }
 };

@@ -11,6 +11,7 @@
 #include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/ObjectID.h>
+#include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
 #include <vector>
@@ -28,51 +29,56 @@ void HadronicFinalState::init() {}
 void HadronicFinalState::process(const HadronicFinalState::Input& input,
                                  const HadronicFinalState::Output& output) const {
 
-  const auto [mcparts, rcparts, rcassoc] = input;
-  auto [hadronicfinalstate]              = output;
+  const auto [mc_beam_electrons, mc_beam_protons, mcparts, rcparts, rcassoc] = input;
+  auto [hadronicfinalstate]                                                  = output;
 
-  // Get incoming electron beam
-  const auto ei_coll = find_first_beam_electron(mcparts);
-  if (ei_coll.empty()) {
+  // Get first (should be only) beam electron
+  if (mc_beam_electrons->empty()) {
     debug("No beam electron found");
     return;
   }
-  const PxPyPzEVector ei(round_beam_four_momentum(ei_coll[0].getMomentum(),
-                                                  m_particleSvc.particle(ei_coll[0].getPDG()).mass,
+  const auto& ei_particle = (*mc_beam_electrons)[0];
+  const PxPyPzEVector ei(round_beam_four_momentum(ei_particle.getMomentum(),
+                                                  m_particleSvc.particle(ei_particle.getPDG()).mass,
                                                   {-5.0, -10.0, -18.0}, 0.0));
 
-  // Get incoming hadron beam
-  const auto pi_coll = find_first_beam_hadron(mcparts);
-  if (pi_coll.empty()) {
+  // Get first (should be only) beam proton
+  if (mc_beam_protons->empty()) {
     debug("No beam hadron found");
     return;
   }
-  const PxPyPzEVector pi(round_beam_four_momentum(pi_coll[0].getMomentum(),
-                                                  m_particleSvc.particle(pi_coll[0].getPDG()).mass,
+  const auto& pi_particle = (*mc_beam_protons)[0];
+  const PxPyPzEVector pi(round_beam_four_momentum(pi_particle.getMomentum(),
+                                                  m_particleSvc.particle(pi_particle.getPDG()).mass,
                                                   {41.0, 100.0, 275.0}, m_crossingAngle));
 
-  // Get first scattered electron
+  // Get first scattered electron from full MCParticles collection
+  if (!mcparts) {
+    debug("No MCParticles collection available");
+    return;
+  }
   const auto ef_coll = find_first_scattered_electron(mcparts);
   if (ef_coll.empty()) {
     debug("No truth scattered electron found");
     return;
   }
-  // Associate first scattered electron with reconstructed electrons
-  //const auto ef_assoc = std::find_if(
-  //  rcassoc->begin(),
-  //  rcassoc->end(),
-  //  [&ef_coll](const auto& a){ return a.getSim().getObjectID() == ef_coll[0].getObjectID(); });
-  auto ef_assoc = rcassoc->begin();
-  for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
-    if (ef_assoc->getSim().getObjectID() == ef_coll[0].getObjectID()) {
-      break;
-    }
+
+  // Check if associations are available
+  if (!rcassoc) {
+    debug("No associations available");
+    return;
   }
-  if (!(ef_assoc != rcassoc->end())) {
+
+  // Associate first scattered electron with reconstructed electrons
+  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_coll](const auto& a) {
+    return a.getSim().getObjectID() == ef_coll[0].getObjectID();
+  });
+
+  if (ef_assoc == rcassoc->end()) {
     debug("Truth scattered electron not in reconstructed particles");
     return;
   }
-  const auto ef_rc{ef_assoc->getRec()};
+  const auto ef_rc{(*ef_assoc).getRec()};
   const auto ef_rc_id{ef_rc.getObjectID().index};
 
   // Sums in colinear frame

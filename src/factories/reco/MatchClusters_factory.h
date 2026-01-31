@@ -28,9 +28,9 @@ private:
   // Declare inputs
   PodioInput<edm4hep::MCParticle> m_mc_parts_input{this};
   PodioInput<edm4eic::ReconstructedParticle> m_rec_parts_input{this};
-  PodioInput<edm4eic::MCRecoParticleAssociation> m_rec_assocs_input{this};
+  PodioInput<edm4eic::MCRecoParticleAssociation, true> m_rec_assocs_input{this};
   PodioInput<edm4eic::Cluster> m_clusters_input{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_assocs_input{this};
+  PodioInput<edm4eic::MCRecoClusterParticleAssociation, true> m_cluster_assocs_input{this};
 
   // Declare outputs
   PodioOutput<edm4eic::ReconstructedParticle> m_rec_parts_output{this};

@@ -21,7 +21,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Track> m_tracks_input{this};
-  PodioInput<edm4eic::MCRecoTrackParticleAssociation> m_trackassocs_input{this};
+  PodioInput<edm4eic::MCRecoTrackParticleAssociation, true> m_trackassocs_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_recoassocs_output{this};
 

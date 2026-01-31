@@ -96,60 +96,65 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
       trace("   --> Created a new combined cluster {}, energy: {}", new_clus.getObjectID().index,
             new_clus.getEnergy());
 
-      // find association from energy cluster
-      auto ea = energy_assoc->begin();
-      for (; ea != energy_assoc->end(); ++ea) {
-        if (ea->getRec() == ec) {
-          break;
+      // find association from energy cluster and position cluster if available
+      if ((energy_assoc != nullptr) && (pos_assoc != nullptr)) {
+        auto ea = energy_assoc->begin();
+        for (; ea != energy_assoc->end(); ++ea) {
+          if (ea->getRec() == ec) {
+            break;
+          }
         }
-      }
-      // find association from position cluster if different
-      auto pa = pos_assoc->begin();
-      for (; pa != pos_assoc->end(); ++pa) {
-        if (pa->getRec() == pc) {
-          break;
+        // find association from position cluster if different
+        auto pa = pos_assoc->begin();
+        for (; pa != pos_assoc->end(); ++pa) {
+          if (pa->getRec() == pc) {
+            break;
+          }
         }
-      }
-      if (ea != energy_assoc->end() || pa != pos_assoc->end()) {
-        // we must write an association
-        if (ea != energy_assoc->end() && pa != pos_assoc->end()) {
-          // we have two associations
-          if (pa->getSim() == ea->getSim()) {
-            // both associations agree on the MCParticles entry
+        if (ea != energy_assoc->end() || pa != pos_assoc->end()) {
+          // we must write an association
+          if (ea != energy_assoc->end() && pa != pos_assoc->end()) {
+            // we have two associations
+            if (pa->getSim() == ea->getSim()) {
+              // both associations agree on the MCParticles entry
+              auto clusterassoc = merged_assoc->create();
+              clusterassoc.setWeight(1.0);
+              clusterassoc.setRec(new_clus);
+              clusterassoc.setSim(ea->getSim());
+            } else {
+              // both associations disagree on the MCParticles entry
+              debug("   --> Two associations added to {} and {}", ea->getSim().getObjectID().index,
+                    pa->getSim().getObjectID().index);
+              auto clusterassoc1 = merged_assoc->create();
+              clusterassoc1.setWeight(0.5);
+              clusterassoc1.setRec(new_clus);
+              clusterassoc1.setSim(ea->getSim());
+              auto clusterassoc2 = merged_assoc->create();
+              clusterassoc2.setWeight(0.5);
+              clusterassoc2.setRec(new_clus);
+              clusterassoc2.setSim(pa->getSim());
+            }
+          } else if (ea != energy_assoc->end()) {
+            // no position association
+            debug("   --> Only added energy cluster association to {}",
+                  ea->getSim().getObjectID().index);
             auto clusterassoc = merged_assoc->create();
             clusterassoc.setWeight(1.0);
             clusterassoc.setRec(new_clus);
             clusterassoc.setSim(ea->getSim());
-          } else {
-            // both associations disagree on the MCParticles entry
-            debug("   --> Two associations added to {} and {}", ea->getSim().getObjectID().index,
+          } else if (pa != pos_assoc->end()) {
+            // no energy association
+            debug("   --> Only added position cluster association to {}",
                   pa->getSim().getObjectID().index);
-            auto clusterassoc1 = merged_assoc->create();
-            clusterassoc1.setWeight(0.5);
-            clusterassoc1.setRec(new_clus);
-            clusterassoc1.setSim(ea->getSim());
-            auto clusterassoc2 = merged_assoc->create();
-            clusterassoc2.setWeight(0.5);
-            clusterassoc2.setRec(new_clus);
-            clusterassoc2.setSim(pa->getSim());
+            auto clusterassoc = merged_assoc->create();
+            clusterassoc.setWeight(1.0);
+            clusterassoc.setRec(new_clus);
+            clusterassoc.setSim(pa->getSim());
           }
-        } else if (ea != energy_assoc->end()) {
-          // no position association
-          debug("   --> Only added energy cluster association to {}",
-                ea->getSim().getObjectID().index);
-          auto clusterassoc = merged_assoc->create();
-          clusterassoc.setWeight(1.0);
-          clusterassoc.setRec(new_clus);
-          clusterassoc.setSim(ea->getSim());
-        } else if (pa != pos_assoc->end()) {
-          // no energy association
-          debug("   --> Only added position cluster association to {}",
-                pa->getSim().getObjectID().index);
-          auto clusterassoc = merged_assoc->create();
-          clusterassoc.setWeight(1.0);
-          clusterassoc.setRec(new_clus);
-          clusterassoc.setSim(pa->getSim());
         }
+      } else {
+        debug("MCRecoClusterParticleAssociation collections not available. No truth associations "
+              "will be performed.");
       }
 
       // label our energy cluster as consumed
