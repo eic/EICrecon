@@ -97,7 +97,7 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
             new_clus.getEnergy());
 
       // find association from energy cluster and position cluster if available
-      if (energy_assoc && pos_assoc) {
+      if ((energy_assoc != nullptr) && (pos_assoc != nullptr)) {
         auto ea = energy_assoc->begin();
         for (; ea != energy_assoc->end(); ++ea) {
           if (ea->getRec() == ec) {
