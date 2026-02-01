@@ -92,7 +92,7 @@ namespace eicrecon {
 
 void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
   // lock for old IRT versions that use shared radiator state
-  std::unique_lock<std::mutex> lock;
+  [[maybe_unused]] std::unique_lock<std::mutex> lock;
   if constexpr (!IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS) {
     lock = std::unique_lock<std::mutex>(m_irt_det_mutex);
   }
@@ -237,7 +237,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
     // loop over radiators
     // note: for old IRT versions, this must run exclusively since irt_rad points to shared IRT
     // objects that are owned by the RichGeo_service; it holds state (e.g. irt_rad->ResetLocation())
-    std::unique_lock<std::mutex> lock;
+    [[maybe_unused]] std::unique_lock<std::mutex> lock;
     if constexpr (!IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS) {
       lock = std::unique_lock<std::mutex>(m_irt_det_mutex);
     }
