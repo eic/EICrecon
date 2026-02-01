@@ -19,10 +19,13 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <podio/ObjectID.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
 #include <iterator>
+#include <memory>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 

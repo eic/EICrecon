@@ -1,18 +1,21 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten
 
-#include <edm4eic/EDM4eicVersion.h>
-#include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"
-
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <initializer_list>
+#include <memory>
 #include <vector>
+
+#include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"
 
 namespace eicrecon {
 

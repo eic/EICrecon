@@ -2,18 +2,20 @@
 // Copyright (C) 2022 Sylvester Joosten
 
 #include <edm4eic/EDM4eicVersion.h>
-#include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
-
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
 #include <limits>
+#include <memory>
 #include <vector>
 
+#include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
 #include "algorithms/calorimetry/EnergyPositionClusterMergerConfig.h"
 
 namespace eicrecon {

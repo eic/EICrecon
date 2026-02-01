@@ -21,6 +21,7 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
 #include <Eigen/Geometry>
 #include <Eigen/Householder>
 #include <Eigen/Jacobi>
@@ -29,6 +30,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <new>
 #include <unordered_map>
 #include <utility>

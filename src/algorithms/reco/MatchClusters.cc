@@ -15,10 +15,13 @@
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <iterator>
 #include <map>
+#include <memory>
 #include <utility>
 
 #include "MatchClusters.h"
