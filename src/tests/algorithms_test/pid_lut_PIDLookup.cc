@@ -6,6 +6,9 @@
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoParticleLinkCollection.h>
+#endif
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/EventHeaderCollection.h>
