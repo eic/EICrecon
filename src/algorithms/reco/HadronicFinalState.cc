@@ -51,7 +51,7 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
                                                   {41.0, 100.0, 275.0}, m_crossingAngle));
 
   // Get first scattered electron from full MCParticles collection
-  if (!mcparts) {
+  if (mcparts == nullptr) {
     debug("No MCParticles collection available");
     return;
   }
