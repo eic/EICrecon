@@ -8,6 +8,9 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#endif
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackSeed.h>
@@ -82,6 +85,19 @@ void InitPlugin(JApplication* app) {
        "ForwardMPGDEndcapRawHitAssociations"},
       {"CentralTrackingRawHitAssociations"}, // Output collection name
       app));
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Tracker hit links collector
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitLink, true>>(
+          "CentralTrackingRawHitLinks",
+          {"SiBarrelRawHitLinks", "SiBarrelVertexRawHitLinks", "SiEndcapTrackerRawHitLinks",
+           "TOFBarrelRawHitLinks", "TOFEndcapRawHitLinks", "MPGDBarrelRawHitLinks",
+           "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
+           "ForwardMPGDEndcapRawHitLinks"},
+          {"CentralTrackingRawHitLinks"}, // Output collection name
+          app));
+#endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
       "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
