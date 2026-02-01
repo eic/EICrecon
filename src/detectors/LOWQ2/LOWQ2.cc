@@ -9,7 +9,9 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociation.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoTrackParticleLinkCollection.h>
+#endif
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4eic/unit_system.h>
