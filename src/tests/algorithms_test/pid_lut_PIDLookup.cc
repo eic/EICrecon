@@ -14,6 +14,12 @@
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/EventHeaderCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoParticleLinkCollection.h>
+#endif
+#include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/EDM4hepVersion.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
@@ -21,8 +27,10 @@
 #endif
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
+#include <podio/detail/Link.h>
 #include <spdlog/common.h>
 #include <cmath>
+#include <cstddef>
 #include <deque>
 #include <memory>
 #include <string>

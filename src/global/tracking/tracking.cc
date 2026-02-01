@@ -8,7 +8,6 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <podio/detail/Link.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #endif
@@ -16,6 +15,7 @@
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <podio/detail/Link.h>
 #include <deque>
 #include <functional>
 #include <map>
