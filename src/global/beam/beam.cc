@@ -7,7 +7,6 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4hep/MCParticleCollection.h>
-#include <fmt/core.h>
 #include <functional>
 #include <map>
 #include <memory>
