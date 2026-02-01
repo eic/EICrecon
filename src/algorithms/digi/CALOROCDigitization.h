@@ -22,14 +22,15 @@ using CALOROCDigitizationAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::SimPulseCollection>,
                           algorithms::Output<edm4eic::RawCALOROCHitCollection>>;
 
-class CALOROCDigitization : public CALOROCDigitizationAlgorithm, public WithPodConfig<CALOROCDigitizationConfig> {
+class CALOROCDigitization : public CALOROCDigitizationAlgorithm,
+                            public WithPodConfig<CALOROCDigitizationConfig> {
 
 public:
   CALOROCDigitization(std::string_view name)
       : CALOROCDigitizationAlgorithm{name,
-                           {"InputPulses"},
-                           {"OutputDigiHits"},
-                           {"Digitizes simulated pulses from a CALOROC chip"}} {}
+                                     {"InputPulses"},
+                                     {"OutputDigiHits"},
+                                     {"Digitizes simulated pulses from a CALOROC chip"}} {}
   virtual void init() final;
   void process(const Input&, const Output&) const;
 

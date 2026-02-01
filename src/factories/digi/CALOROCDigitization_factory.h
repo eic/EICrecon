@@ -9,7 +9,8 @@
 
 namespace eicrecon {
 
-class CALOROCDigitization_factory : public JOmniFactory<CALOROCDigitization_factory, CALOROCDigitizationConfig> {
+class CALOROCDigitization_factory
+    : public JOmniFactory<CALOROCDigitization_factory, CALOROCDigitizationConfig> {
 
 public:
   using AlgoT = eicrecon::CALOROCDigitization;
@@ -25,8 +26,10 @@ private:
   ParameterRef<double> m_toa_thres{this, "toaThres", config().toa_thres};
   ParameterRef<double> m_tot_thres{this, "totThres", config().tot_thres};
   ParameterRef<unsigned int> m_capADC{this, "capADC", config().capADC};
-  ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC", config().dyRangeSingleGainADC};
-  ParameterRef<double> m_dyRangeHighGainADC{this, "dyRangeHighGainADC", config().dyRangeHighGainADC};
+  ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC",
+                                              config().dyRangeSingleGainADC};
+  ParameterRef<double> m_dyRangeHighGainADC{this, "dyRangeHighGainADC",
+                                            config().dyRangeHighGainADC};
   ParameterRef<double> m_dyRangeLowGainADC{this, "dyRangeLowGainADC", config().dyRangeLowGainADC};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().capTOA};
   ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().dyRangeTOA};
