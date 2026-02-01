@@ -39,7 +39,11 @@ private:
   typename FactoryT::template PodioOutput<T> m_output{this};
 
 public:
-  void Configure() { m_algo = std::make_unique<AlgoT>(this->GetPrefix()); }
+  void Configure() {
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(this->logger()->level()));
+    m_algo->init();
+  }
 
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
     m_algo->process({m_input()}, {m_output().get()});
