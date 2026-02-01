@@ -10,7 +10,6 @@
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #endif
 #include <edm4eic/ProtoClusterCollection.h>
@@ -28,6 +27,7 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <deque>
 #include <memory>
 #include <string>
 #include <tuple>

@@ -6,6 +6,8 @@
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <podio/detail/Link.h>
+#include <stddef.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoParticleLinkCollection.h>
 #endif
@@ -21,6 +23,7 @@
 #include <edm4hep/Vector3f.h>
 #include <spdlog/common.h>
 #include <cmath>
+#include <deque>
 #include <memory>
 #include <string>
 #include <vector>

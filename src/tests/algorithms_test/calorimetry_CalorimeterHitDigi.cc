@@ -8,9 +8,11 @@
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
+#include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <podio/detail/Link.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #endif
@@ -23,6 +25,7 @@
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
 #include <cmath>
+#include <deque>
 #include <gsl/pointers>
 #include <memory>
 #include <string>

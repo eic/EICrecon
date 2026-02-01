@@ -42,12 +42,15 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <gsl/pointers>
 #include <initializer_list>
 #include <iterator>
+#include <memory>
 #include <random>
 #include <stdexcept>
 #include <unordered_map>

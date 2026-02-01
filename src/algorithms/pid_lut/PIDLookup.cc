@@ -8,9 +8,12 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <exception>
 #include <gsl/pointers>
+#include <memory>
 #include <random>
 #include <stdexcept>
 #include <vector>
