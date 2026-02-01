@@ -71,10 +71,8 @@ struct InsertingVisitor {
 //------------------------------------------------------------------------------
 JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* app)
     : JEventSource(resource_name, app) {
-  SetTypeName(NAME_OF_THIS); // Provide JANA with class name
-#if JANA_NEW_CALLBACK_STYLE
+  SetTypeName(NAME_OF_THIS);                   // Provide JANA with class name
   SetCallbackStyle(CallbackStyle::ExpertMode); // Use new, exception-free Emit() callback
-#endif
 
   // Get Logger
   m_log = GetApplication()->GetService<Log_service>()->logger("JEventSourcePODIO");
@@ -179,12 +177,7 @@ void JEventSourcePODIO::Close() {
 ///
 /// \param event
 //------------------------------------------------------------------------------
-#if JANA_NEW_CALLBACK_STYLE
 JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
-#else
-void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
-  auto& event = *_event;
-#endif
 
   /// Calls to GetEvent are synchronized with each other, which means they can
   /// read and write state on the JEventSource without causing race conditions.
@@ -194,11 +187,7 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
     if (m_run_forever) {
       Nevents_read = 0;
     } else {
-#if JANA_NEW_CALLBACK_STYLE
       return Result::FailureFinished;
-#else
-      throw RETURN_STATUS::kNO_MORE_EVENTS;
-#endif
     }
   }
 
@@ -228,9 +217,7 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
 
   event.Insert(frame.release()); // Transfer ownership from unique_ptr to JFactoryT<podio::Frame>
   Nevents_read += 1;
-#if JANA_NEW_CALLBACK_STYLE
   return Result::Success;
-#endif
 }
 
 //------------------------------------------------------------------------------
