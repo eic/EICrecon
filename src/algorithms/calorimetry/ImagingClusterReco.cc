@@ -8,16 +8,15 @@
  *  Author: Chao Peng (ANL), 06/02/2021
  */
 
-#include <edm4eic/EDM4eicVersion.h>
-#include "algorithms/calorimetry/ImagingClusterReco.h"
-
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
 #include <Eigen/Core>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
@@ -26,9 +25,11 @@
 #include <cmath>
 #include <gsl/pointers>
 #include <map>
+#include <memory>
 #include <new>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
+#include "algorithms/calorimetry/ImagingClusterReco.h"
 #include "algorithms/calorimetry/ImagingClusterRecoConfig.h"
 
 namespace eicrecon {

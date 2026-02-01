@@ -23,12 +23,15 @@
 #include <edm4hep/CaloHitContributionCollection.h>
 #include <fmt/format.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
 #include <limits>
 #include <map>
+#include <memory>
 #include <random>
 #include <stdexcept>
 #include <string>

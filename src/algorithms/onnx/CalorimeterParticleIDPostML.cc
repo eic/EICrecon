@@ -2,9 +2,13 @@
 // Copyright (C) 2024 Dmitry Kalinkin
 
 #include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/MCParticle.h>
 #include <fmt/format.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cstddef>
 #include <gsl/pointers>
+#include <memory>
 #include <stdexcept>
 
 #include "CalorimeterParticleIDPostML.h"
