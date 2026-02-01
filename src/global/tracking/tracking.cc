@@ -88,16 +88,15 @@ void InitPlugin(JApplication* app) {
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   // Tracker hit links collector
-  app->Add(new JOmniFactoryGeneratorT<
-           CollectionCollector_factory<edm4eic::MCRecoTrackerHitLink, true>>(
-      "CentralTrackingRawHitLinks",
-      {"SiBarrelRawHitLinks", "SiBarrelVertexRawHitLinks",
-       "SiEndcapTrackerRawHitLinks", "TOFBarrelRawHitLinks",
-       "TOFEndcapRawHitLinks", "MPGDBarrelRawHitLinks",
-       "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
-       "ForwardMPGDEndcapRawHitLinks"},
-      {"CentralTrackingRawHitLinks"}, // Output collection name
-      app));
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitLink, true>>(
+          "CentralTrackingRawHitLinks",
+          {"SiBarrelRawHitLinks", "SiBarrelVertexRawHitLinks", "SiEndcapTrackerRawHitLinks",
+           "TOFBarrelRawHitLinks", "TOFEndcapRawHitLinks", "MPGDBarrelRawHitLinks",
+           "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
+           "ForwardMPGDEndcapRawHitLinks"},
+          {"CentralTrackingRawHitLinks"}, // Output collection name
+          app));
 #endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
