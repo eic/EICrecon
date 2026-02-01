@@ -77,7 +77,7 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
     debug("Truth scattered electron not in reconstructed particles");
     return;
   }
-  const auto ef_rc{ef_assoc->getRec()};
+  const auto ef_rc{(*ef_assoc).getRec()};
   const auto ef_rc_id{ef_rc.getObjectID().index};
 
   // Sums in colinear frame
