@@ -5,31 +5,31 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/SimPulseCollection.h>
-#include <edm4eic/RawHGCROCHitCollection.h>
-#include <edm4eic/HGCROCSample.h>
+#include <edm4eic/RawCALOROCHitCollection.h>
+#include <edm4eic/CALOROC1ASample.h>
+#include <edm4eic/CALOROC1BSample.h>
 #include <stdint.h>
 #include <functional>
 #include <string>
 #include <string_view>
 
-#include "algorithms/digi/PulseDigiConfig.h"
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-using PulseDigiAlgorithm =
+using CALOROCDigitizationAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::SimPulseCollection>,
-                          algorithms::Output<edm4eic::RawHGCROCHitCollection>>;
+                          algorithms::Output<edm4eic::RawCALOROCHitCollection>>;
 
-class PulseDigi : public PulseDigiAlgorithm, public WithPodConfig<PulseDigiConfig> {
+class CALOROCDigitization : public CALOROCDigitizationAlgorithm, public WithPodConfig<CALOROCDigitizationConfig> {
 
 public:
-  PulseDigi(std::string_view name)
-      : PulseDigiAlgorithm{name,
+  CALOROCDigitization(std::string_view name)
+      : CALOROCDigitizationAlgorithm{name,
                            {"InputPulses"},
                            {"OutputDigiHits"},
-                           {"ADC, TOA, and TOT are measured referring to the"
-                            "working principle of the HGCROC."}} {}
+                           {"Digitizes simulated pulses from a CALOROC chip"}} {}
   virtual void init() final;
   void process(const Input&, const Output&) const;
 

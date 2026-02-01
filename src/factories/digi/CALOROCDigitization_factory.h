@@ -3,29 +3,31 @@
 
 #pragma once
 
-#include "algorithms/digi/PulseDigi.h"
+#include "algorithms/digi/CALOROCDigitization.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-class PulseDigi_factory : public JOmniFactory<PulseDigi_factory, PulseDigiConfig> {
+class CALOROCDigitization_factory : public JOmniFactory<CALOROCDigitization_factory, CALOROCDigitizationConfig> {
 
 public:
-  using AlgoT = eicrecon::PulseDigi;
+  using AlgoT = eicrecon::CALOROCDigitization;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::SimPulse> m_pulse_input{this};
-  PodioOutput<edm4eic::RawHGCROCHit> m_digi_output{this};
+  PodioOutput<edm4eic::RawCALOROCHit> m_digi_output{this};
 
   ParameterRef<double> m_time_window{this, "timeWindow", config().time_window};
   ParameterRef<double> m_adc_phase{this, "adcPhase", config().adc_phase};
   ParameterRef<double> m_toa_thres{this, "toaThres", config().toa_thres};
   ParameterRef<double> m_tot_thres{this, "totThres", config().tot_thres};
-  ParameterRef<unsigned int> m_capHighGainADC{this, "capHighGainADC", config().capHighGainADC};
+  ParameterRef<unsigned int> m_capADC{this, "capADC", config().capADC};
+  ParameterRef<double> m_dyRangeSingleGainADC{this, "dyRangeSingleGainADC", config().dyRangeSingleGainADC};
   ParameterRef<double> m_dyRangeHighGainADC{this, "dyRangeHighGainADC", config().dyRangeHighGainADC};
+  ParameterRef<double> m_dyRangeLowGainADC{this, "dyRangeLowGainADC", config().dyRangeLowGainADC};
   ParameterRef<unsigned int> m_capTOA{this, "capTOA", config().capTOA};
   ParameterRef<double> m_dyRangeTOA{this, "dyRangeTOA", config().dyRangeTOA};
   ParameterRef<unsigned int> m_capTOT{this, "capTOT", config().capTOT};
