@@ -418,7 +418,9 @@ int Execute(JApplication* app, UserOptions& options) {
     // TODO: more elegant processing here
     PrintPodioCollections(app);
   } else {
-    app->GetJParameterManager()->SetParameter("jana:parameter_strictness", 2);
+    if (not app->GetJParameterManager()->Exists("jana:parameter_strictness")) {
+      app->GetJParameterManager()->SetParameter("jana:parameter_strictness", 2);
+    }
     // Run JANA in normal mode
     try {
       JSignalHandler::register_handlers(app);
