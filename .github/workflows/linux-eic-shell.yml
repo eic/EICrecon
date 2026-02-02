@@ -218,6 +218,13 @@ jobs:
     - name: Compress install directory
       run: tar -caf install.tar.zst install/
     - name: Upload install directory (ASAN)
+      if: ${{ matrix.USE_ASAN == 'OFF' && matrix.USE_TSAN == 'OFF' }}
+      uses: actions/upload-artifact@v6
+      with:
+        name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
+        path: install.tar.zst
+        if-no-files-found: error
+    - name: Upload install directory (ASAN)
       if: ${{ matrix.USE_ASAN == 'ON' && matrix.USE_TSAN == 'OFF' }}
       uses: actions/upload-artifact@v6
       with:
