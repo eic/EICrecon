@@ -1,8 +1,9 @@
 #include "TrackingEfficiency_processor.h"
 
 #include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
@@ -13,16 +14,13 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <Eigen/Core>
-#include <any>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
-#include <iterator>
 #include <map>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -82,41 +80,33 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
   }
 
   // EXAMPLE II
-  // This gets access to more direct ACTS results from CFKTracking
-  auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
-  m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
-  m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}", "[loc 0]",
-               "[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]",
-               "[chi2]");
+  // This gets access to more direct ACTS results from CKFTracking
+  auto acts_results = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
+  m_log->debug("ACTS Tracks( size: {} )", acts_results.size());
+  m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8} {:>8}",
+               "[loc 0]", "[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]",
+               "[err q/p]", "[chi2]", "[ndf]");
 
-  // Loop over the trajectories
-  for (const auto& traj : acts_results) {
+  // Loop over the tracks
+  if (!acts_results.empty()) {
+    const auto* track_container = acts_results.front();
+    assert(track_container != nullptr && "ConstTrackContainer pointer should not be null");
 
-    // Get the entry index for the single trajectory
-    // The trajectory entry indices and the multiTrajectory
-    const auto& mj        = traj->multiTrajectory();
-    const auto& trackTips = traj->tips();
-    if (trackTips.empty()) {
-      m_log->debug("Empty multiTrajectory.");
-      continue;
-    }
+    for (const auto& track : *track_container) {
+      // Get the track parameters
+      const auto& parameter  = track.parameters();
+      const auto& covariance = track.covariance();
+      auto chi2              = track.chi2();
+      auto ndf               = track.nDoF();
 
-    const auto& trackTip = trackTips.front();
-
-    // Collect the trajectory summary info
-    auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
-    if (traj->hasTrackParameters(trackTip)) {
-      const auto& boundParam = traj->trackParameters(trackTip);
-      const auto& parameter  = boundParam.parameters();
-      const auto& covariance = *boundParam.covariance();
       m_log->debug("{:>10.2f} {:>10.2f}  {:>10.2f} {:>10.3f} {:>10.4f} {:>10.3f} {:>12.4e} "
-                   "{:>12.4e} {:>12.4e} {:>8.2f}",
+                   "{:>12.4e} {:>12.4e} {:>8.2f} {:<6}",
                    parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1],
                    parameter[Acts::eBoundPhi], parameter[Acts::eBoundTheta],
                    parameter[Acts::eBoundQOverP], 1.0 / parameter[Acts::eBoundQOverP],
                    sqrt(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
                    sqrt(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                   sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)), trajState.chi2Sum);
+                   sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)), chi2, ndf);
     }
   }
 

@@ -41,15 +41,15 @@ public:
   // Initialize beam energy from parent run frame if available
   void BeginRun(const std::shared_ptr<const JEvent>& event) override {
 
-    // std::cout << this->GetPreviousRunNumber() << " " << this->GetPreviousEventNumber() << std::endl;
     // Try to access parent run event and extract electron_beam_energy
     float beamE = config().beamE;
     try {
-      const JEvent& parent = event->GetParent(JEventLevel::Run);
+      const JEvent& parent  = event->GetParent(JEventLevel::Run);
       const auto* run_frame = parent.GetSingle<podio::Frame>();
       if (run_frame != nullptr) {
         // Parameter currently stored as string
-        std::optional<std::string> s_opt = run_frame->getParameter<std::string>("electron_beam_energy");
+        std::optional<std::string> s_opt =
+            run_frame->getParameter<std::string>("electron_beam_energy");
         if (s_opt.has_value()) {
           try {
             beamE = static_cast<float>(std::stod(s_opt.value()));
@@ -62,7 +62,7 @@ public:
       // Keep default beamE if any exception occurs
       logger()->debug("BeginRun: unable to read electron_beam_energy from run frame: {}", e.what());
     }
-    config().beamE = beamE;
+    config().beamE                   = beamE;
     config().beamE_set_from_metadata = true;
     m_algo->applyConfig(config());
     logger()->info("beamE={} GeV (from run metadata)", beamE);
@@ -70,7 +70,7 @@ public:
     // JOmniFactory<FarDetectorTransportationPreML_factory, FarDetectorTransportationPreMLConfig>::BeginRun(event);
   }
 
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) override{
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
     m_algo->process({m_track_input(), m_association_input(), m_beamelectrons_input()},
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }

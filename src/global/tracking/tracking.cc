@@ -9,9 +9,8 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
+#include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <fmt/core.h>
-#include <cmath>
 #include <functional>
 #include <map>
 #include <memory>
@@ -26,7 +25,7 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/tracking/ActsToTracks_factory.h"
-#include "factories/tracking/ActsTrajectoriesMerger_factory.h"
+#include "factories/tracking/ActsTrackMerger_factory.h"
 #include "factories/tracking/AmbiguitySolver_factory.h"
 #include "factories/tracking/CKFTracking_factory.h"
 #include "factories/tracking/IterativeVertexFinder_factory.h"
@@ -45,15 +44,18 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "TrackTruthSeeds", {"EventHeader", "MCParticles"}, {"TrackTruthSeeds"}, {}, app));
+      "TrackTruthSeeds", {"EventHeader", "MCParticles"},
+      {"TrackTruthSeeds", "TrackTruthSeedParameters"}, {}, app));
 
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};
-  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackParameters>>(
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
       "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
       {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
       {
-          .function = RangeSplit<&edm4eic::TrackParameters::getTheta>(thetaRanges),
+          .function = RangeSplit<
+              Chain<&edm4eic::TrackSeed::getParams, &edm4eic::TrackParameters::getTheta>>(
+              thetaRanges),
       },
       app));
 
@@ -88,7 +90,6 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTrajectories",
       {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements"},
       {
-          "CentralCKFTruthSeededActsTrajectoriesUnfiltered",
           "CentralCKFTruthSeededActsTracksUnfiltered",
       },
       app));
@@ -97,7 +98,7 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTracksUnfiltered",
       {
           "CentralTrackerMeasurements",
-          "CentralCKFTruthSeededActsTrajectoriesUnfiltered",
+          "CentralCKFTruthSeededActsTracksUnfiltered",
           "CentralTrackingRawHitAssociations",
       },
       {
@@ -113,7 +114,6 @@ void InitPlugin(JApplication* app) {
       {"CentralCKFTruthSeededActsTracksUnfiltered", "CentralTrackerMeasurements"},
       {
           "CentralCKFTruthSeededActsTracks",
-          "CentralCKFTruthSeededActsTrajectories",
       },
       app));
 
@@ -121,7 +121,7 @@ void InitPlugin(JApplication* app) {
       new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTruthSeededTracks",
                                                        {
                                                            "CentralTrackerMeasurements",
-                                                           "CentralCKFTruthSeededActsTrajectories",
+                                                           "CentralCKFTruthSeededActsTracks",
                                                            "CentralTrackingRawHitAssociations",
                                                        },
                                                        {
@@ -133,13 +133,12 @@ void InitPlugin(JApplication* app) {
                                                        app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
-      "CentralTrackSeedingResults", {"CentralTrackingRecHits"}, {"CentralTrackSeedingResults"}, {},
-      app));
+      "CentralTrackSeeds", {"CentralTrackingRecHits"},
+      {"CentralTrackSeeds", "CentralTrackSeedParameters"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "CentralCKFTrajectories", {"CentralTrackSeedingResults", "CentralTrackerMeasurements"},
+      "CentralCKFTrajectories", {"CentralTrackSeeds", "CentralTrackerMeasurements"},
       {
-          "CentralCKFActsTrajectoriesUnfiltered",
           "CentralCKFActsTracksUnfiltered",
       },
       app));
@@ -148,7 +147,7 @@ void InitPlugin(JApplication* app) {
       new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTracksUnfiltered",
                                                        {
                                                            "CentralTrackerMeasurements",
-                                                           "CentralCKFActsTrajectoriesUnfiltered",
+                                                           "CentralCKFActsTracksUnfiltered",
                                                            "CentralTrackingRawHitAssociations",
                                                        },
                                                        {
@@ -163,14 +162,13 @@ void InitPlugin(JApplication* app) {
       "AmbiguityResolutionSolver", {"CentralCKFActsTracksUnfiltered", "CentralTrackerMeasurements"},
       {
           "CentralCKFActsTracks",
-          "CentralCKFActsTrajectories",
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("CentralCKFTracks",
                                                             {
                                                                 "CentralTrackerMeasurements",
-                                                                "CentralCKFActsTrajectories",
+                                                                "CentralCKFActsTracks",
                                                                 "CentralTrackingRawHitAssociations",
                                                             },
                                                             {
@@ -183,7 +181,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>("CentralTrackSegments",
                                                               {
-                                                                  "CentralCKFActsTrajectories",
+                                                                  "CentralCKFActsTracks",
                                                                   "CentralCKFTracks",
                                                               },
                                                               {
@@ -194,7 +192,7 @@ void InitPlugin(JApplication* app) {
   app->Add(
       new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>("CentralTrackVertices",
                                                                 {
-                                                                    "CentralCKFActsTrajectories",
+                                                                    "CentralCKFActsTracks",
                                                                     "ReconstructedChargedParticles",
                                                                 },
                                                                 {
@@ -203,8 +201,7 @@ void InitPlugin(JApplication* app) {
                                                                 {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
-      "CalorimeterTrackPropagator",
-      {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+      "CalorimeterTrackPropagator", {"CentralCKFTracks", "CentralCKFActsTracks"},
       {"CalorimeterTrackProjections"},
       {.target_surfaces{
           // Ecal
@@ -270,7 +267,6 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "B0TrackerCKFTruthSeededTrajectories", {"B0TrackerTruthSeeds", "B0TrackerMeasurements"},
       {
-          "B0TrackerCKFTruthSeededActsTrajectoriesUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
       },
       app));
@@ -279,7 +275,7 @@ void InitPlugin(JApplication* app) {
       "B0TrackerCKFTruthSeededTracksUnfiltered",
       {
           "B0TrackerMeasurements",
-          "B0TrackerCKFTruthSeededActsTrajectoriesUnfiltered",
+          "B0TrackerCKFTruthSeededActsTracksUnfiltered",
           "B0TrackerRawHitAssociations",
       },
       {
@@ -295,7 +291,6 @@ void InitPlugin(JApplication* app) {
       {"B0TrackerCKFTruthSeededActsTracksUnfiltered", "B0TrackerMeasurements"},
       {
           "B0TrackerCKFTruthSeededActsTracks",
-          "B0TrackerCKFTruthSeededActsTrajectories",
       },
       app));
 
@@ -303,7 +298,7 @@ void InitPlugin(JApplication* app) {
       "B0TrackerCKFTruthSeededTracks",
       {
           "B0TrackerMeasurements",
-          "B0TrackerCKFTruthSeededActsTrajectories",
+          "B0TrackerCKFTruthSeededActsTracks",
           "B0TrackerRawHitAssociations",
       },
       {
@@ -315,12 +310,12 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackSeeding_factory>(
-      "B0TrackerTrackSeedingResults", {"B0TrackerRecHits"}, {"B0TrackerSeedingResults"}, {}, app));
+      "B0TrackerSeeds", {"B0TrackerRecHits"}, {"B0TrackerSeeds", "B0TrackerSeedParameters"}, {},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
-      "B0TrackerCKFTrajectories", {"B0TrackerSeedingResults", "B0TrackerMeasurements"},
+      "B0TrackerCKFTrajectories", {"B0TrackerSeeds", "B0TrackerMeasurements"},
       {
-          "B0TrackerCKFActsTrajectoriesUnfiltered",
           "B0TrackerCKFActsTracksUnfiltered",
       },
       app));
@@ -329,7 +324,7 @@ void InitPlugin(JApplication* app) {
       "B0TrackerCKFTracksUnfiltered",
       {
           "B0TrackerMeasurements",
-          "B0TrackerCKFActsTrajectoriesUnfiltered",
+          "B0TrackerCKFActsTracksUnfiltered",
           "B0TrackerRawHitAssociations",
       },
       {
@@ -345,14 +340,13 @@ void InitPlugin(JApplication* app) {
       {"B0TrackerCKFActsTracksUnfiltered", "B0TrackerMeasurements"},
       {
           "B0TrackerCKFActsTracks",
-          "B0TrackerCKFActsTrajectories",
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>("B0TrackerCKFTracks",
                                                             {
                                                                 "B0TrackerMeasurements",
-                                                                "B0TrackerCKFActsTrajectories",
+                                                                "B0TrackerCKFActsTracks",
                                                                 "B0TrackerRawHitAssociations",
                                                             },
                                                             {
@@ -366,21 +360,21 @@ void InitPlugin(JApplication* app) {
   // COMBINED TRACKING
 
   // Use both central and B0 tracks for vertexing
-  app->Add(new JOmniFactoryGeneratorT<ActsTrajectoriesMerger_factory>(
-      "CentralB0CKFActsTrajectories",
-      {
-          "CentralCKFActsTrajectories",
-          "B0TrackerCKFActsTrajectories",
-      },
-      {
-          "CentralAndB0TrackerCKFActsTrajectories",
-      },
-      app));
+  app->Add(
+      new JOmniFactoryGeneratorT<ActsTrackMerger_factory>("CentralAndB0TrackerCKFActsTracks",
+                                                          {
+                                                              "CentralCKFActsTracks",
+                                                              "B0TrackerCKFActsTracks",
+                                                          },
+                                                          {
+                                                              "CentralAndB0TrackerCKFActsTracks",
+                                                          },
+                                                          app));
 
   app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
       "CentralAndB0TrackVertices",
       {
-          "CentralAndB0TrackerCKFActsTrajectories",
+          "CentralAndB0TrackerCKFActsTracks",
           "ReconstructedChargedParticles",
       },
       {

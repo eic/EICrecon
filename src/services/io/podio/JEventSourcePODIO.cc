@@ -10,15 +10,16 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <TObject.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
 #include <podio/podioVersion.h>
+#include <cstdint>
 #include <algorithm>
 #include <exception>
 #include <iostream>
@@ -235,7 +236,7 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
     } else {
       event.SetEventNumber(event_headers[0].getEventNumber());
       int32_t run_number = event_headers[0].getRunNumber();
-      if( run_number != event.GetRunNumber()){
+      if (run_number != event.GetRunNumber()) {
         event.SetRunNumber(run_number);
       }
     }

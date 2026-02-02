@@ -14,18 +14,17 @@
 #include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
+#if Acts_VERSION_MAJOR < 39
+#include <ActsExamples/EventData/IndexSourceLink.hpp>
+#endif
 #include <ActsExamples/EventData/Track.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
 #include <edm4eic/Measurement2DCollection.h>
-#include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
-#include <tuple>
-#include <variant>
 #include <vector>
 
 #include "CKFTrackingConfig.h"
-#include "DD4hepBField.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 class ActsGeometryProvider;
@@ -43,14 +42,10 @@ public:
   /// and track finder options and returns some track-finder-specific result.
 #if Acts_VERSION_MAJOR >= 39
   using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<ActsExamples::TrackContainer>;
-#elif Acts_VERSION_MAJOR >= 36
-  using TrackFinderOptions =
-      Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
-                                             ActsExamples::TrackContainer>;
 #else
   using TrackFinderOptions =
       Acts::CombinatorialKalmanFilterOptions<ActsExamples::IndexSourceLinkAccessor::Iterator,
-                                             Acts::VectorMultiTrajectory>;
+                                             ActsExamples::TrackContainer>;
 #endif
   using TrackFinderResult = Acts::Result<std::vector<ActsExamples::TrackContainer::TrackProxy>>;
 
@@ -79,9 +74,8 @@ public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
 
-  std::tuple<std::vector<ActsExamples::Trajectories*>,
-             std::vector<ActsExamples::ConstTrackContainer*>>
-  process(const edm4eic::TrackParametersCollection& init_trk_params,
+  std::vector<ActsExamples::ConstTrackContainer*>
+  process(const edm4eic::TrackSeedCollection& init_trk_seeds,
           const edm4eic::Measurement2DCollection& meas2Ds);
 
 private:
@@ -90,7 +84,7 @@ private:
   std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-  std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField = nullptr;
   Acts::GeometryContext m_geoctx;
   Acts::CalibrationContext m_calibctx;
   Acts::MagneticFieldContext m_fieldctx;

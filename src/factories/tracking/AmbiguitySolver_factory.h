@@ -8,6 +8,7 @@
 #include "extensions/spdlog/SpdlogMixin.h"
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <memory>
 #include <string>
 #include <utility>
@@ -25,7 +26,6 @@ private:
   Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
   Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output{this};
-  Output<ActsExamples::Trajectories> m_acts_trajectories_output{this};
 
   ParameterRef<std::uint32_t> m_maximumSharedHits{this, "maximumSharedHits",
                                                   config().maximum_shared_hits,
@@ -46,13 +46,14 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    // FIXME clear output since it may not have been initialized or reset
+    // FIXME clear tracks output since it may not have been initialized or reset
     // See https://github.com/eic/EICrecon/issues/1961
     m_acts_tracks_output().clear();
-    m_acts_trajectories_output().clear();
 
-    std::tie(m_acts_tracks_output(), m_acts_trajectories_output()) =
-        m_algo->process(m_acts_tracks_input(), *m_measurements_input());
+    auto tracks_vec = m_acts_tracks_input();
+    assert(!tracks_vec.empty() && "ConstTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstTrackContainer pointer should not be null");
+    m_acts_tracks_output() = m_algo->process(tracks_vec, *m_measurements_input());
   }
 };
 

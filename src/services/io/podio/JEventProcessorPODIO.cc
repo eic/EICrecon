@@ -3,9 +3,10 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/JEventSource.h>
+#include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
@@ -17,6 +18,7 @@
 #include <regex>
 #include <sstream>
 
+#include "JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 #include "JEventSourcePODIO.h"
 #include <JANA/Services/JComponentManager.h>
@@ -61,7 +63,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
       "CentralTrackingRawHitAssociations",
-      "CentralTrackSeedingResults",
+      "CentralTrackSeeds",
+      "CentralTrackSeedParameters",
       "CentralTrackerMeasurements",
 
       // Si tracker hits
@@ -170,7 +173,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerRawHits",
       "B0TrackerHits",
       "B0TrackerRawHitAssociations",
-      "B0TrackerSeedingResults",
+      "B0TrackerSeeds",
+      "B0TrackerSeedParameters",
       "B0TrackerMeasurements",
 
       "ForwardRomanPotRecHits",
@@ -180,8 +184,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ForwardRomanPotStaticRecParticles",
       "ForwardOffMRecParticles",
 
+      "ForwardRomanPotHits",
       "ForwardRomanPotRawHits",
       "ForwardRomanPotRawHitAssociations",
+      "ForwardOffMTrackerHits",
       "ForwardOffMTrackerRawHits",
       "ForwardOffMTrackerRawHitAssociations",
 
@@ -376,18 +382,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DIRCTruthSeededParticleIDs",
       "DIRCParticleIDs",
 
-      "B0ECalRawHitAssociations",
-      "EcalBarrelScFiRawHitAssociations",
-      "EcalBarrelImagingRawHitAssociations",
-      "HcalBarrelRawHitAssociations",
-      "EcalEndcapNRawHitAssociations",
-      "HcalEndcapNRawHitAssociations",
-      "EcalEndcapPRawHitAssociations",
-      "HcalEndcapPInsertRawHitAssociations",
-      "LFHCALRawHitAssociations",
-      "EcalLumiSpecRawHitAssociations",
-      "EcalFarForwardZDCRawHitAssociations",
-      "HcalFarForwardZDCRawHitAssociations",
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
       "HcalEndcapPInsertClusterMatches",
@@ -560,8 +554,8 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
 void JEventProcessorPODIO::Finish() {
   // Attempt to write the run-level metadata frame under the 'runs' category
   try {
-    auto* app    = GetApplication();
-    auto sources = app->GetService<JComponentManager>()->get_evt_srces();
+    auto* app                          = GetApplication();
+    auto sources                       = app->GetService<JComponentManager>()->get_evt_srces();
     const podio::Frame* runs_frame_ptr = nullptr;
     for (auto* src : sources) {
       if (auto* podio_src = dynamic_cast<JEventSourcePODIO*>(src)) {

@@ -5,6 +5,7 @@
 #pragma once
 
 #include <JANA/JApplicationFwd.h>
+#include <JANA/JEvent.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 #include <podio/ROOTReader.h>
