@@ -218,7 +218,7 @@ jobs:
           ctest --test-dir build -V
     - name: Compress install directory
       run: tar -caf install.tar.zst install/
-    - name: Upload install directory (ASAN)
+    - name: Upload install directory
       if: ${{ matrix.USE_ASAN == 'OFF' && matrix.USE_TSAN == 'OFF' }}
       uses: actions/upload-artifact@v6
       with:
