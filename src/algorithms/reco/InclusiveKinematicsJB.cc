@@ -62,8 +62,18 @@ void InclusiveKinematicsJB::process(const InclusiveKinematicsJB::Input& input,
   // Calculate kinematic variables
   static const auto m_proton = m_particleSvc.particle(2212).mass;
   const auto y_jb            = sigma_h / (2. * ei.energy());
+  if (y_jb > 1) {
+    // y > 0 is mathematically guaranteed by sigma_h > 0, but y < 1 is not
+    debug("InclusiveKinematicsJB: event with y > 1 skipped");
+    return;
+  }
   const auto Q2_jb           = ptsum * ptsum / (1. - y_jb);
   const auto x_jb            = Q2_jb / (4. * ei.energy() * pi.energy() * y_jb);
+  if (x_jb > 1) {
+    // x > 0 is mathematically guaranteed by 0 < y < 1, but x < 1 is not
+    debug("InclusiveKinematicsJB: event with x > 1 skipped");
+    return;
+  }
   const auto nu_jb           = Q2_jb / (2. * m_proton * x_jb);
   const auto W_jb            = sqrt(m_proton * m_proton + 2 * m_proton * nu_jb - Q2_jb);
   auto kin                   = out_kinematics->create(x_jb, Q2_jb, W_jb, y_jb, nu_jb);
