@@ -83,8 +83,8 @@ AmbiguitySolver::process(std::vector<const Acts::ConstVectorMultiTrajectory*> in
   solvedTracks.ensureDynamicColumns(input_trks);
 
   for (auto iTrack : state.selectedTracks) {
-    auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
-    auto srcProxy  = input_trks.getTrack(state.trackTips.at(iTrack));
+    auto destProxy = solvedTracks.makeTrack();
+    auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
     destProxy.copyFrom(srcProxy);
     destProxy.tipIndex() = srcProxy.tipIndex();
   }
