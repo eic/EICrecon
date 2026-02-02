@@ -1,3 +1,6 @@
+// author : Esteban Molina, Derek Anderson
+// date   : January 2026
+
 #pragma once
 
 namespace eicrecon {

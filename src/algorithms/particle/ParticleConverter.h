@@ -1,4 +1,6 @@
-// Preprocessor command to avoid double definitions of this class during compilation
+// author : Esteban Molina, Derek Anderson
+// date   : January 2026
+
 #pragma once
 
 #include <algorithms/algorithm.h>

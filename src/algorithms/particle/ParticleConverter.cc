@@ -1,3 +1,6 @@
+// author : Esteban Molina, Derek Anderson
+// date   : January 2026
+
 #include <DD4hep/Detector.h>
 #include <DD4hep/DetType.h>
 #include <DDRec/CellIDPositionConverter.h>
