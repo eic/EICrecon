@@ -16,28 +16,32 @@
 
 // Class definition
 namespace eicrecon {
-        // Define an "alias" for the templated algorithms constructor
-        using ParticleConverterAlgorithm = algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection>,
-                                                                 algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+// Define an "alias" for the templated algorithms constructor
+using ParticleConverterAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection>,
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-        // Define the class of particle converter which uses as a base the algorithms class 
-        class ParticleConverter : public ParticleConverterAlgorithm, public WithPodConfig<ParticleConverterConfig> {
-                public:
-                        // Constructor of ParticleConverter inherits from the constructor of ParticleConverterAlgorithm
-                        ParticleConverter(std::string_view name) : 
-                        ParticleConverterAlgorithm(name, {"inputRecoParticles"}, {"outputRecoParticles"} ,"Particles as such (?)") {}; 
+// Define the class of particle converter which uses as a base the algorithms class
+class ParticleConverter : public ParticleConverterAlgorithm,
+                          public WithPodConfig<ParticleConverterConfig> {
+public:
+  // Constructor of ParticleConverter inherits from the constructor of ParticleConverterAlgorithm
+  ParticleConverter(std::string_view name)
+      : ParticleConverterAlgorithm(name, {"inputRecoParticles"}, {"outputRecoParticles"},
+                                   "Particles as such (?)") {};
 
-                        void init() final {}; // what is the use of making it final?
-                        void process(const Input&, const Output&) const final;
+  void init() final {}; // what is the use of making it final?
+  void process(const Input&, const Output&) const final;
 
-                private:
-                        // Services and calibrations here!
-                        // const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
-                        const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
-                        
-                        const dd4hep::rec::CellIDPositionConverter* m_converter{algorithms::GeoSvc::instance().cellIDPositionConverter()};
+private:
+  // Services and calibrations here!
+  // const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
-                        std::string ecal_string = "Ecal";
-                        std::string hcal_string = "Hcal";
-        };
-}
+  const dd4hep::rec::CellIDPositionConverter* m_converter{
+      algorithms::GeoSvc::instance().cellIDPositionConverter()};
+
+  std::string ecal_string = "Ecal";
+  std::string hcal_string = "Hcal";
+};
+} // namespace eicrecon

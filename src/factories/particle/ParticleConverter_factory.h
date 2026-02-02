@@ -15,39 +15,40 @@
 #include "algorithms/particle/ParticleConverterConfig.h"
 
 namespace eicrecon {
-	class ParticleConverter_factory : public JOmniFactory<ParticleConverter_factory, ParticleConverterConfig> {
-		public:
-			// Class associated to the algorithm
-			using Algo = eicrecon::ParticleConverter;
-		private:
-			std::unique_ptr<Algo> m_algo;
+class ParticleConverter_factory
+    : public JOmniFactory<ParticleConverter_factory, ParticleConverterConfig> {
+public:
+  // Class associated to the algorithm
+  using Algo = eicrecon::ParticleConverter;
 
-			// Input collections
-			PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input {this};
+private:
+  std::unique_ptr<Algo> m_algo;
 
-			// Output collection
-			// - Reconstructed particles
-			PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output {this};
+  // Input collections
+  PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input{this};
 
-			// Parameters
-			// ParameterRef<double> m_tracking_resolution {this, "tracking_resolution", config().tracking_resolution};
-			// ParameterRef<double> m_ecal_resolution     {this, "ecal_resolution", config().ecal_resolution};
-			// ParameterRef<double> m_hcal_resolution     {this, "hcal_resolution", config().hcal_resolution};
-			// ParameterRef<double> m_calo_energy_norm    {this, "calo_energy_norm", config().calo_energy_norm};
+  // Output collection
+  // - Reconstructed particles
+  PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
 
-			// ParameterRef<bool> m_use_resolution_in_ecalc {this, "use_resolution_in_ecalc", config().use_resolution_in_ecalc};
+  // Parameters
+  // ParameterRef<double> m_tracking_resolution {this, "tracking_resolution", config().tracking_resolution};
+  // ParameterRef<double> m_ecal_resolution     {this, "ecal_resolution", config().ecal_resolution};
+  // ParameterRef<double> m_hcal_resolution     {this, "hcal_resolution", config().hcal_resolution};
+  // ParameterRef<double> m_calo_energy_norm    {this, "calo_energy_norm", config().calo_energy_norm};
 
-		public:
-			void Configure() {
-				m_algo = std::make_unique<Algo>(this->GetPrefix());
-				m_algo->level((algorithms::LogLevel) this->logger()->level());
-				m_algo->applyConfig(config());
-				m_algo->init();
-			};
+  // ParameterRef<bool> m_use_resolution_in_ecalc {this, "use_resolution_in_ecalc", config().use_resolution_in_ecalc};
 
-			void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-				m_algo->process({m_recoparticles_input()},
-						{m_recoparticles_output().get()});
-			}
-	};
-}
+public:
+  void Configure() {
+    m_algo = std::make_unique<Algo>(this->GetPrefix());
+    m_algo->level((algorithms::LogLevel)this->logger()->level());
+    m_algo->applyConfig(config());
+    m_algo->init();
+  };
+
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+    m_algo->process({m_recoparticles_input()}, {m_recoparticles_output().get()});
+  }
+};
+} // namespace eicrecon

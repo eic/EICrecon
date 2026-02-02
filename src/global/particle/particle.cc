@@ -115,15 +115,10 @@ void InitPlugin(JApplication* app) {
   /* TODO add PFA3 FHCal insert here */
 
   /* TODO collect reconstructed particles here */
-  
+
   // ASK ABOUT THIS SECOND ARGUMENT -> FALSE
   app->Add(new JOmniFactoryGeneratorT<ParticleConverter_factory>(
-                "FinalReconstructedParticles",
-                {"ReconstructedParticles"},
-                {"FinalReconstructedParticles"},
-                {},
-                app
-          ));
-
+      "FinalReconstructedParticles", {"ReconstructedParticles"}, {"FinalReconstructedParticles"},
+      {}, app));
 }
 } // extern "C"
