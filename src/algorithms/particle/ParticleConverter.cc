@@ -17,18 +17,19 @@ namespace eicrecon {
                 trace("We have {} particles as input", in_particles->size());
 
                 for (const auto particle : *in_particles) {
-                        bool   isTrack = false;
-                        bool   isHCal  = false;
-                        bool   isECal  = false;
+                        bool isTrack = false;
+                        bool isHCal  = false;
+                        bool isECal  = false;
 
-                        double prelim_pid   = 0;
+                        double prelim_pid = 0;
                         
-                        double track_energy = 0;
-                        double track_mass   = 0;
+                        double track_energy       = 0;
+                        double track_mass         = 0;
+                        double track_momentum_mag = 0;
                         
-                        double calo_energy  = 0;
-                        double ecal_energy  = 0;
-                        double hcal_energy  = 0;
+                        double calo_energy = 0;
+                        double ecal_energy = 0;
+                        double hcal_energy = 0;
 
                         double avge_energy = 0;
                         
@@ -40,14 +41,15 @@ namespace eicrecon {
                         for (auto track : particle.getTracks()) {
                                 isTrack = true;
 
-                                // trace("Track found!");
-                                
                                 prelim_pid = particle.getPDG();
                                 track_mass = particle.getMass();
-                                track_momentum_vector = track.getMomentum();
-                                
-                                // if (!particle.getPDG())
-                                //         trace("Particle with associated track.PDG = {}, particle.PID = {},particle.Energy = {}", track.getPdg(), particle.getPDG(), particle.getEnergy());
+                                track_momentum_vector = particle.getMomentum();
+
+                                track_momentum_mag = std::sqrt(std::pow(track_momentum_vector.x, 2) + 
+                                                               std::pow(track_momentum_vector.y, 2) + 
+                                                               std::pow(track_momentum_vector.z, 2));
+
+                                track_energy = std::sqrt(std::pow(track_momentum_mag, 2) + std::pow(track_mass, 2));
                         }
 
                         // Looking for clusters
@@ -78,25 +80,12 @@ namespace eicrecon {
                                 }
                         }
                         
-                        if (isECal && !isHCal) 
+                        if (isECal && !isHCal && !isTrack) 
                                 prelim_pid = 22; //photon
-                        if (!isECal && isHCal)
+                        if (!isECal && isHCal && !isTrack)
                                 prelim_pid = 2112; // neutron
 
-                        // Step 2 : Calculate track energy
-                        double track_momentum_mag = 0;
-
-                        if (isTrack) {
-                                track_momentum_mag = std::sqrt(std::pow(track_momentum_vector.x, 2) + 
-                                                               std::pow(track_momentum_vector.y, 2) + 
-                                                               std::pow(track_momentum_vector.z, 2));
-
-                                // trace("Associated track momentum mag = {}", track_momentum_mag);
-
-                                track_energy = std::sqrt(std::pow(track_momentum_mag, 2) + std::pow(track_mass, 2));
-                        }
-
-                        // Step 3 : Calculate calo energy (PRELIMINARY IMPLEMENTATION)
+                        // Step 2 : Calculate calo energy (PRELIMINARY IMPLEMENTATION)
                         if (ecal_energy > 0)
                                 calo_energy += ecal_energy;
                         if (hcal_energy > 0)
@@ -104,7 +93,7 @@ namespace eicrecon {
 
                         calo_energy *= m_cfg.calo_energy_norm;
 
-                        // Step 4 : Calculate avge energy (PRELIMINARY IMPLEMENTATION)
+                        // Step 3 : Calculate avge energy (PRELIMINARY IMPLEMENTATION)
                         double weight_tracking_resolution = 1. / std::pow(m_cfg.tracking_resolution, 2);
                         double weight_calo_resolution     = 1. / std::pow(m_cfg.ecal_resolution, 2); // USING ECAL RESOLUTION AS PLACEHOLDER!
 
@@ -117,24 +106,35 @@ namespace eicrecon {
                         else if (track_energy == 0 && calo_energy > 0)
                                 normalization = weight_calo_resolution;
 
-                        //  WARNING: must implement some sort of check in case we have energies that are too different
-                        //           example: calo.Energy = 2.127329626586288, track.Energy = 0.0005109989433549345
                         avge_energy = (weight_tracking_resolution * track_energy + weight_calo_resolution * calo_energy) / normalization;
 
                         trace(" Total energy of the particle is E = {} GeV, calo.Energy = {}, track.Energy = {}", avge_energy, calo_energy, track_energy);
                         
-                        // Step 5 : Store information on a mutable collection
-
-                        double mass_calculated = 
-
-
+                        // Step 4 : Store information on a mutable collection
+                        double mass_calculated = std::sqrt(std::pow(avge_energy, 2) - std::pow(track_momentum_mag, 2));
 
                         edm4eic::MutableReconstructedParticle out_reco_particle;
 
+                        out_reco_particle.setType(0); // Placeholder value until I know what this variable really stands for
                         out_reco_particle.setEnergy(avge_energy);
-                        out_reco_particle.setCharge(particle.getCharge());
-                        // out_reco_particle.
+                        out_reco_particle.setMomentum(edm4hep::Vector3f(track_momentum_vector.x, track_momentum_vector.y, track_momentum_vector.z));
+                        out_reco_particle.setReferencePoint(particle.getReferencePoint());
 
+                        out_reco_particle.setCharge(particle.getCharge());
+                        out_reco_particle.setMass(mass_calculated);
+                        out_reco_particle.setGoodnessOfPID(particle.getGoodnessOfPID());
+                        out_reco_particle.setCovMatrix(particle.getCovMatrix());
+                        out_reco_particle.setPDG(prelim_pid);
+
+                        out_reco_particle.setStartVertex(particle.getStartVertex());
+                        out_reco_particle.setParticleIDUsed(particle.getParticleIDUsed());
+
+                        // NOTE: Not necessary?
+                        // out_reco_particle.setClusters(particle.getClusters());
+                        // out_reco_particle.setTracks(particle.getTracks());
+                        // out_reco_particle.setParticles(particle.getParticles());
+                        // out_reco_particle.setParticleIDs(particle.getParticleIDs());
+                        
                         out_particles->push_back(out_reco_particle);
 
                         trace("                                                                ");
