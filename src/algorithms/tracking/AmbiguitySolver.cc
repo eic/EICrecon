@@ -83,20 +83,16 @@ AmbiguitySolver::process(std::vector<const Acts::ConstVectorMultiTrajectory*> in
   solvedTracks.ensureDynamicColumns(input_trks);
 
   for (auto iTrack : state.selectedTracks) {
-
     auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
     auto srcProxy  = input_trks.getTrack(state.trackTips.at(iTrack));
-#if Acts_VERSION_MAJOR >= 44
-    destProxy.copyFromWithoutStates(srcProxy);
-#else
-    destProxy.copyFrom(srcProxy, false);
-#endif
+    destProxy.copyFrom(srcProxy);
     destProxy.tipIndex() = srcProxy.tipIndex();
   }
 
   // Move track states and track container to const containers and return as separate vectors
-  output_track_states.push_back(new Acts::ConstVectorMultiTrajectory(*input_track_states.front()));
-  output_tracks.push_back(new Acts::ConstVectorTrackContainer(std::move(solvedTracks.container())));
+  output_tracks.push_back(new ActsExamples::ConstTrackContainer(
+      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(solvedTracks.trackStateContainer())));
 
   return {output_track_states, output_tracks};
 }
