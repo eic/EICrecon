@@ -117,6 +117,13 @@ jobs:
             release: nightly
             USE_ASAN: OFF
             USE_TSAN: ON
+          # callgrind build
+          - CXX: clang++
+            CMAKE_BUILD_TYPE: RelWithDebInfo
+            release: nightly
+            USE_ASAN: OFF
+            USE_TSAN: OFF
+          # backward compatibility builds
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 25.09.0-stable
@@ -1127,7 +1134,7 @@ jobs:
     - name: Download install directory
       uses: actions/download-artifact@v7
       with:
-        name: install-${{ matrix.CXX }}-eic-shell-Debug-${{ env.platform }}-${{ env.release }}-ASAN
+        name: install-${{ matrix.CXX }}-eic-shell-RelWithDebInfo-${{ env.platform }}-${{ env.release }}
     - name: Unarchive install directory
       run: tar -xaf install.tar.zst
     - uses: actions/download-artifact@v7
