@@ -20,8 +20,6 @@
 
 #include "JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
-#include "JEventSourcePODIO.h"
-#include <JANA/Services/JComponentManager.h>
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
   SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
