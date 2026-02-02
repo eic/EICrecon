@@ -123,6 +123,7 @@ jobs:
             release: nightly
             USE_ASAN: OFF
             USE_TSAN: OFF
+            USE_UBSAN: OFF
           # backward compatibility builds
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
