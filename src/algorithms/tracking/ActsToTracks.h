@@ -10,6 +10,7 @@
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrajectoryCollection.h>
 #include <optional>
 #include <string>
@@ -20,7 +21,8 @@
 namespace eicrecon {
 
 using ActsToTracksAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::Measurement2DCollection, ActsExamples::ConstTrackContainer,
+    algorithms::Input<edm4eic::Measurement2DCollection, edm4eic::TrackSeedCollection,
+                      ActsExamples::ConstTrackContainer,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
@@ -32,6 +34,7 @@ public:
       : ActsToTracksAlgorithm{name,
                               {
                                   "inputMeasurements",
+                                  "inputTrackSeeds",
                                   "inputActsTracks",
                                   "inputRawTrackerHitAssociations",
                               },

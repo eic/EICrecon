@@ -65,9 +65,9 @@ set(FastJet_VERSION_MIN 3)
 set(FastJetContrib_VERSION_MIN 1.46)
 set(fmt_VERSION_MIN 9.0.0)
 set(IRT_VERSION_MIN 1.0.5)
-set(JANA_VERSION_MIN 2.2.0)
+set(JANA_VERSION_MIN 2.4.0)
 set(onnxruntime_MIN_VERSION 1.17)
-set(podio_VERSION_MIN 0.17)
+set(podio_VERSION_MIN 1.2)
 set(ROOT_VERSION_MIN 6.28)
 set(spdlog_VERSION_MIN 1.11.0)
 
@@ -194,10 +194,7 @@ find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
 
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 ${Eigen3_VERSION_MIN} REQUIRED)
-find_package(podio ${podio_VERSION_MIN} QUIET)
-if(NOT podio_FOUND)
-  find_package(podio 1.0 REQUIRED)
-endif()
+find_package(podio ${podio_VERSION_MIN} REQUIRED)
 find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
 find_package(EDM4EIC ${EDM4EIC_VERSION_MIN} REQUIRED)
 

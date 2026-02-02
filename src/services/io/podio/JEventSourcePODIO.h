@@ -14,14 +14,6 @@
 #include <memory>
 #include <string>
 
-#if ((JANA_VERSION_MAJOR == 2) && (JANA_VERSION_MINOR >= 3)) || (JANA_VERSION_MAJOR > 2)
-#define JANA_NEW_CALLBACK_STYLE 1
-#else
-#define JANA_NEW_CALLBACK_STYLE 0
-#endif
-
-class JEvent; // forward declaration
-
 class JEventSourcePODIO : public JEventSource {
 
 public:
@@ -33,11 +25,7 @@ public:
 
   void Close() override;
 
-#if JANA_NEW_CALLBACK_STYLE
   Result Emit(JEvent& event) override;
-#else
-  void GetEvent(std::shared_ptr<JEvent>) override;
-#endif
 
   static std::string GetDescription();
 
