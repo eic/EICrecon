@@ -37,7 +37,7 @@ public:
     m_algo->applyConfig(config());
     m_algo->init();
   }
-  
+
   // Initialize beam energy from parent run frame if available
   void BeginRun(const std::shared_ptr<const JEvent>& event) override {
 
