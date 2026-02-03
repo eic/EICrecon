@@ -24,77 +24,77 @@
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
 
-                                                             namespace eicrecon {
+namespace eicrecon {
 
-  Acts::GreedyAmbiguityResolution::Config transformConfig(
-      const eicrecon::AmbiguitySolverConfig& cfg) {
-    Acts::GreedyAmbiguityResolution::Config result;
-    result.maximumSharedHits = cfg.maximum_shared_hits;
-    result.maximumIterations = cfg.maximum_iterations;
-    result.nMeasurementsMin  = cfg.n_measurements_min;
-    return result;
-  }
+Acts::GreedyAmbiguityResolution::Config
+transformConfig(const eicrecon::AmbiguitySolverConfig& cfg) {
+  Acts::GreedyAmbiguityResolution::Config result;
+  result.maximumSharedHits = cfg.maximum_shared_hits;
+  result.maximumIterations = cfg.maximum_iterations;
+  result.nMeasurementsMin  = cfg.n_measurements_min;
+  return result;
+}
 
-  static std::size_t sourceLinkHash(const Acts::SourceLink& a) {
-    return static_cast<std::size_t>(a.get<ActsExamples::IndexSourceLink>().index());
-  }
+static std::size_t sourceLinkHash(const Acts::SourceLink& a) {
+  return static_cast<std::size_t>(a.get<ActsExamples::IndexSourceLink>().index());
+}
 
-  static bool sourceLinkEquality(const Acts::SourceLink& a, const Acts::SourceLink& b) {
-    return a.get<ActsExamples::IndexSourceLink>().index() ==
-           b.get<ActsExamples::IndexSourceLink>().index();
-  }
+static bool sourceLinkEquality(const Acts::SourceLink& a, const Acts::SourceLink& b) {
+  return a.get<ActsExamples::IndexSourceLink>().index() ==
+         b.get<ActsExamples::IndexSourceLink>().index();
+}
 
-  AmbiguitySolver::AmbiguitySolver() = default;
+AmbiguitySolver::AmbiguitySolver() = default;
 
-  void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
+void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
 
-    m_log         = log;
-    m_acts_logger = eicrecon::getSpdlogLogger("AmbiguitySolver", m_log);
-    m_acts_cfg    = transformConfig(m_cfg);
-    m_core        = std::make_unique<Acts::GreedyAmbiguityResolution>(m_acts_cfg, logger().clone());
-  }
+  m_log         = log;
+  m_acts_logger = eicrecon::getSpdlogLogger("AmbiguitySolver", m_log);
+  m_acts_cfg    = transformConfig(m_cfg);
+  m_core        = std::make_unique<Acts::GreedyAmbiguityResolution>(m_acts_cfg, logger().clone());
+}
 
-  std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
-             std::vector<Acts::ConstVectorTrackContainer*>>
-  AmbiguitySolver::process(std::vector<const Acts::ConstVectorMultiTrajectory*> input_track_states,
-                           std::vector<const Acts::ConstVectorTrackContainer*> input_tracks,
-                           const edm4eic::Measurement2DCollection& /* meas2Ds */) {
+std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
+           std::vector<Acts::ConstVectorTrackContainer*>>
+AmbiguitySolver::process(std::vector<const Acts::ConstVectorMultiTrajectory*> input_track_states,
+                         std::vector<const Acts::ConstVectorTrackContainer*> input_tracks,
+                         const edm4eic::Measurement2DCollection& /* meas2Ds */) {
 
-    // Create output vectors
-    std::vector<Acts::ConstVectorMultiTrajectory*> output_track_states;
-    std::vector<Acts::ConstVectorTrackContainer*> output_tracks;
+  // Create output vectors
+  std::vector<Acts::ConstVectorMultiTrajectory*> output_track_states;
+  std::vector<Acts::ConstVectorTrackContainer*> output_tracks;
 
-    if (input_track_states.empty() || input_tracks.empty()) {
-      return {output_track_states, output_tracks};
-    }
-
-    // Construct ConstTrackContainer from underlying containers
-    auto trackStateContainer =
-        std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states.front());
-    auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks.front());
-    ActsExamples::ConstTrackContainer input_trks(trackContainer, trackStateContainer);
-
-    Acts::GreedyAmbiguityResolution::State state;
-    m_core->computeInitialState(input_trks, state, &sourceLinkHash, &sourceLinkEquality);
-    m_core->resolve(state);
-
-    ActsExamples::TrackContainer solvedTracks{std::make_shared<Acts::VectorTrackContainer>(),
-                                              std::make_shared<Acts::VectorMultiTrajectory>()};
-    solvedTracks.ensureDynamicColumns(input_trks);
-
-    for (auto iTrack : state.selectedTracks) {
-      auto destProxy = solvedTracks.makeTrack();
-      auto srcProxy  = input_trks.getTrack(state.trackTips.at(iTrack));
-      destProxy.copyFrom(srcProxy);
-    }
-
-    // Move track states and track container to const containers and return as separate vectors
-    output_tracks.push_back(new ActsExamples::ConstTrackContainer(
-        std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
-        std::make_shared<Acts::ConstVectorMultiTrajectory>(
-            std::move(solvedTracks.trackStateContainer()))));
-
+  if (input_track_states.empty() || input_tracks.empty()) {
     return {output_track_states, output_tracks};
   }
+
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer =
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states.front());
+  auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks.front());
+  ActsExamples::ConstTrackContainer input_trks(trackContainer, trackStateContainer);
+
+  Acts::GreedyAmbiguityResolution::State state;
+  m_core->computeInitialState(input_trks, state, &sourceLinkHash, &sourceLinkEquality);
+  m_core->resolve(state);
+
+  ActsExamples::TrackContainer solvedTracks{std::make_shared<Acts::VectorTrackContainer>(),
+                                            std::make_shared<Acts::VectorMultiTrajectory>()};
+  solvedTracks.ensureDynamicColumns(input_trks);
+
+  for (auto iTrack : state.selectedTracks) {
+    auto destProxy = solvedTracks.makeTrack();
+    auto srcProxy  = input_trks.getTrack(state.trackTips.at(iTrack));
+    destProxy.copyFrom(srcProxy);
+  }
+
+  // Move track states and track container to const containers and return as separate vectors
+  output_tracks.push_back(new ActsExamples::ConstTrackContainer(
+      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(
+          std::move(solvedTracks.trackStateContainer()))));
+
+  return {output_track_states, output_tracks};
+}
 
 } // namespace eicrecon
