@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: LGPL-3.0-or-later
+getTrackrackrackPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #include "AmbiguitySolver.h"
 
@@ -84,14 +84,14 @@ AmbiguitySolver::process(std::vector<const Acts::ConstVectorMultiTrajectory*> in
 
   for (auto iTrack : state.selectedTracks) {
     auto destProxy = solvedTracks.makeTrack();
-    auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
+    auto srcProxy  = input_trks.getTrack(state.trackTips.at(iTrack));
     destProxy.copyFrom(srcProxy);
   }
 
   // Move track states and track container to const containers and return as separate vectors
   output_tracks.push_back(new ActsExamples::ConstTrackContainer(
       std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(solvedTracks.trackStateContainer())));
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(solvedTracks.trackStateContainer()))));
 
   return {output_track_states, output_tracks};
 }
