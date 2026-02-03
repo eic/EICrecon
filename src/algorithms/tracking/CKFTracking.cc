@@ -100,8 +100,8 @@ void CKFTracking::init() {
         .numMeasurementsCutOff = {m_cfg.numMeasurementsCutOff.begin(),
                                   m_cfg.numMeasurementsCutOff.end()}}},
   };
-  m_trackFinderFunc =
-      CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, acts_logger());
+  m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(
+      m_geoSvc->trackingGeometry(), m_geoSvc->getFieldProvider(), acts_logger());
 }
 
 void CKFTracking::process(const Input& input, const Output& output) const {
