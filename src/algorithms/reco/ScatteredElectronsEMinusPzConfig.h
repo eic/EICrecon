@@ -13,10 +13,10 @@ struct ScatteredElectronsEMinusPzConfig {
   // For now these are wide open
   // In the future the cut should depend
   // on the generator settings
-  float minEMinusPz = 0.0;       // GeV
-  float maxEMinusPz = 1000000.0; // GeV
+  float minEMinusPz  = 0.0;       // GeV
+  float maxEMinusPz  = 1000000.0; // GeV
   float minIsolation = 0.9;
-  float isolationR = 0.4; // eta-phi cone radius
+  float isolationR   = 0.4; // eta-phi cone radius
 };
 
 } // namespace eicrecon

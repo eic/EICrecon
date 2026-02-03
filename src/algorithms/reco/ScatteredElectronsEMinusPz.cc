@@ -64,7 +64,8 @@ void ScatteredElectronsEMinusPz::process(const ScatteredElectronsEMinusPz::Input
 
     // Cut on isolation
     double isolation = calc_isolation(e, *rcparts, m_cfg.isolationR);
-    if (isolation < m_cfg.minIsolation) continue;
+    if (isolation < m_cfg.minIsolation)
+      continue;
 
     // reset the HadronicFinalState
     vHadronicFinalState.SetCoordinates(0, 0, 0, 0);
