@@ -6,17 +6,15 @@
 #include <Math/Vector4Dfwd.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <functional>
 #include <gsl/pointers>
 #include <map>
 #include <utility>
 
+#include "algorithms/reco/ElectronFinderUtils.h"
 #include "algorithms/reco/ScatteredElectronsEMinusPz.h"
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
-
-#include "algorithms/reco/ElectronFinderUtils.h"
 
 using ROOT::Math::PxPyPzEVector;
 using ROOT::Math::PxPyPzMVector;
