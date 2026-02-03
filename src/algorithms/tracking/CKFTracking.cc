@@ -92,7 +92,6 @@ void CKFTracking::init() {
   m_acts_logger = Acts::getDefaultLogger(
       "CKF", eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(this->level())));
 
-
   // eta bins, chi2 and #sourclinks per surface cutoffs
   m_sourcelinkSelectorCfg = {
       {Acts::GeometryIdentifier(),
