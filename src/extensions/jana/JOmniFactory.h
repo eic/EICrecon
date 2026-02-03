@@ -266,29 +266,28 @@ public:
   struct ParameterBase {
     std::string m_name;
     std::string m_description;
-    std::string m_podio_param_name;  // Optional: name in run frame (empty means not synced)
-    JEventLevel m_event_level;     // Event level to extract from (ignored if m_podio_param_name empty)
-    
+    std::string m_podio_param_name; // Optional: name in run frame (empty means not synced)
+    JEventLevel m_event_level; // Event level to extract from (ignored if m_podio_param_name empty)
+
     virtual void Configure(JParameterManager& parman, const std::string& prefix) = 0;
     virtual void Configure(std::map<std::string, std::string> fields)            = 0;
     virtual void UpdateFromPodioParams(const podio::Frame* frame,
-                                     std::shared_ptr<spdlog::logger> logger) {}
+                                       std::shared_ptr<spdlog::logger> logger) {}
     virtual ~ParameterBase() = default;
   };
 
   // PodioInfo: stores PODIO parameter name and event level
   // StoredT type is captured in the template parameter of PodioParameter<StoredT>()
-  template <typename StoredT>
-  struct PodioInfo {
+  template <typename StoredT> struct PodioInfo {
     std::string name;
     JEventLevel level;
-    
+
     PodioInfo(const std::string& n, JEventLevel l) : name(n), level(l) {}
   };
-  
+
   // Helper to create PodioInfo with StoredT as template parameter
   template <typename StoredT>
-  static PodioInfo<StoredT> PodioParameter(const std::string& name, 
+  static PodioInfo<StoredT> PodioParameter(const std::string& name,
                                            JEventLevel level = JEventLevel::Run) {
     return PodioInfo<StoredT>(name, level);
   }
@@ -296,22 +295,24 @@ public:
   template <typename T> class ParameterRef : public ParameterBase {
 
     T* m_data;
-    std::function<bool(const podio::Frame*, const std::string&, void*, 
-                       std::shared_ptr<spdlog::logger>)> m_extract_and_convert;
+    std::function<bool(const podio::Frame*, const std::string&, void*,
+                       std::shared_ptr<spdlog::logger>)>
+        m_extract_and_convert;
 
     // Template helper: creates converter for StoredT -> T
-    template <typename StoredT>
-    static auto CreateConverter() {
-      return [](const podio::Frame* frame, const std::string& param_name, 
-                void* target_ptr, std::shared_ptr<spdlog::logger> logger) -> bool {
-        if (frame == nullptr) return false;
-        
+    template <typename StoredT> static auto CreateConverter() {
+      return [](const podio::Frame* frame, const std::string& param_name, void* target_ptr,
+                std::shared_ptr<spdlog::logger> logger) -> bool {
+        if (frame == nullptr)
+          return false;
+
         auto value_opt = frame->getParameter<StoredT>(param_name);
-        if (!value_opt.has_value()) return false;
-        
-        T* target = static_cast<T*>(target_ptr);
+        if (!value_opt.has_value())
+          return false;
+
+        T* target               = static_cast<T*>(target_ptr);
         const StoredT& in_value = value_opt.value();
-        
+
         if constexpr (std::is_same_v<StoredT, T>) {
           *target = in_value;
           return true;
@@ -335,31 +336,30 @@ public:
 
   public:
     // Constructor without PODIO sync
-    ParameterRef(JOmniFactory* owner, std::string name, T& slot, 
-                 std::string description = "") {
-      this->m_name           = name;
-      this->m_description    = description;
+    ParameterRef(JOmniFactory* owner, std::string name, T& slot, std::string description = "") {
+      this->m_name             = name;
+      this->m_description      = description;
       this->m_podio_param_name = "";
-      this->m_event_level    = JEventLevel::None;
-      m_data                 = &slot;
-      m_extract_and_convert  = nullptr;
-      
+      this->m_event_level      = JEventLevel::None;
+      m_data                   = &slot;
+      m_extract_and_convert    = nullptr;
+
       owner->RegisterParameter(this);
     }
 
     // Constructor with PODIO sync: StoredT is deduced from PodioInfo<StoredT> template parameter
     template <typename StoredT>
-    ParameterRef(JOmniFactory* owner, std::string name, T& slot, 
-                 std::string description, const PodioInfo<StoredT>& podio_info) {
-      this->m_name           = name;
-      this->m_description    = description;
+    ParameterRef(JOmniFactory* owner, std::string name, T& slot, std::string description,
+                 const PodioInfo<StoredT>& podio_info) {
+      this->m_name             = name;
+      this->m_description      = description;
       this->m_podio_param_name = podio_info.name;
-      this->m_event_level    = podio_info.level;
-      m_data                 = &slot;
-      
+      this->m_event_level      = podio_info.level;
+      m_data                   = &slot;
+
       // Create converter for this specific StoredT -> T pair
       m_extract_and_convert = CreateConverter<StoredT>();
-      
+
       owner->RegisterParameter(this);
     }
 
@@ -371,7 +371,7 @@ public:
     void Configure(JParameterManager& parman, const std::string& prefix) override {
       parman.SetDefaultParameter(prefix + ":" + this->m_name, *m_data, this->m_description);
     }
-    
+
     void Configure(std::map<std::string, std::string> fields) override {
       auto it = fields.find(this->m_name);
       if (it != fields.end()) {
@@ -379,15 +379,17 @@ public:
         JParameterManager::Parse(value_str, *m_data);
       }
     }
-    
+
     void UpdateFromPodioParams(const podio::Frame* frame,
-                            std::shared_ptr<spdlog::logger> logger) override {
-      if (this->m_podio_param_name.empty()) return;  // No run parameter configured
-      if (!m_extract_and_convert) return;  // No extraction callback
-      
+                               std::shared_ptr<spdlog::logger> logger) override {
+      if (this->m_podio_param_name.empty())
+        return; // No run parameter configured
+      if (!m_extract_and_convert)
+        return; // No extraction callback
+
       if (m_extract_and_convert(frame, this->m_podio_param_name, m_data, logger)) {
-        logger->debug("Updated '{}' from PODIO parameter '{}'",
-                      this->m_name, this->m_podio_param_name);
+        logger->debug("Updated '{}' from PODIO parameter '{}'", this->m_name,
+                      this->m_podio_param_name);
       }
     }
   };
@@ -426,7 +428,7 @@ public:
     }
   };
 
-  void RegisterParameter(ParameterBase* parameter) { 
+  void RegisterParameter(ParameterBase* parameter) {
     m_parameters.push_back(parameter);
     if (!parameter->m_podio_param_name.empty()) {
       m_parameters_by_level[parameter->m_event_level].push_back(parameter);
@@ -442,29 +444,28 @@ public:
   // Extract and update parameters from specified event level
   void UpdateParametersFromEventLevel(const JEvent& event, JEventLevel target_level) {
     if (target_level == JEventLevel::None) {
-      return;  // No parameters to extract at None level
+      return; // No parameters to extract at None level
     }
-    
+
     // Use map to check if we have parameters for this level - O(log n) vs O(n)
     auto it = m_parameters_by_level.find(target_level);
     if (it == m_parameters_by_level.end() || it->second.empty()) {
-      return;  // No parameters configured for this level, skip extraction
+      return; // No parameters configured for this level, skip extraction
     }
-    
+
     // Extract frame and update parameters
     try {
-      const JEvent& target_event = (target_level == event.GetLevel()) 
-                                   ? event 
-                                   : event.GetParent(target_level);
+      const JEvent& target_event =
+          (target_level == event.GetLevel()) ? event : event.GetParent(target_level);
       const auto* frame = target_event.GetSingle<podio::Frame>();
-      
+
       // Update all parameters configured for this event level
       for (auto* param : it->second) {
         param->UpdateFromPodioParams(frame, m_logger);
       }
     } catch (std::exception& e) {
       m_logger->debug("UpdateParametersFromEventLevel: unable to read frame at level {}: {}",
-                     static_cast<int>(target_level), e.what());
+                      static_cast<int>(target_level), e.what());
       return;
     }
   }
@@ -662,10 +663,10 @@ public:
     for (auto* resource : m_resources) {
       resource->ChangeRun(*event);
     }
-    
+
     // Extract and update parameters from Run level podio parameters
     UpdateParametersFromEventLevel(*event, JEventLevel::Run);
-    
+
     // Call derived BeginRun for any additional factory-specific configuration
     static_cast<AlgoT*>(this)->BeginRun(event);
   }
@@ -678,7 +679,7 @@ public:
     try {
       // Update parameters linked to PhysicsEvent event level (TODO: How to handle Timeslice level inputs?)
       UpdateParametersFromEventLevel(*event, JEventLevel::PhysicsEvent);
-      
+
       for (auto* input : m_inputs) {
         input->GetCollection(*event);
       }

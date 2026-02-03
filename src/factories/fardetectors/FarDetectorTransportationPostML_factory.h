@@ -27,9 +27,9 @@ private:
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_association_output{this};
 
   // Config parameter that also syncs from PODIO frame metadata at specified event level
-  ParameterRef<float> m_beamE{this, "beamE", config().beamE,
-                              "Beam energy in GeV",
-                              PodioParameter<std::string>("electron_beam_energy", JEventLevel::Run)};
+  ParameterRef<float> m_beamE{
+      this, "beamE", config().beamE, "Beam energy in GeV",
+      PodioParameter<std::string>("electron_beam_energy", JEventLevel::Run)};
   ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron",
                                            config().requireBeamElectron};
   ParameterRef<int> m_pdg_value{
