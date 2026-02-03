@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Daniel Brandenburg, Dmitry Kalinkin
+// Copyright (C) 2026 Daniel Brandenburg, Dmitry Kalinkin, Stephen Maple
 
 #include <Math/GenVector/LorentzVector.h>
 #include <Math/GenVector/PxPyPzM4D.h>
@@ -15,6 +15,8 @@
 
 #include "algorithms/reco/ScatteredElectronsEMinusPz.h"
 #include "algorithms/reco/ScatteredElectronsEMinusPzConfig.h"
+
+#include "algorithms/reco/ElectronFinderUtils.h"
 
 using ROOT::Math::PxPyPzEVector;
 using ROOT::Math::PxPyPzMVector;
@@ -59,6 +61,10 @@ void ScatteredElectronsEMinusPz::process(const ScatteredElectronsEMinusPz::Input
 
   for (const auto& e : *rcele) {
     // Do not cut on charge to account for charge-symmetric background
+
+    // Cut on isolation
+    double isolation = calc_isolation(e, *rcparts, m_cfg.isolationR);
+    if (isolation < m_cfg.minIsolation) continue;
 
     // reset the HadronicFinalState
     vHadronicFinalState.SetCoordinates(0, 0, 0, 0);
