@@ -225,9 +225,7 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
     } else {
       event.SetEventNumber(event_headers[0].getEventNumber());
       int32_t run_number = event_headers[0].getRunNumber();
-      if (run_number != event.GetRunNumber()) {
-        event.SetRunNumber(run_number);
-      }
+      event.SetRunNumber(run_number);
     }
   }
 
@@ -236,7 +234,7 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
     event.SetParent(m_run_event.get());
   }
 
-  // Insert contents odf frame into JFactories
+  // Insert contents of frame into JFactories
   VisitPodioCollection<InsertingVisitor> visit;
   for (const std::string& coll_name : frame->getAvailableCollections()) {
     const podio::CollectionBase* collection = frame->get(coll_name);
