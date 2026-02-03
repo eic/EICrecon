@@ -70,12 +70,8 @@ ActsTrackMerger::merge(
 
     // Copy each track
     for (const auto& srcTrack : inputContainer) {
-      auto destTrack = mergedTracks.getTrack(mergedTracks.addTrack());
-#if Acts_VERSION_MAJOR < 43 || (Acts_VERSION_MAJOR == 43 && Acts_VERSION_MINOR < 2)
-      destTrack.copyFrom(srcTrack, true); // true = copy track states
-#else
+      auto destTrack = mergedTracks.makeTrack();
       destTrack.copyFrom(srcTrack);
-#endif
     }
   }
 
