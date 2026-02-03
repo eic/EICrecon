@@ -119,19 +119,17 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
       edm4eic::CALOROC1ASample aSample;
       auto adc = std::max(std::llround(entry.adc / m_cfg.dyRangeSingleGainADC * m_cfg.capADC), 0LL);
       aSample.ADC = adc > m_cfg.capADC ? m_cfg.capADC : adc;
-      auto toa    = std::max(std::llround(entry.toa / m_cfg.dyRangeTOA * m_cfg.capTOA), 0LL);
+      auto toa = std::max(std::llround(entry.toa / m_cfg.dyRangeTOA * m_cfg.capTOA), 0LL);
       aSample.timeOfArrival = toa > m_cfg.capTOA ? m_cfg.capTOA : toa;
       auto tot = std::max(std::llround(entry.tot / m_cfg.dyRangeTOT * m_cfg.capTOT), 0LL);
       aSample.timeOverThreshold = tot > m_cfg.capTOT ? m_cfg.capTOT : tot;
       out_digi_hit.addToASamples(aSample);
 
       edm4eic::CALOROC1BSample bSample;
-      auto high_adc =
-          std::max(std::llround(entry.adc / m_cfg.dyRangeHighGainADC * m_cfg.capADC), 0LL);
-      bool overflow       = high_adc > m_cfg.capADC;
+      auto high_adc = std::max(std::llround(entry.adc / m_cfg.dyRangeHighGainADC * m_cfg.capADC), 0LL);
+      bool overflow = high_adc > m_cfg.capADC;
       bSample.highGainADC = overflow ? m_cfg.capADC : high_adc;
-      auto low_adc =
-          std::max(std::llround(entry.adc / m_cfg.dyRangeLowGainADC * m_cfg.capADC), 0LL);
+      auto low_adc = std::max(std::llround(entry.adc / m_cfg.dyRangeLowGainADC * m_cfg.capADC), 0LL);
       bSample.lowGainADC = overflow ? std::min(low_adc, static_cast<long long>(m_cfg.capADC)) : 0LL;
       bSample.timeOfArrival = toa > m_cfg.capTOA ? m_cfg.capTOA : toa;
       out_digi_hit.addToBSamples(bSample);
