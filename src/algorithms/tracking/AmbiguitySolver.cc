@@ -13,7 +13,6 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
-#include <edm4eic/Measurement2DCollection.h>
 #include <any>
 #include <cstddef>
 #include <string>
@@ -57,8 +56,7 @@ void AmbiguitySolver::init(std::shared_ptr<spdlog::logger> log) {
 std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
            std::vector<Acts::ConstVectorTrackContainer*>>
 AmbiguitySolver::process(std::vector<const Acts::ConstVectorMultiTrajectory*> input_track_states,
-                         std::vector<const Acts::ConstVectorTrackContainer*> input_tracks,
-                         const edm4eic::Measurement2DCollection& /* meas2Ds */) {
+                         std::vector<const Acts::ConstVectorTrackContainer*> input_tracks) {
 
   // Create output vectors
   std::vector<Acts::ConstVectorMultiTrajectory*> output_track_states;

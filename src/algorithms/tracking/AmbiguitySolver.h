@@ -5,7 +5,6 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#include <edm4eic/Measurement2D.h>
 #include <spdlog/logger.h>
 #include <memory>
 #include <tuple>
@@ -28,8 +27,7 @@ public:
   std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
              std::vector<Acts::ConstVectorTrackContainer*>>
   process(std::vector<const Acts::ConstVectorMultiTrajectory*> input_track_states,
-          std::vector<const Acts::ConstVectorTrackContainer*> input_tracks,
-          const edm4eic::Measurement2DCollection& meas2Ds);
+          std::vector<const Acts::ConstVectorTrackContainer*> input_tracks);
 
 private:
   std::shared_ptr<spdlog::logger> m_log;

@@ -115,7 +115,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "TruthSeededAmbiguityResolutionSolver",
       {"CentralCKFTruthSeededActsTrackStatesUnfiltered",
-       "CentralCKFTruthSeededActsTracksUnfiltered", "CentralTrackerMeasurements"},
+       "CentralCKFTruthSeededActsTracksUnfiltered"},
       {
           "CentralCKFTruthSeededActsTrackStates",
           "CentralCKFTruthSeededActsTracks",
@@ -170,8 +170,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "AmbiguityResolutionSolver",
-      {"CentralCKFActsTrackStatesUnfiltered", "CentralCKFActsTracksUnfiltered",
-       "CentralTrackerMeasurements"},
+      {"CentralCKFActsTrackStatesUnfiltered", "CentralCKFActsTracksUnfiltered"},
       {
           "CentralCKFActsTrackStates",
           "CentralCKFActsTracks",
@@ -310,7 +309,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "B0TrackerTruthSeededAmbiguityResolutionSolver",
       {"B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
-       "B0TrackerCKFTruthSeededActsTracksUnfiltered", "B0TrackerMeasurements"},
+       "B0TrackerCKFTruthSeededActsTracksUnfiltered"},
       {
           "B0TrackerCKFTruthSeededActsTrackStates",
           "B0TrackerCKFTruthSeededActsTracks",
@@ -365,8 +364,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "B0TrackerAmbiguityResolutionSolver",
-      {"B0TrackerCKFActsTrackStatesUnfiltered", "B0TrackerCKFActsTracksUnfiltered",
-       "B0TrackerMeasurements"},
+      {"B0TrackerCKFActsTrackStatesUnfiltered", "B0TrackerCKFActsTracksUnfiltered"},
       {
           "B0TrackerCKFActsTrackStates",
           "B0TrackerCKFActsTracks",
