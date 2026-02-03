@@ -50,8 +50,8 @@ inline LorentzRotation determine_boost(PxPyPzEVector ei, PxPyPzEVector pi) {
   PxPyPzEVector ph(0, 0, p_pz, p_energy);
 
   // Step 4: Boost to the frame where those particles look like the current ei/pi
-  const auto hoBoost = (eh + ph).BoostToCM(); // CM of head-on frame
-  const Boost boost_from_cm_to_headon(-hoBoost);      // Boost from CM to head-on
+  const auto hoBoost = (eh + ph).BoostToCM();    // CM of head-on frame
+  const Boost boost_from_cm_to_headon(-hoBoost); // Boost from CM to head-on
 
   // Final transformation = headon boost * rotations * CM boost
   LorentzRotation tf;
