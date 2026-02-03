@@ -60,8 +60,7 @@ public:
     assert(!tracks_vec.empty() && "ConstVectorTrackContainer vector should not be empty");
     assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
 
-    auto [output_track_states, output_tracks] =
-        m_algo->process(track_states_vec, tracks_vec);
+    auto [output_track_states, output_tracks] = m_algo->process(track_states_vec, tracks_vec);
 
     // Transfer ownership to output collections in a single, exception-safe operation
     m_acts_track_states_output() = std::move(output_track_states);
