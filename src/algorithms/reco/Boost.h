@@ -28,10 +28,10 @@ inline LorentzRotation determine_boost(PxPyPzEVector ei, PxPyPzEVector pi) {
 
   // Step 1: Boost to CM frame
   const auto cmBoost = (ei + pi).BoostToCM();
-  const Boost boost_to_cm(cmBoost);
+  const Boost boost_from_og_to_cm(cmBoost);
 
-  ei = boost_to_cm(ei);
-  pi = boost_to_cm(pi);
+  ei = boost_from_og_to_cm(ei);
+  pi = boost_from_og_to_cm(pi);
 
   // Step 2: Rotate so pi is aligned along +z
   RotationY rotAboutY(-1.0 * atan2(pi.Px(), pi.Pz()));
@@ -51,14 +51,14 @@ inline LorentzRotation determine_boost(PxPyPzEVector ei, PxPyPzEVector pi) {
 
   // Step 4: Boost to the frame where those particles look like the current ei/pi
   const auto hoBoost = (eh + ph).BoostToCM(); // CM of head-on frame
-  const Boost boost_to_headon(-hoBoost);      // Boost from CM to head-on
+  const Boost boost_from_cm_to_headon(-hoBoost);      // Boost from CM to head-on
 
   // Final transformation = headon boost * rotations * CM boost
   LorentzRotation tf;
-  tf *= boost_to_headon;
+  tf *= boost_from_cm_to_headon;
   tf *= rotAboutX;
   tf *= rotAboutY;
-  tf *= boost_to_cm;
+  tf *= boost_from_og_to_cm;
 
   return tf;
 }
