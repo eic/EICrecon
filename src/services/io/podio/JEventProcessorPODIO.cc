@@ -304,6 +304,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelScFiNCombinedPulses",
       "EcalBarrelScFiPCombinedPulsesWithNoise",
       "EcalBarrelScFiNCombinedPulsesWithNoise",
+      "EcalBarrelScFiPCALOROCHits",
+      "EcalBarrelScFiNCALOROCHits",
       "EcalBarrelScFiRecHits",
       "EcalBarrelScFiClusters",
       "EcalBarrelScFiClusterAssociations",
