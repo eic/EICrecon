@@ -92,7 +92,7 @@ AmbiguitySolver::process(std::vector<const Acts::ConstVectorMultiTrajectory*> in
   // Move track states and track container to const containers and return as separate vectors
   output_tracks.push_back(new ActsExamples::ConstTrackContainer(
       std::make_shared<Acts::ConstVectorTrackContainer>(std::move(solvedTracks.container())),
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(solvedTracks.trackStateContainer()));
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(solvedTracks.trackStateContainer())));
 
   return {output_track_states, output_tracks};
 }
