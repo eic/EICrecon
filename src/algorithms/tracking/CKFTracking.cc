@@ -92,10 +92,6 @@ void CKFTracking::init() {
   m_acts_logger = Acts::getDefaultLogger(
       "CKF", eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(this->level())));
 
-  auto m_BField   = m_geoSvc->getFieldProvider();
-  auto m_fieldctx = Acts::MagneticFieldContext{};
-  auto m_geoctx   = Acts::GeometryContext{};
-  auto m_calibctx = Acts::CalibrationContext{};
 
   // eta bins, chi2 and #sourclinks per surface cutoffs
   m_sourcelinkSelectorCfg = {
