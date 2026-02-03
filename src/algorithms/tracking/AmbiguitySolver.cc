@@ -1,4 +1,4 @@
-getTrackrackrackPDX - License - Identifier : LGPL - 3.0 - or -later
+// SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Minjung Kim, Barak Schmookler
 #include "AmbiguitySolver.h"
 
