@@ -26,7 +26,10 @@ private:
   PodioOutput<edm4eic::Tensor> m_feature_tensor_output{this};
   PodioOutput<edm4eic::Tensor> m_target_tensor_output{this};
 
-  ParameterRef<float> m_beamE{this, "beamE", config().beamE};
+  // Config parameter that also syncs from PODIO frame metadata at specified event level
+  ParameterRef<float> m_beamE{this, "beamE", config().beamE, 
+                              "Beam energy in GeV",
+                              PodioParameter<std::string>("electron_beam_energy", JEventLevel::Run)};
   ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron",
                                            config().requireBeamElectron};
 
@@ -38,36 +41,11 @@ public:
     m_algo->init();
   }
 
-  // Initialize beam energy from parent run frame if available
-  void BeginRun(const std::shared_ptr<const JEvent>& event) override {
-
-    // Try to access parent run event and extract electron_beam_energy
-    float beamE = config().beamE;
-    try {
-      const JEvent& parent  = event->GetParent(JEventLevel::Run);
-      const auto* run_frame = parent.GetSingle<podio::Frame>();
-      if (run_frame != nullptr) {
-        // Parameter currently stored as string
-        std::optional<std::string> s_opt =
-            run_frame->getParameter<std::string>("electron_beam_energy");
-        if (s_opt.has_value()) {
-          try {
-            beamE = static_cast<float>(std::stod(s_opt.value()));
-          } catch (...) {
-            // Keep default on parse failure
-          }
-        }
-      }
-    } catch (std::exception& e) {
-      // Keep default beamE if any exception occurs
-      logger()->debug("BeginRun: unable to read electron_beam_energy from run frame: {}", e.what());
-    }
-    config().beamE                   = beamE;
+  // BeginRun called after auto-sync of run parameters - just apply updated config
+  void BeginRun(const std::shared_ptr<const JEvent>& /* event */) override {
     config().beamE_set_from_metadata = true;
     m_algo->applyConfig(config());
-    logger()->info("beamE={} GeV (from run metadata)", beamE);
-    // Call base to keep resources and algorithm ChangeRun() in sync
-    // JOmniFactory<FarDetectorTransportationPreML_factory, FarDetectorTransportationPreMLConfig>::BeginRun(event);
+    logger()->info("beamE={} GeV (from run metadata)", config().beamE);
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
