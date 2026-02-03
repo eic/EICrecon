@@ -86,7 +86,6 @@ AmbiguitySolver::process(std::vector<const Acts::ConstVectorMultiTrajectory*> in
     auto destProxy = solvedTracks.makeTrack();
     auto srcProxy  = input_trks->getTrack(state.trackTips.at(iTrack));
     destProxy.copyFrom(srcProxy);
-    destProxy.tipIndex() = srcProxy.tipIndex();
   }
 
   // Move track states and track container to const containers and return as separate vectors
