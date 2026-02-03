@@ -11,7 +11,6 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/EventData/Types.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
@@ -24,7 +23,6 @@
 #include <functional>
 #include <gsl/pointers>
 #include <new>
-#include <set>
 #include <stdexcept>
 #include <string>
 #include <system_error>
