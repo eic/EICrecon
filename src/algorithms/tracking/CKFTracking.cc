@@ -199,7 +199,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   }
 
   ActsExamples::TrackParametersContainer acts_init_trk_params;
-  for (const auto& track_seed : init_trk_seeds) {
+  for (const auto& track_seed : *init_trk_seeds) {
 
     const auto& track_parameter = track_seed.getParams();
 
@@ -347,8 +347,8 @@ void CKFTracking::process(const Input& input, const Output& output) const {
       }
 
       if (track.nMeasurements() < m_cfg.numMeasurementsMin) {
-        m_log->trace("Track {} for seed {} has fewer measurements than minimum of {}, skipping",
-                     track.index(), iseed, m_cfg.numMeasurementsMin);
+        trace("Track {} for seed {} has fewer measurements than minimum of {}, skipping",
+              track.index(), iseed, m_cfg.numMeasurementsMin);
         continue;
       }
 
