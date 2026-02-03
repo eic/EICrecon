@@ -28,7 +28,8 @@ private:
 
   PodioInput<edm4eic::TrackSeed> m_seeds_input{this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
-  Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output{this};
+  Output<Acts::ConstVectorMultiTrajectory> m_acts_trajectories_output{this};
+  Output<Acts::ConstVectorTrackContainer> m_acts_tracks_output{this};
 
   ParameterRef<std::vector<double>> m_etaBins{this, "EtaBins", config().etaBins,
                                               "Eta Bins for ACTS CKF tracking reco"};
@@ -53,11 +54,14 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    // FIXME clear tracks output since it may not have been initialized or reset
+    // FIXME clear output since it may not have been initialized or reset
     // See https://github.com/eic/EICrecon/issues/1961
+    m_acts_trajectories_output().clear();
     m_acts_tracks_output().clear();
 
-    m_acts_tracks_output() = m_algo->process(*m_seeds_input(), *m_measurements_input());
+    auto [trajectories, tracks]  = m_algo->process(*m_seeds_input(), *m_measurements_input());
+    m_acts_trajectories_output() = trajectories;
+    m_acts_tracks_output()       = tracks;
   }
 };
 

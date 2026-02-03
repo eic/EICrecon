@@ -22,6 +22,8 @@
 #include <edm4eic/TrackSeedCollection.h>
 #include <spdlog/logger.h>
 #include <memory>
+#include <tuple>
+#include <variant>
 #include <vector>
 
 #include "CKFTrackingConfig.h"
@@ -74,7 +76,8 @@ public:
   void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
             std::shared_ptr<spdlog::logger> log);
 
-  std::vector<ActsExamples::ConstTrackContainer*>
+  std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
+             std::vector<Acts::ConstVectorTrackContainer*>>
   process(const edm4eic::TrackSeedCollection& init_trk_seeds,
           const edm4eic::Measurement2DCollection& meas2Ds);
 
