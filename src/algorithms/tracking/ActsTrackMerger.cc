@@ -20,45 +20,26 @@
 
 namespace eicrecon {
 
-void ActsTrackMerger::process(const Input& /* input */, const Output& /* output */) const {
-  // This algorithm is intentionally not wired through the standard Algorithm::process
-  // mechanism. The factory calls merge() directly with concrete input/output types.
-  // If process() is ever invoked, treat it as a misuse and fail fast.
-  throw std::logic_error(
-      "ActsTrackMerger::process() is not implemented; the factory must call merge() directly.");
-}
-
-std::tuple<std::vector<Acts::ConstVectorMultiTrajectory*>,
-           std::vector<Acts::ConstVectorTrackContainer*>>
-ActsTrackMerger::merge(
-    const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states1,
-    const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks1,
-    const std::vector<const Acts::ConstVectorMultiTrajectory*>& input_track_states2,
-    const std::vector<const Acts::ConstVectorTrackContainer*>& input_tracks2) {
-
-  std::vector<Acts::ConstVectorMultiTrajectory*> result_track_states;
-  std::vector<Acts::ConstVectorTrackContainer*> result_tracks;
+void ActsTrackMerger::process(const Input& input, const Output& output) const {
+  const auto [input_track_states1, input_tracks1, input_track_states2, input_tracks2] = input;
+  auto [output_track_states, output_tracks]                                           = output;
 
   // Collect all input track containers by reconstructing ConstTrackContainer wrappers
   std::vector<ActsExamples::ConstTrackContainer> input_containers;
 
   // Process first input set
-  for (size_t i = 0; i < input_track_states1.size() && i < input_tracks1.size(); ++i) {
-    auto trackStateContainer =
-        std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states1[i]);
-    auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks1[i]);
-    input_containers.emplace_back(trackContainer, trackStateContainer);
-  }
+  auto trackStateContainer1 =
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states1);
+  auto trackContainer1 = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks1);
+  input_containers.emplace_back(trackContainer1, trackStateContainer1);
 
   // Process second input set
-  for (size_t i = 0; i < input_track_states2.size() && i < input_tracks2.size(); ++i) {
-    auto trackStateContainer =
-        std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states2[i]);
-    auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks2[i]);
-    input_containers.emplace_back(trackContainer, trackStateContainer);
-  }
+  auto trackStateContainer2 =
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states2);
+  auto trackContainer2 = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks2);
+  input_containers.emplace_back(trackContainer2, trackStateContainer2);
 
-  // Create new mutable containers for merging (even if inputs are empty)
+  // Create new mutable containers for merging
   auto mergedTrackContainer      = std::make_shared<Acts::VectorTrackContainer>();
   auto mergedTrackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
   ActsExamples::TrackContainer mergedTracks(mergedTrackContainer, mergedTrackStateContainer);
@@ -75,12 +56,11 @@ ActsTrackMerger::merge(
     }
   }
 
-  // Create and store the merged containers as naked pointers
-  result_track_states.push_back(
-      new Acts::ConstVectorMultiTrajectory(std::move(*mergedTrackStateContainer)));
-  result_tracks.push_back(new Acts::ConstVectorTrackContainer(std::move(*mergedTrackContainer)));
-
-  return {result_track_states, result_tracks};
+  // Allocate new const containers and assign pointers to outputs
+  // (Cannot use placement new because Output<T>::Reset() clears the vector)
+  *output_track_states =
+      new Acts::ConstVectorMultiTrajectory(std::move(*mergedTrackStateContainer));
+  *output_tracks = new Acts::ConstVectorTrackContainer(std::move(*mergedTrackContainer));
 }
 
 } // namespace eicrecon
