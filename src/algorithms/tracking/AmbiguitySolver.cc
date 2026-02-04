@@ -11,6 +11,7 @@
 #endif
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <Eigen/LU> // IWYU pragma: keep
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
 #include <edm4eic/Measurement2DCollection.h>
