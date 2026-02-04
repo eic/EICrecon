@@ -361,16 +361,9 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     }
   }
 
-  // Move track states and track container to const containers as naked pointers
-  auto constTrackStateContainer =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(*trackStateContainer));
-
-  auto constTrackContainer =
-      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*trackContainer));
-
-  // Output pointers are double-pointers, dereference once and use placement new
-  new (*output_track_states) Acts::ConstVectorMultiTrajectory(*constTrackStateContainer);
-  new (*output_tracks) Acts::ConstVectorTrackContainer(*constTrackContainer);
+  // Allocate new const containers and assign pointers to outputs
+  *output_track_states = new Acts::ConstVectorMultiTrajectory(std::move(*trackStateContainer));
+  *output_tracks       = new Acts::ConstVectorTrackContainer(std::move(*trackContainer));
 }
 
 } // namespace eicrecon

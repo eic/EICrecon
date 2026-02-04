@@ -85,11 +85,9 @@ void AmbiguitySolver::process(const Input& input, const Output& output) const {
     destProxy.copyFrom(srcProxy);
   }
 
-  // Output pointers are double-pointers (pointer to element in vector)
-  // Dereference once to get the location where we construct the object
-  // Use placement new since Acts const containers can't be assigned
-  new (*output_track_states) Acts::ConstVectorMultiTrajectory(std::move(solvedTracks.trackStateContainer()));
-  new (*output_tracks) Acts::ConstVectorTrackContainer(std::move(solvedTracks.container()));
+  // Allocate new const containers and assign pointers to outputs
+  *output_track_states = new Acts::ConstVectorMultiTrajectory(std::move(solvedTracks.trackStateContainer()));
+  *output_tracks       = new Acts::ConstVectorTrackContainer(std::move(solvedTracks.container()));
 }
 
 } // namespace eicrecon

@@ -55,8 +55,8 @@ public:
     assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
 
     m_algo->process(AlgoT::Input{track_states_vec.front(), tracks_vec.front()},
-                    AlgoT::Output{gsl::not_null{&m_acts_track_states_output().front()},
-                                  gsl::not_null{&m_acts_tracks_output().front()}});
+                    AlgoT::Output{&m_acts_track_states_output().emplace_back(),
+                                  &m_acts_tracks_output().emplace_back()});
   }
 };
 
