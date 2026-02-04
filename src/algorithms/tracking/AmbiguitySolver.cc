@@ -3,7 +3,9 @@
 #include "AmbiguitySolver.h"
 
 #include <Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp>
+#include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/SourceLink.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
@@ -13,6 +15,7 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
+#include <Eigen/LU> // IWYU pragma: keep
 #include <any>
 #include <cstddef>
 #include <string>
@@ -81,20 +84,16 @@ AmbiguitySolver::process(std::vector<const Acts::ConstVectorMultiTrajectory*> in
   solvedTracks.ensureDynamicColumns(input_trks);
 
   for (auto iTrack : state.selectedTracks) {
-
-    auto destProxy = solvedTracks.getTrack(solvedTracks.addTrack());
+    auto destProxy = solvedTracks.makeTrack();
     auto srcProxy  = input_trks.getTrack(state.trackTips.at(iTrack));
-#if Acts_VERSION_MAJOR >= 44
-    destProxy.copyFromWithoutStates(srcProxy);
-#else
-    destProxy.copyFrom(srcProxy, false);
-#endif
-    destProxy.tipIndex() = srcProxy.tipIndex();
+    destProxy.copyFrom(srcProxy);
   }
 
   // Move track states and track container to const containers and return as separate vectors
-  output_track_states.push_back(new Acts::ConstVectorMultiTrajectory(*input_track_states.front()));
-  output_tracks.push_back(new Acts::ConstVectorTrackContainer(std::move(solvedTracks.container())));
+  output_track_states.emplace_back(
+      new Acts::ConstVectorMultiTrajectory(std::move(solvedTracks.trackStateContainer())));
+  output_tracks.emplace_back(
+      new Acts::ConstVectorTrackContainer(std::move(solvedTracks.container())));
 
   return {output_track_states, output_tracks};
 }
