@@ -92,7 +92,6 @@ private:
   std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
   Acts::MagneticFieldContext m_fieldctx{};
   Acts::GeometryContext m_geoctx{};
-  ;
   Acts::CalibrationContext m_calibctx{};
 
   Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
