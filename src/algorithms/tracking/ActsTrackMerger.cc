@@ -12,9 +12,8 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <Eigen/LU> // IWYU pragma: keep
 #include <any>
-#include <cstddef>
+#include <gsl/pointers>
 #include <memory>
-#include <stdexcept>
 #include <utility>
 #include <vector>
 
