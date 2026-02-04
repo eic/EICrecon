@@ -3,7 +3,9 @@
 #include "AmbiguitySolver.h"
 
 #include <Acts/AmbiguityResolution/GreedyAmbiguityResolution.hpp>
+#include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/SourceLink.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
@@ -11,10 +13,9 @@
 #endif
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <Eigen/LU> // IWYU pragma: keep
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
-#include <edm4eic/Measurement2DCollection.h>
+#include <Eigen/LU> // IWYU pragma: keep
 #include <any>
 #include <cstddef>
 #include <string>
