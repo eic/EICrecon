@@ -24,9 +24,9 @@
 #include <vector>
 
 #include "CKFTrackingConfig.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
-class ActsGeometryProvider;
+#include "algorithms/tracking/ActsGeometryProvider.h"
 
 namespace eicrecon {
 
@@ -78,17 +78,19 @@ public:
                              {"outputActsTrackStates", "outputActsTracks"},
                              "Combinatorial Kalman Filter track finding"} {}
 
-  void setGeometryService(std::shared_ptr<const ActsGeometryProvider> geo_svc) {
-    m_geoSvc = geo_svc;
-  }
-
   void init() final;
   void process(const Input&, const Output&) const final;
 
 private:
   std::shared_ptr<const Acts::Logger> m_acts_logger{nullptr};
   std::shared_ptr<CKFTrackingFunction> m_trackFinderFunc;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
+      algorithms::ActsSvc::instance().acts_geometry_provider()};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
+  Acts::MagneticFieldContext m_fieldctx{};
+  Acts::GeometryContext m_geoctx{};
+  ;
+  Acts::CalibrationContext m_calibctx{};
 
   Acts::MeasurementSelector::Config m_sourcelinkSelectorCfg;
 

@@ -108,12 +108,6 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   const auto [init_trk_seeds, meas2Ds]      = input;
   auto [output_track_states, output_tracks] = output;
 
-  // Get contexts and field from member variables set in init()
-  auto m_BField   = m_geoSvc->getFieldProvider();
-  auto m_fieldctx = Acts::MagneticFieldContext{};
-  auto m_geoctx   = Acts::GeometryContext{};
-  auto m_calibctx = Acts::CalibrationContext{};
-
   // If measurements or initial track parameters are empty, return early
   if (meas2Ds->empty() || init_trk_seeds->empty()) {
     return;
