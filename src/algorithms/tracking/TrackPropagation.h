@@ -16,6 +16,7 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <DD4hep/Detector.h>
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -26,6 +27,7 @@
 #include <string_view>
 #include <vector>
 
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/tracking/ActsGeometryProvider.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
@@ -55,11 +57,6 @@ public:
 
   /** Initialize algorithm */
   void init() final;
-
-  void setGeometryService(std::shared_ptr<const ActsGeometryProvider> geo_svc) {
-    m_geoSvc = geo_svc;
-  }
-  void setDetector(const dd4hep::Detector* detector) { m_detector = detector; }
 
   void process(const Input& input, const Output& output) const final {
     const auto [tracks, track_states, tracks_acts] = input;
@@ -106,8 +103,9 @@ public:
 private:
   Acts::GeometryContext m_geoContext;
   Acts::MagneticFieldContext m_fieldContext;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
-  const dd4hep::Detector* m_detector = nullptr;
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
+      algorithms::ActsSvc::instance().acts_geometry_provider()};
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
   std::vector<std::shared_ptr<Acts::Surface>> m_filter_surfaces;
   std::vector<std::shared_ptr<Acts::Surface>> m_target_surfaces;
