@@ -20,7 +20,6 @@
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
 #include <exception>
-#include <gsl/pointers>
 #include <map>
 #include <string>
 #include <vector>

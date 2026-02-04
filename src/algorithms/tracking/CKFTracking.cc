@@ -11,10 +11,7 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <Acts/Utilities/CalibrationContext.hpp>
 #include <spdlog/common.h>
 #include <algorithm>
 #include <any>
