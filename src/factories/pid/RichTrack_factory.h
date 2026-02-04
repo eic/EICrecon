@@ -47,8 +47,6 @@ public:
     if (config().filter_surfaces.empty())
       throw JException("cannot find filter surface for RICH track propagation");
 
-    m_algo->setDetector(m_GeoSvc().detector());
-    m_algo->setGeometryService(m_ACTSGeoSvc().actsGeoProvider());
     m_algo->init();
   }
 
