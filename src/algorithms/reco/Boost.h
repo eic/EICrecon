@@ -63,7 +63,7 @@ inline LorentzRotation determine_boost(PxPyPzEVector ei, PxPyPzEVector pi) {
   return tf;
 }
 
-inline PxPyPzEVector apply_boost(const LorentzRotation& tf, PxPyPzEVector part) {
+inline PxPyPzEVector apply_boost(const LorentzRotation& tf, const PxPyPzEVector& part) {
 
   // Step 5: Apply boosts and rotations to any particle 4-vector
   // (here too, choices will have to be made as to what the 4-vector is for reconstructed particles)
