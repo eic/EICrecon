@@ -41,8 +41,6 @@ public:
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
-    m_algo->setDetector(m_GeoSvc().detector());
-    m_algo->setGeometryService(m_ACTSGeoSvc().actsGeoProvider());
     m_algo->init();
   }
 
