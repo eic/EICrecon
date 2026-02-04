@@ -16,9 +16,10 @@
 #include <string>
 #include <string_view>
 
-#include "ActsGeometryProvider.h"
-#include "IterativeVertexFinderConfig.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/IterativeVertexFinderConfig.h"
 
 namespace eicrecon {
 
@@ -37,18 +38,14 @@ public:
             {"outputVertices"},
             "Iterative vertex finder"} {}
 
-  void setGeometryService(std::shared_ptr<const ActsGeometryProvider> geo_svc) {
-    m_geoSvc = geo_svc;
-  }
-
-  void init() final;
+  void init() final {};
   void process(const Input&, const Output&) const final;
 
 private:
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
-
-  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField = nullptr;
-  Acts::GeometryContext m_geoctx;
-  Acts::MagneticFieldContext m_fieldctx;
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
+      algorithms::ActsSvc::instance().acts_geometry_provider()};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
+  Acts::GeometryContext m_geoctx{};
+  Acts::MagneticFieldContext m_fieldctx{};
 };
 } // namespace eicrecon

@@ -45,11 +45,6 @@
 
 #include "extensions/spdlog/SpdlogToActs.h"
 
-void eicrecon::IterativeVertexFinder::init() {
-  m_BField   = m_geoSvc->getFieldProvider();
-  m_fieldctx = Acts::MagneticFieldContext{};
-}
-
 void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& output) const {
   const auto [trackStates, tracks, reconParticles] = input;
   auto [outputVertices]                            = output;
