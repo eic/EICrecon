@@ -43,7 +43,7 @@
 #include <utility>
 #include <vector>
 
-#include "IterativeVertexFinderConfig.h"
+#include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& output) const {
