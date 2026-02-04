@@ -84,7 +84,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
 
   for (auto item : cell_hit_map) {
     raw_hits->push_back(item.second);
-    auto raw_hit = *raw_hits->rbegin();
+    auto raw_hit = raw_hits->at(raw_hits->size() - 1);
 
     for (const auto& sim_hit : *sim_hits) {
       if (item.first == sim_hit.getCellID()) {
