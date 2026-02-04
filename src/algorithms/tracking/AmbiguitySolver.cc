@@ -86,8 +86,9 @@ void AmbiguitySolver::process(const Input& input, const Output& output) const {
   }
 
   // Allocate new const containers and assign pointers to outputs
-  *output_track_states = new Acts::ConstVectorMultiTrajectory(std::move(solvedTracks.trackStateContainer()));
-  *output_tracks       = new Acts::ConstVectorTrackContainer(std::move(solvedTracks.container()));
+  *output_track_states =
+      new Acts::ConstVectorMultiTrajectory(std::move(solvedTracks.trackStateContainer()));
+  *output_tracks = new Acts::ConstVectorTrackContainer(std::move(solvedTracks.container()));
 }
 
 } // namespace eicrecon
