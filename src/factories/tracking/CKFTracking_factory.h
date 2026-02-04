@@ -53,14 +53,9 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    // FIXME clear output since it may not have been initialized or reset
-    // See https://github.com/eic/EICrecon/issues/1961
-    m_acts_trajectories_output().clear();
-    m_acts_tracks_output().clear();
-
     m_algo->process(AlgoT::Input{m_seeds_input(), m_measurements_input()},
-                    AlgoT::Output{gsl::not_null{&m_acts_trajectories_output().front()},
-                                  gsl::not_null{&m_acts_tracks_output().front()}});
+                    AlgoT::Output{&m_acts_trajectories_output().emplace_back(),
+                                  &m_acts_tracks_output().emplace_back()});
   }
 };
 
