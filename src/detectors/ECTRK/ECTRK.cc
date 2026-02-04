@@ -34,7 +34,11 @@ void InitPlugin(JApplication* app) {
       "SiEndcapTrackerNoiseRawHits",   // Instance name (noise-only producer)
       {"EventHeader"},                 //  Inputs now include EventHeader for seeding RNG
       {"SiEndcapTrackerNoiseRawHits"}, // Output: noise-only collection
-      {.addNoise = true, .n_noise_hits_per_system = 11820, .readout_name = "TrackerEndcapHits"},
+      {.addNoise = true, .layer_id = {1,1,2,3,4,1,1,2,3,4}, 
+      .n_noise_hits_per_layer = {405, 1442, 1442, 1440, 1435, 405, 1442, 1441, 1429, 1414}, 
+      .detector_names = {"InnerTrackerEndcapN", "MiddleTrackerEndcapN", "OuterTrackerEndcapN", "OuterTrackerEndcapN", "OuterTrackerEndcapN", 
+          "InnerTrackerEndcapP", "MiddleTrackerEndcapP", "OuterTrackerEndcapP", "OuterTrackerEndcapP","OuterTrackerEndcapP"}, 
+          .readout_name = "TrackerEndcapHits"},
       app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiEndcapTrackerRawHitsWithNoise", {"SiEndcapTrackerRawHits", "SiEndcapTrackerNoiseRawHits"},

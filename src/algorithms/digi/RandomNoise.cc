@@ -38,6 +38,10 @@
 #include <optional>
 #include <random>
 #include <unordered_set>
+#include <cstdlib>
+#include <cstdio>
+#include <cctype>
+#include <set>
 
 namespace eicrecon {
 
@@ -167,6 +171,11 @@ namespace {
       if (unique.size() > 60000)
         break;
     }
+  }
+
+  std::string lower(std::string s) {
+  for (auto& c : s) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+  return s;
   }
 
 } // anonymous namespace
@@ -446,12 +455,10 @@ void RandomNoise::inject_noise_hits(
     std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& hitMap,
     const dd4hep::DetElement& det, const VolIDMapArray& idPaths, const ComponentBounds& bounds,
     std::mt19937_64& rng) const {
-  if (idPaths.empty() || bounds.empty())
+    if (idPaths.empty() || bounds.empty())
     return;
 
-  /* ----------------------------------------------------------------
-     * 0)  read-out / segmentation / decoder 핸들 얻기
-     * ---------------------------------------------------------------- */
+
   dd4hep::SensitiveDetector sd = m_dd4hepGeo->sensitiveDetector(det.name());
   if (!sd.isValid()) {
     error("inject_noise_hits: no SensitiveDetector for '{}'", det.name());
@@ -463,106 +470,157 @@ void RandomNoise::inject_noise_hits(
     error("inject_noise_hits: no Readout for '{}'", det.name());
     return;
   }
-
-  dd4hep::Segmentation segH = ro.segmentation(); // ← HANDLE !!
+  dd4hep::Segmentation segH = ro.segmentation();
   if (!segH.isValid()) {
     error("inject_noise_hits: no Segmentation for '{}'", det.name());
     return;
   }
-
-  const auto* decoder = segH.decoder(); // BitFieldCoder*
+  const auto* decoder = segH.decoder();
   if (!decoder) {
     error("inject_noise_hits: no BitFieldCoder for '{}'", det.name());
     return;
   }
 
-  /* ----------------------------------------------------------------
-     * 1)  how many noise hits ?
-     * ---------------------------------------------------------------- */
-  std::size_t perSensor = 1;
-  for (auto const& [_, rng] : bounds)
-    perSensor *= (rng.second - rng.first + 1);
-
-  const std::size_t nSensors  = idPaths.size();
-  const std::size_t nChannels = perSensor * nSensors;
-
-  std::poisson_distribution<std::size_t> pois(m_cfg.n_noise_hits_per_system);
-  std::size_t nNoise = pois(rng);
-  nNoise             = std::min<std::size_t>(nNoise, nChannels);
-  if (nNoise == 0)
-    return;
-
-  info("inject_noise_hits '{}': {} channels → {} noise hits", det.name(), nChannels, nNoise);
-
-  /* ----------------------------------------------------------------
-     * 2)  RNGs
-     * ---------------------------------------------------------------- */
-
-  std::uniform_int_distribution<std::size_t> pickSensor(0, nSensors - 1);
-
-  struct Dist {
-    std::uniform_int_distribution<long> uni;
+  // Detect layer field name (prefer "layer", else anything containing "lay")
+  auto detectLayerField = [&]() -> std::string {
+    for (auto const& [n, _] : bounds) {
+      if (lower(n) == "layer") return n;
+    }
+    for (auto const& [n, _] : bounds) {
+      auto ln = lower(n);
+      if (ln.find("lay") != std::string::npos) return n;
+    }
+    return std::string{};
   };
+  const std::string layerField = detectLayerField();
+
+  // Build distributions for non-fixed* fields (we will keep fixed volID keys as-is)
+  struct Dist { std::uniform_int_distribution<long> uni; };
   std::unordered_map<std::string, Dist> fieldDists;
   for (auto const& [name, r] : bounds)
     fieldDists.emplace(name, Dist{std::uniform_int_distribution<long>(r.first, r.second)});
 
-  /* ----------------------------------------------------------------
-     * 3)  create unique noise hits
-     * ---------------------------------------------------------------- */
-  std::size_t created  = 0;
-  std::size_t dbgPrint = 5;
-
-  while (created < nNoise) {
-    // 3.1  base CellID (= random sensor)
-    const VolIDMap& base = idPaths[pickSensor(rng)];
-    dd4hep::CellID cid   = 0;
-    for (auto const& kv : base)
-      decoder->set(cid, kv.first, kv.second);
-
-    // 3.2  randomise only missing fields
-    for (auto& kv : fieldDists) {
-      if (base.find(kv.first) != base.end())
-        continue;
-      decoder->set(cid, kv.first, kv.second.uni(rng));
-    }
-
-    // 3.3  duplicate check
-    if (hitMap.find(cid) != hitMap.end())
-      continue;
-
-    // 3.4  validity check (inside detector?)
-    bool inside = true;
-    try {
-      segH.position(cid);
-    } // handle forwards to impl.
-    catch (...) {
-      inside = false;
-    }
-    if (!inside)
-      continue;
-
-    // 3.5  store the hit
-    edm4eic::MutableRawTrackerHit h;
-    h.setCellID(cid);
-    h.setCharge(1.0e6);  // TODO realistic ADC
-    h.setTimeStamp(0.0); // TODO realistic time
-
-    hitMap.emplace(cid, h);
-    ++created;
-
-    /* if (dbgPrint--) {
-      std::cout << "[DBG] noise hit " << created << "  CellID=0x" << std::hex << cid << std::dec
-                << "  { ";
-      bool first = true;
-      for (auto const& f : decoder->fields()) {
-        const std::string& n = f.name();
-        std::cout << (first ? "" : ", ") << n << '=' << decoder->get(cid, n);
-        first = false;
+  // Utility to compute total "channels" count given a subset of idPaths
+  auto computeChannels = [&](const std::vector<const VolIDMap*>& sensors) -> std::size_t {
+    std::size_t perSensor = 1;
+    for (auto const& [fname, rng] : bounds) {
+      // If field is already set in a base sensor (e.g. layer, module), it is not multiplied
+      // here since it is fixed by that sensor's id path; only missing fields contribute.
+      bool fixedInAll = true;
+      for (auto* base : sensors) {
+        if (base->find(fname) == base->end()) { fixedInAll = false; break; }
       }
-      std::cout << " }\n";
+      if (!fixedInAll) {
+        perSensor *= static_cast<std::size_t>(std::max<long>(1, rng.second - rng.first + 1));
+      }
     }
-      */
+    return perSensor * sensors.size();
+  };
+
+  // Function that draws 'nNoise' unique hits using a given sensor subset
+  auto drawHits = [&](std::size_t nNoise, const std::vector<const VolIDMap*>& sensors) {
+    if (nNoise == 0 || sensors.empty()) return;
+
+    std::uniform_int_distribution<std::size_t> pickSensor(0, sensors.size() - 1);
+
+    std::size_t created = 0;
+    while (created < nNoise) {
+      const VolIDMap& base = *sensors[pickSensor(rng)];
+      dd4hep::CellID cid   = 0;
+
+      // 3.1 set base fields first (fixed part)
+      for (auto const& kv : base)
+        decoder->set(cid, kv.first, kv.second);
+
+      // 3.2 randomise only missing fields
+      for (auto& kv : fieldDists) {
+        if (base.find(kv.first) != base.end())
+          continue;
+        decoder->set(cid, kv.first, kv.second.uni(rng));
+      }
+
+      // 3.3 uniqueness / validity checks
+      if (hitMap.find(cid) != hitMap.end())
+        continue;
+        
+      bool inside = true;
+      try { segH.position(cid); }
+      catch (...) { inside = false; }
+      if (!inside) continue;
+      
+      // 3.4 store hit (placeholder charge/time)
+      edm4eic::MutableRawTrackerHit h;
+      h.setCellID(cid);
+      h.setCharge(1.0e6);
+      h.setTimeStamp(0.0);
+
+      hitMap.emplace(cid, h);
+      ++created;
+    }
+  };
+
+  // BVTX: per-layer noise, else is system-wide as of now
+  // We use per-layer only if: layer ids AND per-layer rates are configured AND a layer field exists in the ID/segmentation
+  const bool hasLayerConfig =
+      (!m_cfg.layer_id.empty() && !m_cfg.n_noise_hits_per_layer.empty() &&
+       m_cfg.layer_id.size() == m_cfg.n_noise_hits_per_layer.size());
+  const bool canDoLayerWise = (!layerField.empty());
+
+  if (hasLayerConfig && canDoLayerWise) {
+    // Group sensors by layer value
+    std::unordered_map<int, std::vector<const VolIDMap*>> sensorsByLayer;
+    sensorsByLayer.reserve(m_cfg.layer_id.size());
+
+    for (auto const& base : idPaths) {
+      auto it = base.find(layerField);
+      if (it != base.end()) {
+        sensorsByLayer[it->second].push_back(&base);
+      }
+    }
+
+    // For each configured layer, generate hits using that layer's mean
+    for (std::size_t i = 0; i < m_cfg.layer_id.size(); ++i) {
+
+      if (!m_cfg.detector_names.empty()) {
+      if (i < m_cfg.detector_names.size()) {
+      const auto& want = m_cfg.detector_names[i];
+      if (!want.empty() && want != det.name()) {
+        continue; // skip this (layer,mean) for other detectors
+        }
+      } 
+      }
+
+      int L = m_cfg.layer_id[i];
+      auto it = sensorsByLayer.find(L);
+      if (it == sensorsByLayer.end() || it->second.empty()) {
+        info("inject_noise_hits '{}': layer {} has no sensors (skipping)", det.name(), L);
+        continue;
+      }
+      const std::size_t nChannels = computeChannels(it->second);
+      std::poisson_distribution<std::size_t> pois(m_cfg.n_noise_hits_per_layer[i]);
+      std::size_t nNoise = std::min<std::size_t>(pois(rng), nChannels);
+
+      info("inject_noise_hits '{}': layer {} → {} channels → {} noise hits",
+           det.name(), L, nChannels, nNoise);
+
+      drawHits(nNoise, it->second);
+    }
+    return; // layer path done -> so far only works for BVTX, but trivial to implement for BTRK/ECTRK.
   }
-}
+
+  // system-wide poisson using all(!) sensors (BTRK/ECTRK or no layer field RN)
+  std::vector<const VolIDMap*> allSensors;
+  allSensors.reserve(idPaths.size());
+  for (auto const& base : idPaths)
+    allSensors.push_back(&base);
+
+  const std::size_t nChannels  = computeChannels(allSensors);
+  std::poisson_distribution<std::size_t> pois(m_cfg.n_noise_hits_per_system);
+  std::size_t nNoise = std::min<std::size_t>(pois(rng), nChannels);
+
+  info("inject_noise_hits '{}': {} channels (system-wide) → {} noise hits",
+       det.name(), nChannels, nNoise);
+
+  drawHits(nNoise, allSensors);
+  }
 } // namespace eicrecon

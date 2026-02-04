@@ -34,7 +34,7 @@ void InitPlugin(JApplication* app) {
       "SiBarrelNoiseRawHits", // 1. Instance name (noise-only producer)
       {"EventHeader"}, // 2. No input collection but Event header for random generator (source-mode)
       {"SiBarrelNoiseRawHits"}, // 3. Output: noise-only collection
-      {.addNoise = true, .n_noise_hits_per_system = 3784, .readout_name = "SiBarrelHits"}, app));
+      {.addNoise = true, .n_noise_hits_per_layer = {1145, 2639}, .readout_name = "SiBarrelHits", .layer_id = {1, 1}, .detector_names = {"SagittaSiBarrel", "OuterSiBarrel"}}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiBarrelRawHitsWithNoise",                  // Name of the combiner instance
