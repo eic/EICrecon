@@ -6,7 +6,6 @@
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <algorithms/algorithm.h>
-#include <edm4eic/Measurement2DCollection.h>
 #include <memory>
 #include <string>
 #include <string_view>
