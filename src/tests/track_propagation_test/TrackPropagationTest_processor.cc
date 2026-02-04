@@ -26,8 +26,6 @@
 
 #include "TrackPropagation.h"
 #include "TrackPropagationTest_processor.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
 
 //------------------
@@ -53,9 +51,6 @@ void TrackPropagationTest_processor::Init() {
 
   // Get log level from user parameter or default
   InitLogger(app, plugin_name);
-
-  auto dd4hep_service = GetApplication()->GetService<DD4hep_service>();
-  auto acts_service   = GetApplication()->GetService<ACTSGeo_service>();
 
   m_propagation_algo.init();
 
