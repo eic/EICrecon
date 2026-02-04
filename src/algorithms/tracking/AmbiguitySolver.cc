@@ -15,12 +15,11 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/vector.hpp>
+#include <spdlog/common.h>
 #include <Eigen/LU> // IWYU pragma: keep
 #include <any>
 #include <cstddef>
 #include <gsl/pointers>
-#include <new>
-#include <spdlog/common.h>
 #include <string>
 #include <utility>
 #include <vector>

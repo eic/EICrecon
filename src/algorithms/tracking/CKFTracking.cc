@@ -19,7 +19,6 @@
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
-#include <new>
 #include <stdexcept>
 #include <string>
 #include <system_error>
