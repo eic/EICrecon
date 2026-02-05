@@ -423,7 +423,7 @@ void JEventProcessorPODIO::Init() {
   try {
     m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, backend_lower));
   } catch (const std::exception& e) {
-    m_log->error("Failed to create writer with backend '{}': {}. Falling back to default backend.",
+    m_log->error("Failed to create writer with backend '{}': {}. Falling back to 'default' backend.",
                  backend_lower, e.what());
     m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, "default"));
   }
