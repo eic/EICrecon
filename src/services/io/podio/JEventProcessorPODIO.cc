@@ -8,7 +8,7 @@
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
-#include <podio/ROOTWriter.h>
+#include <podio/Writer.h>
 #include <algorithm>
 #include <exception>
 #include <functional>
@@ -397,6 +397,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
   japp->SetDefaultParameter(
       "podio:print_collections", m_collections_to_print,
       "Comma separated list of collection names to print to screen, e.g. for debugging.");
+  japp->SetDefaultParameter(
+      "podio:output_backend", m_output_backend,
+      "Output backend: 'root' for TTree (default) or 'rntuple' for RNTuple format");
 
   m_output_collections =
       std::set<std::string>(output_collections.begin(), output_collections.end());
@@ -408,7 +411,22 @@ void JEventProcessorPODIO::Init() {
 
   auto* app = GetApplication();
   m_log     = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
-  m_writer  = std::make_unique<podio::ROOTWriter>(m_output_file);
+
+  // Convert backend selection to lowercase for case-insensitive comparison
+  std::string backend_lower = m_output_backend;
+  std::transform(backend_lower.begin(), backend_lower.end(), backend_lower.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+
+  m_log->info("Using '{}' backend for output file: {}", backend_lower, m_output_file);
+
+  // Create writer using podio::makeWriter
+  try {
+    m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, backend_lower));
+  } catch (const std::exception& e) {
+    m_log->error("Failed to create writer with backend '{}': {}. Falling back to default backend.",
+                 backend_lower, e.what());
+    m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, "default"));
+  }
 }
 
 void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JEvent>& event) {
