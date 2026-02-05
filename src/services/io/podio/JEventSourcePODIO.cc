@@ -126,7 +126,7 @@ void JEventSourcePODIO::Open() {
   // std::string background_filename = GetApplication()->GetParameterValue<std::string>("podio:background_filename");;
   // int num_background_events = GetApplication()->GetParameterValue<int>("podio:num_background_events");;
 
-  // Open primary events file (auto-detects format: TTree, RNTuple, or SIO)
+  // Open primary events file (auto-detects format: TTree or RNTuple)
   try {
 
     m_reader = std::make_unique<podio::Reader>(podio::makeReader(GetResourceName()));
