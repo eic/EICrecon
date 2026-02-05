@@ -142,7 +142,8 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
   };
 
   // Map from input MCParticle to output MCParticle index
-  std::map<edm4hep::MCParticle, size_t, decltype(mcParticleCompare)> inputToOutputMap(mcParticleCompare);
+  std::map<edm4hep::MCParticle, size_t, decltype(mcParticleCompare)> inputToOutputMap(
+      mcParticleCompare);
 
   // First pass: create all output particles
   for (const auto& p : *mcparts) {
