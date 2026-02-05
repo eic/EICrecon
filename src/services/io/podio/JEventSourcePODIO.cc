@@ -25,7 +25,6 @@
 #include <map>
 #include <memory>
 #include <sstream>
-#include <utility>
 #include <vector>
 
 #include "services/io/podio/datamodel_glue_compat.h"     // IWYU pragma: keep
