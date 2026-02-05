@@ -52,7 +52,9 @@ void TrackPropagationTest_processor::Init() {
   // Get log level from user parameter or default
   InitLogger(app, plugin_name);
 
-  m_propagation_algo.init();
+  // Create TrackPropagation algorithm (must be after services are initialized)
+  m_propagation_algo = std::make_unique<eicrecon::TrackPropagation>("TrackPropagationTest");
+  m_propagation_algo->init();
 
   // Create HCal surface that will be used for propagation
   auto transform = Acts::Transform3::Identity();
@@ -97,7 +99,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
     try {
       // >>> try to propagate to surface <<<
       projection_point =
-          m_propagation_algo.propagate(edm4eic::Track{}, track, track_container, m_hcal_surface);
+          m_propagation_algo->propagate(edm4eic::Track{}, track, track_container, m_hcal_surface);
     } catch (std::exception& e) {
       throw JException(e.what());
     }
