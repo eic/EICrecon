@@ -126,12 +126,12 @@ void JEventSourcePODIO::Open() {
   // std::string background_filename = GetApplication()->GetParameterValue<std::string>("podio:background_filename");;
   // int num_background_events = GetApplication()->GetParameterValue<int>("podio:num_background_events");;
 
-  // Open primary events file
+  // Open primary events file (auto-detects format: TTree, RNTuple, or SIO)
   try {
 
-    m_reader.openFile(GetResourceName());
+    m_reader = std::make_unique<podio::Reader>(podio::makeReader(GetResourceName()));
 
-    auto version          = m_reader.currentFileVersion();
+    auto version          = m_reader->currentFileVersion();
     bool version_mismatch = version.major > podio::version::build_version.major;
     version_mismatch |= (version.major == podio::version::build_version.major) &&
                         (version.minor > podio::version::build_version.minor);
@@ -144,8 +144,8 @@ void JEventSourcePODIO::Open() {
 
     m_log->info("PODIO version: file={} (executable={})", version, podio::version::build_version);
 
-    Nevents_in_file = m_reader.getEntries("events");
-    m_log->info("Opened PODIO Frame file \"{}\" with {} events", GetResourceName(),
+    Nevents_in_file = m_reader->getEntries("events");
+    m_log->info("Opened PODIO file \"{}\" with {} events (format auto-detected)", GetResourceName(),
                 Nevents_in_file);
 
     if (print_type_table) {
@@ -191,8 +191,7 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
     }
   }
 
-  auto frame_data = m_reader.readEntry("events", Nevents_read);
-  auto frame      = std::make_unique<podio::Frame>(std::move(frame_data));
+  auto frame = std::make_unique<podio::Frame>(m_reader->readFrame("events", Nevents_read));
 
   if (m_use_event_headers) {
     const auto& event_headers = frame->get<edm4hep::EventHeaderCollection>("EventHeader");
@@ -276,8 +275,7 @@ double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string reso
 void JEventSourcePODIO::PrintCollectionTypeTable() {
 
   // Read the zeroth entry. This assumes that m_reader has already been initialized with a valid filename
-  auto frame_data = m_reader.readEntry("events", 0);
-  auto frame      = std::make_unique<podio::Frame>(std::move(frame_data));
+  auto frame = std::make_unique<podio::Frame>(m_reader->readFrame("events", 0));
 
   std::map<std::string, std::string> collectionNames;
   std::size_t max_name_len = 0;
