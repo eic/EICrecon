@@ -10,6 +10,7 @@
 #include <podio/Frame.h>
 #include <podio/Writer.h>
 #include <algorithm>
+#include <cctype>
 #include <exception>
 #include <functional>
 #include <iterator>
