@@ -14,6 +14,7 @@
 #include <TMath.h>
 #include <edm4hep/Vector3d.h>
 #include <gsl/pointers>
+#include <map>
 
 #include "algorithms/reco/Beam.h"
 #include "algorithms/reco/UndoAfterBurnerConfig.h"
@@ -118,6 +119,20 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
   // Now, loop through events and apply operations to the MCparticles
   const int maxGenStatus = m_cfg.m_max_gen_status;
 
+  // Custom comparator for MCParticle to ensure deterministic ordering
+  auto mcParticleCompare = [](const edm4hep::MCParticle& a, const edm4hep::MCParticle& b) {
+    auto id_a = a.getObjectID();
+    auto id_b = b.getObjectID();
+    if (id_a.collectionID != id_b.collectionID) {
+      return id_a.collectionID < id_b.collectionID;
+    }
+    return id_a.index < id_b.index;
+  };
+
+  // Map from input MCParticle to output MCParticle index
+  std::map<edm4hep::MCParticle, size_t, decltype(mcParticleCompare)> inputToOutputMap(mcParticleCompare);
+
+  // First pass: create all output particles
   for (const auto& p : *mcparts) {
     if (p.isCreatedInSimulation()) {
       continue;
@@ -150,5 +165,44 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
     }
 
     outputParticles->push_back(MCTrack);
+    // Store mapping from input particle to output particle index
+    inputToOutputMap[p] = outputParticles->size() - 1;
+  }
+
+  // Second pass: establish parent-daughter relationships
+  for (const auto& p : *mcparts) {
+    if (p.isCreatedInSimulation()) {
+      continue;
+    }
+
+    // Filter by generator status to exclude background particles and conserve memory
+    if (maxGenStatus >= 0 && p.getGeneratorStatus() > maxGenStatus) {
+      continue;
+    }
+
+    // Get the output particle corresponding to this input particle
+    auto outputIter = inputToOutputMap.find(p);
+    if (outputIter == inputToOutputMap.end()) {
+      continue;
+    }
+    auto outputParticle = outputParticles->at(outputIter->second);
+
+    // Add parent relationships
+    for (const auto& parent : p.getParents()) {
+      auto parentIter = inputToOutputMap.find(parent);
+      if (parentIter != inputToOutputMap.end()) {
+        auto outputParent = outputParticles->at(parentIter->second);
+        outputParticle.addToParents(outputParent);
+      }
+    }
+
+    // Add daughter relationships
+    for (const auto& daughter : p.getDaughters()) {
+      auto daughterIter = inputToOutputMap.find(daughter);
+      if (daughterIter != inputToOutputMap.end()) {
+        auto outputDaughter = outputParticles->at(daughterIter->second);
+        outputParticle.addToDaughters(outputDaughter);
+      }
+    }
   }
 }
