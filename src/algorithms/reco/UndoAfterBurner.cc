@@ -119,6 +119,18 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
   // Now, loop through events and apply operations to the MCparticles
   const int maxGenStatus = m_cfg.m_max_gen_status;
 
+  // Helper lambda to check if particle should be processed
+  auto shouldProcessParticle = [maxGenStatus](const edm4hep::MCParticle& p) {
+    if (p.isCreatedInSimulation()) {
+      return false;
+    }
+    // Filter by generator status to exclude background particles and conserve memory
+    if (maxGenStatus >= 0 && p.getGeneratorStatus() > maxGenStatus) {
+      return false;
+    }
+    return true;
+  };
+
   // Custom comparator for MCParticle to ensure deterministic ordering
   auto mcParticleCompare = [](const edm4hep::MCParticle& a, const edm4hep::MCParticle& b) {
     auto id_a = a.getObjectID();
@@ -134,12 +146,7 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
 
   // First pass: create all output particles
   for (const auto& p : *mcparts) {
-    if (p.isCreatedInSimulation()) {
-      continue;
-    }
-
-    // Filter by generator status to exclude background particles and conserve memory
-    if (maxGenStatus >= 0 && p.getGeneratorStatus() > maxGenStatus) {
+    if (!shouldProcessParticle(p)) {
       continue;
     }
 
@@ -171,12 +178,7 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
 
   // Second pass: establish parent-daughter relationships
   for (const auto& p : *mcparts) {
-    if (p.isCreatedInSimulation()) {
-      continue;
-    }
-
-    // Filter by generator status to exclude background particles and conserve memory
-    if (maxGenStatus >= 0 && p.getGeneratorStatus() > maxGenStatus) {
+    if (!shouldProcessParticle(p)) {
       continue;
     }
 
