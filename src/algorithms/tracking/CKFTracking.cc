@@ -104,8 +104,11 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   const auto [init_trk_seeds, meas2Ds]      = input;
   auto [output_track_states, output_tracks] = output;
 
-  // If measurements or initial track parameters are empty, return early
+  // If measurements or initial track parameters are empty, create empty output containers
   if (meas2Ds->empty() || init_trk_seeds->empty()) {
+    debug("No seeds or measurements, creating empty output containers");
+    *output_track_states = new Acts::ConstVectorMultiTrajectory();
+    *output_tracks       = new Acts::ConstVectorTrackContainer();
     return;
   }
 
