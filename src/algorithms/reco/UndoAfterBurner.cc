@@ -12,6 +12,7 @@
 #include <Math/GenVector/RotationY.h>
 #include <Math/Vector4Dfwd.h>
 #include <TMath.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
@@ -165,19 +166,28 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
     mc = headOnBoostVector(mc);
 
     decltype(edm4hep::MCParticleData::momentum) mcMom(mc.Px(), mc.Py(), mc.Pz());
-    edm4hep::MutableMCParticle MCTrack(p.clone());
+    
+    // Create new particle without cloning relationships (which would point to input collection)
+    // We manually copy only the fields we need, and will add relationships in the second pass
+    auto MCTrack = outputParticles->create();
+    MCTrack.setPDG(pidUseMCTruth ? p.getPDG() : (pidAssumePionMass ? 211 : p.getPDG()));
+    MCTrack.setGeneratorStatus(p.getGeneratorStatus());
+    MCTrack.setSimulatorStatus(p.getSimulatorStatus());
+    MCTrack.setCharge(p.getCharge());
+    MCTrack.setTime(p.getTime());
+    MCTrack.setMass(pidUseMCTruth ? p.getMass() : (pidAssumePionMass ? 0.13957 : p.getMass()));
+    MCTrack.setVertex(p.getVertex());
+    MCTrack.setEndpoint(p.getEndpoint());
     MCTrack.setMomentum(mcMom);
-
-    if (pidUseMCTruth) {
-      MCTrack.setPDG(p.getPDG());
-      MCTrack.setMass(p.getMass());
-    }
-    if (!pidUseMCTruth && pidAssumePionMass) {
-      MCTrack.setPDG(211);
-      MCTrack.setMass(0.13957);
-    }
-
-    outputParticles->push_back(MCTrack);
+    MCTrack.setMomentumAtEndpoint(p.getMomentumAtEndpoint());
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
+    MCTrack.setSpin(p.getSpin());
+#else
+    MCTrack.setHelicity(p.getHelicity());
+#endif
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
+    MCTrack.setColorFlow(p.getColorFlow());
+#endif
     // Store mapping from input particle to output particle index
     inputToOutputMap[p] = outputParticles->size() - 1;
   }
