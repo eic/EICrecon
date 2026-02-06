@@ -16,6 +16,7 @@
 #include <iterator>
 #include <regex>
 #include <sstream>
+#include <stdexcept>
 
 #include "services/log/Log_service.h"
 
