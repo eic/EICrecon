@@ -13,8 +13,13 @@
 #include <Math/Vector4Dfwd.h>
 #include <TMath.h>
 #include <edm4hep/Vector3d.h>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <stddef.h>
 #include <gsl/pointers>
 #include <map>
+#include <utility>
+#include <vector>
 
 #include "algorithms/reco/Beam.h"
 #include "algorithms/reco/UndoAfterBurnerConfig.h"
