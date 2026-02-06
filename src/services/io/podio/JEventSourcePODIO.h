@@ -7,7 +7,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
-#include <podio/ROOTReader.h>
+#include <podio/Reader.h>
 #include <spdlog/logger.h>
 #include <cstddef>
 #include <memory>
@@ -31,7 +31,7 @@ public:
   void PrintCollectionTypeTable(void);
 
 protected:
-  podio::ROOTReader m_reader;
+  std::unique_ptr<podio::Reader> m_reader;
 
   std::size_t Nevents_in_file = 0;
   std::size_t Nevents_read    = 0;
