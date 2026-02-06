@@ -9,7 +9,6 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <gsl/pointers>
