@@ -88,12 +88,12 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
     }
   }
 
-  for (auto item : cell_hit_map) {
-    raw_hits->push_back(item.second);
+  for (const auto& [cell_id, hit] : cell_hit_map) {
+    raw_hits->push_back(hit);
     auto raw_hit = raw_hits->at(raw_hits->size() - 1);
 
     for (const auto& sim_hit : *sim_hits) {
-      if (item.first == sim_hit.getCellID()) {
+      if (cell_id == sim_hit.getCellID()) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
         // create link
         auto link = links->create();
