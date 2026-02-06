@@ -13,7 +13,6 @@
 #include <gsl/pointers>
 #include <random>
 #include <unordered_map>
-#include <utility>
 
 #include "algorithms/digi/SiliconTrackerDigiConfig.h"
 
