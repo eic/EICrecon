@@ -37,16 +37,20 @@
 // Access "algorithms:GeoSvc"
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
 #include <gsl/pointers>
 #include <initializer_list>
 #include <iterator>
+#include <memory>
 #include <random>
 #include <stdexcept>
 #include <unordered_map>
@@ -103,7 +107,11 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   // - The simulation is simplistic: single-hit cluster per coordinate.
 
   const auto [headers, sim_hits] = input;
-  auto [raw_hits, associations]  = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [raw_hits, links, associations] = output;
+#else
+  auto [raw_hits, associations] = output;
+#endif
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
@@ -220,6 +228,13 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       CellIDs cIDs = *sim_it++;
       for (CellID cID : {cIDs.first, cIDs.second}) {
         if (item.first == cID) {
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          // create link
+          auto link = links->create();
+          link.setFrom(item.second);
+          link.setTo(sim_hit);
+          link.setWeight(1.0);
+#endif
           // set association
           auto hitassoc = associations->create();
           hitassoc.setWeight(1.0);
