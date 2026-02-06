@@ -28,5 +28,5 @@ plugin_glob_all(${PLUGIN_NAME})
 # Add libraries (same as target_include_directories but for both plugin and
 # library)
 plugin_link_libraries(
-  ${PLUGIN_NAME} podio::podio podio::podioRootIO algorithms_digi_library
+  ${PLUGIN_NAME} podio::podio podio::podioIO algorithms_digi_library
   algorithms_tracking_library dd4hep_library)
