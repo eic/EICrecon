@@ -6,7 +6,6 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cmath>
@@ -81,8 +80,6 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
 
       // set association
       auto clusterassoc = merged_assoc->create();
-      clusterassoc.setRecID(new_clus.getObjectID().index);
-      clusterassoc.setSimID(mcID);
       clusterassoc.setWeight(1.0);
       clusterassoc.setRec(new_clus);
       clusterassoc.setSim((*mcparticles)[mcID]);
@@ -98,8 +95,6 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
 
       // set association
       auto clusterassoc = merged_assoc->create();
-      clusterassoc.setRecID(new_clus.getObjectID().index);
-      clusterassoc.setSimID(mcID);
       clusterassoc.setWeight(1.0);
       clusterassoc.setRec(new_clus);
       clusterassoc.setSim((*mcparticles)[mcID]);
@@ -132,8 +127,6 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
 
     // set association
     auto clusterassoc = merged_assoc->create();
-    clusterassoc.setRecID(new_clus.getObjectID().index);
-    clusterassoc.setSimID(mcID);
     clusterassoc.setWeight(1.0);
     clusterassoc.setRec(new_clus);
     clusterassoc.setSim(mc);
@@ -154,7 +147,7 @@ std::map<int, edm4eic::Cluster> TruthEnergyPositionClusterMerger::indexedCluster
     // find associated particle
     for (const auto& assoc : associations) {
       if (assoc.getRec() == cluster) {
-        mcID = assoc.getSimID();
+        mcID = assoc.getSim().getObjectID().index;
         break;
       }
     }

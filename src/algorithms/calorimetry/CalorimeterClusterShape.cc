@@ -3,20 +3,18 @@
 
 #include "CalorimeterClusterShape.h"
 
-#include <algorithm>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
+#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <complex>
@@ -208,8 +206,6 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       if (in_assoc.getRec() == in_clust) {
         auto mc_par    = in_assoc.getSim();
         auto out_assoc = out_associations->create();
-        out_assoc.setRecID(out_clust.getObjectID().index);
-        out_assoc.setSimID(mc_par.getObjectID().index);
         out_assoc.setRec(out_clust);
         out_assoc.setSim(mc_par);
         out_assoc.setWeight(in_assoc.getWeight());

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
 set(PLUGIN_NAME "algorithms_calorimetry")
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
@@ -16,3 +14,6 @@ plugin_add_algorithms(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_eigen3(${PLUGIN_NAME})
+
+# Add libraries
+plugin_link_libraries(${PLUGIN_NAME} evaluator_library)

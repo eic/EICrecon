@@ -13,7 +13,6 @@
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHit.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
@@ -43,6 +42,10 @@ void FarDetectorLinearTracking::init() {
 
   // For changing how strongly each layer hit is in contributing to the fit
   m_layerWeights = Eigen::VectorXd::Constant(m_cfg.n_layer, 1);
+
+  for (std::size_t i = 0; i < std::min(m_cfg.layer_weights.size(), m_cfg.n_layer); i++) {
+    m_layerWeights(i) = m_cfg.layer_weights[i];
+  }
 
   // For checking the direction of the track from theta and phi angles
   m_optimumDirection = Eigen::Vector3d::UnitZ();
@@ -259,11 +262,7 @@ void FarDetectorLinearTracking::ConvertClusters(
     // Loop over the hit associations to find the associated MCParticle
     for (const auto& hit_assoc : assoc_hits) {
       if (hit_assoc.getRawHit() == rawHit) {
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
         auto particle = hit_assoc.getSimHit().getParticle();
-#else
-        auto particle = hit_assoc.getSimHit().getMCParticle();
-#endif
         assocParticles.push_back(particle);
         break;
       }

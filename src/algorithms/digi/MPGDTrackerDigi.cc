@@ -104,7 +104,6 @@
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Parsers/Primitives.h>
@@ -118,7 +117,7 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -144,7 +143,7 @@ void MPGDTrackerDigi::init() {
   m_detector = algorithms::GeoSvc::instance().detector();
 
   if (m_cfg.readout.empty()) {
-    throw JException("Readout is empty");
+    throw std::runtime_error("Readout is empty");
   }
   try {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
@@ -374,7 +373,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
           // set association
           auto hitassoc = associations->create();
           hitassoc.setWeight(1.0);
-          hitassoc.setRawHit(item.second);
+          hitassoc.setRawHit(raw_hit);
           hitassoc.setSimHit(sim_hit);
         }
       }
