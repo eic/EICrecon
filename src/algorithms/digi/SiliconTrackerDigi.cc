@@ -15,7 +15,6 @@
 #include <memory>
 #include <random>
 #include <unordered_map>
-#include <utility>
 
 #include "SiliconTrackerDigi.h"
 #include "algorithms/digi/SiliconTrackerDigiConfig.h"
