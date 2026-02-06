@@ -455,7 +455,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
         } else {
           // Included, not excluded, and a valid PODIO type
           m_collections_to_write.push_back(col);
-          m_log->info("Persisting collection '{}'", col);
+          m_log->debug("Persisting collection '{}'", col);
         }
       }
     }
