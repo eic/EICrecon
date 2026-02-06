@@ -30,7 +30,7 @@ using eicrecon::CalorimeterClusterShape;
 using eicrecon::CalorimeterClusterShapeConfig;
 
 TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
-  const float EPSILON = 1e-5;
+  const float EPSILON         = 1e-5;
   const float EXPECTED_WEIGHT = 0.123;
 
   CalorimeterClusterShape algo("CalorimeterClusterShape");
