@@ -31,6 +31,7 @@ using eicrecon::CalorimeterClusterShapeConfig;
 
 TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
   const float EPSILON = 1e-5;
+  const float EXPECTED_WEIGHT = 0.123;
 
   CalorimeterClusterShape algo("CalorimeterClusterShape");
 
@@ -81,7 +82,7 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
   clust_in.setPosition((hit1.getPosition() + hit2.getPosition()) / 2);
 
   auto assoc_in = assoc_in_coll.create();
-  assoc_in.setWeight(0.123);
+  assoc_in.setWeight(EXPECTED_WEIGHT);
   assoc_in.setRec(clust_in);
   // assoc_in.setSim(...);
 
@@ -118,6 +119,6 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
   REQUIRE(!link_out_coll[0].getTo().isAvailable());
 
   // Verify weight is propagated correctly
-  REQUIRE(link_out_coll[0].getWeight() == 0.123);
+  REQUIRE(link_out_coll[0].getWeight() == EXPECTED_WEIGHT);
 #endif
 }
