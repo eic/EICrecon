@@ -41,7 +41,7 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
 
   auto& particleSvc = algorithms::ParticleSvc::instance();
 
-  if ((*rcvtx).size() == 0) {
+  if (rcvtx->empty()) {
     debug("No primary vertex in this event");
     return;
   }
