@@ -109,9 +109,6 @@ void TrackerMeasurementFromHits::init() {
     } else {
       if (segmentation->type() != "CartesianGridUV") {
         m_outermpgd_UVsegmentation_mode = false;
-        const dd4hep::DDSegmentation::CartesianGridUV* gridUV =
-            dynamic_cast<const dd4hep::DDSegmentation::CartesianGridUV*>(segmentation);
-        m_gridAngle = gridUV->gridAngle();
       }
     }
     if (m_outermpgd_UVsegmentation_mode) {
