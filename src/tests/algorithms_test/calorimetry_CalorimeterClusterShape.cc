@@ -110,13 +110,14 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterShape]") {
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   // Validate links collection
-  REQUIRE(link_out_coll.size() == assoc_out_coll->size());
+  REQUIRE(link_out_coll.size() == 1);
 
-  // Check link from/to relationships match association rec/sim
-  REQUIRE(link_out_coll[0].getFrom() == (*assoc_out_coll)[0].getRec());
-  REQUIRE(link_out_coll[0].getTo() == (*assoc_out_coll)[0].getSim());
+  // Check link from/to relationships - getFrom() should be the reconstructed cluster
+  REQUIRE(link_out_coll[0].getFrom() == clust_out);
+  // Note: assoc_in.getSim() is not set in this test, so getTo() should return an invalid/null object
+  REQUIRE(!link_out_coll[0].getTo().isAvailable());
 
-  // Verify weights match association weights
-  REQUIRE(link_out_coll[0].getWeight() == (*assoc_out_coll)[0].getWeight());
+  // Verify weight is propagated correctly
+  REQUIRE(link_out_coll[0].getWeight() == 0.123);
 #endif
 }
