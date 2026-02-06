@@ -148,7 +148,7 @@ void eicrecon::PolynomialMatrixReconstruction::process(
     if (std::filesystem::exists(filename)) {
       // Prevent ROOT from registering TGraph2D in global directory
       gDirectory = nullptr;
-      xLGraph = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
+      xLGraph    = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
       xLGraph->SetDirectory(nullptr);
     } else {
       error("Cannot find lookup xL table for {}", nomMomentum);
