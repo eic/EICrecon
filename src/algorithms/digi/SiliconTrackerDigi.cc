@@ -7,7 +7,6 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -84,13 +83,14 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
 
   for (auto item : cell_hit_map) {
     raw_hits->push_back(item.second);
+    auto raw_hit = raw_hits->at(raw_hits->size() - 1);
 
     for (const auto& sim_hit : *sim_hits) {
       if (item.first == sim_hit.getCellID()) {
         // set association
         auto hitassoc = associations->create();
         hitassoc.setWeight(1.0);
-        hitassoc.setRawHit(item.second);
+        hitassoc.setRawHit(raw_hit);
         hitassoc.setSimHit(sim_hit);
       }
     }

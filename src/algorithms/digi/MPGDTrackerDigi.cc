@@ -214,7 +214,8 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   // ***** raw_hit INSTANTIATION AND raw<-sim_hit's ASSOCIATION
   for (auto item : cell_hit_map) {
     raw_hits->push_back(item.second);
-    auto sim_it = sim2IDs.cbegin();
+    auto raw_hit = raw_hits->at(raw_hits->size() - 1);
+    auto sim_it  = sim2IDs.cbegin();
     for (const auto& sim_hit : *sim_hits) {
       CellIDs cIDs = *sim_it++;
       for (CellID cID : {cIDs.first, cIDs.second}) {
@@ -222,7 +223,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
           // set association
           auto hitassoc = associations->create();
           hitassoc.setWeight(1.0);
-          hitassoc.setRawHit(item.second);
+          hitassoc.setRawHit(raw_hit);
           hitassoc.setSimHit(sim_hit);
         }
       }
