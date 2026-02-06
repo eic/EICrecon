@@ -33,7 +33,11 @@ void InitPlugin(JApplication* app) {
       "SiBarrelVertexNoiseRawHits",   // Instance name (noise-only producer)
       {"EventHeader"},                // Inputs now include EventHeader for seeding RNG
       {"SiBarrelVertexNoiseRawHits"}, // Output: noise-only collection
-      {.addNoise = false, .n_noise_hits_per_layer = {76, 102, 254}, .readout_name = "VertexBarrelHits", .layer_id = {1,2,4}}, app));
+      {.addNoise               = false,
+       .n_noise_hits_per_layer = {76, 102, 254},
+       .readout_name           = "VertexBarrelHits",
+       .layer_id               = {1, 2, 4}},
+      app));
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::RawTrackerHit>>(
       "SiBarrelVertexRawHitsWithNoise", {"SiBarrelVertexRawHits", "SiBarrelVertexNoiseRawHits"},
       {"SiBarrelVertexRawHitsWithNoise"}, {}, app));
