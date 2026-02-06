@@ -42,7 +42,7 @@ void SecondaryVerticesHelix::process(const SecondaryVerticesHelix::Input& input,
   auto& particleSvc = algorithms::ParticleSvc::instance();
 
   if ((*rcvtx).size() == 0) {
-    info("No primary vertex in this event! Skip secondary vertex finder!");
+    debug("No primary vertex in this event");
     return;
   }
   const auto pVtxPos4f = (*rcvtx)[0].getPosition();
