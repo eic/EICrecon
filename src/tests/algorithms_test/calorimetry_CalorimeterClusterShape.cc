@@ -8,6 +8,8 @@
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <edm4hep/MCParticle.h>
+#include <podio/detail/Link.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #endif
