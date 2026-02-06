@@ -150,7 +150,7 @@ void MPGDTrackerDigi::init() {
     m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
   } catch (const std::runtime_error&) {
     critical(R"(Failed to load ID decoder for "{}" readout.)", m_cfg.readout);
-    throw JException("Failed to load ID decoder");
+    throw std::runtime_error("Failed to load ID decoder");
   }
 
   // IDDescriptor and Segmentation
@@ -373,7 +373,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
           // set association
           auto hitassoc = associations->create();
           hitassoc.setWeight(1.0);
-          hitassoc.setRawHit(raw_hit);
+          hitassoc.setRawHit(item.second);
           hitassoc.setSimHit(sim_hit);
         }
       }
@@ -451,7 +451,7 @@ void MPGDTrackerDigi::parseSegmentation() {
     critical(
         R"(Segmentation for readout "{}" is not, or is not embedding, a MultiSegmentation discriminating on a "strip" field.)",
         m_cfg.readout.c_str());
-    throw JException("Invalid Segmentation");
+    throw std::runtime_error("Invalid Segmentation");
   }
 }
 
@@ -546,8 +546,8 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
       // because incompatible w/ current "sim_hit"). But it may happen that one
       // hit in a sequence of connected hits fails to pass compatibility checks
       // w/ its predecessor and is then reprocessed in the main loop where it
-      // may turn out to be compatible w/ one of its succesors, which latter hit
-      // would then be double counted. => Let's reject used hits explicitly.
+      // may turn out to be compatible w/ one of its successors, which latter
+      // hit would then be double counted. => Let's reject used hits explicitly.
       if (std::find(usedHits.begin(), usedHits.end(), jdx) != usedHits.end())
         continue;
 
