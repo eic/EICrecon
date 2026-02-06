@@ -15,7 +15,7 @@
 #include <edm4hep/Vector3d.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <stddef.h>
+#include <cstddef>
 #include <gsl/pointers>
 #include <map>
 #include <utility>
