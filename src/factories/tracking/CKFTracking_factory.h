@@ -46,22 +46,16 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<AlgoT>();
-    // TODO: convert CKFTracking to inherit from algorithm::Algorithm
-    // m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
-    m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+    m_algo->init();
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    // FIXME clear output since it may not have been initialized or reset
-    // See https://github.com/eic/EICrecon/issues/1961
-    m_acts_trajectories_output().clear();
-    m_acts_tracks_output().clear();
-
-    auto [trajectories, tracks]  = m_algo->process(*m_seeds_input(), *m_measurements_input());
-    m_acts_trajectories_output() = trajectories;
-    m_acts_tracks_output()       = tracks;
+    m_algo->process(AlgoT::Input{m_seeds_input(), m_measurements_input()},
+                    AlgoT::Output{&m_acts_trajectories_output().emplace_back(),
+                                  &m_acts_tracks_output().emplace_back()});
   }
 };
 
