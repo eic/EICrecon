@@ -18,12 +18,27 @@
 #include <podio/RelationRange.h>
 #include <cstddef>
 #include <gsl/pointers>
-#include <map>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
 #include "algorithms/reco/Beam.h"
 #include "algorithms/reco/UndoAfterBurnerConfig.h"
+
+namespace std {
+#if defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
+#if podio_VERSION <= PODIO_VERSION(1, 2, 0)
+// Hash for podio::ObjectID
+template <> struct hash<podio::ObjectID> {
+  size_t operator()(const podio::ObjectID& id) const noexcept {
+    size_t h1 = std::hash<uint32_t>{}(id.collectionID);
+    size_t h2 = std::hash<int>{}(id.index);
+    return h1 ^ (h2 << 1);
+  }
+};
+#endif // podio version check
+#endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
+} // namespace std
 
 void eicrecon::UndoAfterBurner::init() {}
 
@@ -137,19 +152,8 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
     return true;
   };
 
-  // Custom comparator for MCParticle to ensure deterministic ordering
-  auto mcParticleCompare = [](const edm4hep::MCParticle& a, const edm4hep::MCParticle& b) {
-    auto id_a = a.getObjectID();
-    auto id_b = b.getObjectID();
-    if (id_a.collectionID != id_b.collectionID) {
-      return id_a.collectionID < id_b.collectionID;
-    }
-    return id_a.index < id_b.index;
-  };
-
-  // Map from input MCParticle to output MCParticle index
-  std::map<edm4hep::MCParticle, size_t, decltype(mcParticleCompare)> inputToOutputMap(
-      mcParticleCompare);
+  // Map from input MCParticle ObjectID to output MCParticle index
+  std::unordered_map<podio::ObjectID, size_t> inputToOutputMap;
 
   // First pass: create all output particles
   for (const auto& p : *mcparts) {
@@ -188,8 +192,8 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
 #if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
     MCTrack.setColorFlow(p.getColorFlow());
 #endif
-    // Store mapping from input particle to output particle index
-    inputToOutputMap[p] = outputParticles->size() - 1;
+    // Store mapping from input particle ObjectID to output particle index
+    inputToOutputMap[p.getObjectID()] = outputParticles->size() - 1;
   }
 
   // Second pass: establish parent-daughter relationships
@@ -199,7 +203,7 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
     }
 
     // Get the output particle corresponding to this input particle
-    auto outputIter = inputToOutputMap.find(p);
+    auto outputIter = inputToOutputMap.find(p.getObjectID());
     if (outputIter == inputToOutputMap.end()) {
       continue;
     }
@@ -207,7 +211,7 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
 
     // Add parent relationships
     for (const auto& parent : p.getParents()) {
-      auto parentIter = inputToOutputMap.find(parent);
+      auto parentIter = inputToOutputMap.find(parent.getObjectID());
       if (parentIter != inputToOutputMap.end()) {
         auto outputParent = outputParticles->at(parentIter->second);
         outputParticle.addToParents(outputParent);
@@ -216,7 +220,7 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
 
     // Add daughter relationships
     for (const auto& daughter : p.getDaughters()) {
-      auto daughterIter = inputToOutputMap.find(daughter);
+      auto daughterIter = inputToOutputMap.find(daughter.getObjectID());
       if (daughterIter != inputToOutputMap.end()) {
         auto outputDaughter = outputParticles->at(daughterIter->second);
         outputParticle.addToDaughters(outputDaughter);
