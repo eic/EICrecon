@@ -549,7 +549,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
       // may turn out to be compatible w/ one of its succesors, which latter hit
       // would then be double counted. => Let's reject used hits explicitly.
       if (std::find(usedHits.begin(), usedHits.end(), jdx) != usedHits.end())
-	continue;
+        continue;
 
       CellID vJD = sim_hjt.getCellID() & m_volumeBits;
       // Particle may start inward and re-enter, being then outward-going.
@@ -740,7 +740,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
       // Used hit? (See comment in "cTraversing").
       if (std::find(usedHits.begin(), usedHits.end(), jdx) != usedHits.end())
-	continue;
+        continue;
       CellID vJD      = sim_hjt.getCellID() & m_volumeBits;
       int orientation = m_orientation(vIDPrv, vJD);
       bool isUpstream = m_isUpstream(orientation, status);
@@ -870,7 +870,7 @@ void MPGDTrackerDigi::printSubHitList(const Input& input, std::vector<int>& subH
   int ldx = 0;
   for (int kdx : subHitList) {
     const edm4hep::SimTrackerHit& sim_hp = sim_hits->at(kdx);
-    CellID cIDk = sim_hp.getCellID();
+    CellID cIDk                          = sim_hp.getCellID();
     CellID hIDk = cIDk >> 32, vIDk = cIDk & m_volumeBits;
     if (ldx == 0) {
       debug("Hit cellID{:d} = 0x{:08x}, 0x{:08x}", ldx++, hIDk, vIDk);
@@ -1347,7 +1347,7 @@ bool cExtrapolate(const double* lpos, const double* lmom, // Input subHit
       for (int is = 0; is < 2; is++) {
         int s    = 1 - 2 * is;
         double t = (-b + s * sqdet) / a, norm = sqrt(a + Pz * Pz);
-	// "t" may happen to be slightly <0, because of limited precision
+        // "t" may happen to be slightly <0, because of limited precision
         if (t * norm < -dd4hep::nm)
           continue;
         if (!ok ||
@@ -1372,7 +1372,7 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
 {
   bool ok   = false;
   double Mx = lpos[0], My = lpos[1], Mz = lpos[2];
-  double Px = lmom[0], Py = lmom[1], Pz = lmom[2], norm = sqrt(Px*Px+Py*Py+Pz*Pz);
+  double Px = lmom[0], Py = lmom[1], Pz = lmom[2], norm = sqrt(Px * Px + Py * Py + Pz * Pz);
   double tF = 0;
   if (Pz) {
     tF = (zT - Mz) / Pz;
