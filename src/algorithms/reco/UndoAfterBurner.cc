@@ -166,7 +166,7 @@ void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
     mc = headOnBoostVector(mc);
 
     decltype(edm4hep::MCParticleData::momentum) mcMom(mc.Px(), mc.Py(), mc.Pz());
-    
+
     // Create new particle without cloning relationships (which would point to input collection)
     // We manually copy only the fields we need, and will add relationships in the second pass
     auto MCTrack = outputParticles->create();
