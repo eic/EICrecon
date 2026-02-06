@@ -223,7 +223,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   for (const auto& [cell_id, hit] : cell_hit_map) {
     raw_hits->push_back(hit);
     auto raw_hit = raw_hits->at(raw_hits->size() - 1);
-    auto sim_it = sim2IDs.cbegin();
+    auto sim_it  = sim2IDs.cbegin();
     for (const auto& sim_hit : *sim_hits) {
       CellIDs cIDs = *sim_it++;
       for (CellID cID : {cIDs.first, cIDs.second}) {
