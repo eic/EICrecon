@@ -33,7 +33,7 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
     // Use MockTrackerHits which has CartesianGridXY segmentation
     auto id_desc = detector->readout("MockTrackerHits").idSpec();
 
-    auto calo_hits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+    auto calo_hits    = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto tracker_hits = std::make_unique<edm4eic::TrackerHitCollection>();
 
     // Create a calorimeter hit
@@ -45,7 +45,7 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
     calo_hit.setTimeError(0.5 /* ns */);
     calo_hit.setPosition(edm4hep::Vector3f{5.0, 10.0, 100.0});
 
-    auto input = std::make_tuple(calo_hits.get());
+    auto input  = std::make_tuple(calo_hits.get());
     auto output = std::make_tuple(tracker_hits.get());
 
     algo.process(input, output);
@@ -59,17 +59,22 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
     REQUIRE(tracker_hit.getCellID() == calo_hit.getCellID());
 
     // Verify position is preserved
-    REQUIRE_THAT(tracker_hit.getPosition().x, Catch::Matchers::WithinAbs(calo_hit.getPosition().x, EPSILON));
-    REQUIRE_THAT(tracker_hit.getPosition().y, Catch::Matchers::WithinAbs(calo_hit.getPosition().y, EPSILON));
-    REQUIRE_THAT(tracker_hit.getPosition().z, Catch::Matchers::WithinAbs(calo_hit.getPosition().z, EPSILON));
+    REQUIRE_THAT(tracker_hit.getPosition().x,
+                 Catch::Matchers::WithinAbs(calo_hit.getPosition().x, EPSILON));
+    REQUIRE_THAT(tracker_hit.getPosition().y,
+                 Catch::Matchers::WithinAbs(calo_hit.getPosition().y, EPSILON));
+    REQUIRE_THAT(tracker_hit.getPosition().z,
+                 Catch::Matchers::WithinAbs(calo_hit.getPosition().z, EPSILON));
 
     // Verify energy is preserved
     REQUIRE_THAT(tracker_hit.getEdep(), Catch::Matchers::WithinAbs(calo_hit.getEnergy(), EPSILON));
-    REQUIRE_THAT(tracker_hit.getEdepError(), Catch::Matchers::WithinAbs(calo_hit.getEnergyError(), EPSILON));
+    REQUIRE_THAT(tracker_hit.getEdepError(),
+                 Catch::Matchers::WithinAbs(calo_hit.getEnergyError(), EPSILON));
 
     // Verify time is preserved
     REQUIRE_THAT(tracker_hit.getTime(), Catch::Matchers::WithinAbs(calo_hit.getTime(), EPSILON));
-    REQUIRE_THAT(tracker_hit.getTimeError(), Catch::Matchers::WithinAbs(calo_hit.getTimeError(), EPSILON));
+    REQUIRE_THAT(tracker_hit.getTimeError(),
+                 Catch::Matchers::WithinAbs(calo_hit.getTimeError(), EPSILON));
 
     // Verify position errors are set properly for CartesianGridXY
     // Position error should be cell_dimension / sqrt(12)
@@ -83,7 +88,7 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
   SECTION("handles multiple calorimeter hits") {
     auto id_desc = detector->readout("MockTrackerHits").idSpec();
 
-    auto calo_hits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+    auto calo_hits    = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto tracker_hits = std::make_unique<edm4eic::TrackerHitCollection>();
 
     // Create multiple calorimeter hits
@@ -97,7 +102,7 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
       calo_hit.setPosition(edm4hep::Vector3f{static_cast<float>(i), static_cast<float>(i), 100.0f});
     }
 
-    auto input = std::make_tuple(calo_hits.get());
+    auto input  = std::make_tuple(calo_hits.get());
     auto output = std::make_tuple(tracker_hits.get());
 
     algo.process(input, output);
@@ -107,10 +112,11 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
 
     for (size_t i = 0; i < tracker_hits->size(); ++i) {
       auto tracker_hit = (*tracker_hits)[i];
-      auto calo_hit = (*calo_hits)[i];
+      auto calo_hit    = (*calo_hits)[i];
 
       REQUIRE(tracker_hit.getCellID() == calo_hit.getCellID());
-      REQUIRE_THAT(tracker_hit.getEdep(), Catch::Matchers::WithinAbs(calo_hit.getEnergy(), EPSILON));
+      REQUIRE_THAT(tracker_hit.getEdep(),
+                   Catch::Matchers::WithinAbs(calo_hit.getEnergy(), EPSILON));
     }
   }
 
@@ -118,7 +124,7 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
     // Use MockCalorimeterHits which doesn't have a segmentation defined
     auto id_desc = detector->readout("MockCalorimeterHits").idSpec();
 
-    auto calo_hits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+    auto calo_hits    = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto tracker_hits = std::make_unique<edm4eic::TrackerHitCollection>();
 
     // Create a calorimeter hit with unsupported segmentation
@@ -130,7 +136,7 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
     calo_hit.setTimeError(0.5 /* ns */);
     calo_hit.setPosition(edm4hep::Vector3f{0.0, 0.0, 100.0});
 
-    auto input = std::make_tuple(calo_hits.get());
+    auto input  = std::make_tuple(calo_hits.get());
     auto output = std::make_tuple(tracker_hits.get());
 
     algo.process(input, output);
@@ -142,7 +148,7 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
   SECTION("caches position errors for same detector element") {
     auto id_desc = detector->readout("MockTrackerHits").idSpec();
 
-    auto calo_hits = std::make_unique<edm4eic::CalorimeterHitCollection>();
+    auto calo_hits    = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto tracker_hits = std::make_unique<edm4eic::TrackerHitCollection>();
 
     // Create multiple hits from the same detector element (same system, layer)
@@ -157,7 +163,7 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
       calo_hit.setPosition(edm4hep::Vector3f{static_cast<float>(i), static_cast<float>(i), 100.0f});
     }
 
-    auto input = std::make_tuple(calo_hits.get());
+    auto input  = std::make_tuple(calo_hits.get());
     auto output = std::make_tuple(tracker_hits.get());
 
     algo.process(input, output);
