@@ -47,6 +47,8 @@ void CalorimeterHitToTrackerHit::process(const CalorimeterHitToTrackerHit::Input
         position_error[det_element].yy = cell_dimensions[1] / std::sqrt(12);
         position_error[det_element].zz = 0.0f;
       } else {
+        warning("Skipping calorimeter hit with unsupported segmentation type '{}' for detector element '{}'. Only 'CartesianGridXY' is currently supported.", 
+                segmentation.type(), det_element.name());
         continue;
       }
     }
