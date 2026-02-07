@@ -78,7 +78,7 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
 
     // Verify position errors are set properly for CartesianGridXY
     // Position error should be cell_dimension / sqrt(12)
-    auto covariance = tracker_hit.getCovarianceMatrix();
+    auto covariance = tracker_hit.getPositionError();
     // For CartesianGridXY, xx and yy should be non-zero, zz should be 0
     REQUIRE(covariance.xx > 0);
     REQUIRE(covariance.yy > 0);
@@ -172,9 +172,9 @@ TEST_CASE("the CalorimeterHitToTrackerHit algorithm runs", "[CalorimeterHitToTra
     REQUIRE(tracker_hits->size() == 3);
 
     // Verify that position errors are consistent across hits from same detector element
-    auto first_cov = (*tracker_hits)[0].getCovarianceMatrix();
+    auto first_cov = (*tracker_hits)[0].getPositionError();
     for (size_t i = 1; i < tracker_hits->size(); ++i) {
-      auto cov = (*tracker_hits)[i].getCovarianceMatrix();
+      auto cov = (*tracker_hits)[i].getPositionError();
       REQUIRE_THAT(cov.xx, Catch::Matchers::WithinAbs(first_cov.xx, EPSILON));
       REQUIRE_THAT(cov.yy, Catch::Matchers::WithinAbs(first_cov.yy, EPSILON));
       REQUIRE_THAT(cov.zz, Catch::Matchers::WithinAbs(first_cov.zz, EPSILON));
