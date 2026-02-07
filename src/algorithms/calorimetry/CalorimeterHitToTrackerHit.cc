@@ -45,6 +45,7 @@ void CalorimeterHitToTrackerHit::process(const CalorimeterHitToTrackerHit::Input
         auto cell_dimensions           = m_converter->cellDimensions(cell_id);
         position_error[det_element].xx = cell_dimensions[0] / std::sqrt(12);
         position_error[det_element].yy = cell_dimensions[1] / std::sqrt(12);
+        position_error[det_element].zz = 0.0f;
       } else {
         continue;
       }
