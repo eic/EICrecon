@@ -12,7 +12,8 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
+#include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/podioVersion.h>
 #include <cmath>
@@ -43,14 +44,6 @@ template <> struct hash<podio::ObjectID> {
     return h1 ^ (h2 << 1);
   }
 };
-
-// Necessary to make MCParticle hashable
-template <> struct hash<edm4hep::MCParticle> {
-  size_t operator()(const edm4hep::MCParticle& p) const noexcept {
-    const auto& id = p.getObjectID();
-    return std::hash<podio::ObjectID>()(id);
-  }
-};
 #endif // podio version check
 #endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
 
@@ -59,7 +52,7 @@ template <> struct hash<edm4hep::MCParticle> {
 template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
   size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t, int>& key) const noexcept {
     const auto& [particle, cellID, timeID] = key;
-    size_t h1                              = hash<edm4hep::MCParticle>{}(particle);
+    size_t h1                              = hash<podio::ObjectID>{}(particle.getObjectID());
     size_t h2                              = hash<uint64_t>{}(cellID);
     size_t h3                              = hash<int>{}(timeID);
     return ((h1 ^ (h2 << 1)) >> 1) ^ (h3 << 1);
@@ -87,18 +80,22 @@ edm4hep::MCParticle lookup_primary(const edm4hep::CaloHitContribution& contrib) 
 class HitContributionAccumulator {
 private:
   float m_energy{0};
+  float m_att_energy{0};
   float m_avg_time{0};
   float m_min_time{std::numeric_limits<float>::max()};
   edm4hep::Vector3f m_avg_position{0, 0, 0};
 
 public:
-  void add(const float energy, const float time, const edm4hep::Vector3f& pos) {
+  void add(const float energy, const float attFactor, const float time,
+           const edm4hep::Vector3f& pos) {
     m_energy += energy;
+    m_att_energy += energy * attFactor;
     m_avg_time += energy * time;
     m_avg_position = m_avg_position + energy * pos;
     m_min_time     = (time < m_min_time) ? time : m_min_time;
   }
   float getEnergy() const { return m_energy; }
+  float getAttEnergy() const { return m_att_energy; }
   float getAvgTime() const { return m_energy > 0 ? m_avg_time / m_energy : 0; }
   float getMinTime() const { return m_min_time; }
   edm4hep::Vector3f getAvgPosition() const {
@@ -200,7 +197,7 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
       const double totalTime  = contrib.getTime() + propagationTime + m_cfg.fixedTimeDelay;
       const int newhit_timeID = std::floor(totalTime / m_cfg.timeWindow);
       auto& hit_accum         = hit_map[{primary, newhit_cellID, newhit_timeID}][newcontrib_cellID];
-      hit_accum.add(contrib.getEnergy() * attFactor, totalTime, ih.getPosition());
+      hit_accum.add(contrib.getEnergy(), attFactor, totalTime, ih.getPosition());
     }
   }
 
@@ -213,18 +210,21 @@ void SimCalorimeterHitProcessor::process(const SimCalorimeterHitProcessor::Input
     const auto& [particle, cellID, timeID] = hit_idx;
     HitContributionAccumulator new_hit;
     for (const auto& [contrib_idx, contrib] : contribs) {
-      // Aggregate contributions to for the global hit
-      new_hit.add(contrib.getEnergy(), contrib.getMinTime(), contrib.getAvgPosition());
+      // Aggregate contributions to for the global hit; use effective "attenuation"
+      new_hit.add(contrib.getEnergy(), contrib.getAttEnergy() / contrib.getEnergy(),
+                  contrib.getMinTime(), contrib.getAvgPosition());
       // Now store the contribution itself
       auto out_hit_contrib = out_hit_contribs->create();
+      out_hit_contrib.setPDG(particle.getPDG());
+      out_hit_contrib.setEnergy(contrib.getEnergy()); // UNattenuated energy
       out_hit_contrib.setTime(contrib.getMinTime());
-      out_hit_contrib.setStepPosition(edm4hep::Vector3f{0, 0, contrib.getAvgPosition().z});
+      out_hit_contrib.setStepPosition(contrib.getAvgPosition());
       out_hit_contrib.setParticle(particle);
       out_hit.addToContributions(out_hit_contrib);
     }
     out_hit.setCellID(cellID);
-    out_hit.setEnergy(new_hit.getEnergy());
-    out_hit.setPosition(edm4hep::Vector3f{0, 0, new_hit.getAvgPosition().z});
+    out_hit.setEnergy(new_hit.getAttEnergy()); // sum of attenuated energies
+    out_hit.setPosition(new_hit.getAvgPosition());
   }
 }
 

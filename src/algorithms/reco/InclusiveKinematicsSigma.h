@@ -11,22 +11,25 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
 using InclusiveKinematicsSigmaAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
+    algorithms::Input<edm4hep::MCParticleCollection, edm4hep::MCParticleCollection,
+                      edm4eic::ReconstructedParticleCollection,
                       edm4eic::HadronicFinalStateCollection>,
     algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-class InclusiveKinematicsSigma : public InclusiveKinematicsSigmaAlgorithm {
+class InclusiveKinematicsSigma : public InclusiveKinematicsSigmaAlgorithm,
+                                 public WithPodConfig<NoConfig> {
 
 public:
   InclusiveKinematicsSigma(std::string_view name)
       : InclusiveKinematicsSigmaAlgorithm{
             name,
-            {"MCParticles", "scatteredElectron", "hadronicFinalState"},
+            {"MCBeamElectrons", "MCBeamProtons", "scatteredElectron", "hadronicFinalState"},
             {"inclusiveKinematics"},
             "Determine inclusive kinematics using Sigma method."} {}
 

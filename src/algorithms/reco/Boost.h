@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Wouter Deconinck, Barak Schmookler
+// Copyright (C) 2026 Wouter Deconinck, Barak Schmookler, Stephen Maple
 
 #pragma once
 
@@ -22,42 +22,54 @@ inline LorentzRotation determine_boost(PxPyPzEVector ei, PxPyPzEVector pi) {
   using ROOT::Math::RotationX;
   using ROOT::Math::RotationY;
 
-  // Step 1: Find the needed boosts and rotations from the incoming lepton and hadron beams
-  // (note, this will give you a perfect boost, in principle you will not know the beam momenta exactly and should use an average)
+  // Save original input for constructing target "head-on" boost
+  PxPyPzEVector eo = ei;
+  PxPyPzEVector po = pi;
 
-  // Define the Boost to make beams back-to-back
+  // Step 1: Boost to CM frame
   const auto cmBoost = (ei + pi).BoostToCM();
+  const Boost boost_from_og_to_cm(cmBoost);
 
-  const Boost boost_to_cm(-cmBoost);
+  ei = boost_from_og_to_cm(ei);
+  pi = boost_from_og_to_cm(pi);
 
-  // This will boost beams from a center of momentum frame back to (nearly) their original energies
-  const Boost boost_to_headon(cmBoost); // FIXME
+  // Step 2: Rotate so pi is aligned along +z
+  RotationY rotAboutY(-1.0 * atan2(pi.Px(), pi.Pz()));
+  RotationX rotAboutX(+1.0 * atan2(pi.Py(), pi.Pz()));
 
-  // Boost and rotate the incoming beams to find the proper rotations TLorentzVector
+  ei = rotAboutX(rotAboutY(ei));
+  pi = rotAboutX(rotAboutY(pi));
 
-  // Boost to COM frame
-  boost_to_cm(pi);
-  boost_to_cm(ei);
-  // Rotate to head-on
-  RotationY rotAboutY(-1.0 * atan2(pi.Px(), pi.Pz())); // Rotate to remove x component of beams
-  RotationX rotAboutX(+1.0 * atan2(pi.Py(), pi.Pz())); // Rotate to remove y component of beams
+  // Step 3: Construct "ideal" head-on configuration (same energies, back-to-back along z)
+  double e_energy = eo.E();
+  double p_energy = po.E();
+  double e_pz     = -eo.P();
+  double p_pz     = +po.P();
 
+  PxPyPzEVector eh(0, 0, e_pz, e_energy);
+  PxPyPzEVector ph(0, 0, p_pz, p_energy);
+
+  // Step 4: Boost to the frame where those particles look like the current ei/pi
+  const auto hoBoost = (eh + ph).BoostToCM();    // CM of head-on frame
+  const Boost boost_from_cm_to_headon(-hoBoost); // Boost from CM to head-on
+
+  // Final transformation = headon boost * rotations * CM boost
   LorentzRotation tf;
-  tf *= boost_to_cm;
-  tf *= rotAboutY;
+  tf *= boost_from_cm_to_headon;
   tf *= rotAboutX;
-  tf *= boost_to_headon;
+  tf *= rotAboutY;
+  tf *= boost_from_og_to_cm;
+
   return tf;
 }
 
-inline PxPyPzEVector apply_boost(const LorentzRotation& tf, PxPyPzEVector part) {
+inline PxPyPzEVector apply_boost(const LorentzRotation& tf, const PxPyPzEVector& part) {
 
-  // Step 2: Apply boosts and rotations to any particle 4-vector
+  // Step 5: Apply boosts and rotations to any particle 4-vector
   // (here too, choices will have to be made as to what the 4-vector is for reconstructed particles)
 
   // Boost and rotate particle 4-momenta into the headon frame
-  tf(part);
-  return part;
+  return tf(part);
 }
 
 } // namespace eicrecon

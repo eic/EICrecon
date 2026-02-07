@@ -4,8 +4,9 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <edm4eic/VertexCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <memory>
@@ -26,7 +27,8 @@ private:
   using AlgoT = eicrecon::IterativeVertexFinder;
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states_input{this};
+  Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
   PodioInput<edm4eic::ReconstructedParticle> m_edm4eic_reconParticles_input{this};
   PodioOutput<edm4eic::Vertex> m_vertices_output{this};
 
@@ -41,13 +43,23 @@ private:
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>();
+    // TODO: convert IterativeVertexFinder to inherit from algorithm::Algorithm
+    // m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_vertices_output() =
-        m_algo->produce(m_acts_trajectories_input(), m_edm4eic_reconParticles_input());
+    auto track_states_vec = m_acts_track_states_input();
+    auto tracks_vec       = m_acts_tracks_input();
+    assert(!track_states_vec.empty() && "ConstVectorMultiTrajectory vector should not be empty");
+    assert(track_states_vec.front() != nullptr &&
+           "ConstVectorMultiTrajectory pointer should not be null");
+    assert(!tracks_vec.empty() && "ConstVectorTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
+
+    m_vertices_output() = m_algo->produce(track_states_vec.front(), tracks_vec.front(),
+                                          m_edm4eic_reconParticles_input());
   }
 };
 
