@@ -18,6 +18,7 @@
 #include <cmath>
 #include <deque>
 #include <functional>
+#include <map>
 #include <memory>
 #include <string>
 #include <utility>
