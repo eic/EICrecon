@@ -20,6 +20,17 @@ using CalorimeterHitToTrackerHitAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::CalorimeterHitCollection>,
                           algorithms::Output<edm4eic::TrackerHitCollection>>;
 
+/**
+ * @brief Convert calorimeter hits to tracker hits for tracking reconstruction
+ *
+ * This algorithm converts calorimeter hits into tracker hits by determining
+ * position uncertainties from the detector segmentation. Currently supports
+ * CartesianGridXY segmentation.
+ *
+ * @note This algorithm requires DD4hep VolumeManager with properly configured
+ * detector elements and cannot be easily unit tested with mock detectors.
+ * Testing is performed through integration tests with complete detector geometry.
+ */
 class CalorimeterHitToTrackerHit : public CalorimeterHitToTrackerHitAlgorithm {
 
 public:
