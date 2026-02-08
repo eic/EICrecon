@@ -225,6 +225,9 @@ void PulseGeneration<HitT>::process(
     float integral          = 0;
     std::vector<float> pulse;
 
+    // Cache pulse shape trait to avoid repeated method calls in hot path
+    const bool is_unimodal = m_pulse->isUnimodal();
+
     for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
       double t    = signal_time + i * m_cfg.timestep - time;
       auto signal = (*m_pulse)(t, charge);
@@ -235,7 +238,7 @@ void PulseGeneration<HitT>::process(
           // Before threshold crossed - check if we can exit early
           // For unimodal pulses: once falling below threshold, we've passed the peak
           // For non-unimodal: must keep searching (may have multiple peaks)
-          if (m_pulse->isUnimodal()) {
+          if (is_unimodal) {
             auto diff = std::abs(signal) - std::abs(previous);
             previous  = signal;
             if (diff >= 0) {
