@@ -213,6 +213,9 @@ void PulseGeneration<HitT>::process(
   const auto [simhits] = input;
   auto [rawPulses]     = output;
 
+  // Cache pulse shape trait to avoid repeated method calls in hot path
+  const bool is_unimodal = m_pulse->isUnimodal();
+
   for (const auto& hit : *simhits) {
     const auto [time, charge] = HitAdapter<HitT>::getPulseSources(hit);
 
@@ -235,7 +238,7 @@ void PulseGeneration<HitT>::process(
           // Before threshold crossed - check if we can exit early
           // For unimodal pulses: once falling below threshold, we've passed the peak
           // For non-unimodal: must keep searching (may have multiple peaks)
-          if (m_pulse->isUnimodal()) {
+          if (is_unimodal) {
             auto diff = std::abs(signal) - std::abs(previous);
             previous  = signal;
             if (diff >= 0) {
