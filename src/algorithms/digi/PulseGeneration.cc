@@ -34,8 +34,8 @@ namespace eicrecon {
 class SignalPulse {
 private:
   // Pulse shape traits - set once at construction from compile-time knowledge.
-  // Immutability enforced through design: private members, protected constructor
-  // initialization only, no setters, and const accessor methods.
+  // Intended to be immutable after construction: private members, initialization
+  // only via protected constructor, no setters, and const accessor methods.
   bool m_is_unimodal;
   bool m_is_continuous;
   bool m_has_bounded_support;
