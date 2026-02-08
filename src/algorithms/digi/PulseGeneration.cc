@@ -32,13 +32,15 @@
 namespace eicrecon {
 
 class SignalPulse {
-protected:
-  // Pulse shape traits - set once at construction from compile-time knowledge
-  // These const members enable zero-overhead trait queries (inlined to single load)
-  const bool m_is_unimodal;
-  const bool m_is_continuous;
-  const bool m_has_bounded_support;
+private:
+  // Pulse shape traits - set once at construction from compile-time knowledge.
+  // Intended to be immutable after construction: private members, initialization
+  // only via protected constructor, no setters, and const accessor methods.
+  bool m_is_unimodal;
+  bool m_is_continuous;
+  bool m_has_bounded_support;
 
+protected:
   // Protected constructor for derived classes to set traits
   SignalPulse(bool is_unimodal, bool is_continuous, bool has_bounded_support)
       : m_is_unimodal(is_unimodal)
@@ -46,7 +48,11 @@ protected:
       , m_has_bounded_support(has_bounded_support) {}
 
 public:
-  virtual ~SignalPulse() = default;
+  virtual ~SignalPulse()                     = default;
+  SignalPulse(const SignalPulse&)            = delete;
+  SignalPulse& operator=(const SignalPulse&) = delete;
+  SignalPulse(SignalPulse&&)                 = delete;
+  SignalPulse& operator=(SignalPulse&&)      = delete;
 
   // Pulse evaluation (virtual - this is the expensive operation)
   virtual double operator()(double time, double charge) = 0;
