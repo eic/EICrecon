@@ -216,11 +216,16 @@ TEST_CASE(
   eicrecon::PulseGeneration<edm4hep::SimTrackerHit> algo("PulseGeneration");
   eicrecon::PulseGenerationConfig cfg;
 
+  // Regression test for multi-modal pulses with EvaluatorSvc expressions.
   // Expression with two Gaussian peaks:
-  // - First peak at t=0 with amplitude 0.5*charge (below threshold of 1.0 for charge=10)
-  // - Second peak at t=5 with amplitude 1.5*charge (above threshold of 1.0 for charge=10)
-  // This tests the regression case where the algorithm should not exit early
-  // after the first sub-threshold peak for non-unimodal pulses
+  // - First peak at t=0 with amplitude 0.5*charge (below threshold)
+  // - Second peak at t=5ns with amplitude 1.5*charge (above threshold)
+  //
+  // This verifies the algorithm does NOT prematurely exit after encountering
+  // the first sub-threshold peak. For non-unimodal pulses (like arbitrary
+  // EvaluatorSvc expressions), the algorithm must continue searching for
+  // potential later peaks that may cross the threshold, rather than assuming
+  // the pulse is "falling" and breaking early.
   std::string expression =
       "0.5 * charge * exp(-0.5 * pow((time - 0.0) / 0.5, 2)) + "
       "1.5 * charge * exp(-0.5 * pow((time - 5.0) / 0.5, 2))";
