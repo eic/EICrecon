@@ -4,7 +4,6 @@
 include/*
 plugins/*
 build/*
-build_incremental/*
 install/*
 share/*
 
