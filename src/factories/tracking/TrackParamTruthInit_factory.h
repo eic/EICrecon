@@ -28,6 +28,7 @@ private:
 
   PodioInput<edm4hep::EventHeader> m_headers_input{this};
   PodioInput<edm4hep::MCParticle> m_particles_input{this};
+  PodioOutput<edm4eic::TrackSeed> m_seeds_output{this};
   PodioOutput<edm4eic::TrackParameters> m_parameters_output{this};
 
   ParameterRef<double> m_maxVertexX{this, "MaxVertexX", config().maxVertexX,
@@ -60,7 +61,8 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_headers_input(), m_particles_input()}, {m_parameters_output().get()});
+    m_algo->process({m_headers_input(), m_particles_input()},
+                    {m_seeds_output().get(), m_parameters_output().get()});
   }
 };
 
