@@ -208,3 +208,79 @@ TEST_CASE("Test Landau pulse crossing threshold is not prematurely terminated",
   }
   REQUIRE(has_above_threshold);
 }
+
+TEST_CASE(
+    "Test multi-modal expression pulse with early sub-threshold peak and later above-threshold peak",
+    "[PulseGeneration][MultiModal]") {
+
+  eicrecon::PulseGeneration<edm4hep::SimTrackerHit> algo("PulseGeneration");
+  eicrecon::PulseGenerationConfig cfg;
+
+  // Expression with two Gaussian peaks:
+  // - First peak at t=0 with amplitude 0.5*charge (below threshold of 1.0 for charge=10)
+  // - Second peak at t=5 with amplitude 1.5*charge (above threshold of 1.0 for charge=10)
+  // This tests the regression case where the algorithm should not exit early
+  // after the first sub-threshold peak for non-unimodal pulses
+  std::string expression =
+      "0.5 * charge * exp(-0.5 * pow((time - 0.0) / 0.5, 2)) + "
+      "1.5 * charge * exp(-0.5 * pow((time - 5.0) / 0.5, 2))";
+
+  cfg.pulse_shape_function = expression;
+  cfg.pulse_shape_params   = {}; // No additional parameters needed
+  cfg.ignore_thres         = 1.0;
+  cfg.timestep             = 0.1 * edm4eic::unit::ns;
+  cfg.min_sampling_time    = 2.0 * edm4eic::unit::ns;
+  cfg.max_time_bins        = 200; // Enough to capture both peaks
+
+  algo.applyConfig(cfg);
+  algo.init();
+
+  // Use charge=1.0 so:
+  // - First peak amplitude  = 0.5 * 1.0 = 0.5 (below threshold of 1.0)
+  // - Second peak amplitude = 1.5 * 1.0 = 1.5 (above threshold of 1.0)
+  double charge = 1.0;
+  double time   = 0.0 * edm4eic::unit::ns;
+
+  edm4hep::SimTrackerHitCollection hits_coll;
+  hits_coll.create(12345, charge, time);
+
+  auto pulses = std::make_unique<PulseType::collection_type>();
+
+  auto input  = std::make_tuple(&hits_coll);
+  auto output = std::make_tuple(pulses.get());
+
+  algo.process(input, output);
+
+  // Pulse should be generated because the second peak crosses threshold
+  REQUIRE(pulses->size() == 1);
+  REQUIRE((*pulses)[0].getCellID() == 12345);
+
+  auto amplitudes = (*pulses)[0].getAmplitude();
+
+  // Should have sampled enough to capture the second peak
+  REQUIRE(amplitudes.size() > 0);
+
+  // Find the maximum amplitude - it should be near the second peak
+  float max_amplitude = 0.0;
+  std::size_t max_idx = 0;
+  for (std::size_t i = 0; i < amplitudes.size(); i++) {
+    if (std::abs(amplitudes[i]) > std::abs(max_amplitude)) {
+      max_amplitude = amplitudes[i];
+      max_idx       = i;
+    }
+  }
+
+  // The maximum should be above threshold (from the second peak)
+  REQUIRE(std::abs(max_amplitude) > cfg.ignore_thres);
+
+  // The maximum should occur near t=5ns (second peak)
+  // max_idx * timestep should be close to 5.0 ns
+  double max_time = max_idx * cfg.timestep;
+  REQUIRE(max_time > 4.0 * edm4eic::unit::ns);
+  REQUIRE(max_time < 6.0 * edm4eic::unit::ns);
+
+  // Verify we didn't exit early - should have samples beyond the second peak
+  // The second peak is at t=5ns, so we should have samples beyond that
+  double last_sampled_time = (amplitudes.size() - 1) * cfg.timestep;
+  REQUIRE(last_sampled_time >= 5.0 * edm4eic::unit::ns);
+}
