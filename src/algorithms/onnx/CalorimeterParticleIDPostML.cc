@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 Dmitry Kalinkin
 
+#include <fmt/format.h>
 #include <cstddef>
-#include <fmt/core.h>
 #include <gsl/pointers>
 #include <stdexcept>
 
