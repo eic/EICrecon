@@ -14,6 +14,7 @@
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
+#include <initializer_list>
 #include <memory>
 #include <string>
 #include <tuple>
