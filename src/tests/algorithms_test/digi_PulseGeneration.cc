@@ -209,9 +209,9 @@ TEST_CASE("Test Landau pulse crossing threshold is not prematurely terminated",
   REQUIRE(has_above_threshold);
 }
 
-TEST_CASE(
-    "Test multi-modal expression pulse with early sub-threshold peak and later above-threshold peak",
-    "[PulseGeneration][MultiModal]") {
+TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and later "
+          "above-threshold peak",
+          "[PulseGeneration][MultiModal]") {
 
   eicrecon::PulseGeneration<edm4hep::SimTrackerHit> algo("PulseGeneration");
   eicrecon::PulseGenerationConfig cfg;
@@ -226,16 +226,16 @@ TEST_CASE(
   // EvaluatorSvc expressions), the algorithm must continue searching for
   // potential later peaks that may cross the threshold, rather than assuming
   // the pulse is "falling" and breaking early.
-  std::string expression =
-      "0.5 * charge * exp(-0.5 * pow((time - 0.0) / 0.5, 2)) + "
-      "1.5 * charge * exp(-0.5 * pow((time - 5.0) / 0.5, 2))";
+  std::string expression = "0.5 * charge * exp(-0.5 * pow((time - 0.0) / 0.5, 2)) + "
+                           "1.5 * charge * exp(-0.5 * pow((time - 5.0) / 0.5, 2))";
 
   cfg.pulse_shape_function = expression;
   cfg.pulse_shape_params   = {}; // No additional parameters needed
   cfg.ignore_thres         = 1.0;
   cfg.timestep             = 0.1 * edm4eic::unit::ns;
-  cfg.min_sampling_time    = 1.0 * edm4eic::unit::ns; // Min duration to continue sampling after threshold first crossed
-  cfg.max_time_bins        = 200;                     // Enough to capture both peaks
+  cfg.min_sampling_time =
+      1.0 * edm4eic::unit::ns; // Min duration to continue sampling after threshold first crossed
+  cfg.max_time_bins = 200;     // Enough to capture both peaks
 
   algo.applyConfig(cfg);
   algo.init();
