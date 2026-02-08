@@ -234,8 +234,8 @@ TEST_CASE(
   cfg.pulse_shape_params   = {}; // No additional parameters needed
   cfg.ignore_thres         = 1.0;
   cfg.timestep             = 0.1 * edm4eic::unit::ns;
-  cfg.min_sampling_time    = 2.0 * edm4eic::unit::ns;
-  cfg.max_time_bins        = 200; // Enough to capture both peaks
+  cfg.min_sampling_time    = 1.0 * edm4eic::unit::ns; // Minimum time to sample after crossing threshold
+  cfg.max_time_bins        = 200;                     // Enough to capture both peaks
 
   algo.applyConfig(cfg);
   algo.init();
@@ -279,13 +279,14 @@ TEST_CASE(
   REQUIRE(std::abs(max_amplitude) > cfg.ignore_thres);
 
   // The maximum should occur near t=5ns (second peak)
-  // max_idx * timestep should be close to 5.0 ns
-  double max_time = max_idx * cfg.timestep;
+  // Account for the pulse start time when calculating the time of maximum
+  double pulse_start_time = (*pulses)[0].getTime();
+  double max_time         = pulse_start_time + max_idx * cfg.timestep;
   REQUIRE(max_time > 4.0 * edm4eic::unit::ns);
   REQUIRE(max_time < 6.0 * edm4eic::unit::ns);
 
   // Verify we didn't exit early - should have samples beyond the second peak
   // The second peak is at t=5ns, so we should have samples beyond that
-  double last_sampled_time = (amplitudes.size() - 1) * cfg.timestep;
+  double last_sampled_time = pulse_start_time + (amplitudes.size() - 1) * cfg.timestep;
   REQUIRE(last_sampled_time >= 5.0 * edm4eic::unit::ns);
 }
