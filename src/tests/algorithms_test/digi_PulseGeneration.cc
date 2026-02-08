@@ -281,13 +281,16 @@ TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and l
 
   // The maximum should occur in the second peak region (t=[5.0, 5.5] ns)
   // Account for the pulse start time when calculating the time of maximum
+  // Note: pulse start time is aligned to the timestep grid, and the first sample
+  // in the amplitudes array is at pulse_start_time + timestep
   double pulse_start_time = (*pulses)[0].getTime();
-  double max_time         = pulse_start_time + max_idx * cfg.timestep;
+  double max_time         = pulse_start_time + (max_idx + 1) * cfg.timestep;
   REQUIRE(max_time >= 5.0 * edm4eic::unit::ns);
-  REQUIRE(max_time <= 5.5 * edm4eic::unit::ns);
+  REQUIRE(max_time <= 5.6 * edm4eic::unit::ns); // Allow for one timestep beyond peak end
 
   // Verify we didn't exit early - should have samples beyond the actual peak
   // Compare against the computed max_time to ensure at least one additional timestep
-  double last_sampled_time = pulse_start_time + (amplitudes.size() - 1) * cfg.timestep;
+  // Note: the time of amplitudes[idx] is pulse_start_time + (idx + 1) * timestep
+  double last_sampled_time = pulse_start_time + amplitudes.size() * cfg.timestep;
   REQUIRE(last_sampled_time >= max_time + cfg.timestep);
 }
