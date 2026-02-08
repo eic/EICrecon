@@ -234,7 +234,7 @@ TEST_CASE(
   cfg.pulse_shape_params   = {}; // No additional parameters needed
   cfg.ignore_thres         = 1.0;
   cfg.timestep             = 0.1 * edm4eic::unit::ns;
-  cfg.min_sampling_time    = 1.0 * edm4eic::unit::ns; // Minimum time to sample after crossing threshold
+  cfg.min_sampling_time    = 1.0 * edm4eic::unit::ns; // Min duration to continue sampling after threshold first crossed
   cfg.max_time_bins        = 200;                     // Enough to capture both peaks
 
   algo.applyConfig(cfg);
@@ -271,7 +271,7 @@ TEST_CASE(
   for (std::size_t i = 0; i < amplitudes.size(); i++) {
     if (std::abs(amplitudes[i]) > std::abs(max_amplitude)) {
       max_amplitude = amplitudes[i];
-      max_idx       = i;
+      max_idx       = i; // max_idx will be < amplitudes.size() by loop invariant
     }
   }
 
