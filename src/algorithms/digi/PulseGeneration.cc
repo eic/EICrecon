@@ -213,6 +213,9 @@ void PulseGeneration<HitT>::process(
   const auto [simhits] = input;
   auto [rawPulses]     = output;
 
+  // Cache pulse shape trait to avoid repeated method calls in hot path
+  const bool is_unimodal = m_pulse->isUnimodal();
+
   for (const auto& hit : *simhits) {
     const auto [time, charge] = HitAdapter<HitT>::getPulseSources(hit);
 
@@ -224,9 +227,6 @@ void PulseGeneration<HitT>::process(
     float previous          = 0;
     float integral          = 0;
     std::vector<float> pulse;
-
-    // Cache pulse shape trait to avoid repeated method calls in hot path
-    const bool is_unimodal = m_pulse->isUnimodal();
 
     for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
       double t    = signal_time + i * m_cfg.timestep - time;
