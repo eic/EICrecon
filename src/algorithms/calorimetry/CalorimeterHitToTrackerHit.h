@@ -27,9 +27,11 @@ using CalorimeterHitToTrackerHitAlgorithm =
  * position uncertainties from the detector segmentation. Currently supports
  * CartesianGridXY segmentation.
  *
- * @note This algorithm requires DD4hep VolumeManager with properly configured
- * detector elements and cannot be easily unit tested with mock detectors.
- * Testing is performed through integration tests with complete detector geometry.
+ * @note This algorithm uses VolumeManager::lookupDetElement() to access detector
+ * geometry, requiring a complete DD4hep detector with properly configured detector
+ * elements and placed volumes. The mock detector in unit tests lacks this hierarchy.
+ * The algorithm is tested via integration tests when run with real detector geometry
+ * (e.g., in the full CI pipeline with epic-main detector configuration).
  */
 class CalorimeterHitToTrackerHit : public CalorimeterHitToTrackerHitAlgorithm {
 
