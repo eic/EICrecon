@@ -217,25 +217,20 @@ TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and l
   eicrecon::PulseGenerationConfig cfg;
 
   // Regression test for multi-modal pulses with EvaluatorSvc expressions.
-  // Expression with two Gaussian peaks:
-  // - First peak at t=param0 with amplitude 0.5*charge (below threshold)
-  // - Second peak at t=param1 with amplitude 1.5*charge (above threshold)
-  // - Both peaks share Gaussian width param2
+  // Expression with two separated peaks:
+  // - First peak near t=0 with amplitude 0.5*charge (below threshold)
+  // - Second peak near t=5ns with amplitude 1.5*charge (above threshold)
   //
   // This verifies the algorithm does NOT prematurely exit after encountering
   // the first sub-threshold peak. For non-unimodal pulses (like arbitrary
   // EvaluatorSvc expressions), the algorithm must continue searching for
   // potential later peaks that may cross the threshold, rather than assuming
   // the pulse is "falling" and breaking early.
-  std::string expression = "0.5 * charge * exp(-0.5 * pow((time - param0) / param2, 2)) + "
-                           "1.5 * charge * exp(-0.5 * pow((time - param1) / param2, 2))";
+  std::string expression = "(time >= 0.0 && time <= 0.5 ? 0.5 * charge : 0.0) + "
+                           "(time >= 5.0 && time <= 5.5 ? 1.5 * charge : 0.0)";
 
   cfg.pulse_shape_function = expression;
-  cfg.pulse_shape_params   = {
-      0.0 * edm4eic::unit::ns, // param0: first peak position
-      5.0 * edm4eic::unit::ns, // param1: second peak position
-      0.5 * edm4eic::unit::ns  // param2: Gaussian width
-  };
+  cfg.pulse_shape_params   = {}; // No parameters needed for piecewise expression
   cfg.ignore_thres = 1.0;
   cfg.timestep     = 0.1 * edm4eic::unit::ns;
   cfg.min_sampling_time =
@@ -248,6 +243,7 @@ TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and l
   // Use charge=1.0 so:
   // - First peak amplitude  = 0.5 * 1.0 = 0.5 (below threshold of 1.0)
   // - Second peak amplitude = 1.5 * 1.0 = 1.5 (above threshold of 1.0)
+  // Peaks are at t=[0.0, 0.5] and t=[5.0, 5.5] respectively
   double charge = 1.0;
   double time   = 0.0 * edm4eic::unit::ns;
 
@@ -283,15 +279,15 @@ TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and l
   // The maximum should be above threshold (from the second peak)
   REQUIRE(std::abs(max_amplitude) > cfg.ignore_thres);
 
-  // The maximum should occur near t=5ns (second peak)
+  // The maximum should occur in the second peak region (t=[5.0, 5.5] ns)
   // Account for the pulse start time when calculating the time of maximum
   double pulse_start_time = (*pulses)[0].getTime();
   double max_time         = pulse_start_time + max_idx * cfg.timestep;
-  REQUIRE(max_time > 4.0 * edm4eic::unit::ns);
-  REQUIRE(max_time < 6.0 * edm4eic::unit::ns);
+  REQUIRE(max_time >= 5.0 * edm4eic::unit::ns);
+  REQUIRE(max_time <= 5.5 * edm4eic::unit::ns);
 
-  // Verify we didn't exit early - should have samples beyond the second peak
-  // The second peak is at t=5ns, so we should have samples beyond that
+  // Verify we didn't exit early - should have samples beyond the actual peak
+  // Compare against the computed max_time to ensure at least one additional timestep
   double last_sampled_time = pulse_start_time + (amplitudes.size() - 1) * cfg.timestep;
-  REQUIRE(last_sampled_time >= 5.0 * edm4eic::unit::ns);
+  REQUIRE(last_sampled_time >= max_time + cfg.timestep);
 }
