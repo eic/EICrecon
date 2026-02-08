@@ -84,11 +84,16 @@ public:
            TMath::Landau(time, m_hit_sigma_offset * m_sigma_analog, m_sigma_analog, kTRUE);
   }
 
-  double getMaximumTime() const override { return m_hit_sigma_offset * m_sigma_analog; }
+  double getMaximumTime() const override {
+    // For Landau distribution, the actual maximum (MPV) is at mu - 0.22278*sigma
+    // where mu is the location parameter. See TMath::Landau documentation.
+    return (m_hit_sigma_offset - 0.22278) * m_sigma_analog;
+  }
 
   // Override optional trait method - we know the peak location analytically
   std::optional<double> getPeakTime(double /*charge*/) const override {
-    return m_hit_sigma_offset * m_sigma_analog;
+    // For Landau distribution, the actual maximum (MPV) is at mu - 0.22278*sigma
+    return (m_hit_sigma_offset - 0.22278) * m_sigma_analog;
   }
 
 private:
