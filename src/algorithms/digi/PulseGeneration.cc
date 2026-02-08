@@ -49,6 +49,10 @@ protected:
 
 public:
   virtual ~SignalPulse() = default;
+  SignalPulse(const SignalPulse&) = delete;
+  SignalPulse& operator=(const SignalPulse&) = delete;
+  SignalPulse(SignalPulse&&) = delete;
+  SignalPulse& operator=(SignalPulse&&) = delete;
 
   // Pulse evaluation (virtual - this is the expensive operation)
   virtual double operator()(double time, double charge) = 0;
