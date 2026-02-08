@@ -10,6 +10,7 @@
 #include <cmath>
 #include <gsl/pointers>
 #include <map>
+#include <set>
 #include <vector>
 
 using namespace dd4hep;
@@ -34,6 +35,13 @@ void CalorimeterHitToTrackerHit::process(const CalorimeterHitToTrackerHit::Input
 
     // Cache position errors for detector elements
     static thread_local std::map<dd4hep::DetElement, edm4eic::CovDiag3f> position_error;
+    static thread_local std::set<dd4hep::DetElement> unsupported_segmentation;
+    
+    // Skip if we've already determined this detector element has unsupported segmentation
+    if (unsupported_segmentation.contains(det_element)) {
+      continue;
+    }
+    
     if (!position_error.contains(det_element)) {
 
       // Determine readout and segmentation
@@ -47,6 +55,9 @@ void CalorimeterHitToTrackerHit::process(const CalorimeterHitToTrackerHit::Input
         position_error[det_element].yy = cell_dimensions[1] / std::sqrt(12);
         position_error[det_element].zz = 0.0f;
       } else {
+        warning("Skipping calorimeter hit with unsupported segmentation type '{}' for detector element '{}'. Only 'CartesianGridXY' is currently supported.", 
+                segmentation.type(), det_element.name());
+        unsupported_segmentation.insert(det_element);
         continue;
       }
     }
