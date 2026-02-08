@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Dmitry Kalinkin
+// Copyright (C) 2024 - 2025 Dmitry Kalinkin
 
-#include <cstddef>
-#include <cstdint>
+#include <edm4eic/Track.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <cmath>
-#include <stdexcept>
-
+#include <cstddef>
+#include <cstdint>
 #include <gsl/pointers>
+#include <stdexcept>
 
 #include "CalorimeterParticleIDPreML.h"
 
@@ -23,8 +23,8 @@ void CalorimeterParticleIDPreML::init() {
 void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input& input,
                                          const CalorimeterParticleIDPreML::Output& output) const {
 
-  const auto [clusters, cluster_assocs]  = input;
-  auto [feature_tensors, target_tensors] = output;
+  const auto [clusters, track_matches, cluster_assocs] = input;
+  auto [feature_tensors, target_tensors]               = output;
 
   edm4eic::MutableTensor feature_tensor = feature_tensors->create();
   feature_tensor.addToShape(clusters->size());
@@ -42,19 +42,18 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   for (edm4eic::Cluster cluster : *clusters) {
     double momentum = NAN;
     {
-      // FIXME: use track momentum once matching to tracks becomes available
-      edm4eic::MCRecoClusterParticleAssociation best_assoc;
-      for (auto assoc : *cluster_assocs) {
-        if (assoc.getRec() == cluster) {
-          if ((not best_assoc.isAvailable()) || (assoc.getWeight() > best_assoc.getWeight())) {
-            best_assoc = assoc;
+      auto best_match = edm4eic::TrackClusterMatch::makeEmpty();
+      for (auto match : *track_matches) {
+        if (match.getCluster() == cluster) {
+          if ((not best_match.isAvailable()) || (match.getWeight() > best_match.getWeight())) {
+            best_match = match;
           }
         }
       }
-      if (best_assoc.isAvailable()) {
-        momentum = edm4hep::utils::magnitude(best_assoc.getSim().getMomentum());
+      if (best_match.isAvailable()) {
+        momentum = edm4hep::utils::magnitude(best_match.getTrack().getMomentum());
       } else {
-        warning("Can't find association for cluster. Skipping...");
+        trace("Can't find a match for the cluster. Skipping...");
         continue;
       }
     }
