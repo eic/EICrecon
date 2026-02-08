@@ -102,7 +102,7 @@ void InitPlugin(JApplication* app) {
 #endif
 
   // Calorimeter hits collector
-  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit>>(
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
       "CentralCalorimeterRecHits", {"EcalBarrelImagingTrackerRecHits"},
       {"CentralCalorimeterRecHits"}, // Output collection name
       app));
@@ -121,6 +121,7 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTrajectories",
       {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements"},
       {
+          "CentralCKFTruthSeededActsTrackStatesUnfiltered",
           "CentralCKFTruthSeededActsTracksUnfiltered",
       },
       app));
