@@ -32,13 +32,19 @@
 namespace eicrecon {
 
 class SignalPulse {
-protected:
-  // Pulse shape traits - set once at construction from compile-time knowledge
-  // These const members enable zero-overhead trait queries (inlined to single load)
-  const bool m_is_unimodal;
-  const bool m_is_continuous;
-  const bool m_has_bounded_support;
+private:
+  // Pulse shape traits - set once at construction from compile-time knowledge.
+  // Changed from "protected const bool" to "private bool" to avoid clang-tidy
+  // warnings (cppcoreguidelines-avoid-const-or-ref-data-members and
+  // cppcoreguidelines-non-private-member-variables-in-classes). The const
+  // semantics are preserved through: (1) protected constructor that initializes
+  // all traits, (2) no public setters, and (3) const accessor methods only.
+  // This enforces immutability through design, not through the type system.
+  bool m_is_unimodal;
+  bool m_is_continuous;
+  bool m_has_bounded_support;
 
+protected:
   // Protected constructor for derived classes to set traits
   SignalPulse(bool is_unimodal, bool is_continuous, bool has_bounded_support)
       : m_is_unimodal(is_unimodal)
