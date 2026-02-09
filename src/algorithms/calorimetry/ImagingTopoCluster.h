@@ -97,7 +97,7 @@ public:
   void init();
   void process(const Input& input, const Output& output) const final;
 
-  // based on sytem Id and across the system neighbouring
+  // based on system Id and across the system neighbouring
 
 private:
   // helper function to group hits
