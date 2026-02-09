@@ -54,7 +54,7 @@ public:
             "truth."} {
   }
 
-  void init() final {};
+  void init() final {}
   void process(const Input&, const Output&) const final;
 
   // Accessors for statistics
