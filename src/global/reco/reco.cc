@@ -46,9 +46,6 @@
 #include "factories/reco/Truthiness_factory.h"
 #endif
 #include "factories/reco/UndoAfterBurnerMCParticles_factory.h"
-#if !__has_include(<edm4eic/Truthiness.h>)
-#include "global/reco/Truthiness_processor.h"
-#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -285,9 +282,6 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<Truthiness_factory>(
       "Truthiness", {"MCParticles", "ReconstructedParticles", "ReconstructedParticleAssociations"},
       {"Truthiness"}, {}, app));
-#else
-  // Include as processor if Truthiness output is not available
-  app->Add(new Truthiness_processor());
 #endif
 }
 } // extern "C"
