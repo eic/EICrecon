@@ -103,6 +103,8 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
 
     REQUIRE((*parts_in).size() == (*parts_out).size());
     REQUIRE((*assocs_in).size() == (*assocs_out).size());
-    REQUIRE((*partids_out).size() == (*partids_out).size());
+    REQUIRE(
+        0 ==
+        (*partids_out).size()); // Since our table is empty, there will not be a successful lookup
   }
 }

@@ -27,7 +27,7 @@ if(NOT JANA_VERSION VERSION_GREATER "2.4.2")
             EDM4HEP::edm4hep
             ${JANA_LIB}
             podio::podio
-            podio::podioRootIO
+            podio::podioIO
             ${ROOT_LIBRARIES}
             Catch2::Catch2WithMain
             ${CMAKE_DL_LIBS})
