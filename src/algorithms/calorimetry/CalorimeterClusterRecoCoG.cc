@@ -33,7 +33,7 @@
 #include <DD4hep/IDDescriptor.h>
 #include <algorithms/service.h>
 
-#include "CalorimeterClusterRecoCoG.h"
+#include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
@@ -97,7 +97,7 @@ static const int SYSID_SCIFI   = 105;
 static const int SYSID_IMAGING = 101;
 
 inline int getSystemID(const edm4eic::CalorimeterHit& hit, const dd4hep::IDDescriptor& m_idSpec) {
-  auto* sys_field = m_idSpec.field("system");
+  static thread_local auto* sys_field = m_idSpec.field("system");
   return sys_field->value(hit.getCellID());
 }
 
