@@ -1,4 +1,3 @@
-
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Dhevan Gangadharan, Derek Anderson
 
@@ -140,90 +139,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   }
 
   bool specialMode = hasSciFi && hasImaging;
-
-  for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
-    const auto& hit   = pcl.getHits()[i];
-    const auto weight = pcl.getWeights()[i];
-    debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
-    auto energy = hit.getEnergy() * weight;
-    totalE += energy;
-    time += (hit.getTime() - time) * energy / totalE;
-    cl.addToHits(hit);
-    cl.addToHitContributions(energy);
-    const float eta = edm4hep::utils::eta(hit.getPosition());
-    minHitEta       = std::min(eta, minHitEta);
-    maxHitEta       = std::max(eta, maxHitEta);
-
-    // for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
-    //   const auto& hit   = pcl.getHits()[i];
-    //   const auto weight = pcl.getWeights()[i];
-    //   debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
-    //   auto energy = hit.getEnergy() * weight;
-    //   totalE += energy;
-    //   time += (hit.getTime() - time) * energy / totalE;
-    //   cl.addToHits(hit);
-    //   cl.addToHitContributions(energy);
-    //   const float eta = edm4hep::utils::eta(hit.getPosition());
-    //   if (eta < minHitEta) {
-    //     minHitEta = eta;
-    //   }
-    //   if (eta > maxHitEta) {
-    //     maxHitEta = eta;
-    //   }
-    // }
-
-    // -----------------------------------------------------------------------------------
-    //   ScFi hit alone contributes to energy weight & for Img hit energy weight = 0
-    // -----------------------------------------------------------------------------------
-
-    for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
-
-      const auto& hit   = pcl.getHits()[i];
-      const auto weight = pcl.getWeights()[i];
-
-      float energy = 0.0f;
-
-      if (specialMode) {
-
-        if (isSciFiHit(hit, m_idSpec)) {
-          energy = hit.getEnergy() * weight;
-        } else if (isImagingHit(hit, m_idSpec)) {
-          energy = 0.0f; // Imaging has no energy weight contribution
-        }
-      } else {
-        energy = hit.getEnergy() * weight;
-      }
-
-      totalE += energy;
-      time += (hit.getTime() - time) * energy / totalE;
-
-      cl.addToHits(hit);
-      cl.addToHitContributions(energy);
-
-      float eta = edm4hep::utils::eta(hit.getPosition());
-      minHitEta = std::min(minHitEta, eta);
-      maxHitEta = std::max(maxHitEta, eta);
-    }
-  }
-
-  // for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
-  //   const auto& hit   = pcl.getHits()[i];
-  //   const auto weight = pcl.getWeights()[i];
-  //   debug("hit energy = {} hit weight: {}", hit.getEnergy(), weight);
-  //   auto energy = hit.getEnergy() * weight;
-  //   totalE += energy;
-  //   time += (hit.getTime() - time) * energy / totalE;
-  //   cl.addToHits(hit);
-  //   cl.addToHitContributions(energy);
-  //   const float eta = edm4hep::utils::eta(hit.getPosition());
-  //   if (eta < minHitEta) {
-  //     minHitEta = eta;
-  //   }
-  //   if (eta > maxHitEta) {
-  //     maxHitEta = eta;
-  //   }
-  // }
-
+  
   // -----------------------------------------------------------------------------------
   //   ScFi hit alone contributes to energy weight & for Img hit energy weight = 0
   // -----------------------------------------------------------------------------------
@@ -274,15 +190,6 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
       logWeightBase += m_cfg.logWeightBaseCoeffs[i] * pow(l, i);
     }
   }
-
-  // for (unsigned i = 0; i < pcl.getHits().size(); ++i) {
-  //   const auto& hit   = pcl.getHits()[i];
-  //   const auto weight = pcl.getWeights()[i];
-  //   //      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
-  //   float w = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);
-  //   tw += w;
-  //   v = v + (hit.getPosition() * w);
-  // }
 
   // --------------------------------------------------------------------------------------
   //   Imaging hit alone contributes to Position weight & for ScFi hit position weight = 0
