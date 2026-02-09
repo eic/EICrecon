@@ -18,7 +18,9 @@
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
+
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   //Digitized hits, especially for thresholds
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(

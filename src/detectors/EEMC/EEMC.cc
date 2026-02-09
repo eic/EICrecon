@@ -26,6 +26,7 @@ extern "C" {
 void InitPlugin(JApplication* app) {
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   InitJANAPlugin(app);
 
@@ -162,19 +163,15 @@ void InitPlugin(JApplication* app) {
           "EcalEndcapNParticleIDTarget",
       },
       app));
-  app->Add(new JOmniFactoryGeneratorT<ONNXInference_factory>(
-      "EcalEndcapNParticleIDInference",
-      {
-          "EcalEndcapNParticleIDInput_features",
-      },
-      {
-          "EcalEndcapNParticleIDOutput_label",
-          "EcalEndcapNParticleIDOutput_probability_tensor",
-      },
-      {
-          .modelPath = "calibrations/onnx/EcalEndcapN_pi_rejection.onnx",
-      },
-      app));
+
+  app->Add(new jana::components::JOmniFactoryGeneratorT<ONNXInference_factory>(
+      {.tag                   = "EcalEndcapNParticleIDInference",
+       .variadic_input_names  = {{"EcalEndcapNParticleIDInput_features"}},
+       .variadic_output_names = {{"EcalEndcapNParticleIDOutput_label",
+                                  "EcalEndcapNParticleIDOutput_probability_tensor"}},
+       .configs               = {
+           .modelPath = "calibrations/onnx/EcalEndcapN_pi_rejection.onnx",
+       }}));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPostML_factory>(
       "EcalEndcapNParticleIDPostML",
       {

@@ -50,6 +50,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   // Finds associations matched to initial scattered electrons
   app->Add(
@@ -64,15 +65,18 @@ void InitPlugin(JApplication* app) {
       "GeneratedParticles", {"MCParticles"}, {"GeneratedParticles"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, true>>(
-      "EcalClusters", {"EcalEndcapNClusters", "EcalBarrelScFiClusters", "EcalEndcapPClusters"},
-      {"EcalClusters"}, app));
+      {.tag                  = "EcalClusters",
+       .variadic_input_names = {{"EcalEndcapNClusters", "EcalBarrelScFiClusters",
+                                 "EcalEndcapPClusters"}},
+       .output_names         = {"EcalClusters"}}));
 
   app->Add(new JOmniFactoryGeneratorT<
            CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation, true>>(
-      "EcalClusterAssociations",
-      {"EcalEndcapNClusterAssociations", "EcalBarrelScFiClusterAssociations",
-       "EcalEndcapPClusterAssociations"},
-      {"EcalClusterAssociations"}, app));
+      {.tag                  = "EcalClusterAssociations",
+       .variadic_input_names = {{"EcalEndcapNClusterAssociations",
+                                 "EcalBarrelScFiClusterAssociations",
+                                 "EcalEndcapPClusterAssociations"}},
+       .output_names         = {"EcalClusterAssociations"}}));
 
   app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
       "ReconstructedParticlesWithAssoc",
@@ -119,8 +123,9 @@ void InitPlugin(JApplication* app) {
 
   // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
-      "InclusiveKinematicseSigma_legacy", {"InclusiveKinematicsESigma"},
-      {"InclusiveKinematicseSigma"}, app));
+      {.tag                  = "InclusiveKinematicseSigma_legacy",
+       .variadic_input_names = {{"InclusiveKinematicsESigma"}},
+       .output_names         = {"InclusiveKinematicseSigma"}}));
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(

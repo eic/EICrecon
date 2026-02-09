@@ -18,8 +18,8 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   typename JOmniFactory<CollectionCollector_factory<T, IsOptional>,
-                        NoConfig>::template VariadicPodioInput<T, IsOptional>
-      m_inputs{this};
+                        NoConfig>::template VariadicPodioInput<T>
+      m_inputs{this, {.is_optional = IsOptional}};
   typename JOmniFactory<CollectionCollector_factory<T, IsOptional>,
                         NoConfig>::template PodioOutput<T>
       m_output{this};

@@ -4,96 +4,37 @@
 
 #pragma once
 
-#include <JANA/JFactorySet.h>
-#include <JANA/JFactoryGenerator.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplicationFwd.h>
+
+#include <string>
+#include <utility>
 #include <vector>
 
-template <class FactoryT> class JOmniFactoryGeneratorT : public JFactoryGenerator {
+namespace eicrecon {
+
+// Fallthrough to JANA's built-in JOmniFactoryGeneratorT, but allow for unused app argument in constructor
+template <class FactoryT>
+class JOmniFactoryGeneratorT : public jana::components::JOmniFactoryGeneratorT<FactoryT> {
 public:
   using FactoryConfigType = typename FactoryT::ConfigType;
+  using TypedWiring = typename jana::components::JOmniFactoryGeneratorT<FactoryT>::TypedWiring;
 
-private:
-  struct TypedWiring {
-    std::string m_tag;
-    std::vector<std::string> m_default_input_tags;
-    std::vector<std::string> m_default_output_tags;
-    FactoryConfigType m_default_cfg; /// Must be properly copyable!
-  };
+  explicit JOmniFactoryGeneratorT() = default;
 
-  struct UntypedWiring {
-    std::string m_tag;
-    std::vector<std::string> m_default_input_tags;
-    std::vector<std::string> m_default_output_tags;
-    std::map<std::string, std::string> m_config_params;
-  };
+  explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> input_names,
+                                  std::vector<std::string> output_names, FactoryConfigType configs,
+                                  JApplication* /* app */ = nullptr)
+      : jana::components::JOmniFactoryGeneratorT<FactoryT>(tag, input_names, output_names,
+                                                           configs) {}
 
-public:
-  explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> default_input_tags,
-                                  std::vector<std::string> default_output_tags,
-                                  FactoryConfigType cfg, JApplication* app) {
-    m_app = app;
-    m_wirings.push_back({.m_tag                 = tag,
-                         .m_default_input_tags  = default_input_tags,
-                         .m_default_output_tags = default_output_tags,
-                         .m_default_cfg         = cfg});
-  };
+  explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> input_names,
+                                  std::vector<std::string> output_names,
+                                  JApplication* /* app */ = nullptr)
+      : jana::components::JOmniFactoryGeneratorT<FactoryT>(tag, input_names, output_names) {}
 
-  explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> default_input_tags,
-                                  std::vector<std::string> default_output_tags, JApplication* app) {
-    m_app = app;
-    m_wirings.push_back({.m_tag                 = tag,
-                         .m_default_input_tags  = default_input_tags,
-                         .m_default_output_tags = default_output_tags,
-                         .m_default_cfg         = {}});
-  }
-
-  explicit JOmniFactoryGeneratorT(JApplication* app) : m_app(app) {}
-
-  void AddWiring(std::string tag, std::vector<std::string> default_input_tags,
-                 std::vector<std::string> default_output_tags, FactoryConfigType cfg) {
-
-    m_wirings.push_back({.m_tag                 = tag,
-                         .m_default_input_tags  = default_input_tags,
-                         .m_default_output_tags = default_output_tags,
-                         .m_default_cfg         = cfg});
-  }
-
-  void AddWiring(std::string tag, std::vector<std::string> default_input_tags,
-                 std::vector<std::string> default_output_tags,
-                 std::map<std::string, std::string> config_params) {
-
-    // Create throwaway factory so we can populate its config using our map<string,string>.
-    FactoryT factory;
-    factory.ConfigureAllParameters(config_params);
-    auto config = factory.config();
-
-    m_wirings.push_back({.m_tag                 = tag,
-                         .m_default_input_tags  = default_input_tags,
-                         .m_default_output_tags = default_output_tags,
-                         .m_default_cfg         = config});
-  }
-
-  void GenerateFactories(JFactorySet* factory_set) override {
-
-    for (const auto& wiring : m_wirings) {
-
-      FactoryT* factory = new FactoryT;
-      factory->SetApplication(m_app);
-      factory->SetPluginName(this->GetPluginName());
-      factory->SetFactoryName(JTypeInfo::demangle<FactoryT>());
-      factory->config() = wiring.m_default_cfg;
-
-      // Set up all of the wiring prereqs so that Init() can do its thing
-      // Specifically, it needs valid input/output tags, a valid logger, and
-      // valid default values in its Config object
-      factory->PreInit(wiring.m_tag, wiring.m_default_input_tags, wiring.m_default_output_tags);
-
-      // Factory is ready
-      factory_set->Add(factory);
-    }
-  }
-
-private:
-  std::vector<TypedWiring> m_wirings;
-  JApplication* m_app;
+  explicit JOmniFactoryGeneratorT(TypedWiring&& wiring)
+      : jana::components::JOmniFactoryGeneratorT<FactoryT>(std::move(wiring)) {}
 };
+
+} // namespace eicrecon

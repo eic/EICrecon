@@ -20,7 +20,9 @@
 extern "C" {
 void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
+
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   MatrixTransferStaticConfig recon_cfg;
   PolynomialMatrixReconstructionConfig recon_poly_cfg;
