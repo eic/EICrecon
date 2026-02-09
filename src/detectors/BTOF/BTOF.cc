@@ -35,6 +35,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   // Convert raw digitized hits into calibrated hits
   // time walk correction is still TBD

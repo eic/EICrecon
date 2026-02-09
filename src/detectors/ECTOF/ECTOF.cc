@@ -30,6 +30,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   // cluster all hits in a sensor into one hit location
   // Currently it's just a simple weighted average
