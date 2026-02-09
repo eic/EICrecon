@@ -139,7 +139,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
   }
 
   bool specialMode = hasSciFi && hasImaging;
-  
+
   // -----------------------------------------------------------------------------------
   //   ScFi hit alone contributes to energy weight & for Img hit energy weight = 0
   // -----------------------------------------------------------------------------------
