@@ -33,6 +33,24 @@ using TruthinessAlgorithm = algorithms::Algorithm<
     algorithms::Output<>>;
 #endif
 
+/**
+ * Algorithm computing a "truthiness" metric that quantifies how well reconstructed
+ * particles agree with the Monte Carlo (MC) truth information.
+ *
+ * The truthiness value is a scalar penalty score built from several contributions,
+ * such as:
+ *   - energy penalties for mismatches between reconstructed and MC energies,
+ *   - momentum penalties for discrepancies in reconstructed vs MC momentum,
+ *   - penalties for PID (particle identification) mismatches between reco and MC,
+ *   - penalties for unassociated reconstructed particles or MC particles.
+ *
+ * These contributions are combined into a single number per event (and/or per
+ * object, depending on configuration). Lower truthiness values indicate better
+ * agreement between reconstruction and truth, while higher values indicate larger
+ * or more confident disagreement — i.e. "more truthiness is more confidently
+ * wrong". This class also keeps simple running statistics (average truthiness and
+ * number of processed events) for monitoring purposes.
+ */
 class Truthiness : public TruthinessAlgorithm, public WithPodConfig<TruthinessConfig> {
 
 private:
