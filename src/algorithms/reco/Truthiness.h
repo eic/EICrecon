@@ -54,7 +54,7 @@ using TruthinessAlgorithm = algorithms::Algorithm<
 class Truthiness : public TruthinessAlgorithm, public WithPodConfig<TruthinessConfig> {
 
 private:
-  mutable double m_average_truthiness{0.0};
+  mutable std::atomic<double> m_average_truthiness{0.0};
   mutable std::atomic<uint64_t> m_event_count{0};
   mutable std::mutex m_stats_mutex;
 
