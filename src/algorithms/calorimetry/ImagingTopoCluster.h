@@ -97,7 +97,7 @@ public:
   void init();
   void process(const Input& input, const Output& output) const final;
 
-  // +++++++++++++++++++based on sytem Id and across the system neighbouring ++++
+  // based on sytem Id and across the system neighbouring 
 
 private:
   // helper function to group hits
@@ -147,7 +147,7 @@ private:
 
         // debug("Checking neighbor for hit {} in system {}", *idx2, sys_field->value(hits[*idx2].getCellID()));
 
-        // skip hits form other system
+        // skip hits from other system
         if (sys_field->value(hits[*idx2].getCellID()) != sys) {
           debug("  Skipping hit {}: different system", *idx2);
           ++idx2;
@@ -167,11 +167,9 @@ private:
 
         if (is_neighbour(hits[*idx1], hits[*idx2])) {
           edges.emplace_back(*idx1, *idx2);
-          // debug("hit {} and {} are neighbors", *idx1, *idx2);
           group.push_back(*idx2);
           idx2 = indices.erase(idx2); // takes role of idx2++
         } else {
-          // debug("hit {} and {} are not neighbors", *idx1, *idx2);
           idx2++;
         }
       }
