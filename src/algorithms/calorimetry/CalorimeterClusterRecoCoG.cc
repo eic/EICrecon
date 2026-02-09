@@ -211,7 +211,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
       v = v + hit.getPosition() * w;
     } else {
       const auto weight = pcl.getWeights()[i];
-      float w = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);
+      float w           = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);
       tw += w;
       v = v + (hit.getPosition() * w);
     }
