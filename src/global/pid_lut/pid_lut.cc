@@ -23,6 +23,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   //-------------------------------------------------------------------------
   // PFRICH PID
@@ -181,6 +182,43 @@ void InitPlugin(JApplication* app) {
   // as a particle in the ReconstructedChargedParticle collection rather than needing
   // a subset collection. This should be fixed in the future.
 
+#if (JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||             \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
+          {.tag                  = "ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles",
+           .variadic_input_names = {{"ReconstructedChargedWithPFRICHTOFDIRCPIDParticles",
+                                     "TaggerTrackerReconstructedParticles"}},
+           .output_names         = {"ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles"}}));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
+      {.tag                  = "ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
+       .variadic_input_names = {{"ReconstructedChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+                                 "TaggerTrackerReconstructedParticleAssociations"}},
+       .output_names = {"ReconstructedChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}}));
+
+  // And the same for truth seeded particles and associations
+
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
+          {.tag = "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles",
+           .variadic_input_names = {{"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticles",
+                                     "TaggerTrackerReconstructedParticles"}},
+           .output_names = {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticles"}}));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoParticleAssociation, true>>(
+      {.tag = "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations",
+       .variadic_input_names =
+           {{"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
+             "TaggerTrackerReconstructedParticleAssociations"}},
+       .output_names = {
+           "ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}}));
+
+#else
+
   app->Add(
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::ReconstructedParticle, true>>(
           "ReconstructedWithPFRICHTOFDIRCLOWQ2PIDChargedParticles",
@@ -210,6 +248,8 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCPIDParticleAssociations",
        "TaggerTrackerReconstructedParticleAssociations"},
       {"ReconstructedTruthSeededChargedWithPFRICHTOFDIRCLOWQ2PIDParticleAssociations"}, app));
+
+#endif
 
   //-------------------------------------------------------------------------
   // DRICH PID

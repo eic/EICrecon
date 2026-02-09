@@ -42,6 +42,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
       "TrackTruthSeeds", {"EventHeader", "MCParticles"},
@@ -49,6 +50,17 @@ void InitPlugin(JApplication* app) {
 
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};
+#if (JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||             \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
+      {.tag                   = "CentralB0TrackTruthSeeds",
+       .input_names           = {"TrackTruthSeeds"},
+       .variadic_output_names = {{"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"}},
+       .configs               = {
+                         .function = RangeSplit<Chain<&edm4eic::TrackSeed::getParams,
+                                                      &edm4eic::TrackParameters::getTheta>>(thetaRanges),
+       }}));
+#else
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
       "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
       {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
@@ -58,9 +70,33 @@ void InitPlugin(JApplication* app) {
               thetaRanges),
       },
       app));
+#endif
 
   // CENTRAL TRACKER
 
+#if (JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||             \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
+  // Tracker hits collector
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
+      {.tag                  = "CentralTrackingRecHits",
+       .variadic_input_names = {{"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits",
+                                 "SiEndcapTrackerRecHits", "TOFBarrelRecHits", "TOFEndcapRecHits",
+                                 "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
+                                 "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"}},
+       .output_names         = {"CentralTrackingRecHits"}}));
+
+  // Tracker hit associations collector
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation, true>>(
+      {.tag                  = "CentralTrackingRawHitAssociations",
+       .variadic_input_names = {{"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
+                                 "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
+                                 "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
+                                 "OuterMPGDBarrelRawHitAssociations",
+                                 "BackwardMPGDEndcapRawHitAssociations",
+                                 "ForwardMPGDEndcapRawHitAssociations"}},
+       .output_names         = {"CentralTrackingRawHitAssociations"}}));
+#else
   // Tracker hits collector
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
       "CentralTrackingRecHits",
@@ -81,6 +117,7 @@ void InitPlugin(JApplication* app) {
        "ForwardMPGDEndcapRawHitAssociations"},
       {"CentralTrackingRawHitAssociations"}, // Output collection name
       app));
+#endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
       "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
@@ -416,6 +453,35 @@ void InitPlugin(JApplication* app) {
       },
       {}, app));
 
+#if (JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||             \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
+
+  // Add central and B0 tracks
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
+      {.tag                  = "CombinedTracks",
+       .variadic_input_names = {{"CentralCKFTracks", "B0TrackerCKFTracks"}},
+       .output_names         = {"CombinedTracks"}}));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
+      {.tag                  = "CombinedTrackAssociations",
+       .variadic_input_names = {{"CentralCKFTrackAssociations", "B0TrackerCKFTrackAssociations"}},
+       .output_names         = {"CombinedTrackAssociations"}}));
+
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
+      {.tag                  = "CombinedTruthSeededTracks",
+       .variadic_input_names = {{"CentralCKFTruthSeededTracks", "B0TrackerCKFTruthSeededTracks"}},
+       .output_names         = {"CombinedTruthSeededTracks"}}));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoTrackParticleAssociation, true>>(
+      {.tag                  = "CombinedTruthSeededTrackAssociations",
+       .variadic_input_names = {{"CentralCKFTruthSeededTrackAssociations",
+                                 "B0TrackerCKFTruthSeededTrackAssociations"}},
+       .output_names         = {"CombinedTruthSeededTrackAssociations"}}));
+
+#else
+
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
       "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
@@ -444,6 +510,8 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedTruthSeededChargedWithoutPIDParticles",
        "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations"},
       {}, app));
+
+#endif
 
   app->Add(new JOmniFactoryGeneratorT<TracksToParticles_factory>(
       "ChargedParticlesWithAssociations",
