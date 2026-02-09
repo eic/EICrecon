@@ -47,7 +47,7 @@ concept HasGetLocations = requires(const T& t) {
 constexpr bool IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS = HasGetLocations<RadiatorHistory>;
 
 // Helper classes using template specialization to call appropriate methods
-// We use templated methods with auto types to delay name lookup and avoid
+// We use templated helper methods and delayed name lookup to avoid
 // compilation errors when methods don't exist in the unused specialization
 template <bool UseRadiatorHistory> struct IrtHelpers;
 
