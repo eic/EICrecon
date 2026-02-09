@@ -23,7 +23,7 @@ struct TruthinessConfig {
   //   can be appropriate if the PID is known to be noisy or still under
   //   development, and you do not want its imperfections to overwhelm the
   //   overall truthiness assessment.
-  double pidPenaltyWeight              = 1.0;
+  double pidPenaltyWeight = 1.0;
 
   // Weight for penalties assigned to MC particles that have no associated
   // reconstructed counterpart.
@@ -36,7 +36,7 @@ struct TruthinessConfig {
   //   particles, which can be reasonable in regions of phase space where
   //   detector acceptance is limited or where you expect a large amount of
   //   uninstrumented activity.
-  double unassociatedMCPenaltyWeight   = 1.0;
+  double unassociatedMCPenaltyWeight = 1.0;
 
   // Weight for penalties assigned to reconstructed particles that cannot be
   // matched to any MC particle.
@@ -78,8 +78,7 @@ struct TruthinessConfig {
   // - Larger values make the metric more tolerant to such differences, which
   //   can be appropriate in regions with poorer tracking or for very low/high
   //   momentum particles where the resolution is intrinsically worse.
-  double defaultMomentumResolution =
-      1.0;
+  double defaultMomentumResolution = 1.0;
 };
 
 } // namespace eicrecon
