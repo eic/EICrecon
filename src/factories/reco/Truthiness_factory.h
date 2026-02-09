@@ -36,11 +36,16 @@ private:
   FactoryT::PodioOutput<edm4eic::Truthiness> m_truthiness_output{this};
 #endif
 
-  FactoryT::ParameterRef<double> m_pidPenaltyWeight{this, "pidPenaltyWeight", config().pidPenaltyWeight};
-  FactoryT::ParameterRef<double> m_unassociatedMCPenaltyWeight{this, "unassociatedMCPenaltyWeight", config().unassociatedMCPenaltyWeight};
-  FactoryT::ParameterRef<double> m_unassociatedRecoPenaltyWeight{this, "unassociatedRecoPenaltyWeight", config().unassociatedRecoPenaltyWeight};
-  FactoryT::ParameterRef<double> m_defaultEnergyResolution{this, "defaultEnergyResolution", config().defaultEnergyResolution};
-  FactoryT::ParameterRef<double> m_defaultMomentumResolution{this, "defaultMomentumResolution", config().defaultMomentumResolution};
+  FactoryT::ParameterRef<double> m_pidPenaltyWeight{this, "pidPenaltyWeight",
+                                                    config().pidPenaltyWeight};
+  FactoryT::ParameterRef<double> m_unassociatedMCPenaltyWeight{
+      this, "unassociatedMCPenaltyWeight", config().unassociatedMCPenaltyWeight};
+  FactoryT::ParameterRef<double> m_unassociatedRecoPenaltyWeight{
+      this, "unassociatedRecoPenaltyWeight", config().unassociatedRecoPenaltyWeight};
+  FactoryT::ParameterRef<double> m_defaultEnergyResolution{this, "defaultEnergyResolution",
+                                                           config().defaultEnergyResolution};
+  FactoryT::ParameterRef<double> m_defaultMomentumResolution{this, "defaultMomentumResolution",
+                                                             config().defaultMomentumResolution};
 
   FactoryT::Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
