@@ -352,9 +352,7 @@ void PrintConfigParameters(JApplication* app) {
   std::size_t max_val_length     = 0;
   std::size_t max_max_val_length = 32; // maximum width allowed for column.
   for (auto& [key, p] : params) {
-    if (key.length() > max_key_length) {
-      max_key_length = key.length();
-    }
+    max_key_length = std::max(key.length(), max_key_length);
     if (p->GetValue().length() > max_val_length) {
       if (p->GetValue().length() <= max_max_val_length) {
         max_val_length = p->GetValue().length();
@@ -420,13 +418,6 @@ int Execute(JApplication* app, UserOptions& options) {
     // TODO: more elegant processing here
     PrintPodioCollections(app);
   } else {
-    if ((JVersion::GetMajorNumber() == 2) && (JVersion::GetMinorNumber() == 3) &&
-        (JVersion::GetPatchNumber() <= 1)) {
-      // JANA2 2.3.x has a bug with not filtering default-state parameters, which causes enormous printouts
-      if (not app->GetJParameterManager()->Exists("jana:parameter_verbosity")) {
-        app->GetJParameterManager()->SetParameter("jana:parameter_verbosity", 0);
-      }
-    }
     if (not app->GetJParameterManager()->Exists("jana:parameter_strictness")) {
       app->GetJParameterManager()->SetParameter("jana:parameter_strictness", 2);
     }
@@ -444,7 +435,7 @@ int Execute(JApplication* app, UserOptions& options) {
       app->SetExitCode(EXIT_FAILURE);
     }
   }
-  return (int)app->GetExitCode();
+  return app->GetExitCode();
 }
 
 UserOptions GetCliOptions(int nargs, char* argv[], bool expect_extra) {

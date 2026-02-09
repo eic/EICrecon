@@ -66,7 +66,7 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
 
   if (numBeamProtons == 0) {
     if (m_cfg.requireBeamProton) {
-      critical("No beam protons found");
+      error("No beam protons found");
       throw std::runtime_error("No beam protons found");
     }
     return;
@@ -99,7 +99,7 @@ void eicrecon::MatrixTransferStatic::process(const MatrixTransferStatic::Input& 
   }
   if (not matrix_found) {
     if (m_cfg.requireMatchingMatrix) {
-      critical("No matrix found with matching beam momentum");
+      error("No matrix found with matching beam momentum");
       throw std::runtime_error("No matrix found with matching beam momentum");
     }
     return;

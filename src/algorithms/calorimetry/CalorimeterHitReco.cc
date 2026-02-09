@@ -293,7 +293,7 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
       // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
       cdim =
           m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
-      std::transform(cdim.begin(), cdim.end(), cdim.begin(), [](auto&& PH1) {
+      std::ranges::transform(cdim, cdim.begin(), [](auto&& PH1) {
         return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 2);
       });
       debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));

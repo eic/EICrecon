@@ -15,7 +15,6 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
@@ -90,7 +89,7 @@ ImagingClusterReco::reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl)
     //                std::vector<std::pair<const edm4eic::CalorimeterHit, float>> v;
     //                layer_map[lid] = {};
     //            }
-    layer_map[lid].push_back({hit, weights[i]});
+    layer_map[lid].emplace_back(hit, weights[i]);
   }
 
   // create layers
@@ -297,8 +296,6 @@ void ImagingClusterReco::associate_mc_particles(
 
     // set association
     auto assoc = assocs->create();
-    assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-    assoc.setSimID(part.getObjectID().index);
     assoc.setWeight(weight);
     assoc.setRec(cl);
     assoc.setSim(part);
@@ -319,8 +316,9 @@ ImagingClusterReco::get_primary(const edm4hep::CaloHitContribution& contrib) con
   //     can be improved!!
   edm4hep::MCParticle primary = contributor;
   while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0)
+    if (primary.getGeneratorStatus() != 0) {
       break;
+    }
     primary = primary.getParents(0);
   }
   return primary;

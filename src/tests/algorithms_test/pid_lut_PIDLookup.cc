@@ -6,10 +6,13 @@
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
 #include <edm4hep/Vector2i.h>
+#endif
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <spdlog/common.h>
@@ -70,10 +73,22 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
                     0.,                  // double mass
                     edm4hep::Vector3d(), // edm4hep::Vector3d vertex
                     edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 1)
                     edm4hep::Vector3f(), // edm4hep::Vector3f momentum
                     edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-                    edm4hep::Vector3f(), // edm4hep::Vector3f spin
-                    edm4hep::Vector2i()  // edm4hep::Vector2i colorFlow
+#else
+                    edm4hep::Vector3d(), // edm4hep::Vector3d momentum
+                    edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
+#endif
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
+                    edm4hep::Vector3f() // edm4hep::Vector3f spin
+#else
+                    9 // int32_t helicity (9 if unset)
+#endif
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
+                    ,
+                    edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
+#endif
     );
 
     auto assoc_in = assocs_in->create();
@@ -88,6 +103,8 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
 
     REQUIRE((*parts_in).size() == (*parts_out).size());
     REQUIRE((*assocs_in).size() == (*assocs_out).size());
-    REQUIRE((*partids_out).size() == (*partids_out).size());
+    REQUIRE(
+        0 ==
+        (*partids_out).size()); // Since our table is empty, there will not be a successful lookup
   }
 }

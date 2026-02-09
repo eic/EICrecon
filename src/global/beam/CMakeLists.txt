@@ -14,3 +14,6 @@ plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
 plugin_add_event_model(${PLUGIN_NAME})
+
+# Add libraries
+plugin_link_libraries(${PLUGIN_NAME} log_library)

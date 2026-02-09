@@ -25,7 +25,8 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::TrackerHit> m_hits_input{this};
-  PodioOutput<edm4eic::TrackParameters> m_parameters_output{this};
+  PodioOutput<edm4eic::TrackSeed> m_seeds_output{this};
+  PodioOutput<edm4eic::TrackParameters> m_trackparams_output{this};
 
   ParameterRef<float> m_rMax{this, "rMax", config().rMax,
                              "max measurement radius for Acts::OrthogonalSeedFinder"};
@@ -103,12 +104,13 @@ private:
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_hits_input()}, {m_parameters_output().get()});
+    m_algo->process({m_hits_input()}, {m_seeds_output().get(), m_trackparams_output().get()});
   }
 };
 

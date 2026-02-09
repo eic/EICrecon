@@ -6,16 +6,15 @@
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
+#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <complex>
@@ -35,7 +34,7 @@ void CalorimeterClusterShape::init() {
   std::string ew = m_cfg.energyWeight;
 
   // make it case-insensitive
-  std::transform(ew.begin(), ew.end(), ew.begin(), [](char s) { return std::tolower(s); });
+  std::ranges::transform(ew, ew.begin(), [](char s) { return std::tolower(s); });
   auto it = m_weightMethods.find(ew);
   if (it == m_weightMethods.end()) {
     error("Cannot find energy weighting method {}, choose one from [{}]", m_cfg.energyWeight,
@@ -158,10 +157,9 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
           eigenValues_2D = es_2D.eigenvalues();
           eigenValues_3D = es_3D.eigenvalues();
           //find the eigenvector corresponding to the largest eigenvalue
-          auto eigenvectors = es_3D.eigenvectors();
-          auto max_eigenvalue_it =
-              std::max_element(eigenValues_3D.begin(), eigenValues_3D.end(),
-                               [](auto a, auto b) { return std::real(a) < std::real(b); });
+          auto eigenvectors      = es_3D.eigenvectors();
+          auto max_eigenvalue_it = std::ranges::max_element(
+              eigenValues_3D, [](auto a, auto b) { return std::real(a) < std::real(b); });
           auto axis_eigen =
               eigenvectors.col(std::distance(eigenValues_3D.begin(), max_eigenvalue_it));
           axis = {
@@ -208,8 +206,6 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
       if (in_assoc.getRec() == in_clust) {
         auto mc_par    = in_assoc.getSim();
         auto out_assoc = out_associations->create();
-        out_assoc.setRecID(out_clust.getObjectID().index);
-        out_assoc.setSimID(mc_par.getObjectID().index);
         out_assoc.setRec(out_clust);
         out_assoc.setSim(mc_par);
         out_assoc.setWeight(in_assoc.getWeight());
