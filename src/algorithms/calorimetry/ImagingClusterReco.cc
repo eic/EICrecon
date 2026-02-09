@@ -15,18 +15,17 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
-#include <Eigen/QR>
 #include <Eigen/SVD>
 #include <algorithm>
 #include <cmath>
 #include <gsl/pointers>
 #include <map>
+#include <new>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingClusterRecoConfig.h"
@@ -90,7 +89,7 @@ ImagingClusterReco::reconstruct_cluster_layers(const edm4eic::ProtoCluster& pcl)
     //                std::vector<std::pair<const edm4eic::CalorimeterHit, float>> v;
     //                layer_map[lid] = {};
     //            }
-    layer_map[lid].push_back({hit, weights[i]});
+    layer_map[lid].emplace_back(hit, weights[i]);
   }
 
   // create layers
@@ -131,13 +130,7 @@ edm4eic::MutableCluster ImagingClusterReco::reconstruct_layer(
   // positionError not set
   // Intrinsic direction meaningless in a cluster layer --> not set
 
-  // Calculate radius as the standard deviation of the hits versus the cluster center
-  double radius = 0.;
-  for (const auto& [hit, weight] : hits) {
-    radius += std::pow(edm4hep::utils::magnitude(hit.getPosition() - layer.getPosition()), 2);
-  }
-  layer.addToShapeParameters(std::sqrt(radius / layer.getNhits()));
-  // TODO Skewedness
+  // Shape parameters are calculated separately by CalorimeterClusterShape algorithm
 
   return layer;
 }
@@ -179,17 +172,7 @@ ImagingClusterReco::reconstruct_cluster(const edm4eic::ProtoCluster& pcl) const 
   cluster.setPosition(edm4hep::utils::sphericalToVector(
       r, edm4hep::utils::etaToAngle(meta / energy), mphi / energy));
 
-  // shower radius estimate (eta-phi plane)
-  double radius = 0.;
-  for (const auto& hit : hits) {
-    radius += std::pow(std::hypot((edm4hep::utils::eta(hit.getPosition()) -
-                                   edm4hep::utils::eta(cluster.getPosition())),
-                                  (edm4hep::utils::angleAzimuthal(hit.getPosition()) -
-                                   edm4hep::utils::angleAzimuthal(cluster.getPosition()))),
-                       2.0);
-  }
-  cluster.addToShapeParameters(std::sqrt(radius / cluster.getNhits()));
-  // Skewedness not calculated TODO
+  // Shape parameters are calculated separately by CalorimeterClusterShape algorithm
 
   // Optionally store the MC truth associated with the first hit in this cluster
   // FIXME no connection between cluster and truth in edm4hep
@@ -313,8 +296,6 @@ void ImagingClusterReco::associate_mc_particles(
 
     // set association
     auto assoc = assocs->create();
-    assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-    assoc.setSimID(part.getObjectID().index);
     assoc.setWeight(weight);
     assoc.setRec(cl);
     assoc.setSim(part);
@@ -335,8 +316,9 @@ ImagingClusterReco::get_primary(const edm4hep::CaloHitContribution& contrib) con
   //     can be improved!!
   edm4hep::MCParticle primary = contributor;
   while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0)
+    if (primary.getGeneratorStatus() != 0) {
       break;
+    }
     primary = primary.getParents(0);
   }
   return primary;

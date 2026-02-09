@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
@@ -26,8 +24,6 @@ plugin_glob_all(${PLUGIN_NAME})
 
 # Add libraries (same as target_include_directories but for both plugin and
 # library)
-plugin_link_libraries(${PLUGIN_NAME} algorithms_digi_library
-                      algorithms_tracking_library algorithms_reco_library)
-if(USE_ONNX)
-  plugin_link_libraries(${PLUGIN_NAME} algorithms_onnx_library)
-endif()
+plugin_link_libraries(
+  ${PLUGIN_NAME} algorithms_digi_library algorithms_tracking_library
+  algorithms_reco_library algorithms_onnx_library log_library)

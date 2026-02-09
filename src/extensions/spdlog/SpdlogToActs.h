@@ -15,12 +15,12 @@
 #include <boost/bimap.hpp>
 
 #include <regex>
+#include <stdexcept>
 
 #include <spdlog/spdlog.h>
 #include <spdlog/fmt/fmt.h>
 
 #include <Acts/Utilities/Logger.hpp>
-#include <JANA/JException.h>
 
 namespace eicrecon {
 
@@ -38,8 +38,8 @@ inline Acts::Logging::Level SpdlogToActsLevel(spdlog::level::level_enum input) {
     return kSpdlogToActsLevel.left.at(input);
   } catch (...) {
     auto err_msg =
-        fmt::format("SpdlogToActsLevel don't know this log level: '{}'", fmt::underlying(input));
-    throw JException(err_msg);
+        fmt::format("SpdlogToActsLevel doesn't know this log level: '{}'", fmt::underlying(input));
+    throw std::runtime_error(err_msg);
   }
 }
 
@@ -48,8 +48,8 @@ inline spdlog::level::level_enum ActsToSpdlogLevel(Acts::Logging::Level input) {
     return kSpdlogToActsLevel.right.at(input);
   } catch (...) {
     auto err_msg =
-        fmt::format("ActsToSpdlogLevel don't know this log level: '{}'", fmt::underlying(input));
-    throw JException(err_msg);
+        fmt::format("ActsToSpdlogLevel doesn't know this log level: '{}'", fmt::underlying(input));
+    throw std::runtime_error(err_msg);
   }
 }
 

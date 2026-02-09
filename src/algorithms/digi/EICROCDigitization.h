@@ -9,6 +9,7 @@
 #include <algorithms/algorithm.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4hep/RawTimeSeriesCollection.h>
+#include <cmath>
 #include <string>
 #include <string_view>
 

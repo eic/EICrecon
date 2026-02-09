@@ -1,9 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 - 2025 Simon Gardner
 
-#include <edm4eic/EDM4eicVersion.h>
-
-#if EDM4EIC_VERSION_MAJOR >= 8
+#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <cmath>
@@ -12,17 +10,23 @@
 #include <stdexcept>
 
 #include "FarDetectorTransportationPostML.h"
+#include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
-void FarDetectorTransportationPostML::init() { m_beamE = m_cfg.beamE; }
+void FarDetectorTransportationPostML::init() {
+  m_beamE           = m_cfg.beamE;
+  auto& particleSvc = algorithms::ParticleSvc::instance();
+  m_mass            = particleSvc.particle(m_cfg.pdg_value).mass;
+  m_charge          = particleSvc.particle(m_cfg.pdg_value).charge;
+}
 
 void FarDetectorTransportationPostML::process(
     const FarDetectorTransportationPostML::Input& input,
     const FarDetectorTransportationPostML::Output& output) const {
 
-  const auto [prediction_tensors, beamElectrons] = input;
-  auto [out_particles]                           = output;
+  const auto [prediction_tensors, track_associations, beamElectrons] = input;
+  auto [out_particles, out_associations]                             = output;
 
   //Set beam energy from first MCBeamElectron, using std::call_once
   if (beamElectrons != nullptr) {
@@ -30,7 +34,7 @@ void FarDetectorTransportationPostML::process(
       // Check if beam electrons are present
       if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.NullDereference)
         if (m_cfg.requireBeamElectron) {
-          critical("No beam electrons found");
+          error("No beam electrons found");
           throw std::runtime_error("No beam electrons found");
         }
         return;
@@ -71,7 +75,7 @@ void FarDetectorTransportationPostML::process(
   auto prediction_tensor_data = prediction_tensor.getFloatData();
 
   // Ensure the size of prediction_tensor_data is a multiple of its shape
-  if (prediction_tensor_data.size() % 3 != 0) {
+  if (prediction_tensor_data.size() % 3 != 0 || prediction_tensor.getShape(1) != 3) {
     error("The size of prediction_tensor_data is not a multiple of 3.");
     throw std::runtime_error("The size of prediction_tensor_data is not a multiple of 3.");
   }
@@ -79,31 +83,43 @@ void FarDetectorTransportationPostML::process(
   edm4eic::MutableReconstructedParticle particle;
 
   // Iterate over the prediction_tensor_data in steps of three
-  for (std::size_t i = 0; i < prediction_tensor_data.size(); i += 3) {
-    if (i + 2 >= prediction_tensor_data.size()) {
+  for (std::size_t i = 0; i < static_cast<std::size_t>(prediction_tensor.getShape(0)); i++) {
+
+    std::size_t base_index = i * 3;
+
+    if (base_index + 2 >= prediction_tensor_data.size()) {
       error("Incomplete data for a prediction tensor at the end of the vector.");
       throw std::runtime_error("Incomplete data for a prediction tensor at the end of the vector.");
     }
 
     // Extract the current prediction
-    float px = prediction_tensor_data[i] * m_beamE;
-    float py = prediction_tensor_data[i + 1] * m_beamE;
-    float pz = prediction_tensor_data[i + 2] * m_beamE;
+    float px = prediction_tensor_data[base_index] * m_beamE;
+    float py = prediction_tensor_data[base_index + 1] * m_beamE;
+    float pz = prediction_tensor_data[base_index + 2] * m_beamE;
 
     // Calculate reconstructed electron energy
-    double energy = sqrt(px * px + py * py + pz * pz + 0.000511 * 0.000511);
+    double energy = sqrt(px * px + py * py + pz * pz + m_mass * m_mass);
 
     particle = out_particles->create();
 
     particle.setEnergy(energy);
     particle.setMomentum({px, py, pz});
-    particle.setCharge(-1);
-    particle.setMass(0.000511);
-    particle.setPDG(11);
+    particle.setCharge(m_charge);
+    particle.setMass(m_mass);
+    particle.setPDG(m_cfg.pdg_value);
+
+    //Check if both association collections are set and copy the MCParticle association
+    if ((track_associations != nullptr) && (track_associations->size() > i)) {
+      // Copy the association from the input to the output
+      auto association     = track_associations->at(i);
+      auto out_association = out_associations->create();
+      out_association.setSim(association.getSim());
+      out_association.setRec(particle);
+      out_association.setWeight(association.getWeight());
+    }
   }
 
   // TODO: Implement the association of the reconstructed particles with the tracks
 }
 
 } // namespace eicrecon
-#endif

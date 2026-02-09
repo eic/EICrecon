@@ -1,27 +1,28 @@
 #include "TrackingEfficiency_processor.h"
 
 #include <Acts/Definitions/TrackParametrization.hpp>
-#include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/Services/JGlobalRootLock.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/PxPyPzM4D.h>
-#include <Rtypes.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <spdlog/logger.h>
 #include <Eigen/Core>
+#include <cassert>
 #include <cmath>
 #include <cstddef>
-#include <iterator>
 #include <map>
-#include <optional>
 #include <string>
 #include <vector>
 
@@ -61,15 +62,15 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
 
   // EXAMPLE I
   // This is access to for final result of the calculation/data transformation of central detector CFKTracking:
-  const auto reco_particles =
-      event->Get<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
+  const auto* reco_particles =
+      event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedChargedParticles");
 
-  m_log->debug("Tracking reconstructed particles N={}: ", reco_particles.size());
+  m_log->debug("Tracking reconstructed particles N={}: ", reco_particles->size());
   m_log->debug("   {:<5} {:>8} {:>8} {:>8} {:>8} {:>8}", "[i]", "[px]", "[py]", "[pz]", "[P]",
                "[P*3]");
 
-  for (std::size_t i = 0; i < reco_particles.size(); i++) {
-    const auto& particle = *(reco_particles[i]);
+  for (std::size_t i = 0; i < reco_particles->size(); i++) {
+    const auto& particle = (*reco_particles)[i];
 
     double px = particle.getMomentum().x;
     double py = particle.getMomentum().y;
@@ -81,69 +82,72 @@ void TrackingEfficiency_processor::Process(const std::shared_ptr<const JEvent>& 
   }
 
   // EXAMPLE II
-  // This gets access to more direct ACTS results from CFKTracking
-  auto acts_results = event->Get<ActsExamples::Trajectories>("CentralCKFActsTrajectories");
-  m_log->debug("ACTS Trajectories( size: {} )", std::size(acts_results));
-  m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8}", "[loc 0]",
-               "[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]", "[err q/p]",
-               "[chi2]");
+  // This gets access to more direct ACTS results from CKFTracking
+  auto acts_track_states =
+      event->Get<Acts::ConstVectorMultiTrajectory>("CentralCKFActsTrackStates");
+  auto acts_tracks = event->Get<Acts::ConstVectorTrackContainer>("CentralCKFActsTracks");
+  m_log->debug("ACTS Tracks( track states size: {}, tracks size: {} )", acts_track_states.size(),
+               acts_tracks.size());
+  m_log->debug("{:>10} {:>10}  {:>10} {:>10} {:>10} {:>10} {:>12} {:>12} {:>12} {:>8} {:>8}",
+               "[loc 0]", "[loc 1]", "[phi]", "[theta]", "[q/p]", "[p]", "[err phi]", "[err th]",
+               "[err q/p]", "[chi2]", "[ndf]");
 
-  // Loop over the trajectories
-  for (const auto& traj : acts_results) {
+  // Loop over the tracks
+  if (!acts_track_states.empty() && !acts_tracks.empty()) {
+    assert(acts_track_states.front() != nullptr &&
+           "ConstVectorMultiTrajectory pointer should not be null");
+    assert(acts_tracks.front() != nullptr &&
+           "ConstVectorTrackContainer pointer should not be null");
 
-    // Get the entry index for the single trajectory
-    // The trajectory entry indices and the multiTrajectory
-    const auto& mj        = traj->multiTrajectory();
-    const auto& trackTips = traj->tips();
-    if (trackTips.empty()) {
-      m_log->debug("Empty multiTrajectory.");
-      continue;
-    }
+    // Construct ConstTrackContainer from underlying containers
+    auto trackStateContainer =
+        std::make_shared<Acts::ConstVectorMultiTrajectory>(*acts_track_states.front());
+    auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*acts_tracks.front());
+    ActsExamples::ConstTrackContainer track_container(trackContainer, trackStateContainer);
 
-    const auto& trackTip = trackTips.front();
+    for (const auto& track : track_container) {
+      // Get the track parameters
+      const auto& parameter  = track.parameters();
+      const auto& covariance = track.covariance();
+      auto chi2              = track.chi2();
+      auto ndf               = track.nDoF();
 
-    // Collect the trajectory summary info
-    auto trajState = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
-    if (traj->hasTrackParameters(trackTip)) {
-      const auto& boundParam = traj->trackParameters(trackTip);
-      const auto& parameter  = boundParam.parameters();
-      const auto& covariance = *boundParam.covariance();
       m_log->debug("{:>10.2f} {:>10.2f}  {:>10.2f} {:>10.3f} {:>10.4f} {:>10.3f} {:>12.4e} "
-                   "{:>12.4e} {:>12.4e} {:>8.2f}",
+                   "{:>12.4e} {:>12.4e} {:>8.2f} {:<6}",
                    parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1],
                    parameter[Acts::eBoundPhi], parameter[Acts::eBoundTheta],
                    parameter[Acts::eBoundQOverP], 1.0 / parameter[Acts::eBoundQOverP],
                    sqrt(covariance(Acts::eBoundPhi, Acts::eBoundPhi)),
                    sqrt(covariance(Acts::eBoundTheta, Acts::eBoundTheta)),
-                   sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)), trajState.chi2Sum);
+                   sqrt(covariance(Acts::eBoundQOverP, Acts::eBoundQOverP)), chi2, ndf);
     }
   }
 
   // EXAMPLE III
   // Loop over MC particles
-  auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
-  m_log->debug("MC particles N={}: ", mc_particles.size());
+  const auto* mc_particles = event->GetCollection<edm4hep::MCParticle>("MCParticles");
+  m_log->debug("MC particles N={}: ", mc_particles->size());
   m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}", "[i]", "status", "[PDG]", "[px]",
                "[py]", "[pz]", "[P]");
-  for (std::size_t i = 0; i < mc_particles.size(); i++) {
-    const auto* particle = mc_particles[i];
+  for (std::size_t i = 0; i < mc_particles->size(); i++) {
+    const auto& particle = (*mc_particles)[i];
 
     // GeneratorStatus() == 1 - stable particles from MC generator. 0 - might be added by Geant4
-    if (particle->getGeneratorStatus() != 1) {
+    if (particle.getGeneratorStatus() != 1) {
       continue;
     }
 
-    double px = particle->getMomentum().x;
-    double py = particle->getMomentum().y;
-    double pz = particle->getMomentum().z;
-    ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
+    double px = particle.getMomentum().x;
+    double py = particle.getMomentum().y;
+    double pz = particle.getMomentum().z;
+    ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle.getMass());
     ROOT::Math::Cartesian3D p(px, py, pz);
     if (p.R() < 1) {
       continue;
     }
 
     m_log->debug("   {:<5} {:<6} {:<7} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i,
-                 particle->getGeneratorStatus(), particle->getPDG(), px, py, pz, p.R());
+                 particle.getGeneratorStatus(), particle.getPDG(), px, py, pz, p.R());
   }
 }
 

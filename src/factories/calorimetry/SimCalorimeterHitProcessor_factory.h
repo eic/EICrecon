@@ -34,6 +34,7 @@ private:
   ParameterRef<double> m_inversePropagationSpeed{this, "inversePropagationSpeed",
                                                  config().inversePropagationSpeed};
   ParameterRef<double> m_fixedTimeDelay{this, "fixedTimeDelay", config().fixedTimeDelay};
+  ParameterRef<double> m_timeWindow{this, "timeWindow", config().timeWindow};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -44,8 +45,6 @@ public:
     m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_hits_input()}, {m_hits_output().get(), m_hits_contribs_output().get()});

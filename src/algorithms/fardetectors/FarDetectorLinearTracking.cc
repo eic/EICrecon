@@ -2,19 +2,10 @@
 // Copyright (C) 2023 - 2025, Simon Gardner
 
 #include <DD4hep/VolumeManager.h>
-#include <Eigen/Geometry>
-#include <Eigen/Householder>
-#include <Eigen/Jacobi>
-#include <Eigen/QR>
-#include <Eigen/SVD>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <algorithm>
 #include <algorithms/geo.h>
-#include <cmath>
-#include <cstddef>
-#include <cstdint>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
@@ -22,7 +13,6 @@
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackerHit.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
@@ -31,6 +21,15 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
+#include <Eigen/Geometry>
+#include <Eigen/Householder>
+#include <Eigen/Jacobi>
+#include <Eigen/SVD>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <cstdint>
+#include <new>
 #include <unordered_map>
 #include <utility>
 
@@ -43,6 +42,10 @@ void FarDetectorLinearTracking::init() {
 
   // For changing how strongly each layer hit is in contributing to the fit
   m_layerWeights = Eigen::VectorXd::Constant(m_cfg.n_layer, 1);
+
+  for (std::size_t i = 0; i < std::min(m_cfg.layer_weights.size(), m_cfg.n_layer); i++) {
+    m_layerWeights(i) = m_cfg.layer_weights[i];
+  }
 
   // For checking the direction of the track from theta and phi angles
   m_optimumDirection = Eigen::Vector3d::UnitZ();
@@ -181,8 +184,8 @@ void FarDetectorLinearTracking::checkHitCombination(
 
   // Create the track
   auto track = (*outputTracks)
-                   ->create(type, position, momentum, positionMomentumCovariance, time, timeError,
-                            charge, chi2, ndf, pdg);
+                   .create(type, position, momentum, positionMomentumCovariance, time, timeError,
+                           charge, chi2, ndf, pdg);
 
   // Add Measurement2D relations and count occurrence of particles contributing to the track
   std::unordered_map<const edm4hep::MCParticle*, int> particleCount;
@@ -259,11 +262,7 @@ void FarDetectorLinearTracking::ConvertClusters(
     // Loop over the hit associations to find the associated MCParticle
     for (const auto& hit_assoc : assoc_hits) {
       if (hit_assoc.getRawHit() == rawHit) {
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
         auto particle = hit_assoc.getSimHit().getParticle();
-#else
-        auto particle = hit_assoc.getSimHit().getMCParticle();
-#endif
         assocParticles.push_back(particle);
         break;
       }

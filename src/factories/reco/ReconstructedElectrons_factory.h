@@ -36,18 +36,12 @@ public:
     // Use this callback to make sure the algorithm is configured.
     // The logger, parameters, and services have all been fetched before this is called
     m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
 
     // Pass config object to algorithm
     m_algo->applyConfig(config());
 
     m_algo->init();
-  }
-
-  void ChangeRun(int32_t /* run_number */) {
-    // This is called whenever the run number is changed.
-    // Use this callback to retrieve state that is keyed off of run number.
-    // This state should usually be managed by a Service.
-    // Note: You usually don't need this, because you can declare a Resource instead.
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {

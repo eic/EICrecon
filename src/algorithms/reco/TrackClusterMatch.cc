@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Tristan Protzman
 
-#include <edm4eic/EDM4eicVersion.h> // Needs edm4eic::TrackClusterMatch
+#include <edm4eic/Track.h>
 #include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <cstdint>
@@ -10,7 +10,6 @@
 #include <set>
 #include <stdexcept>
 #include <vector>
-#if EDM4EIC_VERSION_MAJOR >= 8
 
 #include <DD4hep/Detector.h>
 #include <edm4eic/ClusterCollection.h>
@@ -100,5 +99,3 @@ double TrackClusterMatch::distance(const edm4hep::Vector3f& v1, const edm4hep::V
   return std::hypot(deta, dphi);
 }
 } // namespace eicrecon
-
-#endif // EDM4EIC_VERSION_MAJOR >= 8

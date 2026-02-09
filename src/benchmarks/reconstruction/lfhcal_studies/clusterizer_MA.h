@@ -4,6 +4,8 @@
 //  Sections Copyright (C) 2023 Friederike Bock
 //  under SPDX-License-Identifier: LGPL-3.0-or-later
 
+#pragma once
+
 #include <vector>
 #include <TVector3.h>
 

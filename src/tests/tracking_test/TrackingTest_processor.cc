@@ -13,16 +13,15 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <spdlog/logger.h>
 #include <cstddef>
 #include <map>
 #include <string>
 #include <utility>
-#include <vector>
 
-#include "services/io/podio/datamodel_glue.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
+#include "services/io/podio/datamodel_glue_compat.h" // IWYU pragma: keep (templated JEvent::GetCollection<T> needs PodioTypeMap)
 #include "services/log/Log_service.h"
 #include "services/rootfile/RootFile_service.h"
 
@@ -90,30 +89,30 @@ void TrackingTest_processor::ProcessTrackingResults(const std::shared_ptr<const 
                  p.R() * 3);
   }
 
-  auto mc_particles = event->Get<edm4hep::MCParticle>("MCParticles");
+  const auto* mc_particles = event->GetCollection<edm4hep::MCParticle>("MCParticles");
 
-  m_log->debug("MC particles N={}: ", mc_particles.size());
+  m_log->debug("MC particles N={}: ", mc_particles->size());
   m_log->debug("   {:<5} {:<6} {:<7} {:>8} {:>8} {:>8} {:>8}", "[i]", "status", "[PDG]", "[px]",
                "[py]", "[pz]", "[P]");
-  for (std::size_t i = 0; i < mc_particles.size(); i++) {
+  for (std::size_t i = 0; i < mc_particles->size(); i++) {
 
-    const auto* particle = mc_particles[i];
+    const auto& particle = (*mc_particles)[i];
 
-    if (particle->getGeneratorStatus() != 1) {
+    if (particle.getGeneratorStatus() != 1) {
       continue;
     }
     //
-    double px = particle->getMomentum().x;
-    double py = particle->getMomentum().y;
-    double pz = particle->getMomentum().z;
-    ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle->getMass());
+    double px = particle.getMomentum().x;
+    double py = particle.getMomentum().y;
+    double pz = particle.getMomentum().z;
+    ROOT::Math::PxPyPzM4D p4v(px, py, pz, particle.getMass());
     ROOT::Math::Cartesian3D p(px, py, pz);
     if (p.R() < 1) {
       continue;
     }
 
     m_log->debug("   {:<5} {:<6} {:<7} {:>8.2f} {:>8.2f} {:>8.2f} {:>8.2f}", i,
-                 particle->getGeneratorStatus(), particle->getPDG(), px, py, pz, p.R());
+                 particle.getGeneratorStatus(), particle.getPDG(), px, py, pz, p.R());
   }
 }
 
@@ -153,10 +152,10 @@ void TrackingTest_processor::ProcessTrackingMatching(const std::shared_ptr<const
 void TrackingTest_processor::ProcessGloablMatching(const std::shared_ptr<const JEvent>& event) {
 
   m_log->debug("ReconstructedParticles (FINAL) [objID] [PDG] [charge] [energy]");
-  auto final_reco_particles =
-      event->Get<edm4eic::ReconstructedParticle>("ReconstructedParticlesWithAssoc");
-  for (const auto* part : final_reco_particles) {
-    m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part->getObjectID().index, part->getPDG(),
-                 part->getCharge(), part->getEnergy());
+  const auto* final_reco_particles =
+      event->GetCollection<edm4eic::ReconstructedParticle>("ReconstructedParticlesWithAssoc");
+  for (const auto& part : *final_reco_particles) {
+    m_log->debug("  {:<6} {:<6}  {:>8.2f} {:>8.2f}", part.getObjectID().index, part.getPDG(),
+                 part.getCharge(), part.getEnergy());
   }
 }

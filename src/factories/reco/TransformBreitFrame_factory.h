@@ -18,7 +18,7 @@
 
 namespace eicrecon {
 
-class TransformBreitFrame_factory : public JOmniFactory<TransformBreitFrame_factory> {
+class TransformBreitFrame_factory : public JOmniFactory<TransformBreitFrame_factory, NoConfig> {
 
 public:
   // algorithm to run
@@ -41,10 +41,9 @@ public:
   void Configure() {
     m_algo = std::make_unique<Algo>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) { /* nothing to do */ }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_in_mcpart(), m_in_kine(), m_in_part()}, {m_out_part().get()});

@@ -16,8 +16,9 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
-#include <gsl/pointers>
+#include <iterator>
 #include <map>
+#include <ranges>
 #include <set>
 #include <stdexcept>
 #include <string>
@@ -199,9 +200,8 @@ void CalorimeterIslandCluster::init() {
       is_maximum_neighbourhood = is_neighbour;
     }
 
-    auto transverseEnergyProfileMetric_it =
-        std::find_if(distMethods.begin(), distMethods.end(),
-                     [&](auto& p) { return m_cfg.transverseEnergyProfileMetric == p.first; });
+    auto transverseEnergyProfileMetric_it = std::ranges::find_if(
+        distMethods, [&](auto& p) { return m_cfg.transverseEnergyProfileMetric == p.first; });
     if (transverseEnergyProfileMetric_it == distMethods.end()) {
       throw std::runtime_error(
           fmt::format(R"(Unsupported value "{}" for "transverseEnergyProfileMetric")",

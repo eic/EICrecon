@@ -5,6 +5,7 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <memory>
@@ -14,15 +15,15 @@
 #include "ActsGeometryProvider.h"
 #include "TrackParamTruthInitConfig.h"
 #include "algorithms/interfaces/ActsSvc.h"
-#include "algorithms/interfaces/ParticleSvc.h"
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
+#include "services/particle/ParticleSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
 using TrackParamTruthInitAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::MCParticleCollection>,
-    algorithms::Output<edm4eic::TrackParametersCollection>>;
+    algorithms::Output<edm4eic::TrackSeedCollection, edm4eic::TrackParametersCollection>>;
 
 class TrackParamTruthInit : public TrackParamTruthInitAlgorithm,
                             public WithPodConfig<TrackParamTruthInitConfig> {

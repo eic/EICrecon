@@ -5,6 +5,7 @@
 
 #include <Acts/Surfaces/Surface.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <memory>
 #include <string>
@@ -28,8 +29,8 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Track> m_tracks_input{this};
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
-  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
+  Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states_input{this};
+  Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_track_segments_output{this};
 
   Service<DD4hep_service> m_GeoSvc{this};
@@ -38,14 +39,14 @@ private:
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>();
+    // TODO: convert RichTrack to inherit from algorithm::Algorithm
+    // m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init(m_GeoSvc().detector(), m_ACTSGeoSvc().actsGeoProvider(), logger());
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({*m_tracks_input(), m_acts_trajectories_input(), m_acts_tracks_input()},
+    m_algo->process({*m_tracks_input(), m_acts_track_states_input(), m_acts_tracks_input()},
                     {m_track_segments_output().get()});
   }
 };

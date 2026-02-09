@@ -13,22 +13,21 @@
 #include <algorithms/logger.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/TrackPoint.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
-#include <cmath>
-
-#include <algorithm>
-#include <cstddef>
-#include <functional>
-#include <gsl/pointers>
-#include <iterator>
-#include <memory>
+#include <fmt/ranges.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <algorithm>
+#include <cmath>
+#include <cstddef>
+#include <functional>
+#include <iterator>
+#include <memory>
 #include <set>
 #include <stdexcept>
 #include <utility>
@@ -161,9 +160,8 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
   }
   if (in_charged_particle_size_distribution.size() != 1) {
     std::vector<std::size_t> in_charged_particle_sizes;
-    std::transform(
-        in_charged_particles.begin(), in_charged_particles.end(),
-        std::back_inserter(in_charged_particle_sizes),
+    std::ranges::transform(
+        in_charged_particles, std::back_inserter(in_charged_particle_sizes),
         [](const auto& in_charged_particle) { return in_charged_particle.second->size(); });
     error("radiators have differing numbers of TrackSegments {}",
           fmt::join(in_charged_particle_sizes, ", "));
@@ -232,11 +230,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
           for (const auto& hit_assoc : *in_hit_assocs) {
             if (hit_assoc.getRawHit().isAvailable()) {
               if (hit_assoc.getRawHit().id() == raw_hit.id()) {
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
-                mc_photon = hit_assoc.getSimHit().getParticle();
-#else
-                mc_photon = hit_assoc.getSimHit().getMCParticle();
-#endif
+                mc_photon       = hit_assoc.getSimHit().getParticle();
                 mc_photon_found = true;
                 if (mc_photon.getPDG() != -22) {
                   warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());
@@ -413,6 +407,11 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         auto* irt_hypothesis = pdg_to_hyp.at(pdg);
         auto hyp_weight      = irt_hypothesis->GetWeight(irt_rad);
         auto hyp_npe         = irt_hypothesis->GetNpe(irt_rad);
+
+        // Skip hypotheses with nan weight
+        if (std::isnan(hyp_weight)) {
+          continue;
+        }
 
         // fill `ParticleID` output collection
         edm4eic::CherenkovParticleIDHypothesis out_hypothesis;

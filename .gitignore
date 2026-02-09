@@ -5,6 +5,12 @@ include/*
 plugins/*
 build/*
 install/*
+share/*
+
+# Artifacts
+calibrations/*
+fieldmaps/*
+gdml/*
 
 # macOS metadata
 .DS_Store
@@ -164,3 +170,6 @@ src/tools/default_flags_table/fieldmaps/
 src/examples/test_data_generator/__pycache__/
 
 .run/
+
+# CodeQL artifacts
+_codeql_detected_source_root
