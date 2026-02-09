@@ -11,14 +11,6 @@
 
 namespace eicrecon {
 
-// struct Condition {
-//     ConditionType condition;
-//     ELayerMode mode;                   // xyz, tz, etaphi
-//     std::vector<double> sameLayerDist; // 2 or 3 numbers
-//     std::vector<double> diffLayerDist; // 2 or 3 numbers
-//     double sectorDist;                 // scalar
-// };
-
 struct ImagingTopoClusterConfig {
 
   std::string readout;
@@ -106,15 +98,6 @@ struct ImagingTopoClusterConfig {
   // minimum number of hits (to save this cluster)
   std::size_t minClusterNhits = 10;
 
-  // SVG Visualization options
-  bool enableSVGOutput           = false;
-  std::string svgOutputDirectory = "./bemc_events/";
-  double svgWidth                = 800;
-  double svgHeight               = 600;
-  double svgMargin               = 50;
-  bool svgEnergyColoring         = true;
-  double svgEnergyMin            = 0.0; // 0 means auto-scale
-  double svgEnergyMax            = 0.0; // 0 means auto-scale
 };
 
 std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode& layerMode) {
