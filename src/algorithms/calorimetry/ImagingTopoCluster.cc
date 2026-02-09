@@ -36,13 +36,6 @@
 #include <utility>
 #include <variant>
 #include <vector>
-#include <numeric>
-#include <atomic>
-
-#include <fstream>
-#include <sstream>
-#include <ctime>
-#include <unistd.h>
 
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 
