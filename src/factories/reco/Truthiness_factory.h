@@ -14,15 +14,16 @@
 #endif
 
 #include "algorithms/reco/Truthiness.h"
+#include "algorithms/reco/TruthinessConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
-class Truthiness_factory : public JOmniFactory<Truthiness_factory> {
+class Truthiness_factory : public JOmniFactory<Truthiness_factory, TruthinessConfig> {
 
 public:
-  using FactoryT = JOmniFactory<Truthiness_factory>;
+  using FactoryT = JOmniFactory<Truthiness_factory, TruthinessConfig>;
 
 private:
   std::unique_ptr<Truthiness> m_algo;
@@ -35,12 +36,19 @@ private:
   FactoryT::PodioOutput<edm4eic::Truthiness> m_truthiness_output{this};
 #endif
 
+  FactoryT::ParameterRef<double> m_pidPenaltyWeight{this, "pidPenaltyWeight", config().pidPenaltyWeight};
+  FactoryT::ParameterRef<double> m_unassociatedMCPenaltyWeight{this, "unassociatedMCPenaltyWeight", config().unassociatedMCPenaltyWeight};
+  FactoryT::ParameterRef<double> m_unassociatedRecoPenaltyWeight{this, "unassociatedRecoPenaltyWeight", config().unassociatedRecoPenaltyWeight};
+  FactoryT::ParameterRef<double> m_defaultEnergyResolution{this, "defaultEnergyResolution", config().defaultEnergyResolution};
+  FactoryT::ParameterRef<double> m_defaultMomentumResolution{this, "defaultMomentumResolution", config().defaultMomentumResolution};
+
   FactoryT::Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {
     m_algo = std::make_unique<Truthiness>(this->GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(this->logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 
