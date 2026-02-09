@@ -219,7 +219,7 @@ void ImagingTopoCluster::init() {
        "Global distance between hits <= {:.4f} mm.",
        sectorDist);
 
-  //+++++++++++++ScFi_layer mode+++++++++++++++++
+  // ScFi_layer mode
   switch (m_cfg.ScFi_sameLayerMode) {
   case ImagingTopoClusterConfig::ELayerMode::xy:
     if (m_cfg.ScFi_sameLayerDistXY.size() != 2) {
@@ -317,7 +317,7 @@ void ImagingTopoCluster::init() {
        "Global distance between hits <= {:.4f} mm.",
        ScFi_sectorDist);
 
-  //+++++++++++++Img_layer mode+++++++++++++++++
+  // Img_layer mode
 
   switch (m_cfg.Img_sameLayerMode) {
   case ImagingTopoClusterConfig::ELayerMode::xy:
@@ -718,11 +718,6 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
 
     int ldiff = std::abs(h1.getLayer() - h2.getLayer());
 
-    double eta1 = edm4hep::utils::eta(h1.getPosition());
-    double phi1 = edm4hep::utils::angleAzimuthal(h1.getPosition());
-    double eta2 = edm4hep::utils::eta(h2.getPosition());
-    double phi2 = edm4hep::utils::angleAzimuthal(h2.getPosition());
-
     if (ldiff == 0) {
       switch (m_cfg.ScFi_sameLayerMode) {
       case ImagingTopoClusterConfig::ELayerMode::xy:
@@ -733,8 +728,10 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
                (std::abs(h1.getLocal().y - h2.getLocal().y) <= ScFi_sameLayerDistXYZ[1]) &&
                (std::abs(h1.getLocal().z - h2.getLocal().z) <= ScFi_sameLayerDistXYZ[2]);
       case ImagingTopoClusterConfig::ELayerMode::etaphi:
-        return (std::abs(eta1 - eta2) <= ScFi_sameLayerDistEtaPhi[0]) &&
-               (std::abs(phi1 - phi2) <= ScFi_sameLayerDistEtaPhi[1]);
+        return (std::abs(edm4hep::utils::eta(h1.getPosition()) - 
+                edm4hep::utils::eta(h2.getPosition())) <= ScFi_sameLayerDistEtaPhi[0]) &&
+               (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -                          
+               edm4hep::utils::angleAzimuthal(h2.getPosition()))<= ScFi_sameLayerDistEtaPhi[1]);
       case ImagingTopoClusterConfig::ELayerMode::tz: {
         auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
@@ -752,8 +749,10 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
     } else if (ldiff <= m_cfg.neighbourLayersRange) {
       switch (m_cfg.ScFi_diffLayerMode) {
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi:
-        return (std::abs(eta1 - eta2) <= ScFi_diffLayerDistEtaPhi[0]) &&
-               (std::abs(phi1 - phi2) <= ScFi_diffLayerDistEtaPhi[1]);
+        return (std::abs(edm4hep::utils::eta(h1.getPosition()) -                          
+               edm4hep::utils::eta(h2.getPosition())) <= ScFi_diffLayerDistEtaPhi[0]) &&
+               (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -                          
+               edm4hep::utils::angleAzimuthal(h2.getPosition()))<= ScFi_diffLayerDistEtaPhi[1]);
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
         return (std::abs(h1.getPosition().x - h2.getPosition().x) <= ScFi_diffLayerDistXY[0]) &&
                (std::abs(h1.getPosition().y - h2.getPosition().y) <= ScFi_diffLayerDistXY[1]);
@@ -789,11 +788,6 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
 
     int ldiff = std::abs(h1.getLayer() - h2.getLayer());
 
-    double eta1 = edm4hep::utils::eta(h1.getPosition());
-    double phi1 = edm4hep::utils::angleAzimuthal(h1.getPosition());
-    double eta2 = edm4hep::utils::eta(h2.getPosition());
-    double phi2 = edm4hep::utils::angleAzimuthal(h2.getPosition());
-
     if (ldiff == 0) {
       switch (m_cfg.Img_sameLayerMode) {
       case ImagingTopoClusterConfig::ELayerMode::xy:
@@ -804,8 +798,10 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
                (std::abs(h1.getLocal().y - h2.getLocal().y) <= Img_sameLayerDistXYZ[1]) &&
                (std::abs(h1.getLocal().z - h2.getLocal().z) <= Img_sameLayerDistXYZ[2]);
       case ImagingTopoClusterConfig::ELayerMode::etaphi:
-        return (std::abs(eta1 - eta2) <= Img_sameLayerDistEtaPhi[0]) &&
-               (std::abs(phi1 - phi2) <= Img_sameLayerDistEtaPhi[1]);
+        return (std::abs(edm4hep::utils::eta(h1.getPosition()) -                          
+               edm4hep::utils::eta(h2.getPosition())) <= Img_sameLayerDistEtaPhi[0]) &&
+               (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -                         
+               edm4hep::utils::angleAzimuthal(h2.getPosition()))<= Img_sameLayerDistEtaPhi[1]);
       case ImagingTopoClusterConfig::ELayerMode::tz: {
         auto phi  = 0.5 * (edm4hep::utils::angleAzimuthal(h1.getPosition()) +
                           edm4hep::utils::angleAzimuthal(h2.getPosition()));
@@ -823,8 +819,10 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
     } else if (ldiff <= m_cfg.neighbourLayersRange) {
       switch (m_cfg.Img_diffLayerMode) {
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::etaphi:
-        return (std::abs(eta1 - eta2) <= Img_diffLayerDistEtaPhi[0]) &&
-               (std::abs(phi1 - phi2) <= Img_diffLayerDistEtaPhi[1]);
+        return (std::abs(edm4hep::utils::eta(h1.getPosition()) -
+                         edm4hep::utils::eta(h2.getPosition())) <= Img_diffLayerDistEtaPhi[0]) &&
+               (std::abs(edm4hep::utils::angleAzimuthal(h1.getPosition()) -
+                         edm4hep::utils::angleAzimuthal(h2.getPosition()))  <= Img_diffLayerDistEtaPhi[1]);
       case eicrecon::ImagingTopoClusterConfig::ELayerMode::xy:
         return (std::abs(h1.getPosition().x - h2.getPosition().x) <= Img_diffLayerDistXY[0]) &&
                (std::abs(h1.getPosition().y - h2.getPosition().y) <= Img_diffLayerDistXY[1]);
@@ -862,12 +860,7 @@ bool ImagingTopoCluster::is_neighbour(const edm4eic::CalorimeterHit& h1,
 
     // layer check
     int ldiff = std::abs(h1.getLayer() - h2.getLayer());
-
-    double eta1 = edm4hep::utils::eta(h1.getPosition());
-    double phi1 = edm4hep::utils::angleAzimuthal(h1.getPosition());
-    double eta2 = edm4hep::utils::eta(h2.getPosition());
-    double phi2 = edm4hep::utils::angleAzimuthal(h2.getPosition());
-
+    
     if (ldiff == 0) {
       switch (m_cfg.sameLayerMode) {
       case ImagingTopoClusterConfig::ELayerMode::xy:
