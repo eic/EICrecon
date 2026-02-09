@@ -56,11 +56,6 @@ void Truthiness_processor::Process(const std::shared_ptr<const JEvent>& event) {
   const auto* associations =
       event->GetCollection<edm4eic::MCRecoParticleAssociation>(m_inputAssociations);
 
-  if (!mc_particles || !rc_particles || !associations) {
-    m_log->debug("Event {}: Missing required collections", event->GetEventNumber());
-    return;
-  }
-
   m_log->debug("Event {}: Processing {} MC particles, {} reco particles, {} associations",
                event->GetEventNumber(), mc_particles->size(), rc_particles->size(),
                associations->size());
