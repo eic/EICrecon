@@ -211,7 +211,6 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
       v = v + hit.getPosition() * w;
     } else {
       const auto weight = pcl.getWeights()[i];
-      //      _DBG_<<" -- weight = " << weight << "  E=" << hit.getEnergy() << " totalE=" <<totalE << " log(E/totalE)=" << std::log(hit.getEnergy()/totalE) << std::endl;
       float w = weightFunc(hit.getEnergy() * weight, totalE, logWeightBase, 0);
       tw += w;
       v = v + (hit.getPosition() * w);
@@ -276,9 +275,6 @@ void CalorimeterClusterRecoCoG::associate(
   for (auto clhit : cl.getHits()) {
     // vector to hold associated sim hits (for Combined hits it will be Imaging Hits)
     std::vector<edm4hep::SimCalorimeterHit> vecAssocSimHits;
-
-    if (!isImagingHit(clhit, m_idSpec))
-      continue;
 
     for (const auto& hitAssoc : *mchitassociations) {
       // if found corresponding raw hit, add sim hit to vector
