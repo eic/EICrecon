@@ -18,7 +18,7 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   // input collection
-  PodioInput<edm4hep::MCParticle> m_pars_in{this, "GeneratedParticles"};
+  PodioInput<edm4hep::MCParticle> m_pars_in{this};
 
   // output collection
   PodioOutput<edm4hep::MCParticle> m_pars_out{this};

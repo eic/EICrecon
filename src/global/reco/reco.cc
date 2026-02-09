@@ -49,6 +49,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   // Finds associations matched to initial scattered electrons
   app->Add(
@@ -62,6 +63,25 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<MC2ReconstructedParticle_factory>(
       "GeneratedParticles", {"MCParticles"}, {"GeneratedParticles"}, app));
 
+#if (JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||             \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
+
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, true>>(
+      {.tag                  = "EcalClusters",
+       .variadic_input_names = {{"EcalEndcapNClusters", "EcalBarrelScFiClusters",
+                                 "EcalEndcapPClusters"}},
+       .output_names         = {"EcalClusters"}}));
+
+  app->Add(new JOmniFactoryGeneratorT<
+           CollectionCollector_factory<edm4eic::MCRecoClusterParticleAssociation, true>>(
+      {.tag                  = "EcalClusterAssociations",
+       .variadic_input_names = {{"EcalEndcapNClusterAssociations",
+                                 "EcalBarrelScFiClusterAssociations",
+                                 "EcalEndcapPClusterAssociations"}},
+       .output_names         = {"EcalClusterAssociations"}}));
+
+#else
+
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Cluster, true>>(
       "EcalClusters", {"EcalEndcapNClusters", "EcalBarrelScFiClusters", "EcalEndcapPClusters"},
       {"EcalClusters"}, app));
@@ -72,6 +92,8 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapNClusterAssociations", "EcalBarrelScFiClusterAssociations",
        "EcalEndcapPClusterAssociations"},
       {"EcalClusterAssociations"}, app));
+
+#endif
 
   app->Add(new JOmniFactoryGeneratorT<MatchClusters_factory>(
       "ReconstructedParticlesWithAssoc",
@@ -115,10 +137,18 @@ void InitPlugin(JApplication* app) {
       {"MCBeamElectrons", "MCBeamProtons", "ScatteredElectronsTruth", "HadronicFinalState"},
       {"InclusiveKinematicsESigma"}, app));
 
+#if (JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||             \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
   // InclusiveKinematicseSigma is deprecated and will be removed, use InclusiveKinematicsESigma instead
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
+      {.tag                  = "InclusiveKinematicseSigma_legacy",
+       .variadic_input_names = {{"InclusiveKinematicsESigma"}},
+       .output_names         = {"InclusiveKinematicseSigma"}}));
+#else
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::InclusiveKinematics>>(
       "InclusiveKinematicseSigma_legacy", {"InclusiveKinematicsESigma"},
       {"InclusiveKinematicseSigma"}, app));
+#endif
 
   app->Add(new JOmniFactoryGeneratorT<
            InclusiveKinematicsReconstructed_factory<InclusiveKinematicsSigma>>(

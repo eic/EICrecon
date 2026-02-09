@@ -39,6 +39,7 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   using namespace eicrecon;
+  using eicrecon::JOmniFactoryGeneratorT;
 
   // configuration parameters ///////////////////////////////////////////////
 
@@ -129,9 +130,17 @@ void InitPlugin(JApplication* app) {
       "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {"DRICHGasTracks"}, gas_track_cfg, app));
 
+#if (JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||             \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
+  app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>(
+      {.tag                  = "DRICHMergedTracks",
+       .variadic_input_names = {{"DRICHAerogelTracks", "DRICHGasTracks"}},
+       .output_names         = {"DRICHMergedTracks"}}));
+#else
   app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>("DRICHMergedTracks",
                                                           {"DRICHAerogelTracks", "DRICHGasTracks"},
                                                           {"DRICHMergedTracks"}, {}, app));
+#endif
 
   // PID algorithm
   app->Add(new JOmniFactoryGeneratorT<IrtCherenkovParticleID_factory>(
@@ -141,10 +150,20 @@ void InitPlugin(JApplication* app) {
       {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"}, irt_cfg, app));
 
   // merge aerogel and gas PID results
+#if (JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||             \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
+  app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
+      {.tag                  = "DRICHMergedIrtCherenkovParticleID",
+       .variadic_input_names = {{"DRICHAerogelIrtCherenkovParticleID",
+                                 "DRICHGasIrtCherenkovParticleID"}},
+       .output_names         = {"DRICHMergedIrtCherenkovParticleID"},
+       .configs              = merge_cfg}));
+#else
   app->Add(new JOmniFactoryGeneratorT<MergeCherenkovParticleID_factory>(
       "DRICHMergedIrtCherenkovParticleID",
       {"DRICHAerogelIrtCherenkovParticleID", "DRICHGasIrtCherenkovParticleID"},
       {"DRICHMergedIrtCherenkovParticleID"}, merge_cfg, app));
+#endif
 
   // clang-format on
 }
