@@ -63,7 +63,7 @@ void Truthiness::process(const Truthiness::Input& input,
     // Get covariance matrix elements for uncertainties
     const auto rc_cov = rc_part.getCovMatrix();
 
-    // Energy uncertainty (from time-time covariance tt, or use configured default)
+    // Energy uncertainty (from variance of the 4th component 'tt' of the 4-momentum covariance (px,py,pz,E), or use configured default)
     const bool energy_has_cov = (rc_cov.tt > 0.0);
     const double energy_error =
         energy_has_cov ? std::sqrt(rc_cov.tt) : m_cfg.defaultEnergyResolution;
