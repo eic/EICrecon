@@ -97,7 +97,6 @@ struct ImagingTopoClusterConfig {
   double minClusterEdep = 0.5 * dd4hep::MeV;
   // minimum number of hits (to save this cluster)
   std::size_t minClusterNhits = 10;
-
 };
 
 std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode& layerMode) {
