@@ -11,6 +11,7 @@ add_executable(
   calorimetry_CalorimeterHitDigi.cc
   calorimetry_CalorimeterClusterRecoCoG.cc
   calorimetry_CalorimeterClusterShape.cc
+  calorimetry_CalorimeterHitToTrackerHit.cc
   calorimetry_HEXPLIT.cc
   digi_EICROCDigitization.cc
   digi_PulseGeneration.cc
