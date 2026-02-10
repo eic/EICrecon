@@ -236,7 +236,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
 
     // loop over radiators
     // note: for old IRT versions, this must run exclusively since irt_rad points to shared IRT
-    // objects that are owned by the RichGeo_service; it holds state (e.g. irt_rad->ResetLocation())
+    // objects that are owned by the RichGeo_service; it holds state (e.g. IrtHelpers::ResetLocations())
     [[maybe_unused]] std::unique_lock<std::mutex> lock;
     if constexpr (!IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS) {
       lock = std::unique_lock<std::mutex>(m_irt_det_mutex);
