@@ -130,7 +130,7 @@ void JetReconstruction<InputT>::process(
   }
   this->trace("  Number of particles: {}", particles.size());
 
-  // Create thread-local AreaDefinition with reproducible seed
+  // Create per-event AreaDefinition with reproducible seed
   // This avoids contention on fastjet's static random generator
   auto seed                    = m_uid.getUniqueID(*headers, this->name());
   std::vector<int> seed_vector = {static_cast<int>(seed & 0xFFFFFFFF),
