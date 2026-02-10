@@ -138,8 +138,8 @@ void JetReconstruction<InputT>::process(
   auto local_area_def          = m_area_def->with_fixed_seed(seed_vector);
 
   // Run the clustering, extract the jets
-  fastjet::ClusterSequenceArea m_clus_seq(particles, *m_jet_def, local_area_def);
-  std::vector<PseudoJet> jets = sorted_by_pt(m_clus_seq.inclusive_jets(m_cfg.minJetPt));
+  fastjet::ClusterSequenceArea clus_seq(particles, *m_jet_def, local_area_def);
+  std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_cfg.minJetPt));
 
   // Print out some infos
   this->trace("  Clustering with : {}", m_jet_def->description());
