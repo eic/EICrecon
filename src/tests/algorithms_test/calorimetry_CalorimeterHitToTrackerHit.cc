@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 Wouter Deconinck
+// Copyright (C) 2026 Wouter Deconinck
 
 #include <DD4hep/Detector.h>
 #include <DD4hep/DetElement.h>
