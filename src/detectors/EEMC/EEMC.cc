@@ -2,7 +2,10 @@
 // Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, Thomas Britton, David Lawrence, Dhevan Gangadharan, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <cmath>
 #include <string>
@@ -12,12 +15,12 @@
 #include "algorithms/calorimetry/CalorimeterHitDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterParticleIDPostML_factory.h"
 #include "factories/calorimetry/CalorimeterParticleIDPreML_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "factories/meta/ONNXInference_factory.h"
