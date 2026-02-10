@@ -50,9 +50,9 @@ void CalorimeterHitToTrackerHit::process(const CalorimeterHitToTrackerHit::Input
 
       // Determine position uncertainty
       if (segmentation.type() == "CartesianGridXY") {
-        auto cell_dimensions = m_converter->cellDimensions(cell_id);
-        const auto sigma_x   = cell_dimensions[0] / std::sqrt(12.0);
-        const auto sigma_y   = cell_dimensions[1] / std::sqrt(12.0);
+        auto cell_dimensions           = m_converter->cellDimensions(cell_id);
+        const auto sigma_x             = cell_dimensions[0] / std::sqrt(12.0);
+        const auto sigma_y             = cell_dimensions[1] / std::sqrt(12.0);
         position_error[det_element].xx = static_cast<float>(sigma_x * sigma_x);
         position_error[det_element].yy = static_cast<float>(sigma_y * sigma_y);
         position_error[det_element].zz = 0.0f;
