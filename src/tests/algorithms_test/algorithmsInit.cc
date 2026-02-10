@@ -2,10 +2,15 @@
 // Copyright (C) 2024, Wouter Deconinck
 
 #include <DD4hep/Detector.h>
+#include <DD4hep/DetElement.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
+#include <DD4hep/Shapes.h>
+#include <DD4hep/Volumes.h>
+#include <DDSegmentation/CartesianGridXY.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <algorithms/geo.h>
 #include <algorithms/interfaces/UniqueIDGenSvc.h>
 #include <services/particle/ParticleSvc.h>
@@ -60,6 +65,42 @@ public:
     readoutSilicon.setSegmentation(segmentation_Silicon);
     detector->add(id_desc_Silicon);
     detector->add(readoutSilicon);
+
+    // Add test calorimeter readout for CalorimeterHitToTrackerHit test
+    detector->addConstant(dd4hep::Constant("TestCalorimeter_ID", "100"));
+    dd4hep::Readout readoutTestCalo(std::string("TestCalorimeterReadout"));
+    dd4hep::IDDescriptor id_desc_test_calo("TestCalorimeterReadout", "system:8,x:32:-16,y:-16");
+    dd4hep::Segmentation segmentation_test_calo("CartesianGridXY", "TestCaloSeg",
+                                                id_desc_test_calo.decoder());
+    auto* grid_xy = dynamic_cast<dd4hep::DDSegmentation::CartesianGridXY*>(
+        segmentation_test_calo.segmentation());
+    if (grid_xy) {
+      grid_xy->setGridSizeX(2.0 * dd4hep::mm); // 2mm cell size in X
+      grid_xy->setGridSizeY(3.0 * dd4hep::mm); // 3mm cell size in Y
+    }
+    readoutTestCalo.setIDDescriptor(id_desc_test_calo);
+    readoutTestCalo.setSegmentation(segmentation_test_calo);
+    detector->add(id_desc_test_calo);
+    detector->add(readoutTestCalo);
+
+    // Create DetElement hierarchy for test calorimeter
+    dd4hep::DetElement world_det("world", 0);
+    dd4hep::Box world_box(1000 * dd4hep::mm, 1000 * dd4hep::mm, 1000 * dd4hep::mm);
+    dd4hep::Volume world_volume("world_volume", world_box, detector->material("Air"));
+    detector->setWorldVolume(world_volume);
+    world_det.setPlacement(dd4hep::PlacedVolume(world_volume));
+
+    dd4hep::DetElement calo_det("TestCalorimeter", 100);
+    dd4hep::Box box_shape(100 * dd4hep::mm, 100 * dd4hep::mm, 10 * dd4hep::mm);
+    dd4hep::Volume calo_volume("TestCaloVolume", box_shape, detector->material("Air"));
+    calo_volume.setSensitive();
+    calo_volume.setReadout(readoutTestCalo);
+
+    dd4hep::Position pos(0, 0, 0);
+    dd4hep::PlacedVolume pv = world_volume.placeVolume(calo_volume, pos);
+    pv.addPhysVolID("system", 100);
+    calo_det.setPlacement(pv);
+    world_det.add(calo_det);
 
     m_detector = std::move(detector);
 

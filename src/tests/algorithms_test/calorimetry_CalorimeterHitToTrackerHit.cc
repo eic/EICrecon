@@ -2,14 +2,8 @@
 // Copyright (C) 2026 Wouter Deconinck
 
 #include <DD4hep/Detector.h>
-#include <DD4hep/DetElement.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
-#include <DD4hep/Segmentations.h>
-#include <DD4hep/Shapes.h>
-#include <DD4hep/Volumes.h>
-#include <DDRec/CellIDPositionConverter.h>
-#include <DDSegmentation/CartesianGridXY.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/geo.h>
 #include <catch2/catch_test_macros.hpp>
@@ -52,50 +46,12 @@ TEST_CASE("the algorithm runs", "[CalorimeterHitToTrackerHit]") {
   }
 
   SECTION("single calorimeter hit with CartesianGridXY segmentation") {
-    auto detector = const_cast<dd4hep::Detector*>(algorithms::GeoSvc::instance().detector());
+    auto detector = algorithms::GeoSvc::instance().detector();
 
-    // Create a calorimeter readout with CartesianGridXY segmentation
-    std::string readout_name = "TestCalorimeterReadout";
-    dd4hep::IDDescriptor id_desc(readout_name, "system:8,x:32:-16,y:-16");
-    dd4hep::Readout readout(readout_name);
-    readout.setIDDescriptor(id_desc);
+    // Use pre-configured test calorimeter readout from algorithmsInit.cc
+    auto id_desc = detector->readout("TestCalorimeterReadout").idSpec();
 
-    // Create CartesianGridXY segmentation with specific grid size
-    dd4hep::Segmentation seg("CartesianGridXY", "TestCaloSeg", id_desc.decoder());
-    auto* grid_xy = dynamic_cast<dd4hep::DDSegmentation::CartesianGridXY*>(seg.segmentation());
-    REQUIRE(grid_xy != nullptr);
-    grid_xy->setGridSizeX(2.0 * dd4hep::mm); // 2mm cell size in X
-    grid_xy->setGridSizeY(3.0 * dd4hep::mm); // 3mm cell size in Y
-    readout.setSegmentation(seg);
-
-    // Add to detector
-    detector->add(id_desc);
-    detector->add(readout);
-
-    // Create a DetElement hierarchy
-    dd4hep::DetElement world_det = detector->world();
-    dd4hep::DetElement calo_det("TestCalorimeter", 100);
-
-    // Create a simple box volume
-    dd4hep::Box box_shape(100 * dd4hep::mm, 100 * dd4hep::mm, 10 * dd4hep::mm);
-    dd4hep::Volume calo_volume("TestCaloVolume", box_shape, detector->material("Air"));
-    calo_volume.setSensitive();
-    calo_volume.setReadout(readout);
-
-    // Place the volume at the origin
-    dd4hep::Position pos(0, 0, 0);
-    dd4hep::PlacedVolume pv = world_det.volume().placeVolume(calo_volume, pos);
-
-    // Set the volume ID to match our system ID
-    pv.addPhysVolID("system", 100);
-
-    // Attach placement to DetElement
-    calo_det.setPlacement(pv);
-
-    // Add to world
-    world_det.add(calo_det);
-
-    // Create algorithm after detector setup to ensure VolumeManager is initialized with new geometry
+    // Create algorithm after detector is already set up
     CalorimeterHitToTrackerHit algo("CalorimeterHitToTrackerHit");
 
     std::shared_ptr<spdlog::logger> logger =
