@@ -55,4 +55,13 @@ TEST_CASE("the algorithm runs", "[CalorimeterHitToTrackerHit]") {
   // The test above ensures the algorithm handles edge cases (empty input)
   // without crashes. Functional validation of position error calculations
   // from cell dimensions is performed in the integration test environment.
+  //
+  // What would be tested with a full detector setup:
+  // - CellID is correctly copied from calorimeter hit to tracker hit
+  // - Position is correctly copied from calorimeter hit to tracker hit
+  // - Position uncertainties are calculated as cell_dimension / sqrt(12)
+  // - Position error covariance has non-zero xx and yy components
+  // - Position error covariance has zero zz component for CartesianGridXY
+  // - Time, timeError, energy, and energyError are correctly copied
+  // - Unsupported segmentation types are skipped with a warning
 }
