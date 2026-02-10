@@ -32,16 +32,17 @@
 using eicrecon::CalorimeterHitToTrackerHit;
 
 TEST_CASE("the algorithm runs", "[CalorimeterHitToTrackerHit]") {
-  CalorimeterHitToTrackerHit algo("CalorimeterHitToTrackerHit");
-
-  std::shared_ptr<spdlog::logger> logger =
-      spdlog::default_logger()->clone("CalorimeterHitToTrackerHit");
-  logger->set_level(spdlog::level::trace);
-
-  algo.level(algorithms::LogLevel(spdlog::level::trace));
-  algo.init();
 
   SECTION("empty input produces empty output") {
+    CalorimeterHitToTrackerHit algo("CalorimeterHitToTrackerHit");
+    
+    std::shared_ptr<spdlog::logger> logger =
+        spdlog::default_logger()->clone("CalorimeterHitToTrackerHit");
+    logger->set_level(spdlog::level::trace);
+
+    algo.level(algorithms::LogLevel(spdlog::level::trace));
+    algo.init();
+
     auto calorimeter_hits = std::make_unique<edm4eic::CalorimeterHitCollection>();
     auto tracker_hits     = std::make_unique<edm4eic::TrackerHitCollection>();
 
@@ -94,9 +95,15 @@ TEST_CASE("the algorithm runs", "[CalorimeterHitToTrackerHit]") {
     // Add to world
     world_det.add(calo_det);
 
-    // Reinitialize VolumeManager to pick up the new DetElement
-    // This is done by accessing it, which triggers lazy initialization
-    detector->volumeManager();
+    // Create algorithm after detector setup to ensure VolumeManager is initialized with new geometry
+    CalorimeterHitToTrackerHit algo("CalorimeterHitToTrackerHit");
+    
+    std::shared_ptr<spdlog::logger> logger =
+        spdlog::default_logger()->clone("CalorimeterHitToTrackerHit");
+    logger->set_level(spdlog::level::trace);
+
+    algo.level(algorithms::LogLevel(spdlog::level::trace));
+    algo.init();
 
     // Create a calorimeter hit
     auto calorimeter_hits = std::make_unique<edm4eic::CalorimeterHitCollection>();
@@ -105,16 +112,16 @@ TEST_CASE("the algorithm runs", "[CalorimeterHitToTrackerHit]") {
     // Encode cellID with system=100, x=5, y=7
     auto cell_id = id_desc.encode({{"system", 100}, {"x", 5}, {"y", 7}});
 
-    auto hit = calorimeter_hits->create(cell_id,                            // cellID
-                                        1.5,                                // energy (GeV)
-                                        0.05,                               // energyError
-                                        10.0,                               // time (ns)
-                                        0.5,                                // timeError
-                                        edm4hep::Vector3f(10.0, 21.0, 0.0), // position (mm)
-                                        edm4hep::Vector3f(2.0, 3.0, 10.0),  // dimension
-                                        0,                                  // sector
-                                        0,                                  // layer
-                                        edm4hep::Vector3f(10.0, 21.0, 0.0)  // local position
+    calorimeter_hits->create(cell_id,                            // cellID
+                             1.5,                                // energy (GeV)
+                             0.05,                               // energyError
+                             10.0,                               // time (ns)
+                             0.5,                                // timeError
+                             edm4hep::Vector3f(10.0, 21.0, 0.0), // position (mm)
+                             edm4hep::Vector3f(2.0, 3.0, 10.0),  // dimension
+                             0,                                  // sector
+                             0,                                  // layer
+                             edm4hep::Vector3f(10.0, 21.0, 0.0)  // local position
     );
 
     algo.process({calorimeter_hits.get()}, {tracker_hits.get()});
@@ -144,8 +151,9 @@ TEST_CASE("the algorithm runs", "[CalorimeterHitToTrackerHit]") {
     const double expected_cov_xx = (2.0 / std::sqrt(12.0)) * (2.0 / std::sqrt(12.0));
     const double expected_cov_yy = (3.0 / std::sqrt(12.0)) * (3.0 / std::sqrt(12.0));
 
-    REQUIRE_THAT(tracker_hit.getCovMatrix().xx, Catch::Matchers::WithinAbs(expected_cov_xx, 1e-5));
-    REQUIRE_THAT(tracker_hit.getCovMatrix().yy, Catch::Matchers::WithinAbs(expected_cov_yy, 1e-5));
-    REQUIRE_THAT(tracker_hit.getCovMatrix().zz, Catch::Matchers::WithinAbs(0.0, 1e-5));
+    auto cov = tracker_hit.getCovariance();
+    REQUIRE_THAT(cov.xx, Catch::Matchers::WithinAbs(expected_cov_xx, 1e-5));
+    REQUIRE_THAT(cov.yy, Catch::Matchers::WithinAbs(expected_cov_yy, 1e-5));
+    REQUIRE_THAT(cov.zz, Catch::Matchers::WithinAbs(0.0, 1e-5));
   }
 }
