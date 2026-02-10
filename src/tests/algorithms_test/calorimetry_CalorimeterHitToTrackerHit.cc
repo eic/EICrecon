@@ -35,7 +35,7 @@ TEST_CASE("the algorithm runs", "[CalorimeterHitToTrackerHit]") {
 
   SECTION("empty input produces empty output") {
     CalorimeterHitToTrackerHit algo("CalorimeterHitToTrackerHit");
-    
+
     std::shared_ptr<spdlog::logger> logger =
         spdlog::default_logger()->clone("CalorimeterHitToTrackerHit");
     logger->set_level(spdlog::level::trace);
@@ -97,7 +97,7 @@ TEST_CASE("the algorithm runs", "[CalorimeterHitToTrackerHit]") {
 
     // Create algorithm after detector setup to ensure VolumeManager is initialized with new geometry
     CalorimeterHitToTrackerHit algo("CalorimeterHitToTrackerHit");
-    
+
     std::shared_ptr<spdlog::logger> logger =
         spdlog::default_logger()->clone("CalorimeterHitToTrackerHit");
     logger->set_level(spdlog::level::trace);
