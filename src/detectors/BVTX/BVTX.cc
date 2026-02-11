@@ -4,7 +4,10 @@
 //
 
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JEventLevel.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
 #include <vector>
@@ -23,7 +26,11 @@ void InitPlugin(JApplication* app) {
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "SiBarrelVertexRawHits", {"EventHeader", "VertexBarrelHits"},
-      {"SiBarrelVertexRawHits", "SiBarrelVertexRawHitLinks", "SiBarrelVertexRawHitAssociations"},
+      {"SiBarrelVertexRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "SiBarrelVertexRawHitLinks",
+#endif
+       "SiBarrelVertexRawHitAssociations"},
       {
           .threshold = 0.54 * dd4hep::keV,
       },
