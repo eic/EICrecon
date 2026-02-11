@@ -1,25 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2026 Wouter Deconinck
 
-#include <DD4hep/Detector.h>
-#include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Readout.h>
-#include <Evaluator/DD4hepUnits.h>
-#include <algorithms/geo.h>
+#include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
-#include <catch2/matchers/catch_matchers.hpp>
-#include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <edm4hep/Vector3f.h>
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
-#include <gsl/pointers>
-#include <cmath>
 #include <memory>
 #include <string>
-#include <utility>
 
 #include "algorithms/calorimetry/CalorimeterHitToTrackerHit.h"
 
