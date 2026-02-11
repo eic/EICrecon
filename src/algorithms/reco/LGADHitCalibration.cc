@@ -34,7 +34,13 @@ void LGADHitCalibration::process(const LGADHitCalibration::Input& input,
     auto id = TDCADC_hit.getCellID();
 
     // Get position and dimension
-    auto pos   = m_converter->position(id);
+    dd4hep::Position pos;
+    try {
+      pos = m_converter->position(id);
+    } catch (const std::exception& e) {
+      error("Failed to get position for cell ID {:x}: {}", id, e.what());
+      continue; // Skip this hit and continue with the next one
+    }
     double ADC = TDCADC_hit.getCharge();
     double TDC = TDCADC_hit.getTimeStamp();
 
