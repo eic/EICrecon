@@ -14,7 +14,6 @@
 #include <boost/assign.hpp>
 #include <boost/bimap.hpp>
 
-#include <regex>
 #include <stdexcept>
 
 #include <spdlog/spdlog.h>
@@ -64,38 +63,16 @@ public:
   /// @param [in] out pointer to output stream object
   ///
   /// @pre @p out is non-zero
-  explicit SpdlogPrintPolicy(std::shared_ptr<spdlog::logger> out,
-                             std::vector<std::string> suppressions = {})
-      : m_out(out) {
-    std::transform(suppressions.begin(), suppressions.end(), std::back_inserter(m_suppressions),
-                   [](const std::string& supp_string) {
-                     return std::make_tuple(supp_string, std::regex(supp_string), 0,
-                                            Acts::Logging::INFO);
-                   });
-  }
+  explicit SpdlogPrintPolicy(std::shared_ptr<spdlog::logger> out) : m_out(out) {}
 
   /// @brief destructor
-  ~SpdlogPrintPolicy() {
-    for (const auto& [supp_string, supp_regex, supp_count, supp_level] : m_suppressions) {
-      if (supp_count > 0) {
-        m_out->log(ActsToSpdlogLevel(supp_level), "\"{}\" suppressed {} times", supp_string,
-                   supp_count);
-      }
-    }
-  }
+  ~SpdlogPrintPolicy() = default;
 
   /// @brief flush the debug message to the destination stream
   ///
   /// @param [in] lvl   debug level of debug message
   /// @param [in] input text of debug message
   void flush(const Level& lvl, const std::string& input) final {
-    for (auto& [supp_string, supp_regex, supp_count, supp_level] : m_suppressions) {
-      if (std::regex_search(input, supp_regex)) {
-        supp_count++;
-        supp_level = std::max(lvl, supp_level);
-        return;
-      }
-    }
     m_out->log(ActsToSpdlogLevel(lvl), input);
     if (lvl >= getFailureThreshold()) {
       throw ThresholdFailure("Previous debug message exceeds the "
@@ -130,19 +107,14 @@ public:
 private:
   /// pointer to destination output stream
   std::shared_ptr<spdlog::logger> m_out;
-
-  /// regexes for messages to be suppressed
-  std::vector<std::tuple<std::string, std::regex, std::size_t, Acts::Logging::Level>>
-      m_suppressions;
 };
 
-inline std::unique_ptr<const Acts::Logger>
-getSpdlogLogger(const std::string& name, std::shared_ptr<spdlog::logger> log,
-                std::vector<std::string> suppressions = {}) {
+inline std::unique_ptr<const Acts::Logger> getSpdlogLogger(const std::string& name,
+                                                           std::shared_ptr<spdlog::logger> log) {
 
   const Acts::Logging::Level lvl = SpdlogToActsLevel(log->level());
   auto output                    = std::make_unique<Acts::Logging::NamedOutputDecorator>(
-      std::make_unique<SpdlogPrintPolicy>(log, suppressions), name);
+      std::make_unique<SpdlogPrintPolicy>(log), name);
   auto print = std::make_unique<DefaultFilterPolicy>(lvl);
   return std::make_unique<const Acts::Logger>(std::move(output), std::move(print));
 }
