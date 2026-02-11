@@ -63,9 +63,7 @@ public:
   /// @param [in] out pointer to output stream object
   ///
   /// @pre @p out is non-zero
-  explicit SpdlogPrintPolicy(std::shared_ptr<spdlog::logger> out)
-      : m_out(out) {
-  }
+  explicit SpdlogPrintPolicy(std::shared_ptr<spdlog::logger> out) : m_out(out) {}
 
   /// @brief destructor
   ~SpdlogPrintPolicy() = default;
@@ -111,8 +109,8 @@ private:
   std::shared_ptr<spdlog::logger> m_out;
 };
 
-inline std::unique_ptr<const Acts::Logger>
-getSpdlogLogger(const std::string& name, std::shared_ptr<spdlog::logger> log) {
+inline std::unique_ptr<const Acts::Logger> getSpdlogLogger(const std::string& name,
+                                                           std::shared_ptr<spdlog::logger> log) {
 
   const Acts::Logging::Level lvl = SpdlogToActsLevel(log->level());
   auto output                    = std::make_unique<Acts::Logging::NamedOutputDecorator>(
