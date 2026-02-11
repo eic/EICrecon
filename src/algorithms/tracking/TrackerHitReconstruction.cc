@@ -3,14 +3,15 @@
 
 #include "TrackerHitReconstruction.h"
 
+#include <DD4hep/Objects.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/logger.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <cstddef>
+#include <exception>
 #include <iterator>
 #include <vector>
 
