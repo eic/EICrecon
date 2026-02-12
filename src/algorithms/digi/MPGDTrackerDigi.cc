@@ -194,7 +194,7 @@ void MPGDTrackerDigi::init() {
   };
   // RELAXED TOLERANCE
   m_toleranceFactor = [](double P) {
-    double factor;
+    double factor = NAN;
     if (P < 1 * dd4hep::MeV)
       factor = 4;
     else if (P < 10 * dd4hep::MeV)
