@@ -199,7 +199,7 @@ void MPGDTrackerDigi::init() {
       factor = 4;
     else if (P < 10 * dd4hep::MeV) {
       factor = 2;
-    else
+    } else
       factor = 1;
     return factor;
   };
