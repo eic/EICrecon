@@ -197,7 +197,7 @@ void MPGDTrackerDigi::init() {
     double factor = NAN;
     if (P < 1 * dd4hep::MeV) {
       factor = 4;
-    else if (P < 10 * dd4hep::MeV)
+    else if (P < 10 * dd4hep::MeV) {
       factor = 2;
     else
       factor = 1;
