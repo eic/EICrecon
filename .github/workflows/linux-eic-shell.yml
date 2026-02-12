@@ -1305,7 +1305,7 @@ jobs:
           if-no-files-found: error
 
   collect-docs:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04
     needs:
       - get-docs-from-main
       - get-docs-from-open-prs
