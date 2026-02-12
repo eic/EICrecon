@@ -513,6 +513,9 @@ jobs:
           - beam: 10x100
             minq2: 1000
             detector_config: craterlake_tracking_only
+          - beam: 10x100
+            minq2: 1000
+            detector_config: craterlake_tracking_2DStrip
           - beam: 18x275
             minq2: 1000
             detector_config: craterlake_18x275
@@ -946,6 +949,11 @@ jobs:
           beam: 10x100
           minq2: 1000
           detector_config: craterlake_tracking_only
+          sanitizer: ASAN
+        - CXX: clang++
+          beam: 10x100
+          minq2: 1000
+          detector_config: craterlake_tracking_2DStrip
           sanitizer: ASAN
         - CXX: clang++
           beam: 18x275
