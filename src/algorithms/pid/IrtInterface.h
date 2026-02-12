@@ -23,16 +23,20 @@
 #include <spdlog/logger.h>
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
-#include <IRT/CherenkovRadiator.h>
-class ReconstructionFactory;
+#include <IRT2/CherenkovRadiator.h>
+//class ReconstructionFactory;
+#include <IRT2/ReconstructionFactory.h>
 
 class TTree;
 class TFile;
 class TH1D;
 class TBranch;
-class CherenkovEvent;
-class CherenkovDetectorCollection;
-class CherenkovDetector;
+//class CherenkovEvent;
+#include <IRT2/CherenkovEvent.h>
+//class CherenkovDetectorCollection;
+#include <IRT2/CherenkovDetectorCollection.h>
+//class CherenkovDetector;
+#include <IRT2/CherenkovDetector.h>
 
 // JOmniFactoryGeneratorT does not allow to use more than one extra config parameter ->
 // bunch whatever is needed to pass in a single structure; do not want to repeat parsing
@@ -40,7 +44,7 @@ class CherenkovDetector;
 struct IrtConfig {
   IrtConfig(): m_irt_geometry(0), m_eta_min(0.0), m_eta_max(0.0) {};
   
-  CherenkovDetectorCollection *m_irt_geometry;
+  IRT2::CherenkovDetectorCollection *m_irt_geometry;
   nlohmann::json m_json_config;
   
   // FIXME: perhaps do it better later; but in general see no reason in parsing
@@ -95,10 +99,10 @@ namespace eicrecon {
   
   private:
     std::shared_ptr<spdlog::logger> m_log;
-    CherenkovDetector*              m_irt_det;
+    IRT2::CherenkovDetector*              m_irt_det;
 
     // m_EventPtr: need this because process() is const;
-    /*static thread_local*/ CherenkovEvent *m_Event, **m_EventPtr;
+    /*static thread_local*/ IRT2::CherenkovEvent *m_Event, **m_EventPtr;
     
     unsigned m_Instance;
 
@@ -109,7 +113,7 @@ namespace eicrecon {
 
     IrtConfig m_config;
 
-    ReconstructionFactory *m_ReconstructionFactory;
+    IRT2::ReconstructionFactory *m_ReconstructionFactory;
     bool m_EventTreeOutputEnabled, m_CombinedPlotVisualizationEnabled;
     int m_wtopx;
     unsigned m_wtopy, m_wx, m_wy;

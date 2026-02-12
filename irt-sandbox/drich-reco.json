@@ -1,5 +1,5 @@
 {
-    "IntegratedReconstruction": "no",
+    "IntegratedReconstruction": "yes",
     "Comment#1": "Calibration file imported only if IntegratedReconstruction=yes",
     "Calibration": "drich-calibration.json",
     "OutputRootFile": "drich-events.root",
@@ -27,7 +27,7 @@
 	    "imaging": "yes",
 	    "acts-planes": 5,
 	    
-	    "evaluation-plots": "store",
+	    "evaluation-plots": "display",
 	    "evaluation-plots-geometry": [-10,  10, 1250, 540],
 	    "refractive-index-range": [1.015, 1.025],
 	    "photon-vertex-range": [1970, 2030],

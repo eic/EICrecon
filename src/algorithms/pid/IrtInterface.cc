@@ -20,10 +20,12 @@
 #include <edm4eic/MutableIrtParticle.h>
 #include <edm4eic/MutableIrtRadiatorInfo.h>
 
-#include <IRT/ChargedParticle.h>
-#include "IRT/CherenkovEvent.h"
-#include "IRT/CherenkovDetectorCollection.h"
-#include "IRT/ReconstructionFactory.h"
+#include <IRT2/ChargedParticle.h>
+#include "IRT2/CherenkovEvent.h"
+#include "IRT2/CherenkovDetectorCollection.h"
+#include "IRT2/ReconstructionFactory.h"
+
+using namespace IRT2;
 
 #include "G4DataInterpolation.h"
 #include "IrtInterface.h"
@@ -135,7 +137,7 @@ namespace eicrecon {
     {
       std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
     
-      m_Event = new CherenkovEvent();
+      m_Event = new IRT2::CherenkovEvent();
       m_EventPtr = &m_Event;
       
       /*const*/ json *jptr = &config.m_json_config;
@@ -148,7 +150,7 @@ namespace eicrecon {
       // FIXME: this is a hack, for the time being;
       if (jptr->find("IntegratedReconstruction") != jptr->end() &&
 	  !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
-	m_ReconstructionFactory = new ReconstructionFactory(config.m_irt_geometry, m_irt_det, m_Event);
+	m_ReconstructionFactory = new IRT2::ReconstructionFactory(config.m_irt_geometry, m_irt_det, m_Event);
 	// JANA2 prints out event progress; the rest is kind of irrelevant;
 	m_ReconstructionFactory->SetQuietMode();
 	// FIXME: add syntax check and return value;
@@ -397,7 +399,7 @@ namespace eicrecon {
       //counter++;
       
       // Create an optical photon class instance and populate it; units: [mm], [ns], [eV];
-      auto photon = new OpticalPhoton();
+      auto photon = new IRT2::OpticalPhoton();
 
       // Information provided by the hit itself: detection position and time;
       photon->SetDetectionPosition(Tools::PodioVector3_to_TVector3(mchit.getPosition()));

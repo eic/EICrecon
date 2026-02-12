@@ -1,9 +1,9 @@
 {
-    "IntegratedReconstruction": "no",
+    "IntegratedReconstruction": "yes",
     "Comment#1": "Calibration file imported only if IntegratedReconstruction=yes",
     "Calibration": "pfrich-calibration.json",
     "OutputRootFile": "pfrich-events.root",
-    "WriteOutputTree": "yes",
+    "WriteOutputTree": "no",
 
     "UsePoissonTermInChiSquare": "no",
     "UseTimingInChiSquare": "yes",
@@ -27,7 +27,7 @@
 	    "imaging": "yes",
 	    "acts-planes": 5,
 	    
-	    "evaluation-plots": "store",
+	    "evaluation-plots": "display",
 	    "evaluation-plots-geometry": [-10,  10, 1250, 540],
 	    "refractive-index-range": [1.035, 1.045],
 	    "photon-vertex-range": [-1275, -1240],

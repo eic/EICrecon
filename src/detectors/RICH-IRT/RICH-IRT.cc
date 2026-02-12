@@ -1,3 +1,4 @@
+
 //
 // Copyright (C) 2025, Alexander Kiselev
 // Subject to the terms in the LICENSE file found in the top-level directory.
@@ -38,9 +39,10 @@ using json = nlohmann::json;
 //
 static const char *RICHes[] = {"PFRICH", "DRICH"};
 
-#include "IRT/CherenkovDetectorCollection.h"
+#include "IRT2/CherenkovDetectorCollection.h"
 
 using namespace eicrecon;
+//using namespace IRT2;
 
 extern "C" {
   void InitPlugin(JApplication *app) {
@@ -114,7 +116,7 @@ extern "C" {
 	  // Import Cherenkov detector optics configuration file;
 	  {
 	    //#if 1
-	    config.m_irt_geometry = CherenkovDetectorCollection::Instance();
+	    config.m_irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
 	    //#else
 	    //auto foptics = new TFile((*jptr)["Optics"].template get<std::string>().c_str());
 	    //if (!foptics) continue;

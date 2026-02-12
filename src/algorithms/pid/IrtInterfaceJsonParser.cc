@@ -1,6 +1,8 @@
 
-#include "IRT/CherenkovDetector.h"
-#include "IRT/ReconstructionFactory.h"
+#include "IRT2/CherenkovDetector.h"
+#include "IRT2/ReconstructionFactory.h"
+
+using namespace IRT2;
 
 #include "IrtInterface.h"
 

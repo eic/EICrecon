@@ -45,7 +45,7 @@ cmake -S epic -B epic/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_INSTALL_PREFIX=$EIC
 cmake --build epic/build -j8
 cmake --install epic/build
 
-#Install EICrecon;
+# Install EICrecon;
 cmake -S EICrecon -B EICrecon/build -DCMAKE_BUILD_TYPE=Debug -DCMAKE_FIND_DEBUG_MODE=OFF -DCMAKE_INSTALL_PREFIX=$EIC_SHELL_PREFIX -Wno-dev
 cmake --build EICrecon/build -j8
 cmake --install EICrecon/build
@@ -56,7 +56,7 @@ pfRICH example
 
 ```
 # Change to a local 'irt-sandbox' directory in EICrecon repository;
-cd ${SANDBOX}/EICrecon/sandbox
+cd ${SANDBOX}/EICrecon/irt-sandbox
 
 # Generate a HEPMC file (here: 1000 events, pions, p=7 GeV/c, eta=-2.5, phi=pi/2);
 root -l 'hepmc-writer-single-track.C("electron-going-endcap.hepmc", 1000, 211, 7.0, 7.0, -2.5, -2.5, M_PI/2, M_PI/2)'
@@ -87,7 +87,10 @@ root -l 'hepmc-writer-single-track.C("electron-going-endcap.calibration.hepmc", 
 npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_pfrich.xml --outputFile ./sim.edm4hep.pfrich.calibration.root --part.userParticleHandler= --inputFiles ./electron-going-endcap.calibration.hepmc -N 10000
 
 # eicrecon dry run -> produce output event ROOT tree in a custom format for a standalone calibration script;
-# NB: make sure "IntegratedReconstruction": "no" in drich-reco.json file;
+# NB: make sure respective lines in pfrich-reco.json file look like this:
+# "IntegratedReconstruction": "no"
+# "OutputRootFile": "pfrich-events.root"
+# "WriteOutputTree": "yes"
 $EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_pfrich.xml -Ppodio:output_collections="PFRICHHits,MCParticles,PFRICHTracks,PFRICHIrtRadiatorInfo,PFRICHIrtParticles,PFRICHIrtEvent" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,PFRICH,DIRC -Ppodio:output_file="rec.edm4hep.pfrich.calibration.root" sim.edm4hep.pfrich.calibration.root -PPFRICH:config=pfrich-reco.json
 
 # Produce pfrich-calibration.json file for future use in the eicrecon integrated pass;
@@ -98,9 +101,14 @@ root -l './pfrich-calibration.C("pfrich-events.root", "pfrich-calibration.json")
 # Run npsim on 1000 events on the first produced .hepmc file in a batch mode (with pfRICH and ePIC tracking detectors);
 npsim --runType run --compactFile ../../prefix/share/epic/epic_tracking_and_pfrich.xml --outputFile ./sim.edm4hep.pfrich.root --part.userParticleHandler= --inputFiles ./electron-going-endcap.hepmc -N 1000
 
-# Run 'eicrecon' with IRT2 engine activated; NB: make sure "IntegratedReconstruction": "yes" in pfrich-reco.json file;
-# "WriteOutputTree" may be changed to "no" to save disk space; either tune "CombinedEvaluationPlotsGeometry" and "evaluation-plots-geometry" to fit on your
-# screen or disable graphics output at the end of processing (change all "display" keys to "store" in pfrich-reco.json) in case of problems; 
+# Run 'eicrecon' with IRT2 engine activated; NB: make sure respective lines in pfrich-reco.json file look like this:
+# "IntegratedReconstruction": "yes"
+# "OutputRootFile": "pfrich-events.root"
+# "WriteOutputTree": "no"
+# "CombinedEvaluationPlots": "display"
+# "evaluation-plots": "display"
+# Either tune "CombinedEvaluationPlotsGeometry" and "evaluation-plots-geometry" to fit on your
+# screen or disable graphics output at the end of processing (change "display" keys to "store" in the above mentioned lines) in case of problems; 
 $EIC_SHELL_PREFIX/bin/eicrecon -Pplugins="janadot" -Pdd4hep:xml_files=$EIC_SHELL_PREFIX/share/epic/epic_tracking_and_pfrich.xml -Ppodio:output_collections="PFRICHHits,MCParticles,PFRICHTracks,PFRICHIrtRadiatorInfo,PFRICHIrtParticles,PFRICHIrtEvent" -Peicrecon:LogLevel="info" -Pjana:nevents="0" -Pjana:debug_plugin_loading="1" -Pacts:MaterialMap="calibrations/materials-map.cbor" -Pplugins_to_ignore=LUMISPECCAL,LOWQ2,FOFFMTRK,RPOTS,B0TRK,ZDC,B0ECAL,FHCAL,BHCAL,EHCAL,FEMC,BEMC,EEMC,PFRICH,DIRC -Ppodio:output_file="rec.edm4hep.pfrich.root" sim.edm4hep.pfrich.root -PPFRICH:config=pfrich-reco.json
 
 # Re-read the output canvases by hand from the produced tree;
