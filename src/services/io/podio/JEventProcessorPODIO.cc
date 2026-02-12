@@ -5,17 +5,18 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/CollectionBase.h>
 #include <podio/Frame.h>
-#include <podio/ROOTWriter.h>
+#include <podio/Writer.h>
 #include <algorithm>
+#include <cctype>
 #include <exception>
 #include <functional>
 #include <iterator>
 #include <regex>
 #include <sstream>
+#include <stdexcept>
 
 #include "services/log/Log_service.h"
 
@@ -59,7 +60,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CentralTrackerTruthSeeds",
       "CentralTrackingRecHits",
       "CentralTrackingRawHitAssociations",
-      "CentralTrackSeedingResults",
+      "CentralTrackSeeds",
+      "CentralTrackSeedParameters",
       "CentralTrackerMeasurements",
 
       // Si tracker hits
@@ -168,7 +170,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerRawHits",
       "B0TrackerHits",
       "B0TrackerRawHitAssociations",
-      "B0TrackerSeedingResults",
+      "B0TrackerSeeds",
+      "B0TrackerSeedParameters",
       "B0TrackerMeasurements",
 
       "ForwardRomanPotRecHits",
@@ -178,8 +181,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ForwardRomanPotStaticRecParticles",
       "ForwardOffMRecParticles",
 
+      "ForwardRomanPotHits",
       "ForwardRomanPotRawHits",
       "ForwardRomanPotRawHitAssociations",
+      "ForwardOffMTrackerHits",
       "ForwardOffMTrackerRawHits",
       "ForwardOffMTrackerRawHitAssociations",
 
@@ -376,18 +381,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DIRCTruthSeededParticleIDs",
       "DIRCParticleIDs",
 
-      "B0ECalRawHitAssociations",
-      "EcalBarrelScFiRawHitAssociations",
-      "EcalBarrelImagingRawHitAssociations",
-      "HcalBarrelRawHitAssociations",
-      "EcalEndcapNRawHitAssociations",
-      "HcalEndcapNRawHitAssociations",
-      "EcalEndcapPRawHitAssociations",
-      "HcalEndcapPInsertRawHitAssociations",
-      "LFHCALRawHitAssociations",
-      "EcalLumiSpecRawHitAssociations",
-      "EcalFarForwardZDCRawHitAssociations",
-      "HcalFarForwardZDCRawHitAssociations",
       "EcalEndcapPTrackClusterMatches",
       "LFHCALTrackClusterMatches",
       "HcalEndcapPInsertClusterMatches",
@@ -408,6 +401,9 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
   japp->SetDefaultParameter(
       "podio:print_collections", m_collections_to_print,
       "Comma separated list of collection names to print to screen, e.g. for debugging.");
+  japp->SetDefaultParameter(
+      "podio:output_backend", m_output_backend,
+      "Output backend: 'root' for TTree (default) or 'rntuple' for RNTuple format");
 
   m_output_collections =
       std::set<std::string>(output_collections.begin(), output_collections.end());
@@ -419,7 +415,21 @@ void JEventProcessorPODIO::Init() {
 
   auto* app = GetApplication();
   m_log     = app->GetService<Log_service>()->logger("JEventProcessorPODIO");
-  m_writer  = std::make_unique<podio::ROOTWriter>(m_output_file);
+
+  // Convert backend selection to lowercase for case-insensitive comparison
+  std::string backend_lower = m_output_backend;
+  std::transform(backend_lower.begin(), backend_lower.end(), backend_lower.begin(),
+                 [](unsigned char c) { return std::tolower(c); });
+
+  m_log->info("Using '{}' backend for output file: {}", backend_lower, m_output_file);
+
+  // Create writer using podio::makeWriter
+  try {
+    m_writer = std::make_unique<podio::Writer>(podio::makeWriter(m_output_file, backend_lower));
+  } catch (const std::exception& e) {
+    throw std::runtime_error(
+        fmt::format("Failed to create writer with backend '{}': {}", backend_lower, e.what()));
+  }
 }
 
 void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JEvent>& event) {
@@ -466,7 +476,7 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
         } else {
           // Included, not excluded, and a valid PODIO type
           m_collections_to_write.push_back(col);
-          m_log->info("Persisting collection '{}'", col);
+          m_log->debug("Persisting collection '{}'", col);
         }
       }
     }

@@ -4,37 +4,48 @@
 
 #pragma once
 
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <algorithms/algorithm.h>
+#include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
-#include <edm4eic/ReconstructedParticle.h>
-#include <spdlog/logger.h>
 #include <memory>
-#include <vector>
+#include <string>
+#include <string_view>
 
-#include "ActsExamples/EventData/Trajectories.hpp"
-#include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
-#include "IterativeVertexFinderConfig.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/IterativeVertexFinderConfig.h"
 
 namespace eicrecon {
-class IterativeVertexFinder
-    : public eicrecon::WithPodConfig<eicrecon::IterativeVertexFinderConfig> {
+
+using IterativeVertexFinderAlgorithm = algorithms::Algorithm<
+    algorithms::Input<Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer,
+                      edm4eic::ReconstructedParticleCollection>,
+    algorithms::Output<edm4eic::VertexCollection>>;
+
+class IterativeVertexFinder : public IterativeVertexFinderAlgorithm,
+                              public WithPodConfig<eicrecon::IterativeVertexFinderConfig> {
 public:
-  void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-            std::shared_ptr<spdlog::logger> log);
-  std::unique_ptr<edm4eic::VertexCollection>
-  produce(std::vector<const ActsExamples::Trajectories*> trajectories,
-          const edm4eic::ReconstructedParticleCollection* reconParticles);
+  IterativeVertexFinder(std::string_view name)
+      : IterativeVertexFinderAlgorithm{
+            name,
+            {"inputActsTrackStates", "inputActsTracks", "inputReconstructedParticles"},
+            {"outputVertices"},
+            "Iterative vertex finder"} {}
+
+  void init() final {};
+  void process(const Input&, const Output&) const final;
 
 private:
-  std::shared_ptr<spdlog::logger> m_log;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
-
-  std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
-  Acts::GeometryContext m_geoctx;
-  Acts::MagneticFieldContext m_fieldctx;
-  IterativeVertexFinderConfig m_cfg;
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
+      algorithms::ActsSvc::instance().acts_geometry_provider()};
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
+  Acts::GeometryContext m_geoctx{};
+  Acts::MagneticFieldContext m_fieldctx{};
 };
 } // namespace eicrecon
