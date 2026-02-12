@@ -33,8 +33,8 @@ using namespace dd4hep;
 // Define necessary hash functions
 namespace std {
 
-// Hash for tuple<edm4hep::MCParticle, uint64_t>
-// --> not yet supported by any compiler at the moment
+// Hash specialization for std::tuple<edm4hep::MCParticle, uint64_t, int>
+// --> provided because std::hash is not defined for std::tuple in the used standard library
 template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
   size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t, int>& key) const noexcept {
     const auto& [particle, cellID, timeID] = key;
