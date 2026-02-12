@@ -34,7 +34,7 @@ struct ImagingTopoClusterConfig {
   // maximum distance of global (t, z) to be considered as neighbors at different layers (if samelayerMode==tz)
   std::vector<double> diffLayerDistTZ = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
   // Layermodes
-  enum class ELayerMode { etaphi = 0, xy = 1, xyz = 2, tz = 3 };
+  enum class ELayerMode { etaphi = 0, xy = 1, tz = 2, xyz = 3 };
   // determines how neighbors are determined for hits in same layers (using either eta and phi, or x and y)
   ELayerMode sameLayerMode = ELayerMode::xy; // for ldiff =0
   // determines how neighbors are determined for hits in different layers (using either eta and phi, or x and y)
@@ -61,10 +61,10 @@ std::istream& operator>>(std::istream& in, ImagingTopoClusterConfig::ELayerMode&
     layerMode = ImagingTopoClusterConfig::ELayerMode::etaphi;
   } else if (s == "xy" or s == "1") {
     layerMode = ImagingTopoClusterConfig::ELayerMode::xy;
-  } else if (s == "xyz" or s == "2") {
-    layerMode = ImagingTopoClusterConfig::ELayerMode::xyz;
-  } else if (s == "tz" or s == "3") {
+  } else if (s == "tz" or s == "2") {
     layerMode = ImagingTopoClusterConfig::ELayerMode::tz;
+  } else if (s == "xyz" or s == "3") {
+    layerMode = ImagingTopoClusterConfig::ELayerMode::xyz;
   } else {
     in.setstate(std::ios::failbit); // Set the fail bit if the input is not valid
   }
