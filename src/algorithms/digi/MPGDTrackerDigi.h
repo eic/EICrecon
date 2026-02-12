@@ -51,20 +51,22 @@ private:
   void parseSegmentation();
 
   // COALESCE and EXTEND
-  bool cCoalesceExtend(const Input& input, int& idx, std::vector<std::uint64_t>& cIDs,
-		       double* lpos, double& eDep, double& time) const;
-  bool bCoalesceExtend(const Input& input, int& idx, std::vector<std::uint64_t>& cIDs,
-		       double* lpos, double& eDep, double& time) const;
+  bool cCoalesceExtend(const Input& input, int& idx, std::vector<std::uint64_t>& cIDs, double* lpos,
+                       double& eDep, double& time) const;
+  bool bCoalesceExtend(const Input& input, int& idx, std::vector<std::uint64_t>& cIDs, double* lpos,
+                       double& eDep, double& time) const;
   unsigned int cTraversing(const double* lpos, const double* lmom, double path,
-			   bool isSecondary,                          // Input subHit
-			   double rMin, double rMax,                  // Current instance of SUBVOLUME
-			   double dZ, double startPhi, double endPhi, // Module parameters
-			   double lintos[][3], double louts[][3], double* lpini, double* lpend) const;
+                           bool isSecondary,         // Input subHit
+                           double rMin, double rMax, // Current instance of SUBVOLUME
+                           double dZ, double startPhi, double endPhi, // Module parameters
+                           double lintos[][3], double louts[][3], double* lpini,
+                           double* lpend) const;
   unsigned int bTraversing(const double* lpos, const double* lmom, double ref2Cur, double path,
-			   bool isSecondary,     // Input subHit
-			   double dZ,            // Current instance of SUBVOLUME
-			   double dX, double dY, // Module parameters
-			   double lintos[][3], double louts[][3], double* lpini, double* lpend) const;
+                           bool isSecondary,     // Input subHit
+                           double dZ,            // Current instance of SUBVOLUME
+                           double dX, double dY, // Module parameters
+                           double lintos[][3], double louts[][3], double* lpini,
+                           double* lpend) const;
   void printSubHitList(const Input& input, std::vector<int>& subHitList) const;
   unsigned int extendHit(dd4hep::CellID modID, int direction, double* lpini, double* lmini,
                          double* lpend, double* lmend) const;

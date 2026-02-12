@@ -194,7 +194,7 @@ void MPGDTrackerDigi::init() {
   // RELAXED TOLERANCE
   m_toleranceFactor = [](double P) {
     double factor;
-    if      (P < 1  * dd4hep::MeV)
+    if (P < 1 * dd4hep::MeV)
       factor = 4;
     else if (P < 10 * dd4hep::MeV)
       factor = 2;
@@ -460,8 +460,9 @@ void MPGDTrackerDigi::parseSegmentation() {
 //  _global_ position argument to "dd4hep::Segmentation::cellID", we need
 //  the _local_ position and only that.
 // - Also returned: updated index, vector of used subHits.
-bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<std::uint64_t>& cIDs,
-				      double* lpos, double& eDep, double& time) const {
+bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
+                                      std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
+                                      double& time) const {
   const auto [headers, sim_hits]        = input;
   const edm4hep::EventHeader& header    = headers->at(0);
   const edm4hep::SimTrackerHit& sim_hit = sim_hits->at(idx);
@@ -533,7 +534,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
     size_t sim_size = sim_hits->size();
     for (jdx = idx + 1; jdx < (int)sim_size; jdx++) {
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
-      CellID vJD = sim_hjt.getCellID() & m_volumeBits;
+      CellID vJD                            = sim_hjt.getCellID() & m_volumeBits;
       // Particle may start inward and re-enter, being then outward-going.
       // => Orientation has to be evaluated w.r.t. previous vID.
       int orientation = m_orientation(vIDPrv, vJD);
@@ -542,12 +543,12 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
       if (!pmoStatus || !isUpstream) {
         if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary()) {
           // Bizarre, except if it's a low energy stuff (when it then can be a
-	  // a looping particle. If it's not let's flag the case, for debugging.
-	  double P = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
-	  if (P > 10 * dd4hep::MeV)
-	    debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
-	}
-	break;
+          // a looping particle. If it's not let's flag the case, for debugging.
+          double P = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
+          if (P > 10 * dd4hep::MeV)
+            debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
+        }
+        break;
       }
       // Get 'j' radii
       curVol           = volman.lookupDetElement(vJD);
@@ -563,22 +564,23 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
                       rMin, rMax, dZ, startPhi, endPhi, ljns, lovts, lpjni, lpfnd);
       if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
         critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
-	break;
+        break;
       }
       // ij-Compatibility: status
       bool jsDownstream = m_isDownstream(orientation, status);
-      if (!jsDownstream) break;
+      if (!jsDownstream)
+        break;
       // ij-Compatibility: close exit/entrance-distance
-      double dist       = outInDistance(0, orientation, ljns, louts, lmom, lmoj);
+      double dist = outInDistance(0, orientation, ljns, louts, lmom, lmoj);
       // RELAXED TOLERANCE for low energy stuff
       double P          = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
-      double tolerance  =  m_toleranceFactor(P) * 25 * dd4hep::um;
+      double tolerance  = m_toleranceFactor(P) * 25 * dd4hep::um;
       bool isCompatible = dist > 0 && dist < tolerance;
       if (!isCompatible) {
         if (!sim_hit.isProducedBySecondary())
           debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
                        /* */ sim_hjt.getCellID(), lpoj, lmoj));
-	break;
+        break;
       }
       // ***** UPDATE
       vIDPrv = vJD;
@@ -647,8 +649,9 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
   }
   return true;
 }
-bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<std::uint64_t>& cIDs,
-				      double* lpos, double& eDep, double& time) const {
+bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
+                                      std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
+                                      double& time) const {
   const auto [headers, sim_hits]        = input;
   const edm4hep::EventHeader& header    = headers->at(0);
   const edm4hep::SimTrackerHit& sim_hit = sim_hits->at(idx);
@@ -705,18 +708,18 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
     size_t sim_size = sim_hits->size();
     for (jdx = idx + 1; jdx < (int)sim_size; jdx++) {
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
-      CellID vJD      = sim_hjt.getCellID() & m_volumeBits;
-      int orientation = m_orientation(vIDPrv, vJD);
-      bool isUpstream = m_isUpstream(orientation, status);
-      bool pmoStatus  = samePMO(sim_hit, sim_hjt);
+      CellID vJD                            = sim_hjt.getCellID() & m_volumeBits;
+      int orientation                       = m_orientation(vIDPrv, vJD);
+      bool isUpstream                       = m_isUpstream(orientation, status);
+      bool pmoStatus                        = samePMO(sim_hit, sim_hjt);
       if (!pmoStatus || !isUpstream) {
         if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary()) {
           // Bizarre: let's flag the case for debugging, if not low energy.
-	  double P = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
-	  if (P > 10 * dd4hep::MeV)
-	    debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
-	}
-	break;
+          double P = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
+          if (P > 10 * dd4hep::MeV)
+            debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
+        }
+        break;
       }
       // Get 'j' Z
       curVol          = volman.lookupDetElement(vJD); // 'j' SUBVOLUME
@@ -735,18 +738,19 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
       }
       // ij-Compatibility: status
       bool jsDownstream = m_isDownstream(orientation, status);
-      if (!jsDownstream) break;
+      if (!jsDownstream)
+        break;
       // ij-Compatibility: close exit/entrance-distance
-      double dist       = outInDistance(1, orientation, ljns, louts, lmom, lmoj);
+      double dist = outInDistance(1, orientation, ljns, louts, lmom, lmoj);
       // RELAXED TOLERANCE for low energy stuff
       double P          = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
-      double tolerance  =  m_toleranceFactor(P) * 25 * dd4hep::um;
+      double tolerance  = m_toleranceFactor(P) * 25 * dd4hep::um;
       bool isCompatible = dist > 0 && dist < tolerance;
       if (!isCompatible) {
         if (!sim_hit.isProducedBySecondary())
           debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
                        /* */ sim_hjt.getCellID(), lpoj, lmoj));
-	break;
+        break;
       }
       // ***** UPDATE
       vIDPrv = vJD;
@@ -867,10 +871,12 @@ void getLocalPosMom(const edm4hep::SimTrackerHit& sim_hit, const TGeoHMatrix& to
 //   low energy particle, where path may be affected by multiscattering. This,
 //   provided that particle is not a secondary.
 unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom, double path,
-					  bool isSecondary,                          // Input subHit
-					  double rMin, double rMax,                  // Current instance of SUBVOLUME
-					  double dZ, double startPhi, double endPhi, // Module parameters
-					  double lintos[][3], double louts[][3], double* lpini, double* lpend) const {
+                                          bool isSecondary,         // Input subHit
+                                          double rMin, double rMax, // Current instance of SUBVOLUME
+                                          double dZ, double startPhi,
+                                          double endPhi, // Module parameters
+                                          double lintos[][3], double louts[][3], double* lpini,
+                                          double* lpend) const {
   unsigned int status = 0;
   double Mx = lpos[0], My = lpos[1], Mz = lpos[2], M2 = Mx * Mx + My * My;
   double Px = lmom[0], Py = lmom[1], Pz = lmom[2];
@@ -1021,25 +1027,28 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
     }
   }
   double rHit = sqrt(M2);
-  if      (rHit < rMin && !canReEnter) {
+  if (rHit < rMin && !canReEnter) {
     unsigned int statvs = status;
     if (statvs & 0x1) {
-      status &= ~0x1; status |= 0x2;
+      status &= ~0x1;
+      status |= 0x2;
       ts[0][1] = -ts[0][0];
     }
     if (statvs & 0x2) {
-      status &= ~0x2; status |= 0x1;
+      status &= ~0x2;
+      status |= 0x1;
       ts[0][0] = -ts[0][1];
     }
-  }
-  else if (rHit > rMax) {
+  } else if (rHit > rMax) {
     unsigned int statvs = status;
     if (statvs & 0x4) {
-      status &= ~0x4; status |= 0x8;
+      status &= ~0x4;
+      status |= 0x8;
       ts[1][1] = -ts[1][0];
     }
     if (statvs & 0x8) {
-      status &= ~0x8; status |= 0x4;
+      status &= ~0x8;
+      status |= 0x4;
       ts[1][0] = -ts[1][1];
     }
   }
@@ -1117,10 +1126,10 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
           double t = ts[lu][io];
           if (t * s < 0)
             continue;
-          double dIx       = t * Px - Ix, dIy = t * Py - Iy, dIz = t * Pz - Iz;
-          double dist      = sqrt(dIx * dIx + dIy * dIy + dIz * dIz);
-	  // RELAXED TOLERANCE for low energy stuff
-	  double tolerance =  m_toleranceFactor(norm) * 20 * dd4hep::um;
+          double dIx = t * Px - Ix, dIy = t * Py - Iy, dIz = t * Pz - Iz;
+          double dist = sqrt(dIx * dIx + dIy * dIy + dIz * dIz);
+          // RELAXED TOLERANCE for low energy stuff
+          double tolerance = m_toleranceFactor(norm) * 20 * dd4hep::um;
           if (dist < tolerance)
             statws |= statvs;
         }
@@ -1172,11 +1181,13 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
   }
   return status;
 }
-unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom, double ref2Cur, double path,
-					  bool isSecondary,     // Input subHit
-					  double dZ,            // Current instance of SUBVOLUME
-					  double dX, double dY, // Module parameters
-					  double lintos[][3], double louts[][3], double* lpini, double* lpend) const {
+unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom, double ref2Cur,
+                                          double path,
+                                          bool isSecondary,     // Input subHit
+                                          double dZ,            // Current instance of SUBVOLUME
+                                          double dX, double dY, // Module parameters
+                                          double lintos[][3], double louts[][3], double* lpini,
+                                          double* lpend) const {
   unsigned int status = 0;
   double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My};
   double Px = lmom[0], Py = lmom[1], Pxy[2] = {Px, Py};
@@ -1251,10 +1262,10 @@ unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom
           double t = io ? tOut : tIn;
           if (t * s < 0)
             continue;
-          double dIx       = t * Px - Ix, dIy = t * Py - Iy, dIz = t * Pz - Iz;
-          double dist      = sqrt(dIx * dIx + dIy * dIy + dIz * dIz);
-	  // RELAXED TOLERANCE for low energy stuff
-	  double tolerance =  m_toleranceFactor(norm) * 20 * dd4hep::um;
+          double dIx = t * Px - Ix, dIy = t * Py - Iy, dIz = t * Pz - Iz;
+          double dist = sqrt(dIx * dIx + dIy * dIy + dIz * dIz);
+          // RELAXED TOLERANCE for low energy stuff
+          double tolerance = m_toleranceFactor(norm) * 20 * dd4hep::um;
           if (dist < tolerance)
             statws |= statvs;
         }
