@@ -2,23 +2,16 @@
 // Copyright (C) 2025 Minho Kim
 //
 
+#include <edm4eic/CALOROC1ASample.h>
+#include <edm4eic/CALOROC1BSample.h>
 #include <edm4eic/EDM4eicVersion.h>
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
-#include <algorithms/service.h>
-#include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
-#include <limits>
-#include <map>
-#include <random>
-#include <stdexcept>
-#include <string>
-#include <unordered_map>
-#include <utility>
 #include <vector>
 
 #include "CALOROCDigitization.h"

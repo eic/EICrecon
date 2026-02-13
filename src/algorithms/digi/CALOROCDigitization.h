@@ -4,12 +4,8 @@
 #pragma once
 
 #include <algorithms/algorithm.h>
-#include <edm4eic/SimPulseCollection.h>
 #include <edm4eic/RawCALOROCHitCollection.h>
-#include <edm4eic/CALOROC1ASample.h>
-#include <edm4eic/CALOROC1BSample.h>
-#include <stdint.h>
-#include <functional>
+#include <edm4eic/SimPulseCollection.h>
 #include <string>
 #include <string_view>
 
