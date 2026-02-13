@@ -5,6 +5,11 @@
 
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
+#include <ActsExamples/EventData/Track.hpp>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
@@ -18,12 +23,15 @@
 #include <string_view>
 
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/interfaces/ActsSvc.h"
+#include "ActsGeometryProvider.h"
 
 namespace eicrecon {
 
 using ActsToTracksAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::Measurement2DCollection, edm4eic::TrackSeedCollection,
-                      Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer,
+                      ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
@@ -37,6 +45,8 @@ public:
                                   "inputMeasurements",
                                   "inputTrackSeeds",
                                   "inputActsTrackStates",
+                                  "inputActsTrackParameters",
+                                  "inputActsTrackJacobians",
                                   "inputActsTracks",
                                   "inputRawTrackerHitAssociations",
                               },
@@ -50,6 +60,10 @@ public:
 
   void init() final;
   void process(const Input&, const Output&) const final;
+
+private:
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 };
 
 } // namespace eicrecon
