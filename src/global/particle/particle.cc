@@ -27,15 +27,13 @@ void InitPlugin(JApplication* app) {
   // ====================================================================
 
   app->Add(new JOmniFactoryGeneratorT<ParticleConverter_factory>(
-      "FinalReconstructedParticles", 
-      {"ReconstructedParticles"}, 
-      {"FinalReconstructedParticles"},
+      "FinalReconstructedParticles", {"ReconstructedParticles"}, {"FinalReconstructedParticles"},
       {
-        .ecal_resolution   = 1.0,
-        .hcal_resolution   = 1.0,
-        .calo_hadron_scale = 1.0,
-        .calo_energy_norm  = 1.0,
-      }, 
+          .ecal_resolution   = 1.0,
+          .hcal_resolution   = 1.0,
+          .calo_hadron_scale = 1.0,
+          .calo_energy_norm  = 1.0,
+      },
       app));
 }
 } // extern "C"
