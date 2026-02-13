@@ -1,5 +1,5 @@
-// author : Esteban Molina, Derek Anderson
-// date   : January 2026
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2026 Esteban Molina, Derek Anderson
 
 #pragma once
 
