@@ -135,7 +135,7 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     // Step 4 : Store information on a mutable collection
     double mass_calculated = std::sqrt(std::pow(avge_energy, 2) - std::pow(track_momentum_mag, 2));
 
-    edm4eic::MutableReconstructedParticle out_reco_particle;
+    edm4eic::MutableReconstructedParticle out_reco_particle = particle.clone();
 
     out_reco_particle.setType(
         0); // Placeholder value until I know what this variable really stands for
