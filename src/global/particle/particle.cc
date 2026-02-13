@@ -26,9 +26,16 @@ void InitPlugin(JApplication* app) {
   // PFAlpha: baseline PF implementation
   // ====================================================================
 
-  // ASK ABOUT THIS SECOND ARGUMENT -> FALSE
   app->Add(new JOmniFactoryGeneratorT<ParticleConverter_factory>(
-      "FinalReconstructedParticles", {"ReconstructedParticles"}, {"FinalReconstructedParticles"},
-      {}, app));
+      "FinalReconstructedParticles", 
+      {"ReconstructedParticles"}, 
+      {"FinalReconstructedParticles"},
+      {
+        .ecal_resolution   = 1.0,
+        .hcal_resolution   = 1.0,
+        .calo_hadron_scale = 1.0,
+        .calo_energy_norm  = 1.0,
+      }, 
+      app));
 }
 } // extern "C"
