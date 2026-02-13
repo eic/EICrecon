@@ -153,12 +153,6 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     out_reco_particle.setStartVertex(particle.getStartVertex());
     out_reco_particle.setParticleIDUsed(particle.getParticleIDUsed());
 
-    // NOTE: Not necessary?
-    // out_reco_particle.setClusters(particle.getClusters());
-    // out_reco_particle.setTracks(particle.getTracks());
-    // out_reco_particle.setParticles(particle.getParticles());
-    // out_reco_particle.setParticleIDs(particle.getParticleIDs());
-
     out_particles->push_back(out_reco_particle);
   }
 };
