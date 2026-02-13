@@ -45,7 +45,5 @@ private:
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
       algorithms::ActsSvc::instance().acts_geometry_provider()};
   std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
-  Acts::GeometryContext m_geoctx{};
-  Acts::MagneticFieldContext m_fieldctx{};
 };
 } // namespace eicrecon

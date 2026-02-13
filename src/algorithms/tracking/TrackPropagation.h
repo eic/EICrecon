@@ -101,8 +101,6 @@ public:
   void propagateToSurfaceList(const Input& input, const Output& output) const;
 
 private:
-  Acts::GeometryContext m_geoContext;
-  Acts::MagneticFieldContext m_fieldContext;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
       algorithms::ActsSvc::instance().acts_geometry_provider()};
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
