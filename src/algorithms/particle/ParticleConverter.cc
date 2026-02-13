@@ -15,6 +15,14 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
   const auto [in_particles] = input;
   auto [out_particles]      = output;
 
+  if (in_particles->size() == 0) {
+		debug("No particle candidates in the input.");
+
+		return;
+  } else {
+		debug("There are {} particle candidates in the input.", in_particles->size());
+	}
+
   for (const auto particle : *in_particles) {
     bool isTrack = false;
     bool isHCal  = false;
