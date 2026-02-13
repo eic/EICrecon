@@ -15,7 +15,6 @@
 #include <fmt/format.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <podio/podioVersion.h>
 #include <cmath>
 #include <cstddef>
 #include <functional>
@@ -34,21 +33,8 @@ using namespace dd4hep;
 // Define necessary hash functions
 namespace std {
 
-#if defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
-#if podio_VERSION <= PODIO_VERSION(1, 2, 0)
-// Hash for podio::ObjectID
-template <> struct hash<podio::ObjectID> {
-  size_t operator()(const podio::ObjectID& id) const noexcept {
-    size_t h1 = std::hash<uint32_t>{}(id.collectionID);
-    size_t h2 = std::hash<int>{}(id.index);
-    return h1 ^ (h2 << 1);
-  }
-};
-#endif // podio version check
-#endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
-
-// Hash for tuple<edm4hep::MCParticle, uint64_t>
-// --> not yet supported by any compiler at the moment
+// Hash specialization for std::tuple<edm4hep::MCParticle, uint64_t, int>
+// --> provided because std::hash is not defined for std::tuple in the used standard library
 template <> struct hash<std::tuple<edm4hep::MCParticle, uint64_t, int>> {
   size_t operator()(const std::tuple<edm4hep::MCParticle, uint64_t, int>& key) const noexcept {
     const auto& [particle, cellID, timeID] = key;

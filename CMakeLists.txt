@@ -67,7 +67,7 @@ set(fmt_VERSION_MIN 9.0.0)
 set(IRT_VERSION_MIN 1.0.5)
 set(JANA_VERSION_MIN 2.4.0)
 set(onnxruntime_MIN_VERSION 1.17)
-set(podio_VERSION_MIN 1.2)
+set(podio_VERSION_MIN 1.3)
 set(ROOT_VERSION_MIN 6.28)
 set(spdlog_VERSION_MIN 1.11.0)
 
