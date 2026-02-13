@@ -178,7 +178,13 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
 #endif
 
       if (det_element == nullptr) {
-        m_init_log->error("invalid det_element!!! det_element == nullptr ");
+        if (surface->geometryId().value() != 0) {
+          m_init_log->debug("Free surface with geometry ID: {}", surface->geometryId().value());
+          // Store free surface using geometry ID
+          this->m_surfaces.insert_or_assign(surface->geometryId().value(), surface);
+        } else {
+          m_init_log->debug("Skipping free surface without geometry ID");
+        }
         return;
       }
 
