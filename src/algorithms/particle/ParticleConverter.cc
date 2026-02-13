@@ -110,7 +110,7 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     if (ecal_energy > 0)
       calo_energy += ecal_energy;
     if (hcal_energy > 0)
-      calo_energy += hcal_energy;
+      calo_energy += m_cfg.calo_hadron_scale * hcal_energy;
 
     calo_energy *= m_cfg.calo_energy_norm;
 
