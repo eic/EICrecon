@@ -277,7 +277,12 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
                         Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
                                         logger().cloneWithSuffix("Navigator")),
                         logger().cloneWithSuffix("Propagator"));
-  PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
+
+  // Get run-scoped contexts from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+
+  PropagatorOptions propagationOptions(gctx, mctx);
 
   auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
 
@@ -299,7 +304,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   trace("    path len = {}", pathLength);
 
   // Position:
-  auto projectionPos = trackStateParams.position(m_geoContext);
+  auto projectionPos = trackStateParams.position(gctx);
   const decltype(edm4eic::TrackPoint::position) position{static_cast<float>(projectionPos(0)),
                                                          static_cast<float>(projectionPos(1)),
                                                          static_cast<float>(projectionPos(2))};

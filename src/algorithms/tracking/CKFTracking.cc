@@ -223,7 +223,12 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKF", acts_level));
 
-  Acts::PropagatorPlainOptions pOptions(m_geoctx, m_fieldctx);
+  // Get run-scoped contexts from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+  const auto& cctx = m_geoSvc->getActsCalibrationContext();
+
+  Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
 
   ActsExamples::PassThroughCalibrator pcalibrator;
@@ -271,10 +276,10 @@ void CKFTracking::process(const Input& input, const Output& output) const {
 
   // Set the CombinatorialKalmanFilter options
 #if Acts_VERSION_MAJOR >= 39
-  CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, extensions, pOptions);
+  CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, extensions, pOptions);
 #else
-  CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
-                                          extensions, pOptions);
+  CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, slAccessorDelegate, extensions,
+                                          pOptions);
 #endif
 
   using Extrapolator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
@@ -290,7 +295,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
                             Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
                                             acts_logger().cloneWithSuffix("Navigator")),
                             acts_logger().cloneWithSuffix("Propagator"));
-  ExtrapolatorOptions extrapolationOptions(m_geoctx, m_fieldctx);
+  ExtrapolatorOptions extrapolationOptions(gctx, mctx);
 
   // Create track container
   auto trackContainer      = std::make_shared<Acts::VectorTrackContainer>();
@@ -338,7 +343,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
         continue;
       }
 
-      auto smoothingResult = Acts::smoothTrack(m_geoctx, track, acts_logger());
+      auto smoothingResult = Acts::smoothTrack(gctx, track, acts_logger());
       if (!smoothingResult.ok()) {
         debug("Smoothing for seed {} and track {} failed with error {}", iseed, track.index(),
               smoothingResult.error().message());
