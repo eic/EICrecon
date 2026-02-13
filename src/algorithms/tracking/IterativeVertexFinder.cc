@@ -43,6 +43,7 @@
 #include <utility>
 #include <vector>
 
+#include "ActsGeometryProvider.h"
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
