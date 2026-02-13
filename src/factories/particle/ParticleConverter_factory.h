@@ -32,22 +32,23 @@ private:
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
 
   // Parameters
-  ParameterRef<double> m_tracking_resolution {this, "tracking_resolution", config().tracking_resolution};
-  ParameterRef<double> m_ecal_resolution     {this, "ecal_resolution", config().ecal_resolution};
-  ParameterRef<double> m_hcal_resolution     {this, "hcal_resolution", config().hcal_resolution};
-  ParameterRef<double> m_calo_hadronic_scale {this, "calo_hadron_scale", config().calo_hadron_scale};
-  ParameterRef<double> m_calo_energy_norm    {this, "calo_energy_norm", config().calo_energy_norm};
+  ParameterRef<double> m_tracking_resolution{this, "tracking_resolution",
+                                             config().tracking_resolution};
+  ParameterRef<double> m_ecal_resolution{this, "ecal_resolution", config().ecal_resolution};
+  ParameterRef<double> m_hcal_resolution{this, "hcal_resolution", config().hcal_resolution};
+  ParameterRef<double> m_calo_hadronic_scale {this, "calo_hadronic_scale", config().calo_hadronic_scale);
+    ParameterRef<double> m_calo_energy_norm{this, "calo_energy_norm", config().calo_energy_norm};
 
-public:
-  void Configure() {
-    m_algo = std::make_unique<Algo>(this->GetPrefix());
-    m_algo->level((algorithms::LogLevel)this->logger()->level());
-    m_algo->applyConfig(config());
-    m_algo->init();
+  public:
+    void Configure() {
+      m_algo = std::make_unique<Algo>(this->GetPrefix());
+      m_algo->level((algorithms::LogLevel)this->logger()->level());
+      m_algo->applyConfig(config());
+      m_algo->init();
+    };
+
+    void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+      m_algo->process({m_recoparticles_input()}, {m_recoparticles_output().get()});
+    }
   };
-
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_recoparticles_input()}, {m_recoparticles_output().get()});
-  }
-};
 } // namespace eicrecon
