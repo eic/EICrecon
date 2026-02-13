@@ -8,9 +8,7 @@
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <ActsExamples/EventData/Track.hpp>
@@ -101,8 +99,6 @@ public:
   void propagateToSurfaceList(const Input& input, const Output& output) const;
 
 private:
-  Acts::GeometryContext m_geoContext;
-  Acts::MagneticFieldContext m_fieldContext;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
       algorithms::ActsSvc::instance().acts_geometry_provider()};
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};

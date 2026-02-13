@@ -38,11 +38,11 @@ public:
   float t() const { return getTime(); }
   float varianceT() const { return getTimeError(); }
 
-  bool isOnSurface() const {
+  bool isOnSurface(const Acts::GeometryContext& gctx) const {
     if (m_surface == nullptr) {
       return false;
     }
-    return m_surface->isOnSurface(Acts::GeometryContext(), {x(), y(), z()}, {0, 0, 0});
+    return m_surface->isOnSurface(gctx, {x(), y(), z()}, {0, 0, 0});
   }
 };
 
