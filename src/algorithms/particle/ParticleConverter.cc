@@ -15,10 +15,6 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
   const auto [in_particles] = input;
   auto [out_particles]      = output;
 
-  trace("----------------------------------------------------------------");
-  trace("                                                                ");
-  trace("We have {} particles as input", in_particles->size());
-
   for (const auto particle : *in_particles) {
     bool isTrack = false;
     bool isHCal  = false;
@@ -114,9 +110,6 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
         (weight_tracking_resolution * track_energy + weight_calo_resolution * calo_energy) /
         normalization;
 
-    trace(" Total energy of the particle is E = {} GeV, calo.Energy = {}, track.Energy = {}",
-          avge_energy, calo_energy, track_energy);
-
     // Step 4 : Store information on a mutable collection
     double mass_calculated = std::sqrt(std::pow(avge_energy, 2) - std::pow(track_momentum_mag, 2));
 
@@ -145,11 +138,6 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     // out_reco_particle.setParticleIDs(particle.getParticleIDs());
 
     out_particles->push_back(out_reco_particle);
-
-    trace("                                                                ");
   }
-
-  trace("                                                                ");
-  trace("----------------------------------------------------------------");
 };
 } // namespace eicrecon
