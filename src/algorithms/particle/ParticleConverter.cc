@@ -11,6 +11,20 @@
 #include "ParticleConverter.h"
 
 namespace eicrecon {
+// ----------------------------------------------------------------------------
+//! Process inputs
+// ----------------------------------------------------------------------------
+/*! Convert a particle candidate into a reconstructed particle
+ *  with well defined kinematics and PID via the following
+ *  algorithm:
+ *    1.  Assign rough PDG code based on presence of tracks and clusters
+ *      - If candidate has a track, use its associated PID
+ *      - Otherwise label it as a photon or neutron based on
+ *        if candidate has HCal clusters
+ *    2. Calculate track and total calorimeter energy as needed, and
+ *       take weighted average
+ *    3. Using mass and energy, calculate remaining kinematics
+ */
 void ParticleConverter::process(const Input& input, const Output& output) const {
   const auto [in_particles] = input;
   auto [out_particles]      = output;
