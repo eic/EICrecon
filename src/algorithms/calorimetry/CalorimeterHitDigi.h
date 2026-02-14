@@ -16,6 +16,7 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/RawCalorimeterHitCollection.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
@@ -28,11 +29,18 @@
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#endif
+
 namespace eicrecon {
 
 using CalorimeterHitDigiAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimCalorimeterHitCollection>,
     algorithms::Output<edm4hep::RawCalorimeterHitCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       edm4eic::MCRecoCalorimeterHitLinkCollection,
+#endif
                        edm4eic::MCRecoCalorimeterHitAssociationCollection>>;
 
 class CalorimeterHitDigi : public CalorimeterHitDigiAlgorithm,
@@ -43,9 +51,14 @@ public:
       : CalorimeterHitDigiAlgorithm{
             name,
             {"eventHeader", "inputHitCollection"},
-            {"outputRawHitCollection", "outputRawHitAssociationCollection"},
+            {"outputRawHitCollection",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+             "outputHitLinks",
+#endif
+             "outputRawHitAssociationCollection"},
             "Smear energy deposit, digitize within ADC range, add pedestal, "
-            "convert time with smearing resolution, and sum signals."} {}
+            "convert time with smearing resolution, and sum signals."} {
+  }
 
   void init() final;
   void process(const Input&, const Output&) const final;

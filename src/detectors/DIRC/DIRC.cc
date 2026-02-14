@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2025 Christopher Dilks, Nilanga Wickramaarachchi, Dmitry Kalinkin
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <string>
@@ -37,7 +38,12 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-      "DIRCRawHits", {"EventHeader", "DIRCBarHits"}, {"DIRCRawHits", "DIRCRawHitsAssociations"},
+      "DIRCRawHits", {"EventHeader", "DIRCBarHits"},
+      {"DIRCRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "DIRCRawHitsLinks",
+#endif
+       "DIRCRawHitsAssociations"},
       digi_cfg, app));
 }
 }

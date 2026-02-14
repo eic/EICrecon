@@ -6,8 +6,12 @@
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
+#endif
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/unit_system.h>
 #include <edm4hep/CaloHitContributionCollection.h>
@@ -23,6 +27,7 @@
 #include <spdlog/common.h>
 #include <spdlog/logger.h>
 #include <spdlog/spdlog.h>
+#include <deque>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -222,8 +227,13 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   hitassoc2.setSimHit(simhit2);
 
   // Constructing input and output as per the algorithm's expected signature
-  auto input  = std::make_tuple(&pclust_coll, &hitassocs_coll);
+  auto input = std::make_tuple(&pclust_coll, &hitassocs_coll);
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  edm4eic::MCRecoClusterParticleLinkCollection link_coll;
+  auto output = std::make_tuple(clust_coll.get(), &link_coll, assoc_coll.get());
+#else
   auto output = std::make_tuple(clust_coll.get(), assoc_coll.get());
+#endif
 
   algo.process(input, output);
 
