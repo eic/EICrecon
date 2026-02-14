@@ -207,6 +207,29 @@ find_package(spdlog ${spdlog_VERSION_MIN} REQUIRED)
 # Guidelines Support Library
 find_package(Microsoft.GSL CONFIG)
 
+# Check for JANA2 v2.4.3 JOmniFactory issues (fixed in PR #464)
+if(JANA_VERSION VERSION_EQUAL "2.4.3")
+  try_run(
+    JANA_BUG_RESULT
+    JANA_BUG_COMPILED
+    "${CMAKE_BINARY_DIR}"
+    "${CMAKE_SOURCE_DIR}/cmake/test_jana243_f18b66c6.cpp"
+    LINK_LIBRARIES
+    ${JANA_LIB}
+    podio::podio
+    CMAKE_FLAGS "-DINCLUDE_DIRECTORIES=${JANA_INCLUDE_DIR}"
+    COMPILE_OUTPUT_VARIABLE _unused_compile_out
+    RUN_OUTPUT_VARIABLE _unused_run_out)
+
+  if(JANA_BUG_COMPILED AND JANA_BUG_RESULT EQUAL 1)
+    message(
+      FATAL_ERROR
+        "JANA2 v2.4.3 has JOmniFactory bugs. Apply fixes with: "
+        "`git cherry-pick -m 1 0421819` or use JANA2 > v2.4.3. "
+        "Ref: https://github.com/JeffersonLab/JANA2/pull/464")
+  endif()
+endif()
+
 # Remove PODIO_JSON_OUTPUT (ref: https://github.com/AIDASoft/podio/issues/475)
 get_target_property(EDM4HEP_INTERFACE_COMPILE_DEFINITIONS EDM4HEP::edm4hep
                     INTERFACE_COMPILE_DEFINITIONS)

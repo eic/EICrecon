@@ -8,6 +8,45 @@
 #include <JANA/JFactoryGenerator.h>
 #include <vector>
 
+#if (JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||             \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
+
+// Only conditionally include JOmniFactoryGeneratorT to avoid lookup ambiguities
+// Note: include outside eicrecon namespace due to using declaration in header
+#include <JANA/Components/JOmniFactoryGeneratorT.h>
+
+namespace eicrecon {
+
+// Fallthrough to JANA's built-in JOmniFactoryGeneratorT, but allow for unused app argument in constructor
+template <class FactoryT>
+class JOmniFactoryGeneratorT : public jana::components::JOmniFactoryGeneratorT<FactoryT> {
+public:
+  using FactoryConfigType = typename FactoryT::ConfigType;
+  using TypedWiring = typename jana::components::JOmniFactoryGeneratorT<FactoryT>::TypedWiring;
+
+  explicit JOmniFactoryGeneratorT() = default;
+
+  explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> input_names,
+                                  std::vector<std::string> output_names, FactoryConfigType configs,
+                                  JApplication* /* app */ = nullptr)
+      : jana::components::JOmniFactoryGeneratorT<FactoryT>(tag, input_names, output_names,
+                                                           configs) {}
+
+  explicit JOmniFactoryGeneratorT(std::string tag, std::vector<std::string> input_names,
+                                  std::vector<std::string> output_names,
+                                  JApplication* /* app */ = nullptr)
+      : jana::components::JOmniFactoryGeneratorT<FactoryT>(tag, input_names, output_names) {}
+
+  explicit JOmniFactoryGeneratorT(TypedWiring&& wiring)
+      : jana::components::JOmniFactoryGeneratorT<FactoryT>(std::move(wiring)) {}
+};
+
+} // namespace eicrecon
+
+#else
+
+namespace eicrecon {
+
 template <class FactoryT> class JOmniFactoryGeneratorT : public JFactoryGenerator {
 public:
   using FactoryConfigType = typename FactoryT::ConfigType;
@@ -97,3 +136,7 @@ private:
   std::vector<TypedWiring> m_wirings;
   JApplication* m_app;
 };
+
+} // namespace eicrecon
+
+#endif

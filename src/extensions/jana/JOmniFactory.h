@@ -4,12 +4,7 @@
 
 #pragma once
 
-/**
- * Omnifactories are a lightweight layer connecting JANA to generic algorithms
- * It is assumed multiple input data (controlled by input tags)
- * which might be changed by user parameters.
- */
-
+#include <JANA/JVersion.h>
 #include <JANA/JEvent.h>
 #include <JANA/JMultifactory.h>
 #include <spdlog/spdlog.h>
@@ -23,6 +18,74 @@
 
 #include <string>
 #include <vector>
+
+#if (JANA_VERSION_MAJOR > 2) || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||             \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
+
+/**
+ * This shim class for jana::components::JOmniFactory serves two purposes:
+ * - plugging in the spdlog-based logger service we are using in EICrecon
+ * - setting the event number in the spdlog Mapped Diagnostic Context (MDC)
+ */
+
+// Only conditionally include JOmniFactory to avoid lookup ambiguities
+// Note: include outside eicrecon namespace due to using declaration in header
+#include <JANA/Components/JOmniFactory.h>
+
+namespace eicrecon {
+
+template <typename AlgoT, typename ConfigT = jana::components::EmptyConfig>
+class JOmniFactory : public jana::components::JOmniFactory<AlgoT, ConfigT> {
+private:
+  using JANA_JOmniFactory = jana::components::JOmniFactory<AlgoT, ConfigT>;
+
+  // Hide Process(JEvent) in private to prevent accidental use
+  using JANA_JOmniFactory::Process;
+
+  /// Current logger
+  std::shared_ptr<spdlog::logger> m_logger;
+
+public:
+  inline void PreInit(std::string tag, JEventLevel level,
+                      std::vector<std::string> input_collection_names,
+                      std::vector<JEventLevel> input_collection_levels,
+                      std::vector<std::vector<std::string>> variadic_input_collection_names,
+                      std::vector<JEventLevel> variadic_input_collection_levels,
+                      std::vector<std::string> output_collection_names,
+                      std::vector<std::vector<std::string>> variadic_output_collection_names) {
+
+    // PreInit using the underlying JANA JOmniFactory
+    JANA_JOmniFactory::PreInit(tag, level, input_collection_names, input_collection_levels,
+                               variadic_input_collection_names, variadic_input_collection_levels,
+                               output_collection_names, variadic_output_collection_names);
+
+    // But obtain our own logger (defines the parameter option)
+    m_logger =
+        this->GetApplication()->template GetService<Log_service>()->logger(this->GetPrefix());
+  }
+
+  virtual void Execute(int32_t run_number, uint64_t event_number) {
+#if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
+    spdlog::mdc::put("e", std::to_string(event_number));
+#endif
+    static_cast<AlgoT*>(this)->Process(run_number, event_number);
+  };
+
+  virtual void Process(int32_t /* run_number */, uint64_t /* event_number */) {};
+
+  /// Retrieve reference to already-configured logger
+  std::shared_ptr<spdlog::logger>& logger() { return m_logger; }
+};
+
+} // namespace eicrecon
+
+#else
+
+/**
+ * Omnifactories are a lightweight layer connecting JANA to generic algorithms
+ * It is assumed multiple input data (controlled by input tags)
+ * which might be changed by user parameters.
+ */
 
 struct EmptyConfig {};
 
@@ -575,3 +638,5 @@ public:
   /// Retrieve reference to embedded config object
   ConfigT& config() { return m_config; }
 };
+
+#endif

@@ -17,9 +17,17 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
+#if JANA_VERSION_MAJOR > 2 || (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR > 4) ||               \
+    (JANA_VERSION_MAJOR == 2 && JANA_VERSION_MINOR == 4 && JANA_VERSION_PATCH >= 3)
+  typename JOmniFactory<CollectionCollector_factory<T, IsOptional>,
+                        NoConfig>::template VariadicPodioInput<T>
+      m_inputs{this,
+               {.is_optional = IsOptional }};
+#else
   typename JOmniFactory<CollectionCollector_factory<T, IsOptional>,
                         NoConfig>::template VariadicPodioInput<T, IsOptional>
       m_inputs{this};
+#endif
   typename JOmniFactory<CollectionCollector_factory<T, IsOptional>,
                         NoConfig>::template PodioOutput<T>
       m_output{this};
