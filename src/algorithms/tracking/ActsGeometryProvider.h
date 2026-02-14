@@ -7,8 +7,10 @@
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
+#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Visualization/ViewConfig.hpp>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Fields.h>
@@ -63,6 +65,10 @@ public:
   std::map<int64_t, dd4hep::rec::Surface*> getDD4hepSurfaceMap() const { return m_surfaceMap; }
 
   const Acts::GeometryContext& getActsGeometryContext() const { return m_trackingGeoCtx; }
+  const Acts::MagneticFieldContext& getActsMagneticFieldContext() const {
+    return m_magneticFieldCtx;
+  }
+  const Acts::CalibrationContext& getActsCalibrationContext() const { return m_calibrationCtx; }
 
   ///  ACTS general logger that is used for running ACTS
   std::shared_ptr<spdlog::logger> getActsRelatedLogger() const { return m_log; }
@@ -83,7 +89,17 @@ private:
   std::map<int64_t, dd4hep::rec::Surface*> m_surfaceMap;
 
   /// ACTS Tracking Geometry Context
+#if Acts_VERSION_MAJOR >= 45
+  Acts::GeometryContext m_trackingGeoCtx = Acts::GeometryContext::dangerouslyDefaultConstruct();
+#else
   Acts::GeometryContext m_trackingGeoCtx;
+#endif
+
+  /// ACTS Magnetic Field Context
+  Acts::MagneticFieldContext m_magneticFieldCtx;
+
+  /// ACTS Calibration Context
+  Acts::CalibrationContext m_calibrationCtx;
 
   /// ACTS Tracking Geometry
   std::shared_ptr<const Acts::TrackingGeometry> m_trackingGeo{nullptr};
