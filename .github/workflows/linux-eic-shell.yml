@@ -173,7 +173,7 @@ jobs:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
-          if which ClangBuildAnalyzer ; then
+          if command -v ClangBuildAnalyzer >/dev/null 2>&1 ; then
             ClangBuildAnalyzer --stop build eicrecon.bin
             ClangBuildAnalyzer --analyze eicrecon.bin
           fi
