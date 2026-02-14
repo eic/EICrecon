@@ -7,6 +7,7 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/geo.h>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
@@ -19,8 +20,8 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
 #include <Eigen/Geometry>
 #include <Eigen/Householder>
 #include <Eigen/Jacobi>
@@ -29,6 +30,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <new>
 #include <unordered_map>
 #include <utility>
@@ -61,7 +63,11 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
                                         const FarDetectorLinearTracking::Output& output) const {
 
   const auto [inputhits, assocHits] = input;
-  auto [outputTracks, assocTracks]  = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [outputTracks, trackLinks, assocTracks] = output;
+#else
+  auto [outputTracks, assocTracks] = output;
+#endif
 
   // Check the number of input collections is correct
   std::size_t nCollections = inputhits.size();
@@ -110,8 +116,11 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
     if (isValid) {
       if (layer == static_cast<long>(m_cfg.n_layer) - 1) {
         // Check the combination, if chi2 limit is passed, add the track to the output
-        checkHitCombination(&hitMatrix, outputTracks, assocTracks, inputhits, assocParts,
-                            layerHitIndex);
+        checkHitCombination(&hitMatrix, outputTracks,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                            trackLinks,
+#endif
+                            assocTracks, inputhits, assocParts, layerHitIndex);
       } else {
         layer++;
         continue;
@@ -141,6 +150,9 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
 
 void FarDetectorLinearTracking::checkHitCombination(
     Eigen::MatrixXd* hitMatrix, edm4eic::TrackCollection* outputTracks,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    edm4eic::MCRecoTrackParticleLinkCollection* trackLinks,
+#endif
     edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
     const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
     const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
@@ -197,6 +209,12 @@ void FarDetectorLinearTracking::checkHitCombination(
 
   // Create track associations for each particle
   for (const auto& [particle, count] : particleCount) {
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    auto trackLink = trackLinks->create();
+    trackLink.setFrom(track);
+    trackLink.setTo(*particle);
+    trackLink.setWeight(count / static_cast<double>(m_cfg.n_layer));
+#endif
     auto trackAssoc = assocTracks->create();
     trackAssoc.setRec(track);
     trackAssoc.setSim(*particle);

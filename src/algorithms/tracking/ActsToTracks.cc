@@ -15,6 +15,7 @@
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -23,6 +24,8 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <Eigen/Core>
 #include <any>
 #include <array>
@@ -59,7 +62,11 @@ void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
   const auto [meas2Ds, track_seeds, acts_track_states, acts_tracks, raw_hit_assocs] = input;
-  auto [trajectories, track_parameters, tracks, tracks_assoc]                       = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc] = output;
+#else
+  auto [trajectories, track_parameters, tracks, tracks_assoc] = output;
+#endif
 
   // Create accessor for seed number dynamic column
   Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
@@ -210,10 +217,16 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         mcparticle_weight_by_hit_count.begin(), mcparticle_weight_by_hit_count.end(), 0,
         [](const double sum, const auto& i) { return sum + i.second; });
     for (const auto& [mcparticle, weight] : mcparticle_weight_by_hit_count) {
+      double normalized_weight = weight / total_weight;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      auto track_link = tracks_links->create();
+      track_link.setFrom(track_out);
+      track_link.setTo(mcparticle);
+      track_link.setWeight(normalized_weight);
+#endif
       auto track_assoc = tracks_assoc->create();
       track_assoc.setRec(track_out);
       track_assoc.setSim(mcparticle);
-      double normalized_weight = weight / total_weight;
       track_assoc.setWeight(normalized_weight);
       debug("track {}: mcparticle {} weight {}", track_out.id().index, mcparticle.id().index,
             normalized_weight);
