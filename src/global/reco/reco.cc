@@ -142,20 +142,22 @@ void InitPlugin(JApplication* app) {
       app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "GeneratedJets", {"GeneratedParticles"}, {"GeneratedJets"}, {}, app));
+      "GeneratedJets", {"EventHeader", "GeneratedParticles"}, {"GeneratedJets"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedJets", {"ReconstructedParticles"}, {"ReconstructedJets"}, {}, app));
+      "ReconstructedJets", {"EventHeader", "ReconstructedParticles"}, {"ReconstructedJets"}, {},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<ChargedReconstructedParticleSelector_factory>(
       "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "GeneratedChargedJets", {"GeneratedChargedParticles"}, {"GeneratedChargedJets"}, {}, app));
+      "GeneratedChargedJets", {"EventHeader", "GeneratedChargedParticles"},
+      {"GeneratedChargedJets"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedChargedJets", {"ReconstructedChargedParticles"}, {"ReconstructedChargedJets"},
-      {}, app));
+      "ReconstructedChargedJets", {"EventHeader", "ReconstructedChargedParticles"},
+      {"ReconstructedChargedJets"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsTruth_factory>(
       "ScatteredElectronsTruth",
@@ -247,11 +249,12 @@ void InitPlugin(JApplication* app) {
       {"GeneratedBreitFrameParticles"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "GeneratedCentauroJets", {"GeneratedBreitFrameParticles"}, {"GeneratedCentauroJets"},
+      "GeneratedCentauroJets", {"EventHeader", "GeneratedBreitFrameParticles"},
+      {"GeneratedCentauroJets"},
       {.rJet = 0.8, .jetAlgo = "plugin_algorithm", .jetContribAlgo = "Centauro"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "ReconstructedCentauroJets", {"ReconstructedBreitFrameParticles"},
+      "ReconstructedCentauroJets", {"EventHeader", "ReconstructedBreitFrameParticles"},
       {"ReconstructedCentauroJets"},
       {.rJet = 0.8, .jetAlgo = "plugin_algorithm", .jetContribAlgo = "Centauro"}, app));
 
