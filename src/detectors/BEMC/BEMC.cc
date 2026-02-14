@@ -264,8 +264,8 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelImagingProcessedHits", {"EcalBarrelImagingHits"},
       {"EcalBarrelImagingProcessedHits", "EcalBarrelImagingProcessedHitContributions"},
       {
-          .readout                          = "EcalBarrelImagingHits",
-          .timeWindow                       = EcalBarrelImaging_timeWindow,
+          .readout    = "EcalBarrelImagingHits",
+          .timeWindow = EcalBarrelImaging_timeWindow,
       },
       app // TODO: Remove me once fixed
       ));
