@@ -5,12 +5,18 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#endif
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <podio/detail/Link.h>
+#include <deque>
 #include <functional>
 #include <map>
 #include <memory>
@@ -82,6 +88,19 @@ void InitPlugin(JApplication* app) {
       {"CentralTrackingRawHitAssociations"}, // Output collection name
       app));
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Tracker hit links collector
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitLink, true>>(
+          "CentralTrackingRawHitLinks",
+          {"SiBarrelRawHitLinks", "SiBarrelVertexRawHitLinks", "SiEndcapTrackerRawHitLinks",
+           "TOFBarrelRawHitLinks", "TOFEndcapRawHitLinks", "MPGDBarrelRawHitLinks",
+           "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
+           "ForwardMPGDEndcapRawHitLinks"},
+          {"CentralTrackingRawHitLinks"}, // Output collection name
+          app));
+#endif
+
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
       "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
       app));
@@ -108,6 +127,9 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTruthSeededTrajectoriesUnfiltered",
           "CentralCKFTruthSeededTrackParametersUnfiltered",
           "CentralCKFTruthSeededTracksUnfiltered",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "CentralCKFTruthSeededTrackUnfilteredLinks",
+#endif
           "CentralCKFTruthSeededTrackUnfilteredAssociations",
       },
       app));
@@ -135,6 +157,9 @@ void InitPlugin(JApplication* app) {
                                                            "CentralCKFTruthSeededTrajectories",
                                                            "CentralCKFTruthSeededTrackParameters",
                                                            "CentralCKFTruthSeededTracks",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                           "CentralCKFTruthSeededTrackLinks",
+#endif
                                                            "CentralCKFTruthSeededTrackAssociations",
                                                        },
                                                        app));
@@ -164,6 +189,9 @@ void InitPlugin(JApplication* app) {
                                                            "CentralCKFTrajectoriesUnfiltered",
                                                            "CentralCKFTrackParametersUnfiltered",
                                                            "CentralCKFTracksUnfiltered",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                           "CentralCKFTrackUnfilteredLinks",
+#endif
                                                            "CentralCKFTrackUnfilteredAssociations",
                                                        },
                                                        app));
@@ -189,6 +217,9 @@ void InitPlugin(JApplication* app) {
                                                                 "CentralCKFTrajectories",
                                                                 "CentralCKFTrackParameters",
                                                                 "CentralCKFTracks",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                "CentralCKFTrackLinks",
+#endif
                                                                 "CentralCKFTrackAssociations",
                                                             },
                                                             app));
@@ -302,6 +333,9 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTruthSeededTrajectoriesUnfiltered",
           "B0TrackerCKFTruthSeededTrackParametersUnfiltered",
           "B0TrackerCKFTruthSeededTracksUnfiltered",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "B0TrackerCKFTruthSeededTrackUnfilteredLinks",
+#endif
           "B0TrackerCKFTruthSeededTrackUnfilteredAssociations",
       },
       app));
@@ -329,6 +363,9 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTruthSeededTrajectories",
           "B0TrackerCKFTruthSeededTrackParameters",
           "B0TrackerCKFTruthSeededTracks",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "B0TrackerCKFTruthSeededTrackLinks",
+#endif
           "B0TrackerCKFTruthSeededTrackAssociations",
       },
       app));
@@ -358,6 +395,9 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTrajectoriesUnfiltered",
           "B0TrackerCKFTrackParametersUnfiltered",
           "B0TrackerCKFTracksUnfiltered",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "B0TrackerCKFTrackUnfilteredLinks",
+#endif
           "B0TrackerCKFTrackUnfilteredAssociations",
       },
       app));
@@ -383,6 +423,9 @@ void InitPlugin(JApplication* app) {
                                                                 "B0TrackerCKFTrajectories",
                                                                 "B0TrackerCKFTrackParameters",
                                                                 "B0TrackerCKFTracks",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                "B0TrackerCKFTrackLinks",
+#endif
                                                                 "B0TrackerCKFTrackAssociations",
                                                             },
                                                             app));
@@ -442,6 +485,9 @@ void InitPlugin(JApplication* app) {
           "CombinedTruthSeededTrackAssociations",
       },
       {"ReconstructedTruthSeededChargedWithoutPIDParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "ReconstructedTruthSeededChargedWithoutPIDParticleLinks",
+#endif
        "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations"},
       {}, app));
 
@@ -452,6 +498,9 @@ void InitPlugin(JApplication* app) {
           "CombinedTrackAssociations",
       },
       {"ReconstructedChargedWithoutPIDParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "ReconstructedChargedWithoutPIDParticleLinks",
+#endif
        "ReconstructedChargedWithoutPIDParticleAssociations"},
       {}, app));
 }
