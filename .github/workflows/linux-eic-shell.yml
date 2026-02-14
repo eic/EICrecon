@@ -170,6 +170,7 @@ jobs:
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{contains(matrix.CXXFLAGS, '-ftime-trace')}}
       with:
+        organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           if which ClangBuildAnalyzer ; then
