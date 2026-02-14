@@ -249,6 +249,9 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
   // Make sure digi and reco use the same value
+  decltype(SimCalorimeterHitProcessorConfig::timeWindow) EcalBarrelImaging_timeWindow = {
+      100 * edm4eic::unit::ns};
+
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelImaging_capADC = 8192; //8192,  13bit ADC
   decltype(CalorimeterHitDigiConfig::dyRangeADC) EcalBarrelImaging_dyRangeADC = 3 * dd4hep::MeV;
   decltype(CalorimeterHitDigiConfig::pedMeanADC) EcalBarrelImaging_pedMeanADC =
@@ -257,6 +260,15 @@ void InitPlugin(JApplication* app) {
       5; // Upper limit for sigma for AstroPix
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalBarrelImaging_resolutionTDC =
       3.25 * dd4hep::nanosecond;
+  app->Add(new JOmniFactoryGeneratorT<SimCalorimeterHitProcessor_factory>(
+      "EcalBarrelImagingProcessedHits", {"EcalBarrelImagingHits"},
+      {"EcalBarrelImagingProcessedHits", "EcalBarrelImagingProcessedHitContributions"},
+      {
+          .readout                          = "EcalBarrelImagingHits",
+          .timeWindow                       = EcalBarrelImaging_timeWindow,
+      },
+      app // TODO: Remove me once fixed
+      ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelImagingRawHits", {"EventHeader", "EcalBarrelImagingHits"},
       {"EcalBarrelImagingRawHits", "EcalBarrelImagingRawHitAssociations"},
