@@ -59,7 +59,10 @@ public:
   void process(const Input&, const Output&) const;
 
 private:
-  // any access (R or W) to m_irt_det_coll, m_irt_det, m_pid_radiators must be locked
+  // Locking for m_irt_det_coll, m_irt_det, m_pid_radiators:
+  // - Required for old/non-thread-safe IRT versions (detected by !IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS)
+  //   that use shared radiator state
+  // - Not required for newer thread-safe IRT versions (IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS)
   inline static std::mutex m_irt_det_mutex;
   CherenkovDetectorCollection* m_irt_det_coll;
   CherenkovDetector* m_irt_det;
