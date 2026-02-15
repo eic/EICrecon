@@ -13,16 +13,17 @@ namespace eicrecon {
 /*! For each track-protocluster match, algorithm
  *  will create a corresponding track-cluster match.
  *  Input protocluster and cluster collections are
- *  assumed to be 1-to-1, i.e. assuming that the Nth 
+ *  assumed to be 1-to-1, i.e. assuming that the Nth
  *  cluster was reconstructed from the Nth
  *  protocluster.
  */
-void TrackProtoClusterMatchPromoter::process(const TrackProtoClusterMatchPromoter::Input& input,
-                                             const TrackProtoClusterMatchPromoter::Output& output) const {
+void TrackProtoClusterMatchPromoter::process(
+    const TrackProtoClusterMatchPromoter::Input& input,
+    const TrackProtoClusterMatchPromoter::Output& output) const {
 
   // grab inputs/outputs
   const auto [in_matches, in_protos, in_clusts] = input;
-  auto [out_matches] = output;
+  auto [out_matches]                            = output;
 
   // exit if no matches in input collection
   if (in_matches->size() == 0) {
@@ -62,6 +63,6 @@ void TrackProtoClusterMatchPromoter::process(const TrackProtoClusterMatchPromote
     }
     ++icl;
   }
-}  // end 'process(Input&, Output&)'
+} // end 'process(Input&, Output&)'
 
 } // namespace eicrecon

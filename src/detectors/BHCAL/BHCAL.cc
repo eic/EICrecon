@@ -180,12 +180,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "HcalBarrelSplitMergeProtoClusters",
-      {"HcalBarrelTrackClusterMatches", "HcalBarrelClustersWithoutShapes", "CalorimeterTrackProjections"},
-      {
-        "HcalBarrelSplitMergeProtoClusters",
+      {"HcalBarrelTrackClusterMatches", "HcalBarrelClustersWithoutShapes",
+       "CalorimeterTrackProjections"},
+      {"HcalBarrelSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
-        "HcalBarrelTrackSplitMergeProtoClusterMatches"
-      },
+       "HcalBarrelTrackSplitMergeProtoClusterMatches"},
 #endif
       {.minSigCut                    = -2.0,
        .avgEP                        = 0.50,
@@ -221,10 +220,8 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "HcalBarrelTrackSplitMergeClusterMatches",
-      {"HcalBarrelTrackSplitMergeProtoClusterMatches",
-       "HcalBarrelSplitMergeProtoClusters",
+      {"HcalBarrelTrackSplitMergeProtoClusterMatches", "HcalBarrelSplitMergeProtoClusters",
        "HcalBarrelSplitMergeClusters"},
-      {"HcalBarrelTrackSplitMergeClusterMatches"},
-      {}, app));
+      {"HcalBarrelTrackSplitMergeClusterMatches"}, {}, app));
 }
 }

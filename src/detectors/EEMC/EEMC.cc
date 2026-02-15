@@ -210,12 +210,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "EcalEndcapNSplitMergeProtoClusters",
-      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID", "CalorimeterTrackProjections"},
-      {
-        "EcalEndcapNSplitMergeProtoClusters",
+      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID",
+       "CalorimeterTrackProjections"},
+      {"EcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
-        "EcalEndcapNTrackSplitMergeProtoClusterMatches"
-      },
+       "EcalEndcapNTrackSplitMergeProtoClusterMatches"},
 #endif
       {.minSigCut                    = -1.0,
        .avgEP                        = 1.0,
@@ -227,8 +226,7 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNSplitMergeClustersWithoutShapes",
-      {"EcalEndcapNSplitMergeProtoClusters",
-       "EcalEndcapNRawHitAssociations"},
+      {"EcalEndcapNSplitMergeProtoClusters", "EcalEndcapNRawHitAssociations"},
       {"EcalEndcapNSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapNSplitMergeClusterLinksWithoutShapes",
@@ -255,10 +253,8 @@ void InitPlugin(JApplication* app) {
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "EcalEndcapNTrackSplitMergeClusterMatches",
-      {"EcalEndcapNTrackSplitMergeProtoClusterMatches",
-       "EcalEndcapNSplitMergeProtoClusters",
+      {"EcalEndcapNTrackSplitMergeProtoClusterMatches", "EcalEndcapNSplitMergeProtoClusters",
        "EcalEndcapNSplitMergeClusters"},
-      {"EcalEndcapNTrackSplitMergeClusterMatches"},
-      {}, app));
+      {"EcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
 }
 }

@@ -20,13 +20,10 @@ namespace eicrecon {
 // ----------------------------------------------------------------------------
 //! Algorithm input/output
 // ----------------------------------------------------------------------------
-using TrackProtoClusterMatchPromoterAlgorithm =
-    algorithms::Algorithm<typename algorithms::Input<
-                              edm4eic::TrackProtoClusterMatchCollection,
-                              edm4eic::ProtoClusterCollection,
-                              edm4eic::ClusterCollection>,
-                          typename algorithms::Output<
-                              edm4eic::TrackClusterMatchCollection>>;
+using TrackProtoClusterMatchPromoterAlgorithm = algorithms::Algorithm<
+    typename algorithms::Input<edm4eic::TrackProtoClusterMatchCollection,
+                               edm4eic::ProtoClusterCollection, edm4eic::ClusterCollection>,
+    typename algorithms::Output<edm4eic::TrackClusterMatchCollection>>;
 
 // ============================================================================
 //! Track-Protocluster Match Promoter
@@ -35,19 +32,17 @@ using TrackProtoClusterMatchPromoterAlgorithm =
  *  track-cluster matches. Assumes input cluster,
  *  protocluster collections are 1-to-1.
  */
-class TrackProtoClusterMatchPromoter : public TrackProtoClusterMatchPromoterAlgorithm
-                                     , public WithPodConfig<NoConfig> {
+class TrackProtoClusterMatchPromoter : public TrackProtoClusterMatchPromoterAlgorithm,
+                                       public WithPodConfig<NoConfig> {
 
 public:
   ///! Algorithm constructor
   TrackProtoClusterMatchPromoter(std::string_view name)
-    : TrackProtoClusterMatchPromoterAlgorithm{
-          name,
-          {"inputTrackProtoclusterMatches",
-           "inputProtoclusters",
-           "inputClusters"},
-          {"outputTrackClusterMatches"},
-          "Copies track-protocluster matches onto track-cluster matches"} {}
+      : TrackProtoClusterMatchPromoterAlgorithm{
+            name,
+            {"inputTrackProtoclusterMatches", "inputProtoclusters", "inputClusters"},
+            {"outputTrackClusterMatches"},
+            "Copies track-protocluster matches onto track-cluster matches"} {}
 
   // public method
   void process(const Input&, const Output&) const final;

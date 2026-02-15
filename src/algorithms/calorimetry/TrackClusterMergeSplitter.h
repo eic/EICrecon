@@ -35,9 +35,7 @@ using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
                       edm4eic::TrackSegmentCollection>,
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
-    algorithms::Output<edm4eic::ProtoClusterCollection,
-                       edm4eic::TrackProtoClusterMatchCollection
-                       >>;
+    algorithms::Output<edm4eic::ProtoClusterCollection, edm4eic::TrackProtoClusterMatchCollection>>;
 #else
     algorithms::Output<edm4eic::ProtoClusterCollection>>;
 #endif

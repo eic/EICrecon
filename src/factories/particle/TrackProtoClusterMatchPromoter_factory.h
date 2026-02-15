@@ -8,7 +8,8 @@
 
 namespace eicrecon {
 
-class TrackProtoClusterMatchPromoter_factory : public JOmniFactory<TrackProtoClusterMatchPromoter_factory> {
+class TrackProtoClusterMatchPromoter_factory
+    : public JOmniFactory<TrackProtoClusterMatchPromoter_factory> {
 
 public:
   ///! alias for algorithm name
