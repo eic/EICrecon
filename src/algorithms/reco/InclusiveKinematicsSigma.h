@@ -17,7 +17,8 @@
 namespace eicrecon {
 
 using InclusiveKinematicsSigmaAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
+    algorithms::Input<edm4hep::MCParticleCollection, edm4hep::MCParticleCollection,
+                      edm4eic::ReconstructedParticleCollection,
                       edm4eic::HadronicFinalStateCollection>,
     algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
@@ -28,7 +29,7 @@ public:
   InclusiveKinematicsSigma(std::string_view name)
       : InclusiveKinematicsSigmaAlgorithm{
             name,
-            {"MCParticles", "scatteredElectron", "hadronicFinalState"},
+            {"MCBeamElectrons", "MCBeamProtons", "scatteredElectron", "hadronicFinalState"},
             {"inclusiveKinematics"},
             "Determine inclusive kinematics using Sigma method."} {}
 

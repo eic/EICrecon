@@ -4,6 +4,9 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <fmt/format.h>
+#include <spdlog/logger.h>
 #include <cmath>
 #include <string>
 #include <variant>
@@ -34,26 +37,88 @@ void InitPlugin(JApplication* app) {
   decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalEndcapP_pedSigmaADC = 2.4576;
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
       10 * dd4hep::picosecond;
-  app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
-      {"EcalEndcapPRawHits", "EcalEndcapPRawHitAssociations"},
-      {
-          .eRes      = {0.11333 * sqrt(dd4hep::GeV), 0.03,
-                        0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
-          .tRes      = 0.0,
-          .threshold = 0.0,
-          // .threshold = 15 * dd4hep::MeV for a single tower, applied on ADC level
-          .capADC        = EcalEndcapP_capADC,
-          .capTime       = 100, // given in ns, 4 samples in HGCROC
-          .dyRangeADC    = EcalEndcapP_dyRangeADC,
-          .pedMeanADC    = EcalEndcapP_pedMeanADC,
-          .pedSigmaADC   = EcalEndcapP_pedSigmaADC,
-          .resolutionTDC = EcalEndcapP_resolutionTDC,
-          .corrMeanScale = "0.03",
-          .readout       = "EcalEndcapPHits",
-      },
-      app // TODO: Remove me once fixed
-      ));
+  const double EcalEndcapP_sampFrac = 0.029043; // updated with ratio to ScFi model
+  decltype(CalorimeterHitDigiConfig::corrMeanScale) EcalEndcapP_corrMeanScale =
+      fmt::format("{}", 1.0 / EcalEndcapP_sampFrac); //only used for ScFi model
+  const double EcalEndcapP_nPhotonPerGeV          = 1500;
+  const double EcalEndcapP_PhotonCollectionEff    = 0.285;
+  const unsigned long long EcalEndcapP_totalPixel = 4 * 159565ULL;
+
+  int EcalEndcapP_homogeneousFlag = 0;
+  try {
+    auto detector               = app->GetService<DD4hep_service>()->detector();
+    EcalEndcapP_homogeneousFlag = detector->constant<int>("EcalEndcapP_Homogeneous_ScFi");
+    if (EcalEndcapP_homogeneousFlag <= 1) {
+      mLog->info("Homogeneous geometry loaded");
+    } else {
+      mLog->info("ScFi geometry loaded");
+    }
+  } catch (...) {
+    // Variable not present apply legacy homogeneous geometry implementation
+    EcalEndcapP_homogeneousFlag = 0;
+  };
+
+  if (EcalEndcapP_homogeneousFlag <= 1) {
+    app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
+        "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
+        {"EcalEndcapPRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+         "EcalEndcapPRawHitLinks",
+#endif
+         "EcalEndcapPRawHitAssociations"},
+        {
+            .eRes = {0.11333 * sqrt(dd4hep::GeV), 0.03,
+                     0.0 * dd4hep::GeV}, // (11.333% / sqrt(E)) \oplus 3%
+            .tRes = 0.0,
+            .threshold =
+                0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
+            .readoutType = "sipm",
+            .lightYield  = EcalEndcapP_nPhotonPerGeV / EcalEndcapP_PhotonCollectionEff,
+            .photonDetectionEfficiency = EcalEndcapP_PhotonCollectionEff,
+            .numEffectiveSipmPixels    = EcalEndcapP_totalPixel,
+            .capADC                    = EcalEndcapP_capADC,
+            .capTime                   = 100, // given in ns, 4 samples in HGCROC
+            .dyRangeADC                = EcalEndcapP_dyRangeADC,
+            .pedMeanADC                = EcalEndcapP_pedMeanADC,
+            .pedSigmaADC               = EcalEndcapP_pedSigmaADC,
+            .resolutionTDC             = EcalEndcapP_resolutionTDC,
+            .corrMeanScale             = "1.0",
+            .readout                   = "EcalEndcapPHits",
+        },
+        app // TODO: Remove me once fixed
+        ));
+  } else if (EcalEndcapP_homogeneousFlag == 2) {
+    app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
+        "EcalEndcapPRawHits", {"EventHeader", "EcalEndcapPHits"},
+        {"EcalEndcapPRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+         "EcalEndcapPRawHitLinks",
+#endif
+         "EcalEndcapPRawHitAssociations"},
+        {
+            .eRes = {0.0, 0.022, 0.0}, // just constant term 2.2% based on MC data comparison
+            .tRes = 0.0,
+            .threshold =
+                0.0, // 15MeV threshold for a single tower will be applied on ADC at Reco below
+            .readoutType = "sipm",
+            .lightYield =
+                EcalEndcapP_nPhotonPerGeV / EcalEndcapP_PhotonCollectionEff / EcalEndcapP_sampFrac,
+            .photonDetectionEfficiency = EcalEndcapP_PhotonCollectionEff,
+            .numEffectiveSipmPixels    = EcalEndcapP_totalPixel,
+            .capADC                    = EcalEndcapP_capADC,
+            .capTime                   = 100, // given in ns, 4 samples in HGCROC
+            .dyRangeADC                = EcalEndcapP_dyRangeADC,
+            .pedMeanADC                = EcalEndcapP_pedMeanADC,
+            .pedSigmaADC               = EcalEndcapP_pedSigmaADC,
+            .resolutionTDC             = EcalEndcapP_resolutionTDC,
+            .corrMeanScale             = EcalEndcapP_corrMeanScale,
+            .readout                   = "EcalEndcapPHits",
+            .fields                    = {"fiber_x", "fiber_y"},
+        },
+        app // TODO: Remove me once fixed
+        ));
+  }
+
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitReco_factory>(
       "EcalEndcapPRecHits", {"EcalEndcapPRawHits"}, {"EcalEndcapPRecHits"},
       {
@@ -102,7 +167,10 @@ void InitPlugin(JApplication* app) {
           "EcalEndcapPTruthProtoClusters", // edm4eic::ProtoClusterCollection
           "EcalEndcapPRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"EcalEndcapPTruthClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalEndcapPTruthClustersWithoutShapes",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalEndcapPTruthClusterLinksWithoutShapes",
+#endif
        "EcalEndcapPTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = true},
       app // TODO: Remove me once fixed
@@ -111,7 +179,11 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalEndcapPTruthClusters",
       {"EcalEndcapPTruthClustersWithoutShapes", "EcalEndcapPTruthClusterAssociationsWithoutShapes"},
-      {"EcalEndcapPTruthClusters", "EcalEndcapPTruthClusterAssociations"},
+      {"EcalEndcapPTruthClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalEndcapPTruthClusterLinks",
+#endif
+       "EcalEndcapPTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 6.2}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
@@ -120,7 +192,10 @@ void InitPlugin(JApplication* app) {
           "EcalEndcapPIslandProtoClusters", // edm4eic::ProtoClusterCollection
           "EcalEndcapPRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
-      {"EcalEndcapPClustersWithoutShapes",             // edm4eic::Cluster
+      {"EcalEndcapPClustersWithoutShapes",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalEndcapPClusterLinksWithoutShapes",
+#endif
        "EcalEndcapPClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
@@ -134,7 +209,11 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalEndcapPClusters",
       {"EcalEndcapPClustersWithoutShapes", "EcalEndcapPClusterAssociationsWithoutShapes"},
-      {"EcalEndcapPClusters", "EcalEndcapPClusterAssociations"},
+      {"EcalEndcapPClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalEndcapPClusterLinks",
+#endif
+       "EcalEndcapPClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
@@ -160,6 +239,9 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPSplitMergeProtoClusters",
        "EcalEndcapPRawHitAssociations"},
       {"EcalEndcapPSplitMergeClustersWithoutShapes",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
+#endif
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
       {
           .energyWeight    = "log",
@@ -174,7 +256,11 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPSplitMergeClusters",
       {"EcalEndcapPSplitMergeClustersWithoutShapes",
        "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
-      {"EcalEndcapPSplitMergeClusters", "EcalEndcapPSplitMergeClusterAssociations"},
+      {"EcalEndcapPSplitMergeClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalEndcapPSplitMergeClusterLinks",
+#endif
+       "EcalEndcapPSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(

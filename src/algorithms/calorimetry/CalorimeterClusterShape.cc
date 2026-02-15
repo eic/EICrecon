@@ -3,26 +3,29 @@
 
 #include "CalorimeterClusterShape.h"
 
-#include <algorithm>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
-#include <edm4hep/MCParticleCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <Eigen/Core>
 #include <Eigen/Eigenvalues>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
+#include <algorithm>
 #include <cctype>
 #include <cmath>
 #include <complex>
 #include <cstddef>
 #include <gsl/pointers>
 #include <iterator>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -63,7 +66,11 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
 
   // grab inputs/outputs
   const auto [in_clusters, in_associations] = input;
-  auto [out_clusters, out_associations]     = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [out_clusters, out_links, out_associations] = output;
+#else
+  auto [out_clusters, out_associations] = output;
+#endif
 
   // exit if no clusters in collection
   if (in_clusters->empty()) {
@@ -206,10 +213,14 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
     // ----------------------------------------------------------------------
     for (auto in_assoc : *in_associations) {
       if (in_assoc.getRec() == in_clust) {
-        auto mc_par    = in_assoc.getSim();
+        auto mc_par = in_assoc.getSim();
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+        auto out_link = out_links->create();
+        out_link.setFrom(out_clust);
+        out_link.setTo(mc_par);
+        out_link.setWeight(in_assoc.getWeight());
+#endif
         auto out_assoc = out_associations->create();
-        out_assoc.setRecID(out_clust.getObjectID().index);
-        out_assoc.setSimID(mc_par.getObjectID().index);
         out_assoc.setRec(out_clust);
         out_assoc.setSim(mc_par);
         out_assoc.setWeight(in_assoc.getWeight());
