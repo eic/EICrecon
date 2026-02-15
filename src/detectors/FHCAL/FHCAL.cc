@@ -128,6 +128,10 @@ void InitPlugin(JApplication* app) {
       {
           "HcalEndcapPInsertTruthProtoClusters", // edm4eic::ProtoClusterCollection
           "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "HcalEndcapPInsertRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"HcalEndcapPInsertTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -154,6 +158,10 @@ void InitPlugin(JApplication* app) {
       {
           "HcalEndcapPInsertImagingProtoClusters", // edm4eic::ProtoClusterCollection
           "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "HcalEndcapPInsertRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"HcalEndcapPInsertClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -281,6 +289,10 @@ void InitPlugin(JApplication* app) {
       {
           "LFHCALTruthProtoClusters", // edm4eic::ProtoClusterCollection
           "LFHCALRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "LFHCALRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"LFHCALTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -306,6 +318,10 @@ void InitPlugin(JApplication* app) {
       {
           "LFHCALIslandProtoClusters", // edm4eic::ProtoClusterCollection
           "LFHCALRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "LFHCALRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"LFHCALClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)

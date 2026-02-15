@@ -10,6 +10,9 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#endif
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackCollection.h>
@@ -20,6 +23,7 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
 #include <Eigen/Geometry>
@@ -37,7 +41,6 @@
 
 #include "FarDetectorLinearTracking.h"
 #include "algorithms/fardetectors/FarDetectorLinearTrackingConfig.h"
-#include <edm4eic/association_utils.h>
 
 namespace eicrecon {
 
@@ -63,9 +66,9 @@ void FarDetectorLinearTracking::init() {
 void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& input,
                                         const FarDetectorLinearTracking::Output& output) const {
 
-  const auto [inputhits, assocHits] = input;
+  const auto [inputhits, assocHits, hitLinks] = input;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto [outputTracks, trackLinks, assocTracks] = output;
+  auto [outputTracks, assocTracks, trackLinks] = output;
 #else
   auto [outputTracks, assocTracks] = output;
 #endif
@@ -92,7 +95,16 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
       trace("No hits in layer");
       return;
     }
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    if (hitLinks) {
+      ConvertClusters(*layerHits, *assocHits, *hitLinks, convertedHits, assocParts);
+    } else {
+      ConvertClusters(*layerHits, *assocHits, edm4eic::MCRecoTrackerHitLinkCollection{},
+                      convertedHits, assocParts);
+    }
+#else
     ConvertClusters(*layerHits, *assocHits, convertedHits, assocParts);
+#endif
   }
 
   // Create a matrix to store the hit positions
@@ -244,6 +256,9 @@ bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
 void FarDetectorLinearTracking::ConvertClusters(
     const edm4eic::Measurement2DCollection& clusters,
     const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    const edm4eic::MCRecoTrackerHitLinkCollection& hit_links,
+#endif
     std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
     std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const {
 
@@ -251,10 +266,10 @@ void FarDetectorLinearTracking::ConvertClusters(
   const dd4hep::VolumeManagerContext* context =
       m_cellid_converter->findContext(clusters[0].getSurface());
 
-  // Build fast lookup map for RawHit -> SimHit associations (O(1) instead of O(N))
-  auto assoc_lookup = edm4eic::make_association_lookup(
-      &assoc_hits, [](const auto& a) { return a.getRawHit(); },
-      [](const auto& a) { return a.getSimHit(); });
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Build fast lookup using podio::LinkNavigator
+  podio::LinkNavigator link_nav(hit_links);
+#endif
 
   std::vector<Eigen::Vector3d> layerPositions;
   std::vector<edm4hep::MCParticle> assocParticles;
@@ -283,12 +298,23 @@ void FarDetectorLinearTracking::ConvertClusters(
     // Get associated raw hit
     auto rawHit = maxHit.getRawHit();
 
-    // O(1) lookup instead of O(N) linear search (returns const reference)
-    const auto& sim_hits = assoc_lookup[rawHit];
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    // Get linked sim hits using LinkNavigator
+    const auto sim_hits = link_nav.getLinked(rawHit);
     if (!sim_hits.empty()) {
-      auto particle = sim_hits[0].getParticle();
+      auto particle = sim_hits[0].o.getParticle();
       assocParticles.push_back(particle);
     }
+#else
+    // Fallback: linear search through associations
+    for (const auto& assoc : assoc_hits) {
+      if (assoc.getRawHit() == rawHit) {
+        auto particle = assoc.getSimHit().getParticle();
+        assocParticles.push_back(particle);
+        break;
+      }
+    }
+#endif
   }
 
   pointPositions.push_back(layerPositions);

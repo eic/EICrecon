@@ -97,6 +97,10 @@ void InitPlugin(JApplication* app) {
       {
           "EcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
           "EcalFarForwardZDCRawHitAssociations"  // edm4eic::MCRecoClusterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "EcalFarForwardZDCRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"EcalFarForwardZDCTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -123,6 +127,10 @@ void InitPlugin(JApplication* app) {
       {
           "EcalFarForwardZDCIslandProtoClusters", // edm4eic::ProtoClusterCollection
           "EcalFarForwardZDCRawHitAssociations"   // edm4eic::MCRecoClusterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "EcalFarForwardZDCRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"EcalFarForwardZDCClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -246,6 +254,10 @@ void InitPlugin(JApplication* app) {
       {
           "HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
           "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "HcalFarForwardZDCRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"HcalFarForwardZDCClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -309,6 +321,10 @@ void InitPlugin(JApplication* app) {
       {
           "HcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
           "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "HcalFarForwardZDCRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"HcalFarForwardZDCTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -335,6 +351,10 @@ void InitPlugin(JApplication* app) {
       {
           "HcalFarForwardZDCIslandProtoClustersBaseline", // edm4eic::ProtoClusterCollection
           "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "HcalFarForwardZDCRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"HcalFarForwardZDCClustersBaselineWithoutShapes", // edm4eic::Cluster
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)

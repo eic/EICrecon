@@ -96,6 +96,10 @@ void InitPlugin(JApplication* app) {
       {
           "EcalLumiSpecIslandProtoClusters", // edm4eic::ProtoClusterCollection
           "EcalLumiSpecRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "EcalLumiSpecRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"EcalLumiSpecClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -120,6 +124,10 @@ void InitPlugin(JApplication* app) {
       {
           "EcalLumiSpecTruthProtoClusters", // edm4eic::ProtoClusterCollection
           "EcalLumiSpecRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "EcalLumiSpecRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"EcalLumiSpecTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)

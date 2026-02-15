@@ -176,6 +176,10 @@ void InitPlugin(JApplication* app) {
       {
           "EcalEndcapPTruthProtoClusters", // edm4eic::ProtoClusterCollection
           "EcalEndcapPRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "EcalEndcapPRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"EcalEndcapPTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -201,6 +205,10 @@ void InitPlugin(JApplication* app) {
       {
           "EcalEndcapPIslandProtoClusters", // edm4eic::ProtoClusterCollection
           "EcalEndcapPRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "EcalEndcapPRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"EcalEndcapPClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)

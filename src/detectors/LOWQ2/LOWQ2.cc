@@ -173,6 +173,9 @@ void InitPlugin(JApplication* app) {
     std::vector<std::string> inputClusterTags = moduleClusterTags[i];
 
     inputClusterTags.emplace_back("TaggerTrackerRawHitAssociations");
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    inputClusterTags.emplace_back("TaggerTrackerRawHitLinks");
+#endif
 
     app->Add(new JOmniFactoryGeneratorT<FarDetectorLinearTracking_factory>(
         outputTrackTag, {inputClusterTags},

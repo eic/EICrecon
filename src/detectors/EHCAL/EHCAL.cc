@@ -112,6 +112,10 @@ void InitPlugin(JApplication* app) {
       {
           "HcalEndcapNTruthProtoClusters", // edm4eic::ProtoClusterCollection
           "HcalEndcapNRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "HcalEndcapNRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"HcalEndcapNTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -135,6 +139,10 @@ void InitPlugin(JApplication* app) {
       {
           "HcalEndcapNIslandProtoClusters", // edm4eic::ProtoClusterCollection
           "HcalEndcapNRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          ,
+          "HcalEndcapNRawHitLinks" // edm4eic::MCRecoCalorimeterHitLink
+#endif
       },
       {"HcalEndcapNClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
