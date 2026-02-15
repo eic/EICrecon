@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -21,6 +22,9 @@ private:
   PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
   PodioInput<edm4hep::SimCalorimeterHit> m_hits_input{this};
   PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output{this};
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  PodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_links_output{this};
+#endif
   PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
 
   ParameterRef<std::vector<double>> m_energyResolutions{this, "energyResolutions", config().eRes};
@@ -51,8 +55,11 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_event_headers_input(), m_hits_input()},
-                    {m_hits_output().get(), m_hit_assocs_output().get()});
+    m_algo->process({m_event_headers_input(), m_hits_input()}, {m_hits_output().get(),
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                m_links_output().get(),
+#endif
+                                                                m_hit_assocs_output().get()});
   }
 };
 

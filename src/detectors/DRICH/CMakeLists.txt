@@ -17,3 +17,14 @@ plugin_add_irt(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
+
+# Add libraries
+plugin_link_libraries(
+  ${PLUGIN_NAME}
+  log_library
+  algorithms_tracking_library
+  particle_service_library
+  algorithms_pid_lut_library
+  algorithms_digi_library
+  algorithms_pid_library
+  richgeo_library)

@@ -13,18 +13,18 @@
 #include <algorithms/logger.h>
 #include <edm4eic/CherenkovParticleIDHypothesis.h>
 #include <edm4eic/TrackPoint.h>
-#include <edm4hep/EDM4hepVersion.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
+#include <concepts>
 #include <cstddef>
 #include <functional>
 #include <iterator>
@@ -37,9 +37,66 @@
 #include "algorithms/pid/IrtCherenkovParticleIDConfig.h"
 #include "algorithms/pid/Tools.h"
 
+// Feature detection: Check if RadiatorHistory has GetLocations() method
+namespace {
+template <typename T>
+concept HasGetLocations = requires(const T& t) {
+  { t.GetLocations() } -> std::same_as<const std::vector<std::pair<TVector3, TVector3>>&>;
+};
+
+constexpr bool IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS = HasGetLocations<RadiatorHistory>;
+
+// Helper classes using template specialization to call appropriate methods
+// We use templated helper methods and delayed name lookup to avoid
+// compilation errors when methods don't exist in the unused specialization
+template <bool UseRadiatorHistory> struct IrtHelpers;
+
+// Specialization for new IRT (RadiatorHistory has the methods)
+template <> struct IrtHelpers<true> {
+  template <typename RH, typename CR>
+  static void SetTrajectoryBinCount(RH* rad_history, CR* /*rad*/, unsigned bins) {
+    rad_history->SetTrajectoryBinCount(bins);
+  }
+
+  template <typename RH, typename CR> static void ResetLocations(RH* rad_history, CR* /*rad*/) {
+    rad_history->ResetLocations();
+  }
+
+  template <typename RH, typename CR>
+  static void AddLocation(RH* rad_history, CR* /*rad*/, const TVector3& x, const TVector3& n) {
+    rad_history->AddLocation(x, n);
+  }
+};
+
+// Specialization for old IRT (CherenkovRadiator has the methods)
+template <> struct IrtHelpers<false> {
+  template <typename RH, typename CR>
+  static void SetTrajectoryBinCount(RH* /*rad_history*/, CR* rad, unsigned bins) {
+    rad->SetTrajectoryBinCount(bins);
+  }
+
+  template <typename RH, typename CR> static void ResetLocations(RH* /*rad_history*/, CR* rad) {
+    rad->ResetLocations();
+  }
+
+  template <typename RH, typename CR>
+  static void AddLocation(RH* /*rad_history*/, CR* rad, const TVector3& x, const TVector3& n) {
+    rad->AddLocation(x, n);
+  }
+};
+
+using IrtHelper = IrtHelpers<IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS>;
+} // namespace
+
 namespace eicrecon {
 
 void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
+  // lock for old IRT versions that use shared radiator state
+  [[maybe_unused]] std::unique_lock<std::mutex> lock;
+  if constexpr (!IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS) {
+    lock = std::unique_lock<std::mutex>(m_irt_det_mutex);
+  }
+
   // members
   m_irt_det_coll = irt_det_coll;
 
@@ -78,7 +135,6 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
   trace("Rebinning refractive index tables to have {} bins", m_cfg.numRIndexBins);
   for (auto [rad_name, irt_rad] : m_irt_det->Radiators()) {
     // FIXME: m_cfg.numRIndexBins should be a service configurable
-    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
     auto ri_lookup_table_orig = irt_rad->m_ri_lookup_table;
     if (ri_lookup_table_orig.size() != m_cfg.numRIndexBins) {
       irt_rad->m_ri_lookup_table.clear();
@@ -98,7 +154,6 @@ void IrtCherenkovParticleID::init(CherenkovDetectorCollection* irt_det_coll) {
 
   // check radiators' configuration, and pass it to `m_irt_det`'s radiators
   for (auto [rad_name, irt_rad] : m_pid_radiators) {
-    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
     // find `cfg_rad`, the associated `IrtCherenkovParticleIDConfig` radiator
     auto cfg_rad_it = m_cfg.radiators.find(rad_name);
     if (cfg_rad_it != m_cfg.radiators.end()) {
@@ -180,9 +235,13 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
     auto irt_particle = std::make_unique<ChargedParticle>();
 
     // loop over radiators
-    // note: this must run exclusively since irt_rad points to shared IRT objects that are
-    // owned by the RichGeo_service; it holds state (e.g. irt_rad->ResetLocation())
-    std::lock_guard<std::mutex> lock(m_irt_det_mutex);
+    // note: for old IRT versions, this must run exclusively since irt_rad points to shared IRT
+    // objects that are owned by the RichGeo_service; it holds state (e.g. IrtHelpers::ResetLocations())
+    [[maybe_unused]] std::unique_lock<std::mutex> lock;
+    if constexpr (!IRT_HAS_RADIATOR_HISTORY_GET_LOCATIONS) {
+      lock = std::unique_lock<std::mutex>(m_irt_det_mutex);
+    }
+
     for (auto [rad_name, irt_rad] : m_pid_radiators) {
 
       // get the `charged_particle` for this radiator
@@ -199,21 +258,23 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         trace("No propagated track points in radiator '{}'", rad_name);
         continue;
       }
-      irt_rad->SetTrajectoryBinCount(charged_particle.points_size() - 1);
 
       // start a new IRT `RadiatorHistory`
       // - must be a raw pointer for `irt` compatibility
       // - it will be destroyed when `irt_particle` is destroyed
       auto* irt_rad_history = new RadiatorHistory();
+
+      IrtHelper::SetTrajectoryBinCount(irt_rad_history, irt_rad,
+                                       charged_particle.points_size() - 1);
       irt_particle->StartRadiatorHistory({irt_rad, irt_rad_history});
 
       // loop over `TrackPoint`s of this `charged_particle`, adding each to the IRT radiator
-      irt_rad->ResetLocations();
+      IrtHelper::ResetLocations(irt_rad_history, irt_rad);
       trace("TrackPoints in '{}' radiator:", rad_name);
       for (const auto& point : charged_particle.getPoints()) {
         TVector3 position = Tools::PodioVector3_to_TVector3(point.position);
         TVector3 momentum = Tools::PodioVector3_to_TVector3(point.momentum);
-        irt_rad->AddLocation(position, momentum);
+        IrtHelper::AddLocation(irt_rad_history, irt_rad, position, momentum);
         trace(Tools::PrintTVector3(" point: x", position));
         trace(Tools::PrintTVector3("        p", momentum));
       }
@@ -231,11 +292,7 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
           for (const auto& hit_assoc : *in_hit_assocs) {
             if (hit_assoc.getRawHit().isAvailable()) {
               if (hit_assoc.getRawHit().id() == raw_hit.id()) {
-#if EDM4HEP_BUILD_VERSION >= EDM4HEP_VERSION(0, 99, 0)
-                mc_photon = hit_assoc.getSimHit().getParticle();
-#else
-                mc_photon = hit_assoc.getSimHit().getMCParticle();
-#endif
+                mc_photon       = hit_assoc.getSimHit().getParticle();
                 mc_photon_found = true;
                 if (mc_photon.getPDG() != -22) {
                   warning("non-opticalphoton hit: PDG = {}", mc_photon.getPDG());
@@ -412,6 +469,11 @@ void IrtCherenkovParticleID::process(const IrtCherenkovParticleID::Input& input,
         auto* irt_hypothesis = pdg_to_hyp.at(pdg);
         auto hyp_weight      = irt_hypothesis->GetWeight(irt_rad);
         auto hyp_npe         = irt_hypothesis->GetNpe(irt_rad);
+
+        // Skip hypotheses with nan weight
+        if (std::isnan(hyp_weight)) {
+          continue;
+        }
 
         // fill `ParticleID` output collection
         edm4eic::CherenkovParticleIDHypothesis out_hypothesis;

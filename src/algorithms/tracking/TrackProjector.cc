@@ -3,10 +3,14 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
+#include <Acts/EventData/TrackContainer.hpp>
+#include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TransformationHelpers.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
+#include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <algorithms/service.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
@@ -16,15 +20,14 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <Eigen/Core>
 #include <any>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
 #include <gsl/pointers>
-#include <iterator>
 
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
@@ -42,30 +45,26 @@ void TrackProjector::init() {
 }
 
 void TrackProjector::process(const Input& input, const Output& output) const {
-  const auto [acts_trajectories, tracks] = input;
-  auto [track_segments]                  = output;
+  const auto [track_states, tracks_container, tracks] = input;
+  auto [track_segments]                               = output;
 
-  debug("Track projector event process. Num of input trajectories: {}",
-        std::size(acts_trajectories));
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states);
+  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks_container);
+  ActsExamples::ConstTrackContainer acts_tracks(trackContainer, trackStateContainer);
 
-  // Loop over the trajectories
-  for (std::size_t i = 0; const auto& traj : acts_trajectories) {
-    // Get the entry index for the single trajectory
-    // The trajectory entry indices and the multiTrajectory
-    const auto& mj        = traj->multiTrajectory();
-    const auto& trackTips = traj->tips();
-    debug("------ Trajectory ------");
-    debug("  Num of elements in trackTips {}", trackTips.size());
+  debug("Track projector event process. Num of input tracks: {}", acts_tracks.size());
 
-    // Skip empty
-    if (trackTips.empty()) {
-      debug("  Empty multiTrajectory.");
-      continue;
-    }
-    const auto& trackTip = trackTips.front();
+  // Loop over the tracks
+  std::size_t i = 0;
+  for (const auto& track : acts_tracks) {
+    auto tipIndex = track.tipIndex();
+    debug("------ Track ------");
+    debug("  Tip index {}", tipIndex);
 
     // Collect the trajectory summary info
-    auto trajState      = Acts::MultiTrajectoryHelpers::trajectoryState(mj, trackTip);
+    auto trajState =
+        Acts::MultiTrajectoryHelpers::trajectoryState(acts_tracks.trackStateContainer(), tipIndex);
     int m_nMeasurements = trajState.nMeasurements;
     int m_nStates       = trajState.nStates;
     int m_nCalibrated   = 0;
@@ -75,14 +74,14 @@ void TrackProjector::process(const Input& input, const Output& output) const {
     auto track_segment = track_segments->create();
 
     // corresponding track
-    if (tracks->size() == acts_trajectories.size()) {
+    if (tracks->size() == acts_tracks.size()) {
       trace("track segment connected to track {}", i);
       track_segment.setTrack((*tracks)[i]);
       ++i;
     }
 
     // visit the track points
-    mj.visitBackwards(trackTip, [&](auto&& trackstate) {
+    for (const auto& trackstate : track.trackStatesReversed()) {
       // get volume info
       auto geoID  = trackstate.referenceSurface().geometryId();
       auto volume = geoID.volume();
@@ -199,10 +198,10 @@ void TrackProjector::process(const Input& input, const Output& output) const {
       //debug("boundParams[eBoundQOverP] = {}", boundParams[Acts::eBoundQOverP]);
       //debug("boundParams[eBoundTime] = {}", boundParams[Acts::eBoundTime]);
       //debug("predicted variables: {}", trackstate.predicted());
-    });
+    }
 
-    debug("  Num calibrated state in trajectory {}", m_nCalibrated);
-    debug("------ end of trajectory process ------");
+    debug("  Num calibrated state in track {}", m_nCalibrated);
+    debug("------ end of track process ------");
   }
 
   debug("END OF Track projector event process");
