@@ -96,7 +96,7 @@ void SiliconTrackerDigi::process(const SiliconTrackerDigi::Input& input,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
         // create link
         auto link = links->create();
-        link.setFrom(item.second);
+        link.setFrom(raw_hit);
         link.setTo(sim_hit);
         link.setWeight(1.0);
 #endif
