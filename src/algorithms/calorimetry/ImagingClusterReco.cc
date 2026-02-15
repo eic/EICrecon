@@ -241,7 +241,7 @@ ImagingClusterReco::fit_track(const std::vector<edm4eic::MutableCluster>& layers
 
 void ImagingClusterReco::associate_mc_particles(
     const edm4eic::Cluster& cl,
-    const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+    [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     const edm4eic::MCRecoCalorimeterHitLinkCollection* mchitlinks,
     edm4eic::MCRecoClusterParticleLinkCollection* links,

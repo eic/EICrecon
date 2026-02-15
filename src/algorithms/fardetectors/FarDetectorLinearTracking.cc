@@ -255,7 +255,7 @@ bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
 // Convert measurements into global coordinates
 void FarDetectorLinearTracking::ConvertClusters(
     const edm4eic::Measurement2DCollection& clusters,
-    const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
+    [[maybe_unused]] const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     const edm4eic::MCRecoTrackerHitLinkCollection& hit_links,
 #endif
