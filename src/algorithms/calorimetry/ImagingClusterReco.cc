@@ -14,6 +14,7 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <podio/LinkNavigator.h>
 #endif
