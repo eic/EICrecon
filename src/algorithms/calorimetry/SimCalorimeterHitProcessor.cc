@@ -128,8 +128,8 @@ void SimCalorimeterHitProcessor::init() {
       for (auto& field : m_cfg.contributionMergeFields) {
         id_inverse_mask |= m_id_spec.field(field)->mask();
       }
-      m_contribution_id_mask = ~id_inverse_mask;
     }
+    m_contribution_id_mask = ~id_inverse_mask;
     debug("ID mask in {:s}: {:#064b}", m_cfg.readout, m_contribution_id_mask.value());
   }
 
