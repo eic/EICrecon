@@ -1,5 +1,26 @@
 ((c++-mode . ((eval . (progn
-;; Check if the package is installed; if not, try to load it
+                         ;; 1. Set up C++ style to match .clang-format (LLVM style)
+
+                         ;; Define LLVM style if not already defined
+                         (unless (assoc "llvm" c-style-alist)
+                           (c-add-style "llvm"
+                                        '("gnu"
+                                          (c-basic-offset . 2)
+                                          (indent-tabs-mode . nil)
+                                          (c-offsets-alist . ((innamespace . 0)
+                                                              (arglist-intro . ++)
+                                                              (member-init-intro . ++))))))
+
+                         ;; Set default C style to LLVM (base style of .clang-format)
+                         (c-set-style "llvm")
+                         ;; Check if the function exists before calling to be safe
+                         (if (fboundp 'c-guess)
+                             (c-guess t)
+                           (message "c-guess not found; using fallback llvm style."))
+
+                         ;; 2. Set up clang-format key bindings
+
+                         ;; Check if the clang-format package is installed; if not, try to load it
                          (unless (featurep 'clang-format)
                            (condition-case nil
                                (require 'clang-format)
