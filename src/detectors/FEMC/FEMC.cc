@@ -1,11 +1,15 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2021 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, David Lawrence, Friederike Bock, Wouter Deconinck, Kolja Kauder, Sebouh Paul
 
+#include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <fmt/format.h>
+#include <gsl/pointers>
+#include <memory>
 #include <spdlog/logger.h>
 #include <cmath>
 #include <string>
@@ -22,6 +26,8 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "factories/particle/TrackProtoClusterMatchPromoter_factory.h"
+#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/log/Log_service.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -29,10 +35,14 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   InitJANAPlugin(app);
+
+  auto log_service = app->GetService<Log_service>();
+  auto mLog        = log_service->logger("FEMC");
+
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalEndcapP_capADC =
       16384; //16384, assuming 14 bits. For approximate HGCROC resolution use 65536
-  decltype(CalorimeterHitDigiConfig::dyRangeADC) EcalEndcapP_dyRangeADC   = 3 * dd4hep::GeV;
+  decltype(CalorimeterHitDigiConfig::dyRangeADC) EcalEndcapP_dyRangeADC   = 100 * dd4hep::GeV;
   decltype(CalorimeterHitDigiConfig::pedMeanADC) EcalEndcapP_pedMeanADC   = 200;
   decltype(CalorimeterHitDigiConfig::pedSigmaADC) EcalEndcapP_pedSigmaADC = 2.4576;
   decltype(CalorimeterHitDigiConfig::resolutionTDC) EcalEndcapP_resolutionTDC =
@@ -129,8 +139,9 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC   = EcalEndcapP_resolutionTDC,
           .thresholdFactor = 0.0,
           .thresholdValue =
-              2, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
-          .sampFrac = "0.03",
+              3, // The ADC of a 15 MeV particle is adc = 200 + 15 * 0.03 * ( 1.0 + 0) / 3000 * 16384 = 200 + 2.4576
+          // 15 MeV = 2.4576, but adc=llround(dE) and cut off is "<". So 3 here = 15.25MeV
+          .sampFrac = "1.00", // already taken care in DIGI code above
           .readout  = "EcalEndcapPHits",
       },
       app // TODO: Remove me once fixed
