@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Chao Peng, Wouter Deconinck, Sylvester Joosten, Barak Schmookler, David Lawrence
+// Copyright (C) 2022 - 2025 Chao Peng, Wouter Deconinck, Sylvester Joosten, Barak Schmookler, David Lawrence, Akio Ogawa
 
 // A general digitization for CalorimeterHit from simulation
 // 1. Smear energy deposit with a/sqrt(E/GeV) + b + c/E or a/sqrt(E/GeV) (relative value)
@@ -15,22 +15,24 @@
 #include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Readout.h>
-#include <DD4hep/config.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/service.h>
 #include <edm4eic/EDM4eicVersion.h>
-#if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#endif
 #include <edm4hep/CaloHitContributionCollection.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
 #include <limits>
+#include <map>
+#include <memory>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
@@ -121,17 +123,31 @@ void CalorimeterHitDigi::init() {
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   corrMeanScale =
       serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->compile(m_cfg.corrMeanScale, hit_to_map);
+
+  std::map<std::string, readout_enum> readoutTypes{{"simple", kSimpleReadout},
+                                                   {"poisson_photon", kPoissonPhotonReadout},
+                                                   {"sipm", kSipmReadout}};
+  if (not readoutTypes.count(m_cfg.readoutType)) {
+    error("Invalid readoutType \"{}\"", m_cfg.readoutType);
+    throw std::runtime_error(fmt::format("Invalid readoutType \"{}\"", m_cfg.readoutType));
+  }
+  readoutType = readoutTypes.at(m_cfg.readoutType);
 }
 
 void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
                                  const CalorimeterHitDigi::Output& output) const {
 
-  const auto [simhits] = input;
-#if EDM4EIC_VERSION_MAJOR >= 7
-  auto [rawhits, rawassocs] = output;
+  const auto [headers, simhits] = input;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [rawhits, links, rawassocs] = output;
 #else
-  auto [rawhits] = output;
+  auto [rawhits, rawassocs] = output;
 #endif
+
+  // local random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  std::default_random_engine generator(seed);
+  std::normal_distribution<double> gaussian;
 
   // find the hits that belong to the same group (for merging)
   std::unordered_map<uint64_t, std::vector<std::size_t>> merge_map;
@@ -153,9 +169,10 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
 
     // create hit and association in advance
     edm4hep::MutableRawCalorimeterHit rawhit;
-#if EDM4EIC_VERSION_MAJOR >= 7
-    std::vector<edm4eic::MutableMCRecoCalorimeterHitAssociation> rawassocs_staging;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    std::vector<edm4eic::MutableMCRecoCalorimeterHitLink> links_staging;
 #endif
+    std::vector<edm4eic::MutableMCRecoCalorimeterHitAssociation> rawassocs_staging;
 
     double edep      = 0;
     double time      = std::numeric_limits<double>::max();
@@ -167,12 +184,11 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
 
       double timeC = std::numeric_limits<double>::max();
       for (const auto& c : hit.getContributions()) {
-        if (c.getTime() <= timeC) {
-          timeC = c.getTime();
-        }
+        timeC = std::min<double>(c.getTime(), timeC);
       }
       if (timeC > m_cfg.capTime) {
-        continue;
+        debug("retaining hit, even though time %f ns > %f ns", timeC / dd4hep::ns,
+              m_cfg.capTime / dd4hep::ns);
       }
       edep += hit.getEnergy();
       trace("adding {} \t total: {}", hit.getEnergy(), edep);
@@ -181,40 +197,76 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
       if (hit.getEnergy() > max_edep) {
         max_edep    = hit.getEnergy();
         leading_hit = hit;
-        if (timeC <= time) {
-          time = timeC;
-        }
+        time        = std::min(timeC, time);
       }
 
-#if EDM4EIC_VERSION_MAJOR >= 7
       edm4eic::MutableMCRecoCalorimeterHitAssociation assoc;
       assoc.setRawHit(rawhit);
       assoc.setSimHit(hit);
       assoc.setWeight(hit.getEnergy());
       rawassocs_staging.push_back(assoc);
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      edm4eic::MutableMCRecoCalorimeterHitLink link;
+      link.setFrom(rawhit);
+      link.setTo(hit);
+      link.setWeight(hit.getEnergy());
+      links_staging.push_back(link);
 #endif
     }
     if (time > m_cfg.capTime) {
-      continue;
+      debug("retaining hit, even though time %f ns > %f ns", time / dd4hep::ns,
+            m_cfg.capTime / dd4hep::ns);
     }
 
     // safety check
     const double eResRel =
         (edep > m_cfg.threshold)
-            ? m_gaussian(m_generator) *
+            ? gaussian(generator) *
                   std::sqrt(std::pow(m_cfg.eRes[0] / std::sqrt(edep), 2) +
                             std::pow(m_cfg.eRes[1], 2) + std::pow(m_cfg.eRes[2] / (edep), 2))
             : 0;
+
     double corrMeanScale_value = corrMeanScale(leading_hit);
 
-    double ped = m_cfg.pedMeanADC + m_gaussian(m_generator) * m_cfg.pedSigmaADC;
+    double ped = m_cfg.pedMeanADC + gaussian(generator) * m_cfg.pedSigmaADC;
 
     // Note: both adc and tdc values must be positive numbers to avoid integer wraparound
-    unsigned long long adc =
-        std::max(std::llround(ped + edep * corrMeanScale_value * (1.0 + eResRel) /
-                                        m_cfg.dyRangeADC * m_cfg.capADC),
-                 0LL);
-    unsigned long long tdc = std::llround((time + m_gaussian(m_generator) * tRes) * stepTDC);
+    unsigned long long adc = 0;
+    unsigned long long tdc = std::llround((time + gaussian(generator) * tRes) * stepTDC);
+
+    //smear edep by resolution function before photon and SiPM simulation
+    edep *= std::max(0.0, 1.0 + eResRel);
+
+    if (readoutType == kSimpleReadout) {
+      adc = std::max(
+          std::llround(ped + edep * corrMeanScale_value / m_cfg.dyRangeADC * m_cfg.capADC), 0LL);
+    } else if (readoutType == kPoissonPhotonReadout) {
+      const long long int n_photons_mean =
+          edep * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
+      std::poisson_distribution<> n_photons_detected_dist(n_photons_mean);
+      const long long int n_photons_detected = n_photons_detected_dist(generator);
+      const long long int n_max_photons =
+          m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
+      trace("n_photons_detected {}", n_photons_detected);
+      adc = std::max(std::llround(ped + n_photons_detected * corrMeanScale_value / n_max_photons *
+                                            m_cfg.capADC),
+                     0LL);
+    } else if (readoutType == kSipmReadout) {
+      const long long int n_photons = edep * m_cfg.lightYield;
+      std::binomial_distribution<> n_photons_detected_dist(n_photons,
+                                                           m_cfg.photonDetectionEfficiency);
+      const long long int n_photons_detected = n_photons_detected_dist(generator);
+      const long long int n_pixels_fired =
+          m_cfg.numEffectiveSipmPixels *
+          (1 - exp(-n_photons_detected / (double)m_cfg.numEffectiveSipmPixels));
+      const long long int n_max_photons =
+          m_cfg.dyRangeADC * m_cfg.lightYield * m_cfg.photonDetectionEfficiency;
+      trace("n_photons_detected {}, n_pixels_fired {}, n_max_photons {}", n_photons_detected,
+            n_pixels_fired, n_max_photons);
+      adc = std::max(
+          std::llround(ped + n_pixels_fired * corrMeanScale_value / n_max_photons * m_cfg.capADC),
+          0LL);
+    }
 
     if (edep > 1.e-3) {
       trace("E sim {} \t adc: {} \t time: {}\t maxtime: {} \t tdc: {} \t corrMeanScale: {}", edep,
@@ -226,12 +278,16 @@ void CalorimeterHitDigi::process(const CalorimeterHitDigi::Input& input,
     rawhit.setTimeStamp(tdc);
     rawhits->push_back(rawhit);
 
-#if EDM4EIC_VERSION_MAJOR >= 7
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    for (auto& link : links_staging) {
+      link.setWeight(link.getWeight() / edep);
+      links->push_back(link);
+    }
+#endif
     for (auto& assoc : rawassocs_staging) {
       assoc.setWeight(assoc.getWeight() / edep);
       rawassocs->push_back(assoc);
     }
-#endif
   }
 }
 

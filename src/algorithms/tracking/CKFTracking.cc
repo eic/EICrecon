@@ -1,19 +1,35 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li
+// Copyright (C) 2022 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
 #include "CKFTracking.h"
 
 #include <Acts/Definitions/Algebra.hpp>
+#include <Acts/Definitions/Common.hpp>
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/EventData/TrackStateProxy.hpp>
-#include <Acts/EventData/Types.hpp>
-#if Acts_VERSION_MAJOR < 36
-#include <Acts/EventData/Measurement.hpp>
+#include <Acts/EventData/MeasurementHelpers.hpp>
+#include <Acts/EventData/TrackStatePropMask.hpp>
+#include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#include <spdlog/common.h>
+#include <algorithm>
+#include <any>
+#include <array>
+#include <cstddef>
+#include <functional>
+#include <gsl/pointers>
+#include <stdexcept>
+#include <string>
+#include <system_error>
+#include <tuple>
+#include <utility>
+#if Acts_VERSION_MAJOR >= 39
+#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #endif
-#include <Acts/EventData/MultiTrajectory.hpp>
+#if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
+#include <Acts/Utilities/Iterator.hpp>
+#endif
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
@@ -22,8 +38,6 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/Geometry/Layer.hpp>
-#if Acts_VERSION_MAJOR >= 34
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
 #else
@@ -33,27 +47,17 @@
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
-#endif
 #include <Acts/Propagator/Propagator.hpp>
-#if Acts_VERSION_MAJOR >= 36
 #include <Acts/Propagator/PropagatorOptions.hpp>
-#endif
-#if Acts_VERSION_MAJOR >= 34
 #include <Acts/Propagator/StandardAborters.hpp>
-#endif
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/TrackStateCreator.hpp>
 #endif
-#if Acts_VERSION_MAJOR < 34
-#include <Acts/TrackFitting/GainMatrixSmoother.hpp>
-#endif
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
-#if Acts_VERSION_MAJOR >= 34
 #include <Acts/Utilities/TrackHelpers.hpp>
-#endif
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Measurement.hpp>
 #include <ActsExamples/EventData/MeasurementCalibration.hpp>
@@ -63,24 +67,16 @@
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
 #include <edm4hep/Vector2f.h>
-#include <fmt/core.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <algorithm>
-#include <array>
-#include <cmath>
-#include <cstddef>
-#include <functional>
-#include <list>
-#include <optional>
-#include <ostream>
-#include <set>
-#include <system_error>
-#include <utility>
+#include <Eigen/LU> // IWYU pragma: keep
+// IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
+// IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
+#include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
 
@@ -88,64 +84,50 @@ namespace eicrecon {
 
 using namespace Acts::UnitLiterals;
 
-// This array relates the Acts and EDM4eic covariance matrices, including
-// the unit conversion to get from Acts units into EDM4eic units.
-//
-// Note: std::map is not constexpr, so we use a constexpr std::array
-// std::array initialization need double braces since arrays are aggregates
-// ref: https://en.cppreference.com/w/cpp/language/aggregate_initialization
-static constexpr std::array<std::pair<Acts::BoundIndices, double>, 6> edm4eic_indexed_units{
-    {{Acts::eBoundLoc0, Acts::UnitConstants::mm},
-     {Acts::eBoundLoc1, Acts::UnitConstants::mm},
-     {Acts::eBoundPhi, 1.},
-     {Acts::eBoundTheta, 1.},
-     {Acts::eBoundQOverP, 1. / Acts::UnitConstants::GeV},
-     {Acts::eBoundTime, Acts::UnitConstants::ns}}};
-
-CKFTracking::CKFTracking() = default;
-
-void CKFTracking::init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-                       std::shared_ptr<spdlog::logger> log) {
-  m_log         = log;
-  m_acts_logger = eicrecon::getSpdlogLogger("CKF", m_log);
-
-  m_geoSvc = geo_svc;
-
-  m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-  m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
+void CKFTracking::init() {
+  m_acts_logger = Acts::getDefaultLogger(
+      "CKF", eicrecon::SpdlogToActsLevel(static_cast<spdlog::level::level_enum>(this->level())));
 
   // eta bins, chi2 and #sourclinks per surface cutoffs
   m_sourcelinkSelectorCfg = {
       {Acts::GeometryIdentifier(),
-       {m_cfg.etaBins,
-        m_cfg.chi2CutOff,
-        {m_cfg.numMeasurementsCutOff.begin(), m_cfg.numMeasurementsCutOff.end()}}},
+       {.etaBins               = m_cfg.etaBins,
+        .chi2CutOff            = m_cfg.chi2CutOff,
+        .numMeasurementsCutOff = {m_cfg.numMeasurementsCutOff.begin(),
+                                  m_cfg.numMeasurementsCutOff.end()}}},
   };
-  m_trackFinderFunc =
-      CKFTracking::makeCKFTrackingFunction(m_geoSvc->trackingGeometry(), m_BField, logger());
+  m_trackFinderFunc = CKFTracking::makeCKFTrackingFunction(
+      m_geoSvc->trackingGeometry(), m_geoSvc->getFieldProvider(), acts_logger());
 }
 
-std::tuple<std::vector<ActsExamples::Trajectories*>,
-           std::vector<ActsExamples::ConstTrackContainer*>>
-CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
-                     const edm4eic::Measurement2DCollection& meas2Ds) {
+void CKFTracking::process(const Input& input, const Output& output) const {
+  const auto [init_trk_seeds, meas2Ds]      = input;
+  auto [output_track_states, output_tracks] = output;
+
+  // If measurements or initial track parameters are empty, create empty output containers
+  if (meas2Ds->empty() || init_trk_seeds->empty()) {
+    debug("No seeds or measurements, creating empty output containers");
+    *output_track_states = new Acts::ConstVectorMultiTrajectory();
+    *output_tracks       = new Acts::ConstVectorTrackContainer();
+    return;
+  }
 
   // create sourcelink and measurement containers
   auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
 
   // need list here for stable addresses
-  std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
 #if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
+  std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
   ActsExamples::IndexSourceLinkContainer src_links;
-  src_links.reserve(meas2Ds.size());
-#endif
+  src_links.reserve(meas2Ds->size());
   std::size_t hit_index = 0;
+#endif
 
-  for (const auto& meas2D : meas2Ds) {
+  for (const auto& meas2D : *meas2Ds) {
 
     Acts::GeometryIdentifier geoId{meas2D.getSurface()};
 
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     // --follow example from ACTS to create source links
     sourceLinkStorage.emplace_back(geoId, hit_index);
     ActsExamples::IndexSourceLink& sourceLink = sourceLinkStorage.back();
@@ -153,7 +135,6 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
     // index map and source link container are geometry-ordered.
     // since the input is also geometry-ordered, new items can
     // be added at the end.
-#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     src_links.insert(src_links.end(), sourceLink);
 #endif
     // ---
@@ -192,25 +173,21 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
             throw std::runtime_error("Dimension not supported in measurement creation");
           }
         });
-#elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR >= 1
+#else
     auto measurement = ActsExamples::makeVariableSizeMeasurement(
         Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
     measurements->emplace_back(std::move(measurement));
-#elif Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR == 0
-    auto measurement = ActsExamples::makeFixedSizeMeasurement(
-        Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-    measurements->emplace_back(std::move(measurement));
-#else
-    auto measurement = Acts::makeMeasurement(Acts::SourceLink{sourceLink}, loc, cov,
-                                             Acts::eBoundLoc0, Acts::eBoundLoc1);
-    measurements->emplace_back(std::move(measurement));
 #endif
 
+#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
     hit_index++;
+#endif
   }
 
   ActsExamples::TrackParametersContainer acts_init_trk_params;
-  for (const auto& track_parameter : init_trk_params) {
+  for (const auto& track_seed : *init_trk_seeds) {
+
+    const auto& track_parameter = track_seed.getParams();
 
     Acts::BoundVector params;
     params(Acts::eBoundLoc0) =
@@ -241,49 +218,34 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
   //// Construct a perigee surface as the target surface
   auto pSurface = Acts::Surface::makeShared<Acts::PerigeeSurface>(Acts::Vector3{0., 0., 0.});
 
-  ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("CKF", m_log, {"^No tracks found$"}));
+  // Convert algorithm log level to Acts log level for local logger
+  const auto spdlog_level = static_cast<spdlog::level::level_enum>(this->level());
+  const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
+  ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKF", acts_level));
 
-#if Acts_VERSION_MAJOR >= 36
-  Acts::PropagatorPlainOptions pOptions(m_geoctx, m_fieldctx);
-#else
-  Acts::PropagatorPlainOptions pOptions;
-#endif
+  // Get run-scoped contexts from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+  const auto& cctx = m_geoSvc->getActsCalibrationContext();
+
+  Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
 
   ActsExamples::PassThroughCalibrator pcalibrator;
   ActsExamples::MeasurementCalibratorAdapter calibrator(pcalibrator, *measurements);
   Acts::GainMatrixUpdater kfUpdater;
-#if Acts_VERSION_MAJOR < 34
-  Acts::GainMatrixSmoother kfSmoother;
-#endif
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
-#if Acts_VERSION_MAJOR >= 36
   Acts::CombinatorialKalmanFilterExtensions<ActsExamples::TrackContainer> extensions;
-#else
-  Acts::CombinatorialKalmanFilterExtensions<Acts::VectorMultiTrajectory> extensions;
-#endif
 #if Acts_VERSION_MAJOR < 39
   extensions.calibrator.connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
       &calibrator);
 #endif
-#if Acts_VERSION_MAJOR >= 36
   extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<
       typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&kfUpdater);
-#else
-  extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<Acts::VectorMultiTrajectory>>(
-      &kfUpdater);
-#endif
-#if Acts_VERSION_MAJOR < 34
-  extensions.smoother.connect<&Acts::GainMatrixSmoother::operator()<Acts::VectorMultiTrajectory>>(
-      &kfSmoother);
-#endif
-#if (Acts_VERSION_MAJOR >= 36) && (Acts_VERSION_MAJOR < 39)
+#if Acts_VERSION_MAJOR < 39
   extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<
       typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&measSel);
-#elif Acts_VERSION_MAJOR < 39
-  extensions.measurementSelector
-      .connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
 #endif
 
   ActsExamples::IndexSourceLinkAccessor slAccessor;
@@ -314,16 +276,12 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
 
   // Set the CombinatorialKalmanFilter options
 #if Acts_VERSION_MAJOR >= 39
-  CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, extensions, pOptions);
-#elif Acts_VERSION_MAJOR >= 34
-  CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
-                                          extensions, pOptions);
+  CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, extensions, pOptions);
 #else
-  CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
-                                          extensions, pOptions, &(*pSurface));
+  CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, slAccessorDelegate, extensions,
+                                          pOptions);
 #endif
 
-#if Acts_VERSION_MAJOR >= 36
   using Extrapolator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
 #if Acts_VERSION_MAJOR >= 37
   using ExtrapolatorOptions = Extrapolator::template Options<
@@ -333,143 +291,86 @@ CKFTracking::process(const edm4eic::TrackParametersCollection& init_trk_params,
       Extrapolator::template Options<Acts::ActionList<Acts::MaterialInteractor>,
                                      Acts::AbortList<Acts::EndOfWorldReached>>;
 #endif
-  Extrapolator extrapolator(
-      Acts::EigenStepper<>(m_BField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
-      logger().cloneWithSuffix("Propagator"));
-  ExtrapolatorOptions extrapolationOptions(m_geoctx, m_fieldctx);
-#elif Acts_VERSION_MAJOR >= 34
-  Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator> extrapolator(
-      Acts::EigenStepper<>(m_BField),
-      Acts::Navigator({m_geoSvc->trackingGeometry()}, logger().cloneWithSuffix("Navigator")),
-      logger().cloneWithSuffix("Propagator"));
-  Acts::PropagatorOptions<Acts::ActionList<Acts::MaterialInteractor>,
-                          Acts::AbortList<Acts::EndOfWorldReached>>
-      extrapolationOptions(m_geoctx, m_fieldctx);
-#endif
+  Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
+                            Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
+                                            acts_logger().cloneWithSuffix("Navigator")),
+                            acts_logger().cloneWithSuffix("Propagator"));
+  ExtrapolatorOptions extrapolationOptions(gctx, mctx);
 
   // Create track container
   auto trackContainer      = std::make_shared<Acts::VectorTrackContainer>();
   auto trackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
   ActsExamples::TrackContainer acts_tracks(trackContainer, trackStateContainer);
 
+  // Create temporary track container
+  auto trackContainerTemp      = std::make_shared<Acts::VectorTrackContainer>();
+  auto trackStateContainerTemp = std::make_shared<Acts::VectorMultiTrajectory>();
+  ActsExamples::TrackContainer acts_tracks_temp(trackContainerTemp, trackStateContainerTemp);
+
   // Add seed number column
   acts_tracks.addColumn<unsigned int>("seed");
+  acts_tracks_temp.addColumn<unsigned int>("seed");
   Acts::ProxyAccessor<unsigned int> seedNumber("seed");
-  std::set<Acts::TrackIndexType> passed_tracks;
 
   // Loop over seeds
   for (std::size_t iseed = 0; iseed < acts_init_trk_params.size(); ++iseed) {
-    auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks);
+
+    // Clear trackContainerTemp and trackStateContainerTemp
+    acts_tracks_temp.clear();
+
+    // Run track finding for this seed
+    auto result = (*m_trackFinderFunc)(acts_init_trk_params.at(iseed), options, acts_tracks_temp);
 
     if (!result.ok()) {
-      m_log->debug("Track finding failed for seed {} with error {}", iseed, result.error());
+      debug("Track finding failed for seed {} with error {}", iseed, result.error().message());
       continue;
     }
 
     // Set seed number for all found tracks
     auto& tracksForSeed = result.value();
     for (auto& track : tracksForSeed) {
-#if Acts_VERSION_MAJOR >= 34
-      auto smoothingResult = Acts::smoothTrack(m_geoctx, track, logger());
+      // Check if track has at least one valid (non-outlier) measurement
+      // (this check avoids errors inside smoothing and extrapolation)
+      auto lastMeasurement = Acts::findLastMeasurementState(track);
+      if (!lastMeasurement.ok()) {
+        debug("Track {} for seed {} has no valid measurements, skipping", track.index(), iseed);
+        continue;
+      }
+
+      if (track.nMeasurements() < m_cfg.numMeasurementsMin) {
+        trace("Track {} for seed {} has fewer measurements than minimum of {}, skipping",
+              track.index(), iseed, m_cfg.numMeasurementsMin);
+        continue;
+      }
+
+      auto smoothingResult = Acts::smoothTrack(gctx, track, acts_logger());
       if (!smoothingResult.ok()) {
-        ACTS_ERROR("Smoothing for seed " << iseed << " and track " << track.index()
-                                         << " failed with error " << smoothingResult.error());
+        debug("Smoothing for seed {} and track {} failed with error {}", iseed, track.index(),
+              smoothingResult.error().message());
         continue;
       }
 
       auto extrapolationResult = Acts::extrapolateTrackToReferenceSurface(
           track, *pSurface, extrapolator, extrapolationOptions,
-          Acts::TrackExtrapolationStrategy::firstOrLast, logger());
+          Acts::TrackExtrapolationStrategy::firstOrLast, acts_logger());
 
       if (!extrapolationResult.ok()) {
-        ACTS_ERROR("Extrapolation for seed " << iseed << " and track " << track.index()
-                                             << " failed with error "
-                                             << extrapolationResult.error());
+        debug("Extrapolation for seed {} and track {} failed with error {}", iseed, track.index(),
+              extrapolationResult.error().message());
         continue;
       }
-#endif
 
-      passed_tracks.insert(track.index());
       seedNumber(track) = iseed;
+
+      // Copy accepted track into main track container
+      auto acts_tracks_proxy = acts_tracks.makeTrack();
+      acts_tracks_proxy.copyFrom(track);
     }
   }
 
-  for (std::size_t track_index = acts_tracks.size(); (track_index--) != 0U;) {
-    if (!passed_tracks.contains(track_index)) {
-      // NOTE This does not remove track states corresponding to the
-      // removed tracks. Doing so would require implementing some garbage
-      // collection. We'll just assume no algorithm will access them
-      // directly.
-      acts_tracks.removeTrack(track_index);
-#if Acts_VERSION_MAJOR < 36 || (Acts_VERSION_MAJOR == 36 && Acts_VERSION_MINOR < 1)
-      // Workaround an upstream bug in Acts::VectorTrackContainer::removeTrack_impl()
-      // https://github.com/acts-project/acts/commit/94cf81f3f1109210b963977e0904516b949b1154
-      trackContainer->m_particleHypothesis.erase(trackContainer->m_particleHypothesis.begin() +
-                                                 track_index);
-#endif
-    }
-  }
-
-  // Move track states and track container to const containers
-  // NOTE Using the non-const containers leads to references to
-  // implicitly converted temporaries inside the Trajectories.
-  auto constTrackStateContainer =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(*trackStateContainer));
-
-  auto constTrackContainer =
-      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*trackContainer));
-
-  // FIXME JANA2 std::vector<T*> requires wrapping ConstTrackContainer, instead of:
-  //ConstTrackContainer constTracks(constTrackContainer, constTrackStateContainer);
-  std::vector<ActsExamples::ConstTrackContainer*> constTracks_v;
-  constTracks_v.push_back(
-      new ActsExamples::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
-  auto& constTracks = *(constTracks_v.front());
-
-  // Seed number column accessor
-  const Acts::ConstProxyAccessor<unsigned int> constSeedNumber("seed");
-
-  // Prepare the output data with MultiTrajectory, per seed
-  std::vector<ActsExamples::Trajectories*> acts_trajectories;
-  acts_trajectories.reserve(init_trk_params.size());
-
-  ActsExamples::Trajectories::IndexedParameters parameters;
-  std::vector<Acts::MultiTrajectoryTraits::IndexType> tips;
-
-  std::optional<unsigned int> lastSeed;
-  for (const auto& track : constTracks) {
-    if (!lastSeed) {
-      lastSeed = constSeedNumber(track);
-    }
-
-    if (constSeedNumber(track) != lastSeed.value()) {
-      // make copies and clear vectors
-      acts_trajectories.push_back(
-          new ActsExamples::Trajectories(constTracks.trackStateContainer(), tips, parameters));
-
-      tips.clear();
-      parameters.clear();
-    }
-
-    lastSeed = constSeedNumber(track);
-
-    tips.push_back(track.tipIndex());
-    parameters.emplace(std::pair{
-        track.tipIndex(),
-        ActsExamples::TrackParameters{track.referenceSurface().getSharedPtr(), track.parameters(),
-                                      track.covariance(), track.particleHypothesis()}});
-  }
-
-  if (tips.empty()) {
-    m_log->info("Last trajectory is empty");
-  }
-
-  // last entry: move vectors
-  acts_trajectories.push_back(new ActsExamples::Trajectories(
-      constTracks.trackStateContainer(), std::move(tips), std::move(parameters)));
-
-  return std::make_tuple(std::move(acts_trajectories), std::move(constTracks_v));
+  // Allocate new const containers and assign pointers to outputs
+  *output_track_states = new Acts::ConstVectorMultiTrajectory(std::move(*trackStateContainer));
+  *output_tracks       = new Acts::ConstVectorTrackContainer(std::move(*trackContainer));
 }
 
 } // namespace eicrecon

@@ -8,11 +8,11 @@
 #include <DD4hep/Readout.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <algorithms/geo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <podio/RelationRange.h>
 #include <algorithm>
 #include <cmath>
@@ -119,8 +119,8 @@ PulseCombiner::clusterPulses(const std::vector<PulseType> pulses) const {
   std::vector<PulseType> ordered_pulses{pulses};
 
   // Sort pulses by time, greaty simplifying the combination process
-  std::sort(ordered_pulses.begin(), ordered_pulses.end(),
-            [](PulseType a, PulseType b) { return a.getTime() < b.getTime(); });
+  std::ranges::sort(ordered_pulses,
+                    [](PulseType a, PulseType b) { return a.getTime() < b.getTime(); });
 
   // Create vector of pulses
   std::vector<std::vector<PulseType>> cluster_pulses;

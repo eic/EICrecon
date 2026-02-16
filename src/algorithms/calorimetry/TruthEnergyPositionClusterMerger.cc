@@ -1,30 +1,36 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 Sylvester Joosten
 
-#include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"
-
 #include <Evaluator/DD4hepUnits.h>
-#include <edm4eic/CalorimeterHit.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <gsl/pointers>
 #include <initializer_list>
+#include <memory>
 #include <vector>
+
+#include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"
 
 namespace eicrecon {
 
 void TruthEnergyPositionClusterMerger::process(const Input& input, const Output& output) const {
 
   const auto [mcparticles, energy_clus, energy_assoc, pos_clus, pos_assoc] = input;
-  auto [merged_clus, merged_assoc]                                         = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [merged_clus, merged_links, merged_assoc] = output;
+#else
+  auto [merged_clus, merged_assoc] = output;
+#endif
 
   debug("Merging energy and position clusters for new event");
 
-  if (energy_clus->size() == 0 && pos_clus->size() == 0) {
+  if (energy_clus->empty() && pos_clus->empty()) {
     debug("Nothing to do for this event, returning...");
     return;
   }
@@ -81,9 +87,13 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
             new_clus.getEnergy());
 
       // set association
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      auto clusterlink = merged_links->create();
+      clusterlink.setWeight(1.0);
+      clusterlink.setFrom(new_clus);
+      clusterlink.setTo((*mcparticles)[mcID]);
+#endif
       auto clusterassoc = merged_assoc->create();
-      clusterassoc.setRecID(new_clus.getObjectID().index);
-      clusterassoc.setSimID(mcID);
       clusterassoc.setWeight(1.0);
       clusterassoc.setRec(new_clus);
       clusterassoc.setSim((*mcparticles)[mcID]);
@@ -98,9 +108,13 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
       merged_clus->push_back(new_clus);
 
       // set association
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      auto clusterlink = merged_links->create();
+      clusterlink.setWeight(1.0);
+      clusterlink.setFrom(new_clus);
+      clusterlink.setTo((*mcparticles)[mcID]);
+#endif
       auto clusterassoc = merged_assoc->create();
-      clusterassoc.setRecID(new_clus.getObjectID().index);
-      clusterassoc.setSimID(mcID);
       clusterassoc.setWeight(1.0);
       clusterassoc.setRec(new_clus);
       clusterassoc.setSim((*mcparticles)[mcID]);
@@ -132,9 +146,13 @@ void TruthEnergyPositionClusterMerger::process(const Input& input, const Output&
           new_clus.getEnergy());
 
     // set association
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    auto clusterlink = merged_links->create();
+    clusterlink.setWeight(1.0);
+    clusterlink.setFrom(new_clus);
+    clusterlink.setTo(mc);
+#endif
     auto clusterassoc = merged_assoc->create();
-    clusterassoc.setRecID(new_clus.getObjectID().index);
-    clusterassoc.setSimID(mcID);
     clusterassoc.setWeight(1.0);
     clusterassoc.setRec(new_clus);
     clusterassoc.setSim(mc);
@@ -155,7 +173,7 @@ std::map<int, edm4eic::Cluster> TruthEnergyPositionClusterMerger::indexedCluster
     // find associated particle
     for (const auto& assoc : associations) {
       if (assoc.getRec() == cluster) {
-        mcID = assoc.getSimID();
+        mcID = assoc.getSim().getObjectID().index;
         break;
       }
     }

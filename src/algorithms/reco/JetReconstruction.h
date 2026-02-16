@@ -5,23 +5,26 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <fastjet/AreaDefinition.hh>
 #include <fastjet/JetDefinition.hh>
 #include <map>
 #include <memory>
 #include <string>
 #include <string_view>
+#include <utility>
 
 #include "JetReconstructionConfig.h"
 // for algorithm configuration
 #include "algorithms/interfaces/WithPodConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 
 namespace eicrecon {
 
 template <typename InputT>
-using JetReconstructionAlgorithm =
-    algorithms::Algorithm<algorithms::Input<typename InputT::collection_type>,
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+using JetReconstructionAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::EventHeaderCollection, typename InputT::collection_type>,
+    algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 template <typename InputT>
 class JetReconstruction : public JetReconstructionAlgorithm<InputT>,
@@ -31,7 +34,7 @@ public:
   JetReconstruction(std::string_view name)
       : JetReconstructionAlgorithm<InputT>{
             name,
-            {"inputReconstructedParticles"},
+            {"eventHeaderCollection", "inputReconstructedParticles"},
             {"outputReconstructedParticles"},
             "Performs jet reconstruction using a FastJet algorithm."} {}
 
@@ -84,6 +87,9 @@ private:
     std::string recombScheme;
     std::string areaType;
   } m_defaultFastjetOpts = {"antikt_algorithm", "E_scheme", "active_area"};
+
+  // unique ID service for generating reproducible seeds
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
 }; // end JetReconstruction definition
 

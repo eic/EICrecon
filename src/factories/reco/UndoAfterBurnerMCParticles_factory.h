@@ -2,6 +2,8 @@
 // Copyright (C) 2024 Alex Jentsch, Jihee Kim, Brian Page
 //
 
+#pragma once
+
 #include "algorithms/reco/UndoAfterBurner.h"
 #include "algorithms/reco/UndoAfterBurnerConfig.h"
 
@@ -32,14 +34,17 @@ private:
   ParameterRef<double> m_pid_purity{this, "m_pid_purity", config().m_pid_purity};
   ParameterRef<bool> m_correct_beam_FX{this, "m_correct_beam_FX", config().m_correct_beam_FX};
   ParameterRef<bool> m_pid_use_MC_truth{this, "m_pid_use_MC_truth", config().m_pid_use_MC_truth};
+  ParameterRef<int> m_max_gen_status{this, "m_max_gen_status", config().m_max_gen_status,
+                                     "Upper limit on generator status to process (-1 = no limit). "
+                                     "Use to filter out background particles and conserve memory."};
 
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
+    m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_mcparts_input()}, {m_postburn_output().get()});

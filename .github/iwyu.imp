@@ -5,16 +5,22 @@
   { ref: '/opt/local/share/include-what-you-use/boost-all.imp' },
   { include: ['@<boost/histogram/.*\.hpp>', private, '<boost/histogram.hpp>', public] },
 
+  # Avoid fmt/base.h which only exists as of fmt-11
+  # FIXME this can be removed when all test systems have fmt-11
+  { include: ['<fmt/base.h>', private, '<fmt/format.h>', public] },
+
   # libc++
   { ref: '/opt/local/share/include-what-you-use/libcxx.imp' },
 
   # STL
   { ref: '/opt/local/share/include-what-you-use/gcc.stl.headers.imp' },
+  { symbol: ['std::vector', private, '<vector>', public] },
 
   # Acts
   { include: ['@<Acts/(.*)\.ipp>', private, '<Acts/$1.hpp>', public] },
   { include: ['@<Acts/(.*)/detail/(.*)\.ipp>', private, '<Acts/$1/$2.hpp>', public] },
   { include: ['<Acts/Geometry/detail/DefaultDetectorElementBase.hpp>', private, '<Acts/Geometry/DetectorElementBase.hpp>', public] },
+  { include: ['<Acts/Utilities/detail/ContainerIterator.hpp>', private, '<Acts/EventData/TrackContainer.hpp>', public] },
 
   # Eigen
   { include: ['@[<"]Eigen/(src/)?(.*?)/.*[>"]', private, '<Eigen/$2>', public] },
@@ -28,7 +34,7 @@
 
   # the rest
   { include: ['<bits/chrono.h>', private, '<chrono>', public] },
-  { include: ['<bits/std_abs.h>', private, '<math.h>', public] },
+  { include: ['<bits/std_abs.h>', private, '<cmath>', public] },
   { include: ['<bits/utility.h>', private, '<tuple>', public] },
   # https://github.com/include-what-you-use/include-what-you-use/issues/166
   { include: ['<ext/alloc_traits.h>', private, '<vector>', public] }

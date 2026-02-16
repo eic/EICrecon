@@ -6,6 +6,7 @@
 
 #include <algorithms/logger.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -20,7 +21,7 @@
 
 namespace eicrecon {
 
-class MatchClusters_factory : public JOmniFactory<MatchClusters_factory> {
+class MatchClusters_factory : public JOmniFactory<MatchClusters_factory, NoConfig> {
 private:
   // Underlying algorithm
   std::unique_ptr<eicrecon::MatchClusters> m_algo;
@@ -34,6 +35,9 @@ private:
 
   // Declare outputs
   PodioOutput<edm4eic::ReconstructedParticle> m_rec_parts_output{this};
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  PodioOutput<edm4eic::MCRecoParticleLink> m_rec_links_output{this};
+#endif
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_rec_assocs_output{this};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
@@ -42,10 +46,9 @@ public:
   void Configure() {
     m_algo = std::make_unique<MatchClusters>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process(
@@ -58,6 +61,9 @@ public:
         },
         {
             m_rec_parts_output().get(),
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+            m_rec_links_output().get(),
+#endif
             m_rec_assocs_output().get(),
         });
   }

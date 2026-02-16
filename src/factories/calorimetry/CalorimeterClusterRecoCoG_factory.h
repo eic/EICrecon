@@ -1,11 +1,9 @@
-// Copyright 2023, Wouter Deconinck
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Nathan Brei, Sebouh Paul, Dmitry Kalinkin, Derek Anderson
 
 #pragma once
 
 #include <edm4eic/EDM4eicVersion.h>
-
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoG.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -22,13 +20,12 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::ProtoCluster> m_proto_input{this};
-#if EDM4EIC_VERSION_MAJOR >= 7
   PodioInput<edm4eic::MCRecoCalorimeterHitAssociation> m_mchitassocs_input{this};
-#else
-  PodioInput<edm4hep::SimCalorimeterHit> m_mchits_input{this};
-#endif
 
   PodioOutput<edm4eic::Cluster> m_cluster_output{this};
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  PodioOutput<edm4eic::MCRecoClusterParticleLink> m_links_output{this};
+#endif
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_output{this};
 
   ParameterRef<std::string> m_energyWeight{this, "energyWeight", config().energyWeight};
@@ -50,15 +47,12 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-#if EDM4EIC_VERSION_MAJOR >= 7
-    m_algo->process({m_proto_input(), m_mchitassocs_input()},
-#else
-    m_algo->process({m_proto_input(), m_mchits_input()},
+    m_algo->process({m_proto_input(), m_mchitassocs_input()}, {m_cluster_output().get(),
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                               m_links_output().get(),
 #endif
-                    {m_cluster_output().get(), m_assoc_output().get()});
+                                                               m_assoc_output().get()});
   }
 };
 

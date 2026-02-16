@@ -1,22 +1,22 @@
-// Copyright 2022, David Lawrence
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2022 - 2025 Sylvester Joosten, Chao, Chao Peng, Whitney Armstrong, David Lawrence, Dhevan Gangadharan, Nathan Brei,, Wouter Deconinck, Dmitry Kalinkin, Derek Anderson
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <cmath>
 #include <edm4eic/EDM4eicVersion.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <cmath>
 #include <string>
+#include <variant>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
+#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 #include "factories/calorimetry/CalorimeterHitDigi_factory.h"
 #include "factories/calorimetry/CalorimeterHitReco_factory.h"
 #include "factories/calorimetry/CalorimeterIslandCluster_factory.h"
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
-#include "factories/calorimetry/CalorimeterClusterShape_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -26,12 +26,12 @@ void InitPlugin(JApplication* app) {
   InitJANAPlugin(app);
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalLumiSpecRawHits", {"EcalLumiSpecHits"},
-#if EDM4EIC_VERSION_MAJOR >= 7
-      {"EcalLumiSpecRawHits", "EcalLumiSpecRawHitAssociations"},
-#else
-      {"EcalLumiSpecRawHits"},
+      "EcalLumiSpecRawHits", {"EventHeader", "EcalLumiSpecHits"},
+      {"EcalLumiSpecRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalLumiSpecRawHitLinks",
 #endif
+       "EcalLumiSpecRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV}, // flat 2%
           .tRes          = 0.0 * dd4hep::ns,
@@ -94,15 +94,13 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalLumiSpecClustersWithoutShapes",
       {
-        "EcalLumiSpecIslandProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalLumiSpecRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "EcalLumiSpecHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+          "EcalLumiSpecIslandProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalLumiSpecRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
+      {"EcalLumiSpecClustersWithoutShapes",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalLumiSpecClusterLinksWithoutShapes",
 #endif
-      {"EcalLumiSpecClustersWithoutShapes",             // edm4eic::Cluster
        "EcalLumiSpecClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -110,21 +108,23 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalLumiSpecClusters",
       {"EcalLumiSpecClustersWithoutShapes", "EcalLumiSpecClusterAssociationsWithoutShapes"},
-      {"EcalLumiSpecClusters", "EcalLumiSpecClusterAssociations"},
+      {"EcalLumiSpecClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalLumiSpecClusterLinks",
+#endif
+       "EcalLumiSpecClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalLumiSpecTruthClustersWithoutShapes",
       {
-        "EcalLumiSpecTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_VERSION_MAJOR >= 7
-            "EcalLumiSpecRawHitAssociations"
-      }, // edm4eic::MCRecoCalorimeterHitAssociationCollection
-#else
-            "EcalLumiSpecHits"
-      }, // edm4hep::SimCalorimeterHitCollection
+          "EcalLumiSpecTruthProtoClusters", // edm4eic::ProtoClusterCollection
+          "EcalLumiSpecRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
+      {"EcalLumiSpecTruthClustersWithoutShapes",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalLumiSpecTruthClusterLinksWithoutShapes",
 #endif
-      {"EcalLumiSpecTruthClustersWithoutShapes",             // edm4eic::Cluster
        "EcalLumiSpecTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
@@ -133,7 +133,11 @@ void InitPlugin(JApplication* app) {
       "EcalLumiSpecTruthClusters",
       {"EcalLumiSpecTruthClustersWithoutShapes",
        "EcalLumiSpecTruthClusterAssociationsWithoutShapes"},
-      {"EcalLumiSpecTruthClusters", "EcalLumiSpecTruthClusterAssociations"},
+      {"EcalLumiSpecTruthClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalLumiSpecTruthClusterLinks",
+#endif
+       "EcalLumiSpecTruthClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 4.6}, app));
 }
 }

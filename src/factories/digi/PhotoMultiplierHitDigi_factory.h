@@ -5,6 +5,7 @@
 
 #include <JANA/JEvent.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <memory>
 #include <string>
@@ -33,13 +34,16 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
+  PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
   PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input{this};
   PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output{this};
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  PodioOutput<edm4eic::MCRecoTrackerHitLink> m_links_output{this};
+#endif
   PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_raw_assocs_output{this};
 
   ParameterRef<std::string> m_detectorName{this, "detectorName", config().detectorName, ""};
   ParameterRef<std::string> m_readoutClass{this, "readoutClass", config().readoutClass, ""};
-  ParameterRef<unsigned long> m_seed{this, "seed", config().seed, "random number generator seed"};
   ParameterRef<double> m_hitTimeWindow{this, "hitTimeWindow", config().hitTimeWindow, ""};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().timeResolution, ""};
   ParameterRef<double> m_speMean{this, "speMean", config().speMean, ""};
@@ -65,9 +69,7 @@ public:
 
     // Initialize richgeo ReadoutGeo and set random CellID visitor lambda (if a RICH)
     if (GetPluginName() == "DRICH" || GetPluginName() == "PFRICH") {
-      m_RichGeoSvc()
-          .GetReadoutGeo(config().detectorName, config().readoutClass)
-          ->SetSeed(config().seed);
+      m_RichGeoSvc().GetReadoutGeo(config().detectorName, config().readoutClass);
       m_algo->SetVisitRngCellIDs(
           [this](std::function<void(PhotoMultiplierHitDigi::CellIDType)> lambda, float p) {
             m_RichGeoSvc()
@@ -86,10 +88,12 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_sim_hits_input()}, {m_raw_hits_output().get(), m_raw_assocs_output().get()});
+    m_algo->process({m_event_headers_input(), m_sim_hits_input()}, {m_raw_hits_output().get(),
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                    m_links_output().get(),
+#endif
+                                                                    m_raw_assocs_output().get()});
   }
 };
 

@@ -7,10 +7,20 @@
 #include <Acts/Geometry/TrackingVolume.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/Material/IMaterialDecorator.hpp>
+#include <fmt/format.h>
+#if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
+#include <ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>
+#include <ActsPlugins/DD4hep/DD4hepDetectorElement.hpp>
+#include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
+#include <ActsPlugins/Json/JsonMaterialDecorator.hpp>
+#include <ActsPlugins/Json/MaterialMapJsonConverter.hpp>
+#else
 #include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 #include <Acts/Plugins/DD4hep/DD4hepDetectorElement.hpp>
+#include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
 #include <Acts/Plugins/Json/JsonMaterialDecorator.hpp>
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
+#endif
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/BinningType.hpp>
 #include <Acts/Utilities/Result.hpp>
@@ -19,17 +29,16 @@
 #include <Acts/Visualization/PlyVisualization3D.hpp>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/VolumeManager.h>
-#include <JANA/JException.h>
 #include <TGeoManager.h>
-#include <fmt/core.h>
 #include <fmt/ostream.h>
 #include <spdlog/common.h>
 #include <exception>
+#include <filesystem>
+#include <functional>
 #include <initializer_list>
 #include <type_traits>
 
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
 // Formatter for Eigen matrices
@@ -40,6 +49,21 @@ template <typename T>
 struct fmt::formatter<T, std::enable_if_t<std::is_base_of_v<Eigen::MatrixBase<T>, T>, char>>
     : fmt::ostream_formatter {};
 #endif // FMT_VERSION >= 90000
+
+// Ensure ActsPlugins namespace is used when present
+#if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
+// Acts_MAJOR_VERSION >= 44
+using DD4hepDetectorElement = ActsPlugins::DD4hepDetectorElement;
+using ActsPlugins::convertDD4hepDetector;
+using ActsPlugins::DD4hepFieldAdapter;
+using ActsPlugins::sortDetElementsByID;
+#else
+// Acts_MAJOR_VERSION < 44
+using DD4hepDetectorElement = Acts::DD4hepDetectorElement;
+using Acts::convertDD4hepDetector;
+using Acts::DD4hepFieldAdapter;
+using Acts::sortDetElementsByID;
+#endif
 
 void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::string material_file,
                                       std::shared_ptr<spdlog::logger> log,
@@ -76,8 +100,13 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
   class ConvertDD4hepDetectorGeometryIdentifierHook : public Acts::GeometryIdentifierHook {
     Acts::GeometryIdentifier decorateIdentifier(Acts::GeometryIdentifier identifier,
                                                 const Acts::Surface& surface) const override {
+#if Acts_VERSION_MAJOR >= 45
+      const auto* placement          = surface.surfacePlacement();
+      const auto* dd4hep_det_element = dynamic_cast<const DD4hepDetectorElement*>(placement);
+#else
       const auto* dd4hep_det_element =
-          dynamic_cast<const Acts::DD4hepDetectorElement*>(surface.associatedDetectorElement());
+          dynamic_cast<const DD4hepDetectorElement*>(surface.associatedDetectorElement());
+#endif
       if (dd4hep_det_element == nullptr) {
         return identifier;
       }
@@ -100,18 +129,17 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
   double layerEnvelopeR        = Acts::UnitConstants::mm;
   double layerEnvelopeZ        = Acts::UnitConstants::mm;
   double defaultLayerThickness = Acts::UnitConstants::fm;
-  using Acts::sortDetElementsByID;
 
   try {
-    m_trackingGeo = Acts::convertDD4hepDetector(m_dd4hepDetector->world(), *logger, bTypePhi,
-                                                bTypeR, bTypeZ, layerEnvelopeR, layerEnvelopeZ,
-                                                defaultLayerThickness, sortDetElementsByID,
-                                                m_trackingGeoCtx, materialDeco, geometryIdHook);
+    m_trackingGeo =
+        convertDD4hepDetector(m_dd4hepDetector->world(), *logger, bTypePhi, bTypeR, bTypeZ,
+                              layerEnvelopeR, layerEnvelopeZ, defaultLayerThickness,
+                              sortDetElementsByID, m_trackingGeoCtx, materialDeco, geometryIdHook);
   } catch (std::exception& ex) {
     m_init_log->error("Error during DD4Hep -> ACTS geometry conversion: {}", ex.what());
     m_init_log->info("Set parameter acts::InitLogLevel=trace to see conversion info and possibly "
                      "identify failing geometry");
-    throw JException(ex.what());
+    throw;
   }
 
   m_init_log->info("DD4Hep geometry converted!");
@@ -143,8 +171,13 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
         m_init_log->info("no surface??? ");
         return;
       }
+#if Acts_VERSION_MAJOR >= 45
+      const auto* placement   = surface->surfacePlacement();
+      const auto* det_element = dynamic_cast<const DD4hepDetectorElement*>(placement);
+#else
       const auto* det_element =
-          dynamic_cast<const Acts::DD4hepDetectorElement*>(surface->associatedDetectorElement());
+          dynamic_cast<const DD4hepDetectorElement*>(surface->associatedDetectorElement());
+#endif
 
       if (det_element == nullptr) {
         m_init_log->error("invalid det_element!!! det_element == nullptr ");
@@ -171,9 +204,8 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
 
   // Load ACTS magnetic field
   m_init_log->info("Loading magnetic field...");
-  m_magneticField = std::make_shared<const eicrecon::BField::DD4hepBField>(m_dd4hepDetector);
-  Acts::MagneticFieldContext m_fieldctx{eicrecon::BField::BFieldVariant(m_magneticField)};
-  auto bCache = m_magneticField->makeCache(m_fieldctx);
+  m_magneticField = std::make_shared<DD4hepFieldAdapter>(m_dd4hepDetector->field());
+  auto bCache     = m_magneticField->makeCache(Acts::MagneticFieldContext{});
   for (int z : {0, 500, 1000, 1500, 2000, 3000, 4000}) {
     auto b = m_magneticField->getField({0.0, 0.0, double(z)}, bCache).value();
     m_init_log->debug("B(z = {:>5} [mm]) = {} T", z, b.transpose() / Acts::UnitConstants::T);

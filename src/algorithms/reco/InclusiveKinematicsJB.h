@@ -11,22 +11,25 @@
 #include <string>
 #include <string_view>
 
-#include "algorithms/interfaces/ParticleSvc.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
 using InclusiveKinematicsJBAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
+    algorithms::Input<edm4hep::MCParticleCollection, edm4hep::MCParticleCollection,
+                      edm4eic::ReconstructedParticleCollection,
                       edm4eic::HadronicFinalStateCollection>,
     algorithms::Output<edm4eic::InclusiveKinematicsCollection>>;
 
-class InclusiveKinematicsJB : public InclusiveKinematicsJBAlgorithm {
+class InclusiveKinematicsJB : public InclusiveKinematicsJBAlgorithm,
+                              public WithPodConfig<NoConfig> {
 
 public:
   InclusiveKinematicsJB(std::string_view name)
       : InclusiveKinematicsJBAlgorithm{
             name,
-            {"MCParticles", "scatteredElectron", "hadronicFinalState"},
+            {"MCBeamElectrons", "MCBeamProtons", "scatteredElectron", "hadronicFinalState"},
             {"inclusiveKinematics"},
             "Determine inclusive kinematics using Jacquet-Blondel method."} {}
 

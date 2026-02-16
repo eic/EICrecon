@@ -16,8 +16,10 @@
 #include <cmath>
 #include <gsl/pointers>
 #include <memory> // for allocator, unique_ptr, make_unique, shared_ptr, __shared_ptr_access
+#include <string>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 #include "algorithms/digi/EICROCDigitization.h"
 #include "algorithms/digi/EICROCDigitizationConfig.h"

@@ -6,7 +6,6 @@
     * [Run DD4Hep simulation](howto/run_dd4hep_simulation.md)
     * [Use docker](howto/use_docker.md)
     * [Use singularity](howto/use_singularity.md)
-    * [Make Plugin](howto/make_plugin.md)
     * [Add Factory](howto/add_factory.md)
     * [Visualize Callgraph](howto/visualize_callgraph.md)
 * Design
@@ -23,9 +22,8 @@
 * Tutorials
     * [Introduction](tutorial/01-introduction.md)
     * [Work environment](tutorial/02-work-environment.md)
-    * [End user plugin](tutorial/03-end-user-plugin.md)
-    * [Factory](tutorial/04-factory.md)
-    * [Contributing](tutorial/05-contributing.md)
+    * [Factory](tutorial/03-factory.md)
+    * [Contributing](tutorial/04-contributing.md)
 * Misc
     * [References](misc/references.md)
 * Flags

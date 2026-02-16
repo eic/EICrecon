@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 
@@ -38,8 +39,6 @@ public:
     m_algo->applyConfig(config());
     m_algo->init();
   }
-
-  void ChangeRun(int32_t /* run_number */) {}
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_in_pulses()}, {m_out_pulses().get()});

@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2025 Christopher Dilks, Nilanga Wickramaarachchi, Dmitry Kalinkin
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -21,8 +24,6 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   PhotoMultiplierHitDigiConfig digi_cfg;
-  digi_cfg.seed = 5;                   // FIXME: set to 0 for a 'unique' seed, but
-                                       // that seems to delay the RNG from actually randomizing
   digi_cfg.hitTimeWindow   = 20.0;     // [ns]
   digi_cfg.timeResolution  = 1 / 16.0; // [ns]
   digi_cfg.speMean         = 80.0;
@@ -37,6 +38,12 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-      "DIRCRawHits", {"DIRCBarHits"}, {"DIRCRawHits", "DIRCRawHitsAssociations"}, digi_cfg, app));
+      "DIRCRawHits", {"EventHeader", "DIRCBarHits"},
+      {"DIRCRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "DIRCRawHitsLinks",
+#endif
+       "DIRCRawHitsAssociations"},
+      digi_cfg, app));
 }
 }

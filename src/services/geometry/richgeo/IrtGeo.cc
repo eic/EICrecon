@@ -10,11 +10,13 @@
 #include <TGDMLMatrix.h>
 #include <TString.h>
 #include <TVector3.h>
+#include <fmt/core.h>
+#include <fmt/format.h>
 #include <cmath>
 #include <cstdint>
-#include <fmt/core.h>
 #include <functional>
 #include <map>
+#include <numbers>
 #include <utility>
 #include <vector>
 
@@ -65,7 +67,7 @@ void richgeo::IrtGeo::SetReadoutIDToPositionLambda() {
         auto pixel_surface_centroid = pixel_volume_centroid + sensor_obj.surface_offset;
         // cross check: make sure pixel and sensor surface centroids are close enough
         auto dist = sqrt((pixel_surface_centroid - sensor_obj.surface_centroid).Mag2());
-        if (dist > sensor_obj.size / sqrt(2)) {
+        if (dist > sensor_obj.size / std::numbers::sqrt2) {
           m_log->warn("dist(pixel,sensor) is too large: {} mm", dist);
         }
         return TVector3(pixel_surface_centroid.x(), pixel_surface_centroid.y(),

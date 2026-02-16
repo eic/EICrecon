@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2022 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
+// Copyright (C) 2022 - 2025 Whitney Armstrong, Sylvester Joosten, Wouter Deconinck, Dmitry Romanov
 
 #include "TrackerHitReconstruction.h"
 
+#include <DD4hep/Objects.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <algorithms/logger.h>
 #include <edm4eic/CovDiag3f.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
-#include <spdlog/common.h>
 #include <cstddef>
+#include <exception>
 #include <iterator>
 #include <vector>
 
@@ -28,35 +28,33 @@ namespace {
   }
 } // namespace
 
-void TrackerHitReconstruction::init(const dd4hep::rec::CellIDPositionConverter* converter,
-                                    std::shared_ptr<spdlog::logger>& logger) {
-
-  m_log = logger;
-
-  m_converter = converter;
-}
-
-std::unique_ptr<edm4eic::TrackerHitCollection>
-TrackerHitReconstruction::process(const edm4eic::RawTrackerHitCollection& raw_hits) {
+void TrackerHitReconstruction::process(const Input& input, const Output& output) const {
   using dd4hep::mm;
 
-  auto rec_hits{std::make_unique<edm4eic::TrackerHitCollection>()};
+  const auto [raw_hits] = input;
+  auto [rec_hits]       = output;
 
-  for (const auto& raw_hit : raw_hits) {
+  for (const auto& raw_hit : *raw_hits) {
 
     auto id = raw_hit.getCellID();
 
     // Get position and dimension
-    auto pos = m_converter->position(id);
-    auto dim = m_converter->cellDimensions(id);
+    dd4hep::Position pos;
+    std::vector<double> dim;
+    try {
+      pos = m_converter->position(id);
+      dim = m_converter->cellDimensions(id);
+    } catch (const std::exception& e) {
+      error("Failed to get position and dimension for cell ID {:x}: {}", id, e.what());
+      continue; // Skip this hit and continue with the next one
+    }
 
     // >oO trace
-    if (m_log->level() == spdlog::level::trace) {
-      m_log->trace("position x={:.2f} y={:.2f} z={:.2f} [mm]: ", pos.x() / mm, pos.y() / mm,
-                   pos.z() / mm);
-      m_log->trace("dimension size: {}", dim.size());
+    if (level() == algorithms::LogLevel::kTrace) {
+      trace("position x={:.2f} y={:.2f} z={:.2f} [mm]: ", pos.x() / mm, pos.y() / mm, pos.z() / mm);
+      trace("dimension size: {}", dim.size());
       for (std::size_t j = 0; j < std::size(dim); ++j) {
-        m_log->trace(" - dimension {:<5} size: {:.2}", j, dim[j]);
+        trace(" - dimension {:<5} size: {:.2}", j, dim[j]);
       }
     }
 
@@ -69,26 +67,19 @@ TrackerHitReconstruction::process(const edm4eic::RawTrackerHitCollection& raw_hi
     //      - XYZ segmentation: xx -> sigma_x, yy-> sigma_y, zz -> sigma_z, tt -> 0
     //    This is properly in line with how we get the local coordinates for the hit
     //    in the TrackerSourceLinker.
-#if EDM4EIC_VERSION_MAJOR >= 7
-    auto rec_hit =
-#endif
-        rec_hits->create(raw_hit.getCellID(), // Raw DD4hep cell ID
-                         edm4hep::Vector3f{static_cast<float>(pos.x() / mm),
-                                           static_cast<float>(pos.y() / mm),
-                                           static_cast<float>(pos.z() / mm)}, // mm
-                         edm4eic::CovDiag3f{get_variance(dim[0] / mm),
-                                            get_variance(dim[1] / mm), // variance (see note above)
-                                            std::size(dim) > 2 ? get_variance(dim[2] / mm) : 0.},
-                         static_cast<float>((double)(raw_hit.getTimeStamp()) / 1000.0), // ns
-                         m_cfg.timeResolution,                                          // in ns
-                         static_cast<float>(raw_hit.getCharge() / 1.0e6), // Collected energy (GeV)
-                         0.0F);                                           // Error on the energy
-#if EDM4EIC_VERSION_MAJOR >= 7
+    auto rec_hit = rec_hits->create(
+        raw_hit.getCellID(), // Raw DD4hep cell ID
+        edm4hep::Vector3f{static_cast<float>(pos.x() / mm), static_cast<float>(pos.y() / mm),
+                          static_cast<float>(pos.z() / mm)}, // mm
+        edm4eic::CovDiag3f{get_variance(dim[0] / mm),
+                           get_variance(dim[1] / mm), // variance (see note above)
+                           std::size(dim) > 2 ? get_variance(dim[2] / mm) : 0.},
+        static_cast<float>((double)(raw_hit.getTimeStamp()) / 1000.0), // ns
+        m_cfg.timeResolution,                                          // in ns
+        static_cast<float>(raw_hit.getCharge() / 1.0e6),               // Collected energy (GeV)
+        0.0F);                                                         // Error on the energy
     rec_hit.setRawHit(raw_hit);
-#endif
   }
-
-  return rec_hits;
 }
 
 } // namespace eicrecon

@@ -1,6 +1,5 @@
 #pragma once
 
-#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <TDirectory.h>
@@ -9,9 +8,6 @@
 
 class TrackingTest_processor : public JEventProcessor {
 public:
-  explicit TrackingTest_processor(JApplication*);
-  ~TrackingTest_processor() override = default;
-
   //----------------------------
   // Init
   //

@@ -19,16 +19,20 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <TRandomGen.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <fmt/format.h> // IWYU pragma: keep
 #include <stdint.h>
 #include <cstddef>
 #include <functional>
 #include <gsl/pointers>
+#include <iterator>
+#include <random>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -37,14 +41,22 @@
 #include <vector>
 
 #include "PhotoMultiplierHitDigiConfig.h"
+#include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#endif
 
 namespace eicrecon {
 
-using PhotoMultiplierHitDigiAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-                          algorithms::Output<edm4eic::RawTrackerHitCollection,
-                                             edm4eic::MCRecoTrackerHitAssociationCollection>>;
+using PhotoMultiplierHitDigiAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4hep::EventHeaderCollection, edm4hep::SimTrackerHitCollection>,
+    algorithms::Output<edm4eic::RawTrackerHitCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       edm4eic::MCRecoTrackerHitLinkCollection,
+#endif
+                       edm4eic::MCRecoTrackerHitAssociationCollection>>;
 
 class PhotoMultiplierHitDigi : public PhotoMultiplierHitDigiAlgorithm,
                                public WithPodConfig<PhotoMultiplierHitDigiConfig> {
@@ -52,10 +64,15 @@ class PhotoMultiplierHitDigi : public PhotoMultiplierHitDigiAlgorithm,
 public:
   PhotoMultiplierHitDigi(std::string_view name)
       : PhotoMultiplierHitDigiAlgorithm{name,
-                                        {"inputHitCollection"},
-                                        {"outputRawHitCollection", "outputRawHitAssociations"},
+                                        {"eventHeaderCollection", "inputHitCollection"},
+                                        {"outputRawHitCollection",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                         "outputHitLinks",
+#endif
+                                         "outputRawHitAssociations"},
                                         "Digitize within ADC range, add pedestal, convert time "
-                                        "with smearing resolution."} {}
+                                        "with smearing resolution."} {
+  }
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -71,12 +88,6 @@ public:
     TimeType time;
     std::vector<std::size_t> sim_hit_indices;
   };
-
-  // random number generators
-  TRandomMixMax m_random;
-  std::function<double()> m_rngNorm;
-  std::function<double()> m_rngUni;
-  //Rndm::Numbers m_rngUni, m_rngNorm;
 
   // set `m_VisitAllRngPixels`, a visitor to run an action (type
   // `function<void(cellID)>`) on a selection of random CellIDs; must be
@@ -109,11 +120,14 @@ private:
   // add a hit to local `hit_groups` data structure
   void InsertHit(std::unordered_map<CellIDType, std::vector<HitData>>& hit_groups, CellIDType id,
                  double amp, TimeType time, std::size_t sim_hit_index,
+                 std::default_random_engine& generator, std::normal_distribution<double>& gaussian,
                  bool is_noise_hit = false) const;
 
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   const dd4hep::rec::CellIDPositionConverter* m_converter{
       algorithms::GeoSvc::instance().cellIDPositionConverter()};
+
+  const algorithms::UniqueIDGenSvc& m_uid = algorithms::UniqueIDGenSvc::instance();
 
   // std::default_random_engine generator; // TODO: need something more appropriate here
   // std::normal_distribution<double> m_normDist; // defaults to mean=0, sigma=1

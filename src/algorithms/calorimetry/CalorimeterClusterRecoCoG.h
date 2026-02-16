@@ -15,11 +15,7 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
-#if EDM4EIC_VERSION_MAJOR >= 7
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
-#else
-#include <edm4hep/SimCalorimeterHitCollection.h>
-#endif
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <algorithm>
@@ -34,6 +30,10 @@
 
 #include "CalorimeterClusterRecoCoGConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
+#endif
 
 static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) { return 1.0; }
 static double linearWeight(double E, double /*tE*/, double /*p*/, int /*type*/) { return E; }
@@ -56,32 +56,30 @@ using ClustersWithAssociations =
 
 using CalorimeterClusterRecoCoGAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ProtoClusterCollection,
-#if EDM4EIC_VERSION_MAJOR >= 7
-                      std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>
-#else
-                      std::optional<edm4hep::SimCalorimeterHitCollection>
-#endif
-                      >,
+                      std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>>,
     algorithms::Output<edm4eic::ClusterCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       std::optional<edm4eic::MCRecoClusterParticleLinkCollection>,
+#endif
                        std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>>;
 
 class CalorimeterClusterRecoCoG : public CalorimeterClusterRecoCoGAlgorithm,
                                   public WithPodConfig<CalorimeterClusterRecoCoGConfig> {
 
 public:
-  CalorimeterClusterRecoCoG(std::string_view name) : CalorimeterClusterRecoCoGAlgorithm {
-    name,
-#if EDM4EIC_VERSION_MAJOR >= 7
-        {"inputProtoClusterCollection", "mcRawHitAssocations"},
-#else
-        {"inputProtoClusterCollection", "mcHits"},
+  CalorimeterClusterRecoCoG(std::string_view name)
+      : CalorimeterClusterRecoCoGAlgorithm{
+            name,
+            {"inputProtoClusterCollection", "mcRawHitAssocations"},
+            {"outputClusterCollection",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+             "outputLinks",
 #endif
-        {"outputClusterCollection", "outputAssociations"},
-        "Reconstruct a cluster with the Center of Gravity method. For "
-        "simulation results it optionally creates a Cluster <-> MCParticle "
-        "association provided both optional arguments are provided."
+             "outputAssociations"},
+            "Reconstruct a cluster with the Center of Gravity method. For "
+            "simulation results it optionally creates a Cluster <-> MCParticle "
+            "association provided both optional arguments are provided."} {
   }
-  {}
 
 public:
   void init() final;
@@ -93,14 +91,12 @@ private:
 
 private:
   std::optional<edm4eic::MutableCluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
-#if EDM4EIC_VERSION_MAJOR >= 7
   void associate(const edm4eic::Cluster& cl,
                  const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
-                 edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
-#else
-  void associate(const edm4eic::Cluster& cl, const edm4hep::SimCalorimeterHitCollection* mchits,
-                 edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                 edm4eic::MCRecoClusterParticleLinkCollection* links,
 #endif
+                 edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
   static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
 };
 

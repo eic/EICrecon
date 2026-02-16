@@ -3,8 +3,9 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Trajectories.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <memory>
 #include <string>
@@ -16,14 +17,15 @@
 
 namespace eicrecon {
 
-class TrackProjector_factory : public JOmniFactory<TrackProjector_factory> {
+class TrackProjector_factory : public JOmniFactory<TrackProjector_factory, NoConfig> {
 
 private:
   using AlgoT = eicrecon::TrackProjector;
 
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<ActsExamples::Trajectories> m_acts_trajectories_input{this};
+  Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states_input{this};
+  Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
   PodioInput<edm4eic::Track> m_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_segments_output{this};
 
@@ -33,19 +35,23 @@ public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(this->GetPrefix());
     m_algo->level((algorithms::LogLevel)logger()->level());
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    std::vector<gsl::not_null<const ActsExamples::Trajectories*>> acts_trajectories_input;
-    for (auto acts_traj : m_acts_trajectories_input()) {
-      acts_trajectories_input.push_back(acts_traj);
-    }
+    auto track_states_vec = m_acts_track_states_input();
+    auto tracks_vec       = m_acts_tracks_input();
+    assert(!track_states_vec.empty() && "ConstVectorMultiTrajectory vector should not be empty");
+    assert(track_states_vec.front() != nullptr &&
+           "ConstVectorMultiTrajectory pointer should not be null");
+    assert(!tracks_vec.empty() && "ConstVectorTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
+
     m_algo->process(
         {
-            acts_trajectories_input,
+            track_states_vec.front(),
+            tracks_vec.front(),
             m_tracks_input(),
         },
         {

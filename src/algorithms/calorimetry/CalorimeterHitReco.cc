@@ -16,7 +16,6 @@
 #include <DD4hep/Shapes.h>
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/Volumes.h>
-#include <DD4hep/config.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
 #include <DDSegmentation/MultiSegmentation.h>
@@ -25,14 +24,15 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
-#include <edm4eic/EDM4eicVersion.h>
+#include <edm4hep/Vector3f.h>
 #include <fmt/core.h>
 #include <fmt/format.h>
 #include <algorithm>
 #include <cctype>
 #include <gsl/pointers>
+#include <iterator>
 #include <map>
-#include <ostream>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <utility>
@@ -293,7 +293,7 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
       // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
       cdim =
           m_converter->findContext(cellID)->volumePlacement().volume().boundingBox().dimensions();
-      std::transform(cdim.begin(), cdim.end(), cdim.begin(), [](auto&& PH1) {
+      std::ranges::transform(cdim, cdim.begin(), [](auto&& PH1) {
         return std::multiplies<double>()(std::forward<decltype(PH1)>(PH1), 2);
       });
       debug("Using bounding box for cell dimensions: {}", fmt::join(cdim, ", "));
@@ -308,14 +308,9 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
     const decltype(edm4eic::CalorimeterHitData::local) local_position(
         pos.x() / dd4hep::mm, pos.y() / dd4hep::mm, pos.z() / dd4hep::mm);
 
-#if EDM4EIC_VERSION_MAJOR >= 7
-    auto recohit =
-#endif
-        recohits->create(rh.getCellID(), energy, 0, time, 0, position, dimension, sid, lid,
-                         local_position);
-#if EDM4EIC_VERSION_MAJOR >= 7
+    auto recohit = recohits->create(rh.getCellID(), energy, 0, time, 0, position, dimension, sid,
+                                    lid, local_position);
     recohit.setRawHit(rh);
-#endif
   }
 }
 

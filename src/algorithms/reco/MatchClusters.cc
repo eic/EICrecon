@@ -7,17 +7,22 @@
 
 #include <algorithms/logger.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <iterator>
 #include <map>
+#include <memory>
+#include <utility>
 
 #include "MatchClusters.h"
 
@@ -27,7 +32,11 @@ void MatchClusters::process(const MatchClusters::Input& input,
                             const MatchClusters::Output& output) const {
 
   const auto [mcparticles, inparts, inpartsassoc, clusters, clustersassoc] = input;
-  auto [outparts, outpartsassoc]                                           = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [outparts, outlinks, outpartsassoc] = output;
+#else
+  auto [outparts, outpartsassoc] = output;
+#endif
 
   debug("Processing cluster info for new event");
 
@@ -73,9 +82,13 @@ void MatchClusters::process(const MatchClusters::Input& input,
     }
 
     // create truth associations
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    auto link = outlinks->create();
+    link.setWeight(1.0);
+    link.setFrom(outpart);
+    link.setTo((*mcparticles)[mcID]);
+#endif
     auto assoc = outpartsassoc->create();
-    assoc.setRecID(outpart.getObjectID().index);
-    assoc.setSimID(mcID);
     assoc.setWeight(1.0);
     assoc.setRec(outpart);
     assoc.setSim((*mcparticles)[mcID]);
@@ -109,9 +122,13 @@ void MatchClusters::process(const MatchClusters::Input& input,
     outparts->push_back(outpart);
 
     // Create truth associations
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    auto link = outlinks->create();
+    link.setWeight(1.0);
+    link.setFrom(outpart);
+    link.setTo((*mcparticles)[mcID]);
+#endif
     auto assoc = outpartsassoc->create();
-    assoc.setRecID(outpart.getObjectID().index);
-    assoc.setSimID(mcID);
     assoc.setWeight(1.0);
     assoc.setRec(outpart);
     assoc.setSim((*mcparticles)[mcID]);
@@ -119,43 +136,60 @@ void MatchClusters::process(const MatchClusters::Input& input,
 }
 
 // get a map of mcID --> cluster
-// input: clusters --> all clusters
+// For each cluster, pick the best associated MC particle by association weight.
+// Returns a map keyed by mcID and valued with the selected cluster.
 std::map<int, edm4eic::Cluster> MatchClusters::indexedClusters(
     const edm4eic::ClusterCollection* clusters,
     const edm4eic::MCRecoClusterParticleAssociationCollection* associations) const {
 
-  std::map<int, edm4eic::Cluster> matched = {};
+  // temporary map: mcID -> (cluster, weight) so we can choose the cluster with highest weight per mcID
+  std::map<int, std::pair<edm4eic::Cluster, float>> bestForMc;
 
-  // loop over clusters
+  // loop over clusters and pick their best MC association by weight
   for (const auto cluster : *clusters) {
 
-    int mcID = -1;
+    int bestMcID     = -1;
+    float bestWeight = -1.F;
 
-    // find associated particle
+    // find best associated MC particle for this cluster (largest association weight)
     for (const auto assoc : *associations) {
       if (assoc.getRec() == cluster) {
-        mcID = assoc.getSim().getObjectID().index;
-        break;
+        const int candMcID = assoc.getSim().getObjectID().index;
+        const float w      = assoc.getWeight();
+        if (w > bestWeight) {
+          bestWeight = w;
+          bestMcID   = candMcID;
+        }
       }
     }
 
-    trace(" --> Found cluster with mcID {} and energy {}", mcID, cluster.getEnergy());
+    trace(" --> Found cluster with best mcID {} weight {} and energy {}", bestMcID, bestWeight,
+          cluster.getEnergy());
 
-    if (mcID < 0) {
+    if (bestMcID < 0) {
       trace("   --> WARNING: no valid MC truth link found, skipping cluster...");
       continue;
     }
 
-    const bool duplicate = matched.contains(mcID);
-    if (duplicate) {
-      trace("   --> WARNING: this is a duplicate mcID, keeping the higher energy cluster");
-
-      if (cluster.getEnergy() < matched[mcID].getEnergy()) {
-        continue;
+    // For this mcID, keep the cluster with the highest association weight (tie-break by energy).
+    auto it = bestForMc.find(bestMcID);
+    if (it == bestForMc.end()) {
+      bestForMc.emplace(bestMcID, std::make_pair(cluster, bestWeight));
+    } else {
+      const float existingWeight = it->second.second;
+      if (bestWeight > existingWeight ||
+          (bestWeight == existingWeight && cluster.getEnergy() > it->second.first.getEnergy())) {
+        it->second = std::make_pair(cluster, bestWeight);
       }
     }
-    matched[mcID] = cluster;
   }
+
+  // Convert to the old API: map<int, edm4eic::Cluster>
+  std::map<int, edm4eic::Cluster> matched;
+  for (const auto& kv : bestForMc) {
+    matched.emplace(kv.first, kv.second.first);
+  }
+
   return matched;
 }
 

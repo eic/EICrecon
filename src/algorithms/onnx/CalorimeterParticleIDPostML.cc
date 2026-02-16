@@ -2,11 +2,13 @@
 // Copyright (C) 2024 Dmitry Kalinkin
 
 #include <edm4eic/EDM4eicVersion.h>
-
-#if EDM4EIC_VERSION_MAJOR >= 8
+#include <edm4hep/MCParticle.h>
+#include <fmt/format.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cstddef>
-#include <fmt/core.h>
 #include <gsl/pointers>
+#include <memory>
 #include <stdexcept>
 
 #include "CalorimeterParticleIDPostML.h"
@@ -21,7 +23,11 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
                                           const CalorimeterParticleIDPostML::Output& output) const {
 
   const auto [in_clusters, in_assocs, prediction_tensors] = input;
-  auto [out_clusters, out_assocs, out_particle_ids]       = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [out_clusters, out_links, out_assocs, out_particle_ids] = output;
+#else
+  auto [out_clusters, out_assocs, out_particle_ids] = output;
+#endif
 
   if (prediction_tensors->size() != 1) {
     error("Expected to find a single tensor, found {}", prediction_tensors->size());
@@ -82,6 +88,12 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
     // propagate associations
     for (auto in_assoc : *in_assocs) {
       if (in_assoc.getRec() == in_cluster) {
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+        auto out_link = out_links->create();
+        out_link.setFrom(out_cluster);
+        out_link.setTo(in_assoc.getSim());
+        out_link.setWeight(in_assoc.getWeight());
+#endif
         auto out_assoc = in_assoc.clone();
         out_assoc.setRec(out_cluster);
         out_assocs->push_back(out_assoc);
@@ -91,4 +103,3 @@ void CalorimeterParticleIDPostML::process(const CalorimeterParticleIDPostML::Inp
 }
 
 } // namespace eicrecon
-#endif

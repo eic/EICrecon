@@ -2,16 +2,21 @@
 // Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
 #include <algorithms/service.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <exception>
 #include <gsl/pointers>
+#include <memory>
+#include <random>
 #include <stdexcept>
+#include <vector>
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
@@ -50,8 +55,17 @@ void PIDLookup::init() {
 }
 
 void PIDLookup::process(const Input& input, const Output& output) const {
-  const auto [recoparts_in, partassocs_in]          = input;
+  const auto [headers, recoparts_in, partassocs_in] = input;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [recoparts_out, partlinks_out, partassocs_out, partids_out] = output;
+#else
   auto [recoparts_out, partassocs_out, partids_out] = output;
+#endif
+
+  // local random generator
+  auto seed = m_uid.getUniqueID(*headers, name());
+  std::default_random_engine generator(seed);
+  std::uniform_real_distribution<double> uniform;
 
   for (const auto& recopart_without_pid : *recoparts_in) {
     auto recopart = recopart_without_pid.clone();
@@ -63,6 +77,12 @@ void PIDLookup::process(const Input& input, const Output& output) const {
         if ((not best_assoc.isAvailable()) || (best_assoc.getWeight() < assoc_in.getWeight())) {
           best_assoc = assoc_in;
         }
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+        auto link_out = partlinks_out->create();
+        link_out.setFrom(recopart);
+        link_out.setTo(assoc_in.getSim());
+        link_out.setWeight(assoc_in.getWeight());
+#endif
         auto assoc_out = assoc_in.clone();
         assoc_out.setRec(recopart);
         partassocs_out->push_back(assoc_out);
@@ -92,7 +112,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
 
     if ((entry != nullptr) && ((entry->prob_electron != 0.) || (entry->prob_pion != 0.) ||
                                (entry->prob_kaon != 0.) || (entry->prob_proton != 0.))) {
-      double random_unit_interval = m_dist(m_gen);
+      double random_unit_interval = uniform(generator);
 
       trace("entry with e:pi:K:P={}:{}:{}:{}", entry->prob_electron, entry->prob_pion,
             entry->prob_kaon, entry->prob_proton);
@@ -142,6 +162,7 @@ void PIDLookup::process(const Input& input, const Output& output) const {
     if (identified_pdg != 0) {
       recopart.setPDG(std::copysign(identified_pdg, (identified_pdg == 11) ? -charge : charge));
       recopart.setMass(m_particleSvc.particle(identified_pdg).mass);
+      recopart.setEnergy(std::hypot(momentum, m_particleSvc.particle(identified_pdg).mass));
     }
 
     if (identified_pdg != 0) {

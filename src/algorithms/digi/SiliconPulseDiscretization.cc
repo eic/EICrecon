@@ -5,11 +5,13 @@
 //
 
 #include <DDRec/CellIDPositionConverter.h>
-#include <climits>
+#include <podio/RelationRange.h>
 #include <cmath>
 #include <gsl/pointers>
-#include <podio/RelationRange.h>
+#include <iterator>
 #include <unordered_map>
+#include <unordered_set>
+#include <utility>
 
 #include "SiliconPulseDiscretization.h"
 // use TGraph for interpolation
@@ -39,7 +41,13 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
   const auto [inPulses] = input;
   auto [outPulses]      = output;
 
-  std::unordered_map<dd4hep::rec::CellID, TGraph> Graph4Cells;
+  // sometimes the first hit arrives early, but the last hit arrive very late
+  // there is a lot of nothing in between
+  // If we loop through those time interval with nothing in it, the creation of outPulses will take forever
+  // Speeds things up by denoting which EICROCcycle contains pulse information
+  // And only focus on those cycles
+  std::unordered_map<dd4hep::rec::CellID, std::pair<TGraph, std::unordered_set<int>>>
+      graphAndCycle4Cells;
 
   for (const auto& pulse : *inPulses) {
 
@@ -49,43 +57,47 @@ void SiliconPulseDiscretization::process(const SiliconPulseDiscretization::Input
 
     // one TGraph per pulse
     // Interpolate the pulse with TGraph
-    auto& graph = Graph4Cells[cellID];
+    auto& graph        = graphAndCycle4Cells[cellID].first;
+    auto& activeCycles = graphAndCycle4Cells[cellID].second;
     for (unsigned int i = 0; i < pulse.getAmplitude().size(); i++) {
       auto currTime = time + i * interval;
+      // current EICROC cycle
+      int EICROCCycle = std::floor(currTime / m_cfg.EICROC_period);
+      activeCycles.insert(EICROCCycle);
       graph.SetPoint(graph.GetN(), currTime + m_cfg.global_offset, pulse.getAmplitude()[i]);
     }
   }
 
   // sort all pulses data points to avoid TGraph::Eval giving nan due to non-monotonic data
-  for (auto& [cellID, graph] : Graph4Cells) {
-    graph.Sort();
+  for (auto& [_, graphAndCycle] : graphAndCycle4Cells) {
+    graphAndCycle.first.Sort();
+    graphAndCycle.first.SetBit(TGraph::kIsSortedX);
   }
 
   // sum all digitized pulses
-  for (const auto& [cellID, graph] : Graph4Cells) {
-    double tMin = NAN;
-    double tMax = NAN;
-    double temp = NAN; // do not use
+  for (const auto& [cellID, graphAndCycle] : graphAndCycle4Cells) {
+    const auto& graph       = graphAndCycle.first;
+    const auto& activeCycle = graphAndCycle.second;
+    double tMin             = NAN;
+    double tMax             = NAN;
+    double temp             = NAN; // do not use
     graph.ComputeRange(tMin, temp, tMax, temp);
 
-    // time beings at an EICROC cycle
-    double currTime = std::floor(tMin / m_cfg.EICROC_period) * m_cfg.EICROC_period;
-    // ensure that the outPulse -> create is called in the first cycle
-    int iEICRocCycle = INT_MIN;
+    for (int curriEICRocCycle : activeCycle) {
+      // time beings at an EICROC cycle
+      double startTime = curriEICRocCycle * m_cfg.EICROC_period;
 
-    edm4hep::MutableRawTimeSeries outPulse;
-    for (; currTime <= tMax; currTime += m_cfg.local_period) {
-      // find current EICROC cycle NO to see if we arrive at the next cycle
-      int curriEICRocCycle = std::floor(currTime / m_cfg.EICROC_period);
-      if (curriEICRocCycle != iEICRocCycle) {
-        // new pulse for each EICROC cycle
-        iEICRocCycle = curriEICRocCycle;
-        outPulse     = outPulses->create();
-        outPulse.setCellID(cellID);
-        outPulse.setInterval(m_cfg.local_period);
-        outPulse.setTime(iEICRocCycle * m_cfg.EICROC_period);
+      auto outPulse = outPulses->create();
+      outPulse.setCellID(cellID);
+      outPulse.setInterval(m_cfg.local_period);
+      outPulse.setTime(startTime);
+
+      // stop at the next cycle
+      // NOLINTNEXTLINE(clang-analyzer-security.FloatLoopCounter, security.FloatLoopCounter)
+      for (double currTime = startTime; currTime < startTime + m_cfg.EICROC_period;
+           currTime += m_cfg.local_period) {
+        outPulse.addToAdcCounts(this->_interpolateOrZero(graph, currTime, tMin, tMax));
       }
-      outPulse.addToAdcCounts(this->_interpolateOrZero(graph, currTime, tMin, tMax));
     }
   }
 } // SiliconPulseDiscretization:process

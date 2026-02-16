@@ -3,18 +3,22 @@
 
 #include "MatchToRICHPID.h"
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <gsl/pointers>
 #include <map>
+#include <memory>
 #include <vector>
 
 #include "algorithms/pid/ConvertParticleID.h"
@@ -27,7 +31,11 @@ void MatchToRICHPID::init() {}
 void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
                              const MatchToRICHPID::Output& output) const {
   const auto [parts_in, assocs_in, drich_cherenkov_pid] = input;
-  auto [parts_out, assocs_out, pids]                    = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [parts_out, links_out, assocs_out, pids] = output;
+#else
+  auto [parts_out, assocs_out, pids] = output;
+#endif
 
   for (auto part_in : *parts_in) {
     auto part_out = part_in.clone();
@@ -41,6 +49,12 @@ void MatchToRICHPID::process(const MatchToRICHPID::Input& input,
 
     for (auto assoc_in : *assocs_in) {
       if (assoc_in.getRec() == part_in) {
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+        auto link_out = links_out->create();
+        link_out.setFrom(part_out);
+        link_out.setTo(assoc_in.getSim());
+        link_out.setWeight(assoc_in.getWeight());
+#endif
         auto assoc_out = assoc_in.clone();
         assoc_out.setRec(part_out);
         assocs_out->push_back(assoc_out);
@@ -111,7 +125,7 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
     auto match_is_close = std::abs(in_part_eta - in_track_eta) < m_cfg.etaTolerance &&
                           std::abs(in_part_phi - in_track_phi) < m_cfg.phiTolerance;
     if (match_is_close) {
-      prox_match_list.push_back(ProxMatch{match_dist, in_pid_idx});
+      prox_match_list.push_back(ProxMatch{.match_dist = match_dist, .pid_idx = in_pid_idx});
     }
 
     // logging
@@ -127,9 +141,8 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
   }
 
   // choose the closest matching CherenkovParticleID object corresponding to this input reconstructed particle
-  auto closest_prox_match =
-      *std::min_element(prox_match_list.begin(), prox_match_list.end(),
-                        [](ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; });
+  auto closest_prox_match = *std::ranges::min_element(
+      prox_match_list, [](ProxMatch a, ProxMatch b) { return a.match_dist < b.match_dist; });
   auto in_pid_matched = in_pids.at(closest_prox_match.pid_idx);
   trace("  => best match: match_dist = {:<5.4} at idx = {}", closest_prox_match.match_dist,
         closest_prox_match.pid_idx);
@@ -143,7 +156,7 @@ bool MatchToRICHPID::linkCherenkovPID(edm4eic::MutableReconstructedParticle& in_
 
   // relate matched ParticleID objects to output particle
   for (const auto& [out_pids_index, out_pids_id] : out_pid_index_map) {
-    const auto& out_pid = out_pids->at(out_pids_index);
+    const auto& out_pid = out_pids.at(out_pids_index);
     if (out_pid.getObjectID().index != static_cast<int>(out_pids_id)) { // sanity check
       error("indexing error in `edm4eic::ParticleID` collection");
       return false;

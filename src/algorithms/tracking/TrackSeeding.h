@@ -1,35 +1,52 @@
-// Created by Dmitry Romanov
-// Subject to the terms in the LICENSE file found in the top-level directory.
-//
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023  - 2025 Joe Osborn, Dmitry Romanov, Wouter Deconinck// Created by Dmitry Romanov
 
 #pragma once
 
 #if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/SpacePointContainer.hpp>
 #endif
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
+#if Acts_VERSION_MAJOR >= 37
+#include <Acts/EventData/Seed.hpp>
+#else
+#include <Acts/Seeding/Seed.hpp>
+#endif
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
+#include <Acts/Utilities/Holders.hpp>
 #if Acts_VERSION_MAJOR >= 37
 #include <ActsExamples/EventData/SpacePointContainer.hpp>
 #endif
+#include <algorithms/algorithm.h>
 #include <edm4eic/TrackParametersCollection.h>
+#include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
-#include <spdlog/logger.h>
+#include <cmath>
+#include <iterator>
 #include <memory>
+#include <optional>
+#include <string>
+#include <string_view>
 #include <tuple>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "OrthogonalTrackSeedingConfig.h"
 #include "SpacePoint.h"
+#include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
-class TrackSeeding : public eicrecon::WithPodConfig<eicrecon::OrthogonalTrackSeedingConfig> {
+
+using TrackSeedingAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::TrackerHitCollection>,
+    algorithms::Output<edm4eic::TrackSeedCollection, edm4eic::TrackParametersCollection>>;
+
+class TrackSeeding : public TrackSeedingAlgorithm,
+                     public WithPodConfig<OrthogonalTrackSeedingConfig> {
 public:
 #if Acts_VERSION_MAJOR >= 37
   using proxy_type = typename Acts::SpacePointContainer<
@@ -37,19 +54,18 @@ public:
       Acts::detail::RefHolder>::SpacePointProxyType;
 #endif
 
-  void init(std::shared_ptr<const ActsGeometryProvider> geo_svc,
-            std::shared_ptr<spdlog::logger> log);
-  std::unique_ptr<edm4eic::TrackParametersCollection>
-  produce(const edm4eic::TrackerHitCollection& trk_hits);
+  TrackSeeding(std::string_view name)
+      : TrackSeedingAlgorithm{name,
+                              {"inputTrackerHits"},
+                              {"outputTrackParameters"},
+                              "create track seeds from tracker hits"} {}
+
+  void init() final;
+  void process(const Input&, const Output&) const final;
 
 private:
-  void configure();
-
-  std::shared_ptr<spdlog::logger> m_log;
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
-
-  std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
-  Acts::MagneticFieldContext m_fieldctx;
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  const std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
 
   Acts::SeedFilterConfig m_seedFilterConfig;
   Acts::SeedFinderOptions m_seedFinderOptions;
@@ -65,7 +81,8 @@ private:
   static std::pair<float, float> findPCA(std::tuple<float, float, float>& circleParams);
   static std::vector<const eicrecon::SpacePoint*>
   getSpacePoints(const edm4eic::TrackerHitCollection& trk_hits);
-  std::unique_ptr<edm4eic::TrackParametersCollection> makeTrackParams(SeedContainer& seeds);
+  std::optional<edm4eic::MutableTrackParameters>
+  estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) const;
 
   static std::tuple<float, float, float> circleFit(std::vector<std::pair<float, float>>& positions);
   static std::tuple<float, float> lineFit(std::vector<std::pair<float, float>>& positions);

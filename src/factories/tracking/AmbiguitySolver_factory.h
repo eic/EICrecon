@@ -8,6 +8,7 @@
 #include "extensions/spdlog/SpdlogMixin.h"
 #include <ActsExamples/EventData/Track.hpp>
 #include <JANA/JEvent.h>
+#include <cassert>
 #include <memory>
 #include <string>
 #include <utility>
@@ -22,10 +23,10 @@ private:
   using AlgoT = eicrecon::AmbiguitySolver;
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
-  PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
-  Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output{this};
-  Output<ActsExamples::Trajectories> m_acts_trajectories_output{this};
+  Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states_input{this};
+  Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
+  Output<Acts::ConstVectorMultiTrajectory> m_acts_track_states_output{this};
+  Output<Acts::ConstVectorTrackContainer> m_acts_tracks_output{this};
 
   ParameterRef<std::uint32_t> m_maximumSharedHits{this, "maximumSharedHits",
                                                   config().maximum_shared_hits,
@@ -38,16 +39,24 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<AlgoT>();
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
-    m_algo->init(logger());
+    m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    std::tie(m_acts_tracks_output(), m_acts_trajectories_output()) =
-        m_algo->process(m_acts_tracks_input(), *m_measurements_input());
+    auto track_states_vec = m_acts_track_states_input();
+    auto tracks_vec       = m_acts_tracks_input();
+    assert(!track_states_vec.empty() && "ConstVectorMultiTrajectory vector should not be empty");
+    assert(track_states_vec.front() != nullptr &&
+           "ConstVectorMultiTrajectory pointer should not be null");
+    assert(!tracks_vec.empty() && "ConstVectorTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
+
+    m_algo->process(AlgoT::Input{track_states_vec.front(), tracks_vec.front()},
+                    AlgoT::Output{&m_acts_track_states_output().emplace_back(),
+                                  &m_acts_tracks_output().emplace_back()});
   }
 };
 

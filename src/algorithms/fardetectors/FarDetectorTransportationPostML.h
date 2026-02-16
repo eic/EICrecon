@@ -5,6 +5,9 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/TensorCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <mutex>
@@ -15,11 +18,21 @@
 #include "algorithms/fardetectors/FarDetectorTransportationPostMLConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoParticleLinkCollection.h>
+#endif
+
 namespace eicrecon {
 
 using FarDetectorTransportationPostMLAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::TensorCollection, std::optional<edm4hep::MCParticleCollection>>,
-    algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+    algorithms::Input<edm4eic::TensorCollection,
+                      std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
+                      std::optional<edm4hep::MCParticleCollection>>,
+    algorithms::Output<edm4eic::ReconstructedParticleCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       edm4eic::MCRecoParticleLinkCollection,
+#endif
+                       edm4eic::MCRecoParticleAssociationCollection>>;
 
 class FarDetectorTransportationPostML
     : public FarDetectorTransportationPostMLAlgorithm,
@@ -29,14 +42,21 @@ public:
   FarDetectorTransportationPostML(std::string_view name)
       : FarDetectorTransportationPostMLAlgorithm{
             name,
-            {"inputPredictionsTensor"},
-            {"outputParticles"},
-            "Convert ML output tensor into reconstructed electron"} {}
+            {"inputPredictionsTensor", "trackAssociations", "beamElectrons"},
+            {"outputParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+             "outputLinks",
+#endif
+             "outputAssociations"},
+            "Convert ML output tensor into reconstructed electron"} {
+  }
 
   void init() final;
   void process(const Input&, const Output&) const final;
 
 private:
+  double m_mass         = 0.000511; // Default to electron mass in GeV
+  float m_charge        = -1.0;     // Default to electron charge
   mutable float m_beamE = 10.0;
   mutable std::once_flag m_initBeamE;
 };

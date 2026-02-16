@@ -2,8 +2,6 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
-#include <JANA/JApplicationFwd.h>
-#include <JANA/JEvent.h>
 #include <JANA/JEventProcessor.h>
 #include <TDirectory.h>
 #include <spdlog/logger.h>
@@ -16,9 +14,6 @@ class GeometryNavigationSteps_processor
       public eicrecon::SpdlogMixin // this automates proper log initialization
 {
 public:
-  explicit GeometryNavigationSteps_processor(JApplication*);
-  ~GeometryNavigationSteps_processor() override = default;
-
   //----------------------------
   // Init
   //
@@ -48,7 +43,11 @@ public:
 private:
   /// Directory to store histograms to
   TDirectory* m_dir_main{};
+#if Acts_VERSION_MAJOR >= 45
+  Acts::GeometryContext m_geoContext = Acts::GeometryContext::dangerouslyDefaultConstruct();
+#else
   Acts::GeometryContext m_geoContext;
+#endif
   Acts::MagneticFieldContext m_fieldContext;
   std::shared_ptr<spdlog::logger> m_log;
 };

@@ -6,6 +6,7 @@
 #include "algorithms/pid/MatchToRICHPID.h"
 #include "extensions/jana/JOmniFactory.h"
 #include <edm4eic/CherenkovParticleID.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4hep/ParticleID.h>
@@ -24,6 +25,9 @@ private:
   PodioInput<edm4eic::MCRecoParticleAssociation> m_assocs_input{this};
   PodioInput<edm4eic::CherenkovParticleID> m_cherenkov_particle_ids_input{this};
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  PodioOutput<edm4eic::MCRecoParticleLink> m_links_output{this};
+#endif
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_assocs_output{this};
   PodioOutput<edm4hep::ParticleID> m_pids_output{this};
 
@@ -35,12 +39,13 @@ public:
     m_algo->init();
   };
 
-  void ChangeRun(int32_t /* run_number */){};
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {m_recoparticles_input(), m_assocs_input(), m_cherenkov_particle_ids_input()},
-        {m_recoparticles_output().get(), m_assocs_output().get(), m_pids_output().get()});
+    m_algo->process({m_recoparticles_input(), m_assocs_input(), m_cherenkov_particle_ids_input()},
+                    {m_recoparticles_output().get(),
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                     m_links_output().get(),
+#endif
+                     m_assocs_output().get(), m_pids_output().get()});
   }
 };
 

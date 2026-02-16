@@ -5,6 +5,7 @@
 //   https://cds.cern.ch/record/687345/files/note01_034.pdf
 //   https://www.jlab.org/primex/weekly_meetings/primexII/slides_2012_01_20/island_algorithm.pdf
 
+#include <DD4hep/Handle.h>
 #include <DD4hep/Readout.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <algorithms/service.h>
@@ -15,14 +16,16 @@
 #include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
-#include <gsl/pointers>
+#include <iterator>
 #include <map>
+#include <ranges>
 #include <set>
 #include <stdexcept>
 #include <string>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "CalorimeterIslandCluster.h"
@@ -32,6 +35,10 @@
 using namespace edm4eic;
 
 namespace eicrecon {
+template <typename... L> struct multilambda : L... {
+  using L::operator()...;
+  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
+};
 
 static double Phi_mpi_pi(double phi) { return std::remainder(phi, 2 * M_PI); }
 
@@ -74,6 +81,16 @@ static edm4hep::Vector2f globalDistEtaPhi(const CaloHit& h1, const CaloHit& h2) 
 //------------------------
 void CalorimeterIslandCluster::init() {
 
+  multilambda _toDouble = {
+      [](const std::string& v) { return dd4hep::_toDouble(v); },
+      [](const double& v) { return v; },
+  };
+
+  if (m_cfg.localDistXY.size() == 2) {
+    m_localDistXY.push_back(std::visit(_toDouble, m_cfg.localDistXY[0]));
+    m_localDistXY.push_back(std::visit(_toDouble, m_cfg.localDistXY[1]));
+  }
+
   static std::map<std::string,
                   std::tuple<std::function<edm4hep::Vector2f(const CaloHit&, const CaloHit&)>,
                              std::vector<double>>>
@@ -106,7 +123,7 @@ void CalorimeterIslandCluster::init() {
   };
 
   std::vector<std::pair<std::string, std::vector<double>>> uprops{
-      {"localDistXY", m_cfg.localDistXY},
+      {"localDistXY", m_localDistXY},
       {"localDistXZ", m_cfg.localDistXZ},
       {"localDistYZ", m_cfg.localDistYZ},
       {"globalDistRPhi", m_cfg.globalDistRPhi},
@@ -183,9 +200,8 @@ void CalorimeterIslandCluster::init() {
       is_maximum_neighbourhood = is_neighbour;
     }
 
-    auto transverseEnergyProfileMetric_it =
-        std::find_if(distMethods.begin(), distMethods.end(),
-                     [&](auto& p) { return m_cfg.transverseEnergyProfileMetric == p.first; });
+    auto transverseEnergyProfileMetric_it = std::ranges::find_if(
+        distMethods, [&](auto& p) { return m_cfg.transverseEnergyProfileMetric == p.first; });
     if (transverseEnergyProfileMetric_it == distMethods.end()) {
       throw std::runtime_error(
           fmt::format(R"(Unsupported value "{}" for "transverseEnergyProfileMetric")",

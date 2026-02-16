@@ -50,9 +50,37 @@ constexpr auto make_comparison_tuple(const BooleanFunction& func) {
 }
 
 // ----------------------------------------------------------------------------
+// Chain wrapper type for explicit member function call chaining
+// Usage: Chain<&A::getB, &B::getC> chains A->getB()->getC()
+// ----------------------------------------------------------------------------
+template <auto... MemberFunctionPtrs> struct Chain {};
+
+// ----------------------------------------------------------------------------
+// Helper to invoke a chain of member function calls
+// ----------------------------------------------------------------------------
+template <auto... MemberFunctionPtrs> struct ChainInvoker;
+
+// Base case: single member function
+template <auto MemberFunctionPtr> struct ChainInvoker<MemberFunctionPtr> {
+  template <typename T> static auto invoke(T& instance) { return (instance.*MemberFunctionPtr)(); }
+};
+
+// Recursive case: chain multiple member functions
+template <auto FirstMemberFunctionPtr, auto... RestMemberFunctionPtrs>
+struct ChainInvoker<FirstMemberFunctionPtr, RestMemberFunctionPtrs...> {
+  template <typename T> static auto invoke(T& instance) {
+    auto nested = (instance.*FirstMemberFunctionPtr)();
+    return ChainInvoker<RestMemberFunctionPtrs...>::invoke(nested);
+  }
+};
+
+// ----------------------------------------------------------------------------
 // Functor to split collection based on a range of values
 // ----------------------------------------------------------------------------
-template <auto MemberFunctionPtr> class RangeSplit {
+template <typename... Chains> class RangeSplit;
+
+// Specialization: single Chain
+template <auto... MemberFunctionPtrs> class RangeSplit<Chain<MemberFunctionPtrs...>> {
 public:
   // Deduce the return type of the member function pointer
   using ValueType = typename MemberFunctionReturnType<MemberFunctionPtr>::type;
@@ -105,7 +133,7 @@ public:
       , m_readout(readout)
       , is_init(std::make_shared<std::once_flag>())
       , m_id_dec(std::make_shared<dd4hep::DDSegmentation::BitFieldCoder*>())
-      , m_div_ids(std::make_shared<std::vector<std::size_t>>()){};
+      , m_div_ids(std::make_shared<std::vector<std::size_t>>()) {};
 
   template <typename T> std::vector<size_t> operator()(T& instance) const {
 

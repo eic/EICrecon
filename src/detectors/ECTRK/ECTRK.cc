@@ -5,9 +5,11 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
+#include <edm4eic/EDM4eicVersion.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <string>
+#include <vector>
 
-#include "algorithms/interfaces/WithPodConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
 #include "factories/tracking/TrackerHitReconstruction_factory.h"
@@ -20,8 +22,12 @@ void InitPlugin(JApplication* app) {
 
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
-      "SiEndcapTrackerRawHits", {"TrackerEndcapHits"},
-      {"SiEndcapTrackerRawHits", "SiEndcapTrackerRawHitAssociations"},
+      "SiEndcapTrackerRawHits", {"EventHeader", "TrackerEndcapHits"},
+      {"SiEndcapTrackerRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "SiEndcapTrackerRawHitLinks",
+#endif
+       "SiEndcapTrackerRawHitAssociations"},
       {
           .threshold = 0.54 * dd4hep::keV,
       },

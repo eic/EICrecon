@@ -1,10 +1,9 @@
-// Copyright 2023, Wouter Deconinck
-// Subject to the terms in the LICENSE file found in the top-level directory.
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2023 - 2025, Chao Peng, Sylvester Joosten, Whitney Armstrong, Wouter Deconinck, Nathan Brei, Dmitry Kalinkin
 
 #pragma once
 
 #include <edm4eic/EDM4eicVersion.h>
-
 #include "algorithms/calorimetry/CalorimeterHitDigi.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -20,11 +19,13 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
+  PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
   PodioInput<edm4hep::SimCalorimeterHit> m_hits_input{this};
   PodioOutput<edm4hep::RawCalorimeterHit> m_hits_output{this};
-#if EDM4EIC_VERSION_MAJOR >= 7
-  PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  PodioOutput<edm4eic::MCRecoCalorimeterHitLink> m_links_output{this};
 #endif
+  PodioOutput<edm4eic::MCRecoCalorimeterHitAssociation> m_hit_assocs_output{this};
 
   ParameterRef<std::vector<double>> m_energyResolutions{this, "energyResolutions", config().eRes};
   ParameterRef<double> m_timeResolution{this, "timeResolution", config().tRes};
@@ -36,6 +37,12 @@ private:
   ParameterRef<std::string> m_corrMeanScale{this, "scaleResponse", config().corrMeanScale};
   ParameterRef<std::vector<std::string>> m_fields{this, "signalSumFields", config().fields};
   ParameterRef<std::string> m_readout{this, "readoutClass", config().readout};
+  ParameterRef<std::string> m_readoutType{this, "readoutType", config().readoutType};
+  ParameterRef<double> m_lightYield{this, "lightYield", config().lightYield};
+  ParameterRef<double> m_photonDetectionEfficiency{this, "photonDetectionEfficiency",
+                                                   config().photonDetectionEfficiency};
+  ParameterRef<unsigned long long> m_numEffectiveSipmPixels{this, "numEffectiveSipmPixels",
+                                                            config().numEffectiveSipmPixels};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -47,14 +54,12 @@ public:
     m_algo->init();
   }
 
-  void ChangeRun(int32_t /* run_number */) {}
-
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-#if EDM4EIC_VERSION_MAJOR >= 7
-    m_algo->process({m_hits_input()}, {m_hits_output().get(), m_hit_assocs_output().get()});
-#else
-    m_algo->process({m_hits_input()}, {m_hits_output().get()});
+    m_algo->process({m_event_headers_input(), m_hits_input()}, {m_hits_output().get(),
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                m_links_output().get(),
 #endif
+                                                                m_hit_assocs_output().get()});
   }
 };
 

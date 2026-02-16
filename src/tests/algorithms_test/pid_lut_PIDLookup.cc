@@ -3,17 +3,30 @@
 
 #include <algorithms/logger.h>
 #include <catch2/catch_test_macros.hpp>
-#include <cmath>
 #include <edm4eic/Cov4f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoParticleLinkCollection.h>
+#endif
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4hep/EDM4hepVersion.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
 #include <edm4hep/Vector2i.h>
+#endif
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <memory>
+#include <podio/detail/Link.h>
 #include <spdlog/common.h>
+#include <cmath>
+#include <cstddef>
+#include <deque>
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "algorithms/pid_lut/PIDLookup.h"
 #include "algorithms/pid_lut/PIDLookupConfig.h"
@@ -42,6 +55,9 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
     algo.applyConfig(cfg);
     algo.init();
 
+    auto headers = std::make_unique<edm4hep::EventHeaderCollection>();
+    auto header  = headers->create(1, 1, 12345678, 1.0);
+
     auto parts_in  = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     auto assocs_in = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
     auto mcparts   = std::make_unique<edm4hep::MCParticleCollection>();
@@ -64,10 +80,22 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
                     0.,                  // double mass
                     edm4hep::Vector3d(), // edm4hep::Vector3d vertex
                     edm4hep::Vector3d(), // edm4hep::Vector3d endpoint
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 1)
                     edm4hep::Vector3f(), // edm4hep::Vector3f momentum
                     edm4hep::Vector3f(), // edm4hep::Vector3f momentumAtEndpoint
-                    edm4hep::Vector3f(), // edm4hep::Vector3f spin
-                    edm4hep::Vector2i()  // edm4hep::Vector2i colorFlow
+#else
+                    edm4hep::Vector3d(), // edm4hep::Vector3d momentum
+                    edm4hep::Vector3d(), // edm4hep::Vector3d momentumAtEndpoint
+#endif
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 3)
+                    edm4hep::Vector3f() // edm4hep::Vector3f spin
+#else
+                    9 // int32_t helicity (9 if unset)
+#endif
+#if EDM4HEP_BUILD_VERSION < EDM4HEP_VERSION(0, 99, 2)
+                    ,
+                    edm4hep::Vector2i() // edm4hep::Vector2i colorFlow
+#endif
     );
 
     auto assoc_in = assocs_in->create();
@@ -77,11 +105,29 @@ TEST_CASE("particles acquire PID", "[PIDLookup]") {
     auto parts_out   = std::make_unique<edm4eic::ReconstructedParticleCollection>();
     auto assocs_out  = std::make_unique<edm4eic::MCRecoParticleAssociationCollection>();
     auto partids_out = std::make_unique<edm4hep::ParticleIDCollection>();
-    algo.process({parts_in.get(), assocs_in.get()},
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    edm4eic::MCRecoParticleLinkCollection links_out;
+    algo.process({headers.get(), parts_in.get(), assocs_in.get()},
+                 {parts_out.get(), &links_out, assocs_out.get(), partids_out.get()});
+#else
+    algo.process({headers.get(), parts_in.get(), assocs_in.get()},
                  {parts_out.get(), assocs_out.get(), partids_out.get()});
+#endif
 
     REQUIRE((*parts_in).size() == (*parts_out).size());
     REQUIRE((*assocs_in).size() == (*assocs_out).size());
-    REQUIRE((*partids_out).size() == (*partids_out).size());
+    REQUIRE(
+        0 ==
+        (*partids_out).size()); // Since our table is empty, there will not be a successful lookup
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    // Verify that links were created and match the associations
+    REQUIRE(links_out.size() == (*assocs_out).size());
+    for (size_t i = 0; i < links_out.size(); ++i) {
+      REQUIRE(links_out[i].getFrom() == (*assocs_out)[i].getRec());
+      REQUIRE(links_out[i].getTo() == (*assocs_out)[i].getSim());
+      REQUIRE(links_out[i].getWeight() == (*assocs_out)[i].getWeight());
+    }
+#endif
   }
 }

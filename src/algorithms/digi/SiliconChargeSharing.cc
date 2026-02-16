@@ -25,6 +25,7 @@
 #include <fmt/core.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <numbers>
 #include <set>
 #include <stdexcept>
 #include <typeinfo>
@@ -73,6 +74,14 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
         global2Local(dd4hep::Position(globalHitPos.x * dd4hep::mm, globalHitPos.y * dd4hep::mm,
                                       globalHitPos.z * dd4hep::mm),
                      transformIt->second);
+
+    // therefore, we search neighbors within the segmentation of the same volume
+    // to find the cell ID that correspond to globalHitPos.
+    // Precise reason unknown, but we suspect it's cause by steps in Geant4
+    // Perhaps position is the average of all steps in volume while cellID is just the first cell the track hits
+    // They disagree when there are multiple step and scattering inside the volume
+    const dd4hep::Position dummy;
+    cellID = segmentationIt->second->cellID(hitPos, dummy, cellID);
 
     std::unordered_set<dd4hep::rec::CellID> tested_cells;
     std::unordered_map<dd4hep::rec::CellID, float> cell_charge;
@@ -141,8 +150,8 @@ float SiliconChargeSharing::integralGaus(float mean, float sd, float low_lim, fl
   float up  = mean > up_lim ? -0.5 : 0.5;
   float low = mean > low_lim ? -0.5 : 0.5;
   if (sd > 0) {
-    up  = -0.5 * std::erf(std::sqrt(2) * (mean - up_lim) / sd);
-    low = -0.5 * std::erf(std::sqrt(2) * (mean - low_lim) / sd);
+    up  = -0.5 * std::erf(std::numbers::sqrt2 * (mean - up_lim) / sd);
+    low = -0.5 * std::erf(std::numbers::sqrt2 * (mean - low_lim) / sd);
   }
   return up - low;
 }
@@ -171,10 +180,16 @@ dd4hep::Position SiliconChargeSharing::global2Local(const dd4hep::Position& glob
 float SiliconChargeSharing::energyAtCell(const double xDimension, const double yDimension,
                                          const dd4hep::Position localPos,
                                          const dd4hep::Position hitPos, const float edep) const {
+  auto sigma_sharingx = m_cfg.sigma_sharingx;
+  auto sigma_sharingy = m_cfg.sigma_sharingy;
+  if (m_cfg.sigma_mode == SiliconChargeSharingConfig::ESigmaMode::rel) {
+    sigma_sharingx *= xDimension;
+    sigma_sharingy *= yDimension;
+  }
   float energy = edep *
-                 integralGaus(hitPos.x(), m_cfg.sigma_sharingx, localPos.x() - 0.5 * xDimension,
+                 integralGaus(hitPos.x(), sigma_sharingx, localPos.x() - 0.5 * xDimension,
                               localPos.x() + 0.5 * xDimension) *
-                 integralGaus(hitPos.y(), m_cfg.sigma_sharingy, localPos.y() - 0.5 * yDimension,
+                 integralGaus(hitPos.y(), sigma_sharingy, localPos.y() - 0.5 * yDimension,
                               localPos.y() + 0.5 * yDimension);
   return energy;
 }

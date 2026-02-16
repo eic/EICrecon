@@ -4,16 +4,19 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Dmitry Kalinkin
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
 #include <functional>
 #include <map>
 #include <memory>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 // algorithm configurations
@@ -42,10 +45,8 @@ void InitPlugin(JApplication* app) {
 
   // digitization
   PhotoMultiplierHitDigiConfig digi_cfg;
-  digi_cfg.detectorName = "DRICH";
-  digi_cfg.readoutClass = "DRICHHits";
-  digi_cfg.seed         = 5;           // FIXME: set to 0 for a 'unique' seed, but
-                                       // that seems to delay the RNG from actually randomizing
+  digi_cfg.detectorName    = "DRICH";
+  digi_cfg.readoutClass    = "DRICHHits";
   digi_cfg.hitTimeWindow   = 20.0;     // [ns]
   digi_cfg.timeResolution  = 1 / 16.0; // [ns]
   digi_cfg.speMean         = 80.0;
@@ -93,7 +94,7 @@ void InitPlugin(JApplication* app) {
   irt_cfg.numRIndexBins = 100;
   // - aerogel
   irt_cfg.radiators.insert({"Aerogel", RadiatorConfig{}});
-  irt_cfg.radiators.at("Aerogel").referenceRIndex = 1.0190;
+  irt_cfg.radiators.at("Aerogel").referenceRIndex = 1.0260;
   irt_cfg.radiators.at("Aerogel").attenuation     = 48; // [mm]
   irt_cfg.radiators.at("Aerogel").smearingMode    = "gaussian";
   irt_cfg.radiators.at("Aerogel").smearing        = 2e-3; // [radians]
@@ -116,16 +117,22 @@ void InitPlugin(JApplication* app) {
   // wiring between factories and data ///////////////////////////////////////
 
   // digitization
-  app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-      "DRICHRawHits", {"DRICHHits"}, {"DRICHRawHits", "DRICHRawHitsAssociations"}, digi_cfg, app));
+  app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>("DRICHRawHits",
+                                                                      {"EventHeader", "DRICHHits"},
+                                                                      {"DRICHRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                       "DRICHRawHitsLinks",
+#endif
+                                                                       "DRICHRawHitsAssociations"},
+                                                                      digi_cfg, app));
 
   // charged particle tracks
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
       "DRICHAerogelTracks",
-      {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+      {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {"DRICHAerogelTracks"}, aerogel_track_cfg, app));
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
-      "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+      "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {"DRICHGasTracks"}, gas_track_cfg, app));
 
   app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>("DRICHMergedTracks",
