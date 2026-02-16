@@ -105,6 +105,14 @@ public:
       : SignalPulse(false // is_unimodal: unknown, assume worst case (may have multiple peaks)
         ) {
     std::vector<std::string> keys = {"time", "charge"};
+    
+    // Pre-allocate map with capacity for all parameters (time, charge, paramN...)
+    m_param_map.reserve(params.size() + 2);
+    
+    // Pre-insert time and charge keys with dummy values to avoid insertions in operator()
+    m_param_map["time"]   = 0.0;
+    m_param_map["charge"] = 0.0;
+    
     for (std::size_t i = 0; i < params.size(); i++) {
       std::string p = "param" + std::to_string(i);
       //Check the expression contains the parameter
@@ -128,12 +136,22 @@ public:
   };
 
   double operator()(double time, double charge) override {
-    // Use per-call local storage to ensure thread-safety
-    // (m_pulse is shared via std::shared_ptr across threads)
-    auto local_params      = m_param_map;
-    local_params["time"]   = time;
-    local_params["charge"] = charge;
-    return m_evaluator(local_params);
+    // Use per-thread cached storage to ensure thread-safety without incurring
+    // a full map copy on each call. Each thread gets its own copy of m_param_map,
+    // initialized once, then only time/charge are updated per call.
+    thread_local std::unordered_map<const EvaluatorPulse*, std::optional<std::unordered_map<std::string, double>>> cache;
+    
+    auto& cached_params = cache[this];
+    if (!cached_params.has_value()) {
+      // First call from this thread: copy base parameters once
+      cached_params = m_param_map;
+    }
+    
+    // Update only the time and charge values (simple assignment, no insertion)
+    (*cached_params)["time"]   = time;
+    (*cached_params)["charge"] = charge;
+    
+    return m_evaluator(*cached_params);
   }
 
   double getMaximumTime() const override { return 0; }
