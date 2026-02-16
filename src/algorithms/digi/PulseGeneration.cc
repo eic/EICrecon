@@ -112,7 +112,7 @@ public:
         throw std::runtime_error("Parameter " + p + " not found in expression");
       }
       keys.push_back(p);
-      param_map[p] = params[i];
+      m_param_map[p] = params[i];
     }
 
     // Check the expression is contains time and charge
@@ -128,9 +128,12 @@ public:
   };
 
   double operator()(double time, double charge) override {
-    param_map["time"]   = time;
-    param_map["charge"] = charge;
-    return m_evaluator(param_map);
+    // Use per-call local storage to ensure thread-safety
+    // (m_pulse is shared via std::shared_ptr across threads)
+    auto local_params = m_param_map;
+    local_params["time"]   = time;
+    local_params["charge"] = charge;
+    return m_evaluator(local_params);
   }
 
   double getMaximumTime() const override { return 0; }
@@ -138,7 +141,7 @@ public:
   // No optional trait methods overridden - use base class defaults (std::nullopt)
 
 private:
-  std::unordered_map<std::string, double> param_map;
+  std::unordered_map<std::string, double> m_param_map;
   std::function<double(const std::unordered_map<std::string, double>&)> m_evaluator;
 };
 
