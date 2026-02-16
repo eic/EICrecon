@@ -26,12 +26,15 @@ private:
   PodioOutput<edm4eic::Tensor> m_feature_tensor_output{this};
   PodioOutput<edm4eic::Tensor> m_target_tensor_output{this};
 
-  // Config parameter that also syncs from PODIO frame metadata at specified event level
-  ParameterRef<float> m_beamE{
-      this, "beamE", config().beamE, "Beam energy in GeV",
-      PodioParameter<std::string>("electron_beam_energy", JEventLevel::Run)};
+  // Command-line controllable parameters
+  ParameterRef<float> m_beamE{this, "beamE", config().beamE, "Beam energy in GeV"};
   ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron",
                                            config().requireBeamElectron};
+
+  // PODIO metadata sync (updates config().beamE from run metadata)
+  PodioParameterRef<float> m_beamE_podio{
+      this, "beamE_podio", config().beamE, "Beam energy from PODIO metadata",
+      PodioParameter<std::string>("electron_beam_energy", JEventLevel::Run)};
 
 public:
   void Configure() {

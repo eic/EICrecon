@@ -26,15 +26,18 @@ private:
   PodioOutput<edm4eic::ReconstructedParticle> m_particle_output{this};
   PodioOutput<edm4eic::MCRecoParticleAssociation> m_association_output{this};
 
-  // Config parameter that also syncs from PODIO frame metadata at specified event level
-  ParameterRef<float> m_beamE{
-      this, "beamE", config().beamE, "Beam energy in GeV",
-      PodioParameter<std::string>("electron_beam_energy", JEventLevel::Run)};
+  // Command-line controllable parameters
+  ParameterRef<float> m_beamE{this, "beamE", config().beamE, "Beam energy in GeV"};
   ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron",
                                            config().requireBeamElectron};
   ParameterRef<int> m_pdg_value{
       this, "pdgValue", config().pdg_value,
       "PDG value for the particle type to identify (default is electron)"};
+
+  // PODIO metadata sync (updates config().beamE from run metadata)
+  PodioParameterRef<float> m_beamE_podio{
+      this, "beamE_podio", config().beamE, "Beam energy from PODIO metadata",
+      PodioParameter<std::string>("electron_beam_energy", JEventLevel::Run)};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 

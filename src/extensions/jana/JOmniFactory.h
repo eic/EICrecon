@@ -295,6 +295,40 @@ public:
   template <typename T> class ParameterRef : public ParameterBase {
 
     T* m_data;
+
+  public:
+    // Constructor
+    ParameterRef(JOmniFactory* owner, std::string name, T& slot, std::string description = "") {
+      this->m_name             = name;
+      this->m_description      = description;
+      this->m_podio_param_name = "";
+      this->m_event_level      = JEventLevel::None;
+      m_data                   = &slot;
+
+      owner->RegisterParameter(this);
+    }
+
+    const T& operator()() { return *m_data; }
+
+  private:
+    friend class JOmniFactory;
+
+    void Configure(JParameterManager& parman, const std::string& prefix) override {
+      parman.SetDefaultParameter(prefix + ":" + this->m_name, *m_data, this->m_description);
+    }
+
+    void Configure(std::map<std::string, std::string> fields) override {
+      auto it = fields.find(this->m_name);
+      if (it != fields.end()) {
+        const auto& value_str = it->second;
+        JParameterManager::Parse(value_str, *m_data);
+      }
+    }
+  };
+
+  template <typename T> class PodioParameterRef : public ParameterBase {
+
+    T* m_data;
     std::function<bool(const podio::Frame*, const std::string&, void*,
                        std::shared_ptr<spdlog::logger>)>
         m_extract_and_convert;
@@ -335,22 +369,10 @@ public:
     }
 
   public:
-    // Constructor without PODIO sync
-    ParameterRef(JOmniFactory* owner, std::string name, T& slot, std::string description = "") {
-      this->m_name             = name;
-      this->m_description      = description;
-      this->m_podio_param_name = "";
-      this->m_event_level      = JEventLevel::None;
-      m_data                   = &slot;
-      m_extract_and_convert    = nullptr;
-
-      owner->RegisterParameter(this);
-    }
-
     // Constructor with PODIO sync: StoredT is deduced from PodioInfo<StoredT> template parameter
     template <typename StoredT>
-    ParameterRef(JOmniFactory* owner, std::string name, T& slot, std::string description,
-                 const PodioInfo<StoredT>& podio_info) {
+    PodioParameterRef(JOmniFactory* owner, std::string name, T& slot, std::string description,
+                      const PodioInfo<StoredT>& podio_info) {
       this->m_name             = name;
       this->m_description      = description;
       this->m_podio_param_name = podio_info.name;
@@ -368,16 +390,14 @@ public:
   private:
     friend class JOmniFactory;
 
-    void Configure(JParameterManager& parman, const std::string& prefix) override {
-      parman.SetDefaultParameter(prefix + ":" + this->m_name, *m_data, this->m_description);
+    void Configure(JParameterManager& /* parman */, const std::string& /* prefix */) override {
+      // PodioParameterRef does not register command-line parameters
+      // Use a separate ParameterRef for command-line control
     }
 
-    void Configure(std::map<std::string, std::string> fields) override {
-      auto it = fields.find(this->m_name);
-      if (it != fields.end()) {
-        const auto& value_str = it->second;
-        JParameterManager::Parse(value_str, *m_data);
-      }
+    void Configure(std::map<std::string, std::string> /* fields */) override {
+      // PodioParameterRef does not configure from fields
+      // It only updates from PODIO frame metadata
     }
 
     void UpdateFromPodioParams(const podio::Frame* frame,
