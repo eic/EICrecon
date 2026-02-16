@@ -241,7 +241,7 @@ public:
                    std::tuple<typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>>& ids,
                const std::vector<ComparisonFunction>& comparisons)
       : m_ids(ids), m_comparisons(comparisons) {
-    if (ids.size() != comparisons.size()) {
+    if constexpr (ids.size() != comparisons.size()) {
       throw std::invalid_argument(
           "Size of values to compare must match the size of boolean functions");
     }
