@@ -76,7 +76,6 @@ TEST_CASE("Edge cases: empty ranges and values not matching", "[SubDivideFunctor
 
   ValueSplit<&Dummy::getValue> splitV({{1}, {2}});
   REQUIRE(splitV(d).empty());
-
 }
 
 TEST_CASE("RangeSplit with std::array upstream", "[SubDivideFunctors]") {
