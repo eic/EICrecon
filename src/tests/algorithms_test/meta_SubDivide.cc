@@ -57,19 +57,20 @@ TEST_CASE("RangeSplit works with float and double", "[SubDivideFunctors]") {
 }
 
 TEST_CASE("RangeSplit works with outside ranges", "[SubDivideFunctors]") {
-  RangeSplit<&Dummy::getValue> split({{0, 4}, {5, 10}}, {false, true});
-  Dummy d1{3}, d2{7}, d3{11};
-  REQUIRE(split(d1) == std::vector<size_t>{1});
-  REQUIRE(split(d2) == std::vector<size_t>{0});
-  REQUIRE(split(d3) == std::vector<size_t>{0});
-}
-
-TEST_CASE("RangeSplit with bool inside array", "[SubDivideFunctors]") {
   RangeSplit<&Dummy::getValue> split({{0, 4}, {5, 10}});
   Dummy d1{3}, d2{7}, d3{11};
   REQUIRE(split(d1) == std::vector<size_t>{0});
   REQUIRE(split(d2) == std::vector<size_t>{1});
-  REQUIRE(split(d3) == std::vector<size_t>{1});
+  REQUIRE(split(d3).empty());
+}
+
+TEST_CASE("RangeSplit excludes boundaries", "[SubDivideFunctors]") {
+  RangeSplit<&Dummy::getValue> split({{0, 4}, {5, 10}});
+  Dummy d1{0}, d2{4}, d3{5}, d4{10};
+  REQUIRE(split(d1).empty());
+  REQUIRE(split(d2).empty());
+  REQUIRE(split(d3).empty());
+  REQUIRE(split(d4).empty());
 }
 
 TEST_CASE("RangeSplit works with explicit chain accessors", "[SubDivideFunctors]") {
