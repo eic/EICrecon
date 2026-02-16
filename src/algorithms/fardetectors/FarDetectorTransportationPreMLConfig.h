@@ -8,5 +8,6 @@ struct FarDetectorTransportationPreMLConfig {
 
   float beamE = 10.0;
   bool requireBeamElectron{true};
+  bool beamE_set_from_metadata{false};
 };
 } // namespace eicrecon
