@@ -4,7 +4,9 @@
 #pragma once
 
 #include <algorithms/geo.h>
+#include <functional>
 #include <type_traits>
+#include <utility>
 
 namespace eicrecon {
 
@@ -25,33 +27,44 @@ template <auto... MemberFunctionPtrs> struct ChainInvoker;
 
 // Base case: single member function
 template <auto MemberFunctionPtr> struct ChainInvoker<MemberFunctionPtr> {
-  template <typename T> static auto invoke(T& instance) { return (instance.*MemberFunctionPtr)(); }
+  template <typename T> static auto invoke(T&& instance) {
+    return std::invoke(MemberFunctionPtr, std::forward<T>(instance));
+  }
 };
 
 // Recursive case: chain multiple member functions
 template <auto FirstMemberFunctionPtr, auto... RestMemberFunctionPtrs>
 struct ChainInvoker<FirstMemberFunctionPtr, RestMemberFunctionPtrs...> {
-  template <typename T> static auto invoke(T& instance) {
-    auto nested = (instance.*FirstMemberFunctionPtr)();
+  template <typename T> static auto invoke(T&& instance) {
+    auto&& nested = std::invoke(FirstMemberFunctionPtr, std::forward<T>(instance));
     return ChainInvoker<RestMemberFunctionPtrs...>::invoke(nested);
   }
 };
 
 // ----------------------------------------------------------------------------
+// Helper to detect ChainTag at compile time
+template <typename T> struct is_chain : std::false_type {};
+template <auto... MemberFunctionPtrs> struct is_chain<ChainTag<MemberFunctionPtrs...>> : std::true_type {};
+
 // Helper to invoke either a direct member function pointer or a Chain value
 // ----------------------------------------------------------------------------
 template <auto Accessor> struct AccessorInvoker {
-  template <typename T> static auto invoke(T& instance) {
-    static_assert(std::is_member_function_pointer_v<decltype(Accessor)>,
-                  "Accessor must be a member function pointer or chain");
-    return (instance.*Accessor)();
+  template <typename T> static auto invoke(T&& instance) {
+    if constexpr (is_chain<decltype(Accessor)>::value) {
+      // Accessor is a Chain variable, extract the tag and invoke
+      return invoke_chain(std::forward<T>(instance), Accessor);
+    } else {
+      // Accessor is a member function pointer
+      static_assert(std::is_member_function_pointer_v<decltype(Accessor)>,
+                    "Accessor must be a member function pointer or chain");
+      return std::invoke(Accessor, std::forward<T>(instance));
+    }
   }
-};
 
-template <auto... MemberFunctionPtrs>
-struct AccessorInvoker<Chain<MemberFunctionPtrs...>> {
-  template <typename T> static auto invoke(T& instance) {
-    return ChainInvoker<MemberFunctionPtrs...>::invoke(instance);
+private:
+  template <typename T, auto... MemberFunctionPtrs>
+  static auto invoke_chain(T&& instance, ChainTag<MemberFunctionPtrs...>) {
+    return ChainInvoker<MemberFunctionPtrs...>::invoke(std::forward<T>(instance));
   }
 };
 
@@ -62,7 +75,7 @@ template <auto Accessor> class RangeSplit {
 public:
   RangeSplit(const std::vector<std::pair<double, double>> ranges) : m_ranges(ranges) {};
 
-  template <typename T> std::vector<size_t> operator()(const T& instance) const {
+  template <typename T> std::vector<size_t> operator()(T&& instance) const {
     std::vector<size_t> ids;
     auto value = AccessorInvoker<Accessor>::invoke(instance);
     // Check if requested value is within the ranges
@@ -137,7 +150,7 @@ template <auto... Accessors> class ValueSplit {
 public:
   ValueSplit(const std::vector<std::vector<int>> ids) : m_ids(ids) {};
 
-  template <typename T> std::vector<size_t> operator()(const T& instance) const {
+  template <typename T> std::vector<size_t> operator()(T&& instance) const {
     std::vector<size_t> ids;
     // Check if requested value matches any configuration combinations
     std::vector<int> values;
