@@ -107,7 +107,8 @@ public:
     std::vector<std::string> keys = {"time", "charge"};
     
     // Pre-allocate map with capacity for all parameters (time, charge, paramN...)
-    m_param_map.reserve(params.size() + 2);
+    constexpr std::size_t builtin_param_count = 2; // time and charge
+    m_param_map.reserve(params.size() + builtin_param_count);
     
     // Pre-insert time and charge keys with dummy values to avoid insertions in operator()
     m_param_map["time"]   = 0.0;
@@ -139,6 +140,11 @@ public:
     // Use per-thread cached storage to ensure thread-safety without incurring
     // a full map copy on each call. Each thread gets its own copy of m_param_map,
     // initialized once, then only time/charge are updated per call.
+    //
+    // Note: EvaluatorPulse instances are created during init() and persist for
+    // the algorithm lifetime, so cache entries are not explicitly cleaned up.
+    // If this pattern is reused in contexts with frequently created/destroyed
+    // pulse shapes, consider adding cleanup in the destructor.
     thread_local std::unordered_map<const EvaluatorPulse*, std::optional<std::unordered_map<std::string, double>>> cache;
     
     auto& cached_params = cache[this];
