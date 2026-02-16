@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Derek Anderson, Dmitry Kalinkin
 
-#include <edm4hep/MCParticle.h>
+#include <edm4eic/Track.h>
+#include <edm4eic/TrackPoint.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cmath>
