@@ -26,10 +26,10 @@ TEST_CASE("RangeSplit works with int and const/non-const member functions", "[Su
   RangeSplit<&Dummy::getValue> split1({{0, 4}, {5, 10}});
   RangeSplit<&Dummy::getValueConst> split2({{0, 4}, {5, 10}});
   Dummy d1{3}, d2{7};
-  REQUIRE(split1(d1) == std::vector<int>{0});
-  REQUIRE(split1(d2) == std::vector<int>{1});
-  REQUIRE(split2(d1) == std::vector<int>{0});
-  REQUIRE(split2(d2) == std::vector<int>{1});
+  REQUIRE(split1(d1) == std::vector<size_t>{0});
+  REQUIRE(split1(d2) == std::vector<size_t>{1});
+  REQUIRE(split2(d1) == std::vector<size_t>{0});
+  REQUIRE(split2(d2) == std::vector<size_t>{1});
 }
 
 TEST_CASE("RangeSplit works with float and double", "[SubDivideFunctors]") {
@@ -37,26 +37,26 @@ TEST_CASE("RangeSplit works with float and double", "[SubDivideFunctors]") {
   RangeSplit<&Dummy::getDValue> splitD({{0.0, 1.5}, {2.0, 3.0}});
   Dummy d1{0, 1.0f, 2.5};
   Dummy d2{0, 2.5f, 1.0};
-  REQUIRE(splitF(d1) == std::vector<int>{0});
-  REQUIRE(splitF(d2) == std::vector<int>{1});
-  REQUIRE(splitD(d1) == std::vector<int>{1});
-  REQUIRE(splitD(d2) == std::vector<int>{0});
+  REQUIRE(splitF(d1) == std::vector<size_t>{0});
+  REQUIRE(splitF(d2) == std::vector<size_t>{1});
+  REQUIRE(splitD(d1) == std::vector<size_t>{1});
+  REQUIRE(splitD(d2) == std::vector<size_t>{0});
 }
 
 TEST_CASE("RangeSplit works with outside ranges", "[SubDivideFunctors]") {
   RangeSplit<&Dummy::getValue> split({{0, 4}, {5, 10}}, {false, true});
   Dummy d1{3}, d2{7}, d3{11};
-  REQUIRE(split(d1) == std::vector<int>{1});
-  REQUIRE(split(d2) == std::vector<int>{0});
-  REQUIRE(split(d3) == std::vector<int>{0});
+  REQUIRE(split(d1) == std::vector<size_t>{1});
+  REQUIRE(split(d2) == std::vector<size_t>{0});
+  REQUIRE(split(d3) == std::vector<size_t>{0});
 }
 
 TEST_CASE("RangeSplit with bool inside array", "[SubDivideFunctors]") {
   RangeSplit<&Dummy::getValue> split({{0, 4}, {5, 10}}, {true, false});
   Dummy d1{3}, d2{7}, d3{11};
-  REQUIRE(split(d1) == std::vector<int>{0});
-  REQUIRE(split(d2) == std::vector<int>{1});
-  REQUIRE(split(d3) == std::vector<int>{1});
+  REQUIRE(split(d1) == std::vector<size_t>{0});
+  REQUIRE(split(d2) == std::vector<size_t>{1});
+  REQUIRE(split(d3) == std::vector<size_t>{1});
 }
 
 TEST_CASE("ValueSplit works with int, float, and double", "[SubDivideFunctors]") {
@@ -64,9 +64,9 @@ TEST_CASE("ValueSplit works with int, float, and double", "[SubDivideFunctors]")
   ValueSplit<&Dummy::getFValue> splitF({{1.0f}, {2.5f}});
   ValueSplit<&Dummy::getDValue> splitD({{1.0}, {2.5}});
   Dummy d{2, 2.5f, 1.0};
-  REQUIRE(splitI(d) == std::vector<int>{1});
-  REQUIRE(splitF(d) == std::vector<int>{1});
-  REQUIRE(splitD(d) == std::vector<int>{0});
+  REQUIRE(splitI(d) == std::vector<size_t>{1});
+  REQUIRE(splitF(d) == std::vector<size_t>{1});
+  REQUIRE(splitD(d) == std::vector<size_t>{0});
 }
 
 TEST_CASE("BooleanSplit works with multiple member functions", "[SubDivideFunctors]") {
@@ -75,10 +75,10 @@ TEST_CASE("BooleanSplit works with multiple member functions", "[SubDivideFuncto
   BooleanSplit<&Dummy::getValueConst, &Dummy::isPositive> split2(
       {std::make_tuple(2, true), std::make_tuple(-1, false)});
   Dummy d1{2}, d2{3}, d3{-1};
-  REQUIRE(split1(d1) == std::vector<int>{0});
-  REQUIRE(split1(d2) == std::vector<int>{1});
-  REQUIRE(split2(d1) == std::vector<int>{0});
-  REQUIRE(split2(d3) == std::vector<int>{1});
+  REQUIRE(split1(d1) == std::vector<size_t>{0});
+  REQUIRE(split1(d2) == std::vector<size_t>{1});
+  REQUIRE(split2(d1) == std::vector<size_t>{0});
+  REQUIRE(split2(d3) == std::vector<size_t>{1});
 }
 
 TEST_CASE("Edge cases: empty ranges and values not matching", "[SubDivideFunctors]") {
@@ -99,6 +99,6 @@ TEST_CASE("RangeSplit with std::array upstream", "[SubDivideFunctors]") {
   std::array<bool, N> inside                = {true, true};
   RangeSplit<&Dummy::getValue, N> split(ranges, inside);
   Dummy d1{3}, d2{7};
-  REQUIRE(split(d1) == std::vector<int>{0});
-  REQUIRE(split(d2) == std::vector<int>{1});
+  REQUIRE(split(d1) == std::vector<size_t>{0});
+  REQUIRE(split(d2) == std::vector<size_t>{1});
 }
