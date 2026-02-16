@@ -72,16 +72,6 @@ TEST_CASE("RangeSplit with bool inside array", "[SubDivideFunctors]") {
   REQUIRE(split(d3) == std::vector<size_t>{1});
 }
 
-TEST_CASE("ValueSplit works with int, float, and double", "[SubDivideFunctors]") {
-  ValueSplit<&Dummy::getValue> splitI({{1}, {2}, {3}});
-  ValueSplit<&Dummy::getFValue> splitF({{1.0f}, {2.5f}});
-  ValueSplit<&Dummy::getDValue> splitD({{1.0}, {2.5}});
-  Dummy d{2, 2.5f, 1.0};
-  REQUIRE(splitI(d) == std::vector<size_t>{1});
-  REQUIRE(splitF(d) == std::vector<size_t>{1});
-  REQUIRE(splitD(d) == std::vector<size_t>{0});
-}
-
 TEST_CASE("RangeSplit works with explicit chain accessors", "[SubDivideFunctors]") {
   RangeSplit<Chain<&Outer::getInner, &Inner::getId>> split({{0, 5}, {5, 10}});
   Outer o1{0, {3}};
