@@ -176,16 +176,28 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
             state.getUncalibratedSourceLink().template get<ActsExamples::IndexSourceLink>().index();
 
         // no hit on this state/surface, skip
+#if Acts_VERSION_MAJOR >= 45
+        if (typeFlags.isHole()) {
+#else
         if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
+#endif
           debug("No hit found on geo id={}", geoID);
 
         } else {
           auto meas2D = (*meas2Ds)[srclink_index];
+#if Acts_VERSION_MAJOR >= 45
+          if (typeFlags.isOutlier()) {
+#else
           if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
+#endif
             trajectory.addToOutliers_deprecated(meas2D);
             debug("Outlier on geo id={}, index={}, loc={},{}", geoID, srclink_index,
                   meas2D.getLoc().a, meas2D.getLoc().b);
+#if Acts_VERSION_MAJOR >= 45
+          } else if (typeFlags.isMeasurement()) {
+#else
           } else if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+#endif
             track_out.addToMeasurements(meas2D);
             trajectory.addToMeasurements_deprecated(meas2D);
             debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
