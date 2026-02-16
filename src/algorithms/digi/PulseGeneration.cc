@@ -42,9 +42,7 @@ private:
 protected:
   // Protected constructor for derived classes to set traits
   SignalPulse(bool is_unimodal)
-      : m_is_unimodal(is_unimodal)
-      , m_is_continuous(is_continuous)
-      , m_has_bounded_support(has_bounded_support) {}
+      : m_is_unimodal(is_unimodal) {}
 
 public:
   virtual ~SignalPulse()                     = default;
