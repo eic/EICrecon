@@ -73,7 +73,7 @@ private:
 // ----------------------------------------------------------------------------
 template <auto Accessor> class RangeSplit {
 public:
-  RangeSplit(const std::vector<std::pair<double, double>> ranges) : m_ranges(ranges) {};
+  RangeSplit(const std::vector<std::pair<double, double>>& ranges) : m_ranges(ranges) {};
 
   template <typename T> std::vector<size_t> operator()(T&& instance) const {
     std::vector<size_t> ids;
@@ -96,8 +96,8 @@ private:
 // ----------------------------------------------------------------------------
 class GeometrySplit {
 public:
-  GeometrySplit(const std::vector<std::vector<long int>> ids, const std::string readout,
-                const std::vector<std::string> divisions)
+  GeometrySplit(const std::vector<std::vector<long int>>& ids, const std::string& readout,
+                const std::vector<std::string>& divisions)
       : m_ids(ids)
       , m_divisions(divisions)
       , m_readout(readout)
@@ -148,7 +148,7 @@ private:
 // ----------------------------------------------------------------------------
 template <auto... Accessors> class ValueSplit {
 public:
-  ValueSplit(const std::vector<std::vector<int>> ids) : m_ids(ids) {};
+  ValueSplit(const std::vector<std::vector<int>>& ids) : m_ids(ids) {};
 
   template <typename T> std::vector<size_t> operator()(T&& instance) const {
     std::vector<size_t> ids;
