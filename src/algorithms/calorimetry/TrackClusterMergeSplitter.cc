@@ -68,9 +68,8 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
       // pick out corresponding projection from track
       if (match.getTrack() != project.getTrack()) {
         continue;
-      } else {
-        mapProjToSplit[match.getCluster()].push_back(project);
-      }
+      }         mapProjToSplit[match.getCluster()].push_back(project);
+     
     }
   } // end track-cluster match loop
 
@@ -237,9 +236,8 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const VecClust& to_merg
       add_cluster_to_proto(old_clust, new_protos.front());
     }
     return;
-  } else {
-    trace("Splitting merged cluster across {} tracks", to_split.size());
-  }
+  }     trace("Splitting merged cluster across {} tracks", to_split.size());
+ 
 
   // calculate weights for splitting
   VecWeights weights(to_split.size());
