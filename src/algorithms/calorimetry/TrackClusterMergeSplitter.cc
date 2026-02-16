@@ -91,7 +91,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     }
     if (!project_seed) {
       continue;
-}
+    }
 
     // skip if cluster is already used
     if (setUsedClust.contains(clust_seed)) {
@@ -258,7 +258,7 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const VecClust& to_merg
         }
         if (!proj) {
           continue;
-}
+        }
 
         // get track eta, phi
         const float etaProj = edm4hep::utils::eta(proj.value().position);
@@ -299,9 +299,9 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const VecClust& to_merg
 // --------------------------------------------------------------------------
 //! Add a cluster's hits to a protocluster
 // --------------------------------------------------------------------------
-void TrackClusterMergeSplitter::add_cluster_to_proto(
-    const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
-    std::optional<MapToWeight> split_weights) {
+void TrackClusterMergeSplitter::add_cluster_to_proto(const edm4eic::Cluster& clust,
+                                                     edm4eic::MutableProtoCluster& proto,
+                                                     std::optional<MapToWeight> split_weights) {
   // loop over hits to add
   for (const auto& hit : clust.getHits()) {
 
