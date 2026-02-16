@@ -11,95 +11,94 @@
 using namespace eicrecon;
 
 struct Dummy {
-    int value;
-    float fvalue;
-    double dvalue;
-    int getValue() { return value; }
-    int getValueConst() const { return value; }
-    float getFValue() const { return fvalue; }
-    double getDValue() const { return dvalue; }
-    bool isEven() const { return value % 2 == 0; }
-    bool isPositive() const { return value > 0; }
+  int value;
+  float fvalue;
+  double dvalue;
+  int getValue() { return value; }
+  int getValueConst() const { return value; }
+  float getFValue() const { return fvalue; }
+  double getDValue() const { return dvalue; }
+  bool isEven() const { return value % 2 == 0; }
+  bool isPositive() const { return value > 0; }
 };
 
 TEST_CASE("RangeSplit works with int and const/non-const member functions", "[SubDivideFunctors]") {
-    RangeSplit<&Dummy::getValue> split1({{0, 4}, {5, 10}});
-    RangeSplit<&Dummy::getValueConst> split2({{0, 4}, {5, 10}});
-    Dummy d1{3}, d2{7};
-    REQUIRE(split1(d1) == std::vector<int>{0});
-    REQUIRE(split1(d2) == std::vector<int>{1});
-    REQUIRE(split2(d1) == std::vector<int>{0});
-    REQUIRE(split2(d2) == std::vector<int>{1});
+  RangeSplit<&Dummy::getValue> split1({{0, 4}, {5, 10}});
+  RangeSplit<&Dummy::getValueConst> split2({{0, 4}, {5, 10}});
+  Dummy d1{3}, d2{7};
+  REQUIRE(split1(d1) == std::vector<int>{0});
+  REQUIRE(split1(d2) == std::vector<int>{1});
+  REQUIRE(split2(d1) == std::vector<int>{0});
+  REQUIRE(split2(d2) == std::vector<int>{1});
 }
 
 TEST_CASE("RangeSplit works with float and double", "[SubDivideFunctors]") {
-    RangeSplit<&Dummy::getFValue> splitF({{0.0f, 1.5f}, {2.0f, 3.0f}});
-    RangeSplit<&Dummy::getDValue> splitD({{0.0, 1.5}, {2.0, 3.0}});
-    Dummy d1{0, 1.0f, 2.5};
-    Dummy d2{0, 2.5f, 1.0};
-    REQUIRE(splitF(d1) == std::vector<int>{0});
-    REQUIRE(splitF(d2) == std::vector<int>{1});
-    REQUIRE(splitD(d1) == std::vector<int>{1});
-    REQUIRE(splitD(d2) == std::vector<int>{0});
+  RangeSplit<&Dummy::getFValue> splitF({{0.0f, 1.5f}, {2.0f, 3.0f}});
+  RangeSplit<&Dummy::getDValue> splitD({{0.0, 1.5}, {2.0, 3.0}});
+  Dummy d1{0, 1.0f, 2.5};
+  Dummy d2{0, 2.5f, 1.0};
+  REQUIRE(splitF(d1) == std::vector<int>{0});
+  REQUIRE(splitF(d2) == std::vector<int>{1});
+  REQUIRE(splitD(d1) == std::vector<int>{1});
+  REQUIRE(splitD(d2) == std::vector<int>{0});
 }
 
 TEST_CASE("RangeSplit works with outside ranges", "[SubDivideFunctors]") {
-    RangeSplit<&Dummy::getValue> split({{0, 4}, {5, 10}}, {false, true});
-    Dummy d1{3}, d2{7}, d3{11};
-    REQUIRE(split(d1) == std::vector<int>{1});
-    REQUIRE(split(d2) == std::vector<int>{0});
-    REQUIRE(split(d3) == std::vector<int>{0});
+  RangeSplit<&Dummy::getValue> split({{0, 4}, {5, 10}}, {false, true});
+  Dummy d1{3}, d2{7}, d3{11};
+  REQUIRE(split(d1) == std::vector<int>{1});
+  REQUIRE(split(d2) == std::vector<int>{0});
+  REQUIRE(split(d3) == std::vector<int>{0});
 }
 
 TEST_CASE("RangeSplit with bool inside array", "[SubDivideFunctors]") {
-    RangeSplit<&Dummy::getValue> split({{0, 4}, {5, 10}}, {true, false});
-    Dummy d1{3}, d2{7}, d3{11};
-    REQUIRE(split(d1) == std::vector<int>{0});
-    REQUIRE(split(d2) == std::vector<int>{1});
-    REQUIRE(split(d3) == std::vector<int>{1});
+  RangeSplit<&Dummy::getValue> split({{0, 4}, {5, 10}}, {true, false});
+  Dummy d1{3}, d2{7}, d3{11};
+  REQUIRE(split(d1) == std::vector<int>{0});
+  REQUIRE(split(d2) == std::vector<int>{1});
+  REQUIRE(split(d3) == std::vector<int>{1});
 }
 
 TEST_CASE("ValueSplit works with int, float, and double", "[SubDivideFunctors]") {
-    ValueSplit<&Dummy::getValue> splitI({{1}, {2}, {3}});
-    ValueSplit<&Dummy::getFValue> splitF({{1.0f}, {2.5f}});
-    ValueSplit<&Dummy::getDValue> splitD({{1.0}, {2.5}});
-    Dummy d{2, 2.5f, 1.0};
-    REQUIRE(splitI(d) == std::vector<int>{1});
-    REQUIRE(splitF(d) == std::vector<int>{1});
-    REQUIRE(splitD(d) == std::vector<int>{0});
+  ValueSplit<&Dummy::getValue> splitI({{1}, {2}, {3}});
+  ValueSplit<&Dummy::getFValue> splitF({{1.0f}, {2.5f}});
+  ValueSplit<&Dummy::getDValue> splitD({{1.0}, {2.5}});
+  Dummy d{2, 2.5f, 1.0};
+  REQUIRE(splitI(d) == std::vector<int>{1});
+  REQUIRE(splitF(d) == std::vector<int>{1});
+  REQUIRE(splitD(d) == std::vector<int>{0});
 }
 
 TEST_CASE("BooleanSplit works with multiple member functions", "[SubDivideFunctors]") {
-    BooleanSplit<&Dummy::getValue, &Dummy::isEven> split1(
-        {std::make_tuple(2, true), std::make_tuple(3, false)});
-    BooleanSplit<&Dummy::getValueConst, &Dummy::isPositive> split2(
-        {std::make_tuple(2, true), std::make_tuple(-1, false)});
-    Dummy d1{2}, d2{3}, d3{-1};
-    REQUIRE(split1(d1) == std::vector<int>{0});
-    REQUIRE(split1(d2) == std::vector<int>{1});
-    REQUIRE(split2(d1) == std::vector<int>{0});
-    REQUIRE(split2(d3) == std::vector<int>{1});
+  BooleanSplit<&Dummy::getValue, &Dummy::isEven> split1(
+      {std::make_tuple(2, true), std::make_tuple(3, false)});
+  BooleanSplit<&Dummy::getValueConst, &Dummy::isPositive> split2(
+      {std::make_tuple(2, true), std::make_tuple(-1, false)});
+  Dummy d1{2}, d2{3}, d3{-1};
+  REQUIRE(split1(d1) == std::vector<int>{0});
+  REQUIRE(split1(d2) == std::vector<int>{1});
+  REQUIRE(split2(d1) == std::vector<int>{0});
+  REQUIRE(split2(d3) == std::vector<int>{1});
 }
 
-
 TEST_CASE("Edge cases: empty ranges and values not matching", "[SubDivideFunctors]") {
-    RangeSplit<&Dummy::getValue> split({}, {});
-    Dummy d{42};
-    REQUIRE(split(d).empty());
+  RangeSplit<&Dummy::getValue> split({}, {});
+  Dummy d{42};
+  REQUIRE(split(d).empty());
 
-    ValueSplit<&Dummy::getValue> splitV({{1}, {2}});
-    REQUIRE(splitV(d).empty());
+  ValueSplit<&Dummy::getValue> splitV({{1}, {2}});
+  REQUIRE(splitV(d).empty());
 
-    BooleanSplit<&Dummy::getValue, &Dummy::isEven> splitB({});
-    REQUIRE(splitB(d).empty());
+  BooleanSplit<&Dummy::getValue, &Dummy::isEven> splitB({});
+  REQUIRE(splitB(d).empty());
 }
 
 TEST_CASE("RangeSplit with std::array upstream", "[SubDivideFunctors]") {
-    constexpr std::size_t N = 2;
-    std::array<std::pair<int, int>, N> ranges = {{{0, 4}, {5, 10}}};
-    std::array<bool, N> inside = {true, true};
-    RangeSplit<&Dummy::getValue, N> split(ranges, inside);
-    Dummy d1{3}, d2{7};
-    REQUIRE(split(d1) == std::vector<int>{0});
-    REQUIRE(split(d2) == std::vector<int>{1});
+  constexpr std::size_t N                   = 2;
+  std::array<std::pair<int, int>, N> ranges = {{{0, 4}, {5, 10}}};
+  std::array<bool, N> inside                = {true, true};
+  RangeSplit<&Dummy::getValue, N> split(ranges, inside);
+  Dummy d1{3}, d2{7};
+  REQUIRE(split(d1) == std::vector<int>{0});
+  REQUIRE(split(d2) == std::vector<int>{1});
 }

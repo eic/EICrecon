@@ -179,7 +179,7 @@ private:
 template <auto... MemberFunctionPtrs> class ValueSplit {
 public:
   ValueSplit(const std::vector<std::vector<int>>& ids, const bool matching = true)
-      : m_ids(ids), m_matching(matching){};
+      : m_ids(ids), m_matching(matching) {};
 
   template <typename T> std::vector<size_t> operator()(const T& instance) const {
     std::vector<size_t> ids;
@@ -226,7 +226,7 @@ public:
       , m_comparisons(
             make_comparison_tuple<ComparisonFunction,
                                   typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>(
-                comparison)){};
+                comparison)) {};
 
   BooleanSplit(
       const std::tuple<typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>& ids,
@@ -235,7 +235,7 @@ public:
       , m_comparisons(
             make_comparison_tuple<ComparisonFunction,
                                   typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>(
-                comparison)){};
+                comparison)) {};
 
   BooleanSplit(const std::vector<
                    std::tuple<typename MemberFunctionReturnType<MemberFunctionPtrs>::type...>>& ids,
