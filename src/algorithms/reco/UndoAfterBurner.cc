@@ -26,21 +26,6 @@
 #include "algorithms/reco/Beam.h"
 #include "algorithms/reco/UndoAfterBurnerConfig.h"
 
-namespace std {
-#if defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
-#if podio_VERSION <= PODIO_VERSION(1, 2, 0)
-// Hash for podio::ObjectID
-template <> struct hash<podio::ObjectID> {
-  size_t operator()(const podio::ObjectID& id) const noexcept {
-    size_t h1 = std::hash<uint32_t>{}(id.collectionID);
-    size_t h2 = std::hash<int>{}(id.index);
-    return h1 ^ (h2 << 1);
-  }
-};
-#endif // podio version check
-#endif // defined(podio_VERSION_MAJOR) && defined(podio_VERSION_MINOR)
-} // namespace std
-
 void eicrecon::UndoAfterBurner::init() {}
 
 void eicrecon::UndoAfterBurner::process(const UndoAfterBurner::Input& input,
