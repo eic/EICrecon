@@ -5,11 +5,10 @@
 // Convert energy deposition into ADC pulses
 // ADC pulses are assumed to follow the shape of landau function
 
-#include "PulseGeneration.h"
-
 #include <RtypesCore.h>
 #include <TMath.h>
 #include <algorithms/service.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
@@ -19,14 +18,13 @@
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
-#include <iterator>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
-#include <utility>
 #include <vector>
 
+#include "PulseGeneration.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
