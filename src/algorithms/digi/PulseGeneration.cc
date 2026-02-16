@@ -58,8 +58,6 @@ public:
 
   // Trait queries (non-virtual - inlineable, zero overhead)
   bool isUnimodal() const { return m_is_unimodal; }
-  bool isContinuous() const { return m_is_continuous; }
-  bool hasBoundedSupport() const { return m_has_bounded_support; }
 
   // Optional trait-specific data (virtual - called rarely, so overhead acceptable)
   virtual std::optional<double> getPeakTime(double /*charge*/) const { return std::nullopt; }
