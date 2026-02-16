@@ -62,7 +62,6 @@ public:
 
   // Optional trait-specific data (virtual - called rarely, so overhead acceptable)
   virtual std::optional<double> getPeakTime(double /*charge*/) const { return std::nullopt; }
-  virtual std::optional<std::pair<double, double>> getSupportBounds() const { return std::nullopt; }
 };
 
 // ----------------------------------------------------------------------------
