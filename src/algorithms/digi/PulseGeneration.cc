@@ -130,7 +130,7 @@ public:
   double operator()(double time, double charge) override {
     // Use per-call local storage to ensure thread-safety
     // (m_pulse is shared via std::shared_ptr across threads)
-    auto local_params = m_param_map;
+    auto local_params      = m_param_map;
     local_params["time"]   = time;
     local_params["charge"] = charge;
     return m_evaluator(local_params);
