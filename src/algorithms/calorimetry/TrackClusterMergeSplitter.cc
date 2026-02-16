@@ -47,13 +47,13 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 #endif
 
   // exit if no clusters in collection
-  if (in_cluster->size() == 0) {
+  if (in_cluster->empty()) {
     debug("No clusters in input collection.");
     return;
   }
 
   // emit debugging message if no matched tracks in collection
-  if (in_match->size() == 0) {
+  if (in_match->empty()) {
     debug("No matched tracks in collection.");
     return;
   }
