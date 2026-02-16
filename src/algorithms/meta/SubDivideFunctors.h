@@ -40,9 +40,9 @@ template <typename... Chains> class RangeSplit;
 // Specialization: single Chain
 template <auto... MemberFunctionPtrs> class RangeSplit<Chain<MemberFunctionPtrs...>> {
 public:
-  RangeSplit(std::vector<std::pair<double, double>> ranges) : m_ranges(ranges) {};
+  RangeSplit(const std::vector<std::pair<double, double>> ranges) : m_ranges(ranges) {};
 
-  template <typename T> std::vector<size_t> operator()(T& instance) const {
+  template <typename T> std::vector<size_t> operator()(const T& instance) const {
     std::vector<size_t> ids;
     auto value = ChainInvoker<MemberFunctionPtrs...>::invoke(instance);
     // Check if requested value is within the ranges
@@ -55,7 +55,7 @@ public:
   }
 
 private:
-  std::vector<std::pair<double, double>> m_ranges;
+  const std::vector<std::pair<double, double>> m_ranges;
 };
 
 // ----------------------------------------------------------------------------
@@ -63,8 +63,8 @@ private:
 // ----------------------------------------------------------------------------
 class GeometrySplit {
 public:
-  GeometrySplit(std::vector<std::vector<long int>> ids, std::string readout,
-                std::vector<std::string> divisions)
+  GeometrySplit(const std::vector<std::vector<long int>> ids, const std::string readout,
+                const std::vector<std::string> divisions)
       : m_ids(ids)
       , m_divisions(divisions)
       , m_readout(readout)
@@ -72,7 +72,7 @@ public:
       , m_id_dec(std::make_shared<dd4hep::DDSegmentation::BitFieldCoder*>())
       , m_div_ids(std::make_shared<std::vector<std::size_t>>()) {};
 
-  template <typename T> std::vector<size_t> operator()(T& instance) const {
+  template <typename T> std::vector<size_t> operator()(const T& instance) const {
 
     // Initialize the decoder and division ids on the first function call
     std::call_once(*is_init, &GeometrySplit::init, this);
@@ -101,13 +101,13 @@ private:
     }
   }
 
-  std::vector<std::vector<long int>> m_ids;
-  std::vector<std::string> m_divisions;
-  std::string m_readout;
+  const std::vector<std::vector<long int>> m_ids;
+  const std::vector<std::string> m_divisions;
+  const std::string m_readout;
 
   std::shared_ptr<std::once_flag> is_init;
-  std::shared_ptr<dd4hep::DDSegmentation::BitFieldCoder*> m_id_dec;
-  std::shared_ptr<std::vector<std::size_t>> m_div_ids;
+  const std::shared_ptr<dd4hep::DDSegmentation::BitFieldCoder*> m_id_dec;
+  std::shared_ptr<std::vector<size_t>> m_div_ids;
 };
 
 // ----------------------------------------------------------------------------
@@ -115,9 +115,9 @@ private:
 // ----------------------------------------------------------------------------
 template <auto... MemberFunctionPtrs> class ValueSplit {
 public:
-  ValueSplit(std::vector<std::vector<int>> ids) : m_ids(ids) {};
+  ValueSplit(const std::vector<std::vector<int>> ids) : m_ids(ids) {};
 
-  template <typename T> std::vector<size_t> operator()(T& instance) const {
+  template <typename T> std::vector<size_t> operator()(const T& instance) const {
     std::vector<size_t> ids;
     // Check if requested value matches any configuration combinations
     std::vector<int> values;
@@ -130,7 +130,7 @@ public:
   }
 
 private:
-  std::vector<std::vector<int>> m_ids;
+  const std::vector<std::vector<int>> m_ids;
 };
 
 } // namespace eicrecon
