@@ -43,9 +43,7 @@ private:
 protected:
   // Protected constructor for derived classes to set traits
   SignalPulse(bool is_unimodal, bool is_continuous, bool has_bounded_support)
-      : m_is_unimodal(is_unimodal)
-      , m_is_continuous(is_continuous)
-      , m_has_bounded_support(has_bounded_support) {}
+      : m_is_unimodal(is_unimodal) {}
 
 public:
   virtual ~SignalPulse()                     = default;
@@ -75,8 +73,6 @@ class LandauPulse : public SignalPulse {
 public:
   LandauPulse(std::vector<double> params)
       : SignalPulse(true, // is_unimodal: Landau distribution has single peak
-                    true, // is_continuous: smooth, differentiable function
-                    false // has_bounded_support: has infinite tail (asymptotically approaches zero)
         ) {
     if ((params.size() != 2) && (params.size() != 3)) {
       throw std::runtime_error(
@@ -115,8 +111,6 @@ class EvaluatorPulse : public SignalPulse {
 public:
   EvaluatorPulse(const std::string& expression, const std::vector<double>& params)
       : SignalPulse(false, // is_unimodal: unknown, assume worst case (may have multiple peaks)
-                    false, // is_continuous: unknown, assume worst case (may be discontinuous)
-                    false  // has_bounded_support: unknown, assume worst case (unbounded)
         ) {
     std::vector<std::string> keys = {"time", "charge"};
     for (std::size_t i = 0; i < params.size(); i++) {
