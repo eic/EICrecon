@@ -113,7 +113,7 @@ public:
     //Check which detector division to put the hit into
     auto cellID = instance.getCellID();
     std::vector<long int> det_ids;
-    for (auto d : *m_div_ids) {
+    for (const auto& d : *m_div_ids) {
       det_ids.push_back((*m_id_dec)->get(cellID, d));
     }
 
@@ -129,7 +129,7 @@ public:
 private:
   void init() const {
     *m_id_dec = algorithms::GeoSvc::instance().detector()->readout(m_readout).idSpec().decoder();
-    for (auto d : m_divisions) {
+    for (const auto& d : m_divisions) {
       m_div_ids->push_back((*m_id_dec)->index(d));
     }
   }
