@@ -66,7 +66,7 @@ public:
 class LandauPulse : public SignalPulse {
 public:
   LandauPulse(std::vector<double> params)
-      : SignalPulse(true, // is_unimodal: Landau distribution has single peak
+      : SignalPulse(true // is_unimodal: Landau distribution has single peak
         ) {
     if ((params.size() != 2) && (params.size() != 3)) {
       throw std::runtime_error(
@@ -104,7 +104,7 @@ private:
 class EvaluatorPulse : public SignalPulse {
 public:
   EvaluatorPulse(const std::string& expression, const std::vector<double>& params)
-      : SignalPulse(false, // is_unimodal: unknown, assume worst case (may have multiple peaks)
+      : SignalPulse(false // is_unimodal: unknown, assume worst case (may have multiple peaks)
         ) {
     std::vector<std::string> keys = {"time", "charge"};
     for (std::size_t i = 0; i < params.size(); i++) {
