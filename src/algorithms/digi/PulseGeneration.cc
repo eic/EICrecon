@@ -140,11 +140,6 @@ public:
     // Use per-thread cached storage to ensure thread-safety without incurring
     // a full map copy on each call. Each thread gets its own copy of m_param_map,
     // initialized once, then only time/charge are updated per call.
-    //
-    // Note: EvaluatorPulse instances are created during init() and persist for
-    // the algorithm lifetime, so cache entries are not explicitly cleaned up.
-    // If this pattern is reused in contexts with frequently created/destroyed
-    // pulse shapes, consider adding cleanup in the destructor.
     thread_local std::unordered_map<const EvaluatorPulse*,
                                     std::optional<std::unordered_map<std::string, double>>>
         cache;
