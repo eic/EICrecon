@@ -4,17 +4,22 @@
 #pragma once
 
 #include <algorithms/geo.h>
+#include <type_traits>
 
 namespace eicrecon {
 
 // ----------------------------------------------------------------------------
 // Chain wrapper type for explicit member function call chaining
-// Usage: Chain<&A::getB, &B::getC> chains A->getB()->getC()
+// Usage: RangeSplit<Chain<&A::getB, &B::getC>> splits on A->getB()->getC()
 // ----------------------------------------------------------------------------
-template <auto... MemberFunctionPtrs> struct Chain {};
+template <auto... MemberFunctionPtrs> struct ChainTag {};
+
+template <auto... MemberFunctionPtrs>
+inline constexpr ChainTag<MemberFunctionPtrs...> Chain{};
 
 // ----------------------------------------------------------------------------
 // Helper to invoke a chain of member function calls
+// Usage: ChainInvoker<&A::getB, &B::getC>::invoke(a) chains A->getB()->getC()
 // ----------------------------------------------------------------------------
 template <auto... MemberFunctionPtrs> struct ChainInvoker;
 
@@ -33,18 +38,33 @@ struct ChainInvoker<FirstMemberFunctionPtr, RestMemberFunctionPtrs...> {
 };
 
 // ----------------------------------------------------------------------------
+// Helper to invoke either a direct member function pointer or a Chain value
+// ----------------------------------------------------------------------------
+template <auto Accessor> struct AccessorInvoker {
+  template <typename T> static auto invoke(T& instance) {
+    static_assert(std::is_member_function_pointer_v<decltype(Accessor)>,
+                  "Accessor must be a member function pointer or chain");
+    return (instance.*Accessor)();
+  }
+};
+
+template <auto... MemberFunctionPtrs>
+struct AccessorInvoker<Chain<MemberFunctionPtrs...>> {
+  template <typename T> static auto invoke(T& instance) {
+    return ChainInvoker<MemberFunctionPtrs...>::invoke(instance);
+  }
+};
+
+// ----------------------------------------------------------------------------
 // Functor to split collection based on a range of values
 // ----------------------------------------------------------------------------
-template <typename... Chains> class RangeSplit;
-
-// Specialization: single Chain
-template <auto... MemberFunctionPtrs> class RangeSplit<Chain<MemberFunctionPtrs...>> {
+template <auto Accessor> class RangeSplit {
 public:
   RangeSplit(const std::vector<std::pair<double, double>> ranges) : m_ranges(ranges) {};
 
   template <typename T> std::vector<size_t> operator()(const T& instance) const {
     std::vector<size_t> ids;
-    auto value = ChainInvoker<MemberFunctionPtrs...>::invoke(instance);
+    auto value = AccessorInvoker<Accessor>::invoke(instance);
     // Check if requested value is within the ranges
     for (std::size_t i = 0; i < m_ranges.size(); i++) {
       if (value > m_ranges[i].first && value < m_ranges[i].second) {
@@ -113,7 +133,7 @@ private:
 // ----------------------------------------------------------------------------
 // Functor to split collection based on any number of collection values
 // ----------------------------------------------------------------------------
-template <auto... MemberFunctionPtrs> class ValueSplit {
+template <auto... Accessors> class ValueSplit {
 public:
   ValueSplit(const std::vector<std::vector<int>> ids) : m_ids(ids) {};
 
@@ -121,7 +141,7 @@ public:
     std::vector<size_t> ids;
     // Check if requested value matches any configuration combinations
     std::vector<int> values;
-    (values.push_back((instance.*MemberFunctionPtrs)()), ...);
+    (values.push_back(AccessorInvoker<Accessors>::invoke(instance)), ...);
     auto index = std::find(m_ids.begin(), m_ids.end(), values);
     if (index != m_ids.end()) {
       ids.push_back(std::distance(m_ids.begin(), index));
