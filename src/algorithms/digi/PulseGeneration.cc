@@ -5,12 +5,10 @@
 // Convert energy deposition into ADC pulses
 // ADC pulses are assumed to follow the shape of landau function
 
-#include <edm4eic/EDM4eicVersion.h>
-#include "PulseGeneration.h"
-
 #include <RtypesCore.h>
 #include <TMath.h>
 #include <algorithms/service.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
@@ -20,23 +18,44 @@
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
+#include <optional>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
 #include <vector>
 
+#include "PulseGeneration.h"
 #include "services/evaluator/EvaluatorSvc.h"
 
 namespace eicrecon {
 
 class SignalPulse {
+private:
+  // Pulse shape traits - set once at construction from compile-time knowledge.
+  // Intended to be immutable after construction: private members, initialization
+  // only via protected constructor, no setters, and const accessor methods.
+  bool m_is_unimodal;
+
+protected:
+  // Protected constructor for derived classes to set traits
+  SignalPulse(bool is_unimodal) : m_is_unimodal(is_unimodal) {}
 
 public:
-  virtual ~SignalPulse() = default; // Virtual destructor
+  virtual ~SignalPulse()                     = default;
+  SignalPulse(const SignalPulse&)            = delete;
+  SignalPulse& operator=(const SignalPulse&) = delete;
+  SignalPulse(SignalPulse&&)                 = delete;
+  SignalPulse& operator=(SignalPulse&&)      = delete;
 
+  // Pulse evaluation (virtual - this is the expensive operation)
   virtual double operator()(double time, double charge) = 0;
+  virtual double getMaximumTime() const                 = 0;
 
-  virtual double getMaximumTime() const = 0;
+  // Trait queries (non-virtual - inlineable, zero overhead)
+  bool isUnimodal() const { return m_is_unimodal; }
+
+  // Optional trait-specific data (virtual - called rarely, so overhead acceptable)
+  virtual std::optional<double> getPeakTime(double /*charge*/) const { return std::nullopt; }
 };
 
 // ----------------------------------------------------------------------------
@@ -44,8 +63,9 @@ public:
 // ----------------------------------------------------------------------------
 class LandauPulse : public SignalPulse {
 public:
-  LandauPulse(std::vector<double> params) {
-
+  LandauPulse(std::vector<double> params)
+      : SignalPulse(true // is_unimodal: Landau distribution has single peak
+        ) {
     if ((params.size() != 2) && (params.size() != 3)) {
       throw std::runtime_error(
           "LandauPulse requires 2 or 3 parameters, gain, sigma_analog, [hit_sigma_offset], got " +
@@ -66,17 +86,24 @@ public:
 
   double getMaximumTime() const override { return m_hit_sigma_offset * m_sigma_analog; }
 
+  // Override optional trait method - we know the peak location analytically
+  std::optional<double> getPeakTime(double /*charge*/) const override {
+    return m_hit_sigma_offset * m_sigma_analog;
+  }
+
 private:
   double m_gain             = 1.0;
   double m_sigma_analog     = 1.0;
   double m_hit_sigma_offset = 3.5;
 };
 
-// EvaluatorSvc Pulse
+// EvaluatorSvc Pulse - arbitrary user expressions
+// Uses conservative trait defaults since we cannot guarantee properties
 class EvaluatorPulse : public SignalPulse {
 public:
-  EvaluatorPulse(const std::string& expression, const std::vector<double>& params) {
-
+  EvaluatorPulse(const std::string& expression, const std::vector<double>& params)
+      : SignalPulse(false // is_unimodal: unknown, assume worst case (may have multiple peaks)
+        ) {
     std::vector<std::string> keys = {"time", "charge"};
     for (std::size_t i = 0; i < params.size(); i++) {
       std::string p = "param" + std::to_string(i);
@@ -107,6 +134,8 @@ public:
   }
 
   double getMaximumTime() const override { return 0; }
+
+  // No optional trait methods overridden - use base class defaults (std::nullopt)
 
 private:
   std::unordered_map<std::string, double> param_map;
@@ -176,6 +205,9 @@ void PulseGeneration<HitT>::process(
   const auto [simhits] = input;
   auto [rawPulses]     = output;
 
+  // Cache pulse shape trait to avoid repeated method calls in hot path
+  const bool is_unimodal = m_pulse->isUnimodal();
+
   for (const auto& hit : *simhits) {
     const auto [time, charge] = HitAdapter<HitT>::getPulseSources(hit);
 
@@ -195,16 +227,25 @@ void PulseGeneration<HitT>::process(
       // Early exit conditions: below threshold and falling, or min sampling time after threshold
       if (std::abs(signal) < m_cfg.ignore_thres) {
         if (!passed_threshold) {
-          // Before threshold crossed
-          auto diff = std::abs(signal) - std::abs(previous);
-          previous  = signal;
-          if (diff >= 0) {
-            // Rising before threshold crossed
-            skip_bins = i;
-            continue;
+          // Before threshold crossed - check if we can exit early
+          // For unimodal pulses: once falling below threshold, we've passed the peak
+          // For non-unimodal: must keep searching (may have multiple peaks)
+          if (is_unimodal) {
+            auto diff = std::abs(signal) - std::abs(previous);
+            previous  = signal;
+            if (diff >= 0) {
+              // Rising before threshold crossed
+              skip_bins = i;
+              continue;
+            } else {
+              // Falling without threshold ever crossed - safe to exit for unimodal
+              break;
+            }
           } else {
-            // Falling without threshold ever crossed
-            break;
+            // Conservative: keep searching for potential later peaks
+            skip_bins = i;
+            previous  = signal;
+            continue;
           }
         } else {
           // After threshold crossed, stop after min sampling time
