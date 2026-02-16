@@ -213,8 +213,9 @@ void InitPlugin(JApplication* app) {
        "CalorimeterTrackProjections"},
       {"EcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
-       "EcalEndcapNTrackSplitMergeProtoClusterMatches"},
+       "EcalEndcapNTrackSplitMergeProtoClusterMatches"
 #endif
+       },
       {.minSigCut                    = -1.0,
        .avgEP                        = 1.0,
        .sigEP                        = 0.10,

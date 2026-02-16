@@ -183,8 +183,9 @@ void InitPlugin(JApplication* app) {
        "CalorimeterTrackProjections"},
       {"HcalBarrelSplitMergeProtoClusters",
 #if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
-       "HcalBarrelTrackSplitMergeProtoClusterMatches"},
+       "HcalBarrelTrackSplitMergeProtoClusterMatches"
 #endif
+       },
       {.minSigCut                    = -2.0,
        .avgEP                        = 0.50,
        .sigEP                        = 0.25,
