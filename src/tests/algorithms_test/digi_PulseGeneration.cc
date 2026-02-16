@@ -273,7 +273,7 @@ TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and l
   for (std::size_t i = 0; i < amplitudes.size(); i++) {
     if (std::abs(amplitudes[i]) > std::abs(max_amplitude)) {
       max_amplitude = amplitudes[i];
-      max_idx       = i; // Valid since i < amplitudes.size() during iteration
+      max_idx       = i;
     }
   }
 
