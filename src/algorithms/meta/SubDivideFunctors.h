@@ -101,7 +101,7 @@ public:
   template <typename T> std::vector<size_t> operator()(T& instance) const {
     std::vector<size_t> ids;
     auto value = (instance.*MemberFunctionPtr)();
-    //Check if requested value is within the ranges
+    // Check if requested value is within the ranges
     for (size_t i = 0; i < m_ranges.size(); i++) {
       if (m_inside[i]) {
         if (value >= m_ranges[i].first && value <= m_ranges[i].second) {
