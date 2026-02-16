@@ -177,7 +177,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
     // create a cluster for each projection to merged cluster
     VecProto new_protos;
-    for (const auto& [[maybe_unused]] project : mapProjToSplit[clust_seed]) {
+    for ([[maybe_unused]] const auto& project : mapProjToSplit[clust_seed]) {
       new_protos.push_back(out_proto->create());
     }
 
