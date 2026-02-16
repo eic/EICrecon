@@ -116,8 +116,8 @@ private:
   // private methods
   void merge_and_split_clusters(const VecClust& to_merge, const VecSeg& to_split,
                                 VecProto& new_protos) const;
-  void add_cluster_to_proto(const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
-                            std::optional<MapToWeight> split_weights = std::nullopt) const;
+  static void add_cluster_to_proto(const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
+                            std::optional<MapToWeight> split_weights = std::nullopt) ;
 
 }; // end TrackClusterMergeSplitter
 
