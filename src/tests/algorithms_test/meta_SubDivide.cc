@@ -82,8 +82,7 @@ TEST_CASE("RangeSplit works with explicit chain accessors", "[SubDivideFunctors]
 }
 
 TEST_CASE("ValueSplit mixes chain and non-chain accessors", "[SubDivideFunctors]") {
-  ValueSplit<&Outer::getValue, Chain<&Outer::getInner, &Inner::getSign>> split(
-      {{1, 1}, {2, -1}});
+  ValueSplit<&Outer::getValue, Chain<&Outer::getInner, &Inner::getSign>> split({{1, 1}, {2, -1}});
   Outer o1{1, {4}};
   Outer o2{2, {-3}};
   REQUIRE(split(o1) == std::vector<size_t>{0});

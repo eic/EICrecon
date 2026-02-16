@@ -16,8 +16,7 @@ namespace eicrecon {
 // ----------------------------------------------------------------------------
 template <auto... MemberFunctionPtrs> struct ChainTag {};
 
-template <auto... MemberFunctionPtrs>
-inline constexpr ChainTag<MemberFunctionPtrs...> Chain{};
+template <auto... MemberFunctionPtrs> inline constexpr ChainTag<MemberFunctionPtrs...> Chain{};
 
 // ----------------------------------------------------------------------------
 // Helper to invoke a chain of member function calls
@@ -44,7 +43,8 @@ struct ChainInvoker<FirstMemberFunctionPtr, RestMemberFunctionPtrs...> {
 // ----------------------------------------------------------------------------
 // Helper to detect ChainTag at compile time
 template <typename T> struct is_chain : std::false_type {};
-template <auto... MemberFunctionPtrs> struct is_chain<ChainTag<MemberFunctionPtrs...>> : std::true_type {};
+template <auto... MemberFunctionPtrs>
+struct is_chain<ChainTag<MemberFunctionPtrs...>> : std::true_type {};
 
 // Helper to invoke either a direct member function pointer or a Chain value
 // ----------------------------------------------------------------------------
