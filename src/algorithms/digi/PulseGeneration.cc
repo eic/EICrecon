@@ -37,8 +37,6 @@ private:
   // Intended to be immutable after construction: private members, initialization
   // only via protected constructor, no setters, and const accessor methods.
   bool m_is_unimodal;
-  bool m_is_continuous;
-  bool m_has_bounded_support;
 
 protected:
   // Protected constructor for derived classes to set traits
