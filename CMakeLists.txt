@@ -55,7 +55,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Minimal dependency versions
-set(Acts_VERSION_MIN 36.1.0)
+set(Acts_VERSION_MIN 39.2.0)
 set(algorithms_VERSION_MIN 1.0.0)
 set(DD4hep_VERSION_MIN 1.21)
 set(EDM4EIC_VERSION_MIN 8.0)
