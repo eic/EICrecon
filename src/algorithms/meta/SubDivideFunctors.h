@@ -42,8 +42,8 @@ template <auto... MemberFunctionPtrs> class RangeSplit<Chain<MemberFunctionPtrs.
 public:
   RangeSplit(std::vector<std::pair<double, double>> ranges) : m_ranges(ranges) {};
 
-  template <typename T> std::vector<int> operator()(T& instance) const {
-    std::vector<int> ids;
+  template <typename T> std::vector<size_t> operator()(T& instance) const {
+    std::vector<size_t> ids;
     auto value = ChainInvoker<MemberFunctionPtrs...>::invoke(instance);
     // Check if requested value is within the ranges
     for (std::size_t i = 0; i < m_ranges.size(); i++) {
@@ -72,7 +72,7 @@ public:
       , m_id_dec(std::make_shared<dd4hep::DDSegmentation::BitFieldCoder*>())
       , m_div_ids(std::make_shared<std::vector<std::size_t>>()) {};
 
-  template <typename T> std::vector<int> operator()(T& instance) const {
+  template <typename T> std::vector<size_t> operator()(T& instance) const {
 
     // Initialize the decoder and division ids on the first function call
     std::call_once(*is_init, &GeometrySplit::init, this);
@@ -86,7 +86,7 @@ public:
 
     auto index = std::find(m_ids.begin(), m_ids.end(), det_ids);
 
-    std::vector<int> ids;
+    std::vector<size_t> ids;
     if (index != m_ids.end()) {
       ids.push_back(std::distance(m_ids.begin(), index));
     }
@@ -117,8 +117,8 @@ template <auto... MemberFunctionPtrs> class ValueSplit {
 public:
   ValueSplit(std::vector<std::vector<int>> ids) : m_ids(ids) {};
 
-  template <typename T> std::vector<int> operator()(T& instance) const {
-    std::vector<int> ids;
+  template <typename T> std::vector<size_t> operator()(T& instance) const {
+    std::vector<size_t> ids;
     // Check if requested value matches any configuration combinations
     std::vector<int> values;
     (values.push_back((instance.*MemberFunctionPtrs)()), ...);
