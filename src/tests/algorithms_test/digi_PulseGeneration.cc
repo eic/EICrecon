@@ -291,7 +291,7 @@ TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and l
 
   // Verify we didn't exit early - should have samples beyond the actual peak
   // Compare against the computed max_time to ensure at least one additional timestep
-  // Note: the time of amplitudes[idx] is pulse_start_time + (idx + 1) * timestep
+  // Note: for a sample at index i, time(amplitudes[i]) = pulse_start_time + (i + 1) * timestep
   double last_sampled_time = pulse_start_time + amplitudes.size() * cfg.timestep;
   REQUIRE(last_sampled_time >= max_time + cfg.timestep);
 }
