@@ -236,7 +236,7 @@ macro(plugin_add_jana _name)
       PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
               "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
               "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
-  endif(${_name}_WITH_PLUGIN)
+  endif()
 
   # Ensure datamodel headers are available
   if(TARGET podio_datamodel_glue)
