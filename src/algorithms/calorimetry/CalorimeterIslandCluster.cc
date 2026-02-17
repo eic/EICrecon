@@ -237,13 +237,11 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
   // indices contains the remaining hit indices that have not
   // been assigned to a group yet
   std::set<std::size_t, decltype(compare)> indices(compare);
-  // set does not have a size yet, so cannot fill with iota
+  // only include hits with sufficient energy for clustering
   for (std::size_t i = 0; i < hits->size(); ++i) {
-    indices.insert(i);
-  }
-  // ensure no hits were dropped due to equivalency in set
-  if (hits->size() != indices.size()) {
-    error("equivalent hits were dropped: #hits {:d}, #indices {:d}", hits->size(), indices.size());
+    if ((*hits)[i].getEnergy() >= m_cfg.minClusterHitEdep) {
+      indices.insert(i);
+    }
   }
 
   // group neighboring hits
