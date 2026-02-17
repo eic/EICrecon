@@ -20,13 +20,13 @@ template <auto... MemberFunctionPtrs> struct ChainInvoker;
 
 // Base case: single member function
 template <auto MemberFunctionPtr> struct ChainInvoker<MemberFunctionPtr> {
-  template <typename T> static auto invoke(T& instance) { return (instance.*MemberFunctionPtr)(); }
+  template <typename T> static auto invoke(const T& instance) { return (instance.*MemberFunctionPtr)(); }
 };
 
 // Recursive case: chain multiple member functions
 template <auto FirstMemberFunctionPtr, auto... RestMemberFunctionPtrs>
 struct ChainInvoker<FirstMemberFunctionPtr, RestMemberFunctionPtrs...> {
-  template <typename T> static auto invoke(T& instance) {
+  template <typename T> static auto invoke(const T& instance) {
     auto nested = (instance.*FirstMemberFunctionPtr)();
     return ChainInvoker<RestMemberFunctionPtrs...>::invoke(nested);
   }
@@ -42,7 +42,7 @@ template <auto... MemberFunctionPtrs> class RangeSplit<Chain<MemberFunctionPtrs.
 public:
   RangeSplit(std::vector<std::pair<double, double>> ranges) : m_ranges(ranges) {};
 
-  template <typename T> std::vector<std::size_t> operator()(T& instance) const {
+  template <typename T> std::vector<std::size_t> operator()(const T& instance) const {
     std::vector<std::size_t> ids;
     auto value = ChainInvoker<MemberFunctionPtrs...>::invoke(instance);
     // Check if requested value is within the ranges
