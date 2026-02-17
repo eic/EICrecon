@@ -251,7 +251,7 @@ void InitPlugin(JApplication* app) {
       {
           "EcalEndcapPSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "EcalEndcapPRawHitLinks",
+          "EcalEndcapPRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
 #endif
           "EcalEndcapPRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
       },
