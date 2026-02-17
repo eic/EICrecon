@@ -62,6 +62,14 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
   auto [clusters, associations]         = output;
 #endif
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Build fast lookup once per event using podio::LinkNavigator
+  std::optional<podio::LinkNavigator> link_nav;
+  if (!mchitlinks->empty()) {
+    link_nav.emplace(*mchitlinks);
+  }
+#endif
+
   for (const auto& pcl : *proto) {
     // skip protoclusters with no hits
     if (pcl.hits_size() == 0) {
@@ -86,7 +94,7 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
             "will be performed.");
       continue;
     }
-    associate(cl, mchitassociations, mchitlinks, links, associations);
+    associate(cl, mchitassociations, &link_nav.value(), links, associations);
 #else
     if (mchitassociations->empty()) {
       debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
@@ -184,7 +192,7 @@ void CalorimeterClusterRecoCoG::associate(
     const edm4eic::Cluster& cl,
     [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    const edm4eic::MCRecoCalorimeterHitLinkCollection* mchitlinks,
+    const podio::LinkNavigator* link_nav,
     edm4eic::MCRecoClusterParticleLinkCollection* links,
 #endif
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
@@ -212,11 +220,6 @@ void CalorimeterClusterRecoCoG::associate(
   // bookkeeping maps for associated primaries
   std::map<edm4hep::MCParticle, double, decltype(compare)> mapMCParToContrib(compare);
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  // Build fast lookup using podio::LinkNavigator
-  podio::LinkNavigator link_nav(*mchitlinks);
-#endif
-
   // --------------------------------------------------------------------------
   // 1. get associated sim hits and sum energy
   // --------------------------------------------------------------------------
@@ -224,8 +227,8 @@ void CalorimeterClusterRecoCoG::associate(
   for (auto clhit : cl.getHits()) {
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    // Get linked sim hits using LinkNavigator
-    const auto vecAssocSimHits = link_nav.getLinked(clhit.getRawHit());
+    // Get linked sim hits using LinkNavigator (passed in from process())
+    const auto vecAssocSimHits = link_nav->getLinked(clhit.getRawHit());
 #else
     // Fallback: linear search through associations
     std::vector<std::pair<edm4hep::SimCalorimeterHit, double>> vecAssocSimHits;
