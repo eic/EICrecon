@@ -102,7 +102,7 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
     // If sim hits are available, associate cluster with MCParticle
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     if (do_assoc) {
-      associate(cl, mchitassociations, &link_nav.value(), links, associations);
+      associate(cl, mchitassociations, &(*link_nav), links, associations);
     }
 #else
     if (do_assoc) {
