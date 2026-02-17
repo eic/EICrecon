@@ -92,7 +92,7 @@ private:
   void
   ConvertClusters(const edm4eic::Measurement2DCollection& clusters,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                  const podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>* link_nav,
+                  const podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>& link_nav,
 #endif
                   const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
                   std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
