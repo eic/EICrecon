@@ -63,10 +63,22 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
 #endif
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Check if truth associations are possible
+  const bool do_assoc = !mchitlinks->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoCalorimeterHitLink collection is empty. No truth associations "
+          "will be performed.");
+  }
   // Build fast lookup once per event using podio::LinkNavigator
   std::optional<podio::LinkNavigator> link_nav;
-  if (!mchitlinks->empty()) {
+  if (do_assoc) {
     link_nav.emplace(*mchitlinks);
+  }
+#else
+  const bool do_assoc = !mchitassociations->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
+          "will be performed.");
   }
 #endif
 
@@ -89,19 +101,13 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
 
     // If sim hits are available, associate cluster with MCParticle
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    if (mchitlinks->empty()) {
-      debug("Provided MCRecoCalorimeterHitLink collection is empty. No truth associations "
-            "will be performed.");
-      continue;
+    if (do_assoc) {
+      associate(cl, mchitassociations, &link_nav.value(), links, associations);
     }
-    associate(cl, mchitassociations, &link_nav.value(), links, associations);
 #else
-    if (mchitassociations->empty()) {
-      debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
-            "will be performed.");
-      continue;
+    if (do_assoc) {
+      associate(cl, mchitassociations, associations);
     }
-    associate(cl, mchitassociations, associations);
 #endif
   }
 }
