@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include <functional>
+#include <vector>
 namespace eicrecon {
 
 template <class T> struct SubDivideCollectionConfig {
