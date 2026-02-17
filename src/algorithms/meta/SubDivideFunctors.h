@@ -4,9 +4,9 @@
 #pragma once
 
 #include <algorithm>
-#include <cstddef> 
+#include <cstddef>
 #include <utility>
-#include <vector> 
+#include <vector>
 #include <algorithms/geo.h>
 
 namespace eicrecon {
