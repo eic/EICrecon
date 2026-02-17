@@ -66,18 +66,16 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
     std::size_t seed_ecal_index = *remaining_ecal.begin();
 
     // Gather ecal clusters within ecalDeltaR of the seed
-    std::vector<std::size_t> ecal_to_merge =
-        get_cluster_indices_for_merging(*calo_clusters[0], remaining_ecal, seed_ecal_index,
-                                        m_cfg.ecalDeltaR, *calo_clusters[0]);
+    std::vector<std::size_t> ecal_to_merge = get_cluster_indices_for_merging(
+        *calo_clusters[0], remaining_ecal, seed_ecal_index, m_cfg.ecalDeltaR, *calo_clusters[0]);
 
     for (const auto& idx : ecal_to_merge) {
       neutral_candidate_eh.addToClusters((*calo_clusters[0])[idx]);
     }
 
     // Gather hcal clusters within hcalDeltaR of the ecal seed
-    std::vector<std::size_t> hcal_to_merge =
-        get_cluster_indices_for_merging(*calo_clusters[1], remaining_hcal, seed_ecal_index,
-                                        m_cfg.hcalDeltaR, *calo_clusters[0]);
+    std::vector<std::size_t> hcal_to_merge = get_cluster_indices_for_merging(
+        *calo_clusters[1], remaining_hcal, seed_ecal_index, m_cfg.hcalDeltaR, *calo_clusters[0]);
 
     for (const auto& idx : hcal_to_merge) {
       neutral_candidate_eh.addToClusters((*calo_clusters[1])[idx]);
@@ -95,9 +93,8 @@ void CaloRemnantCombiner::process(const CaloRemnantCombiner::Input& input,
     // Seed is the first element (highest energy)
     std::size_t seed_hcal_index = *remaining_hcal.begin();
 
-    std::vector<std::size_t> hcal_to_merge =
-        get_cluster_indices_for_merging(*calo_clusters[1], remaining_hcal, seed_hcal_index,
-                                        m_cfg.hcalDeltaR, *calo_clusters[1]);
+    std::vector<std::size_t> hcal_to_merge = get_cluster_indices_for_merging(
+        *calo_clusters[1], remaining_hcal, seed_hcal_index, m_cfg.hcalDeltaR, *calo_clusters[1]);
 
     for (const auto& idx : hcal_to_merge) {
       neutral_candidate_h.addToClusters((*calo_clusters[1])[idx]);

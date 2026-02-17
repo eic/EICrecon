@@ -14,7 +14,7 @@ class CaloRemnantCombiner_factory
 
 public:
   using AlgoT = eicrecon::CaloRemnantCombiner;
-  
+
 private:
   // Underlying algorithm
   std::unique_ptr<AlgoT> m_algo;
@@ -41,10 +41,9 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     auto in_clusters = m_in_calo_clusters();
-    
+
     auto in_algo = std::vector<gsl::not_null<const edm4eic::ClusterCollection*>>(
-    in_clusters.cbegin(), in_clusters.cend()
-    );
+        in_clusters.cbegin(), in_clusters.cend());
 
     m_algo->process({in_algo}, {m_out_neutral_candidates().get()});
   }
