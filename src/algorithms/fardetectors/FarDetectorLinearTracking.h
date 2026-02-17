@@ -11,6 +11,7 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#include <podio/LinkNavigator.h>
 #endif
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
@@ -88,13 +89,14 @@ private:
   bool checkHitPair(const Eigen::Vector3d& hit1, const Eigen::Vector3d& hit2) const;
 
   /** Convert 2D clusters to 3D coordinates and match associated particle **/
-  void ConvertClusters(const edm4eic::Measurement2DCollection& clusters,
+  void
+  ConvertClusters(const edm4eic::Measurement2DCollection& clusters,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                       const edm4eic::MCRecoTrackerHitLinkCollection& hit_links,
+                  const podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>& link_nav,
 #endif
-                       const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
-                       std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
-                       std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const;
+                  const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
+                  std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
+                  std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const;
 };
 
 } // namespace eicrecon

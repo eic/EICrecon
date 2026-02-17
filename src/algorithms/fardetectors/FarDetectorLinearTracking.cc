@@ -81,6 +81,26 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
     return;
   }
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Check if truth associations are possible
+  const bool do_assoc = hitLinks != nullptr && !hitLinks->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoTrackerHitLink collection is empty. No truth associations "
+          "will be performed.");
+  }
+  // Build fast lookup once per event using podio::LinkNavigator
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>> link_nav;
+  if (do_assoc) {
+    link_nav.emplace(*hitLinks);
+  }
+#else
+  const bool do_assoc = assocHits != nullptr && !assocHits->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoTrackerHitAssociation collection is empty. No truth associations "
+          "will be performed.");
+  }
+#endif
+
   std::vector<std::vector<Eigen::Vector3d>> convertedHits;
   std::vector<std::vector<edm4hep::MCParticle>> assocParts;
 
@@ -97,7 +117,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
       return;
     }
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    ConvertClusters(*layerHits, *hitLinks, *assocHits, convertedHits, assocParts);
+    ConvertClusters(*layerHits, *link_nav, *assocHits, convertedHits, assocParts);
 #else
     ConvertClusters(*layerHits, *assocHits, convertedHits, assocParts);
 #endif
@@ -252,7 +272,7 @@ bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
 void FarDetectorLinearTracking::ConvertClusters(
     const edm4eic::Measurement2DCollection& clusters,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    const edm4eic::MCRecoTrackerHitLinkCollection& hit_links,
+    const podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>& link_nav,
 #endif
     [[maybe_unused]] const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
     std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
@@ -261,11 +281,6 @@ void FarDetectorLinearTracking::ConvertClusters(
   // Get context of first hit
   const dd4hep::VolumeManagerContext* context =
       m_cellid_converter->findContext(clusters[0].getSurface());
-
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  // Build fast lookup using podio::LinkNavigator
-  podio::LinkNavigator link_nav(hit_links);
-#endif
 
   std::vector<Eigen::Vector3d> layerPositions;
   std::vector<edm4hep::MCParticle> assocParticles;
@@ -295,7 +310,6 @@ void FarDetectorLinearTracking::ConvertClusters(
     auto rawHit = maxHit.getRawHit();
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    // Get linked sim hits using LinkNavigator
     const auto sim_hits = link_nav.getLinked(rawHit);
     if (!sim_hits.empty()) {
       auto particle = sim_hits[0].o.getParticle();

@@ -14,11 +14,11 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <podio/detail/LinkCollectionImpl.h>
 #include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <Eigen/Core>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
@@ -29,6 +29,7 @@
 #include <map>
 #include <memory>
 #include <new>
+#include <optional>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingClusterReco.h"
@@ -44,6 +45,26 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
 #else
   const auto [proto, mchitassociations] = input;
   auto [clusters, associations, layers] = output;
+#endif
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Check if truth associations are possible
+  const bool do_assoc = mchitlinks != nullptr && !mchitlinks->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoCalorimeterHitLink collection is empty. No truth associations "
+          "will be performed.");
+  }
+  // Build fast lookup once per event using podio::LinkNavigator
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>> link_nav;
+  if (do_assoc) {
+    link_nav.emplace(*mchitlinks);
+  }
+#else
+  const bool do_assoc = mchitassociations != nullptr && !mchitassociations->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
+          "will be performed.");
+  }
 #endif
 
   for (const auto& pcl : *proto) {
@@ -70,19 +91,13 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
 
     // If sim hits are available, associate cluster with MCParticle
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    if (mchitlinks->empty()) {
-      debug("Provided MCRecoCalorimeterHitLink collection is empty. No truth associations "
-            "will be performed.");
-      continue;
+    if (do_assoc) {
+      associate_mc_particles(cl, mchitassociations, *link_nav, links, associations);
     }
-    associate_mc_particles(cl, mchitassociations, mchitlinks, links, associations);
 #else
-    if (mchitassociations->empty()) {
-      debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
-            "will be performed.");
-      continue;
+    if (do_assoc) {
+      associate_mc_particles(cl, mchitassociations, associations);
     }
-    associate_mc_particles(cl, mchitassociations, associations);
 #endif
   }
 
@@ -242,7 +257,7 @@ void ImagingClusterReco::associate_mc_particles(
     const edm4eic::Cluster& cl,
     [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    const edm4eic::MCRecoCalorimeterHitLinkCollection* mchitlinks,
+    const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
     edm4eic::MCRecoClusterParticleLinkCollection* links,
 #endif
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
@@ -270,11 +285,6 @@ void ImagingClusterReco::associate_mc_particles(
 
   // bookkeeping maps for associated primaries
   std::map<edm4hep::MCParticle, double, decltype(compare)> mapMCParToContrib(compare);
-
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  // Build fast lookup using podio::LinkNavigator
-  podio::LinkNavigator link_nav(*mchitlinks);
-#endif
 
   // --------------------------------------------------------------------------
   // 1. get associated sim hits and sum energy

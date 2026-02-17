@@ -17,6 +17,7 @@
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#include <podio/LinkNavigator.h>
 #endif
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
@@ -98,7 +99,7 @@ private:
       const edm4eic::Cluster& cl,
       const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-      const edm4eic::MCRecoCalorimeterHitLinkCollection* mchitlinks,
+      const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
       edm4eic::MCRecoClusterParticleLinkCollection* links,
 #endif
       edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
