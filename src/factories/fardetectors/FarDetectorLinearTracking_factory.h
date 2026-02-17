@@ -6,11 +6,11 @@
 #include "services/geometry/dd4hep/DD4hep_service.h"
 
 // Event Model related classes
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoTrackerHitLinkCollection.h>
 #endif
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
