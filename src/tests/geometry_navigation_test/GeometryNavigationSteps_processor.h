@@ -43,7 +43,11 @@ public:
 private:
   /// Directory to store histograms to
   TDirectory* m_dir_main{};
+#if Acts_VERSION_MAJOR >= 45
+  Acts::GeometryContext m_geoContext = Acts::GeometryContext::dangerouslyDefaultConstruct();
+#else
   Acts::GeometryContext m_geoContext;
+#endif
   Acts::MagneticFieldContext m_fieldContext;
   std::shared_ptr<spdlog::logger> m_log;
 };

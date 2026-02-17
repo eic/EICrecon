@@ -6,6 +6,7 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/unit_system.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <cmath>
 #include <map>
@@ -174,7 +175,11 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
-      {"EcalBarrelScFiRawHits", "EcalBarrelScFiRawHitAssociations"},
+      {"EcalBarrelScFiRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelScFiRawHitLinks",
+#endif
+       "EcalBarrelScFiRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.0, 0.0 * dd4hep::GeV},
           .tRes          = 0.0 * dd4hep::ns,
@@ -240,6 +245,9 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelScFiProtoClusters",         // edm4eic::ProtoClusterCollection
        "EcalBarrelScFiRawHitAssociations"},   // edm4eic::MCRecoCalorimeterHitAssociation
       {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelScFiClusterLinksWithoutShapes",
+#endif
        "EcalBarrelScFiClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.readout         = "EcalBarrelScFiHits",
        .energyWeight    = "log",
@@ -251,7 +259,11 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalBarrelScFiClusters",
       {"EcalBarrelScFiClustersWithoutShapes", "EcalBarrelScFiClusterAssociationsWithoutShapes"},
-      {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations"},
+      {"EcalBarrelScFiClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelScFiClusterLinks",
+#endif
+       "EcalBarrelScFiClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 6.2}, app));
 
   //--------------------------------------------------------------------------------------------------------
@@ -310,7 +322,11 @@ void InitPlugin(JApplication* app) {
       3.25 * dd4hep::nanosecond;
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelImagingRawHits", {"EventHeader", "EcalBarrelImagingHits"},
-      {"EcalBarrelImagingRawHits", "EcalBarrelImagingRawHitAssociations"},
+      {"EcalBarrelImagingRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelImagingRawHitLinks",
+#endif
+       "EcalBarrelImagingRawHitAssociations"},
       {
           .eRes          = {0.0 * sqrt(dd4hep::GeV), 0.02, 0.0 * dd4hep::GeV},
           .tRes          = 0.0 * dd4hep::ns,
@@ -365,6 +381,9 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelImagingClustersWithoutShapes",
       {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitAssociations"},
       {"EcalBarrelImagingClustersWithoutShapes",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelImagingClusterLinksWithoutShapes",
+#endif
        "EcalBarrelImagingClusterAssociationsWithoutShapes", "EcalBarrelImagingLayers"},
       {
           .trackStopLayer = 6,
@@ -376,7 +395,11 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelImagingClusters",
       {"EcalBarrelImagingClustersWithoutShapes",
        "EcalBarrelImagingClusterAssociationsWithoutShapes"},
-      {"EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
+      {"EcalBarrelImagingClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelImagingClusterLinks",
+#endif
+       "EcalBarrelImagingClusterAssociations"},
       {.longitudinalShowerInfoAvailable = false, .energyWeight = "log", .logWeightBase = 6.2},
       app));
 
@@ -453,7 +476,11 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelClusters",
       {"EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations", "EcalBarrelImagingClusters",
        "EcalBarrelImagingClusterAssociations"},
-      {"EcalBarrelClusters", "EcalBarrelClusterAssociations"},
+      {"EcalBarrelClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelClusterLinks",
+#endif
+       "EcalBarrelClusterAssociations"},
       {
           .energyRelTolerance = 0.5,
           .phiTolerance       = 0.1,
@@ -465,7 +492,11 @@ void InitPlugin(JApplication* app) {
       "EcalBarrelTruthClusters",
       {"MCParticles", "EcalBarrelScFiClusters", "EcalBarrelScFiClusterAssociations",
        "EcalBarrelImagingClusters", "EcalBarrelImagingClusterAssociations"},
-      {"EcalBarrelTruthClusters", "EcalBarrelTruthClusterAssociations"},
+      {"EcalBarrelTruthClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelTruthClusterLinks",
+#endif
+       "EcalBarrelTruthClusterAssociations"},
       app // TODO: Remove me once fixed
       ));
 }

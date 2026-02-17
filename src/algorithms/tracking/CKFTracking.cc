@@ -24,10 +24,8 @@
 #include <system_error>
 #include <tuple>
 #include <utility>
-#if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
-#endif
-#if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
+#if Acts_VERSION_MAJOR < 43
 #include <Acts/Utilities/Iterator.hpp>
 #endif
 #include <Acts/EventData/ParticleHypothesis.hpp>
@@ -38,12 +36,7 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
-#if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
-#else
-#include <Acts/Propagator/AbortList.hpp>
-#include <Acts/Propagator/ActionList.hpp>
-#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
@@ -52,9 +45,7 @@
 #include <Acts/Propagator/StandardAborters.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#if Acts_VERSION_MAJOR >= 39
 #include <Acts/TrackFinding/TrackStateCreator.hpp>
-#endif
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/TrackHelpers.hpp>
@@ -115,29 +106,10 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   // create sourcelink and measurement containers
   auto measurements = std::make_shared<ActsExamples::MeasurementContainer>();
 
-  // need list here for stable addresses
-#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
-  std::list<ActsExamples::IndexSourceLink> sourceLinkStorage;
-  ActsExamples::IndexSourceLinkContainer src_links;
-  src_links.reserve(meas2Ds->size());
-  std::size_t hit_index = 0;
-#endif
-
   for (const auto& meas2D : *meas2Ds) {
 
     Acts::GeometryIdentifier geoId{meas2D.getSurface()};
 
-#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
-    // --follow example from ACTS to create source links
-    sourceLinkStorage.emplace_back(geoId, hit_index);
-    ActsExamples::IndexSourceLink& sourceLink = sourceLinkStorage.back();
-    // Add to output containers:
-    // index map and source link container are geometry-ordered.
-    // since the input is also geometry-ordered, new items can
-    // be added at the end.
-    src_links.insert(src_links.end(), sourceLink);
-#endif
-    // ---
     // Create ACTS measurements
 
     Acts::ActsVector<2> loc = Acts::Vector2::Zero();
@@ -150,7 +122,6 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     cov(0, 1)                     = meas2D.getCovariance().xy;
     cov(1, 0)                     = meas2D.getCovariance().xy;
 
-#if Acts_VERSION_MAJOR > 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR >= 1)
     std::array<Acts::BoundIndices, 2> indices{Acts::eBoundLoc0, Acts::eBoundLoc1};
     Acts::visit_measurement(
         indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
@@ -161,27 +132,6 @@ void CKFTracking::process(const Input& input, const Output& output) const {
             throw std::runtime_error("Dimension not supported in measurement creation");
           }
         });
-#elif Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR == 0
-    std::array<Acts::BoundIndices, 2> indices{Acts::eBoundLoc0, Acts::eBoundLoc1};
-    Acts::visit_measurement(
-        indices.size(), [&](auto dim) -> ActsExamples::VariableBoundMeasurementProxy {
-          if constexpr (dim == indices.size()) {
-            return ActsExamples::VariableBoundMeasurementProxy{
-                measurements->emplaceMeasurement<dim>(Acts::SourceLink{sourceLink}, indices, loc,
-                                                      cov)};
-          } else {
-            throw std::runtime_error("Dimension not supported in measurement creation");
-          }
-        });
-#else
-    auto measurement = ActsExamples::makeVariableSizeMeasurement(
-        Acts::SourceLink{sourceLink}, loc, cov, Acts::eBoundLoc0, Acts::eBoundLoc1);
-    measurements->emplace_back(std::move(measurement));
-#endif
-
-#if Acts_VERSION_MAJOR < 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR < 1)
-    hit_index++;
-#endif
   }
 
   ActsExamples::TrackParametersContainer acts_init_trk_params;
@@ -223,7 +173,12 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("CKF", acts_level));
 
-  Acts::PropagatorPlainOptions pOptions(m_geoctx, m_fieldctx);
+  // Get run-scoped contexts from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+  const auto& cctx = m_geoSvc->getActsCalibrationContext();
+
+  Acts::PropagatorPlainOptions pOptions(gctx, mctx);
   pOptions.maxSteps = 10000;
 
   ActsExamples::PassThroughCalibrator pcalibrator;
@@ -232,24 +187,11 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
 
   Acts::CombinatorialKalmanFilterExtensions<ActsExamples::TrackContainer> extensions;
-#if Acts_VERSION_MAJOR < 39
-  extensions.calibrator.connect<&ActsExamples::MeasurementCalibratorAdapter::calibrate>(
-      &calibrator);
-#endif
   extensions.updater.connect<&Acts::GainMatrixUpdater::operator()<
       typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&kfUpdater);
-#if Acts_VERSION_MAJOR < 39
-  extensions.measurementSelector.connect<&Acts::MeasurementSelector::select<
-      typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&measSel);
-#endif
 
   ActsExamples::IndexSourceLinkAccessor slAccessor;
-#if Acts_VERSION_MAJOR > 37 || (Acts_VERSION_MAJOR == 37 && Acts_VERSION_MINOR >= 1)
   slAccessor.container = &measurements->orderedIndices();
-#else
-  slAccessor.container = &src_links;
-#endif
-#if Acts_VERSION_MAJOR >= 39
   using TrackStateCreatorType =
       Acts::TrackStateCreator<ActsExamples::IndexSourceLinkAccessor::Iterator,
                               ActsExamples::TrackContainer>;
@@ -263,34 +205,18 @@ void CKFTracking::process(const Input& input, const Output& output) const {
 
   extensions.createTrackStates.template connect<&TrackStateCreatorType::createTrackStates>(
       &trackStateCreator);
-#else
-  Acts::SourceLinkAccessorDelegate<ActsExamples::IndexSourceLinkAccessor::Iterator>
-      slAccessorDelegate;
-  slAccessorDelegate.connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
-#endif
 
   // Set the CombinatorialKalmanFilter options
-#if Acts_VERSION_MAJOR >= 39
-  CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, extensions, pOptions);
-#else
-  CKFTracking::TrackFinderOptions options(m_geoctx, m_fieldctx, m_calibctx, slAccessorDelegate,
-                                          extensions, pOptions);
-#endif
+  CKFTracking::TrackFinderOptions options(gctx, mctx, cctx, extensions, pOptions);
 
-  using Extrapolator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
-#if Acts_VERSION_MAJOR >= 37
+  using Extrapolator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using ExtrapolatorOptions = Extrapolator::template Options<
       Acts::ActorList<Acts::MaterialInteractor, Acts::EndOfWorldReached>>;
-#else
-  using ExtrapolatorOptions =
-      Extrapolator::template Options<Acts::ActionList<Acts::MaterialInteractor>,
-                                     Acts::AbortList<Acts::EndOfWorldReached>>;
-#endif
   Extrapolator extrapolator(Acts::EigenStepper<>(m_BField),
                             Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
                                             acts_logger().cloneWithSuffix("Navigator")),
                             acts_logger().cloneWithSuffix("Propagator"));
-  ExtrapolatorOptions extrapolationOptions(m_geoctx, m_fieldctx);
+  ExtrapolatorOptions extrapolationOptions(gctx, mctx);
 
   // Create track container
   auto trackContainer      = std::make_shared<Acts::VectorTrackContainer>();
@@ -338,7 +264,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
         continue;
       }
 
-      auto smoothingResult = Acts::smoothTrack(m_geoctx, track, acts_logger());
+      auto smoothingResult = Acts::smoothTrack(gctx, track, acts_logger());
       if (!smoothingResult.ok()) {
         debug("Smoothing for seed {} and track {} failed with error {}", iseed, track.index(),
               smoothingResult.error().message());

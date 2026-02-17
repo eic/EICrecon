@@ -6,8 +6,6 @@
 
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
-#include <Acts/MagneticField/MagneticFieldContext.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -45,7 +43,5 @@ private:
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
       algorithms::ActsSvc::instance().acts_geometry_provider()};
   std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
-  Acts::GeometryContext m_geoctx{};
-  Acts::MagneticFieldContext m_fieldctx{};
 };
 } // namespace eicrecon

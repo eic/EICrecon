@@ -4,6 +4,7 @@
 // Adds noise to a time series pulse
 //
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <DDDigi/noise/FalphaNoise.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimCalorimeterHit.h>

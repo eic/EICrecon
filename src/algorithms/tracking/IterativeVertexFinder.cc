@@ -43,6 +43,7 @@
 #include <utility>
 #include <vector>
 
+#include "ActsGeometryProvider.h"
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
@@ -101,8 +102,14 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
   finderCfg.trackLinearizer.connect<&Linearizer::linearizeTrack>(&linearizer);
   finderCfg.field = m_BField;
   VertexFinder finder(std::move(finderCfg));
-  Acts::IVertexFinder::State state(std::in_place_type<VertexFinder::State>, *m_BField, m_fieldctx);
-  VertexFinderOptions finderOpts(m_geoctx, m_fieldctx);
+
+  // Get run-scoped contexts from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+
+  Acts::IVertexFinder::State state(std::in_place_type<VertexFinder::State>, *m_BField, mctx);
+
+  VertexFinderOptions finderOpts(gctx, mctx);
 
   std::vector<Acts::InputTrack> inputTracks;
   std::vector<Acts::BoundTrackParameters> trackParameters;
