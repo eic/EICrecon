@@ -33,9 +33,7 @@
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
-#if FMT_VERSION >= 90000
 template <> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_formatter {};
-#endif // FMT_VERSION >= 90000
 
 namespace eicrecon {
 
