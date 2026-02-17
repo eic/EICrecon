@@ -3,12 +3,12 @@
 
 #include <catch2/catch_test_macros.hpp>
 #include <vector>
-#include <tuple>
-#include <array>
-#include <cmath>
+
 #include "algorithms/meta/SubDivideFunctors.h"
 
-using namespace eicrecon;
+using eicrecon::RangeSplit;
+using eicrecon::Chain;
+using eicrecon::ValueSplit;
 
 struct Dummy {
   int value;
