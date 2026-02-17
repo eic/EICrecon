@@ -20,7 +20,9 @@ template <auto... MemberFunctionPtrs> struct ChainInvoker;
 
 // Base case: single member function
 template <auto MemberFunctionPtr> struct ChainInvoker<MemberFunctionPtr> {
-  template <typename T> static auto invoke(const T& instance) { return (instance.*MemberFunctionPtr)(); }
+  template <typename T> static auto invoke(const T& instance) {
+    return (instance.*MemberFunctionPtr)();
+  }
 };
 
 // Recursive case: chain multiple member functions
