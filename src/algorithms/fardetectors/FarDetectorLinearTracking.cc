@@ -83,7 +83,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   // Check if truth associations are possible
-  const bool do_assoc = hitLinks && !hitLinks->empty();
+  const bool do_assoc = hitLinks != nullptr && !hitLinks->empty();
   if (!do_assoc) {
     debug("Provided MCRecoTrackerHitLink collection is empty. No truth associations "
           "will be performed.");
@@ -94,7 +94,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
     link_nav.emplace(*hitLinks);
   }
 #else
-  const bool do_assoc = assocHits && !assocHits->empty();
+  const bool do_assoc = assocHits != nullptr && !assocHits->empty();
   if (!do_assoc) {
     debug("Provided MCRecoTrackerHitAssociation collection is empty. No truth associations "
           "will be performed.");

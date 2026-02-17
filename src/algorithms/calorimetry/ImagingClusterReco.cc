@@ -48,7 +48,7 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   // Check if truth associations are possible
-  const bool do_assoc = !mchitlinks->empty();
+  const bool do_assoc = mchitlinks != nullptr && !mchitlinks->empty();
   if (!do_assoc) {
     debug("Provided MCRecoCalorimeterHitLink collection is empty. No truth associations "
           "will be performed.");
@@ -59,7 +59,7 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
     link_nav.emplace(*mchitlinks);
   }
 #else
-  const bool do_assoc = !mchitassociations->empty();
+  const bool do_assoc = mchitassociations != nullptr && !mchitassociations->empty();
   if (!do_assoc) {
     debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
           "will be performed.");
