@@ -3,6 +3,10 @@
 //
 #pragma once
 
+#include <algorithm>
+#include <cstddef> 
+#include <utility>
+#include <vector> 
 #include <algorithms/geo.h>
 
 namespace eicrecon {
