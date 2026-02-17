@@ -331,30 +331,36 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "LFHCALSplitMergeProtoClusters", {"LFHCALIslandProtoClusters", "CalorimeterTrackProjections"},
-      {"LFHCALSplitMergeProtoClusters"},
-      {.idCalo                       = "LFHCAL_ID",
-       .minSigCut                    = -2.0,
+      "LFHCALSplitMergeProtoClusters",
+      {"LFHCALTrackClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
+      {"LFHCALSplitMergeProtoClusters",
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+       "LFHCALTrackSplitMergeProtoClusterMatches"
+#endif
+      },
+      {.minSigCut                    = -2.0,
        .avgEP                        = 0.50,
        .sigEP                        = 0.25,
        .drAdd                        = 0.30,
-       .sampFrac                     = 1.0,
+       .surfaceToUse                 = 1,
        .transverseEnergyProfileScale = 1.0},
       app // TODO: remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALSplitMergeClustersWithoutShapes",
-      {
-          "LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-          "LFHCALRawHitAssociations"       // edm4hep::MCRecoCalorimeterHitAssociationCollection
-      },
+      {"LFHCALSplitMergeProtoClusters", "LFHCALRawHitAssociations"},
       {"LFHCALSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "LFHCALSplitMergeClusterLinksWithoutShapes",
 #endif
-       "LFHCALSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 4.5, .enableEtaBounds = false},
+       "LFHCALSplitMergeClusterAssociationsWithoutShapes"},
+      {
+          .energyWeight    = "log",
+          .sampFrac        = 1.0,
+          .logWeightBase   = 4.5,
+          .enableEtaBounds = false,
+      },
       app // TODO: Remove me once fixed
       ));
 

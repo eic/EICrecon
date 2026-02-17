@@ -228,30 +228,35 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
       "EcalEndcapPSplitMergeProtoClusters",
-      {"EcalEndcapPIslandProtoClusters", "CalorimeterTrackProjections"},
-      {"EcalEndcapPSplitMergeProtoClusters"},
-      {.idCalo                       = "EcalEndcapP_ID",
-       .minSigCut                    = -2.0,
+      {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters", "CalorimeterTrackProjections"},
+      {"EcalEndcapPSplitMergeProtoClusters",
+#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+       "EcalEndcapPTrackSplitMergeProtoClusterMatches"
+#endif
+      },
+      {.minSigCut                    = -2.0,
        .avgEP                        = 1.0,
        .sigEP                        = 0.10,
        .drAdd                        = 0.30,
-       .sampFrac                     = 1.0,
+       .surfaceToUse                 = 1,
        .transverseEnergyProfileScale = 1.0},
       app // TODO: remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPSplitMergeClustersWithoutShapes",
-      {
-          "EcalEndcapPSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalEndcapPRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
-      },
+      {"EcalEndcapPSplitMergeProtoClusters", "EcalEndcapPRawHitAssociations"},
       {"EcalEndcapPSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
 #endif
-       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
+       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
+      {
+          .energyWeight    = "log",
+          .sampFrac        = 1.0,
+          .logWeightBase   = 3.6,
+          .enableEtaBounds = false,
+      },
       app // TODO: Remove me once fixed
       ));
 
