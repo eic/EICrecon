@@ -6,8 +6,8 @@
 
 #include "algorithms/meta/SubDivideFunctors.h"
 
-using eicrecon::RangeSplit;
 using eicrecon::Chain;
+using eicrecon::RangeSplit;
 using eicrecon::ValueSplit;
 
 struct Dummy {
