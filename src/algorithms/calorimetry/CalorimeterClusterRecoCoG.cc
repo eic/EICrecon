@@ -198,8 +198,7 @@ void CalorimeterClusterRecoCoG::associate(
     const edm4eic::Cluster& cl,
     [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    const podio::LinkNavigator* link_nav,
-    edm4eic::MCRecoClusterParticleLinkCollection* links,
+    const podio::LinkNavigator* link_nav, edm4eic::MCRecoClusterParticleLinkCollection* links,
 #endif
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
