@@ -225,26 +225,56 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
   const auto [hits]     = input;
   auto [proto_clusters] = output;
 
-  // group neighboring hits
-  std::vector<std::set<std::size_t>> groups;
-
-  std::vector<bool> visits(hits->size(), false);
+  // Sort hit indices (podio collections do not support std::sort)
+  auto compare = [&hits](const auto& a, const auto& b) {
+    // if !(a < b) and !(b < a), then a and b are equivalent
+    // and only one of them will be allowed in a set
+    if ((*hits)[a].getLayer() == (*hits)[b].getLayer()) {
+      return (*hits)[a].getObjectID().index < (*hits)[b].getObjectID().index;
+    }
+    return (*hits)[a].getLayer() < (*hits)[b].getLayer();
+  };
+  // indices contains the remaining hit indices that have not
+  // been assigned to a group yet
+  std::set<std::size_t, decltype(compare)> indices(compare);
+  // set does not have a size yet, so cannot fill with iota
   for (std::size_t i = 0; i < hits->size(); ++i) {
+    indices.insert(i);
+  }
+  // ensure no hits were dropped due to equivalency in set
+  if (hits->size() != indices.size()) {
+    error("equivalent hits were dropped: #hits {:d}, #indices {:d}", hits->size(), indices.size());
+  }
+
+  // group neighboring hits
+  std::vector<std::list<std::size_t>> groups;
+  // because indices changes, the loop over indices requires some care:
+  // - we must use iterators instead of range-for
+  // - erase returns an incremented iterator and therefore acts as idx++
+  // - when the set becomes empty on erase, idx is invalid and idx++ will be too
+  for (auto idx = indices.begin(); idx != indices.end();
+       indices.empty() ? idx = indices.end() : idx) {
 
     {
-      const auto& hit = (*hits)[i];
+      const auto& hit = (*hits)[*idx];
       debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, "
             "{:.4f}) mm",
-            i, hit.getEnergy() * 1000., hit.getLocal().x, hit.getLocal().y, hit.getPosition().x,
+            *idx, hit.getEnergy() * 1000., hit.getLocal().x, hit.getLocal().y, hit.getPosition().x,
             hit.getPosition().y, hit.getPosition().z);
     }
-    // already in a group
-    if (visits[i]) {
+
+    // not a qualified center
+    if ((*hits)[*idx].getEnergy() < m_cfg.minClusterCenterEdep) {
+      idx++;
       continue;
     }
-    groups.emplace_back();
+
     // create a new group, and group all the neighboring hits
-    bfs_group(*hits, groups.back(), i, visits);
+    groups.emplace_back(std::list{*idx});
+    bfs_group(*hits, indices, groups.back(), *idx);
+
+    // wait with erasing until after bfs_group to ensure iterator is not invalidated in bfs_group
+    idx = indices.erase(idx); // takes role of idx++
   }
 
   for (auto& group : groups) {
@@ -258,42 +288,10 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
   }
 }
 
-// grouping function with Breadth-First Search
-void CalorimeterIslandCluster::bfs_group(const edm4eic::CalorimeterHitCollection& hits,
-                                         std::set<std::size_t>& group, std::size_t idx,
-                                         std::vector<bool>& visits) const {
-  visits[idx] = true;
-
-  // not a qualified hit to participate clustering, stop here
-  if (hits[idx].getEnergy() < m_cfg.minClusterHitEdep) {
-    return;
-  }
-
-  group.insert(idx);
-  std::size_t prev_size = 0;
-
-  while (prev_size != group.size()) {
-    prev_size = group.size();
-    for (std::size_t idx1 : group) {
-      // check neighbours
-      for (std::size_t idx2 = 0; idx2 < hits.size(); ++idx2) {
-        // not a qualified hit to participate clustering, skip
-        if (hits[idx2].getEnergy() < m_cfg.minClusterHitEdep) {
-          continue;
-        }
-        if ((!visits[idx2]) && is_neighbour(hits[idx1], hits[idx2])) {
-          group.insert(idx2);
-          visits[idx2] = true;
-        }
-      }
-    }
-  }
-}
-
 // find local maxima that above a certain threshold
 std::vector<std::size_t>
 CalorimeterIslandCluster::find_maxima(const edm4eic::CalorimeterHitCollection& hits,
-                                      const std::set<std::size_t>& group, bool global) const {
+                                      const std::list<std::size_t>& group, bool global) const {
   std::vector<std::size_t> maxima;
   if (group.empty()) {
     return maxima;
@@ -342,7 +340,7 @@ CalorimeterIslandCluster::find_maxima(const edm4eic::CalorimeterHitCollection& h
 // split a group of hits according to the local maxima
 //TODO: confirm protoclustering without protoclustercollection
 void CalorimeterIslandCluster::split_group(const edm4eic::CalorimeterHitCollection& hits,
-                                           std::set<std::size_t>& group,
+                                           std::list<std::size_t>& group,
                                            const std::vector<std::size_t>& maxima,
                                            edm4eic::ProtoClusterCollection* protoClusters) const {
   // special cases
