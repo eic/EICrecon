@@ -72,7 +72,7 @@ public:
       , m_id_dec(std::make_shared<dd4hep::DDSegmentation::BitFieldCoder*>())
       , m_div_ids(std::make_shared<std::vector<std::size_t>>()) {};
 
-  template <typename T> std::vector<std::size_t> operator()(T& instance) const {
+  template <typename T> std::vector<std::size_t> operator()(const T& instance) const {
 
     // Initialize the decoder and division ids on the first function call
     std::call_once(*is_init, &GeometrySplit::init, this);
@@ -117,7 +117,7 @@ template <auto... MemberFunctionPtrs> class ValueSplit {
 public:
   ValueSplit(std::vector<std::vector<int>> ids) : m_ids(ids) {};
 
-  template <typename T> std::vector<std::size_t> operator()(T& instance) const {
+  template <typename T> std::vector<std::size_t> operator()(const T& instance) const {
     std::vector<std::size_t> ids;
     // Check if requested value matches any configuration combinations
     std::vector<int> values;
