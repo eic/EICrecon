@@ -94,7 +94,7 @@ public:
 
     std::vector<std::size_t> ids;
     if (index != m_ids.end()) {
-      ids.push_back(std::distance(m_ids.begin(), index));
+      ids.push_back(static_cast<std::size_t>(index - m_ids.begin()));
     }
     return ids;
   }
@@ -130,7 +130,7 @@ public:
     (values.push_back((instance.*MemberFunctionPtrs)()), ...);
     auto index = std::find(m_ids.begin(), m_ids.end(), values);
     if (index != m_ids.end()) {
-      ids.push_back(std::distance(m_ids.begin(), index));
+      ids.push_back(static_cast<std::size_t>(index - m_ids.begin()));
     }
     return ids;
   }
