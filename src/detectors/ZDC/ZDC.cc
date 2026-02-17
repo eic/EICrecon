@@ -128,7 +128,7 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "EcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-          "EcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoClusterHitAssociationCollection
+          "EcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociation
       },
       {"EcalFarForwardZDCClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
