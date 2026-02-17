@@ -18,9 +18,14 @@
  *    hits while keeping iterators valid
  *
  */
+
 #pragma once
 
 #include <algorithms/algorithm.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 // Event Model related classes
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
@@ -55,11 +60,35 @@ private:
   // unitless counterparts of the input parameters
   std::array<double, 2> sameLayerDistXY{0, 0};
   std::array<double, 2> diffLayerDistXY{0, 0};
+  std::array<double, 2> ScFi_sameLayerDistXY{0, 0};
+  std::array<double, 2> ScFi_diffLayerDistXY{0, 0};
+  std::array<double, 2> Img_sameLayerDistXY{0, 0};
+  std::array<double, 2> Img_diffLayerDistXY{0, 0};
+  std::array<double, 3> sameLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> diffLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> ScFi_sameLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> ScFi_diffLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> Img_sameLayerDistXYZ{0, 0, 0};
+  std::array<double, 3> Img_diffLayerDistXYZ{0, 0, 0};
   std::array<double, 2> sameLayerDistEtaPhi{0, 0};
   std::array<double, 2> diffLayerDistEtaPhi{0, 0};
   std::array<double, 2> sameLayerDistTZ{0, 0};
   std::array<double, 2> diffLayerDistTZ{0, 0};
+  std::array<double, 2> ScFi_sameLayerDistEtaPhi{0, 0};
+  std::array<double, 2> ScFi_diffLayerDistEtaPhi{0, 0};
+  std::array<double, 2> ScFi_sameLayerDistTZ{0, 0};
+  std::array<double, 2> ScFi_diffLayerDistTZ{0, 0};
+  std::array<double, 2> Img_sameLayerDistEtaPhi{0, 0};
+  std::array<double, 2> Img_diffLayerDistEtaPhi{0, 0};
+  std::array<double, 2> Img_sameLayerDistTZ{0, 0};
+  std::array<double, 2> Img_diffLayerDistTZ{0, 0};
+
+  std::array<double, 3> cross_system_DistXYZ{0, 0, 0};
+
   double sectorDist{0};
+  double cross_system_sectorDist{0};
+  double ScFi_sectorDist{0};
+  double Img_sectorDist{0};
   double minClusterHitEdep{0};
   double minClusterCenterEdep{0};
   double minClusterEdep{0};
@@ -68,16 +97,40 @@ public:
   void init();
   void process(const Input& input, const Output& output) const final;
 
+  // based on system Id and across the system neighbouring
+
 private:
   // helper function to group hits
+
+  // std::vector<std::vector<size_t>> mergeCrossSystemClusters(const std::map<int,
+  //  std::vector<size_t>>& clusters_by_system,
+  //  const std::vector<std::vector<size_t>>& all_clusters,
+  //  const edm4eic::CalorimeterHitCollection& hits) const;
+
+  bool cross_system_is_neighbour(const edm4eic::CalorimeterHit& h1,
+                                 const edm4eic::CalorimeterHit& h2) const;
   bool is_neighbour(const edm4eic::CalorimeterHit& h1, const edm4eic::CalorimeterHit& h2) const;
+
+  // Pointer to the geometry service
+  dd4hep::IDDescriptor m_idSpec;
+
+  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
   // grouping function with Breadth-First Search
   // note: template to allow Compare only known in local scope of caller
   template <typename Compare>
   void bfs_group(const edm4eic::CalorimeterHitCollection& hits,
                  std::set<std::size_t, Compare>& indices, std::list<std::size_t>& group,
-                 const std::size_t idx) const {
+                 std::vector<std::pair<size_t, size_t>>& edges, const std::size_t idx) const {
+
+    auto* sys_field = m_idSpec.field("system");
+    if (!sys_field) {
+      error("Field 'system' not found in IDSpec for BFS grouping");
+      return;
+    }
+
+    int sys = sys_field->value(hits[idx].getCellID());
+    // debug("Starting BFS for hit {} in system {}", idx, sys);
 
     // loop over group as it grows, until the end is stable and we reach it
     for (auto idx1 = group.begin(); idx1 != group.end(); ++idx1) {
@@ -89,6 +142,15 @@ private:
         // (we cannot erase idx since it would invalidate iterator in calling scope)
         if (*idx2 == *idx1 || *idx2 == idx) {
           idx2++;
+          continue;
+        }
+
+        // debug("Checking neighbor for hit {} in system {}", *idx2, sys_field->value(hits[*idx2].getCellID()));
+
+        // skip hits from other system
+        if (sys_field->value(hits[*idx2].getCellID()) != sys) {
+          debug("  Skipping hit {}: different system", *idx2);
+          ++idx2;
           continue;
         }
 
@@ -104,6 +166,7 @@ private:
         }
 
         if (is_neighbour(hits[*idx1], hits[*idx2])) {
+          edges.emplace_back(*idx1, *idx2);
           group.push_back(*idx2);
           idx2 = indices.erase(idx2); // takes role of idx2++
         } else {
