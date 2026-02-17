@@ -14,11 +14,11 @@
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <podio/detail/LinkCollectionImpl.h>
 #include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <Eigen/Core>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
@@ -29,6 +29,7 @@
 #include <map>
 #include <memory>
 #include <new>
+#include <optional>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
 #include "algorithms/calorimetry/ImagingClusterReco.h"
