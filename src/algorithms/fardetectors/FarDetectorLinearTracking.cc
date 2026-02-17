@@ -89,7 +89,7 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
           "will be performed.");
   }
   // Build fast lookup once per event using podio::LinkNavigator
-  std::optional<podio::LinkNavigator> link_nav;
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>> link_nav;
   if (do_assoc) {
     link_nav.emplace(*hitLinks);
   }
@@ -277,7 +277,7 @@ bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
 void FarDetectorLinearTracking::ConvertClusters(
     const edm4eic::Measurement2DCollection& clusters,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    const podio::LinkNavigator* link_nav,
+    const podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>* link_nav,
 #endif
     [[maybe_unused]] const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
     std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
@@ -315,7 +315,7 @@ void FarDetectorLinearTracking::ConvertClusters(
     auto rawHit = maxHit.getRawHit();
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    // Get linked sim hits using LinkNavigator (passed in from process())
+    // Get linked sim hits using LinkNavigator
     if (link_nav) {
       const auto sim_hits = link_nav->getLinked(rawHit);
       if (!sim_hits.empty()) {

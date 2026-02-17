@@ -70,7 +70,7 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
           "will be performed.");
   }
   // Build fast lookup once per event using podio::LinkNavigator
-  std::optional<podio::LinkNavigator> link_nav;
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>> link_nav;
   if (do_assoc) {
     link_nav.emplace(*mchitlinks);
   }
@@ -102,7 +102,7 @@ void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& 
     // If sim hits are available, associate cluster with MCParticle
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     if (do_assoc) {
-      associate(cl, mchitassociations, &(*link_nav), links, associations);
+      associate(cl, mchitassociations, *link_nav, links, associations);
     }
 #else
     if (do_assoc) {
@@ -198,7 +198,8 @@ void CalorimeterClusterRecoCoG::associate(
     const edm4eic::Cluster& cl,
     [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    const podio::LinkNavigator* link_nav, edm4eic::MCRecoClusterParticleLinkCollection* links,
+    const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
+    edm4eic::MCRecoClusterParticleLinkCollection* links,
 #endif
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
@@ -232,8 +233,8 @@ void CalorimeterClusterRecoCoG::associate(
   for (auto clhit : cl.getHits()) {
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    // Get linked sim hits using LinkNavigator (passed in from process())
-    const auto vecAssocSimHits = link_nav->getLinked(clhit.getRawHit());
+    // Get linked sim hits using LinkNavigator
+    const auto vecAssocSimHits = link_nav.getLinked(clhit.getRawHit());
 #else
     // Fallback: linear search through associations
     std::vector<std::pair<edm4hep::SimCalorimeterHit, double>> vecAssocSimHits;
