@@ -46,6 +46,26 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
   auto [clusters, associations, layers] = output;
 #endif
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Check if truth associations are possible
+  const bool do_assoc = !mchitlinks->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoCalorimeterHitLink collection is empty. No truth associations "
+          "will be performed.");
+  }
+  // Build fast lookup once per event using podio::LinkNavigator
+  std::optional<podio::LinkNavigator> link_nav;
+  if (do_assoc) {
+    link_nav.emplace(*mchitlinks);
+  }
+#else
+  const bool do_assoc = !mchitassociations->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
+          "will be performed.");
+  }
+#endif
+
   for (const auto& pcl : *proto) {
     if (!pcl.getHits().empty() && !pcl.getHits(0).isAvailable()) {
       warning("Protocluster hit relation is invalid, skipping protocluster");
@@ -70,19 +90,13 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
 
     // If sim hits are available, associate cluster with MCParticle
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    if (mchitlinks->empty()) {
-      debug("Provided MCRecoCalorimeterHitLink collection is empty. No truth associations "
-            "will be performed.");
-      continue;
+    if (do_assoc) {
+      associate_mc_particles(cl, mchitassociations, &(*link_nav), links, associations);
     }
-    associate_mc_particles(cl, mchitassociations, mchitlinks, links, associations);
 #else
-    if (mchitassociations->empty()) {
-      debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
-            "will be performed.");
-      continue;
+    if (do_assoc) {
+      associate_mc_particles(cl, mchitassociations, associations);
     }
-    associate_mc_particles(cl, mchitassociations, associations);
 #endif
   }
 
@@ -242,7 +256,7 @@ void ImagingClusterReco::associate_mc_particles(
     const edm4eic::Cluster& cl,
     [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    const edm4eic::MCRecoCalorimeterHitLinkCollection* mchitlinks,
+    const podio::LinkNavigator* link_nav,
     edm4eic::MCRecoClusterParticleLinkCollection* links,
 #endif
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
@@ -271,19 +285,14 @@ void ImagingClusterReco::associate_mc_particles(
   // bookkeeping maps for associated primaries
   std::map<edm4hep::MCParticle, double, decltype(compare)> mapMCParToContrib(compare);
 
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  // Build fast lookup using podio::LinkNavigator
-  podio::LinkNavigator link_nav(*mchitlinks);
-#endif
-
   // --------------------------------------------------------------------------
   // 1. get associated sim hits and sum energy
   // --------------------------------------------------------------------------
   double eSimHitSum = 0.;
   for (auto clhit : cl.getHits()) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    // Get linked sim hits using LinkNavigator
-    const auto vecAssocSimHits = link_nav.getLinked(clhit.getRawHit());
+    // Get linked sim hits using LinkNavigator (passed in from process())
+    const auto vecAssocSimHits = link_nav->getLinked(clhit.getRawHit());
 #else
     // Fallback: linear search through associations
     std::vector<std::pair<edm4hep::SimCalorimeterHit, double>> vecAssocSimHits;
