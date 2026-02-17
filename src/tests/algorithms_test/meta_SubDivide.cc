@@ -2,6 +2,8 @@
 // Copyright (C) 2026, Simon Gardner
 
 #include <catch2/catch_test_macros.hpp>
+#include <cstddef>
+#include <utility>
 #include <vector>
 
 #include "algorithms/meta/SubDivideFunctors.h"
