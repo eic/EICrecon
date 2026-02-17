@@ -12,7 +12,7 @@
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
-#include "factories/particle/CaloRemnantCombiner_factory.h"
+#include "factories/particle_flow/CaloRemnantCombiner_factory.h"
 
 extern "C" {
 
@@ -34,13 +34,13 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
       "EndcapNNeutralCandidateParticlesAlpha", {"EcalEndcapNClusters", "HcalEndcapNClusters"},
-      {"EndcapNNeutralCandidateParticlesAlpha"}, {.deltaRAddEM = 0.03, .deltaRAddH = 0.15}, app));
+      {"EndcapNNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
 
   // central ------------------------------------------------------------
 
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
       "BarrelNeutralCandidateParticlesAlpha", {"EcalBarrelClusters", "HcalBarrelClusters"},
-      {"BarrelNeutralCandidateParticlesAlpha"}, {.deltaRAddEM = 0.03, .deltaRAddH = 0.15}, app));
+      {"BarrelNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
 
   // forward ------------------------------------------------------------
 
@@ -50,6 +50,6 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CaloRemnantCombiner_factory>(
       "EndcapPNeutralCandidateParticlesAlpha", {"EcalEndcapPClusters", "HcalEndcapPClusters"},
-      {"EndcapPNeutralCandidateParticlesAlpha"}, {.deltaRAddEM = 0.03, .deltaRAddH = 0.15}, app));
+      {"EndcapPNeutralCandidateParticlesAlpha"}, {.ecalDeltaR = 0.03, .hcalDeltaR = 0.15}, app));
 }
 } // extern "C"
