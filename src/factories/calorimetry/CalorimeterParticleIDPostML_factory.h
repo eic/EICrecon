@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/onnx/CalorimeterParticleIDPostML.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
@@ -23,6 +24,9 @@ private:
   PodioInput<edm4eic::Tensor> m_prediction_tensor_input{this};
 
   PodioOutput<edm4eic::Cluster> m_cluster_output{this};
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  PodioOutput<edm4eic::MCRecoClusterParticleLink> m_cluster_links_output{this};
+#endif
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_assoc_output{this};
   PodioOutput<edm4hep::ParticleID> m_particle_id_output{this};
 
@@ -35,9 +39,12 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {m_cluster_input(), m_cluster_assoc_input(), m_prediction_tensor_input()},
-        {m_cluster_output().get(), m_cluster_assoc_output().get(), m_particle_id_output().get()});
+    m_algo->process({m_cluster_input(), m_cluster_assoc_input(), m_prediction_tensor_input()},
+                    {m_cluster_output().get(),
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                     m_cluster_links_output().get(),
+#endif
+                     m_cluster_assoc_output().get(), m_particle_id_output().get()});
   }
 };
 

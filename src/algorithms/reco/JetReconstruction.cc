@@ -5,7 +5,6 @@
 #include "JetReconstruction.h"
 
 // for error handling
-#include <JANA/JException.h>
 #include <edm4hep/MCParticleCollection.h> // IWYU pragma: keep
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
@@ -14,7 +13,7 @@
 // for fastjet objects
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/contrib/Centauro.hh>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <stdexcept>
 #include <vector>
 
@@ -34,21 +33,22 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
     m_mapJetAlgo.at(m_cfg.jetAlgo);
   } catch (std::out_of_range& out) {
     this->error(" Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo);
-    throw JException(out.what());
+    throw std::runtime_error(fmt::format("Unknown jet algorithm \"{}\" specified!", m_cfg.jetAlgo));
   }
 
   try {
     m_mapRecombScheme.at(m_cfg.recombScheme);
   } catch (std::out_of_range& out) {
     this->error(" Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme);
-    throw JException(out.what());
+    throw std::runtime_error(
+        fmt::format("Unknown recombination scheme \"{}\" specified!", m_cfg.recombScheme));
   }
 
   try {
     m_mapAreaType.at(m_cfg.areaType);
   } catch (std::out_of_range& out) {
     this->error(" Unknown area type \"{}\" specified!", m_cfg.areaType);
-    throw JException(out.what());
+    throw std::runtime_error(fmt::format("Unknown area type \"{}\" specified!", m_cfg.areaType));
   }
 
   // Choose jet definition based on no. of parameters
@@ -63,7 +63,8 @@ template <typename InputT> void JetReconstruction<InputT>::init() {
       m_jet_def    = std::make_unique<JetDefinition>(m_jet_plugin.get());
     } else {
       this->error(" Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo);
-      throw JException("Invalid contributed FastJet algorithm");
+      throw std::runtime_error(fmt::format(
+          "Unknown contributed FastJet algorithm \"{}\" specified!", m_cfg.jetContribAlgo));
     }
     break;
 
@@ -102,8 +103,8 @@ void JetReconstruction<InputT>::process(
     const typename JetReconstructionAlgorithm<InputT>::Input& input,
     const typename JetReconstructionAlgorithm<InputT>::Output& output) const {
   // Grab input collections
-  const auto [input_collection] = input;
-  auto [jet_collection]         = output;
+  const auto [headers, input_collection] = input;
+  auto [jet_collection]                  = output;
 
   // extract input momenta and collect into pseudojets
   std::vector<PseudoJet> particles;
@@ -129,9 +130,16 @@ void JetReconstruction<InputT>::process(
   }
   this->trace("  Number of particles: {}", particles.size());
 
+  // Create per-event AreaDefinition with reproducible seed
+  // This avoids contention on fastjet's static random generator
+  auto seed                    = m_uid.getUniqueID(*headers, this->name());
+  std::vector<int> seed_vector = {static_cast<int>(seed & 0xFFFFFFFF),
+                                  static_cast<int>((seed >> 32) & 0xFFFFFFFF)};
+  auto local_area_def          = m_area_def->with_fixed_seed(seed_vector);
+
   // Run the clustering, extract the jets
-  fastjet::ClusterSequenceArea m_clus_seq(particles, *m_jet_def, *m_area_def);
-  std::vector<PseudoJet> jets = sorted_by_pt(m_clus_seq.inclusive_jets(m_cfg.minJetPt));
+  fastjet::ClusterSequenceArea clus_seq(particles, *m_jet_def, local_area_def);
+  std::vector<PseudoJet> jets = sorted_by_pt(clus_seq.inclusive_jets(m_cfg.minJetPt));
 
   // Print out some infos
   this->trace("  Clustering with : {}", m_jet_def->description());

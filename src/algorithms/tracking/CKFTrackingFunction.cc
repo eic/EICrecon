@@ -2,13 +2,7 @@
 // Copyright (C) 2022 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten
 
 #include <Acts/Definitions/Direction.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#if Acts_VERSION_MAJOR < 36
-#include <Acts/EventData/VectorMultiTrajectory.hpp>
-#include <Acts/EventData/VectorTrackContainer.hpp>
-#endif
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -18,12 +12,12 @@
 #include <Acts/Utilities/Logger.hpp>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
-#include <Eigen/LU>
 #include <algorithm>
 #include <any>
 #include <cmath>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "ActsExamples/EventData/Track.hpp"
@@ -35,14 +29,7 @@ using Stepper    = Acts::EigenStepper<>;
 using Navigator  = Acts::Navigator;
 using Propagator = Acts::Propagator<Stepper, Navigator>;
 
-#if Acts_VERSION_MAJOR >= 36
 using CKF = Acts::CombinatorialKalmanFilter<Propagator, ActsExamples::TrackContainer>;
-#else
-using CKF = Acts::CombinatorialKalmanFilter<Propagator, Acts::VectorMultiTrajectory>;
-
-using TrackContainer =
-    Acts::TrackContainer<Acts::VectorTrackContainer, Acts::VectorMultiTrajectory, std::shared_ptr>;
-#endif
 
 /** Finder implementation .
    *
@@ -56,11 +43,7 @@ struct CKFTrackingFunctionImpl : public eicrecon::CKFTracking::CKFTrackingFuncti
   eicrecon::CKFTracking::TrackFinderResult
   operator()(const ActsExamples::TrackParameters& initialParameters,
              const eicrecon::CKFTracking::TrackFinderOptions& options,
-#if Acts_VERSION_MAJOR >= 36
              ActsExamples::TrackContainer& tracks) const override {
-#else
-             TrackContainer& tracks) const override {
-#endif
     return trackFinder.findTracks(initialParameters, options, tracks);
   };
 };

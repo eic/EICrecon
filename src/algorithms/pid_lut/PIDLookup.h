@@ -7,6 +7,7 @@
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
@@ -21,12 +22,19 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "services/pid_lut/PIDLookupTable.h"
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoParticleLinkCollection.h>
+#endif
+
 namespace eicrecon {
 
 using PIDLookupAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::EventHeaderCollection, edm4eic::ReconstructedParticleCollection,
                       edm4eic::MCRecoParticleAssociationCollection>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       edm4eic::MCRecoParticleLinkCollection,
+#endif
                        edm4eic::MCRecoParticleAssociationCollection,
                        edm4hep::ParticleIDCollection>>;
 
@@ -34,11 +42,16 @@ class PIDLookup : public PIDLookupAlgorithm, public WithPodConfig<PIDLookupConfi
 
 public:
   PIDLookup(std::string_view name)
-      : PIDLookupAlgorithm{name,
-                           {"inputParticlesCollection", "inputParticleAssociationsCollection"},
-                           {"outputParticlesCollection", "outputParticleAssociationsCollection",
-                            "outputParticleIDCollection"},
-                           ""} {}
+      : PIDLookupAlgorithm{
+            name,
+            {"eventHeader", "inputParticlesCollection", "inputParticleAssociationsCollection"},
+            {"outputParticlesCollection",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+             "outputParticleLinks",
+#endif
+             "outputParticleAssociationsCollection", "outputParticleIDCollection"},
+            ""} {
+  }
 
   void init() final;
   void process(const Input&, const Output&) const final;

@@ -4,6 +4,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024, Dmitry Kalinkin
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <Evaluator/DD4hepUnits.h>
@@ -116,17 +117,22 @@ void InitPlugin(JApplication* app) {
   // wiring between factories and data ///////////////////////////////////////
 
   // digitization
-  app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>(
-      "DRICHRawHits", {"EventHeader", "DRICHHits"}, {"DRICHRawHits", "DRICHRawHitsAssociations"},
-      digi_cfg, app));
+  app->Add(new JOmniFactoryGeneratorT<PhotoMultiplierHitDigi_factory>("DRICHRawHits",
+                                                                      {"EventHeader", "DRICHHits"},
+                                                                      {"DRICHRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                       "DRICHRawHitsLinks",
+#endif
+                                                                       "DRICHRawHitsAssociations"},
+                                                                      digi_cfg, app));
 
   // charged particle tracks
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
       "DRICHAerogelTracks",
-      {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+      {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {"DRICHAerogelTracks"}, aerogel_track_cfg, app));
   app->Add(new JOmniFactoryGeneratorT<RichTrack_factory>(
-      "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrajectories", "CentralCKFActsTracks"},
+      "DRICHGasTracks", {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {"DRICHGasTracks"}, gas_track_cfg, app));
 
   app->Add(new JOmniFactoryGeneratorT<MergeTrack_factory>("DRICHMergedTracks",

@@ -3,6 +3,7 @@
 //
 //
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
@@ -52,22 +53,30 @@ void InitPlugin(JApplication* app) {
   if ((SiFactoryPattern & 0x1) != 0U) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
-        {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"},
+        {"MPGDBarrelRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+         "MPGDBarrelRawHitLinks",
+#endif
+         "MPGDBarrelRawHitAssociations"},
         {
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
         },
         app));
   } else {
-    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-        "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
-        {"MPGDBarrelRawHits", "MPGDBarrelRawHitAssociations"},
-        {
-            .readout        = "MPGDBarrelHits",
-            .threshold      = 100 * dd4hep::eV,
-            .timeResolution = 10,
-        },
-        app));
+    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>("MPGDBarrelRawHits",
+                                                                 {"EventHeader", "MPGDBarrelHits"},
+                                                                 {"MPGDBarrelRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                  "MPGDBarrelRawHitLinks",
+#endif
+                                                                  "MPGDBarrelRawHitAssociations"},
+                                                                 {
+                                                                     .readout   = "MPGDBarrelHits",
+                                                                     .threshold = 100 * dd4hep::eV,
+                                                                     .timeResolution = 10,
+                                                                 },
+                                                                 app));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
@@ -84,7 +93,11 @@ void InitPlugin(JApplication* app) {
   if ((SiFactoryPattern & 0x2) != 0U) {
     app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
-        {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"},
+        {"OuterMPGDBarrelRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+         "OuterMPGDBarrelRawHitLinks",
+#endif
+         "OuterMPGDBarrelRawHitAssociations"},
         {
             .threshold      = 100 * dd4hep::eV,
             .timeResolution = 10,
@@ -93,7 +106,11 @@ void InitPlugin(JApplication* app) {
   } else {
     app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
         "OuterMPGDBarrelRawHits", {"EventHeader", "OuterMPGDBarrelHits"},
-        {"OuterMPGDBarrelRawHits", "OuterMPGDBarrelRawHitAssociations"},
+        {"OuterMPGDBarrelRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+         "OuterMPGDBarrelRawHitLinks",
+#endif
+         "OuterMPGDBarrelRawHitAssociations"},
         {
             .readout        = "OuterMPGDBarrelHits",
             .threshold      = 100 * dd4hep::eV,
@@ -115,7 +132,11 @@ void InitPlugin(JApplication* app) {
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "BackwardMPGDEndcapRawHits", {"EventHeader", "BackwardMPGDEndcapHits"},
-      {"BackwardMPGDEndcapRawHits", "BackwardMPGDEndcapRawHitAssociations"},
+      {"BackwardMPGDEndcapRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "BackwardMPGDEndcapRawHitLinks",
+#endif
+       "BackwardMPGDEndcapRawHitAssociations"},
       {
           .threshold      = 100 * dd4hep::eV,
           .timeResolution = 10,
@@ -135,7 +156,11 @@ void InitPlugin(JApplication* app) {
   // Digitization
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "ForwardMPGDEndcapRawHits", {"EventHeader", "ForwardMPGDEndcapHits"},
-      {"ForwardMPGDEndcapRawHits", "ForwardMPGDEndcapRawHitAssociations"},
+      {"ForwardMPGDEndcapRawHits",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "ForwardMPGDEndcapRawHitLinks",
+#endif
+       "ForwardMPGDEndcapRawHitAssociations"},
       {
           .threshold      = 100 * dd4hep::eV,
           .timeResolution = 10,
