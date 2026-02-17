@@ -1,6 +1,7 @@
 add_subdirectory(interfaces)
 add_subdirectory(calorimetry)
 add_subdirectory(tracking)
+add_subdirectory(particle)
 add_subdirectory(pid)
 add_subdirectory(pid_lut)
 add_subdirectory(digi)
