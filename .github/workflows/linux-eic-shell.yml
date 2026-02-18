@@ -1116,6 +1116,14 @@ jobs:
     outputs:
       json: ${{ steps.trigger.outputs.json }}
     steps:
+    - uses: actions/github-script@v6
+      id: truncate_pipeline_name
+      with:
+        script: |
+          const name = process.env.PIPELINE_NAME;
+          return name ? name.substring(0, 255) : ''
+        env:
+          PIPELINE_NAME: '${{ github.repository }}: ${{ github.event.pull_request.title || github.ref_name }}'
     - uses: eic/trigger-gitlab-ci@v3
       id: trigger
       with:
@@ -1128,7 +1136,7 @@ jobs:
           GITHUB_SHA=${{ github.event.pull_request.head.sha || github.sha }}
           GITHUB_PR=${{ github.event.pull_request.number }}
           EICRECON_VERSION="${{ github.event.pull_request.head.ref || github.ref_name }}"
-          PIPELINE_NAME=${{ github.repository }}: ${{ github.event.pull_request.title || github.ref_name }}
+          PIPELINE_NAME=${{ steps.truncate_pipeline_name.outputs.result }}
     - name: Post a GitHub CI status
       run: |
         gh api \
