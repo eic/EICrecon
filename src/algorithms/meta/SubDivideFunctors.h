@@ -26,17 +26,17 @@ template <auto... MemberFunctionPtrs> struct ChainInvoker;
 
 // Base case: single member function
 template <auto MemberFunctionPtr> struct ChainInvoker<MemberFunctionPtr> {
-  template <typename T> static auto invoke(const T& instance) {
-    return (instance.*MemberFunctionPtr)();
+  template <typename T> static decltype(auto) invoke(T&& instance) {
+    return (std::forward<T>(instance).*MemberFunctionPtr)();
   }
 };
 
 // Recursive case: chain multiple member functions
 template <auto FirstMemberFunctionPtr, auto... RestMemberFunctionPtrs>
 struct ChainInvoker<FirstMemberFunctionPtr, RestMemberFunctionPtrs...> {
-  template <typename T> static auto invoke(const T& instance) {
-    auto nested = (instance.*FirstMemberFunctionPtr)();
-    return ChainInvoker<RestMemberFunctionPtrs...>::invoke(nested);
+  template <typename T> static decltype(auto) invoke(T&& instance) {
+    decltype(auto) nested = (std::forward<T>(instance).*FirstMemberFunctionPtr)();
+    return ChainInvoker<RestMemberFunctionPtrs...>::invoke(std::forward<decltype(nested)>(nested));
   }
 };
 
