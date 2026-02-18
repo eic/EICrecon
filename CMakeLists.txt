@@ -303,6 +303,9 @@ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake) # Find
 
 enable_testing()
 
+# Eigen malloc configuration detector
+include(cmake/detect_acts_eigen_malloc/detect_acts_eigen_malloc.cmake)
+
 # Address sanitizer
 option(USE_ASAN "Compile with address sanitizer" OFF)
 if(${USE_ASAN})
