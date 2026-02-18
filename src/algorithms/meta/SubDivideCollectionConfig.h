@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <cstddef>
 #include <functional>
 #include <vector>
 namespace eicrecon {
