@@ -4,6 +4,16 @@
 # FASTJET_LIBRARY FASTJET_LIBRARIES (not cached) FASTJET_LIBRARY_DIRS (not
 # cached)
 
+# Allow user to specify FASTJET_ROOT as a hint
+if(NOT DEFINED FASTJET_ROOT)
+  set(FASTJET_ROOT "")
+endif()
+
+# Allow user to specify FASTJET_ROOT_DIR as a hint
+if(NOT DEFINED FASTJET_ROOT_DIR)
+  set(FASTJET_ROOT_DIR "")
+endif()
+
 find_path(FASTJET_INCLUDE_DIR fastjet/version.hh
           HINTS $ENV{FASTJET_ROOT}/include ${FASTJET_ROOT_DIR}/include)
 
@@ -20,6 +30,10 @@ find_package_handle_standard_args(FastJet DEFAULT_MSG FASTJET_INCLUDE_DIR
 
 mark_as_advanced(FASTJET_FOUND FASTJET_INCLUDE_DIR FASTJET_LIBRARY)
 
-set(FASTJET_INCLUDE_DIRS ${FASTJET_INCLUDE_DIR})
-set(FASTJET_LIBRARIES ${FASTJET_LIBRARY})
+set(FASTJET_INCLUDE_DIRS
+    ${FASTJET_INCLUDE_DIR}
+    PARENT_SCOPE)
+set(FASTJET_LIBRARIES
+    ${FASTJET_LIBRARY}
+    PARENT_SCOPE)
 get_filename_component(FASTJET_LIBRARY_DIRS ${FASTJET_LIBRARY} PATH)
