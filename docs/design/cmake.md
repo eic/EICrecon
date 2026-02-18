@@ -6,6 +6,12 @@ There is a copy/paste CMake file that should automatically create plugin out of 
 - there should be /</plugin name/>/.cc file with `void InitPlugin(JApplication *app)` function
 
 
+## CMake Dependency Graph
+
+The CMake dependency graph shows the relationships between different components of the project:
+
+[View CMake Dependency Graph](cmake_graphs/dependencies.svg ':include :type=iframe width=100% height=600px')
+
 ### Create a plugin:
 
 E.g. if you want to create a plugin named `my_plugin`

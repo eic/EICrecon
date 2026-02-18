@@ -99,6 +99,7 @@ jobs:
           - CXX: g++
             # -Wno-error=maybe-uninitialized for GCC only as it has issues with /usr/include/c++/12/bits/std_function.h
             CXXFLAGS: -Werror -Wall -Wextra -Wundef -Wno-error=maybe-uninitialized
+            graphviz: --graphviz=build/graphviz/dependencies.dot
           - CXX: clang++
             CXXFLAGS: -Werror -Wall -Wextra -Wundef
           # include clang++ Debug with profile CXXFLAGS
@@ -161,10 +162,14 @@ jobs:
         platform-release: "${{ env.platform }}:${{ matrix.release }}"
         run: |
           # install this repo
-          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=${{matrix.USE_ASAN}} -DUSE_TSAN=${{matrix.USE_TSAN}} -DUSE_UBSAN=${{matrix.USE_UBSAN}} -DENABLE_LINK_WHAT_YOU_USE=ON
+          CXX="${{ matrix.CXX }}" CXXFLAGS="${{ matrix.CXXFLAGS }}" cmake --warn-uninitialized -B build -S . -DCMAKE_INSTALL_PREFIX=install -DCMAKE_C_COMPILER_LAUNCHER=ccache -DCMAKE_CXX_COMPILER_LAUNCHER=ccache -DCMAKE_BUILD_TYPE=${{ matrix.CMAKE_BUILD_TYPE }} -DUSE_ASAN=${{matrix.USE_ASAN}} -DUSE_TSAN=${{matrix.USE_TSAN}} -DUSE_UBSAN=${{matrix.USE_UBSAN}} -DENABLE_LINK_WHAT_YOU_USE=ON ${{ matrix.graphviz }}
           cmake --build build -j $(getconf _NPROCESSORS_ONLN) --target install
           ccache --show-stats --verbose
           ccache --evict-older-than 7d
+          # convert graphviz to SVG if generated
+          if [ -f build/graphviz/dependencies.dot ] ; then
+            dot -Tsvg build/graphviz/dependencies.dot -o build/graphviz/dependencies.svg
+          fi
     - name: Print LINK_WHAT_YOU_USE logs
       run: |
         shopt -s nullglob
@@ -172,6 +177,15 @@ jobs:
           echo "$i"
           cat "$i"
         done
+    - name: Upload graphviz artifacts
+      uses: actions/upload-artifact@v6
+      if: matrix.graphviz != ''
+      with:
+        name: cmake-graphviz-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
+        path: |
+          build/graphviz/dependencies.dot*
+          build/graphviz/dependencies.svg
+        if-no-files-found: error
     - name: Check dynamic library loader paths
       uses: eic/run-cvmfs-osg-eic-shell@main
       with:
@@ -1145,6 +1159,7 @@ jobs:
   build-docs:
     runs-on: ubuntu-24.04
     needs:
+      - build
       - eicrecon-gun
       - eicrecon-dis
       - compare-single-multi-threaded
@@ -1169,6 +1184,25 @@ jobs:
         with:
           name: jana.dot
           path: publishing_docs/dot/
+      - name: Download CMake graphviz artifacts
+        if: github.ref_name == 'main'
+        uses: actions/download-artifact@v7
+        continue-on-error: true
+        with:
+          pattern: cmake-graphviz-*
+          path: cmake_graphviz_artifacts/
+          merge-multiple: true
+      - name: Copy CMake graphviz to docs
+        if: github.ref_name == 'main'
+        continue-on-error: true
+        run: |
+          mkdir -p publishing_docs/design/cmake_graphs
+          if [ -f cmake_graphviz_artifacts/dependencies.svg ]; then
+            cp cmake_graphviz_artifacts/dependencies.svg publishing_docs/design/cmake_graphs/
+          fi
+          if [ -f cmake_graphviz_artifacts/dependencies.dot ]; then
+            cp cmake_graphviz_artifacts/dependencies.dot publishing_docs/design/cmake_graphs/
+          fi
       - uses: actions/download-artifact@v7
         with:
           name: e_craterlake_flags.json
