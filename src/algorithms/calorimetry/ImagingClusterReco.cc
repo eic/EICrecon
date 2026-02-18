@@ -8,16 +8,15 @@
  *  Author: Chao Peng (ANL), 06/02/2021
  */
 
-#include "algorithms/calorimetry/ImagingClusterReco.h"
-
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
 #include <Eigen/Core>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
@@ -26,9 +25,11 @@
 #include <cmath>
 #include <gsl/pointers>
 #include <map>
+#include <memory>
 #include <new>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
+#include "algorithms/calorimetry/ImagingClusterReco.h"
 #include "algorithms/calorimetry/ImagingClusterRecoConfig.h"
 
 namespace eicrecon {
@@ -36,7 +37,11 @@ namespace eicrecon {
 void ImagingClusterReco::process(const Input& input, const Output& output) const {
 
   const auto [proto, mchitassociations] = input;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [clusters, links, associations, layers] = output;
+#else
   auto [clusters, associations, layers] = output;
+#endif
 
   for (const auto& pcl : *proto) {
     if (!pcl.getHits().empty() && !pcl.getHits(0).isAvailable()) {
@@ -66,7 +71,11 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
             "will be performed.");
       continue;
     }
-    associate_mc_particles(cl, mchitassociations, associations);
+    associate_mc_particles(cl, mchitassociations,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                           links,
+#endif
+                           associations);
   }
 
   // debug output
@@ -224,6 +233,9 @@ ImagingClusterReco::fit_track(const std::vector<edm4eic::MutableCluster>& layers
 void ImagingClusterReco::associate_mc_particles(
     const edm4eic::Cluster& cl,
     const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    edm4eic::MCRecoClusterParticleLinkCollection* links,
+#endif
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
   // Association Logic
@@ -295,10 +307,15 @@ void ImagingClusterReco::associate_mc_particles(
     // calculate weight
     const double weight = contribution / eSimHitSum;
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    // create link
+    auto link = links->create();
+    link.setWeight(weight);
+    link.setFrom(cl);
+    link.setTo(part);
+#endif
     // set association
     auto assoc = assocs->create();
-    assoc.setRecID(cl.getObjectID().index); // if not using collection, this is always set to -1
-    assoc.setSimID(part.getObjectID().index);
     assoc.setWeight(weight);
     assoc.setRec(cl);
     assoc.setSim(part);
