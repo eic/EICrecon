@@ -19,8 +19,10 @@ repos:
   - id: forbid-crlf
   - id: remove-crlf
   - id: forbid-tabs
+    exclude: ^justfile$
   - id: remove-tabs
     args: [--whitespaces-count, '8']
+    exclude: ^justfile$
 - repo: https://github.com/cheshirekow/cmake-format-precommit
   rev: v0.6.13
   hooks:
