@@ -261,7 +261,7 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
             hit.getPosition().y, hit.getPosition().z);
     }
 
-    // not a qualified center
+    // not a qualified cluster center
     if ((*hits)[*idx].getEnergy() < m_cfg.minClusterCenterEdep) {
       idx++;
       continue;
