@@ -97,7 +97,6 @@ private:
                  edm4eic::MCRecoClusterParticleLinkCollection* links,
 #endif
                  edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
-  static edm4hep::MCParticle get_primary(const edm4hep::CaloHitContribution& contrib);
 };
 
 } // namespace eicrecon

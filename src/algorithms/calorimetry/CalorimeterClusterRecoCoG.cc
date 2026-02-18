@@ -32,6 +32,7 @@
 
 #include "CalorimeterClusterRecoCoG.h"
 #include "algorithms/calorimetry/CalorimeterClusterRecoCoGConfig.h"
+#include "MCTools.h"
 
 namespace eicrecon {
 
@@ -231,7 +232,7 @@ void CalorimeterClusterRecoCoG::associate(
         // --------------------------------------------------------------------
         // grab primary responsible for contribution & increment relevant sum
         // --------------------------------------------------------------------
-        edm4hep::MCParticle primary = get_primary(contrib);
+        edm4hep::MCParticle primary = MCTools::lookup_primary(contrib);
         mapMCParToContrib[primary] += contrib.getEnergy();
 
         trace("Identified primary: id = {}, pid = {}, total energy = {}, contributed = {}",
@@ -266,24 +267,6 @@ void CalorimeterClusterRecoCoG::associate(
           cl.getObjectID().index, part.getObjectID().index, part.getPDG(),
           part.getGeneratorStatus(), part.getEnergy(), weight);
   }
-}
-
-edm4hep::MCParticle
-CalorimeterClusterRecoCoG::get_primary(const edm4hep::CaloHitContribution& contrib) {
-  // get contributing particle
-  const auto contributor = contrib.getParticle();
-
-  // walk back through parents to find primary
-  //   - TODO finalize primary selection. This
-  //     can be improved!!
-  edm4hep::MCParticle primary = contributor;
-  while (primary.parents_size() > 0) {
-    if (primary.getGeneratorStatus() != 0) {
-      break;
-    }
-    primary = primary.getParents(0);
-  }
-  return primary;
 }
 
 } // namespace eicrecon
