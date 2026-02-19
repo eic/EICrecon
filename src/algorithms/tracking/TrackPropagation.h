@@ -8,7 +8,6 @@
 #else
 #include <Acts/EventData/TrackParameters.hpp>
 #endif
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
@@ -27,6 +26,7 @@
 #include <memory>
 #include <string>
 #include <string_view>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/interfaces/ActsSvc.h"
