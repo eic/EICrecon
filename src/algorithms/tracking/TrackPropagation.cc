@@ -6,10 +6,10 @@
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #if Acts_VERSION_MAJOR > 45
 #include <Acts/EventData/BoundTrackParameters.hpp>
 #else
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
 #endif
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
