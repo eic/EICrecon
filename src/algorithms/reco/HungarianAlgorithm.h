@@ -18,6 +18,12 @@ namespace eicrecon {
  * Uses the Kuhn-Munkres algorithm implementation.
  * 
  * Time complexity: O(n^3) where n is max(rows, cols)
+ * Space complexity: O(n^2)
+ * 
+ * @note For typical track-cluster matching use cases (n < 1000), this implementation
+ *       is efficient and safe. Very large matrices (n > 10000) may encounter stack
+ *       depth limitations due to the recursive augmenting path algorithm, but would
+ *       also be prohibitively slow due to O(n^3) complexity.
  */
 class HungarianAlgorithm {
 public:
