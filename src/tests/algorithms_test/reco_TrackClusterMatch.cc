@@ -60,19 +60,19 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
     auto clusters1   = std::make_unique<edm4eic::ClusterCollection>();
     auto matches1    = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
-    // Track 0 at (1, 0, 0)
-    make_track(tracks1, track_objs1, {1.0f, 0.0f, 0.0f});
-    // Track 1 at (0, 1, 0)
-    make_track(tracks1, track_objs1, {0.0f, 1.0f, 0.0f});
-    // Track 2 at (0, 0, 1)
-    make_track(tracks1, track_objs1, {0.0f, 0.0f, 1.0f});
+    // Track 0 at (1, 0, 0.1) - slightly off x-axis
+    make_track(tracks1, track_objs1, {1.0f, 0.0f, 0.1f});
+    // Track 1 at (0, 1, 0.1) - slightly off y-axis
+    make_track(tracks1, track_objs1, {0.0f, 1.0f, 0.1f});
+    // Track 2 at (0.1, 0, 1) - slightly off z-axis to avoid eta=inf
+    make_track(tracks1, track_objs1, {0.1f, 0.0f, 1.0f});
 
-    // Cluster 0 closest to Track 1 (at 0, 1.05, 0)
-    make_cluster(clusters1, {0.0f, 1.05f, 0.0f});
-    // Cluster 1 closest to Track 0 (at 1.05, 0, 0)
-    make_cluster(clusters1, {1.05f, 0.0f, 0.0f});
-    // Cluster 2 closest to Track 2 (at 0, 0, 1.05)
-    make_cluster(clusters1, {0.0f, 0.0f, 1.05f});
+    // Cluster 0 closest to Track 1 (at 0, 1.05, 0.1)
+    make_cluster(clusters1, {0.0f, 1.05f, 0.1f});
+    // Cluster 1 closest to Track 0 (at 1.05, 0, 0.1)
+    make_cluster(clusters1, {1.05f, 0.0f, 0.1f});
+    // Cluster 2 closest to Track 2 (at 0.1, 0, 1.05)
+    make_cluster(clusters1, {0.1f, 0.0f, 1.05f});
 
     algo.process({tracks1.get(), clusters1.get()}, {matches1.get()});
 
@@ -82,14 +82,14 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
     auto clusters2   = std::make_unique<edm4eic::ClusterCollection>();
     auto matches2    = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
-    make_track(tracks2, track_objs2, {1.0f, 0.0f, 0.0f});
-    make_track(tracks2, track_objs2, {0.0f, 1.0f, 0.0f});
-    make_track(tracks2, track_objs2, {0.0f, 0.0f, 1.0f});
+    make_track(tracks2, track_objs2, {1.0f, 0.0f, 0.1f});
+    make_track(tracks2, track_objs2, {0.0f, 1.0f, 0.1f});
+    make_track(tracks2, track_objs2, {0.1f, 0.0f, 1.0f});
 
     // Cluster order changed
-    make_cluster(clusters2, {0.0f, 0.0f, 1.05f}); // Was cluster 2
-    make_cluster(clusters2, {1.05f, 0.0f, 0.0f}); // Was cluster 1
-    make_cluster(clusters2, {0.0f, 1.05f, 0.0f}); // Was cluster 0
+    make_cluster(clusters2, {0.1f, 0.0f, 1.05f}); // Was cluster 2
+    make_cluster(clusters2, {1.05f, 0.0f, 0.1f}); // Was cluster 1
+    make_cluster(clusters2, {0.0f, 1.05f, 0.1f}); // Was cluster 0
 
     algo.process({tracks2.get(), clusters2.get()}, {matches2.get()});
 
