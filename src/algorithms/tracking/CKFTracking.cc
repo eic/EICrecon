@@ -111,16 +111,19 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     Acts::GeometryIdentifier geoId{meas2D.getSurface()};
 
     // Create ACTS measurements
-
-    Acts::ActsVector<2> loc = Acts::Vector2::Zero();
-    loc[Acts::eBoundLoc0]   = meas2D.getLoc().a;
-    loc[Acts::eBoundLoc1]   = meas2D.getLoc().b;
-
+#if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 2)
+    Acts::Vector<2> loc       = Acts::Vector2::Zero();
+    Acts::SquareMatrix<2> cov = Acts::SquareMatrix<2>::Zero();
+#else
+    Acts::ActsVector<2> loc       = Acts::Vector2::Zero();
     Acts::ActsSquareMatrix<2> cov = Acts::ActsSquareMatrix<2>::Zero();
-    cov(0, 0)                     = meas2D.getCovariance().xx;
-    cov(1, 1)                     = meas2D.getCovariance().yy;
-    cov(0, 1)                     = meas2D.getCovariance().xy;
-    cov(1, 0)                     = meas2D.getCovariance().xy;
+#endif
+    loc[Acts::eBoundLoc0]                   = meas2D.getLoc().a;
+    loc[Acts::eBoundLoc1]                   = meas2D.getLoc().b;
+    cov(Acts::eBoundLoc0, Acts::eBoundLoc0) = meas2D.getCovariance().xx;
+    cov(Acts::eBoundLoc1, Acts::eBoundLoc1) = meas2D.getCovariance().yy;
+    cov(Acts::eBoundLoc0, Acts::eBoundLoc1) = meas2D.getCovariance().xy;
+    cov(Acts::eBoundLoc1, Acts::eBoundLoc0) = meas2D.getCovariance().xy;
 
     std::array<Acts::BoundIndices, 2> indices{Acts::eBoundLoc0, Acts::eBoundLoc1};
     Acts::visit_measurement(
