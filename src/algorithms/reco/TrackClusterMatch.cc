@@ -37,7 +37,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   }
 
   const int num_clusters = clusters->size();
-  const int num_tracks = tracks->size();
+  const int num_tracks   = tracks->size();
 
   if (num_clusters == 0 || num_tracks == 0) {
     trace("No matches possible: {} clusters, {} tracks", num_clusters, num_tracks);
@@ -52,10 +52,10 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
 
   for (auto track : *tracks) {
     std::optional<edm4hep::Vector3f> best_position;
-    
+
     // Find the track point at the calorimeter surface
     for (auto point : track.getPoints()) {
-      bool is_calo = point.system == calo_id;
+      bool is_calo    = point.system == calo_id;
       bool is_surface = point.surface == 1;
 
       if (is_calo && is_surface) {
@@ -71,7 +71,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   }
 
   const int num_valid_tracks = valid_tracks.size();
-  
+
   if (num_valid_tracks == 0) {
     trace("No valid track projections found at calorimeter");
     return;
@@ -83,11 +83,11 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   Eigen::MatrixXd cost_matrix(num_clusters, num_valid_tracks);
 
   for (int i = 0; i < num_clusters; i++) {
-    auto cluster = (*clusters)[i];
+    auto cluster                         = (*clusters)[i];
     const edm4hep::Vector3f& cluster_pos = cluster.getPosition();
 
     for (int j = 0; j < num_valid_tracks; j++) {
-      double dist = distance(cluster_pos, track_positions[j]);
+      double dist       = distance(cluster_pos, track_positions[j]);
       cost_matrix(i, j) = dist;
     }
   }
@@ -102,26 +102,26 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   // Create matches for assignments that meet the distance threshold
   for (int i = 0; i < num_clusters; i++) {
     int track_idx = assignment[i];
-    
+
     if (track_idx == -1) {
       trace("Cluster {} unmatched", i);
       continue;
     }
 
     double match_distance = cost_matrix(i, track_idx);
-    
+
     if (match_distance <= m_cfg.matching_distance) {
       auto cluster = (*clusters)[i];
-      auto track = valid_tracks[track_idx];
-      
+      auto track   = valid_tracks[track_idx];
+
       auto particle = matched_particles->create();
       particle.setCluster(cluster);
       particle.setTrack(track.getTrack());
-      
+
       trace("Matched cluster {} to track {} with distance {}", i, track_idx, match_distance);
     } else {
-      trace("Cluster {} matched to track {} but distance {} exceeds threshold {}", 
-            i, track_idx, match_distance, m_cfg.matching_distance);
+      trace("Cluster {} matched to track {} but distance {} exceeds threshold {}", i, track_idx,
+            match_distance, m_cfg.matching_distance);
     }
   }
 

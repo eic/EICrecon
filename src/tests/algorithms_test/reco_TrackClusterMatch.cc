@@ -29,19 +29,19 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
   // Helper to create a track segment with a projection point
   auto make_track = [](auto& tracks_coll, auto& track_coll, edm4hep::Vector3f position) {
     auto track = track_coll->create();
-    
+
     auto segment = tracks_coll->create();
     segment.setTrack(track);
-    
+
     edm4eic::TrackPoint point;
     point.position = position;
     point.momentum = {1.0f, 0.0f, 0.0f};
-    point.time = 0.0f;
-    point.system = 1; // MockCalorimeter_ID
-    point.surface = 1; // Surface point
-    
+    point.time     = 0.0f;
+    point.system   = 1; // MockCalorimeter_ID
+    point.surface  = 1; // Surface point
+
     segment.addToPoints(point);
-    
+
     return segment;
   };
 
@@ -55,10 +55,10 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
 
   SECTION("Order-independent matching with 3 tracks and 3 clusters") {
     // Create collections in original order
-    auto tracks1 = std::make_unique<edm4eic::TrackSegmentCollection>();
+    auto tracks1     = std::make_unique<edm4eic::TrackSegmentCollection>();
     auto track_objs1 = std::make_unique<edm4eic::TrackCollection>();
-    auto clusters1 = std::make_unique<edm4eic::ClusterCollection>();
-    auto matches1 = std::make_unique<edm4eic::TrackClusterMatchCollection>();
+    auto clusters1   = std::make_unique<edm4eic::ClusterCollection>();
+    auto matches1    = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
     // Track 0 at (1, 0, 0)
     make_track(tracks1, track_objs1, {1.0f, 0.0f, 0.0f});
@@ -77,10 +77,10 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
     algo.process({tracks1.get(), clusters1.get()}, {matches1.get()});
 
     // Create collections in different order (swap clusters 0 and 2)
-    auto tracks2 = std::make_unique<edm4eic::TrackSegmentCollection>();
+    auto tracks2     = std::make_unique<edm4eic::TrackSegmentCollection>();
     auto track_objs2 = std::make_unique<edm4eic::TrackCollection>();
-    auto clusters2 = std::make_unique<edm4eic::ClusterCollection>();
-    auto matches2 = std::make_unique<edm4eic::TrackClusterMatchCollection>();
+    auto clusters2   = std::make_unique<edm4eic::ClusterCollection>();
+    auto matches2    = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
     make_track(tracks2, track_objs2, {1.0f, 0.0f, 0.0f});
     make_track(tracks2, track_objs2, {0.0f, 1.0f, 0.0f});
@@ -102,23 +102,24 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
     // but we can verify each cluster was matched to a track with similar position
     auto verify_match = [](const auto& match, const edm4hep::Vector3f& expected_track_pos) {
       auto cluster_pos = match.getCluster().getPosition();
-      
+
       // Find the track point at the calorimeter
       bool found = false;
       for (const auto& track_segment : match.getTrack().getTrackSegments()) {
         for (const auto& point : track_segment.getPoints()) {
           if (point.system == 1 && point.surface == 1) {
-            float dx = point.position.x - expected_track_pos.x;
-            float dy = point.position.y - expected_track_pos.y;
-            float dz = point.position.z - expected_track_pos.z;
-            float dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+            float dx   = point.position.x - expected_track_pos.x;
+            float dy   = point.position.y - expected_track_pos.y;
+            float dz   = point.position.z - expected_track_pos.z;
+            float dist = std::sqrt(dx * dx + dy * dy + dz * dz);
             if (dist < 0.01f) {
               found = true;
               break;
             }
           }
         }
-        if (found) break;
+        if (found)
+          break;
       }
       return found;
     };
@@ -127,15 +128,15 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
     // This is a simplified check - ideally we'd verify exact pairings
     int matched_count1 = matches1->size();
     int matched_count2 = matches2->size();
-    
+
     REQUIRE(matched_count1 == matched_count2);
   }
 
   SECTION("Greedy vs optimal matching difference") {
-    auto tracks = std::make_unique<edm4eic::TrackSegmentCollection>();
+    auto tracks     = std::make_unique<edm4eic::TrackSegmentCollection>();
     auto track_objs = std::make_unique<edm4eic::TrackCollection>();
-    auto clusters = std::make_unique<edm4eic::ClusterCollection>();
-    auto matches = std::make_unique<edm4eic::TrackClusterMatchCollection>();
+    auto clusters   = std::make_unique<edm4eic::ClusterCollection>();
+    auto matches    = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
     // Create a scenario where greedy matching would be suboptimal
     // Track 0 at (1, 0, 0)
@@ -189,10 +190,10 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
   }
 
   SECTION("Unmatched clusters beyond threshold") {
-    auto tracks = std::make_unique<edm4eic::TrackSegmentCollection>();
+    auto tracks     = std::make_unique<edm4eic::TrackSegmentCollection>();
     auto track_objs = std::make_unique<edm4eic::TrackCollection>();
-    auto clusters = std::make_unique<edm4eic::ClusterCollection>();
-    auto matches = std::make_unique<edm4eic::TrackClusterMatchCollection>();
+    auto clusters   = std::make_unique<edm4eic::ClusterCollection>();
+    auto matches    = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
     make_track(tracks, track_objs, {1.0f, 0.0f, 0.0f});
 
@@ -208,10 +209,10 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
   }
 
   SECTION("More clusters than tracks") {
-    auto tracks = std::make_unique<edm4eic::TrackSegmentCollection>();
+    auto tracks     = std::make_unique<edm4eic::TrackSegmentCollection>();
     auto track_objs = std::make_unique<edm4eic::TrackCollection>();
-    auto clusters = std::make_unique<edm4eic::ClusterCollection>();
-    auto matches = std::make_unique<edm4eic::TrackClusterMatchCollection>();
+    auto clusters   = std::make_unique<edm4eic::ClusterCollection>();
+    auto matches    = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
     make_track(tracks, track_objs, {1.0f, 0.0f, 0.0f});
     make_track(tracks, track_objs, {0.0f, 1.0f, 0.0f});
@@ -227,10 +228,10 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
   }
 
   SECTION("More tracks than clusters") {
-    auto tracks = std::make_unique<edm4eic::TrackSegmentCollection>();
+    auto tracks     = std::make_unique<edm4eic::TrackSegmentCollection>();
     auto track_objs = std::make_unique<edm4eic::TrackCollection>();
-    auto clusters = std::make_unique<edm4eic::ClusterCollection>();
-    auto matches = std::make_unique<edm4eic::TrackClusterMatchCollection>();
+    auto clusters   = std::make_unique<edm4eic::ClusterCollection>();
+    auto matches    = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
     make_track(tracks, track_objs, {1.0f, 0.0f, 0.0f});
     make_track(tracks, track_objs, {0.0f, 1.0f, 0.0f});
@@ -246,9 +247,9 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
   }
 
   SECTION("Empty inputs") {
-    auto tracks = std::make_unique<edm4eic::TrackSegmentCollection>();
+    auto tracks   = std::make_unique<edm4eic::TrackSegmentCollection>();
     auto clusters = std::make_unique<edm4eic::ClusterCollection>();
-    auto matches = std::make_unique<edm4eic::TrackClusterMatchCollection>();
+    auto matches  = std::make_unique<edm4eic::TrackClusterMatchCollection>();
 
     algo.process({tracks.get(), clusters.get()}, {matches.get()});
 
