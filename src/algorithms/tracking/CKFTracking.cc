@@ -152,7 +152,11 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     params(Acts::eBoundQOverP) = track_parameter.getQOverP() / Acts::UnitConstants::GeV;
     params(Acts::eBoundTime)   = track_parameter.getTime() * Acts::UnitConstants::ns;
 
+#if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 1)
+    Acts::BoundMatrix cov = Acts::BoundMatrix::Zero();
+#else
     Acts::BoundSquareMatrix cov = Acts::BoundSquareMatrix::Zero();
+#endif
     for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
       for (std::size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
         cov(a, b) = track_parameter.getCovariance()(i, j) * x * y;
