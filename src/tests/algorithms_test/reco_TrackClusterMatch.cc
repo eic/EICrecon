@@ -6,7 +6,7 @@
 #include <catch2/matchers/catch_matchers.hpp>
 #include <catch2/matchers/catch_matchers_floating_point.hpp>
 #include <edm4eic/ClusterCollection.h>
-#include <edm4eic/Track.h>
+#include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
