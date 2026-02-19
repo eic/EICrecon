@@ -12,19 +12,18 @@
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
+#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #include <spdlog/common.h>
 #include <algorithm>
 #include <any>
 #include <array>
 #include <cstddef>
 #include <functional>
-#include <gsl/pointers>
 #include <stdexcept>
 #include <string>
 #include <system_error>
 #include <tuple>
 #include <utility>
-#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #if Acts_VERSION_MAJOR < 43
 #include <Acts/Utilities/Iterator.hpp>
 #endif
