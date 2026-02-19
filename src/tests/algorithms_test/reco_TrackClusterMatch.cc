@@ -98,34 +98,7 @@ TEST_CASE("TrackClusterMatch algorithm order-independence", "[TrackClusterMatch]
     REQUIRE(matches2->size() == 3);
 
     // Both should match all 3 clusters
-    // We can't directly compare the matches because the cluster/track objects are different,
-    // but we can verify each cluster was matched to a track with similar position
-    auto verify_match = [](const auto& match, const edm4hep::Vector3f& expected_track_pos) {
-      auto cluster_pos = match.getCluster().getPosition();
-
-      // Find the track point at the calorimeter
-      bool found = false;
-      for (const auto& track_segment : match.getTrack().getTrackSegments()) {
-        for (const auto& point : track_segment.getPoints()) {
-          if (point.system == 1 && point.surface == 1) {
-            float dx   = point.position.x - expected_track_pos.x;
-            float dy   = point.position.y - expected_track_pos.y;
-            float dz   = point.position.z - expected_track_pos.z;
-            float dist = std::sqrt(dx * dx + dy * dy + dz * dz);
-            if (dist < 0.01f) {
-              found = true;
-              break;
-            }
-          }
-        }
-        if (found)
-          break;
-      }
-      return found;
-    };
-
     // Count how many clusters were matched in each case
-    // This is a simplified check - ideally we'd verify exact pairings
     int matched_count1 = matches1->size();
     int matched_count2 = matches2->size();
 
