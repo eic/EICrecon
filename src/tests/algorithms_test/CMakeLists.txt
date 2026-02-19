@@ -33,7 +33,7 @@ target_link_libraries(
           particle_service_library
           pid_lut_library
           podio::podio
-          podio::podioRootIO)
+          podio::podioIO)
 
 # Install executable
 install(TARGETS ${TEST_NAME} DESTINATION bin)
