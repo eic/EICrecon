@@ -84,7 +84,7 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
   // Build cost matrix: rows = clusters, cols = tracks
   // Use heuristic filtering to avoid expensive distance calculations for far-away pairs
   Eigen::MatrixXd cost_matrix(num_clusters, num_valid_tracks);
-  
+
   // Use a generous fast-check threshold (e.g., 3x matching distance)
   // to quickly filter out pairs that are obviously too far
   const double fast_check_threshold = 3.0 * m_cfg.matching_distance;
@@ -96,11 +96,11 @@ void TrackClusterMatch::process(const TrackClusterMatch::Input& input,
     for (int j = 0; j < num_valid_tracks; j++) {
       // Fast preliminary check using simple coordinate differences
       const edm4hep::Vector3f& track_pos = track_positions[j];
-      double dx = cluster_pos.x - track_pos.x;
-      double dy = cluster_pos.y - track_pos.y;
-      double dz = cluster_pos.z - track_pos.z;
-      double fast_dist = std::sqrt(dx*dx + dy*dy + dz*dz);
-      
+      double dx                          = cluster_pos.x - track_pos.x;
+      double dy                          = cluster_pos.y - track_pos.y;
+      double dz                          = cluster_pos.z - track_pos.z;
+      double fast_dist                   = std::sqrt(dx * dx + dy * dy + dz * dz);
+
       // Only compute expensive eta/phi distance if fast check passes
       if (fast_dist < fast_check_threshold) {
         cost_matrix(i, j) = distance(cluster_pos, track_pos);
