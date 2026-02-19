@@ -72,16 +72,16 @@ TEST_CASE("Hungarian algorithm solves simple assignment", "[HungarianAlgorithm]"
 
   SECTION("Different-sized matrix (2 rows x 3 cols)") {
     Eigen::MatrixXd cost(2, 3);
-    cost << 1.0, 2.0, 3.0, 4.0, 5.0, 6.0;
+    cost << 1.0, 3.0, 5.0, 4.0, 2.0, 6.0;
 
     auto assignment = algo.solve(cost);
 
     REQUIRE(assignment.size() == 2);
     REQUIRE(assignment[0] == 0); // row 0 -> col 0 (cost 1)
-    REQUIRE(assignment[1] == 1); // row 1 -> col 1 (cost 5)
+    REQUIRE(assignment[1] == 1); // row 1 -> col 1 (cost 2)
 
     double total_cost = cost(0, assignment[0]) + cost(1, assignment[1]);
-    REQUIRE_THAT(total_cost, WithinAbs(6.0, 1e-9));
+    REQUIRE_THAT(total_cost, WithinAbs(3.0, 1e-9));
   }
 
   SECTION("Empty matrix") {
