@@ -6,6 +6,7 @@
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #if Acts_VERSION_MAJOR > 45
 #include <Acts/EventData/BoundTrackParameters.hpp>
 #else
@@ -34,6 +35,7 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
@@ -43,7 +45,6 @@
 #include <iterator>
 #include <map>
 #include <optional>
-#include <spdlog/common.h>
 #include <stdexcept>
 #include <string>
 #include <tuple>

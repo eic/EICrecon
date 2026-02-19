@@ -11,7 +11,6 @@
 #else
 #include <Acts/EventData/TrackParameters.hpp>
 #endif
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
@@ -40,10 +39,9 @@
 #include <edm4hep/Vector4f.h>
 #include <podio/RelationRange.h>
 #include <spdlog/common.h>
-#include <Eigen/Core>
 #include <cmath>
-#include <gsl/pointers>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
