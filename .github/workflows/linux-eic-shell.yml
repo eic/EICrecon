@@ -779,7 +779,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           prmon --json-summary rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.prmon.json -- \
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups) -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4hep.root -Pplugins=dump_flags,janadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
@@ -797,9 +797,19 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          mv jana.dot rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot
-          sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' *.dot | dot -Tsvg > jana.svg
-          mv jana.svg rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.svg
+          for dotfile in jana*.dot; do
+            # Rename all jana dot files with matrix test name prefix
+            newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.${dotfile#jana.}"
+            # Handle the case where jana.dot should become rec_..._dot without extra period
+            if [ "$dotfile" = "jana.dot" ]; then
+              newname="rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.dot"
+            fi
+            mv "$dotfile" "$newname"
+
+            # Convert all dot files to SVG (both main and plugin-specific files)
+            svgfile="${newname%.dot}.svg"
+            sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$newname" | dot -Tsvg > "$svgfile"
+          done
       continue-on-error: true
     - uses: actions/upload-artifact@v6
       with:
@@ -881,7 +891,7 @@ jobs:
           export DETECTOR_CONFIG=${DETECTOR}_${{ matrix.detector_config }}
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups) -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{env.JANA_OPTIONS_GUN}} -Ppodio:output_file=rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root sim_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4hep.root -Ppodio:output_collections=EcalLumiSpecRawHits,EcalLumiSpecRecHits,EcalLumiSpecClusters,EcalLumiSpecClusterAssociations -PLUMISPECCAL:EcalLumiSpecIslandProtoClusters:splitCluster=1 -Pplugins=dump_flags,janadot,janatop -Pdump_flags:json=${{ matrix.particle }}_${{ matrix.detector_config }}_flags.json
     - uses: actions/upload-artifact@v6
       with:
         name: rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.edm4eic.root
@@ -894,9 +904,19 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          mv jana.dot rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot
-          sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' *.dot | dot -Tsvg > jana.svg
-          mv jana.svg rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.svg
+          for dotfile in jana*.dot; do
+            # Rename all jana dot files with matrix test name prefix
+            newname="rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.${dotfile#jana.}"
+            # Handle the case where jana.dot should become rec_..._dot without extra period
+            if [ "$dotfile" = "jana.dot" ]; then
+              newname="rec_${{ matrix.particle }}_EcalLumiSpec_${{ matrix.detector_config }}.dot"
+            fi
+            mv "$dotfile" "$newname"
+
+            # Convert all dot files to SVG (both main and plugin-specific files)
+            svgfile="${newname%.dot}.svg"
+            sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$newname" | dot -Tsvg > "$svgfile"
+          done
       continue-on-error: true
     - uses: actions/upload-artifact@v6
       with:
@@ -986,7 +1006,7 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins:/usr/local/plugins
           prmon --json-summary rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.prmon.json -- \
-          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{matrix.nthreads > 1 && format('-Pnthreads={0}', matrix.nthreads) || ''}} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop $(<${{ github.workspace }}/.github/janadot.groups)
+          $PWD/install/bin/eicrecon ${{env.JANA_OPTIONS}} ${{matrix.nthreads > 1 && format('-Pnthreads={0}', matrix.nthreads) || ''}} -Ppodio:output_file=rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -Pacts:WriteObj=true -Pacts:WritePly=true -Pplugins=janadot,janatop
     - uses: actions/upload-artifact@v6
       with:
         name: rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.edm4eic.root
@@ -1004,9 +1024,19 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
-          mv jana.dot rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot
-          sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' *.dot | dot -Tsvg > jana.svg
-          mv jana.svg rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.svg
+          for dotfile in jana*.dot; do
+            # Rename all jana dot files with matrix test name prefix
+            newname="rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.${dotfile#jana.}"
+            # Handle the case where jana.dot should become rec_..._dot without extra period
+            if [ "$dotfile" = "jana.dot" ]; then
+              newname="rec_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}${{matrix.nthreads > 0 && '_MT' || ''}}.dot"
+            fi
+            mv "$dotfile" "$newname"
+
+            # Convert all dot files to SVG (both main and plugin-specific files)
+            svgfile="${newname%.dot}.svg"
+            sed '/rank=sink/s/"podio::Frame";//; /podio::Frame/d; /rank=source/s/"JEventProcessorPODIO";//; /JEventProcessorPODIO/d' "$newname" | dot -Tsvg > "$svgfile"
+          done
       continue-on-error: true
     - uses: actions/upload-artifact@v6
       with:
