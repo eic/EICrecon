@@ -91,12 +91,6 @@ private:
           continue;
         }
 
-        // not energetic enough for cluster hit
-        if (hits[*idx2].getEnergy() < m_cfg.minClusterHitEdep) {
-          idx2 = indices.erase(idx2);
-          continue;
-        }
-
         if (is_neighbour(hits[*idx1], hits[*idx2])) {
           group.push_back(*idx2);
           idx2 = indices.erase(idx2); // takes role of idx2++
