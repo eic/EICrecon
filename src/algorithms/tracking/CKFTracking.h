@@ -54,7 +54,7 @@ public:
   /// Track finder function that takes input measurements, initial trackstate
   /// and track finder options and returns some track-finder-specific result.
   using TrackFinderOptions = Acts::CombinatorialKalmanFilterOptions<PodioTrackContainer>;
-  using TrackFinderResult = Acts::Result<std::vector<PodioTrackContainer::TrackProxy>>;
+  using TrackFinderResult  = Acts::Result<std::vector<PodioTrackContainer::TrackProxy>>;
 
   /// Find function that takes the above parameters
   /// @note This is separated into a virtual interface to keep compilation units
