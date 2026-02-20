@@ -12,7 +12,7 @@
 #include <Acts/Utilities/CalibrationContext.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <TGeoNode.h>
-#include <stdint.h>
+#include <cstdint>
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 #include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
 #else
