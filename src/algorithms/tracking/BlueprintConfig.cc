@@ -3,10 +3,10 @@
 
 #include "BlueprintConfig.h"
 
-#include <algorithm>
 #include <format>
 #include <functional>
 #include <unordered_set>
+#include <utility>
 
 namespace eicrecon {
 

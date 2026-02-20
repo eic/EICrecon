@@ -2,7 +2,6 @@
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Wouter Deconinck, Sylvester Joosten, Dmitry Romanov
 
 #include "TrackParamTruthInit.h"
-#include "ActsDD4hepDetector.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
@@ -14,14 +13,14 @@
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <Eigen/Core>
 #include <cmath>
 #include <cstdlib>
-#include <gsl/pointers>
 #include <limits>
 #include <memory>
 #include <random>
+#include <tuple>
 
+#include "ActsDD4hepDetector.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 
 namespace eicrecon {
