@@ -25,11 +25,6 @@
 #include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/CKFTrackingConfig.h"
 
-// Forward declaration
-namespace eicrecon {
-class ActsDD4hepDetector;
-}
-
 namespace eicrecon {
 
 using CKFTrackingAlgorithm = algorithms::Algorithm<

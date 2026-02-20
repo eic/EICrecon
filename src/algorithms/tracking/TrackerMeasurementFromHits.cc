@@ -17,16 +17,17 @@
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/logger.h>
-
-#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
 #include <exception>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
+
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 
 namespace eicrecon {
 

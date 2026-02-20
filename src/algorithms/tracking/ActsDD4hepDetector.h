@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
@@ -11,14 +10,17 @@
 #include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/CalibrationContext.hpp>
+#include <Acts/Utilities/Logger.hpp>
+#include <TGeoNode.h>
+#include <cstdint>
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 #include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
 #else
 #include <Acts/Plugins/DD4hep/DD4hepFieldAdapter.hpp>
 #endif
 #include <DD4hep/Detector.h>
-
 #include <memory>
+#include <stdexcept>
 #include <string>
 #include <unordered_map>
 

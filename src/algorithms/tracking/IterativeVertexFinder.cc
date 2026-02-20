@@ -3,12 +3,9 @@
 //
 
 #include "IterativeVertexFinder.h"
-#include "ActsDD4hepDetector.h"
-#include "algorithms/interfaces/ActsSvc.h"
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -38,13 +35,13 @@
 #include <edm4hep/Vector4f.h>
 #include <podio/RelationRange.h>
 #include <spdlog/common.h>
-#include <Eigen/Core>
 #include <cmath>
-#include <gsl/pointers>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 
+#include "ActsDD4hepDetector.h"
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 
