@@ -30,7 +30,7 @@ public:
       : ParticleConverterAlgorithm(name, {"inputRecoParticles"}, {"outputRecoParticles"},
                                    "Particles as such (?)") {};
 
-  void init() final {}; // what is the use of making it final?
+  void init() final {};
   void process(const Input&, const Output&) const final;
 
 private:
