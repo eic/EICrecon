@@ -67,7 +67,7 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
 
     const auto is = surfaceMap.find(vol_id);
     if (is == surfaceMap.end()) {
-      warning(" WARNING: vol_id ({:#x})  not found in m_surfaces.", vol_id);
+      warning(" WARNING: vol_id ({:#x}) not found in surfaceMap.", vol_id);
       continue;
     }
     const Acts::Surface* surface = is->second;
