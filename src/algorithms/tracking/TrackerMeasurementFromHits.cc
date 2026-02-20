@@ -25,8 +25,6 @@
 // Access "algorithms:GeoSvc"
 #include <algorithms/geo.h>
 #include <algorithms/logger.h>
-
-#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
@@ -39,6 +37,8 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 
 namespace eicrecon {
 

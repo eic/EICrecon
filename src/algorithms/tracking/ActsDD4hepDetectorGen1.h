@@ -4,16 +4,9 @@
 #pragma once
 
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/Geometry/GeometryIdentifier.hpp>
-#include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Utilities/BinningType.hpp>
-#include <Acts/Utilities/Logger.hpp>
 #include <DD4hep/DetElement.h>
-
 #include <functional>
-#include <memory>
-#include <string>
 #include <vector>
 
 #include "ActsDD4hepDetector.h"

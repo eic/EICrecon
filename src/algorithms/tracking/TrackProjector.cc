@@ -11,7 +11,6 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <algorithms/service.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/TrackParametersCollection.h>
@@ -29,6 +28,7 @@
 #include <cstdint>
 #include <tuple>
 
+#include "ActsDD4hepDetector.h"
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
