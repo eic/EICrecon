@@ -20,7 +20,6 @@
 #include <variant>
 #include <vector>
 
-#include "ActsGeometryProvider.h"
 #include "TrackSeedingConfig.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
@@ -65,6 +64,7 @@
 #include <any>
 #include <stdexcept>
 #endif
+#include "ActsDD4hepDetector.h"
 #include "SpacePoint.h"
 #endif
 

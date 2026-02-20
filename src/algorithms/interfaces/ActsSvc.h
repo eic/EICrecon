@@ -4,7 +4,7 @@
 #pragma once
 
 #include <algorithms/logger.h>
-#include <algorithms/service.h>
+#include <exception>
 #include <memory>
 #include <string>
 

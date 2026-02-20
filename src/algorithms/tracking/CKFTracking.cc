@@ -2,8 +2,6 @@
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
 #include "CKFTracking.h"
-#include "ActsDD4hepDetector.h"
-#include "algorithms/interfaces/ActsSvc.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
@@ -71,6 +69,8 @@
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
+#include "algorithms/tracking/ActsDD4hepDetector.h"
+#include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"
