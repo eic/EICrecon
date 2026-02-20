@@ -33,7 +33,7 @@ private:
 
   // Parameters
   ParameterRef<double> m_trackingResolution{this, "trackingResolution",
-                                             config().trackingResolution};
+                                            config().trackingResolution};
   ParameterRef<double> m_caloResolution{this, "caloResolution", config().caloResolution};
   ParameterRef<double> m_calo_hadronic_scale{this, "caloHadronScale", config().caloHadronScale};
   ParameterRef<double> m_caloEnergyNorm{this, "caloEnergyNorm", config().caloEnergyNorm};
