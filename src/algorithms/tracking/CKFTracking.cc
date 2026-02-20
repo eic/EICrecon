@@ -2,8 +2,6 @@
 // Copyright (C) 2022 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
 #include "CKFTracking.h"
-#include "ActsDD4hepDetector.h"
-#include "algorithms/interfaces/ActsSvc.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Common.hpp>
@@ -13,22 +11,6 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
-#include <Acts/Geometry/GeometryHierarchyMap.hpp>
-#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
-#include <spdlog/common.h>
-#include <algorithm>
-#include <any>
-#include <array>
-#include <cstddef>
-#include <functional>
-#include <stdexcept>
-#include <string>
-#include <system_error>
-#include <tuple>
-#include <utility>
-#if Acts_VERSION_MAJOR < 43
-#include <Acts/Utilities/Iterator.hpp>
-#endif
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
@@ -36,6 +18,7 @@
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
+#include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Propagator/ActorList.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -47,7 +30,11 @@
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/TrackFinding/TrackStateCreator.hpp>
+#include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
 #include <Acts/TrackFitting/GainMatrixUpdater.hpp>
+#if Acts_VERSION_MAJOR < 43
+#include <Acts/Utilities/Iterator.hpp>
+#endif
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/TrackHelpers.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
@@ -64,9 +51,23 @@
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <Eigen/LU> // IWYU pragma: keep
+#include <spdlog/common.h>
+#include <algorithm>
+#include <any>
+#include <array>
+#include <cstddef>
+#include <functional>
+#include <stdexcept>
+#include <string>
+#include <system_error>
+#include <tuple>
+#include <utility>
+
 // IWYU pragma: no_include <Acts/Utilities/detail/ContextType.hpp>
 // IWYU pragma: no_include <Acts/Utilities/detail/ContainerIterator.hpp>
 
+#include "algorithms/tracking/ActsDD4hepDetector.h"
+#include "algorithms/tracking/CKFTrackingConfig.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
 #include "extensions/spdlog/SpdlogToActs.h"

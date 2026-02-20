@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/EventData/Seed.hpp>
+#include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
@@ -25,6 +25,7 @@
 #include <variant>
 #include <vector>
 
+#include "ActsDD4hepDetector.h"
 #include "OrthogonalTrackSeedingConfig.h"
 #include "SpacePoint.h"
 #include "algorithms/interfaces/ActsSvc.h"

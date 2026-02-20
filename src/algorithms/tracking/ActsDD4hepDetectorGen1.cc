@@ -3,20 +3,17 @@
 
 #include "ActsDD4hepDetectorGen1.h"
 
-#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
-#include <Acts/Utilities/BinningType.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
 #include <ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>
 #else
 #include <Acts/Plugins/DD4hep/ConvertDD4hepDetector.hpp>
 #endif
-#include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
-
 #include <memory>
-#include <vector>
+#include <stdexcept>
+#include <string>
 
 namespace eicrecon {
 
