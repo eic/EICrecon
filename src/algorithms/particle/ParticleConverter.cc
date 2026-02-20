@@ -142,8 +142,6 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
   edm4eic::MutableReconstructedParticle out_reco_particle = particle.clone();
 
-  out_reco_particle.setType(
-      0); // Placeholder value until I know what this variable really stands for
   out_reco_particle.setEnergy(avge_energy);
   out_reco_particle.setMomentum(
       edm4hep::Vector3f(track_momentum_vector.x, track_momentum_vector.y, track_momentum_vector.z));
