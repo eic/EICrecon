@@ -39,8 +39,5 @@ private:
 
   const dd4hep::rec::CellIDPositionConverter* m_converter{
       algorithms::GeoSvc::instance().cellIDPositionConverter()};
-
-  std::string ecal_string = "Ecal";
-  std::string hcal_string = "Hcal";
 };
 } // namespace eicrecon
