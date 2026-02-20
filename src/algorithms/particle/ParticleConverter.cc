@@ -135,8 +135,9 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     else if (track_energy == 0 && calo_energy > 0)
       normalization = weight_calo_resolution;
 
-    avge_energy = (weight_tracking_resolution * track_energy + weight_calo_resolution * calo_energy) /
-                  normalization;
+    avge_energy =
+        (weight_tracking_resolution * track_energy + weight_calo_resolution * calo_energy) /
+        normalization;
 
     // Step 4 : Store information on a mutable collection
     double mass_calculated = std::sqrt(std::pow(avge_energy, 2) - std::pow(track_momentum_mag, 2));
@@ -144,8 +145,8 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     edm4eic::MutableReconstructedParticle out_reco_particle = particle.clone();
 
     out_reco_particle.setEnergy(avge_energy);
-    out_reco_particle.setMomentum(
-        edm4hep::Vector3f(track_momentum_vector.x, track_momentum_vector.y, track_momentum_vector.z));
+    out_reco_particle.setMomentum(edm4hep::Vector3f(
+        track_momentum_vector.x, track_momentum_vector.y, track_momentum_vector.z));
     out_reco_particle.setReferencePoint(particle.getReferencePoint());
 
     out_reco_particle.setCharge(particle.getCharge());
