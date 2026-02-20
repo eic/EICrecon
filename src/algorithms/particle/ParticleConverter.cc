@@ -38,9 +38,9 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
   }
 
   for (const auto particle : *in_particles) {
-    bool isTrack = false;
-    bool isHCal  = false;
-    bool isECal  = false;
+    bool hasTrack = false;
+    bool hasHCal  = false;
+    bool hasECal  = false;
 
     double prelim_pid = 0;
 
