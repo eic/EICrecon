@@ -75,7 +75,13 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
     // Looking for clusters
     for (auto cluster : particle.getClusters()) {
-      for (auto calo_hit : cluster.getHits()) {
+      if (cluster.getHits().size() <= 0) {
+        trace("Cluster {} has no hits", cluster.getObjectID().index);
+        continue;
+      }
+
+      calo_hit = cluster.getHits()[0];
+      /* check type */
         const auto cell_id = calo_hit.getCellID();
 
         const dd4hep::VolumeManagerContext* context = m_converter->findContext(cell_id);
