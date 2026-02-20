@@ -117,26 +117,26 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     if (ecal_energy > 0)
       calo_energy += ecal_energy;
     if (hcal_energy > 0)
-      calo_energy += m_cfg.calo_hadron_scale * hcal_energy;
+      calo_energy += m_cfg.caloHadronScale * hcal_energy;
 
-    calo_energy *= m_cfg.calo_energy_norm;
+    calo_energy *= m_cfg.caloEnergyNorm;
 
     // Step 3 : Calculate avge energy (PRELIMINARY IMPLEMENTATION)
-    double weight_tracking_resolution = 1. / std::pow(m_cfg.tracking_resolution, 2);
+    double weight_trackingResolution = 1. / std::pow(m_cfg.trackingResolution, 2);
     double weight_calo_resolution =
-        1. / std::pow(m_cfg.ecal_resolution, 2); // USING ECAL RESOLUTION AS PLACEHOLDER!
+        1. / std::pow(m_cfg.caloResolution, 2); // USING ECAL RESOLUTION AS PLACEHOLDER!
 
     double normalization = 0;
 
     if (track_energy > 0 && calo_energy > 0)
-      normalization = weight_tracking_resolution + weight_calo_resolution;
+      normalization = weight_trackingResolution + weight_calo_resolution;
     else if (track_energy > 0 && calo_energy == 0)
-      normalization = weight_tracking_resolution;
+      normalization = weight_trackingResolution;
     else if (track_energy == 0 && calo_energy > 0)
       normalization = weight_calo_resolution;
 
     avge_energy =
-        (weight_tracking_resolution * track_energy + weight_calo_resolution * calo_energy) /
+        (weight_trackingResolution * track_energy + weight_calo_resolution * calo_energy) /
         normalization;
 
     // Step 4 : Store information on a mutable collection

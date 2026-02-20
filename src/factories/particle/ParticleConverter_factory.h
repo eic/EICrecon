@@ -32,12 +32,11 @@ private:
   PodioOutput<edm4eic::ReconstructedParticle> m_recoparticles_output{this};
 
   // Parameters
-  ParameterRef<double> m_tracking_resolution{this, "tracking_resolution",
-                                             config().tracking_resolution};
-  ParameterRef<double> m_ecal_resolution{this, "ecal_resolution", config().ecal_resolution};
-  ParameterRef<double> m_hcal_resolution{this, "hcal_resolution", config().hcal_resolution};
-  ParameterRef<double> m_calo_hadronic_scale{this, "calo_hadron_scale", config().calo_hadron_scale};
-  ParameterRef<double> m_calo_energy_norm{this, "calo_energy_norm", config().calo_energy_norm};
+  ParameterRef<double> m_trackingResolution{this, "trackingResolution",
+                                             config().trackingResolution};
+  ParameterRef<double> m_caloResolution{this, "caloResolution", config().caloResolution};
+  ParameterRef<double> m_calo_hadronic_scale{this, "caloHadronScale", config().caloHadronScale};
+  ParameterRef<double> m_caloEnergyNorm{this, "caloEnergyNorm", config().caloEnergyNorm};
 
 public:
   void Configure() {

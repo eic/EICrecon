@@ -6,7 +6,7 @@
 namespace eicrecon {
 struct ParticleConverterConfig {
   ///! Momentum resolution of tracker in this eta region
-  double tracking_resolution = 1;
+  double trackingResolution = 1;
 
   ///! Energy resolution of combined EMCal + HCal system
   double caloResolution   = 1;
