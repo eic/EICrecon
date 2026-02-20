@@ -102,7 +102,7 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
       if (isECal)
         ecal_energy += cluster.getEnergy();
-      
+
       if (isHCal)
         hcal_energy += cluster.getEnergy();
     }
