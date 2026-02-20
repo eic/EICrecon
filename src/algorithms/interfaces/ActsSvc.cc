@@ -4,6 +4,7 @@
 #include "ActsSvc.h"
 
 #include <Acts/Definitions/Units.hpp>
+#include <Acts/Material/IMaterialDecorator.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #if __has_include(<ActsPlugins/Json/JsonMaterialDecorator.hpp>)
 #include <ActsPlugins/Json/JsonMaterialDecorator.hpp>
@@ -13,6 +14,8 @@
 #include <Acts/Plugins/Json/MaterialMapJsonConverter.hpp>
 #endif
 #include <DD4hep/Detector.h>
+#include <stdexcept>
+#include <utility>
 
 #include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/ActsDD4hepDetectorGen1.h"
@@ -20,6 +23,7 @@
 // Check if Gen3 (Blueprint) support is available
 #if __has_include(<ActsPlugins/DD4hep/BlueprintBuilder.hpp>)
 #include "algorithms/tracking/ActsDD4hepDetectorGen3.h"
+
 #define HAS_GEN3_SUPPORT 1
 #else
 #define HAS_GEN3_SUPPORT 0

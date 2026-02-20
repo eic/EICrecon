@@ -32,6 +32,7 @@
 #include <variant>
 #include <vector>
 
+#include "ActsDD4hepDetector.h"
 #include "OrthogonalTrackSeedingConfig.h"
 #include "SpacePoint.h"
 #include "algorithms/interfaces/ActsSvc.h"

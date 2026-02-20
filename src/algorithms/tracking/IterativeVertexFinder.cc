@@ -3,8 +3,6 @@
 //
 
 #include "IterativeVertexFinder.h"
-#include "ActsDD4hepDetector.h"
-#include "algorithms/interfaces/ActsSvc.h"
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
@@ -47,6 +45,7 @@
 #include <utility>
 #include <vector>
 
+#include "ActsDD4hepDetector.h"
 #include "algorithms/tracking/IterativeVertexFinderConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
 

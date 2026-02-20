@@ -1,6 +1,5 @@
 
 #include <Acts/Definitions/Algebra.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
@@ -26,8 +25,8 @@
 
 #include "TrackPropagation.h"
 #include "TrackPropagationTest_processor.h"
-#include "services/rootfile/RootFile_service.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
+#include "services/rootfile/RootFile_service.h"
 
 //------------------
 // Init

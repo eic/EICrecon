@@ -2,7 +2,6 @@
 // Copyright (C) 2025 Chun Yuen Tsang
 
 #include "LGADHitClustering.h"
-#include "ActsDD4hepDetector.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
@@ -32,6 +31,7 @@
 #include <utility>
 #include <vector>
 
+#include "ActsDD4hepDetector.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/tracking/LGADHitClusteringConfig.h"
 
