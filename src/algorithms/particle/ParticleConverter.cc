@@ -60,7 +60,7 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
     // Looking for tracks
     for (auto track : particle.getTracks()) {
-      isTrack = true;
+      hasTrack = true;
 
       prelim_pid            = particle.getPDG();
       track_mass            = particle.getMass();
@@ -95,22 +95,22 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
         // Note: will probably change
         if (type.is(dd4hep::DetType::CALORIMETER) && type.is(dd4hep::DetType::ELECTROMAGNETIC))
-          isECal = true;
+          hasECal = true;
 
         if (type.is(dd4hep::DetType::CALORIMETER) && type.is(dd4hep::DetType::HADRONIC))
-          isHCal = true;
+          hasHCal = true;
       }
 
-      if (isECal)
+      if (hasECal)
         ecal_energy += cluster.getEnergy();
 
-      if (isHCal)
+      if (hasHCal)
         hcal_energy += cluster.getEnergy();
     }
 
-    if (isECal && !isHCal && !isTrack)
+    if (hasECal && !hasHCal && !hasTrack)
       prelim_pid = 22; //photon
-    if (!isECal && isHCal && !isTrack)
+    if (!hasECal && hasHCal && !hasTrack)
       prelim_pid = 2112; // neutron
 
     // Step 2 : Calculate calo energy (PRELIMINARY IMPLEMENTATION)
