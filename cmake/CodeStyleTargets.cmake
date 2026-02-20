@@ -12,7 +12,7 @@ if(RUN_CLANG_TIDY
     COMMAND ${RUN_CLANG_TIDY} -p ${CMAKE_BINARY_DIR} -config-file
             ${CMAKE_SOURCE_DIR}/.clang-tidy -warnings-as-errors=*
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-tidy"
+    COMMENT "Run clang-tidy over the entire codebase and return an error if changes are still needed"
     VERBATIM)
 
   add_custom_target(
@@ -26,8 +26,7 @@ if(RUN_CLANG_TIDY
       ${CMAKE_SOURCE_DIR}/.clang-format --remove-change-desc-files
       ${CMAKE_BINARY_DIR}/clang-tidy-fixes/
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-tidy"
-    DEPENDS tidy
+    COMMENT "Run clang-tidy over the entire codebase and apply, but don't commit, fixes"
     VERBATIM)
 
   add_custom_target(
@@ -35,7 +34,7 @@ if(RUN_CLANG_TIDY
     COMMAND git ls-files "*.cpp" "*.hpp" "*.cc" "*.cxx" "*.h" "*.hh" | xargs
             ${CLANG_FORMAT} -i --dry-run --Werror
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-format on tracked sources"
+    COMMENT "Run clang-format over the entire codebase and return an error if changes are still needed"
     VERBATIM)
 
   add_custom_target(
@@ -43,7 +42,7 @@ if(RUN_CLANG_TIDY
     COMMAND git ls-files "*.cpp" "*.hpp" "*.cc" "*.cxx" "*.h" "*.hh" | xargs
             ${CLANG_FORMAT} -i
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-    COMMENT "Running clang-format on tracked sources"
+    COMMENT "Run clang-format over the entire codebase and apply, but don't commit, fixes"
     VERBATIM)
 
   add_custom_target(
@@ -51,6 +50,7 @@ if(RUN_CLANG_TIDY
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target format
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target tidy
     COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target check-tidy
+    COMMENT "One-shot style fixes: Runs `format` followed by `tidy` followed by `check-tidy`"
     USES_TERMINAL)
 else()
   message(
