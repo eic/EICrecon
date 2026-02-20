@@ -114,12 +114,17 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
       prelim_pid = 2112; // neutron
 
     // Step 2 : Calculate calo energy (PRELIMINARY IMPLEMENTATION)
-    if (ecal_energy > 0)
+    // TODO: the case where there is only energy in the HCal might require a specialized normalization in the future.
+    if (hasECal) {
       calo_energy += ecal_energy;
-    if (hcal_energy > 0)
-      calo_energy += m_cfg.caloHadronScale * hcal_energy;
 
-    calo_energy *= m_cfg.caloEnergyNorm;
+      if (hasHCal) {
+        calo_energy += m_cfg.caloHadronScale * hcal_energy;
+        calo_energy *= m_cfg.caloEnergyNorm;
+      }
+    } else if (hasHCal) {
+      calo_energy += hcal_energy;
+    }
 
     // Step 3 : Calculate avge energy (PRELIMINARY IMPLEMENTATION)
     double weight_trackingResolution = 1. / std::pow(m_cfg.trackingResolution, 2);
