@@ -25,8 +25,8 @@
 
 #include "TrackPropagation.h"
 #include "TrackPropagationTest_processor.h"
-#include "services/rootfile/RootFile_service.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
+#include "services/rootfile/RootFile_service.h"
 
 //------------------
 // Init
