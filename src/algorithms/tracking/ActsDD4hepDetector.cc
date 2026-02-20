@@ -3,9 +3,12 @@
 
 #include "ActsDD4hepDetector.h"
 
+#include <Acts/Geometry/DetectorElementBase.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Volumes.h>
 #if __has_include(<ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>)
 #include <ActsPlugins/DD4hep/DD4hepDetectorElement.hpp>
 #include <ActsPlugins/DD4hep/DD4hepFieldAdapter.hpp>
@@ -15,7 +18,6 @@
 #endif
 #include <DD4hep/Detector.h>
 #include <DD4hep/VolumeManager.h>
-
 #include <stdexcept>
 
 namespace eicrecon {
