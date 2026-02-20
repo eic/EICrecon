@@ -5,6 +5,7 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/SimCalorimeterHit.h>
@@ -21,6 +22,7 @@
 #include "algorithms/digi/PulseGenerationConfig.h"
 #include "algorithms/digi/PulseCombinerConfig.h"
 #include "algorithms/digi/PulseNoiseConfig.h"
+#include "algorithms/digi/CALOROCDigitizationConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
 #include "factories/calorimetry/CalorimeterClusterShape_factory.h"
@@ -35,6 +37,10 @@
 #include "factories/digi/PulseGeneration_factory.h"
 #include "factories/digi/PulseCombiner_factory.h"
 #include "factories/digi/PulseNoise_factory.h"
+
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
+#include "factories/digi/CALOROCDigitization_factory.h"
+#endif
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -60,18 +66,28 @@ void InitPlugin(JApplication* app) {
   decltype(PulseGenerationConfig::pulse_shape_function) EcalBarrelScFi_pulse_shape_function = {
       "LandauPulse"};
   decltype(PulseGenerationConfig::pulse_shape_params) EcalBarrelScFi_pulse_shape_params = {
-      1.0, 2 * edm4eic::unit::ns};
+      5.0, 10 * edm4eic::unit::ns};
   decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {5.0e-5};
   decltype(PulseGenerationConfig::timestep) EcalBarrelScFi_timestep = {0.5 * edm4eic::unit::ns};
 
   decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field           = {"grid"};
   decltype(PulseCombinerConfig::minimum_separation) EcalBarrelScFi_minimum_separation = {
       100 * edm4eic::unit::ns};
-  decltype(PulseNoiseConfig::poles) EcalBarrelScFi_poles       = {2};
-  decltype(PulseNoiseConfig::variance) EcalBarrelScFi_variance = {0.5};
-  decltype(PulseNoiseConfig::alpha) EcalBarrelScFi_alpha       = {0};
-  decltype(PulseNoiseConfig::scale) EcalBarrelScFi_scale       = {5.4e-5};
-  decltype(PulseNoiseConfig::pedestal) EcalBarrelScFi_pedestal = {1.6e-4};
+  decltype(PulseNoiseConfig::poles) EcalBarrelScFi_poles                  = {2};
+  decltype(PulseNoiseConfig::variance) EcalBarrelScFi_variance            = {0.5};
+  decltype(PulseNoiseConfig::alpha) EcalBarrelScFi_alpha                  = {0};
+  decltype(PulseNoiseConfig::scale) EcalBarrelScFi_scale                  = {5.4e-5};
+  decltype(PulseNoiseConfig::pedestal) EcalBarrelScFi_pedestal            = {1.6e-4};
+  decltype(CALOROCDigitizationConfig::adc_phase) EcalBarrelScFi_adc_phase = {10 *
+                                                                             edm4eic::unit::ns};
+  decltype(CALOROCDigitizationConfig::toa_thres) EcalBarrelScFi_toa_thres = {4.0e-4};
+  decltype(CALOROCDigitizationConfig::tot_thres) EcalBarrelScFi_tot_thres = {8.0e-4};
+  decltype(CALOROCDigitizationConfig::dyRangeSingleGainADC) EcalBarrelScFi_dyRangeSingleGainADC = {
+      1.0e-3};
+  decltype(CALOROCDigitizationConfig::dyRangeHighGainADC) EcalBarrelScFi_dyRangeHighGainADC = {
+      1.0e-3};
+  decltype(CALOROCDigitizationConfig::dyRangeLowGainADC) EcalBarrelScFi_dyRangeLowGainADC = {
+      1.5e-2};
 
   // Make sure digi and reco use the same value
   decltype(CalorimeterHitDigiConfig::capADC) EcalBarrelScFi_capADC = 16384; //16384,  14bit ADC
@@ -172,6 +188,34 @@ void InitPlugin(JApplication* app) {
       },
       app // TODO: Remove me once fixed
       ));
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
+  app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
+      "EcalBarrelScFiPCALOROCHits", {"EcalBarrelScFiPCombinedPulsesWithNoise"},
+      {"EcalBarrelScFiPCALOROCHits"},
+      {
+          .adc_phase            = EcalBarrelScFi_adc_phase,
+          .toa_thres            = EcalBarrelScFi_toa_thres,
+          .tot_thres            = EcalBarrelScFi_tot_thres,
+          .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
+          .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
+          .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
+      },
+      app // TODO: Remove me once fixed
+      ));
+  app->Add(new JOmniFactoryGeneratorT<CALOROCDigitization_factory>(
+      "EcalBarrelScFiNCALOROCHits", {"EcalBarrelScFiNCombinedPulses"},
+      {"EcalBarrelScFiNCALOROCHits"},
+      {
+          .adc_phase            = EcalBarrelScFi_adc_phase,
+          .toa_thres            = EcalBarrelScFi_toa_thres,
+          .tot_thres            = EcalBarrelScFi_tot_thres,
+          .dyRangeSingleGainADC = EcalBarrelScFi_dyRangeSingleGainADC,
+          .dyRangeHighGainADC   = EcalBarrelScFi_dyRangeHighGainADC,
+          .dyRangeLowGainADC    = EcalBarrelScFi_dyRangeLowGainADC,
+      },
+      app // TODO: Remove me once fixed
+      ));
+#endif
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
       "EcalBarrelScFiRawHits", {"EventHeader", "EcalBarrelScFiHits"},
       {"EcalBarrelScFiRawHits",
