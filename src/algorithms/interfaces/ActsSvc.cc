@@ -91,7 +91,7 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
 #else
       throw std::runtime_error("Gen3 (Blueprint) geometry requested but not available. "
                                "This version of Acts does not include BlueprintBuilder support. "
-                               "Please use Generation=1 or upgrade to Acts v36 or later.");
+                               "Please use Generation=1 or upgrade to Acts v46 or later.");
 #endif
 
     } else {
