@@ -35,7 +35,6 @@ public:
 
 private:
   // Services and calibrations here!
-  // const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
 
   const dd4hep::rec::CellIDPositionConverter* m_converter{
