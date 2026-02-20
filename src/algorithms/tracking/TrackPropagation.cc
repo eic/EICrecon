@@ -54,8 +54,6 @@
 #include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
-#include "algorithms/interfaces/ActsSvc.h"
-#include <algorithms/geo.h>
 #include "extensions/spdlog/SpdlogToActs.h"
 
 namespace eicrecon {
