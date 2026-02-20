@@ -93,12 +93,12 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
         std::string det_element_type = det_element.type();
 
         // Note: will probably change
-        if (det_element_type.find(ecal_string) != std::string::npos) {
+        if (type.is(ddh4ep::DetType::CALORIMETER) && type.is(dd4hep::DetType::ELECTROMAGNETIC)) {
           isECal = true;
 
           ecal_energy += calo_hit.getEnergy();
         }
-        if (det_element_type.find(hcal_string) != std::string::npos) {
+        if (type.is(ddh4ep::DetType::CALORIMETER) && type.is(dd4hep::DetType::HADRONIC)) {
           isHCal = true;
 
           hcal_energy += calo_hit.getEnergy();
