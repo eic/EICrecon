@@ -9,13 +9,13 @@ struct ParticleConverterConfig {
   double trackingResolution = 1;
 
   ///! Energy resolution of combined EMCal + HCal system
-  double caloResolution   = 1;
+  double caloResolution = 1;
 
   ///! Controls relative contribution of HCal energy to total
   double caloHadronScale = 1;
 
   ///! Normalizes total EMCal + HCal energy
-  double caloEnergyNorm  = 1;
+  double caloEnergyNorm = 1;
 
   ///! Turn on/off taking resolution-weighted average of track
   ///! and calo energy
