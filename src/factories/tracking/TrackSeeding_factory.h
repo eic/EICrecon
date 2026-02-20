@@ -13,6 +13,7 @@
 #include "algorithms/tracking/OrthogonalTrackSeedingConfig.h"
 #include "algorithms/tracking/TrackSeeding.h"
 #include "extensions/jana/JOmniFactory.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -26,6 +27,8 @@ private:
   PodioInput<edm4eic::TrackerHit> m_hits_input{this};
   PodioOutput<edm4eic::TrackSeed> m_seeds_output{this};
   PodioOutput<edm4eic::TrackParameters> m_trackparams_output{this};
+
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
   ParameterRef<float> m_rMax{this, "rMax", config().rMax,
                              "max measurement radius for Acts::OrthogonalSeedFinder"};
