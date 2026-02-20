@@ -2,13 +2,11 @@
 // Copyright (C) 2025 Chun Yuen Tsang
 
 #include "LGADHitClustering.h"
-#include "ActsDD4hepDetector.h"
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <DD4hep/Handle.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
@@ -22,17 +20,18 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
-#include <cstddef>
-#include <Eigen/Core>
 #include <cmath>
+#include <cstddef>
 #include <gsl/pointers>
 #include <limits>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
+#include "ActsDD4hepDetector.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/tracking/LGADHitClusteringConfig.h"
 
