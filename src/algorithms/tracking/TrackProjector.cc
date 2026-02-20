@@ -3,7 +3,6 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TransformationHelpers.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
@@ -11,7 +10,6 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/Track.hpp>
-#include <algorithms/service.h>
 #include <edm4eic/Cov2f.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/TrackParametersCollection.h>
@@ -27,8 +25,9 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/pointers>
+#include <tuple>
 
+#include "ActsDD4hepDetector.h"
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "extensions/spdlog/SpdlogFormatters.h" // IWYU pragma: keep
@@ -37,10 +36,7 @@ template <> struct fmt::formatter<Acts::GeometryIdentifier> : fmt::ostream_forma
 
 namespace eicrecon {
 
-void TrackProjector::init() {
-  auto& serviceSvc = algorithms::ServiceSvc::instance();
-  m_geo_provider   = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
-}
+void TrackProjector::init() { m_acts_detector = algorithms::ActsSvc::instance().detector(); }
 
 void TrackProjector::process(const Input& input, const Output& output) const {
   const auto [track_states, tracks_container, tracks] = input;
@@ -95,15 +91,16 @@ void TrackProjector::process(const Input& input, const Output& output) const {
 
       // convert local to global
       auto global = trackstate.referenceSurface().localToGlobal(
-          m_geo_provider->getActsGeometryContext(),
+          m_acts_detector->getActsGeometryContext(),
           {boundParams[Acts::eBoundLoc0], boundParams[Acts::eBoundLoc1]},
           Acts::makeDirectionFromPhiTheta(boundParams[Acts::eBoundPhi],
                                           boundParams[Acts::eBoundTheta]));
 
       auto freeParams = Acts::transformBoundToFreeParameters(
-          trackstate.referenceSurface(), m_geo_provider->getActsGeometryContext(), boundParams);
+          trackstate.referenceSurface(), m_acts_detector->getActsGeometryContext(), boundParams);
       auto jacobian = trackstate.referenceSurface().boundToFreeJacobian(
-          m_geo_provider->getActsGeometryContext(), freeParams.template segment<3>(Acts::eFreePos0),
+          m_acts_detector->getActsGeometryContext(),
+          freeParams.template segment<3>(Acts::eFreePos0),
           freeParams.template segment<3>(Acts::eFreeDir0));
       auto freeCov = jacobian * boundCov * jacobian.transpose();
 

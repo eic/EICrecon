@@ -23,6 +23,7 @@ add_executable(
 target_link_libraries(
   ${TEST_NAME}
   PRIVATE Catch2::Catch2WithMain
+          algorithms_interfaces_library
           algorithms_calorimetry_library
           algorithms_fardetectors_library
           algorithms_pid_library
@@ -38,5 +39,9 @@ target_link_libraries(
 # Install executable
 install(TARGETS ${TEST_NAME} DESTINATION bin)
 
-add_test(NAME t_${TEST_NAME} COMMAND env LLVM_PROFILE_FILE=${TEST_NAME}.profraw
-                                     $<TARGET_FILE:${TEST_NAME}>)
+add_test(
+  NAME t_${TEST_NAME}
+  COMMAND
+    env LLVM_PROFILE_FILE=${TEST_NAME}.profraw
+    LD_LIBRARY_PATH=${CMAKE_BINARY_DIR}/src/algorithms/tracking:${CMAKE_BINARY_DIR}/src/algorithms/calorimetry:${CMAKE_BINARY_DIR}/src/algorithms/pid:${CMAKE_BINARY_DIR}/src/algorithms/fardetectors:${CMAKE_BINARY_DIR}/src/algorithms/pid_lut:${CMAKE_BINARY_DIR}/src/algorithms/digi:${CMAKE_BINARY_DIR}/src/algorithms/reco:${CMAKE_BINARY_DIR}/src/services/evaluator:${CMAKE_BINARY_DIR}/src/services/pid_lut:${CMAKE_BINARY_DIR}/src/services/particle:$ENV{LD_LIBRARY_PATH}
+    $<TARGET_FILE:${TEST_NAME}>)

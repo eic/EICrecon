@@ -7,7 +7,6 @@
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <DD4hep/Handle.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
@@ -21,18 +20,18 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
-#include <cstddef>
-#include <Eigen/Core>
 #include <cmath>
+#include <cstddef>
 #include <gsl/pointers>
 #include <limits>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
-#include "ActsGeometryProvider.h"
+#include "ActsDD4hepDetector.h"
 #include "algorithms/interfaces/ActsSvc.h"
 #include "algorithms/tracking/LGADHitClusteringConfig.h"
 
@@ -40,12 +39,12 @@ namespace eicrecon {
 
 void LGADHitClustering::init() {
 
-  m_converter    = algorithms::GeoSvc::instance().cellIDPositionConverter();
-  m_detector     = algorithms::GeoSvc::instance().detector();
-  m_seg          = m_detector->readout(m_cfg.readout).segmentation();
-  auto type      = m_seg.type();
-  m_decoder      = m_seg.decoder();
-  m_acts_context = algorithms::ActsSvc::instance().acts_geometry_provider();
+  m_converter     = algorithms::GeoSvc::instance().cellIDPositionConverter();
+  m_detector      = algorithms::GeoSvc::instance().detector();
+  m_seg           = m_detector->readout(m_cfg.readout).segmentation();
+  auto type       = m_seg.type();
+  m_decoder       = m_seg.decoder();
+  m_acts_detector = algorithms::ActsSvc::instance().detector();
 }
 
 void LGADHitClustering::_calcCluster(const Output& output,
@@ -138,7 +137,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
 
   const auto* context    = m_converter->findContext(cellID);
   auto volID             = context->identifier;
-  const auto& surfaceMap = m_acts_context->surfaceMap();
+  const auto& surfaceMap = m_acts_detector->surfaceMap();
   const auto is          = surfaceMap.find(volID);
   if (is == surfaceMap.end()) {
     error("vol_id ({})  not found in m_surfaces.", volID);
