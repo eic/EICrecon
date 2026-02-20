@@ -5,13 +5,20 @@
 
 namespace eicrecon {
 struct ParticleConverterConfig {
+  ///! Momentum resolution of tracker in this eta region
   double tracking_resolution = 1;
 
-  double ecal_resolution   = 1;
-  double hcal_resolution   = 1;
-  double calo_hadron_scale = 1;
-  double calo_energy_norm  = 1;
+  ///! Energy resolution of combined EMCal + HCal system
+  double caloResolution   = 1;
 
-  bool use_resolution_in_ecalc = false;
+  ///! Controls relative contribution of HCal energy to total
+  double caloHadronScale = 1;
+
+  ///! Normalizes total EMCal + HCal energy
+  double caloEnergyNorm  = 1;
+
+  ///! Turn on/off taking resolution-weighted average of track
+  ///! and calo energy
+  bool useResolutionInEnergyCalc = false;
 };
 } // namespace eicrecon
