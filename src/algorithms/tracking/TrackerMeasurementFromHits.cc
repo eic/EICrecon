@@ -11,27 +11,108 @@
 #include <Acts/Utilities/Result.hpp>
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
+#include <DD4hep/Readout.h>
+#include <DD4hep/Segmentations.h>
 #include <DD4hep/VolumeManager.h>
+#include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <DDSegmentation/CartesianGridUV.h>
+#include <DDSegmentation/MultiSegmentation.h>
+#include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+// Access "algorithms:GeoSvc"
+#include <algorithms/geo.h>
 #include <algorithms/logger.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
+#include <cmath>
 #include <exception>
+#include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "ActsGeometryProvider.h"
 
 namespace eicrecon {
 
 void TrackerMeasurementFromHits::init() {
+  // ***** B0Tracker
   m_detid_b0tracker = m_dd4hepGeo->constant<unsigned long>("B0Tracker_Station_1_ID");
+  // ***** OuterMPGDBarrel
+  std::string readout = "OuterMPGDBarrelHits";
+  //  If "CartesianGridUV" segmentation, we need to rotate the cov. matrix.
+  // Particularly when 2D-strip readout, with large uncertainty along strips.
+  // i) Determine whether "CartesianGridUV", possibly embedded in a
+  //   MultiSegmentation.
+  // ii) If indeed:
+  //   - set "m_detid_OuterMPGD" to single out corresponding hits,
+  //   - AND set "m_outermpgd_UVsegmentation_mode", to be also required so as
+  //    to avoid accidentally hitting a coincidence for malformed cellID with
+  //    systemID = 0.
+  const dd4hep::Detector* detector = algorithms::GeoSvc::instance().detector();
+  dd4hep::Segmentation seg;
+  m_outermpgd_UVsegmentation_mode = true;
+  try {
+    seg = detector->readout(readout).segmentation();
+  } catch (const std::runtime_error&) {
+    debug(R"(Failed to load Segmentation for "{}" readout.)", readout);
+    m_outermpgd_UVsegmentation_mode = false;
+  }
+  if (m_outermpgd_UVsegmentation_mode) {
+    debug(R"(Parsing Segmentation for "{}" readout: is it UV?)", readout);
+    // Segmentation
+    using Segmentation               = dd4hep::DDSegmentation::Segmentation;
+    const Segmentation* segmentation = seg->segmentation;
+    if (segmentation->type() == "MultiSegmentation") {
+      // MultiSegmentation
+      // - Parse all subSegmentations
+      // - Require consistency: either all are UV, w/ same gridAngle, or none.
+      //  We could invent a sophisticated scheme where cov. matrix would be
+      //  rotated by a subSegmentation-dependent angle, possibly null. But for
+      //  the time being, let's keep things simple: throw an exception upon any
+      //  inconsistency.
+      using MultiSegmentation    = dd4hep::DDSegmentation::MultiSegmentation;
+      const auto* multiSeg       = dynamic_cast<const MultiSegmentation*>(segmentation);
+      unsigned int subSegPattern = 0;
+      for (const auto entry : multiSeg->subSegmentations()) {
+        const Segmentation* subSegmentation = entry.segmentation;
+        if (subSegmentation->type() == "CartesianGridUV") {
+          const dd4hep::DDSegmentation::CartesianGridUV* gridUV =
+              dynamic_cast<const dd4hep::DDSegmentation::CartesianGridUV*>(subSegmentation);
+          double gridAngle = gridUV->gridAngle();
+          if ((subSegPattern & 0x1) && fabs(gridAngle - m_gridAngle) > 1e-6) {
+            critical(R"(Inconsistent Segmentation for "{}" readout: UV gridAngle not unique.)",
+                     readout);
+            throw std::runtime_error("Inconsistent MultiSegmentation");
+          }
+          subSegPattern |= 0x1;
+          m_gridAngle = gridAngle;
+        } else {
+          subSegPattern |= 0x2;
+        }
+      }
+      if (subSegPattern == 0x3) {
+        critical(R"(Inconsistent Segmentation for "{}" readout: only partially UV.)", readout);
+        throw std::runtime_error("Inconsistent MultiSegmentation");
+      } else if (subSegPattern == 0x2) {
+        m_outermpgd_UVsegmentation_mode = false;
+      }
+    } else {
+      if (segmentation->type() != "CartesianGridUV") {
+        m_outermpgd_UVsegmentation_mode = false;
+      }
+    }
+    if (m_outermpgd_UVsegmentation_mode) {
+      m_detid_OuterMPGD = m_dd4hepGeo->constant<unsigned long>("TrackerBarrel_5_ID");
+    }
+  }
 }
 
 void TrackerMeasurementFromHits::process(const Input& input, const Output& output) const {
@@ -51,10 +132,21 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
   // For now, one hit = one measurement.
   for (const auto& hit : *trk_hits) {
 
+    auto hit_det = hit.getCellID() & 0xFF;
+
     Acts::SquareMatrix2 cov = Acts::SquareMatrix2::Zero();
     cov(0, 0)               = hit.getPositionError().xx * mm_acts * mm_acts; // note mm = 1 (Acts)
     cov(1, 1)               = hit.getPositionError().yy * mm_acts * mm_acts;
     cov(0, 1) = cov(1, 0) = 0.0;
+    if (m_outermpgd_UVsegmentation_mode && hit_det == m_detid_OuterMPGD) {
+      // Note: I(Y.B.) don't how to initialize an "Acts::RotationMatrix2" w/
+      // an argument angle. The following turns out to fail:
+      // const Acts::RotationMatrix2 rot2(m_gridAngle);
+      const double sA = sin(m_gridAngle), cA = cos(m_gridAngle);
+      const Acts::RotationMatrix2 rot2{{cA, sA}, {-sA, cA}};
+      const Acts::RotationMatrix2 inv2{{cA, -sA}, {sA, cA}};
+      cov = rot2 * cov * inv2;
+    }
 
     const auto* vol_ctx = m_converter->findContext(hit.getCellID());
     auto vol_id         = vol_ctx->identifier;
@@ -76,7 +168,6 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
     const auto& hit_pos = hit.getPosition(); // 3d position
 
     Acts::Vector2 pos;
-    auto hit_det = hit.getCellID() & 0xFF;
     auto onSurfaceTolerance =
         0.1 *
         Acts::UnitConstants::um; // By default, ACTS uses 0.1 micron as the on surface tolerance
