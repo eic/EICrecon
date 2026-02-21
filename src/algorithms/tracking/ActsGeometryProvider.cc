@@ -42,13 +42,11 @@
 #include "extensions/spdlog/SpdlogToActs.h"
 
 // Formatter for Eigen matrices
-#if FMT_VERSION >= 90000
 #include <Eigen/Core>
 
 template <typename T>
 struct fmt::formatter<T, std::enable_if_t<std::is_base_of_v<Eigen::MatrixBase<T>, T>, char>>
     : fmt::ostream_formatter {};
-#endif // FMT_VERSION >= 90000
 
 // Ensure ActsPlugins namespace is used when present
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
@@ -100,8 +98,13 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
   class ConvertDD4hepDetectorGeometryIdentifierHook : public Acts::GeometryIdentifierHook {
     Acts::GeometryIdentifier decorateIdentifier(Acts::GeometryIdentifier identifier,
                                                 const Acts::Surface& surface) const override {
+#if Acts_VERSION_MAJOR >= 45
+      const auto* placement          = surface.surfacePlacement();
+      const auto* dd4hep_det_element = dynamic_cast<const DD4hepDetectorElement*>(placement);
+#else
       const auto* dd4hep_det_element =
           dynamic_cast<const DD4hepDetectorElement*>(surface.associatedDetectorElement());
+#endif
       if (dd4hep_det_element == nullptr) {
         return identifier;
       }
@@ -166,8 +169,13 @@ void ActsGeometryProvider::initialize(const dd4hep::Detector* dd4hep_geo, std::s
         m_init_log->info("no surface??? ");
         return;
       }
+#if Acts_VERSION_MAJOR >= 45
+      const auto* placement   = surface->surfacePlacement();
+      const auto* det_element = dynamic_cast<const DD4hepDetectorElement*>(placement);
+#else
       const auto* det_element =
           dynamic_cast<const DD4hepDetectorElement*>(surface->associatedDetectorElement());
+#endif
 
       if (det_element == nullptr) {
         m_init_log->error("invalid det_element!!! det_element == nullptr ");

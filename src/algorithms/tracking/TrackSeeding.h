@@ -3,21 +3,13 @@
 
 #pragma once
 
-#if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/SpacePointContainer.hpp>
-#endif
-#if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/Seed.hpp>
-#else
-#include <Acts/Seeding/Seed.hpp>
-#endif
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
 #include <Acts/Utilities/Holders.hpp>
-#if Acts_VERSION_MAJOR >= 37
 #include <ActsExamples/EventData/SpacePointContainer.hpp>
-#endif
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
@@ -48,11 +40,9 @@ using TrackSeedingAlgorithm = algorithms::Algorithm<
 class TrackSeeding : public TrackSeedingAlgorithm,
                      public WithPodConfig<OrthogonalTrackSeedingConfig> {
 public:
-#if Acts_VERSION_MAJOR >= 37
   using proxy_type = typename Acts::SpacePointContainer<
       ActsExamples::SpacePointContainer<std::vector<const SpacePoint*>>,
       Acts::detail::RefHolder>::SpacePointProxyType;
-#endif
 
   TrackSeeding(std::string_view name)
       : TrackSeedingAlgorithm{name,
@@ -69,11 +59,7 @@ private:
 
   Acts::SeedFilterConfig m_seedFilterConfig;
   Acts::SeedFinderOptions m_seedFinderOptions;
-#if Acts_VERSION_MAJOR >= 37
   Acts::SeedFinderOrthogonalConfig<proxy_type> m_seedFinderConfig;
-#else
-  Acts::SeedFinderOrthogonalConfig<SpacePoint> m_seedFinderConfig;
-#endif
 
   static int determineCharge(std::vector<std::pair<float, float>>& positions,
                              const std::pair<float, float>& PCA,

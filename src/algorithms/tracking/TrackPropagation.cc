@@ -13,12 +13,7 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Material/MaterialInteraction.hpp>
-#if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
-#else
-#include <Acts/Propagator/AbortList.hpp>
-#include <Acts/Propagator/ActionList.hpp>
-#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
@@ -266,18 +261,18 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("PROP", acts_level));
 
-  using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
-#if Acts_VERSION_MAJOR >= 37
+  using Propagator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
-#else
-  using PropagatorOptions =
-      Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>>;
-#endif
   Propagator propagator(Acts::EigenStepper<>(magneticField),
                         Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
                                         logger().cloneWithSuffix("Navigator")),
                         logger().cloneWithSuffix("Propagator"));
-  PropagatorOptions propagationOptions(m_geoContext, m_fieldContext);
+
+  // Get run-scoped contexts from service
+  const auto& gctx = m_geoSvc->getActsGeometryContext();
+  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+
+  PropagatorOptions propagationOptions(gctx, mctx);
 
   auto result = propagator.propagate(initBoundParams, *targetSurf, propagationOptions);
 
@@ -299,7 +294,7 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   trace("    path len = {}", pathLength);
 
   // Position:
-  auto projectionPos = trackStateParams.position(m_geoContext);
+  auto projectionPos = trackStateParams.position(gctx);
   const decltype(edm4eic::TrackPoint::position) position{static_cast<float>(projectionPos(0)),
                                                          static_cast<float>(projectionPos(1)),
                                                          static_cast<float>(projectionPos(2))};

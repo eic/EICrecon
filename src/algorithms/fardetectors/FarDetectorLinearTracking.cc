@@ -7,8 +7,12 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/geo.h>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#endif
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackCollection.h>
@@ -19,8 +23,9 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <podio/LinkNavigator.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
 #include <Eigen/Geometry>
 #include <Eigen/Householder>
 #include <Eigen/Jacobi>
@@ -29,6 +34,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include <memory>
 #include <new>
 #include <unordered_map>
 #include <utility>
@@ -60,8 +66,13 @@ void FarDetectorLinearTracking::init() {
 void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& input,
                                         const FarDetectorLinearTracking::Output& output) const {
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  const auto [inputhits, hitLinks, assocHits]  = input;
+  auto [outputTracks, trackLinks, assocTracks] = output;
+#else
   const auto [inputhits, assocHits] = input;
   auto [outputTracks, assocTracks]  = output;
+#endif
 
   // Check the number of input collections is correct
   std::size_t nCollections = inputhits.size();
@@ -69,6 +80,26 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
     error("Wrong number of input collections passed to algorithm");
     return;
   }
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Check if truth associations are possible
+  const bool do_assoc = hitLinks != nullptr && !hitLinks->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoTrackerHitLink collection is empty. No truth associations "
+          "will be performed.");
+  }
+  // Build fast lookup once per event using podio::LinkNavigator
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>> link_nav;
+  if (do_assoc) {
+    link_nav.emplace(*hitLinks);
+  }
+#else
+  const bool do_assoc = assocHits != nullptr && !assocHits->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoTrackerHitAssociation collection is empty. No truth associations "
+          "will be performed.");
+  }
+#endif
 
   std::vector<std::vector<Eigen::Vector3d>> convertedHits;
   std::vector<std::vector<edm4hep::MCParticle>> assocParts;
@@ -85,7 +116,11 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
       trace("No hits in layer");
       return;
     }
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    ConvertClusters(*layerHits, *link_nav, *assocHits, convertedHits, assocParts);
+#else
     ConvertClusters(*layerHits, *assocHits, convertedHits, assocParts);
+#endif
   }
 
   // Create a matrix to store the hit positions
@@ -110,8 +145,11 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
     if (isValid) {
       if (layer == static_cast<long>(m_cfg.n_layer) - 1) {
         // Check the combination, if chi2 limit is passed, add the track to the output
-        checkHitCombination(&hitMatrix, outputTracks, assocTracks, inputhits, assocParts,
-                            layerHitIndex);
+        checkHitCombination(&hitMatrix, outputTracks,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                            trackLinks,
+#endif
+                            assocTracks, inputhits, assocParts, layerHitIndex);
       } else {
         layer++;
         continue;
@@ -141,6 +179,9 @@ void FarDetectorLinearTracking::process(const FarDetectorLinearTracking::Input& 
 
 void FarDetectorLinearTracking::checkHitCombination(
     Eigen::MatrixXd* hitMatrix, edm4eic::TrackCollection* outputTracks,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    edm4eic::MCRecoTrackParticleLinkCollection* trackLinks,
+#endif
     edm4eic::MCRecoTrackParticleAssociationCollection* assocTracks,
     const std::vector<gsl::not_null<const edm4eic::Measurement2DCollection*>>& inputHits,
     const std::vector<std::vector<edm4hep::MCParticle>>& assocParts,
@@ -197,6 +238,12 @@ void FarDetectorLinearTracking::checkHitCombination(
 
   // Create track associations for each particle
   for (const auto& [particle, count] : particleCount) {
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    auto trackLink = trackLinks->create();
+    trackLink.setFrom(track);
+    trackLink.setTo(*particle);
+    trackLink.setWeight(count / static_cast<double>(m_cfg.n_layer));
+#endif
     auto trackAssoc = assocTracks->create();
     trackAssoc.setRec(track);
     trackAssoc.setSim(*particle);
@@ -224,7 +271,10 @@ bool FarDetectorLinearTracking::checkHitPair(const Eigen::Vector3d& hit1,
 // Convert measurements into global coordinates
 void FarDetectorLinearTracking::ConvertClusters(
     const edm4eic::Measurement2DCollection& clusters,
-    const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    const podio::LinkNavigator<edm4eic::MCRecoTrackerHitLinkCollection>& link_nav,
+#endif
+    [[maybe_unused]] const edm4eic::MCRecoTrackerHitAssociationCollection& assoc_hits,
     std::vector<std::vector<Eigen::Vector3d>>& pointPositions,
     std::vector<std::vector<edm4hep::MCParticle>>& assoc_parts) const {
 
@@ -259,14 +309,22 @@ void FarDetectorLinearTracking::ConvertClusters(
     // Get associated raw hit
     auto rawHit = maxHit.getRawHit();
 
-    // Loop over the hit associations to find the associated MCParticle
-    for (const auto& hit_assoc : assoc_hits) {
-      if (hit_assoc.getRawHit() == rawHit) {
-        auto particle = hit_assoc.getSimHit().getParticle();
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    const auto sim_hits = link_nav.getLinked(rawHit);
+    if (!sim_hits.empty()) {
+      auto particle = sim_hits[0].o.getParticle();
+      assocParticles.push_back(particle);
+    }
+#else
+    // Fallback: linear search through associations
+    for (const auto& assoc : assoc_hits) {
+      if (assoc.getRawHit() == rawHit) {
+        auto particle = assoc.getSimHit().getParticle();
         assocParticles.push_back(particle);
         break;
       }
     }
+#endif
   }
 
   pointPositions.push_back(layerPositions);

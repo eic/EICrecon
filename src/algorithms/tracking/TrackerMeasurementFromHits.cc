@@ -6,7 +6,6 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
@@ -123,6 +122,9 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
   constexpr double mm_acts = Acts::UnitConstants::mm;
   constexpr double mm_conv = mm_acts / dd4hep::mm; // = 1/0.1
 
+  // Get run-scoped geometry context from service
+  const auto& gctx = m_acts_context->getActsGeometryContext();
+
   // output collections
   auto const& surfaceMap = m_acts_context->surfaceMap();
 
@@ -178,10 +180,9 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
 
     try {
       // transform global position into local coordinates
-      // geometry context contains nothing here
       pos = surface
-                ->globalToLocal(Acts::GeometryContext(), {hit_pos.x, hit_pos.y, hit_pos.z},
-                                {0, 0, 0}, onSurfaceTolerance)
+                ->globalToLocal(gctx, {hit_pos.x, hit_pos.y, hit_pos.z}, {0, 0, 0},
+                                onSurfaceTolerance)
                 .value();
 
     } catch (std::exception& ex) {
@@ -201,9 +202,9 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
       auto local_position = (alignment.worldToLocal(
                                 {hit_pos.x / mm_conv, hit_pos.y / mm_conv, hit_pos.z / mm_conv})) *
                             mm_conv;
-      double surf_center_x = surface->center(Acts::GeometryContext()).transpose()[0];
-      double surf_center_y = surface->center(Acts::GeometryContext()).transpose()[1];
-      double surf_center_z = surface->center(Acts::GeometryContext()).transpose()[2];
+      double surf_center_x = surface->center(gctx).transpose()[0];
+      double surf_center_y = surface->center(gctx).transpose()[1];
+      double surf_center_z = surface->center(gctx).transpose()[2];
       trace("   hit position     : {:>10.2f} {:>10.2f} {:>10.2f}", hit_pos.x, hit_pos.y, hit_pos.z);
       trace("   local position   : {:>10.2f} {:>10.2f} {:>10.2f}", local_position.x(),
             local_position.y(), local_position.z());
