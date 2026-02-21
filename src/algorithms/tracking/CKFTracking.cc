@@ -201,16 +201,9 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   pOptions.maxSteps = 10000;
 
   // Measurement calibrator
-#if Acts_VERSION_MAJOR >= 39
   // Create Podio-compatible calibrator
   PodioPassThroughCalibrator pcalibrator;
   PodioMeasurementCalibratorAdapter calibrator(pcalibrator, *measurements);
-#else
-  // TODO: Implement calibrator for Acts < 39 that doesn't require copying between backends
-  // For now, we cannot use the MeasurementCalibratorAdapter as it would require
-  // copying data between Podio and Vector backends
-#warning "Measurement calibration disabled for Acts < 39 with Podio backend"
-#endif
 
   Acts::GainMatrixUpdater kfUpdater;
   Acts::MeasurementSelector measSel{m_sourcelinkSelectorCfg};
