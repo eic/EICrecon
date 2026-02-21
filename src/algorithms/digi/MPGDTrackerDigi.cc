@@ -90,7 +90,6 @@
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
@@ -128,6 +127,7 @@
 #include <memory>
 #include <random>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
