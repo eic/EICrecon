@@ -3,6 +3,7 @@
 //
 
 #include <edm4eic/EDM4eicVersion.h>
+#include <tuple>
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 7)
 #include <edm4eic/CALOROC1ASample.h>
@@ -11,7 +12,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
 #include <vector>
 
 #include "CALOROCDigitization.h"
