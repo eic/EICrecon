@@ -21,18 +21,34 @@
 namespace eicrecon {
 
 using FarForwardNeutralsReconstructionAlgorithm =
-    algorithms::Algorithm<algorithms::Input<const edm4eic::ClusterCollection>,
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
+
+    algorithms::Algorithm<algorithms::Input<const edm4eic::ClusterCollection,            // clusters ZDC-Hcal
+                                            const edm4eic::ClusterCollection,            // clusters B0-Ecal
+                                            const edm4eic::ClusterCollection,            // clusters EndcapP-Ecal
+                                            const edm4eic::ClusterCollection>,           // clusters LFHCAL
+
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in ZDC-Hcal
+                                             edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in B0-Ecal
+                                             edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in EndcapP-Ecal
+                                             edm4eic::ReconstructedParticleCollection>>; // neutrons/gamma in LFHCAL
 class FarForwardNeutralsReconstruction
     : public FarForwardNeutralsReconstructionAlgorithm,
       public WithPodConfig<FarForwardNeutralsReconstructionConfig> {
 public:
   FarForwardNeutralsReconstruction(std::string_view name)
       : FarForwardNeutralsReconstructionAlgorithm{name,
-                                                  {"inputClustersHcal"},
-                                                  {"outputNeutrals"},
-                                                  "Merges all HCAL clusters in a collection into a "
-                                                  "neutron candidate and photon candidates "} {}
+        
+                                                  {"clustersHcal", 
+                                                   "clustersB0", 
+                                                   "clustersEcalEndCapP",
+                                                   "clustersLFHCAL"},
+
+                                                  {"outputNeutralsHcal", 
+                                                   "outputNeutralsB0", 
+                                                   "outputNeutralsEcalEndCapP",
+                                                   "outputNeutralsLFHCAL"},
+
+                                                  "Merges all HCAL clusters in a collection into a neutron candidate and photon candidates "} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -46,4 +62,4 @@ private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   double m_gammaZMax{0};
 };
-} // namespace eicrecon
+}
