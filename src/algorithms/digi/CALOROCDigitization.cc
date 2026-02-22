@@ -116,10 +116,8 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
 
       out_digi_hit.addToBSamples([&]() {
         edm4eic::CALOROC1BSample bSample;
-        bool overflow       = high_adc > m_cfg.capADC;
-        bSample.highGainADC = overflow ? m_cfg.capADC : high_adc;
-        bSample.lowGainADC =
-            overflow ? std::min(low_adc, static_cast<long long>(m_cfg.capADC)) : 0LL;
+	bSample.highGainADC = high_adc > m_cfg.capADC ? m_cfg.capADC : high_adc;
+	bSample.lowGainADC = low_adc > m_cfg.capADC ? m_cfg.capADC : low_adc;
         bSample.timeOfArrival = toa > m_cfg.capTOA ? m_cfg.capTOA : toa;
         return bSample;
       }());
