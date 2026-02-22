@@ -13,12 +13,7 @@
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Material/MaterialInteraction.hpp>
-#if Acts_VERSION_MAJOR >= 37
 #include <Acts/Propagator/ActorList.hpp>
-#else
-#include <Acts/Propagator/AbortList.hpp>
-#include <Acts/Propagator/ActionList.hpp>
-#endif
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/MaterialInteractor.hpp>
 #include <Acts/Propagator/Navigator.hpp>
@@ -266,13 +261,8 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   const auto acts_level   = eicrecon::SpdlogToActsLevel(spdlog_level);
   ACTS_LOCAL_LOGGER(Acts::getDefaultLogger("PROP", acts_level));
 
-  using Propagator = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
-#if Acts_VERSION_MAJOR >= 37
+  using Propagator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
-#else
-  using PropagatorOptions =
-      Propagator::template Options<Acts::ActionList<Acts::MaterialInteractor>>;
-#endif
   Propagator propagator(Acts::EigenStepper<>(magneticField),
                         Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
                                         logger().cloneWithSuffix("Navigator")),
