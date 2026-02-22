@@ -216,27 +216,43 @@ void InitPlugin(JApplication* app) {
       {"ReconstructedBreitFrameParticles"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
-      "ReconstructedFarForwardZDCNeutrons",
-      {"HcalFarForwardZDCClusters"},          // edm4eic::ClusterCollection
-      {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
-      {.offsetPositionName        = "HcalFarForwardZDC_SiPMonTile_r_pos",
-       .neutronScaleCorrCoeffHcal = {-0.11, -1.5, 0},
-       .gammaScaleCorrCoeffHcal   = {0, -.13, 0},
-       .globalToProtonRotation    = -0.025,
-       .gammaZMaxOffset           = 300 * dd4hep::mm,
-       .gammaMaxLength            = 100 * dd4hep::mm,
-       .gammaMaxWidth             = 12 * dd4hep::mm},
+      "ReconstructedFarForwardZDCNeutrals",
+      {"HcalFarForwardZDCClusters", 
+        "B0ECalClusters", 
+        "EcalEndcapPClusters", 
+        "LFHCALClusters"},
+      {"ReconstructedHcalFarForwardZDCNeutrals", 
+        "ReconstructedB0EcalNeutrals", 
+        "ReconstructedEcalEndcapPNeutrals",
+        "ReconstructedLFHCALNeutrals"},
+      {.offsetPositionName               = "HcalFarForwardZDC_SiPMonTile_r_pos",
+       .neutronScaleCorrCoeffHcal        = {2.4, 0.89},
+       .gammaScaleCorrCoeffHcal          = {1.1, 0.98},
+       .neutronScaleCorrCoeffLFHCAL      = {2.55, 0.95},
+       .gammaScaleCorrCoeffLFHCAL        = {0., 0.},
+       .neutronScaleCorrCoeffB0Ecal      = {0., 0.},
+       .gammaScaleCorrCoeffB0Ecal        = {0.99, 1.14},
+       .neutronScaleCorrCoeffEcalEndcapP = {0., 0.},
+       .gammaScaleCorrCoeffEcalEndcapP   = {1.05, 1.01},
+       .globalToProtonRotation           = -0.025,
+       .gammaZMaxOffset                  = 400 * dd4hep::mm,
+       .gammaMaxLength                   = 100 * dd4hep::mm,
+       .gammaMaxWidth                    = 12 * dd4hep::mm},
       app // TODO: Remove me once fixed
       ));
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
-      "ReconstructedFarForwardZDCLambdas",
-      {"ReconstructedFarForwardZDCNeutrals"}, // edm4eic::ReconstrutedParticleCollection,
-      {"ReconstructedFarForwardZDCLambdas", "ReconstructedFarForwardZDCLambdaDecayProductsC"
-                                            "M"}, // edm4eic::ReconstrutedParticleCollection,
+      "ReconstructedFarForwardLambdas",
+      {"ReconstructedHcalFarForwardZDCNeutrals", 
+        "ReconstructedB0EcalNeutrals", 
+        "ReconstructedEcalEndcapPNeutrals", 
+        "ReconstructedLFHCALNeutrals"},
+      {"ReconstructedFarForwardLambdas", 
+        "ReconstructedFarForwardLambdaDecayProductsCM"},
       {.offsetPositionName     = "HcalFarForwardZDC_SiPMonTile_r_pos",
        .globalToProtonRotation = -0.025,
-       .lambdaMaxMassDev       = 0.030 * dd4hep::GeV,
+       .lambdaMassWindow       = 0.30,
+       .pi0Window              = 0.30,
        .iterations             = 10},
       app // TODO: Remove me once fixed
       ));

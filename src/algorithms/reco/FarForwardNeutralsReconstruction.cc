@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Sebouh Paul
+// Update/modification 2026 by Baptiste Fraisse
+
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
@@ -10,18 +12,11 @@
 #include <gsl/pointers>
 #include <stdexcept>
 #include <vector>
+#include <functional>
+#include <limits>
+#include <algorithm>
 
 #include "FarForwardNeutralsReconstruction.h"
-
-/**
- Creates photon candidate Reconstructed Particles, using clusters which fulfill cuts on the position of their CoG position, length (sqrt of largest eigenvector of their moment matrix), and width (sqrt of second largest eigenvector of their moment matrix).  Its energy is the energy of the cluster times a correction factor.
- Also creates a "neutron candidate" Reconstructed Particle consisting of all remaining clusters in the collection. Its energy is the sum of the energies of the constituent clusters
- times a correction factor, and its direction is the direction from the origin to the position
- of the most energetic cluster.  The correction factors in both cases are given by 1/(1+c[0]+c[1]/sqrt(E)+c[2]/E),
- where c is the coefficients and E is the uncorrected energy in GeV.  Different correction coefficients are used for photons vs for neutrons.  This form was chosen
- empirically based on the discrepancies in single-neutron and single-photon MC simulations between the uncorrected
- reconstructed energies and the truth energies of the neutrons.  The parameter values should be co-tuned with those of the clustering algorithm being used.
- */
 
 namespace eicrecon {
 
@@ -29,49 +24,35 @@ void FarForwardNeutralsReconstruction::init() {
 
   try {
     m_gammaZMax =
-        m_cfg.gammaZMaxOffset + m_detector->constant<double>(m_cfg.offsetPositionName) / dd4hep::mm;
+        400 * dd4hep::mm + m_detector->constant<double>(m_cfg.offsetPositionName) / dd4hep::mm;
   } catch (std::runtime_error&) {
     m_gammaZMax = m_cfg.gammaZMaxOffset + 35800;
     trace("Failed to get {} from the detector, using default value of {}", m_cfg.offsetPositionName,
           m_gammaZMax);
   }
 
-  if (m_cfg.neutronScaleCorrCoeffHcal.size() < 3) {
-    error("Invalid configuration.  m_cfg.neutronScaleCorrCoeffHcal should have at least 3 "
-          "parameters");
-    throw std::runtime_error("Invalid configuration.  m_cfg.neutronScaleCorrCoeffHcal should have "
-                             "at least 3 parameters");
-  }
-  if (m_cfg.gammaScaleCorrCoeffHcal.size() < 3) {
-    error("Invalid configuration.  m_cfg.gamma_scale_corr_coeff_ecal should have at least 3 "
-          "parameters");
-    throw std::runtime_error("Invalid configuration.  m_cfg.gamma_scale_corr_coeff_ecal should "
-                             "have at least 3 parameters");
-  }
   trace("gamma detection params:   max length={},   max width={},   max z={}", m_cfg.gammaMaxLength,
         m_cfg.gammaMaxWidth, m_gammaZMax);
 }
-/** calculates the correction for a given uncorrected total energy and a set of coefficients*/
+
 double FarForwardNeutralsReconstruction::calc_corr(double Etot, const std::vector<double>& coeffs) {
   return coeffs[0] + coeffs[1] / sqrt(Etot) + coeffs[2] / Etot;
 }
 
-/**
-     check that the cluster position is within the correct range,
-     and that the sqrt(largest eigenvalue) is less than gamma_max_length,
-     and that the sqrt(second largest eigenvalue) is less than gamma_max_width
-  */
 bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) const {
+
   double l1 = sqrt(cluster.getShapeParameters(4)) * dd4hep::mm;
   double l2 = sqrt(cluster.getShapeParameters(5)) * dd4hep::mm;
   double l3 = sqrt(cluster.getShapeParameters(6)) * dd4hep::mm;
 
-  //z in the local coordinates
+  // z in the local coordinates
   double z = (cluster.getPosition().z * cos(m_cfg.globalToProtonRotation) +
               cluster.getPosition().x * sin(m_cfg.globalToProtonRotation)) *
              dd4hep::mm;
+
   trace("z recon = {}", z);
   trace("l1 = {}, l2 = {}, l3 = {}", l1, l2, l3);
+
   bool isZMoreThanMax = (z > m_gammaZMax);
   bool isLengthMoreThanMax =
       (l1 > m_cfg.gammaMaxLength || l2 > m_cfg.gammaMaxLength || l3 > m_cfg.gammaMaxLength);
@@ -79,70 +60,257 @@ bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) 
                                   static_cast<int>(l2 > m_cfg.gammaMaxWidth) +
                                   static_cast<int>(l3 > m_cfg.gammaMaxWidth) >=
                               2;
+
   return !(isZMoreThanMax || isLengthMoreThanMax || areWidthsMoreThanMax);
 }
 
 void FarForwardNeutralsReconstruction::process(
     const FarForwardNeutralsReconstruction::Input& input,
     const FarForwardNeutralsReconstruction::Output& output) const {
-  const auto [clustersHcal] = input;
-  auto [out_neutrals]       = output;
 
-  double Etot_hcal = 0;
-  double Emax      = 0;
-  edm4hep::Vector3f n_position;
-  for (const auto& cluster : *clustersHcal) {
-    double E = cluster.getEnergy();
+  // Unpacking
+  const auto [clustersHcal, clustersB0, clustersEcalEndcapP, clustersLFHCAL] = input;
+  auto [out_neutralsHcal, out_neutralsB0, out_neutralsEcalEndcapP, out_neutralsLFHCAL] = output;
 
-    if (isGamma(cluster)) {
-      auto rec_part = out_neutrals->create();
-      rec_part.setPDG(22);
-      edm4hep::Vector3f position = cluster.getPosition();
-      double corr                = calc_corr(E, m_cfg.gammaScaleCorrCoeffHcal);
-      E                          = E / (1 + corr);
-      double p                   = E;
-      double r                   = edm4hep::utils::magnitude(position);
-      edm4hep::Vector3f momentum = position * (p / r);
-      rec_part.setEnergy(E);
-      rec_part.setMomentum(momentum);
-      rec_part.setReferencePoint(position);
-      rec_part.setCharge(0);
-      rec_part.setMass(0);
-      rec_part.addToClusters(cluster);
-      continue;
-    }
+  // Global
+  const double m_neutron = m_particleSvc.particle(2112).mass;
+  int n_neutrons = 0;
 
-    Etot_hcal += E;
-    if (E > Emax) {
-      Emax       = E;
-      n_position = cluster.getPosition();
-    }
-  }
+  // neutron-gamma separation method
+  enum class GammaMode   { None, LeaderOnly, AllPassing };
+  enum class NeutronMode { None, SumAll, LeaderOnly };
 
-  double Etot                   = Etot_hcal;
-  static const double m_neutron = m_particleSvc.particle(2112).mass;
-  int n_neutrons                = 0;
-  if (Etot > 0 && Emax > 0) {
-    auto rec_part = out_neutrals->create();
-    double corr   = calc_corr(Etot, m_cfg.neutronScaleCorrCoeffHcal);
-    Etot_hcal     = Etot_hcal / (1 + corr);
-    Etot          = Etot_hcal;
-    rec_part.setEnergy(Etot);
-    rec_part.setPDG(2112);
-    double p                   = sqrt(Etot * Etot - m_neutron * m_neutron);
-    double r                   = edm4hep::utils::magnitude(n_position);
-    edm4hep::Vector3f momentum = n_position * (p / r);
-    rec_part.setMomentum(momentum);
-    rec_part.setReferencePoint(n_position);
-    rec_part.setCharge(0);
-    rec_part.setMass(m_neutron);
-    for (const auto& cluster : *clustersHcal) {
-      rec_part.addToClusters(cluster);
-    }
-    n_neutrons = 1;
-  } else {
-    n_neutrons = 0;
-  }
+  using CorrFunc = std::function<double(double, const std::vector<double>&)>;
+
+  CorrFunc corr_power = [](double E, const std::vector<double>& coeffs) {
+    if (coeffs.size() < 2) return E;
+    return coeffs[0] * std::pow(E, coeffs[1]);
+  };
+
+  // helper for processing detectors
+  auto processNeutralCalo =
+    [&](auto clusters,
+        auto out_neutrals,
+        const std::vector<double>& gammaScaleCoeff,
+        const std::vector<double>& neutronScaleCoeff,
+        bool canDetectGammas,
+        bool canDetectNeutrons,
+        const CorrFunc& gammaCorr,
+        const CorrFunc& neutronCorr,
+        GammaMode gammaMode,
+        double gammaLeaderFracMin,
+        double clusterEmin,
+        NeutronMode neutronMode,
+        bool associateAllClustersToNeutron) -> int {
+
+      (void)gammaLeaderFracMin;
+
+      if (!clusters || clusters->empty()) return 0;
+      if (!canDetectGammas) gammaMode = GammaMode::None;
+
+      // gammas from clusters
+      auto makeGamma = [&](const edm4eic::Cluster& cl){
+        auto rec = out_neutrals->create();
+        rec.setPDG(22);
+
+        const auto pos = cl.getPosition();
+        const double E = gammaCorr(cl.getEnergy(), gammaScaleCoeff);
+
+        const double r = edm4hep::utils::magnitude(pos);
+        if (r > 0) rec.setMomentum(pos * (E / r));
+
+        rec.setEnergy(E);
+        rec.setReferencePoint(pos);
+        rec.setCharge(0);
+        rec.setMass(0);
+        rec.addToClusters(cl);
+      };
+
+      std::vector<const edm4eic::Cluster*> gamma_used;
+      gamma_used.reserve(clusters->size());
+
+      // gammaMode == LeaderOnly
+      if (gammaMode == GammaMode::LeaderOnly) {
+
+        std::vector<int> idx;
+        idx.reserve(clusters->size());
+
+        double Esum = 0.0;
+        for (int i = 0, n = (int)clusters->size(); i < n; ++i) {
+          const double E = (*clusters)[i].getEnergy();
+          if (E < clusterEmin) continue;
+          Esum += E;
+          idx.push_back(i);
+        }
+
+        if (idx.empty() || Esum <= 0.0) return 0;
+
+        const size_t Nkeep = 4;
+        for (size_t k = 0; k < std::min(Nkeep, idx.size()); ++k) {
+          const auto& cl = (*clusters)[idx[k]];
+          makeGamma(cl);
+          gamma_used.push_back(&cl);
+        }
+
+      }
+
+      // gammaMode == AllPassing
+      else if (gammaMode == GammaMode::AllPassing) {
+        for (const auto& cl : *clusters) {
+          const double E = cl.getEnergy();
+          if (E < clusterEmin) continue;
+          if (isGamma(cl)) {
+            makeGamma(cl);
+            gamma_used.push_back(&cl);
+          }
+        }
+      }
+
+      // gammaMode == None => nothing
+      auto is_used_as_gamma = [&](const edm4eic::Cluster& cl)
+      {
+        for (auto* p : gamma_used) if (p == &cl) return true;
+        return false;
+      };
+
+      // neutrons from clusters
+      const edm4eic::Cluster* leaderN = nullptr;
+      double E_leader = -1.0;
+
+      double E_sum = 0.0;
+      std::vector<const edm4eic::Cluster*> kept;
+      kept.reserve(clusters->size());
+
+      for (const auto& cl : *clusters) {
+        if (gammaMode != GammaMode::None && is_used_as_gamma(cl)) continue;
+
+        const double E = cl.getEnergy();
+        if (E < clusterEmin) continue;
+
+        E_sum += E;
+        kept.push_back(&cl);
+
+        if (E > E_leader) {
+          E_leader = E;
+          leaderN  = &cl;
+        }
+      }
+
+      if (!canDetectNeutrons) return 0;
+
+      double En_raw = 0.0;
+      edm4hep::Vector3f n_pos{0,0,0};
+
+      if (neutronMode == NeutronMode::LeaderOnly) {
+        if (!leaderN || E_leader <= 0.0) return 0;
+        En_raw = E_leader;
+        n_pos  = leaderN->getPosition();
+
+        kept.clear();
+        kept.push_back(leaderN);
+      }
+      else if (neutronMode == NeutronMode::SumAll) {
+        if (E_sum <= 0.0 || kept.empty()) return 0;
+        En_raw = E_sum;
+        if (!leaderN || E_leader <= 0.0) return 0;
+        n_pos = leaderN->getPosition();
+      }
+      else {
+        return 0;
+      }
+
+      // apply calibration laws
+      const double En = neutronCorr(En_raw, neutronScaleCoeff);
+
+      auto rec = out_neutrals->create();
+      rec.setPDG(2112);
+      rec.setEnergy(En);
+      rec.setCharge(0);
+      rec.setMass(m_neutron);
+
+      const double r = edm4hep::utils::magnitude(n_pos);
+      if (r > 0) {
+        const double psq = std::max(0.0, En*En - m_neutron*m_neutron);
+        rec.setMomentum(n_pos * (std::sqrt(psq) / r));
+      }
+      rec.setReferencePoint(n_pos);
+
+      if (associateAllClustersToNeutron) {
+        for (const auto& cl : *clusters) rec.addToClusters(cl);
+      } else {
+        for (auto* clp : kept) rec.addToClusters(*clp);
+      }
+
+      return 1;
+    };
+
+  // --- processing of detectors
+
+  // ZDC-Hcal
+  n_neutrons += processNeutralCalo(
+                                    clustersHcal, out_neutralsHcal,
+                                    /*gammaCorrCoefs=*/   m_cfg.gammaScaleCorrCoeffHcal,
+                                    /*neutronCorrCoefs=*/ m_cfg.neutronScaleCorrCoeffHcal,
+                                    /*canDetectGammas=*/  true,
+                                    /*canDetectNeutrons=*/true,
+                                    /*gammaCorr=*/        corr_power,
+                                    /*neutronCorr=*/      corr_power,
+                                    /*gammaMode=*/        GammaMode::AllPassing,
+                                    /*gammaLeaderFracMin=*/0.0,
+                                    /*clusterEmin=*/      0.0,
+                                    /*neutronMode=*/      NeutronMode::SumAll,
+                                    /*associateAllClustersToNeutron=*/true
+  );
+
+  // B0-Ecal
+  n_neutrons += processNeutralCalo(
+                                    clustersB0, out_neutralsB0,
+                                    /*gammaCorrCoefs=*/   m_cfg.gammaScaleCorrCoeffB0Ecal,
+                                    /*neutronCorrCoefs=*/ m_cfg.neutronScaleCorrCoeffB0Ecal,
+                                    /*canDetectGammas=*/  true,
+                                    /*canDetectNeutrons=*/false,
+                                    /*gammaCorr=*/        corr_power,
+                                    /*neutronCorr=*/      corr_power,
+                                    /*gammaMode=*/        GammaMode::LeaderOnly,
+                                    /*gammaLeaderFracMin=*/0.0,
+                                    /*clusterEmin=*/      1.0,
+                                    /*neutronMode=*/      NeutronMode::None,
+                                    /*associateAllClustersToNeutron=*/false
+  );
+
+  // EndcapP-Ecal
+  n_neutrons += processNeutralCalo(
+                                    clustersEcalEndcapP, out_neutralsEcalEndcapP,
+                                    /*gammaCorrCoefs=*/   m_cfg.gammaScaleCorrCoeffEcalEndcapP,
+                                    /*neutronCorrCoefs=*/ m_cfg.neutronScaleCorrCoeffEcalEndcapP,
+                                    /*canDetectGammas=*/  true,
+                                    /*canDetectNeutrons=*/false,
+                                    /*gammaCorr=*/        corr_power,
+                                    /*neutronCorr=*/      corr_power,
+                                    /*gammaMode=*/        GammaMode::LeaderOnly,
+                                    /*gammaLeaderFracMin=*/0.0,
+                                    /*clusterEmin=*/      1.0,
+                                    /*neutronMode=*/      NeutronMode::None,
+                                    /*associateAllClustersToNeutron=*/false
+  );
+
+  // LFHCAL
+  n_neutrons += processNeutralCalo(
+                                    clustersLFHCAL, out_neutralsLFHCAL,
+                                    /*gammaCorrCoefs=*/   m_cfg.gammaScaleCorrCoeffLFHCAL,
+                                    /*neutronCorrCoefs=*/ m_cfg.neutronScaleCorrCoeffLFHCAL,
+                                    /*canDetectGammas=*/  false,
+                                    /*canDetectNeutrons=*/true,
+                                    /*gammaCorr=*/        corr_power,
+                                    /*neutronCorr=*/      corr_power,
+                                    /*gammaMode=*/        GammaMode::None,
+                                    /*gammaLeaderFracMin=*/0.0,
+                                    /*clusterEmin=*/      7.0,
+                                    /*neutronMode=*/      NeutronMode::LeaderOnly,
+                                    /*associateAllClustersToNeutron=*/false
+  );
+
   debug("Found {} neutron candidates", n_neutrons);
 }
+
 } // namespace eicrecon
