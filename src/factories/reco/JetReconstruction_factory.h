@@ -22,7 +22,8 @@ public:
 private:
   std::unique_ptr<Algo> m_algo;
 
-  // input collection
+  // input collections
+  typename FactoryT::template PodioInput<edm4hep::EventHeader> m_event_header_input{this};
   typename FactoryT::template PodioInput<InputT> m_input{this};
 
   // output collection
@@ -59,7 +60,7 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_input()}, {m_output().get()});
+    m_algo->process({m_event_header_input(), m_input()}, {m_output().get()});
   }
 
 }; // end JetReconstruction_factory definition
