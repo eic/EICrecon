@@ -287,7 +287,7 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterHitDigi_factory>(
-      "EcalBarrelImagingRawHits", {"EventHeader", "EcalBarrelImagingHits"},
+      "EcalBarrelImagingRawHits", {"EventHeader", "EcalBarrelImagingProcessedHits"},
       {"EcalBarrelImagingRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelImagingRawHitLinks",
