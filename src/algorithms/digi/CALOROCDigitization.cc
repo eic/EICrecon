@@ -38,37 +38,36 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     double pulse_t     = pulse.getTime();
     double pulse_dt    = pulse.getInterval();
     std::size_t n_amps = pulse.getAmplitude().size();
+    std::size_t time_stamp =
+        static_cast<std::size_t>(std::ceil((pulse_t - m_cfg.adc_phase) / m_cfg.time_window));
+    std::size_t idx_amp_first = static_cast<std::size_t>(
+        (m_cfg.adc_phase + time_stamp * m_cfg.time_window - pulse_t) / pulse_dt);
+    std::size_t sample_tick = static_cast<std::size_t>(m_cfg.time_window / pulse_dt);
 
     std::vector<RawEntry> raw_samples(m_cfg.n_samples);
 
-    // For ADC, amplitudes are measured with a fixed phase.
-    // This was reproduced by sample_tick and adc_counter as follows.
-    // Amplitude is measured whenever adc_counter reaches sample_tick.
-    int sample_tick = static_cast<int>(m_cfg.time_window / pulse_dt);
-    std::size_t time_stamp =
-        static_cast<std::size_t>(std::ceil((pulse_t - m_cfg.adc_phase) / m_cfg.time_window));
-    int adc_counter =
-        sample_tick -
-        static_cast<int>((m_cfg.adc_phase + time_stamp * m_cfg.time_window - pulse_t) / pulse_dt);
-    if (adc_counter < 0 || adc_counter > sample_tick)
-      continue;
+    // ADCs are filled in advance because the measurement indices
+    // are already determined.
+    for (std::size_t i = 0; i < m_cfg.n_samples; i++) {
+      std::size_t idx_amp = idx_amp_first + i * sample_tick;
+      if (idx_amp < n_amps)
+        raw_samples[i].adc = pulse.getAmplitude()[idx_amp];
+      else
+        break;
+    }
 
     std::size_t idx_sample = 0;
     std::size_t idx_toa    = 0;
     double t_upcross       = 0;
     bool tot_progress      = false;
 
-    for (std::size_t i = 0; i < n_amps; i++) {
+    // Measure the TOAs and TOTs while scanning the amplitudes.
+    for (std::size_t i = 1; i < n_amps; i++) {
       double t = pulse_t + i * pulse_dt;
-
-      // Measure amplitudes for ADC
-      if (adc_counter == sample_tick) {
-        raw_samples[idx_sample].adc = pulse.getAmplitude()[i];
-        adc_counter                 = 0;
-        idx_sample++;
-        if (idx_sample == m_cfg.n_samples)
-          break;
-      }
+      if (i > idx_amp_first)
+        idx_sample = (i + sample_tick - idx_amp_first - 1) / sample_tick;
+      if (idx_sample == m_cfg.n_samples)
+        break;
 
       // Measure up-crossing time for TOA
       if (!tot_progress && pulse.getAmplitude()[i] > m_cfg.toa_thres) {
@@ -88,8 +87,6 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
             t_upcross;
         tot_progress = false;
       }
-
-      adc_counter++;
     }
 
     // Fill CALOROCSamples and RawCALOROCHit
