@@ -19,7 +19,10 @@
 namespace eicrecon {
 
 using FarForwardLambdaReconstructionAlgorithm = algorithms::Algorithm<
-    algorithms::Input<const edm4eic::ReconstructedParticleCollection>,
+    algorithms::Input<const edm4eic::ReconstructedParticleCollection,
+                      const edm4eic::ReconstructedParticleCollection,
+                      const edm4eic::ReconstructedParticleCollection,
+                      const edm4eic::ReconstructedParticleCollection>,
     /*output collections contain the lambda candidates and their decay products in the CM frame*/
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
                        edm4eic::ReconstructedParticleCollection>>;
@@ -29,10 +32,16 @@ public:
   FarForwardLambdaReconstruction(std::string_view name)
       : FarForwardLambdaReconstructionAlgorithm{
             name,
-            {"inputNeutrals"},
-            {"outputLambdas", "outputLambdaDecayProductsCM"},
-            "Reconstructs lambda candidates and their decay products (in the CM frame) from the "
-            "reconstructed neutrons and photons"} {}
+
+            {"inputNeutralsHcal",
+             "inputNeutralsB0", 
+             "inputNeutralsEcalEndCapP",
+             "inputNeutralsLFHCAL"},
+
+            {"outputLambdas", 
+             "outputLambdaDecayProductsCM"},
+
+            "Reconstructs lambda candidates and their decay products (in the CM frame) from the reconstructed neutrons and photons"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -42,5 +51,12 @@ private:
   const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   double m_zMax{0};
+
+  bool reconstruct_from_triplet(
+      const edm4eic::ReconstructedParticle& n_in,
+      const edm4eic::ReconstructedParticle& g1_in,
+      const edm4eic::ReconstructedParticle& g2_in,
+      edm4eic::ReconstructedParticleCollection* out_lambdas,
+      edm4eic::ReconstructedParticleCollection* out_decay_products) const;
 };
 } // namespace eicrecon
