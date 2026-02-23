@@ -52,7 +52,7 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     double ecal_energy = 0;
     double hcal_energy = 0;
 
-    double avge_energy = 0;
+    double estimated_energy = 0;
 
     edm4hep::Vector3f track_momentum_vector;
 
@@ -140,28 +140,33 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
     // Step 3 : Calculate avge energy (PRELIMINARY IMPLEMENTATION)
     double weight_trackingResolution = 1. / std::pow(m_cfg.trackingResolution, 2);
-    double weight_calo_resolution =
+    double weight_caloResolution =
         1. / std::pow(m_cfg.caloResolution, 2); // USING ECAL RESOLUTION AS PLACEHOLDER!
 
     double normalization = 0;
 
     if (track_energy > 0 && calo_energy > 0)
-      normalization = weight_trackingResolution + weight_calo_resolution;
+      normalization = weight_trackingResolution + weight_caloResolution;
     else if (track_energy > 0 && calo_energy == 0)
       normalization = weight_trackingResolution;
     else if (track_energy == 0 && calo_energy > 0)
-      normalization = weight_calo_resolution;
+      normalization = weight_caloResolution;
 
-    avge_energy =
-        (weight_trackingResolution * track_energy + weight_calo_resolution * calo_energy) /
+    if (!hasTrack) {
+      estimated_energy = calo_energy;
+    } else if (hasECal || hasHCal) {
+      estimated_energy = (weight_trackingResolution * track_energy + weight_caloResolution * calo_energy) /
         normalization;
+    } else {
+      estimated_energy = track_energy;
+    }
 
     // Step 4 : Store information on a mutable collection
-    double mass_calculated = std::sqrt(std::pow(avge_energy, 2) - std::pow(track_momentum_mag, 2));
+    double mass_calculated = std::sqrt(std::pow(estimated_energy, 2) - std::pow(track_momentum_mag, 2));
 
     edm4eic::MutableReconstructedParticle out_reco_particle = particle.clone();
 
-    out_reco_particle.setEnergy(avge_energy);
+    out_reco_particle.setEnergy(estimated_energy);
     out_reco_particle.setMomentum(edm4hep::Vector3f(
         track_momentum_vector.x, track_momentum_vector.y, track_momentum_vector.z));
     out_reco_particle.setReferencePoint(particle.getReferencePoint());
