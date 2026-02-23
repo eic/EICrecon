@@ -9,7 +9,10 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
 #include <edm4eic/MCRecoClusterParticleLinkCollection.h>
 #endif
 #include <edm4eic/ProtoClusterCollection.h>
@@ -62,9 +65,15 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   edm4eic::ProtoClusterCollection pclust_coll;
   edm4hep::SimCalorimeterHitCollection simhits_coll;
   edm4eic::MCRecoCalorimeterHitAssociationCollection hitassocs_coll;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  edm4eic::MCRecoCalorimeterHitLinkCollection hitlinks_coll;
+#endif
   edm4hep::CaloHitContributionCollection contribs_coll;
   edm4hep::MCParticleCollection mcparts_coll;
   auto assoc_coll = std::make_unique<edm4eic::MCRecoClusterParticleAssociationCollection>();
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto link_coll = std::make_unique<edm4eic::MCRecoClusterParticleLinkCollection>();
+#endif
   auto clust_coll = std::make_unique<edm4eic::ClusterCollection>();
 
   //create a protocluster with 3 hits
@@ -165,6 +174,11 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   auto hitassoc1 = hitassocs_coll.create();
   hitassoc1.setRawHit(rawhit1);
   hitassoc1.setSimHit(simhit1);
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto hitlink1 = hitlinks_coll.create();
+  hitlink1.setFrom(rawhit1);
+  hitlink1.setTo(simhit1);
+#endif
 
   auto rawhit2 = rawhits_coll.create();
 
@@ -226,12 +240,17 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   hitassoc2.setRawHit(rawhit2);
   hitassoc2.setSimHit(simhit2);
 
-  // Constructing input and output as per the algorithm's expected signature
-  auto input = std::make_tuple(&pclust_coll, &hitassocs_coll);
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  edm4eic::MCRecoClusterParticleLinkCollection link_coll;
-  auto output = std::make_tuple(clust_coll.get(), &link_coll, assoc_coll.get());
+  auto hitlink2 = hitlinks_coll.create();
+  hitlink2.setFrom(rawhit2);
+  hitlink2.setTo(simhit2);
+#endif
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto input  = std::make_tuple(&pclust_coll, &hitlinks_coll, &hitassocs_coll);
+  auto output = std::make_tuple(clust_coll.get(), link_coll.get(), assoc_coll.get());
 #else
+  auto input  = std::make_tuple(&pclust_coll, &hitassocs_coll);
   auto output = std::make_tuple(clust_coll.get(), assoc_coll.get());
 #endif
 
@@ -241,6 +260,9 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   auto clust = (*clust_coll)[0];
 
   REQUIRE(assoc_coll->size() == 2);
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  REQUIRE(link_coll->size() == 2);
+#endif
 
   // Half of the energy comes from mcpart11 and its daughter mcpart12
   REQUIRE_THAT((*assoc_coll)[0].getWeight(), Catch::Matchers::WithinAbs(0.5, EPSILON));
@@ -251,4 +273,16 @@ TEST_CASE("the calorimeter CoG algorithm runs", "[CalorimeterClusterRecoCoG]") {
   REQUIRE_THAT((*assoc_coll)[1].getWeight(), Catch::Matchers::WithinAbs(0.5, EPSILON));
   REQUIRE((*assoc_coll)[1].getRec() == clust);
   REQUIRE((*assoc_coll)[1].getSim() == mcpart2);
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Half of the energy comes from mcpart11 and its daughter mcpart12
+  REQUIRE_THAT((*link_coll)[0].getWeight(), Catch::Matchers::WithinAbs(0.5, EPSILON));
+  REQUIRE((*link_coll)[0].getFrom() == clust);
+  REQUIRE((*link_coll)[0].getTo() == mcpart11);
+
+  // Half of the energy comes from mcpart2
+  REQUIRE_THAT((*link_coll)[1].getWeight(), Catch::Matchers::WithinAbs(0.5, EPSILON));
+  REQUIRE((*link_coll)[1].getFrom() == clust);
+  REQUIRE((*link_coll)[1].getTo() == mcpart2);
+#endif
 }

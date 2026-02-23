@@ -242,8 +242,13 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalBarrelScFiClustersWithoutShapes",
-      {"EcalBarrelScFiProtoClusters",         // edm4eic::ProtoClusterCollection
-       "EcalBarrelScFiRawHitAssociations"},   // edm4eic::MCRecoCalorimeterHitAssociation
+      {
+          "EcalBarrelScFiProtoClusters", // edm4eic::ProtoClusterCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "EcalBarrelScFiRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
+          "EcalBarrelScFiRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociation
+      },
       {"EcalBarrelScFiClustersWithoutShapes", // edm4eic::Cluster
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelScFiClusterLinksWithoutShapes",
@@ -379,7 +384,11 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<ImagingClusterReco_factory>(
       "EcalBarrelImagingClustersWithoutShapes",
-      {"EcalBarrelImagingProtoClusters", "EcalBarrelImagingRawHitAssociations"},
+      {"EcalBarrelImagingProtoClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalBarrelImagingRawHitLinks",
+#endif
+       "EcalBarrelImagingRawHitAssociations"},
       {"EcalBarrelImagingClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalBarrelImagingClusterLinksWithoutShapes",
