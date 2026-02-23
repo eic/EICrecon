@@ -32,7 +32,6 @@ using ParticleConverterAlgorithm =
 class ParticleConverter : public ParticleConverterAlgorithm,
                           public WithPodConfig<ParticleConverterConfig> {
 public:
-  // Constructor of ParticleConverter inherits from the constructor of ParticleConverterAlgorithm
   ParticleConverter(std::string_view name)
       : ParticleConverterAlgorithm(name, {"inputRecoParticles"}, {"outputRecoParticles"},
                                    "Converters particle candidates (charged or neutral) into fully "
