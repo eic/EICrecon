@@ -247,7 +247,7 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
   }
   // verify that no indices were dropped due to equivalence in the set comparator
   if (indices.size() != expected_indices) {
-    debug("CalorimeterIslandCluster: {} hit indices passed the energy cut, but only {} unique "
+    error("CalorimeterIslandCluster: {} hit indices passed the energy cut, but only {} unique "
           "indices were inserted into the set (some hits are equivalent in layer/ObjectID.index).",
           expected_indices, indices.size());
   }
