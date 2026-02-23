@@ -14,6 +14,8 @@
 #include "algorithms/interfaces/WithPodConfig.h"
 #include "algorithms/particle/ParticleConverterConfig.h"
 
+#include "services/particle/ParticleSvc.h"
+
 // Class definition
 namespace eicrecon {
 // Define an "alias" for the templated algorithms constructor
@@ -36,6 +38,8 @@ public:
 private:
   // Services and calibrations here!
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+
+  const algorithms::ParticleSvc& m_particleSvc = algorithms::ParticleSvc::instance();
 
   const dd4hep::rec::CellIDPositionConverter* m_converter{
       algorithms::GeoSvc::instance().cellIDPositionConverter()};
