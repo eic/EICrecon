@@ -23,7 +23,13 @@ using ParticleConverterAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection>,
                           algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
-// Define the class of particle converter which uses as a base the algorithms class
+// ==========================================================================
+//! Candidate-to-particle converter
+// ==========================================================================
+/*! An algorithm which takes a collection of candidate particles and
+ *  converts them to fully reconstructed particles. Computes kinematics
+ *  and applies a preliminary PID based on information present.
+ */
 class ParticleConverter : public ParticleConverterAlgorithm,
                           public WithPodConfig<ParticleConverterConfig> {
 public:
