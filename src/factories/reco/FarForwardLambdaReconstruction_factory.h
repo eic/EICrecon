@@ -48,18 +48,11 @@ public:
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process(
-      
-      {
-        m_hcal_neutrals_input(),
-        m_b0_neutrals_input(), 
-        m_ecalendcapp_neutrals_input(),
-        m_lfhcal_neutrals_input()
-      },
-      
-      {
-        m_lambda_output().get(), 
-        m_lambda_decay_products_cm_output().get()
-      });
+
+        {m_hcal_neutrals_input(), m_b0_neutrals_input(), m_ecalendcapp_neutrals_input(),
+         m_lfhcal_neutrals_input()},
+
+        {m_lambda_output().get(), m_lambda_decay_products_cm_output().get()});
   }
 };
 

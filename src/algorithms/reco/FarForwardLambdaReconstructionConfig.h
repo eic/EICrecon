@@ -14,7 +14,7 @@ struct FarForwardLambdaReconstructionConfig {
   double globalToProtonRotation = -0.025;
   /** maximum deviation between reconstructed mass and PDG mass */
   double lambdaMassWindow = 0.30;
-  double pi0Window = 0.30;
+  double pi0Window        = 0.30;
   /** number of iterations for the IDOLA algorithm */
   int iterations = 10;
 };

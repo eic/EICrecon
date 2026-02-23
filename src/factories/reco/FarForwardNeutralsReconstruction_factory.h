@@ -37,18 +37,18 @@ private:
                                                               config().neutronScaleCorrCoeffHcal};
   ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_hcal{this, "gammaScaleCorrCoeffHcal",
                                                                   config().gammaScaleCorrCoeffHcal};
-  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_b0ecal{this, "neutronScaleCorrCoeffB0Ecal",
-                                                                  config().neutronScaleCorrCoeffB0Ecal};
-  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_b0ecal{this, "gammaScaleCorrCoeffB0Ecal",
-                                                                  config().gammaScaleCorrCoeffB0Ecal};
-  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_ecalendcapp{this, "neutronScaleCorrCoeffEcalEndcapP",
-                                                                  config().neutronScaleCorrCoeffEcalEndcapP};
-  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_ecalendcapp{this, "gammaScaleCorrCoeffEcalEndcapP",
-                                                                  config().gammaScaleCorrCoeffEcalEndcapP};
-  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_lfhcal{this, "neutronScaleCorrCoeffLFHCAL",
-                                                                  config().neutronScaleCorrCoeffLFHCAL};
-  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_lfhcal{this, "gammaScaleCorrCoeffLFHCAL",
-                                                                  config().gammaScaleCorrCoeffLFHCAL};
+  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_b0ecal{
+      this, "neutronScaleCorrCoeffB0Ecal", config().neutronScaleCorrCoeffB0Ecal};
+  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_b0ecal{
+      this, "gammaScaleCorrCoeffB0Ecal", config().gammaScaleCorrCoeffB0Ecal};
+  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_ecalendcapp{
+      this, "neutronScaleCorrCoeffEcalEndcapP", config().neutronScaleCorrCoeffEcalEndcapP};
+  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_ecalendcapp{
+      this, "gammaScaleCorrCoeffEcalEndcapP", config().gammaScaleCorrCoeffEcalEndcapP};
+  ParameterRef<std::vector<double>> m_n_scale_corr_coeff_lfhcal{
+      this, "neutronScaleCorrCoeffLFHCAL", config().neutronScaleCorrCoeffLFHCAL};
+  ParameterRef<std::vector<double>> m_gamma_scale_corr_coeff_lfhcal{
+      this, "gammaScaleCorrCoeffLFHCAL", config().gammaScaleCorrCoeffLFHCAL};
   ParameterRef<double> m_global_to_proton_rotation{this, "globalToProtonRotation",
                                                    config().globalToProtonRotation};
   ParameterRef<double> m_gamma_zmax_offset{this, "gammaZMaxOffset", config().gammaZMaxOffset};
