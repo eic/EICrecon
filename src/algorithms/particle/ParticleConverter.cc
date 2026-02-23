@@ -59,7 +59,18 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     // Step 1 : Assign preliminary PID
 
     // Looking for tracks
-    for (auto track : particle.getTracks()) {
+    std::size_t nTracks = particle.getTracks().size();
+    edm4eic::Track track;
+
+    if (nTracks > 0) {
+      if (nTracks > 1) {
+        trace("Particle candidate {} has {} related tracks. Using first.", particle.getObjectID().index, nTracks);
+      }
+
+      track = particle.getTracks()[0];
+    }
+
+    if (track.getChi2() > 0) {
       hasTrack = true;
 
       prelim_pid            = particle.getPDG();
