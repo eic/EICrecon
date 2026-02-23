@@ -256,11 +256,9 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
   std::vector<std::list<std::size_t>> groups;
   // because indices changes, the loop over indices requires some care:
   // - we must use iterators instead of range-for
-  // - erase returns an incremented iterator and therefore acts as idx++
-  // - when the set becomes empty on erase, idx is invalid and idx++ will be too
-  for (auto idx = indices.begin(); idx != indices.end();
-       indices.empty() ? idx = indices.end() : idx) {
-
+  // - erase returns the next iterator (or indices.end()) and therefore acts as idx++
+  // - the loop header has no increment clause; all iterator advancement is handled in the body
+  for (auto idx = indices.begin(); idx != indices.end(); ) {
     {
       const auto& hit = (*hits)[*idx];
       debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, "

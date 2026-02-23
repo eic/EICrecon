@@ -81,8 +81,7 @@ private:
     // loop over group as it grows, until the end is stable and we reach it
     for (auto idx1 = group.begin(); idx1 != group.end(); ++idx1) {
       // check neighbours (note comments on loop over set in process function)
-      for (auto idx2 = indices.begin(); idx2 != indices.end();
-           indices.empty() ? idx2 = indices.end() : idx2) {
+      for (auto idx2 = indices.begin(); idx2 != indices.end(); ) {
 
         // skip idx1 and original idx
         // (we cannot erase idx since it would invalidate iterator in calling scope)
