@@ -64,7 +64,8 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
     if (nTracks > 0) {
       if (nTracks > 1) {
-        trace("Particle candidate {} has {} related tracks. Using first.", particle.getObjectID().index, nTracks);
+        trace("Particle candidate {} has {} related tracks. Using first.",
+              particle.getObjectID().index, nTracks);
       }
 
       track = particle.getTracks()[0];
