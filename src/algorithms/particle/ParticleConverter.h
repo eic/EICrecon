@@ -30,7 +30,7 @@ public:
   // Constructor of ParticleConverter inherits from the constructor of ParticleConverterAlgorithm
   ParticleConverter(std::string_view name)
       : ParticleConverterAlgorithm(name, {"inputRecoParticles"}, {"outputRecoParticles"},
-                                   "Particles as such (?)") {};
+                                   "Converters particle candidates (charged or neutral) into fully reconstructed particles.") {};
 
   void init() final {};
   void process(const Input&, const Output&) const final;
