@@ -75,7 +75,7 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
       prelim_pid            = particle.getPDG();
       track_mass            = particle.getMass();
-      track_momentum_vector = particle.getMomentum();
+      track_momentum_vector = track.getMomentum();
 
       track_momentum_mag =
           std::sqrt(std::pow(track_momentum_vector.x, 2) + std::pow(track_momentum_vector.y, 2) +
