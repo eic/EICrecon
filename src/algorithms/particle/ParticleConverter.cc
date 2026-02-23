@@ -168,19 +168,13 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
     edm4eic::MutableReconstructedParticle out_reco_particle = particle.clone();
 
-    out_reco_particle.setEnergy(estimated_energy);
+    // TODO: momentum has to be calculated for the calo case!
     out_reco_particle.setMomentum(edm4hep::Vector3f(
         track_momentum_vector.x, track_momentum_vector.y, track_momentum_vector.z));
-    out_reco_particle.setReferencePoint(particle.getReferencePoint());
-
-    out_reco_particle.setCharge(particle.getCharge());
+    out_reco_particle.setEnergy(estimated_energy);
+    out_reco_particle.setCharge(m_particleSvc.particle(prelim_pid).charge);
     out_reco_particle.setMass(mass_calculated);
-    out_reco_particle.setGoodnessOfPID(particle.getGoodnessOfPID());
-    out_reco_particle.setCovMatrix(particle.getCovMatrix());
     out_reco_particle.setPDG(prelim_pid);
-
-    out_reco_particle.setStartVertex(particle.getStartVertex());
-    out_reco_particle.setParticleIDUsed(particle.getParticleIDUsed());
 
     out_particles->push_back(out_reco_particle);
   }
