@@ -155,14 +155,16 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     if (!hasTrack) {
       estimated_energy = calo_energy;
     } else if (hasECal || hasHCal) {
-      estimated_energy = (weight_trackingResolution * track_energy + weight_caloResolution * calo_energy) /
-        normalization;
+      estimated_energy =
+          (weight_trackingResolution * track_energy + weight_caloResolution * calo_energy) /
+          normalization;
     } else {
       estimated_energy = track_energy;
     }
 
     // Step 4 : Store information on a mutable collection
-    double mass_calculated = std::sqrt(std::pow(estimated_energy, 2) - std::pow(track_momentum_mag, 2));
+    double mass_calculated =
+        std::sqrt(std::pow(estimated_energy, 2) - std::pow(track_momentum_mag, 2));
 
     edm4eic::MutableReconstructedParticle out_reco_particle = particle.clone();
 
