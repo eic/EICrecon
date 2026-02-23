@@ -238,10 +238,18 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
   // been assigned to a group yet
   std::set<std::size_t, decltype(compare)> indices(compare);
   // only include hits with sufficient energy for clustering
+  std::size_t expected_indices = 0;
   for (std::size_t i = 0; i < hits->size(); ++i) {
     if ((*hits)[i].getEnergy() >= m_cfg.minClusterHitEdep) {
       indices.insert(i);
+      ++expected_indices;
     }
+  }
+  // verify that no indices were dropped due to equivalence in the set comparator
+  if (indices.size() != expected_indices) {
+    debug("CalorimeterIslandCluster: {} hit indices passed the energy cut, but only {} unique "
+          "indices were inserted into the set (some hits are equivalent in layer/ObjectID.index).",
+          expected_indices, indices.size());
   }
 
   // group neighboring hits
