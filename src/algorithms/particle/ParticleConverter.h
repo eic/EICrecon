@@ -18,7 +18,6 @@
 
 // Class definition
 namespace eicrecon {
-// Define an "alias" for the templated algorithms constructor
 using ParticleConverterAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection>,
                           algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
