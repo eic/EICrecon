@@ -258,7 +258,7 @@ void CalorimeterIslandCluster::process(const CalorimeterIslandCluster::Input& in
   // - we must use iterators instead of range-for
   // - erase returns the next iterator (or indices.end()) and therefore acts as idx++
   // - the loop header has no increment clause; all iterator advancement is handled in the body
-  for (auto idx = indices.begin(); idx != indices.end(); ) {
+  for (auto idx = indices.begin(); idx != indices.end();) {
     {
       const auto& hit = (*hits)[*idx];
       debug("hit {:d}: energy = {:.4f} MeV, local = ({:.4f}, {:.4f}) mm, global=({:.4f}, {:.4f}, "
