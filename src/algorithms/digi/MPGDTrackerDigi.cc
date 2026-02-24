@@ -281,11 +281,11 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     double lpos[3], eDep, time;
     std::vector<std::uint64_t> cIDs;
     const auto& shape = refVol.solid();
-    if (!strcmp(shape.type(), "TGeoTubeSeg")) {
+    if (std::string_view(shape.type()) == "TGeoTubeSeg") {
       // ********** TUBE GEOMETRY
       if (!cCoalesceExtend(input, idx, cIDs, lpos, eDep, time))
         continue;
-    } else if (!strcmp(shape.type(), "TGeoBBox")) {
+    } else if (std::string_view(shape.type()) == "TGeoBBox") {
       // ********** BOX GEOMETRY
       if (!bCoalesceExtend(input, idx, cIDs, lpos, eDep, time))
         continue;
@@ -408,7 +408,7 @@ void MPGDTrackerDigi::parseIDDescriptor() {
     const BitFieldElement& fieldElement = (*m_id_dec)[fieldName];
     CellID fieldBits                    = fieldID << fieldElement.offset();
     m_volumeBits |= fieldBits;
-    if (!strcmp(fieldName, "strip")) {
+    if (std::string_view(fieldName) == "strip") {
       m_stripBits = fieldBits;
       // SUBVOLUMES are assigned specific bits by convention
       CellID bits[5] = {0x3, 0x1, 0, 0x2, 0x4};
@@ -1682,7 +1682,7 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, int direction, double* lpi
     CellID vIDE     = refID | m_stripIDs[rankE];
     DetElement volE = volman.lookupDetElement(vIDE);
     double lext[3];
-    if (!strcmp(shape.type(), "TGeoTubeSeg")) {
+    if (std::string_view(shape.type()) == "TGeoTubeSeg") {
       const Tube& tExt = volE.solid();
       double R         = rankE == 0 ? tExt.rMin() : tExt.rMax();
       double startPhi  = tExt.startPhi() * radian;
@@ -1691,7 +1691,7 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, int direction, double* lpi
       endPhi -= 2 * TMath::Pi();
       double dZ = tExt.dZ();
       status    = cExtension(lpoE, lmoE, R, direction, dZ, startPhi, endPhi, lext);
-    } else if (!strcmp(shape.type(), "TGeoBBox")) {
+    } else if (std::string_view(shape.type()) == "TGeoBBox") {
       double ref2E    = getRef2Cur(refVol, volE);
       const Box& bExt = volE.solid();
       double Z        = rankE == 0 ? -bExt.z() : +bExt.z();
