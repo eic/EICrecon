@@ -61,9 +61,22 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
     }
 
     // Choose generation based on property
-    if (m_generation.value() == 1) {
-      // Gen1: Auto-detection
-      info("Creating Acts geometry using Gen1 (auto-detection)");
+    int generation = m_generation.value();
+
+    // Auto-detect if generation is 0
+    if (generation == 0) {
+#if HAS_GEN3_SUPPORT
+      info("Auto-detecting Acts geometry generation: Gen3 available, using Gen3");
+      generation = 3;
+#else
+      info("Auto-detecting Acts geometry generation: Gen3 not available, using Gen1");
+      generation = 1;
+#endif
+    }
+
+    if (generation == 1) {
+      // Gen1: Explicit selection
+      info("Creating Acts geometry using Gen1");
 
       eicrecon::ActsDD4hepDetectorGen1::Config cfg;
       cfg.setDD4hepDetector(dd4hep_detector);
@@ -76,7 +89,7 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
 
       m_acts_detector = std::make_shared<eicrecon::ActsDD4hepDetectorGen1>(cfg);
 
-    } else if (m_generation.value() == 3) {
+    } else if (generation == 3) {
 #if HAS_GEN3_SUPPORT
       // Gen3: Blueprint
       info("Creating Acts geometry using Gen3 (blueprint)");
@@ -89,14 +102,15 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
 
       m_acts_detector = std::make_shared<eicrecon::ActsDD4hepDetectorGen3>(cfg);
 #else
-      throw std::runtime_error("Gen3 (Blueprint) geometry requested but not available. "
-                               "This version of Acts does not include BlueprintBuilder support. "
-                               "Please use Generation=1 or upgrade to Acts v46 or later.");
+      throw std::runtime_error(
+          "Gen3 (Blueprint) geometry requested but not available. "
+          "This version of Acts does not include BlueprintBuilder support. "
+          "Please use Generation=0 or Generation=1, or upgrade to Acts v46 or later.");
 #endif
 
     } else {
-      throw std::runtime_error("Invalid Acts generation: " + std::to_string(m_generation.value()) +
-                               " (must be 1 or 3)");
+      throw std::runtime_error("Invalid Acts generation: " + std::to_string(generation) +
+                               " (must be 0, 1, or 3)");
     }
 
     info("Acts geometry created successfully with {} surfaces",
