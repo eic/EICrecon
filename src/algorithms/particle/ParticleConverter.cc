@@ -260,7 +260,8 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     edm4eic::MutableReconstructedParticle out_reco_particle = particle.clone();
 
     if (std::isnan(reconstructed_mass)) {
-      debug("Mass of this particle was NaN -> M2 = {}", std::pow(reconstructed_energy, 2) - std::pow(reconstructed_momentum_mag, 2));
+      debug("Mass of this particle was NaN -> M2 = {}",
+            std::pow(reconstructed_energy, 2) - std::pow(reconstructed_momentum_mag, 2));
     }
 
     if (hasTrack && track_momentum_vector.x == 0) {
