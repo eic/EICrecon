@@ -7,6 +7,7 @@
 
 #include "ActsDD4hepDetectorGen3.h"
 
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/LayerBlueprintNode.hpp>
 #include <Acts/Geometry/Blueprint.hpp>
 #include <Acts/Geometry/BlueprintOptions.hpp>
