@@ -9,6 +9,8 @@
 #include <edm4eic/VertexCollection.h>
 #include <edm4eic/Vertex.h>
 #include <edm4eic/MutableReconstructedParticle.h>
+#include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 
 #include "ParticleConverter.h"
 
@@ -101,9 +103,7 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
       trackEnergy = std::sqrt(std::pow(trackMomentumMag, 2) + std::pow(trackMass, 2));
 
-      reconstructedMomentum.x = trackMomentum.x;
-      reconstructedMomentum.y = trackMomentum.y;
-      reconstructedMomentum.z = trackMomentum.z;
+      reconstructedMomentum = trackMomentum;
     }
 
     // Looking for clusters
@@ -228,11 +228,8 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
       neutralParticleDirection.z = hcalClusterPosition.z - primaryVertex.z;
     }
 
-    if (neutralParticleDirection.x != 0 && neutralParticleDirection.y != 0 &&
-        neutralParticleDirection.z != 0) {
-      double magNeutralDirection = std::sqrt(std::pow(neutralParticleDirection.x, 2) +
-                                             std::pow(neutralParticleDirection.y, 2) +
-                                             std::pow(neutralParticleDirection.z, 2));
+    if (edm4hep::utils::magnitude(neutralParticleDirection) != 0) {
+      double magNeutralDirection = edm4hep::utils::magnitude(neutralParticleDirection);
 
       neutralParticleDirection.x /= magNeutralDirection;
       neutralParticleDirection.y /= magNeutralDirection;
@@ -249,9 +246,7 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     }
 
     // Step 6: write on the out output collection
-    double reconstructedMomentumMag =
-        std::sqrt(std::pow(reconstructedMomentum.x, 2) + std::pow(reconstructedMomentum.y, 2) +
-                  std::pow(reconstructedMomentum.z, 2));
+    double reconstructedMomentumMag = edm4hep::utils::magnitude(reconstructedMomentum);
 
     double reconstructedMass =
         std::sqrt(std::pow(reconstructedEnergy, 2) - std::pow(reconstructedMomentumMag, 2));
