@@ -149,7 +149,7 @@ void MPGDTrackerDigi::init() {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
     m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
   } catch (const std::runtime_error&) {
-    critical(R"(Failed to load ID decoder for "{}" readout.)", m_cfg.readout);
+    error(R"(Failed to load ID decoder for "{}" readout.)", m_cfg.readout);
     throw std::runtime_error("Failed to load ID decoder");
   }
 
@@ -252,7 +252,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   const Position dummy(0, 0, 0);
   const VolumeManager& volman = m_detector->volumeManager();
 
-  // Reference to event, to be used to document "critical" error messages
+  // Reference to event, to be used to document error messages
   // (N.B.: I don't know how to properly handle these "headers": may there
   // be more than one? none?...)
   const edm4hep::EventHeader& header = headers->at(0);
@@ -290,7 +290,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       if (!bCoalesceExtend(input, idx, cIDs, lpos, eDep, time))
         continue;
     } else {
-      critical(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
+      error(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
       throw std::runtime_error(R"(Inconsistency: Inappropriate SimHits fed to "MPGDTrackerDigi".)");
     }
     // ***** CELLIDS of (p|n)-STRIP HITS
@@ -363,7 +363,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     CellID stripID = item.first;
     const auto is  = stripID2cIDs.find(stripID);
     if (is == stripID2cIDs.end()) {
-      critical(R"(Inconsistency: CellID {:x} not found in "stripID2cIDs" map)", stripID);
+      error(R"(Inconsistency: CellID {:x} not found in "stripID2cIDs" map)", stripID);
       throw std::runtime_error(R"(Inconsistency in the handling of "stripID2cIDs" map)");
     }
     std::vector<std::uint64_t> cIDs = is->second;
@@ -401,8 +401,8 @@ void MPGDTrackerDigi::parseIDDescriptor() {
     CellID fieldID        = 0;
     try {
       fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
-    } catch (const std::runtime_error& error) {
-      critical(R"(No field "{}" in IDDescriptor of readout "{}".)", fieldName, m_cfg.readout);
+    } catch (const std::runtime_error&) {
+      error(R"(No field "{}" in IDDescriptor of readout "{}".)", fieldName, m_cfg.readout);
       throw std::runtime_error("Invalid IDDescriptor");
     }
     const BitFieldElement& fieldElement = (*m_id_dec)[fieldName];
@@ -455,7 +455,7 @@ void MPGDTrackerDigi::parseSegmentation() {
     }
   }
   if (!ok) {
-    critical(
+    error(
         R"(Segmentation for readout "{}" is not, or is not embedding, a MultiSegmentation discriminating on a "strip" field.)",
         m_cfg.readout.c_str());
     throw std::runtime_error("Invalid Segmentation");
@@ -519,7 +519,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
       cTraversing(lpos, lmom, sim_hit.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
                   rMin, rMax, dZ, startPhi, endPhi, lintos, louts, lpini, lpend);
   if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hit"
-    critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
+    error(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
     return false;
   }
   cIDs.push_back(sim_hit.getCellID());
@@ -578,7 +578,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
           cTraversing(lpoj, lmoj, sim_hjt.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
                       rMin, rMax, dZ, startPhi, endPhi, ljns, lovts, lpjni, lpfnd);
       if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
-        critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
+        error(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
         break;
       }
       // ij-Compatibility: status
@@ -700,7 +700,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
       bTraversing(lpos, lmom, ref2Cur, sim_hit.getPathLength() * ed2dd,
                   sim_hit.isProducedBySecondary(), dZ, dX, dY, lintos, louts, lpini, lpend);
   if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hit"
-    critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
+    error(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
     return false;
   }
   cIDs.push_back(sim_hit.getCellID());
@@ -748,7 +748,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
       status = bTraversing(lpoj, lmoj, ref2j, sim_hjt.getPathLength() * ed2dd,
                            sim_hit.isProducedBySecondary(), dZ, dX, dY, ljns, lovts, lpjni, lpfnd);
       if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
-        critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
+        error(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
         break;
       }
       // ij-Compatibility: status
@@ -1699,7 +1699,7 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, int direction, double* lpi
       double dX = bExt.x(), dY = bExt.y();
       status = bExtension(lpoE, lmoE, Z, direction, dX, dY, lext);
     } else {
-      critical(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
+      error(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
       throw std::runtime_error(R"(Inconsistency: Inappropriate SimHits fed to "MPGDTrackerDigi".)");
     }
     if (status != 0x1)
