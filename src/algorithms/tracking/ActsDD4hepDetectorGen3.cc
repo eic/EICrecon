@@ -121,16 +121,13 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("VertexBarrel_layer\\d")
           .setContainer("VertexBarrel")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem, auto& layer) {
-            layer.setNavigationPolicyFactory(
-                NavigationPolicyFactory{}
-                    .add<CylinderNavigationPolicy>()
-                    .add<SrfArrayNavPol>(SrfArrayNavPol::Config{
-                        .layerType = SrfArrayNavPol::LayerType::Cylinder,
-                        .bins =
-                            makeBinningFromConstants(elem, std::regex{"VertexBarrel_layer(\\d)"},
-                                                     "VertexBarrelL{}_nphi", "VertexBarrelL{}_nz")})
-                    .asUniquePtr());
+          .customize([&](const dd4hep::DetElement& elem,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
+                                                  .add<CylinderNavigationPolicy>()
+                                                  .add<TryAllNavigationPolicy>()
+                                                  .asUniquePtr());
+            return layer;
           })
           .build();
   VertexBarrel->setAttachmentStrategy(AttachmentStrategy::First);
@@ -145,14 +142,13 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("SagittaSiBarrel_layer\\d")
           .setContainer("SagittaSiBarrel")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem, auto& layer) {
-            layer.setNavigationPolicyFactory(
-                NavigationPolicyFactory{}
-                    .add<CylinderNavigationPolicy>()
-                    .add<SrfArrayNavPol>(
-                        SrfArrayNavPol::Config{.layerType = SrfArrayNavPol::LayerType::Cylinder,
-                                               .bins = {constant("SiBarrelStave1_count"), 100}})
-                    .asUniquePtr());
+          .customize([&](const dd4hep::DetElement& elem,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
+                                                  .add<CylinderNavigationPolicy>()
+                                                  .add<TryAllNavigationPolicy>()
+                                                  .asUniquePtr());
+            return layer;
           })
           .build();
   SagittaSiBarrel->setAttachmentStrategy(AttachmentStrategy::First);
@@ -167,25 +163,22 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("OuterSiBarrel_layer\\d")
           .setContainer("OuterSiBarrel")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem, auto& layer) {
-            layer.setNavigationPolicyFactory(
-                NavigationPolicyFactory{}
-                    .add<CylinderNavigationPolicy>()
-                    .add<SrfArrayNavPol>(SrfArrayNavPol::Config{
-                        .layerType = SrfArrayNavPol::LayerType::Cylinder, .bins = {128, 100}})
-                    .asUniquePtr());
+          .customize([&](const dd4hep::DetElement& elem,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
+                                                  .add<CylinderNavigationPolicy>()
+                                                  .add<TryAllNavigationPolicy>()
+                                                  .asUniquePtr());
+            return layer;
           })
           .build();
   OuterSiBarrel->setAttachmentStrategy(AttachmentStrategy::First);
 
   // endcapPolicyFactory
-  std::shared_ptr SiTrackerEndcapPolicyFactory =
-      NavigationPolicyFactory{}
-          .add<CylinderNavigationPolicy>()
-          .add<SrfArrayNavPol>(
-              SrfArrayNavPol::Config{.layerType = SrfArrayNavPol::LayerType::Disc,
-                                     .bins      = {5 * constant("SiTrackerEndcapMod_count"), 100}})
-          .asUniquePtr();
+  std::shared_ptr SiTrackerEndcapPolicyFactory = NavigationPolicyFactory{}
+                                                     .add<CylinderNavigationPolicy>()
+                                                     .add<TryAllNavigationPolicy>()
+                                                     .asUniquePtr();
 
   // InnerTrackerEndcapP
   auto InnerTrackerEndcapP =
@@ -195,8 +188,10 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("InnerTrackerEndcapP_layer\\d_P")
           .setContainer("InnerTrackerEndcapP")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement&, auto& layer) {
-            layer.setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+          .customize([&](const dd4hep::DetElement&,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+            return layer;
           })
           .build();
   InnerTrackerEndcapP->setAttachmentStrategy(AttachmentStrategy::First);
@@ -209,8 +204,10 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("InnerTrackerEndcapN_layer\\d_N")
           .setContainer("InnerTrackerEndcapN")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement&, auto& layer) {
-            layer.setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+          .customize([&](const dd4hep::DetElement&,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+            return layer;
           })
           .build();
   InnerTrackerEndcapN->setAttachmentStrategy(AttachmentStrategy::First);
@@ -223,8 +220,10 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("MiddleTrackerEndcapP_layer\\d_P")
           .setContainer("MiddleTrackerEndcapP")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement&, auto& layer) {
-            layer.setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+          .customize([&](const dd4hep::DetElement&,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+            return layer;
           })
           .build();
   MiddleTrackerEndcapP->setAttachmentStrategy(AttachmentStrategy::First);
@@ -237,8 +236,10 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("MiddleTrackerEndcapN_layer\\d_N")
           .setContainer("MiddleTrackerEndcapN")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement&, auto& layer) {
-            layer.setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+          .customize([&](const dd4hep::DetElement&,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+            return layer;
           })
           .build();
   MiddleTrackerEndcapN->setAttachmentStrategy(AttachmentStrategy::First);
@@ -251,8 +252,10 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("OuterTrackerEndcapP_layer\\d_P")
           .setContainer("OuterTrackerEndcapP")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement&, auto& layer) {
-            layer.setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+          .customize([&](const dd4hep::DetElement&,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+            return layer;
           })
           .build();
   OuterTrackerEndcapP->setAttachmentStrategy(AttachmentStrategy::First);
@@ -265,20 +268,19 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("OuterTrackerEndcapN_layer\\d_N")
           .setContainer("OuterTrackerEndcapN")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement&, auto& layer) {
-            layer.setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+          .customize([&](const dd4hep::DetElement&,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(SiTrackerEndcapPolicyFactory);
+            return layer;
           })
           .build();
   OuterTrackerEndcapN->setAttachmentStrategy(AttachmentStrategy::First);
 
   // ForwardMPGD
-  std::shared_ptr ForwardMPGDPolicyFactory =
-      NavigationPolicyFactory{}
-          .add<CylinderNavigationPolicy>()
-          .add<SrfArrayNavPol>(
-              SrfArrayNavPol::Config{.layerType = SrfArrayNavPol::LayerType::Disc,
-                                     .bins      = {constant("ForwardMPGDEndcapMod_count"), 30}})
-          .asUniquePtr();
+  std::shared_ptr ForwardMPGDPolicyFactory = NavigationPolicyFactory{}
+                                                 .add<CylinderNavigationPolicy>()
+                                                 .add<TryAllNavigationPolicy>()
+                                                 .asUniquePtr();
   auto ForwardMPGD =
       builder.layerHelper()
           .endcap()
@@ -286,20 +288,19 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("ForwardMPGD_layer\\d_P")
           .setContainer("ForwardMPGD")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement&, auto& layer) {
-            layer.setNavigationPolicyFactory(ForwardMPGDPolicyFactory);
+          .customize([&](const dd4hep::DetElement&,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(ForwardMPGDPolicyFactory);
+            return layer;
           })
           .build();
   ForwardMPGD->setAttachmentStrategy(AttachmentStrategy::First);
 
   // BackwardMPGD
-  std::shared_ptr BackwardMPGDPolicyFactory =
-      NavigationPolicyFactory{}
-          .add<CylinderNavigationPolicy>()
-          .add<SrfArrayNavPol>(
-              SrfArrayNavPol::Config{.layerType = SrfArrayNavPol::LayerType::Disc,
-                                     .bins      = {constant("BackwardMPGDEndcapMod_count"), 50}})
-          .asUniquePtr();
+  std::shared_ptr BackwardMPGDPolicyFactory = NavigationPolicyFactory{}
+                                                  .add<CylinderNavigationPolicy>()
+                                                  .add<TryAllNavigationPolicy>()
+                                                  .asUniquePtr();
   auto BackwardMPGD =
       builder.layerHelper()
           .endcap()
@@ -307,8 +308,10 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("BackwardMPGD_layer\\d_N")
           .setContainer("BackwardMPGD")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement&, auto& layer) {
-            layer.setNavigationPolicyFactory(BackwardMPGDPolicyFactory);
+          .customize([&](const dd4hep::DetElement&,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(BackwardMPGDPolicyFactory);
+            return layer;
           })
           .build();
   BackwardMPGD->setAttachmentStrategy(AttachmentStrategy::First);
@@ -321,14 +324,13 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("InnerMPGDBarrel_layer\\d")
           .setContainer("InnerMPGDBarrel")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem, auto& layer) {
-            layer.setNavigationPolicyFactory(
-                NavigationPolicyFactory{}
-                    .add<CylinderNavigationPolicy>()
-                    .add<SrfArrayNavPol>(SrfArrayNavPol::Config{
-                        .layerType = SrfArrayNavPol::LayerType::Cylinder,
-                        .bins      = {24 * constant("MPGDBarrelStave_count"), 100}})
-                    .asUniquePtr());
+          .customize([&](const dd4hep::DetElement& elem,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
+                                                  .add<CylinderNavigationPolicy>()
+                                                  .add<TryAllNavigationPolicy>()
+                                                  .asUniquePtr());
+            return layer;
           })
           .build();
   InnerMPGDBarrel->setAttachmentStrategy(AttachmentStrategy::First);
@@ -341,14 +343,13 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("BarrelTOF_layer\\d")
           .setContainer("BarrelTOF")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem, auto& layer) {
-            layer.setNavigationPolicyFactory(
-                NavigationPolicyFactory{}
-                    .add<CylinderNavigationPolicy>()
-                    .add<SrfArrayNavPol>(
-                        SrfArrayNavPol::Config{.layerType = SrfArrayNavPol::LayerType::Cylinder,
-                                               .bins = {constant("BarrelTOF_Module_nphi"), 100}})
-                    .asUniquePtr());
+          .customize([&](const dd4hep::DetElement& elem,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
+                                                  .add<CylinderNavigationPolicy>()
+                                                  .add<TryAllNavigationPolicy>()
+                                                  .asUniquePtr());
+            return layer;
           })
           .build();
   BarrelTOF->setAttachmentStrategy(AttachmentStrategy::First);
@@ -361,26 +362,23 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("MPGDOuterBarrel_layer\\d")
           .setContainer("MPGDOuterBarrel")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement& elem, auto& layer) {
-            layer.setNavigationPolicyFactory(
-                NavigationPolicyFactory{}
-                    .add<CylinderNavigationPolicy>()
-                    .add<SrfArrayNavPol>(SrfArrayNavPol::Config{
-                        .layerType = SrfArrayNavPol::LayerType::Cylinder,
-                        .bins      = {10 * constant("MPGDOuterBarrelModule_count"), 100}})
-                    .asUniquePtr());
+          .customize([&](const dd4hep::DetElement& elem,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(NavigationPolicyFactory{}
+                                                  .add<CylinderNavigationPolicy>()
+                                                  .add<TryAllNavigationPolicy>()
+                                                  .asUniquePtr());
+            return layer;
           })
           .build();
   MPGDOuterBarrel->setAttachmentStrategy(AttachmentStrategy::First);
 
   // ForwardTOF
   // FIXME Volumes are not aligned: translation in x or y
-  std::shared_ptr ForwardTOFPolicyFactory =
-      NavigationPolicyFactory{}
-          .add<CylinderNavigationPolicy>()
-          .add<SrfArrayNavPol>(SrfArrayNavPol::Config{.layerType = SrfArrayNavPol::LayerType::Disc,
-                                                      .bins      = {30, 30}})
-          .asUniquePtr();
+  std::shared_ptr ForwardTOFPolicyFactory = NavigationPolicyFactory{}
+                                                .add<CylinderNavigationPolicy>()
+                                                .add<TryAllNavigationPolicy>()
+                                                .asUniquePtr();
   auto ForwardTOF =
       builder.layerHelper()
           .endcap()
@@ -390,9 +388,11 @@ void ActsDD4hepDetectorGen3::construct() {
           // ^ FIXME LayerBlueprintNode: no surfaces provided for ForwardTOF_layer2
           .setContainer("ForwardTOF")
           .setEnvelope(Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
-          .customize([&](const dd4hep::DetElement&, auto& layer) {
-            layer.setUseCenterOfGravity(false, false, true);
-            layer.setNavigationPolicyFactory(ForwardTOFPolicyFactory);
+          .customize([&](const dd4hep::DetElement&,
+                         std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setUseCenterOfGravity(false, false, true);
+            layer->setNavigationPolicyFactory(ForwardTOFPolicyFactory);
+            return layer;
           })
           .build();
   ForwardTOF->setAttachmentStrategy(AttachmentStrategy::First);
@@ -403,9 +403,7 @@ void ActsDD4hepDetectorGen3::construct() {
   std::shared_ptr B0TrackerPolicyFactory =
       NavigationPolicyFactory{}
           .add<CylinderNavigationPolicy>()
-          .add<SrfArrayNavPol>(SrfArrayNavPol::Config{
-              .layerType = SrfArrayNavPol::LayerType::Disc,
-              .bins = {2*constant("B0TrackerLayerSmallMod_nModules"), 12}})
+          .add<TryAllNavigationPolicy>()
           .asUniquePtr();
   auto B0Tracker =
       builder.layerHelper()
@@ -414,9 +412,10 @@ void ActsDD4hepDetectorGen3::construct() {
           .setPattern("B0Tracker_layer\\d")
           .setContainer("B0Tracker")
           .setEnvelope(
-            Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}
-          .customize([&](const dd4hep::DetElement&, auto& layer) {
-            layer.setNavigationPolicyFactory(B0TrackerPolicyFactory);
+            Acts::ExtentEnvelope{}.set(AxisZ, {5_mm, 5_mm}).set(AxisR, {5_mm, 5_mm}))
+          .customize([&](const dd4hep::DetElement&, std::shared_ptr<Acts::Experimental::LayerBlueprintNode> layer) {
+            layer->setNavigationPolicyFactory(B0TrackerPolicyFactory);
+            return layer;
           })
           .build();
   B0Tracker->setAttachmentStrategy(AttachmentStrategy::First);
