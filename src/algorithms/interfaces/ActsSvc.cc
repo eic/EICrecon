@@ -96,9 +96,10 @@ void ActsSvc::init(const dd4hep::Detector* dd4hep_detector) {
 
       eicrecon::ActsDD4hepDetectorGen3::Config cfg;
       cfg.setDD4hepDetector(dd4hep_detector);
-      cfg.name              = m_detectorName.value();
-      cfg.logLevel          = Acts::Logging::INFO;
-      cfg.materialDecorator = materialDeco;
+      cfg.name                   = m_detectorName.value();
+      cfg.logLevel               = Acts::Logging::INFO;
+      cfg.materialDecorator      = materialDeco;
+      cfg.detectorElementFactory = eicrecon::ActsDD4hepDetectorGen3::defaultDetectorElementFactory;
 
       m_acts_detector = std::make_shared<eicrecon::ActsDD4hepDetectorGen3>(cfg);
 #else

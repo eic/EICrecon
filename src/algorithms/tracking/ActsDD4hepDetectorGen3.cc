@@ -69,11 +69,13 @@ void ActsDD4hepDetectorGen3::construct() {
   using namespace Acts::UnitLiterals;
   using enum AxisDirection;
 
-  ActsPlugins::DD4hep::BlueprintBuilder builder{{
-                                                    .dd4hepDetector = &dd4hepDetector(),
-                                                    .lengthScale    = Acts::UnitConstants::cm,
-                                                },
-                                                logger().cloneWithSuffix("BlpBld")};
+  ActsPlugins::DD4hep::BlueprintBuilder builder{
+      {
+          .dd4hepDetector = &dd4hepDetector(),
+          .lengthScale    = Acts::UnitConstants::cm,
+          .elementFactory = m_gen3Cfg.detectorElementFactory,
+      },
+      logger().cloneWithSuffix("BlpBld")};
 
   // BARREL: XYZ
   // ENDCAP: XZY
