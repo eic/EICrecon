@@ -229,10 +229,11 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
       neutralParticleDirection.z = hcalClusterPosition.z - primaryVertex.z;
     }
 
-    if (neutralParticleDirection.x != 0 && neutralParticleDirection.y != 0 && neutralParticleDirection.z != 0) {
-      double magNeutralDirection =
-          std::sqrt(std::pow(neutralParticleDirection.x, 2) + std::pow(neutralParticleDirection.y, 2) +
-                    std::pow(neutralParticleDirection.z, 2));
+    if (neutralParticleDirection.x != 0 && neutralParticleDirection.y != 0 &&
+        neutralParticleDirection.z != 0) {
+      double magNeutralDirection = std::sqrt(std::pow(neutralParticleDirection.x, 2) +
+                                             std::pow(neutralParticleDirection.y, 2) +
+                                             std::pow(neutralParticleDirection.z, 2));
 
       neutralParticleDirection.x /= magNeutralDirection;
       neutralParticleDirection.y /= magNeutralDirection;
@@ -240,8 +241,8 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     }
 
     if ((hasEcal || hasHcal) && !hasTrack) {
-      double neutralsMomentumMag = std::sqrt(
-          std::pow(reconstructedEnergy, 2) - std::pow(m_particleSvc.particle(prelimPID).mass, 2));
+      double neutralsMomentumMag = std::sqrt(std::pow(reconstructedEnergy, 2) -
+                                             std::pow(m_particleSvc.particle(prelimPID).mass, 2));
 
       reconstructedMomentumVector.x = neutralParticleDirection.x * neutralsMomentumMag;
       reconstructedMomentumVector.y = neutralParticleDirection.y * neutralsMomentumMag;
@@ -267,8 +268,8 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
       debug("Track with null momentum. PID = {}", prelimPID);
       debug("Ecal  = {}", hasEcal);
       debug("Hcal  = {}", hasHcal);
-      debug("Preco = ({}, {}, {})", reconstructedMomentumVector.x,
-            reconstructedMomentumVector.y, reconstructedMomentumVector.z);
+      debug("Preco = ({}, {}, {})", reconstructedMomentumVector.x, reconstructedMomentumVector.y,
+            reconstructedMomentumVector.z);
       debug("Ptrck = ({}, {}, {})", trackMomentumVector.x, trackMomentumVector.y,
             trackMomentumVector.z);
     }
