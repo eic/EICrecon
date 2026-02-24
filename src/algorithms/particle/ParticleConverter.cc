@@ -233,9 +233,9 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     }
 
     if (neutrals_direction.x != 0 && neutrals_direction.y != 0 && neutrals_direction.z != 0) {
-      double mag_neutrals_direction = std::sqrt(std::pow(neutrals_direction.x,2) + 
-                                                std::pow(neutrals_direction.y,2) + 
-                                                std::pow(neutrals_direction.z,2));
+      double mag_neutrals_direction =
+          std::sqrt(std::pow(neutrals_direction.x, 2) + std::pow(neutrals_direction.y, 2) +
+                    std::pow(neutrals_direction.z, 2));
 
       neutrals_direction.x /= mag_neutrals_direction;
       neutrals_direction.y /= mag_neutrals_direction;
@@ -243,7 +243,8 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     }
 
     if ((hasECal || hasHCal) && !hasTrack) {
-      double neutrals_momentum_mag = std::sqrt(std::pow(reconstructed_energy,2) - std::pow(m_particleSvc.particle(prelim_pid).mass,2));
+      double neutrals_momentum_mag = std::sqrt(
+          std::pow(reconstructed_energy, 2) - std::pow(m_particleSvc.particle(prelim_pid).mass, 2));
 
       reconstructed_momentum_vector.x = neutrals_direction.x * neutrals_momentum_mag;
       reconstructed_momentum_vector.y = neutrals_direction.y * neutrals_momentum_mag;
@@ -251,15 +252,17 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     }
 
     // Step 6: write on the out output collection
-    double reconstructed_momentum_mag = std::sqrt(std::pow(reconstructed_momentum_vector.x,2) + 
-                                              std::pow(reconstructed_momentum_vector.y,2) +
-                                              std::pow(reconstructed_momentum_vector.z,2));
+    double reconstructed_momentum_mag = std::sqrt(std::pow(reconstructed_momentum_vector.x, 2) +
+                                                  std::pow(reconstructed_momentum_vector.y, 2) +
+                                                  std::pow(reconstructed_momentum_vector.z, 2));
 
-    double reconstructed_mass = std::sqrt(std::pow(reconstructed_energy, 2) - std::pow(reconstructed_momentum_mag, 2));
+    double reconstructed_mass =
+        std::sqrt(std::pow(reconstructed_energy, 2) - std::pow(reconstructed_momentum_mag, 2));
 
     edm4eic::MutableReconstructedParticle out_reco_particle = particle.clone();
 
-    debug("P = ({}, {}, {})", reconstructed_momentum_vector.x, reconstructed_momentum_vector.y, reconstructed_momentum_vector.z);
+    debug("P = ({}, {}, {})", reconstructed_momentum_vector.x, reconstructed_momentum_vector.y,
+          reconstructed_momentum_vector.z);
     debug("M = {}", reconstructed_mass);
     debug("E = {}", reconstructed_energy);
 
@@ -268,12 +271,15 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     }
 
     if (hasTrack && track_momentum_vector.x == 0) {
-      debug("Preco = ({}, {}, {})", reconstructed_momentum_vector.x, reconstructed_momentum_vector.y, reconstructed_momentum_vector.z);
-      debug("Ptrck = ({}, {}, {})", track_momentum_vector.x, track_momentum_vector.y, track_momentum_vector.z);
+      debug("Preco = ({}, {}, {})", reconstructed_momentum_vector.x,
+            reconstructed_momentum_vector.y, reconstructed_momentum_vector.z);
+      debug("Ptrck = ({}, {}, {})", track_momentum_vector.x, track_momentum_vector.y,
+            track_momentum_vector.z);
     }
 
-    out_reco_particle.setMomentum(edm4hep::Vector3f(
-        reconstructed_momentum_vector.x, reconstructed_momentum_vector.y, reconstructed_momentum_vector.z));
+    out_reco_particle.setMomentum(edm4hep::Vector3f(reconstructed_momentum_vector.x,
+                                                    reconstructed_momentum_vector.y,
+                                                    reconstructed_momentum_vector.z));
     out_reco_particle.setEnergy(reconstructed_energy);
     out_reco_particle.setCharge(m_particleSvc.particle(prelim_pid).charge);
     out_reco_particle.setMass(reconstructed_mass);
