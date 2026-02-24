@@ -22,57 +22,57 @@ namespace eicrecon {
  *    1.  Assign rough PDG code based on presence of tracks and clusters
  *      - If candidate has a track, use its associated PID
  *      - Otherwise label it as a photon or neutron based on
- *        if candidate has HCal clusters
+ *        if candidate has Hcal clusters
  *    2. Calculate track and total calorimeter energy as needed, and
  *       take weighted average
  *    3. Using mass and energy, calculate remaining kinematics
  */
 void ParticleConverter::process(const Input& input, const Output& output) const {
-  const auto [in_particles, in_vertices] = input;
-  auto [out_particles]                   = output;
+  const auto [inParticles, inVertices] = input;
+  auto [outParticles]                  = output;
 
-  if (in_particles->size() == 0) {
+  if (inParticles->size() == 0) {
     debug("No particle candidates in the input.");
 
     return;
   } else {
-    debug("There are {} particle candidates in the input.", in_particles->size());
+    debug("There are {} particle candidates in the input.", inParticles->size());
   }
 
   // NOTE1: in the no-track case, the momentum direction is estimated with the help of the primary vertex.
   // NOTE2: it is asummed the production vertex is the PV
-  edm4hep::Vector3f primary_vertex(0.0, 0.0, 0.0);
-  if (in_vertices->size() > 0) {
-    primary_vertex.x = (*in_vertices)[0].getPosition().x;
-    primary_vertex.y = (*in_vertices)[0].getPosition().y;
-    primary_vertex.z = (*in_vertices)[0].getPosition().z;
+  edm4hep::Vector3f primaryVertex(0.0, 0.0, 0.0);
+  if (inVertices->size() > 0) {
+    primaryVertex.x = (*inVertices)[0].getPosition().x;
+    primaryVertex.y = (*inVertices)[0].getPosition().y;
+    primaryVertex.z = (*inVertices)[0].getPosition().z;
   } else {
     debug("No primary vertex found. Set PV to (0,0,0).");
   }
 
-  for (const auto particle : *in_particles) {
+  for (const auto particle : *inParticles) {
     bool hasTrack = false;
-    bool hasHCal  = false;
-    bool hasECal  = false;
+    bool hasHcal  = false;
+    bool hasEcal  = false;
 
-    double prelim_pid = 0;
+    double prelimPID = 0;
 
-    double track_energy       = 0;
-    double track_mass         = 0;
-    double track_momentum_mag = 0;
+    double trackEnergy      = 0;
+    double trackMass        = 0;
+    double trackMomentumMag = 0;
 
-    double calo_energy = 0;
-    double ecal_energy = 0;
-    double hcal_energy = 0;
+    double caloEnergy = 0;
+    double ecalEnergy = 0;
+    double hcalEnergy = 0;
 
-    double reconstructed_energy = 0;
+    double reconstructedEnergy = 0;
 
-    edm4hep::Vector3f ecal_cluster_position(0.0, 0.0, 0.0);
-    edm4hep::Vector3f hcal_cluster_position(0.0, 0.0, 0.0);
+    edm4hep::Vector3f ecalClusterPosition(0.0, 0.0, 0.0);
+    edm4hep::Vector3f hcalClusterPosition(0.0, 0.0, 0.0);
 
-    edm4hep::Vector3f track_momentum_vector(0.0, 0.0, 0.0);
+    edm4hep::Vector3f trackMomentumVector(0.0, 0.0, 0.0);
 
-    edm4hep::Vector3f reconstructed_momentum_vector(0.0, 0.0, 0.0);
+    edm4hep::Vector3f reconstructedMomentumVector(0.0, 0.0, 0.0);
 
     // Step 1 : Assign preliminary PID
 
@@ -92,19 +92,19 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     if (track.getChi2() > 0) {
       hasTrack = true;
 
-      track_momentum_vector = track.getMomentum();
-      prelim_pid            = track.getPdg();
-      track_mass            = m_particleSvc.particle(prelim_pid).mass;
+      trackMomentumVector = track.getMomentum();
+      prelimPID           = track.getPdg();
+      trackMass           = m_particleSvc.particle(prelimPID).mass;
 
-      track_momentum_mag =
-          std::sqrt(std::pow(track_momentum_vector.x, 2) + std::pow(track_momentum_vector.y, 2) +
-                    std::pow(track_momentum_vector.z, 2));
+      trackMomentumMag =
+          std::sqrt(std::pow(trackMomentumVector.x, 2) + std::pow(trackMomentumVector.y, 2) +
+                    std::pow(trackMomentumVector.z, 2));
 
-      track_energy = std::sqrt(std::pow(track_momentum_mag, 2) + std::pow(track_mass, 2));
+      trackEnergy = std::sqrt(std::pow(trackMomentumMag, 2) + std::pow(trackMass, 2));
 
-      reconstructed_momentum_vector.x = track_momentum_vector.x;
-      reconstructed_momentum_vector.y = track_momentum_vector.y;
-      reconstructed_momentum_vector.z = track_momentum_vector.z;
+      reconstructedMomentumVector.x = trackMomentumVector.x;
+      reconstructedMomentumVector.y = trackMomentumVector.y;
+      reconstructedMomentumVector.z = trackMomentumVector.z;
     }
 
     // Looking for clusters
@@ -114,173 +114,174 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
         continue;
       }
 
-      const auto calo_hit = cluster.getHits()[0];
+      const auto caloHit = cluster.getHits()[0];
+      const auto cellId  = caloHit.getCellID();
 
-      const auto cell_id = calo_hit.getCellID();
-
-      const dd4hep::VolumeManagerContext* context = m_converter->findContext(cell_id);
+      const dd4hep::VolumeManagerContext* context = m_converter->findContext(cellId);
 
       if (context) {
-        const dd4hep::DetElement det_element = context->element;
-        const dd4hep::DetType type(det_element.typeFlag());
+        const dd4hep::DetElement detectorElement = context->element;
+        const dd4hep::DetType type(detectorElement.typeFlag());
 
-        std::string det_element_type = det_element.type();
+        std::string detectorElementType = detectorElement.type();
 
         // When all testing is done, return to this form of Calo discriminator
         // if (type.is(dd4hep::DetType::CALORIMETER) && type.is(dd4hep::DetType::ELECTROMAGNETIC))
-        //   hasECal = true;
+        //   hasEcal = true;
 
         // if (type.is(dd4hep::DetType::CALORIMETER) && type.is(dd4hep::DetType::HADRONIC))
-        //   hasHCal = true;
+        //   hasHcal = true;
 
-        std::string ecal_string = "Ecal";
-        std::string hcal_string = "Hcal";
+        std::string ecalString = "Ecal";
+        std::string hcalString = "Hcal";
 
-        if (det_element_type.find(ecal_string) != std::string::npos)
-          hasECal = true;
+        if (detectorElementType.find(ecalString) != std::string::npos)
+          hasEcal = true;
 
-        if (det_element_type.find(hcal_string) != std::string::npos)
-          hasHCal = true;
+        if (detectorElementType.find(hcalString) != std::string::npos)
+          hasHcal = true;
       }
 
-      if (hasECal) {
-        ecal_energy += cluster.getEnergy();
+      if (hasEcal) {
+        ecalEnergy += cluster.getEnergy();
 
-        ecal_cluster_position.x += cluster.getEnergy() * cluster.getPosition().x;
-        ecal_cluster_position.y += cluster.getEnergy() * cluster.getPosition().y;
-        ecal_cluster_position.z += cluster.getEnergy() * cluster.getPosition().z;
+        ecalClusterPosition.x += cluster.getEnergy() * cluster.getPosition().x;
+        ecalClusterPosition.y += cluster.getEnergy() * cluster.getPosition().y;
+        ecalClusterPosition.z += cluster.getEnergy() * cluster.getPosition().z;
       }
 
-      if (hasHCal) {
-        hcal_energy += cluster.getEnergy();
+      if (hasHcal) {
+        hcalEnergy += cluster.getEnergy();
 
-        hcal_cluster_position.x += cluster.getEnergy() * cluster.getPosition().x;
-        hcal_cluster_position.y += cluster.getEnergy() * cluster.getPosition().y;
-        hcal_cluster_position.z += cluster.getEnergy() * cluster.getPosition().z;
+        hcalClusterPosition.x += cluster.getEnergy() * cluster.getPosition().x;
+        hcalClusterPosition.y += cluster.getEnergy() * cluster.getPosition().y;
+        hcalClusterPosition.z += cluster.getEnergy() * cluster.getPosition().z;
       }
     }
 
     // Energy weighted cluster position to determine momentum direction of non-track
-    if (hasECal) {
-      ecal_cluster_position.x /= ecal_energy;
-      ecal_cluster_position.y /= ecal_energy;
-      ecal_cluster_position.z /= ecal_energy;
+    if (hasEcal) {
+      ecalClusterPosition.x /= ecalEnergy;
+      ecalClusterPosition.y /= ecalEnergy;
+      ecalClusterPosition.z /= ecalEnergy;
     }
 
-    if (hasHCal) {
-      hcal_cluster_position.x /= hcal_energy;
-      hcal_cluster_position.y /= hcal_energy;
-      hcal_cluster_position.z /= hcal_energy;
+    if (hasHcal) {
+      hcalClusterPosition.x /= hcalEnergy;
+      hcalClusterPosition.y /= hcalEnergy;
+      hcalClusterPosition.z /= hcalEnergy;
     }
 
-    if (hasECal && !hasHCal && !hasTrack)
-      prelim_pid = 22; //photon
-    if (!hasECal && hasHCal && !hasTrack)
-      prelim_pid = 2112; // neutron
+    if (hasEcal && !hasHcal && !hasTrack)
+      prelimPID = 22; //photon
+    if (!hasEcal && hasHcal && !hasTrack)
+      prelimPID = 2112; // neutron
 
     // Step 2 : Calculate calo energy (PRELIMINARY IMPLEMENTATION)
-    // TODO: the case where there is only energy in the HCal might require a specialized normalization in the future.
-    if (hasECal) {
-      calo_energy += ecal_energy;
+    // TODO: the case where there is only energy in the Hcal might require a specialized normalization in the future.
+    if (hasEcal) {
+      caloEnergy += ecalEnergy;
 
-      if (hasHCal) {
-        calo_energy += m_cfg.caloHadronScale * hcal_energy;
-        calo_energy *= m_cfg.caloEnergyNorm;
+      if (hasHcal) {
+        caloEnergy += m_cfg.caloHadronScale * hcalEnergy;
+        caloEnergy *= m_cfg.caloEnergyNorm;
       }
-    } else if (hasHCal) {
-      calo_energy += hcal_energy;
+    } else if (hasHcal) {
+      caloEnergy += hcalEnergy;
     }
 
     // Step 3 : Calculate avge energy (PRELIMINARY IMPLEMENTATION)
-    double weight_trackingResolution = 1. / std::pow(m_cfg.trackingResolution, 2);
-    double weight_caloResolution =
+    double weightTrackingResolution = 1. / std::pow(m_cfg.trackingResolution, 2);
+    double weightCaloResolution =
         1. / std::pow(m_cfg.caloResolution, 2); // USING ECAL RESOLUTION AS PLACEHOLDER!
 
     double normalization = 0;
 
-    if (track_energy > 0 && calo_energy > 0)
-      normalization = weight_trackingResolution + weight_caloResolution;
-    else if (track_energy > 0 && calo_energy == 0)
-      normalization = weight_trackingResolution;
-    else if (track_energy == 0 && calo_energy > 0)
-      normalization = weight_caloResolution;
+    if (trackEnergy > 0 && caloEnergy > 0)
+      normalization = weightTrackingResolution + weightCaloResolution;
+    else if (trackEnergy > 0 && caloEnergy == 0)
+      normalization = weightTrackingResolution;
+    else if (trackEnergy == 0 && caloEnergy > 0)
+      normalization = weightCaloResolution;
 
     if (!hasTrack) {
-      reconstructed_energy = calo_energy;
-    } else if (hasECal || hasHCal) {
-      reconstructed_energy =
-          (weight_trackingResolution * track_energy + weight_caloResolution * calo_energy) /
+      reconstructedEnergy = caloEnergy;
+    } else if (hasEcal || hasHcal) {
+      reconstructedEnergy =
+          (weightTrackingResolution * trackEnergy + weightCaloResolution * caloEnergy) /
           normalization;
     } else {
-      reconstructed_energy = track_energy;
+      reconstructedEnergy = trackEnergy;
     }
 
     // Step 5 (for neutrals): estimate the momentum direction
-    edm4hep::Vector3f neutrals_direction(0.0, 0.0, 0.0);
+    edm4hep::Vector3f neutralParticleDirection(0.0, 0.0, 0.0);
 
-    if (hasECal) {
-      neutrals_direction.x = ecal_cluster_position.x - primary_vertex.x;
-      neutrals_direction.y = ecal_cluster_position.y - primary_vertex.y;
-      neutrals_direction.z = ecal_cluster_position.z - primary_vertex.z;
+    if (hasEcal) {
+      neutralParticleDirection.x = ecalClusterPosition.x - primaryVertex.x;
+      neutralParticleDirection.y = ecalClusterPosition.y - primaryVertex.y;
+      neutralParticleDirection.z = ecalClusterPosition.z - primaryVertex.z;
     }
 
-    if (hasHCal) {
-      neutrals_direction.x = hcal_cluster_position.x - primary_vertex.x;
-      neutrals_direction.y = hcal_cluster_position.y - primary_vertex.y;
-      neutrals_direction.z = hcal_cluster_position.z - primary_vertex.z;
+    if (hasHcal) {
+      neutralParticleDirection.x = hcalClusterPosition.x - primaryVertex.x;
+      neutralParticleDirection.y = hcalClusterPosition.y - primaryVertex.y;
+      neutralParticleDirection.z = hcalClusterPosition.z - primaryVertex.z;
     }
 
-    if (neutrals_direction.x != 0 && neutrals_direction.y != 0 && neutrals_direction.z != 0) {
-      double mag_neutrals_direction =
-          std::sqrt(std::pow(neutrals_direction.x, 2) + std::pow(neutrals_direction.y, 2) +
-                    std::pow(neutrals_direction.z, 2));
+    if (neutralParticleDirection.x != 0 && neutralParticleDirection.y != 0 && neutralParticleDirection.z != 0) {
+      double magNeutralDirection =
+          std::sqrt(std::pow(neutralParticleDirection.x, 2) + std::pow(neutralParticleDirection.y, 2) +
+                    std::pow(neutralParticleDirection.z, 2));
 
-      neutrals_direction.x /= mag_neutrals_direction;
-      neutrals_direction.y /= mag_neutrals_direction;
-      neutrals_direction.z /= mag_neutrals_direction;
+      neutralParticleDirection.x /= magNeutralDirection;
+      neutralParticleDirection.y /= magNeutralDirection;
+      neutralParticleDirection.z /= magNeutralDirection;
     }
 
-    if ((hasECal || hasHCal) && !hasTrack) {
-      double neutrals_momentum_mag = std::sqrt(
-          std::pow(reconstructed_energy, 2) - std::pow(m_particleSvc.particle(prelim_pid).mass, 2));
+    if ((hasEcal || hasHcal) && !hasTrack) {
+      double neutralsMomentumMag = std::sqrt(
+          std::pow(reconstructedEnergy, 2) - std::pow(m_particleSvc.particle(prelimPID).mass, 2));
 
-      reconstructed_momentum_vector.x = neutrals_direction.x * neutrals_momentum_mag;
-      reconstructed_momentum_vector.y = neutrals_direction.y * neutrals_momentum_mag;
-      reconstructed_momentum_vector.z = neutrals_direction.z * neutrals_momentum_mag;
+      reconstructedMomentumVector.x = neutralParticleDirection.x * neutralsMomentumMag;
+      reconstructedMomentumVector.y = neutralParticleDirection.y * neutralsMomentumMag;
+      reconstructedMomentumVector.z = neutralParticleDirection.z * neutralsMomentumMag;
     }
 
     // Step 6: write on the out output collection
-    double reconstructed_momentum_mag = std::sqrt(std::pow(reconstructed_momentum_vector.x, 2) +
-                                                  std::pow(reconstructed_momentum_vector.y, 2) +
-                                                  std::pow(reconstructed_momentum_vector.z, 2));
+    double reconstructedMomentumMag = std::sqrt(std::pow(reconstructedMomentumVector.x, 2) +
+                                                std::pow(reconstructedMomentumVector.y, 2) +
+                                                std::pow(reconstructedMomentumVector.z, 2));
 
-    double reconstructed_mass =
-        std::sqrt(std::pow(reconstructed_energy, 2) - std::pow(reconstructed_momentum_mag, 2));
+    double reconstructedMass =
+        std::sqrt(std::pow(reconstructedEnergy, 2) - std::pow(reconstructedMomentumMag, 2));
 
-    edm4eic::MutableReconstructedParticle out_reco_particle = particle.clone();
+    edm4eic::MutableReconstructedParticle outRecoParticle = particle.clone();
 
-    if (std::isnan(reconstructed_mass)) {
+    if (std::isnan(reconstructedMass)) {
       debug("Mass of this particle was NaN -> M2 = {}",
-            std::pow(reconstructed_energy, 2) - std::pow(reconstructed_momentum_mag, 2));
+            std::pow(reconstructedEnergy, 2) - std::pow(reconstructedMomentumMag, 2));
     }
 
-    if (hasTrack && track_momentum_vector.x == 0) {
-      debug("Track with null momentum. PID = {}", prelim_pid);
-      debug("Preco = ({}, {}, {})", reconstructed_momentum_vector.x,
-            reconstructed_momentum_vector.y, reconstructed_momentum_vector.z);
-      debug("Ptrck = ({}, {}, {})", track_momentum_vector.x, track_momentum_vector.y,
-            track_momentum_vector.z);
+    if (hasTrack && trackMomentumVector.x == 0) {
+      debug("Track with null momentum. PID = {}", prelimPID);
+      debug("Ecal  = {}", hasEcal);
+      debug("Hcal  = {}", hasHcal);
+      debug("Preco = ({}, {}, {})", reconstructedMomentumVector.x,
+            reconstructedMomentumVector.y, reconstructedMomentumVector.z);
+      debug("Ptrck = ({}, {}, {})", trackMomentumVector.x, trackMomentumVector.y,
+            trackMomentumVector.z);
     }
 
-    out_reco_particle.setMomentum(edm4hep::Vector3f(reconstructed_momentum_vector.x,
-                                                    reconstructed_momentum_vector.y,
-                                                    reconstructed_momentum_vector.z));
-    out_reco_particle.setEnergy(reconstructed_energy);
-    out_reco_particle.setCharge(m_particleSvc.particle(prelim_pid).charge);
-    out_reco_particle.setMass(reconstructed_mass);
-    out_reco_particle.setPDG(prelim_pid);
+    outRecoParticle.setMomentum(edm4hep::Vector3f(reconstructedMomentumVector.x,
+                                                  reconstructedMomentumVector.y,
+                                                  reconstructedMomentumVector.z));
+    outRecoParticle.setEnergy(reconstructedEnergy);
+    outRecoParticle.setCharge(m_particleSvc.particle(prelimPID).charge);
+    outRecoParticle.setMass(reconstructedMass);
+    outRecoParticle.setPDG(prelimPID);
 
-    out_particles->push_back(out_reco_particle);
+    outParticles->push_back(outRecoParticle);
   }
 };
 } // namespace eicrecon
