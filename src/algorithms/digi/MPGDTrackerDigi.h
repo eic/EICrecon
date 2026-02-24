@@ -22,9 +22,6 @@
 #include "algorithms/interfaces/UniqueIDGenSvc.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
-//#include "algorithms/tracking/ActsGeometryProvider.h"
-//#include <DDRec/CellIDPositionConverter.h>
-
 namespace eicrecon {
 
 using MPGDTrackerDigiAlgorithm = algorithms::Algorithm<
@@ -56,14 +53,25 @@ private:
   double m_gridAngle{0};
 
   // COALESCE and EXTEND
-  bool cCoalesceExtend(const Input& input, int& idx, std::vector<int>& usedHits,
-                       std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
-                       double& time) const;
-  bool bCoalesceExtend(const Input& input, int& idx, std::vector<int>& usedHits,
-                       std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
-                       double& time) const;
+  bool cCoalesceExtend(const Input& input, int& idx, std::vector<std::uint64_t>& cIDs, double* lpos,
+                       double& eDep, double& time) const;
+  bool bCoalesceExtend(const Input& input, int& idx, std::vector<std::uint64_t>& cIDs, double* lpos,
+                       double& eDep, double& time) const;
+  unsigned int cTraversing(const double* lpos, const double* lmom, double path,
+                           bool isSecondary,         // Input subHit
+                           double rMin, double rMax, // Current instance of SUBVOLUME
+                           double dZ, double startPhi, double endPhi, // Module parameters
+                           double lintos[][3], double louts[][3], double* lpini,
+                           double* lpend) const;
+  unsigned int bTraversing(const double* lpos, const double* lmom, double ref2Cur, double path,
+                           bool isSecondary,     // Input subHit
+                           double dZ,            // Current instance of SUBVOLUME
+                           double dX, double dY, // Module parameters
+                           double lintos[][3], double louts[][3], double* lpini,
+                           double* lpend) const;
   void printSubHitList(const Input& input, std::vector<int>& subHitList) const;
-  unsigned int extendHit(dd4hep::CellID modID, int direction, double* lpini, double* lmini,
+  unsigned int extendHit(dd4hep::CellID modID, std::vector<std::uint64_t>& cIDs, int direction,
+			 double* lpini, double* lmini,
                          double* lpend, double* lmend) const;
   unsigned int cExtension(double const* lpos, double const* lmom, // Input subHit
                           double rT,                              // Target radius
@@ -74,11 +82,12 @@ private:
                           double zT,                              // Target Z
                           int direction, double dX, double dY,    // Module parameters
                           double* lext) const;
-  bool samePMO(const edm4hep::SimTrackerHit&, const edm4hep::SimTrackerHit&, int unbroken) const;
+  bool samePMO(const edm4hep::SimTrackerHit&, const edm4hep::SimTrackerHit&) const;
   bool denyExtension(const edm4hep::SimTrackerHit& sim_hit, double depth) const;
   void flagUnexpected(const edm4hep::EventHeader& event, int shape, double expected,
                       const edm4hep::SimTrackerHit& sim_hit, double* lpini, double* lpend,
                       double* lpos, double* lmom) const;
+  std::function<int(double)> m_toleranceFactor;
 
   /** Segmentation */
   const dd4hep::Detector* m_detector{nullptr};

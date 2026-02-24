@@ -49,17 +49,20 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
   auto [rec_hits]       = output;
 
   // Reorder input raw_hits
-  // Sort them in ascending order of channel# on a per SUBVOLUME basis.
+  // Sort them in ascending order of channel# on a per SUBVOLUME * (p|n) basis.
   int nRawHits = raw_hits->size();
   std::vector<size_t> idcs(nRawHits);
   size_t idx(0);
   std::generate(idcs.begin(), idcs.end(), [&] { return idx++; });
   std::sort(idcs.begin(), idcs.end(), [&](int idxa, int idxb) {
-    CellID cIDa = raw_hits->at(idxa).getCellID(), vIDa = cIDa & m_subVolBits,
-           hIDa = cIDa >> m_coordOffset;
-    CellID cIDb = raw_hits->at(idxb).getCellID(), vIDb = cIDb & m_subVolBits,
-           hIDb = cIDb >> m_coordOffset;
-    return vIDa < vIDb || (vIDa == vIDb && hIDa < hIDb);
+    CellID cIDa = raw_hits->at(idxa).getCellID(), vIDa = cIDa & m_subVolBits;
+    CellID cIDb = raw_hits->at(idxb).getCellID(), vIDb = cIDb & m_subVolBits;
+    if (vIDa != vIDb) return vIDa < vIDb;
+    int pna = (vIDa & m_pStripBit) ? 0 : 1, pnb = (vIDb & m_pStripBit) ? 0 : 1;
+    if (pna != pnb) return pna < pnb;
+    std::int16_t hIDa = pna == 0 ? cIDa >> m_coordOffsets[0] : cIDa >> m_coordOffsets[1];
+    std::int16_t hIDb = pnb == 0 ? cIDb >> m_coordOffsets[0] : cIDb >> m_coordOffsets[1];
+    return hIDa < hIDb;
   });
 
   CellID prvID; // CellID of previous
@@ -80,26 +83,27 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
     bool lastHit = jdx == nRawHits;
     bool newCluster;
     CellID cID;
-    int pn, idx;
+    int idx;
     if (!lastHit) {
       idx                 = idcs[jdx];
       const auto& raw_hit = raw_hits->at(idx);
       cID                 = raw_hit.getCellID();
-      if (cID & m_pStripBit)
-        pn = 0;
-      else if (cID & m_nStripBit)
-        pn = 1;
-      else {
-        critical(R"(Invalid RawHit cellID (=0x{:0>16x}) from "{}" readout.)", cID, m_cfg.readout);
-        throw std::runtime_error("Invalid cellID");
+      if ((cID & m_subVolBits) != (prvID & m_subVolBits) ||
+	  (cID & m_pStripBit) != (prvID & m_pStripBit)) {
+	newCluster = true;
       }
-      CellID inc = m_stripIncs[pn];
-      // Cluster continuation? Require channel#+1... or channel#-1
-      // - Accumulation in digitization forbids cID == prvID.
-      // - Reordering forbids cID == prvID-inc...
-      //  ...except for prvID,cID = 0,-1 = 0x0,0xffff because 0xffff is not
-      //  understood as meaning -1 when variable is not of type "signed short".
-      newCluster = cID != prvID + inc && cID != prvID - inc;
+      else {
+	// Cluster continuation? Require channel#+1
+	std::int16_t prvHID, hID;
+	if (cID & m_pStripBit) {
+	  prvHID = prvID >> m_coordOffsets[0];
+	  hID    = cID >> m_coordOffsets[0];
+	} else {
+	  prvHID = prvID >> m_coordOffsets[1];
+	  hID    = cID >> m_coordOffsets[1];
+	}
+	newCluster = hID != prvHID + 1;
+      }
       if (prvID && !newCluster) {
         // ***** ADD HIT TO CURRENT CLUSTER
         double weight = raw_hit.getCharge();
@@ -209,7 +213,7 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
       clusCharge   = weight;
       clusChMx     = weight;
       clusChMxIdx  = idx;
-      currentPN    = pn;
+      currentPN    = (cID & m_pStripBit) ? 0 : 1;
       currentNDims = nDims;
       prvID        = cID;
       clusFirstIdx = idx;
@@ -217,7 +221,7 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
   }
 }
 void MPGDHitReconstruction::parseIDDescriptor() {
-  // Parse IDDescriptor: Retrieve CellIDs of relevant fields.
+  // Parse IDDescriptor: Retrieve cellIDs of relevant fields.
   // (As an illustration, here is the IDDescriptor of CyMBaL (as of 2025/12):
   // <id>system:8,layer:4,module:12,sensor:2,strip:28:4,phi:-16,z:-16</id>.)
 
@@ -241,10 +245,10 @@ void MPGDHitReconstruction::parseIDDescriptor() {
   // CellIDs derived from above
   m_pStripBit = stripBits[0];
   m_nStripBit = stripBits[1];
-  // Get coordinate increment ("m_stripIncs").
-  // Require coordinate fields to start @ bit 32: this is taken advantage of by
-  // debug messages to cleanly separate coordinates from the rest of CellID.
-  m_coordOffset = 64;
+  // Require coordinate fields to start @ bits 32 and 48: this ensures that
+  // these fields fit into std::int16_t and is taken advantage of by debug
+  // messages to cleanly separate coordinates from the rest of CellID.
+  m_coordOffsets[0]=m_coordOffsets[1] = 64;
   for (int pn = 0; pn < 2; pn++) {
     std::string coordName;
     if (m_cfg.readout == "MPGDBarrelHits") {
@@ -262,17 +266,18 @@ void MPGDHitReconstruction::parseIDDescriptor() {
     }
     const BitFieldElement& fieldElement = (*m_id_dec)[coordName];
     int offset                          = fieldElement.offset();
-    m_stripIncs[pn]                     = ((CellID)0x1) << offset;
-    if (offset < m_coordOffset)
-      m_coordOffset = offset;
+    if (offset < m_coordOffsets[pn])
+      m_coordOffsets[pn] = offset;
   }
-  for (int i = 0; i < m_coordOffset; i++)
-    m_subVolBits |= ((CellID)0x1) << i;
-  if (m_coordOffset != 32) {
-    critical(R"(Coordinate fields in IDDescriptor of readout "{}" do not start @ bit 32)",
+  if (m_coordOffsets[0] != 32 || m_coordOffsets[1] != 48) {
+    critical(R"(Coordinate fields in IDDescriptor of readout "{}" do not start @ bits 32 and 48.)",
              m_cfg.readout);
     throw std::runtime_error("Invalid IDDescriptor");
   }
+  for (int i = 0; i < 32; i++)
+    // Now that offsets have been checked, we can safely define "m_subVolBits"
+    // to span [0,32[.
+    m_subVolBits |= ((CellID)0x1) << i;
 }
 
 } // namespace eicrecon

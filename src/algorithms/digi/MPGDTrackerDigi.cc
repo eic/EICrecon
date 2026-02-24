@@ -35,7 +35,7 @@
    (i.e. those deemed to originate from a given I+A) and apply to them a common
    smearing (in amplitude and time). Here, we go one step further and COALESCE
    the related subHits. Our guideline can be formulated as: reproduce what we
-   would get had there been a single volume. This comes with a cost of extra
+   would get would there bee a single volume. This comes with a cost of extra
    complication in the source code, but a limited one. This should go on w/
    the common smearing simulating I+A, independent smearings simulating CHARGE
    SHARING and CHARGE SPREADING. Then accumulation channel by channel. Then,
@@ -46,37 +46,35 @@
    O[RIGIN] (direct or via secondary).
   - The double loop is optimized for speed (by keeping track of the start index
    of the second loop) in order to not waste time on high multiplicity events.
-  - A priori, subHits with same PMO should come in sequence. We nevertheless
-   provide for them to be intertwined. This, except for subHits of secondary
-   origin.
+  - We assume subHits originating from the same ionization process to come in
+   sequences unbroken by any intertwining.
   - A number of checks are conducted before undertaking subHit COALESCENCE:
     I) SubHits should be TRAVERSING, i.e. exiting/entering through opposite
      walls, as opposed to exiting/entering through the edge or dying/being-born
      within their SUBVOLUME, see methods "(c|b)Traversing".
     II) SubHits have SAME PMO, see "samePMO".
     III) SubHits extrapolate to a common point, see "outInDistance".
-    All these checks are done to be on the safe side. A subset of them,
-   hinging on (III), should be sufficient. But there are so many cases to take
-   into account that it's difficult to settle on a minimal subset.
+    All these checks are done to be on the safe side. A subset of them, hinging
+   on (III), should be sufficient. But there are so many cases to take into
+   account that it's difficult to settle on a minimal subset.
   - Evaluation:
-    + With 3 mm overall sensitive volume (=> ~1.5 mm SUBVOLUME) and a cutoff
-     on deposited energy of 1 keV, MIPs turn out firing most of the time only
-     one SUBVOLUME.
-    + MIPs are found to be properly handled: hits are assigned to mid-plane,
-     are COALESCED when needed...
-     ...Except for few cases, see "flagUnexpected".
+    + MIPs are found to be properly handled, whether a cutoff on deposited
+     energy is applied or not: hits are COALESCED when needed. They are
+     assigned to mid-plane, except for few cases, see "flagUnexpected".
     + For lower energy particles, there are at times ambiguous cases where
      seemingly related subHits turn out to not be COALESCED, because they fail
      to pass above-mentioned checks due to their erratic trajectories.
       Note that even if they are genuinely related, this is not dramatic:
      subHits will still be directly accumulated on their common (within pitch
      precision) cell, only that we miss the correlation.
-    + The special case of a particle exiting and reEntering the same SUBVOLUME,
-     in a cylindrical setup, is catered for, but has not been evaluated.
+    + Special cases of i) particle exiting and reEntering the same SUBVOLUME
+     in the cylindrical setup, ii) SimHit positioned outside the SUBVOLUME (
+     cylindrical setup once again) it is assigned to, are catered for. In case
+     (i), subHits are COALESCED but not EXTENDED.
   - Imperfections:
-    + In order to validate (III), one has to fix a tolerance. The ideal would
-     be to fix it based on multiscattering. This not done. Instead a, somewhat
-     arbitrary, built-in value is used.
+    + In order to validate (III), one has to decide on a TOLERANCE. The ideal
+     would be to do this based on multiscattering. Instead, what's used are
+     guesstimates, and a recipe to RELAX TOLERANCE for low energy stuff.
   - SIMULATION
     In addition to DIGITIZATION proper, the method involves a SIMULATION of
    some of the inner workings of the MPGD, viz. AMPLIFICATION, SIGNAL SHARING
@@ -84,7 +82,7 @@
     + This SIMULATION relies on parameterizations obtained from beam tests.
     + Present version is simplistic: 2-hit clusters (except when on the edge),
      with identical timing and same amplitude.
-  - DIGITIZATION
+  - DIGITIZATION:
     + It involves the production of 2-hit clusters, called here CLUSTERIZATION.
     + It otherwise follows the standard steps. Remains to agree on the handling
      of the discrimination threshold, see Issue #1722.
@@ -108,7 +106,6 @@
 #include <DDSegmentation/CylindricalGridPhiZ.h>
 #include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <Parsers/Primitives.h>
@@ -122,7 +119,8 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
+#include <cmath>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -131,6 +129,7 @@
 #include <initializer_list>
 #include <iterator>
 #include <map>
+#include <random>
 #include <stdexcept>
 #include <unordered_map>
 #include <utility>
@@ -147,14 +146,14 @@ void MPGDTrackerDigi::init() {
   m_detector = algorithms::GeoSvc::instance().detector();
 
   if (m_cfg.readout.empty()) {
-    throw JException("Readout is empty");
+    throw std::runtime_error("Readout is empty");
   }
   try {
     m_seg    = m_detector->readout(m_cfg.readout).segmentation();
     m_id_dec = m_detector->readout(m_cfg.readout).idSpec().decoder();
   } catch (const std::runtime_error&) {
     critical(R"(Failed to load ID decoder for "{}" readout.)", m_cfg.readout);
-    throw JException("Failed to load ID decoder");
+    throw std::runtime_error("Failed to load ID decoder");
   }
 
   // IDDescriptor and Segmentation
@@ -198,6 +197,18 @@ void MPGDTrackerDigi::init() {
         (orientation == 0 && (status & 0x101) == 0x101); // ...lower wall and can be reEntering
     return isDownstream;
   };
+  // RELAXED TOLERANCE
+  m_toleranceFactor = [](double P) {
+    int factor;
+    if (P < 1 * dd4hep::MeV) {
+      factor = 4;
+    } else if (P < 10 * dd4hep::MeV) {
+      factor = 2;
+    } else {
+      factor = 1;
+    }
+    return factor;
+  };
 
   // CLUSTERIZATION
   m_binToPosition = [](FieldID bin, double cellSize, double offset) {
@@ -208,20 +219,10 @@ void MPGDTrackerDigi::init() {
 // Interfaces
 void getLocalPosMom(const edm4hep::SimTrackerHit& sim_hit, const TGeoHMatrix& toModule,
                     double* lpos, double* lmom);
-unsigned int cTraversing(const double* lpos, const double* lmom, double path,
-                         bool isSecondary,                          // Input subHit
-                         double rMin, double rMax,                  // Current instance of SUBVOLUME
-                         double dZ, double startPhi, double endPhi, // Module parameters
-                         double lintos[][3], double louts[][3], double* lpini, double* lpend);
 bool cExtrapolate(const double* lpos, const double* lmom, // Input subHit
                   double rT,                              // Target radius
                   double* lext);                          // Extrapolated position @ <rT>
 double getRef2Cur(DetElement refVol, DetElement curVol);
-unsigned int bTraversing(const double* lpos, const double* lmom, double ref2Cur, double path,
-                         bool isSecondary,     // Input subHit
-                         double dZ,            // Current instance of SUBVOLUME
-                         double dX, double dY, // Module parameters
-                         double lintos[][3], double louts[][3], double* lpini, double* lpend);
 bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
                   double zT,                              // Target Z
                   double* lext);                          // Extrapolated position @ <zT>
@@ -260,7 +261,6 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   const edm4hep::EventHeader& header = headers->at(0);
 
   // *************** LOOP ON sim_hits
-  std::vector<int> usedHits;
   size_t sim_size = sim_hits->size();
   for (int idx = 0; idx < (int)sim_size; idx++) {
     const edm4hep::SimTrackerHit& sim_hit = sim_hits->at(idx);
@@ -272,11 +272,6 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     //  the leading primary electrons of the I+A process) from other smearing
     //  effects, specific to each coordinate.
     double time_smearing = gaussian(generator) * m_cfg.timeResolution;
-
-    // ***** USED HIT?
-    if (std::find(usedHits.begin(), usedHits.end(), idx) != usedHits.end())
-      continue;
-    usedHits.push_back(idx);
 
     // ***** REFERENCE SUBVOLUME
     CellID refID      = sim_hit.getCellID() & m_moduleBits;
@@ -291,11 +286,11 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     const auto& shape = refVol.solid();
     if (!strcmp(shape.type(), "TGeoTubeSeg")) {
       // ********** TUBE GEOMETRY
-      if (!cCoalesceExtend(input, idx, usedHits, cIDs, lpos, eDep, time))
+      if (!cCoalesceExtend(input, idx, cIDs, lpos, eDep, time))
         continue;
     } else if (!strcmp(shape.type(), "TGeoBBox")) {
       // ********** BOX GEOMETRY
-      if (!bCoalesceExtend(input, idx, usedHits, cIDs, lpos, eDep, time))
+      if (!bCoalesceExtend(input, idx, cIDs, lpos, eDep, time))
         continue;
     } else {
       critical(R"(Bad input data: CellID {:x} has invalid shape "{}")", refID, shape.type());
@@ -351,7 +346,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
           debug("  edep = {:.0f} [eV]", clusterHit.second * eDep / eV);
         }
       }
-      // ***** APPLY THRESHOLD / STORE sim_hit -> stripIDs / ACCUMULATION
+      // ***** APPLY THRESHOLD / STORE (sim_hit -> stripIDs) / ACCUMULATION
       // (Note: Threshold is applied first. See issue #1722 in
       // "https://github.com/eic/EICrecon/issues/1722".)
       std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map =
@@ -442,7 +437,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 //  Resolution sigma must be small enough compared to pitch that smearing does
 // not bring us beyond closest neighbor.
 // II) Concerning IDDescriptor:
-//  The two coordinate fields span [32,64[, cf. debug messages.
+//  The two coordinate fields span [32,48[ and [48,64[, cf. "(in|de)crementID".
 // => Let's check.
 void MPGDTrackerDigi::parseIDDescriptor() {
   // Parse IDDescriptor: Retrieve CellIDs of relevant fields.
@@ -492,9 +487,10 @@ void MPGDTrackerDigi::parseIDDescriptor() {
     m_sensorStripBits = m_stripBits;
   }
   // Get coordinate field and index.
-  // Require coordinate fields to start @ bit 32 (this is taken advantage of by
-  // debug messages to cleanly separate coordinate from the rest of CellID).
-  int coordOffset = 64;
+  // Require coordinate fields to start @ bits 32 and 48. This is taken
+  // advantage of by "(in|de)crementID" (and by debug messages, to cleanly
+  // separate coordinates from the rest of CellID).
+  int coordOffsets[2] = {64,64};
   for (int pn = 0; pn < 2; pn++) {
     std::string coordName;
     if (m_cfg.readout == "MPGDBarrelHits") {
@@ -507,17 +503,17 @@ void MPGDTrackerDigi::parseIDDescriptor() {
     try {
       m_stripIndices[pn] = m_id_dec->index(coordName);
     } catch (const std::runtime_error& error) {
-      critical(R"(No "{}" field in IDDescriptor of readout "{}")", coordName, m_cfg.readout);
+      critical(R"(No "{}" field in IDDescriptor of readout "{}".)", coordName, m_cfg.readout);
       throw std::runtime_error("Invalid IDDescriptor");
     }
     const BitFieldElement& fieldElement = (*m_id_dec)[coordName];
     int offset                          = fieldElement.offset();
     m_stripIncs[pn]                     = ((CellID)0x1) << offset;
-    if (offset < coordOffset)
-      coordOffset = offset;
+    if (offset < coordOffsets[pn])
+      coordOffsets[pn] = offset;
   }
-  if (coordOffset != 32) {
-    critical(R"(Coordinate fields in IDDescriptor of readout "{}" do not start @ bit 32)",
+  if (coordOffsets[0] != 32 || coordOffsets[1] != 48) {
+    critical(R"(Coordinate fields in IDDescriptor of readout "{}" do not start @ bits 32 and 48.)",
              m_cfg.readout);
     throw std::runtime_error("Invalid IDDescriptor");
   }
@@ -531,7 +527,7 @@ void MPGDTrackerDigi::parseSegmentation() {
     if (m_truncation * sigma > pitch) {
       critical(R"(stripResolutions[{}] (= {}) too large for pitch (={}) of "{}" readout.)", pn,
                sigma, pitch, m_cfg.readout);
-      throw JException("Space resolution parameter too large");
+      throw std::runtime_error("Space resolution parameter too large");
     }
     return;
   };
@@ -679,7 +675,7 @@ void MPGDTrackerDigi::parseSegmentation() {
   }
   if (fulfilled != required) {
     critical(R"(Error retrieving Segmentation parameters for "{}" readout.)", m_cfg.readout);
-    throw JException("Error retrieving Segmentation parameters");
+    throw std::runtime_error("Error retrieving Segmentation parameters");
   }
 }
 
@@ -696,7 +692,7 @@ void MPGDTrackerDigi::parseSegmentation() {
 //  _global_ position argument to "dd4hep::Segmentation::cellID", we need
 //  the _local_ position and only that.
 // - Also returned: updated index, vector of used subHits.
-bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<int>& usedHits,
+bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
                                       std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
                                       double& time) const {
   const auto [headers, sim_hits]        = input;
@@ -765,34 +761,26 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
     hasContinuation = false;
   if (hasContinuation) {
     // ***** LOOP OVER HITS
-    int jdx, unbroken /* unbroken succession of indices */;
+    int jdx;
     CellID vIDPrv   = vID;
     size_t sim_size = sim_hits->size();
-    for (jdx = idx + 1, unbroken = 1; jdx < (int)sim_size; jdx++) {
+    for (jdx = idx + 1; jdx < (int)sim_size; jdx++) {
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
-      // Used hit?  If indeed, it's bound to be discarded in the following (
-      // because incompatible w/ current "sim_hit"). But it may happen that one
-      // hit in a sequence of connected hits fails to pass compatibility checks
-      // w/ its predecessor and is then reprocessed in the main loop where it
-      // may turn out to be compatible w/ one of its succesors, which latter hit
-      // would then be double counted. => Let's reject used hits explicitly.
-      if (std::find(usedHits.begin(), usedHits.end(), jdx) != usedHits.end())
-	continue;
-
-      CellID vJD = sim_hjt.getCellID() & m_volumeBits;
+      CellID vJD                            = sim_hjt.getCellID() & m_volumeBits;
       // Particle may start inward and re-enter, being then outward-going.
       // => Orientation has to be evaluated w.r.t. previous vID.
       int orientation = m_orientation(vIDPrv, vJD);
       bool isUpstream = m_isUpstream(orientation, status);
-      bool pmoStatus  = samePMO(sim_hit, sim_hjt, unbroken);
+      bool pmoStatus  = samePMO(sim_hit, sim_hjt);
       if (!pmoStatus || !isUpstream) {
-        if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary())
-          // Bizarre: let's flag the case while debugging
-          debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
-        if (unbroken)
-          idx = jdx - 1;
-        unbroken = 0;
-        continue;
+        if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary()) {
+          // Bizarre, except if it's a low energy stuff (when it then can be a
+          // a looping particle. If it's not let's flag the case, for debugging.
+          double P = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
+          if (P > 10 * dd4hep::MeV)
+            debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
+        }
+        break;
       }
       // Get 'j' radii
       curVol           = volman.lookupDetElement(vJD);
@@ -808,35 +796,23 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
                       rMin, rMax, dZ, startPhi, endPhi, ljns, lovts, lpjni, lpfnd);
       if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
         critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
-        if (unbroken)
-          idx = jdx - 1;
-        unbroken = 0;
-        continue;
+        break;
       }
       // ij-Compatibility: status
       bool jsDownstream = m_isDownstream(orientation, status);
-      if (!jsDownstream) {
-        if (sim_hit.isProducedBySecondary())
-          break;
-        else { // Allow for primary hits to not come in unbroken sequence
-          if (unbroken)
-            idx = jdx - 1;
-          unbroken = 0;
-          continue;
-        }
-      }
+      if (!jsDownstream)
+        break;
       // ij-Compatibility: close exit/entrance-distance
-      double dist            = outInDistance(0, orientation, ljns, louts, lmom, lmoj);
-      const double tolerance = 25 * dd4hep::um;
-      bool isCompatible      = dist > 0 && dist < tolerance;
+      double dist = outInDistance(0, orientation, ljns, louts, lmom, lmoj);
+      // RELAXED TOLERANCE for low energy stuff
+      double P          = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
+      double tolerance  = m_toleranceFactor(P) * 25 * dd4hep::um;
+      bool isCompatible = dist > 0 && dist < tolerance;
       if (!isCompatible) {
         if (!sim_hit.isProducedBySecondary())
           debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
                        /* */ sim_hjt.getCellID(), lpoj, lmoj));
-        if (unbroken)
-          idx = jdx - 1;
-        unbroken = 0;
-        continue;
+        break;
       }
       // ***** UPDATE
       vIDPrv = vJD;
@@ -846,7 +822,6 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
         lmend[i] = lmoj[i];
       }
       // ***** BOOK-KEEPING
-      usedHits.push_back(jdx);
       cIDs.push_back(sim_hjt.getCellID());
       if (level() >= algorithms::LogLevel::kDebug) {
         subHitList.push_back(jdx);
@@ -866,8 +841,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
         }
       }
     }
-    if (unbroken)
-      idx = jdx - 1;
+    idx = jdx - 1;
   }
   // ***** EXTENSION?...
   if (sim_hit.isProducedBySecondary() && cIDs.size() < 2)
@@ -878,7 +852,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
     if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation))
       continue;
     int direction = io ? +1 : -1;
-    extendHit(refID, direction, lpini, lmom, lpend, lmend);
+    extendHit(refID, cIDs, direction, lpini, lmom, lpend, lmend);
   }
   // ***** FLAG CASES W/ UNEXPECTED OUTCOME
   flagUnexpected(header, 0, (tRef.rMin() + tRef.rMax()) / 2, sim_hit, lpini, lpend, lpos, lmom);
@@ -907,7 +881,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx, std::vector<
   }
   return true;
 }
-bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<int>& usedHits,
+bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
                                       std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
                                       double& time) const {
   const auto [headers, sim_hits]        = input;
@@ -937,23 +911,6 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
   double dZ         = bCur.z();
   double ref2Cur    = getRef2Cur(refVol, curVol);
   // Is TRAVERSING?
-#define DEBUG_PATHDEPTH
-#ifdef DEBUG_PATHDEPTH
-  {
-    int module = (sim_hit.getCellID()>>12)&0xfff;
-    const edm4hep::Vector3d& gpos = sim_hit.getPosition();
-    double Mx = lpos[0], My = lpos[1], Mz = lpos[2];
-    double Px = lmom[0], Py = lmom[1], Pz = lmom[2], P = sqrt(Px*Px+Py*Py+Pz*Pz);
-    double cTheta = (Pz*Mz)/P/sqrt(Mz*Mz);
-    double pathDepth = sim_hit.getPathLength()*cTheta;
-    double diff = module%2 ? lpos[1]-gpos.z/10 : -lpos[1]-gpos.z/10;
-    printf("==== #%5d %d 0x%08lx %2d %.6f,%.6f,%.6f  %.6f,%.6f,%.6f\n %.4f  %.4f %.4f    %.6f,%.6f,%.6f %.6f\n",
-	   header.getEventNumber(),idx,sim_hit.getCellID()&0xffffffff,module,
-	   gpos.x/10,gpos.y/10,gpos.z/10,lpos[0],lpos[1],lpos[2],
-	   diff,sim_hit.getPathLength(),pathDepth,lmom[0],lmom[1],lmom[2],P);
-    printf("\n");
-  }
-#endif
   double lintos[2][3], louts[2][3], lpini[3], lpend[3], lmend[3];
   std::copy(std::begin(lmom), std::end(lmom), std::begin(lmend));
   unsigned int status =
@@ -978,26 +935,23 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
     hasContinuation = false;
   if (hasContinuation) {
     // ***** LOOP OVER SUBHITS
-    int jdx, unbroken /* unbroken succession of indices */;
+    int jdx;
     CellID vIDPrv   = vID;
     size_t sim_size = sim_hits->size();
-    for (jdx = idx + 1, unbroken = 1; jdx < (int)sim_size; jdx++) {
+    for (jdx = idx + 1; jdx < (int)sim_size; jdx++) {
       const edm4hep::SimTrackerHit& sim_hjt = sim_hits->at(jdx);
-      // Used hit? (See comment in "cTraversing").
-      if (std::find(usedHits.begin(), usedHits.end(), jdx) != usedHits.end())
-	continue;
-      CellID vJD      = sim_hjt.getCellID() & m_volumeBits;
-      int orientation = m_orientation(vIDPrv, vJD);
-      bool isUpstream = m_isUpstream(orientation, status);
-      bool pmoStatus  = samePMO(sim_hit, sim_hjt, unbroken);
+      CellID vJD                            = sim_hjt.getCellID() & m_volumeBits;
+      int orientation                       = m_orientation(vIDPrv, vJD);
+      bool isUpstream                       = m_isUpstream(orientation, status);
+      bool pmoStatus                        = samePMO(sim_hit, sim_hjt);
       if (!pmoStatus || !isUpstream) {
-        if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary())
-          // Bizarre: let's flag the case while debugging
-          debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
-        if (unbroken)
-          idx = jdx - 1;
-        unbroken = 0;
-        continue;
+        if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary()) {
+          // Bizarre: let's flag the case for debugging, if not low energy.
+          double P = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
+          if (P > 10 * dd4hep::MeV)
+            debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
+        }
+        break;
       }
       // Get 'j' Z
       curVol          = volman.lookupDetElement(vJD); // 'j' SUBVOLUME
@@ -1007,56 +961,28 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
       // Is TRAVERSING through the (quasi)-common border?
       double lpoj[3], lmoj[3];
       getLocalPosMom(sim_hjt, toRefVol, lpoj, lmoj);
-#ifdef DEBUG_PATHDEPTH
-      {
-	int module = (sim_hjt.getCellID()>>12)&0xfff;
-	const edm4hep::Vector3d& gpos = sim_hjt.getPosition();
-	double Mx = lpoj[0], My = lpoj[1], Mz = lpoj[2];
-	double Px = lmoj[0], Py = lmoj[1], Pz = lmoj[2], P = sqrt(Px*Px+Py*Py+Pz*Pz);
-	double cTheta = (Pz*Mz)/P/sqrt(Mz*Mz);
-	double pathDepth = sim_hjt.getPathLength()*cTheta;
-	double diff = module%2 ? lpoj[1]-gpos.z/10 : -lpoj[1]-gpos.z/10;
-	printf("==== #%5d %d 0x%08lx %2d %.6f,%.6f,%.6f  %.6f,%.6f,%.6f\n %.4f  %.4f %.4f    %.6f,%.6f,%.6f %.6f\n",
-	       header.getEventNumber(),jdx,sim_hjt.getCellID()&0xffffffff,module,
-	       gpos.x/10,gpos.y/10,gpos.z/10,lpoj[0],lpoj[1],lpoj[2],
-	       diff,sim_hjt.getPathLength(),pathDepth,lmoj[0],lmoj[1],lmoj[2],P);
-	printf("\n");
-      }
-#endif
       double ljns[2][3], lovts[2][3], lpjni[3], lpfnd[3];
       status = bTraversing(lpoj, lmoj, ref2j, sim_hjt.getPathLength() * ed2dd,
                            sim_hit.isProducedBySecondary(), dZ, dX, dY, ljns, lovts, lpjni, lpfnd);
       if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
         critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
-        if (unbroken)
-          idx = jdx - 1;
-        unbroken = 0;
-        continue;
+        break;
       }
       // ij-Compatibility: status
       bool jsDownstream = m_isDownstream(orientation, status);
-      if (!jsDownstream) {
-        if (sim_hit.isProducedBySecondary())
-          break;
-        else {
-          if (unbroken)
-            idx = jdx - 1;
-          unbroken = 0;
-          continue;
-        }
-      }
+      if (!jsDownstream)
+        break;
       // ij-Compatibility: close exit/entrance-distance
-      double dist            = outInDistance(1, orientation, ljns, louts, lmom, lmoj);
-      const double tolerance = 25 * dd4hep::um;
-      bool isCompatible      = dist > 0 && dist < tolerance;
+      double dist = outInDistance(1, orientation, ljns, louts, lmom, lmoj);
+      // RELAXED TOLERANCE for low energy stuff
+      double P          = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
+      double tolerance  = m_toleranceFactor(P) * 25 * dd4hep::um;
+      bool isCompatible = dist > 0 && dist < tolerance;
       if (!isCompatible) {
         if (!sim_hit.isProducedBySecondary())
           debug(oddity(header, status, dist, sim_hit.getCellID(), lpos, lmom,
                        /* */ sim_hjt.getCellID(), lpoj, lmoj));
-        if (unbroken)
-          idx = jdx - 1;
-        unbroken = 0;
-        continue;
+        break;
       }
       // ***** UPDATE
       vIDPrv = vJD;
@@ -1066,7 +992,6 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
         lmend[i] = lmoj[i];
       }
       // ***** BOOK-KEEPING
-      usedHits.push_back(jdx);
       cIDs.push_back(sim_hjt.getCellID());
       if (level() >= algorithms::LogLevel::kDebug) {
         subHitList.push_back(jdx);
@@ -1083,8 +1008,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
         }
       }
     }
-    if (unbroken)
-      idx = jdx - 1;
+    idx = jdx - 1;
   }
   // ***** EXTENSION?...
   if (sim_hit.isProducedBySecondary() && cIDs.size() < 2)
@@ -1095,7 +1019,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx, std::vector<
     if ((io == 0 && !isContinuation) || (io == 1 && !hasContinuation))
       continue;
     int direction = io ? +1 : -1;
-    extendHit(refID, direction, lpini, lmom, lpend, lmend);
+    extendHit(refID, cIDs, direction, lpini, lmom, lpend, lmend);
   }
   // ***** FLAG CASES W/ UNEXPECTED OUTCOME
   flagUnexpected(header, 1, 0, sim_hit, lpini, lpend, lpos, lmom);
@@ -1131,7 +1055,7 @@ void MPGDTrackerDigi::printSubHitList(const Input& input, std::vector<int>& subH
   int ldx = 0;
   for (int kdx : subHitList) {
     const edm4hep::SimTrackerHit& sim_hp = sim_hits->at(kdx);
-    CellID cIDk = sim_hp.getCellID();
+    CellID cIDk                          = sim_hp.getCellID();
     CellID hIDk = cIDk >> 32, vIDk = cIDk & m_volumeBits;
     if (ldx == 0) {
       debug("Hit cellID{:d} = 0x{:08x}, 0x{:08x}", ldx++, hIDk, vIDk);
@@ -1170,20 +1094,21 @@ void getLocalPosMom(const edm4hep::SimTrackerHit& sim_hit, const TGeoHMatrix& to
 //     0x20: Exits  through edge
 // - <lintos>/<louts>: Positions @ lower/upper wall upon Enter-/Exit-ing (when endorsed by <status>)
 // - <lpini>/<lpend>: Positions of extrema
-// - Tolerance? For MIPs, a tolerance of 1 µM works fine. But for lower energy,
+// - TOLERANCE? For MIPs, a tolerance of 1 µM works fine. But for lower energy,
 //  looks like we need something somewhat larger. The ideal would be to base
-//  the value on Molière width. Here, I use a somewhat arbitrary, built-in, of
-//  25 µm.
+//  the value on Molière width. Here, I use a somewhat arbitrary built-in.
 //  - If particle found to reach wall, w/in tolerance, assign end points to
 //   walls (instead of <lpos>+/-path/2). It will make so that the eventual
 //   extrapolated position falls exactly at mid-plane, even in the case of a
 //   low energy particle, where path may be affected by multiscattering. This,
 //   provided that particle is not a secondary.
-unsigned int cTraversing(const double* lpos, const double* lmom, double path,
-                         bool isSecondary,                          // Input subHit
-                         double rMin, double rMax,                  // Current instance of SUBVOLUME
-                         double dZ, double startPhi, double endPhi, // Module parameters
-                         double lintos[][3], double louts[][3], double* lpini, double* lpend) {
+unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom, double path,
+                                          bool isSecondary,         // Input subHit
+                                          double rMin, double rMax, // Current instance of SUBVOLUME
+                                          double dZ, double startPhi,
+                                          double endPhi, // Module parameters
+                                          double lintos[][3], double louts[][3], double* lpini,
+                                          double* lpend) const {
   unsigned int status = 0;
   double Mx = lpos[0], My = lpos[1], Mz = lpos[2], M2 = Mx * Mx + My * My;
   double Px = lmom[0], Py = lmom[1], Pz = lmom[2];
@@ -1303,7 +1228,7 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
   // Combine w/ edge in/out, based on "t".
   // - A priori, wall crossing (conditioned by w/in edges) and edge crossing (
   //  conditioned by rMin<rE<rMax) are mutually exclusive...
-  // - ...This, except when particle re-enters through the lower wall.
+  // - ...This, except when particle re-enters through the lower wall...
   // =>
   //  - No reEntrance: Let's double-check that the above holds, canceling wall
   //   crossing and raising an inconsistency status bit when not.
@@ -1311,7 +1236,11 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
   //    - If doesReEnter, reEntrance is a mere transient trip outside the
   //     SUBVOLUME. => Cancel it.
   //    - Else disregard edge, possibly raising an inconsistency status bit.
-  //
+  // Hit lies outside?
+  // - ...Or when hit position lies outside volume (it can happen, thanks to
+  //  limited precision).
+  //  => If this is the case, let's swap their exit vs. entrance status. This
+  //  will prevent inconsistencies from showing up below.
   // Can reEnter: does reEnter?
   bool canReEnter = (status & 0x3) == 0x3;
   double norm     = sqrt(a + Pz * Pz);
@@ -1327,6 +1256,32 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
     if (doesReEnter) {
       status &= ~0x3;
       canReEnter = false;
+    }
+  }
+  double rHit = sqrt(M2);
+  if (rHit < rMin && !canReEnter) {
+    unsigned int statvs = status;
+    if (statvs & 0x1) {
+      status &= ~0x1;
+      status |= 0x2;
+      ts[0][1] = -ts[0][0];
+    }
+    if (statvs & 0x2) {
+      status &= ~0x2;
+      status |= 0x1;
+      ts[0][0] = -ts[0][1];
+    }
+  } else if (rHit > rMax) {
+    unsigned int statvs = status;
+    if (statvs & 0x4) {
+      status &= ~0x4;
+      status |= 0x8;
+      ts[1][1] = -ts[1][0];
+    }
+    if (statvs & 0x8) {
+      status &= ~0x8;
+      status |= 0x4;
+      ts[1][0] = -ts[1][1];
     }
   }
   for (int lu = 0; lu < 2; lu++) { // rMin/rMax
@@ -1404,8 +1359,9 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
           if (t * s < 0)
             continue;
           double dIx = t * Px - Ix, dIy = t * Py - Iy, dIz = t * Pz - Iz;
-          double dist            = sqrt(dIx * dIx + dIy * dIy + dIz * dIz);
-          const double tolerance = 20 * dd4hep::um;
+          double dist = sqrt(dIx * dIx + dIy * dIy + dIz * dIz);
+          // RELAXED TOLERANCE for low energy stuff
+          double tolerance = m_toleranceFactor(norm) * 20 * dd4hep::um;
           if (dist < tolerance)
             statws |= statvs;
         }
@@ -1457,11 +1413,13 @@ unsigned int cTraversing(const double* lpos, const double* lmom, double path,
   }
   return status;
 }
-unsigned int bTraversing(const double* lpos, const double* lmom, double ref2Cur, double path,
-                         bool isSecondary,     // Input subHit
-                         double dZ,            // Current instance of SUBVOLUME
-                         double dX, double dY, // Module parameters
-                         double lintos[][3], double louts[][3], double* lpini, double* lpend) {
+unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom, double ref2Cur,
+                                          double path,
+                                          bool isSecondary,     // Input subHit
+                                          double dZ,            // Current instance of SUBVOLUME
+                                          double dX, double dY, // Module parameters
+                                          double lintos[][3], double louts[][3], double* lpini,
+                                          double* lpend) const {
   unsigned int status = 0;
   double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My};
   double Px = lmom[0], Py = lmom[1], Pxy[2] = {Px, Py};
@@ -1537,8 +1495,9 @@ unsigned int bTraversing(const double* lpos, const double* lmom, double ref2Cur,
           if (t * s < 0)
             continue;
           double dIx = t * Px - Ix, dIy = t * Py - Iy, dIz = t * Pz - Iz;
-          double dist            = sqrt(dIx * dIx + dIy * dIy + dIz * dIz);
-          const double tolerance = 20 * dd4hep::um;
+          double dist = sqrt(dIx * dIx + dIy * dIy + dIz * dIz);
+          // RELAXED TOLERANCE for low energy stuff
+          double tolerance = m_toleranceFactor(norm) * 20 * dd4hep::um;
           if (dist < tolerance)
             statws |= statvs;
         }
@@ -1608,7 +1567,7 @@ bool cExtrapolate(const double* lpos, const double* lmom, // Input subHit
       for (int is = 0; is < 2; is++) {
         int s    = 1 - 2 * is;
         double t = (-b + s * sqdet) / a, norm = sqrt(a + Pz * Pz);
-	// "t" may happen to be slightly <0, because of limited precision
+        // "t" may happen to be slightly <0, because of limited precision
         if (t * norm < -dd4hep::nm)
           continue;
         if (!ok ||
@@ -1633,7 +1592,7 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
 {
   bool ok   = false;
   double Mx = lpos[0], My = lpos[1], Mz = lpos[2];
-  double Px = lmom[0], Py = lmom[1], Pz = lmom[2], norm = sqrt(Px*Px+Py*Py+Pz*Pz);
+  double Px = lmom[0], Py = lmom[1], Pz = lmom[2], norm = sqrt(Px * Px + Py * Py + Pz * Pz);
   double tF = 0;
   if (Pz) {
     tF = (zT - Mz) / Pz;
@@ -1658,9 +1617,8 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
 // - Else returns something in the "m_inconsistency" range
 // - <lext> contains the position of farthest extension.
 unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom, // Input subHit
-                                         double rT,                              // Target radius
-                                         int direction, double dZ, double startPhi,
-                                         double endPhi, // Module parameters
+                                         double rT, int direction, // Target radius
+					 double dZ, double startPhi, double endPhi, // Module parameters
                                          double* lext) const {
   unsigned int status = 0;
   double Mx = lpos[0], My = lpos[1], Mz = lpos[2];
@@ -1759,8 +1717,8 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
   return status;
 }
 unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom, // Input subHit
-                                         double zT,                              // Target Z
-                                         int direction, double dX, double dY, // Module parameters
+                                         double zT, int direction, // Target Z
+					 double dX, double dY, // Module parameters
                                          double* lext) const {
   unsigned int status = 0;
   double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My};
@@ -1859,7 +1817,7 @@ std::string oddity(const edm4hep::EventHeader& event, unsigned int status, doubl
 }
 
 bool MPGDTrackerDigi::samePMO(const edm4hep::SimTrackerHit& sim_hit,
-                              const edm4hep::SimTrackerHit& sim_hjt, int unbroken) const {
+                              const edm4hep::SimTrackerHit& sim_hjt) const {
   // Status:
   // 0: Same Particle, same Module, same Origin
   // 0x1: Not same
@@ -1881,12 +1839,6 @@ bool MPGDTrackerDigi::samePMO(const edm4hep::SimTrackerHit& sim_hit,
   bool isSecondary = sim_hit.isProducedBySecondary();
   bool jsSecondary = sim_hjt.isProducedBySecondary();
   bool sameOrigin  = jsSecondary == isSecondary;
-  if (isSecondary) { // Secondary subHit
-    // A given primary particle can give rise to several secondaries, producing
-    // unrelated subHits that we do not want to mix.
-    // => Let's impose more condition in that case...
-    sameOrigin &= unbroken; // ...Unbroken sequence of subHits
-  }
   return sameParticle && sameModule && sameOrigin;
 }
 
@@ -1926,7 +1878,8 @@ double outInDistance(int shape, int orientation, double lintos[][3], double lout
     return -1;
 }
 
-unsigned int MPGDTrackerDigi::extendHit(CellID refID, int direction, double* lpini, double* lmini,
+unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>& cIDs, int direction,
+					double* lpini, double* lmini,
                                         double* lpend, double* lmend) const {
   unsigned int status         = 0;
   const VolumeManager& volman = m_detector->volumeManager();
@@ -1940,10 +1893,23 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, int direction, double* lpi
     lpoE = lpend;
     lmoE = lmend;
   }
-  // Let's test both extremes of the SUBVOLUMES, in order to catch cases where
-  // particle re-enters.
+  // Let's target successively both extreme SUBVOLUMES, disregarding those
+  // already contributing to the COALESCED hit.
+  // => This proscribes reEntrance extension, i.e. extending past exit point
+  //   on a path reEntering into the same SUBVOLUME.
+  //    That option could make sense if the reEntering path is at grazing
+  //   incidence w.r.t. SUBVOLUME inner wall. But otherwise, it leads to a
+  //   very large difference between initial and extended hit.
   for (int rankE : {0, 4}) {
     CellID vIDE     = refID | m_stripIDs[rankE];
+    int alreadyThere = 0;
+    for (int i = 0; i<(int)cIDs.size(); i++) {
+      if ((cIDs[i] & m_volumeBits) == vIDE) {
+	alreadyThere = 1; break;
+      }
+    }
+    if (alreadyThere) continue;
+    if (std::find(cIDs.begin(), cIDs.end(), vIDE) != cIDs.end()) continue;
     DetElement volE = volman.lookupDetElement(vIDE);
     double lext[3];
     if (!strcmp(shape.type(), "TGeoTubeSeg")) {
@@ -1997,13 +1963,16 @@ bool MPGDTrackerDigi::denyExtension(const edm4hep::SimTrackerHit& sim_hit, doubl
 void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shape, double expected,
                                      const edm4hep::SimTrackerHit& sim_hit, double* lpini,
                                      double* lpend, double* lpos, double* lmom) const {
-  // Expectation:
-  // - Primary particle: position = middle of overall sensitive volume.
-  // - Secondary particle: no diff w.r.t. initial.
-  // N.B: At times, when, supposedly, delta ray is created w/in SUBVOLUME, path
-  //  of primary does not span the whole volume. The present, simplistic,
-  //  version of "flagUnexpected" does flag the case. This, even though
-  //  everything is perfectly under control.
+  //  Expectations:
+  // I) Primary particle: position = middle of overall sensitive volume.
+  // II) Secondary particle: no diff w.r.t. initial.
+  //  These expectations are naive ones. When a delta ray is created w/in a
+  // sensitive SUBVOLUME, it creates one distinct SimHit and the primary itself
+  // no longer spans the whole SUBVOLUME nor sits at the middle. The path of
+  // the delta ray is short, typically, but may still turn out to be extendable.
+  //  Therefore expectations (I) and (II) are not systematically fulfilled.
+  //  The "flagUnexpected" method is mainly there as a placeholder for a
+  // debugging tool that would require further development.
   double Rnew2 = 0, Znew, diff2 = 0;
   for (int i = 0; i < 3; i++) {
     double neu = (lpini[i] + lpend[i]) / 2, alt = lpos[i];
@@ -2094,11 +2063,34 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
     // Else two-hit cluster
     CellID neighID, inc = m_stripIncs[pn];
     double nA;
-    if (sA < mA) {
+    // (In|de)crement neighbor w.r.t. master:
+    // - Simple addition works well in most cases...
+    // - ...But not when the overall coordinate field is =0 and the pCoordinate
+    //  is decremented: we then get, overall, 0xffffffff, i.e. -1 (if decrement
+    //  is 1, that is), nor when vice versa, pCoordinate of 0xffff (=-1) is
+    //  incremented.
+    // - In practice, the pCoordinate is the only one affected. Yet, to be on
+    //  the safe side, let's ensure the spectator coordinate (i.e. "1-pn") is
+    //  left unchanged for both (p|n)Coordinates.
+    auto incrementID = [&](int pn) {
+      CellID spectatorBits = pn == 0 ? ((CellID)0xffff)<<48 : ((CellID)0xffff)<<32;
+      CellID iniID = masterID & spectatorBits;
+      neighID = masterID + inc;
+      neighID &= ~spectatorBits;
+      neighID |= iniID;
+    };
+    auto decrementID = [&](int pn) {
+      CellID spectatorBits = pn == 0 ? ((CellID)0xffff)<<48 : ((CellID)0xffff)<<32;
+      CellID iniID = masterID & spectatorBits;
       neighID = masterID - inc;
+      neighID &= ~spectatorBits;
+      neighID |= iniID;
+    };
+    if (sA < mA) {
+      decrementID(pn);
       nA      = mA - pitch;
     } else {
-      neighID = masterID + inc;
+      incrementID(pn);
       nA      = mA + pitch;
     }
     // Amplitude Faction (Note: It can't be but >0, see "init").
