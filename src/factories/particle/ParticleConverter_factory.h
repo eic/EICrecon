@@ -10,6 +10,7 @@
 #include <edm4eic/Cluster.h>
 #include <edm4eic/TrackClusterMatch.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/Vertex.h>
 
 #include "algorithms/particle/ParticleConverter.h"
 #include "algorithms/particle/ParticleConverterConfig.h"
@@ -26,6 +27,7 @@ private:
 
   // Input collections
   PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input{this};
+  PodioInput<edm4eic::Vertex> m_vertices_input{this};
 
   // Output collection
   // - Reconstructed particles
@@ -47,7 +49,7 @@ public:
   };
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_recoparticles_input()}, {m_recoparticles_output().get()});
+    m_algo->process({m_recoparticles_input(), m_vertices_input()}, {m_recoparticles_output().get()});
   }
 };
 } // namespace eicrecon

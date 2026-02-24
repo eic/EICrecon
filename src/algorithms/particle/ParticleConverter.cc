@@ -6,6 +6,8 @@
 #include <DDRec/CellIDPositionConverter.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/ReconstructedParticle.h>
+#include <edm4eic/VertexCollection.h>
+#include <edm4eic/Vertex.h>
 #include <edm4eic/MutableReconstructedParticle.h>
 
 #include "ParticleConverter.h"
@@ -26,8 +28,8 @@ namespace eicrecon {
  *    3. Using mass and energy, calculate remaining kinematics
  */
 void ParticleConverter::process(const Input& input, const Output& output) const {
-  const auto [in_particles] = input;
-  auto [out_particles]      = output;
+  const auto [in_particles, in_vertices] = input;
+  auto [out_particles]                   = output;
 
   if (in_particles->size() == 0) {
     debug("No particle candidates in the input.");
@@ -35,6 +37,19 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     return;
   } else {
     debug("There are {} particle candidates in the input.", in_particles->size());
+  }
+
+  // NOTE1: in the no-track case, the momentum direction is estimated with the help of the primary vertex.
+  // NOTE2: it is asummed the production vertex is the PV
+  edm4hep::Vector3f primary_vertex(0.0, 0.0, 0.0);
+  if (in_vertices->size() > 0) {
+    primary_vertex.x = (*in_vertices)[0].getPosition().x;
+    primary_vertex.y = (*in_vertices)[0].getPosition().y;
+    primary_vertex.z = (*in_vertices)[0].getPosition().z;
+
+    debug("PV = ({},{},{})", primary_vertex.x, primary_vertex.y, primary_vertex.z);
+  } else {
+    debug("No primary vertex found. Set PV to (0,0,0).");
   }
 
   for (const auto particle : *in_particles) {

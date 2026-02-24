@@ -7,6 +7,7 @@
 #include <algorithms/geo.h>
 
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/VertexCollection.h>
 
 #include <string>
 #include <string_view>
@@ -19,7 +20,7 @@
 // Class definition
 namespace eicrecon {
 using ParticleConverterAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection>,
+    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection, edm4eic::VertexCollection>,
                           algorithms::Output<edm4eic::ReconstructedParticleCollection>>;
 
 // ==========================================================================
@@ -33,7 +34,7 @@ class ParticleConverter : public ParticleConverterAlgorithm,
                           public WithPodConfig<ParticleConverterConfig> {
 public:
   ParticleConverter(std::string_view name)
-      : ParticleConverterAlgorithm(name, {"inputRecoParticles"}, {"outputRecoParticles"},
+      : ParticleConverterAlgorithm(name, {"inputRecoParticles", "inputVertices"}, {"outputRecoParticles"},
                                    "Converters particle candidates (charged or neutral) into fully "
                                    "reconstructed particles.") {};
 

@@ -27,7 +27,7 @@ void InitPlugin(JApplication* app) {
   // ====================================================================
 
   app->Add(new JOmniFactoryGeneratorT<ParticleConverter_factory>(
-      "FinalReconstructedParticles", {"ReconstructedParticles"}, {"FinalReconstructedParticles"},
+      "FinalReconstructedParticles", {"ReconstructedParticles","PrimaryVertices"}, {"FinalReconstructedParticles"},
       {
           .trackingResolution = 1.0,
           .caloResolution     = 1.0,
