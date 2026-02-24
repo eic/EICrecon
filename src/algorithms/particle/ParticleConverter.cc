@@ -219,8 +219,6 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     edm4hep::Vector3f neutrals_direction(0.0, 0.0, 0.0);
 
     if (hasECal) {
-      debug("ECAL!!!!!!!!!!");
-
       neutrals_direction.x = ecal_cluster_position.x - primary_vertex.x;
       neutrals_direction.y = ecal_cluster_position.y - primary_vertex.y;
       neutrals_direction.z = ecal_cluster_position.z - primary_vertex.z;
@@ -261,16 +259,12 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
 
     edm4eic::MutableReconstructedParticle out_reco_particle = particle.clone();
 
-    debug("P = ({}, {}, {})", reconstructed_momentum_vector.x, reconstructed_momentum_vector.y,
-          reconstructed_momentum_vector.z);
-    debug("M = {}", reconstructed_mass);
-    debug("E = {}", reconstructed_energy);
-
     if (std::isnan(reconstructed_mass)) {
-      debug("M2 = {}", std::pow(reconstructed_energy, 2) - std::pow(reconstructed_momentum_mag, 2));
+      debug("Mass of this particle was NaN -> M2 = {}", std::pow(reconstructed_energy, 2) - std::pow(reconstructed_momentum_mag, 2));
     }
 
     if (hasTrack && track_momentum_vector.x == 0) {
+      debug("Track with null momentum. PID = {}", prelim_pid);
       debug("Preco = ({}, {}, {})", reconstructed_momentum_vector.x,
             reconstructed_momentum_vector.y, reconstructed_momentum_vector.z);
       debug("Ptrck = ({}, {}, {})", track_momentum_vector.x, track_momentum_vector.y,
