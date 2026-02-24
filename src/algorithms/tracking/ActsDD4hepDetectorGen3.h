@@ -36,7 +36,7 @@ public:
     using ElementFactory = std::function<std::shared_ptr<ActsPlugins::DD4hepDetectorElement>(
         const dd4hep::DetElement& element, const std::string& axes, double scale)>;
 
-    ElementFactory detectorElementFactory = defaultDetectorElementFactory;
+    ElementFactory detectorElementFactory;
   };
 
   static std::shared_ptr<ActsPlugins::DD4hepDetectorElement>
