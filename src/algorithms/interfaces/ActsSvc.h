@@ -46,8 +46,8 @@ private:
                                       "JSON/CBOR material map file path (empty to disable)"};
 
   Property<int> m_generation{
-      this, "Generation", 1,
-      "Acts geometry generation (1=auto-detect, 3=blueprint; Gen3 requires Acts v46+)"};
+      this, "Generation", 0,
+      "Acts geometry generation (0=auto-detect, 1=Gen1, 3=Gen3; Gen3 requires Acts v46+)"};
 
   Property<std::string> m_detectorName{this, "DetectorName", "EIC", "Name of the detector"};
 
