@@ -70,9 +70,9 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     edm4hep::Vector3f ecalClusterPosition(0.0, 0.0, 0.0);
     edm4hep::Vector3f hcalClusterPosition(0.0, 0.0, 0.0);
 
-    edm4hep::Vector3f trackMomentumVector(0.0, 0.0, 0.0);
+    edm4hep::Vector3f trackMomentum(0.0, 0.0, 0.0);
 
-    edm4hep::Vector3f reconstructedMomentumVector(0.0, 0.0, 0.0);
+    edm4hep::Vector3f reconstructedMomentum(0.0, 0.0, 0.0);
 
     // Step 1 : Assign preliminary PID
 
@@ -92,19 +92,19 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     if (track.getChi2() > 0) {
       hasTrack = true;
 
-      trackMomentumVector = track.getMomentum();
-      prelimPID           = track.getPdg();
-      trackMass           = m_particleSvc.particle(prelimPID).mass;
+      trackMomentum = track.getMomentum();
+      prelimPID     = track.getPdg();
+      trackMass     = m_particleSvc.particle(prelimPID).mass;
 
       trackMomentumMag =
-          std::sqrt(std::pow(trackMomentumVector.x, 2) + std::pow(trackMomentumVector.y, 2) +
-                    std::pow(trackMomentumVector.z, 2));
+          std::sqrt(std::pow(trackMomentum.x, 2) + std::pow(trackMomentum.y, 2) +
+                    std::pow(trackMomentum.z, 2));
 
       trackEnergy = std::sqrt(std::pow(trackMomentumMag, 2) + std::pow(trackMass, 2));
 
-      reconstructedMomentumVector.x = trackMomentumVector.x;
-      reconstructedMomentumVector.y = trackMomentumVector.y;
-      reconstructedMomentumVector.z = trackMomentumVector.z;
+      reconstructedMomentum.x = trackMomentum.x;
+      reconstructedMomentum.y = trackMomentum.y;
+      reconstructedMomentum.z = trackMomentum.z;
     }
 
     // Looking for clusters
@@ -191,9 +191,10 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     }
 
     // Step 3 : Calculate avge energy (PRELIMINARY IMPLEMENTATION)
+    // Note: USING ECAL RESOLUTION AS PLACEHOLDER!
     double weightTrackingResolution = 1. / std::pow(m_cfg.trackingResolution, 2);
     double weightCaloResolution =
-        1. / std::pow(m_cfg.caloResolution, 2); // USING ECAL RESOLUTION AS PLACEHOLDER!
+        1. / std::pow(m_cfg.caloResolution, 2);
 
     double normalization = 0;
 
@@ -244,18 +245,20 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
       double neutralsMomentumMag = std::sqrt(std::pow(reconstructedEnergy, 2) -
                                              std::pow(m_particleSvc.particle(prelimPID).mass, 2));
 
-      reconstructedMomentumVector.x = neutralParticleDirection.x * neutralsMomentumMag;
-      reconstructedMomentumVector.y = neutralParticleDirection.y * neutralsMomentumMag;
-      reconstructedMomentumVector.z = neutralParticleDirection.z * neutralsMomentumMag;
+      reconstructedMomentum.x = neutralParticleDirection.x * neutralsMomentumMag;
+      reconstructedMomentum.y = neutralParticleDirection.y * neutralsMomentumMag;
+      reconstructedMomentum.z = neutralParticleDirection.z * neutralsMomentumMag;
     }
 
     // Step 6: write on the out output collection
-    double reconstructedMomentumMag = std::sqrt(std::pow(reconstructedMomentumVector.x, 2) +
-                                                std::pow(reconstructedMomentumVector.y, 2) +
-                                                std::pow(reconstructedMomentumVector.z, 2));
+    double reconstructedMomentumMag = std::sqrt(std::pow(reconstructedMomentum.x, 2) +
+                                                std::pow(reconstructedMomentum.y, 2) +
+                                                std::pow(reconstructedMomentum.z, 2));
 
     double reconstructedMass =
         std::sqrt(std::pow(reconstructedEnergy, 2) - std::pow(reconstructedMomentumMag, 2));
+
+    double reconstructedPID = prelimPID;
 
     edm4eic::MutableReconstructedParticle outRecoParticle = particle.clone();
 
@@ -264,23 +267,23 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
             std::pow(reconstructedEnergy, 2) - std::pow(reconstructedMomentumMag, 2));
     }
 
-    if (hasTrack && trackMomentumVector.x == 0) {
+    if (hasTrack && trackMomentum.x == 0) {
       debug("Track with null momentum. PID = {}", prelimPID);
       debug("Ecal  = {}", hasEcal);
       debug("Hcal  = {}", hasHcal);
-      debug("Preco = ({}, {}, {})", reconstructedMomentumVector.x, reconstructedMomentumVector.y,
-            reconstructedMomentumVector.z);
-      debug("Ptrck = ({}, {}, {})", trackMomentumVector.x, trackMomentumVector.y,
-            trackMomentumVector.z);
+      debug("Preco = ({}, {}, {})", reconstructedMomentum.x, reconstructedMomentum.y,
+            reconstructedMomentum.z);
+      debug("Ptrck = ({}, {}, {})", trackMomentum.x, trackMomentum.y,
+            trackMomentum.z);
     }
 
-    outRecoParticle.setMomentum(edm4hep::Vector3f(reconstructedMomentumVector.x,
-                                                  reconstructedMomentumVector.y,
-                                                  reconstructedMomentumVector.z));
+    outRecoParticle.setMomentum(edm4hep::Vector3f(reconstructedMomentum.x,
+                                                  reconstructedMomentum.y,
+                                                  reconstructedMomentum.z));
     outRecoParticle.setEnergy(reconstructedEnergy);
-    outRecoParticle.setCharge(m_particleSvc.particle(prelimPID).charge);
+    outRecoParticle.setCharge(m_particleSvc.particle(reconstructedPID).charge);
     outRecoParticle.setMass(reconstructedMass);
-    outRecoParticle.setPDG(prelimPID);
+    outRecoParticle.setPDG(reconstructedPID);
 
     outParticles->push_back(outRecoParticle);
   }
