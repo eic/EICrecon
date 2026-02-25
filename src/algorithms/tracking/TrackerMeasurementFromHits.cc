@@ -6,13 +6,11 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
 #include <DD4hep/VolumeManager.h>
@@ -22,7 +20,6 @@
 #include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/CartesianGridUV.h>
 #include <Evaluator/DD4hepUnits.h>
-#include <JANA/JException.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
 // Access "algorithms:GeoSvc"
@@ -32,13 +29,14 @@
 #include <edm4eic/CovDiag3f.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
 #include <Eigen/Core>
 #include <cmath>
 #include <exception>
-#include <initializer_list>
+#include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "ActsGeometryProvider.h"
 

@@ -35,7 +35,7 @@
    (i.e. those deemed to originate from a given I+A) and apply to them a common
    smearing (in amplitude and time). Here, we go one step further and COALESCE
    the related subHits. Our guideline can be formulated as: reproduce what we
-   would get would there bee a single volume. This comes with a cost of extra
+   would get would there be a single volume. This comes with a cost of extra
    complication in the source code, but a limited one. This should go on w/
    the common smearing simulating I+A, independent smearings simulating CHARGE
    SHARING and CHARGE SPREADING. Then accumulation channel by channel. Then,
@@ -49,9 +49,9 @@
   - We assume subHits originating from the same ionization process to come in
    sequences unbroken by any intertwining.
   - A number of checks are conducted before undertaking subHit COALESCENCE:
-    I) SubHits should be TRAVERSING, i.e. exiting/entering through opposite
-     walls, as opposed to exiting/entering through the edge or dying/being-born
-     within their SUBVOLUME, see methods "(c|b)Traversing".
+    I) SubHits should be TRAVERSING, i.e. exiting and then entering through
+    opposite walls, as opposed to exiting or entering through the edge or
+    dying/being-born within their SUBVOLUME, see methods "(c|b)Traversing".
     II) SubHits have SAME PMO, see "samePMO".
     III) SubHits extrapolate to a common point, see "outInDistance".
     All these checks are done to be on the safe side. A subset of them, hinging
@@ -92,7 +92,6 @@
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
@@ -120,7 +119,8 @@
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <fmt/format.h>
-#include <cmath>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
 #include <cstdint>
@@ -129,8 +129,10 @@
 #include <initializer_list>
 #include <iterator>
 #include <map>
+#include <memory>
 #include <random>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -241,21 +243,25 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
                               const MPGDTrackerDigi::Output& output) const {
 
   const auto [headers, sim_hits] = input;
-  auto [raw_hits, associations]  = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [raw_hits, links, associations] = output;
+#else
+  auto [raw_hits, associations] = output;
+#endif
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
   std::default_random_engine generator(seed);
   std::normal_distribution<double> gaussian;
 
-  // A map of unique cellIDs with temporary structure RawHit
+  // Maps of unique cellIDs with temporary structure RawHit
   std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit> cell_hit_maps[2];
   // A map of strip cellIDs with vector of contributing cellIDs
   std::map<std::uint64_t, std::vector<std::uint64_t>> stripID2cIDs;
   // Prepare for strip segmentation
   const VolumeManager& volman = m_detector->volumeManager();
 
-  // Reference to event, to be used to document "critical" error messages
+  // Reference to event, to be used to document error messages
   // (N.B.: I don't know how to properly handle these "headers": may there
   // be more than one? none?...)
   const edm4hep::EventHeader& header = headers->at(0);
@@ -284,11 +290,11 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     double lpos[3], eDep, time;
     std::vector<std::uint64_t> cIDs;
     const auto& shape = refVol.solid();
-    if (!strcmp(shape.type(), "TGeoTubeSeg")) {
+    if (std::string_view{shape.type()} == "TGeoTubeSeg") {
       // ********** TUBE GEOMETRY
       if (!cCoalesceExtend(input, idx, cIDs, lpos, eDep, time))
         continue;
-    } else if (!strcmp(shape.type(), "TGeoBBox")) {
+    } else if (std::string_view{shape.type()} == "TGeoBBox") {
       // ********** BOX GEOMETRY
       if (!bCoalesceExtend(input, idx, cIDs, lpos, eDep, time))
         continue;
@@ -300,7 +306,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     // ***** 2D-position on sensitive surface
     double surfPos[2];
     Position locPos;
-    if (!strcmp(shape.type(), "TGeoTubeSeg")) {
+    if (std::string_view{shape.type()} == "TGeoTubeSeg") {
       // Sensitive surface radius = REFERENCE VOLUME radius
       const Tube& tRef = refVol.solid();
       double R         = (tRef.rMin() + tRef.rMax()) / 2;
@@ -328,11 +334,11 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       // ***** CLUSTERIZATION
       // Cluster = (CellID, energy fraction)
       Cluster cluster;
-      int error = get2HitCluster(refID, locPos, surfPos, pn, generator, cluster);
-      if (error) {
+      int status = get2HitCluster(refID, locPos, surfPos, pn, generator, cluster);
+      if (status) {
         CellID vIDs = (std::uint32_t)refID, hIDs = refID >> 32;
-        critical("SimHit (= 0x{:08x}, 0x{:08x}, {:.2f},{:.2f} cm) beyond limits of {}Strips.", hIDs,
-                 vIDs, surfPos[0] / cm, surfPos[1] / cm, pn ? 'p' : 'n');
+        error(R"(SimHit (= 0x{:08x}, 0x{:08x}, {:.2f},{:.2f} cm) beyond limits of {}Strips.)", hIDs,
+	      vIDs, surfPos[0] / cm, surfPos[1] / cm, pn ? 'p' : 'n');
       }
       // ***** DEBUGGING INFO
       if (level() >= algorithms::LogLevel::kDebug) {
@@ -384,7 +390,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
     } // End loop on strip = p,n
   } // End loop on sim_hit's
 
-  // ***** raw_hit INSTANTIATION AND raw<-sim_hit's ASSOCIATION:
+  // ***** RawHit INSTANTIATION AND RawHit<-SimHits ASSOCIATION:
   for (int pn = 0; pn < 2; pn++) {
     std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map =
         cell_hit_maps[pn];
@@ -393,13 +399,20 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       CellID stripID = item.first;
       const auto is  = stripID2cIDs.find(stripID);
       if (is == stripID2cIDs.end()) {
-        critical(R"(Inconsistency: CellID {:x} not found in "stripID2cIDs" map)", stripID);
+        error(R"(Inconsistency: CellID {:x} not found in "stripID2cIDs" map)", stripID);
         throw std::runtime_error(R"(Inconsistency in the handling of "stripID2cIDs" map)");
       }
       std::vector<std::uint64_t> cIDs = is->second;
       for (CellID cID : cIDs) {
         for (const auto& sim_hit : *sim_hits) {
           if (sim_hit.getCellID() == cID) {
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+	    // create link
+	    auto link = links->create();
+	    link.setFrom(item.second);
+	    link.setTo(sim_hit);
+	    link.setWeight(1.0);
+#endif
             // set association
             auto hitassoc = associations->create();
             hitassoc.setWeight(1.0);
@@ -462,7 +475,7 @@ void MPGDTrackerDigi::parseIDDescriptor() {
     CellID fieldBits                    = fieldID << fieldElement.offset();
     m_volumeBits |= fieldBits;
     // - "m_stripBits".
-    if (!strcmp(fieldName, "strip")) {
+    if (std::string_view{fieldName} == "strip") {
       m_stripBits = fieldBits;
       // SUBVOLUMES are assigned specific bits by convention
       CellID bits[5] = {0x3, 0x1, 0, 0x2, 0x4};
@@ -471,7 +484,7 @@ void MPGDTrackerDigi::parseIDDescriptor() {
       }
     }
     // - "m_sensorStripBits"
-    else if (m_cfg.readout == "MPGDBarrelHits" && !strcmp(fieldName, "sensor")) {
+    else if (m_cfg.readout == "MPGDBarrelHits" && std::string_view{fieldName} == "sensor") {
       sensorBits     = fieldBits;
       m_sensorOffset = fieldElement.offset();
     }
@@ -736,7 +749,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
       cTraversing(lpos, lmom, sim_hit.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
                   rMin, rMax, dZ, startPhi, endPhi, lintos, louts, lpini, lpend);
   if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hit"
-    critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
+    error(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
     return false;
   }
   cIDs.push_back(sim_hit.getCellID());
@@ -795,7 +808,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
           cTraversing(lpoj, lmoj, sim_hjt.getPathLength() * ed2dd, sim_hit.isProducedBySecondary(),
                       rMin, rMax, dZ, startPhi, endPhi, ljns, lovts, lpjni, lpfnd);
       if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
-        critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
+        error(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
         break;
       }
       // ij-Compatibility: status
@@ -917,7 +930,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
       bTraversing(lpos, lmom, ref2Cur, sim_hit.getPathLength() * ed2dd,
                   sim_hit.isProducedBySecondary(), dZ, dX, dY, lintos, louts, lpini, lpend);
   if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hit"
-    critical(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
+    error(inconsistency(header, status, sim_hit.getCellID(), lpos, lmom));
     return false;
   }
   cIDs.push_back(sim_hit.getCellID());
@@ -965,7 +978,7 @@ bool MPGDTrackerDigi::bCoalesceExtend(const Input& input, int& idx,
       status = bTraversing(lpoj, lmoj, ref2j, sim_hjt.getPathLength() * ed2dd,
                            sim_hit.isProducedBySecondary(), dZ, dX, dY, ljns, lovts, lpjni, lpfnd);
       if (status & m_inconsistency) { // Inconsistency => Drop current "sim_hjt"
-        critical(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
+        error(inconsistency(header, status, sim_hjt.getCellID(), lpoj, lmoj));
         break;
       }
       // ij-Compatibility: status
@@ -1119,9 +1132,12 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
     double Ux = cos(phi), Uy = sin(phi);
     double D = Px * Uy - Py * Ux;
     if (D) { // If P not // to U
-      double t  = (My * Ux - Mx * Uy) / D;
-      double Ex = Mx + t * Px, Ey = My + t * Py, rE = sqrt(Ex * Ex + Ey * Ey), Ez = Mz + t * Pz;
-      if (rMin < rE && rE < rMax && fabs(Ez) < dZ) {
+      double t   = (My * Ux - Mx * Uy) / D;
+      double Ex  = Mx + t * Px, Ey = My + t * Py, Ez = Mz + t * Pz;
+      double rE = sqrt(Ex * Ex + Ey * Ey), phiE = atan2(Ey,Ex);
+      // The above does not distinguish between phi and phi+pi.
+      // => Have to explicitly discard the latter.
+      if (rMin < rE && rE < rMax && fabs(Ez) < dZ && fabs(phiE-phi) < 1) {
         if (t < 0) {
           status |= 0x10;
           tIn = t;
@@ -1648,8 +1664,10 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
       double t = (My * Ux - Mx * Uy) / D;
       if (t * direction < 0)
         continue;
-      double Ex = Mx + t * Px, Ey = My + t * Py, rE = sqrt(Ex * Ex + Ey * Ey), Ez = Mz + t * Pz;
-      if (rLow < rE && rE < rUp && fabs(Ez) < dZ) {
+      double Ex = Mx + t * Px, Ey = My + t * Py, Ez = Mz + t * Pz;
+      double rE = sqrt(Ex * Ex + Ey * Ey), phiE = atan2(Ey,Ex);
+     // Note: have to discard the phi+pi solution.
+      if (rLow < rE && rE < rUp && fabs(Ez) < dZ && fabs(phiE-phi) < 1) {
         status |= 0x1;
         tF = t;
       }
@@ -1912,7 +1930,7 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>
     if (std::find(cIDs.begin(), cIDs.end(), vIDE) != cIDs.end()) continue;
     DetElement volE = volman.lookupDetElement(vIDE);
     double lext[3];
-    if (!strcmp(shape.type(), "TGeoTubeSeg")) {
+    if (std::string_view{shape.type()} == "TGeoTubeSeg") {
       const Tube& tExt = volE.solid();
       double R         = rankE == 0 ? tExt.rMin() : tExt.rMax();
       double startPhi  = tExt.startPhi() * radian;
@@ -1921,7 +1939,7 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>
       endPhi -= 2 * TMath::Pi();
       double dZ = tExt.dZ();
       status    = cExtension(lpoE, lmoE, R, direction, dZ, startPhi, endPhi, lext);
-    } else if (!strcmp(shape.type(), "TGeoBBox")) {
+    } else if (std::string_view{shape.type()} == "TGeoBBox") {
       double ref2E    = getRef2Cur(refVol, volE);
       const Box& bExt = volE.solid();
       double Z        = rankE == 0 ? -bExt.z() : +bExt.z();
