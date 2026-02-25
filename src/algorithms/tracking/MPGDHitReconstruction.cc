@@ -57,9 +57,11 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
   std::sort(idcs.begin(), idcs.end(), [&](int idxa, int idxb) {
     CellID cIDa = raw_hits->at(idxa).getCellID(), vIDa = cIDa & m_subVolBits;
     CellID cIDb = raw_hits->at(idxb).getCellID(), vIDb = cIDb & m_subVolBits;
-    if (vIDa != vIDb) return vIDa < vIDb;
+    if (vIDa != vIDb)
+      return vIDa < vIDb;
     int pna = (vIDa & m_pStripBit) ? 0 : 1, pnb = (vIDb & m_pStripBit) ? 0 : 1;
-    if (pna != pnb) return pna < pnb;
+    if (pna != pnb)
+      return pna < pnb;
     std::int16_t hIDa = pna == 0 ? cIDa >> m_coordOffsets[0] : cIDa >> m_coordOffsets[1];
     std::int16_t hIDb = pnb == 0 ? cIDb >> m_coordOffsets[0] : cIDb >> m_coordOffsets[1];
     return hIDa < hIDb;
@@ -89,20 +91,19 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
       const auto& raw_hit = raw_hits->at(idx);
       cID                 = raw_hit.getCellID();
       if ((cID & m_subVolBits) != (prvID & m_subVolBits) ||
-	  (cID & m_pStripBit) != (prvID & m_pStripBit)) {
-	newCluster = true;
-      }
-      else {
-	// Cluster continuation? Require channel#+1
-	std::int16_t prvHID, hID;
-	if (cID & m_pStripBit) {
-	  prvHID = prvID >> m_coordOffsets[0];
-	  hID    = cID >> m_coordOffsets[0];
-	} else {
-	  prvHID = prvID >> m_coordOffsets[1];
-	  hID    = cID >> m_coordOffsets[1];
-	}
-	newCluster = hID != prvHID + 1;
+          (cID & m_pStripBit) != (prvID & m_pStripBit)) {
+        newCluster = true;
+      } else {
+        // Cluster continuation? Require channel#+1
+        std::int16_t prvHID, hID;
+        if (cID & m_pStripBit) {
+          prvHID = prvID >> m_coordOffsets[0];
+          hID    = cID >> m_coordOffsets[0];
+        } else {
+          prvHID = prvID >> m_coordOffsets[1];
+          hID    = cID >> m_coordOffsets[1];
+        }
+        newCluster = hID != prvHID + 1;
       }
       if (prvID && !newCluster) {
         // ***** ADD HIT TO CURRENT CLUSTER
@@ -248,7 +249,7 @@ void MPGDHitReconstruction::parseIDDescriptor() {
   // Require coordinate fields to start @ bits 32 and 48: this ensures that
   // these fields fit into std::int16_t and is taken advantage of by debug
   // messages to cleanly separate coordinates from the rest of CellID.
-  m_coordOffsets[0]=m_coordOffsets[1] = 64;
+  m_coordOffsets[0] = m_coordOffsets[1] = 64;
   for (int pn = 0; pn < 2; pn++) {
     std::string coordName;
     if (m_cfg.readout == "MPGDBarrelHits") {

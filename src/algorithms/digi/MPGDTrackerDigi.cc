@@ -338,7 +338,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       if (status) {
         CellID vIDs = (std::uint32_t)refID, hIDs = refID >> 32;
         error(R"(SimHit (= 0x{:08x}, 0x{:08x}, {:.2f},{:.2f} cm) beyond limits of {}Strips.)", hIDs,
-	      vIDs, surfPos[0] / cm, surfPos[1] / cm, pn ? 'p' : 'n');
+              vIDs, surfPos[0] / cm, surfPos[1] / cm, pn ? 'p' : 'n');
       }
       // ***** DEBUGGING INFO
       if (level() >= algorithms::LogLevel::kDebug) {
@@ -407,11 +407,11 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
         for (const auto& sim_hit : *sim_hits) {
           if (sim_hit.getCellID() == cID) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-	    // create link
-	    auto link = links->create();
-	    link.setFrom(item.second);
-	    link.setTo(sim_hit);
-	    link.setWeight(1.0);
+            // create link
+            auto link = links->create();
+            link.setFrom(item.second);
+            link.setTo(sim_hit);
+            link.setWeight(1.0);
 #endif
             // set association
             auto hitassoc = associations->create();
@@ -503,7 +503,7 @@ void MPGDTrackerDigi::parseIDDescriptor() {
   // Require coordinate fields to start @ bits 32 and 48. This is taken
   // advantage of by "(in|de)crementID" (and by debug messages, to cleanly
   // separate coordinates from the rest of CellID).
-  int coordOffsets[2] = {64,64};
+  int coordOffsets[2] = {64, 64};
   for (int pn = 0; pn < 2; pn++) {
     std::string coordName;
     if (m_cfg.readout == "MPGDBarrelHits") {
@@ -1132,12 +1132,12 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
     double Ux = cos(phi), Uy = sin(phi);
     double D = Px * Uy - Py * Ux;
     if (D) { // If P not // to U
-      double t   = (My * Ux - Mx * Uy) / D;
-      double Ex  = Mx + t * Px, Ey = My + t * Py, Ez = Mz + t * Pz;
-      double rE = sqrt(Ex * Ex + Ey * Ey), phiE = atan2(Ey,Ex);
+      double t  = (My * Ux - Mx * Uy) / D;
+      double Ex = Mx + t * Px, Ey = My + t * Py, Ez = Mz + t * Pz;
+      double rE = sqrt(Ex * Ex + Ey * Ey), phiE = atan2(Ey, Ex);
       // The above does not distinguish between phi and phi+pi.
       // => Have to explicitly discard the latter.
-      if (rMin < rE && rE < rMax && fabs(Ez) < dZ && fabs(phiE-phi) < 1) {
+      if (rMin < rE && rE < rMax && fabs(Ez) < dZ && fabs(phiE - phi) < 1) {
         if (t < 0) {
           status |= 0x10;
           tIn = t;
@@ -1633,8 +1633,9 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
 // - Else returns something in the "m_inconsistency" range
 // - <lext> contains the position of farthest extension.
 unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom, // Input subHit
-                                         double rT, int direction, // Target radius
-					 double dZ, double startPhi, double endPhi, // Module parameters
+                                         double rT, int direction,               // Target radius
+                                         double dZ, double startPhi,
+                                         double endPhi, // Module parameters
                                          double* lext) const {
   unsigned int status = 0;
   double Mx = lpos[0], My = lpos[1], Mz = lpos[2];
@@ -1665,9 +1666,9 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
       if (t * direction < 0)
         continue;
       double Ex = Mx + t * Px, Ey = My + t * Py, Ez = Mz + t * Pz;
-      double rE = sqrt(Ex * Ex + Ey * Ey), phiE = atan2(Ey,Ex);
-     // Note: have to discard the phi+pi solution.
-      if (rLow < rE && rE < rUp && fabs(Ez) < dZ && fabs(phiE-phi) < 1) {
+      double rE = sqrt(Ex * Ex + Ey * Ey), phiE = atan2(Ey, Ex);
+      // Note: have to discard the phi+pi solution.
+      if (rLow < rE && rE < rUp && fabs(Ez) < dZ && fabs(phiE - phi) < 1) {
         status |= 0x1;
         tF = t;
       }
@@ -1735,8 +1736,8 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
   return status;
 }
 unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom, // Input subHit
-                                         double zT, int direction, // Target Z
-					 double dX, double dY, // Module parameters
+                                         double zT, int direction,               // Target Z
+                                         double dX, double dY, // Module parameters
                                          double* lext) const {
   unsigned int status = 0;
   double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My};
@@ -1896,9 +1897,9 @@ double outInDistance(int shape, int orientation, double lintos[][3], double lout
     return -1;
 }
 
-unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>& cIDs, int direction,
-					double* lpini, double* lmini,
-                                        double* lpend, double* lmend) const {
+unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>& cIDs,
+                                        int direction, double* lpini, double* lmini, double* lpend,
+                                        double* lmend) const {
   unsigned int status         = 0;
   const VolumeManager& volman = m_detector->volumeManager();
   DetElement refVol           = volman.lookupDetElement(refID);
@@ -1919,15 +1920,18 @@ unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>
   //   incidence w.r.t. SUBVOLUME inner wall. But otherwise, it leads to a
   //   very large difference between initial and extended hit.
   for (int rankE : {0, 4}) {
-    CellID vIDE     = refID | m_stripIDs[rankE];
+    CellID vIDE      = refID | m_stripIDs[rankE];
     int alreadyThere = 0;
-    for (int i = 0; i<(int)cIDs.size(); i++) {
+    for (int i = 0; i < (int)cIDs.size(); i++) {
       if ((cIDs[i] & m_volumeBits) == vIDE) {
-	alreadyThere = 1; break;
+        alreadyThere = 1;
+        break;
       }
     }
-    if (alreadyThere) continue;
-    if (std::find(cIDs.begin(), cIDs.end(), vIDE) != cIDs.end()) continue;
+    if (alreadyThere)
+      continue;
+    if (std::find(cIDs.begin(), cIDs.end(), vIDE) != cIDs.end())
+      continue;
     DetElement volE = volman.lookupDetElement(vIDE);
     double lext[3];
     if (std::string_view{shape.type()} == "TGeoTubeSeg") {
@@ -2091,25 +2095,25 @@ int MPGDTrackerDigi::get2HitCluster(CellID refID,
     //  the safe side, let's ensure the spectator coordinate (i.e. "1-pn") is
     //  left unchanged for both (p|n)Coordinates.
     auto incrementID = [&](int pn) {
-      CellID spectatorBits = pn == 0 ? ((CellID)0xffff)<<48 : ((CellID)0xffff)<<32;
-      CellID iniID = masterID & spectatorBits;
-      neighID = masterID + inc;
+      CellID spectatorBits = pn == 0 ? ((CellID)0xffff) << 48 : ((CellID)0xffff) << 32;
+      CellID iniID         = masterID & spectatorBits;
+      neighID              = masterID + inc;
       neighID &= ~spectatorBits;
       neighID |= iniID;
     };
     auto decrementID = [&](int pn) {
-      CellID spectatorBits = pn == 0 ? ((CellID)0xffff)<<48 : ((CellID)0xffff)<<32;
-      CellID iniID = masterID & spectatorBits;
-      neighID = masterID - inc;
+      CellID spectatorBits = pn == 0 ? ((CellID)0xffff) << 48 : ((CellID)0xffff) << 32;
+      CellID iniID         = masterID & spectatorBits;
+      neighID              = masterID - inc;
       neighID &= ~spectatorBits;
       neighID |= iniID;
     };
     if (sA < mA) {
       decrementID(pn);
-      nA      = mA - pitch;
+      nA = mA - pitch;
     } else {
       incrementID(pn);
-      nA      = mA + pitch;
+      nA = mA + pitch;
     }
     // Amplitude Faction (Note: It can't be but >0, see "init").
     double fn = (sA - mA) / (nA - mA);

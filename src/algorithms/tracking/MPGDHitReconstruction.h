@@ -46,10 +46,10 @@ private:
   const dd4hep::BitFieldCoder* m_id_dec;
   // CellIDs specifying IDDescriptor fields.
   void parseIDDescriptor();
-  int m_coordOffsets[2];            // Offsets of coordinate fields
-  dd4hep::CellID m_subVolBits{0};   // SUBVOLUME = all but coordinates
-  dd4hep::CellID m_pStripBit{0};    // 'p' strip
-  dd4hep::CellID m_nStripBit{0};    // 'n' strip
+  int m_coordOffsets[2];          // Offsets of coordinate fields
+  dd4hep::CellID m_subVolBits{0}; // SUBVOLUME = all but coordinates
+  dd4hep::CellID m_pStripBit{0};  // 'p' strip
+  dd4hep::CellID m_nStripBit{0};  // 'n' strip
 };
 
 } // namespace eicrecon

@@ -129,13 +129,14 @@ void InitPlugin(JApplication* app) {
             digi_cfg.readout.c_str(), constantName.c_str());
       }
     }
-    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
-        "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
-        {"MPGDBarrelRawHits",
+    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>("MPGDBarrelRawHits",
+                                                                 {"EventHeader", "MPGDBarrelHits"},
+                                                                 {"MPGDBarrelRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-	 "MPGDBarrelRawHitLinks",
+                                                                  "MPGDBarrelRawHitLinks",
 #endif
-	 "MPGDBarrelRawHitAssociations"}, digi_cfg, app));
+                                                                  "MPGDBarrelRawHitAssociations"},
+                                                                 digi_cfg, app));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
@@ -195,7 +196,8 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
          "OuterMPGDBarrelRawHitLinks",
 #endif
-	 "OuterMPGDBarrelRawHitAssociations"}, digi_cfg, app));
+         "OuterMPGDBarrelRawHitAssociations"},
+        digi_cfg, app));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
