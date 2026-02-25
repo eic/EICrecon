@@ -55,7 +55,7 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # Minimal dependency versions
-set(Acts_VERSION_MIN 36.0.0)
+set(Acts_VERSION_MIN 39.2.0)
 set(algorithms_VERSION_MIN 1.0.0)
 set(DD4hep_VERSION_MIN 1.21)
 set(EDM4EIC_VERSION_MIN 8.0)
@@ -65,9 +65,9 @@ set(FastJet_VERSION_MIN 3)
 set(FastJetContrib_VERSION_MIN 1.46)
 set(fmt_VERSION_MIN 9.0.0)
 set(IRT_VERSION_MIN 1.0.5)
-set(JANA_VERSION_MIN 2.2.0)
+set(JANA_VERSION_MIN 2.4.0)
 set(onnxruntime_MIN_VERSION 1.17)
-set(podio_VERSION_MIN 0.17)
+set(podio_VERSION_MIN 1.3)
 set(ROOT_VERSION_MIN 6.28)
 set(spdlog_VERSION_MIN 1.11.0)
 
@@ -194,10 +194,7 @@ find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
 
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 ${Eigen3_VERSION_MIN} REQUIRED)
-find_package(podio ${podio_VERSION_MIN} QUIET)
-if(NOT podio_FOUND)
-  find_package(podio 1.0 REQUIRED)
-endif()
+find_package(podio ${podio_VERSION_MIN} REQUIRED)
 find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
 find_package(EDM4EIC ${EDM4EIC_VERSION_MIN} REQUIRED)
 
@@ -256,6 +253,33 @@ if(NOT "cxx_std_${CMAKE_CXX_STANDARD}" IN_LIST ACTS_COMPILE_FEATURES)
     WARNING
       "Acts has not been built with the requested C++ standard ${CMAKE_CXX_STANDARD}."
   )
+endif()
+
+# Workaround for multiple definition bug in Acts < 40
+# (https://github.com/acts-project/acts/pull/4380)
+if(Acts_VERSION VERSION_LESS "40.0.0")
+  if(TARGET ${Acts_NAMESPACE_PREFIX}PluginPodio)
+    message(STATUS "Checking if older Acts version needs linker flags...")
+    try_compile(
+      Acts_needs_allow_multiple_definition
+      ${CMAKE_BINARY_DIR}/Acts_needs_allow_multiple_definition
+      SOURCES
+        ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/main.cc
+        ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/a.cc
+        ${PROJECT_SOURCE_DIR}/cmake/Acts_needs_allow_multiple_definition/b.cc
+      LINK_LIBRARIES podio::podio ${Acts_NAMESPACE_PREFIX}Core
+                     ${Acts_NAMESPACE_PREFIX}PluginPodio)
+    if(NOT Acts_needs_allow_multiple_definition)
+      message(WARNING "This Acts version requires --allow-multiple-definition. "
+                      "This may mask other multiple definition issues. "
+                      "Ref: https://github.com/acts-project/acts/pull/4380.")
+      check_linker_flag(CXX "LINKER:--allow-multiple-definition"
+                        CXX_LINKER_HAS_allow_multiple_definition)
+      if(CXX_LINKER_HAS_allow_multiple_definition)
+        add_link_options("LINKER:--allow-multiple-definition")
+      endif()
+    endif()
+  endif()
 endif()
 
 # ROOT

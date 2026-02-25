@@ -8,8 +8,10 @@
 
 namespace eicrecon {
 struct CKFTrackingConfig {
-  std::vector<double> etaBins                    = {};    // {this, "etaBins", {}};
-  std::vector<double> chi2CutOff                 = {15.}; //{this, "chi2CutOff", {15.}};
-  std::vector<std::size_t> numMeasurementsCutOff = {10};  //{this, "numMeasurementsCutOff", {10}};
+  std::vector<double> etaBins                    = {};
+  std::vector<double> chi2CutOff                 = {15.};
+  std::vector<std::size_t> numMeasurementsCutOff = {10};
+
+  std::size_t numMeasurementsMin = 3;
 };
 } // namespace eicrecon

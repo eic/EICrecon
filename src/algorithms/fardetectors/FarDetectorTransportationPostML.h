@@ -5,6 +5,7 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/TensorCollection.h>
@@ -17,6 +18,10 @@
 #include "algorithms/fardetectors/FarDetectorTransportationPostMLConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoParticleLinkCollection.h>
+#endif
+
 namespace eicrecon {
 
 using FarDetectorTransportationPostMLAlgorithm = algorithms::Algorithm<
@@ -24,6 +29,9 @@ using FarDetectorTransportationPostMLAlgorithm = algorithms::Algorithm<
                       std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>,
                       std::optional<edm4hep::MCParticleCollection>>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       edm4eic::MCRecoParticleLinkCollection,
+#endif
                        edm4eic::MCRecoParticleAssociationCollection>>;
 
 class FarDetectorTransportationPostML
@@ -35,8 +43,13 @@ public:
       : FarDetectorTransportationPostMLAlgorithm{
             name,
             {"inputPredictionsTensor", "trackAssociations", "beamElectrons"},
-            {"outputParticles", "outputAssociations"},
-            "Convert ML output tensor into reconstructed electron"} {}
+            {"outputParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+             "outputLinks",
+#endif
+             "outputAssociations"},
+            "Convert ML output tensor into reconstructed electron"} {
+  }
 
   void init() final;
   void process(const Input&, const Output&) const final;
