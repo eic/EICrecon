@@ -28,7 +28,7 @@ public:
     /// Binning type in phi
     Acts::BinningType bTypePhi = Acts::equidistant;
     /// Binning type in r
-    Acts::BinningType bTypeR = Acts::arbitrary;
+    Acts::BinningType bTypeR = Acts::equidistant;
     /// Binning type in z
     Acts::BinningType bTypeZ = Acts::equidistant;
 
@@ -39,7 +39,7 @@ public:
     double layerEnvelopeZ = 1 * Acts::UnitConstants::mm;
 
     /// Default layer thickness (for layers without explicit thickness)
-    double defaultLayerThickness = 1e-10;
+    double defaultLayerThickness = 1e-12;
 
     /// Function to sort detector elements
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
