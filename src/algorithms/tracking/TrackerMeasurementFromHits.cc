@@ -23,10 +23,11 @@
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
 #include <exception>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 
-#include "ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 
 namespace eicrecon {
 
@@ -42,10 +43,10 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
   constexpr double mm_conv = mm_acts / dd4hep::mm; // = 1/0.1
 
   // Get run-scoped geometry context from service
-  const auto& gctx = m_acts_context->getActsGeometryContext();
+  const auto& gctx = m_acts_detector->getActsGeometryContext();
 
   // output collections
-  auto const& surfaceMap = m_acts_context->surfaceMap();
+  auto const& surfaceMap = m_acts_detector->surfaceMap();
 
   // To do: add clustering to allow forming one measurement from several hits.
   // For now, one hit = one measurement.
@@ -106,7 +107,9 @@ void TrackerMeasurementFromHits::process(const Input& input, const Output& outpu
       loc[Acts::eBoundLoc0] = pos[0];
       loc[Acts::eBoundLoc1] = pos[1];
 
-      auto volman         = m_acts_context->dd4hepDetector()->volumeManager();
+      auto volman = const_cast<eicrecon::ActsDD4hepDetector*>(m_acts_detector.get())
+                        ->dd4hepDetector()
+                        .volumeManager();
       auto alignment      = volman.lookupDetElement(vol_id).nominal();
       auto local_position = (alignment.worldToLocal(
                                 {hit_pos.x / mm_conv, hit_pos.y / mm_conv, hit_pos.z / mm_conv})) *

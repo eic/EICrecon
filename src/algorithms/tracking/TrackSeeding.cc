@@ -5,28 +5,27 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/SpacePointProxy.hpp>
-#include <Acts/Seeding/SeedFinderUtils.hpp>
 #include <Acts/EventData/Seed.hpp>
+#include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding/SeedFilter.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonal.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
+#include <Acts/Seeding/SeedFinderUtils.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Utilities/Result.hpp>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <array>
 #include <cmath>
-#include <gsl/pointers>
 #include <limits>
 #include <tuple>
 
@@ -233,7 +232,7 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   Acts::Vector2 localpos;
   Acts::Vector3 direction(sin(theta) * cos(phi), sin(theta) * sin(phi), cos(theta));
 
-  auto local = perigee->globalToLocal(m_geoSvc->getActsGeometryContext(), global, direction);
+  auto local = perigee->globalToLocal(m_acts_detector->getActsGeometryContext(), global, direction);
 
   if (!local.ok()) {
     return {};

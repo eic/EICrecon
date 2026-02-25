@@ -30,6 +30,7 @@
 #include <edm4eic/Cov3f.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <spdlog/common.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <algorithm>
@@ -39,7 +40,6 @@
 #include <iterator>
 #include <map>
 #include <optional>
-#include <spdlog/common.h>
 #include <stdexcept>
 #include <string>
 #include <tuple>
@@ -47,7 +47,7 @@
 #include <utility>
 #include <variant>
 
-#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -253,8 +253,9 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
 
   trace("    TrackPropagation. Propagating to surface # {}", typeid(targetSurf->type()).name());
 
-  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry   = m_geoSvc->trackingGeometry();
-  std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_geoSvc->getFieldProvider();
+  std::shared_ptr<const Acts::TrackingGeometry> trackingGeometry =
+      m_acts_detector->trackingGeometry();
+  std::shared_ptr<const Acts::MagneticFieldProvider> magneticField = m_acts_detector->field();
 
   // Convert algorithm log level to Acts log level
   const auto spdlog_level = static_cast<spdlog::level::level_enum>(this->level());
@@ -264,13 +265,13 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
   using Propagator        = Acts::Propagator<Acts::EigenStepper<>, Acts::Navigator>;
   using PropagatorOptions = Propagator::template Options<Acts::ActorList<Acts::MaterialInteractor>>;
   Propagator propagator(Acts::EigenStepper<>(magneticField),
-                        Acts::Navigator({.trackingGeometry = m_geoSvc->trackingGeometry()},
+                        Acts::Navigator({.trackingGeometry = m_acts_detector->trackingGeometry()},
                                         logger().cloneWithSuffix("Navigator")),
                         logger().cloneWithSuffix("Propagator"));
 
   // Get run-scoped contexts from service
-  const auto& gctx = m_geoSvc->getActsGeometryContext();
-  const auto& mctx = m_geoSvc->getActsMagneticFieldContext();
+  const auto& gctx = m_acts_detector->getActsGeometryContext();
+  const auto& mctx = m_acts_detector->getActsMagneticFieldContext();
 
   PropagatorOptions propagationOptions(gctx, mctx);
 

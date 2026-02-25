@@ -12,7 +12,7 @@
 #include <string>
 #include <string_view>
 
-#include "ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsDD4hepDetector.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -34,7 +34,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  std::shared_ptr<const ActsGeometryProvider> m_geo_provider;
+  std::shared_ptr<const eicrecon::ActsDD4hepDetector> m_acts_detector;
 };
 
 } // namespace eicrecon

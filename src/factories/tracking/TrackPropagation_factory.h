@@ -16,8 +16,7 @@
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/jana/JOmniFactory.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 
 namespace eicrecon {
 
@@ -33,8 +32,7 @@ private:
   Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_track_segments_output{this};
 
-  Service<DD4hep_service> m_GeoSvc{this};
-  Service<ACTSGeo_service> m_ACTSGeoSvc{this};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {
