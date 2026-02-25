@@ -13,12 +13,9 @@ plugin_add(${PLUGIN_NAME})
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
-plugin_add_irt(${PLUGIN_NAME})
+plugin_add_irt(${PLUGIN_NAME})	 
 plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
 
-# Add libraries (same as target_include_directories but for both plugin and
-# library)
-plugin_link_libraries(${PLUGIN_NAME} log_library algorithms_tracking_library
-                      algorithms_digi_library richgeo_library)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_pid_library)
