@@ -22,8 +22,11 @@
 #include <algorithm>
 #include <exception>
 #include <iostream>
+#include <iterator>
 #include <map>
 #include <memory>
+#include <mutex>
+#include <regex>
 #include <sstream>
 #include <vector>
 
@@ -86,6 +89,26 @@ JEventSourcePODIO::JEventSourcePODIO(std::string resource_name, JApplication* ap
   bool print_type_table = false;
   GetApplication()->SetDefaultParameter("podio:print_type_table", print_type_table,
                                         "Print list of collection names and their types");
+
+  // Get the list of input collections to include
+  std::vector<std::string> input_collections;
+  GetApplication()->SetDefaultParameter(
+      "podio:input_collections", input_collections,
+      "Comma separated list of collection names to read from input. If not set, all collections "
+      "will be "
+      "read from input file. Setting this allows filtering which collections are loaded.");
+
+  m_input_collections = std::set<std::string>(input_collections.begin(), input_collections.end());
+
+  // Log input collections configuration for debugging
+  if (!input_collections.empty()) {
+    m_log->info("podio:input_collections parameter set - will only load specified collections:");
+    for (const auto& coll : input_collections) {
+      m_log->info("  - {}", coll);
+    }
+  } else {
+    m_log->debug("podio:input_collections not set - will load all available collections");
+  }
 
   // Hopefully we won't need to reimplement background event merging. Using podio frames, it looks like we would
   // have to do a deep copy of all data in order to insert it into the same frame, which would probably be
@@ -205,9 +228,29 @@ JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
     }
   }
 
-  // Insert contents odf frame into JFactories
+  // Insert contents of frame into JFactories
   VisitPodioCollection<InsertingVisitor> visit;
+
+  // Resolve input collections patterns on first event only (thread-safe)
+  static std::once_flag resolve_once;
+  if (!m_input_collections.empty()) {
+    std::call_once(resolve_once, [this, &frame]() {
+      ResolveInputCollections(frame->getAvailableCollections());
+      m_log->info("Filtering input collections - loading {} of {} available collections",
+                  m_resolved_input_collections.size(), frame->getAvailableCollections().size());
+    });
+  }
+
   for (const std::string& coll_name : frame->getAvailableCollections()) {
+    // Filter collections based on resolved input_collections parameter
+    // If input_collections is not set (empty), load all collections (default behavior)
+    // If input_collections is set, only load collections that match the resolved patterns
+    if (!m_input_collections.empty() &&
+        m_resolved_input_collections.find(coll_name) == m_resolved_input_collections.end()) {
+      // Skip this collection as it's not in the resolved input_collections list
+      continue;
+    }
+
     const podio::CollectionBase* collection = frame->get(coll_name);
     InsertingVisitor visitor(event, coll_name);
     visit(visitor, *collection);
@@ -262,6 +305,44 @@ double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string reso
     return 0.0;
   }
   return 0.03;
+}
+
+//------------------------------------------------------------------------------
+// ResolveInputCollections
+//
+/// Resolve regex patterns in m_input_collections to actual collection names
+/// from the available collections in the input file
+//------------------------------------------------------------------------------
+void JEventSourcePODIO::ResolveInputCollections(
+    const std::vector<std::string>& available_collections) {
+
+  // Clear any previously resolved collections
+  m_resolved_input_collections.clear();
+
+  if (m_input_collections.empty()) {
+    // If no input collections specified, load all available collections
+    return;
+  }
+
+  // Convert available collections to a set for efficient lookup
+  std::set<std::string> all_collections_set(available_collections.begin(),
+                                            available_collections.end());
+
+  // Turn regexes among input collections into actual collection names
+  std::vector<std::regex> input_collections_regex(m_input_collections.size());
+  std::transform(m_input_collections.begin(), m_input_collections.end(),
+                 input_collections_regex.begin(),
+                 [](const std::string& r) { return std::regex(r); });
+
+  std::copy_if(all_collections_set.begin(), all_collections_set.end(),
+               std::inserter(m_resolved_input_collections, m_resolved_input_collections.end()),
+               [&](const std::string& c) {
+                 return std::any_of(input_collections_regex.begin(), input_collections_regex.end(),
+                                    [&](const std::regex& r) { return std::regex_match(c, r); });
+               });
+
+  m_log->debug("Resolved {} input collection patterns to {} actual collections",
+               m_input_collections.size(), m_resolved_input_collections.size());
 }
 
 //------------------------------------------------------------------------------
