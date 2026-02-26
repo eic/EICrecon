@@ -81,7 +81,7 @@
    and SPREADING.
     + This SIMULATION relies on parameterizations obtained from beam tests.
     + Present version is simplistic: 2-hit clusters (except when on the edge),
-     with identical timing and same amplitude.
+     with identical timing and amplitude, and possibly, BELOW-THRESHOLD charge. 
   - DIGITIZATION:
     + It involves the production of 2-hit clusters, called here CLUSTERIZATION.
     + It otherwise follows the standard steps. Remains to agree on the handling
@@ -361,8 +361,13 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       for (auto clusterHit : cluster) {
         CellID cID = clusterHit.first;
         double f   = clusterHit.second;
-        if (sim_hit.getEDep() * g * f < m_cfg.threshold) {
-          debug("  eDep * {} is below threshold of {:.2f} [keV]", f, m_cfg.threshold / keV);
+	// Threshold
+	// - Let's apply same threshold to the two components of the cluster.
+	// - This, so that cluster position be preserved at Hit Reconstruction
+	//  time (when clustering is performed).
+	// => This has the obvious drawback of creating BELOW-THRESHOLD RawHits.
+        if (eDep < m_cfg.threshold) {
+          debug("  eDep {:.2f} is below threshold of {:.2f} [keV]", eDep, m_cfg.threshold / keV);
           continue;
         }
         stripID2cIDs[cID]   = cIDs;
@@ -371,7 +376,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
         if (cell_hit_map.count(cID) == 0) {
           // This cell doesn't have hits
           cell_hit_map[cID] = {
-              cID, (std::int32_t)std::llround(eDep * 1e6 * g * f),
+              cID, (std::int32_t)std::llround(eDep * 1e6 * f * g),
               hit_time_stamp // ns->ps
           };
         } else {
@@ -384,7 +389,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
 
           // sum deposited energy
           auto charge = hit.getCharge();
-          hit.setCharge(charge + (std::int32_t)std::llround(eDep * 1e6 * f));
+          hit.setCharge(charge + (std::int32_t)std::llround(eDep * 1e6 * f * g));
         }
       }
     } // End loop on strip = p,n
