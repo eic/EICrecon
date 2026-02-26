@@ -123,7 +123,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   Acts::SpacePointContainerOptions spOptions;
   spOptions.beamPos = {0., 0.};
 
-  ActsExamples::SpacePointContainer container(spacePoints);
+  SpacePointContainerType container(spacePoints);
   Acts::SpacePointContainer<decltype(container), Acts::detail::RefHolder> spContainer(
       spConfig, spOptions, container);
 
