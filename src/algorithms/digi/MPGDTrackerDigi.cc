@@ -81,7 +81,7 @@
    and SPREADING.
     + This SIMULATION relies on parameterizations obtained from beam tests.
     + Present version is simplistic: 2-hit clusters (except when on the edge),
-     with identical timing and amplitude, and possibly, BELOW-THRESHOLD charge. 
+     with identical timing and amplitude, and possibly, BELOW-THRESHOLD charge.
   - DIGITIZATION:
     + It involves the production of 2-hit clusters, called here CLUSTERIZATION.
     + It otherwise follows the standard steps. Remains to agree on the handling
@@ -361,11 +361,11 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       for (auto clusterHit : cluster) {
         CellID cID = clusterHit.first;
         double f   = clusterHit.second;
-	// Threshold
-	// - Let's apply same threshold to the two components of the cluster.
-	// - This, so that cluster position be preserved at Hit Reconstruction
-	//  time (when clustering is performed).
-	// => This has the obvious drawback of creating BELOW-THRESHOLD RawHits.
+        // Threshold
+        // - Let's apply same threshold to the two components of the cluster.
+        // - This, so that cluster position be preserved at Hit Reconstruction
+        //  time (when clustering is performed).
+        // => This has the obvious drawback of creating BELOW-THRESHOLD RawHits.
         if (eDep < m_cfg.threshold) {
           debug("  eDep {:.2f} is below threshold of {:.2f} [keV]", eDep, m_cfg.threshold / keV);
           continue;
