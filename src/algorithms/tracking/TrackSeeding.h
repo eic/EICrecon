@@ -11,10 +11,10 @@
 #include <Acts/Utilities/HashedString.hpp>
 #include <Acts/Utilities/Holders.hpp>
 #if __has_include(<ActsExamples/EventData/SpacePointContainer.hpp>)
-#include <ActsExamples/EventData/SpacePointContainer.hpp>
+#  include <ActsExamples/EventData/SpacePointContainer.hpp>
 #else
-#include <any>
-#include <stdexcept>
+#  include <any>
+#  include <stdexcept>
 #endif
 #include <algorithms/algorithm.h>
 #include <edm4eic/TrackParametersCollection.h>
@@ -43,10 +43,11 @@ namespace eicrecon {
 /// Adapter to wrap a collection of space points for use with Acts::SpacePointContainer.
 /// This replaces ActsExamples::SpacePointContainer<T>, which was removed in Acts >= 46
 /// (see https://github.com/acts-project/acts/pull/5088).
-template <typename collection_t> class SpacePointContainerAdapter {
-public:
+template <typename collection_t>
+class SpacePointContainerAdapter {
+ public:
   using CollectionType = collection_t;
-  using ValueType      = typename CollectionType::value_type;
+  using ValueType = typename CollectionType::value_type;
 
   friend class Acts::SpacePointContainer<SpacePointContainerAdapter<collection_t>,
                                          Acts::detail::RefHolder>;
@@ -54,7 +55,7 @@ public:
   SpacePointContainerAdapter() = delete;
   explicit SpacePointContainerAdapter(CollectionType& container) : m_storage(container) {}
 
-private:
+ private:
   std::size_t size_impl() const { return storage().size(); }
   float x_impl(std::size_t idx) const { return storage()[idx]->x(); }
   float y_impl(std::size_t idx) const { return storage()[idx]->y(); }
@@ -83,13 +84,14 @@ class TrackSeeding : public TrackSeedingAlgorithm,
                      public WithPodConfig<OrthogonalTrackSeedingConfig> {
 public:
 #if __has_include(<ActsExamples/EventData/SpacePointContainer.hpp>)
-  using SpacePointContainerType = ActsExamples::SpacePointContainer<std::vector<const SpacePoint*>>;
+  using SpacePointContainerType =
+      ActsExamples::SpacePointContainer<std::vector<const SpacePoint*>>;
 #else
-  using SpacePointContainerType = SpacePointContainerAdapter<std::vector<const SpacePoint*>>;
+  using SpacePointContainerType =
+      SpacePointContainerAdapter<std::vector<const SpacePoint*>>;
 #endif
-  using proxy_type =
-      typename Acts::SpacePointContainer<SpacePointContainerType,
-                                         Acts::detail::RefHolder>::SpacePointProxyType;
+  using proxy_type = typename Acts::SpacePointContainer<SpacePointContainerType,
+                                                        Acts::detail::RefHolder>::SpacePointProxyType;
 
   TrackSeeding(std::string_view name)
       : TrackSeedingAlgorithm{name,
