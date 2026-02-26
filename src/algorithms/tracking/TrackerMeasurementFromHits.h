@@ -5,6 +5,7 @@
 
 #include <DD4hep/Detector.h>
 #include <DDRec/CellIDPositionConverter.h>
+#include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/Measurement2DCollection.h>
@@ -46,6 +47,10 @@ private:
 
   /// Detector-specific information
   unsigned long m_detid_b0tracker;
+  // Special case of "OuterMPGDBarrel" with UV segmentation
+  bool m_outermpgd_UVsegmentation_mode{false};
+  unsigned long m_detid_OuterMPGD{0}; // SystemID of "OuterMPGDBarrel"
+  double m_gridAngle{0};
 };
 
 } // namespace eicrecon
