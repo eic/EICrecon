@@ -57,10 +57,10 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         break;
     }
 
-    std::size_t idx_sample = 0;
-    std::size_t idx_toa    = 0;
-    double t_upcross       = 0;
-    bool is_above_threshold      = false;
+    std::size_t idx_sample  = 0;
+    std::size_t idx_toa     = 0;
+    double t_upcross        = 0;
+    bool is_above_threshold = false;
 
     // Measure the TOAs and TOTs while scanning the amplitudes.
     // Start from i = 1 since amplitude[i-1] is used to calculate the crossing time.
