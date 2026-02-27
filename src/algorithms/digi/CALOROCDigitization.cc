@@ -48,6 +48,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
 
     // ADCs are filled in advance because the measurement indices
     // are already determined.
+    // CALOROC measures pulse amplitude for ADC.
     for (std::size_t i = 0; i < m_cfg.n_samples; i++) {
       std::size_t idx_amp = idx_amp_first + i * sample_tick;
       if (idx_amp < n_amps)
@@ -62,6 +63,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     bool tot_progress      = false;
 
     // Measure the TOAs and TOTs while scanning the amplitudes.
+    // Start from i = 1 since amplitude[i-1] is used to calculate the crossing time.
     for (std::size_t i = 1; i < n_amps; i++) {
       double t = pulse_t + i * pulse_dt;
       if (i > idx_amp_first)
