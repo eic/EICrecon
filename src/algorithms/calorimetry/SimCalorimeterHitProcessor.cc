@@ -23,6 +23,7 @@
 #include <stdexcept>
 #include <tuple>
 #include <unordered_map>
+#include <utility>
 #include <variant>
 #include <vector>
 
@@ -135,9 +136,14 @@ void SimCalorimeterHitProcessor::init() {
 
   // get reference position for attenuating hits and contributions
   if (!m_cfg.attenuationReferencePositionName.empty()) {
-    m_attenuationReferencePosition =
-        m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) *
-        edm4eic::unit::mm / dd4hep::mm;
+    try {
+      m_attenuationReferencePosition =
+          m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) *
+          edm4eic::unit::mm / dd4hep::mm;
+    } catch (const std::runtime_error&) {
+      error("Unable to get attenuation reference position from {}",
+            m_cfg.attenuationReferencePositionName);
+    }
   }
 }
 
