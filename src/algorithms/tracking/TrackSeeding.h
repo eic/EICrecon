@@ -3,11 +3,12 @@
 
 #pragma once
 
-#include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/EventData/Seed.hpp>
+#include <Acts/EventData/SpacePointContainer.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
+#include <Acts/Utilities/HashedString.hpp>
 #include <Acts/Utilities/Holders.hpp>
 #if __has_include(<ActsExamples/EventData/SpacePointContainer.hpp>)
 #include <ActsExamples/EventData/SpacePointContainer.hpp>
