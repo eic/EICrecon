@@ -11,11 +11,12 @@
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
+#include <TDirectory.h>
 #include <TGraph2D.h>
 #include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <cmath>
 #include <filesystem>
 #include <gsl/pointers>
@@ -145,7 +146,10 @@ void eicrecon::PolynomialMatrixReconstruction::process(
   thread_local std::unique_ptr<TGraph2D> xLGraph{nullptr};
   if (xLGraph == nullptr) {
     if (std::filesystem::exists(filename)) {
-      xLGraph = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
+      // Prevent ROOT from registering TGraph2D in global directory
+      gDirectory = nullptr;
+      xLGraph    = std::make_unique<TGraph2D>(filename.c_str(), "%lf %lf %lf");
+      xLGraph->SetDirectory(nullptr);
     } else {
       error("Cannot find lookup xL table for {}", nomMomentum);
       throw std::runtime_error("Cannot find xL lookup table from calibrations -- cannot proceed");

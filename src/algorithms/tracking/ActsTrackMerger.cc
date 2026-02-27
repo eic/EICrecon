@@ -12,66 +12,54 @@
 #include <ActsExamples/EventData/Track.hpp>
 #include <Eigen/LU> // IWYU pragma: keep
 #include <any>
+#include <gsl/pointers>
 #include <memory>
-#include <stdexcept>
 #include <utility>
 #include <vector>
 
 namespace eicrecon {
 
-void ActsTrackMerger::process(const Input& /* input */, const Output& /* output */) const {
-  // This algorithm is intentionally not wired through the standard Algorithm::process
-  // mechanism. The factory calls merge() directly with concrete input/output types.
-  // If process() is ever invoked, treat it as a misuse and fail fast.
-  throw std::logic_error(
-      "ActsTrackMerger::process() is not implemented; the factory must call merge() directly.");
-}
+void ActsTrackMerger::process(const Input& input, const Output& output) const {
+  const auto [input_track_states1, input_tracks1, input_track_states2, input_tracks2] = input;
+  auto [output_track_states, output_tracks]                                           = output;
 
-std::vector<ActsExamples::ConstTrackContainer*>
-ActsTrackMerger::merge(const std::vector<const ActsExamples::ConstTrackContainer*>& input1,
-                       const std::vector<const ActsExamples::ConstTrackContainer*>& input2) const {
+  // Collect all input track containers by reconstructing ConstTrackContainer wrappers
+  std::vector<ActsExamples::ConstTrackContainer> input_containers;
 
-  std::vector<ActsExamples::ConstTrackContainer*> result;
+  // Process first input set
+  auto trackStateContainer1 =
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states1);
+  auto trackContainer1 = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks1);
+  input_containers.emplace_back(trackContainer1, trackStateContainer1);
 
-  // Collect all input track containers
-  // Note: std::views::concat becomes available in C++26
-  std::vector<const ActsExamples::ConstTrackContainer*> inputs;
-  inputs.reserve(input1.size() + input2.size());
-  inputs.insert(inputs.end(), input1.begin(), input1.end());
-  inputs.insert(inputs.end(), input2.begin(), input2.end());
+  // Process second input set
+  auto trackStateContainer2 =
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(*input_track_states2);
+  auto trackContainer2 = std::make_shared<Acts::ConstVectorTrackContainer>(*input_tracks2);
+  input_containers.emplace_back(trackContainer2, trackStateContainer2);
 
-  // Create new mutable containers for merging (even if inputs are empty)
+  // Create new mutable containers for merging
   auto mergedTrackContainer      = std::make_shared<Acts::VectorTrackContainer>();
   auto mergedTrackStateContainer = std::make_shared<Acts::VectorMultiTrajectory>();
   ActsExamples::TrackContainer mergedTracks(mergedTrackContainer, mergedTrackStateContainer);
 
   // Copy all tracks from all input containers
-  for (const auto* inputContainer : inputs) {
+  for (const auto& inputContainer : input_containers) {
     // Ensure dynamic columns exist in merged container
-    mergedTracks.ensureDynamicColumns(*inputContainer);
+    mergedTracks.ensureDynamicColumns(inputContainer);
 
     // Copy each track
-    for (const auto& srcTrack : *inputContainer) {
-      auto destTrack = mergedTracks.getTrack(mergedTracks.addTrack());
-#if Acts_VERSION_MAJOR < 43 || (Acts_VERSION_MAJOR == 43 && Acts_VERSION_MINOR < 2)
-      destTrack.copyFrom(srcTrack, true); // true = copy track states
-#else
+    for (const auto& srcTrack : inputContainer) {
+      auto destTrack = mergedTracks.makeTrack();
       destTrack.copyFrom(srcTrack);
-#endif
     }
   }
 
-  // Convert to const containers
-  auto constTrackStateContainer =
-      std::make_shared<Acts::ConstVectorMultiTrajectory>(std::move(*mergedTrackStateContainer));
-  auto constTrackContainer =
-      std::make_shared<Acts::ConstVectorTrackContainer>(std::move(*mergedTrackContainer));
-
-  // Create and store the merged ConstTrackContainer
-  result.push_back(
-      new ActsExamples::ConstTrackContainer(constTrackContainer, constTrackStateContainer));
-
-  return result;
+  // Allocate new const containers and assign pointers to outputs
+  // (Cannot use placement new because Output<T>::Reset() clears the vector)
+  *output_track_states =
+      new Acts::ConstVectorMultiTrajectory(std::move(*mergedTrackStateContainer));
+  *output_tracks = new Acts::ConstVectorTrackContainer(std::move(*mergedTrackContainer));
 }
 
 } // namespace eicrecon

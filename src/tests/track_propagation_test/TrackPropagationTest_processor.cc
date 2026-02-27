@@ -2,6 +2,8 @@
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/Surfaces/DiscSurface.hpp>
 #include <Acts/Surfaces/RadialBounds.hpp>
 #include <Acts/Surfaces/Surface.hpp>
@@ -18,15 +20,12 @@
 #include <spdlog/logger.h>
 #include <Eigen/Geometry>
 #include <exception>
-#include <gsl/pointers>
 #include <map>
 #include <string>
 #include <vector>
 
 #include "TrackPropagation.h"
 #include "TrackPropagationTest_processor.h"
-#include "services/geometry/acts/ACTSGeo_service.h"
-#include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/rootfile/RootFile_service.h"
 
 //------------------
@@ -53,10 +52,9 @@ void TrackPropagationTest_processor::Init() {
   // Get log level from user parameter or default
   InitLogger(app, plugin_name);
 
-  auto dd4hep_service = GetApplication()->GetService<DD4hep_service>();
-  auto acts_service   = GetApplication()->GetService<ACTSGeo_service>();
-
-  m_propagation_algo.init(dd4hep_service->detector(), acts_service->actsGeoProvider(), logger());
+  // Create TrackPropagation algorithm (must be after services are initialized)
+  m_propagation_algo = std::make_unique<eicrecon::TrackPropagation>("TrackPropagationTest");
+  m_propagation_algo->init();
 
   // Create HCal surface that will be used for propagation
   auto transform = Acts::Transform3::Identity();
@@ -78,14 +76,19 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
   m_log->trace("TrackPropagationTest_processor event");
 
   // Get track containers from tracking
-  auto track_containers = event->Get<ActsExamples::ConstTrackContainer>("CentralCKFActsTracks");
+  auto track_states = event->Get<Acts::ConstVectorMultiTrajectory>("CentralCKFActsTrackStates");
+  auto tracks       = event->Get<Acts::ConstVectorTrackContainer>("CentralCKFActsTracks");
 
-  if (track_containers.empty()) {
+  if (track_states.empty() || tracks.empty()) {
     m_log->debug("No track containers found");
     return;
   }
 
-  const auto& track_container = *track_containers[0];
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer =
+      std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states.front());
+  auto trackContainer = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks.front());
+  ActsExamples::ConstTrackContainer track_container(trackContainer, trackStateContainer);
 
   // Iterate over tracks
   m_log->debug("Propagating through {} tracks", track_container.size());
@@ -96,7 +99,7 @@ void TrackPropagationTest_processor::Process(const std::shared_ptr<const JEvent>
     try {
       // >>> try to propagate to surface <<<
       projection_point =
-          m_propagation_algo.propagate(edm4eic::Track{}, track, track_container, m_hcal_surface);
+          m_propagation_algo->propagate(edm4eic::Track{}, track, track_container, m_hcal_surface);
     } catch (std::exception& e) {
       throw JException(e.what());
     }

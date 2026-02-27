@@ -23,9 +23,10 @@ private:
   using AlgoT = eicrecon::AmbiguitySolver;
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
-  PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
-  Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output{this};
+  Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states_input{this};
+  Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
+  Output<Acts::ConstVectorMultiTrajectory> m_acts_track_states_output{this};
+  Output<Acts::ConstVectorTrackContainer> m_acts_tracks_output{this};
 
   ParameterRef<std::uint32_t> m_maximumSharedHits{this, "maximumSharedHits",
                                                   config().maximum_shared_hits,
@@ -38,22 +39,24 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<AlgoT>();
-    // TODO: convert AmbiguitySolver to inherit from algorithm::Algorithm
-    // m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
-    m_algo->init(logger());
+    m_algo->init();
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    // FIXME clear tracks output since it may not have been initialized or reset
-    // See https://github.com/eic/EICrecon/issues/1961
-    m_acts_tracks_output().clear();
+    auto track_states_vec = m_acts_track_states_input();
+    auto tracks_vec       = m_acts_tracks_input();
+    assert(!track_states_vec.empty() && "ConstVectorMultiTrajectory vector should not be empty");
+    assert(track_states_vec.front() != nullptr &&
+           "ConstVectorMultiTrajectory pointer should not be null");
+    assert(!tracks_vec.empty() && "ConstVectorTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
 
-    auto tracks_vec = m_acts_tracks_input();
-    assert(!tracks_vec.empty() && "ConstTrackContainer vector should not be empty");
-    assert(tracks_vec.front() != nullptr && "ConstTrackContainer pointer should not be null");
-    m_acts_tracks_output() = m_algo->process(tracks_vec, *m_measurements_input());
+    m_algo->process(AlgoT::Input{track_states_vec.front(), tracks_vec.front()},
+                    AlgoT::Output{&m_acts_track_states_output().emplace_back(),
+                                  &m_acts_tracks_output().emplace_back()});
   }
 };
 

@@ -28,7 +28,8 @@ private:
 
   PodioInput<edm4eic::TrackSeed> m_seeds_input{this};
   PodioInput<edm4eic::Measurement2D> m_measurements_input{this};
-  Output<ActsExamples::ConstTrackContainer> m_acts_tracks_output{this};
+  Output<Acts::ConstVectorMultiTrajectory> m_acts_trajectories_output{this};
+  Output<Acts::ConstVectorTrackContainer> m_acts_tracks_output{this};
 
   ParameterRef<std::vector<double>> m_etaBins{this, "EtaBins", config().etaBins,
                                               "Eta Bins for ACTS CKF tracking reco"};
@@ -45,19 +46,16 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<AlgoT>();
-    // TODO: convert CKFTracking to inherit from algorithm::Algorithm
-    // m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
-    m_algo->init(m_ACTSGeoSvc().actsGeoProvider(), logger());
+    m_algo->init();
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    // FIXME clear tracks output since it may not have been initialized or reset
-    // See https://github.com/eic/EICrecon/issues/1961
-    m_acts_tracks_output().clear();
-
-    m_acts_tracks_output() = m_algo->process(*m_seeds_input(), *m_measurements_input());
+    m_algo->process(AlgoT::Input{m_seeds_input(), m_measurements_input()},
+                    AlgoT::Output{&m_acts_trajectories_output().emplace_back(),
+                                  &m_acts_tracks_output().emplace_back()});
   }
 };
 

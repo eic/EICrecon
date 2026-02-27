@@ -13,7 +13,9 @@
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
+#include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/RawTrackerHit.h>
 #include <edm4eic/TrackerHit.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -22,6 +24,8 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <Eigen/Core>
 #include <any>
 #include <array>
@@ -29,6 +33,7 @@
 #include <cstddef>
 #include <gsl/pointers>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <vector>
 
@@ -56,17 +61,26 @@ namespace {
 void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
-  const auto [meas2Ds, track_seeds, acts_tracks, raw_hit_assocs] = input;
-  auto [trajectories, track_parameters, tracks, tracks_assoc]    = output;
+  const auto [meas2Ds, track_seeds, acts_track_states, acts_tracks, raw_hit_assocs] = input;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc] = output;
+#else
+  auto [trajectories, track_parameters, tracks, tracks_assoc] = output;
+#endif
 
   // Create accessor for seed number dynamic column
   Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
 
+  // Construct ActsExamples::ConstTrackContainer from underlying containers
+  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*acts_track_states);
+  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*acts_tracks);
+  ActsExamples::ConstTrackContainer acts_track_container(trackContainer, trackStateContainer);
+
   // Loop over tracks
-  for (const auto& track : *acts_tracks) {
+  for (const auto& track : acts_track_container) {
     // Collect the trajectory summary info
     auto trajectoryState = Acts::MultiTrajectoryHelpers::trajectoryState(
-        acts_tracks->trackStateContainer(), track.tipIndex());
+        acts_track_container.trackStateContainer(), track.tipIndex());
 
     // Create trajectory
     auto trajectory = trajectories->create();
@@ -162,16 +176,28 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
             state.getUncalibratedSourceLink().template get<ActsExamples::IndexSourceLink>().index();
 
         // no hit on this state/surface, skip
+#if Acts_VERSION_MAJOR >= 45
+        if (typeFlags.isHole()) {
+#else
         if (typeFlags.test(Acts::TrackStateFlag::HoleFlag)) {
+#endif
           debug("No hit found on geo id={}", geoID);
 
         } else {
           auto meas2D = (*meas2Ds)[srclink_index];
+#if Acts_VERSION_MAJOR >= 45
+          if (typeFlags.isOutlier()) {
+#else
           if (typeFlags.test(Acts::TrackStateFlag::OutlierFlag)) {
+#endif
             trajectory.addToOutliers_deprecated(meas2D);
             debug("Outlier on geo id={}, index={}, loc={},{}", geoID, srclink_index,
                   meas2D.getLoc().a, meas2D.getLoc().b);
+#if Acts_VERSION_MAJOR >= 45
+          } else if (typeFlags.isMeasurement()) {
+#else
           } else if (typeFlags.test(Acts::TrackStateFlag::MeasurementFlag)) {
+#endif
             track_out.addToMeasurements(meas2D);
             trajectory.addToMeasurements_deprecated(meas2D);
             debug("Measurement on geo id={}, index={}, loc={},{}", geoID, srclink_index,
@@ -203,10 +229,16 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         mcparticle_weight_by_hit_count.begin(), mcparticle_weight_by_hit_count.end(), 0,
         [](const double sum, const auto& i) { return sum + i.second; });
     for (const auto& [mcparticle, weight] : mcparticle_weight_by_hit_count) {
+      double normalized_weight = weight / total_weight;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      auto track_link = tracks_links->create();
+      track_link.setFrom(track_out);
+      track_link.setTo(mcparticle);
+      track_link.setWeight(normalized_weight);
+#endif
       auto track_assoc = tracks_assoc->create();
       track_assoc.setRec(track_out);
       track_assoc.setSim(mcparticle);
-      double normalized_weight = weight / total_weight;
       track_assoc.setWeight(normalized_weight);
       debug("track {}: mcparticle {} weight {}", track_out.id().index, mcparticle.id().index,
             normalized_weight);

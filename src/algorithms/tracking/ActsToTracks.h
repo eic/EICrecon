@@ -3,9 +3,11 @@
 
 #pragma once
 
-#include <ActsExamples/EventData/Track.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/Measurement2DCollection.h>
 #include <edm4eic/TrackCollection.h>
@@ -18,14 +20,21 @@
 
 #include "algorithms/interfaces/WithPodConfig.h"
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoTrackParticleLinkCollection.h>
+#endif
+
 namespace eicrecon {
 
 using ActsToTracksAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::Measurement2DCollection, edm4eic::TrackSeedCollection,
-                      ActsExamples::ConstTrackContainer,
+                      Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer,
                       std::optional<edm4eic::MCRecoTrackerHitAssociationCollection>>,
     algorithms::Output<edm4eic::TrajectoryCollection, edm4eic::TrackParametersCollection,
                        edm4eic::TrackCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       std::optional<edm4eic::MCRecoTrackParticleLinkCollection>,
+#endif
                        std::optional<edm4eic::MCRecoTrackParticleAssociationCollection>>>;
 
 class ActsToTracks : public ActsToTracksAlgorithm, public WithPodConfig<NoConfig> {
@@ -35,6 +44,7 @@ public:
                               {
                                   "inputMeasurements",
                                   "inputTrackSeeds",
+                                  "inputActsTrackStates",
                                   "inputActsTracks",
                                   "inputRawTrackerHitAssociations",
                               },
@@ -42,6 +52,9 @@ public:
                                   "outputTrajectories",
                                   "outputTrackParameters",
                                   "outputTracks",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                  "outputTrackLinks",
+#endif
                                   "outputTrackAssociations",
                               },
                               "Converts ACTS tracks to EDM4eic"} {};

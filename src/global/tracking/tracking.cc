@@ -5,12 +5,18 @@
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoTrackerHitLinkCollection.h>
+#endif
 #include <edm4eic/TrackCollection.h>
 #include <edm4eic/TrackParameters.h>
 #include <edm4eic/TrackSeed.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <podio/detail/Link.h>
+#include <deque>
 #include <functional>
 #include <map>
 #include <memory>
@@ -82,6 +88,19 @@ void InitPlugin(JApplication* app) {
       {"CentralTrackingRawHitAssociations"}, // Output collection name
       app));
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Tracker hit links collector
+  app->Add(
+      new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitLink, true>>(
+          "CentralTrackingRawHitLinks",
+          {"SiBarrelRawHitLinks", "SiBarrelVertexRawHitLinks", "SiEndcapTrackerRawHitLinks",
+           "TOFBarrelRawHitLinks", "TOFEndcapRawHitLinks", "MPGDBarrelRawHitLinks",
+           "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
+           "ForwardMPGDEndcapRawHitLinks"},
+          {"CentralTrackingRawHitLinks"}, // Output collection name
+          app));
+#endif
+
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
       "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
       app));
@@ -90,6 +109,7 @@ void InitPlugin(JApplication* app) {
       "CentralCKFTruthSeededTrajectories",
       {"CentralTrackerTruthSeeds", "CentralTrackerMeasurements"},
       {
+          "CentralCKFTruthSeededActsTrackStatesUnfiltered",
           "CentralCKFTruthSeededActsTracksUnfiltered",
       },
       app));
@@ -99,6 +119,7 @@ void InitPlugin(JApplication* app) {
       {
           "CentralTrackerMeasurements",
           "CentralTrackerTruthSeeds",
+          "CentralCKFTruthSeededActsTrackStatesUnfiltered",
           "CentralCKFTruthSeededActsTracksUnfiltered",
           "CentralTrackingRawHitAssociations",
       },
@@ -106,14 +127,19 @@ void InitPlugin(JApplication* app) {
           "CentralCKFTruthSeededTrajectoriesUnfiltered",
           "CentralCKFTruthSeededTrackParametersUnfiltered",
           "CentralCKFTruthSeededTracksUnfiltered",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "CentralCKFTruthSeededTrackUnfilteredLinks",
+#endif
           "CentralCKFTruthSeededTrackUnfilteredAssociations",
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "TruthSeededAmbiguityResolutionSolver",
-      {"CentralCKFTruthSeededActsTracksUnfiltered", "CentralTrackerMeasurements"},
+      {"CentralCKFTruthSeededActsTrackStatesUnfiltered",
+       "CentralCKFTruthSeededActsTracksUnfiltered"},
       {
+          "CentralCKFTruthSeededActsTrackStates",
           "CentralCKFTruthSeededActsTracks",
       },
       app));
@@ -123,6 +149,7 @@ void InitPlugin(JApplication* app) {
                                                        {
                                                            "CentralTrackerMeasurements",
                                                            "CentralTrackerTruthSeeds",
+                                                           "CentralCKFTruthSeededActsTrackStates",
                                                            "CentralCKFTruthSeededActsTracks",
                                                            "CentralTrackingRawHitAssociations",
                                                        },
@@ -130,6 +157,9 @@ void InitPlugin(JApplication* app) {
                                                            "CentralCKFTruthSeededTrajectories",
                                                            "CentralCKFTruthSeededTrackParameters",
                                                            "CentralCKFTruthSeededTracks",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                           "CentralCKFTruthSeededTrackLinks",
+#endif
                                                            "CentralCKFTruthSeededTrackAssociations",
                                                        },
                                                        app));
@@ -141,6 +171,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "CentralCKFTrajectories", {"CentralTrackSeeds", "CentralTrackerMeasurements"},
       {
+          "CentralCKFActsTrackStatesUnfiltered",
           "CentralCKFActsTracksUnfiltered",
       },
       app));
@@ -150,6 +181,7 @@ void InitPlugin(JApplication* app) {
                                                        {
                                                            "CentralTrackerMeasurements",
                                                            "CentralTrackSeeds",
+                                                           "CentralCKFActsTrackStatesUnfiltered",
                                                            "CentralCKFActsTracksUnfiltered",
                                                            "CentralTrackingRawHitAssociations",
                                                        },
@@ -157,13 +189,18 @@ void InitPlugin(JApplication* app) {
                                                            "CentralCKFTrajectoriesUnfiltered",
                                                            "CentralCKFTrackParametersUnfiltered",
                                                            "CentralCKFTracksUnfiltered",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                           "CentralCKFTrackUnfilteredLinks",
+#endif
                                                            "CentralCKFTrackUnfilteredAssociations",
                                                        },
                                                        app));
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
-      "AmbiguityResolutionSolver", {"CentralCKFActsTracksUnfiltered", "CentralTrackerMeasurements"},
+      "AmbiguityResolutionSolver",
+      {"CentralCKFActsTrackStatesUnfiltered", "CentralCKFActsTracksUnfiltered"},
       {
+          "CentralCKFActsTrackStates",
           "CentralCKFActsTracks",
       },
       app));
@@ -172,6 +209,7 @@ void InitPlugin(JApplication* app) {
                                                             {
                                                                 "CentralTrackerMeasurements",
                                                                 "CentralTrackSeeds",
+                                                                "CentralCKFActsTrackStates",
                                                                 "CentralCKFActsTracks",
                                                                 "CentralTrackingRawHitAssociations",
                                                             },
@@ -179,12 +217,16 @@ void InitPlugin(JApplication* app) {
                                                                 "CentralCKFTrajectories",
                                                                 "CentralCKFTrackParameters",
                                                                 "CentralCKFTracks",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                "CentralCKFTrackLinks",
+#endif
                                                                 "CentralCKFTrackAssociations",
                                                             },
                                                             app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackProjector_factory>("CentralTrackSegments",
                                                               {
+                                                                  "CentralCKFActsTrackStates",
                                                                   "CentralCKFActsTracks",
                                                                   "CentralCKFTracks",
                                                               },
@@ -196,6 +238,7 @@ void InitPlugin(JApplication* app) {
   app->Add(
       new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>("CentralTrackVertices",
                                                                 {
+                                                                    "CentralCKFActsTrackStates",
                                                                     "CentralCKFActsTracks",
                                                                     "ReconstructedChargedParticles",
                                                                 },
@@ -205,7 +248,8 @@ void InitPlugin(JApplication* app) {
                                                                 {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
-      "CalorimeterTrackPropagator", {"CentralCKFTracks", "CentralCKFActsTracks"},
+      "CalorimeterTrackPropagator",
+      {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {"CalorimeterTrackProjections"},
       {.target_surfaces{
           // Ecal
@@ -271,6 +315,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "B0TrackerCKFTruthSeededTrajectories", {"B0TrackerTruthSeeds", "B0TrackerMeasurements"},
       {
+          "B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
       },
       app));
@@ -280,6 +325,7 @@ void InitPlugin(JApplication* app) {
       {
           "B0TrackerMeasurements",
           "B0TrackerTruthSeeds",
+          "B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
           "B0TrackerRawHitAssociations",
       },
@@ -287,14 +333,19 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTruthSeededTrajectoriesUnfiltered",
           "B0TrackerCKFTruthSeededTrackParametersUnfiltered",
           "B0TrackerCKFTruthSeededTracksUnfiltered",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "B0TrackerCKFTruthSeededTrackUnfilteredLinks",
+#endif
           "B0TrackerCKFTruthSeededTrackUnfilteredAssociations",
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "B0TrackerTruthSeededAmbiguityResolutionSolver",
-      {"B0TrackerCKFTruthSeededActsTracksUnfiltered", "B0TrackerMeasurements"},
+      {"B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
+       "B0TrackerCKFTruthSeededActsTracksUnfiltered"},
       {
+          "B0TrackerCKFTruthSeededActsTrackStates",
           "B0TrackerCKFTruthSeededActsTracks",
       },
       app));
@@ -304,6 +355,7 @@ void InitPlugin(JApplication* app) {
       {
           "B0TrackerMeasurements",
           "B0TrackerTruthSeeds",
+          "B0TrackerCKFTruthSeededActsTrackStates",
           "B0TrackerCKFTruthSeededActsTracks",
           "B0TrackerRawHitAssociations",
       },
@@ -311,6 +363,9 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTruthSeededTrajectories",
           "B0TrackerCKFTruthSeededTrackParameters",
           "B0TrackerCKFTruthSeededTracks",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "B0TrackerCKFTruthSeededTrackLinks",
+#endif
           "B0TrackerCKFTruthSeededTrackAssociations",
       },
       app));
@@ -322,6 +377,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "B0TrackerCKFTrajectories", {"B0TrackerSeeds", "B0TrackerMeasurements"},
       {
+          "B0TrackerCKFActsTrackStatesUnfiltered",
           "B0TrackerCKFActsTracksUnfiltered",
       },
       app));
@@ -331,6 +387,7 @@ void InitPlugin(JApplication* app) {
       {
           "B0TrackerMeasurements",
           "B0TrackerSeeds",
+          "B0TrackerCKFActsTrackStatesUnfiltered",
           "B0TrackerCKFActsTracksUnfiltered",
           "B0TrackerRawHitAssociations",
       },
@@ -338,14 +395,18 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTrajectoriesUnfiltered",
           "B0TrackerCKFTrackParametersUnfiltered",
           "B0TrackerCKFTracksUnfiltered",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "B0TrackerCKFTrackUnfilteredLinks",
+#endif
           "B0TrackerCKFTrackUnfilteredAssociations",
       },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<AmbiguitySolver_factory>(
       "B0TrackerAmbiguityResolutionSolver",
-      {"B0TrackerCKFActsTracksUnfiltered", "B0TrackerMeasurements"},
+      {"B0TrackerCKFActsTrackStatesUnfiltered", "B0TrackerCKFActsTracksUnfiltered"},
       {
+          "B0TrackerCKFActsTrackStates",
           "B0TrackerCKFActsTracks",
       },
       app));
@@ -354,6 +415,7 @@ void InitPlugin(JApplication* app) {
                                                             {
                                                                 "B0TrackerMeasurements",
                                                                 "B0TrackerSeeds",
+                                                                "B0TrackerCKFActsTrackStates",
                                                                 "B0TrackerCKFActsTracks",
                                                                 "B0TrackerRawHitAssociations",
                                                             },
@@ -361,6 +423,9 @@ void InitPlugin(JApplication* app) {
                                                                 "B0TrackerCKFTrajectories",
                                                                 "B0TrackerCKFTrackParameters",
                                                                 "B0TrackerCKFTracks",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                "B0TrackerCKFTrackLinks",
+#endif
                                                                 "B0TrackerCKFTrackAssociations",
                                                             },
                                                             app));
@@ -368,20 +433,24 @@ void InitPlugin(JApplication* app) {
   // COMBINED TRACKING
 
   // Use both central and B0 tracks for vertexing
-  app->Add(
-      new JOmniFactoryGeneratorT<ActsTrackMerger_factory>("CentralAndB0TrackerCKFActsTracks",
-                                                          {
-                                                              "CentralCKFActsTracks",
-                                                              "B0TrackerCKFActsTracks",
-                                                          },
-                                                          {
-                                                              "CentralAndB0TrackerCKFActsTracks",
-                                                          },
-                                                          app));
+  app->Add(new JOmniFactoryGeneratorT<ActsTrackMerger_factory>(
+      "CentralAndB0TrackerCKFActsTracks",
+      {
+          "CentralCKFActsTrackStates",
+          "CentralCKFActsTracks",
+          "B0TrackerCKFActsTrackStates",
+          "B0TrackerCKFActsTracks",
+      },
+      {
+          "CentralAndB0TrackerCKFActsTrackStates",
+          "CentralAndB0TrackerCKFActsTracks",
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
       "CentralAndB0TrackVertices",
       {
+          "CentralAndB0TrackerCKFActsTrackStates",
           "CentralAndB0TrackerCKFActsTracks",
           "ReconstructedChargedParticles",
       },
@@ -416,6 +485,9 @@ void InitPlugin(JApplication* app) {
           "CombinedTruthSeededTrackAssociations",
       },
       {"ReconstructedTruthSeededChargedWithoutPIDParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "ReconstructedTruthSeededChargedWithoutPIDParticleLinks",
+#endif
        "ReconstructedTruthSeededChargedWithoutPIDParticleAssociations"},
       {}, app));
 
@@ -426,6 +498,9 @@ void InitPlugin(JApplication* app) {
           "CombinedTrackAssociations",
       },
       {"ReconstructedChargedWithoutPIDParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "ReconstructedChargedWithoutPIDParticleLinks",
+#endif
        "ReconstructedChargedWithoutPIDParticleAssociations"},
       {}, app));
 }

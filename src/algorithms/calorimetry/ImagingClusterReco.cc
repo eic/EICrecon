@@ -8,15 +8,17 @@
  *  Author: Chao Peng (ANL), 06/02/2021
  */
 
-#include "algorithms/calorimetry/ImagingClusterReco.h"
-
 #include <Evaluator/DD4hepUnits.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/RawCalorimeterHit.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
+#include <podio/LinkNavigator.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <Eigen/Core>
 #include <Eigen/Householder> // IWYU pragma: keep
 #include <Eigen/Jacobi>
@@ -25,17 +27,45 @@
 #include <cmath>
 #include <gsl/pointers>
 #include <map>
+#include <memory>
 #include <new>
+#include <optional>
 
 #include "algorithms/calorimetry/ClusterTypes.h"
+#include "algorithms/calorimetry/ImagingClusterReco.h"
 #include "algorithms/calorimetry/ImagingClusterRecoConfig.h"
 
 namespace eicrecon {
 
 void ImagingClusterReco::process(const Input& input, const Output& output) const {
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  const auto [proto, mchitlinks, mchitassociations] = input;
+  auto [clusters, links, associations, layers]      = output;
+#else
   const auto [proto, mchitassociations] = input;
   auto [clusters, associations, layers] = output;
+#endif
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // Check if truth associations are possible
+  const bool do_assoc = mchitlinks != nullptr && !mchitlinks->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoCalorimeterHitLink collection is empty. No truth associations "
+          "will be performed.");
+  }
+  // Build fast lookup once per event using podio::LinkNavigator
+  std::optional<podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>> link_nav;
+  if (do_assoc) {
+    link_nav.emplace(*mchitlinks);
+  }
+#else
+  const bool do_assoc = mchitassociations != nullptr && !mchitassociations->empty();
+  if (!do_assoc) {
+    debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
+          "will be performed.");
+  }
+#endif
 
   for (const auto& pcl : *proto) {
     if (!pcl.getHits().empty() && !pcl.getHits(0).isAvailable()) {
@@ -60,12 +90,15 @@ void ImagingClusterReco::process(const Input& input, const Output& output) const
     clusters->push_back(cl);
 
     // If sim hits are available, associate cluster with MCParticle
-    if (mchitassociations->empty()) {
-      debug("Provided MCRecoCalorimeterHitAssociation collection is empty. No truth associations "
-            "will be performed.");
-      continue;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    if (do_assoc) {
+      associate_mc_particles(cl, mchitassociations, *link_nav, links, associations);
     }
-    associate_mc_particles(cl, mchitassociations, associations);
+#else
+    if (do_assoc) {
+      associate_mc_particles(cl, mchitassociations, associations);
+    }
+#endif
   }
 
   // debug output
@@ -222,7 +255,11 @@ ImagingClusterReco::fit_track(const std::vector<edm4eic::MutableCluster>& layers
 
 void ImagingClusterReco::associate_mc_particles(
     const edm4eic::Cluster& cl,
-    const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+    [[maybe_unused]] const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
+    edm4eic::MCRecoClusterParticleLinkCollection* links,
+#endif
     edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const {
   // --------------------------------------------------------------------------
   // Association Logic
@@ -254,24 +291,30 @@ void ImagingClusterReco::associate_mc_particles(
   // --------------------------------------------------------------------------
   double eSimHitSum = 0.;
   for (auto clhit : cl.getHits()) {
-    // vector to hold associated sim hits
-    std::vector<edm4hep::SimCalorimeterHit> vecAssocSimHits;
-
-    for (const auto& hitAssoc : *mchitassociations) {
-      // if found corresponding raw hit, add sim hit to vector
-      // and increment energy sum
-      if (clhit.getRawHit() == hitAssoc.getRawHit()) {
-        vecAssocSimHits.push_back(hitAssoc.getSimHit());
-        eSimHitSum += vecAssocSimHits.back().getEnergy();
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    // Get linked sim hits using LinkNavigator
+    const auto vecAssocSimHits = link_nav.getLinked(clhit.getRawHit());
+#else
+    // Fallback: linear search through associations
+    std::vector<std::pair<edm4hep::SimCalorimeterHit, double>> vecAssocSimHits;
+    for (const auto& assoc : *mchitassociations) {
+      if (assoc.getRawHit() == clhit.getRawHit()) {
+        vecAssocSimHits.push_back(std::make_pair(assoc.getSimHit(), assoc.getWeight()));
       }
     }
+#endif
+
+    for (const auto& [simHit, weight] : vecAssocSimHits) {
+      eSimHitSum += simHit.getEnergy();
+    }
+
     debug("{} associated sim hits found for reco hit (cell ID = {})", vecAssocSimHits.size(),
           clhit.getCellID());
 
     // ------------------------------------------------------------------------
     // 2. loop through associated sim hits
     // ------------------------------------------------------------------------
-    for (const auto& simHit : vecAssocSimHits) {
+    for (const auto& [simHit, weight] : vecAssocSimHits) {
       for (const auto& contrib : simHit.getContributions()) {
         // --------------------------------------------------------------------
         // grab primary responsible for contribution & increment relevant sum
@@ -294,11 +337,20 @@ void ImagingClusterReco::associate_mc_particles(
     // calculate weight
     const double weight = contribution / eSimHitSum;
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    // create link
+    auto link = links->create();
+    link.setWeight(weight);
+    link.setFrom(cl);
+    link.setTo(part);
+#endif
+
     // set association
     auto assoc = assocs->create();
     assoc.setWeight(weight);
     assoc.setRec(cl);
     assoc.setSim(part);
+
     debug("Associated cluster #{} to MC Particle #{} (pid = {}, status = {}, energy = {}) with "
           "weight ({})",
           cl.getObjectID().index, part.getObjectID().index, part.getPDG(),

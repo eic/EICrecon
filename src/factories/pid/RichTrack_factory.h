@@ -31,7 +31,8 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4eic::Track> m_tracks_input{this};
-  Input<ActsExamples::ConstTrackContainer> m_acts_tracks_input{this};
+  Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states_input{this};
+  Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_track_segments_output{this};
 
   Service<DD4hep_service> m_GeoSvc{this};
@@ -39,23 +40,28 @@ private:
 
 public:
   void Configure() {
-    m_algo = std::make_unique<AlgoT>();
-    // TODO: convert RichTrack to inherit from algorithm::Algorithm
-    // m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo = std::make_unique<AlgoT>(this->GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
 
     if (config().filter_surfaces.empty())
       throw JException("cannot find filter surface for RICH track propagation");
 
-    m_algo->init(m_GeoSvc().detector(), m_ACTSGeoSvc().actsGeoProvider(), logger());
+    m_algo->init();
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    assert(!m_acts_tracks_input().empty() && "ConstTrackContainer vector should not be empty");
-    assert(m_acts_tracks_input().front() != nullptr &&
-           "ConstTrackContainer pointer should not be null");
-    m_algo->propagateToSurfaceList({*m_tracks_input(), m_acts_tracks_input()},
-                                   {m_track_segments_output().get()});
+    auto track_states_vec = m_acts_track_states_input();
+    auto tracks_vec       = m_acts_tracks_input();
+    assert(!track_states_vec.empty() && "ConstVectorMultiTrajectory vector should not be empty");
+    assert(track_states_vec.front() != nullptr &&
+           "ConstVectorMultiTrajectory pointer should not be null");
+    assert(!tracks_vec.empty() && "ConstVectorTrackContainer vector should not be empty");
+    assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
+
+    m_algo->propagateToSurfaceList(
+        AlgoT::Input{m_tracks_input(), track_states_vec.front(), tracks_vec.front()},
+        AlgoT::Output{m_track_segments_output().get()});
   }
 };
 

@@ -119,7 +119,7 @@ jobs:
             USE_TSAN: ON
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
-            release: 25.07.0-stable
+            release: 25.09.0-stable
           - CXX: clang++
             CMAKE_BUILD_TYPE: Release
             release: 25.11.2-stable
@@ -302,13 +302,19 @@ jobs:
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
           # reduce headers until diff is stable
-          while [[ ${sha:-} != $(git diff | sha256sum) ]] ; do
+          i=5
+          while [[ $i > 0 && ${sha:-} != $(git diff | sha256sum) ]] ; do
+            let i=i-1
             sha=$(git diff | sha256sum)
             echo $sha
             iwyu_tool.py -p build $(git diff --name-only ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }}) -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
             fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
             git diff | tee iwyu_fixes.patch
           done
+          if [[ $i == 0 ]] ; then
+            echo "IWYU took too many iterations to converge."
+            exit 1
+          fi
     - name: Run include-what-you-use (iwyu) on all files
       uses: eic/run-cvmfs-osg-eic-shell@main
       if: ${{ github.event_name == 'push' }}
@@ -809,7 +815,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v12
+      uses: dawidd6/action-download-artifact@v15
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -1024,7 +1030,7 @@ jobs:
         if-no-files-found: error
     - name: Download previous artifact
       id: download_previous_artifact
-      uses: dawidd6/action-download-artifact@v12
+      uses: dawidd6/action-download-artifact@v15
       with:
         branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
         path: ref/
@@ -1193,7 +1199,7 @@ jobs:
       max-parallel: 4
     steps:
       - name: Download docs artifact (other PRs)
-        uses: dawidd6/action-download-artifact@v12
+        uses: dawidd6/action-download-artifact@v15
         if: github.event.pull_request.number != matrix.pr
         with:
           commit: ${{ matrix.head_sha }}
@@ -1210,7 +1216,7 @@ jobs:
           path: publishing_docs/pr/${{ matrix.pr }}/
       - name: Download capybara artifact (other PRs)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v12
+        uses: dawidd6/action-download-artifact@v15
         if: github.event.pull_request.number != matrix.pr
         with:
           commit: ${{ matrix.head_sha }}
@@ -1242,7 +1248,7 @@ jobs:
       # - If we run this on a non-main branch, we download from main with action-download-artifact.
       # - If we run this on the main branch, we have to download from this pipeline with download-artifact.
       - name: Download docs artifact (in PR)
-        uses: dawidd6/action-download-artifact@v12
+        uses: dawidd6/action-download-artifact@v15
         if: github.ref_name != 'main'
         with:
           branch: main
@@ -1259,7 +1265,7 @@ jobs:
           path: publishing_docs/
       - name: Download capybara artifact (in PR)
         id: download_capybara
-        uses: dawidd6/action-download-artifact@v12
+        uses: dawidd6/action-download-artifact@v15
         if: github.ref_name != 'main'
         with:
           commit: ${{ matrix.head_sha }}
@@ -1291,7 +1297,7 @@ jobs:
           if-no-files-found: error
 
   collect-docs:
-    runs-on: ubuntu-slim
+    runs-on: ubuntu-24.04
     needs:
       - get-docs-from-main
       - get-docs-from-open-prs

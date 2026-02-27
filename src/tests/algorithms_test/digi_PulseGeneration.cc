@@ -14,6 +14,7 @@
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
+#include <initializer_list>
 #include <memory>
 #include <string>
 #include <tuple>
@@ -207,4 +208,90 @@ TEST_CASE("Test Landau pulse crossing threshold is not prematurely terminated",
     }
   }
   REQUIRE(has_above_threshold);
+}
+
+TEST_CASE("Test multi-modal expression pulse with early sub-threshold peak and later "
+          "above-threshold peak",
+          "[PulseGeneration][MultiModal]") {
+
+  eicrecon::PulseGeneration<edm4hep::SimTrackerHit> algo("PulseGeneration");
+  eicrecon::PulseGenerationConfig cfg;
+
+  // Regression test for multi-modal pulses with EvaluatorSvc expressions.
+  // Expression with two separated peaks:
+  // - First peak near t=0 with amplitude 0.5*charge (below threshold)
+  // - Second peak near t=5ns with amplitude 1.5*charge (above threshold)
+  //
+  // This verifies the algorithm does NOT prematurely exit after encountering
+  // the first sub-threshold peak. For non-unimodal pulses (like arbitrary
+  // EvaluatorSvc expressions), the algorithm must continue searching for
+  // potential later peaks that may cross the threshold, rather than assuming
+  // the pulse is "falling" and breaking early.
+  std::string expression = "(time >= 0.0 && time <= 0.5 ? 0.5 * charge : 0.0) + "
+                           "(time >= 5.0 && time <= 5.5 ? 1.5 * charge : 0.0)";
+
+  cfg.pulse_shape_function = expression;
+  cfg.pulse_shape_params   = {}; // No parameters needed for piecewise expression
+  cfg.ignore_thres         = 1.0;
+  cfg.timestep             = 0.1 * edm4eic::unit::ns;
+  cfg.min_sampling_time =
+      1.0 * edm4eic::unit::ns; // Min duration to continue sampling from the hit time
+  cfg.max_time_bins = 200;     // Enough to capture both peaks
+
+  algo.applyConfig(cfg);
+  algo.init();
+
+  // Use charge=1.0 so:
+  // - First peak amplitude  = 0.5 * 1.0 = 0.5 (below threshold of 1.0)
+  // - Second peak amplitude = 1.5 * 1.0 = 1.5 (above threshold of 1.0)
+  // Peaks are at t=[0.0, 0.5] and t=[5.0, 5.5] respectively
+  double charge = 1.0;
+  double time   = 0.0 * edm4eic::unit::ns;
+
+  edm4hep::SimTrackerHitCollection hits_coll;
+  hits_coll.create(12345, charge, time);
+
+  auto pulses = std::make_unique<PulseType::collection_type>();
+
+  auto input  = std::make_tuple(&hits_coll);
+  auto output = std::make_tuple(pulses.get());
+
+  algo.process(input, output);
+
+  // Pulse should be generated because the second peak crosses threshold
+  REQUIRE(pulses->size() == 1);
+  REQUIRE((*pulses)[0].getCellID() == 12345);
+
+  auto amplitudes = (*pulses)[0].getAmplitude();
+
+  // Should have sampled enough to capture the second peak
+  REQUIRE(amplitudes.size() > 0);
+
+  // Find the maximum amplitude - it should be near the second peak
+  float max_amplitude = 0.0;
+  std::size_t max_idx = 0;
+  for (std::size_t i = 0; i < amplitudes.size(); i++) {
+    if (std::abs(amplitudes[i]) > std::abs(max_amplitude)) {
+      max_amplitude = amplitudes[i];
+      max_idx       = i;
+    }
+  }
+
+  // The maximum should be above threshold (from the second peak)
+  REQUIRE(std::abs(max_amplitude) > cfg.ignore_thres);
+
+  // The maximum should occur in the second peak region (t=[5.0, 5.5] ns)
+  // Account for the pulse start time when calculating the time of maximum
+  // Note: pulse start time is aligned to the timestep grid, and the first sample
+  // in the amplitudes array is at pulse_start_time + timestep
+  double pulse_start_time = (*pulses)[0].getTime();
+  double max_time         = pulse_start_time + (max_idx + 1) * cfg.timestep;
+  REQUIRE(max_time >= 5.0 * edm4eic::unit::ns);
+  REQUIRE(max_time <= 5.6 * edm4eic::unit::ns); // Allow for one timestep beyond peak end
+
+  // Verify we didn't exit early - should have samples beyond the actual peak
+  // Compare against the computed max_time to ensure at least one additional timestep
+  // Note: for a sample at index i, time(amplitudes[i]) = pulse_start_time + (i + 1) * timestep
+  double last_sampled_time = pulse_start_time + amplitudes.size() * cfg.timestep;
+  REQUIRE(last_sampled_time >= max_time + cfg.timestep);
 }
