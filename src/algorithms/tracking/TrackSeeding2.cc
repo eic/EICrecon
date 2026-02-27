@@ -9,11 +9,9 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Cov6f.h>
 #include <edm4hep/Vector2f.h>
-#include <edm4hep/Vector3f.h>
-#include <Eigen/Core>
+#include <spdlog/common.h>
 #include <Eigen/Geometry>
 #include <array>
 #include <cmath>
