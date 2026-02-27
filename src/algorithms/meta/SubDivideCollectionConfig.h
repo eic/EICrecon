@@ -3,10 +3,13 @@
 
 #pragma once
 
+#include <cstddef>
+#include <functional>
+#include <vector>
 namespace eicrecon {
 
 template <class T> struct SubDivideCollectionConfig {
-  std::function<std::vector<int>(const T&)> function;
+  std::function<std::vector<std::size_t>(const T&)> function;
 };
 
 } // namespace eicrecon
