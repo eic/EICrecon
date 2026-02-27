@@ -304,6 +304,8 @@ void TrackSeeding2::process(const Input& input, const Output& output) const {
   }
 #else
   (void)trk_hits;
+  (void)trk_seeds;
+  (void)trk_params;
   warning("TrackSeeding2 requires Acts >= 45, which is not available. No seeds produced.");
 #endif
 }
