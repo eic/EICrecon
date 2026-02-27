@@ -60,7 +60,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
     std::size_t idx_sample = 0;
     std::size_t idx_toa    = 0;
     double t_upcross       = 0;
-    bool tot_progress      = false;
+    bool is_above_threshold      = false;
 
     // Measure the TOAs and TOTs while scanning the amplitudes.
     // Start from i = 1 since amplitude[i-1] is used to calculate the crossing time.
@@ -72,22 +72,22 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
         break;
 
       // Measure up-crossing time for TOA
-      if (!tot_progress && pulse.getAmplitude()[i] > m_cfg.toa_thres) {
+      if (!is_above_threshold && pulse.getAmplitude()[i] > m_cfg.toa_thres) {
         idx_toa   = idx_sample;
         t_upcross = get_crossing_time(m_cfg.toa_thres, pulse_dt, t, pulse.getAmplitude()[i],
                                       pulse.getAmplitude()[i - 1]);
         raw_samples[idx_toa].toa =
             m_cfg.adc_phase + (time_stamp + idx_toa) * m_cfg.time_window - t_upcross;
-        tot_progress = true;
+        is_above_threshold = true;
       }
 
       // Measure down-crossing time for TOT
-      if (tot_progress && pulse.getAmplitude()[i] < m_cfg.tot_thres) {
+      if (is_above_threshold && pulse.getAmplitude()[i] < m_cfg.tot_thres) {
         raw_samples[idx_toa].tot =
             get_crossing_time(m_cfg.tot_thres, pulse_dt, t, pulse.getAmplitude()[i],
                               pulse.getAmplitude()[i - 1]) -
             t_upcross;
-        tot_progress = false;
+        is_above_threshold = false;
       }
     }
 
