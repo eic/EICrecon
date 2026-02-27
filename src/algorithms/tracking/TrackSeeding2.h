@@ -3,18 +3,22 @@
 
 #pragma once
 
-#include <Acts/Definitions/Units.hpp>
+#include <Acts/Utilities/Logger.hpp>
 #include <algorithms/algorithm.h>
+#include <boost/container/detail/std_fwd.hpp>
 #include <edm4eic/TrackParametersCollection.h>
 #include <edm4eic/TrackSeedCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
+#include <math.h>
+#include <array>
 #include <memory>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <tuple>
+#include <utility>
+#include <variant>
 #include <vector>
-
-#include <Acts/Utilities/Logger.hpp>
 
 #include "ActsGeometryProvider.h"
 #include "TripletTrackSeedingConfig.h"
