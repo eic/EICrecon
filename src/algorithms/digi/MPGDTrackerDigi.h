@@ -81,7 +81,8 @@ private:
                            double lintos[][3], double louts[][3], double* lpini,
                            double* lpend) const;
   void printSubHitList(const Input& input, std::vector<int>& subHitList) const;
-  unsigned int extendHit(dd4hep::CellID modID, int direction, double* lpini, double* lmini,
+  unsigned int extendHit(dd4hep::CellID modID, std::vector<std::uint64_t>& cIDs, int direction,
+			 double* lpini, double* lmini,
                          double* lpend, double* lmend) const;
   unsigned int cExtension(double const* lpos, double const* lmom, // Input subHit
                           double rT,                              // Target radius

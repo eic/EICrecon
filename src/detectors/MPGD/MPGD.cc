@@ -79,7 +79,7 @@ void InitPlugin(JApplication* app) {
     } catch (const std::invalid_argument& e) {
       throw JException(
           R"(Option "MPGD:SiFactoryPattern": Error ("%s") parsing input
-        string: '%s')",
+        string: '%s'.)",
           e.what(), SiFactoryPattern_str.c_str());
     }
   }
@@ -108,19 +108,19 @@ void InitPlugin(JApplication* app) {
         },
         app));
   } else {
-    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>("MPGDBarrelRawHits",
-                                                                 {"EventHeader", "MPGDBarrelHits"},
-                                                                 {"MPGDBarrelRawHits",
+    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
+        "MPGDBarrelRawHits", {"EventHeader", "MPGDBarrelHits"},
+        {"MPGDBarrelRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                                                  "MPGDBarrelRawHitLinks",
+	 "MPGDBarrelRawHitLinks",
 #endif
-                                                                  "MPGDBarrelRawHitAssociations"},
-                                                                 {
-                                                                     .readout   = "MPGDBarrelHits",
-                                                                     .threshold = 100 * dd4hep::eV,
-                                                                     .timeResolution = 10,
-                                                                 },
-                                                                 app));
+	 "MPGDBarrelRawHitAssociations"},
+	{
+	  .readout   = "MPGDBarrelHits",
+	  .threshold = 100 * dd4hep::eV,
+	  .timeResolution = 10,
+	},
+	app));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
