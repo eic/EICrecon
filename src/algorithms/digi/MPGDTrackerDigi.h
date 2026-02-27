@@ -82,8 +82,7 @@ private:
                            double* lpend) const;
   void printSubHitList(const Input& input, std::vector<int>& subHitList) const;
   unsigned int extendHit(dd4hep::CellID modID, std::vector<std::uint64_t>& cIDs, int direction,
-			 double* lpini, double* lmini,
-                         double* lpend, double* lmend) const;
+                         double* lpini, double* lmini, double* lpend, double* lmend) const;
   unsigned int cExtension(double const* lpos, double const* lmom, // Input subHit
                           double rT,                              // Target radius
                           int direction, double dZ, double startPhi,

@@ -1408,7 +1408,8 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
 // - <lext> contains the position of farthest extension.
 unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom, // Input subHit
                                          double rT, int direction,               // Target radius
-					 double dZ, double startPhi, double endPhi, // Module parameters
+                                         double dZ, double startPhi,
+                                         double endPhi, // Module parameters
                                          double* lext) const {
   unsigned int status = 0;
   double Mx = lpos[0], My = lpos[1], Mz = lpos[2];
@@ -1510,7 +1511,7 @@ unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom,
 }
 unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom, // Input subHit
                                          double zT, int direction,               // Target Z
-					 double dX, double dY, // Module parameters
+                                         double dX, double dY, // Module parameters
                                          double* lext) const {
   unsigned int status = 0;
   double Mx = lpos[0], My = lpos[1], Mxy[2] = {Mx, My};
@@ -1670,9 +1671,9 @@ double outInDistance(int shape, int orientation, double lintos[][3], double lout
     return -1;
 }
 
-unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>& cIDs, int direction,
-					double* lpini, double* lmini,
-                                        double* lpend, double* lmend) const {
+unsigned int MPGDTrackerDigi::extendHit(CellID refID, std::vector<std::uint64_t>& cIDs,
+                                        int direction, double* lpini, double* lmini, double* lpend,
+                                        double* lmend) const {
   unsigned int status         = 0;
   const VolumeManager& volman = m_detector->volumeManager();
   DetElement refVol           = volman.lookupDetElement(refID);
