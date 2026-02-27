@@ -128,7 +128,7 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
 
 double CALOROCDigitization::get_crossing_time(double thres, double dt, double t, double amp1,
                                               double amp2) const {
-  double numerator   = (thres - amp2) * dt;
+  double numerator   = (amp1 - thres) * dt;
   double denominator = amp2 - amp1;
   double added       = t;
   return (numerator / denominator) + added;
