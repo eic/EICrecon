@@ -48,6 +48,7 @@
 #include <variant>
 
 #include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 #include "algorithms/tracking/TrackPropagation.h"
 #include "algorithms/tracking/TrackPropagationConfig.h"
 #include "extensions/spdlog/SpdlogToActs.h"
@@ -128,17 +129,25 @@ void TrackPropagation::init() {
 }
 
 void TrackPropagation::propagateToSurfaceList(const Input& input, const Output& output) const {
-  const auto [tracks, track_states, tracks_acts] = input;
-  auto [track_segments]                          = output;
+  const auto [tracks, track_states, track_parameters, track_jacobians, tracks_acts] = input;
+  auto [track_segments]                                                             = output;
 
   // logging
   trace("Propagate tracks: --------------------");
   trace("number of tracks: {}", tracks->size());
 
-  // Construct ConstTrackContainer from underlying containers
-  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*track_states);
-  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks_acts);
-  ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
+  // Create conversion helper for Podio backend
+  PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
+                                         m_geoSvc->trackingGeometry());
+
+  // Construct ConstPodioTrackContainer from Podio collections
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*track_jacobians});
+  ActsPlugins::ConstPodioTrackContainer<> trackContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*tracks_acts});
+  PodioTrackContainer constTracks(trackContainer, trackStateContainer);
 
   // loop over input tracks
   std::size_t i = 0;
@@ -220,9 +229,8 @@ void TrackPropagation::propagateToSurfaceList(const Input& input, const Output& 
 }
 
 std::unique_ptr<edm4eic::TrackPoint>
-TrackPropagation::propagate(const edm4eic::Track& /* track */,
-                            const ActsExamples::ConstTrackProxy& acts_track,
-                            const ActsExamples::ConstTrackContainer& trackContainer,
+TrackPropagation::propagate(const edm4eic::Track& /* track */, const PodioTrackProxy& acts_track,
+                            const PodioTrackContainer& trackContainer,
                             const std::shared_ptr<const Acts::Surface>& targetSurf) const {
 
   auto tipIndex = acts_track.tipIndex();

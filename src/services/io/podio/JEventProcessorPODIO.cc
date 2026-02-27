@@ -283,6 +283,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #endif
       "CentralCKFTruthSeededTrackAssociations",
       "CentralCKFTruthSeededTrackParameters",
+      "CentralCKFTruthSeededActsTrackStates",
+      "CentralCKFTruthSeededActsTrackParameters",
+      "CentralCKFTruthSeededActsTrackJacobians",
+      "CentralCKFTruthSeededActsTracks",
       "CentralCKFTrajectories",
       "CentralCKFTracks",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -290,6 +294,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #endif
       "CentralCKFTrackAssociations",
       "CentralCKFTrackParameters",
+      "CentralCKFActsTrackStates",
+      "CentralCKFActsTrackParameters",
+      "CentralCKFActsTrackJacobians",
+      "CentralCKFActsTracks",
       // tracking properties - true seeding
       "CentralCKFTruthSeededTrajectoriesUnfiltered",
       "CentralCKFTruthSeededTracksUnfiltered",
@@ -298,6 +306,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #endif
       "CentralCKFTruthSeededTrackUnfilteredAssociations",
       "CentralCKFTruthSeededTrackParametersUnfiltered",
+      "CentralCKFTruthSeededActsTrackStatesUnfiltered",
+      "CentralCKFTruthSeededActsTrackParametersUnfiltered",
+      "CentralCKFTruthSeededActsTrackJacobiansUnfiltered",
+      "CentralCKFTruthSeededActsTracksUnfiltered",
       // tracking properties - realistic seeding
       "CentralCKFTrajectoriesUnfiltered",
       "CentralCKFTracksUnfiltered",
@@ -306,6 +318,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #endif
       "CentralCKFTrackUnfilteredAssociations",
       "CentralCKFTrackParametersUnfiltered",
+      "CentralCKFActsTrackStatesUnfiltered",
+      "CentralCKFActsTrackParametersUnfiltered",
+      "CentralCKFActsTrackJacobiansUnfiltered",
+      "CentralCKFActsTracksUnfiltered",
 
       // B0 tracking
       "B0TrackerCKFTruthSeededTrajectories",
@@ -315,6 +331,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #endif
       "B0TrackerCKFTruthSeededTrackAssociations",
       "B0TrackerCKFTruthSeededTrackParameters",
+      "B0TrackerCKFTruthSeededActsTrackStates",
+      "B0TrackerCKFTruthSeededActsTrackParameters",
+      "B0TrackerCKFTruthSeededActsTrackJacobians",
+      "B0TrackerCKFTruthSeededActsTracks",
       "B0TrackerCKFTrajectories",
       "B0TrackerCKFTracks",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -322,6 +342,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #endif
       "B0TrackerCKFTrackAssociations",
       "B0TrackerCKFTrackParameters",
+      "B0TrackerCKFActsTrackStates",
+      "B0TrackerCKFActsTrackParameters",
+      "B0TrackerCKFActsTrackJacobians",
+      "B0TrackerCKFActsTracks",
       // tracking properties - true seeding
       "B0TrackerCKFTruthSeededTrajectoriesUnfiltered",
       "B0TrackerCKFTruthSeededTracksUnfiltered",
@@ -330,6 +354,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #endif
       "B0TrackerCKFTruthSeededTrackUnfilteredAssociations",
       "B0TrackerCKFTruthSeededTrackParametersUnfiltered",
+      "B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
+      "B0TrackerCKFTruthSeededActsTrackParametersUnfiltered",
+      "B0TrackerCKFTruthSeededActsTrackJacobiansUnfiltered",
+      "B0TrackerCKFTruthSeededActsTracksUnfiltered",
       // tracking properties - realistic seeding
       "B0TrackerCKFTrajectoriesUnfiltered",
       "B0TrackerCKFTrackParametersUnfiltered",
@@ -338,6 +366,10 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerCKFTrackUnfilteredLinks",
 #endif
       "B0TrackerCKFTrackUnfilteredAssociations",
+      "B0TrackerCKFActsTrackStatesUnfiltered",
+      "B0TrackerCKFActsTrackParametersUnfiltered",
+      "B0TrackerCKFActsTrackJacobiansUnfiltered",
+      "B0TrackerCKFActsTracksUnfiltered",
 
       "CentralAndB0TrackVertices",
 

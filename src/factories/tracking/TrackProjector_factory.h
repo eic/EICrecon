@@ -24,8 +24,10 @@ private:
 
   std::unique_ptr<AlgoT> m_algo;
 
-  Input<Acts::ConstVectorMultiTrajectory> m_acts_track_states_input{this};
-  Input<Acts::ConstVectorTrackContainer> m_acts_tracks_input{this};
+  PodioInput<ActsPodioEdm::TrackState> m_acts_track_states_input{this};
+  PodioInput<ActsPodioEdm::BoundParameters> m_acts_track_parameters_input{this};
+  PodioInput<ActsPodioEdm::Jacobian> m_acts_track_jacobians_input{this};
+  PodioInput<ActsPodioEdm::Track> m_acts_tracks_input{this};
   PodioInput<edm4eic::Track> m_tracks_input{this};
   PodioOutput<edm4eic::TrackSegment> m_segments_output{this};
 
@@ -40,18 +42,12 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    auto track_states_vec = m_acts_track_states_input();
-    auto tracks_vec       = m_acts_tracks_input();
-    assert(!track_states_vec.empty() && "ConstVectorMultiTrajectory vector should not be empty");
-    assert(track_states_vec.front() != nullptr &&
-           "ConstVectorMultiTrajectory pointer should not be null");
-    assert(!tracks_vec.empty() && "ConstVectorTrackContainer vector should not be empty");
-    assert(tracks_vec.front() != nullptr && "ConstVectorTrackContainer pointer should not be null");
-
     m_algo->process(
         {
-            track_states_vec.front(),
-            tracks_vec.front(),
+            m_acts_track_states_input(),
+            m_acts_track_parameters_input(),
+            m_acts_track_jacobians_input(),
+            m_acts_tracks_input(),
             m_tracks_input(),
         },
         {

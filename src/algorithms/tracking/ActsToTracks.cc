@@ -14,6 +14,8 @@
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackContainer.hpp>
+#include <ActsPlugins/EDM4hep/PodioTrackStateContainer.hpp>
 #include <edm4eic/Cov6f.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/RawTrackerHit.h>
@@ -37,7 +39,9 @@
 #include <numeric>
 #include <vector>
 
-#include "ActsToTracks.h"
+#include "algorithms/tracking/ActsGeometryProvider.h"
+#include "algorithms/tracking/ActsToTracks.h"
+#include "algorithms/tracking/PodioGeometryIdConversionHelper.h"
 #include "extensions/edm4eic/EDM4eicToActs.h"
 
 namespace eicrecon {
@@ -61,7 +65,8 @@ namespace {
 void ActsToTracks::init() {}
 
 void ActsToTracks::process(const Input& input, const Output& output) const {
-  const auto [meas2Ds, track_seeds, acts_track_states, acts_tracks, raw_hit_assocs] = input;
+  const auto [meas2Ds, track_seeds, acts_track_states, acts_track_parameters, acts_track_jacobians,
+              acts_tracks, raw_hit_assocs] = input;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   auto [trajectories, track_parameters, tracks, tracks_links, tracks_assoc] = output;
 #else
@@ -69,12 +74,21 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 #endif
 
   // Create accessor for seed number dynamic column
-  Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
+  // TODO: Restore seed number tracking when dynamic columns are fixed
+  // Acts::ConstProxyAccessor<unsigned int> seedNumber("seed");
 
-  // Construct ActsExamples::ConstTrackContainer from underlying containers
-  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*acts_track_states);
-  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*acts_tracks);
-  ActsExamples::ConstTrackContainer acts_track_container(trackContainer, trackStateContainer);
+  // Create conversion helper for Podio backend
+  PodioGeometryIdConversionHelper helper(m_geoSvc->getActsGeometryContext(),
+                                         m_geoSvc->trackingGeometry());
+
+  // Construct Podio track container from underlying collections
+  ActsPlugins::ConstPodioTrackStateContainer<> trackStateContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackStateCollection>{*acts_track_states},
+      Acts::ConstRefHolder<const ActsPodioEdm::BoundParametersCollection>{*acts_track_parameters},
+      Acts::ConstRefHolder<const ActsPodioEdm::JacobianCollection>{*acts_track_jacobians});
+  ActsPlugins::ConstPodioTrackContainer<> trackContainer(
+      helper, Acts::ConstRefHolder<const ActsPodioEdm::TrackCollection>{*acts_tracks});
+  Acts::TrackContainer acts_track_container(trackContainer, trackStateContainer);
 
   // Loop over tracks
   for (const auto& track : acts_track_container) {
@@ -90,15 +104,12 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     trajectory.setNHoles(trajectoryState.nHoles);
     trajectory.setNSharedHits(trajectoryState.nSharedHits);
 
-    // Set the seed that was used to obtain this track
-    unsigned int iseed = seedNumber(track);
-    if (iseed < track_seeds->size()) {
-      trajectory.setSeed((*track_seeds)[iseed]);
-    } else {
-      warning("ActsToTracks: seed index {} is out of bounds (track_seeds size = {}), seed will not "
-              "be set for this trajectory",
-              iseed, track_seeds->size());
-    }
+    // TODO: Restore seed association when dynamic columns are fixed
+    // For now, don't set the seed reference
+    // unsigned int iseed = seedNumber(track);
+    // if (iseed < track_seeds->size()) {
+    //   trajectory.setSeed((*track_seeds)[iseed]);
+    // }
 
     debug("trajectory state, measurement, outlier, hole: {} {} {} {}", trajectoryState.nStates,
           trajectoryState.nMeasurements, trajectoryState.nOutliers, trajectoryState.nHoles);

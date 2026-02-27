@@ -7,6 +7,10 @@
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
 #include <Acts/MagneticField/MagneticFieldProvider.hpp>
+#include <ActsPodioEdm/BoundParametersCollection.h>
+#include <ActsPodioEdm/JacobianCollection.h>
+#include <ActsPodioEdm/TrackCollection.h>
+#include <ActsPodioEdm/TrackStateCollection.h>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
@@ -22,7 +26,8 @@
 namespace eicrecon {
 
 using IterativeVertexFinderAlgorithm = algorithms::Algorithm<
-    algorithms::Input<Acts::ConstVectorMultiTrajectory, Acts::ConstVectorTrackContainer,
+    algorithms::Input<ActsPodioEdm::TrackStateCollection, ActsPodioEdm::BoundParametersCollection,
+                      ActsPodioEdm::JacobianCollection, ActsPodioEdm::TrackCollection,
                       edm4eic::ReconstructedParticleCollection>,
     algorithms::Output<edm4eic::VertexCollection>>;
 
@@ -30,18 +35,19 @@ class IterativeVertexFinder : public IterativeVertexFinderAlgorithm,
                               public WithPodConfig<eicrecon::IterativeVertexFinderConfig> {
 public:
   IterativeVertexFinder(std::string_view name)
-      : IterativeVertexFinderAlgorithm{
-            name,
-            {"inputActsTrackStates", "inputActsTracks", "inputReconstructedParticles"},
-            {"outputVertices"},
-            "Iterative vertex finder"} {}
+      : IterativeVertexFinderAlgorithm{name,
+                                       {"inputActsTrackStates", "inputActsTrackParameters",
+                                        "inputActsTrackJacobians", "inputActsTracks",
+                                        "inputReconstructedParticles"},
+                                       {"outputVertices"},
+                                       "Iterative vertex finder"} {}
 
   void init() final {};
   void process(const Input&, const Output&) const final;
 
 private:
-  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{
-      algorithms::ActsSvc::instance().acts_geometry_provider()};
+  const algorithms::ActsSvc& m_actsSvc{algorithms::ActsSvc::instance()};
+  std::shared_ptr<const ActsGeometryProvider> m_geoSvc{m_actsSvc.acts_geometry_provider()};
   std::shared_ptr<const Acts::MagneticFieldProvider> m_BField{m_geoSvc->getFieldProvider()};
 };
 } // namespace eicrecon
