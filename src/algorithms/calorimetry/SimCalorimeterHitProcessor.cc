@@ -153,7 +153,7 @@ void SimCalorimeterHitProcessor::init() {
       m_attenuationReferencePosition =
           m_geo.detector()->constant<double>(m_cfg.attenuationReferencePositionName) *
           edm4eic::unit::mm / dd4hep::mm;
-    } catch (std::runtime_error& e) {
+    } catch (const std::runtime_error&) {
       error(fmt::format("Unable to get attenuation reference position from {}",
                         m_cfg.attenuationReferencePositionName));
     }
