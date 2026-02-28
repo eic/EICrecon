@@ -48,8 +48,8 @@ EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params)
   std::unique_ptr<TInterpreterValue> func_val{gInterpreter->MakeInterpreterValue()};
   interp->Evaluate(fmt::format("&{}", func_name).c_str(), *func_val);
   typedef double (*func_t)(double params[]);
-  // NOLINTNEXTLINE(performance-no-int-to-ptr)
-  func_t func = (func_t)(func_val->GetAsPointer());
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
+  func_t func = reinterpret_cast<func_t>(func_val->GetAsPointer());
   if (!func) {
     throw std::runtime_error(
         fmt::format("EvaluatorSvc: failed to get function pointer for expression: {}", expr));
