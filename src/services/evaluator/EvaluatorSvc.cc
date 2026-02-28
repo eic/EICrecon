@@ -36,9 +36,9 @@ EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params)
   TInterpreter::EErrorCode ec = TInterpreter::kNoError;
   interp->ProcessLine(sstr.str().c_str(), &ec);
   if (ec != TInterpreter::kNoError) {
-    throw std::runtime_error(
-        fmt::format("EvaluatorSvc: failed to compile expression (error code {}): {}. Generated code: {}",
-                    static_cast<int>(ec), expr, sstr.str()));
+    throw std::runtime_error(fmt::format(
+        "EvaluatorSvc: failed to compile expression (error code {}): {}. Generated code: {}",
+        static_cast<int>(ec), expr, sstr.str()));
   }
   // Use the explicit address-of operator (&) so that TInterpreterValue stores the
   // result with pointer type (double(*)(double[])) rather than function type
