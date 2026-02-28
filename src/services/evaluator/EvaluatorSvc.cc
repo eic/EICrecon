@@ -3,7 +3,7 @@
 
 #include <TInterpreter.h>
 #include <TInterpreterValue.h>
-#include <fmt/core.h>
+#include <fmt/format.h>
 #include <memory>
 #include <sstream>
 #include <stdexcept>
