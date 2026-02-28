@@ -46,7 +46,8 @@ EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params)
   // storage holds a reference to a temporary evaluation buffer inside func_val,
   // which becomes a dangling pointer once func_val goes out of scope.
   std::unique_ptr<TInterpreterValue> func_val{gInterpreter->MakeInterpreterValue()};
-  interp->Evaluate(fmt::format("&{}", func_name).c_str(), *func_val);
+  std::string eval_expr = fmt::format("&({})", func_name);
+  interp->Evaluate(eval_expr.c_str(), *func_val);
   typedef double (*func_t)(double params[]);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   func_t func = reinterpret_cast<func_t>(func_val->GetAsPointer());
