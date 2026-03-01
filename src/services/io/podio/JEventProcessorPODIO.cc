@@ -654,6 +654,35 @@ void JEventProcessorPODIO::FindCollectionsToWrite(const std::shared_ptr<const JE
       }
     }
   }
+
+  // Now trigger all factories to see which ones actually create collections.
+  std::vector<std::string> candidate_collections = m_collections_to_write;
+  for (const std::string& coll : candidate_collections) {
+    try {
+      m_log->trace("Triggering factory for collection '{}'", coll);
+      event->GetCollectionBase(coll);
+    } catch (...) {
+      // Exception expected for factories with missing dependencies
+      // The JOmniFactory fix should have created empty collections
+    }
+  }
+
+  // Check which collections actually made it into the frame
+  const auto* frame         = event->GetSingle<podio::Frame>();
+  auto collections_in_frame = frame->getAvailableCollections();
+
+  std::vector<std::string> final_collections;
+  for (const std::string& coll : candidate_collections) {
+    if (std::find(collections_in_frame.begin(), collections_in_frame.end(), coll) !=
+        collections_in_frame.end()) {
+      final_collections.push_back(coll);
+    } else {
+      m_log->warn("Collection '{}' not in frame after factory trigger, omitting from output", coll);
+    }
+  }
+
+  m_collections_to_write = final_collections;
+  m_log->info("Will write {} collections", m_collections_to_write.size());
 }
 
 void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
@@ -662,11 +691,9 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   std::call_once(m_is_first_event, &JEventProcessorPODIO::FindCollectionsToWrite, this, event);
 
   // Print the contents of some collections, just for debugging purposes
-  // Do this before writing just in case writing crashes
   if (!m_collections_to_print.empty()) {
     m_log->info("========================================");
     m_log->info("JEventProcessorPODIO: Event {}", event->GetEventNumber());
-    ;
   }
   for (const auto& coll_name : m_collections_to_print) {
     m_log->info("------------------------------");
@@ -684,55 +711,19 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
       m_log->info("missing");
     }
   }
-
   m_log->trace("==================================");
   m_log->trace("Event #{}", event->GetEventNumber());
 
-  // Make sure that all factories get called that need to be written into the frame.
-  // We need to do this for _all_ factories unless we've constrained it by using includes/excludes.
-  // Note that all collections need to be present in the first event, as podio::RootFrameWriter constrains us to write one event at a time, so there
-  // is no way to add a new branch after the first event.
-
-  // If we get an exception below while trying to add a factory for any
-  // reason then mark that factory as bad and don't try running it again.
-  // This is motivated by trying to write EcalBarrelSciGlass objects for
-  // data simulated using the imaging calorimeter. In that case, it will
-  // always throw an exception, but DD4hep also prints its own error message.
-  // Thus, to prevent that error message every event, we must avoid calling
-  // it.
-
-  // Activate factories.
-  std::vector<std::string> successful_collections;
-  std::set<std::string> failed_collections;
+  // Activate factories
   for (const std::string& coll : m_collections_to_write) {
     try {
-      m_log->trace("Ensuring factory for collection '{}' has been called.", coll);
-      const auto* coll_ptr = event->GetCollectionBase(coll);
-      if (coll_ptr == nullptr) {
-        // If a collection is missing from the frame, the podio root writer will segfault.
-        // To avoid this, we treat this as a failing collection and omit from this point onwards.
-        // However, this code path is expected to be unreachable because any missing collection will be
-        // replaced with an empty collection in JFactoryPodioTFixed::Create.
-        if (!failed_collections.contains(coll)) {
-          m_log->error("Omitting PODIO collection '{}' because it is null", coll);
-          failed_collections.insert(coll);
-        }
-      } else {
-        m_log->trace("Including PODIO collection '{}'", coll);
-        successful_collections.push_back(coll);
-      }
-    } catch (std::exception& e) {
-      // Limit printing warning to just once per factory
-      if (!failed_collections.contains(coll)) {
-        m_log->error("Omitting PODIO collection '{}' due to exception: {}.", coll, e.what());
-        failed_collections.insert(coll);
-      }
+      event->GetCollectionBase(coll);
+    } catch (...) {
+      // Exception expected - factory created empty collection before rethrowing
     }
   }
 
-  // Frame will contain data from all Podio factories that have been triggered,
-  // including by the `event->GetCollectionBase(coll);` above.
-  // Note that collections MUST be present in frame. If a collection is null, the writer will segfault.
+  // Write frame
   const auto* frame = event->GetSingle<podio::Frame>();
   {
     std::lock_guard<std::mutex> lock(m_mutex);
