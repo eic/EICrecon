@@ -20,6 +20,10 @@
 
 TEST_CASE("Test TOA calculation", "[CALOROCDigitization][TOACalculation]") {
 
+  // If a pulse has amplitudes, (t, 0), (t+1, 1), and (t+2, 2),
+  // and the adc_phase and toa_thres are 0 and 1, respectively,
+  // the measured TOA should be 24 - t. This test validates it.
+
   eicrecon::CALOROCDigitization algo("CALOROCDigitization");
   eicrecon::CALOROCDigitizationConfig cfg;
 
