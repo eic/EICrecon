@@ -8,7 +8,11 @@
 #include <Acts/Definitions/Direction.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
+#if Acts_VERSION_MAJOR > 45
+#include <Acts/EventData/BoundTrackParameters.hpp>
+#else
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
+#endif
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
