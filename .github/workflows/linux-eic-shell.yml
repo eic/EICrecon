@@ -217,7 +217,6 @@ jobs:
         name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-ASAN
         path: install.tar.zst
         if-no-files-found: error
-        archive: false
     - name: Upload install directory (TSAN)
       if: ${{ matrix.USE_ASAN == 'OFF' && matrix.USE_TSAN == 'ON' }}
       uses: actions/upload-artifact@v7
@@ -225,7 +224,6 @@ jobs:
         name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-TSAN
         path: install.tar.zst
         if-no-files-found: error
-        archive: false
     # Only compress and upload build directory if we are going to use it later
     - name: Compress build directory
       if: matrix.CXX == env.clang-tidy-iwyu-CXX && matrix.CMAKE_BUILD_TYPE == env.clang-tidy-iwyu-CMAKE_BUILD_TYPE
@@ -237,7 +235,6 @@ jobs:
         name: build-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}
         path: build.tar.zst
         if-no-files-found: error
-        archive: false
 
   clang-tidy-iwyu:
     runs-on: ubuntu-24.04
