@@ -116,6 +116,13 @@ void eicrecon::IterativeVertexFinder::process(const Input& input, const Output& 
   trackParameters.reserve(constTracks.size());
 
   for (const auto& track : constTracks) {
+    // Filter tracks based on minimum number of measurements (hits)
+    if (track.nMeasurements() < m_cfg.minTrackHits) {
+      trace("Track rejected: {} measurements < {} minimum required measurements",
+            track.nMeasurements(), m_cfg.minTrackHits);
+      continue;
+    }
+
     // Create BoundTrackParameters and store it
     trackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
                                  track.covariance(), track.particleHypothesis());
