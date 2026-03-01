@@ -273,6 +273,11 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "MCNonScatteredElectronAssociations", // Remove if/when used internally
       "ReconstructedBreitFrameParticles",
 
+  // Truthiness (reconstructed <-> truth comparisons)
+#if __has_include(<edm4eic/Truthiness.h>)
+      "Truthiness",
+#endif
+
       // Central tracking
       "CentralTrackSegments",
       "CentralTrackVertices",
