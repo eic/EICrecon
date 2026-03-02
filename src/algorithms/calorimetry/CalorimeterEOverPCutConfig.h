@@ -7,9 +7,9 @@
 namespace eicrecon {
 
 struct CalorimeterEOverPCutConfig {
-  double eOverPCut = 0.74;
-  int maxLayer     = 12;
-  std::string readout = "";
+  double eOverPCut       = 0.74;
+  int maxLayer           = 12;
+  std::string readout    = "";
   std::string layerField = "layer";
 };
 
