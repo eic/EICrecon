@@ -30,6 +30,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <new>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 

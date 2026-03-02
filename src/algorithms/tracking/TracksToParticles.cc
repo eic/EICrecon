@@ -10,7 +10,8 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cmath>
-#include <gsl/pointers>
+#include <memory>
+#include <tuple>
 #include <vector>
 
 #include "TracksToParticles.h"

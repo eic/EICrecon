@@ -18,11 +18,9 @@
 #include <algorithm>
 #include <algorithms/logger.h>
 #include <cmath>
-#include <edm4hep/Vector3d.h>
-#include <fmt/core.h>
-#include <gsl/pointers>
 #include <iterator>
-#include <podio/ObjectID.h>
+#include <memory>
+#include <tuple>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 

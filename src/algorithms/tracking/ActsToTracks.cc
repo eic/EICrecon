@@ -6,7 +6,6 @@
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>
 #include <Acts/EventData/SourceLink.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
@@ -23,15 +22,17 @@
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
-#include <Eigen/Core>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <any>
 #include <array>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
 #include <map>
 #include <memory>
 #include <numeric>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "ActsToTracks.h"
