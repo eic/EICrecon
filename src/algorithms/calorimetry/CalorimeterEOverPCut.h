@@ -37,9 +37,9 @@ public:
   void process(const Input& input, const Output& output) const final;
 
 private:
-  dd4hep::IDDescriptor                  m_id_spec{};
-  dd4hep::DDSegmentation::BitFieldCoder* m_id_dec    = nullptr;
-  int                                   m_layer_idx = -1;
+  dd4hep::IDDescriptor m_id_spec{};
+  dd4hep::DDSegmentation::BitFieldCoder* m_id_dec = nullptr;
+  int m_layer_idx                                 = -1;
 };
 
 } // namespace eicrecon

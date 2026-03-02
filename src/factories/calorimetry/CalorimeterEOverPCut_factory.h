@@ -26,9 +26,9 @@ private:
   PodioOutput<edm4hep::ParticleID> m_pid_output{this};
 
   ParameterRef<double> m_eCutParam{this, "eOverPCut", config().eOverPCut,
-                                  "E/p threshold for electron-like tag"};
+                                   "E/p threshold for electron-like tag"};
   ParameterRef<int> m_maxLayerParam{this, "maxLayer", config().maxLayer,
-                                  "Max calorimeter layer included in the energy sum"};
+                                    "Max calorimeter layer included in the energy sum"};
 
 public:
   void Configure() {
