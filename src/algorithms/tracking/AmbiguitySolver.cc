@@ -14,11 +14,12 @@
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <boost/container/flat_set.hpp>
-#include <boost/container/vector.hpp>
+#include <spdlog/common.h>
 #include <Eigen/LU> // IWYU pragma: keep
 #include <any>
 #include <cstddef>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "Acts/Utilities/Logger.hpp"

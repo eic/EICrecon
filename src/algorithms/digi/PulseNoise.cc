@@ -5,13 +5,14 @@
 //
 
 #include <DDDigi/noise/FalphaNoise.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/SimCalorimeterHit.h>
 #include <edm4hep/SimTrackerHit.h>
 #include <podio/RelationRange.h>
 #include <cstddef>
-#include <gsl/pointers>
 #include <random>
+#include <tuple>
 #include <vector>
 
 #include "PulseNoise.h"

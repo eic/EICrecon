@@ -9,8 +9,10 @@
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <initializer_list>
+#include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 namespace eicrecon {

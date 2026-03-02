@@ -9,8 +9,9 @@
 #include <podio/ObjectID.h>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
 #include <limits>
+#include <memory>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/calorimetry/EnergyPositionClusterMergerConfig.h"

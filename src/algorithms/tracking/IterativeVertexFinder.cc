@@ -6,7 +6,6 @@
 
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
@@ -36,9 +35,10 @@
 #include <edm4hep/Vector4f.h>
 #include <fmt/format.h>
 #include <podio/RelationRange.h>
-#include <Eigen/Core>
+#include <spdlog/common.h>
 #include <cmath>
 #include <string>
+#include <tuple>
 #include <utility>
 #include <vector>
 

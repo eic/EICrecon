@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackParameters.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
@@ -22,8 +21,9 @@
 #include <spdlog/logger.h>
 #include <cstddef>
 #include <memory>
+#include <string>
+#include <string_view>
 #include <tuple>
-#include <variant>
 #include <vector>
 
 #include "algorithms/interfaces/WithPodConfig.h"
