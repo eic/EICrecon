@@ -23,6 +23,7 @@
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
 #include <exception>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 

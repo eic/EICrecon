@@ -11,7 +11,7 @@
 #include <edm4hep/Vector4f.h>
 #include <edm4hep/utils/vector_utils.h>
 #include <cmath>
-#include <gsl/pointers>
+#include <tuple>
 #include <utility>
 #include <vector>
 

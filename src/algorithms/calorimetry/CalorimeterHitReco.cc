@@ -8,7 +8,6 @@
 #include "CalorimeterHitReco.h"
 
 #include <DD4hep/Alignments.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
@@ -25,15 +24,13 @@
 #include <Math/GenVector/DisplacementVector3D.h>
 #include <algorithms/service.h>
 #include <edm4hep/Vector3f.h>
-#include <fmt/core.h>
-#include <fmt/format.h>
+#include <fmt/ranges.h>
 #include <algorithm>
 #include <cctype>
-#include <gsl/pointers>
 #include <iterator>
-#include <map>
 #include <sstream>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>

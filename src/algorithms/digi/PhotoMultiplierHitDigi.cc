@@ -23,9 +23,9 @@
 #include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
 #include <cmath>
-#include <gsl/pointers>
 #include <iterator>
 #include <memory>
+#include <tuple>
 
 #include "algorithms/digi/PhotoMultiplierHitDigiConfig.h"
 

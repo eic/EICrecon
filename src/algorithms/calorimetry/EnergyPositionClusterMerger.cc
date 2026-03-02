@@ -10,9 +10,9 @@
 #include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
 #include <limits>
 #include <memory>
+#include <tuple>
 #include <vector>
 
 #include "algorithms/calorimetry/EnergyPositionClusterMerger.h"
