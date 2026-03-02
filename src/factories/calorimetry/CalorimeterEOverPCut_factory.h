@@ -3,16 +3,16 @@
 
 #pragma once
 
-#include "algorithms/calorimetry/CalorimeterEoverPCut.h"
-#include "algorithms/calorimetry/CalorimeterEoverPCutConfig.h"
+#include "algorithms/calorimetry/CalorimeterEOverPCut.h"
+#include "algorithms/calorimetry/CalorimeterEOverPCutConfig.h"
 #include "extensions/jana/JOmniFactory.h"
 
 namespace eicrecon {
 
-class CalorimeterEoverPCut_factory
-    : public JOmniFactory<CalorimeterEoverPCut_factory, CalorimeterEoverPCutConfig> {
+class CalorimeterEOverPCut_factory
+    : public JOmniFactory<CalorimeterEOverPCut_factory, CalorimeterEOverPCutConfig> {
 public:
-  using AlgoT = CalorimeterEoverPCut;
+  using AlgoT = CalorimeterEOverPCut;
 
 private:
   std::unique_ptr<AlgoT> m_algo;
@@ -25,12 +25,15 @@ private:
   PodioOutput<edm4eic::TrackClusterMatch> m_assoc_output{this};
   PodioOutput<edm4hep::ParticleID> m_pid_output{this};
 
-  ParameterRef<double> m_eCutParam{this, "eOverPCut", config().eOverPCut};
-  ParameterRef<int> m_maxLayerParam{this, "maxLayer", config().maxLayer};
+  ParameterRef<double> m_eCutParam{this, "eOverPCut", config().eOverPCut,
+                                  "E/p threshold for electron-like tag"};
+  ParameterRef<int> m_maxLayerParam{this, "maxLayer", config().maxLayer,
+                                  "Max calorimeter layer included in the energy sum"};
 
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
     m_algo->applyConfig(config());
     m_algo->init();
   }
