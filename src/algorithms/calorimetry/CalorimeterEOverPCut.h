@@ -11,28 +11,35 @@
 #include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/CalorimeterHitCollection.h>
 #include <edm4hep/ParticleIDCollection.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DDSegmentation/BitFieldCoder.h>
 
-#include "algorithms/calorimetry/CalorimeterEoverPCutConfig.h"
+#include "algorithms/calorimetry/CalorimeterEOverPCutConfig.h"
 
 namespace eicrecon {
 
-using CalorimeterEoverPCutAlgorithm = algorithms::Algorithm<
+using CalorimeterEOverPCutAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
                       edm4eic::CalorimeterHitCollection>,
     algorithms::Output<edm4eic::ClusterCollection, edm4eic::TrackClusterMatchCollection,
                        edm4hep::ParticleIDCollection>>;
 
-class CalorimeterEoverPCut : public CalorimeterEoverPCutAlgorithm,
-                             public WithPodConfig<CalorimeterEoverPCutConfig> {
+class CalorimeterEOverPCut : public CalorimeterEOverPCutAlgorithm,
+                             public WithPodConfig<CalorimeterEOverPCutConfig> {
 public:
-  CalorimeterEoverPCut(std::string_view name)
-      : CalorimeterEoverPCutAlgorithm{name,
+  CalorimeterEOverPCut(std::string_view name)
+      : CalorimeterEOverPCutAlgorithm{name,
                                       {"inputClusters", "inputTrackClusterMatches", "inputHits"},
                                       {"outputClusters", "outputTrackClusterMatches", "outputPIDs"},
-                                      "E/P Cut with layer‑depth limit"} {}
+                                      "E/p Cut with layer-depth limit"} {}
 
-  void init() final {};
+  void init() final;
   void process(const Input& input, const Output& output) const final;
+
+private:
+  dd4hep::IDDescriptor                  m_id_spec{};
+  dd4hep::DDSegmentation::BitFieldCoder* m_id_dec    = nullptr;
+  int                                   m_layer_idx = -1;
 };
 
 } // namespace eicrecon
