@@ -64,8 +64,8 @@ void EnergyPositionClusterMerger::process(const Input& input, const Output& outp
           std::abs(edm4hep::utils::eta(pc.getPosition()) - edm4hep::utils::eta(ec.getPosition()));
       // check the tolerance for sin(dphi/2) to avoid the hemisphere problem and allow
       // for phi rollovers
-      const double dphi = edm4hep::utils::angleAzimuthal(pc.getPosition()) -
-                          edm4hep::utils::angleAzimuthal(ec.getPosition());
+      const double dphi  = edm4hep::utils::angleAzimuthal(pc.getPosition()) -
+                           edm4hep::utils::angleAzimuthal(ec.getPosition());
       const double dsphi = std::abs(sin(0.5 * dphi));
       if ((m_cfg.energyRelTolerance > 0 && de_rel > m_cfg.energyRelTolerance) ||
           (m_cfg.etaTolerance > 0 && deta > m_cfg.etaTolerance) ||

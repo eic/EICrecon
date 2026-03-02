@@ -79,11 +79,11 @@ void InclusiveKinematicsDA::process(const InclusiveKinematicsDA::Input& input,
   static const auto m_proton = m_particleSvc.particle(2212).mass;
   const auto y_da            = tan(gamma_h / 2.) / (tan(theta_e / 2.) + tan(gamma_h / 2.));
   const auto Q2_da           = 4. * ei.energy() * ei.energy() * (1. / tan(theta_e / 2.)) *
-                     (1. / (tan(theta_e / 2.) + tan(gamma_h / 2.)));
-  const auto x_da  = Q2_da / (4. * ei.energy() * pi.energy() * y_da);
-  const auto nu_da = Q2_da / (2. * m_proton * x_da);
-  const auto W_da  = sqrt(m_proton * m_proton + 2 * m_proton * nu_da - Q2_da);
-  auto kin         = out_kinematics->create(x_da, Q2_da, W_da, y_da, nu_da);
+                               (1. / (tan(theta_e / 2.) + tan(gamma_h / 2.)));
+  const auto x_da            = Q2_da / (4. * ei.energy() * pi.energy() * y_da);
+  const auto nu_da           = Q2_da / (2. * m_proton * x_da);
+  const auto W_da            = sqrt(m_proton * m_proton + 2 * m_proton * nu_da - Q2_da);
+  auto kin                   = out_kinematics->create(x_da, Q2_da, W_da, y_da, nu_da);
   kin.setScat(kf);
 
   debug("x,Q2,W,y,nu = {},{},{},{},{}", kin.getX(), kin.getQ2(), kin.getW(), kin.getY(),

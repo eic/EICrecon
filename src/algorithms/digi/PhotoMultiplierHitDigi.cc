@@ -68,8 +68,8 @@ void PhotoMultiplierHitDigi::process(const PhotoMultiplierHitDigi::Input& input,
   for (std::size_t sim_hit_index = 0; sim_hit_index < sim_hits->size(); sim_hit_index++) {
     const auto& sim_hit = sim_hits->at(sim_hit_index);
     auto edep_eV        = sim_hit.getEDep() *
-                   1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
-    auto id = sim_hit.getCellID();
+                          1e9; // [GeV] -> [eV] // FIXME: use common unit converters, when available
+    auto id             = sim_hit.getCellID();
     trace("hit: pixel id={:#018X}  edep = {} eV", id, edep_eV);
 
     // overall safety factor

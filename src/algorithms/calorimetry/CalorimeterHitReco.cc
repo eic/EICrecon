@@ -202,7 +202,7 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
     // convert ADC to energy
     float sampFrac_value = sampFrac(rh);
     float energy         = (((signed)rh.getAmplitude() - (signed)m_cfg.pedMeanADC)) /
-                   static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC / sampFrac_value;
+                           static_cast<float>(m_cfg.capADC) * m_cfg.dyRangeADC / sampFrac_value;
 
     const float time = rh.getTimeStamp() / stepTDC;
     trace("cellID {}, \t energy: {},  TDC: {}, time: {}, sampFrac: {}", cellID, energy,
