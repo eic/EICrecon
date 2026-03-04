@@ -33,7 +33,7 @@ EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params)
   TInterpreter* interp = TInterpreter::Instance();
   debug("Compiling {}", sstr.str());
   interp->ProcessLine(sstr.str().c_str());
-  std::unique_ptr<TInterpreterValue> func_val{gInterpreter->MakeInterpreterValue()};
+  std::shared_ptr<TInterpreterValue> func_val{gInterpreter->MakeInterpreterValue()};
   interp->Evaluate(func_name.c_str(), *func_val);
 
   typedef double (*func_t)(double params[]);
