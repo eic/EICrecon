@@ -277,6 +277,10 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<PrimaryVertices_factory>(
       "PrimaryVertices", {"CentralTrackVertices"}, {"PrimaryVertices"}, {}, app));
 
+  app->Add(new JOmniFactoryGeneratorT<PrimaryVertices_factory>(
+      "Primary4HitCutVertices", {"CentralTrack4HitCutVertices"}, {"Primary4HitCutVertices"}, {},
+      app));
+
   app->Add(new JOmniFactoryGeneratorT<SecondaryVerticesHelix_factory>(
       "SecondaryVerticesHelix", {"PrimaryVertices", "ReconstructedParticles"},
       {"SecondaryVerticesHelix"}, {}, app));
