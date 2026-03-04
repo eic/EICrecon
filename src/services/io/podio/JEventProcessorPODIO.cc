@@ -562,6 +562,28 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
 
+      // particle flow
+      "EcalBarrelRemnantClusters",
+      "EcalBarrelExpectedClusters",
+      "EcalBarrelTrackExpectedClusterMatches",
+      "EcalEndcapNRemnantClusters",
+      "EcalEndcapNExpectedClusters",
+      "EcalEndcapNTrackExpectedClusterMatches",
+      "EcalEndcapPRemnantClusters",
+      "EcalEndcapPExpectedClusters",
+      "EcalEndcapPTrackExpectedClusterMatches",
+      "HcalBarrelRemnantClusters",
+      "HcalBarrelExpectedClusters",
+      "HcalBarrelTrackExpectedClusterMatches",
+      "HcalEndcapNRemnantClusters",
+      "HcalEndcapNExpectedClusters",
+      "HcalEndcapNTrackExpectedClusterMatches",
+      "LFHCALRemnantClusters",
+      "LFHCALExpectedClusters",
+      "LFHCALTrackExpectedClusterMatches",
+      "HcalEndcapPInsertRemnantClusters",
+      "HcalEndcapPInsertExpectedClusters",
+      "HcalEndcapPInsertTrackExpectedClusterMatches",
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(
