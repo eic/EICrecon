@@ -37,6 +37,7 @@ EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params)
   interp->Evaluate(func_name.c_str(), *func_val);
 
   typedef double (*func_t)(double params[]);
+  // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   auto func = reinterpret_cast<func_t>(func_val->GetAsPointer());
 
   // func_val is captured to extend the lifetime of the underlying object that func points to
