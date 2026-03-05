@@ -41,8 +41,7 @@ EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params)
   auto func = reinterpret_cast<func_t>(func_val->GetAsPointer());
 
   // func_val is captured to extend the lifetime of the underlying object that func points to
-  return [params, func, func_val](
-             const std::unordered_map<std::string, double>& param_values) {
+  return [params, func, func_val](const std::unordered_map<std::string, double>& param_values) {
     std::vector<double> value_list;
     value_list.reserve(params.size());
     for (const auto& p : params) {
