@@ -36,7 +36,7 @@ EvaluatorSvc::_compile(const std::string& expr, const std::vector<std::string>& 
   std::shared_ptr<TInterpreterValue> func_val{gInterpreter->MakeInterpreterValue()};
   interp->Evaluate(func_name.c_str(), *func_val);
 
-  typedef double (*func_t)(double params[]);
+  using func_t = double (*)(double params[]);
   // NOLINTNEXTLINE(cppcoreguidelines-pro-type-reinterpret-cast)
   auto func = reinterpret_cast<func_t>(func_val->GetAsPointer());
 
