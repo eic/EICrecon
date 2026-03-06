@@ -9,7 +9,7 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <cmath>
-#include <gsl/pointers>
+#include <tuple>
 #include <vector>
 
 #include "Beam.h"
@@ -88,7 +88,7 @@ void InclusiveKinematicsESigma::process(const InclusiveKinematicsESigma::Input& 
   const auto Q2_esig         = Q2_e;
   const auto x_esig          = x_sig;
   const auto y_esig          = Q2_esig / (4. * ei.energy() * pi.energy() *
-                                 x_esig); //equivalent to (2*ei.energy() / sigma_tot)*y_sig
+                                          x_esig); //equivalent to (2*ei.energy() / sigma_tot)*y_sig
   const auto nu_esig         = Q2_esig / (2. * m_proton * x_esig);
   const auto W_esig          = sqrt(m_proton * m_proton + 2 * m_proton * nu_esig - Q2_esig);
   auto kin                   = out_kinematics->create(x_esig, Q2_esig, W_esig, y_esig, nu_esig);
