@@ -18,7 +18,7 @@ void EvaluatorSvc::init() {
 }
 
 std::function<double(const std::unordered_map<std::string, double>&)>
-EvaluatorSvc::_compile(const std::string& expr, std::vector<std::string> params) {
+EvaluatorSvc::_compile(const std::string& expr, const std::vector<std::string>& params) {
   std::lock_guard<std::mutex> guard(m_interpreter_mutex);
 
   std::string func_name = fmt::format("_eicrecon_{}", m_function_id++);
