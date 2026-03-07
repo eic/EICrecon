@@ -638,6 +638,38 @@ jobs:
         name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         path: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
         if-no-files-found: error
+    - name: Download previous artifact
+      id: download_previous_artifact
+      uses: dawidd6/action-download-artifact@v16
+      with:
+        branch: ${{ github.base_ref || github.event.merge_group.base_ref || github.ref_name }}
+        path: ref/
+        name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+        workflow: ".github/workflows/linux-eic-shell.yml"
+        workflow_conclusion: "completed"
+        if_no_artifact_found: warn
+    - name: Compare to previous artifacts
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          mkdir capybara-reports
+          mkdir new
+          ln -sf ../two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new/
+          # using nullglob to ensure ref/* does not fail
+          shopt -s nullglob
+          capybara bara ref/*two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root new/two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.edm4eic.root
+          mv capybara-reports two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
+          touch .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
+    - uses: actions/upload-artifact@v7
+      with:
+        name: two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}.capy
+        path: |
+          .two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}
+          two_stage_rec_${{ matrix.particle }}_1GeV_20GeV_${{ matrix.detector_config }}/
+        if-no-files-found: error
 
   eicrecon-test-plugins:
     runs-on: ubuntu-24.04
@@ -1147,6 +1179,7 @@ jobs:
     needs:
       - eicrecon-gun
       - eicrecon-dis
+      - eicrecon-two-stage-running
       - compare-single-multi-threaded
     steps:
       - uses: actions/checkout@v6
