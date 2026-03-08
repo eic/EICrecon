@@ -32,6 +32,7 @@
 #include <Eigen/Core>
 #include <cmath>
 #include <exception>
+#include <stdexcept>
 #include <tuple>
 #include <unordered_map>
 #include <utility>
