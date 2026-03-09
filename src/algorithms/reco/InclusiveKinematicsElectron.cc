@@ -43,9 +43,9 @@ void InclusiveKinematicsElectron::process(const InclusiveKinematicsElectron::Inp
     return;
   }
   const auto& pi_particle = (*mc_beam_protons)[0];
-  const PxPyPzEVector pi(round_beam_four_momentum(
-      pi_particle.getMomentum(), m_particleSvc.particle(pi_particle.getPDG()).mass,
-      hadron_beam_pz_set, m_crossingAngle));
+  const PxPyPzEVector pi(round_beam_four_momentum(pi_particle.getMomentum(),
+                                                  m_particleSvc.particle(pi_particle.getPDG()).mass,
+                                                  hadron_beam_pz_set, m_crossingAngle));
 
   // Get scattered electron
   std::vector<PxPyPzEVector> electrons;
