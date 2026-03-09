@@ -27,16 +27,16 @@ private:
   using AlgoT = eicrecon::IrtInterface;
   std::unique_ptr<AlgoT> m_algo;
 
-  PodioInput<edm4hep::MCParticle> m_mc_particles_input {this};
-  PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input {this};
-  PodioInput<edm4eic::MCRecoParticleAssociation> m_recoassocs_input {this};
-  PodioInput<edm4eic::TrackSegment> m_track_projections_input {this};
-  PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input {this};
-  
-  PodioOutput<edm4eic::IrtRadiatorInfo> m_irt_radiator_output {this};
-  PodioOutput<edm4eic::IrtParticle> m_irt_particle_output {this};
-  
-  Service<DD4hep_service> m_dd4hep_service {this};
+  PodioInput<edm4hep::MCParticle> m_mc_particles_input{this};
+  PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input{this};
+  PodioInput<edm4eic::MCRecoParticleAssociation> m_recoassocs_input{this};
+  PodioInput<edm4eic::TrackSegment> m_track_projections_input{this};
+  PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input{this};
+
+  PodioOutput<edm4eic::IrtRadiatorInfo> m_irt_radiator_output{this};
+  PodioOutput<edm4eic::IrtParticle> m_irt_particle_output{this};
+
+  Service<DD4hep_service> m_dd4hep_service{this};
 
 public:
   void Configure() {
