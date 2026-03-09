@@ -12,7 +12,7 @@
 #include <podio/ObjectID.h>
 #include <algorithm>
 #include <cmath>
-#include <gsl/pointers>
+#include <tuple>
 #include <vector>
 
 #include "Beam.h"
