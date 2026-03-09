@@ -556,6 +556,8 @@ jobs:
             detector_config: craterlake_10x100
           - beam: 10x130
             detector_config: craterlake_10x130
+          - beam: 10x250
+            detector_config: craterlake_10x250
           - beam: 18x275
             detector_config: craterlake_18x275
     steps:
@@ -1021,6 +1023,11 @@ jobs:
           beam: 10x130
           minq2: 0
           detector_config: craterlake_10x130
+          sanitizer: ASAN
+        - CXX: clang++
+          beam: 10x250
+          minq2: 0
+          detector_config: craterlake_10x250
           sanitizer: ASAN
         - CXX: clang++
           beam: 18x275
