@@ -48,42 +48,34 @@ struct IrtConfig {
 };
 
 namespace eicrecon {
-  using IrtInterfaceAlgorithm = algorithms::Algorithm<
-    algorithms::Input<
-      const edm4hep::MCParticleCollection,
-      edm4eic::ReconstructedParticleCollection,
-      edm4eic::MCRecoParticleAssociationCollection,
-      const edm4eic::TrackSegmentCollection,
-      const edm4hep::SimTrackerHitCollection
-      >,
-    algorithms::Output<
-      edm4eic::IrtRadiatorInfoCollection,
-      edm4eic::IrtParticleCollection
-      >
-    >;
+using IrtInterfaceAlgorithm = algorithms::Algorithm<
+    algorithms::Input<const edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
+                      edm4eic::MCRecoParticleAssociationCollection,
+                      const edm4eic::TrackSegmentCollection,
+                      const edm4hep::SimTrackerHitCollection>,
+    algorithms::Output<edm4eic::IrtRadiatorInfoCollection, edm4eic::IrtParticleCollection>>;
 
 class IrtInterface : public IrtInterfaceAlgorithm {
 
-  public:
-    IrtInterface(std::string_view name)
-      : m_Event(0), m_EventPtr(0), m_Instance(0), m_ReconstructionFactory(0),
-	m_EventTreeOutputEnabled(true), m_CombinedPlotVisualizationEnabled(false),
-	m_wtopx(0), m_wtopy(0), m_wx(0), m_wy(0),
-	IrtInterfaceAlgorithm {
-	  name,
-	  {
-	    "inputMCParticles",
-	    "inputRecoParticles",
-	    "inputMCRecoAssotiations",
-	    "inputTrackSegments",
-	    "inputSimHits"
-	  },
-	  {"outputIrtRadiatorInfo",
-	   "outputIrtParticles"
-	  },
-	  "Performs PID evaluation based on IRT2 algorithm"} {};
-    
-    void init(DD4hep_service &service, IrtConfig &config, std::shared_ptr<spdlog::logger>& logger);
+public:
+  IrtInterface(std::string_view name)
+      : m_Event(0)
+      , m_EventPtr(0)
+      , m_Instance(0)
+      , m_ReconstructionFactory(0)
+      , m_EventTreeOutputEnabled(true)
+      , m_CombinedPlotVisualizationEnabled(false)
+      , m_wtopx(0)
+      , m_wtopy(0)
+      , m_wx(0)
+      , m_wy(0)
+      , IrtInterfaceAlgorithm{name,
+                              {"inputMCParticles", "inputRecoParticles", "inputMCRecoAssotiations",
+                               "inputTrackSegments", "inputSimHits"},
+                              {"outputIrtRadiatorInfo", "outputIrtParticles"},
+                              "Performs PID evaluation based on IRT2 algorithm"} {};
+
+  void init(DD4hep_service& service, IrtConfig& config, std::shared_ptr<spdlog::logger>& logger);
 
   void init(DD4hep_service& service, IrtConfig& config, std::shared_ptr<spdlog::logger>& logger);
 
