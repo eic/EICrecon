@@ -65,7 +65,7 @@ PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
   // Find the closest pz within 10% relative tolerance
   float best_pz    = 0.0F;
   float best_err   = 0.1F; // 10% tolerance — entries above this are not accepted
-  bool  found_match = false;
+  bool found_match = false;
   for (const auto& pz : pz_set) {
     const float err = std::abs(p_in.z / pz - 1);
     if (err < best_err) {
