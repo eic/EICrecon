@@ -8,7 +8,6 @@
 #include <edm4eic/InclusiveKinematicsCollection.h>
 #include <cmath>
 #include <tuple>
-#include <vector>
 
 #include "Beam.h"
 #include "InclusiveKinematicsJB.h"

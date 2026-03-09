@@ -13,7 +13,6 @@
 #include <algorithm>
 #include <cmath>
 #include <tuple>
-#include <vector>
 
 #include "Beam.h"
 #include "Boost.h"

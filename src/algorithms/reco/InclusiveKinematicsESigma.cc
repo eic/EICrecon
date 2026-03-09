@@ -10,7 +10,6 @@
 #include <edm4hep/Vector3f.h>
 #include <cmath>
 #include <tuple>
-#include <vector>
 
 #include "Beam.h"
 #include "Boost.h"
