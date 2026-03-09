@@ -13,7 +13,6 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
 #include <edm4eic/IrtParticleCollection.h>
-#include <edm4eic/IrtEventCollection.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
@@ -59,8 +58,7 @@ namespace eicrecon {
       >,
     algorithms::Output<
       edm4eic::IrtRadiatorInfoCollection,
-      edm4eic::IrtParticleCollection,
-      edm4eic::IrtEventCollection
+      edm4eic::IrtParticleCollection
       >
     >;
 
@@ -82,8 +80,7 @@ namespace eicrecon {
 	    "inputSimHits"
 	  },
 	  {"outputIrtRadiatorInfo",
-	   "outputIrtParticles",
-	   "outputIrtEvents"
+	   "outputIrtParticles"
 	  },
 	  "Performs PID evaluation based on IRT2 algorithm"} {};
     

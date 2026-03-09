@@ -258,7 +258,7 @@ namespace eicrecon {
 		in_reco_particles,
 		in_mc_reco_associations,
 		in_track_projections, in_sim_hits] = input;
-    auto [out_irt_radiator_info, out_irt_particles, out_irt_event] = output;
+    auto [out_irt_radiator_info, out_irt_particles] = output;
       
     // First build MC->reco lookup table;
     std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
@@ -299,7 +299,7 @@ namespace eicrecon {
       if (MCParticle_to_Tracks_lut.find(mcid) == MCParticle_to_Tracks_lut.end()) continue;
       auto &rctracks = MCParticle_to_Tracks_lut[mcid];
       if (rctracks.size() > 1) continue;
-      auto &rctrack = rctracks[0];
+      unsigned rctrack = rctracks[0];
 
       // Do not want to deal with particles outside of the nominal acceptance; FIXME: do it better later;
       {
@@ -312,7 +312,7 @@ namespace eicrecon {
       
       // For now, just record a reference to EICrecon track; the actual loop with assignments
       // will be at the end of processing;
-      particle->SetEICreconParticleID(rctrack);
+      particle->SetEICreconTrackID(rctrack);
       
       // FIXME: check units;
       particle->SetVertexPosition(Tools::PodioVector3_to_TVector3(mcparticle.getVertex()));
@@ -448,7 +448,6 @@ namespace eicrecon {
     {
       out_irt_radiator_info->create();
       out_irt_particles->create();
-      auto irtEvent = out_irt_event->create();
     
       for(auto particle: m_Event->ChargedParticles()) {
 	if (!particle->IsPrimary()) continue;
@@ -456,7 +455,7 @@ namespace eicrecon {
 	unsigned npe_per_track = 0, nhits_per_track = 0;
 
 	edm4eic::MutableIrtParticle irtParticle;
-	irtParticle.setChargedParticle((*in_reco_particles)[particle->m_EICreconParticleID]);
+	//irtParticle.setTrack((*in_reco_particles)[particle->GetEICreconTrackID()]);
 	
 	for(auto rhptr: particle->GetRadiatorHistory()) {
 	  auto radiator = particle->GetRadiator(rhptr);
@@ -487,7 +486,6 @@ namespace eicrecon {
 	irtParticle.setNhits(nhits_per_track);
 	
 	out_irt_particles->push_back(irtParticle);
-	irtEvent.addToIrtParticles(irtParticle);
       } //for particle
     }
   } // IrtInterface::process()

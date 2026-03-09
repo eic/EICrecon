@@ -36,7 +36,6 @@ private:
   
   PodioOutput<edm4eic::IrtRadiatorInfo> m_irt_radiator_output {this};
   PodioOutput<edm4eic::IrtParticle> m_irt_particle_output {this};
-  PodioOutput<edm4eic::IrtEvent> m_irt_event_output {this};
   
   Service<DD4hep_service> m_dd4hep_service {this};
 
@@ -61,8 +60,7 @@ public:
       },
       {
 	m_irt_radiator_output().get(),
-	m_irt_particle_output().get(),
-	m_irt_event_output().get()
+	m_irt_particle_output().get()
       }
       );
   }
