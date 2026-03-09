@@ -58,6 +58,12 @@ inline auto find_first_scattered_electron(const edm4eic::ReconstructedParticleCo
   return find_first_with_pdg(rcparts, {11});
 }
 
+// Canonical beam momentum allowlists used by all kinematics algorithms.
+// Electron beam: negative pz (beam goes in -z direction).
+inline const std::vector<float> electron_beam_pz_set{-5.0, -10.0, -18.0};
+// Hadron beam: positive pz (beam goes in +z direction).
+inline const std::vector<float> hadron_beam_pz_set{41.0, 100.0, 130.0, 250.0, 275.0};
+
 template <typename Vector3>
 PxPyPzEVector round_beam_four_momentum(const Vector3& p_in, const float mass,
                                        const std::vector<float>& pz_set,

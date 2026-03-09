@@ -35,7 +35,7 @@ void InclusiveKinematicsSigma::process(const InclusiveKinematicsSigma::Input& in
   const auto& ei_particle = (*mc_beam_electrons)[0];
   const PxPyPzEVector ei(round_beam_four_momentum(ei_particle.getMomentum(),
                                                   m_particleSvc.particle(ei_particle.getPDG()).mass,
-                                                  {-5.0, -10.0, -18.0}, 0.0));
+                                                  electron_beam_pz_set, 0.0));
 
   // Get first (should be only) beam proton
   if (mc_beam_protons->empty()) {
@@ -45,7 +45,7 @@ void InclusiveKinematicsSigma::process(const InclusiveKinematicsSigma::Input& in
   const auto& pi_particle = (*mc_beam_protons)[0];
   const PxPyPzEVector pi(round_beam_four_momentum(
       pi_particle.getMomentum(), m_particleSvc.particle(pi_particle.getPDG()).mass,
-      {41.0, 100.0, 130.0, 250.0, 275.0}, m_crossingAngle));
+      hadron_beam_pz_set, m_crossingAngle));
 
   // Get boost to colinear frame
   auto boost = determine_boost(ei, pi);
