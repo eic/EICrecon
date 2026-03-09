@@ -37,13 +37,13 @@ class TBranch;
 // bunch whatever is needed to pass in a single structure; do not want to repeat parsing
 // of either the optics file or a JSON configuration file twice;
 struct IrtConfig {
-  IrtConfig(): m_irt_geometry(0), m_eta_min(0.0), m_eta_max(0.0) {};
-  
-  IRT2::CherenkovDetectorCollection *m_irt_geometry;
+  IrtConfig() : m_irt_geometry(0), m_eta_min(0.0), m_eta_max(0.0) {};
+
+  IRT2::CherenkovDetectorCollection* m_irt_geometry;
   nlohmann::json m_json_config;
-  
+
   // FIXME: perhaps do it better later; but in general see no reason in parsing
-  // the same fields in a JSON file twice; 
+  // the same fields in a JSON file twice;
   double m_eta_min, m_eta_max;
 };
 
@@ -62,8 +62,7 @@ namespace eicrecon {
       >
     >;
 
-  class IrtInterface
-    : public IrtInterfaceAlgorithm {
+class IrtInterface : public IrtInterfaceAlgorithm {
 
   public:
     IrtInterface(std::string_view name)
@@ -86,31 +85,33 @@ namespace eicrecon {
     
     void init(DD4hep_service &service, IrtConfig &config, std::shared_ptr<spdlog::logger>& logger);
 
-    void JsonParser( void );
-    
-    void process(const Input&, const Output&) const;
-    
-    ~IrtInterface();
-  
-  private:
-    std::shared_ptr<spdlog::logger> m_log;
-    IRT2::CherenkovDetector* m_irt_det;
+  void init(DD4hep_service& service, IrtConfig& config, std::shared_ptr<spdlog::logger>& logger);
 
-    // m_EventPtr: need this because process() is const;
-    IRT2::CherenkovEvent *m_Event, **m_EventPtr;
-    
-    unsigned m_Instance;
+  void JsonParser(void);
 
-    std::string m_OutputFileName;
-    
-    TRandomMixMax m_random;
-    std::function<double()> m_rngUni;
+  void process(const Input&, const Output&) const;
 
-    IrtConfig m_config;
+  ~IrtInterface();
 
-    IRT2::ReconstructionFactory *m_ReconstructionFactory;
-    bool m_EventTreeOutputEnabled, m_CombinedPlotVisualizationEnabled;
-    int m_wtopx;
-    unsigned m_wtopy, m_wx, m_wy;
-  };
-}
+private:
+  std::shared_ptr<spdlog::logger> m_log;
+  IRT2::CherenkovDetector* m_irt_det;
+
+  // m_EventPtr: need this because process() is const;
+  IRT2::CherenkovEvent *m_Event, **m_EventPtr;
+
+  unsigned m_Instance;
+
+  std::string m_OutputFileName;
+
+  TRandomMixMax m_random;
+  std::function<double()> m_rngUni;
+
+  IrtConfig m_config;
+
+  IRT2::ReconstructionFactory* m_ReconstructionFactory;
+  bool m_EventTreeOutputEnabled, m_CombinedPlotVisualizationEnabled;
+  int m_wtopx;
+  unsigned m_wtopy, m_wx, m_wy;
+};
+} // namespace eicrecon
