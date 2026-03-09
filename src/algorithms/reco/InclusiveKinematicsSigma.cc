@@ -8,7 +8,7 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <cmath>
-#include <gsl/pointers>
+#include <tuple>
 #include <vector>
 
 #include "Beam.h"

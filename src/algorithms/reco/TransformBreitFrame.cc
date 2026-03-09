@@ -11,12 +11,10 @@
 #include <Math/GenVector/PxPyPzE4D.h>
 #include <Math/GenVector/Rotation3D.h>
 #include <Math/Vector4Dfwd.h>
-#include <edm4eic/Cov4f.h>
 #include <edm4eic/Vertex.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/kinematics.h>
-#include <fmt/core.h>
-#include <gsl/pointers>
+#include <tuple>
 #include <vector>
 
 #include "Beam.h"
