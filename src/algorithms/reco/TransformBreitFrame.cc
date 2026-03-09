@@ -50,7 +50,7 @@ void TransformBreitFrame::process(const TransformBreitFrame::Input& input,
   }
   const PxPyPzEVector p_initial(round_beam_four_momentum(
       pi_coll[0].getMomentum(), m_particleSvc.particle(pi_coll[0].getPDG()).mass,
-      {41.0, 100.0, 275.0}, m_crossingAngle));
+      {41.0, 100.0, 130.0, 250.0, 275.0}, m_crossingAngle));
 
   debug("electron energy, proton energy = {},{}", e_initial.E(), p_initial.E());
 

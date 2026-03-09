@@ -46,7 +46,7 @@ void InclusiveKinematicsDA::process(const InclusiveKinematicsDA::Input& input,
   const auto& pi_particle = (*mc_beam_protons)[0];
   const PxPyPzEVector pi(round_beam_four_momentum(pi_particle.getMomentum(),
                                                   m_particleSvc.particle(pi_particle.getPDG()).mass,
-                                                  {41.0, 100.0, 275.0}, m_crossingAngle));
+                                                  {41.0, 100.0, 130.0, 250.0, 275.0}, m_crossingAngle));
 
   // Get boost to colinear frame
   auto boost = determine_boost(ei, pi);
