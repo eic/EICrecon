@@ -176,9 +176,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
 
     track_out.setPositionMomentumCovariance( // Covariance matrix in basis [x,y,z,px,py,pz]
         edm4eic::Cov6f());
-    track_out.setTime( // Track time at the vertex [ns]
+    track_out.setTime( // Track time at the perigee [ns]
         static_cast<float>(parameter[Acts::eBoundTime]));
-    track_out.setTimeError( // Error on the track vertex time
+    track_out.setTimeError( // Error on the track perigee time
         sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))));
     track_out.setCharge( // Particle charge
         std::copysign(1., parameter[Acts::eBoundQOverP]));
