@@ -255,7 +255,7 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad;  // theta
   cov(4, 4) = m_cfg.qOverPError * Acts::UnitConstants::GeV; // qOverP
   cov(5, 5) =
-      m_cfg.timeError / (Acts::UnitConstants::ns * Acts::UnitConstants::ns); // time variance in ns²
+      m_cfg.timeError / (Acts::UnitConstants::ns * Acts::UnitConstants::ns); // time variance in ns^2
   trackparam.setCovariance(cov);
 
   return trackparam;
