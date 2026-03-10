@@ -3,6 +3,7 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
+#include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
 #include <Acts/EventData/ProxyAccessor.hpp>

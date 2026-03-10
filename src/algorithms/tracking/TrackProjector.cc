@@ -4,7 +4,6 @@
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
-#include <Acts/EventData/TrackContainer.hpp>
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TransformationHelpers.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
@@ -28,7 +27,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <gsl/pointers>
+#include <tuple>
 
 #include "TrackProjector.h"
 #include "algorithms/interfaces/ActsSvc.h"
