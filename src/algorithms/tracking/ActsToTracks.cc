@@ -122,7 +122,7 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     pars.setTheta(static_cast<float>(parameter[Acts::eBoundTheta]));
     pars.setPhi(static_cast<float>(parameter[Acts::eBoundPhi]));
     pars.setQOverP(static_cast<float>(parameter[Acts::eBoundQOverP]));
-    pars.setTime(static_cast<float>(parameter[Acts::eBoundTime]));
+    pars.setTime(static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
     edm4eic::Cov6f cov;
     for (std::size_t i = 0; const auto& [a, x] : edm4eic_indexed_units) {
       for (std::size_t j = 0; const auto& [b, y] : edm4eic_indexed_units) {
@@ -147,9 +147,10 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     track_out.setPositionMomentumCovariance( // Covariance matrix in basis [x,y,z,px,py,pz]
         edm4eic::Cov6f());
     track_out.setTime( // Track time at the vertex [ns]
-        static_cast<float>(parameter[Acts::eBoundTime]));
+        static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
     track_out.setTimeError( // Error on the track vertex time
-        sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))));
+        static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime)) /
+                           Acts::UnitConstants::ns));
     track_out.setCharge( // Particle charge
         std::copysign(1., parameter[Acts::eBoundQOverP]));
     track_out.setChi2(trajectoryState.chi2Sum); // Total chi2
