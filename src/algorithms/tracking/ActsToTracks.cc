@@ -180,8 +180,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         static_cast<float>(parameter[Acts::eBoundTime]));
     track_out.setTimeError( // Error on the track perigee time
         sqrt(static_cast<float>(covariance(Acts::eBoundTime, Acts::eBoundTime))));
-    track_out.setCharge( // Particle charge
-        std::copysign(1., parameter[Acts::eBoundQOverP]));
+    const double charge = // Particle charge (0 if qOverP is invalid or zero)
+        (std::isfinite(qOverP) && qOverP != 0.0) ? std::copysign(1.0, qOverP) : 0.0;
+    track_out.setCharge(charge);
     track_out.setChi2(trajectoryState.chi2Sum); // Total chi2
     track_out.setNdf(trajectoryState.NDF);      // Number of degrees of freedom
     track_out.setPdg(                           // PDG particle ID hypothesis
