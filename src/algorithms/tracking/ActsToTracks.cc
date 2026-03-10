@@ -157,7 +157,6 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
                           static_cast<float>(globalPos.z())});
 
     // Compute Cartesian momentum from spherical parameters.
-    // Guard against qOverP == 0 or extremely small values which would yield inf/NaN momentum.
     const double qOverP = parameter[Acts::eBoundQOverP];
     const double p_abs  = std::abs(1.0 / qOverP);
     if (!std::isfinite(p_abs)) {
