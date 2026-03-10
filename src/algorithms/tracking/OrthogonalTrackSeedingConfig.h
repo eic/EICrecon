@@ -94,7 +94,8 @@ struct OrthogonalTrackSeedingConfig {
   float phiError    = 0.02 * Acts::UnitConstants::rad;  //Error on phi
   float thetaError  = 0.002 * Acts::UnitConstants::rad; //Error on theta
   float qOverPError = 0.025 / Acts::UnitConstants::GeV; //Error on q over p
-  float timeError   = 0.1 * Acts::UnitConstants::mm;    //Error on time
-  // Note: Acts native time units are mm: https://acts.readthedocs.io/en/latest/core/definitions/units.html
+  // Time variance in (mm/c)^2 (Acts native time units).
+  // Acts::UnitConstants::ns = 299.792 mm/c, so 1 ns^2 = Acts::UnitConstants::ns^2.
+  float timeError = Acts::UnitConstants::ns * Acts::UnitConstants::ns; // sigma_t = 1 ns
 };
 } // namespace eicrecon
