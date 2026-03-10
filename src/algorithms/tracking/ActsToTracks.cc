@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2024 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
 #include <Acts/EventData/ParticleHypothesis.hpp>
@@ -10,6 +11,7 @@
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
@@ -22,6 +24,7 @@
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
@@ -140,10 +143,23 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     auto track_out = tracks->create();
     track_out.setType( // Flag that defines the type of track
         pars.getType());
-    track_out.setPosition( // Track 3-position at the vertex
-        edm4hep::Vector3f());
-    track_out.setMomentum( // Track 3-momentum at the vertex [GeV]
-        edm4hep::Vector3f());
+
+    // Compute 3D position from perigee local coordinates via localToGlobal.
+    // A default GeometryContext is sufficient here: the perigee surface is
+    // defined purely by its center point and carries no alignment data.
+    const Acts::Vector2 localPos{parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]};
+    const Acts::Vector3 globalPos = track.referenceSurface().localToGlobal(
+        Acts::GeometryContext::dangerouslyDefaultConstruct(), localPos, track.direction());
+    track_out.setPosition( // Track 3-position at the perigee [mm]
+        edm4hep::Vector3f{static_cast<float>(globalPos.x()), static_cast<float>(globalPos.y()),
+                          static_cast<float>(globalPos.z())});
+
+    // Compute Cartesian momentum from spherical parameters
+    const double p = std::abs(1.0 / parameter[Acts::eBoundQOverP]);
+    track_out.setMomentum( // Track 3-momentum at the perigee [GeV]
+        edm4hep::utils::sphericalToVector(p, parameter[Acts::eBoundTheta],
+                                          parameter[Acts::eBoundPhi]));
+
     track_out.setPositionMomentumCovariance( // Covariance matrix in basis [x,y,z,px,py,pz]
         edm4eic::Cov6f());
     track_out.setTime( // Track time at the vertex [ns]
