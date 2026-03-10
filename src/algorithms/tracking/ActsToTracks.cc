@@ -151,7 +151,12 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     const Acts::Vector3 direction =
         Acts::makeDirectionFromPhiTheta(parameter[Acts::eBoundPhi], parameter[Acts::eBoundTheta]);
     const Acts::Vector3 globalPos = track.referenceSurface().localToGlobal(
-        Acts::GeometryContext::dangerouslyDefaultConstruct(), localPos, direction);
+#if Acts_VERSION_MAJOR >= 45
+        Acts::GeometryContext::dangerouslyDefaultConstruct(),
+#else
+        Acts::GeometryContext{},
+#endif
+        localPos, direction);
     track_out.setPosition( // Track 3-position at the perigee [mm]
         edm4hep::Vector3f{static_cast<float>(globalPos.x()), static_cast<float>(globalPos.y()),
                           static_cast<float>(globalPos.z())});
