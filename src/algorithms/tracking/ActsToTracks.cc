@@ -156,8 +156,14 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
         edm4hep::Vector3f{static_cast<float>(globalPos.x()), static_cast<float>(globalPos.y()),
                           static_cast<float>(globalPos.z())});
 
-    // Compute Cartesian momentum from spherical parameters
-    const double p = std::abs(1.0 / parameter[Acts::eBoundQOverP]);
+    // Compute Cartesian momentum from spherical parameters.
+    // Guard against qOverP == 0 or extremely small values which would yield inf/NaN momentum.
+    const double qOverP = parameter[Acts::eBoundQOverP];
+    const double p_abs  = std::abs(1.0 / qOverP);
+    if (!std::isfinite(p_abs)) {
+      warning("ActsToTracks: track has qOverP={}, which yields non-finite momentum; setting momentum to zero", qOverP);
+    }
+    const double p = std::isfinite(p_abs) ? p_abs : 0.0;
     track_out.setMomentum( // Track 3-momentum at the perigee [GeV]
         edm4hep::utils::sphericalToVector(p, parameter[Acts::eBoundTheta],
                                           parameter[Acts::eBoundPhi]));
