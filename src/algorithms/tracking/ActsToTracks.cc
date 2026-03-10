@@ -165,7 +165,9 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     const double qOverP = parameter[Acts::eBoundQOverP];
     const double p_abs  = std::abs(1.0 / qOverP);
     if (!std::isfinite(p_abs)) {
-      warning("ActsToTracks: track has qOverP={}, which yields non-finite momentum; setting momentum to zero", qOverP);
+      warning("ActsToTracks: track has qOverP={}, which yields non-finite momentum; setting "
+              "momentum to zero",
+              qOverP);
     }
     const double p = std::isfinite(p_abs) ? p_abs : 0.0;
     track_out.setMomentum( // Track 3-momentum at the perigee [GeV]
