@@ -148,8 +148,10 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     // A default GeometryContext is sufficient here: the perigee surface is
     // defined purely by its center point and carries no alignment data.
     const Acts::Vector2 localPos{parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]};
+    const Acts::Vector3 direction =
+        Acts::makeDirectionFromPhiTheta(parameter[Acts::eBoundPhi], parameter[Acts::eBoundTheta]);
     const Acts::Vector3 globalPos = track.referenceSurface().localToGlobal(
-        Acts::GeometryContext::dangerouslyDefaultConstruct(), localPos, track.direction());
+        Acts::GeometryContext::dangerouslyDefaultConstruct(), localPos, direction);
     track_out.setPosition( // Track 3-position at the perigee [mm]
         edm4hep::Vector3f{static_cast<float>(globalPos.x()), static_cast<float>(globalPos.y()),
                           static_cast<float>(globalPos.z())});
