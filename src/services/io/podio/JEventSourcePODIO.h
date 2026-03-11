@@ -7,15 +7,19 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
+#include <podio/Frame.h>
 #include <podio/Reader.h>
 #include <spdlog/logger.h>
 #include <cstddef>
 #include <memory>
 #include <string>
+#include <vector>
 
 class JEventSourcePODIO : public JEventSource {
 
 public:
+  std::vector<podio::Frame> m_runs_frames;
+
   JEventSourcePODIO(std::string resource_name, JApplication* app);
 
   virtual ~JEventSourcePODIO();
