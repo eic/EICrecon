@@ -217,13 +217,6 @@ jobs:
         name: install-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-ASAN
         path: install.tar.zst
         if-no-files-found: error
-    - name: Upload algorithms_test binary (ASAN)
-      if: ${{ matrix.USE_ASAN == 'ON' && matrix.USE_TSAN == 'OFF' }}
-      uses: actions/upload-artifact@v7
-      with:
-        name: algorithms_test-${{ matrix.CXX }}-eic-shell-${{ matrix.CMAKE_BUILD_TYPE }}-${{ env.platform }}-${{ matrix.release }}-ASAN
-        path: build/src/tests/algorithms_test/algorithms_test
-        if-no-files-found: error
     - name: Upload install directory (TSAN)
       if: ${{ matrix.USE_ASAN == 'OFF' && matrix.USE_TSAN == 'ON' }}
       uses: actions/upload-artifact@v7
