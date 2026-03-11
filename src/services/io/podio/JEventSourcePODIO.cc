@@ -148,11 +148,15 @@ void JEventSourcePODIO::Open() {
     m_log->info("Opened PODIO file \"{}\" with {} events (format auto-detected)", GetResourceName(),
                 Nevents_in_file);
 
-    std::size_t nruns = m_reader->getEntries("runs");
-    for (std::size_t i = 0; i < nruns; ++i) {
-      m_runs_frames.emplace_back(m_reader->readFrame("runs", i));
+    for (auto category : m_reader->getAvailableCategories()) {
+      if (category == "events") continue;
+      std::string cat(category);
+      std::size_t n = m_reader->getEntries(cat);
+      for (std::size_t i = 0; i < n; ++i) {
+        m_extra_frames[cat].emplace_back(m_reader->readFrame(cat, i));
+      }
+      m_log->info("Read {} '{}' frame(s) from input file", n, cat);
     }
-    m_log->info("Read {} runs frame(s) from input file", nruns);
 
     if (print_type_table) {
       PrintCollectionTypeTable();

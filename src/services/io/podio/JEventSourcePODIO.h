@@ -11,6 +11,7 @@
 #include <podio/Reader.h>
 #include <spdlog/logger.h>
 #include <cstddef>
+#include <map>
 #include <memory>
 #include <string>
 #include <vector>
@@ -18,7 +19,7 @@
 class JEventSourcePODIO : public JEventSource {
 
 public:
-  std::vector<podio::Frame> m_runs_frames;
+  std::map<std::string, std::vector<podio::Frame>> m_extra_frames;
 
   JEventSourcePODIO(std::string resource_name, JApplication* app);
 
