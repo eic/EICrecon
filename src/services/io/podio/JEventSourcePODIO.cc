@@ -149,7 +149,8 @@ void JEventSourcePODIO::Open() {
                 Nevents_in_file);
 
     for (auto category : m_reader->getAvailableCategories()) {
-      if (category == "events") continue;
+      if (category == "events")
+        continue;
       std::string cat(category);
       std::size_t n = m_reader->getEntries(cat);
       for (std::size_t i = 0; i < n; ++i) {
