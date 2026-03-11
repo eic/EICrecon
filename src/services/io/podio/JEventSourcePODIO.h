@@ -5,6 +5,7 @@
 #pragma once
 
 #include <JANA/JApplicationFwd.h>
+#include <JANA/JEvent.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
 #include <podio/Reader.h>
@@ -30,6 +31,9 @@ public:
 
   void PrintCollectionTypeTable(void);
 
+  // Accessor for the cached parent run event (may be null if no runs tree)
+  std::shared_ptr<JEvent> GetRunEvent() const { return m_run_event; }
+
 protected:
   std::unique_ptr<podio::Reader> m_reader;
 
@@ -41,6 +45,8 @@ protected:
 
 private:
   std::shared_ptr<spdlog::logger> m_log;
+  // Parent event holding the run-level PODIO frame (from "runs" tree)
+  std::shared_ptr<JEvent> m_run_event;
 };
 
 template <> double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string);

@@ -37,7 +37,7 @@ void FarDetectorTransportationPostML::process(
 #endif
 
   //Set beam energy from first MCBeamElectron, using std::call_once
-  if (beamElectrons != nullptr) {
+  if (!m_cfg.beamE_set_from_metadata && beamElectrons != nullptr) {
     std::call_once(m_initBeamE, [&]() {
       // Check if beam electrons are present
       if (beamElectrons->empty()) { // NOLINT(clang-analyzer-core.NullDereference)

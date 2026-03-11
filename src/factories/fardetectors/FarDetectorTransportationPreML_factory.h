@@ -26,9 +26,15 @@ private:
   PodioOutput<edm4eic::Tensor> m_feature_tensor_output{this};
   PodioOutput<edm4eic::Tensor> m_target_tensor_output{this};
 
-  ParameterRef<float> m_beamE{this, "beamE", config().beamE};
+  // Command-line controllable parameters
+  ParameterRef<float> m_beamE{this, "beamE", config().beamE, "Beam energy in GeV"};
   ParameterRef<bool> m_requireBeamElectron{this, "requireBeamElectron",
                                            config().requireBeamElectron};
+
+  // PODIO metadata sync (updates config().beamE from run metadata)
+  PodioParameterRef<float> m_beamE_podio{
+      this, "beamE_podio", config().beamE, "Beam energy from PODIO metadata",
+      PodioParameter<std::string>("electron_beam_energy", JEventLevel::Run)};
 
 public:
   void Configure() {
@@ -38,7 +44,14 @@ public:
     m_algo->init();
   }
 
-  void Process(int32_t /* run_number */, uint64_t /* event_number */) {
+  // BeginRun called after auto-sync of run parameters - just apply updated config
+  void BeginRun(const std::shared_ptr<const JEvent>& /* event */) override {
+    config().beamE_set_from_metadata = true;
+    m_algo->applyConfig(config());
+    logger()->info("beamE={} GeV (from run metadata)", config().beamE);
+  }
+
+  void Process(int32_t /* run_number */, uint64_t /* event_number */) override {
     m_algo->process({m_track_input(), m_association_input(), m_beamelectrons_input()},
                     {m_feature_tensor_output().get(), m_target_tensor_output().get()});
   }
