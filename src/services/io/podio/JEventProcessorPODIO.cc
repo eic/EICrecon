@@ -3,6 +3,8 @@
 
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
+#include <JANA/JEventSource.h>
+#include <JANA/Services/JComponentManager.h>
 #include <JANA/Services/JParameterManager.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -20,6 +22,7 @@
 #include <stdexcept>
 
 #include "services/log/Log_service.h"
+#include "JEventSourcePODIO.h"
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
   SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
@@ -743,4 +746,17 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   }
 }
 
-void JEventProcessorPODIO::Finish() { m_writer->finish(); }
+void JEventProcessorPODIO::Finish() {
+  // Propagate run-level metadata frames from input to output
+  auto* app          = GetApplication();
+  auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
+  for (auto* source : event_sources) {
+    auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
+    if (podio_source == nullptr) continue;
+    for (auto& runs_frame : podio_source->m_runs_frames) {
+      m_writer->writeFrame(runs_frame, "runs");
+    }
+    m_log->info("Propagated {} runs frame(s) to output file", podio_source->m_runs_frames.size());
+  }
+  m_writer->finish();
+}
