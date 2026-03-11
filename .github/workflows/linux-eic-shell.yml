@@ -278,6 +278,8 @@ jobs:
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
           cd build/src/tests/algorithms_test
+          # Mirror the ctest test definition (see src/tests/algorithms_test/CMakeLists.txt)
+          export LLVM_PROFILE_FILE=algorithms_test.profraw
           ./algorithms_test
 
   clang-tidy-iwyu:
