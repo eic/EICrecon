@@ -152,170 +152,168 @@ void JEventSourcePODIO::Open() {
       if (category == "events") {
         continue;
       }
-        std::string cat(category);
-        std::size_t n = m_reader->getEntries(cat);
-        for (std::size_t i = 0; i < n; ++i) {
-          m_extra_frames[cat].emplace_back(m_reader->readFrame(cat, i));
-        }
-        m_log->info("Read {} '{}' frame(s) from input file", n, cat);
+      std::string cat(category);
+      std::size_t n = m_reader->getEntries(cat);
+      for (std::size_t i = 0; i < n; ++i) {
+        m_extra_frames[cat].emplace_back(m_reader->readFrame(cat, i));
       }
-
-      if (print_type_table) {
-        PrintCollectionTypeTable();
-      }
+      m_log->info("Read {} '{}' frame(s) from input file", n, cat);
     }
-    catch (std::exception& e) {
-      m_log->error(e.what());
-      throw JException(fmt::format("Problem opening file \"{}\"", GetResourceName()));
+
+    if (print_type_table) {
+      PrintCollectionTypeTable();
+    }
+  } catch (std::exception& e) {
+    m_log->error(e.what());
+    throw JException(fmt::format("Problem opening file \"{}\"", GetResourceName()));
+  }
+}
+
+//------------------------------------------------------------------------------
+// Close
+//
+/// Cleanly close the resource when JANA is terminated via Ctrl-C or jana:nevents
+///
+/// \param event
+//------------------------------------------------------------------------------
+void JEventSourcePODIO::Close() {
+  // m_reader.close();
+  // TODO: ROOTReader does not appear to have a close() method.
+}
+
+//------------------------------------------------------------------------------
+// GetEvent
+//
+/// Read next event from file and copy its objects into the given JEvent.
+///
+/// \param event
+//------------------------------------------------------------------------------
+JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
+
+  /// Calls to GetEvent are synchronized with each other, which means they can
+  /// read and write state on the JEventSource without causing race conditions.
+
+  // Check if we have exhausted events from file
+  if (Nevents_read >= Nevents_in_file) {
+    if (m_run_forever) {
+      Nevents_read = 0;
+    } else {
+      return Result::FailureFinished;
     }
   }
 
-  //------------------------------------------------------------------------------
-  // Close
-  //
-  /// Cleanly close the resource when JANA is terminated via Ctrl-C or jana:nevents
-  ///
-  /// \param event
-  //------------------------------------------------------------------------------
-  void JEventSourcePODIO::Close() {
-    // m_reader.close();
-    // TODO: ROOTReader does not appear to have a close() method.
+  auto frame = std::make_unique<podio::Frame>(m_reader->readFrame("events", Nevents_read));
+
+  if (m_use_event_headers) {
+    const auto& event_headers = frame->get<edm4hep::EventHeaderCollection>("EventHeader");
+    if (event_headers.size() != 1) {
+      m_log->warn("Missing or bad event headers: Entry {} contains {} items, but 1 expected. Will "
+                  "not use event and run numbers from header",
+                  Nevents_read, event_headers.size());
+      m_use_event_headers = false;
+    } else {
+      event.SetEventNumber(event_headers[0].getEventNumber());
+      event.SetRunNumber(event_headers[0].getRunNumber());
+    }
   }
 
-  //------------------------------------------------------------------------------
-  // GetEvent
-  //
-  /// Read next event from file and copy its objects into the given JEvent.
-  ///
-  /// \param event
-  //------------------------------------------------------------------------------
-  JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent & event) {
-
-    /// Calls to GetEvent are synchronized with each other, which means they can
-    /// read and write state on the JEventSource without causing race conditions.
-
-    // Check if we have exhausted events from file
-    if (Nevents_read >= Nevents_in_file) {
-      if (m_run_forever) {
-        Nevents_read = 0;
-      } else {
-        return Result::FailureFinished;
-      }
-    }
-
-    auto frame = std::make_unique<podio::Frame>(m_reader->readFrame("events", Nevents_read));
-
-    if (m_use_event_headers) {
-      const auto& event_headers = frame->get<edm4hep::EventHeaderCollection>("EventHeader");
-      if (event_headers.size() != 1) {
-        m_log->warn(
-            "Missing or bad event headers: Entry {} contains {} items, but 1 expected. Will "
-            "not use event and run numbers from header",
-            Nevents_read, event_headers.size());
-        m_use_event_headers = false;
-      } else {
-        event.SetEventNumber(event_headers[0].getEventNumber());
-        event.SetRunNumber(event_headers[0].getRunNumber());
-      }
-    }
-
-    // Insert contents odf frame into JFactories
-    VisitPodioCollection<InsertingVisitor> visit;
-    for (const std::string& coll_name : frame->getAvailableCollections()) {
-      const podio::CollectionBase* collection = frame->get(coll_name);
-      InsertingVisitor visitor(event, coll_name);
-      visit(visitor, *collection);
-    }
-
-    event.Insert(frame.release()); // Transfer ownership from unique_ptr to JFactoryT<podio::Frame>
-    Nevents_read += 1;
-    return Result::Success;
+  // Insert contents odf frame into JFactories
+  VisitPodioCollection<InsertingVisitor> visit;
+  for (const std::string& coll_name : frame->getAvailableCollections()) {
+    const podio::CollectionBase* collection = frame->get(coll_name);
+    InsertingVisitor visitor(event, coll_name);
+    visit(visitor, *collection);
   }
 
-  //------------------------------------------------------------------------------
-  // GetDescription
-  //------------------------------------------------------------------------------
-  std::string JEventSourcePODIO::GetDescription() {
+  event.Insert(frame.release()); // Transfer ownership from unique_ptr to JFactoryT<podio::Frame>
+  Nevents_read += 1;
+  return Result::Success;
+}
 
-    /// GetDescription() helps JANA explain to the user what is going on
-    return "PODIO root file (Frames, podio >= v0.16.3)";
+//------------------------------------------------------------------------------
+// GetDescription
+//------------------------------------------------------------------------------
+std::string JEventSourcePODIO::GetDescription() {
+
+  /// GetDescription() helps JANA explain to the user what is going on
+  return "PODIO root file (Frames, podio >= v0.16.3)";
+}
+
+//------------------------------------------------------------------------------
+// CheckOpenable
+//
+/// Return a value from 0-1 indicating probability that this source will be
+/// able to read this root file. Currently, it simply checks that the file
+/// name contains the string ".root" and if does, returns a small number (0.02).
+/// This will need to be made more sophisticated if the alternative root file
+/// formats need to be supported by other event sources.
+///
+/// \param resource_name name of root file to evaluate.
+/// \return              value from 0-1 indicating confidence that this source can open the given file
+//------------------------------------------------------------------------------
+template <>
+double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string resource_name) {
+
+  // PODIO Frame reader gets slightly higher precedence than PODIO Legacy reader, but only if the file
+  // contains a 'podio_metadata' TTree. If the file doesn't exist, this will return 0. The "file not found"
+  // error will hopefully be generated by the PODIO legacy reader instead.
+  if (resource_name.find(".root") == std::string::npos) {
+    return 0.0;
   }
 
-  //------------------------------------------------------------------------------
-  // CheckOpenable
-  //
-  /// Return a value from 0-1 indicating probability that this source will be
-  /// able to read this root file. Currently, it simply checks that the file
-  /// name contains the string ".root" and if does, returns a small number (0.02).
-  /// This will need to be made more sophisticated if the alternative root file
-  /// formats need to be supported by other event sources.
-  ///
-  /// \param resource_name name of root file to evaluate.
-  /// \return              value from 0-1 indicating confidence that this source can open the given file
-  //------------------------------------------------------------------------------
-  template <>
-  double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string resource_name) {
-
-    // PODIO Frame reader gets slightly higher precedence than PODIO Legacy reader, but only if the file
-    // contains a 'podio_metadata' TTree. If the file doesn't exist, this will return 0. The "file not found"
-    // error will hopefully be generated by the PODIO legacy reader instead.
-    if (resource_name.find(".root") == std::string::npos) {
-      return 0.0;
-    }
-
-    // PODIO FrameReader segfaults on legacy input files, so we use ROOT to validate beforehand. Of course,
-    // we can't validate if ROOT can't read the file.
-    std::unique_ptr<TFile> file = std::unique_ptr<TFile>{TFile::Open(resource_name.c_str())};
-    if (!file || file->IsZombie()) {
-      return 0.0;
-    }
-
-    // We test the format the same way that PODIO's python API does. See python/podio/reading.py
-    TObject* tree = file->Get("podio_metadata");
-    if (tree == nullptr) {
-      return 0.0;
-    }
-    return 0.03;
+  // PODIO FrameReader segfaults on legacy input files, so we use ROOT to validate beforehand. Of course,
+  // we can't validate if ROOT can't read the file.
+  std::unique_ptr<TFile> file = std::unique_ptr<TFile>{TFile::Open(resource_name.c_str())};
+  if (!file || file->IsZombie()) {
+    return 0.0;
   }
 
-  //------------------------------------------------------------------------------
-  // PrintCollectionTypeTable
-  //
-  /// Print the list of collection names from the currently open file along
-  /// with their types. This will be called automatically when the file is
-  /// open if the PODIO:PRINT_TYPE_TABLE variable is set to a non-zero value
-  //------------------------------------------------------------------------------
-  void JEventSourcePODIO::PrintCollectionTypeTable() {
-
-    // Read the zeroth entry. This assumes that m_reader has already been initialized with a valid filename
-    auto frame = std::make_unique<podio::Frame>(m_reader->readFrame("events", 0));
-
-    std::map<std::string, std::string> collectionNames;
-    std::size_t max_name_len = 0;
-    std::size_t max_type_len = 0;
-
-    // Record all (collection name, value type name) pairs
-    // Record the maximum length of both strings so that we can print nicely aligned columns.
-    for (const std::string& name : frame->getAvailableCollections()) {
-      const podio::CollectionBase* coll = frame->get(name);
-      const auto type                   = coll->getTypeName();
-      max_name_len                      = std::max(max_name_len, name.length());
-      max_type_len                      = std::max(max_type_len, type.length());
-      collectionNames[name]             = std::string(type);
-    }
-
-    // Print table
-    std::cout << std::endl;
-    std::cout << "Available Collections" << std::endl;
-    std::cout << std::endl;
-    std::cout << "Collection Name"
-              << std::string(max_name_len + 2 - std::string("Collection Name").length(), ' ')
-              << "Data Type" << std::endl;
-    std::cout << std::string(max_name_len, '-') << "  " << std::string(max_name_len, '-')
-              << std::endl;
-    for (auto& [name, type] : collectionNames) {
-      std::cout << name + std::string(max_name_len + 2 - name.length(), ' ');
-      std::cout << type << std::endl;
-    }
-    std::cout << std::endl;
+  // We test the format the same way that PODIO's python API does. See python/podio/reading.py
+  TObject* tree = file->Get("podio_metadata");
+  if (tree == nullptr) {
+    return 0.0;
   }
+  return 0.03;
+}
+
+//------------------------------------------------------------------------------
+// PrintCollectionTypeTable
+//
+/// Print the list of collection names from the currently open file along
+/// with their types. This will be called automatically when the file is
+/// open if the PODIO:PRINT_TYPE_TABLE variable is set to a non-zero value
+//------------------------------------------------------------------------------
+void JEventSourcePODIO::PrintCollectionTypeTable() {
+
+  // Read the zeroth entry. This assumes that m_reader has already been initialized with a valid filename
+  auto frame = std::make_unique<podio::Frame>(m_reader->readFrame("events", 0));
+
+  std::map<std::string, std::string> collectionNames;
+  std::size_t max_name_len = 0;
+  std::size_t max_type_len = 0;
+
+  // Record all (collection name, value type name) pairs
+  // Record the maximum length of both strings so that we can print nicely aligned columns.
+  for (const std::string& name : frame->getAvailableCollections()) {
+    const podio::CollectionBase* coll = frame->get(name);
+    const auto type                   = coll->getTypeName();
+    max_name_len                      = std::max(max_name_len, name.length());
+    max_type_len                      = std::max(max_type_len, type.length());
+    collectionNames[name]             = std::string(type);
+  }
+
+  // Print table
+  std::cout << std::endl;
+  std::cout << "Available Collections" << std::endl;
+  std::cout << std::endl;
+  std::cout << "Collection Name"
+            << std::string(max_name_len + 2 - std::string("Collection Name").length(), ' ')
+            << "Data Type" << std::endl;
+  std::cout << std::string(max_name_len, '-') << "  " << std::string(max_name_len, '-')
+            << std::endl;
+  for (auto& [name, type] : collectionNames) {
+    std::cout << name + std::string(max_name_len + 2 - name.length(), ' ');
+    std::cout << type << std::endl;
+  }
+  std::cout << std::endl;
+}
