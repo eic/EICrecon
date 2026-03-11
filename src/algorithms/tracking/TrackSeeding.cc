@@ -249,17 +249,12 @@ TrackSeeding::estimateTrackParamsFromSeed(const Acts::Seed<SpacePoint>& seed) co
   trackparam.setQOverP(qOverP);                                            // Q/p [e/GeV]
   trackparam.setTime(10);                                                  // time in ns
   edm4eic::Cov6f cov;
-  cov(0, 0) = m_cfg.locaError / Acts::UnitConstants::mm;                               // loc0
-  cov(1, 1) = m_cfg.locbError / Acts::UnitConstants::mm;                               // loc1
-  cov(2, 2) = m_cfg.phiError / Acts::UnitConstants::rad;                               // phi
-  cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad;                             // theta
-  cov(0, 0) = m_cfg.locaError / Acts::UnitConstants::mm / Acts::UnitConstants::mm;     // loc0
-  cov(1, 1) = m_cfg.locbError / Acts::UnitConstants::mm / Acts::UnitConstants::mm;     // loc1
-  cov(2, 2) = m_cfg.phiError / Acts::UnitConstants::rad / Acts::UnitConstants::rad;    // phi
-  cov(3, 3) = m_cfg.thetaError / Acts::UnitConstants::rad / Acts::UnitConstants::rad;  // theta
-  cov(4, 4) = m_cfg.qOverPError * Acts::UnitConstants::GeV * Acts::UnitConstants::GeV; // qOverP
-  cov(5, 5) = m_cfg.timeError /
-              (Acts::UnitConstants::ns * Acts::UnitConstants::ns); // time variance in ns^2
+  cov(0, 0) = std::pow(m_cfg.locaError / Acts::UnitConstants::mm, 2);    // loc0
+  cov(1, 1) = std::pow(m_cfg.locbError / Acts::UnitConstants::mm, 2);    // loc1
+  cov(2, 2) = std::pow(m_cfg.phiError / Acts::UnitConstants::rad, 2);    // phi
+  cov(3, 3) = std::pow(m_cfg.thetaError / Acts::UnitConstants::rad, 2);  // theta
+  cov(4, 4) = std::pow(m_cfg.qOverPError * Acts::UnitConstants::GeV, 2); // qOverP
+  cov(5, 5) = std::pow(m_cfg.timeError / Acts::UnitConstants::ns, 2);    // time variance in ns^2
   trackparam.setCovariance(cov);
 
   return trackparam;
