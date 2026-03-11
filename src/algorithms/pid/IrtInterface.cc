@@ -268,9 +268,9 @@ void IrtInterface::process(const IrtInterface::Input& input,
   std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
   for (const auto& assoc : *in_track_associations) {
     // MC particle index in its respective in_mc_particles array;
-    unsigned mcid = assoc.getSimID();
+    unsigned mcid = assoc.getSim().getObjectID().index;
     // Reco particle index in its respective in_tracks array;
-    unsigned rcid = assoc.getRecID();
+    unsigned rcid = assoc.getRec().getObjectID().index;
 
     auto track = (*in_tracks)[rcid];
     MCParticle_to_Tracks_lut[mcid].push_back(track.id().index);
