@@ -49,10 +49,9 @@ public:
   void ChangeRun(int64_t run_number) {}
 
   void Process(int64_t run_number, uint64_t event_number) {
-    m_algo->process(
-        {m_mc_particles_input(), m_recoparticles_input(), m_recoassocs_input(),
-         m_track_projections_input(), m_sim_hits_input()},
-        {m_irt_radiator_output().get(), m_irt_particle_output().get()});
+    m_algo->process({m_mc_particles_input(), m_recoparticles_input(), m_recoassocs_input(),
+                     m_track_projections_input(), m_sim_hits_input()},
+                    {m_irt_radiator_output().get(), m_irt_particle_output().get()});
   }
 };
 

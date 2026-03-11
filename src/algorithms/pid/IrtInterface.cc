@@ -174,82 +174,82 @@ void IrtInterface::init(DD4hep_service& dd4hep_service, IrtConfig& config,
     m_Instance = m_InstanceCounters[m_OutputFileName]++;
   }
 
+  {
+    const dd4hep::Detector* det = dd4hep_service.detector();
 
-{
-  const dd4hep::Detector* det = dd4hep_service.detector();
+    for (auto [name, rad] : m_irt_det->Radiators()) {
+      const auto* rindex_matrix =
+          det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
+      if (rindex_matrix) {
+        const unsigned dim = rindex_matrix->GetRows();
+        std::unique_ptr<double[]> e(new double[dim]);
+        std::unique_ptr<double[]> ri(new double[dim]);
 
-  for (auto [name, rad] : m_irt_det->Radiators()) {
-    const auto* rindex_matrix = det->material(rad->GetAlternativeMaterialName()).property("RINDEX");
-    if (rindex_matrix) {
-      const unsigned dim = rindex_matrix->GetRows();
-      std::unique_ptr<double[]> e(new double[dim]);
-      std::unique_ptr<double[]> ri(new double[dim]);
+        for (unsigned row = 0; row < rindex_matrix->GetRows(); row++) {
+          e[row]  = rindex_matrix->Get(row, 0) / dd4hep::eV;
+          ri[row] = rindex_matrix->Get(row, 1);
+        } //for row
 
-      for (unsigned row = 0; row < rindex_matrix->GetRows(); row++) {
-        e[row]  = rindex_matrix->Get(row, 0) / dd4hep::eV;
-        ri[row] = rindex_matrix->Get(row, 1);
-      } //for row
+        auto ptr = rad->m_RefractiveIndex = new G4DataInterpolation(e.get(), ri.get(), dim);
+        // FIXME: 100 hardcoded;
+        ptr->CreateLookupTable(100);
+      } //if
+    } //for radiators
+  }
 
-      auto ptr = rad->m_RefractiveIndex = new G4DataInterpolation(e.get(), ri.get(), dim);
-      // FIXME: 100 hardcoded;
-      ptr->CreateLookupTable(100);
+  {
+    json* jptr = &config.m_json_config;
+
+    // FIXME: for now assume a single photo detector type; cannot easily store this pointer;
+    auto pd = m_irt_det->m_PhotonDetectors[0];
+
+    if (jptr->find("Photosensor") != jptr->end()) {
+      auto& jpref = (*jptr)["Photosensor"];
+
+      double qe_rescaling_factor = 1.0;
+      // An artificial rescaling factor may be provided;
+      if (jpref.find("quantum-efficiency-rescaling-factor") != jpref.end())
+        qe_rescaling_factor = jpref["quantum-efficiency-rescaling-factor"].template get<double>();
+
+      if (jpref.find("quantum-efficiency") != jpref.end()) {
+        auto& qeref = jpref["quantum-efficiency"];
+
+        const int qeEntries = qeref.size();
+        std::unique_ptr<double[]> WL(new double[qeEntries]);
+        std::unique_ptr<double[]> QE(new double[qeEntries]);
+
+        unsigned counter = 0;
+        for (json::iterator it = qeref.begin(); it != qeref.end(); ++it) {
+          std::string wlstr(it.key().c_str());
+          // FIXME: assumes a 3-digit integer value; do it better later;
+          wlstr[3] = 0;
+
+          WL[counter]   = atoi(wlstr.c_str());
+          QE[counter++] = it.value().template get<double>();
+        } //it
+
+        double qemax = 0.0;
+        std::vector<double> qePhotonEnergy(qeEntries);
+        std::vector<double> qeData(qeEntries);
+        for (int iq = 0; iq < qeEntries; iq++) {
+          qePhotonEnergy[iq] = _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
+          qeData[iq]         = QE[qeEntries - iq - 1] * qe_rescaling_factor;
+
+          if (qeData[iq] > qemax)
+            qemax = qeData[iq];
+        } //for iq
+
+        pd->SetQE(
+            _MAGIC_CFF_ / WL[qeEntries - 1], _MAGIC_CFF_ / WL[0],
+            // NB: last argument: want a built-in selection of unused photons, which follow the QE(lambda);
+            // see CherenkovSteppingAction::UserSteppingAction() for a usage case;
+            new G4DataInterpolation(qePhotonEnergy.data(), qeData.data(), qeEntries),
+            qemax ? 1.0 / qemax : 1.0);
+        // FIXME: 100 hardcoded;
+        pd->GetQE()->CreateLookupTable(100);
+      } //if
     } //if
-  } //for radiators
-}
-
-{
-  json* jptr = &config.m_json_config;
-
-  // FIXME: for now assume a single photo detector type; cannot easily store this pointer;
-  auto pd = m_irt_det->m_PhotonDetectors[0];
-
-  if (jptr->find("Photosensor") != jptr->end()) {
-    auto& jpref = (*jptr)["Photosensor"];
-
-    double qe_rescaling_factor = 1.0;
-    // An artificial rescaling factor may be provided;
-    if (jpref.find("quantum-efficiency-rescaling-factor") != jpref.end())
-      qe_rescaling_factor = jpref["quantum-efficiency-rescaling-factor"].template get<double>();
-
-    if (jpref.find("quantum-efficiency") != jpref.end()) {
-      auto& qeref = jpref["quantum-efficiency"];
-
-      const int qeEntries = qeref.size();
-      std::unique_ptr<double[]> WL(new double[qeEntries]);
-      std::unique_ptr<double[]> QE(new double[qeEntries]);
-
-      unsigned counter = 0;
-      for (json::iterator it = qeref.begin(); it != qeref.end(); ++it) {
-        std::string wlstr(it.key().c_str());
-        // FIXME: assumes a 3-digit integer value; do it better later;
-        wlstr[3] = 0;
-
-        WL[counter]   = atoi(wlstr.c_str());
-        QE[counter++] = it.value().template get<double>();
-      } //it
-
-      double qemax = 0.0;
-      std::vector<double> qePhotonEnergy(qeEntries);
-      std::vector<double> qeData(qeEntries);
-      for (int iq = 0; iq < qeEntries; iq++) {
-        qePhotonEnergy[iq] = _MAGIC_CFF_ / (WL[qeEntries - iq - 1] + 0.0);
-        qeData[iq]         = QE[qeEntries - iq - 1] * qe_rescaling_factor;
-
-        if (qeData[iq] > qemax)
-          qemax = qeData[iq];
-      } //for iq
-
-      pd->SetQE(
-          _MAGIC_CFF_ / WL[qeEntries - 1], _MAGIC_CFF_ / WL[0],
-          // NB: last argument: want a built-in selection of unused photons, which follow the QE(lambda);
-          // see CherenkovSteppingAction::UserSteppingAction() for a usage case;
-          new G4DataInterpolation(qePhotonEnergy.data(), qeData.data(), qeEntries),
-          qemax ? 1.0 / qemax : 1.0);
-      // FIXME: 100 hardcoded;
-      pd->GetQE()->CreateLookupTable(100);
-    } //if
-  } //if
-}
+  }
 } // IrtInterface::init()
 
 // -------------------------------------------------------------------------------------
