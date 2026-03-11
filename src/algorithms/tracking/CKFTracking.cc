@@ -73,7 +73,6 @@
 namespace {
 
 /// Calibrator that reads directly from edm4eic::Measurement2DCollection,
-/// avoiding the intermediate conversion to ActsExamples::MeasurementContainer.
 struct EDM4eicMeasurementSourceLinkCalibrator {
   const edm4eic::Measurement2DCollection* meas2Ds;
 
@@ -140,7 +139,6 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   }
 
   // create ordered source links directly from edm4eic measurements,
-  // avoiding the intermediate conversion to ActsExamples::MeasurementContainer
   ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> orderedSourceLinks;
   for (std::size_t index = 0; index < meas2Ds->size(); ++index) {
     Acts::GeometryIdentifier geoId{(*meas2Ds)[index].getSurface()};
