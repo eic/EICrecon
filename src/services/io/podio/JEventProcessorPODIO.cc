@@ -17,12 +17,14 @@
 #include <exception>
 #include <functional>
 #include <iterator>
+#include <map>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
+#include <utility>
 
-#include "services/log/Log_service.h"
 #include "JEventSourcePODIO.h"
+#include "services/log/Log_service.h"
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
   SetTypeName(NAME_OF_THIS); // Provide JANA with this class's name
