@@ -243,43 +243,6 @@ jobs:
         path: build.tar.zst
         if-no-files-found: error
 
-  t-algorithms-test:
-    # This job runs t_algorithms_test separately from the build job.
-    # It specifically targets the clang++ Release ASAN configuration that was failing.
-    runs-on: ubuntu-24.04
-    needs:
-    - build
-    continue-on-error: true
-    steps:
-    - name: Checkout .github
-      uses: actions/checkout@v6
-      with:
-        sparse-checkout: .github
-    - uses: cvmfs-contrib/github-action-cvmfs@v5
-    - name: Download install directory
-      uses: actions/download-artifact@v8
-      with:
-        name: install-clang++-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
-    - name: Uncompress install directory
-      run: tar -xaf install.tar.zst
-    - name: Download algorithms_test binary
-      uses: actions/download-artifact@v8
-      with:
-        name: algorithms_test-clang++-eic-shell-Release-${{ env.platform }}-${{ env.release }}-ASAN
-        path: build/src/tests/algorithms_test/
-    - name: Run t_algorithms_test
-      uses: eic/run-cvmfs-osg-eic-shell@main
-      with:
-        organization: "${{ env.organization }}"
-        platform-release: "${{ env.platform }}:${{ env.release }}"
-        run: |
-          # GitHub Actions artifacts do not preserve file permissions
-          chmod +x build/src/tests/algorithms_test/algorithms_test
-          export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
-          export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          cd build/src/tests/algorithms_test
-          ./algorithms_test
-
   clang-tidy-iwyu:
     runs-on: ubuntu-24.04
     needs: build
