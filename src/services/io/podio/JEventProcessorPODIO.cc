@@ -747,17 +747,19 @@ void JEventProcessorPODIO::Process(const std::shared_ptr<const JEvent>& event) {
 }
 
 void JEventProcessorPODIO::Finish() {
-  // Propagate run-level metadata frames from input to output
+  // Propagate all non-event frames from input to output
   auto* app          = GetApplication();
   auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
   for (auto* source : event_sources) {
     auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
     if (podio_source == nullptr)
       continue;
-    for (auto& runs_frame : podio_source->m_runs_frames) {
-      m_writer->writeFrame(runs_frame, "runs");
+    for (auto& [category, frames] : podio_source->m_extra_frames) {
+      for (auto& frame : frames) {
+        m_writer->writeFrame(frame, category);
+      }
+      m_log->info("Propagated {} '{}' frame(s) to output file", frames.size(), category);
     }
-    m_log->info("Propagated {} runs frame(s) to output file", podio_source->m_runs_frames.size());
   }
   m_writer->finish();
 }
