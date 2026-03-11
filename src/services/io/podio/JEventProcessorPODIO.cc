@@ -23,7 +23,7 @@
 #include <stdexcept>
 #include <utility>
 
-#include "JEventSourcePODIO.h"
+#include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
 JEventProcessorPODIO::JEventProcessorPODIO() {
