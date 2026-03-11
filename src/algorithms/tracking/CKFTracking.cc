@@ -77,8 +77,7 @@ namespace {
 struct EDM4eicMeasurementSourceLinkCalibrator {
   const edm4eic::Measurement2DCollection* meas2Ds;
 
-  void calibrate(const Acts::GeometryContext& /*gctx*/,
-                 const Acts::CalibrationContext& /*cctx*/,
+  void calibrate(const Acts::GeometryContext& /*gctx*/, const Acts::CalibrationContext& /*cctx*/,
                  const Acts::SourceLink& sourceLink,
                  Acts::VectorMultiTrajectory::TrackStateProxy trackState) const {
     trackState.setUncalibratedSourceLink(Acts::SourceLink{sourceLink});
@@ -92,8 +91,8 @@ struct EDM4eicMeasurementSourceLinkCalibrator {
     Acts::ActsVector<2> loc       = Acts::Vector2::Zero();
     Acts::ActsSquareMatrix<2> cov = Acts::ActsSquareMatrix<2>::Zero();
 #endif
-    loc[Acts::eBoundLoc0] = meas2D.getLoc().a;
-    loc[Acts::eBoundLoc1] = meas2D.getLoc().b;
+    loc[Acts::eBoundLoc0]                   = meas2D.getLoc().a;
+    loc[Acts::eBoundLoc1]                   = meas2D.getLoc().b;
     cov(Acts::eBoundLoc0, Acts::eBoundLoc0) = meas2D.getCovariance().xx;
     cov(Acts::eBoundLoc1, Acts::eBoundLoc1) = meas2D.getCovariance().yy;
     cov(Acts::eBoundLoc0, Acts::eBoundLoc1) = meas2D.getCovariance().xy;
@@ -215,8 +214,8 @@ void CKFTracking::process(const Input& input, const Output& output) const {
   TrackStateCreatorType trackStateCreator;
   trackStateCreator.sourceLinkAccessor
       .template connect<&ActsExamples::IndexSourceLinkAccessor::range>(&slAccessor);
-  trackStateCreator.calibrator
-      .template connect<&EDM4eicMeasurementSourceLinkCalibrator::calibrate>(&calibratorImpl);
+  trackStateCreator.calibrator.template connect<&EDM4eicMeasurementSourceLinkCalibrator::calibrate>(
+      &calibratorImpl);
   trackStateCreator.measurementSelector
       .template connect<&Acts::MeasurementSelector::select<Acts::VectorMultiTrajectory>>(&measSel);
 
