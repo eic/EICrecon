@@ -752,7 +752,8 @@ void JEventProcessorPODIO::Finish() {
   auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
   for (auto* source : event_sources) {
     auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
-    if (podio_source == nullptr) continue;
+    if (podio_source == nullptr)
+      continue;
     for (auto& runs_frame : podio_source->m_runs_frames) {
       m_writer->writeFrame(runs_frame, "runs");
     }
