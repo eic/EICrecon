@@ -94,6 +94,6 @@ struct OrthogonalTrackSeedingConfig {
   float phiError    = 0.02 * Acts::UnitConstants::rad;  //Error on phi
   float thetaError  = 0.002 * Acts::UnitConstants::rad; //Error on theta
   float qOverPError = 0.025 / Acts::UnitConstants::GeV; //Error on q over p
-  float timeError   = 1.0 * Acts::UnitConstants::ns;    // Error on time
+  float timeError   = 1.0 * Acts::UnitConstants::ns;    //Error on time
 };
 } // namespace eicrecon
