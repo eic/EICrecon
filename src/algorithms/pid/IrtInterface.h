@@ -16,8 +16,8 @@
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
+#include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
+#include <edm4eic/TrackCollection.h>
 
 #include <spdlog/logger.h>
 #include "services/geometry/dd4hep/DD4hep_service.h"
@@ -49,10 +49,10 @@ struct IrtConfig {
 
 namespace eicrecon {
 using IrtInterfaceAlgorithm = algorithms::Algorithm<
-    algorithms::Input<const edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
-                      edm4eic::MCRecoParticleAssociationCollection,
-                      const edm4eic::TrackSegmentCollection,
-                      const edm4hep::SimTrackerHitCollection>,
+    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::TrackCollection,
+                      edm4eic::MCRecoTrackParticleAssociationCollection,
+                      edm4eic::TrackSegmentCollection,
+                      edm4hep::SimTrackerHitCollection>,
     algorithms::Output<edm4eic::IrtRadiatorInfoCollection, edm4eic::IrtParticleCollection>>;
 
 class IrtInterface : public IrtInterfaceAlgorithm {
@@ -70,7 +70,7 @@ public:
       , m_wx(0)
       , m_wy(0)
       , IrtInterfaceAlgorithm{name,
-                              {"inputMCParticles", "inputRecoParticles", "inputMCRecoAssotiations",
+                              {"inputMCParticles", "inputTracks", "inputTrackAssotiations",
                                "inputTrackSegments", "inputSimHits"},
                               {"outputIrtRadiatorInfo", "outputIrtParticles"},
                               "Performs PID evaluation based on IRT2 algorithm"} {};

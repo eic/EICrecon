@@ -28,8 +28,8 @@ private:
   std::unique_ptr<AlgoT> m_algo;
 
   PodioInput<edm4hep::MCParticle> m_mc_particles_input{this};
-  PodioInput<edm4eic::ReconstructedParticle> m_recoparticles_input{this};
-  PodioInput<edm4eic::MCRecoParticleAssociation> m_recoassocs_input{this};
+  PodioInput<edm4eic::Track> m_tracks_input{this};
+  PodioInput<edm4eic::MCRecoTrackParticleAssociation> m_trackassocs_input{this};
   PodioInput<edm4eic::TrackSegment> m_track_projections_input{this};
   PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input{this};
 
@@ -49,9 +49,10 @@ public:
   void ChangeRun(int64_t run_number) {}
 
   void Process(int64_t run_number, uint64_t event_number) {
-    m_algo->process({m_mc_particles_input(), m_recoparticles_input(), m_recoassocs_input(),
-                     m_track_projections_input(), m_sim_hits_input()},
-                    {m_irt_radiator_output().get(), m_irt_particle_output().get()});
+    m_algo->process(
+        {m_mc_particles_input(), m_tracks_input(), m_trackassocs_input(),
+         m_track_projections_input(), m_sim_hits_input()},
+        {m_irt_radiator_output().get(), m_irt_particle_output().get()});
   }
 };
 

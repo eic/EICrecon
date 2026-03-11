@@ -260,21 +260,20 @@ void IrtInterface::process(const IrtInterface::Input& input,
   m_Event->Reset();
 
   // Intermediate variables, for less typing;
-  const auto [in_mc_particles, in_reco_particles, in_mc_reco_associations, in_track_projections,
+  const auto [in_mc_particles, in_tracks, in_track_associations, in_track_projections,
               in_sim_hits]                        = input;
   auto [out_irt_radiator_info, out_irt_particles] = output;
 
   // First build MC->reco lookup table;
   std::map<unsigned, std::vector<unsigned>> MCParticle_to_Tracks_lut;
-  for (const auto& assoc : *in_mc_reco_associations) {
+  for (const auto& assoc : *in_track_associations) {
     // MC particle index in its respective in_mc_particles array;
     unsigned mcid = assoc.getSimID();
-    // Reco particle index in its respective in_reco_particles array;
+    // Reco particle index in its respective in_tracks array;
     unsigned rcid = assoc.getRecID();
 
-    auto rcparticle = (*in_reco_particles)[rcid];
-    for (auto& track : rcparticle.getTracks())
-      MCParticle_to_Tracks_lut[mcid].push_back(track.id().index);
+    auto track = (*in_tracks)[rcid];
+    MCParticle_to_Tracks_lut[mcid].push_back(track.id().index);
   } //for assoc
 
   // Then track -> track projection lookup table; FIXME: other radiators;
@@ -291,7 +290,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
   // Create event structure a la standalone pfRICH/IRT code; use MC particles (in_mc_particles)
   // in this first iteration (and only select primary ones); later on should do it probably
   // the same way as in ATHENA IRT codes, where one had an option to build this event
-  // structure using reconstructed tracks (in_reco_particles);
+  // structure using reconstructed tracks (in_tracks);
   for (const auto& mcparticle : *in_mc_particles) {
     // Deal only with charged primary ones, for the time being; FIXME: low momentum cutoff?;
     if (mcparticle.isCreatedInSimulation() || !mcparticle.getCharge())
@@ -473,7 +472,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
       unsigned npe_per_track = 0, nhits_per_track = 0;
 
       edm4eic::MutableIrtParticle irtParticle;
-      //irtParticle.setTrack((*in_reco_particles)[particle->m_EICreconParticleID]);
+      irtParticle.setTrack((*in_tracks)[particle->m_EICreconParticleID]);
 
       for (auto rhptr : particle->GetRadiatorHistory()) {
         auto radiator = particle->GetRadiator(rhptr);
