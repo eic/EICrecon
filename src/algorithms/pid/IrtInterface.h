@@ -77,8 +77,6 @@ public:
 
   void init(DD4hep_service& service, IrtConfig& config, std::shared_ptr<spdlog::logger>& logger);
 
-  void init(DD4hep_service& service, IrtConfig& config, std::shared_ptr<spdlog::logger>& logger);
-
   void JsonParser(void);
 
   void process(const Input&, const Output&) const;

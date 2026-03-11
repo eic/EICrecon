@@ -401,6 +401,7 @@ void InitPlugin(JApplication* app) {
           }
         }
       }
+    }
     } //for RICH
   }
 }

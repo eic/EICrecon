@@ -52,7 +52,7 @@ public:
     m_algo->process(
         {m_mc_particles_input(), m_recoparticles_input(), m_recoassocs_input(),
          m_track_projections_input(), m_sim_hits_input()},
-        {m_irt_radiator_output().get(), m_irt_particle_output().get(), m_irt_event_output().get()});
+        {m_irt_radiator_output().get(), m_irt_particle_output().get()});
   }
 };
 
