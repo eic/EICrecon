@@ -756,11 +756,12 @@ void JEventProcessorPODIO::Finish() {
     auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
     if (podio_source == nullptr)
       continue;
-    for (auto& [category, frames] : podio_source->m_extra_frames) {
-      for (auto& frame : frames) {
-        m_writer->writeFrame(frame, category);
+    for (const auto& category : podio_source->getAvailableCategories()) {
+      std::size_t n = podio_source->getEntries(category);
+      for (std::size_t i = 0; i < n; ++i) {
+        m_writer->writeFrame(podio_source->getFrame(category, i), category);
       }
-      m_log->info("Propagated {} '{}' frame(s) to output file", frames.size(), category);
+      m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
     }
   }
   m_writer->finish();

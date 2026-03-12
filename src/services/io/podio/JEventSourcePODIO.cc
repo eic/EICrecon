@@ -149,18 +149,6 @@ void JEventSourcePODIO::Open() {
     m_log->info("Opened PODIO file \"{}\" with {} events (format auto-detected)", GetResourceName(),
                 Nevents_in_file);
 
-    for (auto category : m_reader->getAvailableCategories()) {
-      if (category == "events") {
-        continue;
-      }
-      std::string cat(category);
-      std::size_t n = m_reader->getEntries(cat);
-      for (std::size_t i = 0; i < n; ++i) {
-        m_extra_frames[cat].emplace_back(m_reader->readFrame(cat, i));
-      }
-      m_log->info("Read {} '{}' frame(s) from input file", n, cat);
-    }
-
     if (print_type_table) {
       PrintCollectionTypeTable();
     }
@@ -180,6 +168,24 @@ void JEventSourcePODIO::Open() {
 void JEventSourcePODIO::Close() {
   // m_reader.close();
   // TODO: ROOTReader does not appear to have a close() method.
+}
+
+std::vector<std::string> JEventSourcePODIO::getAvailableCategories() const {
+  std::vector<std::string> categories;
+  for (auto category : m_reader->getAvailableCategories()) {
+    if (category != "events") {
+      categories.emplace_back(category);
+    }
+  }
+  return categories;
+}
+
+std::size_t JEventSourcePODIO::getEntries(const std::string& category) const {
+  return m_reader->getEntries(category);
+}
+
+podio::Frame JEventSourcePODIO::getFrame(const std::string& category, std::size_t index) const {
+  return m_reader->readFrame(category, index);
 }
 
 //------------------------------------------------------------------------------
