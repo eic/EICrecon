@@ -170,7 +170,7 @@ void JEventSourcePODIO::Close() {
   // TODO: ROOTReader does not appear to have a close() method.
 }
 
-std::vector<std::string> JEventSourcePODIO::getAvailableCategories() const {
+std::vector<std::string_view> JEventSourcePODIO::getAvailableCategories() const {
   return m_reader->getAvailableCategories();
 }
 
