@@ -171,13 +171,7 @@ void JEventSourcePODIO::Close() {
 }
 
 std::vector<std::string> JEventSourcePODIO::getAvailableCategories() const {
-  std::vector<std::string> categories;
-  for (auto category : m_reader->getAvailableCategories()) {
-    if (category != "events") {
-      categories.emplace_back(category);
-    }
-  }
-  return categories;
+  return m_reader->getAvailableCategories();
 }
 
 std::size_t JEventSourcePODIO::getEntries(const std::string& category) const {
