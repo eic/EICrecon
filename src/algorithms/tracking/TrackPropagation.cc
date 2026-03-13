@@ -317,8 +317,9 @@ TrackPropagation::propagate(const edm4eic::Track& /* track */,
       static_cast<float>(covariance(Acts::eBoundPhi, Acts::eBoundQOverP))};
 
   // time
-  const float time{static_cast<float>(parameter(Acts::eBoundTime))};
-  const float timeError{static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime)))};
+  const float time{static_cast<float>(parameter(Acts::eBoundTime) / Acts::UnitConstants::ns)};
+  const float timeError{static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime)) /
+                                           Acts::UnitConstants::ns)};
 
   // Direction
   const float theta(parameter[Acts::eBoundTheta]);
