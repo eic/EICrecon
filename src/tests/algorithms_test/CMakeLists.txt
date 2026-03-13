@@ -14,6 +14,7 @@ add_executable(
   calorimetry_HEXPLIT.cc
   digi_EICROCDigitization.cc
   digi_PulseGeneration.cc
+  meta_SubDivide.cc
   pid_MergeTracks.cc
   pid_MergeParticleID.cc
   pid_lut_PIDLookup.cc)
