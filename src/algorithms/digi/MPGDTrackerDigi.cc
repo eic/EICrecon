@@ -1215,15 +1215,15 @@ unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom
   double Mz = lpos[2] + ref2Cur, Pz = lmom[2];
   // Intersection w/ the edge in X,Y
   double tIn = 0, tOut = 0;
-  double xyLow[2] = {-dX, +dX}, xyUp[2] = {-dY, +dY};
+  double xyLow[2] = {-dX, -dY}, xyUp[2] = {+dX, +dY};
   for (int xy = 0; xy < 2; xy++) {
     int yx       = 1 - xy;
-    double a_Low = xyLow[xy], a_Up = xyUp[xy], Pa = Pxy[xy];
+    double a_Low = xyLow[xy], a_Up = xyUp[xy], Ma = Mxy[xy], Pa = Pxy[xy];
     double b_Low = xyLow[yx], b_Up = xyUp[yx], Mb = Mxy[yx], Pb = Pxy[yx];
     for (double A : {a_Low, a_Up}) {
-      // Mz+t*Pz = A
+      // Ma+t*Pa = A
       if (Pa) {
-        double t  = (A - Mz) / Pa;
+        double t  = (A - Ma) / Pa;
         double Eb = Mb + t * Pb, Ez = Mz + t * Pz;
         if (b_Low < Eb && Eb < b_Up && fabs(Ez) < dZ) {
           if (t < 0) {
@@ -1535,15 +1535,15 @@ unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom,
   }
   // Intersection w/ the edge in X,Y
   double tF       = 0;
-  double xyLow[2] = {-dX, +dX}, xyUp[2] = {-dY, +dY};
+  double xyLow[2] = {-dX, -dY}, xyUp[2] = {+dX, +dY};
   for (int xy = 0; xy < 2; xy++) {
     int yx       = 1 - xy;
-    double a_Low = xyLow[xy], a_Up = xyUp[xy], Pa = Pxy[xy];
+    double a_Low = xyLow[xy], a_Up = xyUp[xy], Ma = Mxy[xy], Pa = Pxy[xy];
     double b_Low = xyLow[yx], b_Up = xyUp[yx], Mb = Mxy[yx], Pb = Pxy[yx];
     for (double A : {a_Low, a_Up}) {
-      // Mz+t*Pz = A
+      // Ma+t*Pa = A
       if (Pa) {
-        double t = (A - Mz) / Pa;
+        double t = (A - Ma) / Pa;
         if (t * direction < 0)
           continue;
         double Eb = Mb + t * Pb, Ez = Mz + t * Pz;
