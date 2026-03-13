@@ -14,14 +14,14 @@
 #include <podio/Writer.h>
 #include <algorithm>
 #include <cctype>
+#include <cstddef>
 #include <exception>
 #include <functional>
 #include <iterator>
-#include <map>
 #include <regex>
 #include <sstream>
 #include <stdexcept>
-#include <utility>
+#include <string_view>
 
 #include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
