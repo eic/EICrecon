@@ -220,18 +220,18 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   }
 
   // ***** raw_hit INSTANTIATION AND raw<-sim_hit's ASSOCIATION
-  for (auto item : cell_hit_map) {
-    raw_hits->push_back(item.second);
+  for (const auto& [cell_id, hit] : cell_hit_map) {
+    raw_hits->push_back(hit);
     auto raw_hit = raw_hits->at(raw_hits->size() - 1);
     auto sim_it  = sim2IDs.cbegin();
     for (const auto& sim_hit : *sim_hits) {
       CellIDs cIDs = *sim_it++;
       for (CellID cID : {cIDs.first, cIDs.second}) {
-        if (item.first == cID) {
+        if (cell_id == cID) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           // create link
           auto link = links->create();
-          link.setFrom(item.second);
+          link.setFrom(raw_hit);
           link.setTo(sim_hit);
           link.setWeight(1.0);
 #endif
