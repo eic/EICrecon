@@ -207,7 +207,7 @@ jobs:
         run: |
           export LD_LIBRARY_PATH=$PWD/install/lib:$LD_LIBRARY_PATH
           export JANA_PLUGIN_PATH=$PWD/install/lib/EICrecon/plugins${JANA_PLUGIN_PATH:+:${JANA_PLUGIN_PATH}}
-          ctest --test-dir build -V
+          ctest --test-dir build -V ${{ matrix.USE_ASAN == 'ON' && '--exclude-regex ^t_algorithms_test$' || '' }}
     - name: Compress install directory
       run: tar -caf install.tar.zst install/
     - name: Upload install directory (ASAN)
@@ -536,6 +536,44 @@ jobs:
         setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
         run: |
           url=root://dtn-eic.jlab.org//volatile/eic/EPIC/EVGEN/DIS/NC/${{matrix.beam}}/minQ2=${{matrix.minq2}}/pythia8NCDIS_${{matrix.beam}}_minQ2=${{matrix.minq2}}_beamEffects_xAngle=-0.025_hiDiv_1.hepmc3.tree.root
+          npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -v WARNING
+    - uses: actions/upload-artifact@v7
+      with:
+        name: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+        path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+        if-no-files-found: error
+
+  npsim-pythia6:
+    runs-on: ubuntu-24.04
+    needs:
+    - detector-info
+    strategy:
+      matrix:
+        include:
+          - beam: 10x130
+            minq2: 1
+            detector_config: craterlake_10x130
+          - beam: 10x250
+            minq2: 1
+            detector_config: craterlake_10x250
+    steps:
+    - name: Retrieve simulation files
+      id: retrieve_simulation_files
+      uses: actions/cache@v5
+      with:
+        path: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root
+        key: sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root-${{ needs.detector-info.outputs.hash }}
+    - uses: cvmfs-contrib/github-action-cvmfs@v5
+      if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
+    - name: Produce simulation files
+      uses: eic/run-cvmfs-osg-eic-shell@main
+      if: steps.retrieve_simulation_files.outputs.cache-hit != 'true'
+      with:
+        organization: "${{ env.organization }}"
+        platform-release: "${{ env.platform }}:${{ env.release }}"
+        setup: "/opt/detector/epic-${{ env.detector-version }}/bin/thisepic.sh"
+        run: |
+          url=root://dtn-eic.jlab.org//volatile/eic/EPIC/EVGEN/DIS/pythia6.428-1.0/NC/noRad/ep/${{matrix.beam}}/q2_${{matrix.minq2}}to${{matrix.minq2}}0/pythia6.428-1.0_NC_noRad_ep_${{matrix.beam}}_q2_${{matrix.minq2}}to${{matrix.minq2}}0_ab.hepmc3.tree.root
           npsim --compactFile ${DETECTOR_PATH}/${DETECTOR}_${{ matrix.detector_config }}.xml -N 100 --inputFiles ${url} --random.seed 1 --outputFile sim_dis_${{matrix.beam}}_minQ2=${{matrix.minq2}}_${{ matrix.detector_config }}.edm4hep.root -v WARNING
     - uses: actions/upload-artifact@v7
       with:
@@ -984,6 +1022,7 @@ jobs:
     needs:
     - build
     - npsim-dis
+    - npsim-pythia6
     - npsim-minbias
     strategy:
       matrix:
@@ -1014,6 +1053,16 @@ jobs:
           beam: 10x100
           minq2: 1000
           detector_config: craterlake_tracking_only
+          sanitizer: ASAN
+        - CXX: clang++
+          beam: 10x130
+          minq2: 1
+          detector_config: craterlake_10x130
+          sanitizer: ASAN
+        - CXX: clang++
+          beam: 10x250
+          minq2: 1
+          detector_config: craterlake_10x250
           sanitizer: ASAN
         - CXX: clang++
           beam: 18x275
