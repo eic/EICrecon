@@ -757,7 +757,7 @@ void JEventProcessorPODIO::Finish() {
     if (podio_source == nullptr)
       continue;
     for (const auto& _category : podio_source->getAvailableCategories()) {
-      std::string category = _category;
+      std::string category { _category };
       if (category == "events")
         continue;
       std::size_t n = podio_source->getEntries(category);
