@@ -37,281 +37,282 @@
 
 namespace eicrecon {
 
-	class SignalPulse {
+class SignalPulse {
 
-		public:
-			virtual ~SignalPulse() = default; // Virtual destructor
+public:
+  virtual ~SignalPulse() = default; // Virtual destructor
 
-			virtual double operator()(double time, double charge) = 0;
+  virtual double operator()(double time, double charge) = 0;
 
-			virtual double getMaximumTime() const = 0;
-	};
+  virtual double getMaximumTime() const = 0;
+};
 
-	// ----------------------------------------------------------------------------
-	// Landau Pulse Shape Functor
-	// ----------------------------------------------------------------------------
-	class LandauPulse : public SignalPulse {
-		public:
-			LandauPulse(std::vector<double> params) {
+// ----------------------------------------------------------------------------
+// Landau Pulse Shape Functor
+// ----------------------------------------------------------------------------
+class LandauPulse : public SignalPulse {
+public:
+  LandauPulse(std::vector<double> params) {
 
-				if ((params.size() != 2) && (params.size() != 3)) {
-					throw std::runtime_error(
-							"LandauPulse requires 2 or 3 parameters, gain, sigma_analog, [hit_sigma_offset], got " +
-							std::to_string(params.size()));
-				}
+    if ((params.size() != 2) && (params.size() != 3)) {
+      throw std::runtime_error(
+          "LandauPulse requires 2 or 3 parameters, gain, sigma_analog, [hit_sigma_offset], got " +
+          std::to_string(params.size()));
+    }
 
-				m_gain         = params[0];
-				m_sigma_analog = params[1];
-				if (params.size() == 3) {
-					m_hit_sigma_offset = params[2];
-				}
-			};
+    m_gain         = params[0];
+    m_sigma_analog = params[1];
+    if (params.size() == 3) {
+      m_hit_sigma_offset = params[2];
+    }
+  };
 
-			double operator()(double time, double charge) override {
-				return charge * m_gain *
-					TMath::Landau(time, m_hit_sigma_offset * m_sigma_analog, m_sigma_analog, kTRUE);
-			}
+  double operator()(double time, double charge) override {
+    return charge * m_gain *
+           TMath::Landau(time, m_hit_sigma_offset * m_sigma_analog, m_sigma_analog, kTRUE);
+  }
 
-			double getMaximumTime() const override { return m_hit_sigma_offset * m_sigma_analog; }
+  double getMaximumTime() const override { return m_hit_sigma_offset * m_sigma_analog; }
 
-		private:
-			double m_gain             = 1.0;
-			double m_sigma_analog     = 1.0;
-			double m_hit_sigma_offset = 3.5;
-	};
+private:
+  double m_gain             = 1.0;
+  double m_sigma_analog     = 1.0;
+  double m_hit_sigma_offset = 3.5;
+};
 
-	// EvaluatorSvc Pulse
-	class EvaluatorPulse : public SignalPulse {
-		public:
-			EvaluatorPulse(const std::string& expression, const std::vector<double>& params) {
+// EvaluatorSvc Pulse
+class EvaluatorPulse : public SignalPulse {
+public:
+  EvaluatorPulse(const std::string& expression, const std::vector<double>& params) {
 
-				std::vector<std::string> keys = {"time", "charge"};
-				for (std::size_t i = 0; i < params.size(); i++) {
-					std::string p = "param" + std::to_string(i);
-					//Check the expression contains the parameter
-					if (expression.find(p) == std::string::npos) {
-						throw std::runtime_error("Parameter " + p + " not found in expression");
-					}
-					keys.push_back(p);
-					param_map[p] = params[i];
-				}
+    std::vector<std::string> keys = {"time", "charge"};
+    for (std::size_t i = 0; i < params.size(); i++) {
+      std::string p = "param" + std::to_string(i);
+      //Check the expression contains the parameter
+      if (expression.find(p) == std::string::npos) {
+        throw std::runtime_error("Parameter " + p + " not found in expression");
+      }
+      keys.push_back(p);
+      param_map[p] = params[i];
+    }
 
-				// Check the expression is contains time and charge
-				if (expression.find("time") == std::string::npos) {
-					throw std::runtime_error("Parameter [time] not found in expression");
-				}
-				if (expression.find("charge") == std::string::npos) {
-					throw std::runtime_error("Parameter [charge] not found in expression");
-				}
+    // Check the expression is contains time and charge
+    if (expression.find("time") == std::string::npos) {
+      throw std::runtime_error("Parameter [time] not found in expression");
+    }
+    if (expression.find("charge") == std::string::npos) {
+      throw std::runtime_error("Parameter [charge] not found in expression");
+    }
 
-				auto& serviceSvc = algorithms::ServiceSvc::instance();
-				m_evaluator      = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->_compile(expression, keys);
-			};
+    auto& serviceSvc = algorithms::ServiceSvc::instance();
+    m_evaluator      = serviceSvc.service<EvaluatorSvc>("EvaluatorSvc")->_compile(expression, keys);
+  };
 
-			double operator()(double time, double charge) override {
-				param_map["time"]   = time;
-				param_map["charge"] = charge;
-				return m_evaluator(param_map);
-			}
+  double operator()(double time, double charge) override {
+    param_map["time"]   = time;
+    param_map["charge"] = charge;
+    return m_evaluator(param_map);
+  }
 
-			double getMaximumTime() const override { return 0; }
+  double getMaximumTime() const override { return 0; }
 
-		private:
-			std::unordered_map<std::string, double> param_map;
-			std::function<double(const std::unordered_map<std::string, double>&)> m_evaluator;
-	};
+private:
+  std::unordered_map<std::string, double> param_map;
+  std::function<double(const std::unordered_map<std::string, double>&)> m_evaluator;
+};
 
-	class PulseShapeFactory {
-		public:
-			static std::unique_ptr<SignalPulse> createPulseShape(const std::string& type,
-					const std::vector<double>& params) {
-				if (type == "LandauPulse") {
-					return std::make_unique<LandauPulse>(params);
-				}
-				//
-				// Add more pulse shape variants here as needed
+class PulseShapeFactory {
+public:
+  static std::unique_ptr<SignalPulse> createPulseShape(const std::string& type,
+                                                       const std::vector<double>& params) {
+    if (type == "LandauPulse") {
+      return std::make_unique<LandauPulse>(params);
+    }
+    //
+    // Add more pulse shape variants here as needed
 
-				// If type not found, try and make a function using the ElavulatorSvc
-				try {
-					return std::make_unique<EvaluatorPulse>(type, params);
-				} catch (...) {
-					throw std::invalid_argument("Unable to make pulse shape type: " + type);
-				}
-			}
-	};
+    // If type not found, try and make a function using the ElavulatorSvc
+    try {
+      return std::make_unique<EvaluatorPulse>(type, params);
+    } catch (...) {
+      throw std::invalid_argument("Unable to make pulse shape type: " + type);
+    }
+  }
+};
 
-	std::tuple<double, double>
-		HitAdapter<edm4hep::SimTrackerHit>::getPulseSources(const edm4hep::SimTrackerHit& hit) {
-			return {hit.getTime(), hit.getEDep()};
-		}
-
-#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
-	void HitAdapter<edm4hep::SimTrackerHit>::addRelations(MutablePulseType& pulse,
-			const edm4hep::SimTrackerHit& hit) {
-		pulse.addToTrackerHits(hit);
-		pulse.addToParticles(hit.getParticle());
-	}
-#endif
-
-	std::tuple<double, double>
-		HitAdapter<edm4hep::SimCalorimeterHit>::getPulseSources(const edm4hep::SimCalorimeterHit& hit) {
-			const auto& contribs  = hit.getContributions();
-			auto earliest_contrib = std::ranges::min_element(
-					contribs, [](const auto& a, const auto& b) { return a.getTime() < b.getTime(); });
-			return {earliest_contrib->getTime(), hit.getEnergy()};
-		}
+std::tuple<double, double>
+HitAdapter<edm4hep::SimTrackerHit>::getPulseSources(const edm4hep::SimTrackerHit& hit) {
+  return {hit.getTime(), hit.getEDep()};
+}
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
-	void HitAdapter<edm4hep::SimCalorimeterHit>::addRelations(MutablePulseType& pulse,
-			const edm4hep::SimCalorimeterHit& hit) {
-		pulse.addToCalorimeterHits(hit);
-		pulse.addToParticles(hit.getContributions(0).getParticle());
-	}
+void HitAdapter<edm4hep::SimTrackerHit>::addRelations(MutablePulseType& pulse,
+                                                      const edm4hep::SimTrackerHit& hit) {
+  pulse.addToTrackerHits(hit);
+  pulse.addToParticles(hit.getParticle());
+}
 #endif
 
-	template <typename HitT> void PulseGeneration<HitT>::init() {
-		m_pulse =
-			PulseShapeFactory::createPulseShape(m_cfg.pulse_shape_function, m_cfg.pulse_shape_params);
-		m_min_sampling_time = m_cfg.min_sampling_time;
-
-		m_min_sampling_time = std::max<double>(m_pulse->getMaximumTime(), m_min_sampling_time);
-
-		m_ignore_thres = m_cfg.ignore_thres;
-
-		// For converting energy deposit to number of photoelectrons
-		if (m_cfg.edep_to_npe) {
-			m_edep_to_npe = m_cfg.edep_to_npe;
-			m_ignore_thres *= m_edep_to_npe.value();
-
-			// Get the field indices and field-dependent conversion factors if necessary
-			if (!m_cfg.readout.empty() && !m_cfg.edep_to_npe_fields.empty() && !m_cfg.edep_to_npe_filename.empty()) {
-				id_spec = m_detector->readout(m_cfg.readout).idSpec();
-				id_dec = id_spec.decoder();
-				for (const auto& field : m_cfg.edep_to_npe_fields) {
-					auto field_idx = id_dec->index(field);
-					m_field_idxs.push_back(field_idx);
-				}
-
-				std::string filename = fmt::format("calibrations/{}", m_cfg.edep_to_npe_filename);
-				std::ifstream infile(filename);
-				if (!infile) {
-					throw std::runtime_error(fmt::format("Unable to open LUT file: {}", 
-								m_cfg.edep_to_npe_filename));
-				}
-				std::string line;
-				while (std::getline(infile, line)) {
-					std::istringstream iss(line);
-					std::vector<int> keys;
-					for(std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); i++) {
-						int value;
-						iss >> value;
-						keys.push_back(value);
-					}
-					double factor;
-					iss >> factor;
-					m_edep_to_npe_factors[keys] = factor;
-				}
-			}
-		}
-	}
-
-	template <typename HitT>
-		void PulseGeneration<HitT>::process(
-				const typename PulseGenerationAlgorithm<HitT>::Input& input,
-				const typename PulseGenerationAlgorithm<HitT>::Output& output) const {
-			const auto [simhits] = input;
-			auto [rawPulses]     = output;
-
-			for (const auto& hit : *simhits) {
-				const auto [time, raw_charge] = HitAdapter<HitT>::getPulseSources(hit);
-				double charge = raw_charge;
-
-				// Convert energy deposit to the number of photoelectrons if necessary
-				if (m_edep_to_npe) {
-					double npe = charge * m_edep_to_npe.value();
-
-					if (!m_edep_to_npe_factors.empty()) {
-						std::vector<int> field_values;
-						for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); ++i) {
-							const int value = id_dec != nullptr && !m_cfg.edep_to_npe_fields[i].empty()
-								? static_cast<int>(id_dec->get(hit.getCellID(), m_field_idxs[i]))
-								: -1;
-							field_values.push_back(value);
-						}
-						auto it = m_edep_to_npe_factors.find(field_values);
-						if (it != m_edep_to_npe_factors.end()) {
-							npe *= it->second;
-						}
-					}
-
-					std::poisson_distribution<> poisson(npe);
-					charge = poisson(m_gen);
-				}
-
-				// Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
-				double signal_time = m_cfg.timestep * std::floor(time / m_cfg.timestep);
-
-				bool passed_threshold   = false;
-				std::uint32_t skip_bins = 0;
-				float previous          = 0;
-				float integral          = 0;
-				std::vector<float> pulse;
-
-				for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
-					double t    = signal_time + i * m_cfg.timestep - time;
-					auto signal = (*m_pulse)(t, charge);
-
-					// Early exit conditions: below threshold and falling, or min sampling time after threshold
-					if (std::abs(signal) < m_ignore_thres) {
-						if (!passed_threshold) {
-							// Before threshold crossed
-							auto diff = std::abs(signal) - std::abs(previous);
-							previous  = signal;
-							if (diff >= 0) {
-								// Rising before threshold crossed
-								skip_bins = i;
-								continue;
-							} else {
-								// Falling without threshold ever crossed
-								break;
-							}
-						} else {
-							// After threshold crossed, stop after min sampling time
-							if (t > m_min_sampling_time) {
-								break;
-							}
-						}
-					}
-
-					passed_threshold = true;
-					pulse.push_back(signal);
-					integral += signal;
-				}
-
-				if (!passed_threshold) {
-					continue;
-				}
-
-				auto time_series = rawPulses->create();
-				time_series.setCellID(hit.getCellID());
-				time_series.setInterval(m_cfg.timestep);
-				time_series.setTime(signal_time + skip_bins * m_cfg.timestep);
-
-				for (const auto& value : pulse) {
-					time_series.addToAmplitude(value);
-				}
+std::tuple<double, double>
+HitAdapter<edm4hep::SimCalorimeterHit>::getPulseSources(const edm4hep::SimCalorimeterHit& hit) {
+  const auto& contribs  = hit.getContributions();
+  auto earliest_contrib = std::ranges::min_element(
+      contribs, [](const auto& a, const auto& b) { return a.getTime() < b.getTime(); });
+  return {earliest_contrib->getTime(), hit.getEnergy()};
+}
 
 #if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
-				time_series.setIntegral(integral);
-				time_series.setPosition(
-						edm4hep::Vector3f(hit.getPosition().x, hit.getPosition().y, hit.getPosition().z));
-				HitAdapter<HitT>::addRelations(time_series, hit);
+void HitAdapter<edm4hep::SimCalorimeterHit>::addRelations(MutablePulseType& pulse,
+                                                          const edm4hep::SimCalorimeterHit& hit) {
+  pulse.addToCalorimeterHits(hit);
+  pulse.addToParticles(hit.getContributions(0).getParticle());
+}
 #endif
-			}
 
-		} // PulseGeneration:process
+template <typename HitT> void PulseGeneration<HitT>::init() {
+  m_pulse =
+      PulseShapeFactory::createPulseShape(m_cfg.pulse_shape_function, m_cfg.pulse_shape_params);
+  m_min_sampling_time = m_cfg.min_sampling_time;
 
-	template class PulseGeneration<edm4hep::SimTrackerHit>;
-	template class PulseGeneration<edm4hep::SimCalorimeterHit>;
+  m_min_sampling_time = std::max<double>(m_pulse->getMaximumTime(), m_min_sampling_time);
+
+  m_ignore_thres = m_cfg.ignore_thres;
+
+  // For converting energy deposit to number of photoelectrons
+  if (m_cfg.edep_to_npe) {
+    m_edep_to_npe = m_cfg.edep_to_npe;
+    m_ignore_thres *= m_edep_to_npe.value();
+
+    // Get the field indices and field-dependent conversion factors if necessary
+    if (!m_cfg.readout.empty() && !m_cfg.edep_to_npe_fields.empty() &&
+        !m_cfg.edep_to_npe_filename.empty()) {
+      id_spec = m_detector->readout(m_cfg.readout).idSpec();
+      id_dec  = id_spec.decoder();
+      for (const auto& field : m_cfg.edep_to_npe_fields) {
+        auto field_idx = id_dec->index(field);
+        m_field_idxs.push_back(field_idx);
+      }
+
+      std::string filename = fmt::format("calibrations/{}", m_cfg.edep_to_npe_filename);
+      std::ifstream infile(filename);
+      if (!infile) {
+        throw std::runtime_error(
+            fmt::format("Unable to open LUT file: {}", m_cfg.edep_to_npe_filename));
+      }
+      std::string line;
+      while (std::getline(infile, line)) {
+        std::istringstream iss(line);
+        std::vector<int> keys;
+        for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); i++) {
+          int value;
+          iss >> value;
+          keys.push_back(value);
+        }
+        double factor;
+        iss >> factor;
+        m_edep_to_npe_factors[keys] = factor;
+      }
+    }
+  }
+}
+
+template <typename HitT>
+void PulseGeneration<HitT>::process(
+    const typename PulseGenerationAlgorithm<HitT>::Input& input,
+    const typename PulseGenerationAlgorithm<HitT>::Output& output) const {
+  const auto [simhits] = input;
+  auto [rawPulses]     = output;
+
+  for (const auto& hit : *simhits) {
+    const auto [time, raw_charge] = HitAdapter<HitT>::getPulseSources(hit);
+    double charge                 = raw_charge;
+
+    // Convert energy deposit to the number of photoelectrons if necessary
+    if (m_edep_to_npe) {
+      double npe = charge * m_edep_to_npe.value();
+
+      if (!m_edep_to_npe_factors.empty()) {
+        std::vector<int> field_values;
+        for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); ++i) {
+          const int value = id_dec != nullptr && !m_cfg.edep_to_npe_fields[i].empty()
+                                ? static_cast<int>(id_dec->get(hit.getCellID(), m_field_idxs[i]))
+                                : -1;
+          field_values.push_back(value);
+        }
+        auto it = m_edep_to_npe_factors.find(field_values);
+        if (it != m_edep_to_npe_factors.end()) {
+          npe *= it->second;
+        }
+      }
+
+      std::poisson_distribution<> poisson(npe);
+      charge = poisson(m_gen);
+    }
+
+    // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
+    double signal_time = m_cfg.timestep * std::floor(time / m_cfg.timestep);
+
+    bool passed_threshold   = false;
+    std::uint32_t skip_bins = 0;
+    float previous          = 0;
+    float integral          = 0;
+    std::vector<float> pulse;
+
+    for (std::uint32_t i = 0; i < m_cfg.max_time_bins; i++) {
+      double t    = signal_time + i * m_cfg.timestep - time;
+      auto signal = (*m_pulse)(t, charge);
+
+      // Early exit conditions: below threshold and falling, or min sampling time after threshold
+      if (std::abs(signal) < m_ignore_thres) {
+        if (!passed_threshold) {
+          // Before threshold crossed
+          auto diff = std::abs(signal) - std::abs(previous);
+          previous  = signal;
+          if (diff >= 0) {
+            // Rising before threshold crossed
+            skip_bins = i;
+            continue;
+          } else {
+            // Falling without threshold ever crossed
+            break;
+          }
+        } else {
+          // After threshold crossed, stop after min sampling time
+          if (t > m_min_sampling_time) {
+            break;
+          }
+        }
+      }
+
+      passed_threshold = true;
+      pulse.push_back(signal);
+      integral += signal;
+    }
+
+    if (!passed_threshold) {
+      continue;
+    }
+
+    auto time_series = rawPulses->create();
+    time_series.setCellID(hit.getCellID());
+    time_series.setInterval(m_cfg.timestep);
+    time_series.setTime(signal_time + skip_bins * m_cfg.timestep);
+
+    for (const auto& value : pulse) {
+      time_series.addToAmplitude(value);
+    }
+
+#if EDM4EIC_VERSION_MAJOR > 8 || (EDM4EIC_VERSION_MAJOR == 8 && EDM4EIC_VERSION_MINOR >= 1)
+    time_series.setIntegral(integral);
+    time_series.setPosition(
+        edm4hep::Vector3f(hit.getPosition().x, hit.getPosition().y, hit.getPosition().z));
+    HitAdapter<HitT>::addRelations(time_series, hit);
+#endif
+  }
+
+} // PulseGeneration:process
+
+template class PulseGeneration<edm4hep::SimTrackerHit>;
+template class PulseGeneration<edm4hep::SimCalorimeterHit>;
 
 } // namespace eicrecon
