@@ -11,8 +11,10 @@
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
 #include <Acts/EventData/MeasurementHelpers.hpp>
 #include <Acts/EventData/TrackStatePropMask.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryHierarchyMap.hpp>
 #include <Acts/TrackFinding/CombinatorialKalmanFilterExtensions.hpp>
+#include <Acts/Utilities/CalibrationContext.hpp>
 #include <spdlog/common.h>
 #include <algorithm>
 #include <any>
@@ -20,7 +22,6 @@
 #include <cstddef>
 #include <cstdint>
 #include <functional>
-#include <stdexcept>
 #include <string>
 #include <system_error>
 #include <tuple>
