@@ -77,8 +77,7 @@ namespace {
 /// Also owns the geometry-ordered IndexSourceLink multiset built from the same collection.
 class EDM4eicMeasurementSourceLinkCalibrator {
 public:
-  explicit EDM4eicMeasurementSourceLinkCalibrator(
-      const edm4eic::Measurement2DCollection* meas2Ds)
+  explicit EDM4eicMeasurementSourceLinkCalibrator(const edm4eic::Measurement2DCollection* meas2Ds)
       : m_meas2Ds(meas2Ds) {
     for (std::size_t index = 0; index < meas2Ds->size(); ++index) {
       m_orderedSourceLinks.emplace(Acts::GeometryIdentifier{(*meas2Ds)[index].getSurface()}, index);
