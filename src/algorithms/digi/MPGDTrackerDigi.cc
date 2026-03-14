@@ -201,7 +201,7 @@ void MPGDTrackerDigi::init() {
   };
   // RELAXED TOLERANCE
   m_toleranceFactor = [](double P) {
-    int factor;
+    int factor = 0;
     if (P < 1 * dd4hep::MeV) {
       factor = 4;
     } else if (P < 10 * dd4hep::MeV) {
@@ -698,7 +698,7 @@ void MPGDTrackerDigi::parseSegmentation() {
 }
 
 // ***** COALESCE subHits with same PMO
-//       EXTEND hits (subHits or coalesced subHits) to full sensitive volume
+//       EXTEND hits (subHits or coalesced hits) to full sensitive volume
 // - Input = Elementary subHit, specified as index into collection of SimHits.
 // - Output = Coalesced/extended hit, specified by:
 //  + list of cellIDs of elementary subHits contributing,
@@ -709,7 +709,7 @@ void MPGDTrackerDigi::parseSegmentation() {
 //  for Outer and EndCaps, "CylindricalGridPhiZ" for "CyMBaL") disregard the
 //  _global_ position argument to "dd4hep::Segmentation::cellID", we need
 //  the _local_ position and only that.
-// - Also returned: updated index, vector of used subHits.
+// - Also returned: updated index.
 bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
                                       std::vector<std::uint64_t>& cIDs, double* lpos, double& eDep,
                                       double& time) const {
@@ -793,7 +793,7 @@ bool MPGDTrackerDigi::cCoalesceExtend(const Input& input, int& idx,
       if (!pmoStatus || !isUpstream) {
         if ((pmoStatus && !isUpstream) && !sim_hit.isProducedBySecondary()) {
           // Bizarre, except if it's a low energy stuff (when it then can be a
-          // a looping particle. If it's not let's flag the case, for debugging.
+          // looping particle). If it's not let's flag the case, for debugging.
           double P = sqrt(lmom[0] * lmom[0] + lmom[1] * lmom[1] + lmom[2] * lmom[2]);
           if (P > 10 * dd4hep::MeV)
             debug(inconsistency(header, 0, sim_hit.getCellID(), lpos, lmom));
@@ -1360,7 +1360,8 @@ unsigned int MPGDTrackerDigi::cTraversing(const double* lpos, const double* lmom
   // - sim_hit must have been assigned the mean position: (entrance+exit)/2
   // - Let's then check entrance/exit against sim_hit's position +/- path/2.
   //   When the latter is too short, it means that the particle firing the
-  //  hit gets born or dies in the SUBVOLUME.
+  //  hit gets born or dies in the SUBVOLUME ("dying" taken here in the broad
+  //  sense of undergoing a discrete physics process).
   // => We remove the corresponding bit in the <status> pattern.
   // - Note that we not only require that the path be long enough, but also
   //  that it matches exactly distances to entrance/exit.
@@ -1447,15 +1448,15 @@ unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom
   double Mz = lpos[2] + ref2Cur, Pz = lmom[2];
   // Intersection w/ the edge in X,Y
   double tIn = 0, tOut = 0;
-  double xyLow[2] = {-dX, +dX}, xyUp[2] = {-dY, +dY};
+  double xyLow[2] = {-dX, -dY}, xyUp[2] = {+dX, +dY};
   for (int xy = 0; xy < 2; xy++) {
     int yx       = 1 - xy;
-    double a_Low = xyLow[xy], a_Up = xyUp[xy], Pa = Pxy[xy];
+    double a_Low = xyLow[xy], a_Up = xyUp[xy], Ma = Mxy[xy], Pa = Pxy[xy];
     double b_Low = xyLow[yx], b_Up = xyUp[yx], Mb = Mxy[yx], Pb = Pxy[yx];
     for (double A : {a_Low, a_Up}) {
-      // Mz+t*Pz = A
+      // Ma+t*Pa = A
       if (Pa) {
-        double t  = (A - Mz) / Pa;
+        double t  = (A - Ma) / Pa;
         double Eb = Mb + t * Pb, Ez = Mz + t * Pz;
         if (b_Low < Eb && Eb < b_Up && fabs(Ez) < dZ) {
           if (t < 0) {
@@ -1498,7 +1499,8 @@ unsigned int MPGDTrackerDigi::bTraversing(const double* lpos, const double* lmom
   // - sim_hit must have been assigned the mean position: (entrance+exit)/2
   // - Let's then check entrance/exit against sim_hit's position +/- path/2.
   //   When the latter is too short, it means that the particle firing the
-  //  hit gets born or dies in the SUBVOLUME.
+  //  hit gets born or dies in the SUBVOLUME ("dying" taken here in the broad
+  //  sense of undergoing a discrete physics process).
   // => We remove the corresponding bit in the <status> pattern.
   // - Note that we not only require that the path be long enough, but also
   //  that it matches exactly distances to entrance/exit.
@@ -1635,7 +1637,7 @@ bool bExtrapolate(const double* lpos, const double* lmom, // Input subHit
 //   - within edge limits,
 //   - along momentum <lmom>,
 //   - in direction <direction>.
-// - Else returns something in the "m_inconsistency" range
+// - Else returns 0 or something in the "m_inconsistency" range.
 // - <lext> contains the position of farthest extension.
 unsigned int MPGDTrackerDigi::cExtension(double const* lpos, double const* lmom, // Input subHit
                                          double rT, int direction,               // Target radius
@@ -1766,15 +1768,15 @@ unsigned int MPGDTrackerDigi::bExtension(const double* lpos, const double* lmom,
   }
   // Intersection w/ the edge in X,Y
   double tF       = 0;
-  double xyLow[2] = {-dX, +dX}, xyUp[2] = {-dY, +dY};
+  double xyLow[2] = {-dX, -dY}, xyUp[2] = {+dX, +dY};
   for (int xy = 0; xy < 2; xy++) {
     int yx       = 1 - xy;
-    double a_Low = xyLow[xy], a_Up = xyUp[xy], Pa = Pxy[xy];
+    double a_Low = xyLow[xy], a_Up = xyUp[xy], Ma = Mxy[xy], Pa = Pxy[xy];
     double b_Low = xyLow[yx], b_Up = xyUp[yx], Mb = Mxy[yx], Pb = Pxy[yx];
     for (double A : {a_Low, a_Up}) {
-      // Mz+t*Pz = A
+      // Ma+t*Pa = A
       if (Pa) {
-        double t = (A - Mz) / Pa;
+        double t = (A - Ma) / Pa;
         if (t * direction < 0)
           continue;
         double Eb = Mb + t * Pb, Ez = Mz + t * Pz;
