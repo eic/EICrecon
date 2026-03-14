@@ -74,15 +74,27 @@
 namespace {
 
 /// Calibrator that reads directly from edm4eic::Measurement2DCollection.
-struct EDM4eicMeasurementSourceLinkCalibrator {
-  const edm4eic::Measurement2DCollection* meas2Ds;
+/// Also owns the geometry-ordered IndexSourceLink multiset built from the same collection.
+class EDM4eicMeasurementSourceLinkCalibrator {
+public:
+  explicit EDM4eicMeasurementSourceLinkCalibrator(const edm4eic::Measurement2DCollection* meas2Ds)
+      : m_meas2Ds(meas2Ds) {
+    for (std::size_t index = 0; index < meas2Ds->size(); ++index) {
+      m_orderedSourceLinks.emplace(Acts::GeometryIdentifier{(*meas2Ds)[index].getSurface()}, index);
+    }
+  }
+
+  const ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink>&
+  orderedSourceLinks() const {
+    return m_orderedSourceLinks;
+  }
 
   void calibrate(const Acts::GeometryContext& /*gctx*/, const Acts::CalibrationContext& /*cctx*/,
                  const Acts::SourceLink& sourceLink,
                  Acts::VectorMultiTrajectory::TrackStateProxy trackState) const {
     trackState.setUncalibratedSourceLink(Acts::SourceLink{sourceLink});
     const auto& idxSourceLink = sourceLink.get<ActsExamples::IndexSourceLink>();
-    const auto& meas2D        = (*meas2Ds)[idxSourceLink.index()];
+    const auto& meas2D        = (*m_meas2Ds)[idxSourceLink.index()];
 
 #if Acts_VERSION_MAJOR > 45 || (Acts_VERSION_MAJOR == 45 && Acts_VERSION_MINOR >= 2)
     Acts::Vector<2> loc       = Acts::Vector2::Zero();
@@ -103,6 +115,10 @@ struct EDM4eicMeasurementSourceLinkCalibrator {
                                    static_cast<uint8_t>(Acts::eBoundLoc1)};
     trackState.setProjectorSubspaceIndices(indices);
   }
+
+private:
+  const edm4eic::Measurement2DCollection* m_meas2Ds;
+  ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> m_orderedSourceLinks;
 };
 
 } // anonymous namespace
@@ -137,13 +153,6 @@ void CKFTracking::process(const Input& input, const Output& output) const {
     *output_track_states = new Acts::ConstVectorMultiTrajectory();
     *output_tracks       = new Acts::ConstVectorTrackContainer();
     return;
-  }
-
-  // create ordered source links directly from edm4eic measurements.
-  ActsExamples::GeometryIdMultiset<ActsExamples::IndexSourceLink> orderedSourceLinks;
-  for (std::size_t index = 0; index < meas2Ds->size(); ++index) {
-    Acts::GeometryIdentifier geoId{(*meas2Ds)[index].getSurface()};
-    orderedSourceLinks.emplace(geoId, index);
   }
 
   ActsExamples::TrackParametersContainer acts_init_trk_params;
@@ -206,7 +215,7 @@ void CKFTracking::process(const Input& input, const Output& output) const {
       typename ActsExamples::TrackContainer::TrackStateContainerBackend>>(&kfUpdater);
 
   ActsExamples::IndexSourceLinkAccessor slAccessor;
-  slAccessor.container = &orderedSourceLinks;
+  slAccessor.container = &calibratorImpl.orderedSourceLinks();
   using TrackStateCreatorType =
       Acts::TrackStateCreator<ActsExamples::IndexSourceLinkAccessor::Iterator,
                               ActsExamples::TrackContainer>;
