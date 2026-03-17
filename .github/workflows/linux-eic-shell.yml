@@ -1061,6 +1061,7 @@ jobs:
           beam: 10x100
           minq2: 1000
           detector_config: craterlake_tracking_2DStrip
+          sanitizer: ASAN
         - CXX: clang++
           beam: 10x130
           minq2: 1
