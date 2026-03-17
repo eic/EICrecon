@@ -73,28 +73,16 @@ public:
   using CompareHit = CompareObjectID<edm4eic::CalorimeterHit>;
 
   ///! Alias for vectors of track segments
-  using VecSeg = std::vector<edm4eic::TrackSegment>;
+  using VecSegments = std::vector<edm4eic::TrackSegment>;
 
   ///! Alias for vectors of mutable protoclusters
-  using VecProto = std::vector<edm4eic::MutableProtoCluster>;
+  using VecProtoClusters = std::vector<edm4eic::MutableProtoCluster>;
 
   ///! Alias for vectors of clusters
-  using VecClust = std::vector<edm4eic::Cluster>;
-
-  ///! Alias for sets of clusters
-  using SetClust = std::set<edm4eic::Cluster, CompareClust>;
-
-  ///! Alias for a map of clusters to the segments of matched tracks
-  using MapToVecSeg = std::map<edm4eic::Cluster, VecSeg, CompareClust>;
-
-  ///! Alias for a map of clusters onto clusters to merge
-  using MapToVecClust = std::map<edm4eic::Cluster, VecClust, CompareClust>;
+  using VecClusters = std::vector<edm4eic::Cluster>;
 
   ///! Alias for a map of hits onto their splitting weights
-  using MapToWeight = std::map<edm4eic::CalorimeterHit, double, CompareHit>;
-
-  ///! Alias for a vector of weight maps
-  using VecWeights = std::vector<MapToWeight>;
+  using MapHitToWeights = std::map<edm4eic::CalorimeterHit, double, CompareHit>;
 
   ///! Algorithm constructor
   TrackClusterMergeSplitter(std::string_view name)
@@ -114,11 +102,11 @@ public:
 
 private:
   // private methods
-  void merge_and_split_clusters(const VecClust& to_merge, const VecSeg& to_split,
-                                VecProto& new_protos) const;
+  void merge_and_split_clusters(const VecClusters& to_merge, const VecSegments& to_split,
+                                VecProtoClusters& new_protos) const;
   static void add_cluster_to_proto(const edm4eic::Cluster& clust,
                                    edm4eic::MutableProtoCluster& proto,
-                                   std::optional<MapToWeight> split_weights = std::nullopt);
+                                   std::optional<MapHitToWeights> split_weights = std::nullopt);
 
 }; // end TrackClusterMergeSplitter
 
