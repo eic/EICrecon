@@ -127,7 +127,6 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
     // loop over other clusters
     float eClustSum = eClustSeed;
-    float sigSum    = sigSeed;
     for (auto cluster : *in_cluster) {
 
       // ignore used clusters
@@ -151,6 +150,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
       }
       mapClustToMerge[clust_seed].push_back(cluster);
       setUsedClust.insert(cluster);
+      eClustSum += cluster.getEnergy();
 
       // --------------------------------------------------------------------
       // if picked up cluster w/ matched track, add projection to list
@@ -160,9 +160,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
                             mapProjToSplit[cluster].end());
       }
 
-      // increment sums and output debugging
-      eClustSum += cluster.getEnergy();
-      sigSum = (eClustSum - eProjSeed) / m_cfg.sigEP;
+      const float sigSum = (eClustSum - eProjSeed) / m_cfg.sigEP;
       trace("{} clusters to merge: current sum = {}, current significance = {}, {} track(s) "
             "pointing to merged cluster",
             mapClustToMerge[clust_seed].size(), eClustSum, sigSum, vecMatchProj.size());
