@@ -51,8 +51,7 @@ namespace eicrecon {
 using IrtInterfaceAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::MCParticleCollection, edm4eic::TrackCollection,
                       edm4eic::MCRecoTrackParticleAssociationCollection,
-                      edm4eic::TrackSegmentCollection,
-                      edm4hep::SimTrackerHitCollection>,
+                      edm4eic::TrackSegmentCollection, edm4hep::SimTrackerHitCollection>,
     algorithms::Output<edm4eic::IrtRadiatorInfoCollection, edm4eic::IrtParticleCollection>>;
 
 class IrtInterface : public IrtInterfaceAlgorithm {
