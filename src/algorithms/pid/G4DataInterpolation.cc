@@ -82,7 +82,7 @@ double G4DataInterpolation::GetInterpolatedValue(double x, G4DataInterpolation::
   case G4DataInterpolation::ZeroOrder:
     return m_LookupTable[ibin].second;
   case G4DataInterpolation::FirstOrder: {
-    if (ibin == tdim - 1)
+    if (ibin == int(tdim) - 1)
       ibin--;
     double x1 = m_LookupTable[ibin].first, dx = x - x1;
     double y1 = m_LookupTable[ibin].second, y2 = m_LookupTable[ibin + 1].second;
