@@ -79,7 +79,6 @@ public:
             "Merges or splits clusters based on tracks matched to them."} {
   }
 
-  // public method
   void process(const Input&, const Output&) const final;
 
 private:
@@ -102,7 +101,6 @@ private:
   ///! Alias for a map of hits onto their splitting weights
   using hit_to_weight_map_t = std::map<edm4eic::CalorimeterHit, double, CompareHit>;
 
-  // private methods
   void merge_and_split_clusters(const cluster_vector_t& to_merge, const segment_vector_t& to_split,
                                 protocluster_vector_t& new_protos) const;
   static void add_cluster_to_proto(const edm4eic::Cluster& clust,
