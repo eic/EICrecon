@@ -36,7 +36,7 @@ struct OrthogonalTrackSeedingConfig {
   float sigmaScattering  = 5;   // How many standard devs of scattering angles to consider
   float radLengthPerSeed = 0.1; // Average radiation lengths of material on the length of a seed
   float minPt            = (100. * Acts::UnitConstants::MeV) /
-                cotThetaMax; // MeV (in Acts units of GeV) - minimum transverse momentum
+                           cotThetaMax; // MeV (in Acts units of GeV) - minimum transverse momentum
   float bFieldInZ =
       1.7 * Acts::UnitConstants::T; // T (in Acts units of GeV/[e*mm]) - Magnetic field strength
   float beamPosX  = 0;              // x offset for beam position
