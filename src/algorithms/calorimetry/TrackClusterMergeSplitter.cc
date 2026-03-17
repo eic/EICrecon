@@ -61,7 +61,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   // --------------------------------------------------------------------------
   // 1. Build map of clusters onto tracks/projections
   // --------------------------------------------------------------------------
-  std::map<edm4eic::Cluster, segment_vector_t, CompareClust> mapProjToSplit;
+  std::map<edm4eic::Cluster, segment_vector_t, compare_clust_t> mapProjToSplit;
   for (const auto& match : *in_match) {
     for (const auto& project : *in_project) {
 
@@ -77,7 +77,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   // 2. Loop over projection-cluster pairs to check if merging is needed
   // ------------------------------------------------------------------------
   std::set<edm4eic::Cluster> setUsedClust;
-  std::map<edm4eic::Cluster, cluster_vector_t, CompareClust> mapClustToMerge;
+  std::map<edm4eic::Cluster, cluster_vector_t, compare_clust_t> mapClustToMerge;
   for (auto& [clust_seed, vecMatchProj] : mapProjToSplit) {
 
     // at this point, track-cluster matches are 1-to-1

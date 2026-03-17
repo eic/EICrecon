@@ -50,21 +50,6 @@ class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm,
                                   public WithPodConfig<TrackClusterMergeSplitterConfig> {
 
 public:
-  // --------------------------------------------------------------------------
-  //! Comparator struct for object IDs
-  // --------------------------------------------------------------------------
-  /*! Organizes objects by their ObjectID's in decreasing collection
-   *  ID first, and second by decreasing index second.
-   */
-  template <typename T> struct CompareObjectID {
-    bool operator()(const T& lhs, const T& rhs) const {
-      if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
-        return (lhs.getObjectID().index < rhs.getObjectID().index);
-      } else {
-        return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
-      }
-    }
-  }; // end CompareObjectID
 
   ///! Algorithm constructor
   TrackClusterMergeSplitter(std::string_view name)
@@ -82,12 +67,27 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+  // --------------------------------------------------------------------------
+  //! Comparator struct for object IDs
+  // --------------------------------------------------------------------------
+  /*! Organizes objects by their ObjectID's in decreasing collection
+   *  ID first, and second by decreasing index second.
+   */
+  template <typename T> struct CompareObjectID {
+    bool operator()(const T& lhs, const T& rhs) const {
+      if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
+        return (lhs.getObjectID().index < rhs.getObjectID().index);
+      } else {
+        return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
+      }
+    }
+  }; // end CompareObjectID
 
   ///! Specialization of comparator for clusters
-  using CompareClust = CompareObjectID<edm4eic::Cluster>;
+  using compare_clust_t = CompareObjectID<edm4eic::Cluster>;
 
   ///! Specialization of comparator for hits
-  using CompareHit = CompareObjectID<edm4eic::CalorimeterHit>;
+  using compare_hit_t = CompareObjectID<edm4eic::CalorimeterHit>;
 
   ///! Alias for vectors of track segments
   using segment_vector_t = std::vector<edm4eic::TrackSegment>;
@@ -99,7 +99,7 @@ private:
   using cluster_vector_t = std::vector<edm4eic::Cluster>;
 
   ///! Alias for a map of hits onto their splitting weights
-  using hit_to_weight_map_t = std::map<edm4eic::CalorimeterHit, double, CompareHit>;
+  using hit_to_weight_map_t = std::map<edm4eic::CalorimeterHit, double, compare_hit_t>;
 
   void merge_and_split_clusters(const cluster_vector_t& to_merge, const segment_vector_t& to_split,
                                 protocluster_vector_t& new_protos) const;
