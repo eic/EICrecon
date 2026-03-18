@@ -53,10 +53,9 @@ void ClustersToParticles::process(const ClustersToParticles::Input& input,
     rec_part.setCharge(0.0f);     // neutral particle
     rec_part.setMass(0.0f);       // assume photon
     rec_part.setGoodnessOfPID(0); // assume no PID until proven otherwise
-    rec_part.setReferencePoint({pos.x, pos.y, pos.z});
+    rec_part.setReferencePoint({0.0f, 0.0f, 0.0f});
 
     // Handle associations if provided
-    double max_weight = -1.;
     for (auto cluster_assoc : *cluster_assocs) {
       if (cluster_assoc.getRec() == cluster) {
         trace("Found cluster association: index={} -> index={}, weight={}",
@@ -72,15 +71,6 @@ void ClustersToParticles::process(const ClustersToParticles::Input& input,
         part_assoc.setRec(rec_part);
         part_assoc.setSim(cluster_assoc.getSim());
         part_assoc.setWeight(cluster_assoc.getWeight());
-
-        if (max_weight < cluster_assoc.getWeight()) {
-          max_weight                       = cluster_assoc.getWeight();
-          edm4hep::Vector3f referencePoint = {
-              static_cast<float>(cluster_assoc.getSim().getVertex().x),
-              static_cast<float>(cluster_assoc.getSim().getVertex().y),
-              static_cast<float>(cluster_assoc.getSim().getVertex().z)};
-          rec_part.setReferencePoint(referencePoint);
-        }
       }
     }
   }
