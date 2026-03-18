@@ -108,7 +108,7 @@ IrtInterface::~IrtInterface() {
 
     // Write an optics configuration copy into the output event tree; this modified version
     // will in particular contain properly assigned m_ReferenceRefractiveIndex values;
-    m_config.m_irt_geometry->Write();
+    m_cfg.m_irt_geometry->Write();
 
     if (m_EventTreeOutputEnabled) {
       m_EventTrees[m_OutputFileName] = new TTree("t", "IRT2 output tree");
@@ -120,19 +120,13 @@ IrtInterface::~IrtInterface() {
   m_Instance = m_InstanceCounters[m_OutputFileName]++;
 }
 
-void IrtInterface::init(DD4hep_service& dd4hep_service, IrtConfig& config,
-                        std::shared_ptr<spdlog::logger>& logger) {
-  // FIXME: is this all thread safe?;
-  m_config = config;
-
+void IrtInterface::init() {
   // FIXME: hardcoded;
   m_random.SetSeed(0x12345678); //m_cfg.seed);
   m_rngUni = [&]() { return m_random.Uniform(0., 1.0); };
 
-  m_log = logger;
-
   // Extract the the relevant `CherenkovDetector`; FIXME: for now assume it is the only one;
-  m_irt_det = config.m_irt_geometry->GetDetectors().begin()->second;
+  m_irt_det = m_cfg.m_irt_geometry->GetDetectors().begin()->second;
 
   {
     std::lock_guard<std::mutex> lock(m_OutputTreeMutex);
@@ -140,7 +134,7 @@ void IrtInterface::init(DD4hep_service& dd4hep_service, IrtConfig& config,
     m_Event    = new IRT2::CherenkovEvent();
     m_EventPtr = &m_Event;
 
-    json* jptr = &config.m_json_config;
+    json* jptr = &m_cfg.m_json_config;
     // FIXME: do it better;
     assert(jptr->find("OutputRootFile") != jptr->end());
     m_OutputFileName = (*jptr)["OutputRootFile"].template get<std::string>().c_str();
@@ -149,7 +143,7 @@ void IrtInterface::init(DD4hep_service& dd4hep_service, IrtConfig& config,
     if (jptr->find("IntegratedReconstruction") != jptr->end() &&
         !strcmp((*jptr)["IntegratedReconstruction"].template get<std::string>().c_str(), "yes")) {
       m_ReconstructionFactory =
-          new IRT2::ReconstructionFactory(config.m_irt_geometry, m_irt_det, m_Event);
+          new IRT2::ReconstructionFactory(m_cfg.m_irt_geometry, m_irt_det, m_Event);
       // JANA2 prints out event progress; the rest is kind of irrelevant;
       m_ReconstructionFactory->SetQuietMode();
       // FIXME: add syntax check and return value;
@@ -175,7 +169,7 @@ void IrtInterface::init(DD4hep_service& dd4hep_service, IrtConfig& config,
   }
 
   {
-    const dd4hep::Detector* det = dd4hep_service.detector();
+    const dd4hep::Detector* det = m_geo.detector();
 
     for (auto [name, rad] : m_irt_det->Radiators()) {
       const auto* rindex_matrix =
@@ -198,7 +192,7 @@ void IrtInterface::init(DD4hep_service& dd4hep_service, IrtConfig& config,
   }
 
   {
-    json* jptr = &config.m_json_config;
+    json* jptr = &m_cfg.m_json_config;
 
     // FIXME: for now assume a single photo detector type; cannot easily store this pointer;
     auto pd = m_irt_det->m_PhotonDetectors[0];
@@ -310,7 +304,7 @@ void IrtInterface::process(const IrtInterface::Input& input,
     // Do not want to deal with particles outside of the nominal acceptance; FIXME: do it better later;
     {
       double eta = Tools::PodioVector3_to_TVector3(mcparticle.getMomentum()).Eta();
-      if (eta < m_config.m_eta_min || eta > m_config.m_eta_max)
+      if (eta < m_cfg.m_eta_min || eta > m_cfg.m_eta_max)
         continue;
     }
 

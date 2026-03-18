@@ -5,11 +5,10 @@
 
 #pragma once
 
-#include <nlohmann/json.hpp>
-
 #include <TRandomGen.h>
 
 #include <algorithms/algorithm.h>
+#include <algorithms/geo.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4eic/IrtRadiatorInfoCollection.h>
 #include <edm4eic/IrtParticleCollection.h>
@@ -20,7 +19,8 @@
 #include <edm4eic/TrackCollection.h>
 
 #include <spdlog/logger.h>
-#include "services/geometry/dd4hep/DD4hep_service.h"
+#include "IrtInterfaceConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
 
 class TTree;
 class TFile;
@@ -33,20 +33,6 @@ class TBranch;
 #include <IRT2/CherenkovDetectorCollection.h>
 #include <IRT2/CherenkovDetector.h>
 
-// JOmniFactoryGeneratorT does not allow to use more than one extra config parameter ->
-// bunch whatever is needed to pass in a single structure; do not want to repeat parsing
-// of either the optics file or a JSON configuration file twice;
-struct IrtConfig {
-  IrtConfig() : m_irt_geometry(0), m_eta_min(0.0), m_eta_max(0.0) {};
-
-  IRT2::CherenkovDetectorCollection* m_irt_geometry;
-  nlohmann::json m_json_config;
-
-  // FIXME: perhaps do it better later; but in general see no reason in parsing
-  // the same fields in a JSON file twice;
-  double m_eta_min, m_eta_max;
-};
-
 namespace eicrecon {
 using IrtInterfaceAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4hep::MCParticleCollection, edm4eic::TrackCollection,
@@ -54,7 +40,8 @@ using IrtInterfaceAlgorithm = algorithms::Algorithm<
                       edm4eic::TrackSegmentCollection, edm4hep::SimTrackerHitCollection>,
     algorithms::Output<edm4eic::IrtRadiatorInfoCollection, edm4eic::IrtParticleCollection>>;
 
-class IrtInterface : public IrtInterfaceAlgorithm {
+class IrtInterface : public IrtInterfaceAlgorithm,
+                     public WithPodConfig<IrtConfig> {
 
 public:
   IrtInterface(std::string_view name)
@@ -74,11 +61,11 @@ public:
       , m_wx(0)
       , m_wy(0) {};
 
-  void init(DD4hep_service& service, IrtConfig& config, std::shared_ptr<spdlog::logger>& logger);
+  void init() final;
 
   void JsonParser(void);
 
-  void process(const Input&, const Output&) const;
+  void process(const Input&, const Output&) const final;
 
   ~IrtInterface();
 
@@ -96,11 +83,11 @@ private:
   TRandomMixMax m_random;
   std::function<double()> m_rngUni;
 
-  IrtConfig m_config;
-
   IRT2::ReconstructionFactory* m_ReconstructionFactory;
   bool m_EventTreeOutputEnabled, m_CombinedPlotVisualizationEnabled;
   int m_wtopx;
   unsigned m_wtopy, m_wx, m_wy;
+
+  const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 };
 } // namespace eicrecon

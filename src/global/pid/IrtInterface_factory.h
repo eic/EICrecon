@@ -13,6 +13,7 @@
 #include <vector>
 
 #include "algorithms/pid/IrtInterface.h"
+#include "services/algorithms_init/AlgorithmsInit_service.h"
 #include "extensions/jana/JOmniFactory.h"
 
 class CherenkovDetector;
@@ -36,14 +37,14 @@ private:
   PodioOutput<edm4eic::IrtRadiatorInfo> m_irt_radiator_output{this};
   PodioOutput<edm4eic::IrtParticle> m_irt_particle_output{this};
 
-  Service<DD4hep_service> m_dd4hep_service{this};
+  Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
 public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
-
-    m_algo->init(m_dd4hep_service(), config(), logger());
+    m_algo->applyConfig(config());
+    m_algo->init();
   }
 
   void ChangeRun(int64_t run_number) {}
