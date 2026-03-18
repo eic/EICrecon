@@ -170,8 +170,8 @@ void InitPlugin(JApplication* app) {
               auto sr = radiator->GetRearSide(isec);
 
               // FIXME: may want to check return codes?;
-              bool bf = sf->GetCrossing(x0, n0, &from, false);
-              bool br = sr->GetCrossing(x0, n0, &to, false);
+              [[maybe_unused]] bool bf = sf->GetCrossing(x0, n0, &from, false);
+              [[maybe_unused]] bool br = sr->GetCrossing(x0, n0, &to, false);
 
               double zf = from.Z(), zr = to.Z();
               if (!iq || fabs(zf) < fabs(zmin))
@@ -185,8 +185,8 @@ void InitPlugin(JApplication* app) {
             double zmid = (zmin + zmax) / 2 * dd4hep::mm,
                    step = fabs(zmax - zmin) / (numPlanes + 1) * dd4hep::mm;
 
-            for (int i = 0; i < numPlanes; i++) {
-              auto zCoord = zmid + step * (i - (numPlanes - 1) / 2.);
+            for (unsigned i = 0; i < numPlanes; i++) {
+              auto zCoord = zmid + step * (static_cast<int>(i) - (static_cast<int>(numPlanes) - 1) / 2.);
               double rmin = fabs(zCoord * tan(theta_min)), rmax = fabs(zCoord * tan(theta_max));
               if (rmax < rmin)
                 std::swap(rmin, rmax);
@@ -337,8 +337,8 @@ void InitPlugin(JApplication* app) {
                 auto sr = radiator->GetRearSide(isec);
 
                 // FIXME: may want to check return codes?;
-                bool bf = sf->GetCrossing(x0, n0, &from, false);
-                bool br = sr->GetCrossing(x0, n0, &to, false);
+                [[maybe_unused]] bool bf = sf->GetCrossing(x0, n0, &from, false);
+                [[maybe_unused]] bool br = sr->GetCrossing(x0, n0, &to, false);
 
                 double zf = from.Z(), zr = to.Z();
                 if (!iq || fabs(zf) < fabs(zmin))
@@ -352,8 +352,8 @@ void InitPlugin(JApplication* app) {
               double zmid = (zmin + zmax) / 2 * dd4hep::mm,
                      step = fabs(zmax - zmin) / (numPlanes + 1) * dd4hep::mm;
 
-              for (int i = 0; i < numPlanes; i++) {
-                auto zCoord = zmid + step * (i - (numPlanes - 1) / 2.);
+              for (unsigned i = 0; i < numPlanes; i++) {
+                auto zCoord = zmid + step * (static_cast<int>(i) - (static_cast<int>(numPlanes) - 1) / 2.);
                 double rmin = fabs(zCoord * tan(theta_min)), rmax = fabs(zCoord * tan(theta_max));
                 if (rmax < rmin)
                   std::swap(rmin, rmax);
@@ -379,7 +379,7 @@ void InitPlugin(JApplication* app) {
 
             // FIXME: may not be a good idea for dRICH;
             track_cfg.track_point_cut = std::function<bool(edm4eic::TrackPoint)>(
-                [](edm4eic::TrackPoint p) { return true; });
+                [](edm4eic::TrackPoint) { return true; });
 
             // Eventually define the factories and collections to be used;
             {
