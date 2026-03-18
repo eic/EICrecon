@@ -1,3 +1,4 @@
+#ifdef WITH_IRT2_SUPPORT
 
 #include "IRT2/CherenkovDetector.h"
 #include "IRT2/ReconstructionFactory.h"
@@ -200,4 +201,4 @@ void IrtInterface::JsonParser(void) {
 } // IrtInterface::JsonParser()
 } // namespace eicrecon
 
-// -------------------------------------------------------------------------------------
+#endif

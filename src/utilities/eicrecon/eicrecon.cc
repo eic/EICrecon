@@ -39,7 +39,9 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "BVTX",
     "DIRC",
     "DRICH",
+#ifdef WITH_IRT2_SUPPORT
     "RICH-IRT",
+#endif
     "ECTRK",
     "MPGD",
     "B0TRK",

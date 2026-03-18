@@ -2,6 +2,9 @@
 // Copyright 2025, Alexander Kiselev
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
+
+#ifdef WITH_IRT2_SUPPORT
+
 #include <mutex>
 
 #include <TFile.h>
@@ -502,3 +505,5 @@ void IrtInterface::process(const IrtInterface::Input& input,
   }
 } // IrtInterface::process()
 } // namespace eicrecon
+
+#endif

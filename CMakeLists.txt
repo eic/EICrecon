@@ -22,6 +22,7 @@
 # ROOT                |   CERN ROOT
 # spdlog              |   Formatting library
 # IRT                 |   Indirect Ray Tracing library
+# IRT2                |   Indirect Ray Tracing library
 # ==============================================================
 #
 # cmake-format: on

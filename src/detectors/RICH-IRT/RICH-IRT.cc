@@ -4,6 +4,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#ifdef WITH_IRT2_SUPPORT
+
 #include <functional>
 
 #include <TFile.h>
@@ -405,3 +407,5 @@ void InitPlugin(JApplication* app) {
   } //for RICH
 }
 }
+
+#endif

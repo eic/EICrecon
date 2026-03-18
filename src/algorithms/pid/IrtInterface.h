@@ -3,6 +3,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
+#ifdef WITH_IRT2_SUPPORT
+
 #pragma once
 
 #include <TRandomGen.h>
@@ -90,3 +92,5 @@ private:
   const algorithms::GeoSvc& m_geo = algorithms::GeoSvc::instance();
 };
 } // namespace eicrecon
+
+#endif
