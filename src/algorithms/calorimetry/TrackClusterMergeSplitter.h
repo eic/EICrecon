@@ -23,6 +23,7 @@
 #include <vector>
 
 #include "TrackClusterMergeSplitterConfig.h"
+#include "algorithms/interfaces/CompareObjectID.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
@@ -73,26 +74,11 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  // --------------------------------------------------------------------------
-  //! Comparator struct for object IDs
-  // --------------------------------------------------------------------------
-  /*! Organizes objects by their ObjectID's in decreasing collection
-   *  ID first, and second by decreasing index second.
-   */
-  template <typename T> struct CompareObjectID {
-    bool operator()(const T& lhs, const T& rhs) const {
-      if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
-        return (lhs.getObjectID().index < rhs.getObjectID().index);
-      } else {
-        return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
-      }
-    }
-  }; // end CompareObjectID
 
-  ///! Specialization of comparator for clusters
+  ///! Specialization of CompareObjectID for clusters
   using compare_clust_t = CompareObjectID<edm4eic::Cluster>;
 
-  ///! Specialization of comparator for hits
+  ///! Specialization of CompareObjectID for hits
   using compare_hit_t = CompareObjectID<edm4eic::CalorimeterHit>;
 
   ///! Alias for vectors of track segments
