@@ -27,7 +27,7 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
-#include "factories/reco/NeutralReconstructedParticleSelector_factory.h"
+#include "factories/reco/ClustersToParticles_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
@@ -156,19 +156,17 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<ChargedReconstructedParticleSelector_factory>(
       "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<NeutralReconstructedParticleSelector_factory>(
-      "GeneratedNeutralParticles", {"GeneratedParticles"}, {"GeneratedNeutralParticles"}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<NeutralReconstructedParticleSelector_factory>(
-      "ReconstructedNeutralParticles", {"ReconstructedParticles"}, {"ReconstructedNeutralParticles"}, app));
+  app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
+      "ReconstructedNeutralParticles", {"EcalClusters", "EcalClusterAssociations"}, 
+      {"ReconstructedNeutralParticles",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "ReconstructedNeutralParticleLinks",
+#endif
+       "ReconstructedNeutralParticleAssociations"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedChargedJets", {"EventHeader", "GeneratedChargedParticles"},
       {"GeneratedChargedJets"}, {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
-      "GeneratedNeutralJets", {"EventHeader", "GeneratedNeutralParticles"},
-      {"GeneratedNeutralJets"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "ReconstructedChargedJets", {"EventHeader", "ReconstructedChargedParticles"},
