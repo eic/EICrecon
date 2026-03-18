@@ -50,7 +50,6 @@ class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm,
                                   public WithPodConfig<TrackClusterMergeSplitterConfig> {
 
 public:
-
   ///! Algorithm constructor
   TrackClusterMergeSplitter(std::string_view name)
       : TrackClusterMergeSplitterAlgorithm{
