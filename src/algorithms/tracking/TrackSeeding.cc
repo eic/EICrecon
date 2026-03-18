@@ -5,34 +5,27 @@
 
 #include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/Units.hpp>
-#if Acts_VERSION_MAJOR >= 37
-#include <Acts/EventData/SpacePointProxy.hpp>
-#endif
-#include <Acts/Seeding/SeedFinderUtils.hpp>
-#if Acts_VERSION_MAJOR >= 37
 #include <Acts/EventData/Seed.hpp>
-#else
-#include <Acts/Seeding/Seed.hpp>
-#endif
+#include <Acts/EventData/SpacePointProxy.hpp>
 #include <Acts/Seeding/SeedConfirmationRangeConfig.hpp>
 #include <Acts/Seeding/SeedFilter.hpp>
 #include <Acts/Seeding/SeedFilterConfig.hpp>
 #include <Acts/Seeding/SeedFinderConfig.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonal.hpp>
 #include <Acts/Seeding/SeedFinderOrthogonalConfig.hpp>
+#include <Acts/Seeding/SeedFinderUtils.hpp>
 #include <Acts/Surfaces/PerigeeSurface.hpp>
 #include <Acts/Surfaces/Surface.hpp>
 #include <Acts/Utilities/KDTree.hpp> // IWYU pragma: keep FIXME KDTree missing in SeedFinderOrthogonal.hpp until Acts v23.0.0
 #include <Acts/Utilities/Result.hpp>
-#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/Cov6f.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <array>
 #include <cmath>
-#include <gsl/pointers>
 #include <limits>
 #include <tuple>
 
@@ -76,13 +69,8 @@ void TrackSeeding::init() {
 #endif
 
   // Finder parameters
-#if Acts_VERSION_MAJOR >= 37
   m_seedFinderConfig.seedFilter =
       std::make_unique<Acts::SeedFilter<proxy_type>>(m_seedFilterConfig);
-#else
-  m_seedFinderConfig.seedFilter = std::make_unique<Acts::SeedFilter<eicrecon::SpacePoint>>(
-      Acts::SeedFilter<eicrecon::SpacePoint>(m_seedFilterConfig));
-#endif
   m_seedFinderConfig.rMax               = m_cfg.rMax;
   m_seedFinderConfig.rMin               = m_cfg.rMin;
   m_seedFinderConfig.deltaRMinTopSP     = m_cfg.deltaRMinTopSP;
@@ -125,14 +113,8 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
 
   std::vector<const eicrecon::SpacePoint*> spacePoints = getSpacePoints(*trk_hits);
 
-#if Acts_VERSION_MAJOR >= 37
   Acts::SeedFinderOrthogonal<proxy_type> finder(m_seedFinderConfig); // FIXME move into class scope
-#else
-  Acts::SeedFinderOrthogonal<eicrecon::SpacePoint> finder(
-      m_seedFinderConfig); // FIXME move into class scope
-#endif
 
-#if Acts_VERSION_MAJOR >= 37
   // Config
   Acts::SpacePointContainerConfig spConfig;
 
@@ -140,7 +122,7 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
   Acts::SpacePointContainerOptions spOptions;
   spOptions.beamPos = {0., 0.};
 
-  ActsExamples::SpacePointContainer container(spacePoints);
+  SpacePointContainerType container(spacePoints);
   Acts::SpacePointContainer<decltype(container), Acts::detail::RefHolder> spContainer(
       spConfig, spOptions, container);
 
@@ -175,37 +157,6 @@ void TrackSeeding::process(const Input& input, const Output& output) const {
     trk_seed.addToHits(*sps[1]->externalSpacePoint());
     trk_seed.addToHits(*sps[2]->externalSpacePoint());
   }
-
-#else
-
-  std::function<std::tuple<Acts::Vector3, Acts::Vector2, std::optional<Acts::ActsScalar>>(
-      const eicrecon::SpacePoint* sp)>
-      create_coordinates = [](const eicrecon::SpacePoint* sp) {
-        Acts::Vector3 position(sp->x(), sp->y(), sp->z());
-        Acts::Vector2 variance(sp->varianceR(), sp->varianceZ());
-        return std::make_tuple(position, variance, sp->t());
-      };
-
-  eicrecon::SeedContainer seeds =
-      finder.createSeeds(m_seedFinderOptions, spacePoints, create_coordinates);
-
-  for (const auto& seed : seeds) {
-    // Estimate track parameters
-    auto trackParams = estimateTrackParamsFromSeed(seed);
-    if (!trackParams.has_value()) {
-      debug("Failed to estimate track parameters from seed");
-      continue;
-    }
-    trk_params->push_back(trackParams.value());
-
-    // Add seed to collection
-    auto trk_seed = trk_seeds->create();
-    trk_seed.setPerigee({0.f, 0.f, 0.f});
-    trk_seed.setParams(trackParams.value());
-    // hits are not stored for older Acts versions
-  }
-
-#endif
 
   for (auto& sp : spacePoints) {
     delete sp;

@@ -1,7 +1,9 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2022 - 2024 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov
 
+#if Acts_VERSION_MAJOR < 45
 #include <Acts/Geometry/DetectorElementBase.hpp>
+#endif
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Geometry/TrackingGeometry.hpp>
 #include <Acts/Geometry/TrackingVolume.hpp>
@@ -42,13 +44,11 @@
 #include "extensions/spdlog/SpdlogToActs.h"
 
 // Formatter for Eigen matrices
-#if FMT_VERSION >= 90000
 #include <Eigen/Core>
 
 template <typename T>
 struct fmt::formatter<T, std::enable_if_t<std::is_base_of_v<Eigen::MatrixBase<T>, T>, char>>
     : fmt::ostream_formatter {};
-#endif // FMT_VERSION >= 90000
 
 // Ensure ActsPlugins namespace is used when present
 #if __has_include(<ActsPlugins/DD4hep/ConvertDD4hepDetector.hpp>)
