@@ -74,7 +74,11 @@ void ClustersToParticles::process(const ClustersToParticles::Input& input,
 
         if (max_weight < cluster_assoc.getWeight()) {
           max_weight = cluster_assoc.getWeight();
-          // Reference point already set above
+          edm4hep::Vector3f referencePoint = {
+              static_cast<float>(cluster_assoc.getSim().getVertex().x),
+              static_cast<float>(cluster_assoc.getSim().getVertex().y),
+              static_cast<float>(cluster_assoc.getSim().getVertex().z)};
+          rec_part.setReferencePoint(referencePoint);
         }
       }
     }
