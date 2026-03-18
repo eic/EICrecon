@@ -34,7 +34,9 @@ public:
   void PrintCollectionTypeTable(void);
 
   std::vector<std::string_view> getAvailableCategories() const;
-  std::size_t getEntries(const std::string& category) const;
+  std::size_t getEntries(const std::string& category) const {
+    return m_reader->getEntries(category);
+  }
   podio::Frame getFrame(const std::string& category, std::size_t index) const;
 
 protected:
@@ -45,8 +47,7 @@ protected:
 
   bool m_run_forever       = false;
   bool m_use_event_headers = true;
-
-private:
+  
   std::shared_ptr<spdlog::logger> m_log;
 };
 
