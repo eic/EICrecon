@@ -19,4 +19,5 @@ plugin_add_event_model(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_acts(${PLUGIN_NAME})
 
-plugin_link_libraries(${PLUGIN_NAME} algorithms_pid_library algorithms_tracking_library)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_pid_library
+                      algorithms_tracking_library)
