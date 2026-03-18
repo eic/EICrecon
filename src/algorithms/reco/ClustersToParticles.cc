@@ -3,6 +3,7 @@
 
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/Vector3d.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
 #include <podio/detail/Link.h>
