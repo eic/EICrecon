@@ -9,7 +9,9 @@
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
+#include <set>
+#include <tuple>
+#include <utility>
 
 #include "TrackClusterMergeSplitter.h"
 #include "algorithms/calorimetry/TrackClusterMergeSplitterConfig.h"
