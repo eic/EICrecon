@@ -186,7 +186,8 @@ void InitPlugin(JApplication* app) {
                    step = fabs(zmax - zmin) / (numPlanes + 1) * dd4hep::mm;
 
             for (unsigned i = 0; i < numPlanes; i++) {
-              auto zCoord = zmid + step * (static_cast<int>(i) - (static_cast<int>(numPlanes) - 1) / 2.);
+              auto zCoord =
+                  zmid + step * (static_cast<int>(i) - (static_cast<int>(numPlanes) - 1) / 2.);
               double rmin = fabs(zCoord * tan(theta_min)), rmax = fabs(zCoord * tan(theta_max));
               if (rmax < rmin)
                 std::swap(rmin, rmax);
@@ -353,7 +354,8 @@ void InitPlugin(JApplication* app) {
                      step = fabs(zmax - zmin) / (numPlanes + 1) * dd4hep::mm;
 
               for (unsigned i = 0; i < numPlanes; i++) {
-                auto zCoord = zmid + step * (static_cast<int>(i) - (static_cast<int>(numPlanes) - 1) / 2.);
+                auto zCoord =
+                    zmid + step * (static_cast<int>(i) - (static_cast<int>(numPlanes) - 1) / 2.);
                 double rmin = fabs(zCoord * tan(theta_min)), rmax = fabs(zCoord * tan(theta_max));
                 if (rmax < rmin)
                   std::swap(rmin, rmax);
@@ -378,8 +380,8 @@ void InitPlugin(JApplication* app) {
             track_cfg.filter_surfaces.push_back(track_cfg.target_surfaces.back());
 
             // FIXME: may not be a good idea for dRICH;
-            track_cfg.track_point_cut = std::function<bool(edm4eic::TrackPoint)>(
-                [](edm4eic::TrackPoint) { return true; });
+            track_cfg.track_point_cut =
+                std::function<bool(edm4eic::TrackPoint)>([](edm4eic::TrackPoint) { return true; });
 
             // Eventually define the factories and collections to be used;
             {

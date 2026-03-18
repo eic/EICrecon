@@ -360,14 +360,18 @@ macro(plugin_add_irt2 _name)
     find_package(IRT2 ${IRT2_VERSION_MIN})
     if(IRT2_FOUND)
       if(${_name}_WITH_LIBRARY)
-        target_compile_definitions(${PLUGIN_NAME}_library PRIVATE WITH_IRT2_SUPPORT)
+        target_compile_definitions(${PLUGIN_NAME}_library
+                                   PRIVATE WITH_IRT2_SUPPORT)
       endif()
       if(${_name}_WITH_PLUGIN)
-        target_compile_definitions(${PLUGIN_NAME}_plugin PRIVATE WITH_IRT2_SUPPORT)
+        target_compile_definitions(${PLUGIN_NAME}_plugin
+                                   PRIVATE WITH_IRT2_SUPPORT)
       endif()
       plugin_link_libraries(${PLUGIN_NAME} IRT2)
     else()
-      set(IRT2_NOT_FOUND TRUE CACHE INTERNAL "Indicates non-availability of the IRT2 library")
+      set(IRT2_NOT_FOUND
+          TRUE
+          CACHE INTERNAL "Indicates non-availability of the IRT2 library")
     endif()
   endif()
 
