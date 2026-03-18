@@ -58,7 +58,12 @@ class IrtInterface : public IrtInterfaceAlgorithm {
 
 public:
   IrtInterface(std::string_view name)
-      : m_Event(0)
+      : IrtInterfaceAlgorithm{name,
+                              {"inputMCParticles", "inputTracks", "inputTrackAssotiations",
+                               "inputTrackSegments", "inputSimHits"},
+                              {"outputIrtRadiatorInfo", "outputIrtParticles"},
+                              "Performs PID evaluation based on IRT2 algorithm"}
+      , m_Event(0)
       , m_EventPtr(0)
       , m_Instance(0)
       , m_ReconstructionFactory(0)
@@ -67,12 +72,7 @@ public:
       , m_wtopx(0)
       , m_wtopy(0)
       , m_wx(0)
-      , m_wy(0)
-      , IrtInterfaceAlgorithm{name,
-                              {"inputMCParticles", "inputTracks", "inputTrackAssotiations",
-                               "inputTrackSegments", "inputSimHits"},
-                              {"outputIrtRadiatorInfo", "outputIrtParticles"},
-                              "Performs PID evaluation based on IRT2 algorithm"} {};
+      , m_wy(0) {};
 
   void init(DD4hep_service& service, IrtConfig& config, std::shared_ptr<spdlog::logger>& logger);
 
