@@ -5,11 +5,12 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4eic/EDM4eicVersion.h>
-#include <optional>
+#include <string>
+#include <string_view>
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
 #include <edm4eic/MCRecoParticleLinkCollection.h>
