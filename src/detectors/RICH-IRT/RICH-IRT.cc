@@ -213,7 +213,7 @@ void InitPlugin(JApplication* app) {
 
           // FIXME: may not be a good idea for dRICH;
           track_cfg.track_point_cut =
-              std::function<bool(edm4eic::TrackPoint)>([](edm4eic::TrackPoint p) { return true; });
+              std::function<bool(edm4eic::TrackPoint)>([](edm4eic::TrackPoint) { return true; });
 
           // Eventually define the factories and collections to be used;
           {
