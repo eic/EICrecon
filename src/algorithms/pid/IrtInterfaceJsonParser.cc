@@ -99,7 +99,7 @@ void IrtInterface::JsonParser(void) {
 
                 auto* calib = &radiator->m_Calibrations[iq];
 
-                int rnum = (int)tarray.size() - 4;
+                unsigned rnum = tarray.size() - 4;
 
                 if (rnum == reco->GetMyRICH()->Radiators().size()) {
                   calib->m_Stat        = atoi(tarray[0].template get<std::string>().c_str());
