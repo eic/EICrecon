@@ -40,8 +40,7 @@ using IrtInterfaceAlgorithm = algorithms::Algorithm<
                       edm4eic::TrackSegmentCollection, edm4hep::SimTrackerHitCollection>,
     algorithms::Output<edm4eic::IrtRadiatorInfoCollection, edm4eic::IrtParticleCollection>>;
 
-class IrtInterface : public IrtInterfaceAlgorithm,
-                     public WithPodConfig<IrtConfig> {
+class IrtInterface : public IrtInterfaceAlgorithm, public WithPodConfig<IrtConfig> {
 
 public:
   IrtInterface(std::string_view name)

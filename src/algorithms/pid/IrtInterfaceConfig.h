@@ -25,4 +25,4 @@ struct IrtConfig {
   double m_eta_min, m_eta_max;
 };
 
-}
+} // namespace eicrecon
