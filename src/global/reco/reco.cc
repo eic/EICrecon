@@ -27,6 +27,7 @@
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
 #include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
+#include "factories/reco/NeutralReconstructedParticleSelector_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
@@ -155,13 +156,27 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<ChargedReconstructedParticleSelector_factory>(
       "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"}, app));
 
+  app->Add(new JOmniFactoryGeneratorT<NeutralReconstructedParticleSelector_factory>(
+      "GeneratedNeutralParticles", {"GeneratedParticles"}, {"GeneratedNeutralParticles"}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<NeutralReconstructedParticleSelector_factory>(
+      "ReconstructedNeutralParticles", {"ReconstructedParticles"}, {"ReconstructedNeutralParticles"}, app));
+
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedChargedJets", {"EventHeader", "GeneratedChargedParticles"},
       {"GeneratedChargedJets"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
+      "GeneratedNeutralJets", {"EventHeader", "GeneratedNeutralParticles"},
+      {"GeneratedNeutralJets"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "ReconstructedChargedJets", {"EventHeader", "ReconstructedChargedParticles"},
       {"ReconstructedChargedJets"}, {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
+      "ReconstructedNeutralJets", {"EventHeader", "ReconstructedNeutralParticles"},
+      {"ReconstructedNeutralJets"}, {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ScatteredElectronsTruth_factory>(
       "ScatteredElectronsTruth",
