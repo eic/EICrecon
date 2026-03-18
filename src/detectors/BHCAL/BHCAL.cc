@@ -131,10 +131,7 @@ void InitPlugin(JApplication* app) {
       "HcalBarrelClustersWithoutShapes",
       {
           "HcalBarrelIslandProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalBarrelRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "HcalBarrelRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalBarrelRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalBarrelClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -159,10 +156,7 @@ void InitPlugin(JApplication* app) {
       "HcalBarrelTruthClustersWithoutShapes",
       {
           "HcalBarrelTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalBarrelRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "HcalBarrelRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalBarrelRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalBarrelTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -188,7 +182,9 @@ void InitPlugin(JApplication* app) {
       {"HcalBarrelTrackClusterMatches", "HcalBarrelClustersWithoutShapes",
        "CalorimeterTrackProjections"},
       {"HcalBarrelSplitMergeProtoClusters",
-#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "HcalBarrelTrackSplitMergeProtoClusterLinks"
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
        "HcalBarrelTrackSplitMergeProtoClusterMatches"
 #endif
       },
@@ -203,13 +199,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelSplitMergeClustersWithoutShapes",
-      {
-          "HcalBarrelSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalBarrelRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "HcalBarrelRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
-      },
+      {"HcalBarrelSplitMergeProtoClusters", "HcalBarrelRawHitAssociations"},
       {"HcalBarrelSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalBarrelSplitMergeClusterLinksWithoutShapes",

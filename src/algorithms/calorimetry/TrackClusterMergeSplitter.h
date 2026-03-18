@@ -9,7 +9,9 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
-#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/TrackProtoClusterLinkCollection.h>
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
 #include <edm4eic/TrackProtoClusterMatchCollection.h>
 #endif
 #include <edm4eic/TrackSegmentCollection.h>
@@ -31,7 +33,9 @@ namespace eicrecon {
 using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
                       edm4eic::TrackSegmentCollection>,
-#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    algorithms::Output<edm4eic::ProtoClusterCollection, edm4eic::TrackProtoClusterLinkCollection>>;
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
     algorithms::Output<edm4eic::ProtoClusterCollection, edm4eic::TrackProtoClusterMatchCollection>>;
 #else
     algorithms::Output<edm4eic::ProtoClusterCollection>>;
@@ -56,7 +60,9 @@ public:
       : TrackClusterMergeSplitterAlgorithm{
             name,
             {"InputTrackClusterMatches", "InputClusterCollection", "InputTrackProjections"},
-#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+            {"OutputProtoClusterCollection", "OutputTrackProtoClusterLinks"},
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
             {"OutputProtoClusterCollection", "OutputTrackProtoClusterMatches"},
 #else
             {"OutputProtoClusterCollection"},

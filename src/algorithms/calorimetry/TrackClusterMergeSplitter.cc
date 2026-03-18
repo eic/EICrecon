@@ -40,7 +40,9 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
   // grab inputs/outputs
   const auto [in_match, in_cluster, in_project] = input;
-#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [out_proto, out_link] = output;
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
   auto [out_proto, out_match] = output;
 #else
   auto [out_proto] = output;
@@ -182,7 +184,18 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     // merge & split as needed
     merge_and_split_clusters(vecClustToMerge, mapProjToSplit[clust_seed], new_protos);
 
-#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    // and finally create a track-protocluster link for each pair
+    for (std::size_t iProj = 0; const auto& project : mapProjToSplit[clust_seed]) {
+      auto link = out_link->create();
+      link.setTo(new_protos[iProj]);
+      link.setFrom(project.getTrack());
+      link.setWeight(1.0); // FIXME placeholder, should encode goodness of match
+      trace("Matched output cluster {} to track {}", new_protos[iProj].getObjectID().index,
+            project.getTrack().getObjectID().index);
+      ++iProj;
+    }
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
     // and finally create a track-protocluster match for each pair
     for (std::size_t iProj = 0; const auto& project : mapProjToSplit[clust_seed]) {
       auto match = out_match->create();
