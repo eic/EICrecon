@@ -32,12 +32,12 @@ void ClustersToParticles::process(const ClustersToParticles::Input& input,
 
   for (const auto& cluster : *clusters) {
     const auto energy = cluster.getEnergy();
-    const auto pos = cluster.getPosition();
-    
+    const auto pos    = cluster.getPosition();
+
     // Calculate momentum assuming massless particle (photon)
     const auto momentum_mag = energy;
-    const auto pos_mag = std::sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
-    
+    const auto pos_mag      = std::sqrt(pos.x * pos.x + pos.y * pos.y + pos.z * pos.z);
+
     edm4hep::Vector3f momentum{0, 0, 0};
     if (pos_mag > 0) {
       momentum.x = momentum_mag * pos.x / pos_mag;
@@ -53,8 +53,8 @@ void ClustersToParticles::process(const ClustersToParticles::Input& input,
     rec_part.setType(0);
     rec_part.setEnergy(energy);
     rec_part.setMomentum(momentum);
-    rec_part.setCharge(0.0f); // neutral particle
-    rec_part.setMass(0.0f);   // assume photon
+    rec_part.setCharge(0.0f);     // neutral particle
+    rec_part.setMass(0.0f);       // assume photon
     rec_part.setGoodnessOfPID(0); // assume no PID until proven otherwise
     rec_part.setReferencePoint({pos.x, pos.y, pos.z});
 
@@ -63,9 +63,8 @@ void ClustersToParticles::process(const ClustersToParticles::Input& input,
     for (auto cluster_assoc : *cluster_assocs) {
       if (cluster_assoc.getRec() == cluster) {
         trace("Found cluster association: index={} -> index={}, weight={}",
-              cluster_assoc.getRec().getObjectID().index, 
-              cluster_assoc.getSim().getObjectID().index,
-              cluster_assoc.getWeight());
+              cluster_assoc.getRec().getObjectID().index,
+              cluster_assoc.getSim().getObjectID().index, cluster_assoc.getWeight());
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
         auto part_link = part_links->create();
         part_link.setFrom(rec_part);

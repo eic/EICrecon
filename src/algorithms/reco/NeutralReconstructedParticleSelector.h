@@ -28,7 +28,7 @@ public:
 
   void process(const Input& input, const Output& output) const final {
     const auto [rc_particles_in] = input;
-    auto [rc_particles_out] = output;
+    auto [rc_particles_out]      = output;
 
     for (const auto& particle : *rc_particles_in) {
       if (particle.getCharge() == 0.) {

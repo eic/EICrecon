@@ -8,8 +8,7 @@
 
 namespace eicrecon {
 
-class ClustersToParticles_factory
-    : public JOmniFactory<ClustersToParticles_factory, NoConfig> {
+class ClustersToParticles_factory : public JOmniFactory<ClustersToParticles_factory, NoConfig> {
 public:
   using AlgoT = eicrecon::ClustersToParticles;
 
@@ -37,12 +36,11 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_clusters_in(), m_cluster_assocs_in()}, 
-                    {m_parts_out().get(),
+    m_algo->process({m_clusters_in(), m_cluster_assocs_in()}, {m_parts_out().get(),
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                     m_part_links_out().get(),
+                                                               m_part_links_out().get(),
 #endif
-                     m_part_assocs_out().get()});
+                                                               m_part_assocs_out().get()});
   }
 };
 

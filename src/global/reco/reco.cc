@@ -157,12 +157,13 @@ void InitPlugin(JApplication* app) {
       "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<ClustersToParticles_factory>(
-      "ReconstructedNeutralParticles", {"EcalClusters", "EcalClusterAssociations"}, 
+      "ReconstructedNeutralParticles", {"EcalClusters", "EcalClusterAssociations"},
       {"ReconstructedNeutralParticles",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "ReconstructedNeutralParticleLinks",
 #endif
-       "ReconstructedNeutralParticleAssociations"}, app));
+       "ReconstructedNeutralParticleAssociations"},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedChargedJets", {"EventHeader", "GeneratedChargedParticles"},

@@ -19,28 +19,28 @@
 
 namespace eicrecon {
 
-using ClustersToParticlesAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4eic::ClusterCollection,
-                      edm4eic::MCRecoClusterParticleAssociationCollection>,
-    algorithms::Output<edm4eic::ReconstructedParticleCollection,
+using ClustersToParticlesAlgorithm =
+    algorithms::Algorithm<algorithms::Input<edm4eic::ClusterCollection,
+                                            edm4eic::MCRecoClusterParticleAssociationCollection>,
+                          algorithms::Output<edm4eic::ReconstructedParticleCollection,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                       edm4eic::MCRecoParticleLinkCollection,
+                                             edm4eic::MCRecoParticleLinkCollection,
 #endif
-                       edm4eic::MCRecoParticleAssociationCollection>>;
+                                             edm4eic::MCRecoParticleAssociationCollection>>;
 
-class ClustersToParticles : public ClustersToParticlesAlgorithm,
-                           public WithPodConfig<NoConfig> {
+class ClustersToParticles : public ClustersToParticlesAlgorithm, public WithPodConfig<NoConfig> {
 
 public:
   ClustersToParticles(std::string_view name)
       : ClustersToParticlesAlgorithm{name,
-                                    {"inputClusters", "inputClusterAssociations"},
-                                    {"outputReconstructedParticles",
+                                     {"inputClusters", "inputClusterAssociations"},
+                                     {"outputReconstructedParticles",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                     "outputParticleLinks",
+                                      "outputParticleLinks",
 #endif
-                                     "outputParticleAssociations"},
-                                    "Convert clusters to neutral reconstructed particles."} {}
+                                      "outputParticleAssociations"},
+                                     "Convert clusters to neutral reconstructed particles."} {
+  }
 
   void init() final;
 
