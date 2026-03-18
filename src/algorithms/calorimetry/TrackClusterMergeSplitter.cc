@@ -39,23 +39,23 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
                                         const TrackClusterMergeSplitter::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_match, in_cluster, in_project] = input;
+  const auto [in_matches, in_clusters, in_projections] = input;
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  auto [out_proto, out_link] = output;
+  auto [out_protos, out_links] = output;
 #elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
-  auto [out_proto, out_match] = output;
+  auto [out_protos, out_matches] = output;
 #else
-  auto [out_proto] = output;
+  auto [out_protos] = output;
 #endif
 
   // exit if no clusters in collection
-  if (in_cluster->empty()) {
+  if (in_clusters->empty()) {
     debug("No clusters in input collection.");
     return;
   }
 
   // emit debugging message if no matched tracks in collection
-  if (in_match->empty()) {
+  if (in_matches->empty()) {
     debug("No matched tracks in collection.");
     return;
   }
@@ -64,8 +64,8 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   // 1. Build map of clusters onto tracks/projections
   // --------------------------------------------------------------------------
   std::map<edm4eic::Cluster, segment_vector_t, compare_clust_t> mapProjToSplit;
-  for (const auto& match : *in_match) {
-    for (const auto& project : *in_project) {
+  for (const auto& match : *in_matches) {
+    for (const auto& project : *in_projections) {
 
       // pick out corresponding projection from track
       if (match.getTrack() != project.getTrack()) {
@@ -129,7 +129,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
     // loop over other clusters
     float eClustSum = eClustSeed;
-    for (auto cluster : *in_cluster) {
+    for (auto cluster : *in_clusters) {
 
       // ignore used clusters
       if (setUsedClust.contains(cluster)) {
@@ -178,7 +178,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     // create a cluster for each projection to merged cluster
     protocluster_vector_t new_protos;
     for ([[maybe_unused]] const auto& project : mapProjToSplit[clust_seed]) {
-      new_protos.push_back(out_proto->create());
+      new_protos.push_back(out_protos->create());
     }
 
     // merge & split as needed
@@ -187,7 +187,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
     // and finally create a track-protocluster link for each pair
     for (std::size_t iProj = 0; const auto& project : mapProjToSplit[clust_seed]) {
-      auto link = out_link->create();
+      auto link = out_links->create();
       link.setTo(new_protos[iProj]);
       link.setFrom(project.getTrack());
       link.setWeight(1.0); // FIXME placeholder, should encode goodness of match
@@ -198,7 +198,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 #elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
     // and finally create a track-protocluster match for each pair
     for (std::size_t iProj = 0; const auto& project : mapProjToSplit[clust_seed]) {
-      auto match = out_match->create();
+      auto match = out_matches->create();
       match.setTo(new_protos[iProj]);
       match.setFrom(project.getTrack());
       match.setWeight(1.0); // FIXME placeholder, should encode goodness of match
@@ -212,7 +212,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   // ------------------------------------------------------------------------
   // 4. Convert unused clusters to protoclusters
   // ------------------------------------------------------------------------
-  for (const auto& cluster : *in_cluster) {
+  for (const auto& cluster : *in_clusters) {
 
     // ignore used clusters
     if (setUsedClust.contains(cluster)) {
@@ -220,7 +220,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     }
 
     // copy cluster and add to output collection
-    edm4eic::MutableProtoCluster proto = out_proto->create();
+    edm4eic::MutableProtoCluster proto = out_protos->create();
     add_cluster_to_proto(cluster, proto);
     trace("Copied input cluster {} onto output cluster {}", cluster.getObjectID().index,
           proto.getObjectID().index);
