@@ -21,12 +21,12 @@ namespace eicrecon {
 
 using ClustersToParticlesAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ClusterCollection,
-                      std::optional<edm4eic::MCRecoClusterParticleAssociationCollection>>,
+                      edm4eic::MCRecoClusterParticleAssociationCollection>,
     algorithms::Output<edm4eic::ReconstructedParticleCollection,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                       std::optional<edm4eic::MCRecoParticleLinkCollection>,
+                       edm4eic::MCRecoParticleLinkCollection,
 #endif
-                       std::optional<edm4eic::MCRecoParticleAssociationCollection>>>;
+                       edm4eic::MCRecoParticleAssociationCollection>>;
 
 class ClustersToParticles : public ClustersToParticlesAlgorithm,
                            public WithPodConfig<NoConfig> {

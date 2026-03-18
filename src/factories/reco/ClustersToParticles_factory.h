@@ -19,14 +19,14 @@ private:
 
   // input collections
   PodioInput<edm4eic::Cluster> m_clusters_in{this};
-  PodioInput<edm4eic::MCRecoClusterParticleAssociation, true> m_cluster_assocs_in{this};
+  PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_cluster_assocs_in{this};
 
   // output collections
   PodioOutput<edm4eic::ReconstructedParticle> m_parts_out{this};
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  PodioOutput<edm4eic::MCRecoParticleLink, true> m_part_links_out{this};
+  PodioOutput<edm4eic::MCRecoParticleLink> m_part_links_out{this};
 #endif
-  PodioOutput<edm4eic::MCRecoParticleAssociation, true> m_part_assocs_out{this};
+  PodioOutput<edm4eic::MCRecoParticleAssociation> m_part_assocs_out{this};
 
 public:
   void Configure() {
@@ -40,9 +40,9 @@ public:
     m_algo->process({m_clusters_in(), m_cluster_assocs_in()}, 
                     {m_parts_out().get(),
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                     m_part_links_out(),
+                     m_part_links_out().get(),
 #endif
-                     m_part_assocs_out()});
+                     m_part_assocs_out().get()});
   }
 };
 

@@ -59,33 +59,27 @@ void ClustersToParticles::process(const ClustersToParticles::Input& input,
     rec_part.setReferencePoint({pos.x, pos.y, pos.z});
 
     // Handle associations if provided
-    if (cluster_assocs.has_value()) {
-      double max_weight = -1.;
-      for (auto cluster_assoc : **cluster_assocs) {
-        if (cluster_assoc.getRec() == cluster) {
-          trace("Found cluster association: index={} -> index={}, weight={}",
-                cluster_assoc.getRec().getObjectID().index, 
-                cluster_assoc.getSim().getObjectID().index,
-                cluster_assoc.getWeight());
+    double max_weight = -1.;
+    for (auto cluster_assoc : *cluster_assocs) {
+      if (cluster_assoc.getRec() == cluster) {
+        trace("Found cluster association: index={} -> index={}, weight={}",
+              cluster_assoc.getRec().getObjectID().index, 
+              cluster_assoc.getSim().getObjectID().index,
+              cluster_assoc.getWeight());
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          if (part_links.has_value()) {
-            auto part_link = (*part_links)->create();
-            part_link.setFrom(rec_part);
-            part_link.setTo(cluster_assoc.getSim());
-            part_link.setWeight(cluster_assoc.getWeight());
-          }
+        auto part_link = part_links->create();
+        part_link.setFrom(rec_part);
+        part_link.setTo(cluster_assoc.getSim());
+        part_link.setWeight(cluster_assoc.getWeight());
 #endif
-          if (part_assocs.has_value()) {
-            auto part_assoc = (*part_assocs)->create();
-            part_assoc.setRec(rec_part);
-            part_assoc.setSim(cluster_assoc.getSim());
-            part_assoc.setWeight(cluster_assoc.getWeight());
-          }
+        auto part_assoc = part_assocs->create();
+        part_assoc.setRec(rec_part);
+        part_assoc.setSim(cluster_assoc.getSim());
+        part_assoc.setWeight(cluster_assoc.getWeight());
 
-          if (max_weight < cluster_assoc.getWeight()) {
-            max_weight = cluster_assoc.getWeight();
-            // Reference point already set above
-          }
+        if (max_weight < cluster_assoc.getWeight()) {
+          max_weight = cluster_assoc.getWeight();
+          // Reference point already set above
         }
       }
     }
