@@ -3,6 +3,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include "algorithms/calorimetry/TruthEnergyPositionClusterMerger.h"
 #include "extensions/jana/JOmniFactory.h"
 #include "services/algorithms_init/AlgorithmsInit_service.h"
@@ -24,6 +25,9 @@ private:
   PodioInput<edm4eic::MCRecoClusterParticleAssociation> m_position_assocs_input{this};
 
   PodioOutput<edm4eic::Cluster> m_clusters_output{this};
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  PodioOutput<edm4eic::MCRecoClusterParticleLink> m_links_output{this};
+#endif
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assocs_output{this};
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
@@ -39,7 +43,11 @@ public:
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_mcparticles_input(), m_energy_clusters_input(), m_energy_assocs_input(),
                      m_position_clusters_input(), m_position_assocs_input()},
-                    {m_clusters_output().get(), m_assocs_output().get()});
+                    {m_clusters_output().get(),
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                     m_links_output().get(),
+#endif
+                     m_assocs_output().get()});
   }
 };
 

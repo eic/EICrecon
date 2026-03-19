@@ -8,7 +8,7 @@
 #include <Acts/EventData/TrackStatePropMask.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
 #include <Acts/EventData/VectorTrackContainer.hpp>
-#if (Acts_VERSION_MAJOR >= 37) && (Acts_VERSION_MAJOR < 43)
+#if Acts_VERSION_MAJOR < 43
 #include <Acts/Utilities/Iterator.hpp>
 #endif
 #include <ActsExamples/EventData/IndexSourceLink.hpp>

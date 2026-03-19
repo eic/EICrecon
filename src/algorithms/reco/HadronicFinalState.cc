@@ -10,9 +10,9 @@
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <podio/ObjectID.h>
+#include <algorithm>
 #include <cmath>
-#include <gsl/pointers>
-#include <vector>
+#include <tuple>
 
 #include "Beam.h"
 #include "Boost.h"
@@ -38,7 +38,7 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
   const auto& ei_particle = (*mc_beam_electrons)[0];
   const PxPyPzEVector ei(round_beam_four_momentum(ei_particle.getMomentum(),
                                                   m_particleSvc.particle(ei_particle.getPDG()).mass,
-                                                  {-5.0, -10.0, -18.0}, 0.0));
+                                                  electron_beam_pz_set, 0.0));
 
   // Get first (should be only) beam proton
   if (mc_beam_protons->empty()) {
@@ -48,7 +48,7 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
   const auto& pi_particle = (*mc_beam_protons)[0];
   const PxPyPzEVector pi(round_beam_four_momentum(pi_particle.getMomentum(),
                                                   m_particleSvc.particle(pi_particle.getPDG()).mass,
-                                                  {41.0, 100.0, 275.0}, m_crossingAngle));
+                                                  hadron_beam_pz_set, m_crossingAngle));
 
   // Get first scattered electron from full MCParticles collection
   if (mcparts == nullptr) {
@@ -68,21 +68,15 @@ void HadronicFinalState::process(const HadronicFinalState::Input& input,
   }
 
   // Associate first scattered electron with reconstructed electrons
-  //const auto ef_assoc = std::find_if(
-  //  rcassoc->begin(),
-  //  rcassoc->end(),
-  //  [&ef_coll](const auto& a){ return a.getSim().getObjectID() == ef_coll[0].getObjectID(); });
-  auto ef_assoc = rcassoc->begin();
-  for (; ef_assoc != rcassoc->end(); ++ef_assoc) {
-    if (ef_assoc->getSim().getObjectID() == ef_coll[0].getObjectID()) {
-      break;
-    }
-  }
-  if (!(ef_assoc != rcassoc->end())) {
+  const auto ef_assoc = std::find_if(rcassoc->begin(), rcassoc->end(), [&ef_coll](const auto& a) {
+    return a.getSim().getObjectID() == ef_coll[0].getObjectID();
+  });
+
+  if (ef_assoc == rcassoc->end()) {
     debug("Truth scattered electron not in reconstructed particles");
     return;
   }
-  const auto ef_rc{ef_assoc->getRec()};
+  const auto ef_rc{(*ef_assoc).getRec()};
   const auto ef_rc_id{ef_rc.getObjectID().index};
 
   // Sums in colinear frame
