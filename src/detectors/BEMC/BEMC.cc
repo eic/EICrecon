@@ -119,7 +119,7 @@ void InitPlugin(JApplication* app) {
           .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
           .ignore_thres         = EcalBarrelScFi_ignore_thres,
           .timestep             = EcalBarrelScFi_timestep,
-	  .edep_to_npe          = EcalBarrelScFi_edep_to_npe,
+          .edep_to_npe          = EcalBarrelScFi_edep_to_npe,
       },
       app // TODO: Remove me once fixed
       ));
@@ -130,7 +130,7 @@ void InitPlugin(JApplication* app) {
           .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
           .ignore_thres         = EcalBarrelScFi_ignore_thres,
           .timestep             = EcalBarrelScFi_timestep,
-	  .edep_to_npe          = EcalBarrelScFi_edep_to_npe,
+          .edep_to_npe          = EcalBarrelScFi_edep_to_npe,
       },
       app // TODO: Remove me once fixed
       ));
