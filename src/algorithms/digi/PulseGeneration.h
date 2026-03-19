@@ -6,8 +6,9 @@
 
 #pragma once
 
+#include <DD4hep/Detector.h>
 #include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Readout.h>
+#include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/EDM4eicVersion.h>
@@ -19,11 +20,15 @@
 #else
 #include <edm4hep/TimeSeriesCollection.h>
 #endif
+#include <cstddef>
+#include <gsl/pointers>
+#include <map>
 #include <memory>
+#include <random>
 #include <string_view>
 #include <tuple>
 #include <variant>
-#include <random>
+#include <vector>
 
 #include "algorithms/digi/PulseGenerationConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
