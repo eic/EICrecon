@@ -20,8 +20,10 @@ struct PulseGenerationConfig {
 
   // Parameters for converting energy deposit to the number of photoelectrons
   std::string readout{};
-  std::vector<std::string> edep_to_npe_fields{}; // Fields the edep-to-npe conversion factor depends on
-  std::string edep_to_npe_filename{}; // Lookup table name to get the field-dependent edep-to-npe conversion factors
+  std::vector<std::string>
+      edep_to_npe_fields{}; // Fields the edep-to-npe conversion factor depends on
+  std::string
+      edep_to_npe_filename{}; // Lookup table name to get the field-dependent edep-to-npe conversion factors
   double edep_to_npe{}; // Constant edep-to-npe conversion factor
 };
 
