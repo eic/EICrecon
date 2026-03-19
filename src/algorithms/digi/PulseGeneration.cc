@@ -23,15 +23,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#include <TDirectory.h>
-#include <TGraph2D.h>
 #include <fmt/format.h>
-#include <filesystem>
 #include <memory>
-#include <string>
-#include <stdexcept>
-#include <fstream>
 
 #include "services/evaluator/EvaluatorSvc.h"
 
@@ -176,42 +169,52 @@ template <typename HitT> void PulseGeneration<HitT>::init() {
 
   m_min_sampling_time = std::max<double>(m_pulse->getMaximumTime(), m_min_sampling_time);
 
-  m_ignore_thres = m_cfg.ignore_thres;
-
-  // For converting energy deposit to number of photoelectrons
-  if (m_cfg.edep_to_npe) {
-    m_edep_to_npe = m_cfg.edep_to_npe;
-    m_ignore_thres *= m_edep_to_npe.value();
-
-    // Get the field indices and field-dependent conversion factors if necessary
-    if (!m_cfg.readout.empty() && !m_cfg.edep_to_npe_fields.empty() &&
-        !m_cfg.edep_to_npe_filename.empty()) {
+  // Get the field indices and field-dependent conversion factors if necessary
+  if (!m_cfg.readout.empty() && !m_cfg.edep_to_npe_fields.empty() &&
+      !m_cfg.edep_to_npe_filename.empty()) {
+    try {
       id_spec = m_detector->readout(m_cfg.readout).idSpec();
-      id_dec  = id_spec.decoder();
+    } catch (...) {
+      this->warning("Failed to get idSpec for {}", m_cfg.readout);
+      return;
+    }
+    try {
+      id_dec = id_spec.decoder();
       for (const auto& field : m_cfg.edep_to_npe_fields) {
         auto field_idx = id_dec->index(field);
         m_field_idxs.push_back(field_idx);
       }
+    } catch (...) {
+      if (id_dec == nullptr) {
+        this->warning("Failed to load ID decoder for {}", m_cfg.readout);
+      } else {
+        this->warning("Failed to find edep-to-npe field indices for {}.", m_cfg.readout);
+      }
+      return;
+    }
 
-      std::string filename = fmt::format("calibrations/{}", m_cfg.edep_to_npe_filename);
-      std::ifstream infile(filename);
-      if (!infile) {
-        throw std::runtime_error(
-            fmt::format("Unable to open LUT file: {}", m_cfg.edep_to_npe_filename));
+    std::string filename = fmt::format("calibrations/{}", m_cfg.edep_to_npe_filename);
+    std::ifstream infile(filename);
+    if (!infile) {
+      this->warning("Unable to open LUT file: {}", filename);
+      return;
+    }
+    std::string line;
+    while (std::getline(infile, line)) {
+      std::istringstream iss(line);
+      std::vector<int> keys;
+      for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); i++) {
+        int value;
+        iss >> value;
+        keys.push_back(value);
       }
-      std::string line;
-      while (std::getline(infile, line)) {
-        std::istringstream iss(line);
-        std::vector<int> keys;
-        for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); i++) {
-          int value;
-          iss >> value;
-          keys.push_back(value);
-        }
-        double factor;
-        iss >> factor;
-        m_edep_to_npe_factors[keys] = factor;
+      double factor;
+      if (!(iss >> factor)) {
+        this->warning("Malformed LUT file: {}", filename);
+        m_edep_to_npe_lut.clear();
+        return;
       }
+      m_edep_to_npe_lut[keys] = factor;
     }
   }
 }
@@ -228,23 +231,8 @@ void PulseGeneration<HitT>::process(
     double charge                 = raw_charge;
 
     // Convert energy deposit to the number of photoelectrons if necessary
-    if (m_edep_to_npe) {
-      double npe = charge * m_edep_to_npe.value();
-
-      if (!m_edep_to_npe_factors.empty()) {
-        std::vector<int> field_values;
-        for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); ++i) {
-          const int value = id_dec != nullptr && !m_cfg.edep_to_npe_fields[i].empty()
-                                ? static_cast<int>(id_dec->get(hit.getCellID(), m_field_idxs[i]))
-                                : -1;
-          field_values.push_back(value);
-        }
-        auto it = m_edep_to_npe_factors.find(field_values);
-        if (it != m_edep_to_npe_factors.end()) {
-          npe *= it->second;
-        }
-      }
-
+    if (m_cfg.edep_to_npe || !m_edep_to_npe_lut.empty()) {
+      double npe = charge * get_edep_to_npe_factor(hit);
       std::poisson_distribution<> poisson(npe);
       charge = poisson(m_gen);
     }
@@ -263,7 +251,7 @@ void PulseGeneration<HitT>::process(
       auto signal = (*m_pulse)(t, charge);
 
       // Early exit conditions: below threshold and falling, or min sampling time after threshold
-      if (std::abs(signal) < m_ignore_thres) {
+      if (std::abs(signal) < m_cfg.ignore_thres) {
         if (!passed_threshold) {
           // Before threshold crossed
           auto diff = std::abs(signal) - std::abs(previous);
@@ -311,6 +299,26 @@ void PulseGeneration<HitT>::process(
   }
 
 } // PulseGeneration:process
+
+template <typename HitT>
+double PulseGeneration<HitT>::get_edep_to_npe_factor(const HitT& hit) const {
+  if (m_cfg.edep_to_npe) {
+    return m_cfg.edep_to_npe;
+  } else if (!m_edep_to_npe_lut.empty()) {
+    std::vector<int> field_values;
+    for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); ++i) {
+      const int value = id_dec != nullptr && !m_cfg.edep_to_npe_fields[i].empty()
+                            ? static_cast<int>(id_dec->get(hit.getCellID(), m_field_idxs[i]))
+                            : -1;
+      field_values.push_back(value);
+    }
+    auto it = m_edep_to_npe_lut.find(field_values);
+    if (it != m_edep_to_npe_lut.end()) {
+      return it->second;
+    }
+  }
+  return 1.;
+}
 
 template class PulseGeneration<edm4hep::SimTrackerHit>;
 template class PulseGeneration<edm4hep::SimCalorimeterHit>;

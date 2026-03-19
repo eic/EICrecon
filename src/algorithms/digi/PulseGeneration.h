@@ -6,17 +6,9 @@
 
 #pragma once
 
-#include <DD4hep/Alignments.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/IDDescriptor.h>
-#include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
-#include <DD4hep/Segmentations.h>
-#include <DD4hep/Shapes.h>
-#include <DD4hep/VolumeManager.h>
-#include <DD4hep/Volumes.h>
 #include <algorithms/algorithm.h>
-#include <algorithms/service.h>
 #include <algorithms/geo.h>
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/unit_system.h>
@@ -31,7 +23,6 @@
 #include <string_view>
 #include <tuple>
 #include <variant>
-#include <optional>
 #include <random>
 
 #include "algorithms/digi/PulseGenerationConfig.h"
@@ -87,16 +78,16 @@ private:
   std::shared_ptr<SignalPulse> m_pulse;
   float m_min_sampling_time = 0 * edm4eic::unit::ns;
 
-  // Members for converting energy deposit to number of photoelectrons
+  // Members for converting energy deposit to the number of photoelectrons
   dd4hep::IDDescriptor id_spec;
   dd4hep::BitFieldCoder* id_dec = nullptr;
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
-  std::vector<std::size_t> m_field_idxs{};
-
   mutable std::mt19937 m_gen{};
-  double m_ignore_thres = 10;
-  std::optional<double> m_edep_to_npe;
-  std::map<std::vector<int>, double> m_edep_to_npe_factors{};
+  std::vector<std::size_t> m_field_idxs{};
+  std::map<std::vector<int>, double> m_edep_to_npe_lut{};
+
+private:
+  double get_edep_to_npe_factor(const HitT& hit) const;
 };
 
 } // namespace eicrecon

@@ -44,8 +44,8 @@ private:
       this, "readout", this->config().readout};
   typename FactoryT::template ParameterRef<std::vector<std::string>> m_edep_to_npe_fields{
       this, "edepToNpeFields", this->config().edep_to_npe_fields};
-  typename FactoryT::template ParameterRef<std::string> m_filename{
-      this, "fileName", this->config().filename};
+  typename FactoryT::template ParameterRef<std::string> m_edep_to_npe_filename{
+      this, "fileName", this->config().edep_to_npe_filename};
   typename FactoryT::template ParameterRef<double> m_edep_to_npe{
       this, "edepToNpe", this->config().edep_to_npe};
 

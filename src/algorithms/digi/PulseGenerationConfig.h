@@ -18,11 +18,11 @@ struct PulseGenerationConfig {
   double min_sampling_time = 0 * edm4eic::unit::ns;   // Minimum sampling time
   uint32_t max_time_bins   = 10000;
 
-  // Parameters for converting energy deposit to number of photoelectrons
+  // Parameters for converting energy deposit to the number of photoelectrons
   std::string readout{};
-  std::vector<std::string> edep_to_npe_fields{};
-  std::string edep_to_npe_filename{};
-  double edep_to_npe{};
+  std::vector<std::string> edep_to_npe_fields{}; // Fields the edep-to-npe conversion factor depends on
+  std::string edep_to_npe_filename{}; // Lookup table name to get the field-dependent edep-to-npe conversion factors
+  double edep_to_npe{}; // Constant edep-to-npe conversion factor
 };
 
 } // namespace eicrecon
