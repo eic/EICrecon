@@ -55,7 +55,6 @@ class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm,
                                   public WithPodConfig<TrackClusterMergeSplitterConfig> {
 
 public:
-
   ///! Algorithm constructor
   TrackClusterMergeSplitter(std::string_view name)
       : TrackClusterMergeSplitterAlgorithm{
@@ -74,7 +73,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-
   ///! Specialization of CompareObjectID for clusters
   using compare_clust_t = CompareObjectID<edm4eic::Cluster>;
 
