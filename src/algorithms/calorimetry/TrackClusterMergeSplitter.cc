@@ -9,9 +9,7 @@
 #include <podio/RelationRange.h>
 #include <cmath>
 #include <cstddef>
-#include <set>
-#include <tuple>
-#include <utility>
+#include <gsl/pointers>
 
 #include "TrackClusterMergeSplitter.h"
 #include "algorithms/calorimetry/TrackClusterMergeSplitterConfig.h"
@@ -102,10 +100,6 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
       continue;
     }
 
-    // add cluster to list and flag as used
-    mapClustToMerge[clust_seed].push_back(clust_seed);
-    setUsedClust.insert(clust_seed);
-
     // grab cluster energy and projection momentum
     const float eClustSeed = clust_seed.getEnergy();
     const float eProjSeed  = m_cfg.avgEP * edm4hep::utils::magnitude(project_seed.value().momentum);
@@ -135,6 +129,11 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
       // ignore used clusters
       if (setUsedClust.contains(cluster)) {
+        continue;
+      }
+
+      // don't double count seed cluster
+      if (clust_seed == cluster) {
         continue;
       }
 
@@ -169,6 +168,12 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
             "pointing to merged cluster",
             mapClustToMerge[clust_seed].size(), eClustSum, sigSum, vecMatchProj.size());
     } // end cluster loop
+
+    // if found clusters to merge, flag seed as used
+    if (mapClustToMerge.count(clust_seed) > 0) {
+      setUsedClust.insert(clust_seed);
+    }
+
   } // end matched cluster-projection loop
 
   // ------------------------------------------------------------------------
@@ -183,7 +188,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
       new_protos.push_back(out_protos->create());
     }
 
-    // merge & split as needed
+    vecClustToMerge.push_back(clust_seed);
     merge_and_split_clusters(vecClustToMerge, mapProjToSplit[clust_seed], new_protos);
 
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -216,7 +221,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   // ------------------------------------------------------------------------
   for (const auto& cluster : *in_clusters) {
 
-    // ignore used clusters
+    // ignore clusters used during merging
     if (setUsedClust.contains(cluster)) {
       continue;
     }
@@ -312,9 +317,10 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const cluster_vector_t&
 // --------------------------------------------------------------------------
 //! Add a cluster's hits to a protocluster
 // --------------------------------------------------------------------------
-void TrackClusterMergeSplitter::add_cluster_to_proto(
-    const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
+void TrackClusterMergeSplitter::add_cluster_to_proto(const edm4eic::Cluster& clust,
+    edm4eic::MutableProtoCluster& proto,
     std::optional<hit_to_weight_map_t> split_weights) {
+
   // loop over hits to add
   for (const auto& hit : clust.getHits()) {
 
