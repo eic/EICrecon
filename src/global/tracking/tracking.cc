@@ -247,6 +247,18 @@ void InitPlugin(JApplication* app) {
                                                                 },
                                                                 {}, app));
 
+  app->Add(
+      new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>("CentralTrack4HitCutVertices",
+                                                                {
+                                                                    "CentralCKFActsTrackStates",
+                                                                    "CentralCKFActsTracks",
+                                                                    "ReconstructedChargedParticles",
+                                                                },
+                                                                {
+                                                                    "CentralTrack4HitCutVertices",
+                                                                },
+                                                                {.minTrackHits = 4}, app));
+
   app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
       "CalorimeterTrackPropagator",
       {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
@@ -458,6 +470,18 @@ void InitPlugin(JApplication* app) {
           "CentralAndB0TrackVertices",
       },
       {}, app));
+
+  app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
+      "CentralAndB0Track4HitCutVertices",
+      {
+          "CentralAndB0TrackerCKFActsTrackStates",
+          "CentralAndB0TrackerCKFActsTracks",
+          "ReconstructedChargedParticles",
+      },
+      {
+          "CentralAndB0Track4HitCutVertices",
+      },
+      {.minTrackHits = 4}, app));
 
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
