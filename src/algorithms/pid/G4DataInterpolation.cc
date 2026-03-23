@@ -3,9 +3,8 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 //
 
-#include <map>
 #include <math.h>
-#include <stdio.h>
+#include <map>
 
 #include "G4DataInterpolation.h"
 

@@ -5,28 +5,49 @@
 
 #ifdef WITH_IRT2_SUPPORT
 
-#include <mutex>
-
-#include <TFile.h>
-#include <TTree.h>
-#include <TH1D.h>
-#include <TBranch.h>
-#include <TVector3.h>
-
-#include <edm4hep/SimTrackerHitCollection.h>
-#include "algorithms/pid/Tools.h"
-
-#include <edm4eic/MCRecoParticleAssociationCollection.h>
-#include <edm4hep/utils/kinematics.h>
-#include <edm4eic/TrackCollection.h>
-#include <edm4eic/TrackSegment.h>
-#include <edm4eic/MutableIrtParticle.h>
-#include <edm4eic/MutableIrtRadiatorInfo.h>
-
+#include <ChargedParticleStep.h>
+#include <CherenkovDetector.h>
+#include <CherenkovPhotonDetector.h>
+#include <CherenkovRadiator.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Objects.h>
+#include <Evaluator/DD4hepUnits.h>
 #include <IRT2/ChargedParticle.h>
-#include "IRT2/CherenkovEvent.h"
+#include <OpticalPhoton.h>
+#include <RadiatorHistory.h>
+#include <TBranch.h>
+#include <TFile.h>
+#include <TGDMLMatrix.h>
+#include <TString.h>
+#include <TTree.h>
+#include <TVector3.h>
+#include <assert.h>
+#include <edm4eic/TrackCollection.h>
+#include <edm4eic/TrackPoint.h>
+#include <edm4hep/SimTrackerHitCollection.h>
+#include <edm4hep/Vector3d.h>
+#include <edm4hep/Vector3f.h>
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
+#include <podio/ObjectID.h>
+#include <podio/RelationRange.h>
+#include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
+#include <cctype>
+#include <gsl/pointers>
+#include <map>
+#include <mutex>
+#include <set>
+#include <tuple>
+#include <utility>
+#include <vector>
+
 #include "IRT2/CherenkovDetectorCollection.h"
+#include "IRT2/CherenkovEvent.h"
 #include "IRT2/ReconstructionFactory.h"
+#include "algorithms/pid/IrtInterfaceConfig.h"
+#include "algorithms/pid/Tools.h"
 
 using namespace IRT2;
 

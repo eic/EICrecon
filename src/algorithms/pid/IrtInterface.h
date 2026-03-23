@@ -7,33 +7,27 @@
 
 #pragma once
 
+#include <IRT2/CherenkovDetector.h>
+#include <IRT2/CherenkovEvent.h>
+#include <IRT2/ReconstructionFactory.h>
 #include <TRandomGen.h>
-
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
-#include <edm4hep/MCParticleCollection.h>
-#include <edm4eic/IrtRadiatorInfoCollection.h>
 #include <edm4eic/IrtParticleCollection.h>
-#include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
-#include <edm4eic/RawTrackerHitCollection.h>
-#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4eic/IrtRadiatorInfoCollection.h>
 #include <edm4eic/MCRecoTrackParticleAssociationCollection.h>
 #include <edm4eic/TrackCollection.h>
-
+#include <edm4eic/TrackSegmentCollection.h>
+#include <edm4hep/MCParticleCollection.h>
+#include <edm4hep/SimTrackerHitCollection.h>
 #include <spdlog/logger.h>
+#include <functional>
+#include <memory>
+#include <string>
+#include <string_view>
+
 #include "IrtInterfaceConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
-class TTree;
-class TFile;
-class TH1D;
-class TBranch;
-
-#include <IRT2/CherenkovRadiator.h>
-#include <IRT2/ReconstructionFactory.h>
-#include <IRT2/CherenkovEvent.h>
-#include <IRT2/CherenkovDetectorCollection.h>
-#include <IRT2/CherenkovDetector.h>
 
 namespace eicrecon {
 using IrtInterfaceAlgorithm = algorithms::Algorithm<
