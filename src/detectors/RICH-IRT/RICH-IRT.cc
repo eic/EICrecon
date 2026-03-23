@@ -6,28 +6,45 @@
 
 #ifdef WITH_IRT2_SUPPORT
 
+#include <CherenkovDetector.h>
+#include <CherenkovRadiator.h>
+#include <DD4hep/DetElement.h>
+#include <DD4hep/Detector.h>
+#include <DD4hep/Volumes.h>
+#include <Evaluator/DD4hepUnits.h>
+#include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <ParametricSurface.h>
+#include <TGeoVolume.h>
+#include <TString.h>
+#include <TVector3.h>
+#include <edm4eic/TrackPoint.h>
+#include <nlohmann/json.hpp>
+#include <nlohmann/json_fwd.hpp>
+#include <string.h>
+#include <cmath>
+#include <fstream>
 #include <functional>
+#include <gsl/pointers>
+#include <iterator>
+#include <map>
+#include <memory>
+#include <string>
+#include <utility>
+#include <variant>
+#include <vector>
 
-#include <TFile.h>
-
+#include "algorithms/pid/IrtInterfaceConfig.h"
 // ACTS projection algorithm configuration;
 #include "algorithms/tracking/TrackPropagationConfig.h"
-
-// Tracker hit collection;
-#include <edm4hep/SimTrackerHitCollection.h>
-
 // JANA;
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "extensions/jana/JOmniFactory.h"
-
 // Factories;
 #include "factories/tracking/TrackPropagation_factory.h"
 #include "global/pid/IrtInterface_factory.h"
-
 // DD4HEP geometry services;
 #include "services/geometry/dd4hep/DD4hep_service.h"
-
-#include <DD4hep/DetElement.h>
 
 using json = nlohmann::json;
 

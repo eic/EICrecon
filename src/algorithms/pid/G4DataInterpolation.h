@@ -5,6 +5,8 @@
 // GEANT G4DataInterpolation emulation class
 //
 
+#include <iterator>
+#include <utility>
 #include <vector>
 
 #pragma once
