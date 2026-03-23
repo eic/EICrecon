@@ -175,7 +175,10 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPTruthClustersWithoutShapes",
       {
           "EcalEndcapPTruthProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalEndcapPRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "EcalEndcapPRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
+          "EcalEndcapPRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"EcalEndcapPTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -200,7 +203,10 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPClustersWithoutShapes",
       {
           "EcalEndcapPIslandProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalEndcapPRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "EcalEndcapPRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
+          "EcalEndcapPRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"EcalEndcapPClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -244,6 +250,9 @@ void InitPlugin(JApplication* app) {
       "EcalEndcapPSplitMergeClustersWithoutShapes",
       {
           "EcalEndcapPSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "EcalEndcapPRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
           "EcalEndcapPRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
       },
       {"EcalEndcapPSplitMergeClustersWithoutShapes",
