@@ -99,8 +99,7 @@ void InitPlugin(JApplication* app) {
         {
           const auto& aconfig = (*jptr)["Acceptance"];
 
-          if (aconfig.find("eta-min") == aconfig.end() ||
-              aconfig.find("eta-max") == aconfig.end())
+          if (aconfig.find("eta-min") == aconfig.end() || aconfig.find("eta-max") == aconfig.end())
             continue;
 
           config.m_eta_min = aconfig["eta-min"].template get<double>();
