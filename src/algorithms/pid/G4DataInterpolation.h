@@ -7,8 +7,7 @@
 
 #include <vector>
 
-#ifndef _G4_DATA_INTERPOLATION_
-#define _G4_DATA_INTERPOLATION_
+#pragma once
 
 class G4DataInterpolation {
 public:
@@ -31,5 +30,3 @@ private:
   double m_LookupTableStep;
   std::vector<std::pair<double, double>> m_LookupTable;
 };
-
-#endif
