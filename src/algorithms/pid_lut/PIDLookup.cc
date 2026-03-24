@@ -2,15 +2,18 @@
 // Copyright (C) 2024, Nathan Brei, Dmitry Kalinkin
 
 #include <algorithms/service.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoParticleAssociationCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <edm4hep/Vector3f.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <exception>
 #include <gsl/pointers>
+#include <memory>
 #include <random>
 #include <stdexcept>
 #include <vector>
@@ -53,7 +56,11 @@ void PIDLookup::init() {
 
 void PIDLookup::process(const Input& input, const Output& output) const {
   const auto [headers, recoparts_in, partassocs_in] = input;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [recoparts_out, partlinks_out, partassocs_out, partids_out] = output;
+#else
   auto [recoparts_out, partassocs_out, partids_out] = output;
+#endif
 
   // local random generator
   auto seed = m_uid.getUniqueID(*headers, name());
@@ -70,6 +77,12 @@ void PIDLookup::process(const Input& input, const Output& output) const {
         if ((not best_assoc.isAvailable()) || (best_assoc.getWeight() < assoc_in.getWeight())) {
           best_assoc = assoc_in;
         }
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+        auto link_out = partlinks_out->create();
+        link_out.setFrom(recopart);
+        link_out.setTo(assoc_in.getSim());
+        link_out.setWeight(assoc_in.getWeight());
+#endif
         auto assoc_out = assoc_in.clone();
         assoc_out.setRec(recopart);
         partassocs_out->push_back(assoc_out);

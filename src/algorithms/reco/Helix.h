@@ -187,26 +187,26 @@ inline double Helix::pathLength(double X, double Y) const {
 inline int Helix::bad(double WorldSize) const {
 
   //    int ierr;
-  if (!::finite(mDipAngle))
+  if (!std::isfinite(mDipAngle))
     return 11;
-  if (!::finite(mCurvature))
+  if (!std::isfinite(mCurvature))
     return 12;
 
   //    ierr = mOrigin.bad(WorldSize);
   //    if (ierr)                           return    3+ierr*100;
 
-  if (::fabs(mDipAngle) > 1.58)
+  if (std::abs(mDipAngle) > 1.58)
     return 21;
-  double qwe = ::fabs(::fabs(mDipAngle) - M_PI / 2);
+  double qwe = std::abs(std::abs(mDipAngle) - M_PI / 2);
   if (qwe < 1. / WorldSize)
     return 31;
 
-  if (::fabs(mCurvature) > WorldSize)
+  if (std::abs(mCurvature) > WorldSize)
     return 22;
   if (mCurvature < 0)
     return 32;
 
-  if (abs(mH) != 1)
+  if (std::abs(mH) != 1)
     return 24;
 
   return 0;

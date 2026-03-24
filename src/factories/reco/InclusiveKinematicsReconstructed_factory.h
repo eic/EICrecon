@@ -25,7 +25,8 @@ public:
 private:
   std::unique_ptr<AlgoT> m_algo;
 
-  typename FactoryT::template PodioInput<edm4hep::MCParticle> m_mc_particles_input{this};
+  typename FactoryT::template PodioInput<edm4hep::MCParticle> m_mc_beam_electrons_input{this};
+  typename FactoryT::template PodioInput<edm4hep::MCParticle> m_mc_beam_protons_input{this};
   typename FactoryT::template PodioInput<edm4eic::ReconstructedParticle> m_scattered_electron_input{
       this};
   typename FactoryT::template PodioInput<edm4eic::HadronicFinalState> m_hadronic_final_state_input{
@@ -44,9 +45,9 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-        {m_mc_particles_input(), m_scattered_electron_input(), m_hadronic_final_state_input()},
-        {m_inclusive_kinematics_output().get()});
+    m_algo->process({m_mc_beam_electrons_input(), m_mc_beam_protons_input(),
+                     m_scattered_electron_input(), m_hadronic_final_state_input()},
+                    {m_inclusive_kinematics_output().get()});
   }
 };
 
