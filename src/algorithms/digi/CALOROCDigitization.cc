@@ -99,33 +99,37 @@ void CALOROCDigitization::process(const CALOROCDigitization::Input& input,
 
     for (const auto& raw_sample : raw_samples) {
       auto adc =
-          std::max(std::llround(raw_sample.adc / m_cfg.dyRangeSingleGainADC * m_cfg.capADC), 0LL);
-      auto toa = std::max(std::llround(raw_sample.toa / m_cfg.dyRangeTOA * m_cfg.capTOA), 0LL);
-      auto tot = std::max(std::llround(raw_sample.tot / m_cfg.dyRangeTOT * m_cfg.capTOT), 0LL);
+          std::clamp(std::llround(raw_sample.adc / m_cfg.dyRangeSingleGainADC * m_cfg.capADC), 0LL,
+                     static_cast<long long>(m_cfg.capADC) - 1);
+      auto toa = std::clamp(std::llround(raw_sample.toa / m_cfg.dyRangeTOA * m_cfg.capTOA), 0LL,
+                            static_cast<long long>(m_cfg.capTOA) - 1);
+      auto tot = std::clamp(std::llround(raw_sample.tot / m_cfg.dyRangeTOT * m_cfg.capTOT), 0LL,
+                            static_cast<long long>(m_cfg.capTOT) - 1);
 
       out_digi_hit.addToASamples([&]() {
         edm4eic::CALOROC1ASample aSample;
-        aSample.ADC               = adc > m_cfg.capADC ? m_cfg.capADC : adc;
-        aSample.timeOfArrival     = toa > m_cfg.capTOA ? m_cfg.capTOA : toa;
-        aSample.timeOverThreshold = tot > m_cfg.capTOT ? m_cfg.capTOT : tot;
+        aSample.ADC               = adc;
+        aSample.timeOfArrival     = toa;
+        aSample.timeOverThreshold = tot;
         return aSample;
       }());
 
       auto high_adc =
-          std::max(std::llround(raw_sample.adc / m_cfg.dyRangeHighGainADC * m_cfg.capADC), 0LL);
+          std::clamp(std::llround(raw_sample.adc / m_cfg.dyRangeHighGainADC * m_cfg.capADC), 0LL,
+                     static_cast<long long>(m_cfg.capADC) - 1);
       auto low_adc =
-          std::max(std::llround(raw_sample.adc / m_cfg.dyRangeLowGainADC * m_cfg.capADC), 0LL);
+          std::clamp(std::llround(raw_sample.adc / m_cfg.dyRangeLowGainADC * m_cfg.capADC), 0LL,
+                     static_cast<long long>(m_cfg.capADC) - 1);
 
       out_digi_hit.addToBSamples([&]() {
         edm4eic::CALOROC1BSample bSample;
-        bSample.highGainADC   = high_adc > m_cfg.capADC ? m_cfg.capADC : high_adc;
-        bSample.lowGainADC    = low_adc > m_cfg.capADC ? m_cfg.capADC : low_adc;
-        bSample.timeOfArrival = toa > m_cfg.capTOA ? m_cfg.capTOA : toa;
+        bSample.highGainADC   = high_adc;
+        bSample.lowGainADC    = low_adc;
+        bSample.timeOfArrival = toa;
         return bSample;
       }());
     }
   }
-
 } // CALOROCDigitization:process
 
 double CALOROCDigitization::get_crossing_time(double thres, double dt, double t, double amp1,
