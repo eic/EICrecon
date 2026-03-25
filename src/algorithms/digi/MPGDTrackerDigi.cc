@@ -348,7 +348,8 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
           debug("  =>=>");
         for (auto clusterHit : cluster) {
           CellID cID = clusterHit.first;
-          CellID hID = cID >> 32, vID = (std::uint32_t)cID;
+          CellID hID = cID >> 32;
+          CellID vID = (std::uint32_t)cID;
           debug("Hit {} = 0x{:08x}, 0x{:08x}", sCellID, hID, vID);
           debug("  edep = {:.0f} [eV]", clusterHit.second * eDep / eV);
         }
