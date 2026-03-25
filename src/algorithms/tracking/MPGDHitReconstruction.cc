@@ -143,7 +143,7 @@ void MPGDHitReconstruction::process(const Input& input, const Output& output) co
       // Averaging
       clusPos /= sW * mm;
       // Variance
-      for (int i = 0; i < currentNDims; i++) {
+      for (int i = 0; i < (int)currentNDims; i++) {
         if (i == currentPN) { // Measurement axis
           clusDim[i] = m_cfg.stripResolutions[currentPN];
         } else {
@@ -230,9 +230,8 @@ void MPGDHitReconstruction::parseIDDescriptor() {
   debug(R"(Parsing IDDescriptor for "{}" readout)", m_cfg.readout);
   const char fieldName[] = "strip";
   CellID stripBits[2]    = {0, 0};
-  FieldID fieldID        = 0;
   try {
-    fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
+    FieldID fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
   } catch (const std::runtime_error& error) {
     critical(R"(No field "{}" in IDDescriptor of readout "{}".)", fieldName, m_cfg.readout);
     throw std::runtime_error("Invalid IDDescriptor");
