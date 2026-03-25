@@ -158,10 +158,11 @@ double TrackClusterSubtractor::sum_track_energy(const segment_vector& projection
     }
 
     // get mass based on track pdg
-    double mass = m_parSvc.particle(m_cfg.defaultPDG).mass;
-    if (project.getTrack().getPdg() != 0) {
-      mass = m_parSvc.particle(project.getTrack().getPdg()).mass;
+    int pdgToUse = project.getTrack().getPdg();
+    if (pdgToUse == 0) {
+      pdgToUse = m_cfg.defaultPDG;
     }
+    const double mass = m_parSvc.particle(pdgToUse).mass;
 
     // increment sum
     eSum += std::sqrt((momentum * momentum) + (mass * mass));
