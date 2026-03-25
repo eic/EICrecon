@@ -231,7 +231,7 @@ void MPGDHitReconstruction::parseIDDescriptor() {
   const char fieldName[] = "strip";
   CellID stripBits[2]    = {0, 0};
   try {
-    FieldID fieldID = m_id_dec->get(~((CellID)0x0), fieldName);
+    m_id_dec->get(~((CellID)0x0), fieldName);
   } catch (const std::runtime_error& error) {
     critical(R"(No field "{}" in IDDescriptor of readout "{}".)", fieldName, m_cfg.readout);
     throw std::runtime_error("Invalid IDDescriptor");
