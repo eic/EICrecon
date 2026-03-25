@@ -40,30 +40,9 @@ class TrackClusterSubtractor : public TrackClusterSubtractorAlgorithm,
                                public WithPodConfig<TrackClusterSubtractorConfig> {
 
 public:
-  // ------------------------------------------------------------------------
-  //! Comparator struct for clusters
-  // ------------------------------------------------------------------------
-  /*! Organizes clusters by their ObjectIDs in decreasing collection
-   *  ID first, and by decreasing index second.
-   */
-  struct CompareClust {
-    bool operator()(const edm4eic::Cluster& lhs, const edm4eic::Cluster& rhs) const {
-      if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
-        return (lhs.getObjectID().index < rhs.getObjectID().index);
-      } else {
-        return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
-      }
-    }
-  };
-
-  ///! Alias for vectors of clusters
-  using VecClust = std::vector<edm4eic::Cluster>;
 
   ///! Alias for vectors of track segments
   using VecSeg = std::vector<edm4eic::TrackSegment>;
-
-  ///! Alias for a map from a cluster to the segments of matched tracks
-  using MapToVecSeg = std::map<edm4eic::Cluster, VecSeg, CompareClust>;
 
   ///! Algorithm constructor
   TrackClusterSubtractor(std::string_view name)

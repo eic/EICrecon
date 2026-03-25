@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "TrackClusterSubtractor.h"
+#include "algorithms/interfaces/CompareObjectID.h"
 #include "algorithms/particle_flow/TrackClusterSubtractorConfig.h"
 
 namespace eicrecon {
@@ -55,7 +56,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   // --------------------------------------------------------------------------
   // 1. Build map of clusters onto projections
   // --------------------------------------------------------------------------
-  MapToVecSeg mapClustToProj;
+  std::map<edm4eic::Cluster, VecSeg, CompareObjectID<edm4eic::Cluster>> mapClustToProj;
   for (const auto& match : *in_match) {
     for (const auto& project : *in_project) {
 
@@ -71,7 +72,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   debug("Built map of clusters-onto-tracks, size = {}", mapClustToProj.size());
 
   // now identify any clusters without matching tracks
-  VecClust vecNoMatchClust;
+  std::vector<edm4eic::Cluster> vecNoMatchClust;
   for (const auto& cluster : *in_cluster) {
     if (mapClustToProj.count(cluster) == 0) {
       vecNoMatchClust.push_back(cluster);
