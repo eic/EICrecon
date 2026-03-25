@@ -19,9 +19,6 @@
 
 namespace eicrecon {
 
-// ----------------------------------------------------------------------------
-//! Process inputs
-// ----------------------------------------------------------------------------
 /*! Subtract energy of matched tracks via the following algorithm.
  *    1. Build a map of each cluster onto a list of matched
  *       track projections.
@@ -139,9 +136,6 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
 
 } // end 'process(Input&, Output&)'
 
-// ----------------------------------------------------------------------------
-//! Sum energy of tracks
-// ----------------------------------------------------------------------------
 /*! Sums energy of tracks projected to the surface in the
  *  calorimeter specified by `surfaceToUse`. Uses PDG of
  *  track to select mass for energy; if not available,
@@ -179,9 +173,6 @@ double TrackClusterSubtractor::sum_track_energy(const VecSeg& projects) const {
 
 } // end 'sum_track_energy(VecSeg&)'
 
-// --------------------------------------------------------------------------
-//! Is difference consistent with zero?
-// --------------------------------------------------------------------------
 /*! Checks if provided difference is consistent with zero,
  *  either checking if difference is within an epsilon
  *  (if `doNSigmaCut` is false), or if difference is within

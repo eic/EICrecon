@@ -19,9 +19,6 @@
 
 namespace eicrecon {
 
-// --------------------------------------------------------------------------
-//! Algorithm input/output
-// --------------------------------------------------------------------------
 using TrackClusterSubtractorAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
                       edm4eic::TrackSegmentCollection>,
@@ -50,7 +47,6 @@ public:
              "outputTrackExpectedClusterMatches"},
             "Subtracts energy of tracks pointing to clusters."} {}
 
-  // public method
   void process(const Input&, const Output&) const final;
 
 private:
@@ -58,7 +54,6 @@ private:
   ///! Alias for vectors of track segments
   using VecSeg = std::vector<edm4eic::TrackSegment>;
 
-  // private methods
   double sum_track_energy(const VecSeg& projects) const;
   bool is_zero(const double difference) const;
 

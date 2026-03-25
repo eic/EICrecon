@@ -17,11 +17,9 @@ class TrackClusterSubtractor_factory
     : public JOmniFactory<TrackClusterSubtractor_factory, TrackClusterSubtractorConfig> {
 
 public:
-  ///! alias for algorithm name
   using AlgoT = eicrecon::TrackClusterSubtractor;
 
 private:
-  // pointer to algorithm
   std::unique_ptr<AlgoT> m_algo;
 
   // input collections
@@ -47,14 +45,12 @@ private:
   Service<AlgorithmsInit_service> m_algoInitSvc{this};
 
 public:
-  ///! Configures algorithm
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->applyConfig(config());
     m_algo->init();
   }
 
-  ///! Primary algorithm call
   void Process(int32_t /*run_number*/, uint64_t /*event_number*/) {
     m_algo->process(
         {m_track_cluster_match_input(), m_clusters_input(), m_track_projections_input()},
