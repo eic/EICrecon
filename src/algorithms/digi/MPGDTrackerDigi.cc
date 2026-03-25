@@ -376,7 +376,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
         stripID2cIDs[cID]   = cIDs;
         double result_time  = time + time_smearing;
         auto hit_time_stamp = (std::int32_t)(result_time * 1e3);
-        if (cell_hit_map.count(cID) == 0) {
+        if (!cell_hit_map.contains(cID)) {
           // This cell doesn't have hits
           cell_hit_map[cID] = {
               cID, (std::int32_t)std::llround(eDep * 1e6 * f * g),
