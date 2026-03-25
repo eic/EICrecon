@@ -335,7 +335,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       // Cluster = (CellID, energy fraction)
       Cluster cluster;
       int status = get2HitCluster(refID, locPos, surfPos, pn, generator, cluster);
-      if (status) {
+      if (status != 0) {
         CellID vIDs = (std::uint32_t)refID, hIDs = refID >> 32;
         error(R"(SimHit (= 0x{:08x}, 0x{:08x}, {:.2f},{:.2f} cm) beyond limits of {}Strips.)", hIDs,
               vIDs, surfPos[0] / cm, surfPos[1] / cm, pn ? 'p' : 'n');
