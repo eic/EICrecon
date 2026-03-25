@@ -399,7 +399,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
   } // End loop on sim_hit's
 
   // ***** RawHit INSTANTIATION AND RawHit<-SimHits ASSOCIATION:
-  for (auto & cell_hit_map : cell_hit_maps) {
+  for (auto& cell_hit_map : cell_hit_maps) {
     for (auto item : cell_hit_map) {
       raw_hits->push_back(item.second);
       CellID stripID = item.first;
