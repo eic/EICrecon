@@ -76,22 +76,22 @@ public:
 private:
 
   ///! Alias for vectors of track segments
-  using segment_vector_t = std::vector<edm4eic::TrackSegment>;
+  using segment_vector = std::vector<edm4eic::TrackSegment>;
 
   ///! Alias for vectors of mutable protoclusters
-  using protocluster_vector_t = std::vector<edm4eic::MutableProtoCluster>;
+  using protocluster_vector = std::vector<edm4eic::MutableProtoCluster>;
 
   ///! Alias for vectors of clusters
-  using cluster_vector_t = std::vector<edm4eic::Cluster>;
+  using cluster_vector = std::vector<edm4eic::Cluster>;
 
   ///! Alias for a map of hits onto their splitting weights
-  using hit_to_weight_map_t = std::map<edm4eic::CalorimeterHit, double, CompareObjectID<edm4eic::CalorimeterHit>>;
+  using hit_to_weight_map = std::map<edm4eic::CalorimeterHit, double, CompareObjectID<edm4eic::CalorimeterHit>>;
 
-  void merge_and_split_clusters(const cluster_vector_t& to_merge, const segment_vector_t& to_split,
-                                protocluster_vector_t& new_protos) const;
+  void merge_and_split_clusters(const cluster_vector& to_merge, const segment_vector& to_split,
+                                protocluster_vector& new_protos) const;
   static void add_cluster_to_proto(const edm4eic::Cluster& clust,
                                    edm4eic::MutableProtoCluster& proto,
-                                   std::optional<hit_to_weight_map_t> split_weights = std::nullopt);
+                                   std::optional<hit_to_weight_map> split_weights = std::nullopt);
 
 }; // end TrackClusterMergeSplitter
 
