@@ -57,7 +57,8 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   // --------------------------------------------------------------------------
   // 1. Build map of clusters onto projections
   // --------------------------------------------------------------------------
-  std::map<edm4eic::Cluster, segment_vector, CompareObjectID<edm4eic::Cluster>> mapClusterToProjections;
+  std::map<edm4eic::Cluster, segment_vector, CompareObjectID<edm4eic::Cluster>>
+      mapClusterToProjections;
   for (const auto& match : *in_matches) {
     for (const auto& project : *in_projections) {
 
@@ -93,7 +94,7 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
 
     // check if consistent with zero,
     // set eSub accordingly
-    const bool isZero = is_zero(eSubtracted);
+    const bool isZero             = is_zero(eSubtracted);
     const double eSubtractedToUse = isZero ? 0. : eSubtracted;
 
     // ------------------------------------------------------------------------
@@ -205,8 +206,10 @@ bool TrackClusterSubtractor::is_zero(const double difference) const {
   if (m_cfg.doNSigmaCut) {
 
     // calculate n sigma squared
-    const double resolution2 = (m_cfg.trackResolution * m_cfg.trackResolution) + (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution);
-    const uint32_t nSigma2 = static_cast<uint32_t>(std::floor((difference * difference) / resolution2));
+    const double resolution2 = (m_cfg.trackResolution * m_cfg.trackResolution) +
+                               (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution);
+    const uint32_t nSigma2 =
+        static_cast<uint32_t>(std::floor((difference * difference) / resolution2));
     const uint32_t nSigmaMax2 = m_cfg.nSigmaMax * m_cfg.nSigmaMax;
 
     isZero = (nSigma2 < nSigmaMax2);

@@ -45,7 +45,6 @@ class TrackClusterSubtractor : public TrackClusterSubtractorAlgorithm,
                                public WithPodConfig<TrackClusterSubtractorConfig> {
 
 public:
-
   ///! Algorithm constructor
   TrackClusterSubtractor(std::string_view name)
       : TrackClusterSubtractorAlgorithm{
@@ -58,7 +57,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-
   ///! Alias for vectors of track segments
   using segment_vector = std::vector<edm4eic::TrackSegment>;
 
