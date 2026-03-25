@@ -344,7 +344,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       // ***** DEBUGGING INFO
       if (level() >= algorithms::LogLevel::kDebug) {
         std::string sCellID = (pn != 0) ? "cellIDn" : "cellIDp";
-        if (!pn)
+        if (pn == 0)
           debug("  =>=>");
         for (auto clusterHit : cluster) {
           CellID cID = clusterHit.first;
