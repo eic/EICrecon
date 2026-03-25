@@ -316,7 +316,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       locPos           = Position(R * cos(phi), R * sin(phi), lpos[2]);
     } else {
       locPos = Position(lpos[0], lpos[1], lpos[2]);
-      if (m_gridAngle) { // Transform to strip frame
+      if (m_gridAngle != 0.0) { // Transform to strip frame
         dd4hep::DDSegmentation::Vector3D position;
         position.X = lpos[0];
         position.Y = lpos[1];
