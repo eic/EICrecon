@@ -420,6 +420,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalBarrelTruthClusterLinks",
 #endif
       "EcalBarrelTruthClusterAssociations",
+      "EcalBarrelImagingProcessedHits",
+      "EcalBarrelImagingProcessedHitContributions",
       "EcalBarrelImagingRawHits",
       "EcalBarrelImagingRecHits",
       "EcalBarrelImagingClusters",
