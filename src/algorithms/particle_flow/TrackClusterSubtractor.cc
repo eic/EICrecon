@@ -187,17 +187,18 @@ bool TrackClusterSubtractor::is_zero(const double difference) const {
     return true;
   }
 
-  // calculate nSigma
-  const double totReso =
-      std::sqrt((m_cfg.trackResolution * m_cfg.trackResolution) + (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution));
-  const double nSigma = difference / totReso;
-
   // do appropriate comparison
   bool isZero = false;
   if (m_cfg.doNSigmaCut) {
-    isZero = (nSigma < m_cfg.nSigmaMax);
-    trace("Difference of {} GeV consistent with zero: nSigma = {} < {}", difference, nSigma,
-          m_cfg.nSigmaMax);
+
+    // calculate n sigma squared
+    const double resolution2 = (m_cfg.trackResolution * m_cfg.trackResolution) + (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution);
+    const uint32_t nSigma2 = static_cast<uint32_t>(std::floor((difference * difference) / resolution2));
+    const uint32_t nSigmaMax2 = m_cfg.nSigmaMax * m_cfg.nSigmaMax;
+
+    isZero = (nSigma2 < nSigmaMax2);
+    trace("Difference of {} GeV consistent with zero: nSigma2 = {} < {}", difference, nSigma2,
+          nSigmaMax2);
   } else {
     isZero = std::abs(difference) < std::numeric_limits<double>::epsilon();
     trace("Difference of {} GeV consistent with zero within an epsilon", difference);
