@@ -344,8 +344,9 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       // ***** DEBUGGING INFO
       if (level() >= algorithms::LogLevel::kDebug) {
         std::string sCellID = (pn != 0) ? "cellIDn" : "cellIDp";
-        if (pn == 0)
+        if (pn == 0) {
           debug("  =>=>");
+        }
         for (auto clusterHit : cluster) {
           CellID cID = clusterHit.first;
           CellID hID = cID >> 32;
@@ -2030,9 +2031,9 @@ void MPGDTrackerDigi::flagUnexpected(const edm4hep::EventHeader& event, int shap
 // 0: OK
 // 1: input hit is beyond limits
 int MPGDTrackerDigi::get2HitCluster(CellID refID,
-                                    Position& locPos, // In DD4hep frame
-                                    double* surfPos,  // In Surface frame
-                                    int pn,           // 'p' or 'n' strip
+                                    Position& locPos,  // In DD4hep frame
+                                    double surfPos[2], // In Surface frame
+                                    int pn,            // 'p' or 'n' strip
                                     std::default_random_engine& generator, Cluster& cluster) const {
   //Sim2IDs sim2IDs;
   // Master CellID, from "locPos"
