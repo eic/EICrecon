@@ -11,8 +11,7 @@ namespace eicrecon {
  *  their ObjectID's in decreasing collection ID first, and second by
  *  decreasing index second.
  */
-template <typename T>
-struct CompareObjectID {
+template <typename T> struct CompareObjectID {
   bool operator()(const T& lhs, const T& rhs) const {
     if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
       return (lhs.getObjectID().index < rhs.getObjectID().index);
