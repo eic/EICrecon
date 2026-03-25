@@ -11,21 +11,24 @@
 #include <string>
 #include <string_view>
 
+#include "algorithms/interfaces/WithPodConfig.h"
 #include "services/particle/ParticleSvc.h"
 
 namespace eicrecon {
 
 using HadronicFinalStateAlgorithm = algorithms::Algorithm<
-    algorithms::Input<edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
+    algorithms::Input<edm4hep::MCParticleCollection, edm4hep::MCParticleCollection,
+                      edm4hep::MCParticleCollection, edm4eic::ReconstructedParticleCollection,
                       edm4eic::MCRecoParticleAssociationCollection>,
     algorithms::Output<edm4eic::HadronicFinalStateCollection>>;
 
-class HadronicFinalState : public HadronicFinalStateAlgorithm {
+class HadronicFinalState : public HadronicFinalStateAlgorithm, public WithPodConfig<NoConfig> {
 
 public:
   HadronicFinalState(std::string_view name)
       : HadronicFinalStateAlgorithm{name,
-                                    {"MCParticles", "inputParticles", "inputAssociations"},
+                                    {"MCBeamElectrons", "MCBeamProtons", "MCParticles",
+                                     "inputParticles", "inputAssociations"},
                                     {"hadronicFinalState"},
                                     "Calculate summed quantities of the hadronic final state."} {}
 

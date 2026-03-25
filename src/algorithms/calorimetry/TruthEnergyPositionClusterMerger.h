@@ -5,11 +5,18 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4hep/MCParticleCollection.h>
 #include <map>
 #include <string>
 #include <string_view>
+
+#include "algorithms/interfaces/WithPodConfig.h"
+
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoClusterParticleLinkCollection.h>
+#endif
 
 namespace eicrecon {
 
@@ -19,6 +26,9 @@ using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
                       edm4eic::ClusterCollection,
                       edm4eic::MCRecoClusterParticleAssociationCollection>,
     algorithms::Output<edm4eic::ClusterCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       edm4eic::MCRecoClusterParticleLinkCollection,
+#endif
                        edm4eic::MCRecoClusterParticleAssociationCollection>>;
 
 /** Simple algorithm to merge the energy measurement from cluster1 with the position
@@ -29,7 +39,8 @@ using TruthEnergyPositionClusterMergerAlgorithm = algorithms::Algorithm<
    *
    * \ingroup reco
    */
-class TruthEnergyPositionClusterMerger : public TruthEnergyPositionClusterMergerAlgorithm {
+class TruthEnergyPositionClusterMerger : public TruthEnergyPositionClusterMergerAlgorithm,
+                                         public WithPodConfig<NoConfig> {
 
 public:
   TruthEnergyPositionClusterMerger(std::string_view name)
@@ -37,8 +48,13 @@ public:
             name,
             {"mcParticles", "energyClusterCollection", "energyClusterAssociations",
              "positionClusterCollection", "positionClusterAssociations"},
-            {"outputClusterCollection", "outputClusterAssociations"},
-            "Merge energy and position clusters based on truth."} {}
+            {"outputClusterCollection",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+             "outputClusterLinks",
+#endif
+             "outputClusterAssociations"},
+            "Merge energy and position clusters based on truth."} {
+  }
 
 public:
   void init() {}

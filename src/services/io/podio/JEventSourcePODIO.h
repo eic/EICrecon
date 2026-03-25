@@ -7,17 +7,14 @@
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSource.h>
 #include <JANA/JEventSourceGeneratorT.h>
-#include <podio/ROOTReader.h>
+#include <podio/Frame.h>
+#include <podio/Reader.h>
 #include <spdlog/logger.h>
 #include <cstddef>
 #include <memory>
 #include <string>
-
-#if ((JANA_VERSION_MAJOR == 2) && (JANA_VERSION_MINOR >= 3)) || (JANA_VERSION_MAJOR > 2)
-#define JANA_NEW_CALLBACK_STYLE 1
-#else
-#define JANA_NEW_CALLBACK_STYLE 0
-#endif
+#include <string_view>
+#include <vector>
 
 class JEventSourcePODIO : public JEventSource {
 
@@ -30,18 +27,18 @@ public:
 
   void Close() override;
 
-#if JANA_NEW_CALLBACK_STYLE
   Result Emit(JEvent& event) override;
-#else
-  void GetEvent(std::shared_ptr<JEvent>) override;
-#endif
 
   static std::string GetDescription();
 
   void PrintCollectionTypeTable(void);
 
+  std::vector<std::string_view> getAvailableCategories() const;
+  std::size_t getEntries(const std::string& category) const;
+  podio::Frame getFrame(const std::string& category, std::size_t index) const;
+
 protected:
-  podio::ROOTReader m_reader;
+  std::unique_ptr<podio::Reader> m_reader;
 
   std::size_t Nevents_in_file = 0;
   std::size_t Nevents_read    = 0;
