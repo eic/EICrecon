@@ -36,42 +36,42 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
                                      const TrackClusterSubtractor::Output& output) const {
 
   // grab inputs/outputs
-  const auto [in_match, in_cluster, in_project] = input;
-  auto [out_remnant, out_expect, out_match]     = output;
+  const auto [in_matches, in_clusters, in_projections] = input;
+  auto [out_remnants, out_expecteds, out_matches]     = output;
 
   // exit if no clusters in collection
-  if (in_cluster->size() == 0) {
+  if (in_clusters->size() == 0) {
     debug("No clusters in collection");
     return;
   }
 
   // emit debugging message if no matched tracks in collection
-  if (in_match->size() == 0) {
+  if (in_matches->size() == 0) {
     debug("No matched tracks in collection.");
   }
 
   // --------------------------------------------------------------------------
   // 1. Build map of clusters onto projections
   // --------------------------------------------------------------------------
-  std::map<edm4eic::Cluster, VecSeg, CompareObjectID<edm4eic::Cluster>> mapClustToProj;
-  for (const auto& match : *in_match) {
-    for (const auto& project : *in_project) {
+  std::map<edm4eic::Cluster, segment_vector, CompareObjectID<edm4eic::Cluster>> mapClusterToProjections;
+  for (const auto& match : *in_matches) {
+    for (const auto& project : *in_projections) {
 
       // pick out corresponding projection from track
       if (match.getTrack() != project.getTrack()) {
         continue;
       } else {
-        mapClustToProj[match.getCluster()].push_back(project);
+        mapClusterToProjections[match.getCluster()].push_back(project);
       }
 
     } // end projection loop
   } // end track-cluster match loop
-  debug("Built map of clusters-onto-tracks, size = {}", mapClustToProj.size());
+  debug("Built map of clusters-onto-tracks, size = {}", mapClusterToProjections.size());
 
   // now identify any clusters without matching tracks
   std::vector<edm4eic::Cluster> vecNoMatchClust;
-  for (const auto& cluster : *in_cluster) {
-    if (mapClustToProj.count(cluster) == 0) {
+  for (const auto& cluster : *in_clusters) {
+    if (mapClusterToProjections.count(cluster) == 0) {
       vecNoMatchClust.push_back(cluster);
     }
   }
@@ -80,71 +80,71 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
   // --------------------------------------------------------------------------
   // 2. Subtract energy for tracks
   // --------------------------------------------------------------------------
-  for (const auto& [cluster, projects] : mapClustToProj) {
+  for (const auto& [cluster, projections] : mapClusterToProjections) {
 
     // do subtraction
-    const double eToSub = m_cfg.fracEnergyToSub * sum_track_energy(projects);
-    const double eSub   = cluster.getEnergy() - eToSub;
-    trace("Subtracted {} GeV from cluster with {} GeV", eToSub, cluster.getEnergy());
+    const double eToSubtract = m_cfg.energyFractionToSubtract * sum_track_energy(projections);
+    const double eSubtracted = cluster.getEnergy() - eToSubtract;
+    trace("Subtracted {} GeV from cluster with {} GeV", eToSubtract, cluster.getEnergy());
 
     // check if consistent with zero,
     // set eSub accordingly
-    const bool isZero      = is_zero(eSub);
-    const double eSubToUse = isZero ? 0. : eSub;
+    const bool isZero = is_zero(eSubtracted);
+    const double eSubtractedToUse = isZero ? 0. : eSubtracted;
 
     // ------------------------------------------------------------------------
     // 3(a). If difference not consistent with zero, create output remnant
     // ------------------------------------------------------------------------
     if (!isZero) {
-      auto remain_clust = cluster.clone();
-      remain_clust.setEnergy(eSubToUse);
-      out_remnant->push_back(remain_clust);
-      trace("Created remnant cluster with {} GeV", remain_clust.getEnergy());
+      auto remain_cluster = cluster.clone();
+      remain_cluster.setEnergy(eSubtractedToUse);
+      out_remnants->push_back(remain_cluster);
+      trace("Created remnant cluster with {} GeV", remain_cluster.getEnergy());
     }
 
     // ------------------------------------------------------------------------
     // 3(b). Create cluster with energy equal to eTotal - eRemnant and match
     // ------------------------------------------------------------------------
-    auto expect_clust = cluster.clone();
-    expect_clust.setEnergy(cluster.getEnergy() - eSubToUse);
-    out_expect->push_back(expect_clust);
-    trace("Created subtracted cluster with {} GeV (originally {} GeV)", expect_clust.getEnergy(),
+    auto expect_cluster = cluster.clone();
+    expect_cluster.setEnergy(cluster.getEnergy() - eSubtractedToUse);
+    out_expecteds->push_back(expect_cluster);
+    trace("Created subtracted cluster with {} GeV (originally {} GeV)", expect_cluster.getEnergy(),
           cluster.getEnergy());
 
     // create a track-cluster match for expected clusters
-    for (const auto& project : projects) {
-      edm4eic::MutableTrackClusterMatch match = out_match->create();
-      match.setCluster(expect_clust);
+    for (const auto& project : projections) {
+      edm4eic::MutableTrackClusterMatch match = out_matches->create();
+      match.setCluster(expect_cluster);
       match.setTrack(project.getTrack());
       match.setWeight(1.0); // FIXME placeholder
-      trace("Matched expected cluster {} to track {}", expect_clust.getObjectID().index,
+      trace("Matched expected cluster {} to track {}", expect_cluster.getObjectID().index,
             project.getTrack().getObjectID().index);
     }
   } // end cluster-to-projections loop
-  debug("Finished subtraction, {} remnant clusters and {} expected clusters", out_remnant->size(),
-        out_expect->size());
+  debug("Finished subtraction, {} remnant clusters and {} expected clusters", out_remnants->size(),
+        out_expecteds->size());
 
   // --------------------------------------------------------------------------
   // 4. Any unmatched clusters are remnants by definition
   // --------------------------------------------------------------------------
   for (const auto& cluster : vecNoMatchClust) {
-    auto remain_clust = cluster.clone();
-    out_remnant->push_back(remain_clust);
+    auto remain_cluster = cluster.clone();
+    out_remnants->push_back(remain_cluster);
   }
   debug("Finished copying unmatched clusters to remnants, {} remnant clusters",
-        out_remnant->size());
+        out_remnants->size());
 
 } // end 'process(Input&, Output&)'
 
 /*! Sums energy of tracks projected to the surface in the
  *  calorimeter specified by `surfaceToUse`. Uses PDG of
  *  track to select mass for energy; if not available,
- *  uses mass set by `defaultMassPdg`.
+ *  uses mass set by `defaultPDG`.
  */
-double TrackClusterSubtractor::sum_track_energy(const VecSeg& projects) const {
+double TrackClusterSubtractor::sum_track_energy(const segment_vector& projections) const {
 
   double eSum = 0.;
-  for (const auto& project : projects) {
+  for (const auto& project : projections) {
 
     // measure momentum at specified surface
     double momentum = 0.;
@@ -158,7 +158,7 @@ double TrackClusterSubtractor::sum_track_energy(const VecSeg& projects) const {
     }
 
     // get mass based on track pdg
-    double mass = m_parSvc.particle(m_cfg.defaultMassPdg).mass;
+    double mass = m_parSvc.particle(m_cfg.defaultPDG).mass;
     if (project.getTrack().getPdg() != 0) {
       mass = m_parSvc.particle(project.getTrack().getPdg()).mass;
     }
@@ -171,7 +171,7 @@ double TrackClusterSubtractor::sum_track_energy(const VecSeg& projects) const {
   trace("Sum of track energy = {} GeV", eSum);
   return eSum;
 
-} // end 'sum_track_energy(VecSeg&)'
+} // end 'sum_track_energy(segment_vector&)'
 
 /*! Checks if provided difference is consistent with zero,
  *  either checking if difference is within an epsilon
@@ -188,7 +188,7 @@ bool TrackClusterSubtractor::is_zero(const double difference) const {
 
   // calculate nSigma
   const double totReso =
-      std::sqrt((m_cfg.trkReso * m_cfg.trkReso) + (m_cfg.calReso * m_cfg.calReso));
+      std::sqrt((m_cfg.trackResolution * m_cfg.trackResolution) + (m_cfg.calorimeterResolution * m_cfg.calorimeterResolution));
   const double nSigma = difference / totReso;
 
   // do appropriate comparison

@@ -52,9 +52,9 @@ public:
 private:
 
   ///! Alias for vectors of track segments
-  using VecSeg = std::vector<edm4eic::TrackSegment>;
+  using segment_vector = std::vector<edm4eic::TrackSegment>;
 
-  double sum_track_energy(const VecSeg& projects) const;
+  double sum_track_energy(const segment_vector& projections) const;
   bool is_zero(const double difference) const;
 
   ///! Particle service instance for retrieving specified mass hypothesis

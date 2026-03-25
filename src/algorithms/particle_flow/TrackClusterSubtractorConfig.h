@@ -3,17 +3,22 @@
 
 #pragma once
 
+#include <DD4hep/DD4hepUnits.h>
+
 namespace eicrecon {
 
 struct TrackClusterSubtractorConfig {
 
   ///! fraction of track energy to subtract
-  double fracEnergyToSub = 1.0;
+  double energyFractionToSubtract = 1.0;
 
-  ///! default mass to use for track energy
-  int32_t defaultMassPdg = 211;
+  ///! default PDG code to use for mass in track
+  ///! energy calculation
+  int32_t defaultPDG = 211;
 
   ///! index of surface to use for measuring momentum
+  ///! as defined in the CalorimeterTrackProjections
+  ///! collection
   uint64_t surfaceToUse = 1;
 
   ///! turn on/off checking against resolutions
@@ -23,10 +28,10 @@ struct TrackClusterSubtractorConfig {
   uint32_t nSigmaMax = 1;
 
   ///! tracking momentum resolution to use
-  double trkReso = 1.0;
+  double trackResolution = 1.0 * dd4hep::GeV;
 
   ///! calorimeter energy resolution to use
-  double calReso = 1.0;
+  double calorimeterResolution = 1.0 * dd4hep::GeV;
 
 }; // end TrackClusterSubtractorConfig
 

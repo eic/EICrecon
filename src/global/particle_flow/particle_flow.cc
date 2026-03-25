@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include "factories/particle/TrackClusterSubtractor_factory.h"
+#include "factories/particle_flow/TrackClusterSubtractor_factory.h"
 
 extern "C" {
 
@@ -28,7 +28,7 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClusters", "CalorimeterTrackProjections"},
       {"EcalEndcapNRemnantClusters", "EcalEndcapNExpectedClusters",
        "EcalEndcapNTrackExpectedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 
@@ -37,7 +37,7 @@ void InitPlugin(JApplication* app) {
       {"HcalEndcapNTrackClusterMatches", "HcalEndcapNClusters", "CalorimeterTrackProjections"},
       {"HcalEndcapNRemnantClusters", "HcalEndcapNExpectedClusters",
        "HcalEndcapNTrackExpectedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 
@@ -48,7 +48,7 @@ void InitPlugin(JApplication* app) {
       {"EcalBarrelTrackClusterMatches", "EcalBarrelClusters", "CalorimeterTrackProjections"},
       {"EcalBarrelRemnantClusters", "EcalBarrelExpectedClusters",
        "EcalBarrelTrackExpectedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 
@@ -57,7 +57,7 @@ void InitPlugin(JApplication* app) {
       {"HcalBarrelTrackClusterMatches", "HcalBarrelClusters", "CalorimeterTrackProjections"},
       {"HcalBarrelRemnantClusters", "HcalBarrelExpectedClusters",
        "HcalBarrelTrackExpectedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 
@@ -68,7 +68,7 @@ void InitPlugin(JApplication* app) {
       {"EcalEndcapPTrackClusterMatches", "EcalEndcapPClusters", "CalorimeterTrackProjections"},
       {"EcalEndcapPRemnantClusters", "EcalEndcapPExpectedClusters",
        "EcalEndcapPTrackExpectedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 
@@ -76,7 +76,7 @@ void InitPlugin(JApplication* app) {
       "LFHCALRemnantClusters",
       {"LFHCALTrackSplitMergeClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
       {"LFHCALRemnantClusters", "LFHCALExpectedClusters", "LFHCALTrackExpectedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 
@@ -86,7 +86,7 @@ void InitPlugin(JApplication* app) {
        "CalorimeterTrackProjections"},
       {"HcalEndcapPInsertRemnantClusters", "HcalEndcapPInsertExpectedClusters",
        "HcalEndcapPInsertTrackExpectedClusterMatches"},
-      {.fracEnergyToSub = 1.0, .defaultMassPdg = 211, .surfaceToUse = 1},
+      {.energyFractionToSubtract = 1.0, .defaultPDG = 211, .surfaceToUse = 1},
       app // TODO: remove me once fixed
       ));
 }
