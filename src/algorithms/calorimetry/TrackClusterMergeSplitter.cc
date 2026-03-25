@@ -63,7 +63,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   // --------------------------------------------------------------------------
   // 1. Build map of clusters onto tracks/projections
   // --------------------------------------------------------------------------
-  std::map<edm4eic::Cluster, segment_vector_t, compare_clust_t> mapProjToSplit;
+  std::map<edm4eic::Cluster, segment_vector_t, CompareObjectID<edm4eic::Cluster>> mapProjToSplit;
   for (const auto& match : *in_matches) {
     for (const auto& project : *in_projections) {
 
@@ -79,7 +79,7 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
   // 2. Loop over projection-cluster pairs to check if merging is needed
   // ------------------------------------------------------------------------
   std::set<edm4eic::Cluster> setUsedClust;
-  std::map<edm4eic::Cluster, cluster_vector_t, compare_clust_t> mapClustToMerge;
+  std::map<edm4eic::Cluster, cluster_vector_t, CompareObjectID<edm4eic::Cluster>> mapClustToMerge;
   for (auto& [clust_seed, vecMatchProj] : mapProjToSplit) {
 
     // at this point, track-cluster matches are 1-to-1
@@ -317,8 +317,8 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const cluster_vector_t&
 // --------------------------------------------------------------------------
 //! Add a cluster's hits to a protocluster
 // --------------------------------------------------------------------------
-void TrackClusterMergeSplitter::add_cluster_to_proto(
-    const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
+void TrackClusterMergeSplitter::add_cluster_to_proto(const edm4eic::Cluster& clust,
+    edm4eic::MutableProtoCluster& proto,
     std::optional<hit_to_weight_map_t> split_weights) {
 
   // loop over hits to add
