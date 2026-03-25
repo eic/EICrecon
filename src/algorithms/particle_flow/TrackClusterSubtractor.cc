@@ -14,7 +14,7 @@
 #include <vector>
 
 #include "TrackClusterSubtractor.h"
-#include "algorithms/particle/TrackClusterSubtractorConfig.h"
+#include "algorithms/particle_flow/TrackClusterSubtractorConfig.h"
 
 namespace eicrecon {
 
