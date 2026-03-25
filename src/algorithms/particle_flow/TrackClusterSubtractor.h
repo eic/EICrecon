@@ -41,9 +41,6 @@ class TrackClusterSubtractor : public TrackClusterSubtractorAlgorithm,
 
 public:
 
-  ///! Alias for vectors of track segments
-  using VecSeg = std::vector<edm4eic::TrackSegment>;
-
   ///! Algorithm constructor
   TrackClusterSubtractor(std::string_view name)
       : TrackClusterSubtractorAlgorithm{
@@ -57,6 +54,10 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+
+  ///! Alias for vectors of track segments
+  using VecSeg = std::vector<edm4eic::TrackSegment>;
+
   // private methods
   double sum_track_energy(const VecSeg& projects) const;
   bool is_zero(const double difference) const;
