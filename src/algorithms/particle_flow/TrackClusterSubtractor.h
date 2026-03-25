@@ -5,6 +5,10 @@
 
 #include <algorithms/algorithm.h>
 #include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/TrackClusterLinkCollection.h>
+#endif
 #include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
 #include <podio/ObjectID.h>
@@ -23,7 +27,11 @@ using TrackClusterSubtractorAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
                       edm4eic::TrackSegmentCollection>,
     algorithms::Output<edm4eic::ClusterCollection, edm4eic::ClusterCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       edm4eic::TrackClusterLinkCollection>>;
+#else
                        edm4eic::TrackClusterMatchCollection>>;
+#endif
 
 // ==========================================================================
 //! Track-Cluster Subtraction

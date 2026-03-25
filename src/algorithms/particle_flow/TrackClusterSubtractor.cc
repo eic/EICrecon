@@ -37,7 +37,11 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
 
   // grab inputs/outputs
   const auto [in_matches, in_clusters, in_projections] = input;
-  auto [out_remnants, out_expecteds, out_matches]     = output;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [out_remnants, out_expectants, out_links] = output;
+#else
+  auto [out_remnants, out_expectants, out_matches] = output;
+#endif
 
   // exit if no clusters in collection
   if (in_clusters->size() == 0) {
@@ -107,22 +111,31 @@ void TrackClusterSubtractor::process(const TrackClusterSubtractor::Input& input,
     // ------------------------------------------------------------------------
     auto expect_cluster = cluster.clone();
     expect_cluster.setEnergy(cluster.getEnergy() - eSubtractedToUse);
-    out_expecteds->push_back(expect_cluster);
+    out_expectants->push_back(expect_cluster);
     trace("Created subtracted cluster with {} GeV (originally {} GeV)", expect_cluster.getEnergy(),
           cluster.getEnergy());
 
     // create a track-cluster match for expected clusters
     for (const auto& project : projections) {
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      edm4eic::MutableTrackClusterLink link = out_links->create();
+      link.setFrom(expect_cluster);
+      link.setTo(project.getTrack());
+      link.setWeight(1.0); // FIXME placeholder
+      trace("Matched expected cluster {} to track {}", expect_cluster.getObjectID().index,
+            project.getTrack().getObjectID().index);
+#else
       edm4eic::MutableTrackClusterMatch match = out_matches->create();
       match.setCluster(expect_cluster);
       match.setTrack(project.getTrack());
       match.setWeight(1.0); // FIXME placeholder
       trace("Matched expected cluster {} to track {}", expect_cluster.getObjectID().index,
             project.getTrack().getObjectID().index);
+#endif
     }
   } // end cluster-to-projections loop
   debug("Finished subtraction, {} remnant clusters and {} expected clusters", out_remnants->size(),
-        out_expecteds->size());
+        out_expectants->size());
 
   // --------------------------------------------------------------------------
   // 4. Any unmatched clusters are remnants by definition
