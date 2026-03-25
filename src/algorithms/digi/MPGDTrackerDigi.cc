@@ -359,7 +359,7 @@ void MPGDTrackerDigi::process(const MPGDTrackerDigi::Input& input,
       // (Note: Threshold is applied first. See issue #1722 in
       // "https://github.com/eic/EICrecon/issues/1722".)
       std::unordered_map<std::uint64_t, edm4eic::MutableRawTrackerHit>& cell_hit_map =
-	cell_hit_maps.at(pn);
+          cell_hit_maps.at(pn);
       double g = m_cfg.gain;
       for (auto clusterHit : cluster) {
         CellID cID = clusterHit.first;
