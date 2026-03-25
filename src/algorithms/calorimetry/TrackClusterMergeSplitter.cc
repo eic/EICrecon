@@ -317,8 +317,8 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const cluster_vector_t&
 // --------------------------------------------------------------------------
 //! Add a cluster's hits to a protocluster
 // --------------------------------------------------------------------------
-void TrackClusterMergeSplitter::add_cluster_to_proto(const edm4eic::Cluster& clust,
-    edm4eic::MutableProtoCluster& proto,
+void TrackClusterMergeSplitter::add_cluster_to_proto(
+    const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
     std::optional<hit_to_weight_map_t> split_weights) {
 
   // loop over hits to add
