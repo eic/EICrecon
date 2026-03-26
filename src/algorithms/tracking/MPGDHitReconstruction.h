@@ -4,6 +4,7 @@
 #pragma once
 
 #include <DDRec/CellIDPositionConverter.h>
+#include <Parsers/Primitives.h>
 #include <algorithms/algorithm.h>
 #include <algorithms/geo.h>
 #include <edm4eic/RawTrackerHitCollection.h>

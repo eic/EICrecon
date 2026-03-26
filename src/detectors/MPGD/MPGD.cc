@@ -4,25 +4,29 @@
 //
 
 #include <DD4hep/Detector.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <fmt/format.h>
 #include <spdlog/logger.h>
+#include <array>
 #include <gsl/pointers>
+#include <gsl/util>
 #include <memory>
 #include <stdexcept>
 #include <string>
 #include <vector>
 
+#include "MPGDHitReconstructionConfig.h"
+#include "algorithms/digi/MPGDTrackerDigiConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/digi/MPGDTrackerDigi_factory.h"
 #include "factories/digi/SiliconTrackerDigi_factory.h"
-#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "factories/tracking/MPGDHitReconstruction_factory.h"
+#include "factories/tracking/TrackerHitReconstruction_factory.h"
 #include "services/geometry/dd4hep/DD4hep_service.h"
 #include "services/log/Log_service.h"
 

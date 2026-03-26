@@ -99,10 +99,10 @@
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
 #include <DDSegmentation/BitFieldCoder.h>
-#include <DDSegmentation/MultiSegmentation.h>
-#include <DDSegmentation/CartesianGridXY.h>
 #include <DDSegmentation/CartesianGridUV.h>
+#include <DDSegmentation/CartesianGridXY.h>
 #include <DDSegmentation/CylindricalGridPhiZ.h>
+#include <DDSegmentation/MultiSegmentation.h>
 #include <DDSegmentation/Segmentation.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
@@ -122,10 +122,11 @@
 #include <podio/detail/Link.h>
 #include <podio/detail/LinkCollectionImpl.h>
 #include <algorithm>
+#include <array>
 #include <cmath>
 #include <cstdint>
-#include <cstring>
 #include <gsl/pointers>
+#include <gsl/util>
 #include <initializer_list>
 #include <iterator>
 #include <map>

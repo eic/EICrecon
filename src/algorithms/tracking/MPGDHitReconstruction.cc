@@ -3,23 +3,27 @@
 
 #include "MPGDHitReconstruction.h"
 
+#include <DD4hep/Detector.h>
+#include <DD4hep/IDDescriptor.h>
+#include <DD4hep/Objects.h>
+#include <DD4hep/Readout.h>
+#include <DDSegmentation/BitFieldCoder.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <Math/GenVector/Cartesian3D.h>
 #include <Math/GenVector/DisplacementVector3D.h>
-#include <algorithms/logger.h>
-#include <edm4eic/CovDiag3f.h>
-
-#include <edm4eic/EDM4eicVersion.h>
-
-#include <edm4hep/Vector3f.h>
-#include <JANA/JException.h>
 // Access "algorithms:GeoSvc"
 #include <algorithms/geo.h>
-#include <fmt/core.h>
-#include <cstddef>
-#include <iterator>
-#include <vector>
+#include <algorithms/logger.h>
+#include <edm4eic/CovDiag3f.h>
+#include <edm4hep/Vector3f.h>
 #include <algorithm>
+#include <array>
+#include <cstddef>
+#include <cstdint>
+#include <iterator>
+#include <stdexcept>
+#include <tuple>
+#include <vector>
 
 using namespace dd4hep;
 
