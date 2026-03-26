@@ -356,7 +356,7 @@ endmacro()
 # Adds IRT PID reconstruction package for a plugin
 macro(plugin_add_irt2 _name)
 
-  if(NOT IRT2_FOUND AND NOT IRT2_NOT_FOUND)
+  if(NOT IRT2_FOUND)
     find_package(IRT2 ${IRT2_VERSION_MIN})
     if(IRT2_FOUND)
       if(${_name}_WITH_LIBRARY)
@@ -368,10 +368,6 @@ macro(plugin_add_irt2 _name)
                                    PRIVATE WITH_IRT2_SUPPORT)
       endif()
       plugin_link_libraries(${PLUGIN_NAME} IRT2)
-    else()
-      set(IRT2_NOT_FOUND
-          TRUE
-          CACHE INTERNAL "Indicates non-availability of the IRT2 library")
     endif()
   endif()
 
