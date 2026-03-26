@@ -55,7 +55,7 @@ void InitPlugin(JApplication* app) {
   const int nMPGDs               = 2;
   const char* MPGD_names[nMPGDs] = {"InnerMPGDBarrel", "MPGDOuterBarrel"};
   for (int mpgd = 0; mpgd < nMPGDs; mpgd++) {
-    std::string MPGD_name(MPGD_names[mpgd]);
+    std::string MPGD_name = gsl::at(MPGD_names,mpgd);
     std::string constantName = MPGD_name + std::string("_2DStrip");
     try {
       auto detector = app->GetService<DD4hep_service>()->detector();
@@ -119,10 +119,10 @@ void InitPlugin(JApplication* app) {
     // Get #channels from XML
     const char* constantNames[] = {"MMnStripsPhi", "MMnStripsZ"};
     for (int phiZ = 0; phiZ < 2; phiZ++) {
-      std::string constantName = std::string(constantNames[phiZ]);
+      std::string constantName = std::string(gsl::at(constantNames,phiZ));
       try {
         auto detector               = app->GetService<DD4hep_service>()->detector();
-        digi_cfg.stripNumbers[phiZ] = detector->constant<int>(constantName);
+        gsl::at(digi_cfg.stripNumbers,phiZ) = detector->constant<int>(constantName);
       } catch (...) {
         throw JException(
             R"(MPGD "%s": Error retrieving #channels from XML: no "%s" constant found.)",
