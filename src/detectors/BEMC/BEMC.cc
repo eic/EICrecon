@@ -63,6 +63,8 @@ void InitPlugin(JApplication* app) {
       1.0, 2 * edm4eic::unit::ns};
   decltype(PulseGenerationConfig::ignore_thres) EcalBarrelScFi_ignore_thres = {5.0e-5};
   decltype(PulseGenerationConfig::timestep) EcalBarrelScFi_timestep = {0.5 * edm4eic::unit::ns};
+  decltype(PulseGenerationConfig::edep_to_npe) EcalBarrelScFi_edep_to_npe =
+      1773.26 / edm4eic::unit::GeV;
 
   decltype(PulseCombinerConfig::combine_field) EcalBarrelScFi_combine_field           = {"grid"};
   decltype(PulseCombinerConfig::minimum_separation) EcalBarrelScFi_minimum_separation = {
@@ -117,6 +119,7 @@ void InitPlugin(JApplication* app) {
           .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
           .ignore_thres         = EcalBarrelScFi_ignore_thres,
           .timestep             = EcalBarrelScFi_timestep,
+          .edep_to_npe          = EcalBarrelScFi_edep_to_npe,
       },
       app // TODO: Remove me once fixed
       ));
@@ -127,6 +130,7 @@ void InitPlugin(JApplication* app) {
           .pulse_shape_params   = EcalBarrelScFi_pulse_shape_params,
           .ignore_thres         = EcalBarrelScFi_ignore_thres,
           .timestep             = EcalBarrelScFi_timestep,
+          .edep_to_npe          = EcalBarrelScFi_edep_to_npe,
       },
       app // TODO: Remove me once fixed
       ));

@@ -5,6 +5,7 @@
 // Convert energy deposition into ADC pulses
 // ADC pulses are assumed to follow the shape of landau function
 
+#include <DDSegmentation/BitFieldCoder.h>
 #include <RtypesCore.h>
 #include <TMath.h>
 #include <algorithms/service.h>
@@ -12,16 +13,20 @@
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4hep/Vector3f.h>
+#include <fmt/format.h>
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
-#include <cstdlib>
+#include <fstream>
 #include <functional>
+#include <memory>
 #include <optional>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include "PulseGeneration.h"
@@ -212,6 +217,55 @@ template <typename HitT> void PulseGeneration<HitT>::init() {
   m_min_sampling_time = m_cfg.min_sampling_time;
 
   m_min_sampling_time = std::max<double>(m_pulse->getMaximumTime(), m_min_sampling_time);
+
+  // Get the field indices and field-dependent conversion factors if necessary
+  if (!m_cfg.readout.empty() && !m_cfg.edep_to_npe_fields.empty() &&
+      !m_cfg.edep_to_npe_filename.empty()) {
+    try {
+      id_spec = m_detector->readout(m_cfg.readout).idSpec();
+    } catch (...) {
+      this->warning("Failed to get idSpec for {}", m_cfg.readout);
+      return;
+    }
+    try {
+      id_dec = id_spec.decoder();
+      for (const auto& field : m_cfg.edep_to_npe_fields) {
+        auto field_idx = id_dec->index(field);
+        m_field_idxs.push_back(field_idx);
+      }
+    } catch (...) {
+      if (id_dec == nullptr) {
+        this->warning("Failed to load ID decoder for {}", m_cfg.readout);
+      } else {
+        this->warning("Failed to find edep-to-npe field indices for {}.", m_cfg.readout);
+      }
+      return;
+    }
+
+    std::string filename = fmt::format("calibrations/{}", m_cfg.edep_to_npe_filename);
+    std::ifstream infile(filename);
+    if (!infile) {
+      this->warning("Unable to open LUT file: {}", filename);
+      return;
+    }
+    std::string line;
+    while (std::getline(infile, line)) {
+      std::istringstream iss(line);
+      std::vector<int> keys;
+      for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); i++) {
+        int value;
+        iss >> value;
+        keys.push_back(value);
+      }
+      double factor;
+      if (!(iss >> factor)) {
+        this->warning("Malformed LUT file: {}", filename);
+        m_edep_to_npe_lut.clear();
+        return;
+      }
+      m_edep_to_npe_lut[keys] = factor;
+    }
+  }
 }
 
 template <typename HitT>
@@ -225,7 +279,15 @@ void PulseGeneration<HitT>::process(
   const bool is_unimodal = m_pulse->isUnimodal();
 
   for (const auto& hit : *simhits) {
-    const auto [time, charge] = HitAdapter<HitT>::getPulseSources(hit);
+    const auto [time, raw_charge] = HitAdapter<HitT>::getPulseSources(hit);
+    double charge                 = raw_charge;
+
+    // Convert energy deposit to the number of photoelectrons if necessary
+    if (m_cfg.edep_to_npe || !m_edep_to_npe_lut.empty()) {
+      double npe = charge * get_edep_to_npe_factor(hit);
+      std::poisson_distribution<> poisson(npe);
+      charge = poisson(m_gen);
+    }
 
     // Calculate nearest timestep to the hit time rounded down (assume clocks aligned with time 0)
     double signal_time = m_cfg.timestep * std::floor(time / m_cfg.timestep);
@@ -298,6 +360,26 @@ void PulseGeneration<HitT>::process(
   }
 
 } // PulseGeneration:process
+
+template <typename HitT>
+double PulseGeneration<HitT>::get_edep_to_npe_factor(const HitT& hit) const {
+  if (m_cfg.edep_to_npe) {
+    return m_cfg.edep_to_npe;
+  } else if (!m_edep_to_npe_lut.empty()) {
+    std::vector<int> field_values;
+    for (std::size_t i = 0; i < m_cfg.edep_to_npe_fields.size(); ++i) {
+      const int value = id_dec != nullptr && !m_cfg.edep_to_npe_fields[i].empty()
+                            ? static_cast<int>(id_dec->get(hit.getCellID(), m_field_idxs[i]))
+                            : -1;
+      field_values.push_back(value);
+    }
+    auto it = m_edep_to_npe_lut.find(field_values);
+    if (it != m_edep_to_npe_lut.end()) {
+      return it->second;
+    }
+  }
+  return 1.;
+}
 
 template class PulseGeneration<edm4hep::SimTrackerHit>;
 template class PulseGeneration<edm4hep::SimCalorimeterHit>;
