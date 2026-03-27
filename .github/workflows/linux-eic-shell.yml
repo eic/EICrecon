@@ -301,13 +301,14 @@ jobs:
         organization: "${{ env.organization }}"
         platform-release: "${{ env.platform }}:${{ env.release }}"
         run: |
+          git diff ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }} --name-only | tee changed_files.txt
           # reduce headers until diff is stable
           i=5
           while [[ $i > 0 && ${sha:-} != $(git diff | sha256sum) ]] ; do
             let i=i-1
             sha=$(git diff | sha256sum)
             echo $sha
-            iwyu_tool.py -p build $(git diff --name-only ${{ github.event.pull_request.head.sha }} ${{ github.event.pull_request.base.sha }}) -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
+            iwyu_tool.py -p build $(cat changed_files.txt | grep -E '\.(cpp|cc|cxx|c\+\+)$' | paste -sd ' ') -- -Xiwyu --verbose=3 -Xiwyu --no_fwd_decls -Xiwyu --cxx17ns -Xiwyu --mapping_file=${{github.workspace}}/.github/iwyu.imp -Xiwyu --regex=ecmascript | tee iwyu_fixes.log
             fix_includes.py --blank_lines --nosafe_headers --reorder --separate_project_includes="<tld>" --keep_iwyu_namespace_format < iwyu_fixes.log
             git diff | tee iwyu_fixes.patch
           done
