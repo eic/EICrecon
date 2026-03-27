@@ -95,7 +95,8 @@ void InitPlugin(JApplication* app) {
       app->SetDefaultParameter(key.Data(), kstring, "Test string");
       // Expect exactly one key; otherwise throw error
       if (kstring.size() != 1)
-        throw JException("RICH detector '%s' requires exactly one config file, got %zu", RICH, kstring.size());
+        throw JException("RICH detector '%s' requires exactly one config file, got %zu", RICH,
+                         kstring.size());
 
       IrtConfig config;
 
@@ -104,7 +105,8 @@ void InitPlugin(JApplication* app) {
       {
         std::ifstream fcfg(kstring[0].c_str());
         if (!fcfg)
-          throw JException("RICH detector '%s' cannot open config file '%s'", RICH, kstring[0].c_str());
+          throw JException("RICH detector '%s' cannot open config file '%s'", RICH,
+                           kstring[0].c_str());
         config.m_json_config = json::parse(fcfg);
         // For less typing;
         json* jptr = &config.m_json_config;
@@ -116,7 +118,9 @@ void InitPlugin(JApplication* app) {
           const auto& aconfig = (*jptr)["Acceptance"];
 
           if (aconfig.find("eta-min") == aconfig.end() || aconfig.find("eta-max") == aconfig.end())
-            throw JException("RICH detector '%s' config missing 'eta-min' or 'eta-max' in Acceptance section", RICH);
+            throw JException(
+                "RICH detector '%s' config missing 'eta-min' or 'eta-max' in Acceptance section",
+                RICH);
 
           config.m_eta_min = aconfig["eta-min"].template get<double>();
           config.m_eta_max = aconfig["eta-max"].template get<double>();
@@ -124,7 +128,9 @@ void InitPlugin(JApplication* app) {
           // and max values have the same sign (and are therefore usable to identify
           // what endcap the detector belongs to);
           if (config.m_eta_min * config.m_eta_max < 0.0)
-            throw JException("RICH detector '%s' eta-min and eta-max must have same sign, got %f and %f", RICH, config.m_eta_min, config.m_eta_max);
+            throw JException(
+                "RICH detector '%s' eta-min and eta-max must have same sign, got %f and %f", RICH,
+                config.m_eta_min, config.m_eta_max);
         }
 
         // And a group of entries describing various radiator parameters;
@@ -136,7 +142,8 @@ void InitPlugin(JApplication* app) {
         {
           config.m_irt_geometry = IRT2::CherenkovDetectorCollection::Instance();
           if (!config.m_irt_geometry)
-            throw JException("RICH detector '%s' failed to get CherenkovDetectorCollection instance", RICH);
+            throw JException(
+                "RICH detector '%s' failed to get CherenkovDetectorCollection instance", RICH);
 
           auto cdet = config.m_irt_geometry->GetDetector(RICH);
           if (!cdet)
@@ -170,7 +177,8 @@ void InitPlugin(JApplication* app) {
 
             unsigned numPlanes = rrconfig["acts-planes"].template get<int>();
             if (!numPlanes)
-              throw JException("RICH detector '%s' radiator '%s' has zero acts-planes", RICH, name.Data());
+              throw JException("RICH detector '%s' radiator '%s' has zero acts-planes", RICH,
+                               name.Data());
 
             double theta_min = 2 * std::atan(exp(-config.m_eta_min));
             double theta_max = 2 * std::atan(exp(-config.m_eta_max));
