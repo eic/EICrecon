@@ -12,10 +12,14 @@
 #include <edm4eic/MCRecoParticleAssociation.h>
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4hep/MCParticle.h>
+#include <fmt/core.h>
+#include <functional>
 #include <map>
 #include <memory>
-#include <string>
+#include <tuple>
 #include <vector>
+
+#include "algorithms/interfaces/WithPodConfig.h"
 
 #include "algorithms/reco/HadronicFinalState.h"
 #include "algorithms/reco/InclusiveKinematicsDA.h"
@@ -23,10 +27,11 @@
 #include "algorithms/reco/InclusiveKinematicsElectron.h"
 #include "algorithms/reco/InclusiveKinematicsJB.h"
 #include "algorithms/reco/InclusiveKinematicsSigma.h"
+#include "algorithms/meta/SubDivideFunctors.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/meta/CollectionCollector_factory.h"
 #include "factories/meta/FilterMatching_factory.h"
-#include "factories/reco/ChargedReconstructedParticleSelector_factory.h"
+#include "factories/meta/SubDivideCollection_factory.h"
 #include "factories/reco/FarForwardLambdaReconstruction_factory.h"
 #include "factories/reco/FarForwardNeutralsReconstruction_factory.h"
 #include "factories/reco/HadronicFinalState_factory.h"
@@ -152,8 +157,11 @@ void InitPlugin(JApplication* app) {
       "ReconstructedJets", {"EventHeader", "ReconstructedParticles"}, {"ReconstructedJets"}, {},
       app));
 
-  app->Add(new JOmniFactoryGeneratorT<ChargedReconstructedParticleSelector_factory>(
-      "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"}, app));
+  app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::ReconstructedParticle>>(
+      "GeneratedChargedParticles", {"GeneratedParticles"}, {"GeneratedChargedParticles"},
+      {.function = BooleanSplit<&edm4eic::ReconstructedParticle::getCharge>{std::tuple{0.0},
+                                                                            std::not_equal_to{}}},
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<JetReconstruction_factory<edm4eic::ReconstructedParticle>>(
       "GeneratedChargedJets", {"EventHeader", "GeneratedChargedParticles"},
