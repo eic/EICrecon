@@ -127,6 +127,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "CombinedTOFParticleIDs",
 
       // DRICH
+      "DRICHHits", // referenced by associations
       "DRICHRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "DRICHRawHitsLinks",
@@ -140,6 +141,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "DRICHParticleIDs",
 
       // PFRICH
+      "RICHEndcapNHits", // referenced by associations
       "RICHEndcapNRawHits",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
       "RICHEndcapNRawHitsLinks",
