@@ -1,0 +1,71 @@
+// SPDX-License-Identifier: LGPL-3.0-or-later
+// Copyright (C) 2025 Derek Anderson
+
+#pragma once
+
+#include <algorithms/algorithm.h>
+#include <edm4eic/ClusterCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/TrackClusterLinkCollection.h>
+#endif
+#include <edm4eic/TrackClusterMatchCollection.h>
+#include <edm4eic/TrackSegmentCollection.h>
+#include <podio/ObjectID.h>
+#include <map>
+#include <string>
+#include <string_view>
+#include <vector>
+
+#include "TrackClusterSubtractorConfig.h"
+#include "algorithms/interfaces/WithPodConfig.h"
+#include "services/particle/ParticleSvc.h"
+
+namespace eicrecon {
+
+using TrackClusterSubtractorAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
+                      edm4eic::TrackSegmentCollection>,
+    algorithms::Output<edm4eic::ClusterCollection, edm4eic::ClusterCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                       edm4eic::TrackClusterLinkCollection>>;
+#else
+                       edm4eic::TrackClusterMatchCollection>>;
+#endif
+
+// ==========================================================================
+//! Track-Cluster Subtraction
+// ==========================================================================
+/*! An algorithm which takes a collection of clusters and their matched
+ *  tracks, subtracts the sum of all tracks pointing to the cluster,
+ *  and outputs the remnant clusters, expected clusters, and their matched
+ *  tracks.
+ */
+class TrackClusterSubtractor : public TrackClusterSubtractorAlgorithm,
+                               public WithPodConfig<TrackClusterSubtractorConfig> {
+
+public:
+  ///! Algorithm constructor
+  TrackClusterSubtractor(std::string_view name)
+      : TrackClusterSubtractorAlgorithm{
+            name,
+            {"inputTrackClusterMatches", "inputClusters", "inputTrackProjections"},
+            {"outputRemnantClusterCollection", "outputExpectedClusterCollection",
+             "outputTrackExpectedClusterMatches"},
+            "Subtracts energy of tracks pointing to clusters."} {}
+
+  void process(const Input&, const Output&) const final;
+
+private:
+  ///! Alias for vectors of track segments
+  using segment_vector = std::vector<edm4eic::TrackSegment>;
+
+  double sum_track_energy(const segment_vector& projections) const;
+  bool is_zero(const double difference) const;
+
+  ///! Particle service instance for retrieving specified mass hypothesis
+  const algorithms::ParticleSvc& m_parSvc = algorithms::ParticleSvc::instance();
+
+}; // end TrackClusterSubtractor
+
+} // namespace eicrecon
