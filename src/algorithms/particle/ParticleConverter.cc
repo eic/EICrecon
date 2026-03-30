@@ -91,21 +91,21 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
       }
 
       track = particle.getTracks()[0];
-    }
 
-    if (track.getChi2() > 0) {
-      hasTrack = true;
+      if (track.getChi2() > 0) {
+        hasTrack = true;
 
-      trackMomentum = track.getMomentum();
-      prelimPID     = track.getPdg();
-      trackMass     = m_particleSvc.particle(prelimPID).mass;
+        trackMomentum = track.getMomentum();
+        prelimPID     = track.getPdg();
+        trackMass     = m_particleSvc.particle(prelimPID).mass;
 
-      trackMomentumMag = std::sqrt(std::pow(trackMomentum.x, 2) + std::pow(trackMomentum.y, 2) +
-                                   std::pow(trackMomentum.z, 2));
+        trackMomentumMag = std::sqrt(std::pow(trackMomentum.x, 2) + std::pow(trackMomentum.y, 2) +
+                                     std::pow(trackMomentum.z, 2));
 
-      trackEnergy = std::sqrt(std::pow(trackMomentumMag, 2) + std::pow(trackMass, 2));
+        trackEnergy = std::sqrt(std::pow(trackMomentumMag, 2) + std::pow(trackMass, 2));
 
-      reconstructedMomentum = trackMomentum;
+        reconstructedMomentum = trackMomentum;
+      }
     }
 
     // Looking for clusters
