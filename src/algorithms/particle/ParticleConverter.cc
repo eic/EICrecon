@@ -83,6 +83,8 @@ void ParticleConverter::process(const Input& input, const Output& output) const 
     edm4eic::Track track;
 
     if (nTracks > 0) {
+      // FIXME: this can be improved! Should sort tracks and
+      // use "best" fit for combination of tracks + clusters
       if (nTracks > 1) {
         trace("Particle candidate {} has {} related tracks. Using first.",
               particle.getObjectID().index, nTracks);
