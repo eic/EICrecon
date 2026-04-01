@@ -194,35 +194,36 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
 
-        app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
-          "HcalFarForwardZDCSubcellHits", {"HcalFarForwardZDCRecHits"}, {"HcalFarForwardZDCSubcellHits"},
-          {
-            .MIP = 472. * dd4hep::keV,
-            .Emin_in_MIPs=0.5,
-            .delta_in_MIPs=0.01,
-            .tmax=269 * dd4hep::ns,
-	    .stag_type=HEXPLITConfig::StaggerType::S2,
-          },
-          app   // TODO: Remove me once fixed
-        ));
+  app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
+      "HcalFarForwardZDCSubcellHits", {"HcalFarForwardZDCRecHits"},
+      {"HcalFarForwardZDCSubcellHits"},
+      {
+          .MIP           = 472. * dd4hep::keV,
+          .Emin_in_MIPs  = 0.5,
+          .delta_in_MIPs = 0.01,
+          .tmax          = 269 * dd4hep::ns,
+          .stag_type     = HEXPLITConfig::StaggerType::S2,
+      },
+      app // TODO: Remove me once fixed
+      ));
 
-  double side_length=48.8 * dd4hep::mm;
+  double side_length = 48.8 * dd4hep::mm;
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
-            "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"}, {"HcalFarForwardZDCImagingProtoClusters"},
-            {
-	      .neighbourLayersRange = 1,
-                .sameLayerDistXY = {side_length*0.75, side_length*0.75},
-                .diffLayerDistXY = {side_length*0.75, side_length*0.75},
-                .sameLayerMode=eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
-		            .diffLayerMode=eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
-		            .sectorDist = 10.0 * dd4hep::cm,
-                .minClusterHitEdep = 235.0 * dd4hep::keV,
-                .minClusterCenterEdep = 18.8 * dd4hep::MeV,
-                .minClusterEdep = 11.0 * dd4hep::MeV,
-                .minClusterNhits = 30,
-            },
-            app));
-
+      "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"},
+      {"HcalFarForwardZDCImagingProtoClusters"},
+      {
+          .neighbourLayersRange = 1,
+          .sameLayerDistXY      = {side_length * 0.75, side_length * 0.75},
+          .diffLayerDistXY      = {side_length * 0.75, side_length * 0.75},
+          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
+          .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
+          .sectorDist           = 10.0 * dd4hep::cm,
+          .minClusterHitEdep    = 235.0 * dd4hep::keV,
+          .minClusterCenterEdep = 18.8 * dd4hep::MeV,
+          .minClusterEdep       = 11.0 * dd4hep::MeV,
+          .minClusterNhits      = 30,
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "HcalFarForwardZDCIslandProtoClusters", {"HcalFarForwardZDCSubcellHits"},

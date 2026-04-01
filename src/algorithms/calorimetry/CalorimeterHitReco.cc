@@ -270,22 +270,23 @@ void CalorimeterHitReco::process(const CalorimeterHitReco::Input& input,
       segmentation_type = segmentation->type();
     }
 
-    if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY" || segmentation_type== "CartesianGridXYStaggered") {
-        auto cell_dim = m_converter->cellDimensions(cellID);
-        cdim.resize(3);
-        cdim[0] = cell_dim[0];
-        cdim[1] = cell_dim[1];
-        debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
+    if (segmentation_type == "CartesianGridXY" || segmentation_type == "HexGridXY" ||
+        segmentation_type == "CartesianGridXYStaggered") {
+      auto cell_dim = m_converter->cellDimensions(cellID);
+      cdim.resize(3);
+      cdim[0] = cell_dim[0];
+      cdim[1] = cell_dim[1];
+      debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
     } else if (segmentation_type == "CartesianStripZ") {
-        auto cell_dim = m_converter->cellDimensions(cellID);
-        cdim.resize(3);
-        cdim[2] = cell_dim[0];
-        debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
+      auto cell_dim = m_converter->cellDimensions(cellID);
+      cdim.resize(3);
+      cdim[2] = cell_dim[0];
+      debug("Using segmentation for cell dimensions: {}", fmt::join(cdim, ", "));
     } else {
-        if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
-            warning("Unsupported segmentation type \"{}\"", segmentation_type);
-            warned_unsupported_segmentation = true;
-        }
+      if ((segmentation_type != "NoSegmentation") && (!warned_unsupported_segmentation)) {
+        warning("Unsupported segmentation type \"{}\"", segmentation_type);
+        warned_unsupported_segmentation = true;
+      }
 
       // Using bounding box instead of actual solid so the dimensions are always in dim_x, dim_y, dim_z
       cdim =

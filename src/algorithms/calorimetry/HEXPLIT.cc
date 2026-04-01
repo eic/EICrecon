@@ -25,7 +25,7 @@
 namespace eicrecon {
 
 //positions where the overlapping cells are relative to a given cell (in units of hexagon side length)
-const std::vector<double> HEXPLIT::neighbor_offsets_x_H4 =[]() {
+const std::vector<double> HEXPLIT::neighbor_offsets_x_H4 = []() {
   std::vector<double> x;
   double rs[2]      = {1.5, std::numbers::sqrt3 / 2.};
   double offsets[2] = {0, M_PI / 2};
@@ -37,7 +37,7 @@ const std::vector<double> HEXPLIT::neighbor_offsets_x_H4 =[]() {
   return x;
 }();
 
-const std::vector<double> HEXPLIT::neighbor_offsets_y_H4 =[]() {
+const std::vector<double> HEXPLIT::neighbor_offsets_y_H4 = []() {
   std::vector<double> y;
   double rs[2]      = {1.5, std::numbers::sqrt3 / 2.};
   double offsets[2] = {0, M_PI / 2};
@@ -51,11 +51,11 @@ const std::vector<double> HEXPLIT::neighbor_offsets_y_H4 =[]() {
 
 //indices of the neighboring cells which overlap to produce a given subcell
 const std::vector<std::vector<int>> HEXPLIT::neighbor_indices_H4 = {
-  {0, 11, 10}, {1, 6, 11}, {2, 7, 6}, {3, 8, 7},  {4, 9, 8},   {5, 10, 9},
-  {6, 11, 7},  {7, 6, 8},  {8, 7, 9}, {9, 8, 10}, {10, 9, 11}, {11, 10, 6}};
+    {0, 11, 10}, {1, 6, 11}, {2, 7, 6}, {3, 8, 7},  {4, 9, 8},   {5, 10, 9},
+    {6, 11, 7},  {7, 6, 8},  {8, 7, 9}, {9, 8, 10}, {10, 9, 11}, {11, 10, 6}};
 
 //positions of the centers of subcells
-const std::vector<double> HEXPLIT::subcell_offsets_x_H4 =[]() {
+const std::vector<double> HEXPLIT::subcell_offsets_x_H4 = []() {
   std::vector<double> x;
   double rs[2]      = {0.75, std::numbers::sqrt3 / 4.};
   double offsets[2] = {0, M_PI / 2};
@@ -67,8 +67,7 @@ const std::vector<double> HEXPLIT::subcell_offsets_x_H4 =[]() {
   return x;
 }();
 
-
-const std::vector<double> HEXPLIT::subcell_offsets_y_H4 =[]() {
+const std::vector<double> HEXPLIT::subcell_offsets_y_H4 = []() {
   std::vector<double> y;
   double rs[2]      = {0.75, std::numbers::sqrt3 / 4.};
   double offsets[2] = {0, M_PI / 2};
@@ -81,27 +80,26 @@ const std::vector<double> HEXPLIT::subcell_offsets_y_H4 =[]() {
 }();
 
 const std::vector<double> HEXPLIT::neighbor_offsets_x_S2 = {1, -1, -1, 1};
-const std::vector<double> HEXPLIT::neighbor_offsets_y_S2 = {1, 1,-1,-1};
+const std::vector<double> HEXPLIT::neighbor_offsets_y_S2 = {1, 1, -1, -1};
 
-const std::vector<std::vector<int>> HEXPLIT::neighbor_indices_S2={{0},{1},{2},{3}};
+const std::vector<std::vector<int>> HEXPLIT::neighbor_indices_S2 = {{0}, {1}, {2}, {3}};
 
 const std::vector<double> HEXPLIT::subcell_offsets_x_S2 = {0.5, -0.5, -0.5, 0.5};
-const std::vector<double> HEXPLIT::subcell_offsets_y_S2 = {0.5, 0.5,-0.5,-0.5};
+const std::vector<double> HEXPLIT::subcell_offsets_y_S2 = {0.5, 0.5, -0.5, -0.5};
 
 void HEXPLIT::init() {
-  if (m_cfg.stag_type==HEXPLITConfig::StaggerType::H4){
-    stag=stag_H4;
-  } else if (m_cfg.stag_type==HEXPLITConfig::StaggerType::S2){
-    stag=stag_S2;
-  } else if (m_cfg.stag_type==HEXPLITConfig::StaggerType::H3){
+  if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H4) {
+    stag = stag_H4;
+  } else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::S2) {
+    stag = stag_S2;
+  } else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H3) {
     std::cout << "error   H3 staggering not implemented yet in EICrecon" << std::endl;
   }
 }
 
-void HEXPLIT::process(const HEXPLIT::Input& input,
-                      const HEXPLIT::Output& output) const {
-  
-  const auto [hits] = input;
+void HEXPLIT::process(const HEXPLIT::Input& input, const HEXPLIT::Output& output) const {
+
+  const auto [hits]  = input;
   auto [subcellHits] = output;
 
   double MIP   = m_cfg.MIP / dd4hep::GeV;
@@ -144,39 +142,40 @@ void HEXPLIT::process(const HEXPLIT::Input& input,
 
       //loop over locations of the neighboring cells
       //and check if the jth hit matches this location
-      for(int k=0;k<stag.NEIGHBORS;k++){
-        if(std::abs(dx - stag.neighbor_offsets_x[k]) < tol &&
-           std::abs(dy - stag.neighbor_offsets_y[k]) < tol){
+      for (int k = 0; k < stag.NEIGHBORS; k++) {
+        if (std::abs(dx - stag.neighbor_offsets_x[k]) < tol &&
+            std::abs(dy - stag.neighbor_offsets_y[k]) < tol) {
           Eneighbors[k] += other_hit.getEnergy();
           break;
         }
       }
     }
-    
+
     double weights[stag.SUBCELLS];
-    for(int k = 0; k < stag.NEIGHBORS; k++){
+    for (int k = 0; k < stag.NEIGHBORS; k++) {
       Eneighbors[k] = std::max(Eneighbors[k], delta);
     }
     double sum_weights = 0;
-    if (m_cfg.stag_type==HEXPLITConfig::StaggerType::H4)
-      for(int k = 0; k < stag.SUBCELLS; k++){
-        weights[k] = Eneighbors[stag.neighbor_indices[k][0]] * Eneighbors[stag.neighbor_indices[k][1]] *
-                   Eneighbors[stag.neighbor_indices[k][2]];
+    if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H4)
+      for (int k = 0; k < stag.SUBCELLS; k++) {
+        weights[k] = Eneighbors[stag.neighbor_indices[k][0]] *
+                     Eneighbors[stag.neighbor_indices[k][1]] *
+                     Eneighbors[stag.neighbor_indices[k][2]];
         sum_weights += weights[k];
       }
-    else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::S2){
-      for(int k = 0; k < stag.SUBCELLS; k++){
+    else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::S2) {
+      for (int k = 0; k < stag.SUBCELLS; k++) {
         weights[k] = Eneighbors[stag.neighbor_indices[k][0]];
         sum_weights += weights[k];
       }
-    }
-    else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H3){
-      for(int k = 0; k < stag.SUBCELLS; k++){
-        weights[k] = Eneighbors[stag.neighbor_indices[k][0]] * Eneighbors[stag.neighbor_indices[k][1]];
+    } else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H3) {
+      for (int k = 0; k < stag.SUBCELLS; k++) {
+        weights[k] =
+            Eneighbors[stag.neighbor_indices[k][0]] * Eneighbors[stag.neighbor_indices[k][1]];
         sum_weights += weights[k];
       }
     }
-    for(int k = 0; k < stag.SUBCELLS;k++){
+    for (int k = 0; k < stag.SUBCELLS; k++) {
 
       //create the subcell hits.  First determine their positions in local coordinates.
       const decltype(edm4eic::CalorimeterHitData::local) local(
