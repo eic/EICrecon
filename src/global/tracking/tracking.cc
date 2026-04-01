@@ -247,18 +247,6 @@ void InitPlugin(JApplication* app) {
                                                                 },
                                                                 {}, app));
 
-  app->Add(
-      new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>("CentralTrack4HitCutVertices",
-                                                                {
-                                                                    "CentralCKFActsTrackStates",
-                                                                    "CentralCKFActsTracks",
-                                                                    "ReconstructedChargedParticles",
-                                                                },
-                                                                {
-                                                                    "CentralTrack4HitCutVertices",
-                                                                },
-                                                                {.minTrackHits = 4}, app));
-
   app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
       "CalorimeterTrackPropagator",
       {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
