@@ -459,18 +459,6 @@ void InitPlugin(JApplication* app) {
       },
       {}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
-      "CentralAndB0Track4HitCutVertices",
-      {
-          "CentralAndB0TrackerCKFActsTrackStates",
-          "CentralAndB0TrackerCKFActsTracks",
-          "ReconstructedChargedParticles",
-      },
-      {
-          "CentralAndB0Track4HitCutVertices",
-      },
-      {.minTrackHits = 4}, app));
-
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
       "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
