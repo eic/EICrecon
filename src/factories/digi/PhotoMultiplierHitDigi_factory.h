@@ -5,6 +5,7 @@
 
 #include <JANA/JEvent.h>
 #include <edm4eic/MCRecoTrackerHitAssociationCollection.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/RawTrackerHitCollection.h>
 #include <memory>
 #include <string>
@@ -36,6 +37,9 @@ private:
   PodioInput<edm4hep::EventHeader> m_event_headers_input{this};
   PodioInput<edm4hep::SimTrackerHit> m_sim_hits_input{this};
   PodioOutput<edm4eic::RawTrackerHit> m_raw_hits_output{this};
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  PodioOutput<edm4eic::MCRecoTrackerHitLink> m_links_output{this};
+#endif
   PodioOutput<edm4eic::MCRecoTrackerHitAssociation> m_raw_assocs_output{this};
 
   ParameterRef<std::string> m_detectorName{this, "detectorName", config().detectorName, ""};
@@ -85,8 +89,11 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process({m_event_headers_input(), m_sim_hits_input()},
-                    {m_raw_hits_output().get(), m_raw_assocs_output().get()});
+    m_algo->process({m_event_headers_input(), m_sim_hits_input()}, {m_raw_hits_output().get(),
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                                    m_links_output().get(),
+#endif
+                                                                    m_raw_assocs_output().get()});
   }
 };
 

@@ -12,4 +12,4 @@ plugin_glob_all(${PLUGIN_NAME})
 # Find dependencies
 plugin_add_algorithms(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
-plugin_link_libraries(${PLUGIN_NAME} particle_service_library)
+plugin_link_libraries(${PLUGIN_NAME} particle_service_library pid_lut_library)

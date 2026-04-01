@@ -16,7 +16,8 @@
 
 namespace eicrecon {
 
-class InclusiveKinematicsTruth_factory : public JOmniFactory<InclusiveKinematicsTruth_factory> {
+class InclusiveKinematicsTruth_factory
+    : public JOmniFactory<InclusiveKinematicsTruth_factory, NoConfig> {
 
 public:
   using AlgoT = eicrecon::InclusiveKinematicsTruth;
@@ -33,6 +34,7 @@ public:
   void Configure() {
     m_algo = std::make_unique<AlgoT>(GetPrefix());
     m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
+    m_algo->applyConfig(config());
     m_algo->init();
   }
 
