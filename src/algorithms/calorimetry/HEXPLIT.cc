@@ -15,8 +15,9 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <gsl/pointers> // for not_null
+#include <iostream>
 #include <numbers>
+#include <tuple>
 #include <vector>
 
 #include "HEXPLIT.h"
