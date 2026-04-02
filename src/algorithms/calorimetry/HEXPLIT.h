@@ -90,20 +90,16 @@ private:
   static const std::vector<double> subcell_offsets_y_S2;
 
   const stagger_pattern stag_S2 = {
-      .SUBCELLS           = SUBCELLS_S2,
-      .NEIGHBORS          = NEIGHBORS_S2,
-      .OVERLAP            = OVERLAP_S2;
-      .neighbor_offsets_x = neighbor_offsets_x_S2,
-      .neighbor_offsets_y = neighbor_offsets_y_S2,
-      .neighbor_indices   = neighbor_indices_S2,
-      .subcell_offsets_x  = subcell_offsets_x_S2,
-      .subcell_offsets_y  = subcell_offsets_y_S2,
-  };
+    .SUBCELLS = SUBCELLS_S2, .NEIGHBORS = NEIGHBORS_S2, .OVERLAP = OVERLAP_S2;
+  .neighbor_offsets_x = neighbor_offsets_x_S2, .neighbor_offsets_y = neighbor_offsets_y_S2,
+  .neighbor_indices = neighbor_indices_S2, .subcell_offsets_x = subcell_offsets_x_S2,
+  .subcell_offsets_y = subcell_offsets_y_S2,
+};
 
-  stagger_pattern stag = stag_H4;
+stagger_pattern stag = stag_H4;
 
 private:
-  const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
-};
+const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
+}; // namespace eicrecon
 
 } // namespace eicrecon
