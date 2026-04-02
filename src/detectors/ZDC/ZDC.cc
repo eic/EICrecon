@@ -233,7 +233,7 @@ void InitPlugin(JApplication* app) {
        .readout{},
        .sectorDist  = 1.5 * dd4hep::cm,
        .localDistXY = {"0.55 * HcalFarForwardZDC_SiPMonTile_SquareSideLength",
-                       "0.55 * HcalFarForwardZDC_SiPMonTile_SquareSideLength * sin(pi / 3)"},
+                       "0.55 * HcalFarForwardZDC_SiPMonTile_SquareSideLength"},
        .localDistXZ{},
        .localDistYZ{},
        .globalDistRPhi{},
