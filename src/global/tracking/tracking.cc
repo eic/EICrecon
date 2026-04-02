@@ -318,9 +318,9 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
       },
-    {
-      .numMeasurementsMin = 3,
-    },
+      {
+          .numMeasurementsMin = 3,
+      },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
@@ -351,10 +351,10 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTruthSeededActsTrackStates",
           "B0TrackerCKFTruthSeededActsTracks",
       },
-          {
-      .n_measurements_min = 3,
-    },
-    app));
+      {
+          .n_measurements_min = 3,
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
       "B0TrackerCKFTruthSeededTracks",
