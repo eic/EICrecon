@@ -67,6 +67,7 @@ private:
   const stagger_pattern stag_H4 = {
       .SUBCELLS           = SUBCELLS_H4,
       .NEIGHBORS          = NEIGHBORS_H4,
+      .OVERLAP            = OVERLAP_H4,
       .neighbor_offsets_x = neighbor_offsets_x_H4,
       .neighbor_offsets_y = neighbor_offsets_y_H4,
       .neighbor_indices   = neighbor_indices_H4,
@@ -91,6 +92,7 @@ private:
   const stagger_pattern stag_S2 = {
       .SUBCELLS           = SUBCELLS_S2,
       .NEIGHBORS          = NEIGHBORS_S2,
+      .OVERLAP            = OVERLAP_S2;
       .neighbor_offsets_x = neighbor_offsets_x_S2,
       .neighbor_offsets_y = neighbor_offsets_y_S2,
       .neighbor_indices   = neighbor_indices_S2,
