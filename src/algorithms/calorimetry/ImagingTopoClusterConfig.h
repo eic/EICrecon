@@ -16,13 +16,14 @@ struct ImagingTopoClusterConfig {
   // maximum difference in layer numbers that can be considered as neighbours
   int neighbourLayersRange = 1;
   // maximum distance of global (x, y) to be considered as neighbors at same layers (if layerMode==xy)
-  std::vector<double> sameLayerDistXY = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
+  std::vector<std::variant<std::string, double>> sameLayerDistXY = {1.0 * dd4hep::mm,
+								   1.0 * dd4hep::mm};
   // maximum distance of global (eta, phi) to be considered as neighbors at same layers (if layerMode==etaphi)
   std::vector<double> sameLayerDistEtaPhi = {0.01, 0.01};
   // maximum distance of global (t, z) to be considered as neighbors at same layers (if layerMode==tz)
   std::vector<double> sameLayerDistTZ = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
   // maximum distance of global (x, y) to be considered as neighbors at different layers (if layerMode==xy)
-  std::vector<double> diffLayerDistXY = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
+  std::vector<std::variant<std::string, double>> diffLayerDistXY = {1.0 * dd4hep::mm, 1.0 * dd4hep::mm};
   // maximum distance of global (eta, phi) to be considered as neighbors at different layers (if layerMode==etaphi)
   std::vector<double> diffLayerDistEtaPhi = {0.01, 0.01};
   // maximum distance of global (t, z) to be considered as neighbors at different layers (if layerMode==tz)
