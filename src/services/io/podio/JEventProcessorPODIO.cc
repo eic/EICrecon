@@ -289,7 +289,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       // Central tracking
       "CentralTrackSegments",
       "CentralTrackVertices",
-      "CentralTrack4HitCutVertices",
       "CentralCKFTruthSeededTrajectories",
       "CentralCKFTruthSeededTracks",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -354,7 +353,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "B0TrackerCKFTrackUnfilteredAssociations",
 
       "CentralAndB0TrackVertices",
-      "CentralAndB0Track4HitCutVertices",
 
       // Inclusive kinematics
       "InclusiveKinematicsDA",
@@ -375,7 +373,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ScatteredElectronsTruth",
       "ScatteredElectronsEMinusPz",
       "PrimaryVertices",
-      "Primary4HitCutVertices",
       "SecondaryVerticesHelix",
       "BarrelClusters",
       "HadronicFinalState",
