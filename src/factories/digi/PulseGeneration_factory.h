@@ -41,6 +41,14 @@ private:
       this, "minSamplingTime", this->config().min_sampling_time};
   typename FactoryT::template ParameterRef<uint32_t> m_max_time_bins{this, "maxTimeBins",
                                                                      this->config().max_time_bins};
+  typename FactoryT::template ParameterRef<std::string> m_readout{this, "readout",
+                                                                  this->config().readout};
+  typename FactoryT::template ParameterRef<std::vector<std::string>> m_edep_to_npe_fields{
+      this, "edepToNpeFields", this->config().edep_to_npe_fields};
+  typename FactoryT::template ParameterRef<std::string> m_edep_to_npe_filename{
+      this, "fileName", this->config().edep_to_npe_filename};
+  typename FactoryT::template ParameterRef<double> m_edep_to_npe{this, "edepToNpe",
+                                                                 this->config().edep_to_npe};
 
   typename FactoryT::template Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
