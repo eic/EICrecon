@@ -86,6 +86,9 @@ plugin_glob_all(${PLUGIN_NAME})
 # Add include directories (works same as target_include_directories)
 plugin_include_directories(${PLUGIN_NAME} PRIVATE ${PROJECT_BINARY_DIR}/include)
 
+# Find dependencies
+plugin_add_jana(${PLUGIN_NAME})
+
 # Add libraries (works same as target_include_directories)
 plugin_link_libraries(
   ${PLUGIN_NAME}
@@ -94,6 +97,7 @@ plugin_link_libraries(
   EDM4HEP::edm4hepDict
   EDM4EIC::edm4eic
   EDM4EIC::edm4eic_utils
+  podio::podio
   podio::podioIO
   $<TARGET_NAME_IF_EXISTS:${Acts_NAMESPACE_PREFIX}PluginPodio>
   $<TARGET_NAME_IF_EXISTS:ActsPodioEdm>
