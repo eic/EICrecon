@@ -25,6 +25,7 @@ std::vector<std::string> EICRECON_DEFAULT_PLUGINS = {
     "beam",
     "reco",
     "tracking",
+    "particle_flow",
     "pid",
     "global_pid_lut",
     "EEMC",
