@@ -3,12 +3,13 @@
 
 #include <Evaluator/DD4hepUnits.h>
 #include <JANA/JApplicationFwd.h>
-#include <edm4eic/EDM4eicVersion.h>
 #include <JANA/Utils/JTypeInfo.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <string>
 #include <variant>
 #include <vector>
 
+#include "algorithms/calorimetry/HEXPLITConfig.h"
 #include "algorithms/calorimetry/ImagingTopoClusterConfig.h"
 #include "extensions/jana/JOmniFactoryGeneratorT.h"
 #include "factories/calorimetry/CalorimeterClusterRecoCoG_factory.h"
@@ -194,36 +195,36 @@ void InitPlugin(JApplication* app) {
       app // TODO: Remove me once fixed
       ));
 
-  app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>("HcalFarForwardZDCSubcellHits",
-                                                       {"HcalFarForwardZDCRecHits"},
-                                                       {"HcalFarForwardZDCSubcellHits"},
-                                                       {
-                                                           .MIP           = 472. * dd4hep::keV,
-                                                           .Emin_in_MIPs  = 0.5,
-                                                           .delta_in_MIPs = 0.01,
-                                                           .tmax          = 269 * dd4hep::ns,
-                                                       },
-                                                       app // TODO: Remove me once fixed
-                                                       ));
+  app->Add(new JOmniFactoryGeneratorT<HEXPLIT_factory>(
+      "HcalFarForwardZDCSubcellHits", {"HcalFarForwardZDCRecHits"},
+      {"HcalFarForwardZDCSubcellHits"},
+      {
+          .MIP           = 472. * dd4hep::keV,
+          .Emin_in_MIPs  = 0.5,
+          .delta_in_MIPs = 0.01,
+          .tmax          = 269 * dd4hep::ns,
+          .stag_type     = HEXPLITConfig::StaggerType::S2,
+      },
+      app // TODO: Remove me once fixed
+      ));
 
+  double side_length = 48.8 * dd4hep::mm;
   app->Add(new JOmniFactoryGeneratorT<ImagingTopoCluster_factory>(
       "HcalFarForwardZDCImagingProtoClusters", {"HcalFarForwardZDCSubcellHits"},
       {"HcalFarForwardZDCImagingProtoClusters"},
       {
           .neighbourLayersRange = 1,
-          .sameLayerDistXY   = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
-                                "0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
-          .diffLayerDistXY   = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
-                                "0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
-          .sameLayerMode     = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
-          .sectorDist        = 10.0 * dd4hep::cm,
-          .minClusterHitEdep = 50.0 * dd4hep::keV,
-          .minClusterCenterEdep = 3.0 * dd4hep::MeV,
+          .sameLayerDistXY      = {side_length * 0.75, side_length * 0.75},
+          .diffLayerDistXY      = {side_length * 0.75, side_length * 0.75},
+          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
+          .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
+          .sectorDist           = 10.0 * dd4hep::cm,
+          .minClusterHitEdep    = 235.0 * dd4hep::keV,
+          .minClusterCenterEdep = 18.8 * dd4hep::MeV,
           .minClusterEdep       = 11.0 * dd4hep::MeV,
           .minClusterNhits      = 30,
       },
-      app // TODO: Remove me once fixed
-      ));
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterIslandCluster_factory>(
       "HcalFarForwardZDCIslandProtoClusters", {"HcalFarForwardZDCSubcellHits"},
@@ -232,8 +233,8 @@ void InitPlugin(JApplication* app) {
        .peakNeighbourhoodMatrix{},
        .readout{},
        .sectorDist  = 1.5 * dd4hep::cm,
-       .localDistXY = {"0.9 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
-                       "0.76 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
+       .localDistXY = {"0.55 * HcalFarForwardZDC_SiPMonTile_SquareSideLength",
+                       "0.55 * HcalFarForwardZDC_SiPMonTile_SquareSideLength"},
        .localDistXZ{},
        .localDistYZ{},
        .globalDistRPhi{},
