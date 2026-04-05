@@ -199,7 +199,7 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCSubcellHits", {"HcalFarForwardZDCRecHits"},
       {"HcalFarForwardZDCSubcellHits"},
       {
-          .MIP           = 472. * dd4hep::keV,
+          .MIP           = 630. * dd4hep::keV,
           .Emin_in_MIPs  = 0.5,
           .delta_in_MIPs = 0.01,
           .tmax          = 269 * dd4hep::ns,
