@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Derek Anderson, Dmitry Kalinkin
+// Copyright (C) 2026 Derek Anderson, Dmitry Kalinkin
 
 #pragma once
 
@@ -9,13 +9,12 @@
 #include <edm4eic/EDM4eicVersion.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <edm4eic/TrackClusterMatchCollection.h>
-#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/TrackProtoClusterLinkCollection.h>
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
 #include <edm4eic/TrackProtoClusterMatchCollection.h>
 #endif
-#include <edm4eic/Track.h>
-#include <edm4eic/TrackPoint.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <algorithm>
 #include <map>
 #include <optional>
 #include <set>
@@ -24,25 +23,25 @@
 #include <vector>
 
 #include "TrackClusterMergeSplitterConfig.h"
+#include "algorithms/interfaces/CompareObjectID.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
 namespace eicrecon {
 
-// --------------------------------------------------------------------------
-//! Algorithm input/output
-// --------------------------------------------------------------------------
 using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
                       edm4eic::TrackSegmentCollection>,
-#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    algorithms::Output<edm4eic::ProtoClusterCollection, edm4eic::TrackProtoClusterLinkCollection>>;
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
     algorithms::Output<edm4eic::ProtoClusterCollection, edm4eic::TrackProtoClusterMatchCollection>>;
 #else
     algorithms::Output<edm4eic::ProtoClusterCollection>>;
 #endif
 
-// --------------------------------------------------------------------------
+// ==========================================================================
 //! Track-Based Cluster Merger/Splitter
-// --------------------------------------------------------------------------
+// ==========================================================================
 /*! An algorithm which takes a collection of clusters, matches
  *  track projections, and then decides to merge or split those
  *  clusters based on average E/p from simulations.
@@ -53,58 +52,15 @@ class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm,
                                   public WithPodConfig<TrackClusterMergeSplitterConfig> {
 
 public:
-  // --------------------------------------------------------------------------
-  //! Comparator struct for object IDs
-  // --------------------------------------------------------------------------
-  /*! Organizes objects by their ObjectID's in decreasing collection
-   *  ID first, and second by decreasing index second.
-   */
-  template <typename T> struct CompareObjectID {
-    bool operator()(const T& lhs, const T& rhs) const {
-      if (lhs.getObjectID().collectionID == rhs.getObjectID().collectionID) {
-        return (lhs.getObjectID().index < rhs.getObjectID().index);
-      } else {
-        return (lhs.getObjectID().collectionID < rhs.getObjectID().collectionID);
-      }
-    }
-  }; // end CompareObjectID
-
-  ///! Specialization of comparator for clusters
-  using CompareClust = CompareObjectID<edm4eic::Cluster>;
-
-  ///! Specialization of comparator for hits
-  using CompareHit = CompareObjectID<edm4eic::CalorimeterHit>;
-
-  ///! Alias for vectors of track segments
-  using VecSeg = std::vector<edm4eic::TrackSegment>;
-
-  ///! Alias for vectors of mutable protoclusters
-  using VecProto = std::vector<edm4eic::MutableProtoCluster>;
-
-  ///! Alias for vectors of clusters
-  using VecClust = std::vector<edm4eic::Cluster>;
-
-  ///! Alias for sets of clusters
-  using SetClust = std::set<edm4eic::Cluster, CompareClust>;
-
-  ///! Alias for a map of clusters to the segments of matched tracks
-  using MapToVecSeg = std::map<edm4eic::Cluster, VecSeg, CompareClust>;
-
-  ///! Alias for a map of clusters onto clusters to merge
-  using MapToVecClust = std::map<edm4eic::Cluster, VecClust, CompareClust>;
-
-  ///! Alias for a map of hits onto their splitting weights
-  using MapToWeight = std::map<edm4eic::CalorimeterHit, double, CompareHit>;
-
-  ///! Alias for a vector of weight maps
-  using VecWeights = std::vector<MapToWeight>;
 
   ///! Algorithm constructor
   TrackClusterMergeSplitter(std::string_view name)
       : TrackClusterMergeSplitterAlgorithm{
             name,
             {"InputTrackClusterMatches", "InputClusterCollection", "InputTrackProjections"},
-#if EDM4EIC_VERSION_MAJOR >= 8
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+            {"OutputProtoClusterCollection", "OutputTrackProtoClusterLinks"},
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
             {"OutputProtoClusterCollection", "OutputTrackProtoClusterMatches"},
 #else
             {"OutputProtoClusterCollection"},
@@ -112,16 +68,27 @@ public:
             "Merges or splits clusters based on tracks matched to them."} {
   }
 
-  // public method
   void process(const Input&, const Output&) const final;
 
 private:
-  // private methods
-  void merge_and_split_clusters(const VecClust& to_merge, const VecSeg& to_split,
-                                VecProto& new_protos) const;
-  void add_cluster_to_proto(const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
-                            std::optional<MapToWeight> split_weights = std::nullopt) const;
+
+  ///! Alias for vectors of track segments
+  using segment_vector = std::vector<edm4eic::TrackSegment>;
+
+  ///! Alias for vectors of mutable protoclusters
+  using protocluster_vector = std::vector<edm4eic::MutableProtoCluster>;
+
+  ///! Alias for vectors of clusters
+  using cluster_vector = std::vector<edm4eic::Cluster>;
+
+  ///! Alias for a map of hits onto their splitting weights
+  using hit_to_weight_map = std::map<edm4eic::CalorimeterHit, double, CompareObjectID<edm4eic::CalorimeterHit>>;
+
+  void merge_and_split_clusters(const cluster_vector& to_merge, const segment_vector& to_split,
+                                protocluster_vector& new_protos) const;
+  static void add_cluster_to_proto(const edm4eic::Cluster& clust,
+                                   edm4eic::MutableProtoCluster& proto,
+                                   std::optional<hit_to_weight_map> split_weights = std::nullopt);
 
 }; // end TrackClusterMergeSplitter
-
 } // namespace eicrecon

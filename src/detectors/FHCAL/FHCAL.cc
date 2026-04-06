@@ -128,9 +128,6 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapPInsertTruthClustersWithoutShapes",
       {
           "HcalEndcapPInsertTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalEndcapPInsertRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
           "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalEndcapPInsertTruthClustersWithoutShapes",
@@ -157,9 +154,6 @@ void InitPlugin(JApplication* app) {
       "HcalEndcapPInsertClustersWithoutShapes",
       {
           "HcalEndcapPInsertImagingProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalEndcapPInsertRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
           "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalEndcapPInsertClustersWithoutShapes",
@@ -287,10 +281,7 @@ void InitPlugin(JApplication* app) {
       "LFHCALTruthClustersWithoutShapes",
       {
           "LFHCALTruthProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"LFHCALTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -315,10 +306,7 @@ void InitPlugin(JApplication* app) {
       "LFHCALClustersWithoutShapes",
       {
           "LFHCALIslandProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"LFHCALClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -347,9 +335,12 @@ void InitPlugin(JApplication* app) {
       "LFHCALSplitMergeProtoClusters",
       {"LFHCALTrackClusterMatches", "LFHCALClusters", "CalorimeterTrackProjections"},
       {"LFHCALSplitMergeProtoClusters",
-#if EDM4EIC_VERSION_MAJOR >= 8 && EDM4EIC_VERSION_MINOR >= 4
-       "LFHCALTrackSplitMergeProtoClusterMatches"},
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "LFHCALTrackSplitMergeProtoClusterLinks"
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+       "LFHCALTrackSplitMergeProtoClusterMatches"
 #endif
+      },
       {.minSigCut                    = -2.0,
        .avgEP                        = 0.50,
        .sigEP                        = 0.25,
@@ -361,13 +352,7 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALSplitMergeClustersWithoutShapes",
-      {
-          "LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
-#endif
-          "LFHCALRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
-      },
+      {"LFHCALSplitMergeProtoClusters", "LFHCALRawHitAssociations"},
       {"LFHCALSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "LFHCALSplitMergeClusterLinksWithoutShapes",
@@ -390,7 +375,7 @@ void InitPlugin(JApplication* app) {
        "LFHCALSplitMergeClusterLinks",
 #endif
        "LFHCALSplitMergeClusterAssociations"},
-      {.longitudinalShowerInfoAvailable = true, .energyWeight = "log", .logWeightBase = 4.5}, app));
+      {.longitudinalShowerInfoAvailable = true}, app));
 
   app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
       "LFHCALTrackSplitMergeClusterMatches",
