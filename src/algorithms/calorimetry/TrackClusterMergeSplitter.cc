@@ -75,6 +75,10 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
     }
   } // end track-cluster match loop
 
+  // square merging-window radius to avoid std::sqrt in comparison
+  const float drAdd2 = m_cfg.drAdd * m_cfg.drAdd;
+  trace("Squared radius of merging window: radius = {}, radius^2 = {}", m_cfg.drAdd, drAdd2);
+
   // ------------------------------------------------------------------------
   // 2. Loop over projection-cluster pairs to check if merging is needed
   // ------------------------------------------------------------------------
@@ -142,13 +146,15 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
       const float phiClust = edm4hep::utils::angleAzimuthal(cluster.getPosition());
 
       // get distance to seed
-      const float drToSeed =
-          std::hypot(etaSeed - etaClust, std::remainder(phiSeed - phiClust, 2. * M_PI));
+      const float dEtaToSeed = etaSeed - etaClust;
+      const float dPhiToSeed = std::remainder(phiSeed - phiClust, 2. * M_PI);
+      const float drToSeed2  = (dEtaToSeed * dEtaToSeed) + (dPhiToSeed * dPhiToSeed);
+      trace("Distances from cluster to seed: dEta = {}, dPhi = {}, dr^2 = {}", dEtaToSeed, dPhiToSeed, drToSeed2);
 
       // --------------------------------------------------------------------
       // If inside merging-window, add to list of clusters to merge
       // --------------------------------------------------------------------
-      if (drToSeed > m_cfg.drAdd) {
+      if (drToSeed2 > drAdd2) {
         continue;
       }
       mapClustToMerge[clust_seed].push_back(cluster);
@@ -317,8 +323,8 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const cluster_vector& t
 // --------------------------------------------------------------------------
 //! Add a cluster's hits to a protocluster
 // --------------------------------------------------------------------------
-void TrackClusterMergeSplitter::add_cluster_to_proto(
-    const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
+void TrackClusterMergeSplitter::add_cluster_to_proto(const edm4eic::Cluster& clust,
+    edm4eic::MutableProtoCluster& proto,
     std::optional<hit_to_weight_map> split_weights) {
 
   // loop over hits to add
