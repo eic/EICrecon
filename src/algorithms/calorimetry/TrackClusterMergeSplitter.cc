@@ -146,7 +146,8 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
       const float dEtaToSeed = etaSeed - etaClust;
       const float dPhiToSeed = std::remainder(phiSeed - phiClust, 2. * M_PI);
       const float drToSeed2  = (dEtaToSeed * dEtaToSeed) + (dPhiToSeed * dPhiToSeed);
-      trace("Distances from cluster to seed: dEta = {}, dPhi = {}, dr^2 = {}", dEtaToSeed, dPhiToSeed, drToSeed2);
+      trace("Distances from cluster to seed: dEta = {}, dPhi = {}, dr^2 = {}", dEtaToSeed,
+            dPhiToSeed, drToSeed2);
 
       // --------------------------------------------------------------------
       // If inside merging-window, add to list of clusters to merge
@@ -317,8 +318,8 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const cluster_vector& t
 /*! Adds a cluster's hits to a protocluster. If provided,
  *  will also set weight of hit based on the map `split_weights`.
  */
-void TrackClusterMergeSplitter::add_cluster_to_proto(const edm4eic::Cluster& clust,
-    edm4eic::MutableProtoCluster& proto,
+void TrackClusterMergeSplitter::add_cluster_to_proto(
+    const edm4eic::Cluster& clust, edm4eic::MutableProtoCluster& proto,
     std::optional<hit_to_weight_map> split_weights) {
 
   // loop over hits to add
