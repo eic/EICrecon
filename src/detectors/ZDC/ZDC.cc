@@ -96,7 +96,10 @@ void InitPlugin(JApplication* app) {
       "EcalFarForwardZDCTruthClustersWithoutShapes",
       {
           "EcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalFarForwardZDCRawHitAssociations"  // edm4eic::MCRecoClusterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "EcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
+          "EcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociation
       },
       {"EcalFarForwardZDCTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -122,7 +125,10 @@ void InitPlugin(JApplication* app) {
       "EcalFarForwardZDCClustersWithoutShapes",
       {
           "EcalFarForwardZDCIslandProtoClusters", // edm4eic::ProtoClusterCollection
-          "EcalFarForwardZDCRawHitAssociations"   // edm4eic::MCRecoClusterHitAssociationCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "EcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
+          "EcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociation
       },
       {"EcalFarForwardZDCClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -205,13 +211,13 @@ void InitPlugin(JApplication* app) {
       {"HcalFarForwardZDCImagingProtoClusters"},
       {
           .neighbourLayersRange = 1,
-          .sameLayerDistXY      = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
-                                   "0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
-          .diffLayerDistXY      = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
-                                   "0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
-          .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
-          .sectorDist           = 10.0 * dd4hep::cm,
-          .minClusterHitEdep    = 50.0 * dd4hep::keV,
+          .sameLayerDistXY   = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
+                                "0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
+          .diffLayerDistXY   = {"0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength",
+                                "0.5 * HcalFarForwardZDC_SiPMonTile_HexSideLength * sin(pi / 3)"},
+          .sameLayerMode     = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
+          .sectorDist        = 10.0 * dd4hep::cm,
+          .minClusterHitEdep = 50.0 * dd4hep::keV,
           .minClusterCenterEdep = 3.0 * dd4hep::MeV,
           .minClusterEdep       = 11.0 * dd4hep::MeV,
           .minClusterNhits      = 30,
@@ -245,6 +251,9 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCClustersWithoutShapes",
       {
           "HcalFarForwardZDCImagingProtoClusters", // edm4eic::ProtoClusterCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "HcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
           "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalFarForwardZDCClustersWithoutShapes",
@@ -308,6 +317,9 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCTruthClustersWithoutShapes",
       {
           "HcalFarForwardZDCTruthProtoClusters", // edm4eic::ProtoClusterCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "HcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
           "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalFarForwardZDCTruthClustersWithoutShapes",
@@ -334,6 +346,9 @@ void InitPlugin(JApplication* app) {
       "HcalFarForwardZDCClustersBaselineWithoutShapes",
       {
           "HcalFarForwardZDCIslandProtoClustersBaseline", // edm4eic::ProtoClusterCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+          "HcalFarForwardZDCRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+#endif
           "HcalFarForwardZDCRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalFarForwardZDCClustersBaselineWithoutShapes", // edm4eic::Cluster

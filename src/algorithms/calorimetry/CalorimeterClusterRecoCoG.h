@@ -16,6 +16,10 @@
 #include <edm4hep/CaloHitContribution.h>
 #include <edm4hep/MCParticle.h>
 #include <edm4eic/MCRecoCalorimeterHitAssociationCollection.h>
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <edm4eic/MCRecoCalorimeterHitLinkCollection.h>
+#include <podio/LinkNavigator.h>
+#endif
 #include <edm4eic/MCRecoClusterParticleAssociationCollection.h>
 #include <edm4eic/ProtoClusterCollection.h>
 #include <algorithm>
@@ -56,6 +60,9 @@ using ClustersWithAssociations =
 
 using CalorimeterClusterRecoCoGAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::ProtoClusterCollection,
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                      std::optional<edm4eic::MCRecoCalorimeterHitLinkCollection>,
+#endif
                       std::optional<edm4eic::MCRecoCalorimeterHitAssociationCollection>>,
     algorithms::Output<edm4eic::ClusterCollection,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -70,7 +77,11 @@ public:
   CalorimeterClusterRecoCoG(std::string_view name)
       : CalorimeterClusterRecoCoGAlgorithm{
             name,
-            {"inputProtoClusterCollection", "mcRawHitAssocations"},
+            {"inputProtoClusterCollection",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+             "mcRawHitLinks",
+#endif
+             "mcRawHitAssocations"},
             {"outputClusterCollection",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
              "outputLinks",
@@ -94,6 +105,7 @@ private:
   void associate(const edm4eic::Cluster& cl,
                  const edm4eic::MCRecoCalorimeterHitAssociationCollection* mchitassociations,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                 const podio::LinkNavigator<edm4eic::MCRecoCalorimeterHitLinkCollection>& link_nav,
                  edm4eic::MCRecoClusterParticleLinkCollection* links,
 #endif
                  edm4eic::MCRecoClusterParticleAssociationCollection* assocs) const;
