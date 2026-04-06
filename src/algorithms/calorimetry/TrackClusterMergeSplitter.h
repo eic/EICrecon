@@ -52,7 +52,6 @@ class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm,
                                   public WithPodConfig<TrackClusterMergeSplitterConfig> {
 
 public:
-
   ///! Algorithm constructor
   TrackClusterMergeSplitter(std::string_view name)
       : TrackClusterMergeSplitterAlgorithm{
@@ -71,7 +70,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-
   ///! Alias for vectors of track segments
   using segment_vector = std::vector<edm4eic::TrackSegment>;
 
@@ -82,7 +80,8 @@ private:
   using cluster_vector = std::vector<edm4eic::Cluster>;
 
   ///! Alias for a map of hits onto their splitting weights
-  using hit_to_weight_map = std::map<edm4eic::CalorimeterHit, double, CompareObjectID<edm4eic::CalorimeterHit>>;
+  using hit_to_weight_map =
+      std::map<edm4eic::CalorimeterHit, double, CompareObjectID<edm4eic::CalorimeterHit>>;
 
   void merge_and_split_clusters(const cluster_vector& to_merge, const segment_vector& to_split,
                                 protocluster_vector& new_protos) const;
