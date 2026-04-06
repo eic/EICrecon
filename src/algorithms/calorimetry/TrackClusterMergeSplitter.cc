@@ -16,9 +16,6 @@
 
 namespace eicrecon {
 
-// --------------------------------------------------------------------------
-//! Process inputs
-// --------------------------------------------------------------------------
 /*! Merges and splits clusters based on matched tracks
  *  according to the following algorithm:
  *    1. Build map of clusters onto matched track
@@ -242,9 +239,6 @@ void TrackClusterMergeSplitter::process(const TrackClusterMergeSplitter::Input& 
 
 } // end 'process(Input&, Output&)'
 
-// --------------------------------------------------------------------------
-//! Merge identified clusters and split if needed
-// --------------------------------------------------------------------------
 /*! If multiple tracks are pointing to merged cluster, a new
  *  protocluster is created for each track w/ hits weighted by
  *  its distance to the track and the track's momentum.
@@ -320,9 +314,9 @@ void TrackClusterMergeSplitter::merge_and_split_clusters(const cluster_vector& t
 
 } // end 'merge_and_split_clusters(cluster_vector&, segment_vector&, std::vector<edm4eic::MutableProtoCluster>&)'
 
-// --------------------------------------------------------------------------
-//! Add a cluster's hits to a protocluster
-// --------------------------------------------------------------------------
+/*! Adds a cluster's hits to a protocluster. If provided,
+ *  will also set weight of hit based on the map `split_weights`.
+ */
 void TrackClusterMergeSplitter::add_cluster_to_proto(const edm4eic::Cluster& clust,
     edm4eic::MutableProtoCluster& proto,
     std::optional<hit_to_weight_map> split_weights) {

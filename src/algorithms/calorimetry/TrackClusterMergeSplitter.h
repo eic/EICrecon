@@ -28,9 +28,6 @@
 
 namespace eicrecon {
 
-// --------------------------------------------------------------------------
-//! Algorithm input/output
-// --------------------------------------------------------------------------
 using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Input<edm4eic::TrackClusterMatchCollection, edm4eic::ClusterCollection,
                       edm4eic::TrackSegmentCollection>,
@@ -42,9 +39,9 @@ using TrackClusterMergeSplitterAlgorithm = algorithms::Algorithm<
     algorithms::Output<edm4eic::ProtoClusterCollection>>;
 #endif
 
-// --------------------------------------------------------------------------
+// ==========================================================================
 //! Track-Based Cluster Merger/Splitter
-// --------------------------------------------------------------------------
+// ==========================================================================
 /*! An algorithm which takes a collection of clusters, matches
  *  track projections, and then decides to merge or split those
  *  clusters based on average E/p from simulations.
@@ -55,6 +52,7 @@ class TrackClusterMergeSplitter : public TrackClusterMergeSplitterAlgorithm,
                                   public WithPodConfig<TrackClusterMergeSplitterConfig> {
 
 public:
+
   ///! Algorithm constructor
   TrackClusterMergeSplitter(std::string_view name)
       : TrackClusterMergeSplitterAlgorithm{
@@ -73,6 +71,7 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
+
   ///! Alias for vectors of track segments
   using segment_vector = std::vector<edm4eic::TrackSegment>;
 
@@ -83,8 +82,7 @@ private:
   using cluster_vector = std::vector<edm4eic::Cluster>;
 
   ///! Alias for a map of hits onto their splitting weights
-  using hit_to_weight_map =
-      std::map<edm4eic::CalorimeterHit, double, CompareObjectID<edm4eic::CalorimeterHit>>;
+  using hit_to_weight_map = std::map<edm4eic::CalorimeterHit, double, CompareObjectID<edm4eic::CalorimeterHit>>;
 
   void merge_and_split_clusters(const cluster_vector& to_merge, const segment_vector& to_split,
                                 protocluster_vector& new_protos) const;
@@ -93,5 +91,4 @@ private:
                                    std::optional<hit_to_weight_map> split_weights = std::nullopt);
 
 }; // end TrackClusterMergeSplitter
-
 } // namespace eicrecon
