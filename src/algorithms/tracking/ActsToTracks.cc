@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2024 - 2025 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
+// Copyright (C) 2024 - 2026 Whitney Armstrong, Wouter Deconinck, Dmitry Romanov, Shujie Li, Dmitry Kalinkin
 
+#include <Acts/Definitions/Algebra.hpp>
 #include <Acts/Definitions/TrackParametrization.hpp>
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/MultiTrajectoryHelpers.hpp>
@@ -10,8 +11,10 @@
 #include <Acts/EventData/TrackProxy.hpp>
 #include <Acts/EventData/TrackStateType.hpp>
 #include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
+#include <Acts/Utilities/UnitVectors.hpp>
 #include <ActsExamples/EventData/IndexSourceLink.hpp>
 #include <ActsExamples/EventData/Track.hpp>
 #include <edm4eic/Cov6f.h>
@@ -22,6 +25,7 @@
 #include <edm4hep/SimTrackerHit.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector3f.h>
+#include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
 #include <podio/detail/Link.h>
@@ -140,19 +144,49 @@ void ActsToTracks::process(const Input& input, const Output& output) const {
     auto track_out = tracks->create();
     track_out.setType( // Flag that defines the type of track
         pars.getType());
-    track_out.setPosition( // Track 3-position at the vertex
-        edm4hep::Vector3f());
-    track_out.setMomentum( // Track 3-momentum at the vertex [GeV]
-        edm4hep::Vector3f());
+
+    // Compute 3D position from perigee local coordinates via localToGlobal.
+    // A default GeometryContext is sufficient here: the perigee surface is
+    // defined purely by its center point and carries no alignment data.
+    const Acts::Vector2 localPos{parameter[Acts::eBoundLoc0], parameter[Acts::eBoundLoc1]};
+    const Acts::Vector3 direction =
+        Acts::makeDirectionFromPhiTheta(parameter[Acts::eBoundPhi], parameter[Acts::eBoundTheta]);
+    const Acts::Vector3 globalPos = track.referenceSurface().localToGlobal(
+#if Acts_VERSION_MAJOR >= 45
+        Acts::GeometryContext::dangerouslyDefaultConstruct(),
+#else
+        Acts::GeometryContext{},
+#endif
+        localPos, direction);
+    track_out.setPosition( // Track 3-position at the perigee [mm]
+        edm4hep::Vector3f{static_cast<float>(globalPos.x()), static_cast<float>(globalPos.y()),
+                          static_cast<float>(globalPos.z())});
+
+    // Compute Cartesian momentum from spherical parameters.
+    const double qOverP = parameter[Acts::eBoundQOverP];
+    double p_abs        = 0.0;
+    if (std::isfinite(qOverP) && qOverP != 0.0) {
+      p_abs = std::abs(1.0 / qOverP);
+    } else {
+      warning("ActsToTracks: track has qOverP={}, which yields non-finite momentum; setting "
+              "momentum to zero",
+              qOverP);
+    }
+    const double p = p_abs;
+    track_out.setMomentum( // Track 3-momentum at the perigee [GeV]
+        edm4hep::utils::sphericalToVector(p, parameter[Acts::eBoundTheta],
+                                          parameter[Acts::eBoundPhi]));
+
     track_out.setPositionMomentumCovariance( // Covariance matrix in basis [x,y,z,px,py,pz]
         edm4eic::Cov6f());
-    track_out.setTime( // Track time at the vertex [ns]
+    track_out.setTime( // Track time at the perigee [ns]
         static_cast<float>(parameter[Acts::eBoundTime] / Acts::UnitConstants::ns));
-    track_out.setTimeError( // Error on the track vertex time
+    track_out.setTimeError( // Error on the track perigee time
         static_cast<float>(sqrt(covariance(Acts::eBoundTime, Acts::eBoundTime)) /
                            Acts::UnitConstants::ns));
-    track_out.setCharge( // Particle charge
-        std::copysign(1., parameter[Acts::eBoundQOverP]));
+    const double charge = // Particle charge (0 if qOverP is invalid or zero)
+        (std::isfinite(qOverP) && qOverP != 0.0) ? std::copysign(1.0, qOverP) : 0.0;
+    track_out.setCharge(charge);
     track_out.setChi2(trajectoryState.chi2Sum); // Total chi2
     track_out.setNdf(trajectoryState.NDF);      // Number of degrees of freedom
     track_out.setPdg(                           // PDG particle ID hypothesis
