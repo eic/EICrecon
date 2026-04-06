@@ -7,9 +7,14 @@
 #include <edm4hep/utils/vector_utils.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <cmath>
 #include <cstddef>
-#include <gsl/pointers>
+#include <memory>
+#include <set>
+#include <tuple>
+#include <utility>
 
 #include "TrackClusterMergeSplitter.h"
 #include "algorithms/calorimetry/TrackClusterMergeSplitterConfig.h"
