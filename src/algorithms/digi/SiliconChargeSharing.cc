@@ -45,7 +45,13 @@ void SiliconChargeSharing::init() {
 void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
                                    const SiliconChargeSharing::Output& output) const {
   const auto [simhits] = input;
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  auto [sharedHits, links] = output;
+#else
   auto [sharedHits]    = output;
+#endif
+
+
 
   for (const auto& hit : *simhits) {
 
@@ -89,7 +95,11 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     // Warning: This function is recursive, it stops shen it finds the edge of a detector element
     // or when the energy deposited in a cell is below the configured threshold
     findAllNeighborsInSensor(cellID, tested_cells, edep, hitPos, segmentationIt->second,
-                             m_xy_range_map[element], hit, sharedHits);
+                             m_xy_range_map[element], hit, sharedHits
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+			     ,links, hit
+#endif
+			     );
 
   } // for simhits
 } // SiliconChargeSharing:process
@@ -100,7 +110,12 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
     const float edep, const dd4hep::Position hitPos,
     const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
     const std::pair<double, double>& xy_range, const edm4hep::SimTrackerHit& hit,
-    edm4hep::SimTrackerHitCollection* sharedHits) const {
+    edm4hep::SimTrackerHitCollection* sharedHits
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+    ,podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>* links, 
+    const edm4hep::SimTrackerHit& origHit
+#endif
+    ) const {
 
   // Tag cell as tested
   tested_cells.insert(testCellID);
@@ -130,6 +145,13 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   shared_hit.setPosition({globalCellPos.x() / dd4hep::mm, globalCellPos.y() / dd4hep::mm,
                           globalCellPos.z() / dd4hep::mm});
   sharedHits->push_back(shared_hit);
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+  // create link
+  auto link = links->create();
+  link.setFrom(origHit);
+  link.setTo(shared_hit);
+  link.setWeight(1.0);
+#endif
 
   // As there is charge in the cell, test the neighbors too
   std::set<dd4hep::rec::CellID> testCellNeighbours;
@@ -138,7 +160,11 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
   for (const auto& neighbourCell : testCellNeighbours) {
     if (tested_cells.find(neighbourCell) == tested_cells.end()) {
       findAllNeighborsInSensor(neighbourCell, tested_cells, edep, hitPos, segmentation, xy_range,
-                               hit, sharedHits);
+                               hit, sharedHits
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+			       ,links, origHit
+#endif
+			       );
     }
   }
 }

@@ -56,7 +56,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
   constexpr double mm_acts = Acts::UnitConstants::mm;
   using dd4hep::mm;
 
-  auto [clusters] = output;
+  auto [clusters, rec_hits] = output;
   auto cluster    = clusters->create();
   // Right now the clustering algorithm is either:
   // 1. simple average over all hits in a sensors
@@ -77,6 +77,8 @@ void LGADHitClustering::_calcCluster(const Output& output,
   float max_charge_sigma2_y{0};
 
   ROOT::VecOps::RVec<double> weights;
+
+  int idMaxHit = 0;
 
   for (size_t id = 0; id < hits.size(); ++id) {
     const auto& hit = hits[id];
@@ -99,6 +101,7 @@ void LGADHitClustering::_calcCluster(const Output& output,
 
     tot_charge += Edep;
     if (Edep > max_charge) {
+      idMaxHit = id;
       max_charge          = Edep;
       cellID              = hit.getCellID();
       max_charge_x        = pos.x();
@@ -151,6 +154,23 @@ void LGADHitClustering::_calcCluster(const Output& output,
   cluster.setTime(earliest_time);
   cluster.setCovariance(
       {cov(0, 0), cov(1, 1), time_err * time_err, cov(0, 1)}); // Covariance on location and time
+							       
+  // convert local position back to global position
+  if(cellID) {
+      auto globalPos = surface -> localToGlobal(m_acts_context->getActsGeometryContext(), {locPos.a, locPos.b}, {0., 0., 0.});
+      auto rec_hit = rec_hits->create(
+            cellID,
+            edm4hep::Vector3f{static_cast<float>(globalPos.x()),
+                              static_cast<float>(globalPos.y()),
+            		  static_cast<float>(globalPos.z())},
+            edm4eic::CovDiag3f{0., 0., 0.},
+            earliest_time,
+            hits[0].getTimeError(),
+            tot_charge,
+            0.0F);
+
+      rec_hit.setRawHit(hits[idMaxHit].getRawHit());
+  }
 }
 
 void LGADHitClustering::process(const LGADHitClustering::Input& input,

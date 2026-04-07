@@ -5,6 +5,7 @@
 
 #pragma once
 
+#include <edm4eic/EDM4eicVersion.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Segmentations.h>
@@ -22,18 +23,30 @@
 #include "algorithms/digi/SiliconChargeSharingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+#include <podio/LinkCollection.h>
+#endif
+
 namespace eicrecon {
 
 using SiliconChargeSharingAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4hep::SimTrackerHitCollection>,
-                          algorithms::Output<edm4hep::SimTrackerHitCollection>>;
+                          algorithms::Output<edm4hep::SimTrackerHitCollection
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                             ,podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>
+#endif
+                                            >>;
 
 class SiliconChargeSharing : public SiliconChargeSharingAlgorithm,
                              public WithPodConfig<SiliconChargeSharingConfig> {
 
 public:
   SiliconChargeSharing(std::string_view name)
-      : SiliconChargeSharingAlgorithm{name, {"inputHits"}, {"outputSharedHits"}, ""} {};
+      : SiliconChargeSharingAlgorithm{name, {"inputHits"}, {"outputSharedHits"
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                                            ,"outputHitLinks"
+#endif
+                                                            }, ""} {};
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -45,7 +58,12 @@ private:
                                 const dd4hep::DDSegmentation::CartesianGridXY* segmentation,
                                 const std::pair<double, double>& xy_range,
                                 const edm4hep::SimTrackerHit& hit,
-                                edm4hep::SimTrackerHitCollection* sharedHits) const;
+                                edm4hep::SimTrackerHitCollection* sharedHits
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                ,podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>* links, 
+                                const edm4hep::SimTrackerHit& origHit
+#endif
+				) const;
   float energyAtCell(const double xDimension, const double yDimension,
                      const dd4hep::Position localPos, const dd4hep::Position hitPos,
                      const float edep) const;
