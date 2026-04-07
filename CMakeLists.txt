@@ -195,7 +195,10 @@ find_package(algorithms ${algorithms_VERSION_MIN} REQUIRED Core)
 # PODIO, EDM4HEP, EDM4EIC event models
 find_package(Eigen3 ${Eigen3_VERSION_MIN} REQUIRED)
 find_package(podio ${podio_VERSION_MIN} REQUIRED)
-find_package(EDM4HEP ${EDM4HEP_VERSION_MIN} REQUIRED)
+find_package(EDM4HEP REQUIRED)
+if(${EDM4HEP_VERSION} VERSION_LESS ${EDM4HEP_VERSION_MIN})
+  message(FATAL_ERROR "EDM4HEP ${EDM4HEP_VERSION} is less than minimum ${EDM4HEP_VERSION_MIN}")
+endif()
 find_package(EDM4EIC ${EDM4EIC_VERSION_MIN} REQUIRED)
 
 # fmt
