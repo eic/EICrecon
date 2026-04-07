@@ -4,13 +4,17 @@
 #include <edm4eic/Track.h>
 #include <edm4eic/TrackPoint.h>
 #include <edm4hep/utils/vector_utils.h>
-#include <fmt/core.h>
 #include <podio/ObjectID.h>
 #include <podio/RelationRange.h>
+#include <podio/detail/Link.h>
+#include <podio/detail/LinkCollectionImpl.h>
+#include <stdint.h>
 #include <cmath>
-#include <gsl/pointers>
 #include <limits>
 #include <map>
+#include <memory>
+#include <tuple>
+#include <utility>
 #include <vector>
 
 #include "TrackClusterSubtractor.h"
