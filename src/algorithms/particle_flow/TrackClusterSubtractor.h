@@ -11,8 +11,6 @@
 #endif
 #include <edm4eic/TrackClusterMatchCollection.h>
 #include <edm4eic/TrackSegmentCollection.h>
-#include <podio/ObjectID.h>
-#include <map>
 #include <string>
 #include <string_view>
 #include <vector>
