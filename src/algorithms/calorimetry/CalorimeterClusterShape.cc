@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Chao Peng, Dhevan Gangadharan, Sebouh Paul, Derek Anderson
 #include <DD4hep/Handle.h>
-#include "CalorimeterClusterShape.h"
-
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
 #include <edm4eic/CalorimeterHitCollection.h>
@@ -23,13 +21,14 @@
 #include <cmath>
 #include <complex>
 #include <cstddef>
-#include <gsl/pointers>
 #include <iterator>
 #include <memory>
+#include <tuple>
 #include <utility>
 #include <variant>
 #include <vector>
 
+#include "CalorimeterClusterShape.h"
 #include "algorithms/calorimetry/CalorimeterClusterShapeConfig.h"
 
 namespace eicrecon {
