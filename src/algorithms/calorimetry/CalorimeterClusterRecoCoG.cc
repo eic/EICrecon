@@ -51,7 +51,7 @@ void CalorimeterClusterRecoCoG::init() {
   }
   weightFunc = it->second;
 
-  sampFrac=std::visit(_toDouble, m_cfg.sampFrac);
+  sampFrac = std::visit(_toDouble, m_cfg.sampFrac);
 }
 
 void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& input,
