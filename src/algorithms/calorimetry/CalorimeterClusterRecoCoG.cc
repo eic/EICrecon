@@ -8,6 +8,7 @@
  *  Author: Chao Peng (ANL), 09/27/2020
  */
 
+#include <DD4hep/Handle.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
