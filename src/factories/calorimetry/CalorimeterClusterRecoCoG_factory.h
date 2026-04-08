@@ -32,7 +32,7 @@ private:
   PodioOutput<edm4eic::MCRecoClusterParticleAssociation> m_assoc_output{this};
 
   ParameterRef<std::string> m_energyWeight{this, "energyWeight", config().energyWeight};
-  ParameterRef<double> m_samplingFraction{this, "samplingFraction", config().sampFrac};
+  //ParameterRef<double> m_samplingFraction{this, "samplingFraction", config().sampFrac};
   ParameterRef<double> m_logWeightBase{this, "logWeightBase", config().logWeightBase};
   ParameterRef<std::vector<double>> m_logWeightBaseCoeffs{this, "logWeightBaseCoeffs",
                                                           config().logWeightBaseCoeffs};
