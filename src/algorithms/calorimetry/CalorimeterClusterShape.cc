@@ -33,8 +33,18 @@
 
 namespace eicrecon {
 
+template <typename... L> struct multilambda : L... {
+  using L::operator()...;
+  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
+};
+
 void CalorimeterClusterShape::init() {
 
+  multilambda _toDouble = {
+      [](const std::string& v) { return dd4hep::_toDouble(v); },
+      [](const double& v) { return v; },
+  };
+  
   // select weighting method
   std::string ew = m_cfg.energyWeight;
 
