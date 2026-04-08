@@ -27,6 +27,7 @@
 #include <iterator>
 #include <memory>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #include "algorithms/calorimetry/CalorimeterClusterShapeConfig.h"
