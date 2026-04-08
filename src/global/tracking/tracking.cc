@@ -50,13 +50,13 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "TrackTruthSeeds", {"EventHeader", "MCParticles"},
-      {"TrackTruthSeeds", "TrackTruthSeedParameters"}, {}, app));
+      "TrackerTruthSeeds", {"EventHeader", "MCParticles"},
+      {"TrackerTruthSeeds", "TrackerTruthSeedParameters"}, {}, app));
 
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
-      "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
+      "CentralB0TrackerTruthSeeds", {"TrackerTruthSeeds"},
       {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
       {
           .function = RangeSplit<
