@@ -50,6 +50,8 @@ void CalorimeterClusterRecoCoG::init() {
     return;
   }
   weightFunc = it->second;
+
+  sampFrac=std::visit(_toDouble, m_cfg.sampFrac);
 }
 
 void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& input,
@@ -144,7 +146,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
     minHitEta       = std::min(eta, minHitEta);
     maxHitEta       = std::max(eta, maxHitEta);
   }
-  cl.setEnergy(totalE / m_cfg.sampFrac);
+  cl.setEnergy(totalE / sampFrac);
   cl.setEnergyError(0.);
   cl.setTime(time);
   cl.setTimeError(timeError);
