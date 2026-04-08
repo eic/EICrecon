@@ -26,10 +26,11 @@
 #include <algorithm>
 #include <cctype>
 #include <cstddef>
-#include <gsl/pointers>
 #include <limits>
 #include <map>
 #include <optional>
+#include <tuple>
+#include <variant>
 #include <vector>
 
 #include "CalorimeterClusterRecoCoG.h"
