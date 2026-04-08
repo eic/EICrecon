@@ -58,6 +58,9 @@ void CalorimeterClusterShape::init() {
     m_weightFunc = it->second;
   }
 
+  
+  sampFrac = std::visit(_toDouble, m_cfg.sampFrac);
+  
 } // end 'init()'
 
 /*! Primary algorithm call: algorithm ingests a collection of clusters
@@ -128,7 +131,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
         for (const auto& hit : out_clust.getHits()) {
 
           // get weight of hit
-          const double eTotal = out_clust.getEnergy() * m_cfg.sampFrac;
+          const double eTotal = out_clust.getEnergy() * sampFrac;
           const float w       = m_weightFunc(hit.getEnergy(), eTotal, logWeightBase, 0);
 
           // theta, phi
