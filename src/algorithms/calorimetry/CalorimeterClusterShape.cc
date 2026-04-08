@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Copyright (C) 2025 Chao Peng, Dhevan Gangadharan, Sebouh Paul, Derek Anderson
-
+#include <DD4hep/Handle.h>
 #include "CalorimeterClusterShape.h"
 
 #include <boost/algorithm/string/join.hpp>
