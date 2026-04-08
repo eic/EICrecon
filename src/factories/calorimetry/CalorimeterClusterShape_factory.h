@@ -35,7 +35,7 @@ private:
   ParameterRef<bool> m_longitudinalShowerInfoAvailable{this, "longitudinalShowerInfoAvailable",
                                                        config().longitudinalShowerInfoAvailable};
   ParameterRef<std::string> m_energyWeight{this, "energyWeight", config().energyWeight};
-  ParameterRef<double> m_sampFrac{this, "sampFrac", config().sampFrac};
+  //ParameterRef<double> m_sampFrac{this, "sampFrac", config().sampFrac};
   ParameterRef<std::vector<double>> m_logWeightBaseCoeffs{this, "logWeightBaseCoeffs",
                                                           config().logWeightBaseCoeffs};
   ParameterRef<double> m_logWeightBase_Eref{this, "logWeightBase_Eref",
