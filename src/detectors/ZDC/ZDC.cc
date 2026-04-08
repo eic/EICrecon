@@ -219,10 +219,10 @@ void InitPlugin(JApplication* app) {
           .sameLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .sectorDist           = 10.0 * dd4hep::cm,
-          .minClusterHitEdep    = 235.0 * dd4hep::keV,
-          .minClusterCenterEdep = 18.8 * dd4hep::MeV,
+          .minClusterHitEdep    = 315.0 * dd4hep::keV,
+          .minClusterCenterEdep = 20 * dd4hep::MeV,
           .minClusterEdep       = 11.0 * dd4hep::MeV,
-          .minClusterNhits      = 30,
+          .minClusterNhits      = 10,
       },
       app));
 
@@ -280,7 +280,7 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
-       .sampFrac                        = 0.0203,
+       .sampFrac                        = 0.0273,
        .logWeightBaseCoeffs             = {5.8, 0.65, 0.31},
        .logWeightBase_Eref              = 50 * dd4hep::GeV},
       app));
@@ -359,7 +359,7 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
-          .sampFrac        = 0.0203,
+          .sampFrac        = 0.0273,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
       },
@@ -377,7 +377,7 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociationsBaseline"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
-       .sampFrac                        = 0.0203,
+       .sampFrac                        = 0.0273,
        .logWeightBase                   = 6.2},
       app));
 }
