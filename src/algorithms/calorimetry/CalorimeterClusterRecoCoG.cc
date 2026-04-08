@@ -39,6 +39,12 @@ namespace eicrecon {
 
 using namespace dd4hep;
 
+
+template <typename... L> struct multilambda : L... {
+  using L::operator()...;
+  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
+};
+
 void CalorimeterClusterRecoCoG::init() {
 
   multilambda _toDouble = {
