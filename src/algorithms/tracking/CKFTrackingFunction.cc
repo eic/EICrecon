@@ -29,7 +29,8 @@ using Stepper    = Acts::EigenStepper<>;
 using Navigator  = Acts::Navigator;
 using Propagator = Acts::Propagator<Stepper, Navigator>;
 
-using CKF = Acts::CombinatorialKalmanFilter<Propagator, ActsExamples::TrackContainer>;
+// Use the PodioTrackContainer type defined in CKFTracking.h
+using CKF = Acts::CombinatorialKalmanFilter<Propagator, CKFTracking::PodioTrackContainer>;
 
 /** Finder implementation .
    *
@@ -43,7 +44,7 @@ struct CKFTrackingFunctionImpl : public eicrecon::CKFTracking::CKFTrackingFuncti
   eicrecon::CKFTracking::TrackFinderResult
   operator()(const ActsExamples::TrackParameters& initialParameters,
              const eicrecon::CKFTracking::TrackFinderOptions& options,
-             ActsExamples::TrackContainer& tracks) const override {
+             CKFTracking::PodioTrackContainer& tracks) const override {
     return trackFinder.findTracks(initialParameters, options, tracks);
   };
 };
