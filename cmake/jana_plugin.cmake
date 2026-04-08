@@ -7,22 +7,10 @@ macro(_plugin_common_target_properties _target)
     ${_target}
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
            $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
-  target_include_directories(${_target} SYSTEM PUBLIC ${JANA_INCLUDE_DIR})
   target_link_libraries(
     ${_target}
-    PUBLIC ${JANA_LIB} podio::podio podio::podioRootIO spdlog::spdlog
+    PUBLIC spdlog::spdlog
     PRIVATE fmt::fmt Microsoft.GSL::GSL)
-
-  target_compile_definitions(
-    ${_target}
-    PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
-            "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
-            "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
-
-  # Ensure datamodel headers are available
-  if(TARGET podio_datamodel_glue)
-    add_dependencies(${_target} podio_datamodel_glue)
-  endif()
 endmacro()
 
 # Common macro to add plugins
@@ -235,6 +223,34 @@ macro(plugin_glob_all _name)
 
 endmacro()
 
+# Adds JANA for a plugin
+macro(plugin_add_jana _name)
+  if(NOT JANA_FOUND)
+    find_package(JANA ${JANA_VERSION_MIN} REQUIRED)
+  endif()
+
+  # Only plugins (not libraries) depend on JANA
+  if(${_name}_WITH_PLUGIN)
+    target_compile_definitions(
+      ${_name}_plugin
+      PRIVATE "JANA_VERSION_MAJOR=${JANA_VERSION_MAJOR}"
+              "JANA_VERSION_MINOR=${JANA_VERSION_MINOR}"
+              "JANA_VERSION_PATCH=${JANA_VERSION_PATCH}")
+  endif()
+
+  # Ensure datamodel headers are available
+  if(TARGET podio_datamodel_glue)
+    if(${_name}_WITH_PLUGIN)
+      add_dependencies(${_name}_plugin podio_datamodel_glue)
+    endif()
+    if(${_name}_WITH_LIBRARY)
+      add_dependencies(${_name}_library podio_datamodel_glue)
+    endif()
+  endif()
+
+  plugin_link_libraries(${_name} ${JANA_LIB})
+endmacro()
+
 # Adds algorithms for a plugin
 macro(plugin_add_algorithms _name)
 
@@ -244,13 +260,13 @@ macro(plugin_add_algorithms _name)
 
   if(${_name}_WITH_LIBRARY)
     target_compile_definitions(
-      ${PLUGIN_NAME}_library
+      ${_name}_library
       PRIVATE "algorithms_VERSION_MAJOR=${algorithms_VERSION_MAJOR}"
               "algorithms_VERSION_MINOR=${algorithms_VERSION_MINOR}")
   endif()
   if(${_name}_WITH_PLUGIN)
     target_compile_definitions(
-      ${PLUGIN_NAME}_plugin
+      ${_name}_plugin
       PRIVATE "algorithms_VERSION_MAJOR=${algorithms_VERSION_MAJOR}"
               "algorithms_VERSION_MINOR=${algorithms_VERSION_MINOR}")
   endif()
@@ -311,7 +327,7 @@ macro(plugin_add_acts _name)
 
   # Add libraries (works same as target_include_directories)
   plugin_link_libraries(
-    ${PLUGIN_NAME}
+    ${_name}
     ${Acts_NAMESPACE_PREFIX}Core
     ${Acts_NAMESPACE_PREFIX}PluginDD4hep
     ${Acts_NAMESPACE_PREFIX}PluginJson
@@ -321,13 +337,13 @@ macro(plugin_add_acts _name)
   )
   if(${_name}_WITH_LIBRARY)
     target_compile_definitions(
-      ${PLUGIN_NAME}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
-                                     "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
+      ${_name}_library PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
+                               "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
   endif()
   if(${_name}_WITH_PLUGIN)
     target_compile_definitions(
-      ${PLUGIN_NAME}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
-                                    "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
+      ${_name}_plugin PRIVATE "Acts_VERSION_MAJOR=${Acts_VERSION_MAJOR}"
+                              "Acts_VERSION_MINOR=${Acts_VERSION_MINOR}")
   endif()
 
 endmacro()
@@ -349,7 +365,7 @@ macro(plugin_add_irt _name)
   set_target_properties(IRT PROPERTIES INTERFACE_INCLUDE_DIRECTORIES
                                        "${IRT_INTERFACE_INCLUDE_DIRECTORIES}")
 
-  plugin_link_libraries(${PLUGIN_NAME} IRT)
+  plugin_link_libraries(${_name} IRT)
 
 endmacro()
 
@@ -370,13 +386,22 @@ macro(plugin_add_event_model _name)
 
   # Add include directories
   plugin_include_directories(
-    ${PLUGIN_NAME} PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
+    ${_name} PUBLIC $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}>)
+
+  # Ensure datamodel headers are available
+  if(TARGET podio_datamodel_glue)
+    if(${_name}_WITH_PLUGIN)
+      add_dependencies(${_name}_plugin podio_datamodel_glue)
+    endif()
+    if(${_name}_WITH_LIBRARY)
+      add_dependencies(${_name}_library podio_datamodel_glue)
+    endif()
+  endif()
 
   # Add libraries (same as target_include_directories but for both plugin and
   # library)
-  plugin_link_libraries(${PLUGIN_NAME} podio::podio EDM4EIC::edm4eic
-                        EDM4HEP::edm4hep)
+  plugin_link_libraries(${_name} podio::podio EDM4EIC::edm4eic EDM4HEP::edm4hep)
 
 endmacro()
 
@@ -388,7 +413,7 @@ macro(plugin_add_cern_root _name)
   endif()
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} ROOT::Core)
+  plugin_link_libraries(${_name} ROOT::Core)
 
 endmacro()
 
@@ -400,11 +425,10 @@ macro(plugin_add_fastjet _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC
-                             ${FASTJET_INCLUDE_DIRS})
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${FASTJET_INCLUDE_DIRS})
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} ${FASTJET_LIBRARIES})
+  plugin_link_libraries(${_name} ${FASTJET_LIBRARIES})
 
 endmacro()
 
@@ -416,11 +440,10 @@ macro(plugin_add_fastjettools _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC
-                             ${FJTOOLS_INCLUDE_DIRS})
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${FJTOOLS_INCLUDE_DIRS})
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} ${FJTOOLS_LIBRARIES})
+  plugin_link_libraries(${_name} ${FJTOOLS_LIBRARIES})
 
 endmacro()
 
@@ -432,11 +455,10 @@ macro(plugin_add_fastjetcontrib _name)
   endif()
 
   # Add include directories
-  plugin_include_directories(${PLUGIN_NAME} SYSTEM PUBLIC
-                             ${FJCONTRIB_INCLUDE_DIRS})
+  plugin_include_directories(${_name} SYSTEM PUBLIC ${FJCONTRIB_INCLUDE_DIRS})
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} ${FJCONTRIB_LIBRARIES})
+  plugin_link_libraries(${_name} ${FJCONTRIB_LIBRARIES})
 
 endmacro()
 
@@ -448,6 +470,6 @@ macro(plugin_add_onnxruntime _name)
   endif()
 
   # Add libraries
-  plugin_link_libraries(${PLUGIN_NAME} onnxruntime::onnxruntime)
+  plugin_link_libraries(${_name} onnxruntime::onnxruntime)
 
 endmacro()
