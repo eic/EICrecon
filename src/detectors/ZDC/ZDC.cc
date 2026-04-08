@@ -220,8 +220,8 @@ void InitPlugin(JApplication* app) {
           .diffLayerMode        = eicrecon::ImagingTopoClusterConfig::ELayerMode::xy,
           .sectorDist           = 10.0 * dd4hep::cm,
           .minClusterHitEdep    = 315.0 * dd4hep::keV,
-          .minClusterCenterEdep = 20 * dd4hep::MeV,
-          .minClusterEdep       = 11.0 * dd4hep::MeV,
+          .minClusterCenterEdep = 25 * dd4hep::MeV,
+          .minClusterEdep       = 50.0 * dd4hep::MeV,
           .minClusterNhits      = 10,
       },
       app));
