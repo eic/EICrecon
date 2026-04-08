@@ -44,7 +44,7 @@ void CalorimeterClusterShape::init() {
       [](const std::string& v) { return dd4hep::_toDouble(v); },
       [](const double& v) { return v; },
   };
-  
+
   // select weighting method
   std::string ew = m_cfg.energyWeight;
 
