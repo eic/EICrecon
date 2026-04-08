@@ -58,9 +58,8 @@ void CalorimeterClusterShape::init() {
     m_weightFunc = it->second;
   }
 
-  
   sampFrac = std::visit(_toDouble, m_cfg.sampFrac);
-  
+
 } // end 'init()'
 
 /*! Primary algorithm call: algorithm ingests a collection of clusters
