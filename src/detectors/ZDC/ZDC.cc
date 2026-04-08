@@ -263,8 +263,7 @@ void InitPlugin(JApplication* app) {
 #endif
        "HcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight        = "log",
-       .sampFrac            = "0.0273 * dd4hep::keV * "
-                              "HcalFarForwardZDC_SiPMonTile_PolystyreneThickness/(4*dd4hep::mm)",
+       .sampFrac            = "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness/(4*dd4hep::mm)",
        .logWeightBaseCoeffs = {5.8, 0.65, 0.31},
        .logWeightBase_Eref  = 50 * dd4hep::GeV},
       app // TODO: Remove me once fixed
@@ -281,8 +280,7 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
-       .sampFrac            = "0.0273 * dd4hep::keV * "
-                              "HcalFarForwardZDC_SiPMonTile_PolystyreneThickness/(4*dd4hep::mm)",
+       .sampFrac            = "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness/(4*dd4hep::mm)",
        .logWeightBaseCoeffs = {5.8, 0.65, 0.31},
        .logWeightBase_Eref  = 50 * dd4hep::GeV},
       app));
@@ -361,8 +359,7 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
-          .sampFrac        = "0.0273 * dd4hep::keV * "
-                             "HcalFarForwardZDC_SiPMonTile_PolystyreneThickness/(4*dd4hep::mm)",
+          .sampFrac        = "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness/(4*dd4hep::mm)",
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
       },
@@ -380,8 +377,7 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociationsBaseline"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
-       .sampFrac      = "0.0273 * dd4hep::keV * "
-                        "HcalFarForwardZDC_SiPMonTile_PolystyreneThickness/(4*dd4hep::mm)",
+       .sampFrac      = "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness/(4*dd4hep::mm)",
        .logWeightBase = 6.2},
       app));
 }
