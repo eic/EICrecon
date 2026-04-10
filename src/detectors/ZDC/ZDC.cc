@@ -138,7 +138,7 @@ void InitPlugin(JApplication* app) {
        "EcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
-          .                = 1.0,
+          .sampFrac        = 1.0,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
       },
@@ -187,7 +187,7 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC   = 10 * dd4hep::picosecond,
           .thresholdFactor = 3.0,
           .thresholdValue  = 0.0,
-          .                = "1.0",
+          .sampFrac        = "1.0",
           .readout         = "HcalFarForwardZDCHits",
           .layerField      = "layer",
           .sectorField     = "system",
