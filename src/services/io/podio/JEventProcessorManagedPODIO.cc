@@ -1,25 +1,37 @@
 #include "JEventProcessorManagedPODIO.h"
 
 #include <JANA/JApplication.h>
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEvent.h>
-#include <JANA/JException.h>
+#include <JANA/JEventSource.h>
 #include <JANA/Services/JComponentManager.h>
-#include <JANA/Services/JParameterManager.h>
+#include <JANA/Utils/JTypeInfo.h>
+#include <errno.h>
 #include <fmt/format.h>
+#include <nlohmann/detail/json_ref.hpp>
 #include <nlohmann/json.hpp>
+#include <podio/CollectionBase.h>
+#include <podio/Frame.h>
 #include <podio/Writer.h>
+#include <spdlog/logger.h>
+#include <zmq.h>
 #include <zmq.hpp>
 #include <algorithm>
+#include <cctype>
 #include <chrono>
-#include <condition_variable>
+#include <cstring>
 #include <exception>
 #include <filesystem>
-#include <fstream>
-#include <iostream>
+#include <set>
+#include <sstream>
+#include <stdexcept>
+#include <string_view>
 #include <thread>
+#include <vector>
 
-#include "services/io/podio/JEventSourcePODIO.h"
+#include "services/io/podio/JEventProcessorPODIO.h"
 #include "services/io/podio/JEventSourceManagedPODIO.h"
+#include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
 JEventProcessorManagedPODIO::JEventProcessorManagedPODIO() : JEventProcessorPODIO() {
