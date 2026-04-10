@@ -107,7 +107,7 @@ void InitPlugin(JApplication* app) {
        "EcalFarForwardZDCTruthClusterLinksWithoutShapes",
 #endif
        "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", . = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
+      {.energyWeight = "log", .= 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
 
@@ -138,7 +138,7 @@ void InitPlugin(JApplication* app) {
        "EcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
-          .        = 1.0,
+          .                = 1.0,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
       },
@@ -187,7 +187,7 @@ void InitPlugin(JApplication* app) {
           .resolutionTDC   = 10 * dd4hep::picosecond,
           .thresholdFactor = 3.0,
           .thresholdValue  = 0.0,
-          .        = "1.0",
+          .                = "1.0",
           .readout         = "HcalFarForwardZDCHits",
           .layerField      = "layer",
           .sectorField     = "system",
@@ -263,7 +263,8 @@ void InitPlugin(JApplication* app) {
 #endif
        "HcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log",
-       .sampFrac     = dd4hep::_toDouble("0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
+       .sampFrac     = dd4hep::_toDouble(
+           "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
        .logWeightBaseCoeffs = {5.8, 0.65, 0.31},
        .logWeightBase_Eref  = 50 * dd4hep::GeV},
       app // TODO: Remove me once fixed
@@ -280,7 +281,8 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociations"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
-       .sampFrac = dd4hep::_toDouble("0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
+       .sampFrac                        = dd4hep::_toDouble(
+           "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
        .logWeightBaseCoeffs = {5.8, 0.65, 0.31},
        .logWeightBase_Eref  = 50 * dd4hep::GeV},
       app));
@@ -359,7 +361,8 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight = "log",
-          .sampFrac     = dd4hep::_toDouble("0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
+          .sampFrac     = dd4hep::_toDouble(
+              "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
       },
