@@ -99,7 +99,6 @@ public:
 
 private:
   std::function<double(double, double, double, int)> weightFunc;
-  double sampFrac = 1.0;
 
 private:
   std::optional<edm4eic::MutableCluster> reconstruct(const edm4eic::ProtoCluster& pcl) const;
