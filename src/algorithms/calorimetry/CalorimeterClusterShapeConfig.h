@@ -23,7 +23,7 @@ struct CalorimeterClusterShapeConfig {
      *  of the cluster before applying the fraction, which
      *  is a necessary input for the log-weight calculation.
      */
-  std::variant<std::string, double> sampFrac = 1.;
+  double sampFrac = 1.0;
 
   //! optional parameters for having the log weight base
   //! depend on the energy via
