@@ -33,15 +33,13 @@ public:
       : FarForwardLambdaReconstructionAlgorithm{
             name,
 
-            {"inputNeutralsHcal",
-             "inputNeutralsB0", 
-             "inputNeutralsEcalEndCapP",
+            {"inputNeutralsHcal", "inputNeutralsB0", "inputNeutralsEcalEndCapP",
              "inputNeutralsLFHCAL"},
 
-            {"outputLambdas", 
-             "outputLambdaDecayProductsCM"},
+            {"outputLambdas", "outputLambdaDecayProductsCM"},
 
-            "Reconstructs lambda candidates and their decay products (in the CM frame) from the reconstructed neutrons and photons"} {}
+            "Reconstructs lambda candidates and their decay products (in the CM frame) from the "
+            "reconstructed neutrons and photons"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -52,11 +50,10 @@ private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   double m_zMax{0};
 
-  bool reconstruct_from_triplet(
-      const edm4eic::ReconstructedParticle& n_in,
-      const edm4eic::ReconstructedParticle& g1_in,
-      const edm4eic::ReconstructedParticle& g2_in,
-      edm4eic::ReconstructedParticleCollection* out_lambdas,
-      edm4eic::ReconstructedParticleCollection* out_decay_products) const;
+  bool reconstruct_from_triplet(const edm4eic::ReconstructedParticle& n_in,
+                                const edm4eic::ReconstructedParticle& g1_in,
+                                const edm4eic::ReconstructedParticle& g2_in,
+                                edm4eic::ReconstructedParticleCollection* out_lambdas,
+                                edm4eic::ReconstructedParticleCollection* out_decay_products) const;
 };
 } // namespace eicrecon

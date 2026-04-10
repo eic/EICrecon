@@ -217,14 +217,9 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardNeutralsReconstruction_factory>(
       "ReconstructedFarForwardZDCNeutrals",
-      {"HcalFarForwardZDCClusters", 
-        "B0ECalClusters", 
-        "EcalEndcapPClusters", 
-        "LFHCALClusters"},
-      {"ReconstructedHcalFarForwardZDCNeutrals", 
-        "ReconstructedB0EcalNeutrals", 
-        "ReconstructedEcalEndcapPNeutrals",
-        "ReconstructedLFHCALNeutrals"},
+      {"HcalFarForwardZDCClusters", "B0ECalClusters", "EcalEndcapPClusters", "LFHCALClusters"},
+      {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
+       "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},
       {.offsetPositionName               = "HcalFarForwardZDC_SiPMonTile_r_pos",
        .neutronScaleCorrCoeffHcal        = {2.4, 0.89},
        .gammaScaleCorrCoeffHcal          = {1.1, 0.98},
@@ -243,12 +238,9 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<FarForwardLambdaReconstruction_factory>(
       "ReconstructedFarForwardLambdas",
-      {"ReconstructedHcalFarForwardZDCNeutrals", 
-        "ReconstructedB0EcalNeutrals", 
-        "ReconstructedEcalEndcapPNeutrals", 
-        "ReconstructedLFHCALNeutrals"},
-      {"ReconstructedFarForwardLambdas", 
-        "ReconstructedFarForwardLambdaDecayProductsCM"},
+      {"ReconstructedHcalFarForwardZDCNeutrals", "ReconstructedB0EcalNeutrals",
+       "ReconstructedEcalEndcapPNeutrals", "ReconstructedLFHCALNeutrals"},
+      {"ReconstructedFarForwardLambdas", "ReconstructedFarForwardLambdaDecayProductsCM"},
       {.offsetPositionName     = "HcalFarForwardZDC_SiPMonTile_r_pos",
        .globalToProtonRotation = -0.025,
        .lambdaMassWindow       = 0.30,
