@@ -23,6 +23,7 @@
 #include <cmath>
 #include <complex>
 #include <cstddef>
+#include <gsl/pointers>
 #include <iterator>
 #include <memory>
 #include <utility>
