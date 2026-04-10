@@ -25,7 +25,6 @@
 #include <memory>
 #include <tuple>
 #include <utility>
-#include <variant>
 #include <vector>
 
 #include "CalorimeterClusterShape.h"
@@ -40,11 +39,6 @@ template <typename... L> struct multilambda : L... {
 
 void CalorimeterClusterShape::init() {
 
-  multilambda _toDouble = {
-      [](const std::string& v) { return dd4hep::_toDouble(v); },
-      [](const double& v) { return v; },
-  };
-
   // select weighting method
   std::string ew = m_cfg.energyWeight;
 
@@ -57,8 +51,6 @@ void CalorimeterClusterShape::init() {
   } else {
     m_weightFunc = it->second;
   }
-
-  sampFrac = std::visit(_toDouble, m_cfg.sampFrac);
 
 } // end 'init()'
 
@@ -130,7 +122,7 @@ void CalorimeterClusterShape::process(const CalorimeterClusterShape::Input& inpu
         for (const auto& hit : out_clust.getHits()) {
 
           // get weight of hit
-          const double eTotal = out_clust.getEnergy() * sampFrac;
+          const double eTotal = out_clust.getEnergy() * m_cfg.sampFrac;
           const float w       = m_weightFunc(hit.getEnergy(), eTotal, logWeightBase, 0);
 
           // theta, phi
