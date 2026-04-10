@@ -8,7 +8,6 @@
  *  Author: Chao Peng (ANL), 09/27/2020
  */
 
-#include <DD4hep/Handle.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/range/adaptor/map.hpp>
@@ -29,8 +28,6 @@
 #include <limits>
 #include <map>
 #include <optional>
-#include <tuple>
-#include <variant>
 #include <vector>
 
 #include "CalorimeterClusterRecoCoG.h"
@@ -40,17 +37,8 @@ namespace eicrecon {
 
 using namespace dd4hep;
 
-template <typename... L> struct multilambda : L... {
-  using L::operator()...;
-  constexpr multilambda(L... lambda) : L(std::move(lambda))... {}
-};
 
 void CalorimeterClusterRecoCoG::init() {
-
-  multilambda _toDouble = {
-      [](const std::string& v) { return dd4hep::_toDouble(v); },
-      [](const double& v) { return v; },
-  };
 
   // select weighting method
   std::string ew = m_cfg.energyWeight;
@@ -63,8 +51,6 @@ void CalorimeterClusterRecoCoG::init() {
     return;
   }
   weightFunc = it->second;
-
-  sampFrac = std::visit(_toDouble, m_cfg.sampFrac);
 }
 
 void CalorimeterClusterRecoCoG::process(const CalorimeterClusterRecoCoG::Input& input,
@@ -159,7 +145,7 @@ CalorimeterClusterRecoCoG::reconstruct(const edm4eic::ProtoCluster& pcl) const {
     minHitEta       = std::min(eta, minHitEta);
     maxHitEta       = std::max(eta, maxHitEta);
   }
-  cl.setEnergy(totalE / sampFrac);
+  cl.setEnergy(totalE / m_cfg.sampFrac);
   cl.setEnergyError(0.);
   cl.setTime(time);
   cl.setTimeError(timeError);
