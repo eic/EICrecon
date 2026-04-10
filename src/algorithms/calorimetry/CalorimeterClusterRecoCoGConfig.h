@@ -14,7 +14,7 @@ struct CalorimeterClusterRecoCoGConfig {
   std::string energyWeight;
 
   double sampFrac      = 1.;
-  double logWeightBase                       = 3.6;
+  double logWeightBase = 3.6;
 
   //optional:  have the log weight base depend on the energy
   //  logWeightBaseCoeffs[0]+logWeightBaseCoeffs[1]*l+logWeightBaseCoeffs[2]*l*l + ...
