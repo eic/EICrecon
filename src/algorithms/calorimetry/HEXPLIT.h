@@ -104,6 +104,6 @@ private:
 
 private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
-}; // namespace eicrecon
+};
 
 } // namespace eicrecon

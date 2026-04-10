@@ -15,7 +15,6 @@
 #include <algorithm>
 #include <cmath>
 #include <cstdlib>
-#include <iostream>
 #include <numbers>
 #include <tuple>
 #include <vector>
@@ -94,7 +93,7 @@ void HEXPLIT::init() {
   } else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::S2) {
     stag = stag_S2;
   } else if (m_cfg.stag_type == HEXPLITConfig::StaggerType::H3) {
-    std::cout << "error   H3 staggering not implemented yet in EICrecon" << std::endl;
+    error("H3 staggering not implemented yet in EICrecon");
   }
 }
 
