@@ -65,7 +65,6 @@ public:
   void process(const Input&, const Output&) const final;
 
 private:
-  double sampFrac = 1.0;
   //! constant weighting
   static double constWeight(double /*E*/, double /*tE*/, double /*p*/, int /*type*/) { return 1.0; }
 
