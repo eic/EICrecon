@@ -17,13 +17,13 @@ sequenceDiagram
 
     Note over Client, JANA: File Processing Request
     Client->>Listener: ZMQ REQ: {"input_file": "...", "output_file": "..."}
-    
+
     Listener->>Listener: Receive ZMQ message
     Listener->>Processor: ProcessFileRequest(json)
     Processor->>Processor: Validate input file exists
     Processor->>Processor: Set m_pending_response = true
     Processor->>Processor: OpenOutputFile() - Create podio::Writer
-    
+
     Processor->>Source: NotifySourceNewFile(input_file, output_file)
     Source->>Source: SetCurrentFile() - Reset state, open input file
     Source->>Source: ProcessCurrentFile() - Create podio::Reader
@@ -35,12 +35,12 @@ sequenceDiagram
         Source->>Source: Check if file available, read next event
         Source->>Source: Insert collections into JEvent
         Source-->>JANA: Return Success
-        
+
         JANA->>Processor: Process(event)
         Processor->>Processor: CheckFileCompletion() - Poll source
         Processor->>Source: IsFileProcessingComplete()
         Source-->>Processor: Return completion status
-        
+
         alt File not complete
             Processor->>Processor: Write event to output file
             Processor->>Processor: Increment m_events_processed
@@ -88,7 +88,7 @@ sequenceDiagram
 ## Communication Patterns
 
 - **ZMQ REQ/REP**: Client ↔ Listener Thread (external communication)
-- **Direct Method Calls**: Listener Thread → Processor, Processor → Source (internal coordination)  
+- **Direct Method Calls**: Listener Thread → Processor, Processor → Source (internal coordination)
 - **Polling**: Processor polls Source for completion status
 - **Condition Variables**: Source uses CV to wait for new files
 - **Threading**: Listener Thread runs independently, handling ZMQ communication asynchronously
