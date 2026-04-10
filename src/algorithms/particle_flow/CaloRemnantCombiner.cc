@@ -3,12 +3,9 @@
 
 #include <edm4eic/ClusterCollection.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
-#include <edm4hep/Vector3f.h>
-#include <edm4hep/utils/vector_utils.h>
-#include <cmath>
 #include <gsl/pointers>
-#include <optional>
 #include <set>
+#include <tuple>
 
 #include "CaloRemnantCombiner.h"
 #include "algorithms/particle_flow/CaloRemnantCombinerConfig.h"
