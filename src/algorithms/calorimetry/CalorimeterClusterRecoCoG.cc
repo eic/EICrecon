@@ -37,7 +37,6 @@ namespace eicrecon {
 
 using namespace dd4hep;
 
-
 void CalorimeterClusterRecoCoG::init() {
 
   // select weighting method
