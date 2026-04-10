@@ -39,7 +39,6 @@ namespace eicrecon {
 using namespace dd4hep;
 
 void CalorimeterClusterRecoCoG::init() {
-
   // select weighting method
   std::string ew = m_cfg.energyWeight;
   // make it case-insensitive
