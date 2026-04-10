@@ -380,7 +380,7 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterAssociationsBaseline"},
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
-       .sampFrac      = dd4hep::_toDouble(
+       .sampFrac                        = dd4hep::_toDouble(
            "0.0273 * HcalFarForwardZDC_SiPMonTile_PolystyreneThickness / ( 4 * mm )"),
        .logWeightBase = 6.2},
       app));
