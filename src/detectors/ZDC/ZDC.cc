@@ -107,7 +107,7 @@ void InitPlugin(JApplication* app) {
        "EcalFarForwardZDCTruthClusterLinksWithoutShapes",
 #endif
        "EcalFarForwardZDCTruthClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .= 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
+      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));
 
