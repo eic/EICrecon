@@ -256,70 +256,13 @@ void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& e
     return; // No active file processing
   }
   
-  // Use parent class logic for finding collections to write (first event only)
-  std::call_once(m_is_first_event, &JEventProcessorPODIO::FindCollectionsToWrite, this, event);
-
-  // Print collections if requested (same as parent)
-  if (!m_collections_to_print.empty()) {
-    m_log->info("========================================");
-    m_log->info("JEventProcessorManagedPODIO: Event {}", event->GetEventNumber());
-  }
-  for (const auto& coll_name : m_collections_to_print) {
-    m_log->info("------------------------------");
-    m_log->info("{}", coll_name);
-    try {
-      const auto* coll_ptr = event->GetCollectionBase(coll_name);
-      if (coll_ptr == nullptr) {
-        m_log->info("missing");
-      } else {
-        std::stringstream ss;
-        coll_ptr->print(ss);
-        m_log->info(ss.str());
-      }
-    } catch (std::exception& e) {
-      m_log->info("missing");
-    }
-  }
-
-  m_log->trace("==================================");
-  m_log->trace("Event #{}", event->GetEventNumber());
-
-  // Activate factories and write frame (same logic as parent)
-  std::vector<std::string> successful_collections;
-  std::set<std::string> failed_collections;
-  for (const std::string& coll : m_collections_to_write) {
-    try {
-      m_log->trace("Ensuring factory for collection '{}' has been called.", coll);
-      const auto* coll_ptr = event->GetCollectionBase(coll);
-      if (coll_ptr == nullptr) {
-        if (!failed_collections.contains(coll)) {
-          m_log->error("Omitting PODIO collection '{}' because it is null", coll);
-          failed_collections.insert(coll);
-        }
-      } else {
-        m_log->trace("Including PODIO collection '{}'", coll);
-        successful_collections.push_back(coll);
-      }
-    } catch (std::exception& e) {
-      if (!failed_collections.contains(coll)) {
-        m_log->error("Omitting PODIO collection '{}' due to exception: {}.", coll, e.what());
-        failed_collections.insert(coll);
-      }
-    }
-  }
-
-  // Write frame
-  const auto* frame = event->GetSingle<podio::Frame>();
-  {
-    std::lock_guard<std::mutex> write_lock(m_mutex);
-    m_writer->writeFrame(*frame, "events", m_collections_to_write);
-  }
+  // Call parent class implementation
+  JEventProcessorPODIO::Process(event);
   
   m_events_processed++;
   
   // Check if current file processing is complete
   CheckFileCompletion();
-  
 }
 
 void JEventProcessorManagedPODIO::Finish() {
