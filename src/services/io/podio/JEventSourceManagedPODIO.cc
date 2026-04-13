@@ -34,35 +34,6 @@ void JEventSourceManagedPODIO::Close() {
   m_file_cv.notify_all();
 }
 
-void JEventSourceManagedPODIO::ProcessCurrentFile() {
-  try {
-    m_log->info("Opening file for processing: {}", m_current_input_file);
-    
-    // Check if input file exists
-    if (!std::filesystem::exists(m_current_input_file)) {
-      throw std::runtime_error(fmt::format("Input file does not exist: {}", m_current_input_file));
-    }
-    
-    // Use parent class method to open the file
-    // Temporarily set the resource name to the current input file
-    SetResourceName(m_current_input_file);
-    
-    // Open the file with PODIO reader (reuse parent class logic)
-    m_reader = std::make_unique<podio::Reader>(podio::makeReader(m_current_input_file));
-    
-    auto version = m_reader->currentFileVersion();
-    m_log->info("PODIO version: file={} (executable={})", version, podio::version::build_version);
-    
-    Nevents_in_file = m_reader->getEntries("events");
-    Nevents_read = 0;
-    
-    m_log->info("Opened PODIO file \"{}\" with {} events", m_current_input_file, Nevents_in_file);
-    
-  } catch (const std::exception& e) {
-    m_log->error("Failed to open file {}: {}", m_current_input_file, e.what());
-    throw;
-  }
-}
 
 
 JEventSourceManagedPODIO::Result JEventSourceManagedPODIO::Emit(JEvent& event) {
@@ -114,8 +85,34 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file, con
   Nevents_read = 0;
   m_file_processing_complete = false;
   
-  // Process the new file
-  ProcessCurrentFile();
+  // Process the new file (inlined)
+  try {
+    m_log->info("Opening file for processing: {}", m_current_input_file);
+    
+    // Check if input file exists
+    if (!std::filesystem::exists(m_current_input_file)) {
+      throw std::runtime_error(fmt::format("Input file does not exist: {}", m_current_input_file));
+    }
+    
+    // Use parent class method to open the file
+    // Temporarily set the resource name to the current input file
+    SetResourceName(m_current_input_file);
+    
+    // Open the file with PODIO reader (reuse parent class logic)
+    m_reader = std::make_unique<podio::Reader>(podio::makeReader(m_current_input_file));
+    
+    auto version = m_reader->currentFileVersion();
+    m_log->info("PODIO version: file={} (executable={})", version, podio::version::build_version);
+    
+    Nevents_in_file = m_reader->getEntries("events");
+    Nevents_read = 0;
+    
+    m_log->info("Opened PODIO file \"{}\" with {} events", m_current_input_file, Nevents_in_file);
+    
+  } catch (const std::exception& e) {
+    m_log->error("Failed to open file {}: {}", m_current_input_file, e.what());
+    throw;
+  }
   
   m_file_available = true;
   m_file_cv.notify_all();

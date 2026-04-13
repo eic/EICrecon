@@ -25,8 +25,6 @@ public:
   bool IsFileProcessingComplete() const { return m_file_processing_complete.load(); }
 
 private:
-  void ProcessCurrentFile();
-
   // File management for managed mode
   std::string m_current_input_file;
   std::string m_current_output_file;
