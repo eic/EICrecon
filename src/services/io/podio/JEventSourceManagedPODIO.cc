@@ -55,8 +55,6 @@ JEventSourceManagedPODIO::Result JEventSourceManagedPODIO::Emit(JEvent& event) {
     return Result::FailureTryAgain;
   }
   
-  lock.unlock();
-  
   // Use parent class logic to read the event
   Result result = JEventSourcePODIO::Emit(event);
   
