@@ -50,13 +50,13 @@ void InitPlugin(JApplication* app) {
   using namespace eicrecon;
 
   app->Add(new JOmniFactoryGeneratorT<TrackParamTruthInit_factory>(
-      "TrackTruthSeeds", {"EventHeader", "MCParticles"},
-      {"TrackTruthSeeds", "TrackTruthSeedParameters"}, {}, app));
+      "TrackerTruthSeeds", {"EventHeader", "MCParticles"},
+      {"TrackerTruthSeeds", "TrackerTruthSeedParameters"}, {}, app));
 
   std::vector<std::pair<double, double>> thetaRanges{{0, 50 * dd4hep::mrad},
                                                      {50 * dd4hep::mrad, 180 * dd4hep::deg}};
   app->Add(new JOmniFactoryGeneratorT<SubDivideCollection_factory<edm4eic::TrackSeed>>(
-      "CentralB0TrackTruthSeeds", {"TrackTruthSeeds"},
+      "CentralB0TrackerTruthSeeds", {"TrackerTruthSeeds"},
       {"B0TrackerTruthSeeds", "CentralTrackerTruthSeeds"},
       {
           .function = RangeSplit<
@@ -247,18 +247,6 @@ void InitPlugin(JApplication* app) {
                                                                 },
                                                                 {}, app));
 
-  app->Add(
-      new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>("CentralTrack4HitCutVertices",
-                                                                {
-                                                                    "CentralCKFActsTrackStates",
-                                                                    "CentralCKFActsTracks",
-                                                                    "ReconstructedChargedParticles",
-                                                                },
-                                                                {
-                                                                    "CentralTrack4HitCutVertices",
-                                                                },
-                                                                {.minTrackHits = 4}, app));
-
   app->Add(new JOmniFactoryGeneratorT<TrackPropagation_factory>(
       "CalorimeterTrackPropagator",
       {"CentralCKFTracks", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
@@ -330,6 +318,9 @@ void InitPlugin(JApplication* app) {
           "B0TrackerCKFTruthSeededActsTrackStatesUnfiltered",
           "B0TrackerCKFTruthSeededActsTracksUnfiltered",
       },
+      {
+          .numMeasurementsMin = 3,
+      },
       app));
 
   app->Add(new JOmniFactoryGeneratorT<ActsToTracks_factory>(
@@ -359,6 +350,9 @@ void InitPlugin(JApplication* app) {
       {
           "B0TrackerCKFTruthSeededActsTrackStates",
           "B0TrackerCKFTruthSeededActsTracks",
+      },
+      {
+          .n_measurements_min = 3,
       },
       app));
 
@@ -470,18 +464,6 @@ void InitPlugin(JApplication* app) {
           "CentralAndB0TrackVertices",
       },
       {}, app));
-
-  app->Add(new JOmniFactoryGeneratorT<IterativeVertexFinder_factory>(
-      "CentralAndB0Track4HitCutVertices",
-      {
-          "CentralAndB0TrackerCKFActsTrackStates",
-          "CentralAndB0TrackerCKFActsTracks",
-          "ReconstructedChargedParticles",
-      },
-      {
-          "CentralAndB0Track4HitCutVertices",
-      },
-      {.minTrackHits = 4}, app));
 
   // Add central and B0 tracks
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Track, true>>(
