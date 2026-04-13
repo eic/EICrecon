@@ -32,7 +32,7 @@ private:
   void SendResponse(const nlohmann::json& response);
   void OpenOutputFile(const std::string& output_file);
   void CloseOutputFile();
-  void NotifySourceNewFile(const std::string& input_file, const std::string& output_file);
+  void NotifySourceNewFile(const std::string& input_file);
   void CheckFileCompletion();
   bool IsCurrentFileComplete();
 

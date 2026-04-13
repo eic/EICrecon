@@ -21,13 +21,12 @@ public:
 
   static std::string GetDescription();
   
-  void SetCurrentFile(const std::string& input_file, const std::string& output_file);
+  void SetCurrentFile(const std::string& input_file);
   bool IsFileProcessingComplete() const { return m_file_processing_complete.load(); }
 
 private:
   // File management for managed mode
   std::string m_current_input_file;
-  std::string m_current_output_file;
   std::atomic<bool> m_file_available{false};
   std::atomic<bool> m_file_processing_complete{false};
   

@@ -148,8 +148,7 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     OpenOutputFile(output_file);
     
     // Signal the event source that a new file is available
-    // The source will handle opening the input file
-    NotifySourceNewFile(input_file, output_file);
+    NotifySourceNewFile(input_file);
     
     m_log->info("Started processing file: {} -> {}", input_file, output_file);
     
@@ -341,7 +340,7 @@ void JEventProcessorManagedPODIO::Finish() {
   m_log->info("Managed PODIO processor finished");
 }
 
-void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file, const std::string& output_file) {
+void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file) {
   // Find the managed event source and notify it of the new file
   auto* app = GetApplication();
   auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
@@ -350,7 +349,7 @@ void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_f
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
     if (managed_source != nullptr) {
       m_log->debug("Notifying managed source of new file: {}", input_file);
-      managed_source->SetCurrentFile(input_file, output_file);
+      managed_source->SetCurrentFile(input_file);
       break;
     }
   }

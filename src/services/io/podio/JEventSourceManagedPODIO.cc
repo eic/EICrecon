@@ -74,11 +74,10 @@ std::string JEventSourceManagedPODIO::GetDescription() {
   return "Managed PODIO source (waits for external file requests)";
 }
 
-void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file, const std::string& output_file) {
+void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file) {
   std::lock_guard<std::mutex> lock(m_file_mutex);
   
   m_current_input_file = input_file;
-  m_current_output_file = output_file;
   
   m_file_processing_complete = false;
   
@@ -106,7 +105,6 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file, con
   
   m_file_available = true;
   m_file_cv.notify_all();
-  m_log->info("New file set for processing: {} -> {}", input_file, output_file);
 }
 
 template <>
