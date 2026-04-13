@@ -48,8 +48,15 @@ void JEventProcessorManagedPODIO::Init() {
     m_zmq_context = std::make_unique<zmq::context_t>(1);
     m_zmq_socket = std::make_unique<zmq::socket_t>(*m_zmq_context, ZMQ_REP);
     
-    // Remove existing socket file if it exists
-    std::filesystem::remove(m_socket_path);
+    // Remove existing socket file if it exists and is actually a socket
+    if (std::filesystem::exists(m_socket_path)) {
+      if (std::filesystem::is_socket(m_socket_path)) {
+        std::filesystem::remove(m_socket_path);
+        m_log->debug("Removed existing socket file: {}", m_socket_path);
+      } else {
+        throw std::runtime_error(fmt::format("Path exists but is not a socket: {}", m_socket_path));
+      }
+    }
     
     // Bind to UNIX socket
     std::string bind_address = "ipc://" + m_socket_path;
@@ -277,8 +284,11 @@ void JEventProcessorManagedPODIO::Finish() {
     m_listener_thread->join();
   }
   
-  // Clean up socket file
-  std::filesystem::remove(m_socket_path);
+  // Clean up socket file if it exists and is a socket
+  if (std::filesystem::exists(m_socket_path) && std::filesystem::is_socket(m_socket_path)) {
+    std::filesystem::remove(m_socket_path);
+    m_log->debug("Cleaned up socket file: {}", m_socket_path);
+  }
   
   m_log->info("Managed PODIO processor finished");
 }
