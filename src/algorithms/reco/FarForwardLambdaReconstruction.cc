@@ -342,8 +342,6 @@ void FarForwardLambdaReconstruction::process(
         const auto pg1 = g1.getMomentum();
         const auto pg2 = g2.getMomentum();
 
-        const double px = pn.x + pg1.x + pg2.x;
-        const double py = pn.y + pg1.y + pg2.y;
         const double pz = pn.z + pg1.z + pg2.z;
 
         cands.push_back({pp.i, pp.j, (int)in, n_cat, pp.cat, chi2, E, pz});
