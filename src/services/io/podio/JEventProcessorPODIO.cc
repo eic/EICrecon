@@ -287,7 +287,7 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #endif
       "ReconstructedNeutralParticleAssociations",
       "ReconstructedNeutralJets",
-      
+
       // Central tracking
       "CentralTrackSegments",
       "CentralTrackVertices",
