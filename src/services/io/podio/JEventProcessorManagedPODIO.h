@@ -40,20 +40,20 @@ private:
   std::unique_ptr<zmq::context_t> m_zmq_context;
   std::unique_ptr<zmq::socket_t> m_zmq_socket;
   std::string m_socket_path = "/tmp/eicrecon_managed.sock";
-  
+
   // Threading
   std::unique_ptr<std::thread> m_listener_thread;
   std::atomic<bool> m_should_stop{false};
-  
+
   // File management
   std::string m_current_input_file;
   std::string m_current_output_file;
   bool m_file_processing_active = false;
   std::mutex m_file_mutex;
-  
+
   // Event counting for current file
   std::atomic<size_t> m_events_processed{0};
-  
+
   // Response management
   bool m_pending_response = false;
 };

@@ -20,7 +20,7 @@ public:
   Result Emit(JEvent& event) override;
 
   static std::string GetDescription();
-  
+
   void SetCurrentFile(const std::string& input_file);
   bool IsFileProcessingComplete() const { return m_file_processing_complete.load(); }
 
@@ -29,7 +29,7 @@ private:
   std::string m_current_input_file;
   std::atomic<bool> m_file_available{false};
   std::atomic<bool> m_file_processing_complete{false};
-  
+
   // Synchronization
   std::mutex m_file_mutex;
   std::condition_variable m_file_cv;

@@ -39,15 +39,15 @@ JEventProcessorManagedPODIO::~JEventProcessorManagedPODIO() {
 
 void JEventProcessorManagedPODIO::Init() {
   auto* app = GetApplication();
-  m_log = app->GetService<Log_service>()->logger("JEventProcessorManagedPODIO");
+  m_log     = app->GetService<Log_service>()->logger("JEventProcessorManagedPODIO");
 
   m_log->info("Initializing managed PODIO processor with socket: {}", m_socket_path);
 
   // Initialize ZeroMQ
   try {
     m_zmq_context = std::make_unique<zmq::context_t>(1);
-    m_zmq_socket = std::make_unique<zmq::socket_t>(*m_zmq_context, ZMQ_REP);
-    
+    m_zmq_socket  = std::make_unique<zmq::socket_t>(*m_zmq_context, ZMQ_REP);
+
     // Remove existing socket file if it exists and is actually a socket
     if (std::filesystem::exists(m_socket_path)) {
       if (std::filesystem::is_socket(m_socket_path)) {
@@ -57,16 +57,17 @@ void JEventProcessorManagedPODIO::Init() {
         throw std::runtime_error(fmt::format("Path exists but is not a socket: {}", m_socket_path));
       }
     }
-    
+
     // Bind to UNIX socket
     std::string bind_address = "ipc://" + m_socket_path;
     m_zmq_socket->bind(bind_address);
-    
+
     m_log->info("ZeroMQ socket bound to: {}", bind_address);
-    
+
     // Start listener thread
-    m_listener_thread = std::make_unique<std::thread>(&JEventProcessorManagedPODIO::ListenForMessages, this);
-    
+    m_listener_thread =
+        std::make_unique<std::thread>(&JEventProcessorManagedPODIO::ListenForMessages, this);
+
   } catch (const std::exception& e) {
     throw std::runtime_error(fmt::format("Failed to initialize ZeroMQ: {}", e.what()));
   }
@@ -76,30 +77,28 @@ void JEventProcessorManagedPODIO::Init() {
 
 void JEventProcessorManagedPODIO::ListenForMessages() {
   m_log->info("Started listening for messages on socket: {}", m_socket_path);
-  
+
   while (!m_should_stop) {
     try {
       zmq::message_t request;
-      
+
       // Poll for messages with timeout
       zmq::pollitem_t items[] = {{*m_zmq_socket, 0, ZMQ_POLLIN, 0}};
-      int rc = zmq::poll(items, 1, std::chrono::milliseconds(1000));
-      
+      int rc                  = zmq::poll(items, 1, std::chrono::milliseconds(1000));
+
       if (rc > 0 && (items[0].revents & ZMQ_POLLIN)) {
         auto result = m_zmq_socket->recv(request, zmq::recv_flags::dontwait);
         if (result) {
           std::string request_str(static_cast<char*>(request.data()), request.size());
           m_log->debug("Received message: {}", request_str);
-          
+
           try {
             nlohmann::json request_json = nlohmann::json::parse(request_str);
             ProcessFileRequest(request_json);
           } catch (const std::exception& e) {
             m_log->error("Failed to parse JSON request: {}", e.what());
             nlohmann::json error_response = {
-              {"status", "error"},
-              {"message", fmt::format("Invalid JSON: {}", e.what())}
-            };
+                {"status", "error"}, {"message", fmt::format("Invalid JSON: {}", e.what())}};
             SendResponse(error_response);
           }
         }
@@ -112,7 +111,7 @@ void JEventProcessorManagedPODIO::ListenForMessages() {
       m_log->error("Unexpected error in listener: {}", e.what());
     }
   }
-  
+
   m_log->info("Message listener thread stopped");
 }
 
@@ -120,45 +119,43 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
   try {
     if (!request.contains("input_file") || !request.contains("output_file")) {
       nlohmann::json error_response = {
-        {"status", "error"},
-        {"message", "Request must contain 'input_file' and 'output_file' fields"}
-      };
+          {"status", "error"},
+          {"message", "Request must contain 'input_file' and 'output_file' fields"}};
       SendResponse(error_response);
       return;
     }
-    
-    std::string input_file = request["input_file"];
+
+    std::string input_file  = request["input_file"];
     std::string output_file = request["output_file"];
-    
+
     m_log->info("Processing request: {} -> {}", input_file, output_file);
-    
+
     // Check if input file exists
     if (!std::filesystem::exists(input_file)) {
       nlohmann::json error_response = {
-        {"status", "error"},
-        {"message", fmt::format("Input file does not exist: {}", input_file)}
-      };
+          {"status", "error"},
+          {"message", fmt::format("Input file does not exist: {}", input_file)}};
       SendResponse(error_response);
       return;
     }
-    
+
     {
       std::lock_guard<std::mutex> lock(m_file_mutex);
-      m_current_input_file = input_file;
-      m_current_output_file = output_file;
+      m_current_input_file     = input_file;
+      m_current_output_file    = output_file;
       m_file_processing_active = true;
-      m_events_processed = 0;
-      m_pending_response = true;  // Mark that we have a pending response to send
+      m_events_processed       = 0;
+      m_pending_response       = true; // Mark that we have a pending response to send
     }
-    
+
     // Open output file before notifying the source
     OpenOutputFile(output_file);
-    
+
     // Signal the event source that a new file is available
     NotifySourceNewFile(input_file);
-    
+
     m_log->info("Started processing file: {} -> {}", input_file, output_file);
-    
+
     // Check if the file has zero events and handle completion immediately
     if (IsCurrentFileComplete()) {
       m_log->info("File has zero events, completing immediately");
@@ -168,16 +165,14 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
         m_file_processing_active = false;
       }
     }
-    
+
     // Note: We don't send a response here for non-empty files. The response will be sent when processing completes
     // in CloseOutputFile(). For empty files, the response is sent above.
-    
+
   } catch (const std::exception& e) {
     m_log->error("Error processing file request: {}", e.what());
-    nlohmann::json error_response = {
-      {"status", "error"},
-      {"message", fmt::format("Processing error: {}", e.what())}
-    };
+    nlohmann::json error_response = {{"status", "error"},
+                                     {"message", fmt::format("Processing error: {}", e.what())}};
     SendResponse(error_response);
   }
 }
@@ -205,11 +200,11 @@ void JEventProcessorManagedPODIO::OpenOutputFile(const std::string& output_file)
 
     // Create writer using podio::makeWriter
     m_writer = std::make_unique<podio::Writer>(podio::makeWriter(output_file, backend_lower));
-    
+
   } catch (const std::exception& e) {
     throw std::runtime_error(
-        fmt::format("Failed to create writer for file '{}' with backend '{}': {}", 
-                   output_file, m_output_backend, e.what()));
+        fmt::format("Failed to create writer for file '{}' with backend '{}': {}", output_file,
+                    m_output_backend, e.what()));
   }
 }
 
@@ -217,7 +212,7 @@ void JEventProcessorManagedPODIO::CloseOutputFile() {
   if (m_writer) {
     try {
       // Propagate non-event frames (same as parent class)
-      auto* app = GetApplication();
+      auto* app          = GetApplication();
       auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
       for (auto* source : event_sources) {
         auto* podio_source = dynamic_cast<JEventSourcePODIO*>(source);
@@ -234,10 +229,10 @@ void JEventProcessorManagedPODIO::CloseOutputFile() {
           m_log->info("Propagated {} '{}' frame(s) to output file", n, category);
         }
       }
-      
+
       m_writer->finish();
       m_writer.reset();
-      
+
       // Access file state under mutex protection
       std::string current_output_file;
       std::string current_input_file;
@@ -245,42 +240,38 @@ void JEventProcessorManagedPODIO::CloseOutputFile() {
       {
         std::lock_guard<std::mutex> lock(m_file_mutex);
         current_output_file = m_current_output_file;
-        current_input_file = m_current_input_file;
-        pending_response = m_pending_response;
+        current_input_file  = m_current_input_file;
+        pending_response    = m_pending_response;
       }
-      
+
       m_log->info("Closed output file: {}", current_output_file);
-      
+
       // Send completion response only if we have a pending response
       if (pending_response) {
-        nlohmann::json completion_response = {
-          {"status", "completed"},
-          {"input_file", current_input_file},
-          {"output_file", current_output_file},
-          {"events_processed", m_events_processed.load()}
-        };
+        nlohmann::json completion_response = {{"status", "completed"},
+                                              {"input_file", current_input_file},
+                                              {"output_file", current_output_file},
+                                              {"events_processed", m_events_processed.load()}};
         SendResponse(completion_response);
-        
+
         std::lock_guard<std::mutex> lock(m_file_mutex);
         m_pending_response = false;
       }
-      
+
     } catch (const std::exception& e) {
       m_log->error("Error closing output file: {}", e.what());
-      
+
       bool pending_response;
       {
         std::lock_guard<std::mutex> lock(m_file_mutex);
         pending_response = m_pending_response;
       }
-      
+
       if (pending_response) {
         nlohmann::json error_response = {
-          {"status", "error"},
-          {"message", fmt::format("Error closing file: {}", e.what())}
-        };
+            {"status", "error"}, {"message", fmt::format("Error closing file: {}", e.what())}};
         SendResponse(error_response);
-        
+
         std::lock_guard<std::mutex> lock(m_file_mutex);
         m_pending_response = false;
       }
@@ -290,23 +281,23 @@ void JEventProcessorManagedPODIO::CloseOutputFile() {
 
 void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& event) {
   std::lock_guard<std::mutex> lock(m_file_mutex);
-  
+
   if (!m_file_processing_active || !m_writer) {
     return; // No active file processing
   }
-  
+
   // Call parent class implementation
   JEventProcessorPODIO::Process(event);
-  
+
   m_events_processed++;
-  
+
   // Check if current file processing is complete
   CheckFileCompletion();
 }
 
 void JEventProcessorManagedPODIO::Finish() {
   m_should_stop = true;
-  
+
   {
     std::lock_guard<std::mutex> lock(m_file_mutex);
     if (m_file_processing_active) {
@@ -314,25 +305,25 @@ void JEventProcessorManagedPODIO::Finish() {
       m_file_processing_active = false;
     }
   }
-  
+
   if (m_listener_thread && m_listener_thread->joinable()) {
     m_listener_thread->join();
   }
-  
+
   // Clean up socket file if it exists and is a socket
   if (std::filesystem::exists(m_socket_path) && std::filesystem::is_socket(m_socket_path)) {
     std::filesystem::remove(m_socket_path);
     m_log->debug("Cleaned up socket file: {}", m_socket_path);
   }
-  
+
   m_log->info("Managed PODIO processor finished");
 }
 
 void JEventProcessorManagedPODIO::NotifySourceNewFile(const std::string& input_file) {
   // Find the managed event source and notify it of the new file
-  auto* app = GetApplication();
+  auto* app          = GetApplication();
   auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
-  
+
   for (auto* source : event_sources) {
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
     if (managed_source != nullptr) {
@@ -352,9 +343,9 @@ void JEventProcessorManagedPODIO::CheckFileCompletion() {
 }
 
 bool JEventProcessorManagedPODIO::IsCurrentFileComplete() {
-  auto* app = GetApplication();
+  auto* app          = GetApplication();
   auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
-  
+
   for (auto* source : event_sources) {
     auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
     if (managed_source != nullptr) {
