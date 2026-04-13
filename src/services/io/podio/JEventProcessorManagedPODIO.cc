@@ -228,28 +228,50 @@ void JEventProcessorManagedPODIO::CloseOutputFile() {
       m_writer->finish();
       m_writer.reset();
       
-      m_log->info("Closed output file: {}", m_current_output_file);
+      // Access file state under mutex protection
+      std::string current_output_file;
+      std::string current_input_file;
+      bool pending_response;
+      {
+        std::lock_guard<std::mutex> lock(m_file_mutex);
+        current_output_file = m_current_output_file;
+        current_input_file = m_current_input_file;
+        pending_response = m_pending_response;
+      }
+      
+      m_log->info("Closed output file: {}", current_output_file);
       
       // Send completion response only if we have a pending response
-      if (m_pending_response) {
+      if (pending_response) {
         nlohmann::json completion_response = {
           {"status", "completed"},
-          {"input_file", m_current_input_file},
-          {"output_file", m_current_output_file},
+          {"input_file", current_input_file},
+          {"output_file", current_output_file},
           {"events_processed", m_events_processed.load()}
         };
         SendResponse(completion_response);
+        
+        std::lock_guard<std::mutex> lock(m_file_mutex);
         m_pending_response = false;
       }
       
     } catch (const std::exception& e) {
       m_log->error("Error closing output file: {}", e.what());
-      if (m_pending_response) {
+      
+      bool pending_response;
+      {
+        std::lock_guard<std::mutex> lock(m_file_mutex);
+        pending_response = m_pending_response;
+      }
+      
+      if (pending_response) {
         nlohmann::json error_response = {
           {"status", "error"},
           {"message", fmt::format("Error closing file: {}", e.what())}
         };
         SendResponse(error_response);
+        
+        std::lock_guard<std::mutex> lock(m_file_mutex);
         m_pending_response = false;
       }
     }
@@ -275,9 +297,12 @@ void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& e
 void JEventProcessorManagedPODIO::Finish() {
   m_should_stop = true;
   
-  if (m_file_processing_active) {
-    CloseOutputFile();
-    m_file_processing_active = false;
+  {
+    std::lock_guard<std::mutex> lock(m_file_mutex);
+    if (m_file_processing_active) {
+      CloseOutputFile();
+      m_file_processing_active = false;
+    }
   }
   
   if (m_listener_thread && m_listener_thread->joinable()) {
