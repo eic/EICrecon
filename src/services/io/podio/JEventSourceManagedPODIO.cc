@@ -18,7 +18,6 @@ JEventSourceManagedPODIO::JEventSourceManagedPODIO(std::string resource_name, JA
     : JEventSourcePODIO(resource_name, app) {
   SetTypeName(NAME_OF_THIS);
   
-  // Override the logger name for managed source
   m_log = GetApplication()->GetService<Log_service>()->logger("JEventSourceManagedPODIO");
 }
 
@@ -39,9 +38,8 @@ void JEventSourceManagedPODIO::Close() {
 JEventSourceManagedPODIO::Result JEventSourceManagedPODIO::Emit(JEvent& event) {
   std::unique_lock<std::mutex> lock(m_file_mutex);
   
-  // Wait for a file to be available
   while (!m_file_available || !m_reader) {
-    m_log->info("Waiting for file to become available...");
+    m_log->info("Waiting for the next file...");
     m_file_cv.wait(lock, [this] { return m_file_available.load(); });
   }
   
@@ -51,7 +49,6 @@ JEventSourceManagedPODIO::Result JEventSourceManagedPODIO::Emit(JEvent& event) {
     m_file_processing_complete = true;
     m_file_available = false;
     m_reader.reset();
-    // Return FailureTryAgain to tell JANA to try again later instead of terminating
     return Result::FailureTryAgain;
   }
   
