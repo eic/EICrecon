@@ -80,12 +80,8 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file, con
   m_current_input_file = input_file;
   m_current_output_file = output_file;
   
-  // Reset state for new file (use parent class members)
-  m_reader.reset();
-  Nevents_read = 0;
   m_file_processing_complete = false;
   
-  // Process the new file (inlined)
   try {
     m_log->info("Opening file for processing: {}", m_current_input_file);
     
@@ -95,14 +91,8 @@ void JEventSourceManagedPODIO::SetCurrentFile(const std::string& input_file, con
     }
     
     // Use parent class method to open the file
-    // Temporarily set the resource name to the current input file
     SetResourceName(m_current_input_file);
-    
-    // Open the file with PODIO reader (reuse parent class logic)
-    m_reader = std::make_unique<podio::Reader>(podio::makeReader(m_current_input_file));
-    
-    auto version = m_reader->currentFileVersion();
-    m_log->info("PODIO version: file={} (executable={})", version, podio::version::build_version);
+    JEventSourcePODIO::Open();
     
     Nevents_in_file = m_reader->getEntries("events");
     Nevents_read = 0;
