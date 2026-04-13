@@ -159,8 +159,18 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
     
     m_log->info("Started processing file: {} -> {}", input_file, output_file);
     
-    // Note: We don't send a response here. The response will be sent when processing completes
-    // in CloseOutputFile()
+    // Check if the file has zero events and handle completion immediately
+    if (IsCurrentFileComplete()) {
+      m_log->info("File has zero events, completing immediately");
+      CloseOutputFile();
+      {
+        std::lock_guard<std::mutex> lock(m_file_mutex);
+        m_file_processing_active = false;
+      }
+    }
+    
+    // Note: We don't send a response here for non-empty files. The response will be sent when processing completes
+    // in CloseOutputFile(). For empty files, the response is sent above.
     
   } catch (const std::exception& e) {
     m_log->error("Error processing file request: {}", e.what());
