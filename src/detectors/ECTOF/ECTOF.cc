@@ -85,7 +85,7 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
-  // temporary steps to by-pass pulse digitization and jump right from ChargeSharing to clusters
+  // temporary steps to bypass pulse digitization and jump right from ChargeSharing to clusters
   // Avoid efficiency loss until we can simulate hardware accurately
   app->Add(new JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>(
       "TOFEndcapSharedRawHits", {"EventHeader", "TOFEndcapSharedHits"},
