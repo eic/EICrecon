@@ -306,12 +306,16 @@ void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& e
 void JEventProcessorManagedPODIO::Finish() {
   m_should_stop = true;
 
+  bool should_close_file = false;
   {
     std::lock_guard<std::mutex> lock(m_file_mutex);
-    if (m_file_processing_active) {
-      CloseOutputFile();
-      m_file_processing_active = false;
-    }
+    should_close_file = m_file_processing_active;
+  }
+
+  if (should_close_file) {
+    CloseOutputFile();
+    std::lock_guard<std::mutex> lock(m_file_mutex);
+    m_file_processing_active = false;
   }
 
   if (m_listener_thread && m_listener_thread->joinable()) {
