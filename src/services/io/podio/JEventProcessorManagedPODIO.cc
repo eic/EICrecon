@@ -288,18 +288,20 @@ void JEventProcessorManagedPODIO::CloseOutputFile() {
 }
 
 void JEventProcessorManagedPODIO::Process(const std::shared_ptr<const JEvent>& event) {
-  std::lock_guard<std::mutex> lock(m_file_mutex);
+  {
+    std::lock_guard<std::mutex> lock(m_file_mutex);
 
-  if (!m_file_processing_active || !m_writer) {
-    return; // No active file processing
+    if (!m_file_processing_active || !m_writer) {
+      return; // No active file processing
+    }
+
+    // Call parent class implementation
+    JEventProcessorPODIO::Process(event);
+
+    m_events_processed++;
   }
 
-  // Call parent class implementation
-  JEventProcessorPODIO::Process(event);
-
-  m_events_processed++;
-
-  // Check if current file processing is complete
+  // Check if current file processing is complete (outside the mutex)
   CheckFileCompletion();
 }
 
