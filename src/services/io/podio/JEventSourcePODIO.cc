@@ -13,7 +13,7 @@
 #include <JANA/Utils/JTypeInfo.h>
 #include <TFile.h>
 #include <TObject.h>
-#include <fmt/core.h>
+#include <edm4hep/EventHeaderCollection.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <podio/CollectionBase.h>
@@ -25,12 +25,12 @@
 #include <map>
 #include <memory>
 #include <sstream>
+#include <string_view>
 #include <utility>
 #include <vector>
 
-// These files are generated automatically by make_datamodel_glue.py
-#include "services/io/podio/datamodel_glue.h"
-#include "services/io/podio/datamodel_includes.h" // IWYU pragma: keep
+#include "services/io/podio/datamodel_glue_compat.h"     // IWYU pragma: keep
+#include "services/io/podio/datamodel_includes_compat.h" // IWYU pragma: keep
 #include "services/log/Log_service.h"
 
 // Formatter for podio::version::Version
@@ -129,12 +129,12 @@ void JEventSourcePODIO::Open() {
   // std::string background_filename = GetApplication()->GetParameterValue<std::string>("podio:background_filename");;
   // int num_background_events = GetApplication()->GetParameterValue<int>("podio:num_background_events");;
 
-  // Open primary events file
+  // Open primary events file (auto-detects format: TTree or RNTuple)
   try {
 
-    m_reader.openFile(GetResourceName());
+    m_reader = std::make_unique<podio::Reader>(podio::makeReader(GetResourceName()));
 
-    auto version          = m_reader.currentFileVersion();
+    auto version          = m_reader->currentFileVersion();
     bool version_mismatch = version.major > podio::version::build_version.major;
     version_mismatch |= (version.major == podio::version::build_version.major) &&
                         (version.minor > podio::version::build_version.minor);
@@ -147,14 +147,13 @@ void JEventSourcePODIO::Open() {
 
     m_log->info("PODIO version: file={} (executable={})", version, podio::version::build_version);
 
-    Nevents_in_file = m_reader.getEntries("events");
-    m_log->info("Opened PODIO Frame file \"{}\" with {} events", GetResourceName(),
+    Nevents_in_file = m_reader->getEntries("events");
+    m_log->info("Opened PODIO file \"{}\" with {} events (format auto-detected)", GetResourceName(),
                 Nevents_in_file);
 
     if (m_print_type_table) {
       PrintCollectionTypeTable();
     }
-
   } catch (std::exception& e) {
     m_log->error(e.what());
     throw JException(fmt::format("Problem opening file \"{}\"", GetResourceName()));
@@ -173,6 +172,18 @@ void JEventSourcePODIO::Close() {
   // TODO: ROOTReader does not appear to have a close() method.
 }
 
+std::vector<std::string_view> JEventSourcePODIO::getAvailableCategories() const {
+  return m_reader->getAvailableCategories();
+}
+
+std::size_t JEventSourcePODIO::getEntries(const std::string& category) const {
+  return m_reader->getEntries(category);
+}
+
+podio::Frame JEventSourcePODIO::getFrame(const std::string& category, std::size_t index) const {
+  return m_reader->readFrame(category, index);
+}
+
 //------------------------------------------------------------------------------
 // GetEvent
 //
@@ -180,12 +191,7 @@ void JEventSourcePODIO::Close() {
 ///
 /// \param event
 //------------------------------------------------------------------------------
-#if JANA_NEW_CALLBACK_STYLE
 JEventSourcePODIO::Result JEventSourcePODIO::Emit(JEvent& event) {
-#else
-void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
-  auto& event = *_event;
-#endif
 
   /// Calls to GetEvent are synchronized with each other, which means they can
   /// read and write state on the JEventSource without causing race conditions.
@@ -195,16 +201,11 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
     if (m_run_forever) {
       Nevents_read = 0;
     } else {
-#if JANA_NEW_CALLBACK_STYLE
       return Result::FailureFinished;
-#else
-      throw RETURN_STATUS::kNO_MORE_EVENTS;
-#endif
     }
   }
 
-  auto frame_data = m_reader.readEntry("events", Nevents_read);
-  auto frame      = std::make_unique<podio::Frame>(std::move(frame_data));
+  auto frame = std::make_unique<podio::Frame>(m_reader->readFrame("events", Nevents_read));
 
   if (m_use_event_headers) {
     const auto& event_headers = frame->get<edm4hep::EventHeaderCollection>("EventHeader");
@@ -229,9 +230,7 @@ void JEventSourcePODIO::GetEvent(std::shared_ptr<JEvent> _event) {
 
   event.Insert(frame.release()); // Transfer ownership from unique_ptr to JFactoryT<podio::Frame>
   Nevents_read += 1;
-#if JANA_NEW_CALLBACK_STYLE
   return Result::Success;
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -290,8 +289,7 @@ double JEventSourceGeneratorT<JEventSourcePODIO>::CheckOpenable(std::string reso
 void JEventSourcePODIO::PrintCollectionTypeTable() {
 
   // Read the zeroth entry. This assumes that m_reader has already been initialized with a valid filename
-  auto frame_data = m_reader.readEntry("events", 0);
-  auto frame      = std::make_unique<podio::Frame>(std::move(frame_data));
+  auto frame = std::make_unique<podio::Frame>(m_reader->readFrame("events", 0));
 
   std::map<std::string, std::string> collectionNames;
   std::size_t max_name_len = 0;

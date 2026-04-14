@@ -36,6 +36,7 @@ public:
     // Use this callback to make sure the algorithm is configured.
     // The logger, parameters, and services have all been fetched before this is called
     m_algo = std::make_unique<AlgoT>(GetPrefix());
+    m_algo->level(static_cast<algorithms::LogLevel>(logger()->level()));
 
     // Pass config object to algorithm
     m_algo->applyConfig(config());

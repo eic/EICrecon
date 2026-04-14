@@ -187,7 +187,7 @@ TEST_CASE(
   REQUIRE(b->config().threshold == 6.1);
 
   // Trigger JMF::Execute(), in order to trigger Init(), in order to Configure()s all Parameter fields...
-  auto lefthits = event->Get<edm4hep::SimCalorimeterHit>("BCalLeftHits");
+  auto* lefthits = event->GetCollection<edm4hep::SimCalorimeterHit>("BCalLeftHits");
 
   REQUIRE(b->threshold() == 12.0);
   REQUIRE(b->config().threshold == 12.0);
@@ -224,7 +224,7 @@ TEST_CASE("Wiring itself is correctly defaulted") {
   REQUIRE(b->config().threshold == 6.1); // Provided by wiring
 
   // Trigger JMF::Execute(), in order to trigger Init(), in order to Configure()s all Parameter fields...
-  auto lefthits = event->Get<edm4hep::SimCalorimeterHit>("BCalLeftHits");
+  auto* lefthits = event->GetCollection<edm4hep::SimCalorimeterHit>("BCalLeftHits");
 
   // We didn't override the config values via the parameter manager, so all of these should be the same
   REQUIRE(b->bucket_count() == 42);        // Not provided by wiring
