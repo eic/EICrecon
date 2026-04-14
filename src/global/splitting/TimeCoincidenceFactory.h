@@ -3,14 +3,11 @@
 
 #pragma once
 
-#include <JANA/Components/JOmniFactory.h>
-// #include <JANA/Utils/JEventKey.h>
-
+#include <extensions/jana/JOmniFactory.h>
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 
-#include "services/io/podio/datamodel_glue.h"
 
 struct TimeCoincidenceFactory : public JOmniFactory<TimeCoincidenceFactory> {
   JEventLevel m_factory_level;
@@ -37,8 +34,8 @@ struct TimeCoincidenceFactory : public JOmniFactory<TimeCoincidenceFactory> {
       "TOFBarrelHits",       "TOFEndcapHits",          "TaggerTrackerHits",
       "TrackerEndcapHits",   "VertexBarrelHits"};
 
-  VariadicPodioInput<edm4hep::SimTrackerHit> m_simtrackerhits_in{
-      this, {.names = m_simtrackerhit_collection_names, .is_optional = true}};
+  VariadicPodioInput<edm4hep::SimTrackerHit, true> m_simtrackerhits_in{
+      this, m_simtrackerhit_collection_names};
   VariadicPodioOutput<edm4hep::SimTrackerHit> m_simtrackerhits_out{
       this, m_simtrackerhit_collection_names_aligned};
 

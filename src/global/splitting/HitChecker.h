@@ -3,8 +3,7 @@
 
 #pragma once
 
-#include <JANA/Components/JOmniFactory.h>
-// #include <JANA/Utils/JEventKey.h>
+#include <extensions/jana/JOmniFactory.h>
 
 #include <edm4hep/SimCalorimeterHitCollection.h>
 #include <edm4hep/SimTrackerHitCollection.h>
@@ -13,7 +12,6 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 
-#include "services/io/podio/datamodel_glue.h"
 
 struct HitChecker : public JOmniFactory<HitChecker> {
   JEventLevel m_factory_level;
@@ -32,7 +30,7 @@ struct HitChecker : public JOmniFactory<HitChecker> {
     check_hits_out()->setSubsetCollection(true);
     auto& coll_out = check_hits_out();
     std::cout << "HitChecker: Event " << event_number << " Hits in: ";
-    for (auto hit : *check_hits_in) {
+    for (auto hit : *check_hits_in()) {
 
       auto hitTime = hit.getTime();
       std::cout << hitTime << ", ";

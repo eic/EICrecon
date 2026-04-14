@@ -18,7 +18,6 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 
-#include "services/io/podio/datamodel_glue.h"
 #include <JANA/JEventUnfolder.h>
 
 struct TimeframeSplitter : public JEventUnfolder {

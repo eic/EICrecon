@@ -3,9 +3,7 @@
 
 #pragma once
 
-// #include "extensions/jana/JOmniFactoryGeneratorT.h"
-#include <JANA/Components/JOmniFactory.h>
-// #include <JANA/Utils/JEventKey.h>
+#include <extensions/jana/JOmniFactory.h>
 
 #include <edm4hep/EventHeaderCollection.h>
 #include <edm4hep/MCParticleCollection.h>
@@ -17,7 +15,6 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 
-#include "services/io/podio/datamodel_glue.h"
 
 struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
   JEventLevel m_factory_level;
@@ -51,8 +48,9 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
 
   // VariadicPodioInput<edm4hep::SimTrackerHit> m_trackerhits_in{
   //     this, {.names = m_trackerhit_collection_names, .is_optional = true}};
-  VariadicPodioInput<edm4eic::TrackerHit> m_trackerhits_in{
-      this, {.names = m_trackerhit_collection_names, .is_optional = true}};
+  VariadicPodioInput<edm4eic::TrackerHit, true> m_trackerhits_in{
+      this, m_trackerhit_collection_names};
+
   VariadicPodioOutput<edm4eic::TrackerHit> m_trackerhits_out{this,
                                                              m_trackerhit_collection_names_aligned};
 

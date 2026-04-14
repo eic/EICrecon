@@ -2,16 +2,14 @@
 // Subject to the terms in the LICENSE file found in the top-level directory.
 // kuma edit
 
-#include "HitChecker.h"
+#include <JANA/JApplication.h>
+#include "extensions/jana/JOmniFactoryGeneratorT.h"
 
+#include "HitChecker.h"
 #include "timeAlignmentFactory.h"
 #include "TimeframeSplitter.h"
 // #include "TimeCoincidenceFactory.h"
 
-// #include "extensions/jana/JOmniFactoryGeneratorT.h"
-// #include "extensions/jana/JOmniFactory.h"
-#include <JANA/Components/JOmniFactoryGeneratorT.h>
-#include <JANA/JApplication.h>
 
 void InitPlugin_digiBTOF(JApplication* app);
 void InitPlugin_digiMPGD(JApplication* app);
@@ -43,7 +41,7 @@ void InitPlugin(JApplication* app) {
   //     "TaggerTrackerHits_aligned",     "TrackerEndcapHits_aligned",
   //     "VertexBarrelHits_aligned"};
 
-  std::vector<std::vector<std::string>> m_simtrackerhit_collection_names_aligned = {
+  std::vector<std::string> m_simtrackerhit_collection_names_aligned = 
       {"TOFBarrelRecHits_TK_aligned", "TOFEndcapRecHits_TK_aligned", "MPGDBarrelRecHits_TK_aligned",
        "OuterMPGDBarrelRecHits_TK_aligned", "BackwardMPGDEndcapRecHits_TK_aligned",
        "ForwardMPGDEndcapRecHits_TK_aligned", "SiBarrelVertexRecHits_TK_aligned",
@@ -51,24 +49,25 @@ void InitPlugin(JApplication* app) {
        "TaggerTrackerRecHits_TK_aligned", "B0TrackerRecHits_TK_aligned",
        "DIRCBarRecHits_TK_aligned", "DRICHRecHits_TK_aligned",
        "ForwardOffMTrackerRecHits_TK_aligned", "ForwardRomanPotRecHits_TK_aligned",
-       "LumiSpecTrackerRecHits_TK_aligned", "RICHEndcapNRecHits_TK_aligned"}};
+       "LumiSpecTrackerRecHits_TK_aligned", "RICHEndcapNRecHits_TK_aligned"};
 
-  std::vector<std::vector<std::string>> m_simtrackerhit_collection_names = {
+  std::vector<std::string> m_simtrackerhit_collection_names =
       {"TOFBarrelRecHits_TK", "TOFEndcapRecHits_TK", "MPGDBarrelRecHits_TK",
        "OuterMPGDBarrelRecHits_TK", "BackwardMPGDEndcapRecHits_TK", "ForwardMPGDEndcapRecHits_TK",
        "SiBarrelVertexRecHits_TK", "SiBarrelTrackerRecHits_TK", "SiEndcapTrackerRecHits_TK",
        "TaggerTrackerRecHits_TK", "B0TrackerRecHits_TK", "DIRCBarRecHits_TK", "DRICHRecHits_TK",
        "ForwardOffMTrackerRecHits_TK", "ForwardRomanPotRecHits_TK", "LumiSpecTrackerRecHits_TK",
-       "RICHEndcapNRecHits_TK"}};
+       "RICHEndcapNRecHits_TK"};
 
   InitJANAPlugin(app);
 
   app->Add(new JOmniFactoryGeneratorT<timeAlignmentFactory>(
-      jana::components::JOmniFactoryGeneratorT<timeAlignmentFactory>::TypedWiring{
-          .tag                   = "timeAlignment",
+      JOmniFactoryGeneratorT<timeAlignmentFactory>::TypedWiring {
+          .m_tag                   = "timeAlignment",
+          .m_default_input_tags  = m_simtrackerhit_collection_names,
+          .m_default_output_tags = m_simtrackerhit_collection_names_aligned,
           .level                 = JEventLevel::Timeslice,
-          .variadic_input_names  = m_simtrackerhit_collection_names,
-          .variadic_output_names = m_simtrackerhit_collection_names_aligned}));
+        }, app));
 
   // Unfolder that takes timeframes and splits them into physics events.
   app->Add(new TimeframeSplitter());

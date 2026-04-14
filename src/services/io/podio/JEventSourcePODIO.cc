@@ -72,9 +72,7 @@ struct InsertingVisitor {
 //------------------------------------------------------------------------------
 JEventSourcePODIO::JEventSourcePODIO() {
   SetTypeName(NAME_OF_THIS); // Provide JANA with class name
-#if JANA_NEW_CALLBACK_STYLE
   SetCallbackStyle(CallbackStyle::ExpertMode); // Use new, exception-free Emit() callback
-#endif
 }
 
 //------------------------------------------------------------------------------
