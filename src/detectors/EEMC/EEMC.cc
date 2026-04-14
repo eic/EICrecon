@@ -22,6 +22,7 @@
 #include "factories/calorimetry/CalorimeterTruthClustering_factory.h"
 #include "factories/calorimetry/TrackClusterMergeSplitter_factory.h"
 #include "factories/meta/ONNXInference_factory.h"
+#include "factories/particle/TrackProtoClusterMatchPromoter_factory.h"
 
 extern "C" {
 void InitPlugin(JApplication* app) {
@@ -171,20 +172,6 @@ void InitPlugin(JApplication* app) {
        "EcalEndcapNClusterAssociationsWithoutPID"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
 
-  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
-      "EcalEndcapNSplitMergeProtoClusters",
-      {"EcalEndcapNIslandProtoClusters", "CalorimeterTrackProjections"},
-      {"EcalEndcapNSplitMergeProtoClusters"},
-      {.idCalo                       = "EcalEndcapN_ID",
-       .minSigCut                    = -1.0,
-       .avgEP                        = 1.0,
-       .sigEP                        = 0.10,
-       .drAdd                        = 0.08,
-       .sampFrac                     = 1.0,
-       .transverseEnergyProfileScale = 1.0},
-      app // TODO: remove me once fixed
-      ));
-
   app->Add(new JOmniFactoryGeneratorT<CalorimeterParticleIDPreML_factory>(
       "EcalEndcapNParticleIDPreML",
       {
@@ -227,24 +214,45 @@ void InitPlugin(JApplication* app) {
       },
       app));
 
+  app->Add(new JOmniFactoryGeneratorT<TrackClusterMergeSplitter_factory>(
+      "EcalEndcapNSplitMergeProtoClusters",
+      {"EcalEndcapNTrackClusterMatches", "EcalEndcapNClustersWithoutPID",
+       "CalorimeterTrackProjections"},
+      {"EcalEndcapNSplitMergeProtoClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "EcalEndcapNTrackSplitMergeProtoClusterLinks"
+#elif EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 4, 0)
+       "EcalEndcapNTrackSplitMergeProtoClusterMatches"
+#endif
+      },
+      {.minSigCut                    = -1.0,
+       .avgEP                        = 1.0,
+       .sigEP                        = 0.10,
+       .drAdd                        = 0.08,
+       .surfaceToUse                 = 1,
+       .transverseEnergyProfileScale = 1.0},
+      app // TODO: remove me once fixed
+      ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNSplitMergeClustersWithoutShapes",
-      {
-          "EcalEndcapNSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+      {"EcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "EcalEndcapNRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+       "EcalEndcapNRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-          "EcalEndcapNRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
-      },
+       "EcalEndcapNRawHitAssociations"},
       {"EcalEndcapNSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapNSplitMergeClusterLinksWithoutShapes",
 #endif
-       "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 3.6, .enableEtaBounds = false},
+       "EcalEndcapNSplitMergeClusterAssociationsWithoutShapes"},
+      {
+          .energyWeight    = "log",
+          .sampFrac        = 1.0,
+          .logWeightBase   = 3.6,
+          .enableEtaBounds = false,
+      },
       app // TODO: Remove me once fixed
       ));
-
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterShape_factory>(
       "EcalEndcapNSplitMergeClusters",
 
@@ -256,5 +264,10 @@ void InitPlugin(JApplication* app) {
 #endif
        "EcalEndcapNSplitMergeClusterAssociations"},
       {.energyWeight = "log", .logWeightBase = 3.6}, app));
+  app->Add(new JOmniFactoryGeneratorT<TrackProtoClusterMatchPromoter_factory>(
+      "EcalEndcapNTrackSplitMergeClusterMatches",
+      {"EcalEndcapNTrackSplitMergeProtoClusterMatches", "EcalEndcapNSplitMergeProtoClusters",
+       "EcalEndcapNSplitMergeClusters"},
+      {"EcalEndcapNTrackSplitMergeClusterMatches"}, {}, app));
 }
 }
