@@ -16,5 +16,10 @@ target_link_libraries(eicrecon PRIVATE ${JANA_LIB} ROOT::Core)
 target_compile_definitions(
   eicrecon PRIVATE EICRECON_APP_VERSION=${CMAKE_PROJECT_VERSION})
 
+find_package(IRT2 ${IRT2_VERSION_MIN})
+if(IRT2_FOUND)
+  target_compile_definitions(eicrecon PRIVATE WITH_IRT2_SUPPORT)
+endif()
+
 # Install executable
 install(TARGETS eicrecon DESTINATION ${CMAKE_INSTALL_BINDIR})
