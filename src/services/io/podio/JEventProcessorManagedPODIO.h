@@ -30,6 +30,7 @@ private:
   void NotifySourceNewFile(const std::string& input_file);
   void CheckFileCompletion();
   bool IsCurrentFileComplete();
+  std::size_t GetNeventsInCurrentFile();
 
   // ZeroMQ components
   std::unique_ptr<zmq::context_t> m_zmq_context;

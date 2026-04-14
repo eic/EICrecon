@@ -29,8 +29,16 @@ sequenceDiagram
     Source->>Source: Create podio::Reader
     Source->>Source: Set m_file_available = true, notify condition variable
 
-    Note over Client, JANA: Event Processing Loop
-    loop For each event in file
+    Processor->>Source: GetNeventsInFile()
+    Source-->>Processor: Return Nevents_in_file
+
+    alt Zero events in file
+        Processor->>Processor: CloseOutputFile() + SendResponse()
+        Processor->>Processor: Set m_file_processing_active = false
+        Listener->>Client: ZMQ REP: {"status": "completed", "events_processed": 0}
+    else File has events
+        Note over Client, JANA: Event Processing Loop
+        loop For each event in file
         JANA->>Source: Emit(event)
         Source->>Source: Check if file available, read next event
         Source->>Source: Insert collections into JEvent
@@ -58,6 +66,7 @@ sequenceDiagram
     Source->>Source: Set m_file_processing_complete = true
     Source->>Source: Set m_file_available = false, reset reader
     Source-->>JANA: Return FailureTryAgain (wait for next file)
+    end
 
     Note over Client, JANA: Next File or Shutdown
     alt Another file request
@@ -83,7 +92,9 @@ sequenceDiagram
 
 5. **Completion**: When source finishes reading all events, processor closes output file and sends completion response to client.
 
-6. **Next File**: Source returns FailureTryAgain to keep JANA event loop alive, waiting for next file request.
+6. **Zero-Event Fast-Path**: After `NotifySourceNewFile()` returns, the processor queries `GetNeventsInFile()` on the source. If the file has zero events, the processor closes the output file and sends the ZMQ response immediately — without entering the event loop. This is necessary because JANA never calls `Process()` when there are no events to emit, so the normal `CheckFileCompletion()` path would never execute and the client would hang. The event count check is deterministic (no cross-thread race) because `SetCurrentFile()` runs synchronously within `NotifySourceNewFile()` on the same thread.
+
+7. **Next File**: Source returns FailureTryAgain to keep JANA event loop alive, waiting for next file request.
 
 ## Communication Patterns
 

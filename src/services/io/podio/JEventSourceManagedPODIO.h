@@ -23,6 +23,7 @@ public:
 
   void SetCurrentFile(const std::string& input_file);
   bool IsFileProcessingComplete() const { return m_file_processing_complete.load(); }
+  std::size_t GetNeventsInFile() const { return Nevents_in_file; }
 
 private:
   // File management for managed mode

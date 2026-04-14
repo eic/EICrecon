@@ -164,8 +164,14 @@ void JEventProcessorManagedPODIO::ProcessFileRequest(const nlohmann::json& reque
 
     m_log->info("Started processing file: {} -> {}", input_file, output_file);
 
-    // Check if the file has zero events and handle completion immediately
-    if (IsCurrentFileComplete()) {
+    // Handle zero-event files immediately.  NotifySourceNewFile() called
+    // SetCurrentFile() synchronously, so the event count is already known.
+    // We must NOT rely on IsCurrentFileComplete() here because that flag is
+    // set asynchronously by Emit() on the JANA thread — a race.  For
+    // zero-event files Process() is never called (JANA has no events to
+    // deliver), so CheckFileCompletion() would never run and the client
+    // would hang waiting for a ZMQ REP that never comes.
+    if (GetNeventsInCurrentFile() == 0) {
       m_log->info("File has zero events, completing immediately");
       CloseOutputFile();
       {
@@ -367,4 +373,17 @@ bool JEventProcessorManagedPODIO::IsCurrentFileComplete() {
     }
   }
   return false;
+}
+
+std::size_t JEventProcessorManagedPODIO::GetNeventsInCurrentFile() {
+  auto* app          = GetApplication();
+  auto event_sources = app->GetService<JComponentManager>()->get_evt_srces();
+
+  for (auto* source : event_sources) {
+    auto* managed_source = dynamic_cast<JEventSourceManagedPODIO*>(source);
+    if (managed_source != nullptr) {
+      return managed_source->GetNeventsInFile();
+    }
+  }
+  return 0;
 }
