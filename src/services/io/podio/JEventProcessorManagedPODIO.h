@@ -1,18 +1,13 @@
 #pragma once
 
-#include <JANA/JEvent.h>
-#include <JANA/JEventProcessor.h>
-#include <nlohmann/json.hpp>
-#include <podio/Writer.h>
-#include <spdlog/logger.h>
+#include <nlohmann/json_fwd.hpp>
+#include <stddef.h>
 #include <zmq.hpp>
 #include <atomic>
 #include <memory>
 #include <mutex>
-#include <set>
 #include <string>
 #include <thread>
-#include <vector>
 
 #include "JEventProcessorPODIO.h"
 
