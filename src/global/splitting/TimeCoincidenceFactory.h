@@ -8,7 +8,6 @@
 #include <edm4hep/SimTrackerHitCollection.h>
 #include <edm4hep/CaloHitContributionCollection.h>
 
-
 struct TimeCoincidenceFactory : public JOmniFactory<TimeCoincidenceFactory> {
   JEventLevel m_factory_level;
 

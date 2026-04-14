@@ -15,7 +15,6 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 
-
 struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
   JEventLevel m_factory_level;
 
@@ -48,8 +47,8 @@ struct timeAlignmentFactory : public JOmniFactory<timeAlignmentFactory> {
 
   // VariadicPodioInput<edm4hep::SimTrackerHit> m_trackerhits_in{
   //     this, {.names = m_trackerhit_collection_names, .is_optional = true}};
-  VariadicPodioInput<edm4eic::TrackerHit, true> m_trackerhits_in{
-      this, m_trackerhit_collection_names};
+  VariadicPodioInput<edm4eic::TrackerHit, true> m_trackerhits_in{this,
+                                                                 m_trackerhit_collection_names};
 
   VariadicPodioOutput<edm4eic::TrackerHit> m_trackerhits_out{this,
                                                              m_trackerhit_collection_names_aligned};

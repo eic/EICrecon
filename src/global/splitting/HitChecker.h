@@ -12,7 +12,6 @@
 #include <edm4eic/TrackSegmentCollection.h>
 #include <edm4eic/TrackerHitCollection.h>
 
-
 struct HitChecker : public JOmniFactory<HitChecker> {
   JEventLevel m_factory_level;
 
