@@ -46,7 +46,7 @@ void InitPlugin(JApplication* app) {
 #endif
        "TOFBarrelRawHitAssociations"},
       {
-          .threshold      = 0.0 * dd4hep::keV,
+          .threshold      = 6.0 * dd4hep::keV,
           .timeResolution = 0.025, // [ns]
       },
       app));
@@ -85,9 +85,9 @@ void InitPlugin(JApplication* app) {
                                                 },
       {
           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
-          .sigma_sharingx = 1,
+          .sigma_sharingx = 0.5,
           .sigma_sharingy = 0.5,
-          .min_edep       = 0.0 * edm4eic::unit::GeV,
+          .min_edep       = 6.0 * edm4eic::unit::keV,
           .readout        = "TOFBarrelHits",
       },
       app));
@@ -102,8 +102,8 @@ void InitPlugin(JApplication* app) {
 #endif
        "TOFBarrelSharedRawHitAssociations"},
       {
-          .threshold      = 6.0 * dd4hep::keV * 1e-4,
-          .timeResolution = 0.0, // [ns]
+          .threshold      = 0.0,
+          .timeResolution = 0.025, // [ns]
       },
       app));
 
