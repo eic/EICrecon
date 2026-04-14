@@ -5,7 +5,6 @@
 
 #include <DD4hep/Alignments.h>
 #include <DD4hep/DetElement.h>
-#include <DD4hep/Handle.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/Segmentations.h>
@@ -22,12 +21,14 @@
 #include <TGeoMatrix.h>
 #include <algorithms/geo.h>
 #include <edm4hep/Vector3d.h>
-#include <fmt/core.h>
+#include <podio/detail/Link.h>
 #include <cmath>
 #include <gsl/pointers>
+#include <memory>
 #include <numbers>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <typeinfo>
 #include <utility>
 

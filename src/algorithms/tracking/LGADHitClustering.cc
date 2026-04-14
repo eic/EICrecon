@@ -7,7 +7,6 @@
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/Geometry/GeometryIdentifier.hpp>
 #include <Acts/Surfaces/Surface.hpp>
-#include <DD4hep/Handle.h>
 #include <DD4hep/Readout.h>
 #include <DD4hep/VolumeManager.h>
 #include <DD4hep/detail/SegmentationsInterna.h>
@@ -20,14 +19,16 @@
 #include <algorithms/geo.h>
 #include <edm4eic/Cov3f.h>
 #include <edm4eic/CovDiag3f.h>
+#include <edm4eic/RawTrackerHit.h>
 #include <edm4hep/Vector2f.h>
-#include <cstddef>
-#include <Eigen/Core>
+#include <edm4hep/Vector3f.h>
 #include <cmath>
+#include <cstddef>
 #include <gsl/pointers>
 #include <limits>
 #include <set>
 #include <stdexcept>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
