@@ -24,9 +24,9 @@ sequenceDiagram
     Processor->>Processor: Set m_pending_response = true
     Processor->>Processor: OpenOutputFile() - Create podio::Writer
 
-    Processor->>Source: NotifySourceNewFile(input_file, output_file)
+    Processor->>Source: NotifySourceNewFile(input_file)
     Source->>Source: SetCurrentFile() - Reset state, open input file
-    Source->>Source: ProcessCurrentFile() - Create podio::Reader
+    Source->>Source: Create podio::Reader
     Source->>Source: Set m_file_available = true, notify condition variable
 
     Note over Client, JANA: Event Processing Loop
@@ -77,7 +77,7 @@ sequenceDiagram
 
 2. **File Request**: Client sends JSON request with input/output file paths via ZMQ REQ/REP pattern.
 
-3. **Coordination**: Processor validates request, opens output file, then notifies source to open input file.
+3. **Coordination**: Processor validates request, opens output file, then notifies source to open input file. The source only receives the input file path; output file handling is managed entirely by the processor.
 
 4. **Event Processing**: JANA event loop calls Source::Emit() to read events and Processor::Process() to write them. Processor polls source for completion status.
 
