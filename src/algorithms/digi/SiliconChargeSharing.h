@@ -5,7 +5,6 @@
 
 #pragma once
 
-#include <edm4eic/EDM4eicVersion.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Objects.h>
 #include <DD4hep/Segmentations.h>
@@ -13,7 +12,9 @@
 #include <DDSegmentation/CartesianGridXY.h>
 #include <TGeoMatrix.h>
 #include <algorithms/algorithm.h>
+#include <edm4eic/EDM4eicVersion.h>
 #include <edm4hep/SimTrackerHitCollection.h>
+#include <podio/detail/LinkCollectionImpl.h>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -22,10 +23,6 @@
 
 #include "algorithms/digi/SiliconChargeSharingConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
-
-#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-#include <podio/LinkCollection.h>
-#endif
 
 namespace eicrecon {
 
