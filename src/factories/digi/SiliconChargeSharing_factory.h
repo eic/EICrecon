@@ -20,7 +20,8 @@ private:
   PodioInput<edm4hep::SimTrackerHit> m_in_sim_track{this};
   PodioOutput<edm4hep::SimTrackerHit> m_out_reco_particles{this};
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-  PodioOutput<podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>::value_type> m_links_output{this};
+  PodioOutput<podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>::value_type>
+      m_links_output{this};
 #endif
 
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
@@ -43,9 +44,10 @@ public:
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
     m_algo->process({m_in_sim_track()}, {m_out_reco_particles().get()
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                         ,m_links_output().get()
+                                             ,
+                                         m_links_output().get()
 #endif
-});
+                                        });
   }
 };
 } // namespace eicrecon

@@ -59,20 +59,22 @@ void InitPlugin(JApplication* app) {
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
-      "TOFEndcapClusterHits", {"TOFEndcapSharedRecHits"}, // Input data collection tags
-                              {"TOFEndcapClusterHits",
-			       "TOFEndcapClusterRecHits"},    // Output data tag
+      "TOFEndcapClusterHits", {"TOFEndcapSharedRecHits"},  // Input data collection tags
+      {"TOFEndcapClusterHits", "TOFEndcapClusterRecHits"}, // Output data tag
       {
           .readout = "TOFEndcapHits",
-          .useAve = true,
-      }, app));
+          .useAve  = true,
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-      "TOFEndcapSharedHits", {"TOFEndcapHits"}, {"TOFEndcapSharedHits"
+      "TOFEndcapSharedHits", {"TOFEndcapHits"},
+      {"TOFEndcapSharedHits"
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                                 ,"TOFEndcapSharedHitLinks"
+       ,
+       "TOFEndcapSharedHitLinks"
 #endif
-                                                },
+      },
       {
 
           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
@@ -101,13 +103,9 @@ void InitPlugin(JApplication* app) {
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFEndcapSharedRecHits", {"TOFEndcapSharedRawHits"}, // Input data collection tags
-      {"TOFEndcapSharedRecHits"},                     // Output data tag
+      {"TOFEndcapSharedRecHits"},                           // Output data tag
       {},
       app)); // Hit reco default config for factories
-
-
-
-
 
   const double x_when_landau_min = -0.22278;
   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);

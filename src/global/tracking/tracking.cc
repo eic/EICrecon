@@ -71,8 +71,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
       "CentralTrackingRecHits",
       {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
-       "TOFBarrelClusterRecHits", "TOFEndcapClusterRecHits", "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits",
-       "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"},
+       "TOFBarrelClusterRecHits", "TOFEndcapClusterRecHits", "MPGDBarrelRecHits",
+       "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"},
       {"CentralTrackingRecHits"}, // Output collection name
       app));
 
@@ -94,8 +94,7 @@ void InitPlugin(JApplication* app) {
       new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::MCRecoTrackerHitLink, true>>(
           "CentralTrackingRawHitLinks",
           {"SiBarrelRawHitLinks", "SiBarrelVertexRawHitLinks", "SiEndcapTrackerRawHitLinks",
-           "TOFBarrelSharedRawHitLinks",  
-           "TOFEndcapSharedRawHitLinks", "MPGDBarrelRawHitLinks",
+           "TOFBarrelSharedRawHitLinks", "TOFEndcapSharedRawHitLinks", "MPGDBarrelRawHitLinks",
            "OuterMPGDBarrelRawHitLinks", "BackwardMPGDEndcapRawHitLinks",
            "ForwardMPGDEndcapRawHitLinks"},
           {"CentralTrackingRawHitLinks"}, // Output collection name

@@ -48,10 +48,8 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
   auto [sharedHits, links] = output;
 #else
-  auto [sharedHits]    = output;
+  auto [sharedHits] = output;
 #endif
-
-
 
   for (const auto& hit : *simhits) {
 
@@ -97,9 +95,10 @@ void SiliconChargeSharing::process(const SiliconChargeSharing::Input& input,
     findAllNeighborsInSensor(cellID, tested_cells, edep, hitPos, segmentationIt->second,
                              m_xy_range_map[element], hit, sharedHits
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-			     ,links, hit
+                             ,
+                             links, hit
 #endif
-			     );
+    );
 
   } // for simhits
 } // SiliconChargeSharing:process
@@ -112,10 +111,11 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
     const std::pair<double, double>& xy_range, const edm4hep::SimTrackerHit& hit,
     edm4hep::SimTrackerHitCollection* sharedHits
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-    ,podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>* links, 
+    ,
+    podio::LinkCollection<::edm4hep::SimTrackerHit, ::edm4hep::SimTrackerHit>* links,
     const edm4hep::SimTrackerHit& origHit
 #endif
-    ) const {
+) const {
 
   // Tag cell as tested
   tested_cells.insert(testCellID);
@@ -162,9 +162,10 @@ void SiliconChargeSharing::findAllNeighborsInSensor(
       findAllNeighborsInSensor(neighbourCell, tested_cells, edep, hitPos, segmentation, xy_range,
                                hit, sharedHits
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-			       ,links, origHit
+                               ,
+                               links, origHit
 #endif
-			       );
+      );
     }
   }
 }

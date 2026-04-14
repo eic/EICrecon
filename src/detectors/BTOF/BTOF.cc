@@ -70,19 +70,21 @@ void InitPlugin(JApplication* app) {
   // Currently it's just a simple weighted average
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
-      "TOFBarrelClusterHits", {"TOFBarrelSharedRecHits"}, // Input data collection tags
-                              {"TOFBarrelClusterHits",
-			       "TOFBarrelClusterRecHits"},    // Output data tag
+      "TOFBarrelClusterHits", {"TOFBarrelSharedRecHits"},  // Input data collection tags
+      {"TOFBarrelClusterHits", "TOFBarrelClusterRecHits"}, // Output data tag
       {
           .useAve = true,
-      }, app));
+      },
+      app));
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-      "TOFBarrelSharedHits", {"TOFBarrelHits"}, {"TOFBarrelSharedHits"
+      "TOFBarrelSharedHits", {"TOFBarrelHits"},
+      {"TOFBarrelSharedHits"
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                                 ,"TOFBarrelSharedHitLinks"
+       ,
+       "TOFBarrelSharedHitLinks"
 #endif
-                                                },
+      },
       {
           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
           .sigma_sharingx = 0.5,
@@ -110,11 +112,9 @@ void InitPlugin(JApplication* app) {
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFBarrelSharedRecHits", {"TOFBarrelSharedRawHits"}, // Input data collection tags
-      {"TOFBarrelSharedRecHits"},                     // Output data tag
+      {"TOFBarrelSharedRecHits"},                           // Output data tag
       {},
       app)); // Hit reco default config for factories
-
-
 
   // calculation of the extreme values for Landau distribution can be found on lin 514-520 of
   // https://root.cern.ch/root/html524/src/TMath.cxx.html#fsokrB Landau reaches minimum for mpv =

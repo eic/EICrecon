@@ -52,9 +52,11 @@ void InitPlugin(JApplication* app) {
   std::string readout = "TaggerTrackerHits";
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-      "TaggerTrackerChargeSharing", {"TaggerTrackerHits"}, {"TaggerTrackerSharedHits"
+      "TaggerTrackerChargeSharing", {"TaggerTrackerHits"},
+      {"TaggerTrackerSharedHits"
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                                            ,"TaggerTrackerSharedHitLinks"
+       ,
+       "TaggerTrackerSharedHitLinks"
 #endif
       },
       {
