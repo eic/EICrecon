@@ -5,11 +5,13 @@
 
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSourceGeneratorT.h>
+#include <JANA/Services/JParameterManager.h>
+#include <string>
 
-#include "JEventProcessorPODIO.h"
 #include "JEventProcessorManagedPODIO.h"
-#include "JEventSourcePODIO.h"
+#include "JEventProcessorPODIO.h"
 #include "JEventSourceManagedPODIO.h"
+#include "JEventSourcePODIO.h"
 
 // Make this a JANA plugin
 extern "C" {

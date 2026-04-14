@@ -1,14 +1,18 @@
 #include "JEventSourceManagedPODIO.h"
 
 #include <JANA/JApplication.h>
-#include <JANA/JEvent.h>
 #include <JANA/Utils/JTypeInfo.h>
 #include <fmt/format.h>
 #include <fmt/ostream.h>
+#include <podio/Reader.h>
 #include <podio/podioVersion.h>
+#include <spdlog/logger.h>
 #include <exception>
 #include <filesystem>
+#include <memory>
+#include <stdexcept>
 
+#include "services/io/podio/JEventSourcePODIO.h"
 #include "services/log/Log_service.h"
 
 // Formatter for podio::version::Version

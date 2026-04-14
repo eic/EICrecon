@@ -1,9 +1,9 @@
 #pragma once
 
+#include <JANA/JApplicationFwd.h>
 #include <JANA/JEventSourceGeneratorT.h>
 #include <atomic>
 #include <condition_variable>
-#include <memory>
 #include <mutex>
 #include <string>
 
