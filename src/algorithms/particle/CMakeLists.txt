@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
 set(PLUGIN_NAME "algorithms_particle")
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
@@ -12,7 +10,10 @@ plugin_add(${PLUGIN_NAME} WITH_SHARED_LIBRARY WITHOUT_PLUGIN)
 plugin_glob_all(${PLUGIN_NAME})
 
 # Find dependencies
-plugin_add_algorithms(${PLUGIN_NAME})
 plugin_add_dd4hep(${PLUGIN_NAME})
 plugin_add_event_model(${PLUGIN_NAME})
-plugin_add_eigen3(${PLUGIN_NAME})
+
+# Add libraries (same as target_include_directories but for both plugin and
+# library)
+plugin_link_libraries(${PLUGIN_NAME} algorithms_tracking_library
+                      particle_service_library)
