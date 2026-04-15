@@ -575,6 +575,56 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "EcalEndcapNTrackClusterMatches",
       "HcalEndcapNTrackClusterMatches",
 
+      // particle flow
+      "EcalBarrelRemnantClusters",
+      "EcalBarrelExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "EcalBarrelTrackExpectedClusterMatches",
+#else
+      "EcalBarrelTrackExpectedClusterMatches",
+#endif
+      "EcalEndcapNRemnantClusters",
+      "EcalEndcapNExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "EcalEndcapNTrackExpectedClusterMatches",
+#else
+      "EcalEndcapNTrackExpectedClusterMatches",
+#endif
+      "EcalEndcapPRemnantClusters",
+      "EcalEndcapPExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "EcalEndcapPTrackExpectedClusterMatches",
+#else
+      "EcalEndcapPTrackExpectedClusterMatches",
+#endif
+      "HcalBarrelRemnantClusters",
+      "HcalBarrelExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "HcalBarrelTrackExpectedClusterMatches",
+#else
+      "HcalBarrelTrackExpectedClusterMatches",
+#endif
+      "HcalEndcapNRemnantClusters",
+      "HcalEndcapNExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "HcalEndcapNTrackExpectedClusterMatches",
+#else
+      "HcalEndcapNTrackExpectedClusterMatches",
+#endif
+      "LFHCALRemnantClusters",
+      "LFHCALExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "LFHCALTrackExpectedClusterMatches",
+#else
+      "LFHCALTrackExpectedClusterMatches",
+#endif
+      "HcalEndcapPInsertRemnantClusters",
+      "HcalEndcapPInsertExpectedClusters",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+      "HcalEndcapPInsertTrackExpectedClusterMatches",
+#else
+      "HcalEndcapPInsertTrackExpectedClusterMatches",
+#endif
   };
   std::vector<std::string> output_exclude_collections; // need to get as vector, then convert to set
   japp->SetDefaultParameter(
