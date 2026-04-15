@@ -263,8 +263,8 @@ void InitPlugin(JApplication* app) {
        "HcalFarForwardZDCClusterLinksWithoutShapes",
 #endif
        "HcalFarForwardZDCClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
-      {.energyWeight = "log",
-       .sampFrac     = 0.0273,
+      {.energyWeight        = "log",
+       .sampFrac            = 0.0273,
        .logWeightBaseCoeffs = {5.8, 0.65, 0.31},
        .logWeightBase_Eref  = 50 * dd4hep::GeV},
       app // TODO: Remove me once fixed
@@ -282,8 +282,8 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
        .sampFrac                        = 0.0273,
-       .logWeightBaseCoeffs = {5.8, 0.65, 0.31},
-       .logWeightBase_Eref  = 50 * dd4hep::GeV},
+       .logWeightBaseCoeffs             = {5.8, 0.65, 0.31},
+       .logWeightBase_Eref              = 50 * dd4hep::GeV},
       app));
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterTruthClustering_factory>(
@@ -359,8 +359,8 @@ void InitPlugin(JApplication* app) {
 #endif
        "HcalFarForwardZDCClusterAssociationsBaselineWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
-          .energyWeight = "log",
-          .sampFrac     = 0.0273,
+          .energyWeight    = "log",
+          .sampFrac        = 0.0273,
           .logWeightBase   = 6.2,
           .enableEtaBounds = false,
       },
@@ -379,7 +379,7 @@ void InitPlugin(JApplication* app) {
       {.longitudinalShowerInfoAvailable = true,
        .energyWeight                    = "log",
        .sampFrac                        = 0.0273,
-       .logWeightBase = 6.2},
+       .logWeightBase                   = 6.2},
       app));
 }
 }
