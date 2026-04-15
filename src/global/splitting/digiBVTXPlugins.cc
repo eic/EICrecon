@@ -24,6 +24,9 @@ void InitPlugin_digiBVTX(JApplication* app) {
           .m_tag                 = "SiBarrelVertexRawHits_TK",
           .m_default_input_tags  = {"EventHeader", "VertexBarrelHits"},
           .m_default_output_tags = {"SiBarrelVertexRawHits_TK",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+       "SiBarrelVertexRawHitLinks_TK",
+#endif
                                     "SiBarrelVertexRawHitAssociations_TK"},
           .m_default_cfg =
               {
