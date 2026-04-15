@@ -23,7 +23,11 @@ void InitPlugin_digiB0TRK(JApplication* app) {
       JOmniFactoryGeneratorT<SiliconTrackerDigi_factory>::TypedWiring{
           .m_tag                 = "B0TrackerRawHits_TK",
           .m_default_input_tags  = {"EventHeader", "B0TrackerHits"},
-          .m_default_output_tags = {"B0TrackerRawHits_TK", "B0TrackerRawHitAssociations_TK"},
+          .m_default_output_tags = {"B0TrackerRawHits_TK",
+#if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
+                                    "B0TrackerRawHitLinks_TK",
+#endif
+                                    "B0TrackerRawHitAssociations_TK"},
           .m_default_cfg =
               {
                   .threshold      = 10.0 * dd4hep::keV,
