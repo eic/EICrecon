@@ -48,60 +48,60 @@ void InitPlugin_digiECTOF(JApplication* app) {
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFEndcapRecHits_TK", {"TOFEndcapRawHits_TK"}, // Input data collection tags
-      {"TOFEndcapRecHits_TK"},                     // Output data tag
+      {"TOFEndcapRecHits_TK"},                        // Output data tag
       {
           .timeResolution = 0.025,
       },
       app));
 
-//   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
-//       "TOFEndcapSharedHits_TK", {"TOFEndcapHits_TK"}, {"TOFEndcapSharedHits_TK"},
-//       {
+  //   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(
+  //       "TOFEndcapSharedHits_TK", {"TOFEndcapHits_TK"}, {"TOFEndcapSharedHits_TK"},
+  //       {
 
-//           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
-//           .sigma_sharingx = 1,
-//           .sigma_sharingy = 1,
-//           .min_edep       = 0.001 * dd4hep::keV,
-//           .readout        = "TOFEndcapHits",
-//       },
-//       app));
+  //           .sigma_mode     = SiliconChargeSharingConfig::ESigmaMode::rel,
+  //           .sigma_sharingx = 1,
+  //           .sigma_sharingy = 1,
+  //           .min_edep       = 0.001 * dd4hep::keV,
+  //           .readout        = "TOFEndcapHits",
+  //       },
+  //       app));
 
-//   const double x_when_landau_min = -0.22278;
-//   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
-//   const double sigma_analog      = 0.293951 * edm4eic::unit::ns;
-//   const double Vm                = 3e-4 * dd4hep::GeV;
-//   const double adc_range         = 256;
+  //   const double x_when_landau_min = -0.22278;
+  //   const double landau_min        = TMath::Landau(x_when_landau_min, 0, 1, true);
+  //   const double sigma_analog      = 0.293951 * edm4eic::unit::ns;
+  //   const double Vm                = 3e-4 * dd4hep::GeV;
+  //   const double adc_range         = 256;
 
-//   const double gain = -adc_range / Vm / landau_min * sigma_analog;
-//   const int offset  = 3;
-//   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimTrackerHit>>(
-//       "TOFEndcapSmoothPulses_TK", {"TOFEndcapSharedHits_TK"}, {"TOFEndcapSmoothPulses_TK"},
-//       {
-//           .pulse_shape_function = "LandauPulse",
-//           .pulse_shape_params   = {gain, sigma_analog, offset},
-//           .ignore_thres         = 0.05 * adc_range,
-//           .timestep             = 0.01 * edm4eic::unit::ns,
-//       },
-//       app));
+  //   const double gain = -adc_range / Vm / landau_min * sigma_analog;
+  //   const int offset  = 3;
+  //   app->Add(new JOmniFactoryGeneratorT<PulseGeneration_factory<edm4hep::SimTrackerHit>>(
+  //       "TOFEndcapSmoothPulses_TK", {"TOFEndcapSharedHits_TK"}, {"TOFEndcapSmoothPulses_TK"},
+  //       {
+  //           .pulse_shape_function = "LandauPulse",
+  //           .pulse_shape_params   = {gain, sigma_analog, offset},
+  //           .ignore_thres         = 0.05 * adc_range,
+  //           .timestep             = 0.01 * edm4eic::unit::ns,
+  //       },
+  //       app));
 
-//   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
-//       "TOFEndcapCombinedPulses_TK", {"TOFEndcapSmoothPulses_TK"}, {"TOFEndcapCombinedPulses_TK"},
-//       {
-//           .minimum_separation = 25 * edm4eic::unit::ns,
-//       },
-//       app));
+  //   app->Add(new JOmniFactoryGeneratorT<PulseCombiner_factory>(
+  //       "TOFEndcapCombinedPulses_TK", {"TOFEndcapSmoothPulses_TK"}, {"TOFEndcapCombinedPulses_TK"},
+  //       {
+  //           .minimum_separation = 25 * edm4eic::unit::ns,
+  //       },
+  //       app));
 
-//   double risetime = 0.45 * edm4eic::unit::ns;
-//   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
-//       "TOFEndcapPulses_TK", {"TOFEndcapCombinedPulses_TK"}, {"TOFEndcapPulses_TK"},
-//       {
-//           .EICROC_period = 25 * edm4eic::unit::ns,
-//           .local_period  = 25 * edm4eic::unit::ns / 1024,
-//           .global_offset = -offset * sigma_analog + risetime,
-//       },
-//       app));
+  //   double risetime = 0.45 * edm4eic::unit::ns;
+  //   app->Add(new JOmniFactoryGeneratorT<SiliconPulseDiscretization_factory>(
+  //       "TOFEndcapPulses_TK", {"TOFEndcapCombinedPulses_TK"}, {"TOFEndcapPulses_TK"},
+  //       {
+  //           .EICROC_period = 25 * edm4eic::unit::ns,
+  //           .local_period  = 25 * edm4eic::unit::ns / 1024,
+  //           .global_offset = -offset * sigma_analog + risetime,
+  //       },
+  //       app));
 
-//   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
-//       "TOFEndcapADCTDC_TK", {"TOFEndcapPulses_TK"}, {"TOFEndcapADCTDC_TK"}, {}, app));
+  //   app->Add(new JOmniFactoryGeneratorT<EICROCDigitization_factory>(
+  //       "TOFEndcapADCTDC_TK", {"TOFEndcapPulses_TK"}, {"TOFEndcapADCTDC_TK"}, {}, app));
 }
 // } // extern "C"

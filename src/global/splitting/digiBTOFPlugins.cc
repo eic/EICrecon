@@ -54,7 +54,7 @@ void InitPlugin_digiBTOF(JApplication* app) {
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "TOFBarrelRecHits_TK", {"TOFBarrelRawHits_TK"}, // Input data collection tags
-      {"TOFBarrelRecHits_TK"},                     // Output data tag
+      {"TOFBarrelRecHits_TK"},                        // Output data tag
       {},
       app)); // Hit reco default config for factories
 
@@ -62,7 +62,7 @@ void InitPlugin_digiBTOF(JApplication* app) {
   // time walk correction is still TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitCalibration_factory>(
       "TOFBarrelCalibratedHits_TK", {"TOFBarrelADCTDC_TK"}, // Input data collection tags
-      {"TOFBarrelCalibratedHits_TK"},                    // Output data tag
+      {"TOFBarrelCalibratedHits_TK"},                       // Output data tag
       {},
       app)); // Hit reco default config for factories
 
@@ -71,7 +71,7 @@ void InitPlugin_digiBTOF(JApplication* app) {
   // More sophisticated algorithm TBD
   app->Add(new JOmniFactoryGeneratorT<LGADHitClustering_factory>(
       "TOFBarrelClusterHits_TK", {"TOFBarrelCalibratedHits_TK"}, // Input data collection tags
-      {"TOFBarrelClusterHits_TK"},                            // Output data tag
+      {"TOFBarrelClusterHits_TK"},                               // Output data tag
       {}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SiliconChargeSharing_factory>(

@@ -25,7 +25,7 @@ void InitPlugin_digiECTRK(JApplication* app) {
           .m_default_input_tags  = {"EventHeader", "TrackerEndcapHits"},
           .m_default_output_tags = {"SiEndcapTrackerRawHits_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "SiEndcapTrackerRawHitLinks_TK",
+                                    "SiEndcapTrackerRawHitLinks_TK",
 #endif
                                     "SiEndcapTrackerRawHitAssociations_TK"},
           .m_default_cfg =

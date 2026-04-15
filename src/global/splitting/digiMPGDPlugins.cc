@@ -109,25 +109,25 @@ void InitPlugin_digiMPGD(JApplication* app) {
         },
         app));
   } else {
-    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>("MPGDBarrelRawHits_TK",
-                                                                 {"EventHeader", "MPGDBarrelHits"},
-                                                                 {"MPGDBarrelRawHits_TK",
+    app->Add(new JOmniFactoryGeneratorT<MPGDTrackerDigi_factory>(
+        "MPGDBarrelRawHits_TK", {"EventHeader", "MPGDBarrelHits"},
+        {"MPGDBarrelRawHits_TK",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-                                                                  "MPGDBarrelRawHitLinks_TK",
+         "MPGDBarrelRawHitLinks_TK",
 #endif
-                                                                  "MPGDBarrelRawHitAssociations_TK"},
-                                                                 {
-                                                                     .readout   = "MPGDBarrelHits",
-                                                                     .threshold = 100 * dd4hep::eV,
-                                                                     .timeResolution = 10,
-                                                                 },
-                                                                 app));
+         "MPGDBarrelRawHitAssociations_TK"},
+        {
+            .readout        = "MPGDBarrelHits",
+            .threshold      = 100 * dd4hep::eV,
+            .timeResolution = 10,
+        },
+        app));
   }
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "MPGDBarrelRecHits_TK", {"MPGDBarrelRawHits_TK"}, // Input data collection tags
-      {"MPGDBarrelRecHits_TK"},                      // Output data tag
+      {"MPGDBarrelRecHits_TK"},                         // Output data tag
       {
           .timeResolution = 10,
       },
@@ -167,7 +167,7 @@ void InitPlugin_digiMPGD(JApplication* app) {
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "OuterMPGDBarrelRecHits_TK", {"OuterMPGDBarrelRawHits_TK"}, // Input data collection tags
-      {"OuterMPGDBarrelRecHits_TK"},                           // Output data tag
+      {"OuterMPGDBarrelRecHits_TK"},                              // Output data tag
       {
           .timeResolution = 10,
       },
@@ -190,8 +190,9 @@ void InitPlugin_digiMPGD(JApplication* app) {
 
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
-      "BackwardMPGDEndcapRecHits_TK", {"BackwardMPGDEndcapRawHits_TK"}, // Input data collection tags
-      {"BackwardMPGDEndcapRecHits_TK"},                              // Output data tag
+      "BackwardMPGDEndcapRecHits_TK",
+      {"BackwardMPGDEndcapRawHits_TK"}, // Input data collection tags
+      {"BackwardMPGDEndcapRecHits_TK"}, // Output data tag
       {
           .timeResolution = 10,
       },
@@ -215,7 +216,7 @@ void InitPlugin_digiMPGD(JApplication* app) {
   // Convert raw digitized hits into hits with geometry info (ready for tracking)
   app->Add(new JOmniFactoryGeneratorT<TrackerHitReconstruction_factory>(
       "ForwardMPGDEndcapRecHits_TK", {"ForwardMPGDEndcapRawHits_TK"}, // Input data collection tags
-      {"ForwardMPGDEndcapRecHits_TK"},                             // Output data tag
+      {"ForwardMPGDEndcapRecHits_TK"},                                // Output data tag
       {
           .timeResolution = 10,
       },
