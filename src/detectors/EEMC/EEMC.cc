@@ -234,13 +234,11 @@ void InitPlugin(JApplication* app) {
       ));
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapNSplitMergeClustersWithoutShapes",
-      {
-        "EcalEndcapNSplitMergeProtoClusters",
+      {"EcalEndcapNSplitMergeProtoClusters",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-        "EcalEndcapNRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+       "EcalEndcapNRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-        "EcalEndcapNRawHitAssociations"
-      },
+       "EcalEndcapNRawHitAssociations"},
       {"EcalEndcapNSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapNSplitMergeClusterLinksWithoutShapes",

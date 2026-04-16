@@ -364,11 +364,11 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "LFHCALSplitMergeClustersWithoutShapes",
       {
-        "LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
+          "LFHCALSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-        "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
+          "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-        "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"LFHCALSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
