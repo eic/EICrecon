@@ -128,7 +128,7 @@ void InitPlugin(JApplication* app) {
       {
           "HcalEndcapPInsertTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalEndcapPInsertRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLinkCollection
+          "HcalEndcapPInsertRawHitLinks", // edm4eic::MCRecoCalorimeterHitLinkCollection
 #endif
           "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
@@ -157,7 +157,7 @@ void InitPlugin(JApplication* app) {
       {
           "HcalEndcapPInsertImagingProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalEndcapPInsertRawHitLinks",          // edm4eic::MCRecoCalorimeterHitLinkCollection
+          "HcalEndcapPInsertRawHitLinks", // edm4eic::MCRecoCalorimeterHitLinkCollection
 #endif
           "HcalEndcapPInsertRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
@@ -287,9 +287,9 @@ void InitPlugin(JApplication* app) {
       {
           "LFHCALTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "LFHCALRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLinkCollection
+          "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLinkCollection
 #endif
-          "LFHCALRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"LFHCALTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -315,9 +315,9 @@ void InitPlugin(JApplication* app) {
       {
           "LFHCALIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "LFHCALRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLinkCollection
+          "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLinkCollection
 #endif
-          "LFHCALRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"LFHCALClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)

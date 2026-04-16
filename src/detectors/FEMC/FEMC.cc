@@ -176,9 +176,9 @@ void InitPlugin(JApplication* app) {
       {
           "EcalEndcapPTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "EcalEndcapPRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLinkCollection
+          "EcalEndcapPRawHitLinks", // edm4eic::MCRecoCalorimeterHitLinkCollection
 #endif
-          "EcalEndcapPRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "EcalEndcapPRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"EcalEndcapPTruthClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
@@ -204,9 +204,9 @@ void InitPlugin(JApplication* app) {
       {
           "EcalEndcapPIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "EcalEndcapPRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLinkCollection
+          "EcalEndcapPRawHitLinks", // edm4eic::MCRecoCalorimeterHitLinkCollection
 #endif
-          "EcalEndcapPRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "EcalEndcapPRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"EcalEndcapPClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
