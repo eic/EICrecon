@@ -174,10 +174,6 @@ std::vector<std::string_view> JEventSourcePODIO::getAvailableCategories() const 
   return m_reader->getAvailableCategories();
 }
 
-std::size_t JEventSourcePODIO::getEntries(const std::string& category) const {
-  return m_reader->getEntries(category);
-}
-
 podio::Frame JEventSourcePODIO::getFrame(const std::string& category, std::size_t index) const {
   return m_reader->readFrame(category, index);
 }

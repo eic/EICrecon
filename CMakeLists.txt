@@ -70,6 +70,7 @@ set(onnxruntime_MIN_VERSION 1.17)
 set(podio_VERSION_MIN 1.3)
 set(ROOT_VERSION_MIN 6.28)
 set(spdlog_VERSION_MIN 1.11.0)
+set(ZeroMQ_VERSION_MIN 4.3.0)
 
 # Set default standard to C++20
 set(CMAKE_CXX_STANDARD_MIN 20)
@@ -300,6 +301,11 @@ endif()
 
 # ONNX Runtime
 find_package(onnxruntime ${onnxruntime_MIN_VERSION} CONFIG)
+
+# ZeroMQ
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(ZeroMQ REQUIRED libzmq>=${ZeroMQ_VERSION_MIN})
+find_package(cppzmq REQUIRED)
 
 # Add CMake additional functionality:
 include(cmake/jana_plugin.cmake) # Add common settings for plugins
