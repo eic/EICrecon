@@ -132,7 +132,7 @@ void InitPlugin(JApplication* app) {
       {
           "HcalBarrelIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "HcalBarrelRawHitLinks",         // edm4eic::edm4eic::MCRecoCalorimeterHitLink
+          "HcalBarrelRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLink
 #endif
           "HcalBarrelRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
@@ -205,16 +205,18 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "HcalBarrelSplitMergeClustersWithoutShapes",
-      {"HcalBarrelSplitMergeProtoClusters",
+      {
+        "HcalBarrelSplitMergeProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "HcalBarrelRawHitLinks",
+        "HcalBarrelRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-       "HcalBarrelRawHitAssociations"},
+        "HcalBarrelRawHitAssociations" //edm4eic::MCRecoCalorimeterHitAssociationCollection
+      },
       {"HcalBarrelSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "HcalBarrelSplitMergeClusterLinksWithoutShapes",
 #endif
-       "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"},
+       "HcalBarrelSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {.energyWeight = "log", .sampFrac = 1.0, .logWeightBase = 6.2, .enableEtaBounds = false},
       app // TODO: Remove me once fixed
       ));

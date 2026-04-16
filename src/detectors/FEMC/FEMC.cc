@@ -176,7 +176,7 @@ void InitPlugin(JApplication* app) {
       {
           "EcalEndcapPTruthProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "EcalEndcapPRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLinkCollection
+          "EcalEndcapPRawHitLinks",        // edm4eic::MCRecoCalorimeterHitLink
 #endif
           "EcalEndcapPRawHitAssociations"  // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
@@ -204,7 +204,7 @@ void InitPlugin(JApplication* app) {
       {
           "EcalEndcapPIslandProtoClusters", // edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-          "EcalEndcapPRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLinkCollection
+          "EcalEndcapPRawHitLinks",         // edm4eic::MCRecoCalorimeterHitLink
 #endif
           "EcalEndcapPRawHitAssociations"   // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
@@ -253,16 +253,18 @@ void InitPlugin(JApplication* app) {
 
   app->Add(new JOmniFactoryGeneratorT<CalorimeterClusterRecoCoG_factory>(
       "EcalEndcapPSplitMergeClustersWithoutShapes",
-      {"EcalEndcapPSplitMergeProtoClusters",
+      {
+        "EcalEndcapPSplitMergeProtoClusters", //edm4eic::ProtoClusterCollection
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
-       "EcalEndcapPRawHitLinks",
+        "EcalEndcapPRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-       "EcalEndcapPRawHitAssociations"},
+        "EcalEndcapPRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
+      },
       {"EcalEndcapPSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
        "EcalEndcapPSplitMergeClusterLinksWithoutShapes",
 #endif
-       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"},
+       "EcalEndcapPSplitMergeClusterAssociationsWithoutShapes"}, // edm4eic::MCRecoClusterParticleAssociation
       {
           .energyWeight    = "log",
           .sampFrac        = 1.0,
