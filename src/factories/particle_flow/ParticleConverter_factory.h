@@ -12,8 +12,8 @@
 #include <edm4eic/ReconstructedParticle.h>
 #include <edm4eic/Vertex.h>
 
-#include "algorithms/particle/ParticleConverter.h"
-#include "algorithms/particle/ParticleConverterConfig.h"
+#include "algorithms/particle_flow/ParticleConverter.h"
+#include "algorithms/particle_flow/ParticleConverterConfig.h"
 
 namespace eicrecon {
 class ParticleConverter_factory

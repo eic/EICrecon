@@ -1,4 +1,4 @@
-set(PLUGIN_NAME "algorithms_particle")
+set(PLUGIN_NAME "algorithms_particle_flow")
 
 # Function creates ${PLUGIN_NAME}_plugin and ${PLUGIN_NAME}_library targets
 # Setting default includes, libraries and installation paths
