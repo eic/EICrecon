@@ -368,7 +368,7 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "LFHCALRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-          "LFHCALRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "LFHCALRawHitAssociations" // edm4hep::MCRecoCalorimeterHitAssociationCollection
       },
       {"LFHCALSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)

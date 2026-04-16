@@ -210,7 +210,7 @@ void InitPlugin(JApplication* app) {
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
           "HcalBarrelRawHitLinks", // edm4eic::MCRecoCalorimeterHitLink
 #endif
-          "HcalBarrelRawHitAssociations" //edm4eic::MCRecoCalorimeterHitAssociationCollection
+          "HcalBarrelRawHitAssociations" // edm4eic::MCRecoCalorimeterHitAssociationCollection
       },
       {"HcalBarrelSplitMergeClustersWithoutShapes",
 #if EDM4EIC_BUILD_VERSION >= EDM4EIC_VERSION(8, 7, 0)
