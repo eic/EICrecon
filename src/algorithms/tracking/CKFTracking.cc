@@ -103,12 +103,14 @@ public:
     Acts::ActsVector<2> loc       = Acts::Vector2::Zero();
     Acts::ActsSquareMatrix<2> cov = Acts::ActsSquareMatrix<2>::Zero();
 #endif
-    loc[Acts::eBoundLoc0]                   = meas2D.getLoc().a;
-    loc[Acts::eBoundLoc1]                   = meas2D.getLoc().b;
-    cov(Acts::eBoundLoc0, Acts::eBoundLoc0) = meas2D.getCovariance().xx;
-    cov(Acts::eBoundLoc1, Acts::eBoundLoc1) = meas2D.getCovariance().yy;
-    cov(Acts::eBoundLoc0, Acts::eBoundLoc1) = meas2D.getCovariance().xy;
-    cov(Acts::eBoundLoc1, Acts::eBoundLoc0) = meas2D.getCovariance().xy;
+    constexpr auto mm = Acts::UnitConstants::mm / edm4eic::units::mm;
+    constexpr auto mm2 = mm * mm;
+    loc[Acts::eBoundLoc0]                   = meas2D.getLoc().a * mm;
+    loc[Acts::eBoundLoc1]                   = meas2D.getLoc().b * mm;
+    cov(Acts::eBoundLoc0, Acts::eBoundLoc0) = meas2D.getCovariance().xx * mm2;
+    cov(Acts::eBoundLoc1, Acts::eBoundLoc1) = meas2D.getCovariance().yy * mm2;
+    cov(Acts::eBoundLoc0, Acts::eBoundLoc1) = meas2D.getCovariance().xy * mm2;
+    cov(Acts::eBoundLoc1, Acts::eBoundLoc0) = meas2D.getCovariance().xy * mm2;
 
     trackState.allocateCalibrated(loc, cov);
     std::array<uint8_t, 2> indices{static_cast<uint8_t>(Acts::eBoundLoc0),
