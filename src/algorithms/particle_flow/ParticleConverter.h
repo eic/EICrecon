@@ -13,7 +13,7 @@
 #include <string_view>
 
 #include "algorithms/interfaces/WithPodConfig.h"
-#include "algorithms/particle/ParticleConverterConfig.h"
+#include "algorithms/particle_flow/ParticleConverterConfig.h"
 
 #include "services/particle/ParticleSvc.h"
 
