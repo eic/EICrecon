@@ -1,94 +1,81 @@
+# Contribution Guidelines
 
-# Code style and naming
-There are many coding guidelines which could be selected by the whole community, now we need a minimum to start with consistent code
+EICrecon is a collaborative software project, and contributions from anyone are welcome.
+This document describes the recommended workflow for developing and reviewing contributions to EICrecon. Questions about any step of the process can be directed to the review team, which can be contacted via email:
 
-## C++
+Email: epic-software-review@lists.bnl.gov
 
-### Code
+## How to contribute
 
+The following steps describe the recommended workflow for contributing to EICrecon.
+
+
+```mermaid
+flowchart LR
+    A(["Plan/Communicate"])
+    A --> B(["Create draft PR"])
+      --> C(["Develop self-contained commits"])
+      --> D(["Ready for review"])
+      --> E(["Timescale for review"])
+```
+
+1. Communicate your development plans with the Reconstruction Framework and Algorithms or Physics and Detector Simulations Working Groups before beginning development. This helps clarify the scope and expected timeline.
+
+2. Create a draft PR as soon as work begins. You may request a reviewer directly, or ask the review team to assign one. If the assigned reviewer cannot complete the review, they should request a new reviewer from the review team.
+
+3. Develop your code using concise commits with descriptive commit messages.
+
+    #### Development workflow
+
+    The following recommendations describe how to develop a contribution within EICrecon
+
+    * Start each development in a new branch.
+    * Use atomic commits, and commit frequently.
+
+        - Each commit should reflect a single self-contained change. Try to avoid overly large commits (bad examples are for instance mixing logical change with code cleanup and typo fixes).
+
+    * Write descriptive commit messages to preserve development history. See e.g. [here](https://wiki.openstack.org/wiki/GitCommitMessages#Information_in_commit_messages) for more information.
+    * Try to keep PRs as small as possible, so that each PR belongs to one logically/conceptually different development. This simplifies the code review process.
+
+4. When the code is ready for review, mark the pull request as **Ready for Review** to notify the reviewer.
+
+5. The reviewer should provide a timescale for their review without delay during working hours (depending on the scope and size of the PR and on collaboration schedule).
+
+### PR checklist
+
+A PR is ready to be reviewed when:
+
+- [x] A detailed description of the PR is provided
+- [x] All CI jobs pass
+- [x] clang-tidy and clang-format have been run locally (see [link](some link) for instructions)
+- [x] There is a legible commit history
+- [x] Code is appropriately documented
+
+## Reviewing other contributions
+
+Upon the code being marked ready for review, the review period for the PR begins. ePIC requires every PR to EICrecon to receive at least one review prior to being marked ready to be merged. Reviewers and all collaborators of ePIC are expected to abide by the ePIC [code of conduct](https://www.epic-eic.org/collaboration/professional.html). The reviewer should evaluate the following criteria:
+
+#### Approving a pull request
+
+- Does the PR have a description that reflects the content of the code?
+- Does the CI pass?
+- Is the contributed code:
+    - maintainable and sustainable?
+    - (if applicable) correct in satisfying physics requirements and maintaining downstream assumptions?
+    - scalable (i.e. it can run in production)?
+- Are relevant performance benchmarks considered? And if changes in computing and/or physics performance are observed, are they discussed and understood?
+- Have all comments raised by collaborators/reviewers been addressed?
+
+## Code style and standards
+
+EICrecon uses clang-format for formatting the source code. Your code can be formatted automatically using the .clang-format file
 - class names: PascalCase
-- member functions: camelCase
-- members:  m_snake_case
-- local variables: snake_case
-- constants, definitions: SCREAMING_SNAKE_CASE
-- base namespace: eicrecon
-- indent: 4 spaces
+- Base namespace: eicrecon
+- Indent: 2 spaces
+- File naming:
 
-### File naming
-
-- file extensions: cc, h
-- factory names: WhatIsProduced_factory[_tag]
-- services, processors, etc.: Name_service, Name_processor, Name_etc
-- plugin with `name` should have `name`.cc file with `InitPlugin` function (It makes it so much easier to find the entry point of a plugin in the src tree)
-- templated classes: end with "T" (classes that inherit from them don't, unless they are also a template)
-- interface classes: start with "I"
-
-### Sample
-
-(This code sample is temporary and needs further development)
-
-```c++
-#include <vector>
-
-/** Doxygen style for Foo */
-class Foo {
-    friend class AnotherClass;
-
-public:
-    Foo(some_arg) {
-        m_field = some_arg;
-    }
-
-private:
-    int m_field;
-};
-
-class AnotherClass {
-public:
-
-    static const int MAX_VALUE = 42;
-    static const int MIN_VALUE = 0;
-
-    virtual void method1() = 0;
-    virtual void method2() = 0;
-
-    int  x() { return m_x; }
-    void setX(x) { m_x = x; }
-
-private:
-    int m_x;
-
-};
-
-```
-
-## Python
-
-- Strongly follow [PEP-8](https://peps.python.org/pep-0008/) unless naming is dictated by C++ wrapping
-
-# Development policies
-
-## Use of data model classes
-
-**podio** generates mutable and unmutable classes to work with underlying POD objects. e.g. `TrackerHit` (unmutable) an `MutableTrakerHit`. Unmutable variants are to be used for factory outputs and as a base classes of types that will be factory outputs:
-
-```C++
-class MyClass: public TrackerHit            // Yes
-class MyClass: public MutableTrackerHit     // NO!
-
-std::vector<const TrackerHit*> results          // Yes
-std::vector<const MutableTrackerHit*> results   // NO!
-```
-
-## spdlog as a main logging engine
-
-[spdlog](https://github.com/gabime/spdlog) is suggested as the main logging engine for EICRecon. Based on
-
-One can use a general and plugin level loggers as
-
-```C++
-// Create plugin level sub-log
-m_log = spdlog::stdout_color_mt("TrackerHitReconstruction_factory");
-```
-
-More documentation is available at [spdlog](https://github.com/gabime/spdlog)
+    - File extensions: .cc, .h
+    - Algorithm config name: <AlgorithmName>Config.h
+    - Factory name: <AlgorithmName>_factory.h
+    - Templated classes end with "T" (classes inheriting from them should not use the T suffix unless they are also templates)
+- For more details see [.clang-format](https://github.com/eic/EICrecon/blob/main/.clang-format)
