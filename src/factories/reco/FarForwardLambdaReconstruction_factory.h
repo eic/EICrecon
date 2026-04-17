@@ -32,8 +32,8 @@ private:
   ParameterRef<std::string> m_offset_position_name{this, "offsetPositionName",
                                                    config().offsetPositionName};
   ParameterRef<double> m_rot_y{this, "globalToProtonRotation", config().globalToProtonRotation};
-  ParameterRef<double> m_lambda_max_mass_dev{this, "lambdaMassWindow", config().lambdaMassWindow};
-  ParameterRef<double> m_pi0_max_mass_dev{this, "pi0Window", config().pi0Window};
+  ParameterRef<double> m_lambda_mass_window{this, "lambdaMassWindow", config().lambdaMassWindow};
+  ParameterRef<double> m_pi0_mass_window{this, "pi0Window", config().pi0Window};
   ParameterRef<int> m_iterations{this, "iterations", config().iterations};
   Service<AlgorithmsInit_service> m_algorithmsInit{this};
 
@@ -47,15 +47,13 @@ public:
   }
 
   void Process(int32_t /* run_number */, uint64_t /* event_number */) {
-    m_algo->process(
-      
+    m_algo->process( 
       {
         m_hcal_neutrals_input(),
         m_b0_neutrals_input(), 
         m_ecalendcapp_neutrals_input(),
         m_lfhcal_neutrals_input()
       },
-      
       {
         m_lambda_output().get(), 
         m_lambda_decay_products_cm_output().get()
