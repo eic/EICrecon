@@ -36,32 +36,32 @@ static constexpr float kPi     = 3.14159265358979323846F;
 
 namespace {
 
-bool hasElectronPID(const edm4eic::Cluster& cl) {
-  for (auto const& pid : cl.getParticleIDs()) {
-    if (pid.getPDG() == 11) {
-      return true;
-    }
-  }
-  return false;
-}
-
-edm4eic::MCRecoClusterParticleAssociation
-findBestAssoc(const edm4eic::Cluster& cluster,
-              const edm4eic::MCRecoClusterParticleAssociationCollection* cluster_assocs) {
-  edm4eic::MCRecoClusterParticleAssociation best_assoc;
-  if (cluster_assocs == nullptr) {
-    return best_assoc;
-  }
-
-  for (auto const& assoc : *cluster_assocs) {
-    if (assoc.getRec() == cluster) {
-      if ((!best_assoc.isAvailable()) || (assoc.getWeight() > best_assoc.getWeight())) {
-        best_assoc = assoc;
+  bool hasElectronPID(const edm4eic::Cluster& cl) {
+    for (auto const& pid : cl.getParticleIDs()) {
+      if (pid.getPDG() == 11) {
+        return true;
       }
     }
+    return false;
   }
-  return best_assoc;
-}
+
+  edm4eic::MCRecoClusterParticleAssociation
+  findBestAssoc(const edm4eic::Cluster& cluster,
+                const edm4eic::MCRecoClusterParticleAssociationCollection* cluster_assocs) {
+    edm4eic::MCRecoClusterParticleAssociation best_assoc;
+    if (cluster_assocs == nullptr) {
+      return best_assoc;
+    }
+
+    for (auto const& assoc : *cluster_assocs) {
+      if (assoc.getRec() == cluster) {
+        if ((!best_assoc.isAvailable()) || (assoc.getWeight() > best_assoc.getWeight())) {
+          best_assoc = assoc;
+        }
+      }
+    }
+    return best_assoc;
+  }
 
 } // namespace
 
@@ -243,9 +243,8 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
           float eta_hit   = -std::log(std::tan(theta_hit * 0.5f));
           float phi_hit   = std::atan2(hit.y, hit.x);
 
-          float r_norm = std::clamp((r_hit - R0_MIN) / (R0_MAX - R0_MIN), 0.f, 1.f);
-          float eta_norm =
-              std::clamp((eta_hit - eta_c - ETA_MIN) / (ETA_MAX - ETA_MIN), 0.f, 1.f);
+          float r_norm   = std::clamp((r_hit - R0_MIN) / (R0_MAX - R0_MIN), 0.f, 1.f);
+          float eta_norm = std::clamp((eta_hit - eta_c - ETA_MIN) / (ETA_MAX - ETA_MIN), 0.f, 1.f);
 
           float dphi = phi_hit - phi_c;
           if (dphi < -kPi) {
@@ -273,7 +272,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
   }
 
   {
-    auto const& shape = ft.getShape();
+    auto const& shape    = ft.getShape();
     std::size_t expected = 1;
     for (auto dim : shape) {
       expected *= dim;
