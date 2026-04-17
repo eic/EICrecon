@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Sebouh Paul
+// Copyright (C) 2025 Sebouh Paul, Baptiste Fraisse
 #pragma once
 #include <float.h>
 #include <DD4hep/Detector.h>

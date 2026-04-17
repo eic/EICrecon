@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Sebouh Paul
-// Update/modification 2026 by Baptiste Fraisse
+// Copyright (C) 2025 Sebouh Paul, Baptiste Fraisse
 
 #include <Evaluator/DD4hepUnits.h>
 #include <edm4eic/ClusterCollection.h>
@@ -39,6 +38,11 @@ double FarForwardNeutralsReconstruction::calc_corr(double Etot, const std::vecto
   return coeffs[0] + coeffs[1] / sqrt(Etot) + coeffs[2] / Etot;
 }
 
+/*
+     check that the cluster position is within the correct range into ZDC,
+     and that the sqrt(largest eigenvalue) is less than gamma_max_length,
+     and that the sqrt(second largest eigenvalue) is less than gamma_max_width
+*/
 bool FarForwardNeutralsReconstruction::isGamma(const edm4eic::Cluster& cluster) const {
 
   double l1 = sqrt(cluster.getShapeParameters(4)) * dd4hep::mm;
