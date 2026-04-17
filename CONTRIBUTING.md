@@ -21,7 +21,7 @@ flowchart LR
 
 1. Communicate your development plans with the Reconstruction Framework and Algorithms or Physics and Detector Simulations Working Groups before beginning development. This helps clarify the scope and expected timeline.
 
-2. Create a draft PR as soon as work begins. You may request a reviewer directly, or ask the review time to assign one. If the assigned reviewer cannot complete the review, they should request a new reviewer from the review team.
+2. Create a draft PR as soon as work begins. You may request a reviewer directly, or ask the review team to assign one. If the assigned reviewer cannot complete the review, they should request a new reviewer from the review team.
 
 3. Develop your code using concise commits with descriptive commit messages.
 
