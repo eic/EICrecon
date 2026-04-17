@@ -1,6 +1,5 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
-// Copyright (C) 2025 Sebouh Paul
-// Update/modification 2026 by Baptiste Fraisse
+// Copyright (C) 2025 Sebouh Paul, Baptiste Fraisse
 
 #include <Evaluator/DD4hepUnits.h>
 #include <TVector3.h>
@@ -63,11 +62,9 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   xn.SetXYZ(rn.x * dd4hep::mm,
             rn.y * dd4hep::mm,
             rn.z * dd4hep::mm);
-
   x1.SetXYZ(rg1.x * dd4hep::mm,
             rg1.y * dd4hep::mm,
             rg1.z * dd4hep::mm);
-
   x2.SetXYZ(rg2.x * dd4hep::mm,
             rg2.y * dd4hep::mm,
             rg2.z * dd4hep::mm);
@@ -168,7 +165,6 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   gamma2_cm.setCharge(0);
   gamma2_cm.setMass(0);
 
-  // --- links
   rec_lambda.addToParticles(n_in);
   rec_lambda.addToParticles(g1_in);
   rec_lambda.addToParticles(g2_in);
@@ -180,8 +176,6 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   return true;
 }
 
-// selection of the best triplets n+g+g
-
 void FarForwardLambdaReconstruction::process(
     const FarForwardLambdaReconstruction::Input& input,
     const FarForwardLambdaReconstruction::Output& output) const
@@ -192,81 +186,124 @@ void FarForwardLambdaReconstruction::process(
   const double m_pi0    = m_particleSvc.particle(111).mass;
   const double m_lambda = m_particleSvc.particle(3122).mass;
 
-  // (A) collect by detector category
+  // --------------------------------------------------------------------------
+  // Step 1: collect neutral candidates by broad detector category
+  //
+  // We keep two categories for ranking purposes:
+  //   - ZDC-preferred neutrals
+  //   - other far-forward neutrals
+  // while centralizing the detector-specific collection handling in a single
+  // local table to avoid duplicating hardcoded loops throughout the algorithm.
+  // --------------------------------------------------------------------------
+
   std::vector<edm4eic::ReconstructedParticle> neutrons_zdc, neutrons_other;
   std::vector<edm4eic::ReconstructedParticle> gammas_zdc, gammas_other;
 
-  // ZDC Hcal
-  for (auto part : *neutralsHcal) {
-    if (part.getPDG() == 2112) neutrons_zdc.push_back(part);
-    if (part.getPDG() == 22)   gammas_zdc.push_back(part);
+  struct NeutralInputDesc {
+    const edm4eic::ReconstructedParticleCollection* coll;
+    bool use_gamma;
+    bool use_neutron;
+    bool is_zdc;
+  };
+
+  const std::array<NeutralInputDesc, 4> input_descs{{
+      {neutralsHcal,        true,  true,  true },
+      {neutralsB0,          true,  false, false},
+      {neutralsEcalEndcapP, true,  false, false},
+      {neutralsLFHCAL,      false, true,  false},
+  }};
+
+  for (const auto& desc : input_descs) {
+    for (const auto& part : *desc.coll) {
+      if (desc.use_neutron && part.getPDG() == 2112) {
+        (desc.is_zdc ? neutrons_zdc : neutrons_other).push_back(part);
+      }
+      if (desc.use_gamma && part.getPDG() == 22) {
+        (desc.is_zdc ? gammas_zdc : gammas_other).push_back(part);
+      }
+    }
   }
 
-  // B0 Ecal photons
-  for (auto part : *neutralsB0) {
-    if (part.getPDG() == 22) gammas_other.push_back(part);
+  if (neutrons_zdc.empty() && neutrons_other.empty()) {
+    return;
   }
 
-  // EndcapP Ecal photons
-  for (auto part : *neutralsEcalEndcapP) {
-    if (part.getPDG() == 22) gammas_other.push_back(part);
-  }
+  // --------------------------------------------------------------------------
+  // Step 2: build a unified photon pool while retaining whether each photon
+  // comes from the ZDC-preferred category.
+  // --------------------------------------------------------------------------
 
-  // LFHCAL neutrons
-  for (auto part : *neutralsLFHCAL) {
-    if (part.getPDG() == 2112) neutrons_other.push_back(part);
-  }
+  using ParticleT = edm4eic::ReconstructedParticle;
 
-  if (neutrons_zdc.empty() && neutrons_other.empty()) return;
-
-  // gamma pool
-  using GammaT = typename std::decay_t<decltype(gammas_zdc)>::value_type;
-  std::vector<GammaT> gamma_pool;
+  std::vector<ParticleT> gamma_pool;
   std::vector<uint8_t> gamma_is_zdc;
 
   gamma_pool.reserve(gammas_zdc.size() + gammas_other.size());
   gamma_is_zdc.reserve(gammas_zdc.size() + gammas_other.size());
 
-  for (const auto& g : gammas_zdc)   { gamma_pool.push_back(g); gamma_is_zdc.push_back(1); }
-  for (const auto& g : gammas_other) { gamma_pool.push_back(g); gamma_is_zdc.push_back(0); }
+  for (const auto& g : gammas_zdc) {
+    gamma_pool.push_back(g);
+    gamma_is_zdc.push_back(1);
+  }
+  for (const auto& g : gammas_other) {
+    gamma_pool.push_back(g);
+    gamma_is_zdc.push_back(0);
+  }
 
-  if (gamma_pool.size() < 2) return;
+  if (gamma_pool.size() < 2) {
+    return;
+  }
 
-  // invariant mass helpers (ranking only)
+  // --------------------------------------------------------------------------
+  // Invariant-mass helpers
+  // --------------------------------------------------------------------------
 
-  auto invMass2 = [](const edm4eic::ReconstructedParticle& a,
-                     const edm4eic::ReconstructedParticle& b) {
+  auto invMass2 = [](const ParticleT& a, const ParticleT& b) {
     const auto pa = a.getMomentum();
     const auto pb = b.getMomentum();
+
     const double Ea = a.getEnergy();
     const double Eb = b.getEnergy();
+
     const double px = pa.x + pb.x;
     const double py = pa.y + pb.y;
     const double pz = pa.z + pb.z;
     const double E  = Ea + Eb;
-    return E*E - (px*px + py*py + pz*pz);
+
+    return E * E - (px * px + py * py + pz * pz);
   };
 
-  auto invMass2_3 = [](const edm4eic::ReconstructedParticle& a,
-                       const edm4eic::ReconstructedParticle& b,
-                       const edm4eic::ReconstructedParticle& c) {
+  auto invMass2_3 = [](const ParticleT& a, const ParticleT& b, const ParticleT& c) {
     const auto pa = a.getMomentum();
     const auto pb = b.getMomentum();
     const auto pc = c.getMomentum();
+
     const double Ea = a.getEnergy();
     const double Eb = b.getEnergy();
     const double Ec = c.getEnergy();
+
     const double px = pa.x + pb.x + pc.x;
     const double py = pa.y + pb.y + pc.y;
     const double pz = pa.z + pb.z + pc.z;
     const double E  = Ea + Eb + Ec;
-    return E*E - (px*px + py*py + pz*pz);
+
+    return E * E - (px * px + py * py + pz * pz);
   };
 
-  // (1) pi0 candidates
+  // --------------------------------------------------------------------------
+  // Step 3: build pi0 candidates from photon pairs
+  // --------------------------------------------------------------------------
+
+  enum class GammaCategory : uint8_t {
+    TwoZDC  = 0,
+    OneZDC  = 1,
+    ZeroZDC = 2
+  };
+
   struct Pi0Pair {
-    int i, j;
-    int cat;             // 0:2ZDC, 1:1ZDC, 2:0ZDC
+    int i;
+    int j;
+    GammaCategory cat;
     double dmpi0_cand;
   };
 
@@ -279,27 +316,47 @@ void FarForwardLambdaReconstruction::process(
       const auto& g2 = gamma_pool[j];
 
       const double m2 = invMass2(g1, g2);
-      if (m2 <= 0.0) continue;
+      if (m2 <= 0.0) {
+        continue;
+      }
 
       const double m  = std::sqrt(m2);
       const double dm = std::abs(m - m_pi0);
-      if (dm > m_cfg.pi0Window * m_pi0) continue;
+      if (dm > m_cfg.pi0Window * m_pi0) {
+        continue;
+      }
 
       const bool z1 = gamma_is_zdc[i];
       const bool z2 = gamma_is_zdc[j];
-      const int cat = (z1 && z2) ? 0 : ((z1 || z2) ? 1 : 2);
 
-      pi0_pairs.push_back({(int)i, (int)j, cat, dm});
+      const GammaCategory cat =
+          (z1 && z2) ? GammaCategory::TwoZDC
+        : (z1 || z2) ? GammaCategory::OneZDC
+                     : GammaCategory::ZeroZDC;
+
+      pi0_pairs.push_back({static_cast<int>(i), static_cast<int>(j), cat, dm});
     }
   }
-  if (pi0_pairs.empty()) return;
 
-  // (2) Lambda candidates pool
+  if (pi0_pairs.empty()) {
+    return;
+  }
+
+  // --------------------------------------------------------------------------
+  // Step 4: build Lambda candidate pool from pi0-neutron combinations
+  // --------------------------------------------------------------------------
+
+  enum class NeutronCategory : uint8_t {
+    ZDC   = 0,
+    Other = 1
+  };
+
   struct LambdaCand {
-    int g_i, g_j;
+    int g_i;
+    int g_j;
     int n_idx;
-    int n_cat;   // 0: ZDC neutron, 1: other neutron
-    int g_cat;   // 0:2ZDC, 1:1ZDC, 2:0ZDC
+    NeutronCategory n_cat;
+    GammaCategory g_cat;
     double chi2;
     double E;
     double pz;
@@ -308,7 +365,7 @@ void FarForwardLambdaReconstruction::process(
   std::vector<LambdaCand> cands;
   cands.reserve(64);
 
-  auto try_neutrons = [&](const auto& neutron_list, int n_cat) {
+  auto try_neutrons = [&](const auto& neutron_list, NeutronCategory n_cat) {
     for (const auto& pp : pi0_pairs) {
       const auto& g1 = gamma_pool[pp.i];
       const auto& g2 = gamma_pool[pp.j];
@@ -317,59 +374,99 @@ void FarForwardLambdaReconstruction::process(
         const auto& n = neutron_list[in];
 
         const double m2L = invMass2_3(n, g1, g2);
-        if (m2L <= 0.0) continue;
+        if (m2L <= 0.0) {
+          continue;
+        }
 
         const double mL = std::sqrt(m2L);
-        if (std::abs(mL - m_lambda) > m_cfg.lambdaMassWindow * m_lambda) continue;
+        const double dL = mL - m_lambda;
 
-        const double dL = (mL - m_lambda);
+        if (std::abs(dL) > m_cfg.lambdaMassWindow * m_lambda) {
+          continue;
+        }
 
-        // same score as your new code
-        const double chi2 =
-          (pp.dmpi0_cand / (m_cfg.pi0Window * m_pi0)) * (pp.dmpi0_cand / (m_cfg.pi0Window * m_pi0)) +
-          (dL / (m_cfg.lambdaMassWindow * m_lambda)) * (dL / (m_cfg.lambdaMassWindow * m_lambda));
+        const double pi0_term =
+            pp.dmpi0_cand / (m_cfg.pi0Window * m_pi0);
+        const double lambda_term =
+            dL / (m_cfg.lambdaMassWindow * m_lambda);
 
-        const double E  = n.getEnergy() + g1.getEnergy() + g2.getEnergy();
+        const double chi2 = pi0_term * pi0_term + lambda_term * lambda_term;
+
+        const double E = n.getEnergy() + g1.getEnergy() + g2.getEnergy();
 
         const auto pn  = n.getMomentum();
         const auto pg1 = g1.getMomentum();
         const auto pg2 = g2.getMomentum();
 
-        const double px = pn.x + pg1.x + pg2.x;
-        const double py = pn.y + pg1.y + pg2.y;
         const double pz = pn.z + pg1.z + pg2.z;
 
-        cands.push_back({pp.i, pp.j, (int)in, n_cat, pp.cat, chi2, E, pz});
+        cands.push_back({
+            pp.i,
+            pp.j,
+            static_cast<int>(in),
+            n_cat,
+            pp.cat,
+            chi2,
+            E,
+            pz
+        });
       }
     }
   };
 
-  if (!neutrons_zdc.empty())   try_neutrons(neutrons_zdc,   0);
-  if (!neutrons_other.empty()) try_neutrons(neutrons_other, 1);
+  if (!neutrons_zdc.empty()) {
+    try_neutrons(neutrons_zdc, NeutronCategory::ZDC);
+  }
+  if (!neutrons_other.empty()) {
+    try_neutrons(neutrons_other, NeutronCategory::Other);
+  }
 
-  if (cands.empty()) return;
+  if (cands.empty()) {
+    return;
+  }
 
-  // (3) best candidate selection (your policy)
+  // --------------------------------------------------------------------------
+  // Step 5: rank candidates and keep the best one
+  // Preference order:
+  //   1. ZDC neutron over other neutron
+  //   2. more ZDC photons in the pi0 candidate
+  //   3. lower combined mass-based chi2
+  //   4. larger forward momentum pz
+  //   5. larger total energy
+  // --------------------------------------------------------------------------
+
   auto better = [&](const LambdaCand& a, const LambdaCand& b) -> bool {
-    if (a.n_cat != b.n_cat) return a.n_cat < b.n_cat;  // prefer ZDC neutron
-    if (a.g_cat != b.g_cat) return a.g_cat < b.g_cat;  // prefer 2ZDC gammas
-    if (a.chi2  != b.chi2)  return a.chi2  < b.chi2;
-    if (a.pz    != b.pz)    return a.pz > b.pz;
+    if (a.n_cat != b.n_cat) {
+      return static_cast<int>(a.n_cat) < static_cast<int>(b.n_cat);
+    }
+    if (a.g_cat != b.g_cat) {
+      return static_cast<int>(a.g_cat) < static_cast<int>(b.g_cat);
+    }
+    if (a.chi2 != b.chi2) {
+      return a.chi2 < b.chi2;
+    }
+    if (a.pz != b.pz) {
+      return a.pz > b.pz;
+    }
     return a.E > b.E;
   };
 
   int best_k = 0;
-  for (int k = 1; k < (int)cands.size(); ++k) {
-    if (better(cands[k], cands[best_k])) best_k = k;
+  for (int k = 1; k < static_cast<int>(cands.size()); ++k) {
+    if (better(cands[k], cands[best_k])) {
+      best_k = k;
+    }
   }
 
   const auto& best = cands[best_k];
 
   const auto& g1 = gamma_pool[best.g_i];
   const auto& g2 = gamma_pool[best.g_j];
-  const auto& n  = (best.n_cat == 0) ? neutrons_zdc[best.n_idx] : neutrons_other[best.n_idx];
+  const auto& n =
+      (best.n_cat == NeutronCategory::ZDC)
+          ? neutrons_zdc[best.n_idx]
+          : neutrons_other[best.n_idx];
 
-  // (4) lambda reconstruction machinery
   reconstruct_from_triplet(n, g1, g2, out_lambdas, out_decay_products);
 }
 
