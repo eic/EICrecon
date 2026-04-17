@@ -18,7 +18,7 @@
 
 namespace eicrecon {
 
-// helpers 
+// helpers
 
 static inline void toTVector3(TVector3& v1, const edm4hep::Vector3f& v2) {
   v1.SetXYZ(v2.x, v2.y, v2.z);
@@ -29,19 +29,18 @@ void FarForwardLambdaReconstruction::init() {
     m_zMax = m_detector->constant<double>(m_cfg.offsetPositionName);
   } catch (std::runtime_error&) {
     m_zMax = 35800;
-    trace("Failed to get {} from the detector, using default value of {}", m_cfg.offsetPositionName, m_zMax);
+    trace("Failed to get {} from the detector, using default value of {}", m_cfg.offsetPositionName,
+          m_zMax);
   }
 }
 
 // reconstruction machinery from n+g+g
 
 bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
-    const edm4eic::ReconstructedParticle& n_in,
-    const edm4eic::ReconstructedParticle& g1_in,
+    const edm4eic::ReconstructedParticle& n_in, const edm4eic::ReconstructedParticle& g1_in,
     const edm4eic::ReconstructedParticle& g2_in,
     edm4eic::ReconstructedParticleCollection* out_lambdas,
-    edm4eic::ReconstructedParticleCollection* out_decay_products) const
-{
+    edm4eic::ReconstructedParticleCollection* out_decay_products) const {
   static const double m_neutron = m_particleSvc.particle(2112).mass;
   static const double m_pi0     = m_particleSvc.particle(111).mass;
   static const double m_lambda  = m_particleSvc.particle(3122).mass;
@@ -50,8 +49,9 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   const double E1 = g1_in.getEnergy();
   const double E2 = g2_in.getEnergy();
 
-  if (En <= m_neutron) return false;
-  const double pn = std::sqrt(std::max(0.0, En*En - m_neutron*m_neutron));
+  if (En <= m_neutron)
+    return false;
+  const double pn = std::sqrt(std::max(0.0, En * En - m_neutron * m_neutron));
 
   TVector3 xn, x1, x2;
 
@@ -59,15 +59,9 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   const auto& rg1 = g1_in.getReferencePoint();
   const auto& rg2 = g2_in.getReferencePoint();
 
-  xn.SetXYZ(rn.x * dd4hep::mm,
-            rn.y * dd4hep::mm,
-            rn.z * dd4hep::mm);
-  x1.SetXYZ(rg1.x * dd4hep::mm,
-            rg1.y * dd4hep::mm,
-            rg1.z * dd4hep::mm);
-  x2.SetXYZ(rg2.x * dd4hep::mm,
-            rg2.y * dd4hep::mm,
-            rg2.z * dd4hep::mm);
+  xn.SetXYZ(rn.x * dd4hep::mm, rn.y * dd4hep::mm, rn.z * dd4hep::mm);
+  x1.SetXYZ(rg1.x * dd4hep::mm, rg1.y * dd4hep::mm, rg1.z * dd4hep::mm);
+  x2.SetXYZ(rg2.x * dd4hep::mm, rg2.y * dd4hep::mm, rg2.z * dd4hep::mm);
 
   xn.RotateY(-m_cfg.globalToProtonRotation);
   x1.RotateY(-m_cfg.globalToProtonRotation);
@@ -82,21 +76,24 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   TLorentzVector n, g1, g2, lambda;
 
   for (int i = 0; i < m_cfg.iterations; i++) {
-    n      = { pn * (xn - vtx).Unit(), En };
-    g1     = { E1 * (x1 - vtx).Unit(), E1 };
-    g2     = { E2 * (x2 - vtx).Unit(), E2 };
+    n      = {pn * (xn - vtx).Unit(), En};
+    g1     = {E1 * (x1 - vtx).Unit(), E1};
+    g2     = {E2 * (x2 - vtx).Unit(), E2};
     lambda = n + g1 + g2;
 
     const double theta_open = g1.Angle(g2.Vect());
-    if (theta_open > theta_open_expected)      f -= df;
-    else if (theta_open < theta_open_expected) f += df;
+    if (theta_open > theta_open_expected)
+      f -= df;
+    else if (theta_open < theta_open_expected)
+      f += df;
 
     vtx = lambda.Vect() * (f * m_zMax / lambda.Z());
     df /= 2.0;
   }
 
   const double mass_rec = lambda.M();
-  if (std::abs(mass_rec - m_lambda) > m_cfg.lambdaMassWindow) return false;
+  if (std::abs(mass_rec - m_lambda) > m_cfg.lambdaMassWindow)
+    return false;
 
   // rotate everything back to lab coordinates
   vtx.RotateY(m_cfg.globalToProtonRotation);
@@ -118,12 +115,10 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   auto rec_lambda = out_lambdas->create();
   rec_lambda.setPDG(3122);
   rec_lambda.setEnergy(lambda.E());
-  rec_lambda.setMomentum({static_cast<float>(lambda.X()),
-                          static_cast<float>(lambda.Y()),
+  rec_lambda.setMomentum({static_cast<float>(lambda.X()), static_cast<float>(lambda.Y()),
                           static_cast<float>(lambda.Z())});
-  rec_lambda.setReferencePoint({static_cast<float>(vtx.X()),
-                                static_cast<float>(vtx.Y()),
-                                static_cast<float>(vtx.Z())});
+  rec_lambda.setReferencePoint(
+      {static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
   rec_lambda.setCharge(0);
   rec_lambda.setMass(mass_rec);
 
@@ -131,12 +126,10 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   auto neutron_cm = out_decay_products->create();
   neutron_cm.setPDG(2112);
   neutron_cm.setEnergy(n.E());
-  neutron_cm.setMomentum({static_cast<float>(n.X()),
-                          static_cast<float>(n.Y()),
-                          static_cast<float>(n.Z())});
-  neutron_cm.setReferencePoint({static_cast<float>(vtx.X()),
-                                static_cast<float>(vtx.Y()),
-                                static_cast<float>(vtx.Z())});
+  neutron_cm.setMomentum(
+      {static_cast<float>(n.X()), static_cast<float>(n.Y()), static_cast<float>(n.Z())});
+  neutron_cm.setReferencePoint(
+      {static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
   neutron_cm.setCharge(0);
   neutron_cm.setMass(m_neutron);
 
@@ -144,24 +137,20 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
   auto gamma1_cm = out_decay_products->create();
   gamma1_cm.setPDG(22);
   gamma1_cm.setEnergy(g1.E());
-  gamma1_cm.setMomentum({static_cast<float>(g1.X()),
-                         static_cast<float>(g1.Y()),
-                         static_cast<float>(g1.Z())});
-  gamma1_cm.setReferencePoint({static_cast<float>(vtx.X()),
-                               static_cast<float>(vtx.Y()),
-                               static_cast<float>(vtx.Z())});
+  gamma1_cm.setMomentum(
+      {static_cast<float>(g1.X()), static_cast<float>(g1.Y()), static_cast<float>(g1.Z())});
+  gamma1_cm.setReferencePoint(
+      {static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
   gamma1_cm.setCharge(0);
   gamma1_cm.setMass(0);
 
   auto gamma2_cm = out_decay_products->create();
   gamma2_cm.setPDG(22);
   gamma2_cm.setEnergy(g2.E());
-  gamma2_cm.setMomentum({static_cast<float>(g2.X()),
-                         static_cast<float>(g2.Y()),
-                         static_cast<float>(g2.Z())});
-  gamma2_cm.setReferencePoint({static_cast<float>(vtx.X()),
-                               static_cast<float>(vtx.Y()),
-                               static_cast<float>(vtx.Z())});
+  gamma2_cm.setMomentum(
+      {static_cast<float>(g2.X()), static_cast<float>(g2.Y()), static_cast<float>(g2.Z())});
+  gamma2_cm.setReferencePoint(
+      {static_cast<float>(vtx.X()), static_cast<float>(vtx.Y()), static_cast<float>(vtx.Z())});
   gamma2_cm.setCharge(0);
   gamma2_cm.setMass(0);
 
@@ -178,10 +167,9 @@ bool FarForwardLambdaReconstruction::reconstruct_from_triplet(
 
 void FarForwardLambdaReconstruction::process(
     const FarForwardLambdaReconstruction::Input& input,
-    const FarForwardLambdaReconstruction::Output& output) const
-{
+    const FarForwardLambdaReconstruction::Output& output) const {
   const auto [neutralsHcal, neutralsB0, neutralsEcalEndcapP, neutralsLFHCAL] = input;
-  auto [out_lambdas, out_decay_products] = output;
+  auto [out_lambdas, out_decay_products]                                     = output;
 
   const double m_pi0    = m_particleSvc.particle(111).mass;
   const double m_lambda = m_particleSvc.particle(3122).mass;
@@ -207,10 +195,10 @@ void FarForwardLambdaReconstruction::process(
   };
 
   const std::array<NeutralInputDesc, 4> input_descs{{
-      {neutralsHcal,        true,  true,  true },
-      {neutralsB0,          true,  false, false},
-      {neutralsEcalEndcapP, true,  false, false},
-      {neutralsLFHCAL,      false, true,  false},
+      {neutralsHcal, true, true, true},
+      {neutralsB0, true, false, false},
+      {neutralsEcalEndcapP, true, false, false},
+      {neutralsLFHCAL, false, true, false},
   }};
 
   for (const auto& desc : input_descs) {
@@ -294,11 +282,7 @@ void FarForwardLambdaReconstruction::process(
   // Step 3: build pi0 candidates from photon pairs
   // --------------------------------------------------------------------------
 
-  enum class GammaCategory : uint8_t {
-    TwoZDC  = 0,
-    OneZDC  = 1,
-    ZeroZDC = 2
-  };
+  enum class GammaCategory : uint8_t { TwoZDC = 0, OneZDC = 1, ZeroZDC = 2 };
 
   struct Pi0Pair {
     int i;
@@ -329,10 +313,9 @@ void FarForwardLambdaReconstruction::process(
       const bool z1 = gamma_is_zdc[i];
       const bool z2 = gamma_is_zdc[j];
 
-      const GammaCategory cat =
-          (z1 && z2) ? GammaCategory::TwoZDC
-        : (z1 || z2) ? GammaCategory::OneZDC
-                     : GammaCategory::ZeroZDC;
+      const GammaCategory cat = (z1 && z2)   ? GammaCategory::TwoZDC
+                                : (z1 || z2) ? GammaCategory::OneZDC
+                                             : GammaCategory::ZeroZDC;
 
       pi0_pairs.push_back({static_cast<int>(i), static_cast<int>(j), cat, dm});
     }
@@ -346,10 +329,7 @@ void FarForwardLambdaReconstruction::process(
   // Step 4: build Lambda candidate pool from pi0-neutron combinations
   // --------------------------------------------------------------------------
 
-  enum class NeutronCategory : uint8_t {
-    ZDC   = 0,
-    Other = 1
-  };
+  enum class NeutronCategory : uint8_t { ZDC = 0, Other = 1 };
 
   struct LambdaCand {
     int g_i;
@@ -385,10 +365,8 @@ void FarForwardLambdaReconstruction::process(
           continue;
         }
 
-        const double pi0_term =
-            pp.dmpi0_cand / (m_cfg.pi0Window * m_pi0);
-        const double lambda_term =
-            dL / (m_cfg.lambdaMassWindow * m_lambda);
+        const double pi0_term    = pp.dmpi0_cand / (m_cfg.pi0Window * m_pi0);
+        const double lambda_term = dL / (m_cfg.lambdaMassWindow * m_lambda);
 
         const double chi2 = pi0_term * pi0_term + lambda_term * lambda_term;
 
@@ -400,16 +378,7 @@ void FarForwardLambdaReconstruction::process(
 
         const double pz = pn.z + pg1.z + pg2.z;
 
-        cands.push_back({
-            pp.i,
-            pp.j,
-            static_cast<int>(in),
-            n_cat,
-            pp.cat,
-            chi2,
-            E,
-            pz
-        });
+        cands.push_back({pp.i, pp.j, static_cast<int>(in), n_cat, pp.cat, chi2, E, pz});
       }
     }
   };
@@ -463,9 +432,7 @@ void FarForwardLambdaReconstruction::process(
   const auto& g1 = gamma_pool[best.g_i];
   const auto& g2 = gamma_pool[best.g_j];
   const auto& n =
-      (best.n_cat == NeutronCategory::ZDC)
-          ? neutrons_zdc[best.n_idx]
-          : neutrons_other[best.n_idx];
+      (best.n_cat == NeutronCategory::ZDC) ? neutrons_zdc[best.n_idx] : neutrons_other[best.n_idx];
 
   reconstruct_from_triplet(n, g1, g2, out_lambdas, out_decay_products);
 }

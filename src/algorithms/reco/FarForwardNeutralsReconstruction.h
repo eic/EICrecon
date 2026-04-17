@@ -22,15 +22,17 @@ namespace eicrecon {
 
 using FarForwardNeutralsReconstructionAlgorithm =
 
-    algorithms::Algorithm<algorithms::Input<const edm4eic::ClusterCollection,            // clusters ZDC-Hcal
-                                            const edm4eic::ClusterCollection,            // clusters B0-Ecal
-                                            const edm4eic::ClusterCollection,            // clusters EndcapP-Ecal
-                                            const edm4eic::ClusterCollection>,           // clusters LFHCAL
+    algorithms::Algorithm<
+        algorithms::Input<const edm4eic::ClusterCollection,  // clusters ZDC-Hcal
+                          const edm4eic::ClusterCollection,  // clusters B0-Ecal
+                          const edm4eic::ClusterCollection,  // clusters EndcapP-Ecal
+                          const edm4eic::ClusterCollection>, // clusters LFHCAL
 
-                          algorithms::Output<edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in ZDC-Hcal
-                                             edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in B0-Ecal
-                                             edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in EndcapP-Ecal
-                                             edm4eic::ReconstructedParticleCollection>>; // neutrons/gamma in LFHCAL
+        algorithms::Output<
+            edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in ZDC-Hcal
+            edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in B0-Ecal
+            edm4eic::ReconstructedParticleCollection,   // neutrons/gamma in EndcapP-Ecal
+            edm4eic::ReconstructedParticleCollection>>; // neutrons/gamma in LFHCAL
 /**
  * Reconstructs far-forward neutral candidates from multiple calorimeter cluster collections.
  *
@@ -55,19 +57,15 @@ class FarForwardNeutralsReconstruction
       public WithPodConfig<FarForwardNeutralsReconstructionConfig> {
 public:
   FarForwardNeutralsReconstruction(std::string_view name)
-      : FarForwardNeutralsReconstructionAlgorithm{name,
-        
-                                                  {"clustersHcal", 
-                                                   "clustersB0", 
-                                                   "clustersEcalEndCapP",
-                                                   "clustersLFHCAL"},
+      : FarForwardNeutralsReconstructionAlgorithm{
+            name,
 
-                                                  {"outputNeutralsHcal", 
-                                                   "outputNeutralsB0", 
-                                                   "outputNeutralsEcalEndCapP",
-                                                   "outputNeutralsLFHCAL"},
+            {"clustersHcal", "clustersB0", "clustersEcalEndCapP", "clustersLFHCAL"},
 
-                                                  "Convert EMCal and HCal clusters into neutron or photon candidates"} {}
+            {"outputNeutralsHcal", "outputNeutralsB0", "outputNeutralsEcalEndCapP",
+             "outputNeutralsLFHCAL"},
+
+            "Convert EMCal and HCal clusters into neutron or photon candidates"} {}
 
   void init() final;
   void process(const Input&, const Output&) const final;
@@ -81,4 +79,4 @@ private:
   const dd4hep::Detector* m_detector{algorithms::GeoSvc::instance().detector()};
   double m_gammaZMax{0};
 };
-}
+} // namespace eicrecon
