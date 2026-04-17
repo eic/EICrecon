@@ -18,15 +18,14 @@ class CalorimeterParticleIDPreML_factory
 public:
   using AlgoT = eicrecon::CalorimeterParticleIDPreML;
 
-  void PreInit(const std::string& tag,
-               const std::vector<std::string>& input_names,
+  void PreInit(const std::string& tag, const std::vector<std::string>& input_names,
                const std::vector<std::string>& output_names) {
     std::vector<std::string> fixed_inputs = input_names;
     if (fixed_inputs.size() == 2) {
       fixed_inputs.push_back("ParticleID");
     }
-    JOmniFactory<CalorimeterParticleIDPreML_factory, NoConfig>::PreInit(
-        tag, fixed_inputs, output_names);
+    JOmniFactory<CalorimeterParticleIDPreML_factory, NoConfig>::PreInit(tag, fixed_inputs,
+                                                                        output_names);
   }
 
 private:
