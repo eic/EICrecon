@@ -306,6 +306,9 @@ include(cmake/jana_plugin.cmake) # Add common settings for plugins
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake) # Find
                                                            # Find<Modules>.cmake
 
+# Expose clang-tidy and clang-format as (phony) CMake targets
+include(cmake/CodeStyleTargets.cmake)
+
 enable_testing()
 
 # Address sanitizer
