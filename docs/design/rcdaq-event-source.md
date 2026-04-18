@@ -334,7 +334,7 @@ graph LR
 Because both paths produce a `podio::Frame` inserted into the `JEvent`, all
 downstream JANA factories are identical.  The reconstruction job selects the
 appropriate event source automatically via `CheckOpenable()` based on the input
-file extension.
+file extension (see [Runtime Source Selection](#runtime-source-selection) below).
 
 ---
 
@@ -367,6 +367,52 @@ The rcdaq plugin is added in `src/services/io/CMakeLists.txt`:
 add_subdirectory(podio)
 add_subdirectory(rcdaq)   # gracefully skipped if rcdaq not found
 ```
+
+---
+
+## Runtime Source Selection
+
+JANA2 provides two mechanisms for deciding which event source reads a given
+input file.  No application-level code is needed beyond what is already
+implemented.
+
+### Automatic: `CheckOpenable` scoring
+
+Every registered `JEventSourceGeneratorT<T>` implements `CheckOpenable(filename)`
+and returns a confidence score in [0, 1].  JANA picks the highest-scoring
+generator for each input file.
+
+| Source | Score | Condition |
+|--------|-------|-----------|
+| `JEventSourceRCDAQ`  | **0.9** | filename ends in `.prdf`, `.evt`, or `.rcdaq` |
+| `JEventSourcePODIO`  | **0.03** | filename ends in `.root` **and** file contains a `podio_metadata` TTree |
+| either | 0.0 | any other file |
+
+Because the two source types use completely disjoint file extensions, there is
+no scoring ambiguity.  The correct source is chosen automatically.
+
+The `rcdaq` plugin must be loaded explicitly (it is not built into EICrecon
+by default because it requires rcdaq headers at build time):
+
+```sh
+eicrecon --plugins=rcdaq mydata.prdf
+```
+
+### Explicit override: `event_source_type`
+
+JANA exposes a built-in parameter that bypasses `CheckOpenable` entirely and
+forces a specific source by class name:
+
+```sh
+# Force rcdaq source regardless of extension:
+eicrecon --plugins=rcdaq --Pevent_source_type=JEventSourceRCDAQ mydata.prdf
+
+# Force PODIO source:
+eicrecon --Pevent_source_type=JEventSourcePODIO myfile.root
+```
+
+The value must match the demangled C++ class name returned by
+`JEventSourceGeneratorT<T>::GetType()` (i.e. the class name without namespace).
 
 ---
 
