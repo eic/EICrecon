@@ -1,0 +1,119 @@
+// Copyright 2024, EIC
+// Subject to the terms in the LICENSE file found in the top-level directory.
+
+#include "JEventSourceRCDAQ.h"
+
+#include <JANA/JApplication.h>
+#include <JANA/JEvent.h>
+#include <JANA/JException.h>
+#include <podio/Frame.h>
+#include <fmt/format.h>
+
+#include "RCDAQFrameData.h"
+#include "services/log/Log_service.h"
+
+// ---------------------------------------------------------------------------
+// Constructor
+// ---------------------------------------------------------------------------
+JEventSourceRCDAQ::JEventSourceRCDAQ(std::string resource_name, JApplication* app)
+    : JEventSource(std::move(resource_name), app) {
+  SetTypeName(NAME_OF_THIS);
+  SetCallbackStyle(CallbackStyle::ExpertMode);
+
+  m_log = GetApplication()->GetService<Log_service>()->logger("JEventSourceRCDAQ");
+}
+
+// ---------------------------------------------------------------------------
+// addDecoder
+// ---------------------------------------------------------------------------
+void JEventSourceRCDAQ::addDecoder(std::unique_ptr<RCDAQDecoder> decoder) {
+  const int16_t id = decoder->subeventID();
+  m_decoders[id]   = std::move(decoder);
+}
+
+// ---------------------------------------------------------------------------
+// Open
+// ---------------------------------------------------------------------------
+void JEventSourceRCDAQ::Open() {
+  // Build the non-owning decoder map that will be shared across all frames.
+  m_decoder_map.clear();
+  for (auto& [id, dec] : m_decoders) {
+    m_decoder_map[id] = dec.get();
+  }
+
+  if (!m_decoders.empty()) {
+    m_log->info("Registered {} rcdaq decoder(s):", m_decoders.size());
+    for (const auto& [id, dec] : m_decoders) {
+      m_log->info("  sub_id {:5d} → {} ({})", id, dec->collectionName(), dec->collectionType());
+    }
+  } else {
+    m_log->warn("No rcdaq decoders registered; Frame will contain no collections.");
+  }
+
+  try {
+    m_reader.open(GetResourceName());
+    m_log->info("Opened rcdaq file \"{}\"", GetResourceName());
+  } catch (const std::exception& e) {
+    throw JException(
+        fmt::format("JEventSourceRCDAQ: failed to open \"{}\": {}", GetResourceName(), e.what()));
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Close
+// ---------------------------------------------------------------------------
+void JEventSourceRCDAQ::Close() {
+  m_reader.close();
+  m_log->info("Closed rcdaq file \"{}\"", GetResourceName());
+}
+
+// ---------------------------------------------------------------------------
+// Emit
+// ---------------------------------------------------------------------------
+JEventSourceRCDAQ::Result JEventSourceRCDAQ::Emit(JEvent& event) {
+  RCDAQFileReader::Event rcdaq_event;
+
+  try {
+    if (!m_reader.nextEvent(rcdaq_event)) {
+      return Result::FailureFinished;
+    }
+  } catch (const std::exception& e) {
+    m_log->error("Error reading rcdaq event: {}", e.what());
+    return Result::FailureFinished;
+  }
+
+  event.SetRunNumber(rcdaq_event.run_number);
+  event.SetEventNumber(rcdaq_event.evt_sequence);
+
+  // Wrap the raw event in a FrameData object that satisfies podio::FrameDataType.
+  // The Frame will call RCDAQFrameData::getCollectionBuffers() lazily when a
+  // collection is first accessed, invoking the appropriate RCDAQDecoder.
+  auto frame_data = std::make_unique<RCDAQFrameData>(std::move(rcdaq_event), m_decoder_map);
+  auto frame      = std::make_unique<podio::Frame>(std::move(frame_data));
+  event.Insert(frame.release());
+
+  return Result::Success;
+}
+
+// ---------------------------------------------------------------------------
+// GetDescription
+// ---------------------------------------------------------------------------
+std::string JEventSourceRCDAQ::GetDescription() { return "rcdaq binary data file (ONCS format)"; }
+
+// ---------------------------------------------------------------------------
+// CheckOpenable
+//
+// Return a positive score for filenames that look like rcdaq data files.
+// Common extensions used by rcdaq: .prdf, .evt, .rcdaq
+// ---------------------------------------------------------------------------
+template <>
+double JEventSourceGeneratorT<JEventSourceRCDAQ>::CheckOpenable(std::string resource_name) {
+  for (const auto* ext : {".prdf", ".evt", ".rcdaq"}) {
+    if (resource_name.size() >= std::strlen(ext) &&
+        resource_name.compare(resource_name.size() - std::strlen(ext), std::strlen(ext), ext) ==
+            0) {
+      return 0.9;
+    }
+  }
+  return 0.0;
+}
