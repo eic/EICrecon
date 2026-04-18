@@ -6,9 +6,10 @@
 #include <JANA/JApplication.h>
 #include <JANA/JEvent.h>
 #include <JANA/JException.h>
+#include <podio/Frame.h>
 #include <fmt/format.h>
 
-#include "RCDAQSubevent.h"
+#include "RCDAQFrameData.h"
 #include "services/log/Log_service.h"
 
 // ---------------------------------------------------------------------------
@@ -23,9 +24,32 @@ JEventSourceRCDAQ::JEventSourceRCDAQ(std::string resource_name, JApplication* ap
 }
 
 // ---------------------------------------------------------------------------
+// addDecoder
+// ---------------------------------------------------------------------------
+void JEventSourceRCDAQ::addDecoder(std::unique_ptr<RCDAQDecoder> decoder) {
+  const int16_t id = decoder->subeventID();
+  m_decoders[id]   = std::move(decoder);
+}
+
+// ---------------------------------------------------------------------------
 // Open
 // ---------------------------------------------------------------------------
 void JEventSourceRCDAQ::Open() {
+  // Build the non-owning decoder map that will be shared across all frames.
+  m_decoder_map.clear();
+  for (auto& [id, dec] : m_decoders) {
+    m_decoder_map[id] = dec.get();
+  }
+
+  if (!m_decoders.empty()) {
+    m_log->info("Registered {} rcdaq decoder(s):", m_decoders.size());
+    for (const auto& [id, dec] : m_decoders) {
+      m_log->info("  sub_id {:5d} → {} ({})", id, dec->collectionName(), dec->collectionType());
+    }
+  } else {
+    m_log->warn("No rcdaq decoders registered; Frame will contain no collections.");
+  }
+
   try {
     m_reader.open(GetResourceName());
     m_log->info("Opened rcdaq file \"{}\"", GetResourceName());
@@ -61,13 +85,12 @@ JEventSourceRCDAQ::Result JEventSourceRCDAQ::Emit(JEvent& event) {
   event.SetRunNumber(rcdaq_event.run_number);
   event.SetEventNumber(rcdaq_event.evt_sequence);
 
-  // Insert one RCDAQSubevent per sub-event, tagged by sub-event ID.
-  // Downstream factories select sub-events by ID (e.g. event.GetSingle<RCDAQSubevent>("1234")).
-  for (const auto& se : rcdaq_event.subevents) {
-    auto* item     = new RCDAQSubevent(se);
-    const auto tag = std::to_string(static_cast<int>(se.sub_id));
-    event.Insert(item, tag);
-  }
+  // Wrap the raw event in a FrameData object that satisfies podio::FrameDataType.
+  // The Frame will call RCDAQFrameData::getCollectionBuffers() lazily when a
+  // collection is first accessed, invoking the appropriate RCDAQDecoder.
+  auto frame_data = std::make_unique<RCDAQFrameData>(std::move(rcdaq_event), m_decoder_map);
+  auto frame      = std::make_unique<podio::Frame>(std::move(frame_data));
+  event.Insert(frame.release());
 
   return Result::Success;
 }
