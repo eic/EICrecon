@@ -20,7 +20,7 @@ message(STATUS "Building io/rcdaq plugin (rcdaq headers: ${rcdaq_INCLUDE_DIR})")
 # ---- Plugin target -------------------------------------------------------
 get_filename_component(PLUGIN_NAME ${CMAKE_CURRENT_LIST_DIR} NAME)
 
-plugin_add(${PLUGIN_NAME})
+plugin_add(${PLUGIN_NAME} WITH_STATIC_LIBRARY)
 plugin_glob_all(${PLUGIN_NAME})
 
 # Expose rcdaq format headers to this target only
