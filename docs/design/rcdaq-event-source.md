@@ -416,6 +416,101 @@ The value must match the demangled C++ class name returned by
 
 ---
 
+## Data Addressing and Decoder Mapping
+
+### Three-field sub-event address
+
+Every sub-event in an rcdaq file carries three fields in its header that
+together define _what_ the payload is and _how_ to parse it:
+
+| Field | Type (ONCS) | Role |
+|-------|-------------|------|
+| `sub_id` | `int16_t` | **Primary routing key.** User-assigned per readout board at DAQ setup time — e.g. `device_gauss 1 42` sets `sub_id = 42` for that device instance. |
+| `sub_type` | `int16_t` | Event-type gate. A device only writes data when the trigger type matches (e.g. `DATA1EVENT = 1`). Typically 1 for physics data. |
+| `sub_decoding` | `int16_t` | **Payload encoding scheme.** Tells the decoder how to parse the `int32_t data[]` array. See constants below. |
+
+### `sub_decoding` encoding constants (from `SubevtConstants.h`)
+
+| Constant | Value | Payload structure |
+|----------|------:|-------------------|
+| `IDCRAW`      |  0 | Raw int32 words — no internal structure |
+| `IDDGEN`      |  1 | New-format; encoding embedded in header |
+| `ID4EVT`      |  6 | 4-word groups: `[addr, adc, addr, adc, …]` (standard VME ADC) |
+| `ID2EVT`      |  5 | 2-word groups per channel |
+| `ID2SUP`      |  7 | 2-word groups, zero-suppressed |
+| `IDRTCLK`     |  9 | Real-time clock payload |
+| `IDSAM`       | 40 | SAM streaming ADC module |
+| `IDDCFEM`     | 51 | DCFEM (sPHENIX/EIC calorimeter FEM) packet format |
+| `IDTECFEM`    | 52 | TEC (tracking) FEM packet format |
+| `IDSIS3300`   | 55 | SIS3300 flash ADC |
+| `IDCAENV792`  | 56 | CAEN V792 QDC |
+| `IDCAENV785N` | 57 | CAEN V785N ADC |
+
+### Mapping onto `RCDAQDecoder` / `RCDAQFrameData`
+
+```
+rcdaq sub-event
+  sub_id        ──►  decoder map key  ──►  RCDAQDecoder* instance
+  sub_type      ─┐
+  sub_decoding  ─┼─►  passed into decode() for validation / dispatch
+  data[]        ─┘
+                       │
+                       ▼
+              CollectionReadBuffers
+                       │
+                       ▼
+              podio::Frame (lazy)
+                       │
+                       ▼
+            EDM4hep collection (on demand)
+```
+
+**Design decisions:**
+
+1. **Decoder map key = `sub_id` only.**  A given readout board always writes the
+   same `sub_decoding` value — the encoding scheme is fixed at DAQ configuration
+   time.  Keying by `sub_id` alone is therefore sufficient and matches the
+   one-board-one-collection expectation of the podio Frame.
+
+2. **`sub_type` and `sub_decoding` forwarded to `decode()`.**  Even though the
+   map lookup uses only `sub_id`, the decoder receives all three header fields:
+   - **`sub_decoding`** — decoder authors should assert/warn if it differs from
+     the expected constant (e.g. `IDDCFEM = 51`).
+   - **`sub_type`** — enables skip/warn on unexpected event types, and future
+     support for multi-mode devices.
+
+3. **One `sub_id` → one podio collection.**  The collection name is chosen by
+   the decoder author (e.g. `"CaloFEM_42"`, `"TrackerFEM_7"`).
+
+4. **Multi-board detectors.**  If a logical detector spans N boards with
+   distinct `sub_id` values, register N decoders writing into separate
+   collection names, or provide a factory helper for contiguous ID ranges.
+
+### Concrete example: `ID4EVT` ADC data → `edm4hep::RawCalorimeterHit`
+
+```
+sub_id = 42, sub_type = 1, sub_decoding = 6 (ID4EVT)
+data[] = [ addr_0, adc_0, addr_1, adc_1, … ]
+```
+
+Decoder implementation sketch:
+```cpp
+std::optional<podio::CollectionReadBuffers>
+MyCaloDecoder::decode(int16_t /*sub_type*/, int16_t sub_decoding,
+                      const int32_t* data, int nwords) {
+  if (sub_decoding != IDDGEN && sub_decoding != ID4EVT) return std::nullopt;
+  auto buffers = podio::CollectionBufferFactory::instance()
+      .createBuffers("edm4hep::RawCalorimeterHitCollection", schemaVersion, false);
+  auto* vec = buffers.dataAsVector<edm4hep::RawCalorimeterHitData>();
+  for (int i = 0; i + 1 < nwords; i += 2) {
+    vec->push_back({/* cellID */ data[i], /* amplitude */ data[i + 1], /* timeStamp */ 0});
+  }
+  return buffers;
+}
+```
+
+---
+
 ## Open Questions
 
 1. **Decoder discovery**: How should users register decoders?

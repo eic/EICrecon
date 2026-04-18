@@ -50,7 +50,8 @@ RCDAQFrameData::getCollectionBuffers(const std::string& name) {
     return std::nullopt;
   }
 
-  return dec_it->second->decode(se->data.data(), static_cast<int>(se->data.size()));
+  return dec_it->second->decode(se->sub_type, se->sub_decoding, se->data.data(),
+                                static_cast<int>(se->data.size()));
 }
 
 // ---------------------------------------------------------------------------

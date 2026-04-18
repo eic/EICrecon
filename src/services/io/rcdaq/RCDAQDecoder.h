@@ -40,12 +40,18 @@ public:
 
   /// Decode \p nwords int32_t words starting at \p data into CollectionReadBuffers.
   ///
+  /// \p sub_type    mirrors the trigger event type (DATA1EVENT=1, etc.).
+  /// \p sub_decoding identifies the payload encoding scheme (see
+  ///                SubevtConstants.h: IDCRAW=0, ID4EVT=6, IDDCFEM=51, …).
+  ///
   /// The implementation should:
-  ///   1. Obtain properly-initialised buffers from CollectionBufferFactory.
-  ///   2. Fill them with decoded data.
-  ///   3. Return the buffers (or an empty optional on failure).
+  ///   1. Validate \p sub_decoding against the expected format.
+  ///   2. Obtain properly-initialised buffers from CollectionBufferFactory.
+  ///   3. Fill them with decoded data.
+  ///   4. Return the buffers (or an empty optional on failure / unknown encoding).
   ///
   /// Called lazily by RCDAQFrameData::getCollectionBuffers() when the podio
   /// Frame is asked for this collection for the first time.
-  virtual std::optional<podio::CollectionReadBuffers> decode(const int32_t* data, int nwords) = 0;
+  virtual std::optional<podio::CollectionReadBuffers> decode(int16_t sub_type, int16_t sub_decoding,
+                                                             const int32_t* data, int nwords) = 0;
 };
