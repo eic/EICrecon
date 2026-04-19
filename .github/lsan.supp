@@ -9,4 +9,4 @@ leak:libActsCore.so
 leak:libCling.so
 leak:libCore.so
 leak:libonnxruntime.so
-leak:ROOTcLcLRNTuple
+leak:ROOT::new_ROOTcLcLRNTuple
