@@ -297,8 +297,6 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
 #endif
       "CentralCKFTrackAssociations",
       "CentralCKFTrackParameters",
-      "PrimaryVerticesAMVF",
-      "SecondaryVerticesAMVF",
       // tracking properties - true seeding
       "CentralCKFTruthSeededTrajectoriesUnfiltered",
       "CentralCKFTruthSeededTracksUnfiltered",
@@ -370,6 +368,8 @@ JEventProcessorPODIO::JEventProcessorPODIO() {
       "ScatteredElectronsEMinusPz",
       "PrimaryVertices",
       "SecondaryVerticesHelix",
+      "PrimaryVerticesAMVF",
+      "SecondaryVerticesAMVF",
       "BarrelClusters",
       "HadronicFinalState",
 
