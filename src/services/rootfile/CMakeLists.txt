@@ -14,3 +14,6 @@ plugin_glob_all(${PLUGIN_NAME})
 
 # Add cern root
 plugin_add_cern_root(${PLUGIN_NAME})
+
+# Add libraries
+plugin_link_libraries(${PLUGIN_NAME} log_library)

@@ -12,14 +12,13 @@
 
 #include <JANA/JEvent.h>
 #include <JANA/JMultifactory.h>
-#include <JANA/JVersion.h>
 #include <spdlog/spdlog.h>
 #include <spdlog/version.h>
 #if SPDLOG_VERSION >= 11400 && (!defined(SPDLOG_NO_TLS) || !SPDLOG_NO_TLS)
 #include <spdlog/mdc.h>
 #endif
 
-#include "services/io/podio/datamodel_glue.h"
+#include "services/io/podio/datamodel_glue_compat.h"
 #include "services/log/Log_service.h"
 
 #include <string>
@@ -292,12 +291,7 @@ public:
       auto it = fields.find(this->m_name);
       if (it != fields.end()) {
         const auto& value_str = it->second;
-        if constexpr (10000 * JVersion::major + 100 * JVersion::minor + 1 * JVersion::patch <
-                      20102) {
-          *m_data = JParameterManager::Parse<T>(value_str);
-        } else {
-          JParameterManager::Parse(value_str, *m_data);
-        }
+        JParameterManager::Parse(value_str, *m_data);
       }
     }
   };
