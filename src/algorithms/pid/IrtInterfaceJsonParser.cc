@@ -1,5 +1,6 @@
 #ifdef WITH_IRT2_SUPPORT
 
+#include <CherenkovDetector.h>
 #include <IRT2/Calibration.h>
 #include <IRT2/CherenkovRadiator.h>
 #include <IRT2/ReconstructionFactory.h>
