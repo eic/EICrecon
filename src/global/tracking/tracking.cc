@@ -71,7 +71,7 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
       "CentralTrackingRecHits",
       {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
-       "TOFBarrelClusterRecHits", "TOFEndcapClusterRecHits", "MPGDBarrelRecHits",
+       "MPGDBarrelRecHits",
        "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"},
       {"CentralTrackingRecHits"}, // Output collection name
       app));
@@ -81,8 +81,7 @@ void InitPlugin(JApplication* app) {
            CollectionCollector_factory<edm4eic::MCRecoTrackerHitAssociation, true>>(
       "CentralTrackingRawHitAssociations",
       {"SiBarrelRawHitAssociations", "SiBarrelVertexRawHitAssociations",
-       "SiEndcapTrackerRawHitAssociations", "TOFBarrelRawHitAssociations",
-       "TOFEndcapRawHitAssociations", "MPGDBarrelRawHitAssociations",
+       "SiEndcapTrackerRawHitAssociations", "MPGDBarrelRawHitAssociations",
        "OuterMPGDBarrelRawHitAssociations", "BackwardMPGDEndcapRawHitAssociations",
        "ForwardMPGDEndcapRawHitAssociations"},
       {"CentralTrackingRawHitAssociations"}, // Output collection name
@@ -102,8 +101,16 @@ void InitPlugin(JApplication* app) {
 #endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "CentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"CentralTrackerMeasurements"},
+      "SomeCentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"SomeCentralTrackerMeasurements"},
       app));
+
+  // add trackers that generate Measurement2D directly
+  app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Measurement2D, true>>(
+      "CentralTrackerMeasurements",
+      {"SomeCentralTrackerMeasurements", "TOFBarrelClusterHits", "TOFEndcapClusterHits"},
+      {"CentralTrackerMeasurements"}, // Output collection name
+      app));
+
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "CentralCKFTruthSeededTrajectories",
