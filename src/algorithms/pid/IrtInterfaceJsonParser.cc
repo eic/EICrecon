@@ -1,7 +1,8 @@
 #ifdef WITH_IRT2_SUPPORT
 
-#include <Calibration.h>
-#include <CherenkovRadiator.h>
+#include <IRT2/Calibration.h>
+#include <IRT2/CherenkovRadiator.h>
+#include <IRT2/ReconstructionFactory.h>
 #include <TString.h>
 #include <nlohmann/json.hpp>
 #include <nlohmann/json_fwd.hpp>
@@ -13,8 +14,6 @@
 #include <utility>
 #include <vector>
 
-#include "IRT2/CherenkovDetector.h"
-#include "IRT2/ReconstructionFactory.h"
 #include "algorithms/pid/IrtInterfaceConfig.h"
 
 using namespace IRT2;
