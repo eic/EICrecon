@@ -5,7 +5,6 @@
 
 #include <Acts/Definitions/Units.hpp>
 #include <Acts/EventData/GenericBoundTrackParameters.hpp>
-#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
@@ -13,7 +12,6 @@
 #include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
-#include <Acts/Utilities/detail/ContextType.hpp>
 #include <Acts/Vertexing/AdaptiveGridTrackDensity.hpp>
 #include <Acts/Vertexing/IVertexFinder.hpp>
 #include <Acts/Vertexing/LinearizedTrack.hpp>
@@ -28,7 +26,6 @@
 #include <edm4eic/unit_system.h>
 #include <edm4hep/Vector2f.h>
 #include <edm4hep/Vector4f.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
 #include <podio/RelationRange.h>
 #include <Eigen/Core>
@@ -47,9 +44,8 @@ namespace eicrecon {
 void SecondaryVertexFinder::init() {
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   m_geoSvc         = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
-  m_BField =
-      std::dynamic_pointer_cast<const eicrecon::BField::DD4hepBField>(m_geoSvc->getFieldProvider());
-  m_fieldctx = eicrecon::BField::BFieldVariant(m_BField);
+  m_BField   = m_geoSvc->getFieldProvider();
+  m_fieldctx = Acts::MagneticFieldContext{};
 }
 
 void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
@@ -147,12 +143,7 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
 
   vertexfinderConfigSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
 
-#if Acts_VERSION_MAJOR >= 36
   vertexfinderConfigSec.bField = m_BField;
-#else
-  vertexfinderConfigSec.bField = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
-      std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
-#endif
   VertexFinderSec finder(std::move(vertexfinderConfigSec));
   // Instantiate the finder
   auto stateSec = finder.makeState(m_fieldctx);
@@ -315,12 +306,7 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
 
   vertexfinderConfigSec.extractParameters.connect<&Acts::InputTrack::extractParameters>();
 
-#if Acts_VERSION_MAJOR >= 36
   vertexfinderConfigSec.bField = m_BField;
-#else
-  vertexfinderConfigSec.bField = std::dynamic_pointer_cast<Acts::MagneticFieldProvider>(
-      std::const_pointer_cast<eicrecon::BField::DD4hepBField>(m_BField));
-#endif
   VertexFinderSec finder(std::move(vertexfinderConfigSec));
   // Instantiate the finder
   auto stateSec = finder.makeState(m_fieldctx);

@@ -5,6 +5,7 @@
 
 #include <Acts/Geometry/GeometryContext.hpp>
 #include <Acts/MagneticField/MagneticFieldContext.hpp>
+#include <Acts/MagneticField/MagneticFieldProvider.hpp>
 #include <Acts/Propagator/EigenStepper.hpp>
 #include <Acts/Vertexing/AdaptiveGridDensityVertexFinder.hpp>
 #include <Acts/Vertexing/AdaptiveMultiVertexFinder.hpp>
@@ -25,7 +26,6 @@
 #include <vector>
 
 #include "ActsGeometryProvider.h"
-#include "DD4hepBField.h"
 #include "SecondaryVertexFinderConfig.h"
 #include "algorithms/interfaces/WithPodConfig.h"
 
@@ -81,7 +81,7 @@ private:
   std::shared_ptr<spdlog::logger> m_log;
   std::shared_ptr<const ActsGeometryProvider> m_geoSvc;
 
-  std::shared_ptr<const eicrecon::BField::DD4hepBField> m_BField = nullptr;
+  std::shared_ptr<const Acts::MagneticFieldProvider> m_BField = nullptr;
   Acts::GeometryContext m_geoctx;
   Acts::MagneticFieldContext m_fieldctx;
   SecondaryVertexFinderConfig m_cfg;
