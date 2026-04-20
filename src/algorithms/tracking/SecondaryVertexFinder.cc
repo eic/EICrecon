@@ -68,8 +68,8 @@ void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
 void SecondaryVertexFinder::calculatePrimaryVertex(
     const edm4eic::ReconstructedParticleCollection& reconParticles,
     const Acts::ConstVectorMultiTrajectory* trackStates,
-    const Acts::ConstVectorTrackContainer* tracks,
-    Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& prmVertices) const {
+    const Acts::ConstVectorTrackContainer* tracks, Acts::EigenStepper<> stepperSec,
+    edm4eic::VertexCollection& prmVertices) const {
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF", m_log));
 
   // Set-up the propagator
@@ -233,8 +233,8 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
 void SecondaryVertexFinder::calculateSecondaryVertex(
     const edm4eic::ReconstructedParticleCollection& reconParticles,
     const Acts::ConstVectorMultiTrajectory* trackStates,
-    const Acts::ConstVectorTrackContainer* tracks,
-    Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& secVertices) const {
+    const Acts::ConstVectorTrackContainer* tracks, Acts::EigenStepper<> stepperSec,
+    edm4eic::VertexCollection& secVertices) const {
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF", m_log));
 
   // Set-up the propagator

@@ -30,20 +30,20 @@
 
 namespace eicrecon {
 
-using SecondaryVertexFinderAlgorithm =
-    algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                                            Acts::ConstVectorMultiTrajectory,
-                                            Acts::ConstVectorTrackContainer>,
-                          algorithms::Output<edm4eic::VertexCollection, edm4eic::VertexCollection>>;
+using SecondaryVertexFinderAlgorithm = algorithms::Algorithm<
+    algorithms::Input<edm4eic::ReconstructedParticleCollection, Acts::ConstVectorMultiTrajectory,
+                      Acts::ConstVectorTrackContainer>,
+    algorithms::Output<edm4eic::VertexCollection, edm4eic::VertexCollection>>;
 
 class SecondaryVertexFinder : public SecondaryVertexFinderAlgorithm,
                               public WithPodConfig<eicrecon::SecondaryVertexFinderConfig> {
 public:
   SecondaryVertexFinder(std::string_view name)
-      : SecondaryVertexFinderAlgorithm{name,
-                                       {"inputReconstructedParticles", "inputActsTrackStates", "inputActsTracks"},
-                                       {"outputPrimaryVertices", "outputSecondaryVertices"},
-                                       ""} {}
+      : SecondaryVertexFinderAlgorithm{
+            name,
+            {"inputReconstructedParticles", "inputActsTrackStates", "inputActsTracks"},
+            {"outputPrimaryVertices", "outputSecondaryVertices"},
+            ""} {}
 
   void init() final;
 
@@ -54,18 +54,16 @@ public:
 
 private:
   // Calculate an initial Primary Vertex
-  void calculatePrimaryVertex(
-      const edm4eic::ReconstructedParticleCollection&,
-      const Acts::ConstVectorMultiTrajectory* trackStates,
-      const Acts::ConstVectorTrackContainer* tracks,
-      Acts::EigenStepper<>, edm4eic::VertexCollection&) const;
+  void calculatePrimaryVertex(const edm4eic::ReconstructedParticleCollection&,
+                              const Acts::ConstVectorMultiTrajectory* trackStates,
+                              const Acts::ConstVectorTrackContainer* tracks, Acts::EigenStepper<>,
+                              edm4eic::VertexCollection&) const;
 
   //Calculate secondary vertex and store secVertex container
-  void calculateSecondaryVertex(
-      const edm4eic::ReconstructedParticleCollection&,
-      const Acts::ConstVectorMultiTrajectory* trackStates,
-      const Acts::ConstVectorTrackContainer* tracks,
-      Acts::EigenStepper<>, edm4eic::VertexCollection&) const;
+  void calculateSecondaryVertex(const edm4eic::ReconstructedParticleCollection&,
+                                const Acts::ConstVectorMultiTrajectory* trackStates,
+                                const Acts::ConstVectorTrackContainer* tracks, Acts::EigenStepper<>,
+                                edm4eic::VertexCollection&) const;
 
   // Functions to be used to check efficacy of sec. vertex
   void setVertexContainer(std::vector<Acts::Vertex> inputcontainer) {
