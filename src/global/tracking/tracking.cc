@@ -71,8 +71,8 @@ void InitPlugin(JApplication* app) {
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::TrackerHit, true>>(
       "CentralTrackingRecHits",
       {"SiBarrelTrackerRecHits", "SiBarrelVertexRecHits", "SiEndcapTrackerRecHits",
-       "MPGDBarrelRecHits",
-       "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits", "ForwardMPGDEndcapRecHits"},
+       "MPGDBarrelRecHits", "OuterMPGDBarrelRecHits", "BackwardMPGDEndcapRecHits",
+       "ForwardMPGDEndcapRecHits"},
       {"CentralTrackingRecHits"}, // Output collection name
       app));
 
@@ -101,8 +101,8 @@ void InitPlugin(JApplication* app) {
 #endif
 
   app->Add(new JOmniFactoryGeneratorT<TrackerMeasurementFromHits_factory>(
-      "SomeCentralTrackerMeasurements", {"CentralTrackingRecHits"}, {"SomeCentralTrackerMeasurements"},
-      app));
+      "SomeCentralTrackerMeasurements", {"CentralTrackingRecHits"},
+      {"SomeCentralTrackerMeasurements"}, app));
 
   // add trackers that generate Measurement2D directly
   app->Add(new JOmniFactoryGeneratorT<CollectionCollector_factory<edm4eic::Measurement2D, true>>(
@@ -110,7 +110,6 @@ void InitPlugin(JApplication* app) {
       {"SomeCentralTrackerMeasurements", "TOFBarrelClusterHits", "TOFEndcapClusterHits"},
       {"CentralTrackerMeasurements"}, // Output collection name
       app));
-
 
   app->Add(new JOmniFactoryGeneratorT<CKFTracking_factory>(
       "CentralCKFTruthSeededTrajectories",
