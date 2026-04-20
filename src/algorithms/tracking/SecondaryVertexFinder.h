@@ -44,7 +44,7 @@ public:
             name,
             {"inputReconstructedParticles", "inputActsTrackStates", "inputActsTracks"},
             {"outputPrimaryVertices", "outputSecondaryVertices"},
-            ""} {}
+            "Finds vertices using ACTS Adaptive Multi-Vertex Finder (AMVF)"} {}
 
   void init() final;
 
