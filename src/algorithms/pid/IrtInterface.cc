@@ -5,16 +5,19 @@
 
 #ifdef WITH_IRT2_SUPPORT
 
-#include <ChargedParticleStep.h>
-#include <CherenkovDetector.h>
-#include <CherenkovPhotonDetector.h>
-#include <CherenkovRadiator.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Objects.h>
 #include <Evaluator/DD4hepUnits.h>
 #include <IRT2/ChargedParticle.h>
-#include <OpticalPhoton.h>
-#include <RadiatorHistory.h>
+#include <IRT2/ChargedParticleStep.h>
+#include <IRT2/CherenkovDetector.h>
+#include <IRT2/CherenkovDetectorCollection.h>
+#include <IRT2/CherenkovEvent.h>
+#include <IRT2/CherenkovPhotonDetector.h>
+#include <IRT2/CherenkovRadiator.h>
+#include <IRT2/OpticalPhoton.h>
+#include <IRT2/RadiatorHistory.h>
+#include <IRT2/ReconstructionFactory.h>
 #include <TBranch.h>
 #include <TFile.h>
 #include <TGDMLMatrix.h>
@@ -43,9 +46,6 @@
 #include <utility>
 #include <vector>
 
-#include "IRT2/CherenkovDetectorCollection.h"
-#include "IRT2/CherenkovEvent.h"
-#include "IRT2/ReconstructionFactory.h"
 #include "algorithms/pid/IrtInterfaceConfig.h"
 #include "algorithms/pid/Tools.h"
 
