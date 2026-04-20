@@ -110,7 +110,7 @@ void CalorimeterParticleIDPreML::process(const CalorimeterParticleIDPreML::Input
     for (auto const& cluster : sel_clusters) {
       double momentum = NAN;
 
-      auto best_assoc = findBestAssoc(cluster, cluster_assocs.get());
+      auto best_assoc = findBestAssoc(cluster, cluster_assocs);
       if (best_assoc.isAvailable()) {
         momentum = edm4hep::utils::magnitude(best_assoc.getSim().getMomentum());
       } else {
