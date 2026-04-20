@@ -6,17 +6,18 @@
 
 #ifdef WITH_IRT2_SUPPORT
 
-#include <CherenkovDetector.h>
-#include <CherenkovRadiator.h>
 #include <DD4hep/DetElement.h>
 #include <DD4hep/Detector.h>
 #include <DD4hep/Volumes.h>
 #include <Evaluator/DD4hepUnits.h>
+#include <IRT2/CherenkovDetector.h>
+#include <IRT2/CherenkovRadiator.h>
+#include <IRT2/ParametricSurface.h>
+#include <IRT2/CherenkovDetectorCollection.h>
 #include <JANA/JApplication.h>
 #include <JANA/JApplicationFwd.h>
 #include <JANA/JException.h>
 #include <JANA/Utils/JTypeInfo.h>
-#include <ParametricSurface.h>
 #include <TGeoVolume.h>
 #include <TString.h>
 #include <TVector3.h>
@@ -56,8 +57,6 @@ using json = nlohmann::json;
 //  DRICH: ePIC forward dual radiator RICH
 //
 static const char* RICHes[] = {"PFRICH", "DRICH"};
-
-#include "IRT2/CherenkovDetectorCollection.h"
 
 using namespace eicrecon;
 
