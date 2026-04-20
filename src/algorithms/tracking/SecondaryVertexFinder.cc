@@ -9,7 +9,6 @@
 #include <Acts/Propagator/Propagator.hpp>
 #include <Acts/Propagator/VoidNavigator.hpp>
 #include <Acts/Utilities/AnnealingUtility.hpp>
-#include <Acts/Utilities/Delegate.hpp>
 #include <Acts/Utilities/Logger.hpp>
 #include <Acts/Utilities/Result.hpp>
 #include <Acts/Vertexing/AdaptiveGridTrackDensity.hpp>
@@ -28,11 +27,11 @@
 #include <edm4hep/Vector4f.h>
 #include <fmt/format.h>
 #include <podio/RelationRange.h>
-#include <Eigen/Core>
 #include <cmath>
 #include <limits>
 #include <memory>
 #include <string>
+#include <tuple>
 #include <utility>
 
 #include "algorithms/interfaces/ActsSvc.h"
