@@ -44,8 +44,8 @@ namespace eicrecon {
 void SecondaryVertexFinder::init() {
   auto& serviceSvc = algorithms::ServiceSvc::instance();
   m_geoSvc         = serviceSvc.service<algorithms::ActsSvc>("ActsSvc")->acts_geometry_provider();
-  m_BField   = m_geoSvc->getFieldProvider();
-  m_fieldctx = Acts::MagneticFieldContext{};
+  m_BField         = m_geoSvc->getFieldProvider();
+  m_fieldctx       = Acts::MagneticFieldContext{};
 }
 
 void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
