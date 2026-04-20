@@ -14,7 +14,8 @@
 #include <Acts/Vertexing/ImpactPointEstimator.hpp>
 #include <Acts/Vertexing/Vertex.hpp>
 #include <Acts/Vertexing/VertexingOptions.hpp>
-#include <ActsExamples/EventData/Track.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <algorithms/algorithm.h>
 #include <edm4eic/ReconstructedParticleCollection.h>
 #include <edm4eic/VertexCollection.h>
@@ -31,7 +32,8 @@ namespace eicrecon {
 
 using SecondaryVertexFinderAlgorithm =
     algorithms::Algorithm<algorithms::Input<edm4eic::ReconstructedParticleCollection,
-                                            ActsExamples::ConstTrackContainer>,
+                                            Acts::ConstVectorMultiTrajectory,
+                                            Acts::ConstVectorTrackContainer>,
                           algorithms::Output<edm4eic::VertexCollection, edm4eic::VertexCollection>>;
 
 class SecondaryVertexFinder : public SecondaryVertexFinderAlgorithm,
@@ -39,7 +41,7 @@ class SecondaryVertexFinder : public SecondaryVertexFinderAlgorithm,
 public:
   SecondaryVertexFinder(std::string_view name)
       : SecondaryVertexFinderAlgorithm{name,
-                                       {"inputReconstructedParticles", "inputActsTracks"},
+                                       {"inputReconstructedParticles", "inputActsTrackStates", "inputActsTracks"},
                                        {"outputPrimaryVertices", "outputSecondaryVertices"},
                                        ""} {}
 
@@ -54,13 +56,15 @@ private:
   // Calculate an initial Primary Vertex
   void calculatePrimaryVertex(
       const edm4eic::ReconstructedParticleCollection&,
-      const ActsExamples::ConstTrackContainer* constTracks,
+      const Acts::ConstVectorMultiTrajectory* trackStates,
+      const Acts::ConstVectorTrackContainer* tracks,
       Acts::EigenStepper<>, edm4eic::VertexCollection&) const;
 
   //Calculate secondary vertex and store secVertex container
   void calculateSecondaryVertex(
       const edm4eic::ReconstructedParticleCollection&,
-      const ActsExamples::ConstTrackContainer* constTracks,
+      const Acts::ConstVectorMultiTrajectory* trackStates,
+      const Acts::ConstVectorTrackContainer* tracks,
       Acts::EigenStepper<>, edm4eic::VertexCollection&) const;
 
   // Functions to be used to check efficacy of sec. vertex

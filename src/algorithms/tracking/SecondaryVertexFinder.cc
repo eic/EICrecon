@@ -16,6 +16,8 @@
 #include <Acts/Vertexing/LinearizedTrack.hpp>
 #include <Acts/Vertexing/TrackAtVertex.hpp>
 #include <ActsExamples/EventData/Track.hpp>
+#include <Acts/EventData/VectorMultiTrajectory.hpp>
+#include <Acts/EventData/VectorTrackContainer.hpp>
 #include <algorithms/service.h>
 #include <edm4eic/Cov4f.h>
 #include <edm4eic/Track.h>
@@ -48,24 +50,25 @@ void SecondaryVertexFinder::init() {
 
 void SecondaryVertexFinder::process(const SecondaryVertexFinder::Input& input,
                                     const SecondaryVertexFinder::Output& output) const {
-  auto [recotracks, constTracks]         = input;
+  auto [recotracks, trackStates, tracks] = input;
   auto [primaryVertices, outputVertices] = output;
 
   Acts::EigenStepper<> stepperSec(m_BField);
 
   //Need to make sure that the track container is not actually empty
-  if (constTracks->size() > 0) {
+  if (tracks->size_impl() > 0) {
     // Calculate primary vertex using AMVF
-    calculatePrimaryVertex(*recotracks, constTracks, stepperSec, *primaryVertices);
+    calculatePrimaryVertex(*recotracks, trackStates, tracks, stepperSec, *primaryVertices);
     // Primary vertex collection container to be used in Sec. Vertex fitting
-    calculateSecondaryVertex(*recotracks, constTracks, stepperSec, *outputVertices);
+    calculateSecondaryVertex(*recotracks, trackStates, tracks, stepperSec, *outputVertices);
   }
 }
 
 //Quickly calculate the PV using the Adaptive Multi-vertex Finder
 void SecondaryVertexFinder::calculatePrimaryVertex(
     const edm4eic::ReconstructedParticleCollection& reconParticles,
-    const ActsExamples::ConstTrackContainer* constTracks,
+    const Acts::ConstVectorMultiTrajectory* trackStates,
+    const Acts::ConstVectorTrackContainer* tracks,
     Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& prmVertices) const {
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF", m_log));
 
@@ -148,11 +151,16 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
 
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
 
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*trackStates);
+  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks);
+  ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
+
   std::vector<Acts::InputTrack> inputTracks;
   std::vector<Acts::BoundTrackParameters> trackParameters;
-  trackParameters.reserve(constTracks->size());
+  trackParameters.reserve(constTracks.size());
 
-  for (const auto& track : *constTracks) {
+  for (const auto& track : constTracks) {
     // Create BoundTrackParameters and store it
     trackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
                                  track.covariance(), track.particleHypothesis());
@@ -224,7 +232,8 @@ void SecondaryVertexFinder::calculatePrimaryVertex(
 
 void SecondaryVertexFinder::calculateSecondaryVertex(
     const edm4eic::ReconstructedParticleCollection& reconParticles,
-    const ActsExamples::ConstTrackContainer* constTracks,
+    const Acts::ConstVectorMultiTrajectory* trackStates,
+    const Acts::ConstVectorTrackContainer* tracks,
     Acts::EigenStepper<> stepperSec, edm4eic::VertexCollection& secVertices) const {
   ACTS_LOCAL_LOGGER(eicrecon::getSpdlogLogger("AMVF", m_log));
 
@@ -309,10 +318,15 @@ void SecondaryVertexFinder::calculateSecondaryVertex(
   VertexFinderOptionsSec vfOptions(m_geoctx, m_fieldctx);
 
   //--->Add Prm Vertex container here
+  // Construct ConstTrackContainer from underlying containers
+  auto trackStateContainer = std::make_shared<Acts::ConstVectorMultiTrajectory>(*trackStates);
+  auto trackContainer      = std::make_shared<Acts::ConstVectorTrackContainer>(*tracks);
+  ActsExamples::ConstTrackContainer constTracks(trackContainer, trackStateContainer);
+
   // Build BoundTrackParameters for all tracks upfront
   std::vector<Acts::BoundTrackParameters> allTrackParameters;
-  allTrackParameters.reserve(constTracks->size());
-  for (const auto& track : *constTracks) {
+  allTrackParameters.reserve(constTracks.size());
+  for (const auto& track : constTracks) {
     allTrackParameters.emplace_back(track.referenceSurface().getSharedPtr(), track.parameters(),
                                     track.covariance(), track.particleHypothesis());
   }

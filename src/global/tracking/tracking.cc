@@ -470,7 +470,7 @@ void InitPlugin(JApplication* app) {
       "CombinedTracks", {"CentralCKFTracks", "B0TrackerCKFTracks"}, {"CombinedTracks"}, app));
 
   app->Add(new JOmniFactoryGeneratorT<SecondaryVertexFinder_factory>(
-      "SecondaryTrackVerticesAMVF", {"ReconstructedParticles", "CentralCKFActsTracks"},
+      "SecondaryTrackVerticesAMVF", {"ReconstructedParticles", "CentralCKFActsTrackStates", "CentralCKFActsTracks"},
       {
           "PrimaryVerticesAMVF",
           "SecondaryVerticesAMVF",
