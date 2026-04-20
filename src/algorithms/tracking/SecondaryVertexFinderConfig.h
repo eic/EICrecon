@@ -30,7 +30,7 @@ struct SecondaryVertexFinderConfig {
   float minWeight                  = 1e-04;
   float maxDistToLinPoint          = 5.5_mm;
   // Bin extent in z-direction
-  float spatialBinExtent         = 25 * Acts::UnitConstants::um;
+  float spatialBinExtent         = 25_um;
   Acts::Vector4 initialVariances = Acts::Vector4{1e+2_mm, 1e+2_mm, 1e+2_mm, 1e+8_mm};
   // Bin extent in t-direction
   float temporalBinExtent          = 19_mm;
